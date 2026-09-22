@@ -139,7 +139,7 @@ export default function Canvas(p: Props) {
             x={p.view.x}
             y={p.view.y}
           >
-            <circle cx={1} cy={1} r={0.8} fill="#d1d8db" />
+            <circle cx={1} cy={1} r={0.8} fill="var(--grid-color)" />
           </pattern>
           <marker
             id="arrow"
@@ -150,7 +150,13 @@ export default function Canvas(p: Props) {
             markerHeight="7"
             orient="auto-start-reverse"
           >
-            <path d="M1 1 9 5 1 9" fill="none" stroke="#829497" strokeWidth="1.7" strokeLinejoin="round" />
+            <path
+              d="M1 1 9 5 1 9"
+              fill="none"
+              stroke="var(--edge-color)"
+              strokeWidth="1.7"
+              strokeLinejoin="round"
+            />
           </marker>
           <marker
             id="arrow-selected"
@@ -161,10 +167,22 @@ export default function Canvas(p: Props) {
             markerHeight="7"
             orient="auto-start-reverse"
           >
-            <path d="M1 1 9 5 1 9" fill="none" stroke="#218773" strokeWidth="1.7" strokeLinejoin="round" />
+            <path
+              d="M1 1 9 5 1 9"
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth="1.7"
+              strokeLinejoin="round"
+            />
           </marker>
           <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
-            <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#1b3d43" floodOpacity=".06" />
+            <feDropShadow
+              dx="0"
+              dy="4"
+              stdDeviation="6"
+              floodColor="var(--shadow-color)"
+              floodOpacity=".06"
+            />
           </filter>
         </defs>
         <rect className="canvas-background" width="100%" height="100%" fill="url(#grid)" />
@@ -255,7 +273,7 @@ export default function Canvas(p: Props) {
           {source && pointer && (
             <path
               d={`M${source.x + source.width} ${source.y + source.height / 2} H${pointer.x} V${pointer.y}`}
-              stroke="#218773"
+              stroke="var(--accent)"
               strokeWidth={2}
               strokeDasharray="6 5"
               fill="none"
@@ -296,7 +314,7 @@ export default function Canvas(p: Props) {
                 <path
                   d="M24 24h13v13H24z M27 28h7 M27 32h5"
                   fill="none"
-                  stroke="#3f8475"
+                  stroke="var(--node-icon-color)"
                   strokeWidth={1.4}
                   strokeLinecap="round"
                 />
@@ -316,7 +334,7 @@ export default function Canvas(p: Props) {
                       x2={node.width - 16}
                       y1={node.height - 35}
                       y2={node.height - 35}
-                      stroke="#edf0ef"
+                      stroke="var(--border)"
                     />
                     <text className="node-foot" x={16} y={node.height - 14}>
                       {count
@@ -325,7 +343,7 @@ export default function Canvas(p: Props) {
                     </text>
                     <path
                       d={`m${node.width - 25} ${node.height - 22} 5 5-5 5`}
-                      stroke="#7b8c8a"
+                      stroke="var(--text-muted)"
                       fill="none"
                       strokeWidth={1.5}
                     />

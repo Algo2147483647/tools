@@ -632,7 +632,13 @@ export default function App() {
         void action(async () => store.flush());
         return;
       }
-      if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]') || modal) return;
+      if (
+        (e.target as HTMLElement).closest(
+          'input, textarea, select, [contenteditable], [data-theme-control]',
+        ) ||
+        modal
+      )
+        return;
       if (e.key === 'Escape') {
         setConnectMode(false);
         setConnecting(null);
@@ -899,18 +905,18 @@ export default function App() {
                     markerHeight="6"
                     orient="auto"
                   >
-                    <path d="m2 1 6 4-6 4" fill="none" stroke="#859995" strokeWidth="1.5" />
+                    <path d="m2 1 6 4-6 4" fill="none" stroke="var(--edge-color)" strokeWidth="1.5" />
                   </marker>
                 </defs>
                 <path
                   d="M195 180H248Q260 180 260 168V107Q260 95 272 95H320 M195 180H248Q260 180 260 192V274Q260 286 272 286H320"
                   fill="none"
-                  stroke="#8fa6a0"
+                  stroke="var(--edge-color)"
                   strokeWidth="2"
                   markerEnd="url(#welcome-arrow)"
                 />
                 <g transform="translate(30 125)">
-                  <rect width="165" height="110" rx="12" fill="white" stroke="#d5e1dc" />
+                  <rect width="165" height="110" rx="12" fill="var(--surface)" stroke="var(--node-border)" />
                   <text x="20" y="30" className="diagram-type">
                     ENTRY POINT
                   </text>
@@ -922,25 +928,47 @@ export default function App() {
                   </text>
                 </g>
                 <g transform="translate(320 40)">
-                  <rect width="265" height="140" rx="12" fill="#f0f7f2" stroke="#a5cbb7" />
+                  <rect
+                    width="265"
+                    height="140"
+                    rx="12"
+                    fill="var(--surface-subtle)"
+                    stroke="var(--accent)"
+                  />
                   <text x="20" y="30" className="diagram-type">
                     SERVICE / EXPLORE INSIDE
                   </text>
                   <text x="20" y="59" className="diagram-name">
                     Order Service
                   </text>
-                  <rect x="20" y="78" width="100" height="39" rx="6" fill="#fff" stroke="#d2e3d8" />
+                  <rect
+                    x="20"
+                    y="78"
+                    width="100"
+                    height="39"
+                    rx="6"
+                    fill="var(--surface)"
+                    stroke="var(--border)"
+                  />
                   <text x="34" y="102" className="diagram-sub">
                     Validation
                   </text>
-                  <path d="M120 98h23" stroke="#8fa6a0" markerEnd="url(#welcome-arrow)" />
-                  <rect x="146" y="78" width="99" height="39" rx="6" fill="#fff" stroke="#d2e3d8" />
+                  <path d="M120 98h23" stroke="var(--edge-color)" markerEnd="url(#welcome-arrow)" />
+                  <rect
+                    x="146"
+                    y="78"
+                    width="99"
+                    height="39"
+                    rx="6"
+                    fill="var(--surface)"
+                    stroke="var(--border)"
+                  />
                   <text x="161" y="102" className="diagram-sub">
                     Processing
                   </text>
                 </g>
                 <g transform="translate(320 235)">
-                  <rect width="215" height="105" rx="12" fill="white" stroke="#d5e1dc" />
+                  <rect width="215" height="105" rx="12" fill="var(--surface)" stroke="var(--node-border)" />
                   <text x="20" y="30" className="diagram-type">
                     SERVICE
                   </text>

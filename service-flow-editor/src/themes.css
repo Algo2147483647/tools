@@ -1,0 +1,88 @@
+/* Shared semantic colors keep the canvas, controls, and illustrations in sync. */
+:root,
+:root[data-theme='ocean'] {
+  --theme-hue: 218;
+  --theme-saturation: 72%;
+  --accent-lightness: 46%;
+  --accent-hover-lightness: 39%;
+}
+
+:root[data-theme='violet'] {
+  --theme-hue: 263;
+  --theme-saturation: 60%;
+  --accent-lightness: 49%;
+  --accent-hover-lightness: 42%;
+}
+
+:root[data-theme='amber'] {
+  --theme-hue: 32;
+  --theme-saturation: 88%;
+  --accent-lightness: 33%;
+  --accent-hover-lightness: 28%;
+}
+
+:root[data-theme='rose'] {
+  --theme-hue: 342;
+  --theme-saturation: 65%;
+  --accent-lightness: 43%;
+  --accent-hover-lightness: 36%;
+}
+
+:root[data-theme='slate'] {
+  --theme-hue: 215;
+  --theme-saturation: 18%;
+  --accent-lightness: 42%;
+  --accent-hover-lightness: 35%;
+}
+
+:root[data-theme='emerald'] {
+  --theme-hue: 160;
+  --theme-saturation: 54%;
+  --accent-lightness: 32%;
+  --accent-hover-lightness: 26%;
+}
+
+:root {
+  color-scheme: light;
+  --accent: hsl(var(--theme-hue) var(--theme-saturation) var(--accent-lightness));
+  --accent-hover: hsl(var(--theme-hue) var(--theme-saturation) var(--accent-hover-lightness));
+  --accent-soft: hsl(var(--theme-hue) var(--theme-saturation) 96%);
+  --accent-soft-hover: hsl(var(--theme-hue) var(--theme-saturation) 92%);
+  --accent-border: hsl(var(--theme-hue) 38% 83%);
+  --accent-foreground: hsl(var(--theme-hue) 43% 35%);
+  --on-accent: #fff;
+  --text: hsl(var(--theme-hue) 18% 23%);
+  --text-muted: hsl(var(--theme-hue) 13% 43%);
+  --text-soft: hsl(var(--theme-hue) 11% 48%);
+  --border: hsl(var(--theme-hue) 20% 88%);
+  --border-strong: hsl(var(--theme-hue) 20% 76%);
+  --surface: #fff;
+  --surface-subtle: hsl(var(--theme-hue) 22% 97%);
+  --canvas-bg: hsl(var(--theme-hue) 26% 98%);
+  --grid-color: hsl(var(--theme-hue) 23% 85%);
+  --edge-color: hsl(var(--theme-hue) 18% 57%);
+  --node-icon-bg: var(--accent-soft);
+  --node-icon-color: var(--accent);
+  --node-border: hsl(var(--theme-hue) 23% 83%);
+  --focus-ring: hsl(var(--theme-hue) var(--theme-saturation) 46% / 0.12);
+  --sidebar-bg: hsl(var(--theme-hue) 28% 14%);
+  --sidebar-text: hsl(var(--theme-hue) 22% 83%);
+  --sidebar-muted: hsl(var(--theme-hue) 16% 66%);
+  --sidebar-heading: hsl(var(--theme-hue) 30% 96%);
+  --sidebar-accent: hsl(var(--theme-hue) 66% 79%);
+  --sidebar-border: hsl(var(--theme-hue) 20% 70% / 0.18);
+  --sidebar-hover: hsl(var(--theme-hue) 25% 21%);
+  --sidebar-active: hsl(var(--theme-hue) 32% 27%);
+  --sidebar-input: hsl(var(--theme-hue) 28% 12%);
+  --sidebar-badge: hsl(var(--theme-hue) 22% 34%);
+  --shadow-color: hsl(var(--theme-hue) 30% 20% / 0.14);
+  --shadow-soft: hsl(var(--theme-hue) 30% 20% / 0.04);
+  --shadow-mid: hsl(var(--theme-hue) 30% 20% / 0.08);
+  --modal-shadow: hsl(var(--theme-hue) 30% 20% / 0.25);
+  --modal-backdrop: hsl(var(--theme-hue) 30% 14% / 0.5);
+  --welcome-glow: hsl(var(--theme-hue) 65% 91% / 0.48);
+  --diagram-surface-start: hsl(var(--theme-hue) 40% 96% / 0.65);
+  --diagram-surface-end: hsl(var(--theme-hue) 25% 100% / 0.7);
+  --success-text: #397952;
+  --success-dot: #519865;
+}

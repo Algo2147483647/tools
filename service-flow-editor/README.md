@@ -2,6 +2,8 @@
 
 A local SVG editor for service relationships, directed data flows, and the architecture inside each service. The interface, source code, documentation, and example content are in English.
 
+The project lives in `tools/service-flow-editor`.
+
 Each workspace is an ordinary folder containing one `workspace.json` and one `<service key>.md` document per service. The JSON contains every graph, node, edge, position, size, and saved path, including all nested levels.
 
 ## Run the editor
@@ -39,6 +41,8 @@ Open **http://127.0.0.1:4320/**. Vite serves the interface on port `4320` and pr
 To explore the included example, open `examples/commerce-platform` as a workspace. It contains **API Gateway → Order Service**, an internal **Validator → Event Publisher** flow, and a **Retry Queue** inside Event Publisher. Copy the example folder first if you want to keep the supplied files unchanged.
 
 ## Edit services and flows
+
+Use the **Color theme** menu in the top bar to choose **Ocean**, **Violet**, **Amber**, **Rose**, **Slate**, or **Emerald**. Ocean blue is the default. The palette applies to the entire editor, including the sidebar, canvas, nodes, connectors, and dialogs. The selected theme is remembered in this browser and restored on the next visit. Changing a theme does not modify workspace data.
 
 Use **Add service** to create a rounded rectangular service node. Drag the node to move it; drag its lower-right resize handle to change its dimensions. Its inspector also provides exact position and size fields.
 
