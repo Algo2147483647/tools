@@ -71,7 +71,8 @@ async function addFlow(page: Page, source: string, target: string, weights: stri
 }
 
 async function enter(page: Page, key: string) {
-  await page.getByTestId(`node-${key}`).dblclick();
+  await page.getByTestId(`node-${key}`).click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Focus subgraph', exact: true }).click();
   await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText(key);
 }
 
@@ -459,6 +460,7 @@ test('a filename collision can be corrected and retried without overwriting eith
 });
 
 async function connectAnchors(page: Page, from: string, fromSide: string, to: string, toSide: string) {
+  await page.getByTestId(`node-${from}`).hover();
   const a = await page.getByTestId(`port-${from}-${fromSide}`).boundingBox();
   const b = await page.getByTestId(`port-${to}-${toSide}`).boundingBox();
   if (!a || !b) throw new Error('Both connection anchors must be visible.');
@@ -509,6 +511,7 @@ test('anchor dragging creates directed flows, counts degrees, cancels safely, an
   await expect(page.getByTestId('port-Source-right').locator('.port-count')).toHaveText('2');
   await expect(page.getByTestId('port-Source-left').locator('.port-count')).toHaveText('2');
   const beforeCancel = await disk(workspaceFolder);
+  await page.getByTestId('node-Sink').hover();
   const port = await page.getByTestId('port-Sink-right').boundingBox();
   await page.mouse.move(port!.x + port!.width / 2, port!.y + port!.height / 2);
   await page.mouse.down();
@@ -562,7 +565,7 @@ test('contextual canvas actions and persistent sidebar collapse preserve workspa
   await menu.getByRole('menuitem', { name: 'Open document' }).click();
   await expect(page.getByLabel('Service Markdown document')).toBeVisible();
   await node.locator('.node-body').click({ button: 'right' });
-  await menu.getByRole('menuitem', { name: 'Explore inside' }).click();
+  await menu.getByRole('menuitem', { name: 'Focus subgraph' }).click();
   await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText('ContextService');
   await canvas.click({ button: 'right', position: { x: 800, y: 600 } });
   await menu.getByRole('menuitem', { name: 'Up one level' }).click();

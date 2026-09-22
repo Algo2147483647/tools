@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
 import { canvasSettings, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
+import { CONTAINER_HEADER, scene, type SceneEdge, type SceneNode } from './hierarchy';
 import Icon from './Icon';
 
 export type Selection = { type: 'node' | 'edge'; id: string } | null;
@@ -12,8 +13,8 @@ type Drag = {
   id: string;
   index?: number;
   start: Point;
-  node?: ServiceNode;
-  edge?: FlowEdge;
+  node?: SceneNode;
+  edge?: SceneEdge;
   view?: View;
   side?: Side;
 };
@@ -30,6 +31,7 @@ type Props = {
   onConnect: (source: ServiceNode, target: ServiceNode, sourceSide: Side, targetSide: Side) => void;
   onContextMenu: (context: CanvasContext) => void;
   onAdd: () => void;
+  onAddInside?: (node: ServiceNode) => void;
 };
 
 function wrapLabel(text: string, width: number, fontSize: number, maxLines: number): string[] {
@@ -67,22 +69,18 @@ export default function Canvas(p: Props) {
     null,
   );
   const portSides: Side[] = ['left', 'right', 'top', 'bottom'];
-  const nodes = p.workspace.nodes.filter((n) => n.graphId === p.graphId);
-  const edges = p.workspace.edges
-    .filter((e) => e.graphId === p.graphId)
-    .map((e) =>
-      e.points.length
-        ? e
-        : {
-            ...e,
-            points: routeEdge(
-              nodes.find((n) => n.key === e.source)!,
-              nodes.find((n) => n.key === e.target)!,
-              e.sourceSide,
-              e.targetSide,
-            ),
-          },
-    );
+  const { nodes, edges } = useMemo(() => scene(p.workspace, p.graphId), [p.workspace, p.graphId]);
+  const degrees = useMemo(() => {
+    const result = new Map(p.workspace.nodes.map((node) => [node.id, { incoming: 0, outgoing: 0 }]));
+    const idsByKey = new Map(p.workspace.nodes.map((node) => [node.key, node.id]));
+    for (const edge of p.workspace.edges) {
+      const source = result.get(edge.sourceNodeId ?? idsByKey.get(edge.source) ?? '');
+      const target = result.get(edge.targetNodeId ?? idsByKey.get(edge.target) ?? '');
+      if (source) source.outgoing++;
+      if (target) target.incoming++;
+    }
+    return result;
+  }, [p.workspace]);
   function point(e: { clientX: number; clientY: number }): Point {
     const rect = svg.current!.getBoundingClientRect();
     return {
@@ -164,7 +162,7 @@ export default function Canvas(p: Props) {
       const nearest = candidates[0];
       if (
         Math.hypot(nearest.point.x - pos.x, nearest.point.y - pos.y) <= threshold ||
-        (node.type === 'terminal'
+        (node.type === 'terminal' && !node.expanded
           ? Math.hypot(pos.x - node.x - node.width / 2, pos.y - node.y - node.height / 2) <= node.width / 2
           : pos.x >= node.x &&
             pos.x <= node.x + node.width &&
@@ -176,9 +174,9 @@ export default function Canvas(p: Props) {
     }
     return null;
   }
-  function portRadius(key: string, side: Side) {
+  function portRadius(node: SceneNode, side: Side) {
     if (side === 'top' || side === 'bottom') return 6;
-    const degree = edges.filter((edge) => (side === 'left' ? edge.target : edge.source) === key).length;
+    const degree = degrees.get(node.id)?.[side === 'left' ? 'incoming' : 'outgoing'] ?? 0;
     return degree > 99 ? 14 : 11;
   }
   function pointerMove(e: ReactPointerEvent) {
@@ -192,9 +190,9 @@ export default function Canvas(p: Props) {
       const valid = target && (target.node.id !== current.id || target.side !== current.side);
       if (valid)
         setPreview({
-          points: routeEdge(current.node!, target.node, current.side!, target.side),
+          points: routeEdge(current.node!, target.node, current.side!, target.side, nodes),
           targetId: target.node.id,
-          radius: portRadius(target.node.key, target.side),
+          radius: portRadius(target.node, target.side),
         });
       else {
         const start = anchor(current.node!, current.side!);
@@ -214,11 +212,11 @@ export default function Canvas(p: Props) {
         y: current.view!.y + e.clientY - current.start.y,
       });
     } else if (current.type === 'node') {
-      p.onNode(current.id, { x: snap(current.node!.x + dx), y: snap(current.node!.y + dy) });
+      p.onNode(current.id, { x: snap(current.node!.base.x + dx), y: snap(current.node!.base.y + dy) });
     } else if (current.type === 'resize') {
       const minimum = (value: number) =>
         settings.snapToGrid ? Math.ceil(value / settings.gridSize) * settings.gridSize : value;
-      if (current.node!.type === 'terminal') {
+      if (current.node!.type === 'terminal' && !current.node!.expanded) {
         const diameter = Math.max(minimum(80), snap(current.node!.width + Math.max(dx, dy)));
         p.onNode(current.id, { width: diameter, height: diameter });
       } else
@@ -231,7 +229,12 @@ export default function Canvas(p: Props) {
         index = current.index!;
       const horizontal = edge.points[index].y === edge.points[index + 1].y;
       const coordinate = horizontal ? edge.points[index].y + dy : edge.points[index].x + dx;
-      p.onEdge(current.id, { points: moveSegment(edge.points, index, snap(coordinate)) });
+      p.onEdge(current.id, {
+        points: moveSegment(edge.points, index, snap(coordinate)).map((position) => ({
+          x: position.x - edge.offset.x,
+          y: position.y - edge.offset.y,
+        })),
+      });
     }
   }
   return (
@@ -280,7 +283,7 @@ export default function Canvas(p: Props) {
               (target.node.id !== current.id || target.side !== current.side) &&
               Math.hypot(pos.x - current.start.x, pos.y - current.start.y) * p.view.scale > 4
             ) {
-              p.onConnect(current.node!, target.node, current.side!, target.side);
+              p.onConnect(current.node!.base, target.node.base, current.side!, target.side);
             }
           }
           cancelDrag();
@@ -369,6 +372,21 @@ export default function Canvas(p: Props) {
         </defs>
         <rect className="canvas-background" width="100%" height="100%" fill="url(#grid)" />
         <g transform={`translate(${p.view.x} ${p.view.y}) scale(${p.view.scale})`}>
+          {nodes
+            .filter((node) => node.expanded)
+            .map((node) => (
+              <rect
+                key={`container-${node.id}`}
+                data-testid={`container-${node.key}`}
+                className="container-background"
+                x={node.x}
+                y={node.y}
+                width={node.width}
+                height={node.height}
+                rx={14}
+                pointerEvents="none"
+              />
+            ))}
           {edges.map((edge) => {
             const selected = p.selection?.type === 'edge' && p.selection.id === edge.id;
             let mid = { x: 0, y: 0 };
@@ -388,13 +406,17 @@ export default function Canvas(p: Props) {
                 key={edge.id}
                 data-testid={`edge-${edge.id}`}
                 data-edge-id={edge.id}
-                className={`flow-edge ${selected ? 'selected' : ''}`}
+                className={`flow-edge ${selected ? 'selected' : ''} ${edge.projected ? 'projected' : ''}`}
+                data-projected={edge.projected || undefined}
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   if (e.button !== 0) return;
                   p.onSelect({ type: 'edge', id: edge.id });
                 }}
               >
+                <title>
+                  {`${edge.original.source} → ${edge.original.target}${edge.projected ? ' · An endpoint is inside a collapsed service. Expand its container to reveal the complete flow and edit its path.' : ''}`}
+                </title>
                 <path
                   d={roundedPath(edge.points)}
                   fill="none"
@@ -406,7 +428,7 @@ export default function Canvas(p: Props) {
                   className="edge-line"
                   d={roundedPath(edge.points)}
                   fill="none"
-                  markerEnd={`url(#arrow${selected ? '-selected' : ''}-${portRadius(edge.target, edge.targetSide)})`}
+                  markerEnd={`url(#arrow${selected ? '-selected' : ''}-${portRadius(edge.targetNode, edge.targetSide)})`}
                 />
                 {label && (
                   <g className="edge-label" transform={`translate(${mid.x} ${mid.y - 15})`}>
@@ -438,10 +460,18 @@ export default function Canvas(p: Props) {
             />
           )}
           {nodes.map((node) => {
-            const circular = node.type === 'terminal';
+            const circular = node.type === 'terminal' && !node.expanded;
             const fontSize = node.fontSize ?? settings.nodeFontSize;
-            const labelWidth = circular ? node.width * 0.68 : node.width - 36;
-            const labelHeight = circular ? node.height * 0.68 : node.height - 24;
+            const labelWidth = node.expanded
+              ? node.width - 86
+              : circular
+                ? node.width * 0.68
+                : node.width - 36;
+            const labelHeight = node.expanded
+              ? CONTAINER_HEADER - 20
+              : circular
+                ? node.height * 0.68
+                : node.height - 24;
             const label = wrapLabel(
               node.key,
               labelWidth,
@@ -449,15 +479,17 @@ export default function Canvas(p: Props) {
               Math.max(1, Math.floor(labelHeight / (fontSize * 1.25))),
             );
             const selected = p.selection?.type === 'node' && p.selection.id === node.id;
-            const incoming = edges.filter((edge) => edge.target === node.key).length;
-            const outgoing = edges.filter((edge) => edge.source === node.key).length;
+            const { incoming, outgoing } = degrees.get(node.id)!;
+            const empty = node.expanded && !nodes.some((child) => child.graphId === node.childGraphId);
             return (
               <g
                 key={node.id}
                 data-testid={`node-${node.key}`}
                 data-node-id={node.id}
                 data-node-type={node.type ?? 'service'}
-                className={`service-node ${selected ? 'selected' : ''} ${preview?.targetId === node.id ? 'connecting' : ''}`}
+                data-expanded={node.expanded || undefined}
+                data-depth={node.depth}
+                className={`service-node ${node.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${preview?.targetId === node.id ? 'connecting' : ''}`}
                 transform={`translate(${node.x} ${node.y})`}
                 onPointerDown={(e) => {
                   if (e.button !== 0) return;
@@ -466,7 +498,7 @@ export default function Canvas(p: Props) {
                 }}
                 onDoubleClick={(e) => {
                   e.stopPropagation();
-                  p.onEnter(node);
+                  p.onEnter(node.base);
                 }}
               >
                 {circular ? (
@@ -486,21 +518,97 @@ export default function Canvas(p: Props) {
                     filter="url(#node-shadow)"
                   />
                 )}
+                {node.expanded && (
+                  <rect
+                    className="container-header"
+                    data-testid={`container-header-${node.key}`}
+                    width={node.width}
+                    height={CONTAINER_HEADER}
+                    rx={12}
+                  />
+                )}
                 <text
                   className="node-key"
-                  x={node.width / 2}
-                  y={node.height / 2 - ((label.length - 1) * fontSize * 1.25) / 2}
+                  x={node.expanded ? 20 : node.width / 2}
+                  y={
+                    (node.expanded ? CONTAINER_HEADER : node.height) / 2 -
+                    ((label.length - 1) * fontSize * 1.25) / 2
+                  }
                   dominantBaseline="central"
                   style={{ fontSize }}
-                  textAnchor="middle"
+                  textAnchor={node.expanded ? 'start' : 'middle'}
                 >
                   <title>{node.key}</title>
                   {label.map((line, index) => (
-                    <tspan key={index} x={node.width / 2} dy={index ? fontSize * 1.25 : 0}>
+                    <tspan
+                      key={index}
+                      x={node.expanded ? 20 : node.width / 2}
+                      dy={index ? fontSize * 1.25 : 0}
+                    >
                       {line}
                     </tspan>
                   ))}
                 </text>
+                {node.expanded && (
+                  <g
+                    className="container-collapse"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Collapse ${node.key}`}
+                    transform={`translate(${node.width - 38} ${CONTAINER_HEADER / 2})`}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onDoubleClick={(event) => event.stopPropagation()}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      p.onEnter(node.base);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return;
+                      event.preventDefault();
+                      event.stopPropagation();
+                      p.onEnter(node.base);
+                    }}
+                  >
+                    <rect x={-13} y={-13} width={26} height={26} rx={7} />
+                    <path d="M -5 0 H 5" />
+                    <title>Collapse subgraph</title>
+                  </g>
+                )}
+                {empty && (
+                  <g
+                    className="container-empty"
+                    transform={`translate(${node.width / 2} ${(node.height + CONTAINER_HEADER) / 2})`}
+                  >
+                    <text textAnchor="middle" y={p.onAddInside ? -18 : 0}>
+                      No internal services yet
+                    </text>
+                    {p.onAddInside && (
+                      <g
+                        className="container-add"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Add service inside ${node.key}`}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onDoubleClick={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          p.onAddInside?.(node.base);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== 'Enter' && event.key !== ' ') return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          p.onAddInside?.(node.base);
+                        }}
+                      >
+                        <rect x={-84} y={-3} width={168} height={30} rx={8} />
+                        <text textAnchor="middle" y={16}>
+                          Add internal service
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                )}
                 {portSides.map((side) => {
                   const center = anchor({ ...node, x: 0, y: 0 }, side);
                   const degree = side === 'left' ? incoming : side === 'right' ? outgoing : null;
@@ -514,6 +622,7 @@ export default function Canvas(p: Props) {
                       transform={`translate(${center.x} ${center.y})`}
                       onPointerDown={(event) => {
                         if (event.button !== 0) return;
+                        p.onSelect({ type: 'node', id: node.id });
                         begin(event, { type: 'connect', id: node.id, start: point(event), node, side });
                         setPreview({ points: [anchor(node, side), anchor(node, side)] });
                       }}
@@ -528,9 +637,9 @@ export default function Canvas(p: Props) {
                       )}
                       <title>
                         {side === 'left'
-                          ? `${incoming} incoming flows`
+                          ? `${incoming} direct incoming flows`
                           : side === 'right'
-                            ? `${outgoing} outgoing flows`
+                            ? `${outgoing} direct outgoing flows`
                             : 'Drag to connect'}{' '}
                         · Drag to another service
                       </title>
@@ -557,7 +666,7 @@ export default function Canvas(p: Props) {
             );
           })}
           {edges
-            .filter((edge) => p.selection?.type === 'edge' && p.selection.id === edge.id)
+            .filter((edge) => edge.editable && p.selection?.type === 'edge' && p.selection.id === edge.id)
             .map((edge) => (
               <g key={`handles-${edge.id}`} className="edge-handles" data-edge-id={edge.id}>
                 {edge.points.slice(0, -1).map((a, index) => {
@@ -618,7 +727,7 @@ export default function Canvas(p: Props) {
         <span className="live-dot" />
         {preview
           ? 'Drop on a service anchor to connect · Esc to cancel'
-          : 'Drag an anchor to connect · Double-click to explore · Right-click for actions'}
+          : 'Hover for anchors · Double-click to expand · Right-click for actions'}
       </div>
       <div className="canvas-coordinates">
         {nodes.length} services <span> / </span>

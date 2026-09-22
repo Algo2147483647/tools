@@ -2,13 +2,13 @@
 
 The canonical graph file is **`workspace.json`** in the workspace folder. It stores the entire workspace, including every nesting level. Each service additionally has a Markdown document named exactly `<key>.md` in the same folder. Markdown text is not embedded in the JSON.
 
-The authoritative TypeScript types and validation rules are in [`src/model.ts`](../src/model.ts). The current schema version is `1`.
+The authoritative TypeScript types and validation rules are in [`src/model.ts`](../src/model.ts). The current schema version is `2`. Version 1 workspaces remain readable and are migrated in memory; the next successful save writes version 2.
 
 ## Workspace object
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "name": "Commerce platform",
   "rootGraphId": "root",
   "graphs": [{ "id": "root", "parentNodeId": null }],
@@ -19,15 +19,15 @@ The authoritative TypeScript types and validation rules are in [`src/model.ts`](
 }
 ```
 
-| Field         | Type                     | Meaning                                                           |
-| ------------- | ------------------------ | ----------------------------------------------------------------- |
-| `version`     | `1`                      | File format version. Unsupported versions are rejected.           |
-| `name`        | nonempty string          | Workspace display name.                                           |
-| `rootGraphId` | string                   | ID of the single top-level graph.                                 |
-| `graphs`      | graph array              | All graphs, including empty internal graphs.                      |
-| `nodes`       | service-node array       | Services from every graph.                                        |
-| `edges`       | flow-edge array          | Directed flows from every graph.                                  |
-| `revision`    | nonnegative safe integer | Concurrency version incremented after each successful graph save. |
+| Field         | Type                     | Meaning                                                                  |
+| ------------- | ------------------------ | ------------------------------------------------------------------------ |
+| `version`     | `2`                      | File format version. Version 1 is migrated; other versions are rejected. |
+| `name`        | nonempty string          | Workspace display name.                                                  |
+| `rootGraphId` | string                   | ID of the single top-level graph.                                        |
+| `graphs`      | graph array              | All graphs, including empty internal graphs.                             |
+| `nodes`       | service-node array       | Services from every graph.                                               |
+| `edges`       | flow-edge array          | Directed flows from every graph.                                         |
+| `revision`    | nonnegative safe integer | Concurrency version incremented after each successful graph save.        |
 
 Arrays are flat. Nesting is expressed through graph and node references, rather than recursively embedded JSON objects. There is no fixed depth limit. Validation follows graph membership iteratively and rejects unreachable or cyclic graph hierarchies.
 
@@ -54,6 +54,8 @@ Graph IDs are unique. The root graph has `parentNodeId: null`. Every other graph
   "height": 124,
   "type": "service",
   "fontSize": 24,
+  "expanded": true,
+  "expandedSize": { "width": 640, "height": 420 },
   "childGraphId": "order-internal"
 }
 ```
@@ -64,16 +66,20 @@ Graph IDs are unique. The root graph has `parentNodeId: null`. Every other graph
 | `key`             | Human-readable service name, globally unique across all graphs, compared case insensitively. Also determines the Markdown filename. |
 | `graphId`         | ID of the graph containing this node.                                                                                               |
 | `x`, `y`          | Finite SVG coordinates of the node's upper-left corner in its own graph.                                                            |
-| `width`, `height` | Positive finite dimensions. The editor applies practical minimum sizes when resizing.                                               |
+| `width`, `height` | Positive finite collapsed dimensions. The editor applies practical minimum sizes when resizing.                                     |
 | `childGraphId`    | ID of this node's internal graph.                                                                                                   |
+| `expanded`        | Optional boolean, default `false`. Whether its internal graph is expanded inline.                                                   |
+| `expandedSize`    | Positive finite `width` and `height` for the expanded container, required when `expanded` is `true` and retained when collapsed.    |
 
 The example creates `Order Service.md`. All documents remain at the workspace root, so global key uniqueness prevents document collisions even between distant nested graphs.
 
 `type` is optional and defaults to `service` (rounded rectangle). `terminal` represents a traffic source or sink, rendered as a circle; its `width` and `height` must be equal. Both types have identical document ownership, global key uniqueness, nesting, and flow behavior. A terminal's incoming/outgoing flows determine whether it acts as a source, sink, or both. Cardinal ports remain at the bounding-box side centers, which are also points on the circle. Routes conservatively avoid the circle's bounding box.
 
-`fontSize` is an optional number from 12 to 48. Omitting it inherits `canvas.nodeFontSize` (20 by default). These additions are backward compatible with version 1: old nodes keep their stored positions, dimensions, and routes.
+`fontSize` is an optional number from 12 to 48. Omitting it inherits `canvas.nodeFontSize` (20 by default). Old nodes keep their stored positions, dimensions, and routes on migration.
 
-Keys must contain 1–200 characters, must not start or end with whitespace, and must not end with a dot. They must not contain path separators, control characters, or any of `<>:"|?*`. Windows reserved device names are rejected, including their extension variants. Renaming a key also updates all `source` and `target` references using the old key. The node's `id`, graph ownership, and document contents remain stable.
+Expanded nodes are containers on the same canvas. Child coordinates remain local to their containing graph. The child graph's origin is offset from its parent node's upper-left corner by **32 units horizontally and 56 units vertically**; these offsets accumulate through nested containers. Expansion retains the collapsed dimensions, grows the container to fit its visible contents, and moves conflicting siblings. The resulting node positions and expanded sizes are saved. Collapse retains these layout changes and the remembered expanded size, avoiding repeated movement of the surrounding graph. Descendants retain their own expansion state when an ancestor is collapsed. Expanded circular source/sink nodes use a container outline while their original circular collapsed geometry remains stored.
+
+Keys must contain 1–200 characters, must not start or end with whitespace, and must not end with a dot. They must not contain path separators, control characters, or any of `<>:"|?*`. Windows reserved device names are rejected, including their extension variants. Renaming a key updates all `source` and `target` name copies, including cross-hierarchy flows. Endpoint IDs, the node's `id`, graph ownership, and document contents remain stable.
 
 ## Flow-edge records
 
@@ -83,6 +89,8 @@ Keys must contain 1–200 characters, must not start or end with whitespace, and
   "graphId": "root",
   "source": "API Gateway",
   "target": "Order Service",
+  "sourceNodeId": "node-gateway",
+  "targetNodeId": "node-order",
   "weights": ["POST /orders", "OrderRequest"],
   "sourceSide": "right",
   "targetSide": "left",
@@ -93,16 +101,19 @@ Keys must contain 1–200 characters, must not start or end with whitespace, and
 }
 ```
 
-| Field                      | Meaning                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `id`                       | Unique edge identity.                                                                                  |
-| `graphId`                  | Graph containing the flow and both endpoint services.                                                  |
-| `source`, `target`         | Exact, case-sensitive spellings of the endpoint service **keys**, not node IDs.                        |
-| `weights`                  | Array of strings, including an empty array when the flow has no descriptions.                          |
-| `sourceSide`, `targetSide` | One of `left`, `right`, `top`, or `bottom`.                                                            |
-| `points`                   | Full ordered route from source anchor to target anchor. Each point contains finite `x` and `y` values. |
+| Field                          | Meaning                                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `id`                           | Unique edge identity.                                                                                  |
+| `graphId`                      | Lowest common containing graph of the two endpoint nodes. Defines the route coordinate space.          |
+| `sourceNodeId`, `targetNodeId` | Required stable IDs of the actual endpoint nodes, regardless of visible expansion state.               |
+| `source`, `target`             | Required exact, case-sensitive copies of the endpoint service **keys**, for human readability.         |
+| `weights`                      | Array of strings, including an empty array when the flow has no descriptions.                          |
+| `sourceSide`, `targetSide`     | One of `left`, `right`, `top`, or `bottom`.                                                            |
+| `points`                       | Full ordered route from source anchor to target anchor. Each point contains finite `x` and `y` values. |
 
-Flows connect services within the same graph. Self loops are allowed. An interface between a parent service and an internal component is represented by the service's separate external and internal graphs; an edge does not cross graph boundaries.
+Flows may connect any two nodes in the workspace, including a parent and its own descendant or nodes inside different nested services. Self loops are allowed. IDs are authoritative identities; a file whose name copies disagree with the referenced IDs is rejected instead of guessing which endpoint was intended. No boundary proxy nodes or synthetic edges are stored.
+
+An edge is owned by the lowest common ancestor of its endpoint **membership graphs**. A same-graph edge retains that graph's ID. For `API Gateway` in `root` connected to `Validator` in `order-internal`, the owner is `root`. For `Order Service` connected to its own internal `Validator`, the owner is also `root`, since Order Service itself belongs to root. For two descendants of Order Service in separate internal branches, the owner is `order-internal`.
 
 Ports are the centers of the selected node sides:
 
@@ -113,11 +124,30 @@ Ports are the centers of the selected node sides:
 | `top`    | `(x + width / 2, y)`          |
 | `bottom` | `(x + width / 2, y + height)` |
 
-The first and last path points are these anchors. Every pair of consecutive points shares an `x` or `y` coordinate. Coordinates can be fractional. The SVG renderer rounds corners visually; it does not store quadratic curve commands in the workspace. A stored route contains endpoint positions and all straight-line turns, so the same path can be rendered again after reopening.
+The first and last canonical path points are the true endpoint anchors, transformed into the owning graph's coordinates by adding the intervening ancestor origins. Canonical geometry uses a node's retained expanded dimensions when present, with each dimension at least its corresponding collapsed dimension, independent of whether it is currently collapsed; otherwise it uses its collapsed dimensions. It does not force all descendants to expand. Every pair of consecutive points shares an `x` or `y` coordinate. Coordinates can be fractional. The SVG renderer rounds corners visually; it does not store quadratic curve commands in the workspace. A stored route contains endpoint positions and all straight-line turns, so the same path can be rendered again after reopening.
 
 The model accepts an empty `points` array as an unrouted edge; normal editor-created edges contain a complete route. A nonempty route must contain at least two points. Preserve full routes when editing files outside the application.
 
-Moving or resizing a node reattaches its routes to their port anchors while preserving existing bends where possible. Manual geometry is preserved exactly when its anchors have not changed. A route can be regenerated if its old geometry cannot support valid connections. Changing a port or selecting **Reset path** generates a new route. Automatic routing considers the endpoint rectangles and has no global avoidance of unrelated nodes.
+Moving or resizing a node reattaches its routes to their port anchors while preserving existing bends where possible. Moving an expanded ancestor also updates cross-boundary flows attached to its descendants. Manual geometry is preserved exactly when its canonical anchors have not changed and its path remains clear of obstacles. A route can be regenerated if its old geometry cannot support valid connections. Changing a port or selecting **Reset path** generates a new route. Routes are orthogonal; layout moves overlapping sibling containers so their contents remain separate.
+
+## Expansion and connection display
+
+Expansion controls visible representatives without changing endpoint identity or graph ownership. A node's representative on the current canvas is the node itself if visible, or its nearest visible collapsed ancestor if hidden.
+
+| Endpoint visibility                                         | Display rule                                                                                                                             |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Both true endpoints are visible                             | Draw a solid directed flow between their actual anchors.                                                                                 |
+| One or both endpoints are hidden by collapsed containers    | Draw a dashed proxy flow between their visible representatives. Keep the true endpoint names available in flow details.                  |
+| Both endpoints resolve to the same collapsed representative | Hide the flow; it is internal to that container. A visible node's own self loop remains visible.                                         |
+| Expanding a previously collapsed ancestor                   | Replace its proxy attachment with the newly visible endpoint or next visible collapsed descendant, without changing stored endpoint IDs. |
+
+Proxy paths are derived presentation geometry. They must never replace `sourceNodeId`, `targetNodeId`, or canonical `points` in the file. Collapsing and reopening an ancestor therefore does not erase manually edited true-endpoint routes. Route editing is available when the visible path matches the canonical path: expand containers before adjusting a hidden endpoint or an endpoint whose collapsed size differs from its retained expanded dimensions. Parallel flows remain separate records with their own weights even when they share visible proxy endpoints. Port degree labels count real incident flows on that node, not synthetic proxy connections.
+
+## Version 1 migration
+
+Version 1 edges use exact node keys and may only connect nodes in the same graph. Migration resolves each existing key to its stable node ID, adds `sourceNodeId` and `targetNodeId`, and sets `version` to `2`. It preserves graph ownership, node positions and dimensions, routes, weights, document contents, and the revision. Missing expansion fields mean collapsed. Invalid legacy cross-graph flows remain errors, so migration does not silently reinterpret an invalid old file.
+
+Opening does not rewrite the main JSON solely to migrate it. The next ordinary successful graph save persists version 2 through the existing transaction and increments the revision once. New workspaces use version 2 immediately. External producers must include valid endpoint IDs and synchronized name copies for every version 2 flow.
 
 ## Documents and disk operations
 

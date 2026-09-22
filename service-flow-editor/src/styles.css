@@ -704,7 +704,73 @@ button.danger:hover {
 }
 .node-port {
   cursor: crosshair;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.service-node:hover .node-port,
+.service-node.selected .node-port,
+.service-node.connecting .node-port,
+.service-node:focus-within .node-port {
+  opacity: 1;
   pointer-events: all;
+}
+.container-background {
+  fill: color-mix(in srgb, var(--surface) 82%, var(--accent) 3%);
+  stroke: var(--node-border);
+  stroke-width: 1.3;
+}
+.service-node.expanded .node-body {
+  fill: none;
+  pointer-events: none;
+  filter: none;
+}
+.container-header {
+  fill: color-mix(in srgb, var(--surface) 88%, var(--accent) 7%);
+  stroke: none;
+}
+.container-collapse {
+  cursor: pointer;
+  outline: none;
+}
+.container-collapse rect {
+  fill: var(--surface);
+  stroke: var(--node-border);
+}
+.container-collapse path {
+  stroke: var(--text-muted);
+  stroke-width: 1.7;
+  pointer-events: none;
+}
+.container-collapse:hover rect,
+.container-collapse:focus-visible rect {
+  stroke: var(--accent);
+}
+.container-empty > text {
+  fill: var(--text-muted);
+  font-size: 12px;
+  pointer-events: none;
+}
+.container-add {
+  cursor: pointer;
+  outline: none;
+}
+.container-add rect {
+  fill: var(--surface);
+  stroke: var(--accent-border);
+}
+.container-add text {
+  fill: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.container-add:hover rect,
+.container-add:focus-visible rect {
+  stroke: var(--accent);
+}
+.flow-edge.projected .edge-line {
+  stroke-dasharray: 7 5;
 }
 .node-port .port-body {
   fill: var(--surface);

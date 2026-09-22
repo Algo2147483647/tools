@@ -33,6 +33,8 @@ export interface ServiceNode {
   childGraphId: string;
   type?: NodeType;
   fontSize?: number;
+  expanded?: boolean;
+  expandedSize?: { width: number; height: number };
 }
 export interface Graph {
   id: string;
@@ -43,13 +45,16 @@ export interface FlowEdge {
   graphId: string;
   source: string;
   target: string;
+  /** Required in schema v2; optional in TypeScript for legacy v1 inputs. */
+  sourceNodeId?: string;
+  targetNodeId?: string;
   weights: string[];
   sourceSide: Side;
   targetSide: Side;
   points: Point[];
 }
 export interface Workspace {
-  version: 1;
+  version: 1 | 2;
   name: string;
   rootGraphId: string;
   graphs: Graph[];
@@ -64,7 +69,7 @@ const fold = (value: string) => value.toLocaleLowerCase('en-US');
 
 export function createWorkspace(name: string): Workspace {
   return {
-    version: 1,
+    version: 2,
     name: name.trim() || 'Untitled workspace',
     rootGraphId: 'root',
     graphs: [{ id: 'root', parentNodeId: null }],
@@ -102,10 +107,61 @@ function finite(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
+/** Resolve stable endpoint identities, with key lookup only for legacy edges. */
+export function edgeEndpoint(
+  workspace: Workspace,
+  edge: FlowEdge,
+  endpoint: 'source' | 'target',
+): ServiceNode | undefined {
+  const id = endpoint === 'source' ? edge.sourceNodeId : edge.targetNodeId;
+  return id === undefined
+    ? workspace.nodes.find((node) => node.key === edge[endpoint])
+    : workspace.nodes.find((node) => node.id === id);
+}
+
+function commonGraphId(
+  graphMap: Map<string, Graph>,
+  nodeMap: Map<string, ServiceNode>,
+  source: ServiceNode,
+  target: ServiceNode,
+): string {
+  const ancestors = (graphId: string): string[] => {
+    const result: string[] = [];
+    const visited = new Set<string>();
+    let current: string | undefined = graphId;
+    while (current !== undefined) {
+      assert(!visited.has(current), 'cyclic graph hierarchy.');
+      visited.add(current);
+      const graph = graphMap.get(current);
+      assert(graph, `missing graph ${current}.`);
+      result.push(current);
+      if (graph.parentNodeId === null) break;
+      const parent = nodeMap.get(graph.parentNodeId);
+      assert(parent, `orphan graph ${current}.`);
+      current = parent.graphId;
+    }
+    return result;
+  };
+  const sourceAncestors = new Set(ancestors(source.graphId));
+  const common = ancestors(target.graphId).find((graphId) => sourceAncestors.has(graphId));
+  assert(common, 'edge endpoints must belong to the same hierarchy.');
+  return common;
+}
+
+/** Every flow is owned by the lowest common containing graph of its endpoints. */
+export function edgeGraphId(workspace: Workspace, source: ServiceNode, target: ServiceNode): string {
+  return commonGraphId(
+    new Map(workspace.graphs.map((graph) => [graph.id, graph])),
+    new Map(workspace.nodes.map((node) => [node.id, node])),
+    source,
+    target,
+  );
+}
+
 /** Validate the entire graph iteratively, with no fixed nesting-depth limit. */
 export function validateWorkspace(data: unknown): Workspace {
   assert(record(data), 'expected a JSON object.');
-  assert(data.version === 1, 'unsupported schema version.');
+  assert(data.version === 1 || data.version === 2, 'unsupported schema version.');
   assert(typeof data.name === 'string' && data.name.trim().length > 0, 'name is required.');
   assert(
     Number.isSafeInteger(data.revision) && (data.revision as number) >= 0,
@@ -183,6 +239,21 @@ export function validateWorkspace(data: unknown): Workspace {
         (finite(value.fontSize) && value.fontSize >= 12 && value.fontSize <= 48),
       `invalid font size for ${value.key}.`,
     );
+    assert(
+      value.expanded === undefined || typeof value.expanded === 'boolean',
+      `invalid expanded state for ${value.key}.`,
+    );
+    assert(
+      value.expanded !== true || value.expandedSize !== undefined,
+      `expanded size is required for expanded node ${value.key}.`,
+    );
+    if (value.expandedSize !== undefined) {
+      const size = value.expandedSize;
+      assert(
+        record(size) && finite(size.width) && finite(size.height) && size.width > 0 && size.height > 0,
+        `invalid expanded size for ${value.key}.`,
+      );
+    }
     const child = graphMap.get(value.childGraphId);
     assert(
       child && child.id !== data.rootGraphId && child.parentNodeId === value.id,
@@ -210,6 +281,7 @@ export function validateWorkspace(data: unknown): Workspace {
   }
   assert(visited.size === graphMap.size, 'unreachable or cyclic graph hierarchy.');
   const edgeIds = new Set<string>();
+  const migratedEdges: FlowEdge[] = [];
   for (const value of data.edges) {
     assert(
       record(value) &&
@@ -221,16 +293,31 @@ export function validateWorkspace(data: unknown): Workspace {
     );
     assert(!edgeIds.has(value.id), `duplicate edge id ${value.id}.`);
     edgeIds.add(value.id);
-    const source = keyMap.get(fold(value.source));
-    const target = keyMap.get(fold(value.target));
+    if (data.version === 2) {
+      assert(
+        identifier(value.sourceNodeId) && identifier(value.targetNodeId),
+        `stable endpoint IDs are required on edge ${value.id}.`,
+      );
+    }
+    const source =
+      data.version === 2 ? nodeMap.get(value.sourceNodeId as string) : keyMap.get(fold(value.source));
+    const target =
+      data.version === 2 ? nodeMap.get(value.targetNodeId as string) : keyMap.get(fold(value.target));
     assert(
       source && target && source.key === value.source && target.key === value.target,
-      `missing or incorrectly cased endpoint on edge ${value.id}.`,
+      `missing endpoint or mismatched endpoint key on edge ${value.id}.`,
     );
-    assert(
-      source.graphId === value.graphId && target.graphId === value.graphId,
-      `edge ${value.id} crosses graph boundaries.`,
-    );
+    if (data.version === 1) {
+      assert(
+        source.graphId === value.graphId && target.graphId === value.graphId,
+        `legacy edge ${value.id} crosses graph boundaries.`,
+      );
+    } else {
+      assert(
+        value.graphId === commonGraphId(graphMap, nodeMap, source, target),
+        `edge ${value.id} must belong to the lowest common containing graph of its endpoints.`,
+      );
+    }
     assert(
       Array.isArray(value.weights) && value.weights.every((weight) => typeof weight === 'string'),
       `weights on ${value.id} must be a string array.`,
@@ -252,8 +339,13 @@ export function validateWorkspace(data: unknown): Workspace {
       );
       previous = point as unknown as Point;
     }
+    migratedEdges.push({
+      ...(value as unknown as FlowEdge),
+      sourceNodeId: source.id,
+      targetNodeId: target.id,
+    });
   }
-  return structuredClone(data) as unknown as Workspace;
+  return structuredClone({ ...data, version: 2, edges: migratedEdges }) as unknown as Workspace;
 }
 
 export function renameNode(workspace: Workspace, nodeId: string, key: string): Workspace {
@@ -266,8 +358,12 @@ export function renameNode(workspace: Workspace, nodeId: string, key: string): W
     nodes: workspace.nodes.map((item) => (item.id === nodeId ? { ...item, key } : item)),
     edges: workspace.edges.map((edge) => ({
       ...edge,
-      source: edge.source === node.key ? key : edge.source,
-      target: edge.target === node.key ? key : edge.target,
+      source: (edge.sourceNodeId === undefined ? edge.source === node.key : edge.sourceNodeId === nodeId)
+        ? key
+        : edge.source,
+      target: (edge.targetNodeId === undefined ? edge.target === node.key : edge.targetNodeId === nodeId)
+        ? key
+        : edge.target,
     })),
   };
 }
@@ -299,7 +395,11 @@ export function removeNode(workspace: Workspace, nodeId: string): Workspace {
     graphs: workspace.graphs.filter((graph) => !removedGraphs.has(graph.id)),
     edges: workspace.edges.filter(
       (edge) =>
-        !removedGraphs.has(edge.graphId) && !removedKeys.has(edge.source) && !removedKeys.has(edge.target),
+        !removedGraphs.has(edge.graphId) &&
+        !removedNodes.has(edge.sourceNodeId || '') &&
+        !removedNodes.has(edge.targetNodeId || '') &&
+        !removedKeys.has(edge.source) &&
+        !removedKeys.has(edge.target),
     ),
   };
 }

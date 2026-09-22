@@ -59,7 +59,7 @@ Use **Add service** to create a rounded rectangular service node. Drag the node 
 
 Each service key is unique across the entire workspace, including every nested graph. Comparison is case insensitive, so `Orders` and `orders` cannot coexist. Keys must be valid Windows filenames: no path separators, control characters, `<>:"|?*`, leading or trailing whitespace, trailing dots, or reserved device names such as `CON` and `LPT1`. The maximum key length is 200 characters. Spaces within names are allowed.
 
-Use **Add flow** to choose a source and destination, or drag any white node anchor onto another service or anchor. Selection, movement, and connection share the same interaction mode. The source is the service where the drag starts; release on empty space or press `Escape` to cancel. The left anchor shows the incoming flow count, and the right anchor shows the outgoing flow count. Self loops are supported. Select a flow to:
+Use **Add flow** to choose a source and destination from any level, or drag a white node anchor onto another visible service or anchor. Anchors appear when you hover over or select a node; connection targets also reveal their anchors during a drag. Selection, movement, and connection share the same interaction mode. The source is the service where the drag starts; release on empty space or press `Escape` to cancel. The left anchor shows the node's direct incoming flow count, and the right anchor shows its direct outgoing flow count across the whole workspace. Collapsed proxy lines do not add a descendant's flows to its parent, and focusing a subgraph does not change these counts. Self loops and connections across nested levels are supported. Select a flow to:
 
 - Enter weights, one string per line, such as an HTTP interface, event name, or data type.
 - Choose left, right, top, or bottom attachment ports.
@@ -67,13 +67,17 @@ Use **Add flow** to choose a source and destination, or drag any white node anch
 - Choose a **Path segment** and click **Add bend** to insert a rectangular detour.
 - Click **Reset path** to replace manual bends with an automatic route, or **Reverse direction** to swap the endpoints.
 
-Straight path sections stay horizontal or vertical; SVG curves round their corners. Moving or resizing a service reconnects its edges to the selected ports. Saved manual points remain unchanged when the endpoints have not moved. A substantial geometry change can require a fresh route if the old bends cannot reconnect cleanly. Automatic routing considers the two endpoint rectangles; it does not avoid every unrelated node. Use segment handles and bends to route around other services.
+Straight path sections stay horizontal or vertical; SVG curves round their corners. Moving or resizing a service reconnects its edges to the selected ports, including connections to descendants of a moved container. Automatic routing considers visible obstacles and preserves manual bends when they remain valid. A geometry change can require a fresh route if old bends cannot reconnect cleanly or cross another node. Use segment handles and bends to refine routes when their true endpoints are visible.
 
 ## Explore nested architecture
 
-Double-click a service, select it and press `Enter`, or choose **Explore inside** to enter its internal graph. Every level has the same service, flow, document, and layout controls. Use **Up one level** or the breadcrumb trail to return.
+Double-click a service, select it and press `Enter`, or choose **Expand subgraph** / **Collapse subgraph** to show or hide its internal graph **on the current canvas**. Expanded services become containers; nested services can be expanded the same way. Containers grow to contain their contents, neighboring services move apart, and affected flows reconnect. Expansion state, expanded dimensions, and resulting layout are saved. Collapsing preserves the remembered layout and manual routes for the next expansion. Choose **Add service inside** to create a child directly in a service's internal graph.
 
-The data model has no fixed nesting-depth limit. Graphs are stored as flat records with parent references, so nested graphs do not create separate JSON files. Search in the sidebar finds services across all levels. Canvas pan and zoom are viewing controls; node geometry and edge routes are the persisted layout.
+To focus on one internal graph, use **Focus subgraph**. Every level has the same service, flow, document, and layout controls. Use **Up one level** or the breadcrumb trail to return.
+
+Drag from a visible external node to a child inside an expanded container to create a cross-level flow. A solid line connects visible true endpoints. When an endpoint is hidden by a collapsed container, a dashed line attaches to that container as a visual proxy; its original service names remain in the flow details. Flows entirely inside the same collapsed container are hidden, including hidden internal self loops. A visible service's own self loop remains visible. Expand the affected containers before editing a proxy path. Expanding and collapsing never replace the stored endpoints or overwrite the canonical saved path with proxy geometry.
+
+The data model has no fixed nesting-depth limit. Graphs are stored as flat records with parent references, so nested graphs do not create separate JSON files. Version 2 identifies flow endpoints by stable node IDs, keeps readable service names in sync, and stores each flow in the lowest graph containing both endpoints. Existing version 1 workspaces and browser recovery drafts migrate automatically; the next successful graph save persists version 2. See [Workspace format](docs/workspace-format.md) for coordinate and visibility rules. Search in the sidebar finds services across all levels. Canvas pan and zoom are viewing controls; node geometry and edge routes are the persisted layout.
 
 ## Service documents
 
@@ -112,7 +116,7 @@ Mouse wheel, Ctrl/Command + wheel, and trackpad pinch over the canvas zoom only 
 | Add service                             | `N`                                               |
 | Search all service levels               | `/`                                               |
 | Editor guide                            | `?`                                               |
-| Enter selected service                  | `Enter`                                           |
+| Expand or collapse selected service     | `Enter`                                           |
 | Delete selected service or flow         | `Delete` or `Backspace`, followed by confirmation |
 | Fit the current graph                   | `1`                                               |
 | Cancel a connection and clear selection | `Escape`                                          |
@@ -120,7 +124,7 @@ Mouse wheel, Ctrl/Command + wheel, and trackpad pinch over the canvas zoom only 
 | Pan                                     | Drag an empty part of the canvas                  |
 | Zoom                                    | Scroll, or use the zoom buttons                   |
 
-Use the top-left **Collapse sidebar** / **Expand sidebar** button to toggle the service list; the choice is remembered in this browser. Workspace actions, navigation, and zoom controls share the top bar. Right-click empty canvas to add a service at that location or fit/reset the view. Right-click a service to inspect it, open its document, explore inside, or delete it; right-click a flow to edit, reverse, reset its path, or delete it.
+Use the top-left **Collapse sidebar** / **Expand sidebar** button to toggle the service list; the choice is remembered in this browser. Workspace actions, navigation, and zoom controls share the top bar. Right-click empty canvas to add a service at that location or fit/reset the view. Right-click a service to inspect it, open its document, expand/collapse its subgraph, add a child, focus its subgraph, or delete it; right-click a flow to edit, reverse, reset its path, or delete it.
 
 The toolbar's **Toggle inspector** button shows or hides the properties panel. Compact windows start with it closed to leave more room for the graph. Fonts and application assets load locally; no external account or network connection is needed after installing dependencies.
 

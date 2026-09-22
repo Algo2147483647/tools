@@ -12,6 +12,8 @@ import {
   validateKey,
   validateWorkspace,
   canvasSettings,
+  edgeGraphId,
+  edgeEndpoint,
   type ServiceNode,
   type Workspace,
 } from '../src/model.js';
@@ -54,6 +56,8 @@ function graphFixture(): Workspace {
     graphId: 'root',
     source: 'Gateway',
     target: 'Worker',
+    sourceNodeId: 'node-Gateway',
+    targetNodeId: 'node-Worker',
     weights: ['GET /jobs', 'JobCreated'],
     sourceSide: 'right',
     targetSide: 'left',
@@ -68,6 +72,123 @@ function graphFixture(): Workspace {
 }
 const disk = async (directory: string) =>
   JSON.parse(await fs.readFile(path.join(directory, MAIN_FILE), 'utf8')) as Workspace;
+
+test('version 1 loads as version 2 without changing geometry, document ownership, or revision', async () =>
+  temp(async (directory) => {
+    const legacy = graphFixture();
+    legacy.version = 1;
+    legacy.revision = 7;
+    delete legacy.canvas;
+    legacy.edges.forEach((edge) => {
+      delete edge.sourceNodeId;
+      delete edge.targetNodeId;
+    });
+    const original = structuredClone(legacy);
+    await fs.writeFile(path.join(directory, MAIN_FILE), JSON.stringify(legacy));
+    await fs.writeFile(path.join(directory, 'Gateway.md'), '# Gateway\nOriginal document.');
+    const repository = new WorkspaceRepository();
+    const { workspace } = await repository.open(directory);
+    assert.equal(workspace.version, 2);
+    assert.equal(workspace.revision, 7);
+    assert.deepEqual(workspace.nodes, legacy.nodes);
+    assert.deepEqual(workspace.edges[0], {
+      ...legacy.edges[0],
+      sourceNodeId: 'node-Gateway',
+      targetNodeId: 'node-Worker',
+    });
+    assert.deepEqual(legacy, original, 'validation must not mutate the input');
+    assert.equal((await disk(directory)).version, 1, 'opening must not silently rewrite the graph file');
+    const saved = await repository.save(directory, workspace);
+    assert.equal(saved.workspace.revision, 8);
+    assert.equal((await disk(directory)).version, 2);
+    assert.deepEqual((await new WorkspaceRepository().open(directory)).workspace, saved.workspace);
+    assert.equal(
+      (await repository.readDocument(directory, 'Gateway')).content,
+      '# Gateway\nOriginal document.',
+    );
+  }));
+
+test('cross-hierarchy flows round trip with stable endpoint IDs and canonical owner coordinates', async () =>
+  temp(async (directory) => {
+    let workspace = graphFixture();
+    workspace = addNode(workspace, 'Cache', 'inside-Gateway');
+    const [gateway, worker, database, replica, cache] = workspace.nodes;
+    worker.expanded = true;
+    worker.expandedSize = { width: 620, height: 500 };
+    database.expanded = false;
+    database.expandedSize = { width: 360, height: 300 };
+    assert.equal(edgeGraphId(workspace, gateway, replica), 'root');
+    assert.equal(edgeGraphId(workspace, database, replica), 'inside-Worker');
+    assert.equal(edgeGraphId(workspace, replica, cache), 'root');
+    assert.equal(edgeGraphId(workspace, replica, replica), 'inside-Database');
+    workspace.edges.push({
+      id: 'cross-level',
+      graphId: 'root',
+      source: gateway.key,
+      target: replica.key,
+      sourceNodeId: gateway.id,
+      targetNodeId: replica.id,
+      weights: ['Replication request', 'application/json'],
+      sourceSide: 'right',
+      targetSide: 'top',
+      points: [
+        { x: 257.5, y: 147 },
+        { x: 340, y: 147 },
+        { x: 340, y: 480 },
+      ],
+    });
+    assert.equal(edgeEndpoint(workspace, workspace.edges[1], 'target'), replica);
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    workspace = (await repository.save(directory, workspace)).workspace;
+    assert.deepEqual((await new WorkspaceRepository().open(directory)).workspace, workspace);
+    const oldPath = structuredClone(workspace.edges[1].points);
+    workspace = renameNode(workspace, replica.id, 'Read Replica');
+    workspace = (await repository.save(directory, workspace)).workspace;
+    assert.equal(workspace.edges[1].target, 'Read Replica');
+    assert.equal(workspace.edges[1].targetNodeId, replica.id);
+    assert.deepEqual(workspace.edges[1].points, oldPath);
+    assert.ok((await fs.readdir(directory)).includes('Read Replica.md'));
+    assert.ok(!(await fs.readdir(directory)).includes('Replica.md'));
+    workspace = (await repository.save(directory, removeNode(workspace, database.id))).workspace;
+    assert.equal(workspace.edges.length, 1, 'deleting a subtree removes external incident flows');
+    assert.ok(!(await fs.readdir(directory)).includes('Read Replica.md'));
+    assert.equal(validateWorkspace(workspace).version, 2);
+  }));
+
+test('version 2 rejects ambiguous endpoint identities, incorrect owners, and invalid expansion metadata', () => {
+  const workspace = graphFixture();
+  const endpoint = workspace.edges[0];
+  for (const change of [
+    { sourceNodeId: undefined },
+    { targetNodeId: 'missing' },
+    { targetNodeId: 'node-Database' },
+    { source: 'gateway' },
+  ]) {
+    assert.throws(() => validateWorkspace({ ...workspace, edges: [{ ...endpoint, ...change }] }), /endpoint/);
+  }
+  assert.throws(
+    () => validateWorkspace({ ...workspace, edges: [{ ...endpoint, graphId: 'inside-Worker' }] }),
+    /lowest common containing graph/,
+  );
+  for (const change of [
+    { expanded: 'true' },
+    { expanded: true },
+    { expandedSize: null },
+    { expandedSize: { width: 0, height: 200 } },
+    { expandedSize: { width: 320, height: Infinity } },
+  ]) {
+    assert.throws(
+      () =>
+        validateWorkspace({
+          ...workspace,
+          nodes: [{ ...workspace.nodes[0], ...change }, ...workspace.nodes.slice(1)],
+        }),
+      /expanded/,
+    );
+  }
+  assert.throws(() => validateWorkspace({ ...workspace, version: 3 }), /unsupported schema version/);
+});
 
 test('canvas preferences and circular node typography survive disk saves with legacy compatibility', async () =>
   temp(async (directory) => {
@@ -204,7 +325,7 @@ test('filename and global case-insensitive uniqueness validation covers all grap
   assert.equal(validateKey('Gateway', workspace.nodes, 'node-Gateway'), null);
 });
 
-test('hierarchy has no fixed depth limit, rejects cycles and cross-level edges', () => {
+test('hierarchy has no fixed depth limit and rejects cycles, legacy cross-level edges, and diagonals', () => {
   let workspace = createWorkspace('Deep hierarchy');
   let graphId = 'root';
   for (let index = 0; index < 700; index++) {
@@ -217,6 +338,7 @@ test('hierarchy has no fixed depth limit, rejects cycles and cross-level edges',
   invalid.nodes[2].graphId = 'inside-Database';
   assert.throws(() => validateWorkspace(invalid), /cyclic/);
   const crossing = graphFixture();
+  crossing.version = 1;
   crossing.edges[0].target = 'Database';
   assert.throws(() => validateWorkspace(crossing), /crosses graph/);
   const diagonal = graphFixture();

@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -14,6 +15,7 @@ import {
   validateKey,
   canvasSettings,
   snapCoordinate,
+  edgeGraphId,
   type NodeType,
   type FlowEdge,
   type ServiceNode,
@@ -21,7 +23,8 @@ import {
   type Workspace,
   type Point,
 } from './model';
-import { addBend, reconnectEdge, routeEdge } from './routing';
+import { addBend } from './routing';
+import { scene, toggleExpanded, updateNodeGeometry, rerouteEdges } from './hierarchy';
 import Canvas, { type CanvasContext, type Selection, type View } from './Canvas';
 import DocumentEditor from './DocumentEditor';
 import Icon from './Icon';
@@ -310,7 +313,8 @@ function FlowDialog({
   return (
     <Modal title="Connect your services" onClose={onClose}>
       <p className="modal-intro">
-        Define the direction of a data flow. Add interface names, events, or data types as weights.
+        Connect services at any level, including inside collapsed containers. Add interface names, events, or
+        data types as weights.
       </p>
       <form
         onSubmit={(e) => {
@@ -496,6 +500,7 @@ export default function App() {
     }
   });
   const newNodePosition = useRef<Point | null>(null);
+  const newNodeGraph = useRef<string | null>(null);
   const [search, setSearch] = useState(''),
     [notice, setNotice] = useState(''),
     [inspectorTab, setInspectorTab] = useState('properties');
@@ -511,24 +516,18 @@ export default function App() {
   const views = useRef<Record<string, View>>({});
   const localNodes = workspace?.nodes.filter((n) => n.graphId === graphId) || [];
   const localEdges = workspace?.edges.filter((e) => e.graphId === graphId) || [];
+  const visibleScene = useMemo(() => (workspace ? scene(workspace, graphId) : null), [workspace, graphId]);
+  const visibleNodes = visibleScene?.nodes || [];
   const selectedNode =
     selection?.type === 'node' ? workspace?.nodes.find((n) => n.id === selection.id) : undefined;
   const storedEdge =
     selection?.type === 'edge' ? workspace?.edges.find((e) => e.id === selection.id) : undefined;
   const selectedEdge =
-    storedEdge && workspace
-      ? storedEdge.points.length
-        ? storedEdge
-        : {
-            ...storedEdge,
-            points: routeEdge(
-              workspace.nodes.find((n) => n.key === storedEdge.source)!,
-              workspace.nodes.find((n) => n.key === storedEdge.target)!,
-              storedEdge.sourceSide,
-              storedEdge.targetSide,
-            ),
-          }
-      : undefined;
+    storedEdge && workspace && !storedEdge.points.length
+      ? rerouteEdges(workspace).edges.find((edge) => edge.id === storedEdge.id)
+      : storedEdge;
+  const selectedDisplayEdge = visibleScene?.edges.find((edge) => edge.id === selectedEdge?.id);
+  const selectedDisplayNode = visibleNodes.find((node) => node.id === selectedNode?.id);
   const graph = workspace?.graphs.find((g) => g.id === graphId);
   const parent = workspace?.nodes.find((n) => n.id === graph?.parentNodeId);
   const crumbs: { id: string; title: string }[] = [];
@@ -552,37 +551,19 @@ export default function App() {
     }
   }
   function changeNode(id: string, patch: Partial<ServiceNode>) {
-    store.change((w) => {
-      const nodes = w.nodes.map((n) => {
-        if (n.id !== id) return n;
-        const next = { ...n, ...patch };
-        if (next.type === 'terminal') {
-          const diameter = patch.width ?? patch.height ?? Math.max(n.width, n.height);
-          next.width = next.height = diameter;
-        }
-        return next;
-      });
-      const changed = nodes.find((n) => n.id === id)!;
-      return {
-        ...w,
-        nodes,
-        edges: w.edges.map((e) =>
-          e.source === changed.key || e.target === changed.key
-            ? {
-                ...e,
-                points: reconnectEdge(
-                  e,
-                  nodes.find((n) => n.key === e.source)!,
-                  nodes.find((n) => n.key === e.target)!,
-                ),
-              }
-            : e,
-        ),
-      };
-    });
+    store.change((w) => updateNodeGeometry(w, id, patch));
   }
   function changeEdge(id: string, patch: Partial<FlowEdge>) {
-    store.change((w) => ({ ...w, edges: w.edges.map((e) => (e.id === id ? { ...e, ...patch } : e)) }));
+    store.change((w) =>
+      rerouteEdges({ ...w, edges: w.edges.map((e) => (e.id === id ? { ...e, ...patch } : e)) }),
+    );
+  }
+  function toggleNode(node: ServiceNode) {
+    void action(() => {
+      store.change((w) => toggleExpanded(w, node.id));
+      setSelection({ type: 'node', id: node.id });
+      setInspectorTab('properties');
+    });
   }
   function navigate(id: string) {
     void action(() => {
@@ -603,17 +584,17 @@ export default function App() {
     });
   }
   function fit() {
-    if (!localNodes.length) {
+    if (!visibleNodes.length) {
       setView(initialView());
       return;
     }
     const bounds = document.querySelector('.canvas-wrap')?.getBoundingClientRect();
     if (!bounds) return;
     const area = canvasArea();
-    const left = Math.min(...localNodes.map((n) => n.x)),
-      top = Math.min(...localNodes.map((n) => n.y));
-    const right = Math.max(...localNodes.map((n) => n.x + n.width)),
-      bottom = Math.max(...localNodes.map((n) => n.y + n.height));
+    const left = Math.min(...visibleNodes.map((n) => n.x)),
+      top = Math.min(...visibleNodes.map((n) => n.y));
+    const right = Math.max(...visibleNodes.map((n) => n.x + n.width)),
+      bottom = Math.max(...visibleNodes.map((n) => n.y + n.height));
     const scale = Math.min(
       1.4,
       Math.max(0.2, Math.min((area.width - 80) / (right - left), (area.height - 80) / (bottom - top))),
@@ -649,20 +630,23 @@ export default function App() {
     sourceSide: Side = 'right',
     targetSide: Side = 'left',
   ) {
-    const source = localNodes.find((n) => n.key === sourceKey)!,
-      target = localNodes.find((n) => n.key === targetKey)!;
+    if (!workspace) return;
+    const source = workspace.nodes.find((n) => n.key === sourceKey)!,
+      target = workspace.nodes.find((n) => n.key === targetKey)!;
     const id = uid();
     const edge: FlowEdge = {
       id,
-      graphId,
+      graphId: edgeGraphId(workspace, source, target),
       source: sourceKey,
       target: targetKey,
+      sourceNodeId: source.id,
+      targetNodeId: target.id,
       weights,
       sourceSide,
       targetSide,
-      points: routeEdge(source, target, sourceSide, targetSide),
+      points: [],
     };
-    store.change((w) => ({ ...w, edges: [...w.edges, edge] }));
+    store.change((w) => rerouteEdges({ ...w, edges: [...w.edges, edge] }));
     setModal(null);
     select({ type: 'edge', id });
   }
@@ -727,7 +711,7 @@ export default function App() {
         e.preventDefault();
         setModal('delete');
       }
-      if (e.key === 'Enter' && selectedNode) navigate(selectedNode.childGraphId);
+      if (e.key === 'Enter' && selectedNode) toggleNode(selectedNode);
     }
     window.addEventListener('keydown', keyboard);
     return () => window.removeEventListener('keydown', keyboard);
@@ -743,8 +727,9 @@ export default function App() {
       return next;
     });
   }
-  function openNewNode(position?: Point) {
+  function openNewNode(position?: Point, targetGraphId = graphId) {
     newNodePosition.current = position ? { x: Math.round(position.x), y: Math.round(position.y) } : null;
+    newNodeGraph.current = targetGraphId;
     setModal('node');
   }
   function inspect(target: NonNullable<Selection>, document = false) {
@@ -775,7 +760,17 @@ export default function App() {
           icon: 'file',
           run: () => inspect({ type: 'node', id: contextNode.id }, true),
         },
-        { label: 'Explore inside', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
+        {
+          label: contextNode.expanded ? 'Collapse subgraph' : 'Expand subgraph',
+          icon: 'layers',
+          run: () => toggleNode(contextNode),
+        },
+        {
+          label: 'Add service inside',
+          icon: 'plus',
+          run: () => openNewNode(undefined, contextNode.childGraphId),
+        },
+        { label: 'Focus subgraph', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
         {
           label: 'Delete service',
           icon: 'trash',
@@ -797,6 +792,8 @@ export default function App() {
               changeEdge(contextEdge.id, {
                 source: contextEdge.target,
                 target: contextEdge.source,
+                sourceNodeId: contextEdge.targetNodeId,
+                targetNodeId: contextEdge.sourceNodeId,
                 sourceSide: contextEdge.targetSide,
                 targetSide: contextEdge.sourceSide,
                 points: [...contextEdge.points].reverse(),
@@ -807,12 +804,7 @@ export default function App() {
             icon: 'branch',
             run: () =>
               changeEdge(contextEdge.id, {
-                points: routeEdge(
-                  localNodes.find((n) => n.key === contextEdge.source)!,
-                  localNodes.find((n) => n.key === contextEdge.target)!,
-                  contextEdge.sourceSide,
-                  contextEdge.targetSide,
-                ),
+                points: [],
               }),
           },
           {
@@ -828,7 +820,12 @@ export default function App() {
         ]
       : [
           { label: 'Add service here', icon: 'plus', run: () => openNewNode(contextMenu!.point) },
-          { label: 'Add flow', icon: 'link', disabled: !localNodes.length, run: () => setModal('flow') },
+          {
+            label: 'Add flow',
+            icon: 'link',
+            disabled: !workspace?.nodes.length,
+            run: () => setModal('flow'),
+          },
           { label: 'Fit graph', icon: 'fit', run: fit },
           { label: 'Reset view', icon: 'refresh', run: () => setView(initialView()) },
           ...(parent ? [{ label: 'Up one level', icon: 'back', run: () => navigate(parent.graphId) }] : []),
@@ -1024,7 +1021,11 @@ export default function App() {
                     Up one level
                   </button>
                 )}
-                <button className="secondary" disabled={!localNodes.length} onClick={() => setModal('flow')}>
+                <button
+                  className="secondary"
+                  disabled={!workspace.nodes.length}
+                  onClick={() => setModal('flow')}
+                >
                   <Icon name="link" size={16} />
                   Add flow
                 </button>
@@ -1260,7 +1261,8 @@ export default function App() {
                   view={view}
                   onView={setView}
                   onSelect={select}
-                  onEnter={(n) => navigate(n.childGraphId)}
+                  onEnter={toggleNode}
+                  onAddInside={(node) => openNewNode(undefined, node.childGraphId)}
                   onNode={changeNode}
                   onEdge={changeEdge}
                   onConnect={(source, target, sourceSide, targetSide) =>
@@ -1350,26 +1352,32 @@ export default function App() {
                           onChange={(y) => changeNode(selectedNode.id, { y })}
                         />
                         <NumberField
-                          label={selectedNode.type === 'terminal' ? 'Diameter' : 'Width'}
-                          value={selectedNode.width}
-                          min={selectedNode.type === 'terminal' ? 80 : 160}
+                          label={
+                            selectedNode.expanded
+                              ? 'Expanded width'
+                              : selectedNode.type === 'terminal'
+                                ? 'Diameter'
+                                : 'Width'
+                          }
+                          value={selectedDisplayNode?.width ?? selectedNode.width}
+                          min={selectedNode.type === 'terminal' && !selectedNode.expanded ? 80 : 160}
                           onChange={(width) => changeNode(selectedNode.id, { width })}
                         />
-                        {selectedNode.type !== 'terminal' && (
+                        {(selectedNode.type !== 'terminal' || selectedNode.expanded) && (
                           <NumberField
-                            label="Height"
-                            value={selectedNode.height}
+                            label={selectedNode.expanded ? 'Expanded height' : 'Height'}
+                            value={selectedDisplayNode?.height ?? selectedNode.height}
                             min={64}
                             onChange={(height) => changeNode(selectedNode.id, { height })}
                           />
                         )}
                       </div>
                       <div className="section-label">INTERNAL STRUCTURE</div>
-                      <button className="explore-button" onClick={() => navigate(selectedNode.childGraphId)}>
+                      <button className="explore-button" onClick={() => toggleNode(selectedNode)}>
                         <span>
                           <Icon name="layers" size={20} />
                           <strong>
-                            Explore inside
+                            {selectedNode.expanded ? 'Collapse subgraph' : 'Expand subgraph'}
                             <small>
                               {workspace.nodes.filter((n) => n.graphId === selectedNode.childGraphId).length}{' '}
                               internal services
@@ -1378,8 +1386,20 @@ export default function App() {
                         </span>
                         <Icon name="arrow" size={18} />
                       </button>
+                      <div className="two-fields">
+                        <button
+                          className="secondary"
+                          onClick={() => openNewNode(undefined, selectedNode.childGraphId)}
+                        >
+                          Add service inside
+                        </button>
+                        <button className="secondary" onClick={() => navigate(selectedNode.childGraphId)}>
+                          Focus subgraph
+                        </button>
+                      </div>
                       <p className="field-help">
-                        Every service can hold its own graph. Double-click a node to go inside.
+                        Double-click to expand or collapse here. Focus subgraph opens a dedicated view with
+                        breadcrumbs.
                       </p>
                       <div className="section-label">SERVICE DOCUMENT</div>
                       <button className="document-link" onClick={() => setInspectorTab('document')}>
@@ -1424,12 +1444,7 @@ export default function App() {
                               const next = { ...selectedEdge, [side]: e.target.value as Side };
                               changeEdge(next.id, {
                                 [side]: next[side],
-                                points: routeEdge(
-                                  localNodes.find((n) => n.key === next.source)!,
-                                  localNodes.find((n) => n.key === next.target)!,
-                                  next.sourceSide,
-                                  next.targetSide,
-                                ),
+                                points: [],
                               });
                             }}
                           >
@@ -1447,6 +1462,26 @@ export default function App() {
                       onChange={(weights) => changeEdge(selectedEdge.id, { weights })}
                     />
                     <div className="section-label">ORTHOGONAL PATH</div>
+                    {selectedDisplayEdge?.projected && (
+                      <p className="field-help proxy-notice">
+                        Dashed proxy: an endpoint is inside a collapsed container. Expand its ancestors to
+                        edit the path. The real endpoints and saved route are preserved.
+                      </p>
+                    )}
+                    {selectedDisplayEdge &&
+                      !selectedDisplayEdge.projected &&
+                      !selectedDisplayEdge.editable && (
+                        <p className="field-help proxy-notice">
+                          This route is adapted to the current collapsed layout. Expand the endpoint
+                          containers to edit the saved path.
+                        </p>
+                      )}
+                    {!selectedDisplayEdge && (
+                      <p className="field-help proxy-notice">
+                        This flow is outside the current view or hidden inside a collapsed container. Expand
+                        its ancestors in Overview to see and edit its path.
+                      </p>
+                    )}
                     <p className="field-help">
                       Drag a square handle on the canvas to move a segment. Add a bend for more routing
                       control.
@@ -1455,6 +1490,7 @@ export default function App() {
                       Path segment
                       <select
                         aria-label="Path segment"
+                        disabled={!selectedDisplayEdge?.editable}
                         value={Math.min(segmentIndex, selectedEdge.points.length - 2)}
                         onChange={(e) => setSegmentIndex(Number(e.target.value))}
                       >
@@ -1469,6 +1505,7 @@ export default function App() {
                     <div className="two-fields">
                       <button
                         className="secondary"
+                        disabled={!selectedDisplayEdge?.editable}
                         onClick={() =>
                           changeEdge(selectedEdge.id, {
                             points: addBend(
@@ -1485,12 +1522,7 @@ export default function App() {
                         className="secondary"
                         onClick={() =>
                           changeEdge(selectedEdge.id, {
-                            points: routeEdge(
-                              localNodes.find((n) => n.key === selectedEdge.source)!,
-                              localNodes.find((n) => n.key === selectedEdge.target)!,
-                              selectedEdge.sourceSide,
-                              selectedEdge.targetSide,
-                            ),
+                            points: [],
                           })
                         }
                       >
@@ -1517,6 +1549,8 @@ export default function App() {
                         changeEdge(selectedEdge.id, {
                           source: selectedEdge.target,
                           target: selectedEdge.source,
+                          sourceNodeId: selectedEdge.targetNodeId,
+                          targetNodeId: selectedEdge.sourceNodeId,
                           sourceSide: selectedEdge.targetSide,
                           targetSide: selectedEdge.sourceSide,
                           points: [...selectedEdge.points].reverse(),
@@ -1570,8 +1604,8 @@ export default function App() {
                       <Icon name="branch" size={20} />
                       <strong>There is more beneath the surface.</strong>
                       <p>
-                        Double-click any service to map the components inside it. Follow the breadcrumbs to
-                        find your way back.
+                        Double-click a service to expand its components on this canvas. Connect visible nodes
+                        across levels, or choose any service using Add flow.
                       </p>
                     </div>
                     <button
@@ -1619,27 +1653,34 @@ export default function App() {
             await docFlush.current();
             const id = uid(),
               childGraphId = uid();
-            const index = localNodes.length;
+            const targetGraphId = newNodeGraph.current || graphId;
+            const index = workspace.nodes.filter((node) => node.graphId === targetGraphId).length;
             const settings = canvasSettings(workspace);
             const snap = (value: number) => snapCoordinate(value, settings);
-            store.change((w) => ({
-              ...w,
-              nodes: [
-                ...w.nodes,
-                {
-                  id,
-                  key,
-                  graphId,
-                  childGraphId,
-                  type,
-                  x: snap(newNodePosition.current?.x ?? 40 + (index % 3) * 300),
-                  y: snap(newNodePosition.current?.y ?? 60 + Math.floor(index / 3) * 220),
-                  width: snap(type === 'terminal' ? 144 : 224),
-                  height: snap(type === 'terminal' ? 144 : 88),
-                },
-              ],
-              graphs: [...w.graphs, { id: childGraphId, parentNodeId: id }],
-            }));
+            store.change((w) => {
+              let next: Workspace = {
+                ...w,
+                nodes: [
+                  ...w.nodes,
+                  {
+                    id,
+                    key,
+                    graphId: targetGraphId,
+                    childGraphId,
+                    type,
+                    x: snap(newNodePosition.current?.x ?? 40 + (index % 3) * 300),
+                    y: snap(newNodePosition.current?.y ?? 60 + Math.floor(index / 3) * 220),
+                    width: snap(type === 'terminal' ? 144 : 224),
+                    height: snap(type === 'terminal' ? 144 : 88),
+                  },
+                ],
+                graphs: [...w.graphs, { id: childGraphId, parentNodeId: id }],
+              };
+              const owner = next.nodes.find((node) => node.childGraphId === targetGraphId);
+              if (owner && !owner.expanded && targetGraphId !== graphId)
+                next = toggleExpanded(next, owner.id);
+              return updateNodeGeometry(next, id, {});
+            });
             setSelection({ type: 'node', id });
             setInspectorTab('properties');
             setModal(null);
@@ -1647,7 +1688,7 @@ export default function App() {
         />
       )}
       {modal === 'flow' && (
-        <FlowDialog nodes={localNodes} onClose={() => setModal(null)} onCreate={addFlow} />
+        <FlowDialog nodes={workspace?.nodes || []} onClose={() => setModal(null)} onCreate={addFlow} />
       )}
       {modal === 'delete' && workspace && selection && (
         <Modal
@@ -1667,7 +1708,7 @@ export default function App() {
               className="danger"
               onClick={() =>
                 void action(() => {
-                  if (selectedNode) store.change((w) => removeNode(w, selectedNode.id));
+                  if (selectedNode) store.change((w) => rerouteEdges(removeNode(w, selectedNode.id)));
                   else if (selectedEdge)
                     store.change((w) => ({ ...w, edges: w.edges.filter((e) => e.id !== selectedEdge.id) }));
                   setSelection(null);
@@ -1703,9 +1744,10 @@ export default function App() {
               <section>
                 <h3>Make the connections</h3>
                 <p>
-                  Drag a white anchor from one service onto another service or anchor. The left anchor shows
-                  incoming flows; the right shows outgoing flows. Select a flow to edit weights, change ports,
-                  add bends, or drag segment handles. Connections stay orthogonal as services move.
+                  Hover or select a service to reveal its white anchors. Drag an anchor to any visible
+                  service, including a nested service. The left anchor shows incoming flows; the right shows
+                  outgoing flows. Select a flow to edit weights, change ports, add bends, or drag segment
+                  handles. Connections stay orthogonal as services move.
                 </p>
               </section>
             </div>
@@ -1714,8 +1756,10 @@ export default function App() {
               <section>
                 <h3>Explore every level</h3>
                 <p>
-                  Double-click a service or press <kbd>Enter</kbd> to go inside. Use the breadcrumb trail or
-                  Up one level to return. Keys stay unique throughout the entire workspace.
+                  Double-click a service or press <kbd>Enter</kbd> to expand or collapse it on this canvas.
+                  Use Add service inside to build its subgraph. Focus subgraph opens a dedicated view with
+                  breadcrumbs. Collapsed cross-level flows use dashed proxies; internal flows are hidden. Keys
+                  stay unique throughout the entire workspace.
                 </p>
               </section>
             </div>

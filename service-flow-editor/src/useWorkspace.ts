@@ -47,7 +47,7 @@ function readDrafts(path: string): DraftStore {
   if (!record || !Array.isArray(record.recoveries))
     throw new Error('The browser recovery draft is unreadable.');
   for (const entry of [...record.recoveries, ...(record.pending ? [record.pending] : [])])
-    validateWorkspace(entry.workspace);
+    entry.workspace = validateWorkspace(entry.workspace);
   return record;
 }
 

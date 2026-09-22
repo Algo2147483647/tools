@@ -80,7 +80,56 @@ function crossesInterior(a: Point, b: Point, node: ServiceNode): boolean {
   );
 }
 
-/** A small visibility grid routes around the two endpoint boxes, with no global obstacle search. */
+function containsNode(container: ServiceNode, child: ServiceNode): boolean {
+  return (
+    container.id !== child.id &&
+    container.x <= child.x + EPSILON &&
+    container.y <= child.y + EPSILON &&
+    container.x + container.width >= child.x + child.width - EPSILON &&
+    container.y + container.height >= child.y + child.height - EPSILON &&
+    (container.width > child.width + EPSILON || container.height > child.height + EPSILON)
+  );
+}
+
+function unrelatedObstacles(
+  source: ServiceNode,
+  target: ServiceNode,
+  obstacles: ServiceNode[],
+): ServiceNode[] {
+  return obstacles.filter(
+    (node, index) =>
+      node.id !== source.id &&
+      node.id !== target.id &&
+      !containsNode(node, source) &&
+      !containsNode(node, target) &&
+      obstacles.findIndex((other) => other.id === node.id) === index,
+  );
+}
+
+function crossesObstacles(points: Point[], obstacles: ServiceNode[]): boolean {
+  return points.some(
+    (point, index) => index > 0 && obstacles.some((node) => crossesInterior(points[index - 1], point, node)),
+  );
+}
+
+function portClearance(point: Point, side: Side, obstacles: ServiceNode[]): number {
+  let clearance = PORT_CLEARANCE;
+  for (const node of obstacles) {
+    let gap = Infinity;
+    if (point.y > node.y && point.y < node.y + node.height) {
+      if (side === 'right') gap = node.x - point.x;
+      if (side === 'left') gap = point.x - node.x - node.width;
+    }
+    if (point.x > node.x && point.x < node.x + node.width) {
+      if (side === 'bottom') gap = node.y - point.y;
+      if (side === 'top') gap = point.y - node.y - node.height;
+    }
+    if (gap > EPSILON) clearance = Math.min(clearance, gap / 2);
+  }
+  return clearance;
+}
+
+/** A visibility grid keeps routes outside unrelated nodes and accessible endpoint boxes. */
 function connectPorts(
   start: Point,
   finish: Point,
@@ -88,20 +137,35 @@ function connectPorts(
   target: ServiceNode,
   sourceSide: Side,
   targetSide: Side,
+  obstacles: ServiceNode[],
 ): Point[] {
-  const boxes = source.id === target.id ? [source] : [source, target];
+  // A container endpoint must permit a route to reach its own descendant inside it.
+  const endpoints = (source.id === target.id ? [source] : [source, target]).filter(
+    (node) => !containsNode(node, node.id === source.id ? target : source),
+  );
+  const boxes = [...endpoints, ...obstacles];
   const xs = [
     ...new Set([
       start.x,
       finish.x,
-      ...boxes.flatMap((node) => [node.x - PORT_CLEARANCE, node.x + node.width + PORT_CLEARANCE]),
+      ...boxes.flatMap((node) => [
+        node.x - PORT_CLEARANCE,
+        node.x - 12,
+        node.x + node.width + 12,
+        node.x + node.width + PORT_CLEARANCE,
+      ]),
     ]),
   ].sort((a, b) => a - b);
   const ys = [
     ...new Set([
       start.y,
       finish.y,
-      ...boxes.flatMap((node) => [node.y - PORT_CLEARANCE, node.y + node.height + PORT_CLEARANCE]),
+      ...boxes.flatMap((node) => [
+        node.y - PORT_CLEARANCE,
+        node.y - 12,
+        node.y + node.height + 12,
+        node.y + node.height + PORT_CLEARANCE,
+      ]),
     ]),
   ].sort((a, b) => a - b);
   const width = xs.length;
@@ -113,19 +177,45 @@ function connectPorts(
   const initial = startVertex * 4 + startDirection;
   const cost = new Map<number, number>([[initial, 0]]);
   const previous = new Map<number, number>();
-  const pending = new Set<number>([initial]);
-  let endState: number | undefined;
-  while (pending.size) {
-    let current = -1;
-    let best = Infinity;
-    for (const state of pending) {
-      const value = cost.get(state)!;
-      if (value < best) {
-        current = state;
-        best = value;
-      }
+  // A binary heap avoids scanning the whole frontier for every bend in a larger graph.
+  const pending: { state: number; cost: number }[] = [];
+  const enqueue = (state: number, value: number): void => {
+    const item = { state, cost: value };
+    pending.push(item);
+    let index = pending.length - 1;
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2);
+      if (pending[parent].cost <= item.cost) break;
+      pending[index] = pending[parent];
+      index = parent;
     }
-    pending.delete(current);
+    pending[index] = item;
+  };
+  const dequeue = (): { state: number; cost: number } => {
+    const first = pending[0];
+    const last = pending.pop()!;
+    if (pending.length) {
+      let index = 0;
+      while (index * 2 + 1 < pending.length) {
+        let child = index * 2 + 1;
+        if (child + 1 < pending.length && pending[child + 1].cost < pending[child].cost) child++;
+        if (pending[child].cost >= last.cost) break;
+        pending[index] = pending[child];
+        index = child;
+      }
+      pending[index] = last;
+    }
+    return first;
+  };
+  enqueue(initial, 0);
+  // Prefer any possible obstacle-free detour, even on very large coordinate ranges.
+  const crossingPenalty =
+    100000 + (xs[xs.length - 1] - xs[0] + ys[ys.length - 1] - ys[0]) * (boxes.length + 1) * 4;
+  const crossingCache = new Map<string, number>();
+  let endState: number | undefined;
+  while (pending.length) {
+    const { state: current, cost: best } = dequeue();
+    if (best !== cost.get(current)) continue;
     const vertex = Math.floor(current / 4);
     const previousDirection = current % 4;
     if (vertex === finishVertex && previousDirection !== forbiddenArrival && current !== initial) {
@@ -146,19 +236,22 @@ function connectPorts(
       if (nextColumn < 0 || nextColumn >= width || nextRow < 0 || nextRow >= ys.length) continue;
       const nextVertex = nextRow * width + nextColumn;
       const nextState = nextVertex * 4 + nextDirection;
-      // A large penalty allows a usable path even when endpoint rectangles overlap.
-      const crossings = boxes.filter((node) =>
-        crossesInterior(points[vertex], points[nextVertex], node),
-      ).length;
+      // A penalty also permits a usable route for pre-existing overlapping node geometry.
+      const segmentKey = vertex < nextVertex ? `${vertex}:${nextVertex}` : `${nextVertex}:${vertex}`;
+      let crossings = crossingCache.get(segmentKey);
+      if (crossings === undefined) {
+        crossings = boxes.filter((node) => crossesInterior(points[vertex], points[nextVertex], node)).length;
+        crossingCache.set(segmentKey, crossings);
+      }
       const nextCost =
         best +
         distance(points[vertex], points[nextVertex]) +
         (previousDirection === nextDirection ? 0 : 12) +
-        crossings * 100000;
+        crossings * crossingPenalty;
       if (nextCost < (cost.get(nextState) ?? Infinity)) {
         cost.set(nextState, nextCost);
         previous.set(nextState, current);
-        pending.add(nextState);
+        enqueue(nextState, nextCost);
       }
     }
   }
@@ -174,12 +267,18 @@ export function routeEdge(
   target: ServiceNode,
   sourceSide: Side = 'right',
   targetSide: Side = 'left',
+  obstacles: ServiceNode[] = [],
 ): Point[] {
   const from = anchor(source, sourceSide);
   const to = anchor(target, targetSide);
-  const start = offset(from, normals[sourceSide], PORT_CLEARANCE);
-  const finish = offset(to, normals[targetSide], PORT_CLEARANCE);
-  return simplifyPoints([from, ...connectPorts(start, finish, source, target, sourceSide, targetSide), to]);
+  const blockers = unrelatedObstacles(source, target, obstacles);
+  const start = offset(from, normals[sourceSide], portClearance(from, sourceSide, blockers));
+  const finish = offset(to, normals[targetSide], portClearance(to, targetSide, blockers));
+  return simplifyPoints([
+    from,
+    ...connectPorts(start, finish, source, target, sourceSide, targetSide, blockers),
+    to,
+  ]);
 }
 
 function leavesPort(points: Point[], side: Side): boolean {
@@ -209,29 +308,37 @@ function reattach(points: Point[], node: ServiceNode, side: Side): Point[] {
   return [endpoint, stub, elbow, ...points.slice(1).map(copy)];
 }
 
-export function reconnectEdge(edge: FlowEdge, source: ServiceNode, target: ServiceNode): Point[] {
+export function reconnectEdge(
+  edge: FlowEdge,
+  source: ServiceNode,
+  target: ServiceNode,
+  obstacles: ServiceNode[] = [],
+): Point[] {
   const from = anchor(source, edge.sourceSide);
   const to = anchor(target, edge.targetSide);
-  // Do not normalize saved geometry on load: manual paths must round-trip exactly.
+  const blockers = unrelatedObstacles(source, target, obstacles);
+  const reroute = (): Point[] => routeEdge(source, target, edge.sourceSide, edge.targetSide, blockers);
+  // Manual paths round-trip exactly unless layout reflow has placed an obstacle across them.
   if (
     edge.points.length >= 2 &&
     same(edge.points[0], from) &&
     same(edge.points[edge.points.length - 1], to) &&
-    isOrthogonal(edge.points)
+    isOrthogonal(edge.points) &&
+    !crossesObstacles(edge.points, blockers)
   )
     return edge.points.map(copy);
-  if (edge.points.length < 4 || !isOrthogonal(edge.points))
-    return routeEdge(source, target, edge.sourceSide, edge.targetSide);
+  if (edge.points.length < 4 || !isOrthogonal(edge.points)) return reroute();
   const startAdjusted = reattach(edge.points, source, edge.sourceSide);
   const endAdjusted = reattach(startAdjusted.reverse(), target, edge.targetSide).reverse();
   const candidate = simplifyPoints(endAdjusted);
   if (
     isOrthogonal(candidate) &&
     leavesPort(candidate, edge.sourceSide) &&
-    leavesPort([...candidate].reverse(), edge.targetSide)
+    leavesPort([...candidate].reverse(), edge.targetSide) &&
+    !crossesObstacles(candidate, blockers)
   )
     return candidate;
-  return routeEdge(source, target, edge.sourceSide, edge.targetSide);
+  return reroute();
 }
 
 /** Move one segment parallel to itself; the first and last anchors stay fixed. */
