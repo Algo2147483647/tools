@@ -33,7 +33,7 @@ Arrays are flat. Nesting is expressed through graph and node references, rather 
 
 `canvas` is an optional workspace-wide preference object shared by every graph. Its fields are `gridSize` (integer 8–128), `gridStyle` (`dots` or `lines`), `snapToGrid` (boolean), and `nodeFontSize` (number 12–48). The example above gives the defaults used when an older workspace omits the object. Changing preferences does not move existing geometry. Grid spacing uses world coordinates, independent of zoom and pan.
 
-`nodeAppearance` is an optional workspace-wide style for collapsed nodes, including all nested graphs and both node types:
+`nodeAppearance` is an optional workspace-wide style shared by all nested graphs and both node types. Shape and shadow settings apply to collapsed nodes; typography also applies to expanded container headers:
 
 ```json
 {
@@ -43,12 +43,24 @@ Arrays are flat. Nesting is expressed through graph and node references, rather 
     "borderEnabled": true,
     "borderWidth": 1.3,
     "shadow": true,
+    "shadowOpacity": 0.32,
+    "shadowBlur": 5,
+    "shadowOffsetY": 5,
+    "fontFamily": "sans",
+    "fontColor": "#172033",
+    "fontWeight": 700,
+    "fontItalic": false,
+    "lineHeight": 1.25,
     "cornerRadius": 0.15
   }
 }
 ```
 
-The two colors are optional six-digit hex values; omit either to inherit its current theme color. `borderEnabled` and `shadow` are booleans; `borderWidth` is finite from 0 to 12; `cornerRadius` is finite from 0 to 0.5 and multiplies the shorter rectangle side. Omitting the entire object gives theme colors, enabled borders at 1.3 px, enabled shadows, and radius 0.15. Expanded containers retain structural styling and circles remain circles. Selection highlights are separate presentation geometry. Changes do not alter node geometry or route anchors.
+All three colors are optional six-digit hex values; omit a color to inherit its current theme color. `borderEnabled` and `shadow` are booleans; `borderWidth` is finite from 0 to 12; `cornerRadius` is finite from 0 to 0.5 and multiplies the shorter rectangle side. Omitting the entire object gives theme colors, enabled borders at 1.3 px, enabled shadows, and radius 0.15. Expanded containers retain structural styling and circles remain circles. Selection highlights are separate presentation geometry. Changes do not alter node geometry or route anchors.
+
+Shadow and typography fields are individually optional for compatibility with existing version 3 files. Missing fields receive the defaults shown above, except `fontColor`, which inherits the theme. Shadows are pure black: `shadowOpacity` is finite from 0 to 1; `shadowBlur` is the SVG Gaussian standard deviation from 0 to 24 world units; `shadowOffsetY` is a downward offset from 0 to 24 world units. The SVG filter region grows to contain the blur, including on small nodes. Turning shadows off preserves their settings.
+
+`fontFamily` is one of `sans`, `system`, `serif`, or `mono`, mapped to a local font stack; unavailable fonts use the stack's fallback. `fontWeight` is a multiple of 100 from 100 to 900, `fontItalic` is a boolean, and `lineHeight` is a finite multiplier from 1 to 2. Font size remains in `canvas.nodeFontSize` (default) and `nodes[].fontSize` (optional override). These preferences affect rendering and label wrapping only.
 
 ## Graph records
 

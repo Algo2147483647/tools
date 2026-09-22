@@ -4,22 +4,48 @@ export interface Point {
 }
 export type Side = 'left' | 'right' | 'top' | 'bottom';
 export type NodeType = 'service' | 'terminal';
+export type NodeFontFamily = 'sans' | 'system' | 'serif' | 'mono';
+export const nodeFontFamilies: Record<NodeFontFamily, string> = {
+  sans: "'Manrope', 'Segoe UI', sans-serif",
+  system: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+  serif: "Georgia, 'Times New Roman', serif",
+  mono: "'SFMono-Regular', Consolas, 'Liberation Mono', monospace",
+};
 export interface NodeAppearance {
   fillColor?: string;
   borderColor?: string;
   borderEnabled: boolean;
   borderWidth: number;
   shadow: boolean;
+  shadowOpacity?: number;
+  shadowBlur?: number;
+  shadowOffsetY?: number;
+  fontFamily?: NodeFontFamily;
+  fontColor?: string;
+  fontWeight?: number;
+  fontItalic?: boolean;
+  lineHeight?: number;
   /** Radius as a fraction of the shorter side, from 0 to 0.5. */
   cornerRadius: number;
 }
-export const defaultNodeAppearance: NodeAppearance = {
+export type ResolvedNodeAppearance = Required<
+  Omit<NodeAppearance, 'fillColor' | 'borderColor' | 'fontColor'>
+> &
+  Pick<NodeAppearance, 'fillColor' | 'borderColor' | 'fontColor'>;
+export const defaultNodeAppearance: ResolvedNodeAppearance = {
   borderEnabled: true,
   borderWidth: 1.3,
   shadow: true,
+  shadowOpacity: 0.32,
+  shadowBlur: 5,
+  shadowOffsetY: 5,
+  fontFamily: 'sans',
+  fontWeight: 700,
+  fontItalic: false,
+  lineHeight: 1.25,
   cornerRadius: 0.15,
 };
-export function nodeAppearance(workspace: Workspace): NodeAppearance {
+export function nodeAppearance(workspace: Workspace): ResolvedNodeAppearance {
   return { ...defaultNodeAppearance, ...workspace.nodeAppearance };
 }
 export interface CanvasSettings {
@@ -205,7 +231,32 @@ export function validateWorkspace(data: unknown): Workspace {
       finite(style.cornerRadius) && style.cornerRadius >= 0 && style.cornerRadius <= 0.5,
       'cornerRadius must be between 0 and 0.5.',
     );
-    for (const field of ['fillColor', 'borderColor'])
+    for (const [field, minimum, maximum] of [
+      ['shadowOpacity', 0, 1],
+      ['shadowBlur', 0, 24],
+      ['shadowOffsetY', 0, 24],
+      ['lineHeight', 1, 2],
+    ] as const)
+      assert(
+        style[field] === undefined ||
+          (finite(style[field]) && style[field] >= minimum && style[field] <= maximum),
+        `${field} must be between ${minimum} and ${maximum}.`,
+      );
+    assert(
+      style.fontFamily === undefined ||
+        ['sans', 'system', 'serif', 'mono'].includes(style.fontFamily as string),
+      'invalid node fontFamily.',
+    );
+    assert(
+      style.fontWeight === undefined ||
+        (finite(style.fontWeight) &&
+          style.fontWeight >= 100 &&
+          style.fontWeight <= 900 &&
+          style.fontWeight % 100 === 0),
+      'fontWeight must be a multiple of 100 from 100 to 900.',
+    );
+    assert(style.fontItalic === undefined || typeof style.fontItalic === 'boolean', 'invalid fontItalic.');
+    for (const field of ['fillColor', 'borderColor', 'fontColor'])
       assert(
         style[field] === undefined ||
           (typeof style[field] === 'string' && /^#[0-9a-f]{6}$/i.test(style[field] as string)),

@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { defaultNodeAppearance, type CanvasSettings as Settings, type NodeAppearance } from './model';
+import {
+  defaultNodeAppearance,
+  type CanvasSettings as Settings,
+  type NodeAppearance,
+  type ResolvedNodeAppearance,
+  type NodeFontFamily,
+} from './model';
 import Icon from './Icon';
 
 function SettingNumber({
@@ -49,7 +55,7 @@ export default function CanvasSettings({
 }: {
   value: Settings;
   onChange: (value: Settings) => void;
-  appearance: NodeAppearance;
+  appearance: ResolvedNodeAppearance;
   onAppearanceChange: (value: NodeAppearance) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -124,19 +130,6 @@ export default function CanvasSettings({
               <option value="lines">Lines</option>
             </select>
           </label>
-          <label className="field">
-            Default node font size (px)
-            <SettingNumber
-              min={12}
-              max={48}
-              value={value.nodeFontSize}
-              onChange={(nodeFontSize) => onChange({ ...value, nodeFontSize })}
-            />
-          </label>
-          <p className="field-help">
-            Saved with this workspace, across every graph. Individual nodes can override the default font
-            size.
-          </p>
           <div className="section-label">NODE APPEARANCE</div>
           <p className="field-help">One style for every collapsed node, across all graphs.</p>
           {(['fillColor', 'borderColor'] as const).map((field) => (
@@ -186,6 +179,39 @@ export default function CanvasSettings({
             />
             Show node shadows
           </label>
+          {appearance.shadow && (
+            <>
+              <label className="field">
+                Shadow opacity (%)
+                <SettingNumber
+                  min={0}
+                  max={100}
+                  value={Math.round(appearance.shadowOpacity * 100)}
+                  onChange={(shadowOpacity) =>
+                    onAppearanceChange({ ...appearance, shadowOpacity: shadowOpacity / 100 })
+                  }
+                />
+              </label>
+              <label className="field">
+                Shadow blur (px)
+                <SettingNumber
+                  min={0}
+                  max={24}
+                  value={appearance.shadowBlur}
+                  onChange={(shadowBlur) => onAppearanceChange({ ...appearance, shadowBlur })}
+                />
+              </label>
+              <label className="field">
+                Shadow offset (px)
+                <SettingNumber
+                  min={0}
+                  max={24}
+                  value={appearance.shadowOffsetY}
+                  onChange={(shadowOffsetY) => onAppearanceChange({ ...appearance, shadowOffsetY })}
+                />
+              </label>
+            </>
+          )}
           <label className="field">
             Corner radius (%)
             <SettingNumber
@@ -198,6 +224,89 @@ export default function CanvasSettings({
             />
           </label>
           <p className="field-help">Percentage of the shorter side. Source / sink nodes remain circular.</p>
+          <div className="section-label">NODE TYPOGRAPHY</div>
+          <p className="field-help">Shared by every node label, including expanded headers.</p>
+          <label className="field">
+            Node font family
+            <select
+              value={appearance.fontFamily}
+              onChange={(event) =>
+                onAppearanceChange({ ...appearance, fontFamily: event.target.value as NodeFontFamily })
+              }
+            >
+              <option value="sans">Sans serif</option>
+              <option value="system">System</option>
+              <option value="serif">Serif (Georgia)</option>
+              <option value="mono">Monospace</option>
+            </select>
+          </label>
+          <label className="field">
+            Default node font size (px)
+            <SettingNumber
+              min={12}
+              max={48}
+              value={value.nodeFontSize}
+              onChange={(nodeFontSize) => onChange({ ...value, nodeFontSize })}
+            />
+          </label>
+          <p className="field-help">Individual nodes can override the default font size in the inspector.</p>
+          <div className="appearance-color">
+            <label className="field">
+              Node font color
+              <input
+                type="color"
+                value={appearance.fontColor ?? '#172033'}
+                onChange={(event) => onAppearanceChange({ ...appearance, fontColor: event.target.value })}
+              />
+            </label>
+            <button
+              type="button"
+              className="text-button"
+              disabled={!appearance.fontColor}
+              onClick={() => onAppearanceChange({ ...appearance, fontColor: undefined })}
+              aria-label="Use theme font color"
+            >
+              {appearance.fontColor ? 'Use theme' : 'Theme color'}
+            </button>
+          </div>
+          <label className="field">
+            Node font weight
+            <select
+              value={appearance.fontWeight}
+              onChange={(event) =>
+                onAppearanceChange({ ...appearance, fontWeight: Number(event.target.value) })
+              }
+            >
+              <option value={100}>Thin (100)</option>
+              <option value={200}>Extra light (200)</option>
+              <option value={300}>Light (300)</option>
+              <option value={400}>Regular (400)</option>
+              <option value={500}>Medium (500)</option>
+              <option value={600}>Semibold (600)</option>
+              <option value={700}>Bold (700)</option>
+              <option value={800}>Extra bold (800)</option>
+              <option value={900}>Black (900)</option>
+            </select>
+          </label>
+          <label className="setting-toggle">
+            <input
+              type="checkbox"
+              checked={appearance.fontItalic}
+              onChange={(event) => onAppearanceChange({ ...appearance, fontItalic: event.target.checked })}
+            />
+            Italic node labels
+          </label>
+          <label className="field">
+            Node line height
+            <SettingNumber
+              min={1}
+              max={2}
+              step={0.05}
+              value={appearance.lineHeight}
+              onChange={(lineHeight) => onAppearanceChange({ ...appearance, lineHeight })}
+            />
+          </label>
+          <p className="field-help">All appearance settings are saved with this workspace.</p>
           <button className="secondary" onClick={() => onAppearanceChange({ ...defaultNodeAppearance })}>
             Reset node appearance
           </button>

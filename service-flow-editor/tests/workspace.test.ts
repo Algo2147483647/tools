@@ -272,6 +272,11 @@ test('workspace node appearance and routing mode persist and reject malformed va
     const saved = await repository.save(directory, workspace);
     const reopened = await new WorkspaceRepository().open(directory);
     assert.deepEqual(reopened.workspace.nodeAppearance, workspace.nodeAppearance);
+    // Existing appearance objects predate the optional shadow and typography controls.
+    assert.deepEqual(nodeAppearance(reopened.workspace), {
+      ...defaultNodeAppearance,
+      ...workspace.nodeAppearance,
+    });
     assert.deepEqual(reopened.workspace.edges, saved.workspace.edges);
     for (const patch of [
       { borderWidth: -1 },
@@ -282,6 +287,18 @@ test('workspace node appearance and routing mode persist and reject malformed va
       { cornerRadius: -0.1 },
       { fillColor: 'url(https://example.com)' },
       { borderColor: '#nope' },
+      { shadowOpacity: 1.1 },
+      { shadowOpacity: -0.1 },
+      { shadowBlur: 25 },
+      { shadowOffsetY: -1 },
+      { shadowOffsetY: Infinity },
+      { fontFamily: 'unknown' },
+      { fontColor: 'red' },
+      { fontWeight: 750 },
+      { fontWeight: 1000 },
+      { fontItalic: 'true' },
+      { lineHeight: 0.9 },
+      { lineHeight: 2.1 },
     ])
       assert.throws(() =>
         validateWorkspace({ ...workspace, nodeAppearance: { ...workspace.nodeAppearance, ...patch } }),
@@ -290,6 +307,27 @@ test('workspace node appearance and routing mode persist and reject malformed va
       () => validateWorkspace({ ...workspace, edges: [{ ...workspace.edges[0], routing: 'unknown' }] }),
       /routing mode/,
     );
+  }));
+
+test('shadow and typography preferences survive a workspace save and reopen', async () =>
+  temp(async (directory) => {
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    const workspace = graphFixture();
+    workspace.nodeAppearance = {
+      ...defaultNodeAppearance,
+      shadowOpacity: 0.55,
+      shadowBlur: 8,
+      shadowOffsetY: 10,
+      fontFamily: 'mono',
+      fontColor: '#7c3aed',
+      fontWeight: 500,
+      fontItalic: true,
+      lineHeight: 1.5,
+    };
+    await repository.save(directory, workspace);
+    const reopened = await new WorkspaceRepository().open(directory);
+    assert.deepEqual(nodeAppearance(reopened.workspace), workspace.nodeAppearance);
   }));
 
 test('creates and reopens one complete workspace with exact nested geometry and edge metadata', async () =>

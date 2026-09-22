@@ -767,7 +767,7 @@ test('global collapsed-node appearance applies to rectangles, circles, nested gr
   await expect(page.getByTestId('node-Nested').locator('.node-selection-ring')).toBeVisible();
   await saved(page);
   const persisted = await disk(workspaceFolder);
-  expect(persisted.nodeAppearance).toEqual({
+  expect(persisted.nodeAppearance).toMatchObject({
     fillColor: '#eff6ff',
     borderColor: '#8b5cf6',
     borderEnabled: false,
@@ -790,5 +790,89 @@ test('global collapsed-node appearance applies to rectangles, circles, nested gr
   await settings.getByLabel('Show node borders').press('Escape');
   await expect(traffic).toHaveCSS('stroke-width', '1.3px');
   await expect(traffic).toHaveAttribute('filter', 'url(#node-shadow)');
+  await saved(page);
+});
+
+test('visible black shadows and shared typography persist across nested graphs and reopening', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await addService(page, 'Worker');
+  await enter(page, 'Worker');
+  await addService(page, 'NestedProcessorWithLongName');
+  await page.getByRole('spinbutton', { name: 'Height', exact: true }).fill('144');
+  await page.locator('.breadcrumbs .crumb').first().click();
+  await addService(page, 'Traffic', 'terminal');
+  await page.getByRole('spinbutton', { name: 'Font size (px)', exact: true }).fill('28');
+  const shadow = page.locator('#node-shadow feDropShadow');
+  await expect(shadow).toHaveAttribute('flood-color', '#000000');
+  await expect(shadow).toHaveAttribute('flood-opacity', '0.32');
+  await page.mouse.move(1100, 800);
+  await page.screenshot({ path: test.info().outputPath('default-shadow.png') });
+  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await settings.getByLabel('Shadow opacity (%)', { exact: true }).fill('55');
+  await settings.getByLabel('Shadow blur (px)', { exact: true }).fill('8');
+  await settings.getByLabel('Shadow offset (px)', { exact: true }).fill('10');
+  await settings.getByLabel('Show node shadows', { exact: true }).uncheck();
+  await expect(page.getByTestId('node-Traffic').locator('.node-body')).not.toHaveAttribute(
+    'filter',
+    /node-shadow/,
+  );
+  await settings.getByLabel('Show node shadows', { exact: true }).check();
+  await expect(settings.getByLabel('Shadow opacity (%)', { exact: true })).toHaveValue('55');
+  await settings.getByRole('combobox', { name: 'Node font family', exact: true }).selectOption('mono');
+  await settings.getByLabel('Default node font size (px)', { exact: true }).fill('24');
+  await settings.getByLabel('Node font color', { exact: true }).fill('#7c3aed');
+  await settings.getByRole('combobox', { name: 'Node font weight', exact: true }).selectOption('500');
+  await settings.getByLabel('Italic node labels', { exact: true }).check();
+  await settings.getByLabel('Node line height', { exact: true }).fill('1.5');
+  await settings.getByLabel('Node line height', { exact: true }).press('Escape');
+  await expect(shadow).toHaveAttribute('flood-opacity', '0.55');
+  await expect(shadow).toHaveAttribute('stdDeviation', '8');
+  await expect(shadow).toHaveAttribute('dy', '10');
+  await page.getByTestId('node-Worker').locator('.node-body').dblclick();
+  const nested = page.getByTestId('node-NestedProcessorWithLongName').locator('.node-key');
+  for (const key of ['Worker', 'Traffic', 'NestedProcessorWithLongName']) {
+    const label = page.getByTestId(`node-${key}`).locator('.node-key');
+    await expect(label).toHaveCSS('font-family', /Consolas/);
+    await expect(label).toHaveCSS('font-weight', '500');
+    await expect(label).toHaveCSS('font-style', 'italic');
+    await expect(label).toHaveCSS('fill', 'rgb(124, 58, 237)');
+    await expect(label).toHaveCSS('font-size', key === 'Traffic' ? '28px' : '24px');
+  }
+  expect(await nested.locator('tspan').count()).toBeGreaterThan(1);
+  await expect(nested.locator('tspan').nth(1)).toHaveAttribute('dy', '36');
+  await saved(page);
+  expect((await disk(workspaceFolder)).nodeAppearance).toMatchObject({
+    shadowOpacity: 0.55,
+    shadowBlur: 8,
+    shadowOffsetY: 10,
+    fontFamily: 'mono',
+    fontColor: '#7c3aed',
+    fontWeight: 500,
+    fontItalic: true,
+    lineHeight: 1.5,
+  });
+  await page.reload();
+  await open(page, workspaceFolder);
+  await expect(shadow).toHaveAttribute('flood-opacity', '0.55');
+  await expect(nested).toHaveCSS('font-family', /Consolas/);
+  await expect(nested).toHaveCSS('font-style', 'italic');
+  await expect(nested).toHaveCSS('fill', 'rgb(124, 58, 237)');
+  await expect(nested.locator('tspan').nth(1)).toHaveAttribute('dy', '36');
+  await expect(page.getByTestId('node-Traffic').locator('.node-key')).toHaveCSS('font-size', '28px');
+  await page.mouse.move(1100, 800);
+  await page.screenshot({ path: test.info().outputPath('custom-shadow-typography.png') });
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await expect(settings.getByRole('combobox', { name: 'Node font weight', exact: true })).toHaveValue('500');
+  await settings.getByRole('button', { name: 'Use theme font color', exact: true }).click();
+  await expect(nested).not.toHaveCSS('fill', 'rgb(124, 58, 237)');
+  await settings.getByRole('button', { name: 'Reset node appearance', exact: true }).click();
+  await expect(settings.getByRole('combobox', { name: 'Node font family', exact: true })).toHaveValue('sans');
+  await expect(settings.getByLabel('Italic node labels', { exact: true })).not.toBeChecked();
+  await expect(nested).toHaveCSS('font-weight', '700');
+  await expect(shadow).toHaveAttribute('flood-opacity', '0.32');
   await saved(page);
 });

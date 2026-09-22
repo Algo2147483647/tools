@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
-import { canvasSettings, nodeAppearance, snapCoordinate } from './model';
+import { canvasSettings, nodeAppearance, nodeFontFamilies, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
 import {
   canonicalEdgePoints,
@@ -52,12 +52,16 @@ type Props = {
   onAddInside?: (node: ServiceNode) => void;
 };
 
-function wrapLabel(text: string, width: number, fontSize: number, maxLines: number): string[] {
+let labelMetrics: CanvasRenderingContext2D | null | undefined;
+function wrapLabel(text: string, width: number, fontSize: number, maxLines: number, font: string): string[] {
+  labelMetrics ??= document.createElement('canvas').getContext('2d');
+  if (labelMetrics) labelMetrics.font = font;
   const lines: string[] = [];
   let line = '',
     length = 0;
   for (const character of text) {
-    const advance = fontSize * (character.codePointAt(0)! > 255 ? 1 : 0.62);
+    const advance =
+      labelMetrics?.measureText(character).width ?? fontSize * (character.codePointAt(0)! > 255 ? 1 : 0.62);
     if (line && length + advance > width) {
       lines.push(line.trim());
       line = '';
@@ -91,6 +95,9 @@ export default function Canvas(p: Props) {
   const [marquee, setMarquee] = useState<{ start: Point; end: Point } | null>(null);
   const portSides: Side[] = ['left', 'right', 'top', 'bottom'];
   const { nodes, edges } = useMemo(() => scene(p.workspace, p.graphId), [p.workspace, p.graphId]);
+  const shadowMargin = appearance.shadowBlur * 3 + appearance.shadowOffsetY + appearance.borderWidth + 2;
+  const shadowX = (shadowMargin / nodes.reduce((minimum, node) => Math.min(minimum, node.width), 160)) * 100;
+  const shadowY = (shadowMargin / nodes.reduce((minimum, node) => Math.min(minimum, node.height), 80)) * 100;
   const degrees = useMemo(() => nodeDegrees(p.workspace), [p.workspace]);
   const selections = p.selections ?? (p.selection ? [p.selection] : []);
   const isSelected = (type: SelectionItem['type'], id: string) =>
@@ -504,13 +511,20 @@ export default function Canvas(p: Props) {
               />
             </marker>
           ))}
-          <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
+          <filter
+            id="node-shadow"
+            x={`${-shadowX}%`}
+            y={`${-shadowY}%`}
+            width={`${100 + shadowX * 2}%`}
+            height={`${100 + shadowY * 2}%`}
+            colorInterpolationFilters="sRGB"
+          >
             <feDropShadow
               dx="0"
-              dy="4"
-              stdDeviation="6"
-              floodColor="var(--shadow-color)"
-              floodOpacity=".06"
+              dy={appearance.shadowOffsetY}
+              stdDeviation={appearance.shadowBlur}
+              floodColor="#000000"
+              floodOpacity={appearance.shadowOpacity}
             />
           </filter>
         </defs>
@@ -617,6 +631,8 @@ export default function Canvas(p: Props) {
                 };
             const shadow = !node.expanded && appearance.shadow ? 'url(#node-shadow)' : undefined;
             const fontSize = node.fontSize ?? settings.nodeFontSize;
+            const fontFamily = nodeFontFamilies[appearance.fontFamily];
+            const lineSpacing = fontSize * appearance.lineHeight;
             const labelWidth = node.expanded
               ? node.width - 86
               : circular
@@ -631,7 +647,8 @@ export default function Canvas(p: Props) {
               node.key,
               labelWidth,
               fontSize,
-              Math.max(1, Math.floor(labelHeight / (fontSize * 1.25))),
+              Math.max(1, Math.floor(labelHeight / lineSpacing)),
+              `${appearance.fontItalic ? 'italic' : 'normal'} ${appearance.fontWeight} ${fontSize}px ${fontFamily}`,
             );
             const selected = isSelected('node', node.id);
             const { incoming, outgoing } = degrees.get(node.id)!;
@@ -724,19 +741,22 @@ export default function Canvas(p: Props) {
                   x={node.expanded ? 20 : node.width / 2}
                   y={
                     (node.expanded ? CONTAINER_HEADER : node.height) / 2 -
-                    ((label.length - 1) * fontSize * 1.25) / 2
+                    ((label.length - 1) * lineSpacing) / 2
                   }
                   dominantBaseline="central"
-                  style={{ fontSize }}
+                  style={{
+                    fontSize,
+                    fontFamily,
+                    fontWeight: appearance.fontWeight,
+                    fontStyle: appearance.fontItalic ? 'italic' : 'normal',
+                    fontSynthesis: 'style',
+                    fill: appearance.fontColor ?? 'var(--text)',
+                  }}
                   textAnchor={node.expanded ? 'start' : 'middle'}
                 >
                   <title>{node.key}</title>
                   {label.map((line, index) => (
-                    <tspan
-                      key={index}
-                      x={node.expanded ? 20 : node.width / 2}
-                      dy={index ? fontSize * 1.25 : 0}
-                    >
+                    <tspan key={index} x={node.expanded ? 20 : node.width / 2} dy={index ? lineSpacing : 0}>
                       {line}
                     </tspan>
                   ))}
