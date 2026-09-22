@@ -30,6 +30,7 @@ import {
   updateNodeGeometry,
   updateNodesGeometry,
   relayoutWorkspace,
+  canonicalEdgePoints,
   rerouteEdges,
 } from './hierarchy';
 import Canvas, { type CanvasContext, type Selection, type SelectionItem, type View } from './Canvas';
@@ -1489,6 +1490,10 @@ export default function App() {
                           />
                         )}
                       </div>
+                      <p className="field-help">
+                        X and Y use the owning graph's all-collapsed coordinates. Expansion offsets are
+                        display only.
+                      </p>
                       {selectedNode.expanded && (
                         <p className="field-help" data-testid="container-dimensions">
                           Auto-sized to contents: {Math.round(selectedDisplayNode?.width || 0)} ×{' '}
@@ -1596,8 +1601,8 @@ export default function App() {
                       !selectedDisplayEdge.projected &&
                       !selectedDisplayEdge.editable && (
                         <p className="field-help proxy-notice">
-                          This route is adapted to the current collapsed layout. Expand the endpoint
-                          containers to edit the saved path.
+                          This route is adapted to the current display layout. Its saved coordinates remain in
+                          the owning graph's all-collapsed frame.
                         </p>
                       )}
                     {!selectedDisplayEdge && (
@@ -1615,13 +1620,13 @@ export default function App() {
                       <select
                         aria-label="Path segment"
                         disabled={!selectedDisplayEdge?.editable}
-                        value={Math.min(segmentIndex, selectedEdge.points.length - 2)}
+                        value={Math.min(segmentIndex, (selectedDisplayEdge?.points.length ?? 2) - 2)}
                         onChange={(e) => setSegmentIndex(Number(e.target.value))}
                       >
-                        {selectedEdge.points.slice(0, -1).map((p, i) => (
+                        {(selectedDisplayEdge?.points ?? []).slice(0, -1).map((p, i) => (
                           <option key={i} value={i}>
                             Segment {i + 1} ·{' '}
-                            {p.y === selectedEdge.points[i + 1].y ? 'Horizontal' : 'Vertical'}
+                            {p.y === selectedDisplayEdge!.points[i + 1].y ? 'Horizontal' : 'Vertical'}
                           </option>
                         ))}
                       </select>
@@ -1632,9 +1637,13 @@ export default function App() {
                         disabled={!selectedDisplayEdge?.editable}
                         onClick={() =>
                           changeEdge(selectedEdge.id, {
-                            points: addBend(
-                              selectedEdge.points,
-                              Math.min(segmentIndex, selectedEdge.points.length - 2),
+                            points: canonicalEdgePoints(
+                              workspace,
+                              selectedDisplayEdge!,
+                              addBend(
+                                selectedDisplayEdge!.points,
+                                Math.min(segmentIndex, selectedDisplayEdge!.points.length - 2),
+                              ),
                             ),
                           })
                         }
@@ -1928,10 +1937,10 @@ export default function App() {
               Drag the empty canvas to select multiple elements. Hold <kbd>Shift</kbd> to add to the
               selection; Shift-click to toggle one element. Drag a selected service to move the group. Hold{' '}
               <kbd>Space</kbd>
-              while dragging, or use the middle mouse button, to pan. Scroll to zoom. Press <kbd>1</kbd> to
-              fit the graph and <kbd>Esc</kbd> to cancel a connection. Right-click the canvas, a service, or a
-              flow for contextual actions. The top-left button collapses the sidebar. Deleting a service also
-              deletes its nested services and Markdown files.
+              while dragging, or drag with the right or middle mouse button, to pan. Scroll to zoom. Press{' '}
+              <kbd>1</kbd> to fit the graph and <kbd>Esc</kbd> to cancel a connection. Right-click the canvas,
+              a service, or a flow for contextual actions. The top-left button collapses the sidebar. Deleting
+              a service also deletes its nested services and Markdown files.
             </p>
           </div>
         </Modal>

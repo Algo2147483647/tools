@@ -74,7 +74,7 @@ function graphFixture(): Workspace {
 const disk = async (directory: string) =>
   JSON.parse(await fs.readFile(path.join(directory, MAIN_FILE), 'utf8')) as Workspace;
 
-test('version 1 loads as version 2 without changing geometry, document ownership, or revision', async () =>
+test('version 1 loads as version 3 without changing geometry, document ownership, or revision', async () =>
   temp(async (directory) => {
     const legacy = graphFixture();
     legacy.version = 1;
@@ -89,7 +89,7 @@ test('version 1 loads as version 2 without changing geometry, document ownership
     await fs.writeFile(path.join(directory, 'Gateway.md'), '# Gateway\nOriginal document.');
     const repository = new WorkspaceRepository();
     const { workspace } = await repository.open(directory);
-    assert.equal(workspace.version, 2);
+    assert.equal(workspace.version, 3);
     assert.equal(workspace.revision, 7);
     assert.deepEqual(workspace.nodes, legacy.nodes);
     assert.deepEqual(workspace.edges[0], {
@@ -101,7 +101,7 @@ test('version 1 loads as version 2 without changing geometry, document ownership
     assert.equal((await disk(directory)).version, 1, 'opening must not silently rewrite the graph file');
     const saved = await repository.save(directory, workspace);
     assert.equal(saved.workspace.revision, 8);
-    assert.equal((await disk(directory)).version, 2);
+    assert.equal((await disk(directory)).version, 3);
     assert.deepEqual((await new WorkspaceRepository().open(directory)).workspace, saved.workspace);
     assert.equal(
       (await repository.readDocument(directory, 'Gateway')).content,
@@ -154,10 +154,29 @@ test('cross-hierarchy flows round trip with stable endpoint IDs and canonical ow
     workspace = (await repository.save(directory, removeNode(workspace, database.id))).workspace;
     assert.equal(workspace.edges.length, 1, 'deleting a subtree removes external incident flows');
     assert.ok(!(await fs.readdir(directory)).includes('Read Replica.md'));
-    assert.equal(validateWorkspace(workspace).version, 2);
+    assert.equal(validateWorkspace(workspace).version, 3);
   }));
 
-test('version 2 rejects ambiguous endpoint identities, incorrect owners, and invalid expansion metadata', () => {
+test('version 2 migration preserves baseline coordinates and drops derived expansion caches', () => {
+  const legacy = graphFixture();
+  legacy.version = 2;
+  legacy.nodes[0].expanded = true;
+  legacy.nodes[0].expandedSize = { width: 5000, height: 4000 };
+  const before = structuredClone(legacy);
+  const migrated = validateWorkspace(legacy);
+  assert.equal(migrated.version, 3);
+  assert.equal(migrated.nodes[0].expanded, true);
+  assert.equal(migrated.nodes[0].expandedSize, undefined);
+  assert.deepEqual(
+    migrated.nodes.map(({ x, y, width, height }) => ({ x, y, width, height })),
+    legacy.nodes.map(({ x, y, width, height }) => ({ x, y, width, height })),
+  );
+  assert.deepEqual(migrated.edges, legacy.edges);
+  assert.deepEqual(legacy, before);
+  assert.deepEqual(validateWorkspace(migrated), migrated);
+});
+
+test('version 3 rejects ambiguous endpoint identities, incorrect owners, and invalid expansion metadata', () => {
   const workspace = graphFixture();
   const endpoint = workspace.edges[0];
   for (const change of [
@@ -174,7 +193,6 @@ test('version 2 rejects ambiguous endpoint identities, incorrect owners, and inv
   );
   for (const change of [
     { expanded: 'true' },
-    { expanded: true },
     { expandedSize: null },
     { expandedSize: { width: 0, height: 200 } },
     { expandedSize: { width: 320, height: Infinity } },
@@ -188,7 +206,7 @@ test('version 2 rejects ambiguous endpoint identities, incorrect owners, and inv
       /expanded/,
     );
   }
-  assert.throws(() => validateWorkspace({ ...workspace, version: 3 }), /unsupported schema version/);
+  assert.throws(() => validateWorkspace({ ...workspace, version: 4 }), /unsupported schema version/);
 });
 
 test('canvas preferences and circular node typography survive disk saves with legacy compatibility', async () =>

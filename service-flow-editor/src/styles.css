@@ -873,6 +873,14 @@ button.danger:hover {
 .is-dragging .graph-canvas {
   cursor: grabbing;
 }
+.service-node.expanded > .node-body,
+.is-selecting .graph-canvas,
+.is-selecting .service-node {
+  cursor: crosshair;
+}
+.is-panning .service-node.expanded > .node-body {
+  cursor: grabbing;
+}
 .empty-graph {
   position: absolute;
   top: 45%;

@@ -100,7 +100,7 @@ async function gesture(
   page: Page,
   from: { x: number; y: number },
   to: { x: number; y: number },
-  button: 'left' | 'middle' = 'left',
+  button: 'left' | 'middle' | 'right' = 'left',
 ) {
   await page.mouse.move(from.x, from.y);
   await page.mouse.down({ button });
@@ -168,10 +168,18 @@ test('marquee, Shift selection, grouped movement, undo, and pan remain independe
   expect((await disk(folder)).nodes).toEqual(moved.nodes);
 
   const panStart = await view(page);
+  await gesture(page, { x: 1040, y: 780 }, { x: 1080, y: 810 }, 'right');
+  const secondary = await view(page);
+  expect(secondary.x - panStart.x).toBeCloseTo(40);
+  expect(secondary.y - panStart.y).toBeCloseTo(30);
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  await page.mouse.click(1040, 780, { button: 'right' });
+  await expect(page.getByRole('menu')).toBeVisible();
+  await page.keyboard.press('Escape');
   await gesture(page, { x: 1040, y: 780 }, { x: 1080, y: 810 }, 'middle');
   const middle = await view(page);
-  expect(middle.x - panStart.x).toBeCloseTo(40);
-  expect(middle.y - panStart.y).toBeCloseTo(30);
+  expect(middle.x - secondary.x).toBeCloseTo(40);
+  expect(middle.y - secondary.y).toBeCloseTo(30);
   await page.mouse.move(1040, 780);
   await page.keyboard.down('Space');
   await gesture(page, { x: 1040, y: 780 }, { x: 1010, y: 760 });
@@ -246,6 +254,36 @@ test('arrow tips terminate at the target anchors for hidden and visible ports', 
   expect(await inspect()).toEqual(hidden);
 });
 
+test('right-drag over a node pans without editing it and manual overlaps do not displace neighbors', async ({
+  page,
+  folder,
+}) => {
+  await setup(page, folder);
+  const before = await disk(folder);
+  const initial = await view(page);
+  const a = await bounds(page.getByTestId('node-Alpha').locator('.node-body'));
+  await gesture(page, { x: a.x + 50, y: a.y + 30 }, { x: a.x + 85, y: a.y + 55 }, 'right');
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  const panned = await view(page);
+  expect(panned.x - initial.x).toBeCloseTo(35);
+  expect(panned.y - initial.y).toBeCloseTo(25);
+  expect((await disk(folder)).nodes).toEqual(before.nodes);
+  await page.getByTestId('node-Alpha').locator('.node-body').click({ button: 'right' });
+  await expect(page.getByRole('menuitem', { name: 'Service properties', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await dragNode(page, 'Alpha', 260 * panned.scale, 0);
+  await saved(page);
+  const overlapped = await disk(folder);
+  expect(overlapped.nodes[0].x).toBeCloseTo(before.nodes[1].x, 0);
+  expect(overlapped.nodes.slice(1)).toEqual(before.nodes.slice(1));
+  const overlap = await bounds(page.getByTestId('node-Alpha').locator('.node-body'));
+  const b = await bounds(page.getByTestId('node-Beta').locator('.node-body'));
+  expect(Math.abs(overlap.x - b.x)).toBeLessThan(1);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await saved(page);
+  expect((await disk(folder)).nodes).toEqual(before.nodes);
+});
+
 test('nested marquee avoids ancestor selection and group dragging never moves descendants twice', async ({
   page,
   folder,
@@ -281,6 +319,9 @@ test('nested marquee avoids ancestor selection and group dragging never moves de
   expect(Math.abs(shiftedTwo.x - two.x - (shiftedOne.x - one.x))).toBeLessThan(1);
   expect(Math.abs(shiftedTwo.y - two.y - (shiftedOne.y - one.y))).toBeLessThan(1);
   const afterGroup = await disk(folder);
+  expect(afterGroup.nodes.find((item) => item.key === 'Container')).toEqual(
+    beforeGroup.nodes.find((item) => item.key === 'Container'),
+  );
   const relative = (workspace: Workspace) => {
     const a = workspace.nodes.find((item) => item.key === 'One')!;
     const b = workspace.nodes.find((item) => item.key === 'Two')!;
@@ -309,7 +350,7 @@ test('nested marquee avoids ancestor selection and group dragging never moves de
   expect((await disk(folder)).nodes).toEqual(before.nodes);
 });
 
-test('editing an internal path keeps its world position through automatic container normalization', async ({
+test('editing an internal path changes only the route while display bounds follow it', async ({
   page,
   folder,
 }) => {
@@ -328,6 +369,7 @@ test('editing an internal path keeps its world position through automatic contai
   await saved(page);
   const before = await disk(folder);
   const one = await bounds(page.getByTestId('node-One').locator('.node-body'));
+  const container = await bounds(page.getByTestId('node-Container').locator('.node-body'));
   const handle = await bounds(page.getByTestId('segment-2'));
   const start = { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 };
   await gesture(page, start, { x: start.x, y: start.y - 140 });
@@ -338,8 +380,9 @@ test('editing an internal path keeps its world position through automatic contai
   expect(movedOne.y).toBeCloseTo(one.y, 2);
   const end = await bounds(page.getByTestId('segment-2'));
   expect(Math.abs(end.y - handle.y + 140)).toBeLessThan(3);
-  expect(moved.nodes.find((item) => item.key === 'Container')!.y).toBeLessThan(
-    before.nodes.find((item) => item.key === 'Container')!.y,
+  expect(moved.nodes).toEqual(before.nodes);
+  expect((await bounds(page.getByTestId('node-Container').locator('.node-body'))).y).toBeLessThan(
+    container.y,
   );
   expect(moved.edges[0].points).not.toEqual(before.edges[0].points);
   await page.getByRole('button', { name: 'Undo', exact: true }).click();

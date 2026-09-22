@@ -208,7 +208,7 @@ test('anchors appear on demand and three inline levels fit resized contents and 
   await assertSeparate(page, 'Platform', 'Neighbor');
   await saved(page);
   const beforeResize = await disk(folder);
-  expect(beforeResize.version).toBe(2);
+  expect(beforeResize.version).toBe(3);
   expect(beforeResize.edges.find((edge) => edge.id === 'request')).toMatchObject({
     sourceNodeId: 'id-Client',
     targetNodeId: 'id-Platform',
@@ -218,6 +218,7 @@ test('anchors appear on demand and three inline levels fit resized contents and 
   await expect(page.getByTestId('resize-handle')).toHaveCount(0);
   await expect(page.getByTestId('container-dimensions')).toContainText('Auto-sized to contents');
   await page.getByTestId('node-Worker').locator('.node-body').click();
+  const beforeContainer = await box(platform.locator('.node-body'));
   const resize = await box(page.getByTestId('resize-handle'));
   await page.mouse.move(resize.x + resize.width / 2, resize.y + resize.height / 2);
   await page.mouse.down();
@@ -226,8 +227,11 @@ test('anchors appear on demand and three inline levels fit resized contents and 
   await saved(page);
   const resized = (await disk(folder)).nodes.find((node) => node.key === 'Platform')!;
   const old = beforeResize.nodes.find((node) => node.key === 'Platform')!;
-  expect(resized.expandedSize!.width).toBeGreaterThan(old.expandedSize!.width);
-  expect(resized.expandedSize!.height).toBeGreaterThan(old.expandedSize!.height);
+  const afterContainer = await box(platform.locator('.node-body'));
+  expect(afterContainer.width).toBeGreaterThan(beforeContainer.width);
+  expect(afterContainer.height).toBeGreaterThan(beforeContainer.height);
+  expect(resized).toEqual(old);
+  expect(resized.expandedSize).toBeUndefined();
   expect([resized.width, resized.height]).toEqual([180, 88]);
   await page.getByRole('button', { name: 'Fit graph', exact: true }).click();
   await assertSeparate(page, 'Platform', 'Neighbor');

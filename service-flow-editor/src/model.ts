@@ -34,6 +34,7 @@ export interface ServiceNode {
   type?: NodeType;
   fontSize?: number;
   expanded?: boolean;
+  /** Legacy v2 display cache, discarded on load. Never authoritative geometry. */
   expandedSize?: { width: number; height: number };
 }
 export interface Graph {
@@ -45,7 +46,7 @@ export interface FlowEdge {
   graphId: string;
   source: string;
   target: string;
-  /** Required in schema v2; optional in TypeScript for legacy v1 inputs. */
+  /** Required since schema v2; optional in TypeScript for legacy v1 inputs. */
   sourceNodeId?: string;
   targetNodeId?: string;
   weights: string[];
@@ -54,7 +55,7 @@ export interface FlowEdge {
   points: Point[];
 }
 export interface Workspace {
-  version: 1 | 2;
+  version: 1 | 2 | 3;
   name: string;
   rootGraphId: string;
   graphs: Graph[];
@@ -69,7 +70,7 @@ const fold = (value: string) => value.toLocaleLowerCase('en-US');
 
 export function createWorkspace(name: string): Workspace {
   return {
-    version: 2,
+    version: 3,
     name: name.trim() || 'Untitled workspace',
     rootGraphId: 'root',
     graphs: [{ id: 'root', parentNodeId: null }],
@@ -161,7 +162,7 @@ export function edgeGraphId(workspace: Workspace, source: ServiceNode, target: S
 /** Validate the entire graph iteratively, with no fixed nesting-depth limit. */
 export function validateWorkspace(data: unknown): Workspace {
   assert(record(data), 'expected a JSON object.');
-  assert(data.version === 1 || data.version === 2, 'unsupported schema version.');
+  assert(data.version === 1 || data.version === 2 || data.version === 3, 'unsupported schema version.');
   assert(typeof data.name === 'string' && data.name.trim().length > 0, 'name is required.');
   assert(
     Number.isSafeInteger(data.revision) && (data.revision as number) >= 0,
@@ -243,10 +244,6 @@ export function validateWorkspace(data: unknown): Workspace {
       value.expanded === undefined || typeof value.expanded === 'boolean',
       `invalid expanded state for ${value.key}.`,
     );
-    assert(
-      value.expanded !== true || value.expandedSize !== undefined,
-      `expanded size is required for expanded node ${value.key}.`,
-    );
     if (value.expandedSize !== undefined) {
       const size = value.expandedSize;
       assert(
@@ -293,16 +290,16 @@ export function validateWorkspace(data: unknown): Workspace {
     );
     assert(!edgeIds.has(value.id), `duplicate edge id ${value.id}.`);
     edgeIds.add(value.id);
-    if (data.version === 2) {
+    if (data.version !== 1) {
       assert(
         identifier(value.sourceNodeId) && identifier(value.targetNodeId),
         `stable endpoint IDs are required on edge ${value.id}.`,
       );
     }
     const source =
-      data.version === 2 ? nodeMap.get(value.sourceNodeId as string) : keyMap.get(fold(value.source));
+      data.version !== 1 ? nodeMap.get(value.sourceNodeId as string) : keyMap.get(fold(value.source));
     const target =
-      data.version === 2 ? nodeMap.get(value.targetNodeId as string) : keyMap.get(fold(value.target));
+      data.version !== 1 ? nodeMap.get(value.targetNodeId as string) : keyMap.get(fold(value.target));
     assert(
       source && target && source.key === value.source && target.key === value.target,
       `missing endpoint or mismatched endpoint key on edge ${value.id}.`,
@@ -345,7 +342,10 @@ export function validateWorkspace(data: unknown): Workspace {
       targetNodeId: target.id,
     });
   }
-  return structuredClone({ ...data, version: 2, edges: migratedEdges }) as unknown as Workspace;
+  // Older versions have no reversible pre-expansion position history. Preserve their
+  // recorded coordinates as the baseline and discard only the obsolete size cache.
+  const nodes = [...nodeMap.values()].map(({ expandedSize: _legacy, ...node }) => node);
+  return structuredClone({ ...data, version: 3, nodes, edges: migratedEdges }) as unknown as Workspace;
 }
 
 export function renameNode(workspace: Workspace, nodeId: string, key: string): Workspace {

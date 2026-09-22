@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { AutosaveController, type ChangeOptions, type SaveResult } from './autosave';
 import { validateWorkspace, type Workspace } from './model';
-import { relayoutWorkspace } from './hierarchy';
 
 interface OpenResult {
   workspace: Workspace;
@@ -218,9 +217,6 @@ export function useWorkspace() {
           message =
             'A browser recovery draft was based on an older revision. The disk version is open; download the recovery JSON to preserve those edits.';
         }
-        // Migrate legacy expanded boxes after choosing the compatible draft or disk version.
-        // This is saved automatically without becoming an undoable user operation.
-        controller.change(relayoutWorkspace, { recordHistory: false });
         setRecoveryMessage(message);
       }),
     [controller, enqueue],

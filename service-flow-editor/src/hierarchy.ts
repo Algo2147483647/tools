@@ -4,18 +4,12 @@ import { reconnectEdge } from './routing';
 
 export const CONTAINER_PADDING = 32;
 export const CONTAINER_HEADER = 56;
-const SIBLING_GAP = 24;
-
-function ceilToGrid(value: number, workspace: Workspace): number {
-  const settings = canvasSettings(workspace);
-  return settings.snapToGrid ? Math.ceil(value / settings.gridSize) * settings.gridSize : value;
-}
 
 export interface SceneNode extends ServiceNode {
   base: ServiceNode;
   depth: number;
   expanded: boolean;
-  /** The node's owning graph origin, relative to the focused graph. */
+  /** Display origin of the owning graph, relative to the focused graph. */
   offset: Point;
 }
 export interface SceneEdge extends FlowEdge {
@@ -43,16 +37,16 @@ function hierarchyIndex(workspace: Workspace) {
   }
   return { byId, graphParents, children };
 }
+type Hierarchy = ReturnType<typeof hierarchyIndex>;
 
-/** Origins are independent of visibility: collapsing never changes stored path coordinates. */
-function origins(workspace: Workspace): Map<string, Point> {
-  const { children } = hierarchyIndex(workspace);
+/** Canonical origins never depend on expansion, content bounds, or display reflow. */
+function origins(workspace: Workspace, index = hierarchyIndex(workspace)): Map<string, Point> {
   const result = new Map<string, Point>([[workspace.rootGraphId, { x: 0, y: 0 }]]);
   const pending = [workspace.rootGraphId];
   while (pending.length) {
     const graphId = pending.pop()!;
     const origin = result.get(graphId)!;
-    for (const node of children.get(graphId) || []) {
+    for (const node of index.children.get(graphId) || []) {
       result.set(node.childGraphId, {
         x: origin.x + node.x + CONTAINER_PADDING,
         y: origin.y + node.y + CONTAINER_HEADER,
@@ -63,350 +57,256 @@ function origins(workspace: Workspace): Map<string, Point> {
   return result;
 }
 
-function retainedSize(node: ServiceNode) {
-  return {
-    width: node.expandedSize?.width || node.width,
-    height: node.expandedSize?.height || node.height,
-  };
+function projectCanonical(node: ServiceNode, ownerGraphId: string, allOrigins: Map<string, Point>) {
+  const from = allOrigins.get(node.graphId)!;
+  const to = allOrigins.get(ownerGraphId)!;
+  return { ...node, x: node.x + from.x - to.x, y: node.y + from.y - to.y };
 }
 
-function displayedSize(node: ServiceNode) {
-  return node.expanded ? retainedSize(node) : { width: node.width, height: node.height };
-}
-
-/** Canonical geometry uses a retained expanded footprint, even when its node is collapsed. */
+/** Stored routes attach to the all-collapsed geometry in their owning graph. */
 export function canonicalNode(workspace: Workspace, nodeId: string, ownerGraphId: string): ServiceNode {
   const node = workspace.nodes.find((item) => item.id === nodeId);
   if (!node) throw new Error('Service node was not found.');
-  const allOrigins = origins(workspace);
-  const from = allOrigins.get(node.graphId) || { x: 0, y: 0 };
-  const to = allOrigins.get(ownerGraphId) || { x: 0, y: 0 };
-  return {
-    ...node,
-    ...retainedSize(node),
-    x: node.x + from.x - to.x,
-    y: node.y + from.y - to.y,
-    type: node.expandedSize ? 'service' : node.type,
-  };
+  return projectCanonical(node, ownerGraphId, origins(workspace));
 }
 
-function ancestorIds(node: ServiceNode, workspace: Workspace): Set<string> {
-  const { byId, graphParents } = hierarchyIndex(workspace);
-  const result = new Set<string>();
-  let parentId = graphParents.get(node.graphId);
-  while (parentId) {
-    result.add(parentId);
-    const parent = byId.get(parentId);
-    parentId = parent && graphParents.get(parent.graphId);
-  }
-  return result;
-}
-
-/** Reconnect in each edge's owning graph; callers may edit nodes anywhere in the hierarchy. */
 export function rerouteEdges(workspace: Workspace): Workspace {
   const allOrigins = origins(workspace);
-  const { children } = hierarchyIndex(workspace);
   return {
     ...workspace,
     edges: workspace.edges.map((edge) => {
       const source = edgeEndpoint(workspace, edge, 'source');
       const target = edgeEndpoint(workspace, edge, 'target');
       if (!source || !target) return edge;
-      const owner = allOrigins.get(edge.graphId) || { x: 0, y: 0 };
-      const project = (node: ServiceNode, obstacle = false): ServiceNode => {
-        const origin = allOrigins.get(node.graphId) || { x: 0, y: 0 };
-        return {
-          ...node,
-          ...(obstacle ? displayedSize(node) : retainedSize(node)),
-          x: origin.x - owner.x + node.x,
-          y: origin.y - owner.y + node.y,
-          type: node.expandedSize ? 'service' : node.type,
-        };
+      return {
+        ...edge,
+        points: reconnectEdge(
+          edge,
+          projectCanonical(source, edge.graphId, allOrigins),
+          projectCanonical(target, edge.graphId, allOrigins),
+        ),
       };
-      const excluded = new Set([...ancestorIds(source, workspace), ...ancestorIds(target, workspace)]);
-      const obstacles: ServiceNode[] = [];
-      const pending = [edge.graphId];
-      while (pending.length) {
-        for (const node of children.get(pending.pop()!) || []) {
-          if (!excluded.has(node.id)) obstacles.push(project(node, true));
-          else {
-            if (node.expanded && node.id !== source.id && node.id !== target.id)
-              obstacles.push({ ...project(node, true), id: `header:${node.id}`, height: CONTAINER_HEADER });
-            pending.push(node.childGraphId);
-          }
-        }
-      }
-      return { ...edge, points: reconnectEdge(edge, project(source), project(target), obstacles) };
     }),
   };
 }
 
-/** Flatten only visible descendants; projection never mutates the canonical edge. */
-export function scene(workspace: Workspace, focusGraphId: string): Scene {
-  const { byId, graphParents, children } = hierarchyIndex(workspace);
-  const graphOrigins = origins(workspace);
-  const focus = graphOrigins.get(focusGraphId) || { x: 0, y: 0 };
-  for (const [graphId, origin] of graphOrigins)
-    graphOrigins.set(graphId, { x: origin.x - focus.x, y: origin.y - focus.y });
+type Bounds = { left: number; top: number; right: number; bottom: number };
+type DisplayNode = ServiceNode & { base: ServiceNode; childOrigin: Point };
+type GraphLayout = { nodes: DisplayNode[]; bounds: Bounds };
+
+/** Insert the additional space occupied by expanded nodes into the baseline layout.
+ * This is a coordinate transform, not a collision solver: no node is clamped or
+ * repeatedly pushed away during a drag, and baseline overlaps remain untouched. */
+function expansionOffsets(nodes: DisplayNode[], workspace: Workspace) {
+  const expansions = nodes
+    .filter((node) => node.expanded)
+    .map((node) => ({
+      base: node.base,
+      left: Math.max(0, node.base.x - node.x),
+      top: Math.max(0, node.base.y - node.y),
+      right: Math.max(0, node.x + node.width - node.base.x - node.base.width),
+      bottom: Math.max(0, node.y + node.height - node.base.y - node.base.height),
+    }));
+  if (!expansions.length) return;
+  const settings = canvasSettings(workspace);
+  const outward = (value: number) =>
+    settings.snapToGrid
+      ? Math.sign(value) * Math.ceil(Math.abs(value) / settings.gridSize) * settings.gridSize
+      : value;
+  for (const node of nodes) {
+    let dx = 0,
+      dy = 0;
+    for (const expansion of expansions) {
+      const other = expansion.base;
+      if (other.id === node.id) continue;
+      if (node.base.x >= other.x + other.width) dx += expansion.right;
+      else if (node.base.x + node.base.width <= other.x) dx -= expansion.left;
+      else if (node.base.y >= other.y + other.height) dy += expansion.bottom;
+      else if (node.base.y + node.base.height <= other.y) dy -= expansion.top;
+    }
+    dx = outward(dx);
+    dy = outward(dy);
+    node.x += dx;
+    node.y += dy;
+    node.childOrigin.x += dx;
+    node.childOrigin.y += dy;
+  }
+}
+
+function flatten(focusGraphId: string, layouts: Map<string, GraphLayout>) {
   const nodes: SceneNode[] = [];
+  const graphOrigins = new Map<string, Point>([[focusGraphId, { x: 0, y: 0 }]]);
   const pending = [{ graphId: focusGraphId, depth: 0 }];
   while (pending.length) {
     const { graphId, depth } = pending.pop()!;
-    const offset = graphOrigins.get(graphId) || { x: 0, y: 0 };
-    const localNodes = children.get(graphId) || [];
-    for (const node of localNodes) {
+    const offset = graphOrigins.get(graphId)!;
+    const local = layouts.get(graphId)?.nodes || [];
+    for (const node of local) {
       nodes.push({
         ...node,
-        ...displayedSize(node),
         x: node.x + offset.x,
         y: node.y + offset.y,
-        base: node,
         depth,
-        expanded: !!node.expanded,
         offset,
+        expanded: !!node.expanded,
       });
+      if (node.expanded) {
+        graphOrigins.set(node.childGraphId, {
+          x: offset.x + node.childOrigin.x,
+          y: offset.y + node.childOrigin.y,
+        });
+        pending.push({ graphId: node.childGraphId, depth: depth + 1 });
+      }
     }
-    for (let index = localNodes.length - 1; index >= 0; index--)
-      if (localNodes[index].expanded)
-        pending.push({ graphId: localNodes[index].childGraphId, depth: depth + 1 });
   }
-  // Containers precede their contents, so SVG paint and hit order are deterministic.
   nodes.sort((a, b) => a.depth - b.depth);
-  const visible = new Map(nodes.map((node) => [node.id, node]));
+  return { nodes, graphOrigins };
+}
+
+function renderEdges(
+  workspace: Workspace,
+  visible: ReturnType<typeof flatten>,
+  index: Hierarchy,
+  allOrigins: Map<string, Point>,
+  edges = workspace.edges,
+): SceneEdge[] {
+  const byId = new Map(visible.nodes.map((node) => [node.id, node]));
   const representative = (original: ServiceNode): SceneNode | undefined => {
     let node: ServiceNode | undefined = original;
     while (node) {
-      const found = visible.get(node.id);
+      const found = byId.get(node.id);
       if (found) return found;
-      const parentId = graphParents.get(node.graphId);
-      node = parentId ? byId.get(parentId) : undefined;
+      const parentId = index.graphParents.get(node.graphId);
+      node = parentId ? index.byId.get(parentId) : undefined;
     }
     return undefined;
   };
-  const edges: SceneEdge[] = [];
-  // Empty paths are a valid import. Derive their canonical route without mutating the input,
-  // using the same router as the first edit will persist.
-  const blankRoutes = new Map(
-    rerouteEdges({
-      ...workspace,
-      edges: workspace.edges.filter((edge) => edge.points.length === 0),
-    }).edges.map((edge) => [edge.id, edge.points]),
-  );
-  for (const original of workspace.edges) {
+  const result: SceneEdge[] = [];
+  for (const original of edges) {
     const source = edgeEndpoint(workspace, original, 'source');
     const target = edgeEndpoint(workspace, original, 'target');
     if (!source || !target) continue;
-    const sourceNode = representative(source);
-    const targetNode = representative(target);
+    const sourceNode = representative(source),
+      targetNode = representative(target);
     if (!sourceNode || !targetNode) continue;
     const projected = sourceNode.id !== source.id || targetNode.id !== target.id;
     if (projected && sourceNode.id === targetNode.id) continue;
-    const offset = graphOrigins.get(original.graphId) || { x: 0, y: 0 };
-    const excluded = new Set([...ancestorIds(sourceNode, workspace), ...ancestorIds(targetNode, workspace)]);
-    const obstacles: ServiceNode[] = nodes.filter((node) => !excluded.has(node.id));
-    for (const node of nodes)
-      if (node.expanded && excluded.has(node.id) && node.id !== sourceNode.id && node.id !== targetNode.id)
-        obstacles.push({ ...node, id: `header:${node.id}`, height: CONTAINER_HEADER });
-    const rendered: FlowEdge = {
+    const offset = visible.graphOrigins.get(original.graphId) || { x: 0, y: 0 };
+    const canonical = original.points.length
+      ? original.points
+      : reconnectEdge(
+          original,
+          projectCanonical(source, original.graphId, allOrigins),
+          projectCanonical(target, original.graphId, allOrigins),
+        );
+    const rendered = {
       ...original,
       source: sourceNode.key,
       target: targetNode.key,
-      points: (blankRoutes.get(original.id) || original.points).map((point) => ({
-        x: point.x + offset.x,
-        y: point.y + offset.y,
-      })),
+      points: canonical.map((point) => ({ x: point.x + offset.x, y: point.y + offset.y })),
     };
-    const points = reconnectEdge(
-      projected ? { ...rendered, points: [] } : rendered,
-      sourceNode,
-      targetNode,
-      obstacles,
-    );
-    edges.push({
+    result.push({
       ...rendered,
-      points,
+      points: reconnectEdge(projected ? { ...rendered, points: [] } : rendered, sourceNode, targetNode),
       original,
       sourceNode,
       targetNode,
       projected,
       offset,
-      editable:
-        !projected &&
-        points.length === rendered.points.length &&
-        points.every(
-          (point, index) => point.x === rendered.points[index].x && point.y === rendered.points[index].y,
-        ),
+      editable: !projected,
     });
-  }
-  return { nodes, edges, graphOrigins };
-}
-
-function normalizeChildren(workspace: Workspace, graphId: string, routePoints: Point[] = []): Point[] {
-  const children = workspace.nodes.filter((node) => node.graphId === graphId);
-  const owner = workspace.nodes.find((node) => node.childGraphId === graphId);
-  if (!owner || !children.length) return routePoints;
-  const dx = ceilToGrid(
-    -Math.min(...children.map((node) => node.x), ...routePoints.map((point) => point.x)),
-    workspace,
-  );
-  const dy = ceilToGrid(
-    -Math.min(...children.map((node) => node.y), ...routePoints.map((point) => point.y)),
-    workspace,
-  );
-  if (!dx && !dy) return routePoints;
-  // Move the container around the content, keeping descendants in their world positions.
-  owner.x -= dx;
-  owner.y -= dy;
-  for (const node of children) {
-    node.x += dx;
-    node.y += dy;
-  }
-  for (const edge of workspace.edges)
-    if (edge.graphId === graphId)
-      edge.points = edge.points.map((point) => ({ x: point.x + dx, y: point.y + dy }));
-  return routePoints.map((point) => ({ x: point.x + dx, y: point.y + dy }));
-}
-
-function expandToFit(workspace: Workspace, node: ServiceNode, routePoints: Point[] = []): void {
-  const children = workspace.nodes.filter((child) => child.graphId === node.childGraphId);
-  node.expandedSize = {
-    width: ceilToGrid(
-      Math.max(
-        children.length ? 160 : 240,
-        ...children.map((child) => child.x + displayedSize(child).width + CONTAINER_PADDING * 2),
-        ...routePoints.map((point) => point.x + CONTAINER_PADDING * 2),
-      ),
-      workspace,
-    ),
-    height: ceilToGrid(
-      Math.max(
-        children.length ? CONTAINER_HEADER + CONTAINER_PADDING : 144,
-        ...children.map(
-          (child) => child.y + displayedSize(child).height + CONTAINER_HEADER + CONTAINER_PADDING,
-        ),
-        ...routePoints.map((point) => point.y + CONTAINER_HEADER + CONTAINER_PADDING),
-      ),
-      workspace,
-    ),
-  };
-}
-
-/** Keep the edited node fixed, moving the least-distance right/down sibling first. */
-function separateSiblings(workspace: Workspace, graphId: string, priorityIds: Set<string>): void {
-  const siblings = workspace.nodes.filter((node) => node.graphId === graphId);
-  siblings.sort(
-    (a, b) =>
-      Number(priorityIds.has(b.id)) - Number(priorityIds.has(a.id)) ||
-      a.y - b.y ||
-      a.x - b.x ||
-      a.id.localeCompare(b.id),
-  );
-  const placed: ServiceNode[] = [];
-  for (const node of siblings) {
-    // A multi-selection is one rigid group. Do not change its internal arrangement.
-    if (priorityIds.has(node.id)) {
-      placed.push(node);
-      continue;
-    }
-    const size = displayedSize(node);
-    // Each displacement clears at least one obstacle; monotone moves cannot cycle.
-    for (;;) {
-      const collision = placed.find((other) => {
-        const otherSize = displayedSize(other);
-        return (
-          node.x < other.x + otherSize.width + SIBLING_GAP &&
-          node.x + size.width + SIBLING_GAP > other.x &&
-          node.y < other.y + otherSize.height + SIBLING_GAP &&
-          node.y + size.height + SIBLING_GAP > other.y
-        );
-      });
-      if (!collision) break;
-      const otherSize = displayedSize(collision);
-      const right = ceilToGrid(collision.x + otherSize.width + SIBLING_GAP, workspace);
-      const down = ceilToGrid(collision.y + otherSize.height + SIBLING_GAP, workspace);
-      if (right - node.x <= down - node.y) node.x = right;
-      else node.y = down;
-    }
-    placed.push(node);
-  }
-}
-
-function affectedGraphs(workspace: Workspace, initial: string[]): Set<string> {
-  const { byId, graphParents } = hierarchyIndex(workspace);
-  const result = new Set<string>();
-  for (let graphId of initial) {
-    while (!result.has(graphId)) {
-      result.add(graphId);
-      const parentId = graphParents.get(graphId);
-      const parent = parentId ? byId.get(parentId) : undefined;
-      if (!parent) break;
-      graphId = parent.graphId;
-    }
   }
   return result;
 }
 
-function layoutMutable(
-  workspace: Workspace,
-  priorityIds = new Set<string>(),
-  affected?: Set<string>,
-): Workspace {
-  const { byId, graphParents, children } = hierarchyIndex(workspace);
+/** All expanded sizes, offsets, and endpoint adaptations are disposable presentation data. */
+export function scene(workspace: Workspace, focusGraphId: string): Scene {
+  const index = hierarchyIndex(workspace);
+  const allOrigins = origins(workspace, index);
   const order: string[] = [];
   const pending = [workspace.rootGraphId];
   while (pending.length) {
     const graphId = pending.pop()!;
     order.push(graphId);
-    for (const node of children.get(graphId) || []) pending.push(node.childGraphId);
+    for (const node of index.children.get(graphId) || []) pending.push(node.childGraphId);
   }
+  const ownedEdges = new Map<string, FlowEdge[]>();
+  for (const edge of workspace.edges) {
+    const list = ownedEdges.get(edge.graphId) || [];
+    list.push(edge);
+    ownedEdges.set(edge.graphId, list);
+  }
+  const layouts = new Map<string, GraphLayout>();
   for (const graphId of order.reverse()) {
-    if (affected && !affected.has(graphId)) continue;
-    const ownerId = graphParents.get(graphId);
-    const owner = ownerId ? byId.get(ownerId) : undefined;
-    if (!affected && owner && !owner.expanded) continue;
-    separateSiblings(workspace, graphId, priorityIds);
-    if (owner) {
-      const routes = workspace.edges.some((edge) => edge.graphId === graphId)
-        ? scene(workspace, graphId)
-            .edges.filter((edge) => edge.original.graphId === graphId)
-            .flatMap((edge) => edge.points)
-        : [];
-      const normalizedRoutes = normalizeChildren(workspace, graphId, routes);
-      expandToFit(workspace, owner, normalizedRoutes);
+    const nodes = (index.children.get(graphId) || []).map((base): DisplayNode => {
+      const bounds = layouts.get(base.childGraphId)!.bounds;
+      const childOrigin = { x: base.x + CONTAINER_PADDING, y: base.y + CONTAINER_HEADER };
+      if (!base.expanded) return { ...base, base, childOrigin };
+      const empty = !index.children.get(base.childGraphId)?.length;
+      return {
+        ...base,
+        base,
+        childOrigin,
+        type: 'service',
+        x: base.x + bounds.left,
+        y: base.y + bounds.top,
+        width: Math.max(empty ? 240 : 160, bounds.right - bounds.left + 2 * CONTAINER_PADDING),
+        height: Math.max(
+          empty ? 144 : CONTAINER_HEADER + CONTAINER_PADDING,
+          bounds.bottom - bounds.top + CONTAINER_HEADER + CONTAINER_PADDING,
+        ),
+      };
+    });
+    expansionOffsets(nodes, workspace);
+    const bounds: Bounds = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+    const include = (x: number, y: number) => {
+      bounds.left = Math.min(bounds.left, x);
+      bounds.top = Math.min(bounds.top, y);
+      bounds.right = Math.max(bounds.right, x);
+      bounds.bottom = Math.max(bounds.bottom, y);
+    };
+    for (const node of nodes) {
+      include(node.x, node.y);
+      include(node.x + node.width, node.y + node.height);
     }
+    layouts.set(graphId, { nodes, bounds });
+    if (ownedEdges.has(graphId)) {
+      const visible = flatten(graphId, layouts);
+      for (const edge of renderEdges(workspace, visible, index, allOrigins, ownedEdges.get(graphId)))
+        for (const point of edge.points) include(point.x, point.y);
+    }
+    if (!nodes.length) Object.assign(bounds, { left: 0, top: 0, right: 0, bottom: 0 });
   }
+  const visible = flatten(focusGraphId, layouts);
+  return { ...visible, edges: renderEdges(workspace, visible, index, allOrigins) };
+}
+
+/** Convert an explicit displayed path edit back to its invariant owning-graph coordinates. */
+export function canonicalEdgePoints(workspace: Workspace, edge: SceneEdge, points: Point[]): Point[] {
+  const local = points.map((point) => ({ x: point.x - edge.offset.x, y: point.y - edge.offset.y }));
+  return reconnectEdge(
+    { ...edge.original, points: local },
+    canonicalNode(workspace, edge.sourceNode.id, edge.graphId),
+    canonicalNode(workspace, edge.targetNode.id, edge.graphId),
+  );
+}
+
+/** Reconnect only canonical routes. Rendering owns all container fitting and reflow. */
+export function relayoutWorkspace(workspace: Workspace): Workspace {
   return rerouteEdges(workspace);
 }
 
-/** Refit all currently expanded containers, including shrinkage after deletion. */
-export function relayoutWorkspace(workspace: Workspace): Workspace {
-  return layoutMutable(structuredClone(workspace));
-}
-
 export function toggleExpanded(workspace: Workspace, nodeId: string): Workspace {
-  const next = structuredClone(workspace);
-  const node = next.nodes.find((item) => item.id === nodeId);
-  if (!node) return workspace;
-  node.expanded = !node.expanded;
-  const graphs = [node.graphId];
-  if (node.expanded) {
-    const pending = [node.childGraphId];
-    while (pending.length) {
-      const graphId = pending.pop()!;
-      graphs.push(graphId);
-      for (const child of next.nodes)
-        if (child.graphId === graphId && child.expanded) pending.push(child.childGraphId);
-    }
-  }
-  return layoutMutable(next, new Set([node.id, ...ancestorIds(node, next)]), affectedGraphs(next, graphs));
+  return {
+    ...workspace,
+    nodes: workspace.nodes.map((node) => (node.id === nodeId ? { ...node, expanded: !node.expanded } : node)),
+  };
 }
 
 export interface NodeGeometryUpdate {
   id: string;
   patch: Partial<ServiceNode>;
 }
-
-/** x/y are graph-local; expanded dimensions are derived from contents, never manually resized. */
 export function updateNodeGeometry(
   workspace: Workspace,
   nodeId: string,
@@ -415,25 +315,28 @@ export function updateNodeGeometry(
   return updateNodesGeometry(workspace, [{ id: nodeId, patch }]);
 }
 
-/** Apply a rigid group move in one layout pass; selected descendants move with their ancestor. */
+/** Only the edited nodes change. Manual overlap is valid; descendants move with their ancestor. */
 export function updateNodesGeometry(workspace: Workspace, updates: NodeGeometryUpdate[]): Workspace {
   const next = structuredClone(workspace);
-  const { byId } = hierarchyIndex(next);
+  const { byId, graphParents } = hierarchyIndex(next);
   const movingIds = new Set(
     updates.filter(({ patch }) => patch.x !== undefined || patch.y !== undefined).map(({ id }) => id),
   );
-  const priorityIds = new Set<string>();
-  const graphs: string[] = [];
+  let geometryChanged = false;
   for (const { id, patch } of updates) {
     const node = byId.get(id);
     if (!node) continue;
     const { width, height, expandedSize: _ignored, ...rest } = patch;
-    if ([...ancestorIds(node, next)].some((ancestor) => movingIds.has(ancestor))) {
-      delete rest.x;
-      delete rest.y;
+    let parentId = graphParents.get(node.graphId);
+    while (parentId) {
+      if (movingIds.has(parentId)) {
+        delete rest.x;
+        delete rest.y;
+        break;
+      }
+      parentId = graphParents.get(byId.get(parentId)!.graphId);
     }
     Object.assign(node, rest);
-    if (Object.keys(patch).length > 0 && Object.keys(patch).every((key) => key === 'fontSize')) continue;
     if (!node.expanded) {
       if (width !== undefined) node.width = width;
       if (height !== undefined) node.height = height;
@@ -442,12 +345,9 @@ export function updateNodesGeometry(workspace: Workspace, updates: NodeGeometryU
       node.width = node.height = node.expanded
         ? Math.max(node.width, node.height)
         : (width ?? height ?? Math.max(node.width, node.height));
-    priorityIds.add(id);
-    for (const ancestor of ancestorIds(node, next)) priorityIds.add(ancestor);
-    graphs.push(node.graphId);
-    if (node.expanded) graphs.push(node.childGraphId);
+    geometryChanged ||= Object.keys(patch).some((key) => ['x', 'y', 'width', 'height', 'type'].includes(key));
   }
-  return graphs.length ? layoutMutable(next, priorityIds, affectedGraphs(next, graphs)) : next;
+  return geometryChanged ? rerouteEdges(next) : next;
 }
 
 /** Every edge contributes once to each endpoint's ancestor subtree, including internal flows. */

@@ -2,7 +2,14 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointer
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
 import { canvasSettings, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
-import { CONTAINER_HEADER, nodeDegrees, scene, type SceneEdge, type SceneNode } from './hierarchy';
+import {
+  canonicalEdgePoints,
+  CONTAINER_HEADER,
+  nodeDegrees,
+  scene,
+  type SceneEdge,
+  type SceneNode,
+} from './hierarchy';
 import Icon from './Icon';
 
 export type SelectionItem = { type: 'node' | 'edge'; id: string };
@@ -21,6 +28,8 @@ type Drag = {
   nodes?: SceneNode[];
   selections?: SelectionItem[];
   additive?: boolean;
+  context?: CanvasContext;
+  moved?: boolean;
 };
 type Props = {
   workspace: Workspace;
@@ -73,6 +82,7 @@ export default function Canvas(p: Props) {
   const settings = canvasSettings(p.workspace);
   const snap = (value: number) => snapCoordinate(value, settings);
   const drag = useRef<Drag | null>(null);
+  const suppressContextMenu = useRef(false);
   const spaceHeld = useRef(false);
   const [spaceDown, setSpaceDown] = useState(false);
   const [activeDrag, setActiveDrag] = useState(false);
@@ -121,7 +131,7 @@ export default function Canvas(p: Props) {
     };
   }
   function begin(e: ReactPointerEvent, next: Drag) {
-    if (e.button !== 0 && e.button !== 1) return;
+    if (e.button !== 0 && e.button !== 1 && e.button !== 2) return;
     e.preventDefault();
     e.stopPropagation();
     svg.current?.focus({ preventScroll: true });
@@ -130,7 +140,7 @@ export default function Canvas(p: Props) {
     setActiveDrag(true);
     // Reflow may replace a segment handle. Node capture must stay on its group so
     // native click/double-click targeting still reaches the node.
-    const capture = next.type === 'segment' ? svg.current : e.currentTarget;
+    const capture = ['segment', 'marquee', 'pan'].includes(next.type) ? svg.current : e.currentTarget;
     capture?.setPointerCapture(e.pointerId);
   }
   function cancelDrag(restoreSelection = false) {
@@ -240,6 +250,27 @@ export default function Canvas(p: Props) {
     }
     return null;
   }
+  function contextAt(e: { clientX: number; clientY: number; target: EventTarget | null }): CanvasContext {
+    const element = e.target as Element;
+    const node = element.closest('[data-node-id]');
+    const edge = element.closest('[data-edge-id]');
+    return {
+      x: e.clientX,
+      y: e.clientY,
+      point: point(e),
+      target: node
+        ? { type: 'node', id: node.getAttribute('data-node-id')! }
+        : edge
+          ? { type: 'edge', id: edge.getAttribute('data-edge-id')! }
+          : null,
+    };
+  }
+  function beginMarquee(e: ReactPointerEvent) {
+    const start = point(e);
+    begin(e, { type: 'marquee', id: '', start, selections, additive: e.shiftKey });
+    setMarquee({ start, end: start });
+    if (!e.shiftKey) selectItems([]);
+  }
   function marqueeItems(start: Point, finish: Point): SelectionItem[] {
     const left = Math.min(start.x, finish.x),
       right = Math.max(start.x, finish.x);
@@ -298,6 +329,8 @@ export default function Canvas(p: Props) {
         ...hits.filter((item) => !base.some((other) => other.type === item.type && other.id === item.id)),
       ]);
     } else if (current.type === 'pan') {
+      if (Math.hypot(e.clientX - current.start.x, e.clientY - current.start.y) > 4) current.moved = true;
+      if (current.context && !current.moved) return;
       p.onView({
         ...current.view!,
         x: current.view!.x + e.clientX - current.start.x,
@@ -305,10 +338,10 @@ export default function Canvas(p: Props) {
       });
     } else if (current.type === 'node') {
       const patches = (current.nodes ?? [current.node!]).map((node) => {
-        const offset = nodes.find((item) => item.id === node.id)?.offset ?? node.offset;
         return {
           id: node.id,
-          patch: { x: snap(node.x + dx - offset.x), y: snap(node.y + dy - offset.y) },
+          // Persist only pointer movement in the baseline frame, never display reflow offsets.
+          patch: { x: snap(node.base.x + dx), y: snap(node.base.y + dy) },
         };
       });
       if (p.onNodes) p.onNodes(patches);
@@ -329,35 +362,19 @@ export default function Canvas(p: Props) {
         index = current.index!;
       const horizontal = edge.points[index].y === edge.points[index + 1].y;
       const coordinate = horizontal ? edge.points[index].y + dy : edge.points[index].x + dx;
-      const edgeOffset = edges.find((item) => item.id === current.id)?.offset ?? edge.offset;
       p.onEdge(current.id, {
-        points: moveSegment(edge.points, index, snap(coordinate)).map((position) => ({
-          x: position.x - edgeOffset.x,
-          y: position.y - edgeOffset.y,
-        })),
+        points: canonicalEdgePoints(p.workspace, edge, moveSegment(edge.points, index, snap(coordinate))),
       });
     }
   }
   return (
     <div
       ref={wrapper}
-      className={`canvas-wrap ${preview ? 'is-connecting' : ''} ${activeDrag ? 'is-dragging' : ''} ${spaceDown ? 'is-panning' : ''}`}
+      className={`canvas-wrap ${preview ? 'is-connecting' : ''} ${activeDrag ? 'is-dragging' : ''} ${spaceDown || drag.current?.type === 'pan' ? 'is-panning' : ''} ${drag.current?.type === 'marquee' ? 'is-selecting' : ''}`}
       onContextMenu={(event) => {
         event.preventDefault();
-        cancelDrag();
-        const element = event.target as Element;
-        const node = element.closest('[data-node-id]');
-        const edge = element.closest('[data-edge-id]');
-        p.onContextMenu({
-          x: event.clientX,
-          y: event.clientY,
-          point: point(event),
-          target: node
-            ? { type: 'node', id: node.getAttribute('data-node-id')! }
-            : edge
-              ? { type: 'edge', id: edge.getAttribute('data-edge-id')! }
-              : null,
-        });
+        if (suppressContextMenu.current || drag.current?.context) return;
+        p.onContextMenu(contextAt(event));
       }}
     >
       <svg
@@ -367,21 +384,26 @@ export default function Canvas(p: Props) {
         aria-label="Service graph canvas"
         tabIndex={0}
         onPointerDownCapture={(e) => {
-          if (e.button === 1 || (e.button === 0 && spaceHeld.current))
-            begin(e, { type: 'pan', id: '', start: { x: e.clientX, y: e.clientY }, view: p.view });
+          suppressContextMenu.current = e.button === 2;
+          if (e.button === 2 || e.button === 1 || (e.button === 0 && spaceHeld.current))
+            begin(e, {
+              type: 'pan',
+              id: '',
+              start: { x: e.clientX, y: e.clientY },
+              view: p.view,
+              context: e.button === 2 ? contextAt(e) : undefined,
+            });
         }}
         onPointerDown={(e) => {
           if (e.button !== 0) return;
           if (e.target === e.currentTarget || (e.target as Element).classList.contains('canvas-background')) {
-            const start = point(e);
-            begin(e, { type: 'marquee', id: '', start, selections, additive: e.shiftKey });
-            setMarquee({ start, end: start });
-            if (!e.shiftKey) selectItems([]);
+            beginMarquee(e);
           }
         }}
         onPointerMove={pointerMove}
         onPointerUp={(e) => {
           const current = drag.current;
+          if (current?.type === 'pan' && current.context && !current.moved) p.onContextMenu(current.context);
           if (current?.type === 'connect') {
             const pos = point(e),
               target = targetAt(pos);
@@ -598,6 +620,11 @@ export default function Canvas(p: Props) {
                 transform={`translate(${node.x} ${node.y})`}
                 onPointerDown={(e) => {
                   if (e.button !== 0) return;
+                  // Empty container interiors are canvas space; move a container by its header.
+                  if (node.expanded && (e.target as Element).classList.contains('node-body')) {
+                    beginMarquee(e);
+                    return;
+                  }
                   const item: SelectionItem = { type: 'node', id: node.id };
                   const next = e.shiftKey ? selectItem(item, true) : selected ? selections : selectItem(item);
                   if (!next.some((entry) => entry.type === 'node' && entry.id === node.id)) {
@@ -855,7 +882,7 @@ export default function Canvas(p: Props) {
         <span className="live-dot" />
         {preview
           ? 'Drop on a service anchor to connect · Esc to cancel'
-          : 'Drag blank canvas to select · Shift to add · Space or middle-drag to pan'}
+          : 'Left-drag to select · Shift to add · Right-drag or Space-drag to pan'}
       </div>
       <div className="canvas-coordinates">
         {nodes.length} services <span> / </span>
