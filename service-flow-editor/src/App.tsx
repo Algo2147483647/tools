@@ -8,12 +8,14 @@ import {
   type ServiceNode,
   type Side,
   type Workspace,
+  type Point,
 } from './model';
 import { addBend, reconnectEdge, routeEdge } from './routing';
-import Canvas, { type Selection, type View } from './Canvas';
+import Canvas, { type CanvasContext, type Selection, type View } from './Canvas';
 import DocumentEditor from './DocumentEditor';
 import Icon from './Icon';
 import ThemePicker from './ThemePicker';
+import ContextMenu, { type ContextAction } from './ContextMenu';
 
 const uid = () => crypto.randomUUID();
 const defaultView = { x: 60, y: 60, scale: 1 };
@@ -446,8 +448,16 @@ export default function App() {
     [selection, setSelection] = useState<Selection>(null);
   const [view, setView] = useState<View>(defaultView),
     [modal, setModal] = useState<'open' | 'create' | 'node' | 'flow' | 'delete' | 'help' | null>(null);
-  const [connectMode, setConnectMode] = useState(false),
-    [connecting, setConnecting] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<CanvasContext | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      const stored = localStorage.getItem('service-atlas-sidebar-collapsed');
+      return stored === null ? window.innerWidth <= 760 : stored === 'true';
+    } catch {
+      return window.innerWidth <= 760;
+    }
+  });
+  const newNodePosition = useRef<Point | null>(null);
   const [search, setSearch] = useState(''),
     [notice, setNotice] = useState(''),
     [inspectorTab, setInspectorTab] = useState('properties');
@@ -534,8 +544,7 @@ export default function App() {
       setGraphId(id);
       setView(views.current[id] || defaultView);
       setSelection(null);
-      setConnecting(null);
-      setConnectMode(false);
+      setContextMenu(null);
       setSearch('');
     });
   }
@@ -568,7 +577,13 @@ export default function App() {
       y: (bounds.height - (bottom - top) * scale) / 2 - top * scale,
     });
   }
-  function addFlow(sourceKey: string, targetKey: string, weights: string[] = []) {
+  function addFlow(
+    sourceKey: string,
+    targetKey: string,
+    weights: string[] = [],
+    sourceSide: Side = 'right',
+    targetSide: Side = 'left',
+  ) {
     const source = localNodes.find((n) => n.key === sourceKey)!,
       target = localNodes.find((n) => n.key === targetKey)!;
     const id = uid();
@@ -578,23 +593,13 @@ export default function App() {
       source: sourceKey,
       target: targetKey,
       weights,
-      sourceSide: 'right',
-      targetSide: 'left',
-      points: routeEdge(source, target),
+      sourceSide,
+      targetSide,
+      points: routeEdge(source, target, sourceSide, targetSide),
     };
     store.change((w) => ({ ...w, edges: [...w.edges, edge] }));
     setModal(null);
     select({ type: 'edge', id });
-    setConnectMode(false);
-    setConnecting(null);
-  }
-  function connect(node: ServiceNode) {
-    if (!connecting) {
-      setConnecting(node.id);
-      return;
-    }
-    const source = localNodes.find((n) => n.id === connecting);
-    if (source) addFlow(source.key, node.key);
   }
   async function openWorkspace(path: string, create: boolean, name: string) {
     await docFlush.current();
@@ -604,8 +609,7 @@ export default function App() {
     setView(defaultView);
     setSelection(null);
     setModal(null);
-    setConnecting(null);
-    setConnectMode(false);
+    setContextMenu(null);
     setSearch('');
     try {
       localStorage.setItem(
@@ -634,29 +638,23 @@ export default function App() {
       }
       if (
         (e.target as HTMLElement).closest(
-          'input, textarea, select, [contenteditable], [data-theme-control]',
+          'input, textarea, select, [contenteditable], [data-theme-control], [role="menu"]',
         ) ||
         modal
       )
         return;
       if (e.key === 'Escape') {
-        setConnectMode(false);
-        setConnecting(null);
+        setContextMenu(null);
         select(null);
       }
       if (!workspace) return;
-      if (e.key.toLowerCase() === 'n') setModal('node');
-      if (e.key.toLowerCase() === 'c') {
-        setConnectMode((v) => !v);
-        setConnecting(null);
-      }
-      if (e.key.toLowerCase() === 'v') {
-        setConnectMode(false);
-        setConnecting(null);
-      }
+      if (e.key.toLowerCase() === 'n') openNewNode();
       if (e.key === '/') {
         e.preventDefault();
-        document.querySelector<HTMLInputElement>('[aria-label="Search services"]')?.focus();
+        setSidebarCollapsed(false);
+        requestAnimationFrame(() =>
+          document.querySelector<HTMLInputElement>('[aria-label="Search services"]')?.focus(),
+        );
       }
       if (e.key === '?') setModal('help');
       if (e.key === '1') fit();
@@ -669,6 +667,107 @@ export default function App() {
     window.addEventListener('keydown', keyboard);
     return () => window.removeEventListener('keydown', keyboard);
   });
+  function toggleSidebar() {
+    setSidebarCollapsed((value) => {
+      const next = !value;
+      try {
+        localStorage.setItem('service-atlas-sidebar-collapsed', String(next));
+      } catch {
+        /* Keep the current view when browser storage is unavailable. */
+      }
+      return next;
+    });
+  }
+  function openNewNode(position?: Point) {
+    newNodePosition.current = position ? { x: Math.round(position.x), y: Math.round(position.y) } : null;
+    setModal('node');
+  }
+  function inspect(target: NonNullable<Selection>, document = false) {
+    void action(() => {
+      setSelection(target);
+      setInspectorOpen(true);
+      setInspectorTab(document ? 'document' : 'properties');
+      setSegmentIndex(1);
+    });
+  }
+  const contextNode =
+    contextMenu?.target?.type === 'node'
+      ? workspace?.nodes.find((n) => n.id === contextMenu.target!.id)
+      : undefined;
+  const contextEdge =
+    contextMenu?.target?.type === 'edge'
+      ? workspace?.edges.find((e) => e.id === contextMenu.target!.id)
+      : undefined;
+  const contextActions: ContextAction[] = contextNode
+    ? [
+        {
+          label: 'Service properties',
+          icon: 'node',
+          run: () => inspect({ type: 'node', id: contextNode.id }),
+        },
+        {
+          label: 'Open document',
+          icon: 'file',
+          run: () => inspect({ type: 'node', id: contextNode.id }, true),
+        },
+        { label: 'Explore inside', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
+        {
+          label: 'Delete service',
+          icon: 'trash',
+          danger: true,
+          run: () =>
+            void action(() => {
+              setSelection({ type: 'node', id: contextNode.id });
+              setModal('delete');
+            }),
+        },
+      ]
+    : contextEdge
+      ? [
+          { label: 'Edit flow', icon: 'link', run: () => inspect({ type: 'edge', id: contextEdge.id }) },
+          {
+            label: 'Reverse direction',
+            icon: 'refresh',
+            run: () =>
+              changeEdge(contextEdge.id, {
+                source: contextEdge.target,
+                target: contextEdge.source,
+                sourceSide: contextEdge.targetSide,
+                targetSide: contextEdge.sourceSide,
+                points: [...contextEdge.points].reverse(),
+              }),
+          },
+          {
+            label: 'Reset path',
+            icon: 'branch',
+            run: () =>
+              changeEdge(contextEdge.id, {
+                points: routeEdge(
+                  localNodes.find((n) => n.key === contextEdge.source)!,
+                  localNodes.find((n) => n.key === contextEdge.target)!,
+                  contextEdge.sourceSide,
+                  contextEdge.targetSide,
+                ),
+              }),
+          },
+          {
+            label: 'Delete flow',
+            icon: 'trash',
+            danger: true,
+            run: () =>
+              void action(() => {
+                setSelection({ type: 'edge', id: contextEdge.id });
+                setModal('delete');
+              }),
+          },
+        ]
+      : [
+          { label: 'Add service here', icon: 'plus', run: () => openNewNode(contextMenu!.point) },
+          { label: 'Add flow', icon: 'link', disabled: !localNodes.length, run: () => setModal('flow') },
+          { label: 'Fit graph', icon: 'fit', run: fit },
+          { label: 'Reset view', icon: 'refresh', run: () => setView(defaultView) },
+          ...(parent ? [{ label: 'Up one level', icon: 'back', run: () => navigate(parent.graphId) }] : []),
+        ];
   const documentStatus = selectedNode ? documentState.status : 'saved';
   const overallStatus =
     store.status === 'error' || documentStatus === 'error'
@@ -697,7 +796,11 @@ export default function App() {
     ) || [];
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <aside
+        className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
+        aria-hidden={sidebarCollapsed}
+        inert={sidebarCollapsed}
+      >
         <div className="brand">
           <span className="brand-mark">
             <Icon name="atlas" size={24} />
@@ -705,7 +808,13 @@ export default function App() {
           <div>
             Service Atlas<span>RELATIONSHIPS, REVEALED.</span>
           </div>
-          <span className="version">01</span>
+          <button
+            className="dark-icon-button sidebar-close"
+            aria-label="Collapse sidebar"
+            onClick={toggleSidebar}
+          >
+            <Icon name="sidebar" size={17} />
+          </button>
         </div>
         <div className="workspace-card">
           <div className="eyebrow">WORKSPACE</div>
@@ -747,7 +856,7 @@ export default function App() {
           <button
             className="dark-icon-button"
             aria-label="Add service to current graph"
-            onClick={() => setModal(workspace ? 'node' : 'create')}
+            onClick={() => (workspace ? openNewNode() : setModal('create'))}
           >
             <Icon name="plus" size={16} />
           </button>
@@ -810,6 +919,15 @@ export default function App() {
       </aside>
       <main className="main-area">
         <header className="topbar">
+          <button
+            className="icon-button sidebar-toggle"
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={!sidebarCollapsed}
+            onClick={toggleSidebar}
+          >
+            <Icon name="sidebar" size={18} />
+          </button>
           <div className="breadcrumbs">
             <span className="workspace-label">{workspace ? workspace.name : 'Your workspace'}</span>
             {crumbs.map((c, i) => (
@@ -829,6 +947,55 @@ export default function App() {
             {displayStatus}
             {overallStatus === 'error' && <button onClick={retrySave}>Retry</button>}
           </div>
+          {workspace && (
+            <>
+              <div className="heading-actions">
+                {parent && (
+                  <button className="secondary" onClick={() => navigate(parent.graphId)}>
+                    <Icon name="back" size={16} />
+                    Up one level
+                  </button>
+                )}
+                <button className="secondary" disabled={!localNodes.length} onClick={() => setModal('flow')}>
+                  <Icon name="link" size={16} />
+                  Add flow
+                </button>
+                <button className="primary" onClick={() => openNewNode()}>
+                  <Icon name="plus" size={17} />
+                  Add service
+                </button>
+              </div>
+              <div className="zoom-controls">
+                <button
+                  className="icon-button"
+                  aria-label="Zoom out"
+                  onClick={() => setView((v) => ({ ...v, scale: Math.max(0.2, v.scale / 1.15) }))}
+                >
+                  <Icon name="minus" size={15} />
+                </button>
+                <span>{Math.round(view.scale * 100)}%</span>
+                <button
+                  className="icon-button"
+                  aria-label="Zoom in"
+                  onClick={() => setView((v) => ({ ...v, scale: Math.min(2.5, v.scale * 1.15) }))}
+                >
+                  <Icon name="plus" size={15} />
+                </button>
+                <button className="icon-button" aria-label="Fit graph" title="Fit graph (1)" onClick={fit}>
+                  <Icon name="fit" size={17} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Toggle inspector"
+                  aria-pressed={inspectorOpen}
+                  title="Show or hide details"
+                  onClick={() => setInspectorOpen((v) => !v)}
+                >
+                  <Icon name="node" size={16} />
+                </button>
+              </div>
+            </>
+          )}
           <ThemePicker />
           <button className="top-open secondary" onClick={() => setModal('open')}>
             <Icon name="folder" size={16} />
@@ -1012,111 +1179,23 @@ export default function App() {
           </section>
         ) : (
           <>
-            <div className="graph-heading">
-              <div>
-                <div className="eyebrow">{parent ? 'INTERNAL ARCHITECTURE' : 'SYSTEM ARCHITECTURE'}</div>
-                <h1>
-                  {parent?.key || 'Architecture overview'}
-                  <span>{localNodes.length} services</span>
-                </h1>
-              </div>
-              <div className="heading-actions">
-                {parent && (
-                  <button className="secondary" onClick={() => navigate(parent.graphId)}>
-                    <Icon name="back" size={16} />
-                    Up one level
-                  </button>
-                )}
-                <button className="secondary" disabled={!localNodes.length} onClick={() => setModal('flow')}>
-                  <Icon name="link" size={16} />
-                  Add flow
-                </button>
-                <button className="primary" onClick={() => setModal('node')}>
-                  <Icon name="plus" size={17} />
-                  Add service
-                </button>
-              </div>
-            </div>
             <div className="editor-layout">
               <section className="graph-area">
-                <div className="canvas-toolbar">
-                  <div className="tool-group">
-                    <button
-                      className={!connectMode ? 'active' : ''}
-                      onClick={() => {
-                        setConnectMode(false);
-                        setConnecting(null);
-                      }}
-                      title="Select and move (V)"
-                    >
-                      <Icon name="cursor" size={16} />
-                      Select
-                    </button>
-                    <button
-                      className={connectMode ? 'active' : ''}
-                      disabled={!localNodes.length}
-                      onClick={() => {
-                        setConnectMode((v) => !v);
-                        setConnecting(null);
-                      }}
-                      title="Connect services (C)"
-                    >
-                      <Icon name="link" size={16} />
-                      Connect
-                    </button>
-                  </div>
-                  <div className="toolbar-hint">
-                    {connectMode ? 'Click a source, then a destination' : 'SVG CANVAS'}
-                  </div>
-                  <div className="zoom-controls">
-                    <button
-                      className="icon-button"
-                      aria-label="Zoom out"
-                      onClick={() => setView((v) => ({ ...v, scale: Math.max(0.2, v.scale / 1.15) }))}
-                    >
-                      <Icon name="minus" size={15} />
-                    </button>
-                    <span>{Math.round(view.scale * 100)}%</span>
-                    <button
-                      className="icon-button"
-                      aria-label="Zoom in"
-                      onClick={() => setView((v) => ({ ...v, scale: Math.min(2.5, v.scale * 1.15) }))}
-                    >
-                      <Icon name="plus" size={15} />
-                    </button>
-                    <button
-                      className="icon-button"
-                      aria-label="Fit graph"
-                      title="Fit graph (1)"
-                      onClick={fit}
-                    >
-                      <Icon name="fit" size={17} />
-                    </button>
-                    <button
-                      className="icon-button"
-                      aria-label="Toggle inspector"
-                      aria-pressed={inspectorOpen}
-                      title="Show or hide details"
-                      onClick={() => setInspectorOpen((v) => !v)}
-                    >
-                      <Icon name="node" size={16} />
-                    </button>
-                  </div>
-                </div>
                 <Canvas
                   workspace={workspace}
                   graphId={graphId}
                   selection={selection}
                   view={view}
-                  connecting={connecting}
-                  connectMode={connectMode}
                   onView={setView}
                   onSelect={select}
                   onEnter={(n) => navigate(n.childGraphId)}
                   onNode={changeNode}
                   onEdge={changeEdge}
-                  onConnect={connect}
-                  onAdd={() => setModal('node')}
+                  onConnect={(source, target, sourceSide, targetSide) =>
+                    addFlow(source.key, target.key, [], sourceSide, targetSide)
+                  }
+                  onContextMenu={setContextMenu}
+                  onAdd={() => openNewNode()}
                 />
               </section>
               <aside className={`inspector ${inspectorOpen ? '' : 'collapsed'}`}>
@@ -1179,7 +1258,7 @@ export default function App() {
                         <NumberField
                           label="Height"
                           value={selectedNode.height}
-                          min={88}
+                          min={64}
                           onChange={(height) => changeNode(selectedNode.id, { height })}
                         />
                       </div>
@@ -1419,6 +1498,14 @@ export default function App() {
           <span>SERVICE ATLAS / 1.0</span>
         </footer>
       </main>
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          actions={contextActions}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
       {(modal === 'open' || modal === 'create') && (
         <WorkspaceDialog initialMode={modal} onClose={() => setModal(null)} onOpen={openWorkspace} />
       )}
@@ -1440,10 +1527,10 @@ export default function App() {
                   key,
                   graphId,
                   childGraphId,
-                  x: 40 + (index % 3) * 300,
-                  y: 60 + Math.floor(index / 3) * 220,
+                  x: newNodePosition.current?.x ?? 40 + (index % 3) * 300,
+                  y: newNodePosition.current?.y ?? 60 + Math.floor(index / 3) * 220,
                   width: 224,
-                  height: 124,
+                  height: 88,
                 },
               ],
               graphs: [...w.graphs, { id: childGraphId, parentNodeId: id }],
@@ -1511,9 +1598,9 @@ export default function App() {
               <section>
                 <h3>Make the connections</h3>
                 <p>
-                  Press <kbd>C</kbd> and click a source, then a destination. Select a flow to edit weights,
-                  change ports, add bends, or drag segment handles. Connections stay orthogonal as services
-                  move.
+                  Drag a white anchor from one service onto another service or anchor. The left anchor shows
+                  incoming flows; the right shows outgoing flows. Select a flow to edit weights, change ports,
+                  add bends, or drag segment handles. Connections stay orthogonal as services move.
                 </p>
               </section>
             </div>
@@ -1540,8 +1627,9 @@ export default function App() {
             </div>
             <p className="field-help">
               Drag the empty canvas to pan. Scroll to zoom. Press <kbd>1</kbd> to fit the graph and{' '}
-              <kbd>Esc</kbd> to leave connect mode. Deleting a service also deletes its nested services and
-              Markdown files.
+              <kbd>Esc</kbd> to cancel a connection. Right-click the canvas, a service, or a flow for
+              contextual actions. The top-left button collapses the sidebar. Deleting a service also deletes
+              its nested services and Markdown files.
             </p>
           </div>
         </Modal>

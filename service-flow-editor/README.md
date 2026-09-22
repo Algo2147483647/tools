@@ -59,7 +59,7 @@ Use **Add service** to create a rounded rectangular service node. Drag the node 
 
 Each service key is unique across the entire workspace, including every nested graph. Comparison is case insensitive, so `Orders` and `orders` cannot coexist. Keys must be valid Windows filenames: no path separators, control characters, `<>:"|?*`, leading or trailing whitespace, trailing dots, or reserved device names such as `CON` and `LPT1`. The maximum key length is 200 characters. Spaces within names are allowed.
 
-Use **Add flow** to choose a source and destination, or enable **Connect** and click a source followed by a destination. Self loops are supported. Select a flow to:
+Use **Add flow** to choose a source and destination, or drag any white node anchor onto another service or anchor. Selection, movement, and connection share the same interaction mode. The source is the service where the drag starts; release on empty space or press `Escape` to cancel. The left anchor shows the incoming flow count, and the right anchor shows the outgoing flow count. Self loops are supported. Select a flow to:
 
 - Enter weights, one string per line, such as an HTTP interface, event name, or data type.
 - Choose left, right, top, or bottom attachment ports.
@@ -99,20 +99,20 @@ File changes use a transaction journal so the main graph and managed documents c
 
 ## Keyboard and canvas controls
 
-| Action                                 | Control                                           |
-| -------------------------------------- | ------------------------------------------------- |
-| Add service                            | `N`                                               |
-| Toggle connect mode                    | `C`                                               |
-| Select mode                            | `V`                                               |
-| Search all service levels              | `/`                                               |
-| Editor guide                           | `?`                                               |
-| Enter selected service                 | `Enter`                                           |
-| Delete selected service or flow        | `Delete` or `Backspace`, followed by confirmation |
-| Fit the current graph                  | `1`                                               |
-| Leave connect mode and clear selection | `Escape`                                          |
-| Save immediately                       | `Ctrl+S` / `Cmd+S`                                |
-| Pan                                    | Drag an empty part of the canvas                  |
-| Zoom                                   | Scroll, or use the zoom buttons                   |
+| Action                                  | Control                                           |
+| --------------------------------------- | ------------------------------------------------- |
+| Add service                             | `N`                                               |
+| Search all service levels               | `/`                                               |
+| Editor guide                            | `?`                                               |
+| Enter selected service                  | `Enter`                                           |
+| Delete selected service or flow         | `Delete` or `Backspace`, followed by confirmation |
+| Fit the current graph                   | `1`                                               |
+| Cancel a connection and clear selection | `Escape`                                          |
+| Save immediately                        | `Ctrl+S` / `Cmd+S`                                |
+| Pan                                     | Drag an empty part of the canvas                  |
+| Zoom                                    | Scroll, or use the zoom buttons                   |
+
+Use the top-left **Collapse sidebar** / **Expand sidebar** button to toggle the service list; the choice is remembered in this browser. Workspace actions, navigation, and zoom controls share the top bar. Right-click empty canvas to add a service at that location or fit/reset the view. Right-click a service to inspect it, open its document, explore inside, or delete it; right-click a flow to edit, reverse, reset its path, or delete it.
 
 The toolbar's **Toggle inspector** button shows or hides the properties panel. Compact windows start with it closed to leave more room for the graph. Fonts and application assets load locally; no external account or network connection is needed after installing dependencies.
 

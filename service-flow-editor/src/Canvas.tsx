@@ -1,32 +1,33 @@
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
-import type { FlowEdge, Point, ServiceNode, Workspace } from './model';
-import { moveSegment, roundedPath, routeEdge } from './routing';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
+import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
 import Icon from './Icon';
 
 export type Selection = { type: 'node' | 'edge'; id: string } | null;
 export type View = { x: number; y: number; scale: number };
+export type CanvasContext = { x: number; y: number; point: Point; target: Selection };
 type Drag = {
-  type: 'node' | 'resize' | 'segment' | 'pan';
+  type: 'node' | 'resize' | 'segment' | 'pan' | 'connect';
   id: string;
   index?: number;
   start: Point;
   node?: ServiceNode;
   edge?: FlowEdge;
   view?: View;
+  side?: Side;
 };
 type Props = {
   workspace: Workspace;
   graphId: string;
   selection: Selection;
   view: View;
-  connecting: string | null;
-  connectMode: boolean;
   onView: (view: View) => void;
   onSelect: (selection: Selection) => void;
   onEnter: (node: ServiceNode) => void;
   onNode: (id: string, patch: Partial<ServiceNode>) => void;
   onEdge: (id: string, patch: Partial<FlowEdge>) => void;
-  onConnect: (node: ServiceNode) => void;
+  onConnect: (source: ServiceNode, target: ServiceNode, sourceSide: Side, targetSide: Side) => void;
+  onContextMenu: (context: CanvasContext) => void;
   onAdd: () => void;
 };
 
@@ -34,7 +35,10 @@ export default function Canvas(p: Props) {
   const svg = useRef<SVGSVGElement>(null);
   const drag = useRef<Drag | null>(null);
   const [activeDrag, setActiveDrag] = useState(false);
-  const [pointer, setPointer] = useState<Point | null>(null);
+  const [preview, setPreview] = useState<{ points: Point[]; targetId?: string; radius?: number } | null>(
+    null,
+  );
+  const portSides: Side[] = ['left', 'right', 'top', 'bottom'];
   const nodes = p.workspace.nodes.filter((n) => n.graphId === p.graphId);
   const edges = p.workspace.edges
     .filter((e) => e.graphId === p.graphId)
@@ -66,14 +70,68 @@ export default function Canvas(p: Props) {
     setActiveDrag(true);
     e.currentTarget.setPointerCapture(e.pointerId);
   }
+  function cancelDrag() {
+    drag.current = null;
+    setActiveDrag(false);
+    setPreview(null);
+  }
+  useEffect(() => {
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') cancelDrag();
+    };
+    window.addEventListener('keydown', escape);
+    return () => window.removeEventListener('keydown', escape);
+  }, []);
+  function targetAt(pos: Point) {
+    const threshold = 16 / p.view.scale;
+    for (const node of [...nodes].reverse()) {
+      const candidates = portSides.map((side) => ({ side, point: anchor(node, side) }));
+      candidates.sort(
+        (a, b) =>
+          Math.hypot(a.point.x - pos.x, a.point.y - pos.y) - Math.hypot(b.point.x - pos.x, b.point.y - pos.y),
+      );
+      const nearest = candidates[0];
+      if (
+        Math.hypot(nearest.point.x - pos.x, nearest.point.y - pos.y) <= threshold ||
+        (pos.x >= node.x && pos.x <= node.x + node.width && pos.y >= node.y && pos.y <= node.y + node.height)
+      ) {
+        return { node, side: nearest.side };
+      }
+    }
+    return null;
+  }
+  function portRadius(key: string, side: Side) {
+    if (side === 'top' || side === 'bottom') return 6;
+    const degree = edges.filter((edge) => (side === 'left' ? edge.target : edge.source) === key).length;
+    return degree > 99 ? 14 : 11;
+  }
   function pointerMove(e: ReactPointerEvent) {
     const pos = point(e);
-    setPointer(pos);
     const current = drag.current;
     if (!current) return;
     const dx = pos.x - current.start.x,
       dy = pos.y - current.start.y;
-    if (current.type === 'pan') {
+    if (current.type === 'connect') {
+      const target = targetAt(pos);
+      const valid = target && (target.node.id !== current.id || target.side !== current.side);
+      if (valid)
+        setPreview({
+          points: routeEdge(current.node!, target.node, current.side!, target.side),
+          targetId: target.node.id,
+          radius: portRadius(target.node.key, target.side),
+        });
+      else {
+        const start = anchor(current.node!, current.side!);
+        const horizontal = current.side === 'left' || current.side === 'right';
+        const stub = {
+          x: start.x + (current.side === 'left' ? -32 : current.side === 'right' ? 32 : 0),
+          y: start.y + (current.side === 'top' ? -32 : current.side === 'bottom' ? 32 : 0),
+        };
+        setPreview({
+          points: [start, stub, horizontal ? { x: pos.x, y: stub.y } : { x: stub.x, y: pos.y }, pos],
+        });
+      }
+    } else if (current.type === 'pan') {
       p.onView({
         ...current.view!,
         x: current.view!.x + e.clientX - current.start.x,
@@ -84,7 +142,7 @@ export default function Canvas(p: Props) {
     } else if (current.type === 'resize') {
       p.onNode(current.id, {
         width: Math.max(160, Math.round(current.node!.width + dx)),
-        height: Math.max(88, Math.round(current.node!.height + dy)),
+        height: Math.max(64, Math.round(current.node!.height + dy)),
       });
     } else {
       const edge = current.edge!,
@@ -94,15 +152,35 @@ export default function Canvas(p: Props) {
       p.onEdge(current.id, { points: moveSegment(edge.points, index, Math.round(coordinate)) });
     }
   }
-  const source = nodes.find((n) => n.id === p.connecting);
   return (
-    <div className={`canvas-wrap ${p.connectMode ? 'connect-mode' : ''} ${activeDrag ? 'is-dragging' : ''}`}>
+    <div
+      className={`canvas-wrap ${preview ? 'is-connecting' : ''} ${activeDrag ? 'is-dragging' : ''}`}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        cancelDrag();
+        const element = event.target as Element;
+        const node = element.closest('[data-node-id]');
+        const edge = element.closest('[data-edge-id]');
+        p.onContextMenu({
+          x: event.clientX,
+          y: event.clientY,
+          point: point(event),
+          target: node
+            ? { type: 'node', id: node.getAttribute('data-node-id')! }
+            : edge
+              ? { type: 'edge', id: edge.getAttribute('data-edge-id')! }
+              : null,
+        });
+      }}
+    >
       <svg
         ref={svg}
         className="graph-canvas"
         data-testid="graph-canvas"
         aria-label="Service graph canvas"
+        tabIndex={0}
         onPointerDown={(e) => {
+          if (e.button !== 0 && e.button !== 1) return;
           if (e.target === e.currentTarget || (e.target as Element).classList.contains('canvas-background')) {
             p.onSelect(null);
             begin(e, { type: 'pan', id: '', start: { x: e.clientX, y: e.clientY }, view: p.view });
@@ -110,14 +188,24 @@ export default function Canvas(p: Props) {
         }}
         onPointerMove={pointerMove}
         onPointerUp={(e) => {
-          drag.current = null;
-          setActiveDrag(false);
-          if (svg.current?.hasPointerCapture(e.pointerId)) svg.current.releasePointerCapture(e.pointerId);
+          const current = drag.current;
+          if (current?.type === 'connect') {
+            const pos = point(e),
+              target = targetAt(pos);
+            if (
+              target &&
+              (target.node.id !== current.id || target.side !== current.side) &&
+              Math.hypot(pos.x - current.start.x, pos.y - current.start.y) * p.view.scale > 4
+            ) {
+              p.onConnect(current.node!, target.node, current.side!, target.side);
+            }
+          }
+          cancelDrag();
+          const capture = e.target as Element;
+          if (capture.hasPointerCapture?.(e.pointerId)) capture.releasePointerCapture(e.pointerId);
         }}
-        onPointerCancel={() => {
-          drag.current = null;
-          setActiveDrag(false);
-        }}
+        onPointerCancel={cancelDrag}
+        onLostPointerCapture={cancelDrag}
         onWheel={(e) => {
           const rect = svg.current!.getBoundingClientRect();
           const sx = e.clientX - rect.left,
@@ -141,40 +229,29 @@ export default function Canvas(p: Props) {
           >
             <circle cx={1} cy={1} r={0.8} fill="var(--grid-color)" />
           </pattern>
-          <marker
-            id="arrow"
-            viewBox="0 0 10 10"
-            refX="9"
-            refY="5"
-            markerWidth="7"
-            markerHeight="7"
-            orient="auto-start-reverse"
-          >
-            <path
-              d="M1 1 9 5 1 9"
-              fill="none"
-              stroke="var(--edge-color)"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-          </marker>
-          <marker
-            id="arrow-selected"
-            viewBox="0 0 10 10"
-            refX="9"
-            refY="5"
-            markerWidth="7"
-            markerHeight="7"
-            orient="auto-start-reverse"
-          >
-            <path
-              d="M1 1 9 5 1 9"
-              fill="none"
-              stroke="var(--accent)"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-          </marker>
+          {[false, true].flatMap((selected) =>
+            [0, 6, 11, 14].map((radius) => (
+              <marker
+                key={`${selected}-${radius}`}
+                id={`arrow${selected ? '-selected' : ''}-${radius}`}
+                viewBox="0 0 10 10"
+                refX={9 + (radius ? radius + 2 : 0)}
+                refY="5"
+                markerUnits="userSpaceOnUse"
+                markerWidth="10"
+                markerHeight="10"
+                orient="auto-start-reverse"
+              >
+                <path
+                  d="M1 1 9 5 1 9"
+                  fill="none"
+                  stroke={selected ? 'var(--accent)' : 'var(--edge-color)'}
+                  strokeWidth="1.7"
+                  strokeLinejoin="round"
+                />
+              </marker>
+            )),
+          )}
           <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
             <feDropShadow
               dx="0"
@@ -205,9 +282,11 @@ export default function Canvas(p: Props) {
               <g
                 key={edge.id}
                 data-testid={`edge-${edge.id}`}
+                data-edge-id={edge.id}
                 className={`flow-edge ${selected ? 'selected' : ''}`}
                 onPointerDown={(e) => {
                   e.stopPropagation();
+                  if (e.button !== 0) return;
                   p.onSelect({ type: 'edge', id: edge.id });
                 }}
               >
@@ -222,7 +301,7 @@ export default function Canvas(p: Props) {
                   className="edge-line"
                   d={roundedPath(edge.points)}
                   fill="none"
-                  markerEnd={`url(#${selected ? 'arrow-selected' : 'arrow'})`}
+                  markerEnd={`url(#arrow${selected ? '-selected' : ''}-${portRadius(edge.target, edge.targetSide)})`}
                 />
                 {label && (
                   <g className="edge-label" transform={`translate(${mid.x} ${mid.y - 15})`}>
@@ -238,63 +317,34 @@ export default function Canvas(p: Props) {
                     </text>
                   </g>
                 )}
-                {selected &&
-                  edge.points.slice(0, -1).map((a, index) => {
-                    const b = edge.points[index + 1];
-                    if (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) < 12) return null;
-                    return (
-                      <rect
-                        key={index}
-                        data-testid={`segment-${index}`}
-                        className="segment-handle"
-                        x={(a.x + b.x) / 2 - 5}
-                        y={(a.y + b.y) / 2 - 5}
-                        width={10}
-                        height={10}
-                        rx={3}
-                        style={{ cursor: a.y === b.y ? 'ns-resize' : 'ew-resize' }}
-                        onPointerDown={(e) =>
-                          begin(e, {
-                            type: 'segment',
-                            id: edge.id,
-                            index,
-                            start: point(e),
-                            edge: structuredClone(edge),
-                          })
-                        }
-                      >
-                        <title>Drag this segment to edit the path</title>
-                      </rect>
-                    );
-                  })}
               </g>
             );
           })}
-          {source && pointer && (
+          {preview && (
             <path
-              d={`M${source.x + source.width} ${source.y + source.height / 2} H${pointer.x} V${pointer.y}`}
+              data-testid="connection-preview"
+              d={roundedPath(preview.points)}
               stroke="var(--accent)"
               strokeWidth={2}
               strokeDasharray="6 5"
               fill="none"
               pointerEvents="none"
+              markerEnd={`url(#arrow-selected-${preview.radius ?? 0})`}
             />
           )}
           {nodes.map((node) => {
             const selected = p.selection?.type === 'node' && p.selection.id === node.id;
-            const count = p.workspace.nodes.filter((n) => n.graphId === node.childGraphId).length;
+            const incoming = edges.filter((edge) => edge.target === node.key).length;
+            const outgoing = edges.filter((edge) => edge.source === node.key).length;
             return (
               <g
                 key={node.id}
                 data-testid={`node-${node.key}`}
-                className={`service-node ${selected ? 'selected' : ''} ${p.connecting === node.id ? 'connecting' : ''}`}
+                data-node-id={node.id}
+                className={`service-node ${selected ? 'selected' : ''} ${preview?.targetId === node.id ? 'connecting' : ''}`}
                 transform={`translate(${node.x} ${node.y})`}
                 onPointerDown={(e) => {
-                  if (p.connectMode) {
-                    e.stopPropagation();
-                    p.onConnect(node);
-                    return;
-                  }
+                  if (e.button !== 0) return;
                   p.onSelect({ type: 'node', id: node.id });
                   begin(e, { type: 'node', id: node.id, start: point(e), node: { ...node } });
                 }}
@@ -310,54 +360,61 @@ export default function Canvas(p: Props) {
                   rx={12}
                   filter="url(#node-shadow)"
                 />
-                <rect className="node-icon-bg" x={16} y={16} width={29} height={29} rx={7} />
+                <rect className="node-icon-bg" x={12} y={12} width={20} height={20} rx={5} />
                 <path
-                  d="M24 24h13v13H24z M27 28h7 M27 32h5"
+                  d="M17 17h10v10H17z M20 20h4 M20 24h3"
                   fill="none"
                   stroke="var(--node-icon-color)"
                   strokeWidth={1.4}
                   strokeLinecap="round"
                 />
-                <text className="node-kind" x={55} y={28}>
-                  SERVICE
-                </text>
-                <text className="node-key" x={16} y={66}>
+                <text
+                  className="node-key"
+                  x={node.width / 2}
+                  y={Math.max(49, node.height / 2 + 5)}
+                  textAnchor="middle"
+                >
                   <title>{node.key}</title>
                   {node.key.length > Math.floor((node.width - 32) / 8)
                     ? node.key.slice(0, Math.floor((node.width - 32) / 8) - 1) + '…'
                     : node.key}
                 </text>
-                {node.height >= 105 && (
-                  <>
-                    <line
-                      x1={16}
-                      x2={node.width - 16}
-                      y1={node.height - 35}
-                      y2={node.height - 35}
-                      stroke="var(--border)"
-                    />
-                    <text className="node-foot" x={16} y={node.height - 14}>
-                      {count
-                        ? `${count} internal service${count === 1 ? '' : 's'}`
-                        : 'Explore internal structure'}
-                    </text>
-                    <path
-                      d={`m${node.width - 25} ${node.height - 22} 5 5-5 5`}
-                      stroke="var(--text-muted)"
-                      fill="none"
-                      strokeWidth={1.5}
-                    />
-                  </>
-                )}
-                {(['left', 'right', 'top', 'bottom'] as const).map((side) => (
-                  <circle
-                    key={side}
-                    className="node-port"
-                    cx={side === 'left' ? 0 : side === 'right' ? node.width : node.width / 2}
-                    cy={side === 'top' ? 0 : side === 'bottom' ? node.height : node.height / 2}
-                    r={4}
-                  />
-                ))}
+                {portSides.map((side) => {
+                  const center = anchor({ ...node, x: 0, y: 0 }, side);
+                  const degree = side === 'left' ? incoming : side === 'right' ? outgoing : null;
+                  return (
+                    <g
+                      key={side}
+                      className="node-port"
+                      data-testid={`port-${node.key}-${side}`}
+                      role="button"
+                      aria-label={`${node.key} ${side} anchor${degree !== null ? `, ${degree} ${side === 'left' ? 'incoming' : 'outgoing'} flows` : ''}`}
+                      transform={`translate(${center.x} ${center.y})`}
+                      onPointerDown={(event) => {
+                        if (event.button !== 0) return;
+                        begin(event, { type: 'connect', id: node.id, start: point(event), node, side });
+                        setPreview({ points: [anchor(node, side), anchor(node, side)] });
+                      }}
+                      onDoubleClick={(event) => event.stopPropagation()}
+                    >
+                      <circle className="port-hit" r={16} fill="transparent" />
+                      <circle className="port-body" r={degree === null ? 6 : degree > 99 ? 14 : 11} />
+                      {degree !== null && (
+                        <text className="port-count" textAnchor="middle" dominantBaseline="central">
+                          {degree}
+                        </text>
+                      )}
+                      <title>
+                        {side === 'left'
+                          ? `${incoming} incoming flows`
+                          : side === 'right'
+                            ? `${outgoing} outgoing flows`
+                            : 'Drag to connect'}{' '}
+                        · Drag to another service
+                      </title>
+                    </g>
+                  );
+                })}
                 {selected && (
                   <rect
                     data-testid="resize-handle"
@@ -377,6 +434,40 @@ export default function Canvas(p: Props) {
               </g>
             );
           })}
+          {edges
+            .filter((edge) => p.selection?.type === 'edge' && p.selection.id === edge.id)
+            .map((edge) => (
+              <g key={`handles-${edge.id}`} className="edge-handles" data-edge-id={edge.id}>
+                {edge.points.slice(0, -1).map((a, index) => {
+                  const b = edge.points[index + 1];
+                  if (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) < 12) return null;
+                  return (
+                    <rect
+                      key={index}
+                      data-testid={`segment-${index}`}
+                      className="segment-handle"
+                      x={(a.x + b.x) / 2 - 5}
+                      y={(a.y + b.y) / 2 - 5}
+                      width={10}
+                      height={10}
+                      rx={3}
+                      style={{ cursor: a.y === b.y ? 'ns-resize' : 'ew-resize' }}
+                      onPointerDown={(e) =>
+                        begin(e, {
+                          type: 'segment',
+                          id: edge.id,
+                          index,
+                          start: point(e),
+                          edge: structuredClone(edge),
+                        })
+                      }
+                    >
+                      <title>Drag this segment to edit the path</title>
+                    </rect>
+                  );
+                })}
+              </g>
+            ))}
         </g>
       </svg>
       {!nodes.length && (
@@ -403,11 +494,9 @@ export default function Canvas(p: Props) {
       )}
       <div className="canvas-caption">
         <span className="live-dot" />
-        {p.connectMode
-          ? p.connecting
-            ? 'Choose the destination service'
-            : 'Choose the source service'
-          : 'Drag canvas to pan · Scroll to zoom · Double-click a service to explore'}
+        {preview
+          ? 'Drop on a service anchor to connect · Esc to cancel'
+          : 'Drag an anchor to connect · Double-click to explore · Right-click for actions'}
       </div>
       <div className="canvas-coordinates">
         {nodes.length} services <span> / </span>

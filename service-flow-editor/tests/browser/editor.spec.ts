@@ -85,7 +85,7 @@ async function drag(page: Page, target: Locator, dx: number, dy: number) {
   await page.mouse.up();
 }
 
-async function selectEdge(page: Page, edgeId: string) {
+async function selectEdge(page: Page, edgeId: string, button: 'left' | 'right' = 'left') {
   const edge = page.getByTestId(`edge-${edgeId}`);
   // Labels may legitimately overlap services after custom routing. Select an
   // exposed path segment using a real pointer rather than forcing a DOM event.
@@ -103,8 +103,8 @@ async function selectEdge(page: Page, edgeId: string) {
     return null;
   });
   if (!point) throw new Error('The edge has no visible segment to select.');
-  await page.mouse.click(point.x, point.y);
-  await expect(page.getByLabel('Flow weights')).toBeVisible();
+  await page.mouse.click(point.x, point.y, { button });
+  if (button === 'left') await expect(page.getByLabel('Flow weights')).toBeVisible();
 }
 
 function assertOrthogonal(workspace: Workspace) {
@@ -455,4 +455,137 @@ test('a filename collision can be corrected and retried without overwriting eith
   expect((await disk(workspaceFolder)).edges[0].source).toBe('Renamed');
   await page.getByRole('button', { name: 'Document', exact: true }).click();
   await expect(page.getByRole('textbox', { name: 'Service Markdown document' })).toHaveValue(originalContent);
+});
+
+async function connectAnchors(page: Page, from: string, fromSide: string, to: string, toSide: string) {
+  const a = await page.getByTestId(`port-${from}-${fromSide}`).boundingBox();
+  const b = await page.getByTestId(`port-${to}-${toSide}`).boundingBox();
+  if (!a || !b) throw new Error('Both connection anchors must be visible.');
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 10 });
+  await expect(page.getByTestId('connection-preview')).toBeAttached();
+  await expect(page.getByTestId('connection-preview')).toHaveAttribute('d', /L|Q/);
+  await page.mouse.up();
+  await expect(page.getByTestId('connection-preview')).toHaveCount(0);
+}
+
+test('anchor dragging creates directed flows, counts degrees, cancels safely, and works in nested graphs', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await expect(page.locator('.graph-heading')).toHaveCount(0);
+  await expect(
+    page.locator('.topbar').getByRole('button', { name: 'Add service', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Connect', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select', exact: true })).toHaveCount(0);
+  await addService(page, 'Source');
+  await addService(page, 'Sink');
+  await expect(page.getByTestId('node-Source').locator('.node-kind, .node-foot, line')).toHaveCount(0);
+  await connectAnchors(page, 'Source', 'right', 'Sink', 'left');
+  await saved(page);
+  const linked = await disk(workspaceFolder);
+  expect(linked.edges[0]).toMatchObject({
+    source: 'Source',
+    target: 'Sink',
+    sourceSide: 'right',
+    targetSide: 'left',
+  });
+  expect(linked.nodes.map((node) => [node.x, node.y])).toEqual([
+    [40, 60],
+    [340, 60],
+  ]);
+  await expect(page.getByTestId('port-Source-right').locator('.port-count')).toHaveText('1');
+  await expect(page.getByTestId('port-Sink-left').locator('.port-count')).toHaveText('1');
+  await expect(page.getByTestId('port-Source-left').locator('.port-count')).toHaveText('0');
+  assertOrthogonal(linked);
+  await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
+  await connectAnchors(page, 'Sink', 'bottom', 'Source', 'top');
+  await connectAnchors(page, 'Source', 'bottom', 'Source', 'left');
+  await saved(page);
+  await expect(page.getByTestId('port-Source-right').locator('.port-count')).toHaveText('2');
+  await expect(page.getByTestId('port-Source-left').locator('.port-count')).toHaveText('2');
+  const beforeCancel = await disk(workspaceFolder);
+  const port = await page.getByTestId('port-Sink-right').boundingBox();
+  await page.mouse.move(port!.x + port!.width / 2, port!.y + port!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(port!.x + 70, port!.y + 230, { steps: 5 });
+  await page.mouse.up();
+  await expect(page.getByTestId('connection-preview')).toHaveCount(0);
+  await page.mouse.move(port!.x + port!.width / 2, port!.y + port!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(port!.x + 70, port!.y + 230, { steps: 5 });
+  await page.keyboard.press('Escape');
+  await page.mouse.up();
+  await saved(page);
+  expect((await disk(workspaceFolder)).edges).toEqual(beforeCancel.edges);
+  await enter(page, 'Source');
+  await addService(page, 'InsideA');
+  await addService(page, 'InsideB');
+  await connectAnchors(page, 'InsideA', 'right', 'InsideB', 'left');
+  await saved(page);
+  const complete = await disk(workspaceFolder);
+  expect(complete.edges).toHaveLength(4);
+  assertOrthogonal(complete);
+  await page.reload();
+  await open(page, workspaceFolder);
+  await expect(page.getByTestId('port-Source-right').locator('.port-count')).toHaveText('2');
+  await enter(page, 'Source');
+  await expect(page.getByTestId('port-InsideB-left').locator('.port-count')).toHaveText('1');
+  expect(await disk(workspaceFolder)).toEqual(complete);
+});
+
+test('contextual canvas actions and persistent sidebar collapse preserve workspace editing', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  const canvas = page.getByTestId('graph-canvas');
+  await canvas.click({ button: 'right', position: { x: 340, y: 220 } });
+  const menu = page.getByRole('menu', { name: 'Canvas actions' });
+  await expect(menu).toBeVisible();
+  await menu.getByRole('menuitem', { name: 'Add service here', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('Service key').fill('ContextService');
+  await page.getByRole('dialog').getByRole('button', { name: 'Create service' }).click();
+  await saved(page);
+  expect((await disk(workspaceFolder)).nodes[0]).toMatchObject({ x: 280, y: 160 });
+  const node = page.getByTestId('node-ContextService');
+  await node.locator('.node-body').click({ button: 'right' });
+  await expect(menu.getByRole('menuitem', { name: 'Open document' })).toBeVisible();
+  await menu.getByRole('menuitem', { name: 'Open document' }).click();
+  await expect(page.getByLabel('Service Markdown document')).toBeVisible();
+  await node.locator('.node-body').click({ button: 'right' });
+  await menu.getByRole('menuitem', { name: 'Explore inside' }).click();
+  await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText('ContextService');
+  await canvas.click({ button: 'right', position: { x: 120, y: 100 } });
+  await menu.getByRole('menuitem', { name: 'Up one level' }).click();
+  await addService(page, 'OtherService');
+  await connectAnchors(page, 'ContextService', 'right', 'OtherService', 'left');
+  await saved(page);
+  const edgeId = (await disk(workspaceFolder)).edges[0].id;
+  await selectEdge(page, edgeId);
+  await selectEdge(page, edgeId, 'right');
+  await menu.getByRole('menuitem', { name: 'Reverse direction' }).click();
+  await saved(page);
+  expect((await disk(workspaceFolder)).edges[0].source).toBe('OtherService');
+  await expect(page.getByTestId('port-ContextService-left').locator('.port-count')).toHaveText('1');
+  await selectEdge(page, edgeId, 'right');
+  await menu.getByRole('menuitem', { name: 'Delete flow', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete flow', exact: true }).click();
+  await saved(page);
+  expect((await disk(workspaceFolder)).edges).toHaveLength(0);
+  await expect(page.getByTestId('port-ContextService-left').locator('.port-count')).toHaveText('0');
+  await page.locator('.sidebar-toggle').click();
+  await expect(page.locator('.sidebar')).toHaveClass(/collapsed/);
+  await page.reload();
+  await expect(page.locator('.sidebar-toggle')).toHaveAccessibleName('Expand sidebar');
+  await page.locator('.sidebar-toggle').click();
+  await expect(page.locator('.sidebar')).not.toHaveClass(/collapsed/);
+  await open(page, workspaceFolder);
+  await canvas.click({ button: 'right', position: { x: 15, y: 400 } });
+  await expect(menu).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveCount(0);
 });
