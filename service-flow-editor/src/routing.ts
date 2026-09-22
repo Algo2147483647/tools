@@ -291,6 +291,54 @@ function leavesPort(points: Point[], side: Side): boolean {
   );
 }
 
+/** Non-adjacent orthogonal segments must not cross, overlap, or double back. */
+export function hasRouteCrossings(points: Point[]): boolean {
+  const between = (v: number, a: number, b: number) =>
+    v >= Math.min(a, b) - EPSILON && v <= Math.max(a, b) + EPSILON;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1],
+      b = points[i];
+    if (same(a, b)) continue;
+    if (i > 1) {
+      const previous = points[i - 2];
+      if ((a.x - previous.x) * (b.x - a.x) + (a.y - previous.y) * (b.y - a.y) < -EPSILON) return true;
+    }
+    for (let j = i + 2; j < points.length; j++) {
+      const c = points[j - 1],
+        d = points[j];
+      if (same(c, d)) continue;
+      // A true self-loop may close on the same port, but not retrace that segment.
+      const closing = i === 1 && j === points.length - 1 && same(a, d);
+      const av = Math.abs(a.x - b.x) < EPSILON,
+        cv = Math.abs(c.x - d.x) < EPSILON;
+      if (av === cv) {
+        if (av ? Math.abs(a.x - c.x) >= EPSILON : Math.abs(a.y - c.y) >= EPSILON) continue;
+        const low = Math.max(
+          Math.min(av ? a.y : a.x, av ? b.y : b.x),
+          Math.min(av ? c.y : c.x, av ? d.y : d.x),
+        );
+        const high = Math.min(
+          Math.max(av ? a.y : a.x, av ? b.y : b.x),
+          Math.max(av ? c.y : c.x, av ? d.y : d.x),
+        );
+        if (high > low + EPSILON || (!closing && high >= low - EPSILON)) return true;
+      } else {
+        const x = av ? a.x : c.x,
+          y = av ? c.y : a.y;
+        if (
+          between(x, a.x, b.x) &&
+          between(y, a.y, b.y) &&
+          between(x, c.x, d.x) &&
+          between(y, c.y, d.y) &&
+          !(closing && same({ x, y }, a))
+        )
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
 /** Reattach an endpoint while retaining the old interior route wherever possible. */
 function reattach(points: Point[], node: ServiceNode, side: Side): Point[] {
   const next = points.map(copy);
@@ -318,26 +366,38 @@ export function reconnectEdge(
   const to = anchor(target, edge.targetSide);
   const blockers = unrelatedObstacles(source, target, obstacles);
   const reroute = (): Point[] => routeEdge(source, target, edge.sourceSide, edge.targetSide, blockers);
-  // Manual paths round-trip exactly unless layout reflow has placed an obstacle across them.
+  if (edge.routing === 'auto') return reroute();
+  const endpoints = (source.id === target.id ? [source] : [source, target]).filter(
+    (node) => !containsNode(node, node.id === source.id ? target : source),
+  );
+  const valid = (points: Point[]) =>
+    isOrthogonal(points) &&
+    leavesPort(points, edge.sourceSide) &&
+    leavesPort([...points].reverse(), edge.targetSide) &&
+    !hasRouteCrossings(points) &&
+    !crossesObstacles(points, blockers);
+  // Preserve unchanged hand-edited paths, including intentional endpoint overlap.
   if (
     edge.points.length >= 2 &&
     same(edge.points[0], from) &&
     same(edge.points[edge.points.length - 1], to) &&
-    isOrthogonal(edge.points) &&
-    !crossesObstacles(edge.points, blockers)
+    valid(edge.points)
   )
     return edge.points.map(copy);
+  if (edge.points.length >= 2) {
+    const first = edge.points[0],
+      last = edge.points.at(-1)!;
+    const delta = { x: from.x - first.x, y: from.y - first.y };
+    if (same(delta, { x: to.x - last.x, y: to.y - last.y })) {
+      const translated = edge.points.map((point) => ({ x: point.x + delta.x, y: point.y + delta.y }));
+      if (valid(translated)) return translated;
+    }
+  }
   if (edge.points.length < 4 || !isOrthogonal(edge.points)) return reroute();
   const startAdjusted = reattach(edge.points, source, edge.sourceSide);
   const endAdjusted = reattach(startAdjusted.reverse(), target, edge.targetSide).reverse();
   const candidate = simplifyPoints(endAdjusted);
-  if (
-    isOrthogonal(candidate) &&
-    leavesPort(candidate, edge.sourceSide) &&
-    leavesPort([...candidate].reverse(), edge.targetSide) &&
-    !crossesObstacles(candidate, blockers)
-  )
-    return candidate;
+  if (valid(candidate) && !crossesObstacles(candidate, endpoints)) return candidate;
   return reroute();
 }
 
@@ -355,7 +415,8 @@ export function moveSegment(points: Point[], index: number, coordinate: number):
     const origin = horizontal ? endpoint.y : endpoint.x;
     const delta = horizontal ? corner.y - origin : corner.x - origin;
     if (Math.abs(delta) < EPSILON) return;
-    const limit = origin + Math.sign(delta) * Math.min(PORT_CLEARANCE, Math.abs(delta));
+    // Manual handles may shorten the automatic 32-unit stub while keeping it outward.
+    const limit = origin + Math.sign(delta) * Math.min(1, Math.abs(delta));
     coordinate = delta > 0 ? Math.max(coordinate, limit) : Math.min(coordinate, limit);
   };
   if (index === 1) constrainAtAnchor(points[0], a);

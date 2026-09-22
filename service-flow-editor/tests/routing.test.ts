@@ -5,6 +5,7 @@ import {
   addBend,
   anchor,
   isOrthogonal,
+  hasRouteCrossings,
   moveSegment,
   reconnectEdge,
   roundedPath,
@@ -204,6 +205,73 @@ test('moving nodes beyond old bends still produces usable outward ports', () => 
     }
 });
 
+test('automatic routes do not accumulate old bends during repeated moves in every direction', () => {
+  for (const fromSide of sides)
+    for (const toSide of sides) {
+      let previous = { ...edge(), sourceSide: fromSide, targetSide: toSide, routing: 'auto' as const };
+      for (const [x, y] of [
+        [0, 0],
+        [650, -200],
+        [-450, 600],
+        [750, 600],
+        [0, 0],
+        [350, -200],
+      ]) {
+        const moved = { ...source, x, y };
+        const points = reconnectEdge(previous, moved, target);
+        assertPort(points, moved, fromSide);
+        assertPort([...points].reverse(), target, toSide);
+        assert.ok(isOrthogonal(points));
+        assert.equal(hasRouteCrossings(points), false);
+        assertAvoids(points, [moved, target]);
+        assert.deepEqual(points, routeEdge(moved, target, fromSide, toSide));
+        previous = { ...previous, points };
+      }
+    }
+});
+
+test('rigid group translation moves every manual bend and self-loop point together', () => {
+  for (const destination of [target, source]) {
+    const original = {
+      ...edge(routeEdge(source, destination)),
+      target: destination.key,
+      routing: 'manual' as const,
+    };
+    const shifted = reconnectEdge(
+      original,
+      { ...source, x: 620, y: -230 },
+      { ...destination, x: destination.x + 620, y: destination.y - 230 },
+    );
+    assert.deepEqual(
+      shifted,
+      original.points.map((point) => ({ x: point.x + 620, y: point.y - 230 })),
+    );
+  }
+});
+
+test('reattachment repairs crossed legacy paths and avoids routing back through an endpoint', () => {
+  const crossed = edge([
+    { x: 160, y: 40 },
+    { x: 240, y: 40 },
+    { x: 240, y: 300 },
+    { x: 100, y: 300 },
+    { x: 100, y: 100 },
+    { x: 350, y: 100 },
+    { x: 350, y: 240 },
+    { x: 400, y: 240 },
+  ]);
+  assert.equal(hasRouteCrossings(crossed.points), true);
+  for (const x of [0, 80, 650, -400]) {
+    const moved = { ...source, x };
+    const points = reconnectEdge(crossed, moved, target);
+    assert.equal(hasRouteCrossings(points), false);
+    assertPort(points, moved, 'right');
+    assertPort([...points].reverse(), target, 'left');
+    assertAvoids(points, [moved, target]);
+    crossed.points = points;
+  }
+});
+
 test('parallel segment editing preserves both anchors, including terminal segments', () => {
   const fixtures = [
     routeEdge(source, target),
@@ -223,6 +291,20 @@ test('parallel segment editing preserves both anchors, including terminal segmen
       assert.deepEqual(changed[0], original[0]);
       assert.deepEqual(changed[changed.length - 1], original[original.length - 1]);
     }
+});
+
+test('a manual segment can approach an endpoint without being pinned to the automatic clearance', () => {
+  const points = [
+    { x: 160, y: 40 },
+    { x: 308, y: 40 },
+    { x: 308, y: 240 },
+    { x: 340, y: 240 },
+  ];
+  const moved = moveSegment(points, 1, 332);
+  assert.equal(moved[1].x, 332);
+  assert.equal(moved[2].x, 332);
+  assert.deepEqual(moved.at(-1), points.at(-1));
+  assert.ok(isOrthogonal(moved));
 });
 
 test('addBend inserts a movable orthogonal dogleg without changing endpoints', () => {

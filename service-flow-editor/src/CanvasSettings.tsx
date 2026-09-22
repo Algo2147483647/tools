@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CanvasSettings as Settings } from './model';
+import { defaultNodeAppearance, type CanvasSettings as Settings, type NodeAppearance } from './model';
 import Icon from './Icon';
 
 function SettingNumber({
   value,
   min,
   max,
+  step = 1,
   onChange,
 }: {
   value: number;
   min: number;
   max: number;
+  step?: number;
   onChange: (value: number) => void;
 }) {
   const [draft, setDraft] = useState(String(value));
@@ -20,12 +22,19 @@ function SettingNumber({
       type="number"
       min={min}
       max={max}
-      step={1}
+      step={step}
       value={draft}
       onChange={(event) => {
         setDraft(event.target.value);
         const next = Number(event.target.value);
-        if (event.target.value && Number.isInteger(next) && next >= min && next <= max) onChange(next);
+        if (
+          event.target.value &&
+          Number.isFinite(next) &&
+          next >= min &&
+          next <= max &&
+          Math.abs(next / step - Math.round(next / step)) < 0.000001
+        )
+          onChange(next);
       }}
       onBlur={() => setDraft(String(value))}
     />
@@ -35,9 +44,13 @@ function SettingNumber({
 export default function CanvasSettings({
   value,
   onChange,
+  appearance,
+  onAppearanceChange,
 }: {
   value: Settings;
   onChange: (value: Settings) => void;
+  appearance: NodeAppearance;
+  onAppearanceChange: (value: NodeAppearance) => void;
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -64,7 +77,8 @@ export default function CanvasSettings({
         }
       }}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
+        // Native color pickers temporarily move focus outside the document.
+        if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false);
       }}
     >
       <button
@@ -123,6 +137,70 @@ export default function CanvasSettings({
             Saved with this workspace, across every graph. Individual nodes can override the default font
             size.
           </p>
+          <div className="section-label">NODE APPEARANCE</div>
+          <p className="field-help">One style for every collapsed node, across all graphs.</p>
+          {(['fillColor', 'borderColor'] as const).map((field) => (
+            <div className="appearance-color" key={field}>
+              <label className="field">
+                {field === 'fillColor' ? 'Node fill color' : 'Node border color'}
+                <input
+                  type="color"
+                  value={appearance[field] ?? (field === 'fillColor' ? '#ffffff' : '#b2bed0')}
+                  onChange={(event) => onAppearanceChange({ ...appearance, [field]: event.target.value })}
+                />
+              </label>
+              <button
+                type="button"
+                className="text-button"
+                disabled={!appearance[field]}
+                onClick={() => onAppearanceChange({ ...appearance, [field]: undefined })}
+                aria-label={field === 'fillColor' ? 'Use theme fill color' : 'Use theme border color'}
+              >
+                {appearance[field] ? 'Use theme' : 'Theme color'}
+              </button>
+            </div>
+          ))}
+          <label className="setting-toggle">
+            <input
+              type="checkbox"
+              checked={appearance.borderEnabled}
+              onChange={(event) => onAppearanceChange({ ...appearance, borderEnabled: event.target.checked })}
+            />
+            Show node borders
+          </label>
+          <label className="field">
+            Node border width (px)
+            <SettingNumber
+              min={0}
+              max={12}
+              step={0.1}
+              value={appearance.borderWidth}
+              onChange={(borderWidth) => onAppearanceChange({ ...appearance, borderWidth })}
+            />
+          </label>
+          <label className="setting-toggle">
+            <input
+              type="checkbox"
+              checked={appearance.shadow}
+              onChange={(event) => onAppearanceChange({ ...appearance, shadow: event.target.checked })}
+            />
+            Show node shadows
+          </label>
+          <label className="field">
+            Corner radius (%)
+            <SettingNumber
+              min={0}
+              max={50}
+              value={Math.round(appearance.cornerRadius * 100)}
+              onChange={(cornerRadius) =>
+                onAppearanceChange({ ...appearance, cornerRadius: cornerRadius / 100 })
+              }
+            />
+          </label>
+          <p className="field-help">Percentage of the shorter side. Source / sink nodes remain circular.</p>
+          <button className="secondary" onClick={() => onAppearanceChange({ ...defaultNodeAppearance })}>
+            Reset node appearance
+          </button>
         </div>
       )}
     </div>

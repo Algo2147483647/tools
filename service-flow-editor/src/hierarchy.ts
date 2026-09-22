@@ -285,7 +285,7 @@ export function scene(workspace: Workspace, focusGraphId: string): Scene {
 export function canonicalEdgePoints(workspace: Workspace, edge: SceneEdge, points: Point[]): Point[] {
   const local = points.map((point) => ({ x: point.x - edge.offset.x, y: point.y - edge.offset.y }));
   return reconnectEdge(
-    { ...edge.original, points: local },
+    { ...edge.original, points: local, routing: 'manual' },
     canonicalNode(workspace, edge.sourceNode.id, edge.graphId),
     canonicalNode(workspace, edge.targetNode.id, edge.graphId),
   );

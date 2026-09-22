@@ -730,3 +730,65 @@ test('floating panels leave a full viewport canvas and wheel gestures never zoom
   await settings.getByLabel('Grid pattern').selectOption('dots');
   await expect(page.getByTestId('grid-dots')).toBeAttached();
 });
+
+test('global collapsed-node appearance applies to rectangles, circles, nested graphs, and reopening', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await addService(page, 'Worker');
+  await addService(page, 'Traffic', 'terminal');
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await settings.getByLabel('Node fill color', { exact: true }).fill('#eff6ff');
+  await settings.getByLabel('Node border color', { exact: true }).fill('#8b5cf6');
+  await settings.getByLabel('Node border width (px)', { exact: true }).fill('4.5');
+  await settings.getByLabel('Show node shadows', { exact: true }).uncheck();
+  await settings.getByLabel('Corner radius (%)', { exact: true }).fill('50');
+  await settings.getByLabel('Corner radius (%)', { exact: true }).press('Escape');
+  const worker = page.getByTestId('node-Worker').locator('.node-body');
+  const traffic = page.getByTestId('node-Traffic').locator('.node-body');
+  for (const body of [worker, traffic]) {
+    await expect(body).toHaveCSS('fill', 'rgb(239, 246, 255)');
+    await expect(body).toHaveCSS('stroke', 'rgb(139, 92, 246)');
+    await expect(body).toHaveCSS('stroke-width', '4.5px');
+    await expect(body).not.toHaveAttribute('filter', /node-shadow/);
+  }
+  const data = await disk(workspaceFolder);
+  const workerNode = data.nodes.find((node) => node.key === 'Worker')!;
+  await expect(worker).toHaveAttribute('rx', String(Math.min(workerNode.width, workerNode.height) / 2));
+  await enter(page, 'Worker');
+  await addService(page, 'Nested');
+  await expect(page.getByTestId('node-Nested').locator('.node-body')).toHaveCSS('stroke-width', '4.5px');
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await settings.getByLabel('Show node borders', { exact: true }).uncheck();
+  await settings.getByLabel('Show node borders', { exact: true }).press('Escape');
+  await expect(page.getByTestId('node-Nested').locator('.node-body')).toHaveCSS('stroke', 'none');
+  await expect(page.getByTestId('node-Nested').locator('.node-selection-ring')).toBeVisible();
+  await saved(page);
+  const persisted = await disk(workspaceFolder);
+  expect(persisted.nodeAppearance).toEqual({
+    fillColor: '#eff6ff',
+    borderColor: '#8b5cf6',
+    borderEnabled: false,
+    borderWidth: 4.5,
+    shadow: false,
+    cornerRadius: 0.5,
+  });
+  await page.reload();
+  await open(page, workspaceFolder);
+  await expect(worker).toHaveCSS('stroke', 'none');
+  await expect(traffic).toHaveCSS('stroke', 'none');
+  await worker.dblclick();
+  await expect(page.getByTestId('node-Worker')).toHaveAttribute('data-expanded', 'true');
+  await expect(page.getByTestId('node-Nested').locator('.node-body')).toHaveCSS('fill', 'rgb(239, 246, 255)');
+  await expect(worker).toHaveCSS('fill', 'none');
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await settings.getByRole('button', { name: 'Reset node appearance', exact: true }).click();
+  await expect(settings.getByLabel('Show node borders')).toBeChecked();
+  await expect(settings.getByLabel('Show node shadows')).toBeChecked();
+  await settings.getByLabel('Show node borders').press('Escape');
+  await expect(traffic).toHaveCSS('stroke-width', '1.3px');
+  await expect(traffic).toHaveAttribute('filter', 'url(#node-shadow)');
+  await saved(page);
+});

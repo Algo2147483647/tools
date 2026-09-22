@@ -12,6 +12,8 @@ import {
   validateKey,
   validateWorkspace,
   canvasSettings,
+  defaultNodeAppearance,
+  nodeAppearance,
   edgeGraphId,
   edgeEndpoint,
   type ServiceNode,
@@ -249,6 +251,44 @@ test('canvas preferences and circular node typography survive disk saves with le
           nodes: [{ ...workspace.nodes[0], fontSize: 2 }, ...workspace.nodes.slice(1)],
         }),
       /font size/,
+    );
+  }));
+
+test('workspace node appearance and routing mode persist and reject malformed values', async () =>
+  temp(async (directory) => {
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    const workspace = graphFixture();
+    assert.deepEqual(nodeAppearance(workspace), defaultNodeAppearance);
+    workspace.nodeAppearance = {
+      fillColor: '#eff6ff',
+      borderColor: '#8b5cf6',
+      borderEnabled: false,
+      borderWidth: 4.5,
+      shadow: false,
+      cornerRadius: 0.35,
+    };
+    workspace.edges[0].routing = 'manual';
+    const saved = await repository.save(directory, workspace);
+    const reopened = await new WorkspaceRepository().open(directory);
+    assert.deepEqual(reopened.workspace.nodeAppearance, workspace.nodeAppearance);
+    assert.deepEqual(reopened.workspace.edges, saved.workspace.edges);
+    for (const patch of [
+      { borderWidth: -1 },
+      { borderWidth: 13 },
+      { shadow: 'false' },
+      { borderEnabled: 1 },
+      { cornerRadius: 0.6 },
+      { cornerRadius: -0.1 },
+      { fillColor: 'url(https://example.com)' },
+      { borderColor: '#nope' },
+    ])
+      assert.throws(() =>
+        validateWorkspace({ ...workspace, nodeAppearance: { ...workspace.nodeAppearance, ...patch } }),
+      );
+    assert.throws(
+      () => validateWorkspace({ ...workspace, edges: [{ ...workspace.edges[0], routing: 'unknown' }] }),
+      /routing mode/,
     );
   }));
 

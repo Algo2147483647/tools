@@ -4,6 +4,24 @@ export interface Point {
 }
 export type Side = 'left' | 'right' | 'top' | 'bottom';
 export type NodeType = 'service' | 'terminal';
+export interface NodeAppearance {
+  fillColor?: string;
+  borderColor?: string;
+  borderEnabled: boolean;
+  borderWidth: number;
+  shadow: boolean;
+  /** Radius as a fraction of the shorter side, from 0 to 0.5. */
+  cornerRadius: number;
+}
+export const defaultNodeAppearance: NodeAppearance = {
+  borderEnabled: true,
+  borderWidth: 1.3,
+  shadow: true,
+  cornerRadius: 0.15,
+};
+export function nodeAppearance(workspace: Workspace): NodeAppearance {
+  return { ...defaultNodeAppearance, ...workspace.nodeAppearance };
+}
 export interface CanvasSettings {
   gridSize: number;
   gridStyle: 'dots' | 'lines';
@@ -53,6 +71,8 @@ export interface FlowEdge {
   sourceSide: Side;
   targetSide: Side;
   points: Point[];
+  /** Missing on legacy paths: preserve their manual geometry when possible. */
+  routing?: 'auto' | 'manual';
 }
 export interface Workspace {
   version: 1 | 2 | 3;
@@ -63,6 +83,7 @@ export interface Workspace {
   edges: FlowEdge[];
   revision: number;
   canvas?: CanvasSettings;
+  nodeAppearance?: NodeAppearance;
 }
 
 const sides = new Set<Side>(['left', 'right', 'top', 'bottom']);
@@ -169,6 +190,28 @@ export function validateWorkspace(data: unknown): Workspace {
     'revision must be a non-negative integer.',
   );
   assert(identifier(data.rootGraphId), 'rootGraphId is required.');
+  if (data.nodeAppearance !== undefined) {
+    const style = data.nodeAppearance;
+    assert(record(style), 'nodeAppearance must be an object.');
+    assert(
+      typeof style.borderEnabled === 'boolean' && typeof style.shadow === 'boolean',
+      'invalid node appearance toggles.',
+    );
+    assert(
+      finite(style.borderWidth) && style.borderWidth >= 0 && style.borderWidth <= 12,
+      'borderWidth must be between 0 and 12.',
+    );
+    assert(
+      finite(style.cornerRadius) && style.cornerRadius >= 0 && style.cornerRadius <= 0.5,
+      'cornerRadius must be between 0 and 0.5.',
+    );
+    for (const field of ['fillColor', 'borderColor'])
+      assert(
+        style[field] === undefined ||
+          (typeof style[field] === 'string' && /^#[0-9a-f]{6}$/i.test(style[field] as string)),
+        `${field} must be a six-digit hex color.`,
+      );
+  }
   if (data.canvas !== undefined) {
     const settings = data.canvas;
     assert(record(settings), 'canvas settings must be an object.');
@@ -290,6 +333,10 @@ export function validateWorkspace(data: unknown): Workspace {
     );
     assert(!edgeIds.has(value.id), `duplicate edge id ${value.id}.`);
     edgeIds.add(value.id);
+    assert(
+      value.routing === undefined || value.routing === 'auto' || value.routing === 'manual',
+      `invalid routing mode on ${value.id}.`,
+    );
     if (data.version !== 1) {
       assert(
         identifier(value.sourceNodeId) && identifier(value.targetNodeId),

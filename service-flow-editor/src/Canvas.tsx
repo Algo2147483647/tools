@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
-import { canvasSettings, snapCoordinate } from './model';
+import { canvasSettings, nodeAppearance, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
 import {
   canonicalEdgePoints,
@@ -80,6 +80,7 @@ export default function Canvas(p: Props) {
   const latest = useRef(p);
   latest.current = p;
   const settings = canvasSettings(p.workspace);
+  const appearance = nodeAppearance(p.workspace);
   const snap = (value: number) => snapCoordinate(value, settings);
   const drag = useRef<Drag | null>(null);
   const suppressContextMenu = useRef(false);
@@ -254,15 +255,31 @@ export default function Canvas(p: Props) {
     const element = e.target as Element;
     const node = element.closest('[data-node-id]');
     const edge = element.closest('[data-edge-id]');
+    const pos = point(e);
+    const container =
+      !node && !edge
+        ? [...nodes]
+            .reverse()
+            .find(
+              (item) =>
+                item.expanded &&
+                pos.x >= item.x &&
+                pos.x <= item.x + item.width &&
+                pos.y >= item.y &&
+                pos.y <= item.y + item.height,
+            )
+        : undefined;
     return {
       x: e.clientX,
       y: e.clientY,
-      point: point(e),
+      point: pos,
       target: node
         ? { type: 'node', id: node.getAttribute('data-node-id')! }
         : edge
           ? { type: 'edge', id: edge.getAttribute('data-edge-id')! }
-          : null,
+          : container
+            ? { type: 'node', id: container.id }
+            : null,
     };
   }
   function beginMarquee(e: ReactPointerEvent) {
@@ -588,6 +605,17 @@ export default function Canvas(p: Props) {
           )}
           {nodes.map((node) => {
             const circular = node.type === 'terminal' && !node.expanded;
+            const radius = node.expanded ? 12 : Math.min(node.width, node.height) * appearance.cornerRadius;
+            const bodyStyle = node.expanded
+              ? undefined
+              : {
+                  fill: appearance.fillColor ?? 'var(--surface)',
+                  stroke: appearance.borderEnabled
+                    ? (appearance.borderColor ?? 'var(--node-border)')
+                    : 'none',
+                  strokeWidth: appearance.borderWidth,
+                };
+            const shadow = !node.expanded && appearance.shadow ? 'url(#node-shadow)' : undefined;
             const fontSize = node.fontSize ?? settings.nodeFontSize;
             const labelWidth = node.expanded
               ? node.width - 86
@@ -650,17 +678,38 @@ export default function Canvas(p: Props) {
                     cx={node.width / 2}
                     cy={node.height / 2}
                     r={node.width / 2}
-                    filter="url(#node-shadow)"
+                    filter={shadow}
+                    style={bodyStyle}
                   />
                 ) : (
                   <rect
                     className="node-body"
                     width={node.width}
                     height={node.height}
-                    rx={12}
-                    filter="url(#node-shadow)"
+                    rx={radius}
+                    filter={shadow}
+                    style={bodyStyle}
                   />
                 )}
+                {!node.expanded &&
+                  (selected || preview?.targetId === node.id) &&
+                  (circular ? (
+                    <circle
+                      className="node-selection-ring"
+                      cx={node.width / 2}
+                      cy={node.height / 2}
+                      r={node.width / 2 + 4}
+                    />
+                  ) : (
+                    <rect
+                      className="node-selection-ring"
+                      x={-4}
+                      y={-4}
+                      width={node.width + 8}
+                      height={node.height + 8}
+                      rx={radius + 4}
+                    />
+                  ))}
                 {node.expanded && (
                   <rect
                     className="container-header"

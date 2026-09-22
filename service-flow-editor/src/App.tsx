@@ -14,6 +14,7 @@ import {
   renameNode,
   validateKey,
   canvasSettings,
+  nodeAppearance,
   snapCoordinate,
   edgeGraphId,
   type NodeType,
@@ -568,6 +569,7 @@ export default function App() {
     });
   }
   function changeEdge(id: string, patch: Partial<FlowEdge>) {
+    if (patch.points && !patch.routing) patch = { ...patch, routing: 'manual' };
     store.change(
       (w) => relayoutWorkspace({ ...w, edges: w.edges.map((e) => (e.id === id ? { ...e, ...patch } : e)) }),
       patch.weights ? { historyKey: `weights:${id}` } : undefined,
@@ -681,6 +683,7 @@ export default function App() {
       sourceSide,
       targetSide,
       points: [],
+      routing: 'auto',
     };
     store.change((w) => relayoutWorkspace({ ...w, edges: [...w.edges, edge] }));
     setModal(null);
@@ -811,6 +814,15 @@ export default function App() {
       selections.some((item) => item.type === contextMenu.target?.type && item.id === contextMenu.target.id));
   const targetActions: ContextAction[] = contextSelection
     ? [
+        ...(contextNode
+          ? [
+              {
+                label: 'Focus subgraph',
+                icon: 'layers' as const,
+                run: () => navigate(contextNode.childGraphId),
+              },
+            ]
+          : []),
         {
           label: `Delete ${selections.length} selected elements`,
           icon: 'trash',
@@ -868,6 +880,7 @@ export default function App() {
                   sourceSide: contextEdge.targetSide,
                   targetSide: contextEdge.sourceSide,
                   points: [...contextEdge.points].reverse(),
+                  routing: contextEdge.routing ?? 'manual',
                 }),
             },
             {
@@ -876,6 +889,7 @@ export default function App() {
               run: () =>
                 changeEdge(contextEdge.id, {
                   points: [],
+                  routing: 'auto',
                 }),
             },
             {
@@ -1134,6 +1148,10 @@ export default function App() {
               <CanvasSettings
                 value={canvasSettings(workspace)}
                 onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
+                appearance={nodeAppearance(workspace)}
+                onAppearanceChange={(nodeAppearance) =>
+                  store.change((w) => ({ ...w, nodeAppearance }), { historyKey: 'node-appearance' })
+                }
               />
               <div className="zoom-controls">
                 <button
@@ -1574,6 +1592,7 @@ export default function App() {
                               changeEdge(next.id, {
                                 [side]: next[side],
                                 points: [],
+                                routing: 'auto',
                               });
                             }}
                           >
@@ -1656,6 +1675,7 @@ export default function App() {
                         onClick={() =>
                           changeEdge(selectedEdge.id, {
                             points: [],
+                            routing: 'auto',
                           })
                         }
                       >
@@ -1687,6 +1707,7 @@ export default function App() {
                           sourceSide: selectedEdge.targetSide,
                           targetSide: selectedEdge.sourceSide,
                           points: [...selectedEdge.points].reverse(),
+                          routing: selectedEdge.routing ?? 'manual',
                         });
                       }}
                     >

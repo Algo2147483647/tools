@@ -715,6 +715,34 @@ button.danger:hover {
   pointer-events: none;
   letter-spacing: -0.3px;
 }
+.node-selection-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  pointer-events: none;
+}
+.appearance-color {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.appearance-color > button {
+  padding: 5px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 11px;
+}
+.appearance-color .field {
+  flex: 1;
+  margin: 0;
+}
+.appearance-color input[type='color'] {
+  width: 100%;
+  height: 32px;
+  padding: 3px;
+}
 .node-port {
   cursor: crosshair;
   opacity: 0;

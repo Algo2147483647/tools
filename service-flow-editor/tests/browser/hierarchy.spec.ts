@@ -353,3 +353,23 @@ test('cross-level flows preserve real endpoints through collapse, reopening, ren
   expect(await readdir(folder)).not.toContain('Handler.md');
   expect(await readdir(folder)).not.toContain('Router.md');
 });
+
+test('expanded container blank space opens its own subgraph menu, including nested containers', async ({
+  page,
+  folder,
+}) => {
+  await seedLegacy(folder);
+  await open(page, folder);
+  for (const key of ['Platform', 'Router']) await expand(page, key);
+  const before = await disk(folder);
+  const container = await box(page.getByTestId('node-Router').locator('.node-body'));
+  await page.mouse.click(container.x + 12, container.y + container.height - 12, { button: 'right' });
+  await page.getByRole('menuitem', { name: 'Focus subgraph', exact: true }).click();
+  await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText('Router');
+  await expect(page.getByTestId('node-Handler')).toBeVisible();
+  await expect(page.getByTestId('node-Database')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Up one level', exact: true }).click();
+  await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText('Platform');
+  await saved(page);
+  expect((await disk(folder)).nodes).toEqual(before.nodes);
+});

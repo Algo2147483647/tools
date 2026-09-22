@@ -33,6 +33,23 @@ Arrays are flat. Nesting is expressed through graph and node references, rather 
 
 `canvas` is an optional workspace-wide preference object shared by every graph. Its fields are `gridSize` (integer 8–128), `gridStyle` (`dots` or `lines`), `snapToGrid` (boolean), and `nodeFontSize` (number 12–48). The example above gives the defaults used when an older workspace omits the object. Changing preferences does not move existing geometry. Grid spacing uses world coordinates, independent of zoom and pan.
 
+`nodeAppearance` is an optional workspace-wide style for collapsed nodes, including all nested graphs and both node types:
+
+```json
+{
+  "nodeAppearance": {
+    "fillColor": "#eff6ff",
+    "borderColor": "#8b5cf6",
+    "borderEnabled": true,
+    "borderWidth": 1.3,
+    "shadow": true,
+    "cornerRadius": 0.15
+  }
+}
+```
+
+The two colors are optional six-digit hex values; omit either to inherit its current theme color. `borderEnabled` and `shadow` are booleans; `borderWidth` is finite from 0 to 12; `cornerRadius` is finite from 0 to 0.5 and multiplies the shorter rectangle side. Omitting the entire object gives theme colors, enabled borders at 1.3 px, enabled shadows, and radius 0.15. Expanded containers retain structural styling and circles remain circles. Selection highlights are separate presentation geometry. Changes do not alter node geometry or route anchors.
+
 ## Graph records
 
 ```json
@@ -116,6 +133,7 @@ Keys must contain 1–200 characters, must not start or end with whitespace, and
 | `weights`                      | Array of strings, including an empty array when the flow has no descriptions.                          |
 | `sourceSide`, `targetSide`     | One of `left`, `right`, `top`, or `bottom`.                                                            |
 | `points`                       | Full ordered route from source anchor to target anchor. Each point contains finite `x` and `y` values. |
+| `routing`                      | Optional `auto` or `manual`. Missing values preserve legacy manual paths.                              |
 
 Flows may connect any two nodes in the workspace, including a parent and its own descendant or nodes inside different nested services. Self loops are allowed. IDs are authoritative identities; a file whose name copies disagree with the referenced IDs is rejected instead of guessing which endpoint was intended. No boundary proxy nodes or synthetic edges are stored.
 
@@ -133,6 +151,8 @@ Ports are the centers of the selected node sides:
 The first and last canonical path points are the true endpoint anchors in the **all-collapsed** geometry, transformed into the edge's owning graph by adding the canonical ancestor origins. Every pair of consecutive points shares an `x` or `y` coordinate. Coordinates can be fractional. The SVG renderer rounds corners visually; quadratic curves and display-only endpoint adjustments are not stored. Arrow tips meet the final rendered path point without offsets for port radius.
 
 The model accepts an empty `points` array as an unrouted edge; normal editor-created edges contain a complete route. A nonempty route must contain at least two points. Preserve full routes when editing files outside the application.
+
+New flows and reset paths use `routing: "auto"`; their routes are regenerated from current anchors instead of accumulating old endpoint detours. An explicit path edit switches to `manual`. Equal endpoint displacement translates every manual path point rigidly. Otherwise, manual bends survive where they can reconnect with outward ports and without self-intersections, retraced segments, or cutting through an endpoint. Invalid reconnections fall back to a fresh orthogonal route. Automatic display routes still never overwrite stored points solely because a node expands or collapses.
 
 Explicitly moving or resizing a node reattaches canonical routes to the collapsed port anchors while preserving existing bends where possible. Moving an ancestor also updates cross-boundary flows attached to its descendants. Unchanged endpoint geometry preserves a manual route, including intentional overlaps. A route can be regenerated if its old bends cannot reconnect orthogonally. Changing a port or selecting **Reset path** generates a new route. Expanding or collapsing alone never changes canonical paths.
 
