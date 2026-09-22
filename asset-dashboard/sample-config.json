@@ -1,0 +1,83 @@
+﻿{
+  "baseCurrency": "USD",
+  "assets": [
+    {
+      "id": "gold_physical_001",
+      "type": "gold",
+      "name": "Physical Gold",
+      "quantity": 15,
+      "unit": "gram"
+    },
+    {
+      "id": "gold_paper_001",
+      "type": "gold",
+      "name": "Paper Gold",
+      "quantity": 2,
+      "unit": "gram"
+    },
+    {
+      "id": "cash_cny_001",
+      "type": "cash",
+      "name": "CNY Regular savings",
+      "currency": "CNY",
+      "quantity": 500000
+    },
+    {
+      "id": "housing_fund_cny_001",
+      "type": "cash",
+      "name": "Housing Fund CNY",
+      "currency": "CNY",
+      "quantity": 140035.25
+    },
+    {
+      "id": "cash_hkd_001",
+      "type": "cash",
+      "name": "HKD Regular savings (CMB)",
+      "currency": "HKD",
+      "quantity": 1000
+    },
+    {
+      "id": "cash_hkd_002",
+      "type": "cash",
+      "name": "HKD Cash (HSBC)",
+      "currency": "HKD",
+      "quantity": 11223.76
+    },
+    {
+      "id": "cash_eur_001",
+      "type": "cash",
+      "name": "EUR Cash",
+      "currency": "EUR",
+      "quantity": 200
+    },
+    {
+      "id": "cash_chf_001",
+      "type": "cash",
+      "name": "CHF Cash",
+      "currency": "CHF",
+      "quantity": 2250
+    },
+    {
+      "id": "cash_jpy_001",
+      "type": "cash",
+      "name": "JPY Cash",
+      "currency": "JPY",
+      "quantity": 100000
+    },
+    {
+      "id": "cash_usd_001",
+      "type": "cash",
+      "name": "USD Cash 850",
+      "currency": "USD",
+      "quantity": 850
+    },
+    {
+      "id": "cash_usd_002",
+      "type": "cash",
+      "name": "USD Cash 900",
+      "currency": "USD",
+      "quantity": 900
+    }
+  ]
+}
+

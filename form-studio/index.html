@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Designer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4/dist/antd.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-container">
+  <header class="app-header">
+    <div class="brand-block">
+      <div class="brand-mark">
+        <i class="fas fa-wand-magic-sparkles"></i>
+      </div>
+      <div class="brand-copy">
+        <h1>Visual Schema Studio</h1>
+        <p>Compose form flows with a cleaner editing workspace</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="previewBtn" class="ant-btn ant-btn-default">
+        <i class="fas fa-eye"></i> <span>Preview</span>
+      </button>
+      <button id="exportBtn" class="ant-btn ant-btn-primary">
+        <i class="fas fa-file-export"></i> <span>Export Schema</span>
+      </button>
+      <button id="importBtn" class="ant-btn ant-btn-default">
+        <i class="fas fa-file-import"></i> <span>Import Schema</span>
+      </button>
+      <button id="codeBtn" class="ant-btn ant-btn-default">
+        <i class="fas fa-code"></i> <span>Code Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-content">
+    <!-- Left component panel -->
+    <div class="components-panel">
+      <div class="sidebar-shell">
+        <div class="sidebar-intro">
+          <span class="eyebrow">Toolkit</span>
+          <h2>Build Blocks</h2>
+          <p>Pick fields and layout containers to assemble your schema.</p>
+        </div>
+        <div class="panel-tabs">
+          <button class="tab-button active" data-tab="components">Component Library</button>
+          <button class="tab-button" data-tab="tree">Component Tree</button>
+        </div>
+      </div>
+      
+      <div class="panel-content">
+        <div class="components-content panel-tab active" id="componentsPanel">
+          <div class="components-category">
+            <div class="category-title">Basic Fields</div>
+            <div class="component-grid">
+              <div class="component-item" draggable="true" data-type="Input">
+                <i class="fas fa-font component-icon"></i>
+                <span class="component-name">Input</span>
+                <span class="component-hint">Single line text</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Textarea">
+                <i class="fas fa-align-left component-icon"></i>
+                <span class="component-name">Textarea</span>
+                <span class="component-hint">Long form content</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="InputNumber">
+                <i class="fas fa-sort-numeric-up component-icon"></i>
+                <span class="component-name">Number Input</span>
+                <span class="component-hint">Numeric field</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Switch">
+                <i class="fas fa-toggle-on component-icon"></i>
+                <span class="component-name">Switch</span>
+                <span class="component-hint">Boolean toggle</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Radio">
+                <i class="fas fa-dot-circle component-icon"></i>
+                <span class="component-name">Radio</span>
+                <span class="component-hint">Single choice</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Checkbox">
+                <i class="fas fa-check-square component-icon"></i>
+                <span class="component-name">Checkbox</span>
+                <span class="component-hint">Multi choice</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Select">
+                <i class="fas fa-list component-icon"></i>
+                <span class="component-name">Selector</span>
+                <span class="component-hint">Dropdown list</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Cascader">
+                <i class="fas fa-sitemap component-icon"></i>
+                <span class="component-name">Cascader</span>
+                <span class="component-hint">Linked options</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="components-category">
+            <div class="category-title">Layout Components</div>
+            <div class="component-grid">
+              <div class="component-item" draggable="true" data-type="Card">
+                <i class="fas fa-square component-icon"></i>
+                <span class="component-name">Card</span>
+                <span class="component-hint">Section wrapper</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Divider">
+                <i class="fas fa-minus component-icon"></i>
+                <span class="component-name">Divider</span>
+                <span class="component-hint">Visual separator</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Grid">
+                <i class="fas fa-th component-icon"></i>
+                <span class="component-name">Grid Layout</span>
+                <span class="component-hint">Multi-column area</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Collapse">
+                <i class="fas fa-layer-group component-icon"></i>
+                <span class="component-name">Collapse</span>
+                <span class="component-hint">Folded sections</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="components-category">
+            <div class="category-title">Other Components</div>
+            <div class="component-grid">
+              <div class="component-item" draggable="true" data-type="DatePicker">
+                <i class="fas fa-calendar-alt component-icon"></i>
+                <span class="component-name">Date Picker</span>
+                <span class="component-hint">Calendar input</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="TimePicker">
+                <i class="fas fa-clock component-icon"></i>
+                <span class="component-name">Time Picker</span>
+                <span class="component-hint">Time selection</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="ColorPicker">
+                <i class="fas fa-palette component-icon"></i>
+                <span class="component-name">Color Picker</span>
+                <span class="component-hint">Theme color</span>
+              </div>
+              <div class="component-item" draggable="true" data-type="Slider">
+                <i class="fas fa-sliders-h component-icon"></i>
+                <span class="component-name">Slider</span>
+                <span class="component-hint">Range control</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tree-content panel-tab" id="treePanel">
+          <div class="tree-header">
+            <h3>Component Tree</h3>
+            <button id="toggleBorders" class="ant-btn ant-btn-default ant-btn-sm">
+              <i class="fas fa-border-all"></i> Borders
+            </button>
+          </div>
+          <div class="tree-container">
+            <ul id="componentTree" class="component-tree"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle design canvas -->
+    <div class="design-canvas">
+      <div class="canvas-container">
+        <div class="canvas-header">
+          <div>
+            <span class="eyebrow">Canvas</span>
+            <h2>Form Composition Area</h2>
+          </div>
+          <p>Drag fields into the sheet and fine-tune their structure on the right.</p>
+        </div>
+        <div class="droppable-area" id="formCanvas">
+          <div class="empty-canvas" id="emptyCanvas">
+            <i class="fas fa-mouse-pointer"></i>
+            <p>Drag components from the left to start designing</p>
+            <p style="font-size: 12px; margin-top: 8px;">Or import an existing Schema configuration</p>
+          </div>
+          <div id="formItems"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vertical resizer between canvas and properties -->
+    <div class="props-resizer" id="propsResizer" title="Drag to resize properties panel"></div>
+
+    <!-- Right properties panel -->
+    <div class="properties-panel" id="propertiesPanel">
+      <div class="properties-header">
+        <div class="properties-heading">
+          <span class="eyebrow">Inspector</span>
+          <div class="properties-title">Property Configuration</div>
+        </div>
+        <button id="collapsePropsBtn" class="ant-btn ant-btn-default ant-btn-sm" title="Collapse/Expand">
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+      </div>
+      <div id="propertiesContent" class="properties-content">
+        <div class="empty-properties">
+          <p style="color: #999; text-align: center;">Please select a component to configure</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code editor -->
+    <div class="code-editor" id="codeEditor">
+      <div class="editor-header">
+        <h3>JSON Schema Editor</h3>
+        <div class="editor-actions">
+          <button id="applyCodeBtn" class="ant-btn ant-btn-primary">
+            <i class="fas fa-check"></i> Apply
+          </button>
+          <button id="closeCodeBtn" class="ant-btn ant-btn-default">
+            <i class="fas fa-times"></i> Close
+          </button>
+        </div>
+      </div>
+      <textarea id="schemaEditor"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Preview modal -->
+<div id="previewModal" class="modal-shell" style="display: none;">
+  <div class="modal-dialog modal-dialog-wide">
+    <div class="modal-header">
+      <h3>Form Preview</h3>
+      <button id="closePreviewBtn" class="ant-btn ant-btn-default">Close</button>
+    </div>
+    <div id="previewContainer" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- Result modal -->
+<div id="resultModal" class="modal-shell modal-shell-front" style="display: none;">
+  <div class="modal-dialog modal-dialog-wide">
+    <div class="modal-header">
+      <h3>Form Data Result</h3>
+      <button id="closeResultBtn" class="ant-btn ant-btn-default">Close</button>
+    </div>
+    <div class="modal-body modal-body-column">
+      <div class="result-toolbar">
+        <button id="copyResultBtn" class="ant-btn ant-btn-primary">Copy to Clipboard</button>
+        <span id="copyStatus" class="copy-status" style="display: none;">Copied!</span>
+      </div>
+      <textarea id="resultContent" readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Import file input -->
+<input type="file" id="fileInput" accept=".json" style="display: none;">
+
+<script src="https://cdn.jsdelivr.net/npm/react@17/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@17/umd/react-dom.production.min.js"></script>
+<script src="scripts/stateManager.js"></script>
+<script src="scripts/componentPreview.js"></script>
+<script src="scripts/componentTree.js"></script>
+<script src="scripts/propertiesPanel.js"></script>
+<script src="scripts/importExport.js"></script>
+<script src="scripts/core.js"></script>
+<script>
+  // Functions for interactive components in preview mode
+  function incrementNumber(element) {
+    const input = element.closest('.number-input-wrapper').querySelector('input');
+    input.value = parseInt(input.value || 0) + 1;
+  }
+
+  function decrementNumber(element) {
+    const input = element.closest('.number-input-wrapper').querySelector('input');
+    input.value = parseInt(input.value || 0) - 1;
+  }
+
+  function handleSelectChange(element) {
+    console.log('Selected value:', element.value);
+  }
+
+  function openDatePicker(element) {
+    alert('Date picker would open here in a full implementation');
+  }
+
+  function openTimePicker(element) {
+    alert('Time picker would open here in a full implementation');
+  }
+
+  function toggleSwitch(element) {
+    const track = element.querySelector('.switch-track');
+    const thumb = element.querySelector('.switch-thumb');
+    const label = element.querySelector('.switch-label');
+    const hiddenInput = element.querySelector('input[type="hidden"]');
+    const isChecked = element.dataset.checked === '1';
+
+    if (isChecked) {
+      track.style.backgroundColor = '#ccc';
+      thumb.style.transform = 'translateX(0)';
+      label.textContent = 'OFF';
+      element.dataset.checked = '0';
+      if (hiddenInput) {
+        hiddenInput.value = 'false';
+      }
+    } else {
+      track.style.backgroundColor = '#1890ff';
+      thumb.style.transform = 'translateX(20px)';
+      label.textContent = 'ON';
+      element.dataset.checked = '1';
+      if (hiddenInput) {
+        hiddenInput.value = 'true';
+      }
+    }
+  }
+
+  function updateSliderValue(element) {
+    const valueDisplay = element.nextElementSibling;
+    valueDisplay.textContent = element.value;
+  }
+
+  function handleRadioChange(element) {
+    console.log('Radio selected:', element.value);
+  }
+
+  function handleCheckboxChange(element) {
+    console.log('Checkbox toggled:', element.checked);
+  }
+
+  function openColorPicker(element) {
+    alert('Color picker would open here in a full implementation');
+  }
+</script>
+</body>
+</html>

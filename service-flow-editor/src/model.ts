@@ -1,0 +1,253 @@
+export interface Point {
+  x: number;
+  y: number;
+}
+export type Side = 'left' | 'right' | 'top' | 'bottom';
+export interface ServiceNode {
+  id: string;
+  key: string;
+  graphId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  childGraphId: string;
+}
+export interface Graph {
+  id: string;
+  parentNodeId: string | null;
+}
+export interface FlowEdge {
+  id: string;
+  graphId: string;
+  source: string;
+  target: string;
+  weights: string[];
+  sourceSide: Side;
+  targetSide: Side;
+  points: Point[];
+}
+export interface Workspace {
+  version: 1;
+  name: string;
+  rootGraphId: string;
+  graphs: Graph[];
+  nodes: ServiceNode[];
+  edges: FlowEdge[];
+  revision: number;
+}
+
+const sides = new Set<Side>(['left', 'right', 'top', 'bottom']);
+const fold = (value: string) => value.toLocaleLowerCase('en-US');
+
+export function createWorkspace(name: string): Workspace {
+  return {
+    version: 1,
+    name: name.trim() || 'Untitled workspace',
+    rootGraphId: 'root',
+    graphs: [{ id: 'root', parentNodeId: null }],
+    nodes: [],
+    edges: [],
+    revision: 0,
+  };
+}
+
+export function validateKey(key: string, nodes: ServiceNode[], excludeId?: string): string | null {
+  if (typeof key !== 'string' || !key.trim()) return 'Service key is required.';
+  if (key !== key.trim()) return 'Service keys cannot begin or end with whitespace.';
+  if (key.length > 200) return 'Service keys must be at most 200 characters.';
+  if (/[<>:"/\\|?*\u0000-\u001f\u007f]/.test(key) || /[. ]$/.test(key) || key === '.' || key === '..') {
+    return 'Service keys must be valid filenames: no path separators, control characters, or <>:"|?*, and no trailing dot.';
+  }
+  if (/^(con|prn|aux|nul|conin\$|conout\$|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(key))
+    return 'This service key is a reserved Windows filename.';
+  if (nodes.some((node) => node.id !== excludeId && fold(node.key) === fold(key)))
+    return 'Service keys must be unique across every level (case insensitive).';
+  return null;
+}
+
+function assert(condition: unknown, message: string): asserts condition {
+  if (!condition) throw new Error(`Invalid workspace: ${message}`);
+}
+function record(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+function identifier(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0 && value.length <= 500;
+}
+function finite(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+/** Validate the entire graph iteratively, with no fixed nesting-depth limit. */
+export function validateWorkspace(data: unknown): Workspace {
+  assert(record(data), 'expected a JSON object.');
+  assert(data.version === 1, 'unsupported schema version.');
+  assert(typeof data.name === 'string' && data.name.trim().length > 0, 'name is required.');
+  assert(
+    Number.isSafeInteger(data.revision) && (data.revision as number) >= 0,
+    'revision must be a non-negative integer.',
+  );
+  assert(identifier(data.rootGraphId), 'rootGraphId is required.');
+  assert(
+    Array.isArray(data.graphs) && Array.isArray(data.nodes) && Array.isArray(data.edges),
+    'graphs, nodes, and edges must be arrays.',
+  );
+  const graphMap = new Map<string, Graph>();
+  const nodeMap = new Map<string, ServiceNode>();
+  const keyMap = new Map<string, ServiceNode>();
+  for (const value of data.graphs) {
+    assert(
+      record(value) &&
+        identifier(value.id) &&
+        (value.parentNodeId === null || identifier(value.parentNodeId)),
+      'invalid graph.',
+    );
+    assert(!graphMap.has(value.id), `duplicate graph id ${value.id}.`);
+    graphMap.set(value.id, value as unknown as Graph);
+  }
+  const root = graphMap.get(data.rootGraphId);
+  assert(root?.parentNodeId === null, 'root graph is missing or has a parent.');
+  for (const value of data.nodes) {
+    assert(
+      record(value) &&
+        identifier(value.id) &&
+        typeof value.key === 'string' &&
+        identifier(value.graphId) &&
+        identifier(value.childGraphId),
+      'invalid service node.',
+    );
+    assert(!nodeMap.has(value.id), `duplicate node id ${value.id}.`);
+    const error = validateKey(value.key, []);
+    assert(!error, error || 'invalid key.');
+    assert(!keyMap.has(fold(value.key)), `duplicate service key ${value.key}.`);
+    assert(
+      finite(value.x) &&
+        finite(value.y) &&
+        finite(value.width) &&
+        finite(value.height) &&
+        value.width > 0 &&
+        value.height > 0,
+      `invalid geometry for ${value.key}.`,
+    );
+    assert(graphMap.has(value.graphId), `missing graph for ${value.key}.`);
+    const child = graphMap.get(value.childGraphId);
+    assert(
+      child && child.id !== data.rootGraphId && child.parentNodeId === value.id,
+      `invalid child graph for ${value.key}.`,
+    );
+    nodeMap.set(value.id, value as unknown as ServiceNode);
+    keyMap.set(fold(value.key), value as unknown as ServiceNode);
+  }
+  const children = new Map<string, string[]>();
+  for (const graph of graphMap.values()) {
+    if (graph.id === data.rootGraphId) continue;
+    const parent = graph.parentNodeId ? nodeMap.get(graph.parentNodeId) : undefined;
+    assert(parent && parent.childGraphId === graph.id, `orphan graph ${graph.id}.`);
+    const list = children.get(parent.graphId) || [];
+    list.push(graph.id);
+    children.set(parent.graphId, list);
+  }
+  const visited = new Set<string>();
+  const pending = [data.rootGraphId];
+  while (pending.length) {
+    const current = pending.pop()!;
+    assert(!visited.has(current), 'cyclic graph hierarchy.');
+    visited.add(current);
+    pending.push(...(children.get(current) || []));
+  }
+  assert(visited.size === graphMap.size, 'unreachable or cyclic graph hierarchy.');
+  const edgeIds = new Set<string>();
+  for (const value of data.edges) {
+    assert(
+      record(value) &&
+        identifier(value.id) &&
+        identifier(value.graphId) &&
+        typeof value.source === 'string' &&
+        typeof value.target === 'string',
+      'invalid edge.',
+    );
+    assert(!edgeIds.has(value.id), `duplicate edge id ${value.id}.`);
+    edgeIds.add(value.id);
+    const source = keyMap.get(fold(value.source));
+    const target = keyMap.get(fold(value.target));
+    assert(
+      source && target && source.key === value.source && target.key === value.target,
+      `missing or incorrectly cased endpoint on edge ${value.id}.`,
+    );
+    assert(
+      source.graphId === value.graphId && target.graphId === value.graphId,
+      `edge ${value.id} crosses graph boundaries.`,
+    );
+    assert(
+      Array.isArray(value.weights) && value.weights.every((weight) => typeof weight === 'string'),
+      `weights on ${value.id} must be a string array.`,
+    );
+    assert(
+      sides.has(value.sourceSide as Side) && sides.has(value.targetSide as Side),
+      `invalid attachment side on ${value.id}.`,
+    );
+    assert(
+      Array.isArray(value.points) && (value.points.length === 0 || value.points.length >= 2),
+      `invalid path on ${value.id}.`,
+    );
+    let previous: Point | undefined;
+    for (const point of value.points) {
+      assert(record(point) && finite(point.x) && finite(point.y), `invalid path point on ${value.id}.`);
+      assert(
+        !previous || Math.abs(previous.x - point.x) < 0.000001 || Math.abs(previous.y - point.y) < 0.000001,
+        `edge ${value.id} must use orthogonal segments.`,
+      );
+      previous = point as unknown as Point;
+    }
+  }
+  return structuredClone(data) as unknown as Workspace;
+}
+
+export function renameNode(workspace: Workspace, nodeId: string, key: string): Workspace {
+  const node = workspace.nodes.find((item) => item.id === nodeId);
+  if (!node) throw new Error('Service node was not found.');
+  const error = validateKey(key, workspace.nodes, nodeId);
+  if (error) throw new Error(error);
+  return {
+    ...workspace,
+    nodes: workspace.nodes.map((item) => (item.id === nodeId ? { ...item, key } : item)),
+    edges: workspace.edges.map((edge) => ({
+      ...edge,
+      source: edge.source === node.key ? key : edge.source,
+      target: edge.target === node.key ? key : edge.target,
+    })),
+  };
+}
+
+export function removeNode(workspace: Workspace, nodeId: string): Workspace {
+  const target = workspace.nodes.find((node) => node.id === nodeId);
+  if (!target) return workspace;
+  const graphNodes = new Map<string, ServiceNode[]>();
+  for (const node of workspace.nodes) {
+    const list = graphNodes.get(node.graphId) || [];
+    list.push(node);
+    graphNodes.set(node.graphId, list);
+  }
+  const removedNodes = new Set<string>();
+  const removedGraphs = new Set<string>();
+  const removedKeys = new Set<string>();
+  const pending = [target];
+  while (pending.length) {
+    const current = pending.pop()!;
+    if (removedNodes.has(current.id)) continue;
+    removedNodes.add(current.id);
+    removedKeys.add(current.key);
+    removedGraphs.add(current.childGraphId);
+    pending.push(...(graphNodes.get(current.childGraphId) || []));
+  }
+  return {
+    ...workspace,
+    nodes: workspace.nodes.filter((node) => !removedNodes.has(node.id)),
+    graphs: workspace.graphs.filter((graph) => !removedGraphs.has(graph.id)),
+    edges: workspace.edges.filter(
+      (edge) =>
+        !removedGraphs.has(edge.graphId) && !removedKeys.has(edge.source) && !removedKeys.has(edge.target),
+    ),
+  };
+}
