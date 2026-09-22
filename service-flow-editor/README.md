@@ -99,6 +99,14 @@ File changes use a transaction journal so the main graph and managed documents c
 
 ## Keyboard and canvas controls
 
+The canvas fills the window. The top bar, service list, and inspector float above it as translucent glass panels. **Fit graph** uses the visible area between the panels; opening or closing a panel does not resize the SVG or change graph coordinates.
+
+Open **Canvas** in the top bar to choose a **Dots** or **Lines** grid, set its spacing from 8 to 128 pixels, enable **Snap to grid**, and set the default node font size from 12 to 48 pixels. Settings save automatically in `workspace.json` and apply to every nested graph. Snapping starts disabled so existing free-form layouts remain unchanged. When enabled, new nodes, dragged positions, resized dimensions, and manually moved flow segments snap to world-space grid coordinates at any zoom level. Numeric property fields still accept exact values.
+
+New and existing nodes have a **Node type** selector. **Service** uses a rounded rectangle; **Source / sink** uses a circle to represent traffic entering or leaving a graph. Circles keep equal width and height and expose a **Diameter** property. They support the same ports, degree counts, documents, nesting, and autosave as service nodes. Direction comes from their connected flows. Nodes no longer contain icons. Labels start at 20 pixels, wrap when possible, and have an individual **Font size (px)** override in Properties; **Use workspace font size** restores inheritance.
+
+Mouse wheel, Ctrl/Command + wheel, and trackpad pinch over the canvas zoom only the graph. While the canvas has keyboard focus, Ctrl/Command + `+`, `-`, and `0` zoom in, zoom out, and reset to 100%. Browser zoom remains available outside the canvas.
+
 | Action                                  | Control                                           |
 | --------------------------------------- | ------------------------------------------------- |
 | Add service                             | `N`                                               |

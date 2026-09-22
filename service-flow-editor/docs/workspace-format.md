@@ -14,6 +14,7 @@ The authoritative TypeScript types and validation rules are in [`src/model.ts`](
   "graphs": [{ "id": "root", "parentNodeId": null }],
   "nodes": [],
   "edges": [],
+  "canvas": { "gridSize": 24, "gridStyle": "dots", "snapToGrid": false, "nodeFontSize": 20 },
   "revision": 0
 }
 ```
@@ -29,6 +30,8 @@ The authoritative TypeScript types and validation rules are in [`src/model.ts`](
 | `revision`    | nonnegative safe integer | Concurrency version incremented after each successful graph save. |
 
 Arrays are flat. Nesting is expressed through graph and node references, rather than recursively embedded JSON objects. There is no fixed depth limit. Validation follows graph membership iteratively and rejects unreachable or cyclic graph hierarchies.
+
+`canvas` is an optional workspace-wide preference object shared by every graph. Its fields are `gridSize` (integer 8–128), `gridStyle` (`dots` or `lines`), `snapToGrid` (boolean), and `nodeFontSize` (number 12–48). The example above gives the defaults used when an older workspace omits the object. Changing preferences does not move existing geometry. Grid spacing uses world coordinates, independent of zoom and pan.
 
 ## Graph records
 
@@ -49,6 +52,8 @@ Graph IDs are unique. The root graph has `parentNodeId: null`. Every other graph
   "y": 140,
   "width": 224,
   "height": 124,
+  "type": "service",
+  "fontSize": 24,
   "childGraphId": "order-internal"
 }
 ```
@@ -63,6 +68,10 @@ Graph IDs are unique. The root graph has `parentNodeId: null`. Every other graph
 | `childGraphId`    | ID of this node's internal graph.                                                                                                   |
 
 The example creates `Order Service.md`. All documents remain at the workspace root, so global key uniqueness prevents document collisions even between distant nested graphs.
+
+`type` is optional and defaults to `service` (rounded rectangle). `terminal` represents a traffic source or sink, rendered as a circle; its `width` and `height` must be equal. Both types have identical document ownership, global key uniqueness, nesting, and flow behavior. A terminal's incoming/outgoing flows determine whether it acts as a source, sink, or both. Cardinal ports remain at the bounding-box side centers, which are also points on the circle. Routes conservatively avoid the circle's bounding box.
+
+`fontSize` is an optional number from 12 to 48. Omitting it inherits `canvas.nodeFontSize` (20 by default). These additions are backward compatible with version 1: old nodes keep their stored positions, dimensions, and routes.
 
 Keys must contain 1–200 characters, must not start or end with whitespace, and must not end with a dot. They must not contain path separators, control characters, or any of `<>:"|?*`. Windows reserved device names are rejected, including their extension variants. Renaming a key also updates all `source` and `target` references using the old key. The node's `id`, graph ownership, and document contents remain stable.
 

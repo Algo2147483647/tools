@@ -3,6 +3,25 @@ export interface Point {
   y: number;
 }
 export type Side = 'left' | 'right' | 'top' | 'bottom';
+export type NodeType = 'service' | 'terminal';
+export interface CanvasSettings {
+  gridSize: number;
+  gridStyle: 'dots' | 'lines';
+  snapToGrid: boolean;
+  nodeFontSize: number;
+}
+export const defaultCanvasSettings: CanvasSettings = {
+  gridSize: 24,
+  gridStyle: 'dots',
+  snapToGrid: false,
+  nodeFontSize: 20,
+};
+export function canvasSettings(workspace: Workspace): CanvasSettings {
+  return { ...defaultCanvasSettings, ...workspace.canvas };
+}
+export function snapCoordinate(value: number, settings: CanvasSettings): number {
+  return settings.snapToGrid ? Math.round(value / settings.gridSize) * settings.gridSize : Math.round(value);
+}
 export interface ServiceNode {
   id: string;
   key: string;
@@ -12,6 +31,8 @@ export interface ServiceNode {
   width: number;
   height: number;
   childGraphId: string;
+  type?: NodeType;
+  fontSize?: number;
 }
 export interface Graph {
   id: string;
@@ -35,6 +56,7 @@ export interface Workspace {
   nodes: ServiceNode[];
   edges: FlowEdge[];
   revision: number;
+  canvas?: CanvasSettings;
 }
 
 const sides = new Set<Side>(['left', 'right', 'top', 'bottom']);
@@ -49,6 +71,7 @@ export function createWorkspace(name: string): Workspace {
     nodes: [],
     edges: [],
     revision: 0,
+    canvas: { ...defaultCanvasSettings },
   };
 }
 
@@ -89,6 +112,22 @@ export function validateWorkspace(data: unknown): Workspace {
     'revision must be a non-negative integer.',
   );
   assert(identifier(data.rootGraphId), 'rootGraphId is required.');
+  if (data.canvas !== undefined) {
+    const settings = data.canvas;
+    assert(record(settings), 'canvas settings must be an object.');
+    assert(
+      Number.isInteger(settings.gridSize) &&
+        (settings.gridSize as number) >= 8 &&
+        (settings.gridSize as number) <= 128,
+      'gridSize must be an integer from 8 to 128.',
+    );
+    assert(settings.gridStyle === 'dots' || settings.gridStyle === 'lines', 'invalid gridStyle.');
+    assert(typeof settings.snapToGrid === 'boolean', 'snapToGrid must be a boolean.');
+    assert(
+      finite(settings.nodeFontSize) && settings.nodeFontSize >= 12 && settings.nodeFontSize <= 48,
+      'nodeFontSize must be between 12 and 48.',
+    );
+  }
   assert(
     Array.isArray(data.graphs) && Array.isArray(data.nodes) && Array.isArray(data.edges),
     'graphs, nodes, and edges must be arrays.',
@@ -131,6 +170,19 @@ export function validateWorkspace(data: unknown): Workspace {
       `invalid geometry for ${value.key}.`,
     );
     assert(graphMap.has(value.graphId), `missing graph for ${value.key}.`);
+    assert(
+      value.type === undefined || value.type === 'service' || value.type === 'terminal',
+      `invalid node type for ${value.key}.`,
+    );
+    assert(
+      value.type !== 'terminal' || value.width === value.height,
+      `source / sink ${value.key} must have equal width and height.`,
+    );
+    assert(
+      value.fontSize === undefined ||
+        (finite(value.fontSize) && value.fontSize >= 12 && value.fontSize <= 48),
+      `invalid font size for ${value.key}.`,
+    );
     const child = graphMap.get(value.childGraphId);
     assert(
       child && child.id !== data.rootGraphId && child.parentNodeId === value.id,

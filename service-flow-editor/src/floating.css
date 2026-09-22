@@ -1,0 +1,218 @@
+/* Panels overlay a full-window SVG; opening a panel never resizes the canvas. */
+.app-shell.workspace-open {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  --glass: hsl(var(--theme-hue) 30% 99% / 0.73);
+  --glass-border: hsl(var(--theme-hue) 25% 100% / 0.85);
+}
+.workspace-open .main-area,
+.workspace-open .editor-layout,
+.workspace-open .graph-area,
+.workspace-open .canvas-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+}
+.workspace-open .topbar,
+.workspace-open > .sidebar,
+.workspace-open .inspector {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 28px var(--shadow-mid),
+    inset 0 1px 0 #ffffffa6;
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+.workspace-open .topbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 40;
+  min-height: 60px;
+  padding: 10px 14px;
+  gap: 10px;
+}
+.workspace-open > .sidebar,
+.workspace-open .inspector {
+  position: absolute;
+  top: calc(var(--toolbar-height) + 24px);
+  bottom: 16px;
+  height: auto;
+  z-index: 20;
+}
+.workspace-open > .sidebar {
+  left: 12px;
+  width: 256px;
+  min-width: 0;
+  --sidebar-text: var(--text);
+  --sidebar-heading: var(--text);
+  --sidebar-muted: var(--text-muted);
+  --sidebar-accent: var(--accent);
+  --sidebar-border: var(--border);
+  --sidebar-hover: var(--accent-soft);
+  --sidebar-active: var(--accent-soft-hover);
+  --sidebar-input: #ffffff70;
+  --sidebar-badge: var(--accent-border);
+  --sidebar-bg: transparent;
+}
+.workspace-open > .sidebar.collapsed {
+  width: 0;
+  border: 0;
+  box-shadow: none;
+}
+.workspace-open .brand {
+  height: 66px;
+  min-height: 66px;
+  padding: 0 16px;
+  font-size: 16px;
+}
+.workspace-open .brand > div > span {
+  display: none;
+}
+.workspace-open .brand-mark {
+  width: 25px;
+}
+.workspace-open .sidebar-close {
+  color: var(--text-muted);
+}
+.workspace-open .inspector {
+  right: 12px;
+  left: auto;
+  width: 296px;
+  max-width: calc(100vw - 24px);
+  overflow: auto;
+}
+.workspace-open .inspector.collapsed {
+  display: none;
+}
+.workspace-open .inspector-tabs,
+.workspace-open .inspector-title {
+  background: transparent;
+  flex-shrink: 0;
+}
+.workspace-open .statusbar {
+  position: absolute;
+  bottom: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  height: auto;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 20px;
+  background: hsl(var(--theme-hue) 30% 99% / 0.6);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+}
+.workspace-open .statusbar > span:first-child,
+.workspace-open .statusbar > span:last-child {
+  display: none;
+}
+.workspace-open .canvas-caption {
+  left: 288px;
+  bottom: 46px;
+}
+.workspace-open.sidebar-hidden .canvas-caption {
+  left: 22px;
+}
+.workspace-open .canvas-coordinates {
+  display: none;
+}
+.workspace-open .notice-bar {
+  position: absolute;
+  top: calc(var(--toolbar-height) + 28px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 6px 24px var(--shadow-color);
+}
+.canvas-settings {
+  flex-shrink: 0;
+}
+.canvas-settings > button {
+  padding: 7px 10px;
+  font-size: 11px;
+}
+.canvas-settings-panel {
+  position: absolute;
+  right: 12px;
+  top: calc(100% + 8px);
+  width: 270px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100dvh - var(--toolbar-height) - 60px);
+  overflow: auto;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 35px var(--shadow-color);
+}
+.canvas-settings-panel > strong {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 18px;
+}
+.setting-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.setting-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.canvas-settings-panel .field-help {
+  margin-bottom: 0;
+}
+.font-reset {
+  margin: 8px 0 16px;
+  font-size: 10px;
+  color: var(--accent);
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+.font-reset:disabled {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+@media (max-width: 760px) {
+  .workspace-open .topbar {
+    gap: 7px;
+    padding: 9px 10px;
+  }
+  .workspace-open .topbar .heading-actions {
+    order: 1;
+  }
+  .workspace-open .topbar .canvas-settings {
+    order: 2;
+  }
+  .workspace-open .topbar .zoom-controls {
+    order: 3;
+  }
+  .workspace-open .topbar .breadcrumbs {
+    flex-basis: 150px;
+  }
+  .workspace-open .canvas-caption {
+    display: none;
+  }
+  .workspace-open .statusbar {
+    font-size: 8px;
+  }
+}

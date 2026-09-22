@@ -2,7 +2,7 @@ import { test as base, expect, type Locator, type Page } from '@playwright/test'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import type { Workspace } from '../../src/model';
+import type { NodeType, Workspace } from '../../src/model';
 
 const test = base.extend<{ workspaceFolder: string }>({
   workspaceFolder: async ({}, use) => {
@@ -48,10 +48,11 @@ async function open(page: Page, folder: string) {
   await expect(page.getByTestId('graph-canvas')).toBeVisible();
 }
 
-async function addService(page: Page, key: string) {
+async function addService(page: Page, key: string, type: NodeType = 'service') {
   await page.locator('.heading-actions').getByRole('button', { name: 'Add service', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Service key').fill(key);
+  await dialog.getByLabel('Node type').selectOption(type);
   await dialog.getByRole('button', { name: 'Create service', exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page.getByTestId(`node-${key}`)).toBeVisible();
@@ -543,6 +544,10 @@ test('contextual canvas actions and persistent sidebar collapse preserve workspa
 }) => {
   await create(page, workspaceFolder);
   const canvas = page.getByTestId('graph-canvas');
+  const worldPoint = await canvas.evaluate((element) => {
+    const matrix = element.querySelector<SVGGElement>('g[transform]')!.getScreenCTM()!;
+    return { x: Math.round((340 - matrix.e) / matrix.a), y: Math.round((220 - matrix.f) / matrix.d) };
+  });
   await canvas.click({ button: 'right', position: { x: 340, y: 220 } });
   const menu = page.getByRole('menu', { name: 'Canvas actions' });
   await expect(menu).toBeVisible();
@@ -550,7 +555,7 @@ test('contextual canvas actions and persistent sidebar collapse preserve workspa
   await page.getByRole('dialog').getByLabel('Service key').fill('ContextService');
   await page.getByRole('dialog').getByRole('button', { name: 'Create service' }).click();
   await saved(page);
-  expect((await disk(workspaceFolder)).nodes[0]).toMatchObject({ x: 280, y: 160 });
+  expect((await disk(workspaceFolder)).nodes[0]).toMatchObject(worldPoint);
   const node = page.getByTestId('node-ContextService');
   await node.locator('.node-body').click({ button: 'right' });
   await expect(menu.getByRole('menuitem', { name: 'Open document' })).toBeVisible();
@@ -559,7 +564,7 @@ test('contextual canvas actions and persistent sidebar collapse preserve workspa
   await node.locator('.node-body').click({ button: 'right' });
   await menu.getByRole('menuitem', { name: 'Explore inside' }).click();
   await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText('ContextService');
-  await canvas.click({ button: 'right', position: { x: 120, y: 100 } });
+  await canvas.click({ button: 'right', position: { x: 800, y: 600 } });
   await menu.getByRole('menuitem', { name: 'Up one level' }).click();
   await addService(page, 'OtherService');
   await connectAnchors(page, 'ContextService', 'right', 'OtherService', 'left');
@@ -584,8 +589,139 @@ test('contextual canvas actions and persistent sidebar collapse preserve workspa
   await page.locator('.sidebar-toggle').click();
   await expect(page.locator('.sidebar')).not.toHaveClass(/collapsed/);
   await open(page, workspaceFolder);
-  await canvas.click({ button: 'right', position: { x: 15, y: 400 } });
+  await canvas.click({ button: 'right', position: { x: 800, y: 650 } });
   await expect(menu).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(menu).toHaveCount(0);
+});
+
+test('grid snapping, typography, and source / sink circles persist across nested graphs', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await settings.getByLabel('Snap to grid').check();
+  await settings.getByLabel('Grid size (px)').fill('');
+  await settings.getByLabel('Grid size (px)').pressSequentially('32');
+  await expect(settings.getByLabel('Grid size (px)')).toHaveValue('32');
+  await settings.getByLabel('Grid pattern').selectOption('lines');
+  await settings.getByLabel('Default node font size (px)').fill('24');
+  await settings.getByLabel('Grid pattern').press('Escape');
+  await expect(page.getByTestId('grid-lines')).toBeAttached();
+  await addService(page, 'Worker');
+  const worker = page.getByTestId('node-Worker');
+  await expect(worker.locator('.node-key')).toHaveCSS('font-size', '24px');
+  await expect(worker.locator('.node-icon-bg')).toHaveCount(0);
+  await drag(page, worker.locator('.node-body'), 31, 49);
+  await drag(page, page.getByTestId('resize-handle'), 25, 28);
+  await saved(page);
+  expect((await disk(workspaceFolder)).nodes[0]).toMatchObject({ x: 64, y: 128, width: 256, height: 128 });
+  await addService(page, 'Traffic', 'terminal');
+  const traffic = page.getByTestId('node-Traffic');
+  await expect(traffic.locator('circle.node-body')).toHaveCount(1);
+  await page.getByRole('spinbutton', { name: 'Font size (px)', exact: true }).fill('28');
+  await drag(page, page.getByTestId('resize-handle'), 29, 10);
+  await connectAnchors(page, 'Traffic', 'left', 'Worker', 'right');
+  await saved(page);
+  const linked = await disk(workspaceFolder);
+  expect(linked.nodes[1]).toMatchObject({ type: 'terminal', fontSize: 28, width: 192, height: 192 });
+  expect(linked.edges[0].points[0]).toEqual({ x: linked.nodes[1].x, y: linked.nodes[1].y + 96 });
+  await traffic.locator('.node-body').click();
+  await page.getByRole('spinbutton', { name: 'Diameter', exact: true }).fill('224');
+  await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
+  await drag(page, traffic.locator('.node-body'), 31, 61);
+  await saved(page);
+  const moved = await disk(workspaceFolder);
+  expect(moved.nodes[1].width).toBe(moved.nodes[1].height);
+  expect(moved.nodes[1].x % 32).toBe(0);
+  expect(moved.nodes[1].y % 32).toBe(0);
+  expect(moved.edges[0].points[0]).toEqual({ x: moved.nodes[1].x, y: moved.nodes[1].y + 112 });
+  assertOrthogonal(moved);
+  await enter(page, 'Worker');
+  await addService(page, 'NestedInlet', 'terminal');
+  await expect(page.getByTestId('node-NestedInlet').locator('.node-key')).toHaveCSS('font-size', '24px');
+  await saved(page);
+  const persisted = await disk(workspaceFolder);
+  expect(persisted.canvas).toEqual({ gridSize: 32, gridStyle: 'lines', snapToGrid: true, nodeFontSize: 24 });
+  await page.reload();
+  await open(page, workspaceFolder);
+  await expect(traffic.locator('circle.node-body')).toHaveAttribute('r', '112');
+  await expect(traffic.locator('.node-key')).toHaveCSS('font-size', '28px');
+  await traffic.locator('.node-body').click();
+  await page.getByRole('button', { name: 'Use workspace font size' }).click();
+  await expect(traffic.locator('.node-key')).toHaveCSS('font-size', '24px');
+  await enter(page, 'Worker');
+  await expect(page.getByTestId('node-NestedInlet').locator('circle.node-body')).toBeVisible();
+  expect(await readFile(path.join(workspaceFolder, 'Traffic.md'), 'utf8')).toContain('# Traffic');
+  expect((await disk(workspaceFolder)).edges).toEqual(persisted.edges);
+});
+
+test('floating panels leave a full viewport canvas and wheel gestures never zoom the browser', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  const canvas = page.getByTestId('graph-canvas');
+  await expect(canvas).toHaveJSProperty('clientWidth', 1600);
+  const bounds = await canvas.boundingBox();
+  expect(bounds).toEqual({ x: 0, y: 0, width: 1600, height: 1000 });
+  for (const selector of ['.topbar', '.sidebar', '.inspector']) {
+    const style = await page.locator(selector).evaluate((element) => {
+      const css = getComputedStyle(element);
+      return { blur: css.backdropFilter, background: css.backgroundColor, position: css.position };
+    });
+    expect(style.blur).toContain('blur(');
+    expect(style.background).toMatch(/rgba\(/);
+    expect(style.position).toBe('absolute');
+  }
+  await page.locator('.sidebar-toggle').click();
+  await page.getByRole('button', { name: 'Toggle inspector' }).click();
+  expect(await canvas.boundingBox()).toEqual(bounds);
+  const browserBefore = await page.evaluate(() => ({
+    ratio: devicePixelRatio,
+    width: innerWidth,
+    height: innerHeight,
+    scale: visualViewport!.scale,
+  }));
+  await page.mouse.move(800, 500);
+  await page.keyboard.down('Control');
+  await page.mouse.wheel(0, -180);
+  await page.keyboard.up('Control');
+  await expect(page.locator('.zoom-controls > span')).not.toHaveText('100%');
+  expect(
+    await page.evaluate(() => ({
+      ratio: devicePixelRatio,
+      width: innerWidth,
+      height: innerHeight,
+      scale: visualViewport!.scale,
+    })),
+  ).toEqual(browserBefore);
+  const canceled = await canvas.evaluate((element) => {
+    const event = new WheelEvent('wheel', {
+      deltaY: 80,
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+      clientX: 800,
+      clientY: 500,
+    });
+    element.dispatchEvent(event);
+    return event.defaultPrevented;
+  });
+  expect(canceled).toBe(true);
+  await canvas.click({ position: { x: 1000, y: 700 } });
+  await page.keyboard.press('Control+0');
+  await expect(page.locator('.zoom-controls > span')).toHaveText('100%');
+  await page.keyboard.press('Control+=');
+  await expect(page.locator('.zoom-controls > span')).toHaveText('115%');
+  expect(await page.evaluate(() => devicePixelRatio)).toBe(browserBefore.ratio);
+  await page.setViewportSize({ width: 650, height: 720 });
+  expect(await canvas.boundingBox()).toEqual({ x: 0, y: 0, width: 650, height: 720 });
+  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await expect(settings).toBeInViewport();
+  await settings.getByLabel('Grid pattern').selectOption('dots');
+  await expect(page.getByTestId('grid-dots')).toBeAttached();
 });

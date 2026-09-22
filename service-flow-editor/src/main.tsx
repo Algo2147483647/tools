@@ -4,6 +4,7 @@ import App from './App';
 import { applyTheme, readTheme } from './theme';
 import './themes.css';
 import './styles.css';
+import './floating.css';
 
 applyTheme(readTheme());
 

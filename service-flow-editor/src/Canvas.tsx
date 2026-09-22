@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
+import { canvasSettings, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
 import Icon from './Icon';
 
@@ -31,8 +32,35 @@ type Props = {
   onAdd: () => void;
 };
 
+function wrapLabel(text: string, width: number, fontSize: number, maxLines: number): string[] {
+  const lines: string[] = [];
+  let line = '',
+    length = 0;
+  for (const character of text) {
+    const advance = fontSize * (character.codePointAt(0)! > 255 ? 1 : 0.62);
+    if (line && length + advance > width) {
+      lines.push(line.trim());
+      line = '';
+      length = 0;
+    }
+    line += character;
+    length += advance;
+  }
+  if (line) lines.push(line.trim());
+  if (lines.length > maxLines) {
+    lines.length = maxLines;
+    lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1) + '…';
+  }
+  return lines;
+}
+
 export default function Canvas(p: Props) {
   const svg = useRef<SVGSVGElement>(null);
+  const wrapper = useRef<HTMLDivElement>(null);
+  const latest = useRef(p);
+  latest.current = p;
+  const settings = canvasSettings(p.workspace);
+  const snap = (value: number) => snapCoordinate(value, settings);
   const drag = useRef<Drag | null>(null);
   const [activeDrag, setActiveDrag] = useState(false);
   const [preview, setPreview] = useState<{ points: Point[]; targetId?: string; radius?: number } | null>(
@@ -66,6 +94,7 @@ export default function Canvas(p: Props) {
     if (e.button !== 0 && e.button !== 1) return;
     e.preventDefault();
     e.stopPropagation();
+    svg.current?.focus({ preventScroll: true });
     drag.current = next;
     setActiveDrag(true);
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -82,6 +111,48 @@ export default function Canvas(p: Props) {
     window.addEventListener('keydown', escape);
     return () => window.removeEventListener('keydown', escape);
   }, []);
+  useEffect(() => {
+    const element = wrapper.current!;
+    const zoom = (factor: number, clientX: number, clientY: number) => {
+      const current = latest.current;
+      const rect = svg.current!.getBoundingClientRect();
+      const sx = clientX - rect.left,
+        sy = clientY - rect.top;
+      const scale = Math.max(0.2, Math.min(2.5, current.view.scale * factor));
+      const view = {
+        scale,
+        x: sx - ((sx - current.view.x) * scale) / current.view.scale,
+        y: sy - ((sy - current.view.y) * scale) / current.view.scale,
+      };
+      latest.current = { ...current, view };
+      current.onView(view);
+    };
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const delta =
+        event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientHeight : 1);
+      zoom(Math.exp(-delta * 0.001), event.clientX, event.clientY);
+    };
+    let gestureScale = 1;
+    const gesture = (event: Event) => {
+      event.preventDefault();
+      const pinch = event as Event & { scale: number; clientX: number; clientY: number };
+      if (event.type === 'gesturestart') gestureScale = 1;
+      if (event.type === 'gesturechange' && pinch.scale > 0) {
+        zoom(pinch.scale / gestureScale, pinch.clientX, pinch.clientY);
+        gestureScale = pinch.scale;
+      }
+    };
+    element.addEventListener('wheel', wheel, { passive: false });
+    for (const type of ['gesturestart', 'gesturechange', 'gestureend'])
+      element.addEventListener(type, gesture, { passive: false });
+    return () => {
+      element.removeEventListener('wheel', wheel);
+      for (const type of ['gesturestart', 'gesturechange', 'gestureend'])
+        element.removeEventListener(type, gesture);
+    };
+  }, []);
   function targetAt(pos: Point) {
     const threshold = 16 / p.view.scale;
     for (const node of [...nodes].reverse()) {
@@ -93,7 +164,12 @@ export default function Canvas(p: Props) {
       const nearest = candidates[0];
       if (
         Math.hypot(nearest.point.x - pos.x, nearest.point.y - pos.y) <= threshold ||
-        (pos.x >= node.x && pos.x <= node.x + node.width && pos.y >= node.y && pos.y <= node.y + node.height)
+        (node.type === 'terminal'
+          ? Math.hypot(pos.x - node.x - node.width / 2, pos.y - node.y - node.height / 2) <= node.width / 2
+          : pos.x >= node.x &&
+            pos.x <= node.x + node.width &&
+            pos.y >= node.y &&
+            pos.y <= node.y + node.height)
       ) {
         return { node, side: nearest.side };
       }
@@ -138,22 +214,29 @@ export default function Canvas(p: Props) {
         y: current.view!.y + e.clientY - current.start.y,
       });
     } else if (current.type === 'node') {
-      p.onNode(current.id, { x: Math.round(current.node!.x + dx), y: Math.round(current.node!.y + dy) });
+      p.onNode(current.id, { x: snap(current.node!.x + dx), y: snap(current.node!.y + dy) });
     } else if (current.type === 'resize') {
-      p.onNode(current.id, {
-        width: Math.max(160, Math.round(current.node!.width + dx)),
-        height: Math.max(64, Math.round(current.node!.height + dy)),
-      });
+      const minimum = (value: number) =>
+        settings.snapToGrid ? Math.ceil(value / settings.gridSize) * settings.gridSize : value;
+      if (current.node!.type === 'terminal') {
+        const diameter = Math.max(minimum(80), snap(current.node!.width + Math.max(dx, dy)));
+        p.onNode(current.id, { width: diameter, height: diameter });
+      } else
+        p.onNode(current.id, {
+          width: Math.max(minimum(160), snap(current.node!.width + dx)),
+          height: Math.max(minimum(64), snap(current.node!.height + dy)),
+        });
     } else {
       const edge = current.edge!,
         index = current.index!;
       const horizontal = edge.points[index].y === edge.points[index + 1].y;
       const coordinate = horizontal ? edge.points[index].y + dy : edge.points[index].x + dx;
-      p.onEdge(current.id, { points: moveSegment(edge.points, index, Math.round(coordinate)) });
+      p.onEdge(current.id, { points: moveSegment(edge.points, index, snap(coordinate)) });
     }
   }
   return (
     <div
+      ref={wrapper}
       className={`canvas-wrap ${preview ? 'is-connecting' : ''} ${activeDrag ? 'is-dragging' : ''}`}
       onContextMenu={(event) => {
         event.preventDefault();
@@ -206,11 +289,17 @@ export default function Canvas(p: Props) {
         }}
         onPointerCancel={cancelDrag}
         onLostPointerCapture={cancelDrag}
-        onWheel={(e) => {
+        onKeyDown={(e) => {
+          if (!(e.ctrlKey || e.metaKey) || !['+', '=', '-', '0'].includes(e.key)) return;
+          e.preventDefault();
+          e.stopPropagation();
           const rect = svg.current!.getBoundingClientRect();
-          const sx = e.clientX - rect.left,
-            sy = e.clientY - rect.top;
-          const scale = Math.max(0.2, Math.min(2.5, p.view.scale * Math.exp(-e.deltaY * 0.001)));
+          const sx = rect.width / 2,
+            sy = rect.height / 2;
+          const scale =
+            e.key === '0'
+              ? 1
+              : Math.max(0.2, Math.min(2.5, p.view.scale * (e.key === '-' ? 1 / 1.15 : 1.15)));
           p.onView({
             scale,
             x: sx - ((sx - p.view.x) * scale) / p.view.scale,
@@ -221,13 +310,29 @@ export default function Canvas(p: Props) {
         <defs>
           <pattern
             id="grid"
-            width={24 * p.view.scale}
-            height={24 * p.view.scale}
+            width={settings.gridSize * p.view.scale}
+            height={settings.gridSize * p.view.scale}
             patternUnits="userSpaceOnUse"
-            x={p.view.x}
-            y={p.view.y}
+            x={p.view.x - (settings.gridStyle === 'dots' ? (settings.gridSize * p.view.scale) / 2 : 0)}
+            y={p.view.y - (settings.gridStyle === 'dots' ? (settings.gridSize * p.view.scale) / 2 : 0)}
           >
-            <circle cx={1} cy={1} r={0.8} fill="var(--grid-color)" />
+            {settings.gridStyle === 'dots' ? (
+              <circle
+                data-testid="grid-dots"
+                cx={(settings.gridSize * p.view.scale) / 2}
+                cy={(settings.gridSize * p.view.scale) / 2}
+                r={1}
+                fill="var(--grid-color)"
+              />
+            ) : (
+              <path
+                data-testid="grid-lines"
+                d={`M ${settings.gridSize * p.view.scale} 0 H 0 V ${settings.gridSize * p.view.scale}`}
+                fill="none"
+                stroke="var(--grid-color)"
+                strokeWidth={0.8}
+              />
+            )}
           </pattern>
           {[false, true].flatMap((selected) =>
             [0, 6, 11, 14].map((radius) => (
@@ -333,6 +438,16 @@ export default function Canvas(p: Props) {
             />
           )}
           {nodes.map((node) => {
+            const circular = node.type === 'terminal';
+            const fontSize = node.fontSize ?? settings.nodeFontSize;
+            const labelWidth = circular ? node.width * 0.68 : node.width - 36;
+            const labelHeight = circular ? node.height * 0.68 : node.height - 24;
+            const label = wrapLabel(
+              node.key,
+              labelWidth,
+              fontSize,
+              Math.max(1, Math.floor(labelHeight / (fontSize * 1.25))),
+            );
             const selected = p.selection?.type === 'node' && p.selection.id === node.id;
             const incoming = edges.filter((edge) => edge.target === node.key).length;
             const outgoing = edges.filter((edge) => edge.source === node.key).length;
@@ -341,6 +456,7 @@ export default function Canvas(p: Props) {
                 key={node.id}
                 data-testid={`node-${node.key}`}
                 data-node-id={node.id}
+                data-node-type={node.type ?? 'service'}
                 className={`service-node ${selected ? 'selected' : ''} ${preview?.targetId === node.id ? 'connecting' : ''}`}
                 transform={`translate(${node.x} ${node.y})`}
                 onPointerDown={(e) => {
@@ -353,31 +469,37 @@ export default function Canvas(p: Props) {
                   p.onEnter(node);
                 }}
               >
-                <rect
-                  className="node-body"
-                  width={node.width}
-                  height={node.height}
-                  rx={12}
-                  filter="url(#node-shadow)"
-                />
-                <rect className="node-icon-bg" x={12} y={12} width={20} height={20} rx={5} />
-                <path
-                  d="M17 17h10v10H17z M20 20h4 M20 24h3"
-                  fill="none"
-                  stroke="var(--node-icon-color)"
-                  strokeWidth={1.4}
-                  strokeLinecap="round"
-                />
+                {circular ? (
+                  <circle
+                    className="node-body"
+                    cx={node.width / 2}
+                    cy={node.height / 2}
+                    r={node.width / 2}
+                    filter="url(#node-shadow)"
+                  />
+                ) : (
+                  <rect
+                    className="node-body"
+                    width={node.width}
+                    height={node.height}
+                    rx={12}
+                    filter="url(#node-shadow)"
+                  />
+                )}
                 <text
                   className="node-key"
                   x={node.width / 2}
-                  y={Math.max(49, node.height / 2 + 5)}
+                  y={node.height / 2 - ((label.length - 1) * fontSize * 1.25) / 2}
+                  dominantBaseline="central"
+                  style={{ fontSize }}
                   textAnchor="middle"
                 >
                   <title>{node.key}</title>
-                  {node.key.length > Math.floor((node.width - 32) / 8)
-                    ? node.key.slice(0, Math.floor((node.width - 32) / 8) - 1) + '…'
-                    : node.key}
+                  {label.map((line, index) => (
+                    <tspan key={index} x={node.width / 2} dy={index ? fontSize * 1.25 : 0}>
+                      {line}
+                    </tspan>
+                  ))}
                 </text>
                 {portSides.map((side) => {
                   const center = anchor({ ...node, x: 0, y: 0 }, side);

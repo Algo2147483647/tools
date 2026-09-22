@@ -1,9 +1,20 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { useWorkspace } from './useWorkspace';
 import {
   removeNode,
   renameNode,
   validateKey,
+  canvasSettings,
+  snapCoordinate,
+  type NodeType,
   type FlowEdge,
   type ServiceNode,
   type Side,
@@ -16,6 +27,7 @@ import DocumentEditor from './DocumentEditor';
 import Icon from './Icon';
 import ThemePicker from './ThemePicker';
 import ContextMenu, { type ContextAction } from './ContextMenu';
+import CanvasSettings from './CanvasSettings';
 
 const uid = () => crypto.randomUUID();
 const defaultView = { x: 60, y: 60, scale: 1 };
@@ -208,13 +220,14 @@ function NodeDialog({
 }: {
   workspace: Workspace;
   onClose: () => void;
-  onCreate: (key: string) => Promise<void>;
+  onCreate: (key: string, type: NodeType) => Promise<void>;
 }) {
   let suggestion = 1;
   while (workspace.nodes.some((n) => n.key.toLowerCase() === `service-${suggestion}`)) suggestion++;
   const [key, setKey] = useState(`service-${suggestion}`),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
+  const [type, setType] = useState<NodeType>('service');
   return (
     <Modal title="Add a service" onClose={onClose}>
       <p className="modal-intro">
@@ -230,7 +243,7 @@ function NodeDialog({
           }
           setBusy(true);
           try {
-            await onCreate(key);
+            await onCreate(key, type);
           } catch (err) {
             setError(String(err));
           } finally {
@@ -238,6 +251,13 @@ function NodeDialog({
           }
         }}
       >
+        <label className="field">
+          Node type
+          <select value={type} onChange={(event) => setType(event.target.value as NodeType)}>
+            <option value="service">Service — rectangle</option>
+            <option value="terminal">Source / sink — circle</option>
+          </select>
+        </label>
         <label className="field">
           Service key
           <input
@@ -397,11 +417,13 @@ function NumberField({
   label,
   value,
   min,
+  max,
   onChange,
 }: {
   label: string;
   value: number;
   min?: number;
+  max?: number;
   onChange: (n: number) => void;
 }) {
   const [text, setText] = useState(String(value));
@@ -413,11 +435,18 @@ function NumberField({
         aria-label={label}
         type="number"
         min={min}
+        max={max}
         value={text}
         onChange={(e) => {
           setText(e.target.value);
           const n = Number(e.target.value);
-          if (e.target.value && Number.isFinite(n) && (min === undefined || n >= min)) onChange(n);
+          if (
+            e.target.value &&
+            Number.isFinite(n) &&
+            (min === undefined || n >= min) &&
+            (max === undefined || n <= max)
+          )
+            onChange(n);
         }}
         onBlur={() => setText(String(value))}
       />
@@ -444,6 +473,15 @@ function WeightsField({ edge, onChange }: { edge: FlowEdge; onChange: (weights: 
 export default function App() {
   const store = useWorkspace();
   const workspace = store.workspace;
+  const toolbar = useRef<HTMLElement>(null);
+  const [toolbarHeight, setToolbarHeight] = useState(64);
+  useLayoutEffect(() => {
+    const observer = new ResizeObserver(() =>
+      setToolbarHeight(toolbar.current?.getBoundingClientRect().height ?? 64),
+    );
+    if (toolbar.current) observer.observe(toolbar.current);
+    return () => observer.disconnect();
+  }, []);
   const [graphId, setGraphId] = useState('root'),
     [selection, setSelection] = useState<Selection>(null);
   const [view, setView] = useState<View>(defaultView),
@@ -515,7 +553,15 @@ export default function App() {
   }
   function changeNode(id: string, patch: Partial<ServiceNode>) {
     store.change((w) => {
-      const nodes = w.nodes.map((n) => (n.id === id ? { ...n, ...patch } : n));
+      const nodes = w.nodes.map((n) => {
+        if (n.id !== id) return n;
+        const next = { ...n, ...patch };
+        if (next.type === 'terminal') {
+          const diameter = patch.width ?? patch.height ?? Math.max(n.width, n.height);
+          next.width = next.height = diameter;
+        }
+        return next;
+      });
       const changed = nodes.find((n) => n.id === id)!;
       return {
         ...w,
@@ -542,7 +588,7 @@ export default function App() {
     void action(() => {
       views.current[graphId] = view;
       setGraphId(id);
-      setView(views.current[id] || defaultView);
+      setView(views.current[id] || initialView());
       setSelection(null);
       setContextMenu(null);
       setSearch('');
@@ -558,24 +604,43 @@ export default function App() {
   }
   function fit() {
     if (!localNodes.length) {
-      setView(defaultView);
+      setView(initialView());
       return;
     }
     const bounds = document.querySelector('.canvas-wrap')?.getBoundingClientRect();
     if (!bounds) return;
+    const area = canvasArea();
     const left = Math.min(...localNodes.map((n) => n.x)),
       top = Math.min(...localNodes.map((n) => n.y));
     const right = Math.max(...localNodes.map((n) => n.x + n.width)),
       bottom = Math.max(...localNodes.map((n) => n.y + n.height));
     const scale = Math.min(
       1.4,
-      Math.max(0.2, Math.min((bounds.width - 140) / (right - left), (bounds.height - 160) / (bottom - top))),
+      Math.max(0.2, Math.min((area.width - 80) / (right - left), (area.height - 80) / (bottom - top))),
     );
     setView({
       scale,
-      x: (bounds.width - (right - left) * scale) / 2 - left * scale,
-      y: (bounds.height - (bottom - top) * scale) / 2 - top * scale,
+      x: area.x + (area.width - (right - left) * scale) / 2 - left * scale,
+      y: area.y + (area.height - (bottom - top) * scale) / 2 - top * scale,
     });
+  }
+  function canvasArea() {
+    const left = sidebarCollapsed ? 16 : 284;
+    const right = inspectorOpen ? 324 : 16;
+    // On narrow screens panels are overlays; keep a useful canvas target between them when possible.
+    const usableLeft = window.innerWidth - left - right >= 280 ? left : 16;
+    const usableRight = window.innerWidth - usableLeft - right >= 280 ? right : 16;
+    const top = toolbarHeight + 28;
+    return {
+      x: usableLeft,
+      y: top,
+      width: window.innerWidth - usableLeft - usableRight,
+      height: Math.max(160, window.innerHeight - top - 48),
+    };
+  }
+  function initialView(): View {
+    const area = canvasArea();
+    return { x: area.x + 20, y: area.y + 20, scale: 1 };
   }
   function addFlow(
     sourceKey: string,
@@ -606,7 +671,7 @@ export default function App() {
     await store.open(path, create, name || undefined);
     views.current = {};
     setGraphId('');
-    setView(defaultView);
+    setView(initialView());
     setSelection(null);
     setModal(null);
     setContextMenu(null);
@@ -638,7 +703,7 @@ export default function App() {
       }
       if (
         (e.target as HTMLElement).closest(
-          'input, textarea, select, [contenteditable], [data-theme-control], [role="menu"]',
+          'input, textarea, select, [contenteditable], [data-theme-control], [data-canvas-control], [role="menu"]',
         ) ||
         modal
       )
@@ -765,7 +830,7 @@ export default function App() {
           { label: 'Add service here', icon: 'plus', run: () => openNewNode(contextMenu!.point) },
           { label: 'Add flow', icon: 'link', disabled: !localNodes.length, run: () => setModal('flow') },
           { label: 'Fit graph', icon: 'fit', run: fit },
-          { label: 'Reset view', icon: 'refresh', run: () => setView(defaultView) },
+          { label: 'Reset view', icon: 'refresh', run: () => setView(initialView()) },
           ...(parent ? [{ label: 'Up one level', icon: 'back', run: () => navigate(parent.graphId) }] : []),
         ];
   const documentStatus = selectedNode ? documentState.status : 'saved';
@@ -795,7 +860,10 @@ export default function App() {
       search ? n.key.toLowerCase().includes(search.toLowerCase()) : n.graphId === graphId,
     ) || [];
   return (
-    <div className="app-shell">
+    <div
+      className={`app-shell ${workspace ? 'workspace-open' : ''} ${sidebarCollapsed ? 'sidebar-hidden' : ''}`}
+      style={{ '--toolbar-height': `${toolbarHeight}px` } as CSSProperties}
+    >
       <aside
         className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
         aria-hidden={sidebarCollapsed}
@@ -918,7 +986,7 @@ export default function App() {
         </div>
       </aside>
       <main className="main-area">
-        <header className="topbar">
+        <header className="topbar" ref={toolbar}>
           <button
             className="icon-button sidebar-toggle"
             aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -965,6 +1033,10 @@ export default function App() {
                   Add service
                 </button>
               </div>
+              <CanvasSettings
+                value={canvasSettings(workspace)}
+                onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
+              />
               <div className="zoom-controls">
                 <button
                   className="icon-button"
@@ -1228,7 +1300,21 @@ export default function App() {
                       </button>
                     </div>
                     <div className="inspector-body" hidden={inspectorTab !== 'properties'}>
-                      <span className="tag">SERVICE NODE</span>
+                      <span className="tag">
+                        {selectedNode.type === 'terminal' ? 'SOURCE / SINK' : 'SERVICE NODE'}
+                      </span>
+                      <label className="field">
+                        Node type
+                        <select
+                          value={selectedNode.type ?? 'service'}
+                          onChange={(event) =>
+                            changeNode(selectedNode.id, { type: event.target.value as NodeType })
+                          }
+                        >
+                          <option value="service">Service — rectangle</option>
+                          <option value="terminal">Source / sink — circle</option>
+                        </select>
+                      </label>
                       <KeyField
                         node={selectedNode}
                         nodes={workspace.nodes}
@@ -1237,6 +1323,20 @@ export default function App() {
                           store.change((w) => renameNode(w, selectedNode.id, key));
                         }}
                       />
+                      <NumberField
+                        label="Font size (px)"
+                        value={selectedNode.fontSize ?? canvasSettings(workspace).nodeFontSize}
+                        min={12}
+                        max={48}
+                        onChange={(fontSize) => changeNode(selectedNode.id, { fontSize })}
+                      />
+                      <button
+                        className="text-button font-reset"
+                        disabled={selectedNode.fontSize === undefined}
+                        onClick={() => changeNode(selectedNode.id, { fontSize: undefined })}
+                      >
+                        Use workspace font size
+                      </button>
                       <div className="section-label">POSITION & SIZE</div>
                       <div className="geometry-fields">
                         <NumberField
@@ -1250,17 +1350,19 @@ export default function App() {
                           onChange={(y) => changeNode(selectedNode.id, { y })}
                         />
                         <NumberField
-                          label="Width"
+                          label={selectedNode.type === 'terminal' ? 'Diameter' : 'Width'}
                           value={selectedNode.width}
-                          min={160}
+                          min={selectedNode.type === 'terminal' ? 80 : 160}
                           onChange={(width) => changeNode(selectedNode.id, { width })}
                         />
-                        <NumberField
-                          label="Height"
-                          value={selectedNode.height}
-                          min={64}
-                          onChange={(height) => changeNode(selectedNode.id, { height })}
-                        />
+                        {selectedNode.type !== 'terminal' && (
+                          <NumberField
+                            label="Height"
+                            value={selectedNode.height}
+                            min={64}
+                            onChange={(height) => changeNode(selectedNode.id, { height })}
+                          />
+                        )}
                       </div>
                       <div className="section-label">INTERNAL STRUCTURE</div>
                       <button className="explore-button" onClick={() => navigate(selectedNode.childGraphId)}>
@@ -1513,11 +1615,13 @@ export default function App() {
         <NodeDialog
           workspace={workspace}
           onClose={() => setModal(null)}
-          onCreate={async (key) => {
+          onCreate={async (key, type) => {
             await docFlush.current();
             const id = uid(),
               childGraphId = uid();
             const index = localNodes.length;
+            const settings = canvasSettings(workspace);
+            const snap = (value: number) => snapCoordinate(value, settings);
             store.change((w) => ({
               ...w,
               nodes: [
@@ -1527,10 +1631,11 @@ export default function App() {
                   key,
                   graphId,
                   childGraphId,
-                  x: newNodePosition.current?.x ?? 40 + (index % 3) * 300,
-                  y: newNodePosition.current?.y ?? 60 + Math.floor(index / 3) * 220,
-                  width: 224,
-                  height: 88,
+                  type,
+                  x: snap(newNodePosition.current?.x ?? 40 + (index % 3) * 300),
+                  y: snap(newNodePosition.current?.y ?? 60 + Math.floor(index / 3) * 220),
+                  width: snap(type === 'terminal' ? 144 : 224),
+                  height: snap(type === 'terminal' ? 144 : 88),
                 },
               ],
               graphs: [...w.graphs, { id: childGraphId, parentNodeId: id }],

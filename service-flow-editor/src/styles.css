@@ -686,9 +686,6 @@ button.danger:hover {
   stroke-width: 1.3;
   transition: stroke 0.12s;
 }
-.node-icon-bg {
-  fill: var(--node-icon-bg);
-}
 .service-node:hover .node-body {
   stroke: var(--accent-border);
 }
@@ -697,12 +694,9 @@ button.danger:hover {
   stroke: var(--accent);
   stroke-width: 1.8;
 }
-.service-node.selected .node-icon-bg {
-  fill: var(--accent-soft-hover);
-}
 .node-key {
   font-family: 'Manrope', 'Segoe UI', sans-serif;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 700;
   fill: var(--text);
   pointer-events: none;

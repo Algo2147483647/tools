@@ -11,6 +11,7 @@ import {
   renameNode,
   validateKey,
   validateWorkspace,
+  canvasSettings,
   type ServiceNode,
   type Workspace,
 } from '../src/model.js';
@@ -67,6 +68,49 @@ function graphFixture(): Workspace {
 }
 const disk = async (directory: string) =>
   JSON.parse(await fs.readFile(path.join(directory, MAIN_FILE), 'utf8')) as Workspace;
+
+test('canvas preferences and circular node typography survive disk saves with legacy compatibility', async () =>
+  temp(async (directory) => {
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    const workspace = graphFixture();
+    workspace.canvas = { gridSize: 32, gridStyle: 'lines', snapToGrid: true, nodeFontSize: 24 };
+    workspace.nodes[0] = { ...workspace.nodes[0], type: 'terminal', width: 128, height: 128, fontSize: 28 };
+    const saved = await repository.save(directory, workspace);
+    assert.deepEqual((await new WorkspaceRepository().open(directory)).workspace, saved.workspace);
+    assert.equal(
+      (await fs.readFile(path.join(directory, 'Gateway.md'), 'utf8')).startsWith('# Gateway'),
+      true,
+    );
+    const legacy = graphFixture();
+    delete legacy.canvas;
+    assert.deepEqual(validateWorkspace(legacy), legacy);
+    assert.equal(canvasSettings(legacy).nodeFontSize, 20);
+    for (const canvas of [
+      { ...workspace.canvas, gridSize: 0 },
+      { ...workspace.canvas, gridSize: 24.5 },
+      { ...workspace.canvas, gridStyle: 'invalid' },
+      { ...workspace.canvas, snapToGrid: 'true' },
+      { ...workspace.canvas, nodeFontSize: 200 },
+    ])
+      assert.throws(() => validateWorkspace({ ...workspace, canvas }), /Invalid workspace/);
+    assert.throws(
+      () =>
+        validateWorkspace({
+          ...workspace,
+          nodes: [{ ...workspace.nodes[0], height: 90 }, ...workspace.nodes.slice(1)],
+        }),
+      /equal width and height/,
+    );
+    assert.throws(
+      () =>
+        validateWorkspace({
+          ...workspace,
+          nodes: [{ ...workspace.nodes[0], fontSize: 2 }, ...workspace.nodes.slice(1)],
+        }),
+      /font size/,
+    );
+  }));
 
 test('creates and reopens one complete workspace with exact nested geometry and edge metadata', async () =>
   temp(async (directory) => {
