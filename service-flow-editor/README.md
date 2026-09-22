@@ -12,6 +12,17 @@ Requires **Node.js 22.12 or later** and npm. Check `node --version` if more than
 
 On Windows, double-click **`launch.cmd`**. The PowerShell launcher locates a compatible Node installation, installs dependencies when needed, checks TypeScript, builds the application, and opens **http://127.0.0.1:4319/** in your browser. Keep its terminal running while editing. Stop it with `Ctrl+C`.
 
+On macOS, double-click **`launch.command`**. It finds Node.js on your PATH or in standard Homebrew, Volta, and nvm locations, installs missing or incompatible dependencies, builds the editor, and opens the browser after the server is ready. Keep Terminal open while editing; press `Ctrl+C` to stop.
+
+If a downloaded or copied folder has lost executable permissions, run this once from the project folder:
+
+```sh
+chmod +x launch.command
+./launch.command
+```
+
+Alternatively, run `bash launch.command` without changing permissions. Use `bash launch.command --dev` for the development editor on port `4320`. On macOS, enter the workspace folder path in the editor; the native **Browse** folder picker is currently Windows-only.
+
 To run manually from the project folder:
 
 ```sh

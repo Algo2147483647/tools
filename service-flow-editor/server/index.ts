@@ -238,8 +238,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   server.listen(port, '127.0.0.1', () => {
     const url = `http://127.0.0.1:${port}/`;
     console.log(`Service Atlas is running at ${url}`);
-    if (process.argv.includes('--open') && process.platform === 'win32') {
-      const browser = spawn('explorer.exe', [url], { windowsHide: true, detached: true, stdio: 'ignore' });
+    if (process.argv.includes('--open') && ['win32', 'darwin'].includes(process.platform)) {
+      const opener = process.platform === 'darwin' ? '/usr/bin/open' : 'explorer.exe';
+      const browser = spawn(opener, [url], { windowsHide: true, detached: true, stdio: 'ignore' });
       browser.on('error', (error) =>
         console.error(`Open ${url} in your browser. Automatic browser launch failed: ${error.message}`),
       );
