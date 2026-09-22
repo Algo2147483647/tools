@@ -2,14 +2,15 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointer
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
 import { canvasSettings, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
-import { CONTAINER_HEADER, scene, type SceneEdge, type SceneNode } from './hierarchy';
+import { CONTAINER_HEADER, nodeDegrees, scene, type SceneEdge, type SceneNode } from './hierarchy';
 import Icon from './Icon';
 
-export type Selection = { type: 'node' | 'edge'; id: string } | null;
+export type SelectionItem = { type: 'node' | 'edge'; id: string };
+export type Selection = SelectionItem | null;
 export type View = { x: number; y: number; scale: number };
 export type CanvasContext = { x: number; y: number; point: Point; target: Selection };
 type Drag = {
-  type: 'node' | 'resize' | 'segment' | 'pan' | 'connect';
+  type: 'node' | 'resize' | 'segment' | 'pan' | 'connect' | 'marquee';
   id: string;
   index?: number;
   start: Point;
@@ -17,16 +18,24 @@ type Drag = {
   edge?: SceneEdge;
   view?: View;
   side?: Side;
+  nodes?: SceneNode[];
+  selections?: SelectionItem[];
+  additive?: boolean;
 };
 type Props = {
   workspace: Workspace;
   graphId: string;
   selection: Selection;
+  selections?: SelectionItem[];
   view: View;
   onView: (view: View) => void;
   onSelect: (selection: Selection) => void;
+  onSelectionChange?: (items: SelectionItem[]) => void;
   onEnter: (node: ServiceNode) => void;
   onNode: (id: string, patch: Partial<ServiceNode>) => void;
+  onNodes?: (patches: Array<{ id: string; patch: Partial<ServiceNode> }>) => void;
+  onGestureStart?: () => void;
+  onGestureEnd?: () => void;
   onEdge: (id: string, patch: Partial<FlowEdge>) => void;
   onConnect: (source: ServiceNode, target: ServiceNode, sourceSide: Side, targetSide: Side) => void;
   onContextMenu: (context: CanvasContext) => void;
@@ -64,23 +73,46 @@ export default function Canvas(p: Props) {
   const settings = canvasSettings(p.workspace);
   const snap = (value: number) => snapCoordinate(value, settings);
   const drag = useRef<Drag | null>(null);
+  const spaceHeld = useRef(false);
+  const [spaceDown, setSpaceDown] = useState(false);
   const [activeDrag, setActiveDrag] = useState(false);
-  const [preview, setPreview] = useState<{ points: Point[]; targetId?: string; radius?: number } | null>(
-    null,
-  );
+  const [preview, setPreview] = useState<{ points: Point[]; targetId?: string } | null>(null);
+  const [marquee, setMarquee] = useState<{ start: Point; end: Point } | null>(null);
   const portSides: Side[] = ['left', 'right', 'top', 'bottom'];
   const { nodes, edges } = useMemo(() => scene(p.workspace, p.graphId), [p.workspace, p.graphId]);
-  const degrees = useMemo(() => {
-    const result = new Map(p.workspace.nodes.map((node) => [node.id, { incoming: 0, outgoing: 0 }]));
-    const idsByKey = new Map(p.workspace.nodes.map((node) => [node.key, node.id]));
-    for (const edge of p.workspace.edges) {
-      const source = result.get(edge.sourceNodeId ?? idsByKey.get(edge.source) ?? '');
-      const target = result.get(edge.targetNodeId ?? idsByKey.get(edge.target) ?? '');
-      if (source) source.outgoing++;
-      if (target) target.incoming++;
-    }
-    return result;
-  }, [p.workspace]);
+  const degrees = useMemo(() => nodeDegrees(p.workspace), [p.workspace]);
+  const selections = p.selections ?? (p.selection ? [p.selection] : []);
+  const isSelected = (type: SelectionItem['type'], id: string) =>
+    selections.some((item) => item.type === type && item.id === id);
+  function selectItems(items: SelectionItem[]) {
+    if (p.onSelectionChange) p.onSelectionChange(items);
+    else p.onSelect(items.at(-1) ?? null);
+  }
+  function selectItem(item: SelectionItem, toggle = false): SelectionItem[] {
+    const selected = isSelected(item.type, item.id);
+    const next = toggle
+      ? selected
+        ? selections.filter((entry) => entry.type !== item.type || entry.id !== item.id)
+        : [...selections, item]
+      : [item];
+    selectItems(next);
+    return next;
+  }
+  function movableNodes(items: SelectionItem[]): SceneNode[] {
+    const selected = new Set(items.filter((item) => item.type === 'node').map((item) => item.id));
+    const graphParents = new Map(p.workspace.graphs.map((graph) => [graph.id, graph.parentNodeId]));
+    const byId = new Map(p.workspace.nodes.map((node) => [node.id, node]));
+    return nodes.filter((node) => {
+      if (!selected.has(node.id)) return false;
+      let parentId = graphParents.get(node.graphId);
+      while (parentId) {
+        if (selected.has(parentId)) return false;
+        const parent = byId.get(parentId);
+        parentId = parent && graphParents.get(parent.graphId);
+      }
+      return true;
+    });
+  }
   function point(e: { clientX: number; clientY: number }): Point {
     const rect = svg.current!.getBoundingClientRect();
     return {
@@ -94,20 +126,54 @@ export default function Canvas(p: Props) {
     e.stopPropagation();
     svg.current?.focus({ preventScroll: true });
     drag.current = next;
+    if (next.type !== 'pan' && next.type !== 'marquee') p.onGestureStart?.();
     setActiveDrag(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    // Reflow may replace a segment handle. Node capture must stay on its group so
+    // native click/double-click targeting still reaches the node.
+    const capture = next.type === 'segment' ? svg.current : e.currentTarget;
+    capture?.setPointerCapture(e.pointerId);
   }
-  function cancelDrag() {
+  function cancelDrag(restoreSelection = false) {
+    const current = drag.current;
+    if (restoreSelection && current?.type === 'marquee') {
+      const props = latest.current;
+      if (props.onSelectionChange) props.onSelectionChange(current.selections ?? []);
+      else props.onSelect(current.selections?.at(-1) ?? null);
+    }
     drag.current = null;
     setActiveDrag(false);
     setPreview(null);
+    setMarquee(null);
+    if (current && current.type !== 'pan' && current.type !== 'marquee') latest.current.onGestureEnd?.();
   }
   useEffect(() => {
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') cancelDrag();
+    const keyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') cancelDrag(true);
+      const target = event.target as Element | null;
+      if (
+        event.code === 'Space' &&
+        !target?.closest('input, textarea, select, [contenteditable="true"]') &&
+        (wrapper.current?.contains(target) || wrapper.current?.matches(':hover'))
+      ) {
+        event.preventDefault();
+        spaceHeld.current = true;
+        setSpaceDown(true);
+      }
     };
-    window.addEventListener('keydown', escape);
-    return () => window.removeEventListener('keydown', escape);
+    const releaseSpace = (event?: KeyboardEvent) => {
+      if (event && event.code !== 'Space') return;
+      spaceHeld.current = false;
+      setSpaceDown(false);
+    };
+    const blur = () => releaseSpace();
+    window.addEventListener('keydown', keyDown);
+    window.addEventListener('keyup', releaseSpace);
+    window.addEventListener('blur', blur);
+    return () => {
+      window.removeEventListener('keydown', keyDown);
+      window.removeEventListener('keyup', releaseSpace);
+      window.removeEventListener('blur', blur);
+    };
   }, []);
   useEffect(() => {
     const element = wrapper.current!;
@@ -174,10 +240,28 @@ export default function Canvas(p: Props) {
     }
     return null;
   }
-  function portRadius(node: SceneNode, side: Side) {
-    if (side === 'top' || side === 'bottom') return 6;
-    const degree = degrees.get(node.id)?.[side === 'left' ? 'incoming' : 'outgoing'] ?? 0;
-    return degree > 99 ? 14 : 11;
+  function marqueeItems(start: Point, finish: Point): SelectionItem[] {
+    const left = Math.min(start.x, finish.x),
+      right = Math.max(start.x, finish.x);
+    const top = Math.min(start.y, finish.y),
+      bottom = Math.max(start.y, finish.y);
+    const inside = nodes.filter(
+      (node) =>
+        node.x >= left && node.y >= top && node.x + node.width <= right && node.y + node.height <= bottom,
+    );
+    const touched = edges.filter((edge) =>
+      edge.points.some((b, index) => {
+        if (!index) return false;
+        const a = edge.points[index - 1];
+        return a.x === b.x
+          ? a.x >= left && a.x <= right && Math.max(a.y, b.y) >= top && Math.min(a.y, b.y) <= bottom
+          : a.y >= top && a.y <= bottom && Math.max(a.x, b.x) >= left && Math.min(a.x, b.x) <= right;
+      }),
+    );
+    return [
+      ...inside.map((node): SelectionItem => ({ type: 'node', id: node.id })),
+      ...touched.map((edge): SelectionItem => ({ type: 'edge', id: edge.id })),
+    ];
   }
   function pointerMove(e: ReactPointerEvent) {
     const pos = point(e);
@@ -192,7 +276,6 @@ export default function Canvas(p: Props) {
         setPreview({
           points: routeEdge(current.node!, target.node, current.side!, target.side, nodes),
           targetId: target.node.id,
-          radius: portRadius(target.node, target.side),
         });
       else {
         const start = anchor(current.node!, current.side!);
@@ -205,6 +288,15 @@ export default function Canvas(p: Props) {
           points: [start, stub, horizontal ? { x: pos.x, y: stub.y } : { x: stub.x, y: pos.y }, pos],
         });
       }
+    } else if (current.type === 'marquee') {
+      setMarquee({ start: current.start, end: pos });
+      if (Math.hypot(dx, dy) * p.view.scale < 3) return;
+      const hits = marqueeItems(current.start, pos);
+      const base = current.additive ? (current.selections ?? []) : [];
+      selectItems([
+        ...base,
+        ...hits.filter((item) => !base.some((other) => other.type === item.type && other.id === item.id)),
+      ]);
     } else if (current.type === 'pan') {
       p.onView({
         ...current.view!,
@@ -212,7 +304,15 @@ export default function Canvas(p: Props) {
         y: current.view!.y + e.clientY - current.start.y,
       });
     } else if (current.type === 'node') {
-      p.onNode(current.id, { x: snap(current.node!.base.x + dx), y: snap(current.node!.base.y + dy) });
+      const patches = (current.nodes ?? [current.node!]).map((node) => {
+        const offset = nodes.find((item) => item.id === node.id)?.offset ?? node.offset;
+        return {
+          id: node.id,
+          patch: { x: snap(node.x + dx - offset.x), y: snap(node.y + dy - offset.y) },
+        };
+      });
+      if (p.onNodes) p.onNodes(patches);
+      else for (const patch of patches) p.onNode(patch.id, patch.patch);
     } else if (current.type === 'resize') {
       const minimum = (value: number) =>
         settings.snapToGrid ? Math.ceil(value / settings.gridSize) * settings.gridSize : value;
@@ -229,10 +329,11 @@ export default function Canvas(p: Props) {
         index = current.index!;
       const horizontal = edge.points[index].y === edge.points[index + 1].y;
       const coordinate = horizontal ? edge.points[index].y + dy : edge.points[index].x + dx;
+      const edgeOffset = edges.find((item) => item.id === current.id)?.offset ?? edge.offset;
       p.onEdge(current.id, {
         points: moveSegment(edge.points, index, snap(coordinate)).map((position) => ({
-          x: position.x - edge.offset.x,
-          y: position.y - edge.offset.y,
+          x: position.x - edgeOffset.x,
+          y: position.y - edgeOffset.y,
         })),
       });
     }
@@ -240,7 +341,7 @@ export default function Canvas(p: Props) {
   return (
     <div
       ref={wrapper}
-      className={`canvas-wrap ${preview ? 'is-connecting' : ''} ${activeDrag ? 'is-dragging' : ''}`}
+      className={`canvas-wrap ${preview ? 'is-connecting' : ''} ${activeDrag ? 'is-dragging' : ''} ${spaceDown ? 'is-panning' : ''}`}
       onContextMenu={(event) => {
         event.preventDefault();
         cancelDrag();
@@ -265,11 +366,17 @@ export default function Canvas(p: Props) {
         data-testid="graph-canvas"
         aria-label="Service graph canvas"
         tabIndex={0}
-        onPointerDown={(e) => {
-          if (e.button !== 0 && e.button !== 1) return;
-          if (e.target === e.currentTarget || (e.target as Element).classList.contains('canvas-background')) {
-            p.onSelect(null);
+        onPointerDownCapture={(e) => {
+          if (e.button === 1 || (e.button === 0 && spaceHeld.current))
             begin(e, { type: 'pan', id: '', start: { x: e.clientX, y: e.clientY }, view: p.view });
+        }}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          if (e.target === e.currentTarget || (e.target as Element).classList.contains('canvas-background')) {
+            const start = point(e);
+            begin(e, { type: 'marquee', id: '', start, selections, additive: e.shiftKey });
+            setMarquee({ start, end: start });
+            if (!e.shiftKey) selectItems([]);
           }
         }}
         onPointerMove={pointerMove}
@@ -290,8 +397,8 @@ export default function Canvas(p: Props) {
           const capture = e.target as Element;
           if (capture.hasPointerCapture?.(e.pointerId)) capture.releasePointerCapture(e.pointerId);
         }}
-        onPointerCancel={cancelDrag}
-        onLostPointerCapture={cancelDrag}
+        onPointerCancel={() => cancelDrag(true)}
+        onLostPointerCapture={() => cancelDrag()}
         onKeyDown={(e) => {
           if (!(e.ctrlKey || e.metaKey) || !['+', '=', '-', '0'].includes(e.key)) return;
           e.preventDefault();
@@ -337,29 +444,27 @@ export default function Canvas(p: Props) {
               />
             )}
           </pattern>
-          {[false, true].flatMap((selected) =>
-            [0, 6, 11, 14].map((radius) => (
-              <marker
-                key={`${selected}-${radius}`}
-                id={`arrow${selected ? '-selected' : ''}-${radius}`}
-                viewBox="0 0 10 10"
-                refX={9 + (radius ? radius + 2 : 0)}
-                refY="5"
-                markerUnits="userSpaceOnUse"
-                markerWidth="10"
-                markerHeight="10"
-                orient="auto-start-reverse"
-              >
-                <path
-                  d="M1 1 9 5 1 9"
-                  fill="none"
-                  stroke={selected ? 'var(--accent)' : 'var(--edge-color)'}
-                  strokeWidth="1.7"
-                  strokeLinejoin="round"
-                />
-              </marker>
-            )),
-          )}
+          {[false, true].map((selected) => (
+            <marker
+              key={String(selected)}
+              id={`arrow${selected ? '-selected' : ''}`}
+              viewBox="0 0 10 10"
+              refX={9}
+              refY="5"
+              markerUnits="userSpaceOnUse"
+              markerWidth="10"
+              markerHeight="10"
+              orient="auto-start-reverse"
+            >
+              <path
+                d="M1 1 9 5 1 9"
+                fill="none"
+                stroke={selected ? 'var(--accent)' : 'var(--edge-color)'}
+                strokeWidth="1.7"
+                strokeLinejoin="round"
+              />
+            </marker>
+          ))}
           <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="150%">
             <feDropShadow
               dx="0"
@@ -388,7 +493,7 @@ export default function Canvas(p: Props) {
               />
             ))}
           {edges.map((edge) => {
-            const selected = p.selection?.type === 'edge' && p.selection.id === edge.id;
+            const selected = isSelected('edge', edge.id);
             let mid = { x: 0, y: 0 };
             let longest = -1;
             for (let i = 0; i < edge.points.length - 1; i++) {
@@ -411,7 +516,7 @@ export default function Canvas(p: Props) {
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   if (e.button !== 0) return;
-                  p.onSelect({ type: 'edge', id: edge.id });
+                  selectItem({ type: 'edge', id: edge.id }, e.shiftKey);
                 }}
               >
                 <title>
@@ -428,7 +533,7 @@ export default function Canvas(p: Props) {
                   className="edge-line"
                   d={roundedPath(edge.points)}
                   fill="none"
-                  markerEnd={`url(#arrow${selected ? '-selected' : ''}-${portRadius(edge.targetNode, edge.targetSide)})`}
+                  markerEnd={`url(#arrow${selected ? '-selected' : ''})`}
                 />
                 {label && (
                   <g className="edge-label" transform={`translate(${mid.x} ${mid.y - 15})`}>
@@ -456,7 +561,7 @@ export default function Canvas(p: Props) {
               strokeDasharray="6 5"
               fill="none"
               pointerEvents="none"
-              markerEnd={`url(#arrow-selected-${preview.radius ?? 0})`}
+              markerEnd="url(#arrow-selected)"
             />
           )}
           {nodes.map((node) => {
@@ -478,7 +583,7 @@ export default function Canvas(p: Props) {
               fontSize,
               Math.max(1, Math.floor(labelHeight / (fontSize * 1.25))),
             );
-            const selected = p.selection?.type === 'node' && p.selection.id === node.id;
+            const selected = isSelected('node', node.id);
             const { incoming, outgoing } = degrees.get(node.id)!;
             const empty = node.expanded && !nodes.some((child) => child.graphId === node.childGraphId);
             return (
@@ -493,8 +598,19 @@ export default function Canvas(p: Props) {
                 transform={`translate(${node.x} ${node.y})`}
                 onPointerDown={(e) => {
                   if (e.button !== 0) return;
-                  p.onSelect({ type: 'node', id: node.id });
-                  begin(e, { type: 'node', id: node.id, start: point(e), node: { ...node } });
+                  const item: SelectionItem = { type: 'node', id: node.id };
+                  const next = e.shiftKey ? selectItem(item, true) : selected ? selections : selectItem(item);
+                  if (!next.some((entry) => entry.type === 'node' && entry.id === node.id)) {
+                    e.stopPropagation();
+                    return;
+                  }
+                  begin(e, {
+                    type: 'node',
+                    id: node.id,
+                    start: point(e),
+                    node: { ...node },
+                    nodes: movableNodes(next),
+                  });
                 }}
                 onDoubleClick={(e) => {
                   e.stopPropagation();
@@ -622,7 +738,7 @@ export default function Canvas(p: Props) {
                       transform={`translate(${center.x} ${center.y})`}
                       onPointerDown={(event) => {
                         if (event.button !== 0) return;
-                        p.onSelect({ type: 'node', id: node.id });
+                        selectItems([{ type: 'node', id: node.id }]);
                         begin(event, { type: 'connect', id: node.id, start: point(event), node, side });
                         setPreview({ points: [anchor(node, side), anchor(node, side)] });
                       }}
@@ -637,16 +753,16 @@ export default function Canvas(p: Props) {
                       )}
                       <title>
                         {side === 'left'
-                          ? `${incoming} direct incoming flows`
+                          ? `${incoming} incoming flows, including nested services`
                           : side === 'right'
-                            ? `${outgoing} direct outgoing flows`
+                            ? `${outgoing} outgoing flows, including nested services`
                             : 'Drag to connect'}{' '}
                         · Drag to another service
                       </title>
                     </g>
                   );
                 })}
-                {selected && (
+                {selected && selections.length === 1 && !node.expanded && (
                   <rect
                     data-testid="resize-handle"
                     className="resize-handle"
@@ -666,7 +782,7 @@ export default function Canvas(p: Props) {
             );
           })}
           {edges
-            .filter((edge) => edge.editable && p.selection?.type === 'edge' && p.selection.id === edge.id)
+            .filter((edge) => edge.editable && selections.length === 1 && isSelected('edge', edge.id))
             .map((edge) => (
               <g key={`handles-${edge.id}`} className="edge-handles" data-edge-id={edge.id}>
                 {edge.points.slice(0, -1).map((a, index) => {
@@ -699,6 +815,18 @@ export default function Canvas(p: Props) {
                 })}
               </g>
             ))}
+          {marquee && (
+            <rect
+              className="selection-marquee"
+              data-testid="selection-marquee"
+              x={Math.min(marquee.start.x, marquee.end.x)}
+              y={Math.min(marquee.start.y, marquee.end.y)}
+              width={Math.abs(marquee.end.x - marquee.start.x)}
+              height={Math.abs(marquee.end.y - marquee.start.y)}
+              strokeWidth={1 / p.view.scale}
+              pointerEvents="none"
+            />
+          )}
         </g>
       </svg>
       {!nodes.length && (
@@ -727,7 +855,7 @@ export default function Canvas(p: Props) {
         <span className="live-dot" />
         {preview
           ? 'Drop on a service anchor to connect · Esc to cancel'
-          : 'Hover for anchors · Double-click to expand · Right-click for actions'}
+          : 'Drag blank canvas to select · Shift to add · Space or middle-drag to pan'}
       </div>
       <div className="canvas-coordinates">
         {nodes.length} services <span> / </span>

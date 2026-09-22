@@ -24,8 +24,15 @@ import {
   type Point,
 } from './model';
 import { addBend } from './routing';
-import { scene, toggleExpanded, updateNodeGeometry, rerouteEdges } from './hierarchy';
-import Canvas, { type CanvasContext, type Selection, type View } from './Canvas';
+import {
+  scene,
+  toggleExpanded,
+  updateNodeGeometry,
+  updateNodesGeometry,
+  relayoutWorkspace,
+  rerouteEdges,
+} from './hierarchy';
+import Canvas, { type CanvasContext, type Selection, type SelectionItem, type View } from './Canvas';
 import DocumentEditor from './DocumentEditor';
 import Icon from './Icon';
 import ThemePicker from './ThemePicker';
@@ -486,8 +493,12 @@ export default function App() {
     if (toolbar.current) observer.observe(toolbar.current);
     return () => observer.disconnect();
   }, []);
-  const [graphId, setGraphId] = useState('root'),
-    [selection, setSelection] = useState<Selection>(null);
+  const [graphId, setGraphId] = useState('root');
+  const [selections, setSelections] = useState<SelectionItem[]>([]);
+  const selection: Selection = selections.length === 1 ? selections[0] : null;
+  function setSelection(next: Selection) {
+    setSelections(next ? [next] : []);
+  }
   const [view, setView] = useState<View>(defaultView),
     [modal, setModal] = useState<'open' | 'create' | 'node' | 'flow' | 'delete' | 'help' | null>(null);
   const [contextMenu, setContextMenu] = useState<CanvasContext | null>(null);
@@ -551,12 +562,23 @@ export default function App() {
     }
   }
   function changeNode(id: string, patch: Partial<ServiceNode>) {
-    store.change((w) => updateNodeGeometry(w, id, patch));
+    store.change((w) => updateNodeGeometry(w, id, patch), {
+      historyKey: `node:${id}:${Object.keys(patch).join(',')}`,
+    });
   }
   function changeEdge(id: string, patch: Partial<FlowEdge>) {
-    store.change((w) =>
-      rerouteEdges({ ...w, edges: w.edges.map((e) => (e.id === id ? { ...e, ...patch } : e)) }),
+    store.change(
+      (w) => relayoutWorkspace({ ...w, edges: w.edges.map((e) => (e.id === id ? { ...e, ...patch } : e)) }),
+      patch.weights ? { historyKey: `weights:${id}` } : undefined,
     );
+  }
+  function restoreHistory(direction: 'undo' | 'redo') {
+    void action(() => {
+      store.endHistoryGroup();
+      store[direction]();
+      setSelection(null);
+      setContextMenu(null);
+    });
   }
   function toggleNode(node: ServiceNode) {
     void action(() => {
@@ -576,12 +598,25 @@ export default function App() {
     });
   }
   function select(next: Selection) {
-    if (next?.type === selection?.type && next?.id === selection?.id) return;
+    if (selections.length <= 1 && next?.type === selection?.type && next?.id === selection?.id) return;
     void action(() => {
       setSelection(next);
       setInspectorTab('properties');
       setSegmentIndex(1);
     });
+  }
+  function selectMany(next: SelectionItem[]) {
+    void action(() => {
+      setSelections(next);
+      setInspectorTab('properties');
+      setSegmentIndex(1);
+    });
+  }
+  function selectAll() {
+    selectMany([
+      ...visibleNodes.map((node): SelectionItem => ({ type: 'node', id: node.id })),
+      ...(visibleScene?.edges || []).map((edge): SelectionItem => ({ type: 'edge', id: edge.id })),
+    ]);
   }
   function fit() {
     if (!visibleNodes.length) {
@@ -646,7 +681,7 @@ export default function App() {
       targetSide,
       points: [],
     };
-    store.change((w) => rerouteEdges({ ...w, edges: [...w.edges, edge] }));
+    store.change((w) => relayoutWorkspace({ ...w, edges: [...w.edges, edge] }));
     setModal(null);
     select({ type: 'edge', id });
   }
@@ -673,6 +708,17 @@ export default function App() {
     if (workspace && !workspace.graphs.some((g) => g.id === graphId)) setGraphId(workspace.rootGraphId);
   }, [workspace, graphId]);
   useEffect(() => {
+    if (!workspace) return;
+    setSelections((items) => {
+      const valid = items.filter((item) =>
+        item.type === 'node'
+          ? workspace.nodes.some((node) => node.id === item.id)
+          : workspace.edges.some((edge) => edge.id === item.id),
+      );
+      return valid.length === items.length ? items : valid;
+    });
+  }, [workspace]);
+  useEffect(() => {
     const media = window.matchMedia('(min-width: 950px)');
     const resize = () => setInspectorOpen(media.matches);
     media.addEventListener('change', resize);
@@ -697,6 +743,16 @@ export default function App() {
         select(null);
       }
       if (!workspace) return;
+      if ((e.ctrlKey || e.metaKey) && ['z', 'y'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        restoreHistory(e.key.toLowerCase() === 'y' || e.shiftKey ? 'redo' : 'undo');
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        selectAll();
+        return;
+      }
       if (e.key.toLowerCase() === 'n') openNewNode();
       if (e.key === '/') {
         e.preventDefault();
@@ -707,7 +763,7 @@ export default function App() {
       }
       if (e.key === '?') setModal('help');
       if (e.key === '1') fit();
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selection) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selections.length) {
         e.preventDefault();
         setModal('delete');
       }
@@ -748,88 +804,108 @@ export default function App() {
     contextMenu?.target?.type === 'edge'
       ? workspace?.edges.find((e) => e.id === contextMenu.target!.id)
       : undefined;
-  const contextActions: ContextAction[] = contextNode
+  const contextSelection =
+    selections.length > 1 &&
+    (!contextMenu?.target ||
+      selections.some((item) => item.type === contextMenu.target?.type && item.id === contextMenu.target.id));
+  const targetActions: ContextAction[] = contextSelection
     ? [
         {
-          label: 'Service properties',
-          icon: 'node',
-          run: () => inspect({ type: 'node', id: contextNode.id }),
-        },
-        {
-          label: 'Open document',
-          icon: 'file',
-          run: () => inspect({ type: 'node', id: contextNode.id }, true),
-        },
-        {
-          label: contextNode.expanded ? 'Collapse subgraph' : 'Expand subgraph',
-          icon: 'layers',
-          run: () => toggleNode(contextNode),
-        },
-        {
-          label: 'Add service inside',
-          icon: 'plus',
-          run: () => openNewNode(undefined, contextNode.childGraphId),
-        },
-        { label: 'Focus subgraph', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
-        {
-          label: 'Delete service',
+          label: `Delete ${selections.length} selected elements`,
           icon: 'trash',
           danger: true,
-          run: () =>
-            void action(() => {
-              setSelection({ type: 'node', id: contextNode.id });
-              setModal('delete');
-            }),
+          run: () => setModal('delete'),
         },
+        { label: 'Clear selection', icon: 'close', run: () => select(null) },
       ]
-    : contextEdge
+    : contextNode
       ? [
-          { label: 'Edit flow', icon: 'link', run: () => inspect({ type: 'edge', id: contextEdge.id }) },
           {
-            label: 'Reverse direction',
-            icon: 'refresh',
-            run: () =>
-              changeEdge(contextEdge.id, {
-                source: contextEdge.target,
-                target: contextEdge.source,
-                sourceNodeId: contextEdge.targetNodeId,
-                targetNodeId: contextEdge.sourceNodeId,
-                sourceSide: contextEdge.targetSide,
-                targetSide: contextEdge.sourceSide,
-                points: [...contextEdge.points].reverse(),
-              }),
+            label: 'Service properties',
+            icon: 'node',
+            run: () => inspect({ type: 'node', id: contextNode.id }),
           },
           {
-            label: 'Reset path',
-            icon: 'branch',
-            run: () =>
-              changeEdge(contextEdge.id, {
-                points: [],
-              }),
+            label: 'Open document',
+            icon: 'file',
+            run: () => inspect({ type: 'node', id: contextNode.id }, true),
           },
           {
-            label: 'Delete flow',
+            label: contextNode.expanded ? 'Collapse subgraph' : 'Expand subgraph',
+            icon: 'layers',
+            run: () => toggleNode(contextNode),
+          },
+          {
+            label: 'Add service inside',
+            icon: 'plus',
+            run: () => openNewNode(undefined, contextNode.childGraphId),
+          },
+          { label: 'Focus subgraph', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
+          {
+            label: 'Delete service',
             icon: 'trash',
             danger: true,
             run: () =>
               void action(() => {
-                setSelection({ type: 'edge', id: contextEdge.id });
+                setSelection({ type: 'node', id: contextNode.id });
                 setModal('delete');
               }),
           },
         ]
-      : [
-          { label: 'Add service here', icon: 'plus', run: () => openNewNode(contextMenu!.point) },
-          {
-            label: 'Add flow',
-            icon: 'link',
-            disabled: !workspace?.nodes.length,
-            run: () => setModal('flow'),
-          },
-          { label: 'Fit graph', icon: 'fit', run: fit },
-          { label: 'Reset view', icon: 'refresh', run: () => setView(initialView()) },
-          ...(parent ? [{ label: 'Up one level', icon: 'back', run: () => navigate(parent.graphId) }] : []),
-        ];
+      : contextEdge
+        ? [
+            { label: 'Edit flow', icon: 'link', run: () => inspect({ type: 'edge', id: contextEdge.id }) },
+            {
+              label: 'Reverse direction',
+              icon: 'refresh',
+              run: () =>
+                changeEdge(contextEdge.id, {
+                  source: contextEdge.target,
+                  target: contextEdge.source,
+                  sourceNodeId: contextEdge.targetNodeId,
+                  targetNodeId: contextEdge.sourceNodeId,
+                  sourceSide: contextEdge.targetSide,
+                  targetSide: contextEdge.sourceSide,
+                  points: [...contextEdge.points].reverse(),
+                }),
+            },
+            {
+              label: 'Reset path',
+              icon: 'branch',
+              run: () =>
+                changeEdge(contextEdge.id, {
+                  points: [],
+                }),
+            },
+            {
+              label: 'Delete flow',
+              icon: 'trash',
+              danger: true,
+              run: () =>
+                void action(() => {
+                  setSelection({ type: 'edge', id: contextEdge.id });
+                  setModal('delete');
+                }),
+            },
+          ]
+        : [
+            { label: 'Add service here', icon: 'plus', run: () => openNewNode(contextMenu!.point) },
+            {
+              label: 'Add flow',
+              icon: 'link',
+              disabled: !workspace?.nodes.length,
+              run: () => setModal('flow'),
+            },
+            { label: 'Fit graph', icon: 'fit', run: fit },
+            { label: 'Reset view', icon: 'refresh', run: () => setView(initialView()) },
+            ...(parent ? [{ label: 'Up one level', icon: 'back', run: () => navigate(parent.graphId) }] : []),
+          ];
+  const contextActions: ContextAction[] = [
+    { label: 'Undo', icon: 'undo', disabled: !store.canUndo, run: () => restoreHistory('undo') },
+    { label: 'Redo', icon: 'redo', disabled: !store.canRedo, run: () => restoreHistory('redo') },
+    { label: 'Select all', icon: 'cursor', run: selectAll },
+    ...targetActions,
+  ];
   const documentStatus = selectedNode ? documentState.status : 'saved';
   const overallStatus =
     store.status === 'error' || documentStatus === 'error'
@@ -940,7 +1016,9 @@ export default function App() {
           {searchResults.map((n) => (
             <button
               key={n.id}
-              className={selection?.type === 'node' && selection.id === n.id ? 'selected' : ''}
+              className={
+                selections.some((item) => item.type === 'node' && item.id === n.id) ? 'selected' : ''
+              }
               onClick={() => {
                 if (n.graphId !== graphId) {
                   void action(() => {
@@ -1015,6 +1093,24 @@ export default function App() {
           {workspace && (
             <>
               <div className="heading-actions">
+                <button
+                  className="icon-button"
+                  aria-label="Undo"
+                  title="Undo (Ctrl/Cmd+Z)"
+                  disabled={!store.canUndo}
+                  onClick={() => restoreHistory('undo')}
+                >
+                  <Icon name="undo" size={17} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Redo"
+                  title="Redo (Ctrl/Cmd+Shift+Z)"
+                  disabled={!store.canRedo}
+                  onClick={() => restoreHistory('redo')}
+                >
+                  <Icon name="redo" size={17} />
+                </button>
                 {parent && (
                   <button className="secondary" onClick={() => navigate(parent.graphId)}>
                     <Icon name="back" size={16} />
@@ -1258,9 +1354,14 @@ export default function App() {
                   workspace={workspace}
                   graphId={graphId}
                   selection={selection}
+                  selections={selections}
                   view={view}
                   onView={setView}
                   onSelect={select}
+                  onSelectionChange={selectMany}
+                  onNodes={(updates) => store.change((w) => updateNodesGeometry(w, updates))}
+                  onGestureStart={store.beginHistoryGroup}
+                  onGestureEnd={store.endHistoryGroup}
                   onEnter={toggleNode}
                   onAddInside={(node) => openNewNode(undefined, node.childGraphId)}
                   onNode={changeNode}
@@ -1278,13 +1379,33 @@ export default function App() {
                   <strong>
                     {selectedEdge ? 'Flow details' : selectedNode ? 'Service details' : 'Graph details'}
                   </strong>
-                  {selection && (
+                  {selections.length > 0 && (
                     <button className="icon-button" aria-label="Clear selection" onClick={() => select(null)}>
                       <Icon name="close" size={15} />
                     </button>
                   )}
                 </div>
-                {selectedNode ? (
+                {selections.length > 1 ? (
+                  <div className="inspector-body">
+                    <span className="tag">MULTIPLE SELECTION</span>
+                    <h3>{selections.length} elements selected</h3>
+                    <p className="field-help">
+                      {selections.filter((item) => item.type === 'node').length} services ·{' '}
+                      {selections.filter((item) => item.type === 'edge').length} flows
+                    </p>
+                    <p className="field-help">
+                      Drag a selected service to move the group. Shift-click to add or remove elements. Parent
+                      and child selections move together once.
+                    </p>
+                    <button className="danger-link" onClick={() => setModal('delete')}>
+                      <Icon name="trash" size={16} />
+                      Delete selected elements
+                    </button>
+                    <button className="secondary full-width" onClick={() => select(null)}>
+                      Clear selection
+                    </button>
+                  </div>
+                ) : selectedNode ? (
                   <>
                     <div className="tab-bar inspector-tabs">
                       <button
@@ -1351,27 +1472,30 @@ export default function App() {
                           value={selectedNode.y}
                           onChange={(y) => changeNode(selectedNode.id, { y })}
                         />
-                        <NumberField
-                          label={
-                            selectedNode.expanded
-                              ? 'Expanded width'
-                              : selectedNode.type === 'terminal'
-                                ? 'Diameter'
-                                : 'Width'
-                          }
-                          value={selectedDisplayNode?.width ?? selectedNode.width}
-                          min={selectedNode.type === 'terminal' && !selectedNode.expanded ? 80 : 160}
-                          onChange={(width) => changeNode(selectedNode.id, { width })}
-                        />
-                        {(selectedNode.type !== 'terminal' || selectedNode.expanded) && (
+                        {!selectedNode.expanded && (
                           <NumberField
-                            label={selectedNode.expanded ? 'Expanded height' : 'Height'}
-                            value={selectedDisplayNode?.height ?? selectedNode.height}
+                            label={selectedNode.type === 'terminal' ? 'Diameter' : 'Width'}
+                            value={selectedNode.width}
+                            min={selectedNode.type === 'terminal' ? 80 : 160}
+                            onChange={(width) => changeNode(selectedNode.id, { width })}
+                          />
+                        )}
+                        {selectedNode.type !== 'terminal' && !selectedNode.expanded && (
+                          <NumberField
+                            label="Height"
+                            value={selectedNode.height}
                             min={64}
                             onChange={(height) => changeNode(selectedNode.id, { height })}
                           />
                         )}
                       </div>
+                      {selectedNode.expanded && (
+                        <p className="field-help" data-testid="container-dimensions">
+                          Auto-sized to contents: {Math.round(selectedDisplayNode?.width || 0)} ×{' '}
+                          {Math.round(selectedDisplayNode?.height || 0)}. Move or resize the internal services
+                          to adjust this boundary.
+                        </p>
+                      )}
                       <div className="section-label">INTERNAL STRUCTURE</div>
                       <button className="explore-button" onClick={() => toggleNode(selectedNode)}>
                         <span>
@@ -1690,15 +1814,24 @@ export default function App() {
       {modal === 'flow' && (
         <FlowDialog nodes={workspace?.nodes || []} onClose={() => setModal(null)} onCreate={addFlow} />
       )}
-      {modal === 'delete' && workspace && selection && (
+      {modal === 'delete' && workspace && selections.length > 0 && (
         <Modal
-          title={selectedNode ? 'Delete this service?' : 'Delete this flow?'}
+          title={
+            selections.length > 1
+              ? `Delete ${selections.length} selected elements?`
+              : selectedNode
+                ? 'Delete this service?'
+                : 'Delete this flow?'
+          }
           onClose={() => setModal(null)}
         >
           <p className="modal-intro">
-            {selectedNode
-              ? `Deleting “${selectedNode.key}” also deletes its nested services, connected flows, and all corresponding Markdown files. This cannot be undone.`
-              : 'This data flow and its saved path will be removed.'}
+            {selections.length > 1
+              ? 'Selected services, their descendants, connected flows, and matching Markdown files will be removed. Selected flows will also be removed.'
+              : selectedNode
+                ? `Deleting “${selectedNode.key}” also deletes its nested services, connected flows, and all corresponding Markdown files.`
+                : 'This data flow and its saved path will be removed.'}{' '}
+            You can undo this during the current editing session.
           </p>
           <div className="modal-actions">
             <button className="secondary" onClick={() => setModal(null)}>
@@ -1708,16 +1841,29 @@ export default function App() {
               className="danger"
               onClick={() =>
                 void action(() => {
-                  if (selectedNode) store.change((w) => rerouteEdges(removeNode(w, selectedNode.id)));
-                  else if (selectedEdge)
-                    store.change((w) => ({ ...w, edges: w.edges.filter((e) => e.id !== selectedEdge.id) }));
+                  store.change((w) => {
+                    let next = w;
+                    for (const item of selections) {
+                      if (item.type === 'node' && next.nodes.some((node) => node.id === item.id))
+                        next = removeNode(next, item.id);
+                    }
+                    const edgeIds = new Set(
+                      selections.filter((item) => item.type === 'edge').map((item) => item.id),
+                    );
+                    next = { ...next, edges: next.edges.filter((edge) => !edgeIds.has(edge.id)) };
+                    return relayoutWorkspace(next);
+                  });
                   setSelection(null);
                   setModal(null);
                 })
               }
             >
               <Icon name="trash" size={16} />
-              {selectedNode ? 'Delete service and documents' : 'Delete flow'}
+              {selections.length > 1
+                ? 'Delete selected elements'
+                : selectedNode
+                  ? 'Delete service and documents'
+                  : 'Delete flow'}
             </button>
           </div>
         </Modal>
@@ -1746,8 +1892,9 @@ export default function App() {
                 <p>
                   Hover or select a service to reveal its white anchors. Drag an anchor to any visible
                   service, including a nested service. The left anchor shows incoming flows; the right shows
-                  outgoing flows. Select a flow to edit weights, change ports, add bends, or drag segment
-                  handles. Connections stay orthogonal as services move.
+                  outgoing flows, including every nested service's contribution. Each flow counts once per
+                  direction for a service and its descendants. Select a flow to edit weights, change ports,
+                  add bends, or drag segment handles. Connections stay orthogonal as services move.
                 </p>
               </section>
             </div>
@@ -1758,8 +1905,9 @@ export default function App() {
                 <p>
                   Double-click a service or press <kbd>Enter</kbd> to expand or collapse it on this canvas.
                   Use Add service inside to build its subgraph. Focus subgraph opens a dedicated view with
-                  breadcrumbs. Collapsed cross-level flows use dashed proxies; internal flows are hidden. Keys
-                  stay unique throughout the entire workspace.
+                  breadcrumbs. Expanded containers fit their contents automatically. Collapsed cross-level
+                  flows use dashed proxies; internal flows are hidden. Keys stay unique throughout the entire
+                  workspace.
                 </p>
               </section>
             </div>
@@ -1768,17 +1916,22 @@ export default function App() {
               <section>
                 <h3>Keep your work</h3>
                 <p>
-                  Changes save automatically. <kbd>Ctrl S</kbd> saves immediately. If a save fails, keep this
-                  tab open and use Retry save. Your current edits remain on the canvas; a recovery JSON can
-                  also be downloaded.
+                  Changes save automatically. <kbd>Ctrl S</kbd> saves immediately. Use <kbd>Ctrl/Cmd Z</kbd>
+                  to undo graph changes and <kbd>Ctrl/Cmd Shift Z</kbd> to redo. History lasts for this open
+                  workspace session; a drag is one step. In text fields these keys edit the text normally. If
+                  a save fails, keep this tab open and use Retry save. Your current edits remain on the
+                  canvas; a recovery JSON can also be downloaded.
                 </p>
               </section>
             </div>
             <p className="field-help">
-              Drag the empty canvas to pan. Scroll to zoom. Press <kbd>1</kbd> to fit the graph and{' '}
-              <kbd>Esc</kbd> to cancel a connection. Right-click the canvas, a service, or a flow for
-              contextual actions. The top-left button collapses the sidebar. Deleting a service also deletes
-              its nested services and Markdown files.
+              Drag the empty canvas to select multiple elements. Hold <kbd>Shift</kbd> to add to the
+              selection; Shift-click to toggle one element. Drag a selected service to move the group. Hold{' '}
+              <kbd>Space</kbd>
+              while dragging, or use the middle mouse button, to pan. Scroll to zoom. Press <kbd>1</kbd> to
+              fit the graph and <kbd>Esc</kbd> to cancel a connection. Right-click the canvas, a service, or a
+              flow for contextual actions. The top-left button collapses the sidebar. Deleting a service also
+              deletes its nested services and Markdown files.
             </p>
           </div>
         </Modal>

@@ -9,16 +9,44 @@ export interface AutosaveSnapshot<T> {
   status: SaveStatus;
   error: string | null;
   savedAt: string | null;
+  canUndo: boolean;
+  canRedo: boolean;
+}
+
+export interface ChangeOptions {
+  /** Consecutive edits to one field coalesce until another action or a brief pause. */
+  historyKey?: string;
+  /** System migrations still save, but do not create a user undo step. */
+  recordHistory?: boolean;
+}
+
+function sameContent<T extends { revision: number }>(left: T, right: T): boolean {
+  const { revision: _leftRevision, ...a } = left;
+  const { revision: _rightRevision, ...b } = right;
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 /** Serializes writes and tracks edits independently from the server's revision. */
 export class AutosaveController<T extends { revision: number }> {
-  private snapshot: AutosaveSnapshot<T> = { workspace: null, status: 'idle', error: null, savedAt: null };
+  private snapshot: AutosaveSnapshot<T> = {
+    workspace: null,
+    status: 'idle',
+    error: null,
+    savedAt: null,
+    canUndo: false,
+    canRedo: false,
+  };
   private listeners = new Set<() => void>();
   private sequence = 0;
   private savedSequence = 0;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private active: Promise<void> | null = null;
+  private past: T[] = [];
+  private future: T[] = [];
+  private grouping = false;
+  private groupedChange = false;
+  private lastHistoryKey: string | undefined;
+  private lastChangeAt = 0;
 
   constructor(
     private readonly save: (workspace: T) => Promise<SaveResult<T>>,
@@ -50,17 +78,90 @@ export class AutosaveController<T extends { revision: number }> {
     this.cancelTimer();
     this.sequence = 0;
     this.savedSequence = 0;
-    this.emit({ workspace, status: workspace ? 'saved' : 'idle', error: null, savedAt: null });
+    this.past = [];
+    this.future = [];
+    this.grouping = false;
+    this.groupedChange = false;
+    this.lastHistoryKey = undefined;
+    this.emit({
+      workspace,
+      status: workspace ? 'saved' : 'idle',
+      error: null,
+      savedAt: null,
+      canUndo: false,
+      canRedo: false,
+    });
   }
 
-  change(updater: (workspace: T) => T) {
+  beginHistoryGroup = (): void => {
+    this.endHistoryGroup();
+    this.grouping = true;
+    this.groupedChange = false;
+    this.lastHistoryKey = undefined;
+  };
+
+  endHistoryGroup = (): void => {
+    if (
+      this.grouping &&
+      this.groupedChange &&
+      this.snapshot.workspace &&
+      this.past.length &&
+      sameContent(this.past[this.past.length - 1], this.snapshot.workspace)
+    )
+      this.past.pop();
+    this.grouping = false;
+    this.groupedChange = false;
+    this.lastHistoryKey = undefined;
+    if (this.snapshot.canUndo !== !!this.past.length) this.emit({ canUndo: !!this.past.length });
+  };
+
+  change(updater: (workspace: T) => T, options: ChangeOptions = {}) {
     const previous = this.snapshot.workspace;
     if (!previous) return;
     const workspace = updater(previous);
-    if (workspace === previous) return;
+    if (workspace === previous || sameContent(workspace, previous)) return;
+    const now = Date.now();
+    const coalesce = this.grouping
+      ? this.groupedChange
+      : !!options.historyKey && options.historyKey === this.lastHistoryKey && now - this.lastChangeAt < 750;
+    if (options.recordHistory !== false && !coalesce) {
+      this.past.push(structuredClone(previous));
+      if (this.past.length > 100) this.past.shift();
+    }
+    if (options.recordHistory !== false) this.future = [];
+    this.groupedChange = this.grouping && options.recordHistory !== false;
+    this.lastHistoryKey = options.historyKey;
+    this.lastChangeAt = now;
+    this.replace({ ...workspace, revision: previous.revision });
+  }
+
+  undo = (): void => {
+    this.endHistoryGroup();
+    const current = this.snapshot.workspace;
+    const previous = this.past.pop();
+    if (!current || !previous) return;
+    this.future.push(structuredClone(current));
+    this.replace({ ...structuredClone(previous), revision: current.revision });
+  };
+
+  redo = (): void => {
+    this.endHistoryGroup();
+    const current = this.snapshot.workspace;
+    const next = this.future.pop();
+    if (!current || !next) return;
+    this.past.push(structuredClone(current));
+    this.replace({ ...structuredClone(next), revision: current.revision });
+  };
+
+  private replace(workspace: T) {
     this.sequence++;
     // A failed save needs an explicit Retry. Further edits remain recoverable.
-    this.emit({ workspace, status: this.snapshot.error ? 'error' : this.active ? 'saving' : 'pending' });
+    this.emit({
+      workspace,
+      status: this.snapshot.error ? 'error' : this.active ? 'saving' : 'pending',
+      canUndo: !!this.past.length,
+      canRedo: !!this.future.length,
+    });
     if (this.snapshot.error || this.active) return;
     this.cancelTimer();
     this.timer = setTimeout(() => {

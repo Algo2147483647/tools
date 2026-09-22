@@ -251,7 +251,9 @@ test('three nested levels retain full editing, global uniqueness, and recursive 
   for (const key of ['Platform', 'Worker', 'Processor']) await enter(page, key);
   await page.getByTestId('node-Parser').locator('.node-body').click();
   await expect(page.getByRole('spinbutton', { name: 'Width', exact: true })).toHaveValue('270');
-  await expect(page.getByRole('spinbutton', { name: 'Y', exact: true })).toHaveValue('185');
+  await expect(page.getByRole('spinbutton', { name: 'Y', exact: true })).toHaveValue(
+    String(persisted.nodes.find((node) => node.key === 'Parser')!.y),
+  );
   expect(await disk(workspaceFolder)).toEqual(persisted);
   await page.locator('.breadcrumbs').getByRole('button', { name: 'Overview', exact: true }).click();
   await page.getByTestId('node-Platform').locator('.node-body').click();
@@ -535,7 +537,7 @@ test('anchor dragging creates directed flows, counts degrees, cancels safely, an
   assertOrthogonal(complete);
   await page.reload();
   await open(page, workspaceFolder);
-  await expect(page.getByTestId('port-Source-right').locator('.port-count')).toHaveText('2');
+  await expect(page.getByTestId('port-Source-right').locator('.port-count')).toHaveText('3');
   await enter(page, 'Source');
   await expect(page.getByTestId('port-InsideB-left').locator('.port-count')).toHaveText('1');
   expect(await disk(workspaceFolder)).toEqual(complete);

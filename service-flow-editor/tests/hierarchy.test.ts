@@ -1,15 +1,25 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createWorkspace, edgeGraphId, type FlowEdge, type ServiceNode, type Workspace } from '../src/model';
+import {
+  createWorkspace,
+  edgeGraphId,
+  removeNode,
+  type FlowEdge,
+  type ServiceNode,
+  type Workspace,
+} from '../src/model';
 import { addBend, anchor, isOrthogonal, routeEdge } from '../src/routing';
 import {
   canonicalNode,
   CONTAINER_HEADER,
   CONTAINER_PADDING,
   rerouteEdges,
+  relayoutWorkspace,
+  nodeDegrees,
   scene,
   toggleExpanded,
   updateNodeGeometry,
+  updateNodesGeometry,
 } from '../src/hierarchy';
 
 function addNode(workspace: Workspace, key: string, graphId = 'root', x = 0, y = 0): ServiceNode {
@@ -68,8 +78,8 @@ test('inline expansion contains children and moves the nearest overlapping sibli
   const box = rendered.nodes.find((node) => node.id === parent.id)!;
   const inside = rendered.nodes.find((node) => node.id === child.id)!;
   const neighbor = rendered.nodes.find((node) => node.id === sibling.id)!;
-  assert.equal(box.x, parent.x);
-  assert.equal(box.y, parent.y);
+  assert.equal(box.x, parent.x + child.x);
+  assert.equal(box.y, parent.y + child.y);
   assert.equal(inside.x, parent.x + CONTAINER_PADDING + child.x);
   assert.equal(inside.y, parent.y + CONTAINER_HEADER + child.y);
   assert.ok(inside.x + inside.width <= box.x + box.width - CONTAINER_PADDING);
@@ -145,7 +155,7 @@ test('focused subgraphs render local coordinates and hide unrelated outside flow
   addEdge(workspace, child, deep);
   const expanded = toggleExpanded(toggleExpanded(workspace, parent.id), child.id);
   const focused = scene(expanded, parent.childGraphId);
-  assert.equal(focused.nodes.find((node) => node.id === child.id)!.x, child.x);
+  assert.equal(focused.nodes.find((node) => node.id === child.id)!.x, 0);
   assert.deepEqual(focused.graphOrigins.get(parent.childGraphId), { x: 0, y: 0 });
   assert.equal(focused.edges.length, 1);
   assert.equal(focused.edges[0].original.source, child.key);
@@ -169,34 +179,36 @@ test('negative legacy child positions normalize together without losing manual l
   );
 });
 
-test('moving nested nodes grows ancestors and reconnects cross-level edge anchors', () => {
+test('moving the only nested node moves its tight wrapping ancestors and reconnects cross-level anchors', () => {
   const { workspace, parent, child, deep, sibling } = fixture();
   addEdge(workspace, sibling, deep);
   const expanded = toggleExpanded(toggleExpanded(workspace, parent.id), child.id);
+  const before = scene(expanded, 'root').nodes.find((node) => node.id === deep.id)!;
   const moved = updateNodeGeometry(expanded, deep.id, { x: 340, y: 240 });
   const rendered = scene(moved, 'root');
-  for (const id of [parent.id, child.id]) {
-    assert.ok(
-      moved.nodes.find((node) => node.id === id)!.expandedSize!.width >
-        expanded.nodes.find((node) => node.id === id)!.expandedSize!.width,
+  for (const id of [parent.id, child.id])
+    assert.deepEqual(
+      moved.nodes.find((node) => node.id === id)!.expandedSize,
+      expanded.nodes.find((node) => node.id === id)!.expandedSize,
     );
-  }
+  const after = rendered.nodes.find((node) => node.id === deep.id)!;
+  assert.deepEqual([after.x - before.x, after.y - before.y], [340, 240]);
   const edge = rendered.edges[0];
   assert.deepEqual(edge.points.at(-1), anchor(edge.targetNode, 'left'));
   assert.ok(isOrthogonal(edge.points));
-  assert.equal(moved.nodes.find((node) => node.id === deep.id)!.x, 340);
+  assert.equal(moved.nodes.find((node) => node.id === deep.id)!.x, 0);
 });
 
-test('expanded resizing preserves collapsed shape and respects child containment', () => {
+test('expanded dimensions stay content-derived and ignore manual resize patches', () => {
   const { workspace, parent } = fixture();
   const expanded = toggleExpanded(workspace, parent.id);
   const larger = updateNodeGeometry(expanded, parent.id, { width: 800, height: 500 });
   const node = larger.nodes.find((item) => item.id === parent.id)!;
   assert.deepEqual([node.width, node.height], [160, 80]);
-  assert.deepEqual(node.expandedSize, { width: 800, height: 500 });
+  assert.deepEqual(node.expandedSize, { width: 224, height: 168 });
   const smaller = updateNodeGeometry(larger, parent.id, { width: 1, height: 1 });
   const box = scene(smaller, 'root').nodes.find((item) => item.id === parent.id)!;
-  assert.ok(box.width >= 240 && box.height >= 168);
+  assert.deepEqual([box.width, box.height], [224, 168]);
   assert.deepEqual(
     [
       scene(toggleExpanded(smaller, parent.id), 'root').nodes[0].width,
@@ -213,7 +225,7 @@ test('terminal collapsed footprint remains square while expanded container may b
   const resized = updateNodeGeometry(expanded, parent.id, { width: 600, height: 300 });
   const container = scene(resized, 'root').nodes.find((node) => node.id === parent.id)!;
   assert.equal(container.expanded, true);
-  assert.deepEqual([container.width, container.height], [600, 300]);
+  assert.deepEqual([container.width, container.height], [224, 168]);
   assert.deepEqual([container.base.width, container.base.height], [160, 160]);
   const collapsed = scene(toggleExpanded(resized, parent.id), 'root').nodes.find(
     (node) => node.id === parent.id,
@@ -351,4 +363,120 @@ test('scene traversal does not impose a fixed nesting depth or use recursive cal
   assert.equal(rendered.nodes.length, 1500);
   assert.equal(rendered.nodes.at(-1)!.depth, 1499);
   assert.equal(rendered.nodes.at(-1)!.x, 1499 * CONTAINER_PADDING);
+});
+
+test('relayout removes positive legacy margins and retained empty space while preserving child world positions', () => {
+  const workspace = createWorkspace('Oversized expansion');
+  const parent = addNode(workspace, 'Parent', 'root', 100, 200);
+  const child = addNode(workspace, 'Child', parent.childGraphId, 1200, 900);
+  parent.expanded = true;
+  parent.expandedSize = { width: 5000, height: 4000 };
+  const before = scene(workspace, 'root').nodes.find((node) => node.id === child.id)!;
+  const fitted = relayoutWorkspace(workspace);
+  const after = scene(fitted, 'root').nodes.find((node) => node.id === child.id)!;
+  assert.deepEqual([after.x, after.y], [before.x, before.y]);
+  assert.deepEqual(fitted.nodes[1].x, 0);
+  assert.deepEqual(fitted.nodes[1].y, 0);
+  assert.deepEqual(fitted.nodes[0].expandedSize, { width: 224, height: 168 });
+  assert.deepEqual(relayoutWorkspace(fitted), fitted, 'fitting is idempotent');
+});
+
+test('collapse, child resize and deletion shrink expanded bounds', () => {
+  const { workspace, parent, child, deep } = fixture();
+  deep.width = 500;
+  deep.height = 400;
+  const expanded = toggleExpanded(toggleExpanded(workspace, parent.id), child.id);
+  const collapsed = toggleExpanded(expanded, child.id);
+  assert.ok(collapsed.nodes[0].expandedSize!.width < expanded.nodes[0].expandedSize!.width);
+  assert.ok(collapsed.nodes[0].expandedSize!.height < expanded.nodes[0].expandedSize!.height);
+  const resized = updateNodeGeometry(collapsed, child.id, { width: 80, height: 40 });
+  assert.deepEqual(resized.nodes[0].expandedSize, { width: 160, height: 128 });
+  const withFar = structuredClone(resized);
+  const far = addNode(withFar, 'Far', parent.childGraphId, 1000, 800);
+  const wide = relayoutWorkspace(withFar);
+  assert.ok(wide.nodes[0].expandedSize!.width > 1000);
+  const removed = relayoutWorkspace(removeNode(wide, far.id));
+  assert.deepEqual(removed.nodes[0].expandedSize, { width: 160, height: 128 });
+  const empty = relayoutWorkspace(removeNode(removed, child.id));
+  assert.deepEqual(empty.nodes[0].expandedSize, { width: 240, height: 144 });
+});
+
+test('batch movement is rigid and selected descendants are not moved twice', () => {
+  const workspace = createWorkspace('Group drag');
+  const parent = addNode(workspace, 'Parent');
+  const child = addNode(workspace, 'Child', parent.childGraphId);
+  const sibling = addNode(workspace, 'Sibling', 'root', 500, 0);
+  const expanded = toggleExpanded(workspace, parent.id);
+  const before = scene(expanded, 'root');
+  const moved = updateNodesGeometry(expanded, [
+    { id: parent.id, patch: { x: 100, y: 150 } },
+    { id: sibling.id, patch: { x: 600, y: 150 } },
+    { id: child.id, patch: { x: 100, y: 150 } },
+  ]);
+  const after = scene(moved, 'root');
+  for (const node of before.nodes) {
+    const current = after.nodes.find((item) => item.id === node.id)!;
+    assert.deepEqual([current.x - node.x, current.y - node.y], [100, 150]);
+  }
+  assert.deepEqual([moved.nodes[1].x, moved.nodes[1].y], [0, 0]);
+});
+
+test('moving every child together moves its tight container without cancelling the drag', () => {
+  const workspace = createWorkspace('Internal group drag');
+  const parent = addNode(workspace, 'Parent');
+  const first = addNode(workspace, 'First', parent.childGraphId);
+  const second = addNode(workspace, 'Second', parent.childGraphId, 300, 0);
+  const expanded = toggleExpanded(workspace, parent.id);
+  const before = scene(expanded, 'root');
+  const moved = updateNodesGeometry(expanded, [
+    { id: first.id, patch: { x: 100, y: 150 } },
+    { id: second.id, patch: { x: 400, y: 150 } },
+  ]);
+  const after = scene(moved, 'root');
+  for (const node of before.nodes) {
+    const current = after.nodes.find((item) => item.id === node.id)!;
+    assert.deepEqual([current.x - node.x, current.y - node.y], [100, 150]);
+  }
+  assert.deepEqual(moved.nodes[0].expandedSize, expanded.nodes[0].expandedSize);
+});
+
+test('degree totals include all descendants and count each internal edge once per direction', () => {
+  const { workspace, parent, child, deep, sibling } = fixture();
+  addEdge(workspace, sibling, deep);
+  addEdge(workspace, deep, child);
+  addEdge(workspace, child, parent);
+  addEdge(workspace, deep, deep);
+  addEdge(workspace, parent, sibling);
+  const counts = nodeDegrees(workspace);
+  assert.deepEqual(counts.get(parent.id), { incoming: 4, outgoing: 4 });
+  assert.deepEqual(counts.get(child.id), { incoming: 3, outgoing: 3 });
+  assert.deepEqual(counts.get(deep.id), { incoming: 2, outgoing: 2 });
+  assert.deepEqual(counts.get(sibling.id), { incoming: 1, outgoing: 1 });
+  const expanded = toggleExpanded(toggleExpanded(workspace, parent.id), child.id);
+  assert.deepEqual(nodeDegrees(expanded), counts, 'counts do not depend on visibility');
+});
+
+test('tight containers include internal self-loops and preserve manual route margins', () => {
+  const workspace = createWorkspace('Contained routes');
+  const parent = addNode(workspace, 'Parent', 'root', 200, 200);
+  const child = addNode(workspace, 'Child', parent.childGraphId);
+  addEdge(workspace, child, child);
+  const expanded = toggleExpanded(workspace, parent.id);
+  const rendered = scene(expanded, 'root');
+  const box = rendered.nodes.find((node) => node.id === parent.id)!;
+  assert.ok(rendered.edges[0].points.length > 2);
+  for (const point of rendered.edges[0].points) {
+    assert.ok(point.x >= box.x + CONTAINER_PADDING && point.x <= box.x + box.width - CONTAINER_PADDING);
+    assert.ok(point.y >= box.y + CONTAINER_HEADER && point.y <= box.y + box.height - CONTAINER_PADDING);
+  }
+  assert.deepEqual(relayoutWorkspace(expanded), expanded, 'route bounds settle in one pass');
+  const manual = structuredClone(expanded);
+  manual.edges[0].points = addBend(manual.edges[0].points, 1);
+  const fitted = relayoutWorkspace(manual);
+  const fittedScene = scene(fitted, 'root');
+  const fittedBox = fittedScene.nodes.find((node) => node.id === parent.id)!;
+  for (const point of fittedScene.edges[0].points) {
+    assert.ok(point.x >= fittedBox.x && point.x <= fittedBox.x + fittedBox.width);
+    assert.ok(point.y >= fittedBox.y && point.y <= fittedBox.y + fittedBox.height);
+  }
 });

@@ -146,7 +146,15 @@ export function createAppServer(repository = new WorkspaceRepository()) {
       }
       if (url.pathname === '/api/workspace/save' && request.method === 'POST') {
         const input = await body(request);
-        return json(response, 200, await repository.save(session(input.token), input.workspace));
+        return json(
+          response,
+          200,
+          await repository.save(
+            session(input.token),
+            input.workspace,
+            input.restoringNodeIds as string[] | undefined,
+          ),
+        );
       }
       if (url.pathname === '/api/workspace/pick' && request.method === 'POST') {
         const input = await body(request);

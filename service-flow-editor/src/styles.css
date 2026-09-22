@@ -669,10 +669,23 @@ button.danger:hover {
   height: 100%;
   touch-action: none;
   user-select: none;
-  cursor: grab;
+  cursor: default;
 }
 .graph-canvas:active {
+  cursor: crosshair;
+}
+.is-panning .graph-canvas,
+.is-panning .service-node {
+  cursor: grab;
+}
+.is-panning .graph-canvas:active,
+.is-panning .service-node:active {
   cursor: grabbing;
+}
+.selection-marquee {
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+  stroke: var(--accent);
+  stroke-dasharray: 5 3;
 }
 .service-node {
   cursor: grab;

@@ -59,7 +59,7 @@ Use **Add service** to create a rounded rectangular service node. Drag the node 
 
 Each service key is unique across the entire workspace, including every nested graph. Comparison is case insensitive, so `Orders` and `orders` cannot coexist. Keys must be valid Windows filenames: no path separators, control characters, `<>:"|?*`, leading or trailing whitespace, trailing dots, or reserved device names such as `CON` and `LPT1`. The maximum key length is 200 characters. Spaces within names are allowed.
 
-Use **Add flow** to choose a source and destination from any level, or drag a white node anchor onto another visible service or anchor. Anchors appear when you hover over or select a node; connection targets also reveal their anchors during a drag. Selection, movement, and connection share the same interaction mode. The source is the service where the drag starts; release on empty space or press `Escape` to cancel. The left anchor shows the node's direct incoming flow count, and the right anchor shows its direct outgoing flow count across the whole workspace. Collapsed proxy lines do not add a descendant's flows to its parent, and focusing a subgraph does not change these counts. Self loops and connections across nested levels are supported. Select a flow to:
+Use **Add flow** to choose a source and destination from any level, or drag a white node anchor onto another visible service or anchor. Anchors appear when you hover over or select a node; connection targets also reveal their anchors during a drag. Selection, movement, and connection share the same interaction mode. The source is the service where the drag starts; release on empty space or press `Escape` to cancel. The left anchor shows incoming flows for the node and all its descendants; the right anchor shows outgoing flows for the same subtree. Each flow contributes once per direction, so an internal flow or self loop contributes one incoming and one outgoing count to its ancestors. Counts do not change when expanding, collapsing, or focusing a subgraph. Self loops and connections across nested levels are supported. Arrow tips meet their path endpoints without offsets for anchor visibility or counts. Select a flow to:
 
 - Enter weights, one string per line, such as an HTTP interface, event name, or data type.
 - Choose left, right, top, or bottom attachment ports.
@@ -71,7 +71,7 @@ Straight path sections stay horizontal or vertical; SVG curves round their corne
 
 ## Explore nested architecture
 
-Double-click a service, select it and press `Enter`, or choose **Expand subgraph** / **Collapse subgraph** to show or hide its internal graph **on the current canvas**. Expanded services become containers; nested services can be expanded the same way. Containers grow to contain their contents, neighboring services move apart, and affected flows reconnect. Expansion state, expanded dimensions, and resulting layout are saved. Collapsing preserves the remembered layout and manual routes for the next expansion. Choose **Add service inside** to create a child directly in a service's internal graph.
+Double-click a service, select it and press `Enter`, or choose **Expand subgraph** / **Collapse subgraph** to show or hide its internal graph **on the current canvas**. Expanded services become containers; nested services can be expanded the same way. Container bounds automatically fit their visible child nodes and internal routes, with padding and a header. They shrink as well as grow after moving, resizing, deleting, or collapsing contents. Leading empty space is removed while keeping the content's world positions, and neighboring services move apart when needed. Expanded containers have no manual resize handle; resize the internal nodes instead. Empty containers retain enough space for their add button. Opening an older workspace refits previously oversized expanded containers and automatically saves the corrected layout. Choose **Add service inside** to create a child directly in a service's internal graph.
 
 To focus on one internal graph, use **Focus subgraph**. Every level has the same service, flow, document, and layout controls. Use **Up one level** or the breadcrumb trail to return.
 
@@ -85,7 +85,15 @@ The **Document** tab edits the selected service's Markdown file directly. Creati
 
 Renaming a service updates its key, every connected edge reference, and the Markdown filename while retaining the document contents and internal node identity. A rename that would overwrite an unrelated existing document fails with a specific collision message; resolve the file conflict and retry the save.
 
-**Deleting a service deletes its Markdown file, all descendant services and their documents, their internal graphs, and affected flows.** The confirmation dialog describes this action. There is no undo command. Deleting a flow removes only that flow. Unrelated files in the workspace are preserved.
+**Deleting a service deletes its Markdown file, all descendant services and their documents, their internal graphs, and affected flows.** The confirmation dialog describes this action. **Undo** restores the deleted subtree and its original Markdown during the current editing session. Deleting a flow removes only that flow. Unrelated files in the workspace are preserved.
+
+## Undo and multiple selection
+
+Use the top-bar **Undo** and **Redo** buttons, or `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z` (`Ctrl+Y` also redoes). Graph history includes additions, deletion, rename, weights, geometry, expansion, and canvas settings. One drag is one step; consecutive edits to the same field are grouped briefly. Undo and redo save automatically using the latest disk revision. A new edit clears the redo stack. The last 100 graph operations are retained while this workspace remains open; reopening, switching workspaces, or reloading resets history. Text fields keep their normal text undo shortcuts.
+
+Deleted Markdown is retained by stable node ID in the local server's memory so undo restores its exact contents. Restarting that server expires deleted-document recovery; an attempted restore then fails clearly and preserves the graph draft instead of creating empty notes. Move any conflicting unrelated Markdown file before retrying a restoration.
+
+Drag empty canvas with the left mouse button to draw a selection box. Fully enclosed nodes and flow segments intersecting the box are selected. Hold `Shift` while drawing to add to the selection, or Shift-click a node or flow to toggle it. `Ctrl/Cmd+A` selects all visible elements. Drag a selected service to move selected services as a group; selecting both a container and its children moves them only once. Delete removes the selected elements in one undoable operation, including descendants and incident flows of selected services. Flow paths follow their endpoints during group moves. Pan with the middle mouse button or `Space` + drag.
 
 ## Saving and recovery
 
@@ -117,11 +125,14 @@ Mouse wheel, Ctrl/Command + wheel, and trackpad pinch over the canvas zoom only 
 | Search all service levels               | `/`                                               |
 | Editor guide                            | `?`                                               |
 | Expand or collapse selected service     | `Enter`                                           |
-| Delete selected service or flow         | `Delete` or `Backspace`, followed by confirmation |
+| Delete selected elements                | `Delete` or `Backspace`, followed by confirmation |
+| Undo / redo                             | `Ctrl/Cmd+Z` / `Ctrl/Cmd+Shift+Z`                 |
+| Select visible elements                 | `Ctrl/Cmd+A`                                      |
+| Box selection                           | Left drag on empty canvas; `Shift` adds           |
 | Fit the current graph                   | `1`                                               |
 | Cancel a connection and clear selection | `Escape`                                          |
 | Save immediately                        | `Ctrl+S` / `Cmd+S`                                |
-| Pan                                     | Drag an empty part of the canvas                  |
+| Pan                                     | Middle drag or `Space` + drag                     |
 | Zoom                                    | Scroll, or use the zoom buttons                   |
 
 Use the top-left **Collapse sidebar** / **Expand sidebar** button to toggle the service list; the choice is remembered in this browser. Workspace actions, navigation, and zoom controls share the top bar. Right-click empty canvas to add a service at that location or fit/reset the view. Right-click a service to inspect it, open its document, expand/collapse its subgraph, add a child, focus its subgraph, or delete it; right-click a flow to edit, reverse, reset its path, or delete it.

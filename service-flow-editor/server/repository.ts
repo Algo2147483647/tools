@@ -7,6 +7,8 @@ export const MAIN_FILE = 'workspace.json';
 const TRANSACTION_DIRECTORY = '.service-flow-transaction';
 const fold = (name: string) => name.toLocaleLowerCase('en-US');
 const locks = new Map<string, Promise<unknown>>();
+// Undo is local to the running editor session. Archives never replace live files.
+const deletedDocuments = new Map<string, Map<string, Buffer>>();
 
 export class RepositoryError extends Error {
   constructor(
@@ -359,6 +361,8 @@ export class WorkspaceRepository {
     directory: string,
     previous: Workspace | null,
     next: Workspace,
+    restoringNodeIds: Set<string> = new Set(),
+    deleted: Map<string, Buffer> = new Map(),
   ): Promise<Map<string, Buffer | null>> {
     const inventory = await this.inventory(directory);
     const previousById = new Map(previous?.nodes.map((node) => [node.id, node]) || []);
@@ -373,12 +377,31 @@ export class WorkspaceRepository {
         oldActualNames.add(actual);
       }
     }
+    const nextIds = new Set(next.nodes.map((node) => node.id));
+    for (const node of previous?.nodes || [])
+      if (!nextIds.has(node.id))
+        deleted.set(node.id, previousContent.get(node.id) || starterDocument(node.key));
+    const archiveKey = process.platform === 'win32' ? fold(directory) : directory;
+    const archive = deletedDocuments.get(archiveKey);
     const desired = new Map<string, Buffer>();
     for (const node of next.nodes) {
       const name = `${node.key}.md`;
       const actual = inventory.get(fold(name));
       const oldNode = previousById.get(node.id);
+      const restored = oldNode ? undefined : archive?.get(node.id);
       if (actual) await regularFile(path.join(directory, actual));
+      if (!oldNode && restoringNodeIds.has(node.id) && !restored)
+        throw new RepositoryError(
+          `Cannot restore ${node.key}: its deleted document is no longer available in this server session. Redo the graph change or restore a workspace backup.`,
+          409,
+          'DOCUMENT_HISTORY_EXPIRED',
+        );
+      if (restored && actual && !managedNames.has(fold(actual)))
+        throw new RepositoryError(
+          `Cannot restore ${node.key}: ${actual} already exists and belongs to another document. Rename or move that file first, then retry.`,
+          409,
+          'DOCUMENT_COLLISION',
+        );
       if (oldNode && fold(oldNode.key) !== fold(node.key) && actual && !managedNames.has(fold(actual))) {
         throw new RepositoryError(
           `Cannot rename to ${node.key}: ${actual} already exists and belongs to another document. Rename or move that file first.`,
@@ -388,6 +411,7 @@ export class WorkspaceRepository {
       }
       let content: Buffer;
       if (oldNode) content = previousContent.get(node.id) || starterDocument(node.key);
+      else if (restored) content = restored;
       else content = actual ? await fs.readFile(path.join(directory, actual)) : starterDocument(node.key);
       desired.set(name, content);
       if (actual && actual !== name) oldActualNames.add(actual);
@@ -425,7 +449,13 @@ export class WorkspaceRepository {
     });
   }
 
-  async save(directory: string, data: unknown): Promise<{ workspace: Workspace; savedAt: string }> {
+  async save(
+    directory: string,
+    data: unknown,
+    restoringNodeIds: string[] = [],
+  ): Promise<{ workspace: Workspace; savedAt: string }> {
+    if (!Array.isArray(restoringNodeIds) || !restoringNodeIds.every((id) => typeof id === 'string'))
+      throw new RepositoryError('Restoration node IDs must be a string array.');
     let proposed: Workspace;
     try {
       proposed = validateWorkspace(data);
@@ -443,9 +473,20 @@ export class WorkspaceRepository {
           'REVISION_CONFLICT',
         );
       const workspace = { ...proposed, revision: previous.revision + 1 };
-      const mutations = await this.documentMutations(canonical, previous, workspace);
+      const deleted = new Map<string, Buffer>();
+      const mutations = await this.documentMutations(
+        canonical,
+        previous,
+        workspace,
+        new Set(restoringNodeIds),
+        deleted,
+      );
       mutations.set(MAIN_FILE, Buffer.from(JSON.stringify(workspace, null, 2) + '\n'));
       await this.transaction(canonical, mutations);
+      const archiveKey = process.platform === 'win32' ? fold(canonical) : canonical;
+      const archive = deletedDocuments.get(archiveKey) || new Map<string, Buffer>();
+      for (const [id, content] of deleted) archive.set(id, content);
+      if (archive.size) deletedDocuments.set(archiveKey, archive);
       return { workspace, savedAt: new Date().toISOString() };
     });
   }

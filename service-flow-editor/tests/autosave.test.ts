@@ -44,6 +44,8 @@ test('edits made during a save are serialized with the acknowledged revision', a
     status: 'saved',
     error: null,
     savedAt: 'second-save',
+    canUndo: true,
+    canRedo: false,
   });
 });
 
@@ -111,4 +113,103 @@ test('debounce persists the latest edit without manual flush', async () => {
   await completed.promise;
   await controller.flush();
   assert.deepEqual(sent, [{ revision: 0, label: 'two' }]);
+});
+
+test('undo during an in-flight save preserves acknowledged revisions and redo history', async () => {
+  const first = deferred<SaveResult<Document>>();
+  const requests: Document[] = [];
+  const controller = new AutosaveController<Document>(async (document) => {
+    requests.push(document);
+    if (requests.length === 1) return first.promise;
+    return { workspace: { ...document, revision: document.revision + 1 }, savedAt: 'saved' };
+  }, 60_000);
+  controller.load({ revision: 10, label: 'original' });
+  controller.change((value) => ({ ...value, label: 'edited' }));
+  const flushing = controller.flush();
+  controller.undo();
+  assert.equal(controller.getSnapshot().workspace!.label, 'original');
+  assert.equal(controller.getSnapshot().canRedo, true);
+  first.resolve({ workspace: { revision: 11, label: 'edited' }, savedAt: 'first' });
+  await flushing;
+  assert.deepEqual(requests, [
+    { revision: 10, label: 'edited' },
+    { revision: 11, label: 'original' },
+  ]);
+  controller.redo();
+  await controller.flush();
+  assert.deepEqual(controller.getSnapshot().workspace, { revision: 13, label: 'edited' });
+  controller.undo();
+  controller.change((value) => ({ ...value, label: 'new branch' }));
+  assert.equal(controller.getSnapshot().canRedo, false);
+  await controller.flush();
+});
+
+test('drag and field groups create one undo step while migrations and revision-only changes do not', async () => {
+  const controller = new AutosaveController<Document>(
+    async (document) => ({
+      workspace: { ...document, revision: document.revision + 1 },
+      savedAt: 'saved',
+    }),
+    60_000,
+  );
+  controller.load({ revision: 0, label: 'original' });
+  controller.change((value) => ({ ...value, label: 'normalized' }), { recordHistory: false });
+  assert.equal(controller.getSnapshot().canUndo, false);
+  controller.change((value) => ({ ...value, revision: 99 }));
+  assert.equal(controller.getSnapshot().workspace!.revision, 0);
+  controller.beginHistoryGroup();
+  for (const label of ['x=1', 'x=2', 'x=3']) controller.change((value) => ({ ...value, label }));
+  controller.endHistoryGroup();
+  controller.undo();
+  assert.equal(controller.getSnapshot().workspace!.label, 'normalized');
+  assert.equal(controller.getSnapshot().canUndo, false);
+  controller.redo();
+  controller.change((value) => ({ ...value, label: 'a' }), { historyKey: 'weights:edge-1' });
+  controller.change((value) => ({ ...value, label: 'abc' }), { historyKey: 'weights:edge-1' });
+  controller.undo();
+  assert.equal(controller.getSnapshot().workspace!.label, 'x=3');
+  controller.undo();
+  assert.equal(controller.getSnapshot().workspace!.label, 'normalized');
+  await controller.flush();
+  controller.load({ revision: 0, label: 'other workspace' });
+  assert.equal(controller.getSnapshot().canUndo, false);
+  assert.equal(controller.getSnapshot().canRedo, false);
+});
+
+test('undo and redo keep failed saves recoverable until retry succeeds', async () => {
+  let fail = true;
+  const controller = new AutosaveController<Document>(async (document) => {
+    if (fail) throw new Error('Read-only workspace');
+    return { workspace: { ...document, revision: document.revision + 1 }, savedAt: 'saved' };
+  }, 60_000);
+  controller.load({ revision: 4, label: 'original' });
+  controller.change((value) => ({ ...value, label: 'edited' }));
+  await assert.rejects(controller.flush(), /Read-only/);
+  controller.undo();
+  assert.equal(controller.getSnapshot().status, 'error');
+  assert.equal(controller.getSnapshot().workspace!.label, 'original');
+  controller.redo();
+  assert.equal(controller.getSnapshot().workspace!.label, 'edited');
+  fail = false;
+  controller.retry();
+  await controller.flush();
+  assert.equal(controller.getSnapshot().workspace!.revision, 5);
+  assert.equal(controller.getSnapshot().canUndo, true);
+});
+
+test('a drag that returns to its initial geometry creates no undo step', async () => {
+  const controller = new AutosaveController<Document>(
+    async (document) => ({
+      workspace: { ...document, revision: document.revision + 1 },
+      savedAt: 'saved',
+    }),
+    60_000,
+  );
+  controller.load({ revision: 0, label: 'same position' });
+  controller.beginHistoryGroup();
+  controller.change((value) => ({ ...value, label: 'moved' }));
+  controller.change((value) => ({ ...value, label: 'same position' }));
+  controller.endHistoryGroup();
+  assert.equal(controller.getSnapshot().canUndo, false);
+  await controller.flush();
 });

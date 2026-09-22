@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { AutosaveController, type SaveResult } from './autosave';
+import { AutosaveController, type ChangeOptions, type SaveResult } from './autosave';
 import { validateWorkspace, type Workspace } from './model';
+import { relayoutWorkspace } from './hierarchy';
 
 interface OpenResult {
   workspace: Workspace;
@@ -10,6 +11,8 @@ interface OpenResult {
 interface Draft {
   workspace: Workspace;
   updatedAt: string;
+  /** Previously persisted nodes whose missing documents must be restored, never recreated. */
+  restoringNodeIds?: string[];
 }
 interface DraftStore {
   pending: Draft | null;
@@ -46,8 +49,17 @@ function readDrafts(path: string): DraftStore {
   const record = JSON.parse(raw) as DraftStore;
   if (!record || !Array.isArray(record.recoveries))
     throw new Error('The browser recovery draft is unreadable.');
-  for (const entry of [...record.recoveries, ...(record.pending ? [record.pending] : [])])
+  for (const entry of [...record.recoveries, ...(record.pending ? [record.pending] : [])]) {
     entry.workspace = validateWorkspace(entry.workspace);
+    if (entry.restoringNodeIds !== undefined) {
+      const nodeIds = new Set(entry.workspace.nodes.map((node) => node.id));
+      if (
+        !Array.isArray(entry.restoringNodeIds) ||
+        !entry.restoringNodeIds.every((id) => typeof id === 'string' && nodeIds.has(id))
+      )
+        throw new Error('The browser recovery draft contains invalid document restoration identities.');
+    }
+  }
   return record;
 }
 
@@ -59,6 +71,7 @@ function writeDrafts(path: string, record: DraftStore) {
 
 export function useWorkspace() {
   const session = useRef({ path: '', token: '' });
+  const persistedNodeIds = useRef(new Set<string>());
   const suppressDraft = useRef(false);
   const operations = useRef<Promise<unknown>>(Promise.resolve());
   const [path, setPath] = useState('');
@@ -68,11 +81,17 @@ export function useWorkspace() {
   const [controller] = useState(
     () =>
       new AutosaveController<Workspace>(async (workspace) => {
-        try {
-          return await request<SaveResult<Workspace>>('/api/workspace/save', {
+        const saveRequest = () =>
+          request<SaveResult<Workspace>>('/api/workspace/save', {
             token: session.current.token,
             workspace,
+            restoringNodeIds: workspace.nodes
+              .filter((node) => persistedNodeIds.current.has(node.id))
+              .map((node) => node.id),
           });
+        let result: SaveResult<Workspace>;
+        try {
+          result = await saveRequest();
         } catch (error) {
           if (!(error instanceof ApiError) || error.code !== 'TOKEN_EXPIRED') throw error;
           // A restarted local server loses tokens, but never bypass disk revisions.
@@ -84,8 +103,10 @@ export function useWorkspace() {
           }
           session.current.token = reopened.token;
           setToken(reopened.token);
-          return request<SaveResult<Workspace>>('/api/workspace/save', { token: reopened.token, workspace });
+          result = await saveRequest();
         }
+        for (const node of result.workspace.nodes) persistedNodeIds.current.add(node.id);
+        return result;
       }),
   );
   const snapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
@@ -101,7 +122,13 @@ export function useWorkspace() {
           drafts.pending =
             current.status === 'saved'
               ? null
-              : { workspace: current.workspace, updatedAt: new Date().toISOString() };
+              : {
+                  workspace: current.workspace,
+                  updatedAt: new Date().toISOString(),
+                  restoringNodeIds: current.workspace.nodes
+                    .filter((node) => persistedNodeIds.current.has(node.id))
+                    .map((node) => node.id),
+                };
           writeDrafts(session.current.path, drafts);
         } catch {
           setRecoveryMessage(
@@ -176,18 +203,24 @@ export function useWorkspace() {
         session.current = { path: result.path, token: result.token };
         setPath(result.path);
         setToken(result.token);
+        persistedNodeIds.current = new Set(workspace.nodes.map((node) => node.id));
+        if (compatibleDraft)
+          for (const id of pending.restoringNodeIds || []) persistedNodeIds.current.add(id);
         controller.load(workspace);
         suppressDraft.current = false;
         const rescue = drafts.recoveries.at(-1)?.workspace ?? null;
         setRecoveryDraft(rescue);
         if (compatibleDraft) {
-          controller.change(() => pending.workspace);
+          controller.change(() => pending.workspace, { recordHistory: false });
           message =
             'Recovered unsaved changes from this browser. The restored workspace will be saved automatically.';
         } else if (rescue && !message) {
           message =
             'A browser recovery draft was based on an older revision. The disk version is open; download the recovery JSON to preserve those edits.';
         }
+        // Migrate legacy expanded boxes after choosing the compatible draft or disk version.
+        // This is saved automatically without becoming an undoable user operation.
+        controller.change(relayoutWorkspace, { recordHistory: false });
         setRecoveryMessage(message);
       }),
     [controller, enqueue],
@@ -199,6 +232,7 @@ export function useWorkspace() {
         await controller.flush();
         controller.load(null);
         session.current = { path: '', token: '' };
+        persistedNodeIds.current.clear();
         setPath('');
         setToken('');
         setRecoveryMessage(null);
@@ -236,11 +270,16 @@ export function useWorkspace() {
     open,
     close,
     change: useCallback(
-      (updater: (workspace: Workspace) => Workspace) => controller.change(updater),
+      (updater: (workspace: Workspace) => Workspace, options?: ChangeOptions) =>
+        controller.change(updater, options),
       [controller],
     ),
     retry: controller.retry,
     flush: controller.flush,
+    undo: controller.undo,
+    redo: controller.redo,
+    beginHistoryGroup: controller.beginHistoryGroup,
+    endHistoryGroup: controller.endHistoryGroup,
     discardRecoveryDraft,
   };
 }

@@ -19,6 +19,7 @@ import {
 } from '../src/model.js';
 import { MAIN_FILE, RepositoryError, WorkspaceRepository } from '../server/repository.js';
 import { createAppServer } from '../server/index.js';
+import { AutosaveController } from '../src/autosave.js';
 
 async function temp<T>(action: (directory: string) => Promise<T>): Promise<T> {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'service-flow-test-'));
@@ -297,6 +298,109 @@ test('deleting a parent removes all descendants, nested graphs, incident edges, 
     assert.equal(workspace.graphs.length, 2);
     assert.equal(workspace.edges.length, 0);
     assert.deepEqual((await fs.readdir(directory)).sort(), ['Gateway.md', MAIN_FILE].sort());
+  }));
+
+test('undo and redo of saved add, rename, and subtree deletion restore exact Markdown contents', async () =>
+  temp(async (directory) => {
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    const initial = (await repository.save(directory, graphFixture())).workspace;
+    await repository.writeDocument(directory, 'Worker', '# Worker\nCustom owner notes 数据');
+    await repository.writeDocument(directory, 'Database', '# Database\nDatabase notes');
+    await repository.writeDocument(directory, 'Replica', '# Replica\nReplica notes');
+    const known = new Set(initial.nodes.map((node) => node.id));
+    const controller = new AutosaveController<Workspace>(async (workspace) => {
+      const result = await repository.save(
+        directory,
+        workspace,
+        workspace.nodes.filter((node) => known.has(node.id)).map((node) => node.id),
+      );
+      result.workspace.nodes.forEach((node) => known.add(node.id));
+      return result;
+    }, 60_000);
+    controller.load(initial);
+    controller.change((workspace) => removeNode(workspace, 'node-Worker'));
+    await controller.flush();
+    await assert.rejects(fs.access(path.join(directory, 'Worker.md')));
+    controller.undo();
+    await controller.flush();
+    assert.deepEqual((await disk(directory)).nodes, initial.nodes);
+    assert.equal(
+      (await repository.readDocument(directory, 'Worker')).content,
+      '# Worker\nCustom owner notes 数据',
+    );
+    assert.equal(
+      (await repository.readDocument(directory, 'Database')).content,
+      '# Database\nDatabase notes',
+    );
+    assert.equal((await repository.readDocument(directory, 'Replica')).content, '# Replica\nReplica notes');
+    await repository.writeDocument(directory, 'Replica', 'Newer notes after undo');
+    controller.redo();
+    await controller.flush();
+    controller.undo();
+    await controller.flush();
+    assert.equal((await repository.readDocument(directory, 'Replica')).content, 'Newer notes after undo');
+    controller.change((workspace) => renameNode(workspace, 'node-Worker', 'Worker Renamed'));
+    await controller.flush();
+    controller.undo();
+    await controller.flush();
+    assert.equal(
+      (await repository.readDocument(directory, 'Worker')).content,
+      '# Worker\nCustom owner notes 数据',
+    );
+    await assert.rejects(fs.access(path.join(directory, 'Worker Renamed.md')));
+    controller.change((workspace) => addNode(workspace, 'New service'));
+    await controller.flush();
+    await repository.writeDocument(directory, 'New service', 'Notes for the new node');
+    controller.undo();
+    await controller.flush();
+    controller.redo();
+    await controller.flush();
+    assert.equal((await repository.readDocument(directory, 'New service')).content, 'Notes for the new node');
+    assert.equal((await disk(directory)).revision, initial.revision + 9);
+  }));
+
+test('document restoration rejects unrelated collisions and a failed restore can retry safely', async () =>
+  temp(async (directory) => {
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    const initial = (await repository.save(directory, graphFixture())).workspace;
+    await repository.writeDocument(directory, 'Gateway', 'Original gateway notes');
+    const removed = (await repository.save(directory, removeNode(initial, 'node-Gateway'))).workspace;
+    const restored = { ...initial, revision: removed.revision };
+    await fs.writeFile(path.join(directory, 'Gateway.md'), 'Unrelated external document');
+    await assert.rejects(
+      repository.save(directory, restored, ['node-Gateway']),
+      (error) => error instanceof RepositoryError && error.code === 'DOCUMENT_COLLISION',
+    );
+    assert.equal(
+      await fs.readFile(path.join(directory, 'Gateway.md'), 'utf8'),
+      'Unrelated external document',
+    );
+    assert.deepEqual(await disk(directory), removed);
+    await fs.unlink(path.join(directory, 'Gateway.md'));
+    const failing = new WorkspaceRepository({
+      onTransactionStep(step) {
+        if (step === 'applied') throw new Error('Restore disk failure');
+      },
+    });
+    await assert.rejects(failing.save(directory, restored, ['node-Gateway']), /Restore disk failure/);
+    assert.deepEqual(await disk(directory), removed);
+    await assert.rejects(fs.access(path.join(directory, 'Gateway.md')));
+    await repository.save(directory, restored, ['node-Gateway']);
+    assert.equal((await repository.readDocument(directory, 'Gateway')).content, 'Original gateway notes');
+  }));
+
+test('missing document history fails explicitly instead of recreating a restored node with empty notes', async () =>
+  temp(async (directory) => {
+    const repository = new WorkspaceRepository();
+    await repository.open(directory, { create: true });
+    await assert.rejects(
+      repository.save(directory, graphFixture(), ['node-Worker']),
+      (error) => error instanceof RepositoryError && error.code === 'DOCUMENT_HISTORY_EXPIRED',
+    );
+    assert.deepEqual((await disk(directory)).nodes, []);
+    assert.deepEqual(await fs.readdir(directory), [MAIN_FILE]);
   }));
 
 test('filename and global case-insensitive uniqueness validation covers all graph levels', () => {

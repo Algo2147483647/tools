@@ -21,6 +21,8 @@ const paths: Record<string, string> = {
   minus: 'M5 12h14',
   check: 'm5 12 4 4L19 6',
   refresh: 'M20 10a8 8 0 1 0-1 7 M20 3v7h-7',
+  undo: 'M9 5 3 10l6 5 M3 10h10a7 7 0 0 1 7 7v3',
+  redo: 'm15 5 6 5-6 5 M21 10H11a7 7 0 0 0-7 7v3',
   trash: 'M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15 M10 10v7 M14 10v7',
   close: 'm6 6 12 12 M18 6 6 18',
   download: 'M12 3v12 M7 10l5 5 5-5 M4 17v4h16v-4',

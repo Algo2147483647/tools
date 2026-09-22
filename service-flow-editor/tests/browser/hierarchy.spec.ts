@@ -173,7 +173,7 @@ async function selectEdge(page: Page, id: string) {
   await expect(page.getByLabel('Flow weights')).toBeVisible();
 }
 
-test('anchors appear on demand and three inline levels reflow, resize, and accept internal services', async ({
+test('anchors appear on demand and three inline levels fit resized contents and accept internal services', async ({
   page,
   folder,
 }) => {
@@ -215,6 +215,9 @@ test('anchors appear on demand and three inline levels reflow, resize, and accep
   });
 
   await page.getByTestId('container-header-Platform').click({ position: { x: 30, y: 25 } });
+  await expect(page.getByTestId('resize-handle')).toHaveCount(0);
+  await expect(page.getByTestId('container-dimensions')).toContainText('Auto-sized to contents');
+  await page.getByTestId('node-Worker').locator('.node-body').click();
   const resize = await box(page.getByTestId('resize-handle'));
   await page.mouse.move(resize.x + resize.width / 2, resize.y + resize.height / 2);
   await page.mouse.down();
@@ -284,7 +287,7 @@ test('cross-level flows preserve real endpoints through collapse, reopening, ren
   await selectEdge(page, cross.id);
   await expect(page.locator('.edge-handles')).toHaveCount(0);
   await expect(page.locator('.proxy-notice')).toContainText('real endpoints and saved route are preserved');
-  await expect(page.getByTestId('port-Platform-left').locator('.port-count')).toHaveText('1');
+  await expect(page.getByTestId('port-Platform-left').locator('.port-count')).toHaveText('3');
   const collapsed = await disk(folder);
   expect(collapsed.edges).toEqual(expanded.edges);
 
