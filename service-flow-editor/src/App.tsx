@@ -46,6 +46,7 @@ import Icon from './Icon';
 import ThemePicker from './ThemePicker';
 import ContextMenu, { type ContextAction } from './ContextMenu';
 import CanvasSettings from './CanvasSettings';
+import Toolbar from './Toolbar';
 
 const uid = () => crypto.randomUUID();
 const defaultView = { x: 60, y: 60, scale: 1 };
@@ -501,6 +502,7 @@ export default function App() {
   const [moveNodeId, setMoveNodeId] = useState<string | null>(null);
   const [moveGraphId, setMoveGraphId] = useState('');
   const [presentationBusy, setPresentationBusy] = useState(false);
+  const [layoutBusy, setLayoutBusy] = useState(false);
   const [contextMenu, setContextMenu] = useState<CanvasContext | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
@@ -655,6 +657,23 @@ export default function App() {
       setNotice('');
     } catch (err) {
       setNotice(err instanceof Error ? err.message : String(err));
+    }
+  }
+  async function runAutoLayout() {
+    if (!workspace || layoutBusy) return;
+    setLayoutBusy(true);
+    setContextMenu(null);
+    try {
+      await docFlush.current();
+      const { arrangeWorkspace } = await import('./autoLayoutClient');
+      const next = await arrangeWorkspace(workspace, graphId);
+      store.change((current) => ({ ...current, nodes: next.nodes, edges: next.edges }));
+      fitNodes(scene(next, graphId).nodes);
+      setNotice('');
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : String(error));
+    } finally {
+      setLayoutBusy(false);
     }
   }
   function changeNode(id: string, patch: Partial<ServiceNode>) {
@@ -936,32 +955,43 @@ export default function App() {
       ? [
           {
             label: 'Service properties',
+            group: 'Inspect',
             icon: 'node',
             run: () => inspect({ type: 'node', id: contextNode.id }),
           },
           {
             label: 'Open document',
+            group: 'Inspect',
             icon: 'file',
             run: () => inspect({ type: 'node', id: contextNode.id }, true),
           },
           {
             label: contextNode.expanded ? 'Collapse subgraph' : 'Expand subgraph',
+            group: 'Subgraph',
             icon: 'layers',
             run: () => toggleNode(contextNode),
           },
           {
             label: 'Add service inside',
+            group: 'Subgraph',
             icon: 'plus',
             run: () => openNewNode(undefined, contextNode.childGraphId),
           },
-          { label: 'Focus subgraph', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
+          {
+            label: 'Focus subgraph',
+            group: 'Subgraph',
+            icon: 'layers',
+            run: () => navigate(contextNode.childGraphId),
+          },
           {
             label: 'Highlight upstream and downstream',
+            group: 'Organize',
             icon: 'branch',
             run: () => setTraceId(contextNode.id),
           },
           {
             label: 'Move to graph…',
+            group: 'Organize',
             icon: 'folder',
             run: () => {
               setMoveNodeId(contextNode.id);
@@ -1027,14 +1057,35 @@ export default function App() {
               run: () => setModal('flow'),
             },
             { label: 'Fit graph', icon: 'fit', run: fit },
+            {
+              label: 'Auto layout',
+              icon: 'layout',
+              run: () => void runAutoLayout(),
+              disabled: !localNodes.length,
+            },
             { label: 'Reset view', icon: 'refresh', run: () => setView(initialView()) },
             ...(parent ? [{ label: 'Up one level', icon: 'back', run: () => navigate(parent.graphId) }] : []),
           ];
   const contextActions: ContextAction[] = [
-    { label: 'Undo', icon: 'undo', disabled: !store.canUndo, run: () => restoreHistory('undo') },
-    { label: 'Redo', icon: 'redo', disabled: !store.canRedo, run: () => restoreHistory('redo') },
-    { label: 'Select all', icon: 'cursor', run: selectAll },
-    ...targetActions,
+    ...targetActions.filter((action) => !action.danger),
+    {
+      label: 'Undo',
+      group: 'Edit',
+      shortcut: '⌘ / Ctrl Z',
+      icon: 'undo',
+      disabled: !store.canUndo,
+      run: () => restoreHistory('undo'),
+    },
+    {
+      label: 'Redo',
+      group: 'Edit',
+      shortcut: '⇧ ⌘ / Ctrl Z',
+      icon: 'redo',
+      disabled: !store.canRedo,
+      run: () => restoreHistory('redo'),
+    },
+    { label: 'Select all', group: 'Edit', shortcut: '⌘ / Ctrl A', icon: 'cursor', run: selectAll },
+    ...targetActions.filter((action) => action.danger),
   ];
   const documentStatus = selectedNode ? documentState.status : 'saved';
   const overallStatus =
@@ -1068,7 +1119,7 @@ export default function App() {
     <div
       className={`app-shell ${workspace ? 'workspace-open' : ''} ${sidebarCollapsed ? 'sidebar-hidden' : ''}`}
       style={{ '--toolbar-height': `${toolbarHeight}px` } as CSSProperties}
-      inert={presentationBusy}
+      inert={presentationBusy || layoutBusy}
     >
       <aside
         id="workspace-sidebar"
@@ -1180,191 +1231,52 @@ export default function App() {
         </div>
       </aside>
       <main className="main-area">
-        <header className="topbar" ref={toolbar}>
-          <button
-            className="icon-button panel-toggle sidebar-toggle"
-            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            aria-expanded={!sidebarCollapsed}
-            aria-controls="workspace-sidebar"
-            onClick={toggleSidebar}
-          >
-            <Icon name="panel-left" size={19} />
-          </button>
-          <div className="toolbar-content">
-            <div className="toolbar-navigation">
-              <div className="breadcrumbs">
-                <span className="workspace-label">{workspace ? workspace.name : 'Your workspace'}</span>
-                {crumbs.map((c, i) => (
-                  <span key={c.id} className="crumb">
-                    <Icon name="chevron" size={12} />
-                    <button disabled={i === crumbs.length - 1} title={c.title} onClick={() => navigate(c.id)}>
-                      {c.title}
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div
-                className={`save-status ${overallStatus}`}
-                title={store.savedAt ? `Saved at ${new Date(store.savedAt).toLocaleTimeString()}` : undefined}
-              >
-                <span className="status-dot" />
-                {displayStatus}
-                {overallStatus === 'error' && <button onClick={retrySave}>Retry</button>}
-              </div>
-              <div className="toolbar-utilities" role="group" aria-label="Workspace tools">
-                <button
-                  className="icon-button settings-trigger"
-                  aria-label="Settings"
-                  title="Settings"
-                  onClick={() => setModal('settings')}
-                >
-                  <Icon name="settings" size={18} />
-                </button>
-                <button
-                  className="icon-button top-open"
-                  aria-label="Open folder"
-                  title="Open folder"
-                  disabled={store.presentation}
-                  onClick={() => setModal('open')}
-                >
-                  <Icon name="folder" size={18} />
-                </button>
-              </div>
+        <Toolbar
+          toolbarRef={toolbar}
+          workspaceName={workspace?.name}
+          crumbs={crumbs}
+          navigate={navigate}
+          sidebarOpen={!sidebarCollapsed}
+          inspectorOpen={inspectorOpen}
+          toggleSidebar={toggleSidebar}
+          toggleInspector={() => setInspectorOpen((v) => !v)}
+          status={
+            <div className={`save-status ${overallStatus}`} title={displayStatus} role="status">
+              <span className="status-dot" />
+              <span className="save-label">{layoutBusy ? 'Arranging graph…' : displayStatus}</span>
+              {overallStatus === 'error' && <button onClick={retrySave}>Retry</button>}
             </div>
-            {workspace && (
-              <div className="toolbar-actions">
-                <div className="heading-actions" role="group" aria-label="Edit graph">
-                  <button
-                    className="icon-button"
-                    aria-label="Undo"
-                    title="Undo (Ctrl/Cmd+Z)"
-                    disabled={!store.canUndo}
-                    onClick={() => restoreHistory('undo')}
-                  >
-                    <Icon name="undo" size={17} />
-                  </button>
-                  <button
-                    className="icon-button"
-                    aria-label="Redo"
-                    title="Redo (Ctrl/Cmd+Shift+Z)"
-                    disabled={!store.canRedo}
-                    onClick={() => restoreHistory('redo')}
-                  >
-                    <Icon name="redo" size={17} />
-                  </button>
-                  {parent && (
-                    <button
-                      className="icon-button"
-                      aria-label="Up one level"
-                      title="Up one level"
-                      onClick={() => navigate(parent.graphId)}
-                    >
-                      <Icon name="back" size={16} />
-                    </button>
-                  )}
-                  <button
-                    className="secondary"
-                    disabled={!workspace.nodes.length}
-                    onClick={() => setModal('flow')}
-                  >
-                    <Icon name="link" size={16} />
-                    Add flow
-                  </button>
-                  <button className="primary" onClick={() => openNewNode()}>
-                    <Icon name="plus" size={17} />
-                    Add service
-                  </button>
-                </div>
-                <div className="graph-tools" role="group" aria-label="Graph tools">
-                  <select
-                    aria-label="Expand levels"
-                    value=""
-                    onChange={(event) => {
-                      const depth = event.target.value === 'all' ? Infinity : Number(event.target.value);
-                      void action(() => {
-                        const next = expandToDepth(workspace, graphId, depth);
-                        store.change(() => next);
-                        fitNodes(scene(next, graphId).nodes);
-                      });
-                    }}
-                  >
-                    <option value="" disabled>
-                      Expand levels
-                    </option>
-                    <option value="0">Collapse all</option>
-                    {Array.from({ length: maxDepth }, (_, index) => (
-                      <option key={index} value={index + 1}>
-                        Expand {index + 1} {index ? 'levels' : 'level'}
-                      </option>
-                    ))}
-                    <option value="all">Expand all levels</option>
-                  </select>
-                  <button
-                    className="secondary"
-                    aria-pressed={validation}
-                    onClick={() => setValidation((value) => !value)}
-                    title="Find services with no incoming flows"
-                  >
-                    <Icon name="check" size={16} />
-                    Validate
-                  </button>
-                  <button
-                    className="secondary"
-                    aria-label="Highlight chain"
-                    aria-pressed={!!traceId}
-                    disabled={!selectedNode && !traceId}
-                    onClick={() => setTraceId(traceId ? null : selectedNode!.id)}
-                    title="Highlight upstream and downstream"
-                  >
-                    <Icon name="branch" size={16} />
-                  </button>
-                  <button
-                    className={`secondary ${store.presentation ? 'presentation-active' : ''}`}
-                    aria-pressed={store.presentation}
-                    onClick={() => void togglePresentation()}
-                    title="Temporary editing; exit to restore the original workspace"
-                  >
-                    <Icon name="present" size={16} />
-                    {store.presentation ? 'Exit & restore' : 'Present'}
-                  </button>
-                </div>
-                <div className="zoom-controls" role="group" aria-label="Canvas zoom">
-                  <button
-                    className="icon-button"
-                    aria-label="Zoom out"
-                    onClick={() => setView((v) => ({ ...v, scale: Math.max(0.2, v.scale / 1.15) }))}
-                  >
-                    <Icon name="minus" size={15} />
-                  </button>
-                  <span>{Math.round(view.scale * 100)}%</span>
-                  <button
-                    className="icon-button"
-                    aria-label="Zoom in"
-                    onClick={() => setView((v) => ({ ...v, scale: Math.min(2.5, v.scale * 1.15) }))}
-                  >
-                    <Icon name="plus" size={15} />
-                  </button>
-                  <button className="icon-button" aria-label="Fit graph" title="Fit graph (1)" onClick={fit}>
-                    <Icon name="fit" size={17} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          {workspace && (
-            <button
-              className="icon-button panel-toggle inspector-toggle"
-              aria-label={inspectorOpen ? 'Collapse inspector' : 'Expand inspector'}
-              title={inspectorOpen ? 'Collapse inspector' : 'Expand inspector'}
-              aria-expanded={inspectorOpen}
-              aria-controls="workspace-inspector"
-              onClick={() => setInspectorOpen((v) => !v)}
-            >
-              <Icon name="panel-right" size={19} />
-            </button>
-          )}
-        </header>
+          }
+          canUndo={store.canUndo}
+          canRedo={store.canRedo}
+          canConnect={!!workspace?.nodes.length}
+          undo={() => restoreHistory('undo')}
+          redo={() => restoreHistory('redo')}
+          addNode={() => openNewNode()}
+          addFlow={() => setModal('flow')}
+          autoLayout={() => void runAutoLayout()}
+          layoutBusy={layoutBusy}
+          maxDepth={maxDepth}
+          expand={(depth) =>
+            void action(() => {
+              const next = expandToDepth(workspace!, graphId, depth);
+              store.change(() => next);
+              fitNodes(scene(next, graphId).nodes);
+            })
+          }
+          validation={validation}
+          validate={() => setValidation((v) => !v)}
+          tracing={!!traceId}
+          canTrace={!!selectedNode || !!traceId}
+          trace={() => setTraceId(traceId ? null : selectedNode!.id)}
+          presentation={store.presentation}
+          present={() => void togglePresentation()}
+          view={view}
+          setView={setView}
+          fit={fit}
+          settings={() => setModal('settings')}
+          openFolder={() => setModal('open')}
+        />
         {(saveError || notice || store.recoveryMessage) && (
           <div className={`notice-bar ${saveError || notice ? 'error' : ''}`} role="alert">
             <Icon name={saveError || notice ? 'warning' : 'refresh'} size={17} />
@@ -1946,6 +1858,7 @@ export default function App() {
           x={contextMenu.x}
           y={contextMenu.y}
           actions={contextActions}
+          title={contextNode?.key ?? (contextEdge ? 'Data flow' : 'Canvas')}
           onClose={() => setContextMenu(null)}
         />
       )}
@@ -1999,23 +1912,26 @@ export default function App() {
       )}
       {modal === 'settings' && (
         <SettingsPage onClose={() => setModal(null)}>
-          {workspace ? (
-            <CanvasSettings
-              value={canvasSettings(workspace)}
-              onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
-              appearance={nodeAppearance(workspace)}
-              onAppearanceChange={(nodeAppearance) =>
-                store.change((w) => ({ ...w, nodeAppearance }), { historyKey: 'node-appearance' })
-              }
-              themePicker={<ThemePicker inline value={theme} onChange={changeTheme} />}
-            />
-          ) : (
-            <section>
-              <h3>Canvas</h3>
-              <ThemePicker inline value={theme} onChange={changeTheme} />
-              <p>Open a workspace to configure the canvas and node appearance.</p>
-            </section>
-          )}
+          {(section) =>
+            workspace ? (
+              <CanvasSettings
+                section={section}
+                value={canvasSettings(workspace)}
+                onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
+                appearance={nodeAppearance(workspace)}
+                onAppearanceChange={(nodeAppearance) =>
+                  store.change((w) => ({ ...w, nodeAppearance }), { historyKey: 'node-appearance' })
+                }
+                themePicker={<ThemePicker inline value={theme} onChange={changeTheme} />}
+              />
+            ) : (
+              <section>
+                <h3>Canvas</h3>
+                <ThemePicker inline value={theme} onChange={changeTheme} />
+                <p>Open a workspace to configure the canvas and node appearance.</p>
+              </section>
+            )
+          }
         </SettingsPage>
       )}
       {modal === 'move' && movingNode && workspace && (

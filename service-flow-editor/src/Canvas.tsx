@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import type { FlowEdge, Point, ServiceNode, Side, Workspace } from './model';
-import { canvasSettings, nodeAppearance, nodeFontFamilies, snapCoordinate } from './model';
+import { canvasSettings, nodeAppearance, nodeFontStack, snapCoordinate } from './model';
 import { anchor, moveSegment, roundedPath, routeEdge } from './routing';
 import {
   canonicalEdgePoints,
@@ -694,7 +694,7 @@ export default function Canvas(p: Props) {
                 r={1}
                 fill="var(--grid-color)"
               />
-            ) : (
+            ) : settings.gridStyle === 'lines' ? (
               <path
                 data-testid="grid-lines"
                 d={`M ${settings.gridSize * p.view.scale} 0 H 0 V ${settings.gridSize * p.view.scale}`}
@@ -702,7 +702,7 @@ export default function Canvas(p: Props) {
                 stroke="var(--grid-color)"
                 strokeWidth={0.8}
               />
-            )}
+            ) : null}
           </pattern>
           {['', 'selected', 'upstream', 'downstream', 'both', 'focus'].map((kind) => (
             <marker
@@ -744,7 +744,12 @@ export default function Canvas(p: Props) {
             />
           </filter>
         </defs>
-        <rect className="canvas-background" width="100%" height="100%" fill="url(#grid)" />
+        <rect
+          className="canvas-background"
+          width="100%"
+          height="100%"
+          fill={settings.gridStyle === 'none' ? 'transparent' : 'url(#grid)'}
+        />
         <g transform={`translate(${p.view.x} ${p.view.y}) scale(${p.view.scale})`}>
           {nodes
             .filter((node) => node.expanded)
@@ -753,6 +758,10 @@ export default function Canvas(p: Props) {
                 key={`container-${node.id}`}
                 data-testid={`container-${node.key}`}
                 className="container-background"
+                style={{
+                  stroke: appearance.expandedBorderColor ?? 'var(--node-border)',
+                  strokeWidth: appearance.expandedBorderWidth,
+                }}
                 x={node.x}
                 y={node.y}
                 width={node.width}
@@ -841,7 +850,10 @@ export default function Canvas(p: Props) {
             const circular = node.type === 'terminal' && !node.expanded;
             const radius = node.expanded ? 12 : Math.min(node.width, node.height) * appearance.cornerRadius;
             const bodyStyle = node.expanded
-              ? undefined
+              ? {
+                  stroke: appearance.expandedBorderColor ?? 'var(--node-border)',
+                  strokeWidth: appearance.expandedBorderWidth,
+                }
               : {
                   fill: appearance.fillColor ?? 'var(--surface)',
                   stroke: appearance.borderEnabled
@@ -851,7 +863,7 @@ export default function Canvas(p: Props) {
                 };
             const shadow = !node.expanded && appearance.shadow ? 'url(#node-shadow)' : undefined;
             const fontSize = node.fontSize ?? settings.nodeFontSize;
-            const fontFamily = nodeFontFamilies[appearance.fontFamily];
+            const fontFamily = nodeFontStack(appearance);
             const lineSpacing = fontSize * appearance.lineHeight;
             const labelWidth = node.expanded
               ? node.width - 86

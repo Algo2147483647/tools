@@ -7,6 +7,8 @@ export type ContextAction = {
   run: () => void;
   disabled?: boolean;
   danger?: boolean;
+  group?: string;
+  shortcut?: string;
 };
 
 export default function ContextMenu({
@@ -14,11 +16,13 @@ export default function ContextMenu({
   y,
   actions,
   onClose,
+  title,
 }: {
   x: number;
   y: number;
   actions: ContextAction[];
   onClose: () => void;
+  title?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x, y });
@@ -77,21 +81,35 @@ export default function ContextMenu({
         }
       }}
     >
-      {actions.map((action) => (
-        <button
+      {title && (
+        <div className="context-menu-title" title={title}>
+          {title}
+        </div>
+      )}
+      {actions.map((action, index) => (
+        <div
           key={action.label}
-          type="button"
-          role="menuitem"
-          className={action.danger ? 'danger-item' : ''}
-          disabled={action.disabled}
-          onClick={() => {
-            dismiss();
-            action.run();
-          }}
+          className={
+            index > 0 && (action.group !== actions[index - 1].group || action.danger)
+              ? 'context-menu-divider'
+              : undefined
+          }
         >
-          <Icon name={action.icon} size={16} />
-          <span>{action.label}</span>
-        </button>
+          <button
+            type="button"
+            role="menuitem"
+            className={action.danger ? 'danger-item' : ''}
+            disabled={action.disabled}
+            onClick={() => {
+              dismiss();
+              action.run();
+            }}
+          >
+            <Icon name={action.icon} size={16} />
+            <span>{action.label}</span>
+            {action.shortcut && <kbd>{action.shortcut}</kbd>}
+          </button>
+        </div>
       ))}
     </div>
   );

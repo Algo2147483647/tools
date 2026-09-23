@@ -16,6 +16,7 @@
     "format:check": "prettier --check src server scripts tests examples docs *.ts *.json *.md index.html"
   },
   "dependencies": {
+    "elkjs": "^0.12.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

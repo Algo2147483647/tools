@@ -4,13 +4,64 @@ export interface Point {
 }
 export type Side = 'left' | 'right' | 'top' | 'bottom';
 export type NodeType = 'service' | 'terminal';
-export type NodeFontFamily = 'sans' | 'system' | 'serif' | 'mono';
-export const nodeFontFamilies: Record<NodeFontFamily, string> = {
+export const nodeFontFamilies = {
   sans: "'Manrope', 'Segoe UI', sans-serif",
   system: "system-ui, -apple-system, 'Segoe UI', sans-serif",
   serif: "Georgia, 'Times New Roman', serif",
   mono: "'SFMono-Regular', Consolas, 'Liberation Mono', monospace",
+  arial: 'Arial, Helvetica, sans-serif',
+  helvetica: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+  segoe: "'Segoe UI', Arial, sans-serif",
+  verdana: 'Verdana, Geneva, sans-serif',
+  tahoma: 'Tahoma, Verdana, sans-serif',
+  trebuchet: "'Trebuchet MS', Arial, sans-serif",
+  calibri: "Calibri, 'Segoe UI', sans-serif",
+  georgia: "Georgia, 'Times New Roman', serif",
+  times: "'Times New Roman', Times, serif",
+  palatino: "'Palatino Linotype', Palatino, Georgia, serif",
+  cambria: 'Cambria, Georgia, serif',
+  garamond: 'Garamond, Georgia, serif',
+  consolas: "Consolas, 'SFMono-Regular', monospace",
+  courier: "'Courier New', Courier, monospace",
+  menlo: 'Menlo, Monaco, Consolas, monospace',
+  yahei: "'Microsoft YaHei', 'PingFang SC', sans-serif",
+  pingfang: "'PingFang SC', 'Microsoft YaHei', sans-serif",
+  songti: "'Songti SC', SimSun, serif",
+  kaiti: 'KaiTi, STKaiti, serif',
+  custom: 'system-ui, sans-serif',
+} as const;
+export type NodeFontFamily = keyof typeof nodeFontFamilies;
+export const nodeFontLabels: Record<NodeFontFamily, string> = {
+  sans: 'Sans serif',
+  system: 'System',
+  serif: 'Serif (Georgia)',
+  mono: 'Monospace',
+  arial: 'Arial',
+  helvetica: 'Helvetica Neue',
+  segoe: 'Segoe UI',
+  verdana: 'Verdana',
+  tahoma: 'Tahoma',
+  trebuchet: 'Trebuchet MS',
+  calibri: 'Calibri',
+  georgia: 'Georgia',
+  times: 'Times New Roman',
+  palatino: 'Palatino',
+  cambria: 'Cambria',
+  garamond: 'Garamond',
+  consolas: 'Consolas',
+  courier: 'Courier New',
+  menlo: 'Menlo',
+  yahei: 'Microsoft YaHei',
+  pingfang: 'PingFang SC',
+  songti: 'Songti / SimSun',
+  kaiti: 'KaiTi',
+  custom: 'Custom font…',
 };
+export function nodeFontStack(appearance: NodeAppearance): string {
+  if (appearance.fontFamily === 'custom' && appearance.customFontFamily?.trim())
+    return `${JSON.stringify(appearance.customFontFamily.trim())}, system-ui, sans-serif`;
+  return nodeFontFamilies[appearance.fontFamily ?? 'sans'];
+}
 export interface NodeAppearance {
   fillColor?: string;
   borderColor?: string;
@@ -21,6 +72,9 @@ export interface NodeAppearance {
   shadowBlur?: number;
   shadowOffsetY?: number;
   fontFamily?: NodeFontFamily;
+  customFontFamily?: string;
+  expandedBorderColor?: string;
+  expandedBorderWidth?: number;
   fontColor?: string;
   fontWeight?: number;
   fontItalic?: boolean;
@@ -29,12 +83,16 @@ export interface NodeAppearance {
   cornerRadius: number;
 }
 export type ResolvedNodeAppearance = Required<
-  Omit<NodeAppearance, 'fillColor' | 'borderColor' | 'fontColor'>
+  Omit<NodeAppearance, 'fillColor' | 'borderColor' | 'fontColor' | 'expandedBorderColor' | 'customFontFamily'>
 > &
-  Pick<NodeAppearance, 'fillColor' | 'borderColor' | 'fontColor'>;
+  Pick<
+    NodeAppearance,
+    'fillColor' | 'borderColor' | 'fontColor' | 'expandedBorderColor' | 'customFontFamily'
+  >;
 export const defaultNodeAppearance: ResolvedNodeAppearance = {
   borderEnabled: true,
   borderWidth: 1.3,
+  expandedBorderWidth: 1.3,
   shadow: true,
   shadowOpacity: 0.32,
   shadowBlur: 5,
@@ -50,7 +108,7 @@ export function nodeAppearance(workspace: Workspace): ResolvedNodeAppearance {
 }
 export interface CanvasSettings {
   gridSize: number;
-  gridStyle: 'dots' | 'lines';
+  gridStyle: 'dots' | 'lines' | 'none';
   snapToGrid: boolean;
   nodeFontSize: number;
 }
@@ -236,6 +294,7 @@ export function validateWorkspace(data: unknown): Workspace {
       ['shadowBlur', 0, 24],
       ['shadowOffsetY', 0, 24],
       ['lineHeight', 1, 2],
+      ['expandedBorderWidth', 0, 12],
     ] as const)
       assert(
         style[field] === undefined ||
@@ -244,8 +303,15 @@ export function validateWorkspace(data: unknown): Workspace {
       );
     assert(
       style.fontFamily === undefined ||
-        ['sans', 'system', 'serif', 'mono'].includes(style.fontFamily as string),
+        (typeof style.fontFamily === 'string' && Object.hasOwn(nodeFontFamilies, style.fontFamily)),
       'invalid node fontFamily.',
+    );
+    assert(
+      style.customFontFamily === undefined ||
+        (typeof style.customFontFamily === 'string' &&
+          style.customFontFamily.length <= 120 &&
+          !/[\u0000-\u001f\u007f]/.test(style.customFontFamily)),
+      'invalid customFontFamily.',
     );
     assert(
       style.fontWeight === undefined ||
@@ -256,7 +322,7 @@ export function validateWorkspace(data: unknown): Workspace {
       'fontWeight must be a multiple of 100 from 100 to 900.',
     );
     assert(style.fontItalic === undefined || typeof style.fontItalic === 'boolean', 'invalid fontItalic.');
-    for (const field of ['fillColor', 'borderColor', 'fontColor'])
+    for (const field of ['fillColor', 'borderColor', 'fontColor', 'expandedBorderColor'])
       assert(
         style[field] === undefined ||
           (typeof style[field] === 'string' && /^#[0-9a-f]{6}$/i.test(style[field] as string)),
@@ -272,7 +338,7 @@ export function validateWorkspace(data: unknown): Workspace {
         (settings.gridSize as number) <= 128,
       'gridSize must be an integer from 8 to 128.',
     );
-    assert(settings.gridStyle === 'dots' || settings.gridStyle === 'lines', 'invalid gridStyle.');
+    assert(['dots', 'lines', 'none'].includes(settings.gridStyle as string), 'invalid gridStyle.');
     assert(typeof settings.snapToGrid === 'boolean', 'snapToGrid must be a boolean.');
     assert(
       finite(settings.nodeFontSize) && settings.nodeFontSize >= 12 && settings.nodeFontSize <= 48,

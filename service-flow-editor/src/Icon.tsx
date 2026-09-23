@@ -2,6 +2,9 @@ import type { CSSProperties } from 'react';
 
 const paths: Record<string, string> = {
   settings: 'M4 7h16 M4 17h16 M9 4v6 M16 14v6',
+  type: 'M4 5h16 M12 5v15 M8 20h8 M4 5v3 M20 5v3',
+  layout: 'M3 9h5v6H3z M16 3h5v6h-5z M16 15h5v6h-5z M8 12h4 M12 6v12 M12 6h4 M12 18h4',
+  more: 'M5 12h.01 M12 12h.01 M19 12h.01',
   present: 'M3 4h18v12H3z M12 16v5 M8 21h8 M10 7l5 3-5 3z',
   sidebar: 'M4 4h16v16H4z M9 4v16 M6 8h.01 M6 12h.01 M6 16h.01',
   'panel-left': 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M9 4v16',

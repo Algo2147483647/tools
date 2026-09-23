@@ -293,6 +293,12 @@ test('workspace node appearance and routing mode persist and reject malformed va
       { shadowOffsetY: -1 },
       { shadowOffsetY: Infinity },
       { fontFamily: 'unknown' },
+      { fontFamily: 'toString' },
+      { customFontFamily: 'Bad\nFont' },
+      { customFontFamily: 'x'.repeat(121) },
+      { expandedBorderWidth: -1 },
+      { expandedBorderWidth: 13 },
+      { expandedBorderColor: 'red' },
       { fontColor: 'red' },
       { fontWeight: 750 },
       { fontWeight: 1000 },
@@ -319,12 +325,16 @@ test('shadow and typography preferences survive a workspace save and reopen', as
       shadowOpacity: 0.55,
       shadowBlur: 8,
       shadowOffsetY: 10,
-      fontFamily: 'mono',
+      fontFamily: 'custom',
+      customFontFamily: 'Aptos',
+      expandedBorderWidth: 3.5,
+      expandedBorderColor: '#4599aa',
       fontColor: '#7c3aed',
       fontWeight: 500,
       fontItalic: true,
       lineHeight: 1.5,
     };
+    workspace.canvas = { ...canvasSettings(workspace), gridStyle: 'none' };
     await repository.save(directory, workspace);
     const reopened = await new WorkspaceRepository().open(directory);
     assert.deepEqual(nodeAppearance(reopened.workspace), workspace.nodeAppearance);

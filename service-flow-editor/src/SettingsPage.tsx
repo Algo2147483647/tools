@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Icon from './Icon';
 
-export default function SettingsPage({ children, onClose }: { children: ReactNode; onClose: () => void }) {
+type Section = 'canvas' | 'nodes' | 'typography';
+export default function SettingsPage({
+  children,
+  onClose,
+}: {
+  children: (section: Section) => ReactNode;
+  onClose: () => void;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [tab, setTab] = useState('canvas');
+  const [tab, setTab] = useState<Section | 'gestures'>('canvas');
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
@@ -32,14 +39,22 @@ export default function SettingsPage({ children, onClose }: { children: ReactNod
             <Icon name="grid" />
             Canvas
           </button>
+          <button className={tab === 'nodes' ? 'active' : ''} onClick={() => setTab('nodes')}>
+            <Icon name="node" />
+            Nodes
+          </button>
+          <button className={tab === 'typography' ? 'active' : ''} onClick={() => setTab('typography')}>
+            <Icon name="type" />
+            Typography
+          </button>
           <button className={tab === 'gestures' ? 'active' : ''} onClick={() => setTab('gestures')}>
             <Icon name="cursor" />
             Gestures
           </button>
         </nav>
         <div className="settings-scroll" key={tab}>
-          {tab === 'canvas' ? (
-            children
+          {tab !== 'gestures' ? (
+            children(tab)
           ) : (
             <section className="gesture-guide">
               <h3>Gestures</h3>
