@@ -811,7 +811,7 @@ button.danger:hover {
   stroke: var(--accent);
 }
 .flow-edge.projected .edge-line {
-  stroke-dasharray: 7 5;
+  stroke-dasharray: none;
 }
 .node-port .port-body {
   fill: var(--surface);

@@ -25,7 +25,9 @@ const disk = async (folder: string): Promise<Workspace> =>
 
 async function saved(page: Page) {
   await page.keyboard.press('Control+s');
-  await expect(page.locator('.save-status')).toContainText('All changes saved');
+  await expect(page.locator('.save-status')).toContainText(
+    /All changes saved|Presentation · changes are temporary/,
+  );
 }
 
 async function create(page: Page, folder: string) {
@@ -202,6 +204,187 @@ test('SVG geometry, editable paths, weights, documents, and renamed references s
   await selectEdge(page, edgeId);
   await expect(page.getByLabel('Flow weights')).toHaveValue('POST /entries\nOrderAccepted\napplication/json');
   expect(await disk(workspaceFolder)).toEqual(persisted);
+});
+
+test('depth controls, directional validation, chain highlighting and subtree moves work together', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await addService(page, 'Parent');
+  await enter(page, 'Parent');
+  await addService(page, 'Leaf');
+  await enter(page, 'Leaf');
+  await addService(page, 'Deep');
+  await page.locator('.breadcrumbs .crumb').first().click();
+  await addService(page, 'Source');
+  await addFlow(page, 'Source', 'Leaf', ['input']);
+  const original = await disk(workspaceFolder);
+  const expansion = page.getByRole('combobox', { name: 'Expand levels' });
+  await expansion.selectOption('1');
+  await expect(page.getByTestId('node-Leaf')).toBeVisible();
+  await expect(page.getByTestId('node-Deep')).toHaveCount(0);
+  await expansion.selectOption('2');
+  await expect(page.getByTestId('node-Deep')).toBeVisible();
+  await page.getByRole('button', { name: 'Validate', exact: true }).click();
+  await expect(page.getByTestId('node-Source')).toHaveAttribute('data-invalid', 'true');
+  await expect(page.getByTestId('node-Deep')).toHaveAttribute('data-invalid', 'true');
+  await expect(page.getByTestId('node-Parent')).not.toHaveAttribute('data-invalid');
+  await expect(page.getByTestId('node-Leaf')).not.toHaveAttribute('data-invalid');
+  await page.getByRole('button', { name: 'Validate', exact: true }).click();
+  await page.getByTestId('container-header-Leaf').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Highlight upstream and downstream' }).click();
+  await expect(page.getByTestId('node-Source')).toHaveAttribute('data-trace', 'upstream');
+  await expect(page.locator('.flow-edge').first()).toHaveAttribute('data-trace', 'upstream');
+  await page.getByRole('button', { name: 'Clear chain highlight' }).click();
+  await expansion.selectOption('0');
+  await expect(page.locator('.flow-edge.projected .edge-line')).toHaveCSS('stroke-dasharray', 'none');
+  await saved(page);
+  const collapsed = await disk(workspaceFolder);
+  expect(collapsed.nodes.map(({ expanded, ...node }) => node)).toEqual(
+    original.nodes.map(({ expanded, ...node }) => node),
+  );
+  await enter(page, 'Parent');
+  await page.getByTestId('node-Leaf').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Move to graph…' }).click();
+  const destination = page.getByRole('combobox', { name: 'Destination graph' });
+  await expect(destination.locator('option')).not.toContainText(['Inside Leaf', 'Inside Deep']);
+  await destination.selectOption({ label: 'Inside Source' });
+  await page.getByRole('button', { name: 'Move service', exact: true }).click();
+  await expect(page.locator('.breadcrumbs .crumb').last()).toHaveText('Source');
+  await saved(page);
+  let moved = await disk(workspaceFolder);
+  expect(moved.nodes.find((n) => n.key === 'Leaf')!.graphId).toBe(
+    moved.nodes.find((n) => n.key === 'Source')!.childGraphId,
+  );
+  expect(moved.edges[0].graphId).toBe(moved.rootGraphId);
+  await page.getByTestId('node-Leaf').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Move to graph…' }).click();
+  await destination.selectOption({ label: 'Root graph' });
+  await page.getByRole('button', { name: 'Move service', exact: true }).click();
+  await saved(page);
+  moved = await disk(workspaceFolder);
+  expect(moved.nodes.find((n) => n.key === 'Leaf')!.graphId).toBe(moved.rootGraphId);
+  expect(moved.nodes.find((n) => n.key === 'Deep')).toMatchObject({
+    ...original.nodes.find((n) => n.key === 'Deep')!,
+  });
+  expect(await readdir(workspaceFolder)).toContain('Leaf.md');
+  assertOrthogonal(moved);
+  await page.reload();
+  await open(page, workspaceFolder);
+  await expect(page.getByTestId('node-Leaf')).toBeVisible();
+});
+
+test('presentation writes neither workspace, documents nor preferences and restores the complete original', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await addService(page, 'Worker');
+  await addService(page, 'Source');
+  await addFlow(page, 'Source', 'Worker', ['original']);
+  await page.getByTestId('node-Worker').click();
+  await page.getByRole('button', { name: 'Document', exact: true }).click();
+  const notes = page.getByLabel('Service Markdown');
+  await notes.fill('# Worker\n\nOriginal notes.');
+  await saved(page);
+  const original = await disk(workspaceFolder);
+  const storage = await page.evaluate(() => ({ ...localStorage }));
+  const originalView = await page.locator('.graph-canvas > g').first().getAttribute('transform');
+  await page.getByRole('button', { name: 'Present', exact: true }).click();
+  await expect(page.locator('.save-status')).toContainText('Presentation');
+  const writes: string[] = [];
+  page.on('request', (request) => {
+    if (
+      (request.url().endsWith('/api/workspace/save') && request.method() === 'POST') ||
+      (request.url().endsWith('/api/document') && request.method() === 'PUT')
+    )
+      writes.push(request.url());
+  });
+  await expect(notes).toHaveValue('# Worker\n\nOriginal notes.');
+  await notes.fill('# Temporary notes');
+  await page.getByRole('button', { name: 'Properties', exact: true }).click();
+  await page.getByLabel('Service key', { exact: true }).fill('DemoWorker');
+  await page.getByLabel('Service key', { exact: true }).press('Enter');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
+  await settings.getByRole('radio', { name: 'White', exact: true }).check();
+  await settings.getByLabel('Default node font size (px)').fill('32');
+  await page.getByRole('button', { name: 'Close settings' }).click();
+  await page.locator('.sidebar-toggle').click();
+  await addService(page, 'Temporary');
+  await page.getByRole('combobox', { name: 'Expand levels' }).selectOption('all');
+  await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
+  await saved(page);
+  await page.waitForTimeout(800);
+  expect(writes).toEqual([]);
+  expect(await disk(workspaceFolder)).toEqual(original);
+  expect(await readFile(path.join(workspaceFolder, 'Worker.md'), 'utf8')).toBe('# Worker\n\nOriginal notes.');
+  expect(await readdir(workspaceFolder)).not.toContain('Temporary.md');
+  expect(await page.evaluate(() => ({ ...localStorage }))).toEqual(storage);
+  await page.getByRole('button', { name: 'Exit & restore', exact: true }).click();
+  await expect(page.getByTestId('node-Worker')).toBeVisible();
+  await expect(page.getByTestId('node-Temporary')).toHaveCount(0);
+  await expect(page.locator('.graph-canvas > g').first()).toHaveAttribute('transform', originalView!);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', storage['service-atlas-theme'] || 'ocean');
+  await expect(notes).toHaveValue('# Worker\n\nOriginal notes.');
+  expect(await disk(workspaceFolder)).toEqual(original);
+  expect(writes).toEqual([]);
+  // Normal saving resumes after leaving the sandbox.
+  await notes.fill('# Worker\n\nAfter presentation.');
+  await saved(page);
+  expect(await readFile(path.join(workspaceFolder, 'Worker.md'), 'utf8')).toContain('After presentation.');
+});
+
+test('touch pan, pinch, cancellation, double-tap and long press have separate intents', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await addService(page, 'TouchNode');
+  const protocol = await page.context().newCDPSession(page);
+  const touch = (
+    type: 'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel',
+    points: { x: number; y: number; id: number }[],
+  ) => protocol.send('Input.dispatchTouchEvent', { type, touchPoints: points });
+  const viewport = page.locator('.graph-canvas > g').first();
+  const original = await disk(workspaceFolder);
+  const before = await viewport.getAttribute('transform');
+  await touch('touchStart', [{ x: 900, y: 650, id: 1 }]);
+  await touch('touchMove', [{ x: 960, y: 700, id: 1 }]);
+  await touch('touchEnd', []);
+  await expect(viewport).not.toHaveAttribute('transform', before!);
+  await expect(page.locator('.zoom-controls > span')).toHaveText('100%');
+  await expect(page.getByTestId('selection-marquee')).toHaveCount(0);
+  const box = (await page.getByTestId('node-TouchNode').boundingBox())!;
+  const a = { x: box.x + box.width / 2, y: box.y + 30, id: 1 },
+    b = { x: a.x + 100, y: a.y + 100, id: 2 };
+  await touch('touchStart', [a]);
+  await touch('touchStart', [a, b]);
+  await touch('touchMove', [
+    { ...a, x: a.x - 30 },
+    { ...b, x: b.x + 50, y: b.y + 40 },
+  ]);
+  await touch('touchEnd', []);
+  await expect(page.locator('.zoom-controls > span')).not.toHaveText('100%');
+  expect(await disk(workspaceFolder)).toEqual(original);
+  await touch('touchStart', [{ x: 1000, y: 600, id: 1 }]);
+  await touch('touchCancel', []);
+  await page.mouse.move(1100, 700);
+  expect(await disk(workspaceFolder)).toEqual(original);
+  const moved = (await page.getByTestId('node-TouchNode').boundingBox())!;
+  const center = { x: moved.x + moved.width / 2, y: moved.y + moved.height / 2, id: 1 };
+  for (let i = 0; i < 2; i++) {
+    await touch('touchStart', [center]);
+    await touch('touchEnd', []);
+  }
+  await expect(page.getByTestId('node-TouchNode')).toHaveAttribute('data-expanded', 'true');
+  const header = (await page.getByTestId('container-header-TouchNode').boundingBox())!;
+  await touch('touchStart', [{ x: header.x + 60, y: header.y + 20, id: 1 }]);
+  await expect(page.getByRole('menu', { name: 'Canvas actions' })).toBeVisible();
+  await touch('touchEnd', []);
+  await expect(page.getByRole('menuitem', { name: 'Focus subgraph' })).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('touch-context-and-glass.png') });
 });
 
 test('three nested levels retain full editing, global uniqueness, and recursive document deletion', async ({
@@ -605,8 +788,8 @@ test('grid snapping, typography, and source / sink circles persist across nested
   workspaceFolder,
 }) => {
   await create(page, workspaceFolder);
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
-  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
   await settings.getByLabel('Snap to grid').check();
   await settings.getByLabel('Grid size (px)').fill('');
   await settings.getByLabel('Grid size (px)').pressSequentially('32');
@@ -724,8 +907,8 @@ test('floating panels leave a full viewport canvas and wheel gestures never zoom
   expect(await page.evaluate(() => devicePixelRatio)).toBe(browserBefore.ratio);
   await page.setViewportSize({ width: 650, height: 720 });
   expect(await canvas.boundingBox()).toEqual({ x: 0, y: 0, width: 650, height: 720 });
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
-  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
   await expect(settings).toBeInViewport();
   await settings.getByLabel('Grid pattern').selectOption('dots');
   await expect(page.getByTestId('grid-dots')).toBeAttached();
@@ -738,8 +921,8 @@ test('global collapsed-node appearance applies to rectangles, circles, nested gr
   await create(page, workspaceFolder);
   await addService(page, 'Worker');
   await addService(page, 'Traffic', 'terminal');
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
-  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
   await settings.getByLabel('Node fill color', { exact: true }).fill('#eff6ff');
   await settings.getByLabel('Node border color', { exact: true }).fill('#8b5cf6');
   await settings.getByLabel('Node border width (px)', { exact: true }).fill('4.5');
@@ -760,7 +943,7 @@ test('global collapsed-node appearance applies to rectangles, circles, nested gr
   await enter(page, 'Worker');
   await addService(page, 'Nested');
   await expect(page.getByTestId('node-Nested').locator('.node-body')).toHaveCSS('stroke-width', '4.5px');
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await settings.getByLabel('Show node borders', { exact: true }).uncheck();
   await settings.getByLabel('Show node borders', { exact: true }).press('Escape');
   await expect(page.getByTestId('node-Nested').locator('.node-body')).toHaveCSS('stroke', 'none');
@@ -783,7 +966,7 @@ test('global collapsed-node appearance applies to rectangles, circles, nested gr
   await expect(page.getByTestId('node-Worker')).toHaveAttribute('data-expanded', 'true');
   await expect(page.getByTestId('node-Nested').locator('.node-body')).toHaveCSS('fill', 'rgb(239, 246, 255)');
   await expect(worker).toHaveCSS('fill', 'none');
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await settings.getByRole('button', { name: 'Reset node appearance', exact: true }).click();
   await expect(settings.getByLabel('Show node borders')).toBeChecked();
   await expect(settings.getByLabel('Show node shadows')).toBeChecked();
@@ -810,8 +993,8 @@ test('visible black shadows and shared typography persist across nested graphs a
   await expect(shadow).toHaveAttribute('flood-opacity', '0.32');
   await page.mouse.move(1100, 800);
   await page.screenshot({ path: test.info().outputPath('default-shadow.png') });
-  const settings = page.getByRole('dialog', { name: 'Canvas settings', exact: true });
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await settings.getByLabel('Shadow opacity (%)', { exact: true }).fill('55');
   await settings.getByLabel('Shadow blur (px)', { exact: true }).fill('8');
   await settings.getByLabel('Shadow offset (px)', { exact: true }).fill('10');
@@ -865,7 +1048,7 @@ test('visible black shadows and shared typography persist across nested graphs a
   await expect(page.getByTestId('node-Traffic').locator('.node-key')).toHaveCSS('font-size', '28px');
   await page.mouse.move(1100, 800);
   await page.screenshot({ path: test.info().outputPath('custom-shadow-typography.png') });
-  await page.getByRole('button', { name: 'Canvas settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(settings.getByRole('combobox', { name: 'Node font weight', exact: true })).toHaveValue('500');
   await settings.getByRole('button', { name: 'Use theme font color', exact: true }).click();
   await expect(nested).not.toHaveCSS('fill', 'rgb(124, 58, 237)');

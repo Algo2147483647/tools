@@ -11,6 +11,8 @@ import {
   type SceneNode,
 } from './hierarchy';
 import Icon from './Icon';
+import type { FlowTrace } from './graphActions';
+import { pinchView, touchPair } from './gestures';
 
 export type SelectionItem = { type: 'node' | 'edge'; id: string };
 export type Selection = SelectionItem | null;
@@ -32,6 +34,8 @@ type Drag = {
   moved?: boolean;
 };
 type Props = {
+  invalidNodes?: Set<string>;
+  trace?: FlowTrace | null;
   workspace: Workspace;
   graphId: string;
   selection: Selection;
@@ -93,6 +97,28 @@ export default function Canvas(p: Props) {
   const [activeDrag, setActiveDrag] = useState(false);
   const [preview, setPreview] = useState<{ points: Point[]; targetId?: string } | null>(null);
   const [marquee, setMarquee] = useState<{ start: Point; end: Point } | null>(null);
+  const touches = useRef(new Map<number, Point>());
+  const touch = useRef<{
+    start: Point;
+    context: CanvasContext;
+    intent: Drag;
+    moved: boolean;
+    held: boolean;
+    action?: () => void;
+    pinch?: { view: View; center: Point; distance: number };
+    multi?: boolean;
+  } | null>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const lastTap = useRef({ id: '', time: 0 });
+  const suppressClickUntil = useRef(0);
+  function clearHold() {
+    clearTimeout(holdTimer.current);
+    holdTimer.current = undefined;
+  }
+  function setCanvasView(view: View) {
+    latest.current = { ...latest.current, view };
+    p.onView(view);
+  }
   const portSides: Side[] = ['left', 'right', 'top', 'bottom'];
   const { nodes, edges } = useMemo(() => scene(p.workspace, p.graphId), [p.workspace, p.graphId]);
   const shadowMargin = appearance.shadowBlur * 3 + appearance.shadowOffsetY + appearance.borderWidth + 2;
@@ -183,7 +209,13 @@ export default function Canvas(p: Props) {
       spaceHeld.current = false;
       setSpaceDown(false);
     };
-    const blur = () => releaseSpace();
+    const blur = () => {
+      releaseSpace();
+      clearHold();
+      touches.current.clear();
+      touch.current = null;
+      cancelDrag(true);
+    };
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', releaseSpace);
     window.addEventListener('blur', blur);
@@ -191,6 +223,7 @@ export default function Canvas(p: Props) {
       window.removeEventListener('keydown', keyDown);
       window.removeEventListener('keyup', releaseSpace);
       window.removeEventListener('blur', blur);
+      clearHold();
     };
   }, []);
   useEffect(() => {
@@ -212,19 +245,37 @@ export default function Canvas(p: Props) {
     const wheel = (event: WheelEvent) => {
       event.preventDefault();
       event.stopPropagation();
-      const delta =
-        event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientHeight : 1);
-      zoom(Math.exp(-delta * 0.001), event.clientX, event.clientY);
+      if (gestureActive || touches.current.size || drag.current) return;
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? element.clientHeight : 1;
+      if (event.ctrlKey || event.metaKey)
+        zoom(Math.exp(-event.deltaY * unit * 0.005), event.clientX, event.clientY);
+      else {
+        const current = latest.current;
+        const view = {
+          ...current.view,
+          x: current.view.x - event.deltaX * unit,
+          y: current.view.y - event.deltaY * unit,
+        };
+        latest.current = { ...current, view };
+        current.onView(view);
+      }
     };
     let gestureScale = 1;
+    let gestureActive = false;
     const gesture = (event: Event) => {
       event.preventDefault();
       const pinch = event as Event & { scale: number; clientX: number; clientY: number };
-      if (event.type === 'gesturestart') gestureScale = 1;
+      event.stopPropagation();
+      if (touches.current.size) return;
+      if (event.type === 'gesturestart') {
+        gestureScale = 1;
+        gestureActive = true;
+      }
       if (event.type === 'gesturechange' && pinch.scale > 0) {
         zoom(pinch.scale / gestureScale, pinch.clientX, pinch.clientY);
         gestureScale = pinch.scale;
       }
+      if (event.type === 'gestureend') gestureActive = false;
     };
     element.addEventListener('wheel', wheel, { passive: false });
     for (const type of ['gesturestart', 'gesturechange', 'gestureend'])
@@ -391,6 +442,147 @@ export default function Canvas(p: Props) {
       });
     }
   }
+  function startTouch(e: ReactPointerEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    clearHold();
+    suppressClickUntil.current = Date.now() + 1000;
+    const rect = svg.current!.getBoundingClientRect();
+    touches.current.set(e.pointerId, { x: e.clientX - rect.left, y: e.clientY - rect.top });
+    svg.current!.setPointerCapture(e.pointerId);
+    if (touches.current.size >= 2) {
+      cancelDrag();
+      if (touch.current) {
+        touch.current.multi = true;
+        touch.current.pinch = { view: latest.current.view, ...touchPair([...touches.current.values()]) };
+      }
+      return;
+    }
+    const context = contextAt(e),
+      element = e.target as Element;
+    const node = nodes.find((node) => node.id === context.target?.id);
+    const port = element.closest('[data-side]')?.getAttribute('data-side') as Side | null;
+    const segment = element.closest('[data-segment]')?.getAttribute('data-segment');
+    const edgeId = element.closest('[data-edge-id]')?.getAttribute('data-edge-id');
+    const edge = edges.find((edge) => edge.id === edgeId);
+    const body = !node?.expanded || !!element.closest('.container-header, .node-key');
+    let intent: Drag = { type: 'pan', id: '', start: { x: e.clientX, y: e.clientY }, view: p.view };
+    if (node && port) intent = { type: 'connect', id: node.id, start: point(e), node, side: port };
+    else if (node && element.closest('.resize-handle'))
+      intent = { type: 'resize', id: node.id, start: point(e), node };
+    else if (edge && segment != null)
+      intent = {
+        type: 'segment',
+        id: edge.id,
+        index: Number(segment),
+        start: point(e),
+        edge: structuredClone(edge),
+      };
+    else if (node && body)
+      intent = {
+        type: 'node',
+        id: node.id,
+        start: point(e),
+        node,
+        nodes: isSelected('node', node.id) ? movableNodes(selections) : [node],
+      };
+    const tapAction =
+      node && element.closest('.container-collapse')
+        ? () => p.onEnter(node.base)
+        : node && element.closest('.container-add')
+          ? () => p.onAddInside?.(node.base)
+          : undefined;
+    touch.current = {
+      start: { x: e.clientX, y: e.clientY },
+      context,
+      intent,
+      moved: false,
+      held: false,
+      action: tapAction,
+    };
+    holdTimer.current = setTimeout(() => {
+      if (!touch.current || touch.current.moved || touch.current.multi) return;
+      touch.current.held = true;
+      lastTap.current = { id: '', time: 0 };
+      latest.current.onContextMenu(context);
+    }, 550);
+  }
+  function moveTouch(e: ReactPointerEvent) {
+    e.preventDefault();
+    if (!touches.current.has(e.pointerId) || !touch.current) return;
+    const rect = svg.current!.getBoundingClientRect();
+    touches.current.set(e.pointerId, { x: e.clientX - rect.left, y: e.clientY - rect.top });
+    const current = touch.current;
+    if (current.multi) {
+      if (touches.current.size < 2 || !current.pinch) return;
+      const pair = touchPair([...touches.current.values()]);
+      setCanvasView(
+        pinchView(
+          current.pinch.view,
+          current.pinch.center,
+          pair.center,
+          pair.distance / current.pinch.distance,
+        ),
+      );
+      return;
+    }
+    if (current.held || current.action) return;
+    if (!current.moved) {
+      if (Math.hypot(e.clientX - current.start.x, e.clientY - current.start.y) < 8) return;
+      clearHold();
+      current.moved = true;
+      drag.current = current.intent;
+      setActiveDrag(true);
+      if (current.intent.type !== 'pan') {
+        p.onGestureStart?.();
+        if (current.context.target && !isSelected(current.context.target.type, current.context.target.id))
+          selectItem(current.context.target);
+      }
+    }
+    pointerMove(e);
+  }
+  function finishTouch(e: ReactPointerEvent, canceled = false) {
+    e.preventDefault();
+    e.stopPropagation();
+    clearHold();
+    suppressClickUntil.current = Date.now() + 700;
+    const current = touch.current;
+    touches.current.delete(e.pointerId);
+    if (canceled) {
+      touches.current.clear();
+      touch.current = null;
+      cancelDrag(true);
+      return;
+    }
+    if (current && !current.multi && !current.held) {
+      if (!current.moved) {
+        const target = current.context.target;
+        if (current.action) current.action();
+        else if (
+          target?.type === 'node' &&
+          current.intent.type === 'node' &&
+          lastTap.current.id === target.id &&
+          Date.now() - lastTap.current.time < 350
+        ) {
+          const node = nodes.find((node) => node.id === target.id);
+          if (node) p.onEnter(node.base);
+          lastTap.current = { id: '', time: 0 };
+        } else {
+          p.onSelect(target);
+          lastTap.current = {
+            id: current.intent.type === 'node' ? (target?.id ?? '') : '',
+            time: Date.now(),
+          };
+        }
+      } else if (drag.current?.type === 'connect') {
+        const target = targetAt(point(e));
+        if (target && (target.node.id !== drag.current.id || target.side !== drag.current.side))
+          p.onConnect(drag.current.node!.base, target.node.base, drag.current.side!, target.side);
+      }
+    }
+    cancelDrag();
+    if (!touches.current.size) touch.current = null;
+  }
   return (
     <div
       ref={wrapper}
@@ -408,6 +600,10 @@ export default function Canvas(p: Props) {
         aria-label="Service graph canvas"
         tabIndex={0}
         onPointerDownCapture={(e) => {
+          if (e.pointerType === 'touch') {
+            startTouch(e);
+            return;
+          }
           suppressContextMenu.current = e.button === 2;
           if (e.button === 2 || e.button === 1 || (e.button === 0 && spaceHeld.current))
             begin(e, {
@@ -424,8 +620,12 @@ export default function Canvas(p: Props) {
             beginMarquee(e);
           }
         }}
-        onPointerMove={pointerMove}
+        onPointerMove={(e) => (e.pointerType === 'touch' ? moveTouch(e) : pointerMove(e))}
         onPointerUp={(e) => {
+          if (e.pointerType === 'touch') {
+            finishTouch(e);
+            return;
+          }
           const current = drag.current;
           if (current?.type === 'pan' && current.context && !current.moved) p.onContextMenu(current.context);
           if (current?.type === 'connect') {
@@ -443,8 +643,22 @@ export default function Canvas(p: Props) {
           const capture = e.target as Element;
           if (capture.hasPointerCapture?.(e.pointerId)) capture.releasePointerCapture(e.pointerId);
         }}
-        onPointerCancel={() => cancelDrag(true)}
-        onLostPointerCapture={() => cancelDrag()}
+        onPointerCancel={(e) => (e.pointerType === 'touch' ? finishTouch(e, true) : cancelDrag(true))}
+        onLostPointerCapture={(e) => {
+          if (e.pointerType !== 'touch') cancelDrag();
+        }}
+        onClickCapture={(e) => {
+          if (Date.now() < suppressClickUntil.current) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+        onDoubleClickCapture={(e) => {
+          if (Date.now() < suppressClickUntil.current) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
         onKeyDown={(e) => {
           if (!(e.ctrlKey || e.metaKey) || !['+', '=', '-', '0'].includes(e.key)) return;
           e.preventDefault();
@@ -490,10 +704,10 @@ export default function Canvas(p: Props) {
               />
             )}
           </pattern>
-          {[false, true].map((selected) => (
+          {['', 'selected', 'upstream', 'downstream', 'both', 'focus'].map((kind) => (
             <marker
-              key={String(selected)}
-              id={`arrow${selected ? '-selected' : ''}`}
+              key={kind}
+              id={`arrow${kind ? `-${kind}` : ''}`}
               viewBox="0 0 10 10"
               refX={9}
               refY="5"
@@ -505,7 +719,9 @@ export default function Canvas(p: Props) {
               <path
                 d="M1 1 9 5 1 9"
                 fill="none"
-                stroke={selected ? 'var(--accent)' : 'var(--edge-color)'}
+                stroke={
+                  !kind ? 'var(--edge-color)' : kind === 'selected' ? 'var(--accent)' : `var(--trace-${kind})`
+                }
                 strokeWidth="1.7"
                 strokeLinejoin="round"
               />
@@ -547,6 +763,7 @@ export default function Canvas(p: Props) {
             ))}
           {edges.map((edge) => {
             const selected = isSelected('edge', edge.id);
+            const trace = p.trace?.edges.get(edge.id);
             let mid = { x: 0, y: 0 };
             let longest = -1;
             for (let i = 0; i < edge.points.length - 1; i++) {
@@ -564,7 +781,8 @@ export default function Canvas(p: Props) {
                 key={edge.id}
                 data-testid={`edge-${edge.id}`}
                 data-edge-id={edge.id}
-                className={`flow-edge ${selected ? 'selected' : ''} ${edge.projected ? 'projected' : ''}`}
+                className={`flow-edge ${selected ? 'selected' : ''} ${edge.projected ? 'projected' : ''} ${p.trace && !trace ? 'trace-muted' : ''}`}
+                data-trace={trace}
                 data-projected={edge.projected || undefined}
                 onPointerDown={(e) => {
                   e.stopPropagation();
@@ -586,7 +804,7 @@ export default function Canvas(p: Props) {
                   className="edge-line"
                   d={roundedPath(edge.points)}
                   fill="none"
-                  markerEnd={`url(#arrow${selected ? '-selected' : ''})`}
+                  markerEnd={`url(#arrow${trace ? `-${trace}` : selected ? '-selected' : ''})`}
                 />
                 {label && (
                   <g className="edge-label" transform={`translate(${mid.x} ${mid.y - 15})`}>
@@ -618,6 +836,8 @@ export default function Canvas(p: Props) {
             />
           )}
           {nodes.map((node) => {
+            const trace = p.trace?.nodes.get(node.id);
+            const invalid = p.invalidNodes?.has(node.id);
             const circular = node.type === 'terminal' && !node.expanded;
             const radius = node.expanded ? 12 : Math.min(node.width, node.height) * appearance.cornerRadius;
             const bodyStyle = node.expanded
@@ -661,7 +881,9 @@ export default function Canvas(p: Props) {
                 data-node-type={node.type ?? 'service'}
                 data-expanded={node.expanded || undefined}
                 data-depth={node.depth}
-                className={`service-node ${node.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${preview?.targetId === node.id ? 'connecting' : ''}`}
+                className={`service-node ${node.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${preview?.targetId === node.id ? 'connecting' : ''} ${p.trace && !trace ? 'trace-muted' : ''}`}
+                data-trace={trace}
+                data-invalid={invalid || undefined}
                 transform={`translate(${node.x} ${node.y})`}
                 onPointerDown={(e) => {
                   if (e.button !== 0) return;
@@ -829,6 +1051,7 @@ export default function Canvas(p: Props) {
                       key={side}
                       className="node-port"
                       data-testid={`port-${node.key}-${side}`}
+                      data-side={side}
                       role="button"
                       aria-label={`${node.key} ${side} anchor${degree !== null ? `, ${degree} ${side === 'left' ? 'incoming' : 'outgoing'} flows` : ''}`}
                       transform={`translate(${center.x} ${center.y})`}
@@ -888,6 +1111,7 @@ export default function Canvas(p: Props) {
                     <rect
                       key={index}
                       data-testid={`segment-${index}`}
+                      data-segment={index}
                       className="segment-handle"
                       x={(a.x + b.x) / 2 - 5}
                       y={(a.y + b.y) / 2 - 5}

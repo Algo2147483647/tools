@@ -175,7 +175,7 @@ Expansion controls visible representatives without changing endpoint identity or
 | Endpoint visibility                                         | Display rule                                                                                                                             |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | Both true endpoints are visible                             | Draw a solid directed flow between their actual anchors.                                                                                 |
-| One or both endpoints are hidden by collapsed containers    | Draw a dashed proxy flow between their visible representatives. Keep the true endpoint names available in flow details.                  |
+| One or both endpoints are hidden by collapsed containers    | Draw a solid proxy flow between their visible representatives. Keep the true endpoint names available in flow details.                   |
 | Both endpoints resolve to the same collapsed representative | Hide the flow; it is internal to that container. A visible node's own self loop remains visible.                                         |
 | Expanding a previously collapsed ancestor                   | Replace its proxy attachment with the newly visible endpoint or next visible collapsed descendant, without changing stored endpoint IDs. |
 

@@ -1,4 +1,5 @@
 export const themes = [
+  { id: 'white', name: 'White', color: '#ffffff' },
   { id: 'ocean', name: 'Ocean', color: '#215fca' },
   { id: 'violet', name: 'Violet', color: '#6b32c8' },
   { id: 'amber', name: 'Amber', color: '#9e590a' },

@@ -42,6 +42,21 @@
   --accent-hover-lightness: 26%;
 }
 
+:root[data-theme='white'] {
+  --theme-hue: 220;
+  --theme-saturation: 0%;
+  --accent-lightness: 25%;
+  --accent-hover-lightness: 14%;
+  --canvas-bg: #fff;
+  --surface-subtle: #fafafa;
+  --grid-color: #e1e1e1;
+  --text: #242424;
+  --text-muted: #646464;
+  --border: #e2e2e2;
+  --node-border: #cecece;
+  --edge-color: #888;
+}
+
 :root {
   color-scheme: light;
   --accent: hsl(var(--theme-hue) var(--theme-saturation) var(--accent-lightness));

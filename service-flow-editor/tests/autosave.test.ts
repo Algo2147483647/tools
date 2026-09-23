@@ -46,7 +46,36 @@ test('edits made during a save are serialized with the acknowledged revision', a
     savedAt: 'second-save',
     canUndo: true,
     canRedo: false,
+    presentation: false,
   });
+});
+
+test('presentation isolates edits, undo, flush and restores the original history without writes', async () => {
+  const requests: Document[] = [];
+  const controller = new AutosaveController<Document>(async (workspace) => {
+    requests.push(workspace);
+    return { workspace: { ...workspace, revision: workspace.revision + 1 }, savedAt: 'saved' };
+  }, 1);
+  controller.load({ revision: 0, label: 'initial' });
+  controller.change((workspace) => ({ ...workspace, label: 'real edit' }));
+  assert.throws(() => controller.enterPresentation(), /pending edits/);
+  await controller.flush();
+  const original = controller.getSnapshot();
+  controller.enterPresentation();
+  controller.change((workspace) => ({ ...workspace, label: 'temporary' }));
+  controller.undo();
+  controller.redo();
+  await controller.flush();
+  controller.retry();
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(requests.length, 1);
+  assert.equal(controller.getSnapshot().workspace!.label, 'temporary');
+  assert.throws(() => controller.load(null), /Exit presentation/);
+  controller.exitPresentation();
+  assert.deepEqual(controller.getSnapshot(), original);
+  controller.undo();
+  await controller.flush();
+  assert.equal(requests.at(-1)!.label, 'initial');
 });
 
 test('failure retains every edit, refuses replacement, and requires explicit retry', async () => {

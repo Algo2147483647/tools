@@ -98,38 +98,35 @@ type GraphLayout = { nodes: DisplayNode[]; bounds: Bounds };
  * This is a coordinate transform, not a collision solver: no node is clamped or
  * repeatedly pushed away during a drag, and baseline overlaps remain untouched. */
 function expansionOffsets(nodes: DisplayNode[], workspace: Workspace) {
-  const expansions = nodes
-    .filter((node) => node.expanded)
-    .map((node) => ({
-      base: node.base,
-      left: Math.max(0, node.base.x - node.x),
-      top: Math.max(0, node.base.y - node.y),
-      right: Math.max(0, node.x + node.width - node.base.x - node.base.width),
-      bottom: Math.max(0, node.y + node.height - node.base.y - node.base.height),
-    }));
-  if (!expansions.length) return;
+  if (!nodes.some((node) => node.expanded)) return;
   const settings = canvasSettings(workspace);
   const outward = (value: number) =>
     settings.snapToGrid
       ? Math.sign(value) * Math.ceil(Math.abs(value) / settings.gridSize) * settings.gridSize
       : value;
-  for (const node of nodes) {
-    let dx = 0,
-      dy = 0;
-    for (const expansion of expansions) {
-      const other = expansion.base;
-      if (other.id === node.id) continue;
-      if (node.base.x >= other.x + other.width) dx += expansion.right;
-      else if (node.base.x + node.base.width <= other.x) dx -= expansion.left;
-      else if (node.base.y >= other.y + other.height) dy += expansion.bottom;
-      else if (node.base.y + node.base.height <= other.y) dy -= expansion.top;
+  // Solve ordered spacing constraints using the greatest necessary displacement.
+  // Parallel rows share clearance instead of adding their growth repeatedly.
+  // Unrelated rows/columns and intentional baseline overlaps remain undisturbed.
+  const overlaps = (a: number, sizeA: number, b: number, sizeB: number) => a < b + sizeB && b < a + sizeA;
+  for (const axis of ['x', 'y'] as const) {
+    const size = axis === 'x' ? 'width' : 'height';
+    const cross = axis === 'x' ? 'y' : 'x';
+    const crossSize = axis === 'x' ? 'height' : 'width';
+    const ordered = [...nodes].sort((a, b) => a.base[axis] - b.base[axis] || a.id.localeCompare(b.id));
+    for (let i = 0; i < ordered.length; i++) {
+      const node = ordered[i];
+      let shift = 0;
+      for (const other of ordered.slice(0, i)) {
+        const gap = node.base[axis] - other.base[axis] - other.base[size];
+        if (gap < 0 || !overlaps(node[cross], node[crossSize], other[cross], other[crossSize])) continue;
+        const growth = other[axis] + other[size] - other.base[axis] - other.base[size];
+        const before = Math.max(0, node.base[axis] - node[axis]);
+        shift = Math.max(shift, growth + before);
+      }
+      shift = outward(Math.max(0, shift));
+      node[axis] += shift;
+      node.childOrigin[axis] += shift;
     }
-    dx = outward(dx);
-    dy = outward(dy);
-    node.x += dx;
-    node.y += dy;
-    node.childOrigin.x += dx;
-    node.childOrigin.y += dy;
   }
 }
 

@@ -4,6 +4,7 @@ import {
   createWorkspace,
   edgeGraphId,
   removeNode,
+  validateWorkspace,
   type FlowEdge,
   type ServiceNode,
   type Workspace,
@@ -22,6 +23,8 @@ import {
   updateNodeGeometry,
   updateNodesGeometry,
 } from '../src/hierarchy';
+import { expandToDepth, graphDepths, moveDestinations, moveToGraph, traceFlows } from '../src/graphActions';
+import { pinchView } from '../src/gestures';
 
 function addNode(workspace: Workspace, key: string, graphId = 'root', x = 0, y = 0): ServiceNode {
   const node: ServiceNode = {
@@ -71,6 +74,113 @@ function assertSeparate(a: ServiceNode, b: ServiceNode) {
     `${a.key} and ${b.key} must not overlap`,
   );
 }
+
+test('depth expansion is scoped to the focused graph and makes deeper states deterministic', () => {
+  const { workspace, parent, child, deep, sibling } = fixture();
+  let next = expandToDepth(workspace, 'root', 2);
+  assert.equal(next.nodes.find((n) => n.id === parent.id)!.expanded, true);
+  assert.equal(next.nodes.find((n) => n.id === child.id)!.expanded, true);
+  assert.equal(next.nodes.find((n) => n.id === deep.id)!.expanded, false);
+  next = expandToDepth(next, parent.childGraphId, 0);
+  assert.equal(next.nodes.find((n) => n.id === parent.id)!.expanded, true);
+  assert.equal(
+    next.nodes.find((n) => n.id === sibling.id)!.expanded,
+    false,
+    'empty graphs do not add blank containers',
+  );
+  assert.equal(next.nodes.find((n) => n.id === child.id)!.expanded, false);
+  assert.equal(graphDepths(workspace, 'root').get(deep.id), 3);
+  assert.deepEqual(
+    next.nodes.map(({ expanded, ...n }) => n),
+    workspace.nodes,
+  );
+});
+
+test('parallel expansion rows share clearance and leave remote rows unchanged', () => {
+  const workspace = createWorkspace('Rows');
+  const a = addNode(workspace, 'A', 'root', 0, 0);
+  const b = addNode(workspace, 'B', 'root', 0, 300);
+  const nextA = addNode(workspace, 'NextA', 'root', 300, 0);
+  const nextB = addNode(workspace, 'NextB', 'root', 300, 300);
+  const remote = addNode(workspace, 'Remote', 'root', 300, 1200);
+  addNode(workspace, 'AChild', a.childGraphId).width = 400;
+  addNode(workspace, 'BChild', b.childGraphId).width = 400;
+  const expanded = expandToDepth(workspace, 'root', 1);
+  // Only the two populated containers need to expand for this spacing check.
+  for (const node of expanded.nodes) if (![a.id, b.id].includes(node.id)) node.expanded = false;
+  const view = scene(expanded, 'root');
+  for (const [left, right] of [
+    [a, nextA],
+    [b, nextB],
+  ]) {
+    const before = view.nodes.find((n) => n.id === left.id)!,
+      after = view.nodes.find((n) => n.id === right.id)!;
+    assertSeparate(before, after);
+    assert.equal(after.x, 604, 'growth from the other row must not be added');
+    assert.equal(after.y, right.y);
+  }
+  assert.equal(view.nodes.find((n) => n.id === remote.id)!.x, remote.x);
+});
+
+test('reparenting preserves identities, child coordinates and valid cross-level edge owners', () => {
+  const { workspace, parent, child, deep, sibling } = fixture();
+  addEdge(workspace, sibling, deep);
+  addEdge(workspace, child, deep);
+  addEdge(workspace, parent, child);
+  const original = rerouteEdges(workspace);
+  assert.ok(!moveDestinations(original, parent.id).some((g) => g.id === deep.childGraphId));
+  assert.throws(() => moveToGraph(original, parent.id, child.childGraphId), /descendants/);
+  const nested = moveToGraph(original, child.id, sibling.childGraphId);
+  validateWorkspace(nested);
+  assert.deepEqual(
+    nested.nodes.find((n) => n.id === deep.id),
+    deep,
+  );
+  assert.deepEqual(
+    nested.nodes.map((n) => [n.id, n.key, n.childGraphId]),
+    original.nodes.map((n) => [n.id, n.key, n.childGraphId]),
+  );
+  const root = moveToGraph(nested, child.id, 'root');
+  validateWorkspace(root);
+  for (const edge of root.edges) {
+    assert.ok(isOrthogonal(edge.points));
+    assert.deepEqual(
+      edge.points[0],
+      anchor(canonicalNode(root, edge.sourceNodeId!, edge.graphId), edge.sourceSide),
+    );
+    assert.deepEqual(
+      edge.points.at(-1),
+      anchor(canonicalNode(root, edge.targetNodeId!, edge.graphId), edge.targetSide),
+    );
+  }
+  assert.equal(original.nodes.find((n) => n.id === child.id)!.graphId, parent.childGraphId);
+});
+
+test('degree validation flows up only, and tracing does not invent paths through ancestors', () => {
+  const { workspace, parent, child, deep, sibling } = fixture();
+  addEdge(workspace, sibling, parent);
+  assert.equal(nodeDegrees(workspace).get(child.id)!.incoming, 0);
+  assert.equal(nodeDegrees(workspace).get(parent.id)!.incoming, 1);
+  assert.equal(traceFlows(workspace, child.id).nodes.has(sibling.id), false);
+  addEdge(workspace, sibling, deep);
+  addEdge(workspace, deep, child);
+  const trace = traceFlows(workspace, deep.id);
+  assert.equal(trace.nodes.get(sibling.id), 'upstream');
+  assert.equal(trace.nodes.get(child.id), 'downstream');
+  assert.equal(nodeDegrees(workspace).get(parent.id)!.incoming, 3);
+  assert.equal(nodeDegrees(workspace).get(deep.id)!.incoming, 1);
+  addEdge(workspace, child, deep);
+  assert.equal(traceFlows(workspace, deep.id).nodes.get(child.id), 'both');
+});
+
+test('pinch preserves the world point under the centroid and clamps zoom without jumping', () => {
+  const view = { x: 40, y: 60, scale: 1 };
+  const next = pinchView(view, { x: 200, y: 200 }, { x: 250, y: 230 }, 2);
+  assert.deepEqual(next, { x: -70, y: -50, scale: 2 });
+  const clamped = pinchView(view, { x: 200, y: 200 }, { x: 200, y: 200 }, 100);
+  assert.equal(clamped.scale, 2.5);
+  assert.equal((200 - clamped.x) / clamped.scale, 160);
+});
 
 test('repeated nested expansion changes only flags, never baseline nodes, routes, or sibling coordinates', () => {
   const { workspace, parent, child, sibling, deep } = fixture();

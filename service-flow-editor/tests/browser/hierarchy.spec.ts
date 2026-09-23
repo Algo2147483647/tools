@@ -286,7 +286,7 @@ test('cross-level flows preserve real endpoints through collapse, reopening, ren
   await expect(page.getByTestId('node-Worker')).toHaveCount(0);
   await expect(page.getByTestId('edge-storage')).toHaveCount(0);
   await expect(edge).toHaveClass(/projected/);
-  await expect(edge.locator('.edge-line')).toHaveCSS('stroke-dasharray', '7px, 5px');
+  await expect(edge.locator('.edge-line')).toHaveCSS('stroke-dasharray', 'none');
   await expect(edge.locator('title').first()).toContainText('Client → Worker');
   await selectEdge(page, cross.id);
   await expect(page.locator('.edge-handles')).toHaveCount(0);

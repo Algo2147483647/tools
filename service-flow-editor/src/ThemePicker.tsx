@@ -2,13 +2,22 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } f
 import Icon from './Icon';
 import { applyTheme, readTheme, saveTheme, themes, themeStorageKey, type ThemeId } from './theme';
 
-export default function ThemePicker() {
+export default function ThemePicker({
+  value,
+  onChange,
+  inline = false,
+}: {
+  value?: ThemeId;
+  onChange?: (id: ThemeId) => void;
+  inline?: boolean;
+}) {
   const [theme, setTheme] = useState<ThemeId>(readTheme);
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const options = useRef<(HTMLButtonElement | null)[]>([]);
-  const current = themes.find((item) => item.id === theme)!;
+  const selected = value ?? theme;
+  const current = themes.find((item) => item.id === selected)!;
 
   useEffect(() => {
     function sync(event: StorageEvent) {
@@ -33,7 +42,8 @@ export default function ThemePicker() {
 
   function choose(id: ThemeId) {
     setTheme(id);
-    saveTheme(id);
+    if (onChange) onChange(id);
+    else saveTheme(id);
     setOpen(false);
     trigger.current?.focus();
   }
@@ -57,6 +67,25 @@ export default function ThemePicker() {
     event.stopPropagation();
   }
 
+  if (inline)
+    return (
+      <fieldset className="theme-grid">
+        <legend>Color theme</legend>
+        {themes.map((item) => (
+          <label key={item.id} className={selected === item.id ? 'active' : ''}>
+            <input
+              type="radio"
+              name="theme"
+              value={item.id}
+              checked={selected === item.id}
+              onChange={() => choose(item.id)}
+            />
+            <span className="theme-swatch" style={{ '--swatch': item.color } as CSSProperties} />
+            {item.name}
+          </label>
+        ))}
+      </fieldset>
+    );
   return (
     <div
       className="theme-picker"

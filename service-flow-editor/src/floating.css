@@ -33,19 +33,31 @@
 }
 .workspace-open .topbar {
   position: absolute;
-  top: 12px;
+  top: 0;
   left: 12px;
   right: 12px;
   z-index: 40;
   min-height: 60px;
   padding: 10px 14px;
   gap: 10px;
+  border-top: 0;
+  border-radius: 0 0 20px 20px;
+  background:
+    linear-gradient(135deg, #ffffffa3, #ffffff38 48%, #ffffff80), hsl(var(--theme-hue) 30% 97% / 0.22);
+  -webkit-backdrop-filter: blur(30px) saturate(185%) contrast(1.05);
+  backdrop-filter: blur(30px) saturate(185%) contrast(1.05);
+  box-shadow:
+    0 6px 24px #1629441a,
+    inset 1px 0 0 #ffffffd9,
+    inset -1px 0 0 #ffffffa6,
+    inset 0 -1px 1px #ffffffed;
 }
 .workspace-open > .sidebar,
 .workspace-open .inspector {
   position: absolute;
-  top: calc(var(--toolbar-height) + 24px);
-  bottom: 16px;
+  top: calc(var(--toolbar-height) + 12px);
+  bottom: 0;
+  border-radius: 16px 16px 0 0;
   height: auto;
   z-index: 20;
 }

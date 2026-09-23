@@ -11,6 +11,7 @@ export interface AutosaveSnapshot<T> {
   savedAt: string | null;
   canUndo: boolean;
   canRedo: boolean;
+  presentation: boolean;
 }
 
 export interface ChangeOptions {
@@ -35,6 +36,7 @@ export class AutosaveController<T extends { revision: number }> {
     savedAt: null,
     canUndo: false,
     canRedo: false,
+    presentation: false,
   };
   private listeners = new Set<() => void>();
   private sequence = 0;
@@ -47,6 +49,38 @@ export class AutosaveController<T extends { revision: number }> {
   private groupedChange = false;
   private lastHistoryKey: string | undefined;
   private lastChangeAt = 0;
+  private original: { snapshot: AutosaveSnapshot<T>; past: T[]; future: T[] } | null = null;
+
+  /** Enter only after all real edits have been flushed. Temporary edits never reach save(). */
+  enterPresentation = (): T | null => {
+    if (this.snapshot.presentation) return this.original!.snapshot.workspace;
+    if (this.active || this.sequence !== this.savedSequence || this.snapshot.error)
+      throw new Error('Save pending edits before entering presentation mode.');
+    this.endHistoryGroup();
+    this.original = { snapshot: this.snapshot, past: this.past, future: this.future };
+    this.past = [];
+    this.future = [];
+    this.emit({
+      workspace: structuredClone(this.snapshot.workspace),
+      presentation: true,
+      canUndo: false,
+      canRedo: false,
+    });
+    return this.original.snapshot.workspace;
+  };
+
+  exitPresentation = (): void => {
+    if (!this.original) return;
+    this.cancelTimer();
+    const { snapshot, past, future } = this.original;
+    this.original = null;
+    this.past = past;
+    this.future = future;
+    this.grouping = false;
+    this.groupedChange = false;
+    this.lastHistoryKey = undefined;
+    this.emit(snapshot);
+  };
 
   constructor(
     private readonly save: (workspace: T) => Promise<SaveResult<T>>,
@@ -73,6 +107,7 @@ export class AutosaveController<T extends { revision: number }> {
 
   /** Call only after flush(): replacement must never discard pending edits. */
   load(workspace: T | null) {
+    if (this.snapshot.presentation) throw new Error('Exit presentation mode before changing workspaces.');
     if (this.active || this.sequence !== this.savedSequence)
       throw new Error('Save the current workspace before replacing it.');
     this.cancelTimer();
@@ -154,6 +189,10 @@ export class AutosaveController<T extends { revision: number }> {
   };
 
   private replace(workspace: T) {
+    if (this.snapshot.presentation) {
+      this.emit({ workspace, canUndo: !!this.past.length, canRedo: !!this.future.length });
+      return;
+    }
     this.sequence++;
     // A failed save needs an explicit Retry. Further edits remain recoverable.
     this.emit({
@@ -171,6 +210,7 @@ export class AutosaveController<T extends { revision: number }> {
 
   /** Resolves after all edits, including those made during a request, are saved. */
   flush = (): Promise<void> => {
+    if (this.snapshot.presentation) return Promise.resolve();
     this.cancelTimer();
     if (this.active) return this.active;
     if (this.snapshot.error) return Promise.reject(new Error(this.snapshot.error));

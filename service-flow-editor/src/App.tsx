@@ -33,7 +33,13 @@ import {
   relayoutWorkspace,
   canonicalEdgePoints,
   rerouteEdges,
+  nodeDegrees,
+  type SceneNode,
 } from './hierarchy';
+import { expandToDepth, graphDepths, moveDestinations, moveToGraph, traceFlows } from './graphActions';
+import SettingsPage from './SettingsPage';
+import PresentationDocument from './PresentationDocument';
+import { applyTheme, readTheme, saveTheme, type ThemeId } from './theme';
 import Canvas, { type CanvasContext, type Selection, type SelectionItem, type View } from './Canvas';
 import DocumentEditor from './DocumentEditor';
 import Icon from './Icon';
@@ -502,7 +508,15 @@ export default function App() {
     setSelections(next ? [next] : []);
   }
   const [view, setView] = useState<View>(defaultView),
-    [modal, setModal] = useState<'open' | 'create' | 'node' | 'flow' | 'delete' | 'help' | null>(null);
+    [modal, setModal] = useState<
+      'open' | 'create' | 'node' | 'flow' | 'delete' | 'help' | 'settings' | 'move' | null
+    >(null);
+  const [theme, setTheme] = useState<ThemeId>(readTheme);
+  const [validation, setValidation] = useState(false);
+  const [traceId, setTraceId] = useState<string | null>(null);
+  const [moveNodeId, setMoveNodeId] = useState<string | null>(null);
+  const [moveGraphId, setMoveGraphId] = useState('');
+  const [presentationBusy, setPresentationBusy] = useState(false);
   const [contextMenu, setContextMenu] = useState<CanvasContext | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
@@ -527,6 +541,102 @@ export default function App() {
   const docFlush = useRef<() => Promise<void>>(async () => {});
   const docRetry = useRef<() => Promise<void>>(async () => {});
   const views = useRef<Record<string, View>>({});
+  const presentation = useRef<{
+    workspace: Workspace;
+    graphId: string;
+    view: View;
+    views: Record<string, View>;
+    selections: SelectionItem[];
+    sidebarCollapsed: boolean;
+    inspectorOpen: boolean;
+    inspectorTab: string;
+    search: string;
+    theme: ThemeId;
+    validation: boolean;
+    traceId: string | null;
+    documents: Map<string, string>;
+  } | null>(null);
+  const trace = useMemo(
+    () => (workspace && traceId ? traceFlows(workspace, traceId) : null),
+    [workspace, traceId],
+  );
+  const invalidNodes = useMemo(
+    () =>
+      workspace && validation
+        ? new Set([...nodeDegrees(workspace)].filter(([, degree]) => degree.incoming === 0).map(([id]) => id))
+        : new Set<string>(),
+    [workspace, validation],
+  );
+  const maxDepth = useMemo(() => {
+    if (!workspace) return 1;
+    const populated = new Set(workspace.nodes.map((node) => node.graphId));
+    const depths = graphDepths(workspace, graphId);
+    return Math.max(
+      1,
+      ...workspace.nodes
+        .filter((node) => populated.has(node.childGraphId))
+        .map((node) => depths.get(node.id) ?? 0),
+    );
+  }, [workspace, graphId]);
+  const movingNode = workspace?.nodes.find((node) => node.id === moveNodeId);
+  const destinations = workspace && movingNode ? moveDestinations(workspace, movingNode.id) : [];
+  function changeTheme(next: ThemeId) {
+    setTheme(next);
+    if (store.presentation) applyTheme(next);
+    else saveTheme(next);
+  }
+  async function togglePresentation() {
+    setPresentationBusy(true);
+    try {
+      if (store.presentation && presentation.current) {
+        const original = presentation.current;
+        store.exitPresentation();
+        setGraphId(original.graphId);
+        setView(original.view);
+        views.current = original.views;
+        setSelections(original.selections);
+        setSidebarCollapsed(original.sidebarCollapsed);
+        setInspectorOpen(original.inspectorOpen);
+        setInspectorTab(original.inspectorTab);
+        setSearch(original.search);
+        setTheme(original.theme);
+        applyTheme(original.theme);
+        setValidation(original.validation);
+        setTraceId(original.traceId);
+        presentation.current = null;
+      } else {
+        await docFlush.current();
+        await store.flush();
+        const original = store.enterPresentation();
+        if (!original) return;
+        presentation.current = {
+          workspace: original,
+          graphId,
+          view,
+          views: structuredClone(views.current),
+          selections,
+          sidebarCollapsed,
+          inspectorOpen,
+          inspectorTab,
+          search,
+          theme,
+          validation,
+          traceId,
+          documents: new Map(),
+        };
+      }
+      docFlush.current = async () => {};
+      docRetry.current = async () => {};
+      setDocumentState({ status: 'saved', error: '' });
+      setNotice('');
+      setContextMenu(null);
+      setModal(null);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : String(error));
+    } finally {
+      setPresentationBusy(false);
+    }
+  }
   const localNodes = workspace?.nodes.filter((n) => n.graphId === graphId) || [];
   const localEdges = workspace?.edges.filter((e) => e.graphId === graphId) || [];
   const visibleScene = useMemo(() => (workspace ? scene(workspace, graphId) : null), [workspace, graphId]);
@@ -622,17 +732,20 @@ export default function App() {
     ]);
   }
   function fit() {
-    if (!visibleNodes.length) {
+    fitNodes(visibleNodes);
+  }
+  function fitNodes(nodes: SceneNode[]) {
+    if (!nodes.length) {
       setView(initialView());
       return;
     }
     const bounds = document.querySelector('.canvas-wrap')?.getBoundingClientRect();
     if (!bounds) return;
     const area = canvasArea();
-    const left = Math.min(...visibleNodes.map((n) => n.x)),
-      top = Math.min(...visibleNodes.map((n) => n.y));
-    const right = Math.max(...visibleNodes.map((n) => n.x + n.width)),
-      bottom = Math.max(...visibleNodes.map((n) => n.y + n.height));
+    const left = Math.min(...nodes.map((n) => n.x)),
+      top = Math.min(...nodes.map((n) => n.y));
+    const right = Math.max(...nodes.map((n) => n.x + n.width)),
+      bottom = Math.max(...nodes.map((n) => n.y + n.height));
     const scale = Math.min(
       1.4,
       Math.max(0.2, Math.min((area.width - 80) / (right - left), (area.height - 80) / (bottom - top))),
@@ -690,6 +803,7 @@ export default function App() {
     select({ type: 'edge', id });
   }
   async function openWorkspace(path: string, create: boolean, name: string) {
+    if (store.presentation) throw new Error('Exit presentation mode before changing workspaces.');
     await docFlush.current();
     await store.open(path, create, name || undefined);
     views.current = {};
@@ -699,6 +813,8 @@ export default function App() {
     setModal(null);
     setContextMenu(null);
     setSearch('');
+    setValidation(false);
+    setTraceId(null);
     try {
       localStorage.setItem(
         'service-atlas-recent',
@@ -739,7 +855,8 @@ export default function App() {
         (e.target as HTMLElement).closest(
           'input, textarea, select, [contenteditable], [data-theme-control], [data-canvas-control], [role="menu"]',
         ) ||
-        modal
+        modal ||
+        presentationBusy
       )
         return;
       if (e.key === 'Escape') {
@@ -780,7 +897,7 @@ export default function App() {
     setSidebarCollapsed((value) => {
       const next = !value;
       try {
-        localStorage.setItem('service-atlas-sidebar-collapsed', String(next));
+        if (!store.presentation) localStorage.setItem('service-atlas-sidebar-collapsed', String(next));
       } catch {
         /* Keep the current view when browser storage is unavailable. */
       }
@@ -854,6 +971,20 @@ export default function App() {
             run: () => openNewNode(undefined, contextNode.childGraphId),
           },
           { label: 'Focus subgraph', icon: 'layers', run: () => navigate(contextNode.childGraphId) },
+          {
+            label: 'Highlight upstream and downstream',
+            icon: 'branch',
+            run: () => setTraceId(contextNode.id),
+          },
+          {
+            label: 'Move to graph…',
+            icon: 'folder',
+            run: () => {
+              setMoveNodeId(contextNode.id);
+              setMoveGraphId(moveDestinations(workspace!, contextNode.id)[0]?.id ?? '');
+              setModal('move');
+            },
+          },
           {
             label: 'Delete service',
             icon: 'trash',
@@ -936,13 +1067,15 @@ export default function App() {
     store.retry();
     void docRetry.current().catch((err) => setNotice(err instanceof Error ? err.message : String(err)));
   };
-  const displayStatus = {
-    idle: 'Local workspace',
-    saved: 'All changes saved',
-    pending: 'Unsaved changes',
-    saving: 'Saving changes…',
-    error: 'Save failed',
-  }[overallStatus];
+  const displayStatus = store.presentation
+    ? 'Presentation · changes are temporary'
+    : {
+        idle: 'Local workspace',
+        saved: 'All changes saved',
+        pending: 'Unsaved changes',
+        saving: 'Saving changes…',
+        error: 'Save failed',
+      }[overallStatus];
   const searchResults =
     workspace?.nodes.filter((n) =>
       search ? n.key.toLowerCase().includes(search.toLowerCase()) : n.graphId === graphId,
@@ -951,6 +1084,7 @@ export default function App() {
     <div
       className={`app-shell ${workspace ? 'workspace-open' : ''} ${sidebarCollapsed ? 'sidebar-hidden' : ''}`}
       style={{ '--toolbar-height': `${toolbarHeight}px` } as CSSProperties}
+      inert={presentationBusy}
     >
       <aside
         className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
@@ -974,7 +1108,7 @@ export default function App() {
         </div>
         <div className="workspace-card">
           <div className="eyebrow">WORKSPACE</div>
-          <button className="workspace-switch" onClick={() => setModal('open')}>
+          <button className="workspace-switch" disabled={store.presentation} onClick={() => setModal('open')}>
             <span className="workspace-initial">{workspace?.name[0]?.toUpperCase() || 'S'}</span>
             <span>
               <strong>{workspace?.name || 'Your next system'}</strong>
@@ -1001,7 +1135,7 @@ export default function App() {
             Architecture overview
             <span>{workspace?.nodes.filter((n) => n.graphId === workspace.rootGraphId).length || '—'}</span>
           </button>
-          <button onClick={() => setModal('create')}>
+          <button disabled={store.presentation} onClick={() => setModal('create')}>
             <Icon name="folder" />
             New workspace
             <Icon name="plus" size={14} />
@@ -1145,14 +1279,59 @@ export default function App() {
                   Add service
                 </button>
               </div>
-              <CanvasSettings
-                value={canvasSettings(workspace)}
-                onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
-                appearance={nodeAppearance(workspace)}
-                onAppearanceChange={(nodeAppearance) =>
-                  store.change((w) => ({ ...w, nodeAppearance }), { historyKey: 'node-appearance' })
-                }
-              />
+              <div className="graph-tools">
+                <select
+                  aria-label="Expand levels"
+                  value=""
+                  onChange={(event) => {
+                    const depth = event.target.value === 'all' ? Infinity : Number(event.target.value);
+                    void action(() => {
+                      const next = expandToDepth(workspace, graphId, depth);
+                      store.change(() => next);
+                      fitNodes(scene(next, graphId).nodes);
+                    });
+                  }}
+                >
+                  <option value="" disabled>
+                    Expand levels
+                  </option>
+                  <option value="0">Collapse all</option>
+                  {Array.from({ length: maxDepth }, (_, index) => (
+                    <option key={index} value={index + 1}>
+                      Expand {index + 1} {index ? 'levels' : 'level'}
+                    </option>
+                  ))}
+                  <option value="all">Expand all levels</option>
+                </select>
+                <button
+                  className="secondary"
+                  aria-pressed={validation}
+                  onClick={() => setValidation((value) => !value)}
+                  title="Find services with no incoming flows"
+                >
+                  <Icon name="check" size={16} />
+                  Validate
+                </button>
+                <button
+                  className="secondary"
+                  aria-label="Highlight chain"
+                  aria-pressed={!!traceId}
+                  disabled={!selectedNode && !traceId}
+                  onClick={() => setTraceId(traceId ? null : selectedNode!.id)}
+                  title="Highlight upstream and downstream"
+                >
+                  <Icon name="branch" size={16} />
+                </button>
+                <button
+                  className={`secondary ${store.presentation ? 'presentation-active' : ''}`}
+                  aria-pressed={store.presentation}
+                  onClick={() => void togglePresentation()}
+                  title="Temporary editing; exit to restore the original workspace"
+                >
+                  <Icon name="present" size={16} />
+                  {store.presentation ? 'Exit & restore' : 'Present'}
+                </button>
+              </div>
               <div className="zoom-controls">
                 <button
                   className="icon-button"
@@ -1184,8 +1363,19 @@ export default function App() {
               </div>
             </>
           )}
-          <ThemePicker />
-          <button className="top-open secondary" onClick={() => setModal('open')}>
+          <button
+            className="secondary settings-trigger"
+            aria-label="Settings"
+            onClick={() => setModal('settings')}
+          >
+            <Icon name="settings" size={16} />
+            Settings
+          </button>
+          <button
+            className="top-open secondary"
+            disabled={store.presentation}
+            onClick={() => setModal('open')}
+          >
             <Icon name="folder" size={16} />
             Open folder
           </button>
@@ -1390,7 +1580,55 @@ export default function App() {
                   }
                   onContextMenu={setContextMenu}
                   onAdd={() => openNewNode()}
+                  invalidNodes={invalidNodes}
+                  trace={trace}
                 />
+                {(validation || traceId) && (
+                  <div className="analysis-panel" aria-label="Graph analysis">
+                    {validation && (
+                      <details open>
+                        <summary>{invalidNodes.size} services without incoming flows</summary>
+                        <p>Descendant inputs count toward ancestors. Parent inputs do not flow down.</p>
+                        <div className="validation-results">
+                          {workspace.nodes
+                            .filter((node) => invalidNodes.has(node.id))
+                            .map((node) => (
+                              <button
+                                key={node.id}
+                                onClick={() => {
+                                  void action(() => {
+                                    setGraphId(node.graphId);
+                                    setView(views.current[node.graphId] || initialView());
+                                    setSelection({ type: 'node', id: node.id });
+                                  });
+                                }}
+                              >
+                                {node.key}
+                                <span>No incoming flows</span>
+                              </button>
+                            ))}
+                        </div>
+                        <button className="text-button" onClick={() => setValidation(false)}>
+                          Clear validation
+                        </button>
+                      </details>
+                    )}
+                    {traceId && (
+                      <div className="trace-legend">
+                        <span className="upstream">Upstream</span>
+                        <span className="downstream">Downstream</span>
+                        <span className="both">Both directions</span>
+                        <button
+                          aria-label="Clear chain highlight"
+                          className="icon-button"
+                          onClick={() => setTraceId(null)}
+                        >
+                          <Icon name="close" size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </section>
               <aside className={`inspector ${inspectorOpen ? '' : 'collapsed'}`}>
                 <div className="inspector-title">
@@ -1560,17 +1798,27 @@ export default function App() {
                       </button>
                     </div>
                     <div className="inspector-body document-body" hidden={inspectorTab !== 'document'}>
-                      <DocumentEditor
-                        key={`${store.path}:${selectedNode.id}`}
-                        nodeKey={selectedNode.key}
-                        nodeId={selectedNode.id}
-                        workspacePath={store.path}
-                        onStatus={onDocumentStatus}
-                        token={store.token}
-                        flushGraph={store.flush}
-                        flushRef={docFlush}
-                        retryRef={docRetry}
-                      />
+                      {store.presentation && presentation.current ? (
+                        <PresentationDocument
+                          key={`presentation:${selectedNode.id}`}
+                          node={selectedNode}
+                          original={presentation.current.workspace}
+                          token={store.token}
+                          drafts={presentation.current.documents}
+                        />
+                      ) : (
+                        <DocumentEditor
+                          key={`${store.path}:${selectedNode.id}`}
+                          nodeKey={selectedNode.key}
+                          nodeId={selectedNode.id}
+                          workspacePath={store.path}
+                          onStatus={onDocumentStatus}
+                          token={store.token}
+                          flushGraph={store.flush}
+                          flushRef={docFlush}
+                          retryRef={docRetry}
+                        />
+                      )}
                     </div>
                   </>
                 ) : selectedEdge ? (
@@ -1765,6 +2013,7 @@ export default function App() {
                     <button
                       className="secondary full-width"
                       onClick={() => downloadJSON(workspace, 'workspace.json')}
+                      disabled={store.presentation}
                     >
                       <Icon name="download" size={15} />
                       Download graph JSON
@@ -1843,6 +2092,72 @@ export default function App() {
       )}
       {modal === 'flow' && (
         <FlowDialog nodes={workspace?.nodes || []} onClose={() => setModal(null)} onCreate={addFlow} />
+      )}
+      {modal === 'settings' && (
+        <SettingsPage onClose={() => setModal(null)}>
+          {workspace ? (
+            <CanvasSettings
+              value={canvasSettings(workspace)}
+              onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
+              appearance={nodeAppearance(workspace)}
+              onAppearanceChange={(nodeAppearance) =>
+                store.change((w) => ({ ...w, nodeAppearance }), { historyKey: 'node-appearance' })
+              }
+              themePicker={<ThemePicker inline value={theme} onChange={changeTheme} />}
+            />
+          ) : (
+            <section>
+              <h3>Canvas</h3>
+              <ThemePicker inline value={theme} onChange={changeTheme} />
+              <p>Open a workspace to configure the canvas and node appearance.</p>
+            </section>
+          )}
+        </SettingsPage>
+      )}
+      {modal === 'move' && movingNode && workspace && (
+        <Modal title={`Move ${movingNode.key}`} onClose={() => setModal(null)}>
+          <p className="modal-intro">
+            Move this service and its entire subtree. Documents, service keys, and connected flows stay with
+            it.
+          </p>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void action(() => {
+                store.change((w) => moveToGraph(w, movingNode.id, moveGraphId));
+                setGraphId(moveGraphId);
+                setView(views.current[moveGraphId] || initialView());
+                setSelection({ type: 'node', id: movingNode.id });
+                setModal(null);
+              });
+            }}
+          >
+            <label className="field">
+              Destination graph
+              <select
+                aria-label="Destination graph"
+                value={moveGraphId}
+                onChange={(event) => setMoveGraphId(event.target.value)}
+              >
+                {destinations.map((graph) => (
+                  <option key={graph.id} value={graph.id}>
+                    {graph.id === workspace.rootGraphId
+                      ? 'Root graph'
+                      : `Inside ${workspace.nodes.find((node) => node.id === graph.parentNodeId)?.key}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="modal-actions">
+              <button type="button" className="secondary" onClick={() => setModal(null)}>
+                Cancel
+              </button>
+              <button className="primary" disabled={!moveGraphId}>
+                Move service
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
       {modal === 'delete' && workspace && selections.length > 0 && (
         <Modal
@@ -1936,8 +2251,8 @@ export default function App() {
                   Double-click a service or press <kbd>Enter</kbd> to expand or collapse it on this canvas.
                   Use Add service inside to build its subgraph. Focus subgraph opens a dedicated view with
                   breadcrumbs. Expanded containers fit their contents automatically. Collapsed cross-level
-                  flows use dashed proxies; internal flows are hidden. Keys stay unique throughout the entire
-                  workspace.
+                  flows use solid proxy connections; internal flows are hidden. Keys stay unique throughout
+                  the entire workspace.
                 </p>
               </section>
             </div>

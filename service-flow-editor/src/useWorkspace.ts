@@ -115,6 +115,7 @@ export function useWorkspace() {
       controller.subscribe(() => {
         if (!session.current.path || suppressDraft.current) return;
         const current = controller.getSnapshot();
+        if (current.presentation) return;
         if (!current.workspace) return;
         try {
           const drafts = readDrafts(session.current.path);
@@ -158,6 +159,8 @@ export function useWorkspace() {
   const open = useCallback(
     (requestedPath: string, create = false, name?: string) =>
       enqueue(async () => {
+        if (controller.getSnapshot().presentation)
+          throw new Error('Exit presentation mode before changing workspaces.');
         await controller.flush();
         const beforeOpening = controller.getSnapshot().workspace;
         const result = await request<OpenResult>('/api/workspace/open', {
@@ -238,6 +241,7 @@ export function useWorkspace() {
   );
 
   const discardRecoveryDraft = useCallback(() => {
+    if (controller.getSnapshot().presentation) return;
     if (session.current.path) {
       try {
         const drafts = readDrafts(session.current.path);
@@ -255,7 +259,7 @@ export function useWorkspace() {
       setRecoveryMessage(null);
       setRecoveryDraft(null);
     }
-  }, []);
+  }, [controller]);
 
   return {
     ...snapshot,
@@ -277,5 +281,7 @@ export function useWorkspace() {
     beginHistoryGroup: controller.beginHistoryGroup,
     endHistoryGroup: controller.endHistoryGroup,
     discardRecoveryDraft,
+    enterPresentation: controller.enterPresentation,
+    exitPresentation: controller.exitPresentation,
   };
 }
