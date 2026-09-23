@@ -148,12 +148,11 @@ function WorkspaceDialog({
   }
   return (
     <Modal
-      title="Your architecture, in one folder."
+      title="Workspace"
       onClose={() => {
         if (!busy) onClose();
       }}
     >
-      <p className="modal-intro">A local workspace keeps every service, flow, and document together.</p>
       <div className="tab-bar">
         <button className={mode === 'open' ? 'active' : ''} onClick={() => setMode('open')} disabled={busy}>
           Open workspace
@@ -194,11 +193,6 @@ function WorkspaceDialog({
             </button>
           </div>
         </label>
-        <p className="field-help">
-          {mode === 'create'
-            ? 'Choose an existing folder or enter a new folder path. A workspace.json file will be created here.'
-            : 'Select the folder containing workspace.json. All nested graphs and saved layouts will reopen.'}
-        </p>
         {mode === 'open' && readRecent().length > 0 && (
           <div className="recent-list">
             <span className="eyebrow">RECENT FOLDERS</span>
@@ -248,9 +242,6 @@ function NodeDialog({
   const [type, setType] = useState<NodeType>('service');
   return (
     <Modal title="Add a service" onClose={onClose}>
-      <p className="modal-intro">
-        Give this service a unique name. Its Markdown document and internal graph are created automatically.
-      </p>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -292,7 +283,6 @@ function NodeDialog({
         <div className="file-preview">
           <Icon name="file" size={18} />
           <span>{key || 'service'}.md</span>
-          <span>Auto-linked document</span>
         </div>
         {error && (
           <div className="inline-error" role="alert">
@@ -326,11 +316,7 @@ function FlowDialog({
     [target, setTarget] = useState(nodes[1]?.key || nodes[0]?.key || ''),
     [weights, setWeights] = useState('');
   return (
-    <Modal title="Connect your services" onClose={onClose}>
-      <p className="modal-intro">
-        Connect services at any level, including inside collapsed containers. Add interface names, events, or
-        data types as weights.
-      </p>
+    <Modal title="Add flow" onClose={onClose}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -427,7 +413,6 @@ function KeyField({
           {error}
         </div>
       )}
-      <p className="field-help">Unique across all levels. Renaming also renames the Markdown file.</p>
     </>
   );
 }
@@ -476,7 +461,7 @@ function NumberField({
 function WeightsField({ edge, onChange }: { edge: FlowEdge; onChange: (weights: string[]) => void }) {
   return (
     <label className="field">
-      Weights <span className="optional">string array</span>
+      Weights <span className="optional">one per line</span>
       <textarea
         aria-label="Flow weights"
         rows={5}
@@ -484,7 +469,6 @@ function WeightsField({ edge, onChange }: { edge: FlowEdge; onChange: (weights: 
         placeholder={'GET /inventory\nStockUpdated'}
         onChange={(e) => onChange(e.target.value ? e.target.value.split('\n') : [])}
       />
-      <span className="field-help">One interface, event, or data type per line.</span>
     </label>
   );
 }
@@ -1087,6 +1071,7 @@ export default function App() {
       inert={presentationBusy}
     >
       <aside
+        id="workspace-sidebar"
         className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
         aria-hidden={sidebarCollapsed}
         inert={sidebarCollapsed}
@@ -1095,16 +1080,7 @@ export default function App() {
           <span className="brand-mark">
             <Icon name="atlas" size={24} />
           </span>
-          <div>
-            Service Atlas<span>RELATIONSHIPS, REVEALED.</span>
-          </div>
-          <button
-            className="dark-icon-button sidebar-close"
-            aria-label="Collapse sidebar"
-            onClick={toggleSidebar}
-          >
-            <Icon name="sidebar" size={17} />
-          </button>
+          <div>Service Atlas</div>
         </div>
         <div className="workspace-card">
           <div className="eyebrow">WORKSPACE</div>
@@ -1193,16 +1169,10 @@ export default function App() {
             </button>
           ))}
           {!searchResults.length && (
-            <p className="sidebar-empty">
-              {search ? 'No matching services.' : 'Your services will appear here.'}
-            </p>
+            <p className="sidebar-empty">{search ? 'No matching services.' : 'No services.'}</p>
           )}
         </div>
         <div className="sidebar-footer">
-          <div className="local-note">
-            <span className="live-dot" />
-            LOCAL BY DESIGN<span>JSON + Markdown. Always yours.</span>
-          </div>
           <button onClick={() => setModal('help')}>
             <Icon name="help" size={16} />
             Editor guide<kbd>?</kbd>
@@ -1212,173 +1182,188 @@ export default function App() {
       <main className="main-area">
         <header className="topbar" ref={toolbar}>
           <button
-            className="icon-button sidebar-toggle"
+            className="icon-button panel-toggle sidebar-toggle"
             aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-expanded={!sidebarCollapsed}
+            aria-controls="workspace-sidebar"
             onClick={toggleSidebar}
           >
-            <Icon name="sidebar" size={18} />
+            <Icon name="panel-left" size={19} />
           </button>
-          <div className="breadcrumbs">
-            <span className="workspace-label">{workspace ? workspace.name : 'Your workspace'}</span>
-            {crumbs.map((c, i) => (
-              <span key={c.id} className="crumb">
-                <Icon name="chevron" size={12} />
-                <button disabled={i === crumbs.length - 1} title={c.title} onClick={() => navigate(c.id)}>
-                  {c.title}
+          <div className="toolbar-content">
+            <div className="toolbar-navigation">
+              <div className="breadcrumbs">
+                <span className="workspace-label">{workspace ? workspace.name : 'Your workspace'}</span>
+                {crumbs.map((c, i) => (
+                  <span key={c.id} className="crumb">
+                    <Icon name="chevron" size={12} />
+                    <button disabled={i === crumbs.length - 1} title={c.title} onClick={() => navigate(c.id)}>
+                      {c.title}
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div
+                className={`save-status ${overallStatus}`}
+                title={store.savedAt ? `Saved at ${new Date(store.savedAt).toLocaleTimeString()}` : undefined}
+              >
+                <span className="status-dot" />
+                {displayStatus}
+                {overallStatus === 'error' && <button onClick={retrySave}>Retry</button>}
+              </div>
+              <div className="toolbar-utilities" role="group" aria-label="Workspace tools">
+                <button
+                  className="icon-button settings-trigger"
+                  aria-label="Settings"
+                  title="Settings"
+                  onClick={() => setModal('settings')}
+                >
+                  <Icon name="settings" size={18} />
                 </button>
-              </span>
-            ))}
-          </div>
-          <div
-            className={`save-status ${overallStatus}`}
-            title={store.savedAt ? `Saved at ${new Date(store.savedAt).toLocaleTimeString()}` : undefined}
-          >
-            <span className="status-dot" />
-            {displayStatus}
-            {overallStatus === 'error' && <button onClick={retrySave}>Retry</button>}
+                <button
+                  className="icon-button top-open"
+                  aria-label="Open folder"
+                  title="Open folder"
+                  disabled={store.presentation}
+                  onClick={() => setModal('open')}
+                >
+                  <Icon name="folder" size={18} />
+                </button>
+              </div>
+            </div>
+            {workspace && (
+              <div className="toolbar-actions">
+                <div className="heading-actions" role="group" aria-label="Edit graph">
+                  <button
+                    className="icon-button"
+                    aria-label="Undo"
+                    title="Undo (Ctrl/Cmd+Z)"
+                    disabled={!store.canUndo}
+                    onClick={() => restoreHistory('undo')}
+                  >
+                    <Icon name="undo" size={17} />
+                  </button>
+                  <button
+                    className="icon-button"
+                    aria-label="Redo"
+                    title="Redo (Ctrl/Cmd+Shift+Z)"
+                    disabled={!store.canRedo}
+                    onClick={() => restoreHistory('redo')}
+                  >
+                    <Icon name="redo" size={17} />
+                  </button>
+                  {parent && (
+                    <button
+                      className="icon-button"
+                      aria-label="Up one level"
+                      title="Up one level"
+                      onClick={() => navigate(parent.graphId)}
+                    >
+                      <Icon name="back" size={16} />
+                    </button>
+                  )}
+                  <button
+                    className="secondary"
+                    disabled={!workspace.nodes.length}
+                    onClick={() => setModal('flow')}
+                  >
+                    <Icon name="link" size={16} />
+                    Add flow
+                  </button>
+                  <button className="primary" onClick={() => openNewNode()}>
+                    <Icon name="plus" size={17} />
+                    Add service
+                  </button>
+                </div>
+                <div className="graph-tools" role="group" aria-label="Graph tools">
+                  <select
+                    aria-label="Expand levels"
+                    value=""
+                    onChange={(event) => {
+                      const depth = event.target.value === 'all' ? Infinity : Number(event.target.value);
+                      void action(() => {
+                        const next = expandToDepth(workspace, graphId, depth);
+                        store.change(() => next);
+                        fitNodes(scene(next, graphId).nodes);
+                      });
+                    }}
+                  >
+                    <option value="" disabled>
+                      Expand levels
+                    </option>
+                    <option value="0">Collapse all</option>
+                    {Array.from({ length: maxDepth }, (_, index) => (
+                      <option key={index} value={index + 1}>
+                        Expand {index + 1} {index ? 'levels' : 'level'}
+                      </option>
+                    ))}
+                    <option value="all">Expand all levels</option>
+                  </select>
+                  <button
+                    className="secondary"
+                    aria-pressed={validation}
+                    onClick={() => setValidation((value) => !value)}
+                    title="Find services with no incoming flows"
+                  >
+                    <Icon name="check" size={16} />
+                    Validate
+                  </button>
+                  <button
+                    className="secondary"
+                    aria-label="Highlight chain"
+                    aria-pressed={!!traceId}
+                    disabled={!selectedNode && !traceId}
+                    onClick={() => setTraceId(traceId ? null : selectedNode!.id)}
+                    title="Highlight upstream and downstream"
+                  >
+                    <Icon name="branch" size={16} />
+                  </button>
+                  <button
+                    className={`secondary ${store.presentation ? 'presentation-active' : ''}`}
+                    aria-pressed={store.presentation}
+                    onClick={() => void togglePresentation()}
+                    title="Temporary editing; exit to restore the original workspace"
+                  >
+                    <Icon name="present" size={16} />
+                    {store.presentation ? 'Exit & restore' : 'Present'}
+                  </button>
+                </div>
+                <div className="zoom-controls" role="group" aria-label="Canvas zoom">
+                  <button
+                    className="icon-button"
+                    aria-label="Zoom out"
+                    onClick={() => setView((v) => ({ ...v, scale: Math.max(0.2, v.scale / 1.15) }))}
+                  >
+                    <Icon name="minus" size={15} />
+                  </button>
+                  <span>{Math.round(view.scale * 100)}%</span>
+                  <button
+                    className="icon-button"
+                    aria-label="Zoom in"
+                    onClick={() => setView((v) => ({ ...v, scale: Math.min(2.5, v.scale * 1.15) }))}
+                  >
+                    <Icon name="plus" size={15} />
+                  </button>
+                  <button className="icon-button" aria-label="Fit graph" title="Fit graph (1)" onClick={fit}>
+                    <Icon name="fit" size={17} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           {workspace && (
-            <>
-              <div className="heading-actions">
-                <button
-                  className="icon-button"
-                  aria-label="Undo"
-                  title="Undo (Ctrl/Cmd+Z)"
-                  disabled={!store.canUndo}
-                  onClick={() => restoreHistory('undo')}
-                >
-                  <Icon name="undo" size={17} />
-                </button>
-                <button
-                  className="icon-button"
-                  aria-label="Redo"
-                  title="Redo (Ctrl/Cmd+Shift+Z)"
-                  disabled={!store.canRedo}
-                  onClick={() => restoreHistory('redo')}
-                >
-                  <Icon name="redo" size={17} />
-                </button>
-                {parent && (
-                  <button className="secondary" onClick={() => navigate(parent.graphId)}>
-                    <Icon name="back" size={16} />
-                    Up one level
-                  </button>
-                )}
-                <button
-                  className="secondary"
-                  disabled={!workspace.nodes.length}
-                  onClick={() => setModal('flow')}
-                >
-                  <Icon name="link" size={16} />
-                  Add flow
-                </button>
-                <button className="primary" onClick={() => openNewNode()}>
-                  <Icon name="plus" size={17} />
-                  Add service
-                </button>
-              </div>
-              <div className="graph-tools">
-                <select
-                  aria-label="Expand levels"
-                  value=""
-                  onChange={(event) => {
-                    const depth = event.target.value === 'all' ? Infinity : Number(event.target.value);
-                    void action(() => {
-                      const next = expandToDepth(workspace, graphId, depth);
-                      store.change(() => next);
-                      fitNodes(scene(next, graphId).nodes);
-                    });
-                  }}
-                >
-                  <option value="" disabled>
-                    Expand levels
-                  </option>
-                  <option value="0">Collapse all</option>
-                  {Array.from({ length: maxDepth }, (_, index) => (
-                    <option key={index} value={index + 1}>
-                      Expand {index + 1} {index ? 'levels' : 'level'}
-                    </option>
-                  ))}
-                  <option value="all">Expand all levels</option>
-                </select>
-                <button
-                  className="secondary"
-                  aria-pressed={validation}
-                  onClick={() => setValidation((value) => !value)}
-                  title="Find services with no incoming flows"
-                >
-                  <Icon name="check" size={16} />
-                  Validate
-                </button>
-                <button
-                  className="secondary"
-                  aria-label="Highlight chain"
-                  aria-pressed={!!traceId}
-                  disabled={!selectedNode && !traceId}
-                  onClick={() => setTraceId(traceId ? null : selectedNode!.id)}
-                  title="Highlight upstream and downstream"
-                >
-                  <Icon name="branch" size={16} />
-                </button>
-                <button
-                  className={`secondary ${store.presentation ? 'presentation-active' : ''}`}
-                  aria-pressed={store.presentation}
-                  onClick={() => void togglePresentation()}
-                  title="Temporary editing; exit to restore the original workspace"
-                >
-                  <Icon name="present" size={16} />
-                  {store.presentation ? 'Exit & restore' : 'Present'}
-                </button>
-              </div>
-              <div className="zoom-controls">
-                <button
-                  className="icon-button"
-                  aria-label="Zoom out"
-                  onClick={() => setView((v) => ({ ...v, scale: Math.max(0.2, v.scale / 1.15) }))}
-                >
-                  <Icon name="minus" size={15} />
-                </button>
-                <span>{Math.round(view.scale * 100)}%</span>
-                <button
-                  className="icon-button"
-                  aria-label="Zoom in"
-                  onClick={() => setView((v) => ({ ...v, scale: Math.min(2.5, v.scale * 1.15) }))}
-                >
-                  <Icon name="plus" size={15} />
-                </button>
-                <button className="icon-button" aria-label="Fit graph" title="Fit graph (1)" onClick={fit}>
-                  <Icon name="fit" size={17} />
-                </button>
-                <button
-                  className="icon-button"
-                  aria-label="Toggle inspector"
-                  aria-pressed={inspectorOpen}
-                  title="Show or hide details"
-                  onClick={() => setInspectorOpen((v) => !v)}
-                >
-                  <Icon name="node" size={16} />
-                </button>
-              </div>
-            </>
+            <button
+              className="icon-button panel-toggle inspector-toggle"
+              aria-label={inspectorOpen ? 'Collapse inspector' : 'Expand inspector'}
+              title={inspectorOpen ? 'Collapse inspector' : 'Expand inspector'}
+              aria-expanded={inspectorOpen}
+              aria-controls="workspace-inspector"
+              onClick={() => setInspectorOpen((v) => !v)}
+            >
+              <Icon name="panel-right" size={19} />
+            </button>
           )}
-          <button
-            className="secondary settings-trigger"
-            aria-label="Settings"
-            onClick={() => setModal('settings')}
-          >
-            <Icon name="settings" size={16} />
-            Settings
-          </button>
-          <button
-            className="top-open secondary"
-            disabled={store.presentation}
-            onClick={() => setModal('open')}
-          >
-            <Icon name="folder" size={16} />
-            Open folder
-          </button>
         </header>
         {(saveError || notice || store.recoveryMessage) && (
           <div className={`notice-bar ${saveError || notice ? 'error' : ''}`} role="alert">
@@ -1409,17 +1394,7 @@ export default function App() {
         {!workspace ? (
           <section className="welcome">
             <div className="welcome-copy">
-              <span className="eyebrow">THE BIG PICTURE. EVERY SMALL DETAIL.</span>
-              <h1>
-                Make sense of
-                <br />
-                your services<span>.</span>
-              </h1>
-              <p>
-                Map relationships. Follow the data.
-                <br />
-                Explore the architecture inside every service.
-              </p>
+              <h1>Service Atlas</h1>
               <div className="welcome-actions">
                 <button className="primary" onClick={() => setModal('create')}>
                   <Icon name="plus" />
@@ -1430,15 +1405,8 @@ export default function App() {
                   Open workspace
                 </button>
               </div>
-              <div className="welcome-note">
-                <span className="live-dot" />
-                Stored in your folder. Ready when you are.
-              </div>
             </div>
             <div className="welcome-diagram">
-              <div className="diagram-label">
-                <span className="live-dot" />A CONNECTED PERSPECTIVE
-              </div>
               <svg viewBox="0 0 650 390" aria-label="Example service architecture">
                 <defs>
                   <marker
@@ -1468,9 +1436,6 @@ export default function App() {
                   <text x="20" y="60" className="diagram-name">
                     API Gateway
                   </text>
-                  <text x="20" y="89" className="diagram-sub">
-                    The way in
-                  </text>
                 </g>
                 <g transform="translate(320 40)">
                   <rect
@@ -1481,7 +1446,7 @@ export default function App() {
                     stroke="var(--accent)"
                   />
                   <text x="20" y="30" className="diagram-type">
-                    SERVICE / EXPLORE INSIDE
+                    SERVICE
                   </text>
                   <text x="20" y="59" className="diagram-name">
                     Order Service
@@ -1520,9 +1485,6 @@ export default function App() {
                   <text x="20" y="61" className="diagram-name">
                     Identity Service
                   </text>
-                  <text x="20" y="85" className="diagram-sub">
-                    Clear connections, at every level
-                  </text>
                 </g>
                 <text x="205" y="82" className="diagram-sub">
                   OrderCreated
@@ -1531,28 +1493,6 @@ export default function App() {
                   Authorize
                 </text>
               </svg>
-              <div className="diagram-footer">
-                <span>01 / CONNECT</span>
-                <span>02 / UNDERSTAND</span>
-                <span>03 / EXPLORE</span>
-              </div>
-            </div>
-            <div className="welcome-features">
-              <div>
-                <Icon name="link" />
-                <strong>Follow every flow</strong>
-                <p>Directional connections with editable paths and meaningful weights.</p>
-              </div>
-              <div>
-                <Icon name="layers" />
-                <strong>Go a level deeper</strong>
-                <p>Nested service graphs without a fixed depth limit.</p>
-              </div>
-              <div>
-                <Icon name="file" />
-                <strong>Keep context close</strong>
-                <p>A Markdown document for every service, automatically linked.</p>
-              </div>
             </div>
           </section>
         ) : (
@@ -1630,7 +1570,7 @@ export default function App() {
                   </div>
                 )}
               </section>
-              <aside className={`inspector ${inspectorOpen ? '' : 'collapsed'}`}>
+              <aside id="workspace-inspector" className={`inspector ${inspectorOpen ? '' : 'collapsed'}`}>
                 <div className="inspector-title">
                   <Icon name={selectedEdge ? 'link' : selectedNode ? 'node' : 'layers'} size={17} />
                   <strong>
@@ -1649,10 +1589,6 @@ export default function App() {
                     <p className="field-help">
                       {selections.filter((item) => item.type === 'node').length} services ·{' '}
                       {selections.filter((item) => item.type === 'edge').length} flows
-                    </p>
-                    <p className="field-help">
-                      Drag a selected service to move the group. Shift-click to add or remove elements. Parent
-                      and child selections move together once.
                     </p>
                     <button className="danger-link" onClick={() => setModal('delete')}>
                       <Icon name="trash" size={16} />
@@ -1746,15 +1682,10 @@ export default function App() {
                           />
                         )}
                       </div>
-                      <p className="field-help">
-                        X and Y use the owning graph's all-collapsed coordinates. Expansion offsets are
-                        display only.
-                      </p>
                       {selectedNode.expanded && (
                         <p className="field-help" data-testid="container-dimensions">
                           Auto-sized to contents: {Math.round(selectedDisplayNode?.width || 0)} ×{' '}
-                          {Math.round(selectedDisplayNode?.height || 0)}. Move or resize the internal services
-                          to adjust this boundary.
+                          {Math.round(selectedDisplayNode?.height || 0)}
                         </p>
                       )}
                       <div className="section-label">INTERNAL STRUCTURE</div>
@@ -1782,10 +1713,6 @@ export default function App() {
                           Focus subgraph
                         </button>
                       </div>
-                      <p className="field-help">
-                        Double-click to expand or collapse here. Focus subgraph opens a dedicated view with
-                        breadcrumbs.
-                      </p>
                       <div className="section-label">SERVICE DOCUMENT</div>
                       <button className="document-link" onClick={() => setInspectorTab('document')}>
                         <Icon name="file" size={17} />
@@ -1860,28 +1787,19 @@ export default function App() {
                     <div className="section-label">ORTHOGONAL PATH</div>
                     {selectedDisplayEdge?.projected && (
                       <p className="field-help proxy-notice">
-                        Dashed proxy: an endpoint is inside a collapsed container. Expand its ancestors to
-                        edit the path. The real endpoints and saved route are preserved.
+                        Expand the endpoint's container to edit this path.
                       </p>
                     )}
                     {selectedDisplayEdge &&
                       !selectedDisplayEdge.projected &&
                       !selectedDisplayEdge.editable && (
                         <p className="field-help proxy-notice">
-                          This route is adapted to the current display layout. Its saved coordinates remain in
-                          the owning graph's all-collapsed frame.
+                          Collapse the expanded services to edit the saved path.
                         </p>
                       )}
                     {!selectedDisplayEdge && (
-                      <p className="field-help proxy-notice">
-                        This flow is outside the current view or hidden inside a collapsed container. Expand
-                        its ancestors in Overview to see and edit its path.
-                      </p>
+                      <p className="field-help proxy-notice">Open this flow in Overview to edit its path.</p>
                     )}
-                    <p className="field-help">
-                      Drag a square handle on the canvas to move a segment. Add a bend for more routing
-                      control.
-                    </p>
                     <label className="field">
                       Path segment
                       <select
@@ -1973,12 +1891,6 @@ export default function App() {
                       <Icon name="layers" size={28} />
                     </div>
                     <h3>{parent?.key || workspace.name}</h3>
-                    <p className="field-help">
-                      {parent
-                        ? 'The internal architecture of this service.'
-                        : 'A connected view of your system.'}{' '}
-                      Select a service or flow to inspect its details.
-                    </p>
                     <div className="graph-stats">
                       <div>
                         <strong>{localNodes.length}</strong>
@@ -2002,14 +1914,6 @@ export default function App() {
                       <dt>Main file</dt>
                       <dd>workspace.json</dd>
                     </dl>
-                    <div className="inspector-tip">
-                      <Icon name="branch" size={20} />
-                      <strong>There is more beneath the surface.</strong>
-                      <p>
-                        Double-click a service to expand its components on this canvas. Connect visible nodes
-                        across levels, or choose any service using Add flow.
-                      </p>
-                    </div>
                     <button
                       className="secondary full-width"
                       onClick={() => downloadJSON(workspace, 'workspace.json')}
@@ -2032,7 +1936,7 @@ export default function App() {
           <span>
             {workspace
               ? `workspace.json · ${workspace.nodes.length} services · ${workspace.edges.length} flows`
-              : 'Built for a clearer view of your architecture'}
+              : 'Service Atlas'}
           </span>
           <span>SERVICE ATLAS / 1.0</span>
         </footer>

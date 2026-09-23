@@ -767,7 +767,8 @@ button.danger:hover {
   filter: none;
 }
 .container-header {
-  fill: color-mix(in srgb, var(--surface) 88%, var(--accent) 7%);
+  /* Keep the title's drag target without painting a separate header plate. */
+  fill: transparent;
   stroke: none;
 }
 .container-collapse {
@@ -875,17 +876,6 @@ button.danger:hover {
   stroke: var(--accent);
   stroke-width: 1.4;
 }
-.canvas-caption {
-  position: absolute;
-  bottom: 19px;
-  left: 22px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 9px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
 .canvas-coordinates {
   position: absolute;
   bottom: 19px;
@@ -918,6 +908,9 @@ button.danger:hover {
   width: 90%;
   max-width: 440px;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .empty-graph button {
   pointer-events: auto;
@@ -1802,11 +1795,6 @@ button.danger:hover {
   .welcome h1 {
     font-size: 43px;
   }
-  .canvas-caption {
-    max-width: 80%;
-    line-height: 1.6;
-    font-size: 8px;
-  }
   .zoom-controls {
     gap: 0;
   }
@@ -1933,10 +1921,6 @@ button.danger:hover {
   .welcome h1 {
     font-size: 40px;
   }
-  .canvas-caption {
-    left: 14px;
-    bottom: 14px;
-  }
   .modal {
     width: calc(100% - 32px);
     padding: 23px;
@@ -2026,10 +2010,6 @@ button.danger:hover {
   visibility: hidden;
   pointer-events: none;
 }
-.sidebar-close {
-  margin-left: auto;
-  flex-shrink: 0;
-}
 .is-connecting .graph-canvas,
 .is-connecting .service-node {
   cursor: crosshair;
@@ -2093,10 +2073,6 @@ button.danger:hover {
     width: 251px;
     z-index: 30;
     box-shadow: 8px 0 35px var(--shadow-color);
-  }
-  .sidebar-close {
-    width: 29px;
-    height: 29px;
   }
   .topbar .breadcrumbs {
     flex-basis: 150px;

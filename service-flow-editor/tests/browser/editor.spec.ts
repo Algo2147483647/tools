@@ -865,7 +865,7 @@ test('floating panels leave a full viewport canvas and wheel gestures never zoom
     expect(style.position).toBe('absolute');
   }
   await page.locator('.sidebar-toggle').click();
-  await page.getByRole('button', { name: 'Toggle inspector' }).click();
+  await page.getByRole('button', { name: 'Collapse inspector' }).click();
   expect(await canvas.boundingBox()).toEqual(bounds);
   const browserBefore = await page.evaluate(() => ({
     ratio: devicePixelRatio,

@@ -91,7 +91,6 @@ export default function CanvasSettings({
         </select>
       </label>
       <div className="section-label">NODE APPEARANCE</div>
-      <p className="field-help">One style for every collapsed node, across all graphs.</p>
       {(['fillColor', 'borderColor'] as const).map((field) => (
         <div className="appearance-color" key={field}>
           <label className="field">
@@ -181,9 +180,7 @@ export default function CanvasSettings({
           onChange={(cornerRadius) => onAppearanceChange({ ...appearance, cornerRadius: cornerRadius / 100 })}
         />
       </label>
-      <p className="field-help">Percentage of the shorter side. Source / sink nodes remain circular.</p>
       <div className="section-label">NODE TYPOGRAPHY</div>
-      <p className="field-help">Shared by every node label, including expanded headers.</p>
       <label className="field">
         Node font family
         <select
@@ -207,7 +204,6 @@ export default function CanvasSettings({
           onChange={(nodeFontSize) => onChange({ ...value, nodeFontSize })}
         />
       </label>
-      <p className="field-help">Individual nodes can override the default font size in the inspector.</p>
       <div className="appearance-color">
         <label className="field">
           Node font color
@@ -262,7 +258,6 @@ export default function CanvasSettings({
           onChange={(lineHeight) => onAppearanceChange({ ...appearance, lineHeight })}
         />
       </label>
-      <p className="field-help">All appearance settings are saved with this workspace.</p>
       <button className="secondary" onClick={() => onAppearanceChange({ ...defaultNodeAppearance })}>
         Reset node appearance
       </button>

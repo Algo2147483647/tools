@@ -349,7 +349,6 @@ export default function DocumentEditor({
                   : 'Saved'}
         </span>
       </div>
-      <p className="field-help">Markdown stored directly in your workspace.</p>
       {error && (
         <div role="alert" className="inline-error">
           {error}

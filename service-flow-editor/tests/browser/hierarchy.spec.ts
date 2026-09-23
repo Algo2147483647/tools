@@ -290,7 +290,9 @@ test('cross-level flows preserve real endpoints through collapse, reopening, ren
   await expect(edge.locator('title').first()).toContainText('Client → Worker');
   await selectEdge(page, cross.id);
   await expect(page.locator('.edge-handles')).toHaveCount(0);
-  await expect(page.locator('.proxy-notice')).toContainText('real endpoints and saved route are preserved');
+  await expect(page.locator('.proxy-notice')).toContainText(
+    "Expand the endpoint's container to edit this path",
+  );
   await expect(page.getByTestId('port-Platform-left').locator('.port-count')).toHaveText('3');
   const collapsed = await disk(folder);
   expect(collapsed.edges).toEqual(expanded.edges);

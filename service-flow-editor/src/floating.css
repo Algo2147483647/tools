@@ -93,9 +93,6 @@
 .workspace-open .brand-mark {
   width: 25px;
 }
-.workspace-open .sidebar-close {
-  color: var(--text-muted);
-}
 .workspace-open .inspector {
   right: 12px;
   left: auto;
@@ -130,13 +127,6 @@
 .workspace-open .statusbar > span:first-child,
 .workspace-open .statusbar > span:last-child {
   display: none;
-}
-.workspace-open .canvas-caption {
-  left: 288px;
-  bottom: 46px;
-}
-.workspace-open.sidebar-hidden .canvas-caption {
-  left: 22px;
 }
 .workspace-open .canvas-coordinates {
   display: none;
@@ -208,21 +198,6 @@
   .workspace-open .topbar {
     gap: 7px;
     padding: 9px 10px;
-  }
-  .workspace-open .topbar .heading-actions {
-    order: 1;
-  }
-  .workspace-open .topbar .canvas-settings {
-    order: 2;
-  }
-  .workspace-open .topbar .zoom-controls {
-    order: 3;
-  }
-  .workspace-open .topbar .breadcrumbs {
-    flex-basis: 150px;
-  }
-  .workspace-open .canvas-caption {
-    display: none;
   }
   .workspace-open .statusbar {
     font-size: 8px;

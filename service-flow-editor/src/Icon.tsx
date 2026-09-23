@@ -4,6 +4,8 @@ const paths: Record<string, string> = {
   settings: 'M4 7h16 M4 17h16 M9 4v6 M16 14v6',
   present: 'M3 4h18v12H3z M12 16v5 M8 21h8 M10 7l5 3-5 3z',
   sidebar: 'M4 4h16v16H4z M9 4v16 M6 8h.01 M6 12h.01 M6 16h.01',
+  'panel-left': 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M9 4v16',
+  'panel-right': 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M15 4v16',
   palette:
     'M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.4-3.4 1.5 1.5 0 0 1 1.1-2.6H18a4 4 0 0 0 4-4c0-4.4-4.5-8-10-8z M7 9h.01 M11 6h.01 M16 7h.01 M18 11h.01',
   atlas: 'M4 4h6v6H4z M14 14h6v6h-6z M7 10v7h7 M10 7h7v7',

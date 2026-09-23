@@ -1154,29 +1154,12 @@ export default function Canvas(p: Props) {
           <span className="empty-icon">
             <Icon name="layers" size={30} />
           </span>
-          <h2>
-            {p.graphId === p.workspace.rootGraphId
-              ? 'Every system starts with a service.'
-              : 'A closer look starts here.'}
-          </h2>
-          <p>
-            {p.graphId === p.workspace.rootGraphId
-              ? 'Add your first service, then connect the flow of data.'
-              : 'Map the components and data flows inside this service.'}
-          </p>
           <button className="primary" onClick={p.onAdd}>
             <Icon name="plus" />
             Add service
           </button>
-          <span className="micro">One workspace. Every layer of your architecture.</span>
         </div>
       )}
-      <div className="canvas-caption">
-        <span className="live-dot" />
-        {preview
-          ? 'Drop on a service anchor to connect · Esc to cancel'
-          : 'Left-drag to select · Shift to add · Right-drag or Space-drag to pan'}
-      </div>
       <div className="canvas-coordinates">
         {nodes.length} services <span> / </span>
         {edges.length} flows
