@@ -3,11 +3,58 @@ import { applyGraphCommand, collectSubtreeNodeKeys } from "../graph/commands";
 import { createInitialCanvasDag, INITIAL_CANVAS_NODE_KEY } from "../graph/initialCanvas";
 import { getParentLevelSelection, getInitialSelection, remapSelectionKeys, removeSelectionKeys, sanitizeNodeLabel } from "../graph/selectors";
 import { serializeDag } from "../graph/serialize";
+import { getGraphTypeOptions, projectGraphByType, TYPE_FILTER_SHORTCUT_RELATION } from "../graph/typeFilter";
+import { buildStageData } from "../layout/stage-layout";
 import { estimateTextWidth, wrapDetailText } from "../layout/text";
 import { defineSuite, defineTest } from "./harness";
 import { createChildOnlyDag, createCustomFieldMapping, createForestDag, createMappedSampleDag, createSampleDag } from "./fixtures";
 
 export const graphSuite = defineSuite("graph", [
+  defineTest("type projection bridges hidden paths without changing saved data", () => {
+    const source = createSampleDag();
+    source.A.type = source.C.type = source.D.type = "visible";
+    source.B.type = "hidden";
+    const before = serializeDag(source);
+    const projected = projectGraphByType(source, "visible");
+    assert.deepEqual(Object.keys(projected).sort(), ["A", "C", "D"]);
+    assert.deepEqual(projected.A.children, { C: "edge_ac", D: TYPE_FILTER_SHORTCUT_RELATION });
+    assert.deepEqual(projected.D.parents, { A: TYPE_FILTER_SHORTCUT_RELATION });
+    assert.deepEqual(projected.C.parents, { A: "edge_ac" });
+    assert.deepEqual(serializeDag(source), before);
+    assert.deepEqual(getGraphTypeOptions(source), ["hidden", "visible"]);
+    for (const layoutMode of ["level", "sugiyama", "dagre"] as const) {
+      const stage = buildStageData({ dag: projected, selection: { type: "full" }, layoutMode });
+      assert.ok(stage);
+      assert.deepEqual(stage.nodes.map((node) => node.key).sort(), ["A", "C", "D"]);
+      assert.equal(stage.edges.length, 2);
+    }
+  }),
+
+  defineTest("type projection uses custom field mappings and handles all or missing types", () => {
+    const mapping = createCustomFieldMapping();
+    const source = createMappedSampleDag();
+    source.A.kind = source.D.kind = "visible";
+    const projected = projectGraphByType(source, "visible", mapping);
+    assert.deepEqual(Object.keys(projected).sort(), ["A", "D"]);
+    assert.deepEqual(projected.A.next, { D: TYPE_FILTER_SHORTCUT_RELATION });
+    assert.deepEqual(projected.D.prev, { A: TYPE_FILTER_SHORTCUT_RELATION });
+    assert.deepEqual(getGraphTypeOptions(source, mapping), ["task", "visible"]);
+    assert.equal(projectGraphByType(source, "", mapping), source);
+    assert.deepEqual(projectGraphByType(source, "missing", mapping), {});
+    assert.deepEqual(getGraphTypeOptions(createSampleDag()), []);
+  }),
+
+  defineTest("type projection preserves direct relations and terminates hidden cycles", () => {
+    const source = createSampleDag();
+    source.A.type = source.D.type = "visible";
+    source.B.children = { C: "bc", D: "bd", A: "ba", Missing: "missing" };
+    source.C.children = { B: "cb", D: "cd" };
+    source.A.children = { B: "ab", D: "direct" };
+    const projected = projectGraphByType(source, "visible");
+    assert.deepEqual(projected.A.children, { D: "direct" });
+    assert.deepEqual(projected.D.parents, { A: "direct" });
+  }),
+
   defineTest("initial canvas node does not generate a default title field", () => {
     const dag = createInitialCanvasDag();
     const serialized = serializeDag(dag);

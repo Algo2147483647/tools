@@ -1048,3 +1048,43 @@
     grid-template-columns: 1fr;
   }
 }
+.type-filter-control {
+  flex: 0 1 auto;
+  width: 220px;
+  max-width: 100%;
+  min-width: 154px;
+  padding-left: 10px;
+  color: var(--text-soft);
+  font-family: var(--control-font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.type-filter-control select {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: none;
+  padding: 4px 24px 4px 6px;
+  background: transparent;
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.type-filter-control select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.type-filter-control:focus-within {
+  border-color: rgba(40, 95, 223, 0.28);
+  box-shadow: 0 0 0 3px rgba(40, 95, 223, 0.1);
+}
+
+

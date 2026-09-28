@@ -21,6 +21,9 @@ interface TopbarProps {
   importFileButtonState: ImportFileButtonState;
   relativeLinkRootName: string;
   hasGraph: boolean;
+  typeOptions: string[];
+  selectedType: string;
+  onTypeChange: (type: string) => void;
   canBack: boolean;
   canUp: boolean;
   canUndo: boolean;
@@ -81,6 +84,9 @@ export default function Topbar({
   importFileButtonState,
   relativeLinkRootName,
   hasGraph,
+  typeOptions,
+  selectedType,
+  onTypeChange,
   canBack,
   canUp,
   canUndo,
@@ -134,6 +140,18 @@ export default function Topbar({
         <h1>DAG Studio</h1>
       </div>
       <div className="topbar-actions">
+        <label className="topbar-group type-filter-control">
+          <span>Type</span>
+          <select
+            aria-label="Filter graph by type"
+            value={selectedType}
+            disabled={!hasGraph || typeOptions.length === 0}
+            onChange={(event) => onTypeChange(event.currentTarget.value)}
+          >
+            <option value="">All types</option>
+            {typeOptions.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
+        </label>
         <div className="topbar-group nav-controls" aria-label="Graph navigation controls">
           <IconButton id="back-btn" label="Back" disabled={!canBack} onClick={onBack} icon={<ArrowLeftIcon />} />
           <IconButton id="up-btn" label="Up" disabled={!canUp} onClick={onUp} icon={<ArrowUpIcon />} />

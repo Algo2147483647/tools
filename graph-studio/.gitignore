@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.npm-cache/
+.vite-dev*.log
+# Converted from package-lock.json by the shared Windows launcher.
+pnpm-lock.yaml

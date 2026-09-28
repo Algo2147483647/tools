@@ -18,12 +18,20 @@ It is built for fast graph inspection and editing in the browser:
 
 ### One-click startup (Windows / macOS)
 
-Install Node.js LTS (including npm) first: https://nodejs.org/.
+- **Windows:** double-click `start.bat`, or run it from any directory. It uses the shared [`../scripts/node-runtime.ps1`](../scripts/node-runtime.ps1) to find Node.js 22.12+ and npm or pnpm, including an existing Codex runtime. If none is available, install Node.js LTS (including npm) from https://nodejs.org/. Keep this project alongside the repository's `scripts` directory.
+- **macOS:** install Node.js LTS (including npm), run `chmod +x start.command` once in the project directory, then double-click `start.command`. You can also run `bash start.command` in Terminal.
 
-- **Windows:** double-click `start.bat`.
-- **macOS:** run `chmod +x start.command` once in the project directory, then double-click `start.command`. You can also run `bash start.command` in Terminal.
+The scripts switch to the project directory, install dependencies, and open the app in your browser. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
 
-The scripts switch to the project directory, install dependencies with `npm ci` when Vite is missing, and open the app in your browser. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop. The first launch requires internet access. After pulling dependency changes, run `npm ci` again. Do not copy `node_modules` between Windows and macOS.
+On Windows, npm is preferred; when npm is missing, the launcher imports `package-lock.json` into a local pnpm lockfile and installs with pnpm. Successful installations are cached and rechecked on each launch; dependency changes or incomplete installations trigger a reinstall. The generated `pnpm-lock.yaml` is ignored by Git; `package-lock.json` remains authoritative. On macOS, run `npm ci` again after pulling dependency changes.
+
+Windows startup options:
+
+```powershell
+.\start.bat -InstallOnly  # Prepare dependencies without starting the server
+.\start.bat -BuildOnly    # Check TypeScript and build the app
+.\start.bat -NoBrowser    # Start without opening a browser
+```
 
 ### Manual startup
 

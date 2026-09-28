@@ -60,6 +60,14 @@ After loading JSON, the renderer finds roots by looking at both parent links and
 - `Up` renders the current node's parent level.
 - If a node has multiple parents, the parent level is shown as a forest.
 
+## Type Filtering
+
+The top bar's `Type` selector lists the non-empty types in the current graph, using the active field mapping. Select a type to display its nodes across the whole graph. Paths through hidden nodes become `filtered_path` links between the nearest visible nodes; existing direct links keep their original relation values.
+
+`All types` and `Back` leave the filtered view. `Show all roots` clears the filter and shows the complete graph. While filtering, clicking highlights a node and double-clicking opens its details; `Up` is disabled. If the selected type disappears after an edit or import, the selector returns to `All types` automatically.
+
+Filtering does not alter source data: JSON saves contain the complete graph, while SVG export reflects the currently displayed view.
+
 ## Layout Modes
 
 - `BFS` keeps the selected traversal close to breadth-first discovery order.

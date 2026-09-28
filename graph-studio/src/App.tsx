@@ -10,6 +10,7 @@ import {
 } from "./graph/fieldMapping";
 import { getFullGraphSelection, getInitialSelection, getParentLevelSelection, sanitizeNodeLabel } from "./graph/selectors";
 import { serializeDag } from "./graph/serialize";
+import { getGraphTypeOptions, projectGraphByType } from "./graph/typeFilter";
 import { copyTextToClipboard, readTextFromClipboard } from "./adapters/clipboard";
 import { buildTimestampFileName, downloadJsonFile } from "./adapters/download";
 import { canOverwrite, openJsonFileWithAccess, readJsonFile } from "./adapters/fileAccess";
@@ -83,6 +84,7 @@ export default function App() {
   const [aiBusy, setAiBusy] = useState(false);
   const [fieldMappingOpen, setFieldMappingOpen] = useState(false);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState("");
   const [consoleInput, setConsoleInput] = useState("");
   const [consoleContextNodeKey, setConsoleContextNodeKey] = useState<NodeKey | null>(null);
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([
@@ -187,8 +189,16 @@ export default function App() {
     };
   }, []);
 
-  const stage = useMemo(() => state.dag ? buildStageData({ dag: state.dag, mapping: fieldMapping, selection: state.selection, layoutMode: state.layout.mode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [alignNodeWidthsToMax, appearance, fieldMapping, showNodeDetail, state.dag, state.layout.mode, state.selection]);
-  const parentSelection = useMemo(() => state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys, fieldMapping) : null, [fieldMapping, stage, state.dag]);
+  const typeOptions = useMemo(() => state.dag ? getGraphTypeOptions(state.dag, fieldMapping) : [], [fieldMapping, state.dag]);
+  const activeType = typeOptions.includes(selectedType) ? selectedType : "";
+  useEffect(() => {
+    if (selectedType && !typeOptions.includes(selectedType)) {
+      setSelectedType("");
+    }
+  }, [selectedType, typeOptions]);
+  const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, fieldMapping) : null, [activeType, fieldMapping, state.dag]);
+  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, mapping: fieldMapping, selection: activeType ? { type: "full" } : state.selection, layoutMode: state.layout.mode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, fieldMapping, showNodeDetail, state.layout.mode, state.selection]);
+  const parentSelection = useMemo(() => !activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys, fieldMapping) : null, [activeType, fieldMapping, stage, state.dag]);
   const consoleSidebarVisible = state.ui.consoleSidebarOpen;
   const consoleSuggestions = useMemo(() => getConsoleSuggestions(consoleInput), [consoleInput]);
   const status = useMemo(() => {
@@ -205,8 +215,8 @@ export default function App() {
       && !state.ui.status.startsWith("Mode:")
       && !state.ui.status.startsWith("Layout:")
       ? state.ui.status
-      : `${layoutLabel} layout. Focused on ${focusLabel}. ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
-  }, [stage, state.dag, state.layout.mode, state.ui.status]);
+      : `${layoutLabel} layout.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
+  }, [activeType, fieldMapping, stage, state.dag, state.layout.mode, state.ui.status]);
   const currentJsonContent = useMemo(() => serializeDagToJson(state.dag || {}, fieldMapping), [fieldMapping, state.dag]);
   const savedJsonContent = useMemo(() => {
     const savedDag = getSavedRevisionDag(state.editHistory, state.dag);
@@ -728,6 +738,10 @@ export default function App() {
 
   function handleNodeClick(nodeKey: string) {
     clearPendingNodeClick();
+    if (activeType) {
+      setFocusedKey(nodeKey);
+      return;
+    }
     pendingNodeClickTimeoutRef.current = window.setTimeout(() => {
       pendingNodeClickTimeoutRef.current = null;
       if (!state.selection || state.selection.type !== "node" || state.selection.key !== nodeKey) {
@@ -1084,7 +1098,14 @@ export default function App() {
         importFileButtonState={importFileButtonState}
         relativeLinkRootName={relativeLinkRoot?.name || ""}
         hasGraph={Boolean(stage)}
-        canBack={state.history.length > 0}
+        typeOptions={typeOptions}
+        selectedType={activeType}
+        onTypeChange={(type) => {
+          clearPendingNodeClick();
+          setFocusedKey(null);
+          setSelectedType(type);
+        }}
+        canBack={Boolean(activeType) || state.history.length > 0}
         canUp={Boolean(parentSelection)}
         canUndo={state.editHistory.undoStack.length > 0 || appearanceUndoStack.length > 0}
         canRedo={state.editHistory.redoStack.length > 0 || appearanceRedoStack.length > 0}
@@ -1095,9 +1116,12 @@ export default function App() {
         consoleSidebarOpen={consoleSidebarVisible}
         aiSettings={aiSettings}
         aiBusy={aiBusy}
-        onBack={() => dispatch({ type: "navigateBack" })}
+        onBack={() => activeType ? setSelectedType("") : dispatch({ type: "navigateBack" })}
         onUp={() => parentSelection && dispatch({ type: "selectionChanged", selection: parentSelection, pushHistory: true })}
-        onAll={() => dispatch({ type: "selectionChanged", selection: getFullGraphSelection(), pushHistory: true })}
+        onAll={() => {
+          setSelectedType("");
+          dispatch({ type: "selectionChanged", selection: getFullGraphSelection(), pushHistory: true });
+        }}
         onUndo={() => state.editHistory.undoStack.length > 0 ? dispatch({ type: "undoRequested" }) : undoAppearance()}
         onRedo={() => state.editHistory.redoStack.length > 0 ? dispatch({ type: "redoRequested" }) : redoAppearance()}
         onZoomOut={zoom.zoomOut}

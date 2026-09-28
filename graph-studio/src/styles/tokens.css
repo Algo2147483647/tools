@@ -1,6 +1,6 @@
 :root {
-  --bg-top: #f5f0e7;
-  --bg-bottom: #dbe3ef;
+  --bg-top: #fff;
+  --bg-bottom: #fff;
   --panel: rgba(255, 255, 255, 0.62);
   --panel-strong: rgba(255, 255, 255, 0.76);
   --panel-float: rgba(255, 255, 255, 0.78);
