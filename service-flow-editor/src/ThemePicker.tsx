@@ -71,19 +71,35 @@ export default function ThemePicker({
     return (
       <fieldset className="theme-grid">
         <legend>Color theme</legend>
-        {themes.map((item) => (
-          <label key={item.id} className={selected === item.id ? 'active' : ''}>
-            <input
-              type="radio"
-              name="theme"
-              value={item.id}
-              checked={selected === item.id}
-              onChange={() => choose(item.id)}
-            />
-            <span className="theme-swatch" style={{ '--swatch': item.color } as CSSProperties} />
-            {item.name}
-          </label>
-        ))}
+        <p className="theme-grid-description">A palette for your whole editor. Saved on this device.</p>
+        <div className="theme-options">
+          {themes.map((item) => (
+            <label
+              key={item.id}
+              className={selected === item.id ? 'active' : ''}
+              style={{ '--swatch': item.color } as CSSProperties}
+            >
+              <input
+                type="radio"
+                name="theme"
+                value={item.id}
+                checked={selected === item.id}
+                onChange={() => choose(item.id)}
+              />
+              <span className="theme-tile-art" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="theme-tile-label">
+                {item.name}
+                <span className="theme-tile-check" aria-hidden="true">
+                  {selected === item.id && <Icon name="check" size={11} />}
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
       </fieldset>
     );
   return (

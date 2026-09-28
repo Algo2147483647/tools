@@ -1911,13 +1911,21 @@ export default function App() {
         <FlowDialog nodes={workspace?.nodes || []} onClose={() => setModal(null)} onCreate={addFlow} />
       )}
       {modal === 'settings' && (
-        <SettingsPage onClose={() => setModal(null)}>
+        <SettingsPage
+          onClose={() => setModal(null)}
+          status={workspace ? displayStatus : 'Theme preferences are saved on this device'}
+          saveState={store.presentation ? 'temporary' : overallStatus}
+          onRetry={retrySave}
+          workspaceName={workspace?.name}
+        >
           {(section) =>
             workspace ? (
               <CanvasSettings
                 section={section}
                 value={canvasSettings(workspace)}
-                onChange={(canvas) => store.change((w) => ({ ...w, canvas }))}
+                onChange={(canvas, nodeAppearance) =>
+                  store.change((w) => ({ ...w, canvas, ...(nodeAppearance ? { nodeAppearance } : {}) }))
+                }
                 appearance={nodeAppearance(workspace)}
                 onAppearanceChange={(nodeAppearance) =>
                   store.change((w) => ({ ...w, nodeAppearance }), { historyKey: 'node-appearance' })
@@ -1925,10 +1933,19 @@ export default function App() {
                 themePicker={<ThemePicker inline value={theme} onChange={changeTheme} />}
               />
             ) : (
-              <section>
-                <h3>Canvas</h3>
-                <ThemePicker inline value={theme} onChange={changeTheme} />
-                <p>Open a workspace to configure the canvas and node appearance.</p>
+              <section className="settings-empty">
+                <div className="settings-section-heading">
+                  <span className="settings-kicker">YOUR PREFERENCES</span>
+                  <h3>
+                    {section === 'canvas'
+                      ? 'Set the scene.'
+                      : section === 'nodes'
+                        ? 'Node appearance'
+                        : 'Typography'}
+                  </h3>
+                  <p>Open a workspace to configure the canvas and node appearance.</p>
+                </div>
+                {section === 'canvas' && <ThemePicker inline value={theme} onChange={changeTheme} />}
               </section>
             )
           }

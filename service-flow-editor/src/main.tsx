@@ -7,6 +7,7 @@ import './styles.css';
 import './floating.css';
 import './workspaceTools.css';
 import './toolbar.css';
+import './settings.css';
 
 applyTheme(readTheme());
 

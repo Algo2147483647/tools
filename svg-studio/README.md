@@ -4,7 +4,7 @@ A local-first SVG editor built with **React 19, TypeScript (strict mode), and Vi
 
 ## Start
 
-Requires **Node.js 22.12 or later** and npm.
+Requires **Node.js 22.12 or later** and npm or pnpm. Windows launchers share `../scripts/node-runtime.ps1`, which can also use Codex bundled Node.js and pnpm without npm on PATH.
 
 ```sh
 npm ci

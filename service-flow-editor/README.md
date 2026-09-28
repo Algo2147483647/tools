@@ -8,7 +8,7 @@ Each workspace is an ordinary folder containing one `workspace.json` and one `<s
 
 ## Run the editor
 
-Requires **Node.js 22.12 or later** and npm. Check `node --version` if more than one Node installation is on your PATH.
+Requires **Node.js 22.12 or later** and npm or pnpm. Check `node --version` if more than one Node installation is on your PATH. Launchers share the repository's `scripts/node-runtime.ps1` (Windows) and `scripts/node-runtime.sh` (macOS/Linux). The Windows launcher also detects the Node.js and pnpm bundled with Codex when they are not on PATH; a separate npm installation is not required.
 
 On Windows, double-click **`launch.cmd`**. The PowerShell launcher locates a compatible Node installation, installs dependencies when needed, checks TypeScript, builds the application, and opens **http://127.0.0.1:4319/** in your browser. Keep its terminal running while editing. Stop it with `Ctrl+C`.
 

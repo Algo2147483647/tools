@@ -1065,15 +1065,19 @@ test('visible black shadows and shared typography persist across nested graphs a
   await expect(settings.getByRole('combobox', { name: 'Node font weight', exact: true })).toHaveValue('500');
   await settings.getByRole('button', { name: 'Use theme font color', exact: true }).click();
   await expect(nested).not.toHaveCSS('fill', 'rgb(124, 58, 237)');
-  await settings.getByRole('button', { name: 'Reset node appearance', exact: true }).click();
+  await settings.getByRole('button', { name: 'Reset typography', exact: true }).click();
   await expect(settings.getByRole('combobox', { name: 'Node font family', exact: true })).toHaveValue('sans');
   await expect(settings.getByLabel('Italic node labels', { exact: true })).not.toBeChecked();
   await expect(nested).toHaveCSS('font-weight', '700');
-  await expect(shadow).toHaveAttribute('flood-opacity', '0.32');
+  await expect(settings.getByLabel('Default node font size (px)', { exact: true })).toHaveValue('20');
+  await expect(shadow).toHaveAttribute('flood-opacity', '0.55');
   await saved(page);
 });
 
-test('blank canvas, expanded borders and additional fonts persist through grouped settings', async ({ page, workspaceFolder }) => {
+test('blank canvas, expanded borders and additional fonts persist through grouped settings', async ({
+  page,
+  workspaceFolder,
+}) => {
   await create(page, workspaceFolder);
   await addService(page, 'Container');
   await enter(page, 'Container');
@@ -1110,12 +1114,16 @@ test('blank canvas, expanded borders and additional fonts persist through groupe
     await page.setViewportSize({ width, height: 900 });
     const toolbar = page.locator('.topbar');
     await expect(toolbar).toHaveCSS('height', '54px');
-    const overflow = await toolbar.evaluate(element => {
+    const overflow = await toolbar.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
-      return [...element.querySelectorAll('button')].filter(button => {
-        const rect = button.getBoundingClientRect();
-        return rect.width && (rect.top < bounds.top || rect.bottom > bounds.bottom || rect.right > bounds.right);
-      }).map(button => button.getAttribute('aria-label'));
+      return [...element.querySelectorAll('button')]
+        .filter((button) => {
+          const rect = button.getBoundingClientRect();
+          return (
+            rect.width && (rect.top < bounds.top || rect.bottom > bounds.bottom || rect.right > bounds.right)
+          );
+        })
+        .map((button) => button.getAttribute('aria-label'));
     });
     expect(overflow).toEqual([]);
   }
@@ -1125,7 +1133,10 @@ test('blank canvas, expanded borders and additional fonts persist through groupe
   await page.screenshot({ path: test.info().outputPath('single-row-mobile.png') });
 });
 
-test('auto layout runs in the browser worker, saves nested coordinates, and is one undo step', async ({ page, workspaceFolder }) => {
+test('auto layout runs in the browser worker, saves nested coordinates, and is one undo step', async ({
+  page,
+  workspaceFolder,
+}) => {
   await create(page, workspaceFolder);
   await addService(page, 'Client');
   await addService(page, 'Worker');
@@ -1147,7 +1158,9 @@ test('auto layout runs in the browser worker, saves nested coordinates, and is o
   expect(arranged.nodes).not.toEqual(before.nodes);
   assertOrthogonal(arranged);
   expect(arranged.graphs).toEqual(before.graphs);
-  expect(arranged.nodes.map(({x,y,...node}) => node)).toEqual(before.nodes.map(({x,y,...node}) => node));
+  expect(arranged.nodes.map(({ x, y, ...node }) => node)).toEqual(
+    before.nodes.map(({ x, y, ...node }) => node),
+  );
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await saved(page);
   expect((await disk(workspaceFolder)).nodes).toEqual(before.nodes);
@@ -1163,7 +1176,9 @@ test('auto layout runs in the browser worker, saves nested coordinates, and is o
   await page.getByRole('button', { name: 'Auto layout', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Auto layout', exact: true })).toBeEnabled();
   await saved(page);
-  expect((await disk(workspaceFolder)).nodes.map(n => [n.id,n.x,n.y])).toEqual(arranged.nodes.map(n => [n.id,n.x,n.y]));
+  expect((await disk(workspaceFolder)).nodes.map((n) => [n.id, n.x, n.y])).toEqual(
+    arranged.nodes.map((n) => [n.id, n.x, n.y]),
+  );
   const permanent = await disk(workspaceFolder);
   await page.getByRole('button', { name: 'Present', exact: true }).click();
   await page.getByRole('button', { name: 'Auto layout', exact: true }).click();
@@ -1173,4 +1188,118 @@ test('auto layout runs in the browser worker, saves nested coordinates, and is o
   await page.getByRole('button', { name: 'Exit & restore', exact: true }).click();
   await expect(page.getByTestId('node-Handler')).toBeVisible();
   await page.screenshot({ path: test.info().outputPath('layered-layout.png') });
+});
+
+test('settings previews stay live and section resets preserve unrelated preferences with one-step undo', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  const trigger = page.getByRole('button', { name: 'Settings', exact: true });
+  await trigger.click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
+  await settings.getByRole('radio', { name: 'Emerald', exact: true }).check();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'emerald');
+  await settings.getByLabel('Grid pattern', { exact: true }).selectOption('lines');
+  const spacing = settings.getByLabel('Grid size (px)', { exact: true });
+  await spacing.fill('40');
+  await expect(settings.locator('.settings-preview-canvas')).toHaveCSS(
+    'background-size',
+    '40px 40px, 40px 40px',
+  );
+  await spacing.fill('999');
+  await spacing.press('Tab');
+  await expect(spacing).toHaveValue('40');
+  await settings.getByRole('button', { name: 'Nodes', exact: true }).click();
+  await settings.getByLabel('Node fill color', { exact: true }).fill('#eef6ff');
+  await settings.getByLabel('Shadow opacity (%)', { exact: true }).fill('55');
+  await expect(settings.locator('.preview-service')).toHaveCSS('background-color', 'rgb(238, 246, 255)');
+  await settings.getByRole('button', { name: 'Typography', exact: true }).click();
+  await settings.getByLabel('Node font family', { exact: true }).selectOption('serif');
+  await settings.getByLabel('Default node font size (px)', { exact: true }).fill('28');
+  await settings.getByLabel('Node font color', { exact: true }).fill('#7c3aed');
+  await expect(settings.locator('.font-preview')).toHaveCSS('font-family', /Georgia/);
+  await expect(settings.locator('.font-preview')).toHaveCSS('font-size', '28px');
+  await settings.getByRole('button', { name: 'Reset typography', exact: true }).click();
+  await expect(settings.getByLabel('Default node font size (px)', { exact: true })).toHaveValue('20');
+  await expect(settings.getByLabel('Node font family', { exact: true })).toHaveValue('sans');
+  await expect(settings.locator('.preview-service')).toHaveCSS('background-color', 'rgb(238, 246, 255)');
+  await settings.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await trigger.click();
+  await settings.getByRole('button', { name: 'Typography', exact: true }).click();
+  await expect(settings.getByLabel('Default node font size (px)', { exact: true })).toHaveValue('28');
+  await expect(settings.getByLabel('Node font family', { exact: true })).toHaveValue('serif');
+  await expect(settings.getByLabel('Node font color', { exact: true })).toHaveValue('#7c3aed');
+  await settings.getByRole('button', { name: 'Nodes', exact: true }).click();
+  await expect(settings.getByLabel('Shadow opacity (%)', { exact: true })).toHaveValue('55');
+  await settings.getByRole('button', { name: 'Reset node appearance', exact: true }).click();
+  await expect(settings.getByLabel('Shadow opacity (%)', { exact: true })).toHaveValue('32');
+  await settings.getByRole('button', { name: 'Canvas', exact: true }).click();
+  await expect(settings.getByLabel('Grid pattern', { exact: true })).toHaveValue('lines');
+  await settings.getByRole('button', { name: 'Reset grid settings', exact: true }).click();
+  await expect(settings.getByLabel('Grid pattern', { exact: true })).toHaveValue('dots');
+  await expect(settings.getByRole('radio', { name: 'Emerald', exact: true })).toBeChecked();
+  await settings.getByRole('button', { name: 'Done', exact: true }).click();
+  await saved(page);
+  expect((await disk(workspaceFolder)).canvas?.nodeFontSize).toBe(28);
+  expect((await disk(workspaceFolder)).nodeAppearance).toMatchObject({
+    fontFamily: 'serif',
+    fontColor: '#7c3aed',
+    shadowOpacity: 0.32,
+  });
+  await page.reload();
+  await open(page, workspaceFolder);
+  await trigger.click();
+  await settings.getByRole('button', { name: 'Typography', exact: true }).click();
+  await expect(settings.getByLabel('Node font family', { exact: true })).toHaveValue('serif');
+  await expect(settings.getByLabel('Default node font size (px)', { exact: true })).toHaveValue('28');
+});
+
+test('settings remain accessible at narrow widths and return keyboard focus when dismissed', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  const trigger = page.getByRole('button', { name: 'Settings', exact: true });
+  await trigger.click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
+  for (const size of [
+    { width: 320, height: 640 },
+    { width: 390, height: 844 },
+    { width: 768, height: 900 },
+    { width: 1024, height: 768 },
+    { width: 1600, height: 1000 },
+  ]) {
+    await page.setViewportSize(size);
+    for (const section of ['Canvas', 'Nodes', 'Typography', 'Gestures']) {
+      const button = settings.getByRole('button', { name: section, exact: true });
+      await button.click();
+      await expect(button).toHaveAttribute('aria-current', 'page');
+      await expect(settings.getByRole('button', { name: 'Done', exact: true })).toBeInViewport();
+      const overflow = await settings.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        return [...element.querySelectorAll('input, select, button, .settings-group, .settings-preview')]
+          .filter((control) => {
+            const rect = control.getBoundingClientRect();
+            return rect.width > 0 && (rect.left < bounds.left || rect.right > bounds.right);
+          })
+          .map((control) => control.getAttribute('aria-label') || control.className);
+      });
+      expect(overflow, `${section} at ${size.width}px`).toEqual([]);
+    }
+  }
+  await settings.getByRole('button', { name: 'Nodes', exact: true }).click();
+  await settings.getByLabel('Expanded border width (px)', { exact: true }).scrollIntoViewIfNeeded();
+  await expect(settings.getByLabel('Live appearance preview', { exact: true })).toBeInViewport();
+  await page.keyboard.press('Escape');
+  await expect(settings).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(settings).toBeVisible();
+  await settings.getByRole('button', { name: 'Close settings', exact: true }).focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(settings.getByRole('button', { name: 'Done', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(settings.getByRole('button', { name: 'Close settings', exact: true })).toBeFocused();
 });
