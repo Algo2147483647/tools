@@ -234,7 +234,10 @@ export function useGraphImport({
       let resolutions: ImportResolutions = {};
       if (analysis.conflicts.length) {
         const chosen = await new Promise<ImportResolutions | null>(resolve => setPendingImport({ documents, resolve }));
-        if (!chosen) return;
+        if (!chosen) {
+          dispatch({ type: "statusChanged", status: "Import cancelled. Current graph unchanged." });
+          return;
+        }
         resolutions = chosen;
       }
       const imported = buildImportedDag(documents, fieldMapping, resolutions);

@@ -8,9 +8,9 @@ export function serializeDag(dag: NormalizedDag, _mapping?: FieldMapping): Graph
 }
 
 export function structuredCloneValue<T>(value: T): T {
-  const clone = structuredClone(value);
-  if (clone && typeof clone === "object" && "format" in clone && clone.format === "graph-studio" && "nodes" in clone && "edges" in clone) {
-    indexGraphDocument(clone as unknown as NormalizedDag);
-  }
-  return clone;
+  return structuredClone(value);
+}
+
+export function cloneGraphDocument(dag: NormalizedDag): NormalizedDag {
+  return indexGraphDocument(structuredClone(dag));
 }

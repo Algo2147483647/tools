@@ -1277,6 +1277,8 @@
 .import-conflict-values pre { white-space:pre-wrap; overflow:auto; max-height:180px; padding:10px; background:#f6f8fb; margin:4px 0; }
 .import-conflict-item label { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:10px; }
 .import-conflict-item input,.import-conflict-item select { padding:8px; max-width:100%; border:1px solid #bbc7d8; border-radius:5px; }
-.import-conflict-dialog footer { display:flex; justify-content:flex-end; gap:12px; position:sticky; bottom:-24px; background:#fff; padding:14px 0; }
+.import-conflict-dialog footer { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; position:sticky; bottom:-24px; background:#fff; padding:14px 0; }
 .import-conflict-dialog [role=alert] { color:#a32626; }
 @media(max-width:600px) { .import-conflict-values { grid-template-columns:1fr; } .import-conflict-overlay { padding:8px; } .import-conflict-dialog {padding:16px;} }
+
+.import-conflict-dialog button:disabled { opacity: .45; cursor: not-allowed; }

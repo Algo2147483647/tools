@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { DagNode, NodeKey, RelationField, RelationValue } from "../graph/types";
 import { DEFAULT_RELATION_VALUE } from "../graph/types";
-import { uniqueKeys } from "../graph/relations";
+import { uniqueKeys, parseRelationValue, formatRelationValue } from "../graph/relations";
 
 interface RelationEditorModalProps {
   open: boolean;
@@ -219,7 +219,7 @@ function reconcileRowsWithKeys(
 }
 
 function normalizeRelationRows(rows: RelationRow[], nodeKey: NodeKey): { ok: true; relations: Record<NodeKey, RelationValue> } | { ok: false; message: string } {
-  const relations: Record<NodeKey, RelationValue> = {};
+  const relations: Record<NodeKey, RelationValue> = Object.create(null);
 
   for (const row of rows) {
     const key = row.key.trim();
@@ -239,39 +239,6 @@ function normalizeRelationRows(rows: RelationRow[], nodeKey: NodeKey): { ok: tru
   }
 
   return { ok: true, relations };
-}
-
-function parseRelationValue(rawValue: string): RelationValue {
-  const trimmed = String(rawValue || "").trim();
-  if (!trimmed) {
-    return DEFAULT_RELATION_VALUE;
-  }
-  if (/^true$/i.test(trimmed)) {
-    return true;
-  }
-  if (/^false$/i.test(trimmed)) {
-    return false;
-  }
-  if (/^null$/i.test(trimmed)) {
-    return null;
-  }
-  if (/^-?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
-    const parsedNumber = Number(trimmed);
-    if (Number.isFinite(parsedNumber)) {
-      return parsedNumber;
-    }
-  }
-  return trimmed;
-}
-
-function formatRelationValue(value: RelationValue): string {
-  if (value === null) {
-    return "null";
-  }
-  if (value === undefined) {
-    return String(DEFAULT_RELATION_VALUE);
-  }
-  return String(value);
 }
 
 function formatRelationKeys(rows: RelationRow[]): string {

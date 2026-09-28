@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { applyGraphCommand, collectSubtreeNodeKeys } from "../graph/commands";
 import { createGraphDocument, normalizeDagInput } from "../graph/normalize";
-import { serializeDag, structuredCloneValue } from "../graph/serialize";
+import { serializeDag, structuredCloneValue, cloneGraphDocument } from "../graph/serialize";
 import { getNodeChildren, getNodeParents } from "../graph/accessors";
 import { parseRelationValue, formatRelationValue } from "../graph/relations";
 import { getDefaultFieldMapping } from "../graph/fieldMapping";
@@ -65,6 +65,9 @@ export const graphSuite=defineSuite("v2 document and graph",[
    const constructorKey: string = "constructor";
    assert.deepEqual(getNodeParents(dag.nodes[constructorKey],m),JSON.parse('{"__proto__":false}'));
    assert.equal(Object.keys(serializeDag(dag).nodes).length,2);
+   for(const layoutMode of ["level","sugiyama","dagre"] as const) {
+     assert.equal(buildStageData({dag,selection:{type:"full"},layoutMode})?.nodes.length,2);
+   }
  }),
  defineTest("node edits preserve incident edges and metadata",()=>{
    const source=createSampleDag();source.metadata={title:"metadata"};source.edges[0].metadata={proof:1};
@@ -91,10 +94,12 @@ export const graphSuite=defineSuite("v2 document and graph",[
    assert.deepEqual(Object.keys(deleted.nodes),["A","C"]);assert.deepEqual(deleted.edges,[source.edges[1]]);
  }),
  defineTest("cloning and empty documents keep a consistent graph model",()=>{
-   const source=createSampleDag(); const clone=structuredCloneValue(source);
+   const source=createSampleDag(); const clone=cloneGraphDocument(source);
    assert.deepEqual(getNodeChildren(clone.nodes.A,m),{B:"edge_ab",C:"edge_ac"});
    assert.equal(buildStageData({dag:createGraphDocument(),selection:{type:"full"}}),null);
    assert.equal(serializeDag(createInitialCanvasDag()).version,2);
+   const fields={format:"graph-studio",nodes:{key:"custom"},edges:42};
+   assert.deepEqual(structuredCloneValue(fields),fields);
  }),
  defineTest("type projection bridges hidden paths and layouts use derived indexes",()=>{
    const source=createSampleDag();source.nodes.A.type=source.nodes.C.type=source.nodes.D.type="visible";source.nodes.B.type="hidden";

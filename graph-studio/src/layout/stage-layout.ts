@@ -3,7 +3,7 @@ import { getDefaultFieldMapping, type FieldMapping } from "../graph/fieldMapping
 import type { GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag, RelationValue } from "../graph/types";
 import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance, type GraphLayoutAppearance } from "../graph/appearance";
 import { getRelationKeys } from "../graph/relations";
-import { structuredCloneValue } from "../graph/serialize";
+import { cloneGraphDocument } from "../graph/serialize";
 import { resolveStageEdgeGeometry } from "./edgeGeometry";
 import { getNodeVisual, truncateTitleToWidth, wrapDetailText } from "./text";
 import { resolveStageSelection, withSyntheticSelectionRoot } from "./selection";
@@ -49,7 +49,7 @@ export function buildStageData(input: {
     return null;
   }
 
-  const dag = structuredCloneValue(sourceDag);
+  const dag = cloneGraphDocument(sourceDag);
   const selection = resolveStageSelection(dag, requestedSelection, mapping);
   const layoutDag = withSyntheticSelectionRoot(dag, selection, mapping);
   const forestTopLevelSet = new Set(selection.topLevelKeys);
@@ -236,9 +236,9 @@ export function buildStageData(input: {
         return;
       }
       const weight = Array.isArray(children) ? 1 : (children as Record<NodeKey, RelationValue>)[targetKey];
-      const route = layoutResult.edgeRoutes?.get(`${sourceKey}-->${targetKey}`);
+      const route = layoutResult.edgeRoutes?.get(JSON.stringify([sourceKey, targetKey]));
       const points = layoutMode === "sugiyama"
-        ? sugiyamaStageRoutes?.get(`${sourceKey}-->${targetKey}`)
+        ? sugiyamaStageRoutes?.get(JSON.stringify([sourceKey, targetKey]))
         : route?.points.map((point) => (
             getRoutePointPosition(point, laneCenters, slotCountsByLayer, stageInnerHeight, theme, absoluteOffset)
           ));

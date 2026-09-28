@@ -187,7 +187,7 @@ function normalizeLongEdges(edges: LayoutEdge[], layerByKey: Record<NodeKey, num
     if (span <= 1) {
       segments.push(edge);
       routes.push({
-        edgeId: `${edge.originalSource}-->${edge.originalTarget}`,
+        edgeId: JSON.stringify([edge.originalSource, edge.originalTarget]),
         source: edge.originalSource,
         target: edge.originalTarget,
         items: routeItems,
@@ -199,7 +199,7 @@ function normalizeLongEdges(edges: LayoutEdge[], layerByKey: Record<NodeKey, num
     let previous = edge.source;
     for (let layer = sourceLayer + 1; layer < targetLayer; layer += 1) {
       const dummyId = `__sugiyama_dummy_${edgeIndex}_${layer}__`;
-      const dummy: LayoutItem = { id: dummyId, layer, order: 0, dummyFor: `${edge.originalSource}-->${edge.originalTarget}` };
+      const dummy: LayoutItem = { id: dummyId, layer, order: 0, dummyFor: JSON.stringify([edge.originalSource, edge.originalTarget]) };
       items.push(dummy);
       routeItems.push(dummy);
       segments.push({ ...edge, source: previous, target: dummyId });
@@ -208,7 +208,7 @@ function normalizeLongEdges(edges: LayoutEdge[], layerByKey: Record<NodeKey, num
 
     segments.push({ ...edge, source: previous, target: edge.target });
     routes.push({
-      edgeId: `${edge.originalSource}-->${edge.originalTarget}`,
+      edgeId: JSON.stringify([edge.originalSource, edge.originalTarget]),
       source: edge.originalSource,
       target: edge.originalTarget,
       items: routeItems,

@@ -219,7 +219,7 @@ export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, ini
       return;
     }
 
-    const patch: Record<string, unknown> = {};
+    const patch: Record<string, unknown> = Object.create(null);
     for (const field of fields) {
       if (field.name === "key") {
         continue;
@@ -286,7 +286,7 @@ function tryBuildRawJsonFromFieldValues(
     return null;
   }
 
-  const patch: Record<string, unknown> = {};
+  const patch: Record<string, unknown> = Object.create(null);
   for (const field of fields) {
     if (field.name === "key") {
       continue;

@@ -4,7 +4,7 @@ import { applyAppearanceCommand, type AppearanceCommandResult } from "../graph/a
 import { getCustomFieldNames, getNodeChildren, getNodeDefine, getNodeParents, getNodeTitle, getNodeType } from "../graph/accessors";
 import { getDefaultFieldMapping, type FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
-import { structuredCloneValue } from "../graph/serialize";
+import { structuredCloneValue, cloneGraphDocument } from "../graph/serialize";
 import type { NodeKey, NormalizedDag } from "../graph/types";
 import type { ConsoleInstruction, ConsoleNodeOperand } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
@@ -43,7 +43,7 @@ export function executeConsoleInstructions(
   mapping: FieldMapping = getDefaultFieldMapping(),
   appearance: GraphAppearance = DEFAULT_GRAPH_APPEARANCE,
 ): ConsoleRunResult {
-  let workingDag = structuredCloneValue(dag);
+  let workingDag = cloneGraphDocument(dag);
   let workingAppearance = appearance;
   let contextNodeKey = initialContextNodeKey;
   const results: CommandResult[] = [];

@@ -55,7 +55,7 @@ Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `n
 
 ## What You Can Do
 
-- switch between `Preview` and `Edit` mode
+- inspect and edit v2 graphs directly
 - initialize a blank canvas with one starter node
 - focus a node, move back through focus history, or move up to parent levels
 - work with multiple roots as a forest

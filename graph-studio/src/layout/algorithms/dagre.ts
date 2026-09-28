@@ -15,6 +15,9 @@ export function buildDagreLayout(
   nodeSizes: Map<NodeKey, { width: number; height: number }>,
 ): LayoutResult {
   const visible = buildVisibleGraph(dag, roots, mapping);
+  // Keep arbitrary document IDs out of Graphlib's internal object-key namespace.
+  const internalIds = new Map(visible.nodeKeys.map((key, index) => [key, `node-${index}`]));
+  const graphId = (key: NodeKey) => internalIds.get(key)!;
   const graph = new dagre.graphlib.Graph({ multigraph: false, compound: false });
   graph.setGraph({
     rankdir: "LR",
@@ -30,7 +33,7 @@ export function buildDagreLayout(
 
   visible.nodeKeys.forEach((nodeKey) => {
     const size = nodeSizes.get(nodeKey);
-    graph.setNode(nodeKey, {
+    graph.setNode(graphId(nodeKey), {
       width: size?.width ?? DEFAULT_NODE_WIDTH,
       height: size?.height ?? DEFAULT_NODE_HEIGHT,
     });
@@ -38,20 +41,20 @@ export function buildDagreLayout(
 
   visible.nodeKeys.forEach((sourceKey) => {
     visible.outgoing[sourceKey].forEach((targetKey) => {
-      graph.setEdge(sourceKey, targetKey, {});
+      graph.setEdge(graphId(sourceKey), graphId(targetKey), {});
     });
   });
 
   dagre.layout(graph);
 
-  const layerXs = collectLayerCenters(visible.nodeKeys, graph);
+  const layerXs = collectLayerCenters(visible.nodeKeys.map(graphId), graph);
   const nodePositions = new Map<NodeKey, { x: number; y: number }>();
   const coordinates: LayoutResult["coordinates"] = new Map();
   const layerSlotCounts = new Map<number, number>();
 
   layerXs.forEach((_, layerIndex) => {
     const layerNodes = visible.nodeKeys
-      .map((nodeKey) => ({ nodeKey, layoutNode: graph.node(nodeKey) as DagreNodePosition | undefined }))
+      .map((nodeKey) => ({ nodeKey, layoutNode: graph.node(graphId(nodeKey)) as DagreNodePosition | undefined }))
       .filter((entry) => entry.layoutNode && resolveLayerIndex(layerXs, entry.layoutNode.x) === layerIndex)
       .sort((left, right) => {
         if ((left.layoutNode?.y ?? 0) !== (right.layoutNode?.y ?? 0)) {
@@ -73,14 +76,14 @@ export function buildDagreLayout(
   const edgeRoutes = new Map<string, LayoutEdgeRoute>();
   visible.nodeKeys.forEach((sourceKey) => {
     visible.outgoing[sourceKey].forEach((targetKey) => {
-      const layoutEdge = graph.edge(sourceKey, targetKey) as DagreEdgeRoute | undefined;
+      const layoutEdge = graph.edge(graphId(sourceKey), graphId(targetKey)) as DagreEdgeRoute | undefined;
       const routePoints = (layoutEdge?.points || []).slice(1, -1).map((point) => ({
         layer: resolveLayerIndex(layerXs, point.x),
         order: 0,
         x: point.x,
         y: point.y,
       }));
-      edgeRoutes.set(`${sourceKey}-->${targetKey}`, {
+      edgeRoutes.set(JSON.stringify([sourceKey, targetKey]), {
         source: sourceKey,
         target: targetKey,
         points: routePoints,
