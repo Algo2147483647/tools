@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open the local Vite URL shown in the terminal. On first load, the app automatically opens [`public/example.json`](../public/example.json).
+Open the local Vite URL shown in the terminal. On first load, the app shows the welcome page without loading a graph.
 
 ## Editing
 
@@ -17,31 +17,24 @@ The app opens in Edit mode. Graph edits, the console, undo, redo and saving are 
 
 ## Controls
 
-The top bar controls button opens a settings dialog with three sections:
+The Settings button opens a searchable dialog with four sections:
 
-- `General`: console visibility, initialization, SVG export, JSON file import, folder import, and status
-- `Appearance`: UI configuration import/export/reset, layout engine, layout tuning, presets, tokens, custom CSS, title styling, detail visibility, borders, and width behavior
-- `AI`: provider, model, API key, execution mode, and connection test
+- Workspace: open files/folders, recent locations, manifest export, and console visibility
+- Appearance: live preview, presets, colors, typography, visible details, advanced CSS and configuration
+- Layout: engine selection and spacing/dimension sliders
+- AI assistant: provider, model, API key, execution mode, and connection test
 
 AI providers include OpenAI-compatible endpoints, DeepSeek, Anthropic, Gemini, and Ollama.
 
 For the full graph UI configuration model, see [Graph Appearance System](graph-appearance.md).
 
-## Loading and Starting Graphs
+## Opening graphs and workspaces
 
-You can work from sample data or start from scratch.
+Use Open graph file for one document or Open workspace for a folder. A workspace lists independent v2 graph documents; it does not merge their contents. The app remembers recent locations and the last selected graph in each workspace. New graph creates an unsaved document with one starter node.
 
-- The default sample graph is loaded automatically on page load.
-- `Initialize Canvas` creates a new blank graph with a single centered root node named `Initial_Node`.
-- A newly initialized graph is treated as unsaved until you export or save it as JSON.
+A root graph-studio.workspace.json manifest can specify graph files and a default graph. Without it, the app detects native v2 JSON documents. Multiple graphs without a clear default remain in the explorer for selection. Invalid files show an error; opening does not modify source files. See the [Workspace Guide](workspaces.md) for the full discovery contract and browser permission behavior.
 
-## JSON Import and Conflicts
-
-Import files or a folder using General settings, or drop JSON files onto the canvas. All files must follow [Graph Studio v2](data-format.md). An invalid or unknown document rejects the whole batch and shows the reason in the status area.
-
-Multiple files are validated first, then a conflict report lists both values and their source paths. Choose Keep existing, Merge fields, or Rename incoming as applicable. Merging can reveal further nested field conflicts; every conflict needs a decision. Download report exports the current report. Apply import stays disabled until the choices are valid. Cancel import leaves the current graph intact.
-
-Document metadata and source headers are preserved. Source files are never modified by importing. Field mapping and legacy input shapes are no longer supported.
+Local links resolve only inside an open workspace, relative to the source JSON or Markdown file. Resolve Path has been removed.
 
 ## Navigation
 
@@ -74,13 +67,13 @@ The `Appearance` settings tab controls the current graph UI independently from t
 
 Key workflows:
 
-- `UI Configuration -> Import` loads a graph appearance JSON file.
-- `UI Configuration -> Export` downloads the current graph appearance as JSON.
-- `UI Configuration -> Reset` restores the default graph appearance.
+- `Advanced appearance -> Import` loads a graph appearance JSON file.
+- `Advanced appearance -> Export` downloads the current graph appearance as JSON.
+- `Advanced appearance -> Reset` restores the default graph appearance.
 - `Presets` applies built-in looks such as `simple`, `compact`, `default`, `slate`, `blueprint`, `contrast`, and `presentation`.
-- `Tokens` edits common `--dag-*` CSS variables without writing CSS.
+- `Colors` edits common `--dag-*` CSS variables without writing CSS.
 - `Custom CSS` replaces the graph CSS block used by the renderer and SVG export.
-- `Layout Tuning` adjusts spacing, node height, width, and stage minimums.
+- The separate `Layout` category adjusts spacing, node height, width, and stage minimums.
 
 Appearance changes are remembered across refreshes in page preferences. They are not embedded into saved graph JSON.
 
@@ -143,7 +136,7 @@ Node fields use fixed semantic names (`title`, `define`, `type`). Raw editing an
 
 ## Graph Console
 
-In `Edit` mode, use `Show Console Sidebar` from the controls panel to open the left-side console.
+In `Edit` mode, use the `Graph console` switch in Workspace settings to open the left-side console.
 
 The console is designed for fast text-based graph and appearance edits:
 
@@ -243,7 +236,7 @@ The app also supports exporting the current view as SVG. SVG export includes the
 
 Appearance export is separate from graph saving:
 
-- `Appearance -> UI Configuration -> Export` downloads the current UI configuration as JSON.
-- `Appearance -> UI Configuration -> Import` loads a previously exported UI configuration JSON file.
-- `Appearance -> UI Configuration -> Reset` restores the default UI configuration.
+- `Appearance -> Advanced appearance -> Export` downloads the current UI configuration as JSON.
+- `Appearance -> Advanced appearance -> Import` loads a previously exported UI configuration JSON file.
+- `Appearance -> Advanced appearance -> Reset` restores the default UI configuration.
 - `Save JSON` saves graph data only.

@@ -4,6 +4,7 @@ This directory contains the main user and developer documentation for DAG Studio
 
 ## Start Here
 
+- [Workspace Guide](workspaces.md): single files, folders, recent locations, manifest protocol and local links
 - [Usage Guide](usage.md): how to navigate, edit, and save graphs in the UI
 - [Data Format Guide](data-format.md): how graph JSON is shaped, mapped, and preserved
 - [Graph Console DSL](graph-console-dsl.md): command reference for batch edits in the console sidebar

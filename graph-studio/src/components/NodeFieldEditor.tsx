@@ -104,11 +104,11 @@ export function MarkdownValue({
             if (!url || isExternalUrl(url) || !isRelativeLink(url)) {
               return <a href={href} target={isExternalUrl(url) ? "_blank" : undefined} rel={isExternalUrl(url) ? "noreferrer" : undefined} {...props}>{children}</a>;
             }
-            const resolved = resolveRelativePath(url);
+            const resolved = resolveRelativePath(url, relativeLinkRoot?.baseFile);
             return (
               <a
                 href={href}
-                title={resolved.ok ? `Resolves to: ${relativeLinkRoot?.name || "(no resolve path selected)"}/${resolved.path}` : resolved.message}
+                title={resolved.ok ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}` : resolved.message}
                 {...props}
                 onClick={(event) => {
                   event.preventDefault();
@@ -161,7 +161,7 @@ function RelativeMarkdownImage({
       return;
     }
 
-    if (!relativeLinkRoot?.handle) {
+    if (!relativeLinkRoot) {
       setResolvedSrc("");
       setUnavailable(true);
       return;
@@ -258,7 +258,7 @@ function DisplayLink({
       <a
         className="node-detail-link"
         href={url}
-        title={resolved.ok ? `Resolves to: ${relativeLinkRoot?.name || "(no resolve path selected)"}/${resolved.path}` : resolved.message}
+        title={resolved.ok ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}` : resolved.message}
         onClick={(event) => {
           event.preventDefault();
           onOpenRelativeLink?.(url);

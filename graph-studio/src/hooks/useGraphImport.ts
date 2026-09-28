@@ -1,353 +1,160 @@
-import type { ChangeEvent, Dispatch, MouseEvent, MutableRefObject, SetStateAction } from "react";
-import { useEffect, useRef, useState } from "react";
-import { ensureJsonExtension } from "../adapters/download";
-import { openJsonDirectoryWithAccess, openJsonFilesWithAccess, readJsonFile, type PickedJsonCollection } from "../adapters/fileAccess";
-import { loadRecentImportMetadata, loadRecentJsonCollection, saveRecentDirectoryImport, saveRecentFileImport } from "../adapters/recentImport";
-import { type FieldMapping } from "../graph/fieldMapping";
-import { analyzeGraphImport, buildImportedDag, type ImportGraphDocument, type ImportWarning, type ImportResolutions } from "../graph/importMerge";
+import { useEffect, useRef, useState, type ChangeEvent, type Dispatch } from "react";
+import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import { getInitialSelection } from "../graph/selectors";
 import type { GraphAction } from "../state/graphActions";
+import type { GraphAppState } from "../state/initialState";
+import { normalizeDagInput } from "../graph/normalize";
+import { downloadJsonFile } from "../adapters/download";
+import { loadRecentLocations, readRecentMetadata, rememberLocation, forgetRecentLocation, type RecentLocation } from "../adapters/recentImport";
+import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../adapters/workspaceAccess";
+import { createWorkspaceManifest, discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
+import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 
-export interface ImportFileButtonState {
-  status: "idle" | "success" | "error";
-  label: string;
-  fileName?: string;
-}
+export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>;state:GraphAppState}) {
+  const [workspace,setWorkspace]=useState<GraphWorkspace|null>(null);
+  const [recents,setRecents]=useState<RecentLocation[]>(readRecentMetadata);
+  const [homeVisible,setHomeVisible]=useState(true);
+  const [busy,setBusy]=useState(false);
+  const [notice,setNotice]=useState("");
+  const [explorerOpen,setExplorerOpen]=useState(true);
+  const fileInputRef=useRef<HTMLInputElement>(null);
+  const folderInputRef=useRef<HTMLInputElement>(null);
+  const lock=useRef(false);
+  const recentRevision=useRef(0);
+  const pendingRecent=useRef<RecentLocation|undefined>(undefined);
+  const stateRef=useRef(state);
+  stateRef.current=state;
+  useEffect(()=>{let active=true;const revision=recentRevision.current;void loadRecentLocations().then(items=>{if(active && revision===recentRevision.current)setRecents(items);});return()=>{active=false;};},[]);
 
-export function useGraphImport({
-  dispatch,
-  fieldMapping,
-  setFieldMapping,
-  suppressDefaultGraphRef,
-  setDefaultGraphAutoLoadEnabled,
-}: {
-  dispatch: Dispatch<GraphAction>;
-  fieldMapping: FieldMapping;
-  setFieldMapping: Dispatch<SetStateAction<FieldMapping>>;
-  suppressDefaultGraphRef: MutableRefObject<boolean>;
-  setDefaultGraphAutoLoadEnabled: Dispatch<SetStateAction<boolean>>;
-}) {
-  const [importFileButtonState, setImportFileButtonState] = useState<ImportFileButtonState>({
-    status: "idle",
-    label: "Import File",
-  });
-
-  const [pendingImport, setPendingImport] = useState<{ documents: ImportGraphDocument[]; resolve: (value: ImportResolutions | null) => void } | null>(null);
-  const importingRef = useRef(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function restoreRecentImport() {
-      const metadata = loadRecentImportMetadata();
-      if (!metadata?.canAutoLoad) {
-        if (!cancelled) {
-          suppressDefaultGraphRef.current = false;
-          setDefaultGraphAutoLoadEnabled(true);
-        }
-        return;
-      }
-
-      try {
-        const recentCollection = await loadRecentJsonCollection();
-        if (cancelled) {
-          return;
-        }
-        if (!recentCollection || recentCollection.files.length === 0) {
-          suppressDefaultGraphRef.current = false;
-          setDefaultGraphAutoLoadEnabled(true);
-          return;
-        }
-        await loadPickedJsonFiles(recentCollection, Boolean(recentCollection.directoryHandle), false);
-      } catch (error) {
-        console.warn("Unable to restore recent import", error);
-        if (!cancelled) {
-          suppressDefaultGraphRef.current = false;
-          setDefaultGraphAutoLoadEnabled(true);
-        }
-      }
-    }
-
-    restoreRecentImport();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  async function handleFileInputClick(event: MouseEvent<HTMLInputElement>) {
-    if (typeof window.showOpenFilePicker !== "function") {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    try {
-      const pickedFiles = await openJsonFilesWithAccess();
-      if (pickedFiles.files.length > 0) {
-        await loadPickedJsonFiles(pickedFiles);
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-      console.error(error);
-      setImportFileButtonState({
-        status: "error",
-        label: "error",
-      });
-      dispatch({ type: "statusChanged", status: "The selected JSON files could not be opened." });
-    }
+  function mayReplace() {
+    return !stateRef.current.source.dirty || window.confirm(`"${stateRef.current.source.fileName}" has unsaved changes. Discard them and open another document?`);
   }
-
-  async function handleFileInputChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files || []).map((file) => ({
-      file,
-      handle: null,
-      path: file.webkitRelativePath || file.name,
-    }));
-    if (!files.length) {
-      return;
-    }
-    await loadPickedJsonFiles({
-      files,
-      name: files.length === 1 ? files[0].file.name : "selected-json-files.json",
-    });
-    event.target.value = "";
+  async function run(action:()=>Promise<void>) {
+    if(lock.current)return;
+    lock.current=true;setBusy(true);setNotice("");
+    try {await action();}
+    catch(error) {
+      if(error instanceof DOMException && error.name==="AbortError")return;
+      const message=error instanceof Error?error.message:String(error);
+      setNotice(message);dispatch({type:"statusChanged",status:message});
+    } finally {lock.current=false;setBusy(false);}
   }
-
-  async function handleFolderInputClick(event: MouseEvent<HTMLInputElement>) {
-    if (typeof window.showDirectoryPicker !== "function") {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    try {
-      const pickedDirectory = await openJsonDirectoryWithAccess();
-      if (pickedDirectory) {
-        await loadPickedJsonFiles(pickedDirectory, true);
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        return;
-      }
-      console.error(error);
-      dispatch({ type: "statusChanged", status: "The selected folder could not be opened." });
-    }
+  function commit(dag: ReturnType<typeof normalizeDagInput>, entry:WorkspaceFile) {
+    dispatch({type:"graphLoaded",dag,fileName:entry.path,fileHandle:entry.handle,selection:getInitialSelection(dag,getDefaultFieldMapping()),status:`${Object.keys(dag.nodes).length} nodes loaded from ${entry.path}.`});
+    setHomeVisible(false);
   }
-
-  async function handleFolderInputChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files || []).map((file) => ({
-      file,
-      handle: null,
-      path: file.webkitRelativePath || file.name,
-    }));
-    if (!files.length) {
-      return;
-    }
-
-    const firstPathPart = files[0].path.split(/[\\/]/)[0] || "folder";
-    await loadPickedJsonFiles({
-      files,
-      name: `${firstPathPart}-merged.json`,
-    }, true);
-    event.target.value = "";
+  async function remember(input:Parameters<typeof rememberLocation>[0]) {
+    recentRevision.current++;
+    const items=await rememberLocation(input);setRecents(items);return items[0]?.id;
   }
-
-  async function handleDroppedFiles(fileList: FileList | File[]) {
-    const files = Array.from(fileList).map((file) => ({
-      file,
-      handle: null,
-      path: file.webkitRelativePath || file.name,
-    }));
-    if (!files.length) {
-      return;
-    }
-
-    await loadPickedJsonFiles({
-      files,
-      name: files.length === 1 ? files[0].file.name : "dropped-json-files.json",
+  async function loadFile(entry:WorkspaceFile,recentId?:string) {
+    const dag=await readGraphFile(entry);
+    if(!mayReplace())return;
+    setWorkspace(null);commit(dag,entry);
+    await remember({id:recentId,kind:"file",name:entry.path,location:entry.path,handle:entry.handle || undefined});
+  }
+  async function loadFolder(folder:WorkspaceFolder,recent?:RecentLocation) {
+    const found=await discoverWorkspace(folder,recent?.lastGraph);
+    const entry=found.activePath?folder.files.get(found.activePath)!:null;
+    const dag=entry?await readGraphFile(entry):null;
+    if(!mayReplace())return;
+    setWorkspace(found);setExplorerOpen(true);setHomeVisible(false);
+    if(dag && entry)commit(dag,entry);
+    else dispatch({type:"graphClosed",status:found.graphs.length?"Choose a graph from the workspace.":"No graph documents found. Add a Graph Studio v2 JSON file to this folder."});
+    const recentId=await remember({id:recent?.id,kind:"workspace",name:found.name,location:folder.handle?.name || folder.name,handle:folder.handle || undefined,lastGraph:found.activePath || undefined});
+    setWorkspace({...found,recentId});
+  }
+  function selectFile(recent?:RecentLocation) {
+    if(lock.current)return;
+    pendingRecent.current=recent;
+    if(true /* temporary QA fallback */ || !window.showOpenFilePicker){fileInputRef.current?.click();return;}
+    void run(async()=>{
+      const handles=await window.showOpenFilePicker!({multiple:false,types:[{description:"Graph Studio graph",accept:{"application/json":[".json"]}}]});
+      if(handles[0])await loadFile({path:handles[0].name,handle:handles[0]},handles[0].name===recent?.location?recent.id:undefined);
     });
   }
-
-  async function loadPickedJsonFiles(collection: PickedJsonCollection, fromFolder = false, cacheRecentImport = true) {
-    if (importingRef.current) {
-      dispatch({ type: "statusChanged", status: "Finish or cancel the current import before starting another." });
-      return;
-    }
-    importingRef.current = true;
-    try { await importCollection(collection, fromFolder, cacheRecentImport); }
-    finally { importingRef.current = false; }
+  function selectWorkspace(recent?:RecentLocation) {
+    if(lock.current)return;
+    pendingRecent.current=recent;
+    if(true /* temporary QA fallback */ || !window.showDirectoryPicker){folderInputRef.current?.click();return;}
+    void run(async()=>{
+      const handle=await window.showDirectoryPicker!({mode:"read",id:"graph-studio-workspace"});
+      await loadFolder(await readWorkspaceDirectory(handle),handle.name===recent?.location?recent:undefined);
+    });
   }
-
-  async function importCollection(collection: PickedJsonCollection, fromFolder: boolean, cacheRecentImport: boolean) {
-    suppressDefaultGraphRef.current = true;
-    const { files: pickedFiles, name: sourceName } = collection;
-    const jsonFiles = pickedFiles.filter((item) => isJsonFileName(item.path || item.file.name));
-    const skippedNonJsonCount = pickedFiles.length - jsonFiles.length;
-    if (jsonFiles.length === 0) {
-      if (!fromFolder) {
-        setImportFileButtonState({
-          status: "error",
-          label: "error",
-        });
-      }
-      dispatch({
-        type: "statusChanged",
-        status: fromFolder
-          ? "The selected folder did not contain any JSON files."
-          : "No JSON files were selected.",
-      });
-      return;
-    }
-
-    const documents: ImportGraphDocument[] = [];
-    const parseFailures: string[] = [];
-
-    for (const pickedFile of jsonFiles) {
-      const displayName = pickedFile.path || pickedFile.file.name;
-      try {
-        documents.push({
-          name: displayName,
-          payload: await readJsonFile(pickedFile.file),
-        });
-      } catch (error) {
-        console.error(error);
-        parseFailures.push(`${displayName}: ${error instanceof Error ? error.message : String(error)}`);
-      }
-    }
-
-    if (parseFailures.length || !documents.length) {
-      if (!fromFolder) {
-        setImportFileButtonState({
-          status: "error",
-          label: "error",
-        });
-      }
-      dispatch({
-        type: "statusChanged",
-        status: `Import rejected: ${parseFailures.join("; ") || "No valid documents."}`,
-      });
-      return;
-    }
-
-    try {
-      const analysis = analyzeGraphImport(documents);
-      let resolutions: ImportResolutions = {};
-      if (analysis.conflicts.length) {
-        const chosen = await new Promise<ImportResolutions | null>(resolve => setPendingImport({ documents, resolve }));
-        if (!chosen) {
-          dispatch({ type: "statusChanged", status: "Import cancelled. Current graph unchanged." });
-          return;
-        }
-        resolutions = chosen;
-      }
-      const imported = buildImportedDag(documents, fieldMapping, resolutions);
-      const dag = imported.dag;
-      const singleWritableSource = !fromFolder && jsonFiles.length === 1 && parseFailures.length === 0 ? jsonFiles[0] : null;
-      const fileName = singleWritableSource ? singleWritableSource.file.name : ensureJsonExtension(sourceName || "merged-graph.json");
-      if (!fromFolder) {
-        setImportFileButtonState({
-          status: "success",
-          label: fileName,
-          fileName,
-        });
-      }
-      setFieldMapping(imported.mapping);
-      dispatch({
-        type: "graphLoaded",
-        dag,
-        fileName,
-        fileHandle: singleWritableSource?.handle || null,
-        selection: getInitialSelection(dag, imported.mapping),
-        status: buildImportStatus({
-          nodeCount: Object.keys(dag.nodes).length,
-          sourceName: fileName,
-          loadedJsonCount: documents.length,
-          selectedJsonCount: jsonFiles.length,
-          skippedNonJsonCount,
-          parseFailures,
-          warnings: imported.warnings,
-        }),
-      });
-      if (cacheRecentImport) {
-        try {
-          if (fromFolder) {
-            await saveRecentDirectoryImport(collection);
-          } else {
-            await saveRecentFileImport(collection);
-          }
-        } catch (error) {
-          console.warn("Unable to save recent import source", error);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      if (!fromFolder) {
-        setImportFileButtonState({
-          status: "error",
-          label: "error",
-        });
-      }
-      dispatch({ type: "statusChanged", status: `Import rejected: ${error instanceof Error ? error.message : String(error)}` });
-    }
+  function openFile(){selectFile();}
+  function openWorkspace(){selectWorkspace();}
+  async function onFileChange(event:ChangeEvent<HTMLInputElement>) {
+    const files=Array.from(event.currentTarget.files || []);event.currentTarget.value="";
+    const recent=pendingRecent.current;pendingRecent.current=undefined;
+    if(files[0])await run(()=>loadFile({path:files[0].name,file:files[0],handle:null},files[0].name===recent?.location?recent.id:undefined));
   }
-
+  async function onFolderChange(event:ChangeEvent<HTMLInputElement>) {
+    const files=Array.from(event.currentTarget.files || []);event.currentTarget.value="";
+    const recent=pendingRecent.current;pendingRecent.current=undefined;
+    if(files.length)await run(async()=>{const folder=workspaceFromFiles(files);await loadFolder(folder,folder.name===recent?.location?recent:undefined);});
+  }
+  async function handleDroppedFiles(files:FileList|File[]) {
+    if(!files.length)return;
+    await run(async()=>{
+      if(files.length!==1)throw new Error("Open one graph file at a time, or use Open workspace for a folder.");
+      await loadFile({path:files[0].name,file:files[0],handle:null});
+    });
+  }
+  function openRecent(item:RecentLocation) {
+    if(!item.handle) {
+      setNotice(`Select "${item.location}" again to restore access.`);
+      if(item.kind==="workspace")selectWorkspace(item);else selectFile(item);
+      return;
+    }
+    void run(async()=>{
+      if(!await requestReadAccess(item.handle!))throw new Error(`Access to "${item.location}" was not granted. Use Open ${item.kind==="workspace"?"workspace":"file"} to select it again.`);
+      if(item.kind==="workspace")await loadFolder(await readWorkspaceDirectory(item.handle as FileSystemDirectoryHandle),item);
+      else await loadFile({path:item.location,handle:item.handle as FileSystemFileHandle},item.id);
+    });
+  }
+  function openWorkspaceGraph(path:string) {
+    if(!workspace || path===workspace.activePath){setHomeVisible(false);return;}
+    const folder=workspace;
+    void run(async()=>{
+      const entry=folder.files.get(path);
+      if(!entry || !folder.graphs.some(graph=>graph.path===path))throw new Error("Graph not found in the current workspace.");
+      const dag=await readGraphFile(entry);
+      if(!mayReplace())return;
+      commit(dag,entry);
+      const next={...folder,activePath:path};setWorkspace(next);
+      const recentId=await remember({id:folder.recentId,kind:"workspace",name:folder.name,location:folder.rootName,handle:folder.handle || undefined,lastGraph:path});
+      setWorkspace({...next,recentId});
+    });
+  }
+  function refreshWorkspace() {
+    if(!workspace)return;
+    const folder=workspace;
+    if(!folder.handle){setNotice("Choose the folder again to refresh files in this browser.");selectWorkspace(recents.find(item=>item.id===folder.recentId));return;}
+    void run(async()=>{
+      const found=await discoverWorkspace(await readWorkspaceDirectory(folder.handle!),folder.activePath || undefined);
+      // Refresh only updates the explorer. Unsaved graph edits stay in memory.
+      setWorkspace({...found,activePath:folder.activePath,recentId:folder.recentId});
+      setNotice("Workspace file list refreshed. The open document was kept unchanged.");
+    });
+  }
+  function closeWorkspace() {
+    if(lock.current || !mayReplace())return;
+    setWorkspace(null);setHomeVisible(true);dispatch({type:"graphClosed",status:""});
+  }
+  function prepareNewDocument() {
+    if(lock.current || !mayReplace())return false;
+    setWorkspace(null);setHomeVisible(false);setNotice("");return true;
+  }
+  function exportWorkspaceManifest() {
+    if(workspace)downloadJsonFile(JSON.stringify(createWorkspaceManifest(workspace),null,2),WORKSPACE_MANIFEST);
+  }
+  async function removeRecent(id:string) {await run(async()=>{recentRevision.current++;setRecents(await forgetRecentLocation(id));});}
   return {
-    pendingImport,
-    confirmImport: (resolutions: ImportResolutions) => {
-      if (!pendingImport) return;
-      buildImportedDag(pendingImport.documents, fieldMapping, resolutions);
-      pendingImport.resolve(resolutions);
-      setPendingImport(null);
-    },
-    cancelImport: () => { pendingImport?.resolve(null); setPendingImport(null); },
-    importFileButtonState,
-    handleFileInputClick,
-    handleFileInputChange,
-    handleFolderInputClick,
-    handleFolderInputChange,
-    handleDroppedFiles,
+    workspace,recents,homeVisible,setHomeVisible,busy,notice,setNotice,explorerOpen,setExplorerOpen,
+    fileInputRef,folderInputRef,onFileChange,onFolderChange,openFile,openWorkspace,openRecent,removeRecent,
+    openWorkspaceGraph,refreshWorkspace,closeWorkspace,prepareNewDocument,exportWorkspaceManifest,handleDroppedFiles,
   };
 }
 
-function isJsonFileName(fileName: string): boolean {
-  return /\.json$/i.test(fileName);
-}
-
-function buildImportStatus({
-  nodeCount,
-  sourceName,
-  loadedJsonCount,
-  selectedJsonCount,
-  skippedNonJsonCount,
-  parseFailures,
-  warnings,
-}: {
-  nodeCount: number;
-  sourceName: string;
-  loadedJsonCount: number;
-  selectedJsonCount: number;
-  skippedNonJsonCount: number;
-  parseFailures: string[];
-  warnings: ImportWarning[];
-}): string {
-  const sourceLabel = loadedJsonCount === 1
-    ? sourceName
-    : `${sourceName} from ${loadedJsonCount} JSON files`;
-  const issueCount = parseFailures.length + warnings.length + skippedNonJsonCount;
-  const parsedSuffix = selectedJsonCount === loadedJsonCount
-    ? ""
-    : ` ${selectedJsonCount - loadedJsonCount} selected JSON file${selectedJsonCount - loadedJsonCount === 1 ? "" : "s"} could not be parsed.`;
-  const warningSuffix = issueCount > 0
-    ? ` ${issueCount} import warning${issueCount === 1 ? "" : "s"}; valid JSON files were loaded.`
-    : "";
-
-  if (warnings.length > 0 || parseFailures.length > 0) {
-    console.warn("DAG Studio import warnings", {
-      parseFailures,
-      warnings: warnings.map((warning) => warning.message),
-      skippedNonJsonCount,
-    });
-  }
-
-  return `${nodeCount} nodes loaded from ${sourceLabel}.${parsedSuffix}${warningSuffix}`;
-}
+export type WorkspaceControls = ReturnType<typeof useGraphImport>;

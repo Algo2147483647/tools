@@ -1,252 +1,91 @@
-import { createJsonCollectionFromDirectoryHandle, createJsonCollectionFromFileHandles, hasReadPermission, type PickedJsonCollection } from "./fileAccess";
-
-const RECENT_IMPORT_DB_NAME = "graph-studio-recent-import";
-const RECENT_IMPORT_DB_VERSION = 1;
-const RECENT_IMPORT_STORE = "sources";
-const RECENT_IMPORT_SOURCE_KEY = "latest";
-const RECENT_IMPORT_METADATA_KEY = "graph-studio:recent-import-metadata";
-
-export interface RecentImportMetadata {
-  kind: "files" | "directory" | "path-only";
+export interface RecentLocation {
+  id: string;
+  kind: "file" | "workspace";
   name: string;
-  paths: string[];
-  savedAt: number;
-  canAutoLoad: boolean;
+  location: string;
+  openedAt: number;
+  canReopen: boolean;
+  lastGraph?: string;
+  handle?: FileSystemFileHandle | FileSystemDirectoryHandle;
 }
-
-type RecentImportRecord =
-  | {
-      key: typeof RECENT_IMPORT_SOURCE_KEY;
-      kind: "files";
-      name: string;
-      handles: FileSystemFileHandle[];
-      paths: string[];
-      savedAt: number;
-    }
-  | {
-      key: typeof RECENT_IMPORT_SOURCE_KEY;
-      kind: "directory";
-      name: string;
-      handle: FileSystemDirectoryHandle;
-      paths: string[];
-      savedAt: number;
-    };
-
-interface StorageLike {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-  removeItem(key: string): void;
+const DB_NAME = "graph-studio-open-recent";
+const STORE = "locations";
+const STORAGE_KEY = "graph-studio:recent-locations";
+const LIMIT = 20;
+interface StorageLike { getItem(key: string): string | null; setItem(key: string, value: string): void }
+function browserStorage(): StorageLike | null {
+  try { return typeof window === "undefined" ? null : window.localStorage; } catch { return null; }
 }
-
-export function loadRecentImportMetadata(storage: StorageLike | null = getBrowserStorage()): RecentImportMetadata | null {
-  if (!storage) {
-    return null;
-  }
-
+export function readRecentMetadata(storage: StorageLike | null = browserStorage()): RecentLocation[] {
   try {
-    const raw = storage.getItem(RECENT_IMPORT_METADATA_KEY);
-    if (!raw) {
-      return null;
-    }
-    const parsed = JSON.parse(raw) as Partial<RecentImportMetadata> | null;
-    if (!parsed || typeof parsed !== "object") {
-      return null;
-    }
-    if (parsed.kind !== "files" && parsed.kind !== "directory" && parsed.kind !== "path-only") {
-      return null;
-    }
-    if (typeof parsed.name !== "string" || !Array.isArray(parsed.paths)) {
-      return null;
-    }
-    return {
-      kind: parsed.kind,
-      name: parsed.name,
-      paths: parsed.paths.filter((path): path is string => typeof path === "string"),
-      savedAt: typeof parsed.savedAt === "number" && Number.isFinite(parsed.savedAt) ? parsed.savedAt : 0,
-      canAutoLoad: parsed.canAutoLoad === true,
-    };
-  } catch {
-    return null;
-  }
+    const items: unknown = JSON.parse(storage?.getItem(STORAGE_KEY) || "[]");
+    if (!Array.isArray(items)) return [];
+    return items.filter(item => item && typeof item.id === "string" && ["file","workspace"].includes(item.kind) && typeof item.name === "string" && typeof item.location === "string" && Number.isFinite(item.openedAt))
+      .map(({id,kind,name,location,openedAt,lastGraph}) => ({id,kind,name,location,openedAt,lastGraph: typeof lastGraph === "string" ? lastGraph : undefined,canReopen:false}))
+      .sort((a,b) => b.openedAt-a.openedAt).slice(0,LIMIT);
+  } catch { return []; }
 }
-
-export async function saveRecentFileImport(collection: PickedJsonCollection): Promise<void> {
-  const handles = collection.files.map((item) => item.handle).filter(Boolean) as FileSystemFileHandle[];
-  const paths = collection.files.map((item) => item.path || item.file.name);
-  const savedAt = Date.now();
-
-  if (handles.length === collection.files.length && handles.length > 0) {
-    await putRecentImportRecord({
-      key: RECENT_IMPORT_SOURCE_KEY,
-      kind: "files",
-      name: collection.name,
-      handles,
-      paths,
-      savedAt,
-    });
-    saveRecentImportMetadata({
-      kind: "files",
-      name: collection.name,
-      paths,
-      savedAt,
-      canAutoLoad: true,
-    });
-    return;
-  }
-
-  await clearRecentImportRecord();
-  saveRecentImportMetadata({
-    kind: "path-only",
-    name: collection.name,
-    paths,
-    savedAt,
-    canAutoLoad: false,
+function saveMetadata(items: RecentLocation[]) {
+  try { browserStorage()?.setItem(STORAGE_KEY, JSON.stringify(items.map(({handle: _handle,...item}) => item))); } catch { /* Opening files still works without browser storage. */ }
+}
+export function rankRecentLocations(items: RecentLocation[], incoming: RecentLocation): RecentLocation[] {
+  return [incoming, ...items.filter(item => item.id !== incoming.id)].sort((a,b) => b.openedAt-a.openedAt).slice(0,LIMIT);
+}
+async function database(): Promise<IDBDatabase> {
+  return new Promise((resolve,reject) => {
+    if (typeof indexedDB === "undefined") { reject(new Error("Recent locations cannot be stored in this browser.")); return; }
+    const request=indexedDB.open(DB_NAME,1);
+    request.onupgradeneeded=()=>request.result.createObjectStore(STORE,{keyPath:"id"});
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
   });
 }
-
-export async function saveRecentDirectoryImport(collection: PickedJsonCollection): Promise<void> {
-  const paths = collection.files.map((item) => item.path || item.file.name);
-  const savedAt = Date.now();
-
-  if (collection.directoryHandle) {
-    await putRecentImportRecord({
-      key: RECENT_IMPORT_SOURCE_KEY,
-      kind: "directory",
-      name: collection.name,
-      handle: collection.directoryHandle,
-      paths,
-      savedAt,
-    });
-    saveRecentImportMetadata({
-      kind: "directory",
-      name: collection.name,
-      paths,
-      savedAt,
-      canAutoLoad: true,
-    });
-    return;
-  }
-
-  await clearRecentImportRecord();
-  saveRecentImportMetadata({
-    kind: "path-only",
-    name: collection.name,
-    paths,
-    savedAt,
-    canAutoLoad: false,
-  });
-}
-
-export async function loadRecentJsonCollection(): Promise<PickedJsonCollection | null> {
-  const record = await getRecentImportRecord();
-  if (!record) {
-    return null;
-  }
-
-  if (record.kind === "files") {
-    const granted = await Promise.all(record.handles.map((handle) => hasReadPermission(handle)));
-    if (granted.some((item) => !item)) {
-      return null;
-    }
-    return createJsonCollectionFromFileHandles(record.handles, record.paths, record.name);
-  }
-
-  if (!(await hasReadPermission(record.handle))) {
-    return null;
-  }
-  return createJsonCollectionFromDirectoryHandle(record.handle);
-}
-
-function saveRecentImportMetadata(metadata: RecentImportMetadata, storage: StorageLike | null = getBrowserStorage()): void {
-  if (!storage) {
-    return;
-  }
-
+async function storeRequest<T>(mode: IDBTransactionMode, operation: (store: IDBObjectStore)=>IDBRequest<T>): Promise<T> {
+  const db=await database();
   try {
-    storage.setItem(RECENT_IMPORT_METADATA_KEY, JSON.stringify(metadata));
-  } catch {
-    // Best-effort only; import should continue even when storage is blocked.
-  }
+    return await new Promise<T>((resolve,reject)=>{
+      const transaction=db.transaction(STORE,mode);
+      const request=operation(transaction.objectStore(STORE));
+      transaction.oncomplete=()=>resolve(request.result);
+      transaction.onabort=()=>reject(transaction.error || new Error("Recent location storage was aborted."));
+      transaction.onerror=()=>reject(transaction.error);
+      request.onerror=()=>reject(request.error);
+    });
+  } finally { db.close(); }
 }
-
-async function putRecentImportRecord(record: RecentImportRecord): Promise<void> {
-  const db = await openRecentImportDatabase();
-  await runStoreRequest(db, "readwrite", (store) => store.put(record));
-  db.close();
+export async function loadRecentLocations(): Promise<RecentLocation[]> {
+  const metadata=readRecentMetadata();
+  try {
+    const stored=await storeRequest("readonly",store=>store.getAll()) as RecentLocation[];
+    const byId=new Map(stored.map(item=>[item.id,item]));
+    return metadata.map(item=>{
+      const handle=byId.get(item.id)?.handle;
+      return {...item,handle,canReopen:Boolean(handle)};
+    });
+  } catch { return metadata; }
 }
-
-async function getRecentImportRecord(): Promise<RecentImportRecord | null> {
-  const db = await openRecentImportDatabase();
-  const record = await runStoreRequest(db, "readonly", (store) => store.get(RECENT_IMPORT_SOURCE_KEY));
-  db.close();
-  return isRecentImportRecord(record) ? record : null;
-}
-
-async function clearRecentImportRecord(): Promise<void> {
-  const db = await openRecentImportDatabase();
-  await runStoreRequest(db, "readwrite", (store) => store.delete(RECENT_IMPORT_SOURCE_KEY));
-  db.close();
-}
-
-function openRecentImportDatabase(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    if (typeof indexedDB === "undefined") {
-      reject(new Error("IndexedDB is not available."));
-      return;
+export async function rememberLocation(input: Omit<RecentLocation,"id"|"openedAt"|"canReopen"> & {id?:string}): Promise<RecentLocation[]> {
+  const current=await loadRecentLocations();
+  let id=input.id;
+  if (!id && input.handle) {
+    const handle=input.handle as FileSystemHandle;
+    for(const item of current) {
+      if (item.kind!==input.kind || !item.handle || !handle.isSameEntry) continue;
+      try { if(await handle.isSameEntry(item.handle as FileSystemHandle)){id=item.id;break;} } catch { /* A removed location is kept as an unavailable recent item. */ }
     }
-
-    const request = indexedDB.open(RECENT_IMPORT_DB_NAME, RECENT_IMPORT_DB_VERSION);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(RECENT_IMPORT_STORE)) {
-        db.createObjectStore(RECENT_IMPORT_STORE, { keyPath: "key" });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error || new Error("Unable to open recent import database."));
-  });
-}
-
-function runStoreRequest<T>(
-  db: IDBDatabase,
-  mode: IDBTransactionMode,
-  createRequest: (store: IDBObjectStore) => IDBRequest<T>,
-): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(RECENT_IMPORT_STORE, mode);
-    const request = createRequest(transaction.objectStore(RECENT_IMPORT_STORE));
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error || new Error("Recent import storage request failed."));
-    transaction.onerror = () => reject(transaction.error || new Error("Recent import storage transaction failed."));
-  });
-}
-
-function isRecentImportRecord(value: unknown): value is RecentImportRecord {
-  if (!value || typeof value !== "object") {
-    return false;
   }
-
-  const record = value as Partial<RecentImportRecord>;
-  if (record.key !== RECENT_IMPORT_SOURCE_KEY) {
-    return false;
-  }
-  if (record.kind === "files") {
-    return Array.isArray(record.handles) && record.handles.every(isFileHandle);
-  }
-  return record.kind === "directory" && isDirectoryHandle(record.handle);
+  const next:RecentLocation={...input,id:id || crypto.randomUUID(),openedAt:Date.now(),canReopen:Boolean(input.handle)};
+  try { await storeRequest("readwrite",store=>store.put(next)); }
+  catch { next.canReopen=false; delete next.handle; }
+  const result=rankRecentLocations(current,next);
+  saveMetadata(result);
+  const retained=new Set(result.map(item=>item.id));
+  for(const item of current) if(!retained.has(item.id)) await storeRequest("readwrite",store=>store.delete(item.id)).catch(()=>{});
+  return result;
 }
-
-function isFileHandle(value: unknown): value is FileSystemFileHandle {
-  return Boolean(value && typeof value === "object" && typeof (value as FileSystemFileHandle).getFile === "function");
-}
-
-function isDirectoryHandle(value: unknown): value is FileSystemDirectoryHandle {
-  return Boolean(value && typeof value === "object" && typeof (value as FileSystemDirectoryHandle).entries === "function");
-}
-
-function getBrowserStorage(): StorageLike | null {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return null;
-  }
-  return window.localStorage;
+export async function forgetRecentLocation(id: string): Promise<RecentLocation[]> {
+  const current=(await loadRecentLocations()).filter(item=>item.id!==id);
+  await storeRequest("readwrite",store=>store.delete(id)).catch(()=>{});
+  saveMetadata(current);
+  return current;
 }

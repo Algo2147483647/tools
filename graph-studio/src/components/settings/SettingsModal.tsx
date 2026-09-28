@@ -1,10 +1,11 @@
-import { useEffect, useState, type ChangeEvent, type MouseEvent } from "react";
+import type { WorkspaceControls } from "../../hooks/useGraphImport";
+import WorkspaceIcon from "../workspace/WorkspaceIcon";
+import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import type { GraphLayoutMode } from "../../graph/types";
 import type { AiSettings } from "../../ai/types";
-import type { ImportFileButtonState } from "../../hooks/useGraphImport";
 import { CloseIcon } from "../topbar/TopbarIcons";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
 import AppearanceSettings from "./AppearanceSettings";
@@ -21,8 +22,7 @@ interface SettingsModalProps {
   alignNodeWidthsToMax: boolean;
   status: string;
   fileName: string;
-  importFileButtonState: ImportFileButtonState;
-  relativeLinkRootName: string;
+  files: WorkspaceControls;
   hasGraph: boolean;
   consoleSidebarOpen: boolean;
   aiSettings: AiSettings;
@@ -42,11 +42,6 @@ interface SettingsModalProps {
   onNodeBordersToggle: () => void;
   onNodeWidthAlignToggle: () => void;
   onConsoleSidebarToggle: () => void;
-  onFileInputClick: (event: MouseEvent<HTMLInputElement>) => void;
-  onFileInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onFolderInputClick: (event: MouseEvent<HTMLInputElement>) => void;
-  onFolderInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onRelativeLinkRootSelect: () => void;
   onInitializeCanvas: () => void;
   onExport: () => void;
   onAiSettingsChange: (settings: AiSettings) => void;
@@ -62,8 +57,7 @@ export default function SettingsModal({
   alignNodeWidthsToMax,
   status,
   fileName,
-  importFileButtonState,
-  relativeLinkRootName,
+  files,
   hasGraph,
   consoleSidebarOpen,
   aiSettings,
@@ -83,22 +77,22 @@ export default function SettingsModal({
   onNodeBordersToggle,
   onNodeWidthAlignToggle,
   onConsoleSidebarToggle,
-  onFileInputClick,
-  onFileInputChange,
-  onFolderInputClick,
-  onFolderInputChange,
-  onRelativeLinkRootSelect,
   onInitializeCanvas,
   onExport,
   onAiSettingsChange,
   onAiConnectionTest,
 }: SettingsModalProps) {
+  const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const [activeChapter, setActiveChapter] = useState<SettingsChapter>("general");
   const [providerMenuOpen, setProviderMenuOpen] = useState(false);
   const [aiConnectionStatus, setAiConnectionStatus] = useState<AiConnectionStatus>("idle");
   const [appearanceCssDraft, setAppearanceCssDraft] = useState(appearance.css);
   const [cssVarDrafts, setCssVarDrafts] = useState<Record<string, string>>(() => buildCssVarDrafts(appearance));
   const [titleSizeDraft, setTitleSizeDraft] = useState(() => String(parseCssPixelValue(appearance.cssVars["--dag-title-font-size"], 15)));
+  const chapters = SETTINGS_CHAPTERS.filter(chapter => !query || query.toLowerCase().split(/\s+/).every(word => `${chapter.label} ${chapter.description} ${chapter.keywords}`.toLowerCase().includes(word)));
+  const shownChapter = chapters.some(chapter => chapter.key === activeChapter) ? activeChapter : chapters[0]?.key;
+  useEffect(() => { if (open) { setQuery(""); searchRef.current?.focus(); } }, [open]);
   const titleFontSize = parseCssPixelValue(appearance.cssVars["--dag-title-font-size"], 15);
 
   useEffect(() => {
@@ -135,54 +129,60 @@ export default function SettingsModal({
         }
       }}
     >
-      <section id="settings-modal" className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <section id="settings-modal" className="settings-modal studio-settings" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title" onKeyDown={event => {
+        event.stopPropagation();
+        if (event.key === "Escape") { event.preventDefault(); onClose(); }
+        if (event.key === "Tab") {
+          const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), input:not([type="file"]), select, textarea, summary')].filter(el => el.offsetParent !== null);
+          const first = controls[0], last = controls[controls.length - 1];
+          if (event.shiftKey && document.activeElement === first) {event.preventDefault();last?.focus();}
+          else if (!event.shiftKey && document.activeElement === last) {event.preventDefault();first?.focus();}
+        }
+      }}>
         <div className="settings-modal-header">
           <div>
-            <p id="settings-modal-title" className="control-label">Settings</p>
+            <h2 id="settings-modal-title">Settings</h2><p>Make Graph Studio work for you.</p>
           </div>
           <button type="button" className="ghost-btn topbar-icon-btn" title="Close settings" aria-label="Close settings" onClick={onClose}>
             <span className="topbar-icon" aria-hidden="true"><CloseIcon /></span>
           </button>
         </div>
 
+        <label className="settings-search"><WorkspaceIcon name="search" size={18}/><input ref={searchRef} aria-label="Search settings" placeholder="Search settings…" value={query} onChange={event => setQuery(event.target.value)}/>{query && <button type="button" aria-label="Clear settings search" onClick={() => setQuery("")}>×</button>}<kbd>Esc</kbd></label>
         <div className="settings-modal-body">
           <nav className="settings-tabs" aria-label="Settings sections">
-            {SETTINGS_CHAPTERS.map((chapter) => (
+            {chapters.map((chapter) => (
               <button
                 key={chapter.key}
                 type="button"
-                className={`settings-tab${activeChapter === chapter.key ? " is-active" : ""}`}
-                aria-pressed={activeChapter === chapter.key}
+                className={`settings-tab${shownChapter === chapter.key ? " is-active" : ""}`}
+                aria-pressed={shownChapter === chapter.key}
                 onClick={() => setActiveChapter(chapter.key)}
               >
-                {chapter.label}
+                <WorkspaceIcon name={chapter.icon}/><span><strong>{chapter.label}</strong><small>{chapter.description}</small></span>
               </button>
             ))}
           </nav>
 
-          <div className="settings-page">
-            {activeChapter === "general" ? (
+          <div className="settings-page" key={shownChapter || "empty"}>
+            {!shownChapter && <div className="settings-no-results"><WorkspaceIcon name="search" size={30}/><h3>No matching settings</h3><p>Try “colors”, “spacing”, “workspace” or “AI”.</p></div>}
+            {shownChapter && <div className="settings-page-heading"><h2>{SETTINGS_CHAPTERS.find(chapter => chapter.key === shownChapter)?.label}</h2><p>{SETTINGS_CHAPTERS.find(chapter => chapter.key === shownChapter)?.description}</p></div>}
+            {shownChapter === "general" ? (
               <GeneralSettings
-                status={status}
+                onClose={onClose}
                 fileName={fileName}
-                importFileButtonState={importFileButtonState}
-                relativeLinkRootName={relativeLinkRootName}
+              files={files}
                 hasGraph={hasGraph}
                 consoleSidebarOpen={consoleSidebarOpen}
-                onClose={onClose}
                 onConsoleSidebarToggle={onConsoleSidebarToggle}
-                onFileInputClick={onFileInputClick}
-                onFileInputChange={onFileInputChange}
-                onFolderInputClick={onFolderInputClick}
-                onFolderInputChange={onFolderInputChange}
-                onRelativeLinkRootSelect={onRelativeLinkRootSelect}
                 onInitializeCanvas={onInitializeCanvas}
                 onExport={onExport}
               />
             ) : null}
 
-            {activeChapter === "appearance" ? (
+            {(shownChapter === "appearance" || shownChapter === "layout") ? (
               <AppearanceSettings
+                view={shownChapter as "appearance" | "layout"}
                 layoutMode={layoutMode}
                 appearance={appearance}
                 showNodeDetail={showNodeDetail}
@@ -211,10 +211,10 @@ export default function SettingsModal({
               />
             ) : null}
 
-            {activeChapter === "ai" ? (
+            {shownChapter === "ai" ? (
               <AiSettingsPanel
                 aiSettings={aiSettings}
-                aiBusy={aiBusy}
+                aiBusy={aiBusy || aiConnectionStatus === "testing"}
                 providerMenuOpen={providerMenuOpen}
                 aiConnectionStatus={aiConnectionStatus}
                 onProviderMenuOpenChange={setProviderMenuOpen}
@@ -224,6 +224,7 @@ export default function SettingsModal({
             ) : null}
           </div>
         </div>
+        <footer className="settings-footer"><span>Preferences are saved in this browser.</span><button className="studio-button primary" onClick={onClose}>Done</button></footer>
       </section>
     </div>,
     document.body,

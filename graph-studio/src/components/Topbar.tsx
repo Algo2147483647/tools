@@ -1,9 +1,10 @@
+import type { WorkspaceControls } from "../hooks/useGraphImport";
+import WorkspaceIcon from "./workspace/WorkspaceIcon";
 import type { ChangeEvent, MouseEvent, RefObject } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../graph/appearance";
 import type { GraphAppearancePresetId } from "../graph/appearanceCommands";
 import type { GraphLayoutMode } from "../graph/types";
 import type { AiSettings } from "../ai/types";
-import type { ImportFileButtonState } from "../hooks/useGraphImport";
 import SettingsModal from "./settings/SettingsModal";
 import { ArrowLeftIcon, ArrowUpIcon, FitIcon, GraphRootsIcon, MinusIcon, PlusIcon, RedoIcon, SaveIcon, SlidersIcon, UndoIcon } from "./topbar/TopbarIcons";
 import IconButton from "./ui/IconButton";
@@ -18,8 +19,7 @@ interface TopbarProps {
   alignNodeWidthsToMax: boolean;
   status: string;
   fileName: string;
-  importFileButtonState: ImportFileButtonState;
-  relativeLinkRootName: string;
+  files: WorkspaceControls;
   hasGraph: boolean;
   typeOptions: string[];
   selectedType: string;
@@ -59,11 +59,6 @@ interface TopbarProps {
   onNodeDetailToggle: () => void;
   onNodeBordersToggle: () => void;
   onNodeWidthAlignToggle: () => void;
-  onFileInputClick: (event: MouseEvent<HTMLInputElement>) => void;
-  onFileInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onFolderInputClick: (event: MouseEvent<HTMLInputElement>) => void;
-  onFolderInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onRelativeLinkRootSelect: () => void;
   onInitializeCanvas: () => void;
   onExport: () => void;
   onSaveJson: () => void;
@@ -80,8 +75,7 @@ export default function Topbar({
   alignNodeWidthsToMax,
   status,
   fileName,
-  importFileButtonState,
-  relativeLinkRootName,
+  files,
   hasGraph,
   typeOptions,
   selectedType,
@@ -121,11 +115,6 @@ export default function Topbar({
   onNodeDetailToggle,
   onNodeBordersToggle,
   onNodeWidthAlignToggle,
-  onFileInputClick,
-  onFileInputChange,
-  onFolderInputClick,
-  onFolderInputChange,
-  onRelativeLinkRootSelect,
   onInitializeCanvas,
   onExport,
   onSaveJson,
@@ -135,10 +124,11 @@ export default function Topbar({
   return (
     <header ref={topbarRef} className="topbar">
       <div className="topbar-brand">
-        <h1>DAG Studio</h1>
+        <button className="brand-home" aria-label="Go to home" onClick={() => files.setHomeVisible(true)}><WorkspaceIcon/><strong>Graph Studio</strong></button>
+        <span className="source-breadcrumb" title={files.workspace ? `${files.workspace.name} / ${fileName}` : fileName}>{files.workspace?.name || (files.homeVisible ? "Welcome" : fileName || "Untitled graph")}</span>
       </div>
       <div className="topbar-actions">
-        <label className="topbar-group type-filter-control">
+        {!files.homeVisible && <><label className="topbar-group type-filter-control">
           <span>Type</span>
           <select
             aria-label="Filter graph by type"
@@ -161,14 +151,17 @@ export default function Topbar({
           <ZoomInput value={zoomPercent} disabled={!hasGraph} onCommit={onZoomPercentCommit} />
           <IconButton id="zoom-fit-btn" label="Fit graph to viewport" disabled={!hasGraph} onClick={onZoomFit} icon={<FitIcon />} />
         </div>
+        </>}
         <div className="topbar-group file-controls" aria-label="Graph file controls">
-          <IconButton id="undo-btn" label="Undo" disabled={!canUndo} onClick={onUndo} icon={<UndoIcon />} />
+          {!files.homeVisible && <button className="studio-icon-button" aria-label="Home" title="Home" onClick={() => files.setHomeVisible(true)}><WorkspaceIcon name="home"/></button>}
+          {files.workspace && !files.homeVisible && <button className="studio-icon-button" aria-label="Toggle workspace explorer" title="Explorer" aria-pressed={files.explorerOpen} onClick={() => files.setExplorerOpen(value => !value)}><WorkspaceIcon name="panel"/></button>}
+          {!files.homeVisible && <><IconButton id="undo-btn" label="Undo" disabled={!canUndo} onClick={onUndo} icon={<UndoIcon />} />
           <IconButton id="redo-btn" label="Redo" disabled={!canRedo} onClick={onRedo} icon={<RedoIcon />} />
-          <IconButton id="save-json-btn" label="Save JSON" disabled={!hasGraph} onClick={onSaveJson} icon={<SaveIcon />} className="ghost-btn topbar-icon-btn topbar-save-btn" />
+          <IconButton id="save-json-btn" label="Save JSON" disabled={!hasGraph} onClick={onSaveJson} icon={<SaveIcon />} className="ghost-btn topbar-icon-btn topbar-save-btn" /></>}
           <div id="floating-controls" className="control-dock">
             <IconButton
               id="settings-btn"
-              label="Open controls"
+              label="Settings"
               icon={<SlidersIcon />}
               ariaExpanded={settingsOpen}
               ariaControls="settings-modal"
@@ -184,8 +177,7 @@ export default function Topbar({
               alignNodeWidthsToMax={alignNodeWidthsToMax}
               status={status}
               fileName={fileName}
-              importFileButtonState={importFileButtonState}
-              relativeLinkRootName={relativeLinkRootName}
+              files={files}
               hasGraph={hasGraph}
               consoleSidebarOpen={consoleSidebarOpen}
               aiSettings={aiSettings}
@@ -205,11 +197,6 @@ export default function Topbar({
               onNodeBordersToggle={onNodeBordersToggle}
               onNodeWidthAlignToggle={onNodeWidthAlignToggle}
               onConsoleSidebarToggle={onConsoleSidebarToggle}
-              onFileInputClick={onFileInputClick}
-              onFileInputChange={onFileInputChange}
-              onFolderInputClick={onFolderInputClick}
-              onFolderInputChange={onFolderInputChange}
-              onRelativeLinkRootSelect={onRelativeLinkRootSelect}
               onInitializeCanvas={onInitializeCanvas}
               onExport={onExport}
               onAiSettingsChange={onAiSettingsChange}

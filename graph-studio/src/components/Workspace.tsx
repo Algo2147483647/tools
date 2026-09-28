@@ -8,6 +8,8 @@ interface WorkspaceProps {
   svgRef: React.RefObject<SVGSVGElement>;
   stage: StageData | null;
   status: string;
+  explorer?: React.ReactNode;
+  emptyContent?: React.ReactNode;
   sidebar: React.ReactNode;
   sidebarOpen: boolean;
   sidebarWidth: number;
@@ -29,6 +31,8 @@ export default function Workspace({
   svgRef,
   stage,
   status,
+  explorer,
+  emptyContent,
   sidebar,
   sidebarOpen,
   sidebarWidth,
@@ -47,6 +51,7 @@ export default function Workspace({
   return (
     <main id="workspace" className={`workspace${sidebarOpen ? " workspace--split" : ""}`}>
       <div className="workspace-split-shell">
+        {explorer}
         {sidebarOpen ? (
           <>
             <aside className="workspace-sidebar-shell" style={{ width: sidebarWidth }}>
@@ -62,7 +67,7 @@ export default function Workspace({
           </>
         ) : null}
         <div className="workspace-stage-shell">
-          <EmptyState message={status || "Loading graph data..."} hidden={Boolean(stage)} actionLabel="Initialize Canvas" onAction={onInitializeCanvas} />
+          {!stage && (emptyContent || <EmptyState message={status || "This graph has no nodes."} hidden={false} actionLabel="Create a graph" onAction={onInitializeCanvas} />)}
           <div id="main-content" ref={containerRef} className={stage ? "is-ready" : ""} aria-live="polite" onScroll={onScroll} onContextMenu={onBackgroundContextMenu}>
             {stage ? (
               <GraphStage

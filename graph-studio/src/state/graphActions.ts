@@ -3,6 +3,7 @@ import type { GraphLayoutMode, GraphSelection, NormalizedDag, NodeKey } from "..
 import type { EditTransaction } from "./initialState";
 
 export type GraphAction =
+  | { type: "graphClosed"; status: string }
   | { type: "graphLoaded"; dag: NormalizedDag; fileName: string; fileHandle?: FileSystemFileHandle | null; selection: GraphSelection; status: string }
   | { type: "graphReinterpreted"; dag: NormalizedDag; selection: GraphSelection | null; history: GraphSelection[]; status: string }
   | { type: "canvasInitialized"; dag: NormalizedDag; fileName: string; selection: GraphSelection; status: string }

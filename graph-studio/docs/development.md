@@ -60,7 +60,7 @@ The codebase is organized around a few clear responsibilities:
 
 ## Sample Data and Docs
 
-- [`public/example.json`](../public/example.json): default graph loaded on startup
+- [`public/example.json`](../public/example.json): sample graph, opened manually
 - [`docs/usage.md`](usage.md): end-user workflows
 - [`docs/data-format.md`](data-format.md): graph JSON conventions
 - [`docs/graph-console-dsl.md`](graph-console-dsl.md): console command reference
@@ -71,3 +71,5 @@ The codebase is organized around a few clear responsibilities:
 - use `npm run dev` while iterating on UI and graph behavior
 - run `npm test` if your local workflow depends on the configured test script
 - run `npm run build` before finalizing changes to catch type or bundling issues
+
+Workspace discovery, manifest validation, recent-location persistence, and bounded link resolution are implemented in `src/workspace/`, `src/adapters/workspaceAccess.ts`, and `src/hooks/useGraphImport.ts`. See [Workspace Guide](workspaces.md).

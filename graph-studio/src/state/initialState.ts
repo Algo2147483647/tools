@@ -54,7 +54,7 @@ const savedPreferences = loadGraphPagePreferences();
 export const initialGraphAppState: GraphAppState = {
   dag: null,
   source: {
-    fileName: "example.json",
+    fileName: "",
     fileHandle: null,
     dirty: false,
   },
@@ -76,7 +76,7 @@ export const initialGraphAppState: GraphAppState = {
     maxScale: Number.POSITIVE_INFINITY,
   },
   ui: {
-    status: "Loading example.json...",
+    status: "Open a graph file or a workspace to get started.",
     settingsOpen: false,
     consoleSidebarOpen: savedPreferences.consoleSidebarOpen,
     consoleSidebarWidth: savedPreferences.consoleSidebarWidth,

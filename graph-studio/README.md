@@ -49,7 +49,7 @@ npm run build
 npm test
 ```
 
-When the page loads, the app automatically reads [`public/example.json`](public/example.json).
+The app starts on a welcome page. Open a single graph file, open a folder as a workspace, or reopen a recent location. The example is available for manual opening only.
 
 Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 
@@ -68,6 +68,7 @@ Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `n
 ## Documentation
 
 - [Documentation Index](docs/index.md): overview of the available project docs
+- [Workspace Guide](docs/workspaces.md): opening modes, recent locations, discovery manifest, and local links
 - [Usage Guide](docs/usage.md): UI workflows, navigation, editing, saving, and layouts
 - [Data Format Guide](docs/data-format.md): v2 document contract, metadata, validation, and import conflict strategies
 - [Graph Console DSL](docs/graph-console-dsl.md): command reference for the edit-mode console

@@ -1,5 +1,7 @@
 import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./components/nodeDetailRawJson";
-import ImportConflictModal from "./components/ImportConflictModal";
+import WelcomeScreen from "./components/workspace/WelcomeScreen";
+import WorkspaceExplorer from "./components/workspace/WorkspaceExplorer";
+import WorkspaceOverview from "./components/workspace/WorkspaceOverview";
 import { createGraphDocument } from "./graph/normalize";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { buildStageData } from "./layout/stage-layout";
@@ -18,7 +20,6 @@ import { copyTextToClipboard, readTextFromClipboard } from "./adapters/clipboard
 import { buildTimestampFileName, downloadJsonFile } from "./adapters/download";
 import { canOverwrite, openJsonFileWithAccess, readJsonFile } from "./adapters/fileAccess";
 import { downloadSvg } from "./rendering/export-svg";
-import { useDefaultGraph } from "./hooks/useDefaultGraph";
 import { useGraphImport } from "./hooks/useGraphImport";
 import { useGraphPan } from "./hooks/useGraphPan";
 import { useGraphPreferences } from "./hooks/useGraphPreferences";
@@ -81,7 +82,6 @@ export default function App() {
   const [hideNodeBorders, setHideNodeBorders] = useState<boolean>(() => loadGraphPagePreferences().hideNodeBorders ?? false);
   const [alignNodeWidthsToMax, setAlignNodeWidthsToMax] = useState<boolean>(() => loadGraphPagePreferences().alignNodeWidthsToMax ?? false);
   const [aiSettings, setAiSettings] = useState<AiSettings>(() => loadGraphPagePreferences().aiSettings);
-  const [defaultGraphAutoLoadEnabled, setDefaultGraphAutoLoadEnabled] = useState(false);
   const [aiHarness, setAiHarness] = useState(() => createInitialAiHarnessState(aiSettings.executionMode));
   const [aiBusy, setAiBusy] = useState(false);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
@@ -95,7 +95,6 @@ export default function App() {
   const [consoleHistoryIndex, setConsoleHistoryIndex] = useState<number | null>(null);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const [nodeDetailInitialFocus, setNodeDetailInitialFocus] = useState<"fields" | "raw">("fields");
-  const suppressDefaultGraphRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const topbarRef = useRef<HTMLElement>(null);
@@ -103,32 +102,11 @@ export default function App() {
   const restoredReviewCardRef = useRef<string | null>(null);
   const pendingNodeClickTimeoutRef = useRef<number | null>(null);
 
-  useDefaultGraph(dispatch, suppressDefaultGraphRef, setFieldMapping, defaultGraphAutoLoadEnabled);
-  const {
-    relativeLinkRoot,
-    filePreview,
-    handleRelativeLinkRootSelect,
-    handleOpenRelativeLink,
-    handleRelativeLinkError,
-    closeFilePreview,
-  } = useRelativeFilePreview(dispatch);
-  const {
-    pendingImport,
-    confirmImport,
-    cancelImport,
-    importFileButtonState,
-    handleFileInputClick,
-    handleFileInputChange,
-    handleFolderInputClick,
-    handleFolderInputChange,
-    handleDroppedFiles,
-  } = useGraphImport({
-    dispatch,
-    fieldMapping,
-    setFieldMapping,
-    suppressDefaultGraphRef,
-    setDefaultGraphAutoLoadEnabled,
-  });
+  const files = useGraphImport({ dispatch, state });
+  const relativeRoot = useMemo(() => files.workspace ? {
+    name: files.workspace.name, handle: files.workspace.handle, files: files.workspace.files, baseFile: files.workspace.activePath || "",
+  } : null, [files.workspace?.name, files.workspace?.handle, files.workspace?.files, files.workspace?.activePath]);
+  const { relativeLinkRoot, filePreview, handleOpenRelativeLink, handleRelativeLinkError, closeFilePreview } = useRelativeFilePreview(dispatch, relativeRoot);
   useGraphPreferences({
     state,
     appearance,
@@ -728,7 +706,7 @@ export default function App() {
   }, [state.ui.consoleSidebarWidth]);
 
   function initializeCanvas() {
-    suppressDefaultGraphRef.current = true;
+    if (!files.prepareNewDocument()) return;
     const dag = createInitialCanvasDag(fieldMapping);
     dispatch({
       type: "canvasInitialized",
@@ -812,7 +790,7 @@ export default function App() {
     }
     event.preventDefault();
     dispatch({ type: "contextMenuClosed" });
-    void handleDroppedFiles(event.dataTransfer.files);
+    void files.handleDroppedFiles(event.dataTransfer.files);
   }
 
   function handleContextMenuAction(action: ContextMenuAction, nodeKey: NodeKey | null) {
@@ -1089,6 +1067,9 @@ export default function App() {
 
   return (
     <div className="app-shell" onDragOver={handleAppDragOver} onDrop={handleAppDrop}>
+      <input hidden type="file" ref={files.fileInputRef} accept=".json,application/json" onChange={files.onFileChange} />
+      <input hidden type="file" ref={files.folderInputRef} multiple {...{ webkitdirectory: "", directory: "" }} onChange={files.onFolderChange} />
+      {(files.busy || files.notice) && <div className={`source-notice${files.busy ? " is-busy" : ""}`} role={files.busy ? "status" : "alert"}><span>{files.busy ? "Opening your files…" : files.notice}</span>{!files.busy && <button aria-label="Dismiss message" onClick={() => files.setNotice("")}>×</button>}</div>}
       <Topbar
         topbarRef={topbarRef}
         layoutMode={state.layout.mode}
@@ -1098,9 +1079,8 @@ export default function App() {
         alignNodeWidthsToMax={alignNodeWidthsToMax}
         status={status}
         fileName={state.source.fileName}
-        importFileButtonState={importFileButtonState}
-        relativeLinkRootName={relativeLinkRoot?.name || ""}
-        hasGraph={Boolean(stage)}
+        files={files}
+        hasGraph={Boolean(state.dag)}
         typeOptions={typeOptions}
         selectedType={activeType}
         onTypeChange={(type) => {
@@ -1146,11 +1126,6 @@ export default function App() {
         onNodeDetailToggle={handleNodeDetailToggle}
         onNodeBordersToggle={() => setHideNodeBorders((current) => !current)}
         onNodeWidthAlignToggle={() => setAlignNodeWidthsToMax((current) => !current)}
-        onFileInputClick={handleFileInputClick}
-        onFileInputChange={handleFileInputChange}
-        onFolderInputClick={handleFolderInputClick}
-        onFolderInputChange={handleFolderInputChange}
-        onRelativeLinkRootSelect={handleRelativeLinkRootSelect}
         onInitializeCanvas={initializeCanvas}
         onExport={handleExportSvg}
         onSaveJson={() => state.dag ? dispatch({ type: "saveDialogOpened" }) : dispatch({ type: "statusChanged", status: "Load or render a graph before saving JSON." })}
@@ -1158,7 +1133,9 @@ export default function App() {
         onAiConnectionTest={handleAiConnectionTest}
       />
 
-      <Workspace
+      {files.homeVisible ? <WelcomeScreen files={files} onNew={initializeCanvas} hasDocument={Boolean(state.dag)} /> : <Workspace
+        explorer={files.workspace && files.explorerOpen ? <WorkspaceExplorer files={files} dirty={state.source.dirty} onOpenAsset={path => void handleOpenRelativeLink(path, "")} /> : null}
+        emptyContent={files.workspace && !state.dag ? <WorkspaceOverview files={files} /> : undefined}
         containerRef={containerRef}
         svgRef={svgRef}
         stage={stage}
@@ -1243,7 +1220,7 @@ export default function App() {
         onFocusChange={setFocusedKey}
         onScroll={() => dispatch({ type: "contextMenuClosed" })}
         onSidebarResizeStart={handleConsoleSidebarResizeStart}
-      />
+      />}
 
       <ContextMenu menu={state.ui.contextMenu} onAction={handleContextMenuAction} />
       <RelationEditorModal
@@ -1280,8 +1257,8 @@ export default function App() {
       />
       <FilePreviewModal
         preview={filePreview}
-        relativeLinkRoot={relativeLinkRoot}
-        onOpenRelativeLink={handleOpenRelativeLink}
+        relativeLinkRoot={relativeLinkRoot && filePreview ? { ...relativeLinkRoot, baseFile: filePreview.relativePath } : relativeLinkRoot}
+        onOpenRelativeLink={url => void handleOpenRelativeLink(url, filePreview?.relativePath)}
         onRelativeLinkError={handleRelativeLinkError}
         onClose={closeFilePreview}
       />
@@ -1295,7 +1272,7 @@ export default function App() {
         onSaveNew={handleSaveJsonAsNew}
         onClose={() => dispatch({ type: "saveDialogClosed" })}
       />
-      {pendingImport && <ImportConflictModal documents={pendingImport.documents} onConfirm={confirmImport} onCancel={cancelImport} />}
+
 
 
     </div>

@@ -6,6 +6,7 @@ import { graphSuite } from "./graph.test";
 import { importMergeSuite } from "./importMerge.test";
 import { runSuites } from "./harness";
 import { stateSuite } from "./state.test";
+import { workspaceSuite } from "./workspace.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -16,6 +17,7 @@ async function main() {
     consoleSuite,
     fieldMappingSuite,
     stateSuite,
+    workspaceSuite,
   ]);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);

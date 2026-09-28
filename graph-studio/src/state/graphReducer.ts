@@ -8,6 +8,8 @@ const EDIT_HISTORY_LIMIT = 100;
 
 export function graphReducer(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
+    case "graphClosed":
+      return { ...initialGraphAppState, layout: state.layout, ui: { ...initialGraphAppState.ui, consoleSidebarOpen: state.ui.consoleSidebarOpen, consoleSidebarWidth: state.ui.consoleSidebarWidth, status: action.status } };
     case "graphLoaded":
       return {
         ...initialGraphAppState,

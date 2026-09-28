@@ -1,16 +1,17 @@
 import type { GraphLayoutAppearance } from "../../graph/appearance";
 
-export type SettingsChapter = "general" | "appearance" | "ai";
+export type SettingsChapter = "general" | "appearance" | "layout" | "ai";
 
 export const DIRECTORY_INPUT_PROPS = {
   directory: "",
   webkitdirectory: "",
 } as Record<string, string>;
 
-export const SETTINGS_CHAPTERS: Array<{ key: SettingsChapter; label: string }> = [
-  { key: "general", label: "General" },
-  { key: "appearance", label: "Appearance" },
-  { key: "ai", label: "AI" },
+export const SETTINGS_CHAPTERS: Array<{ key: SettingsChapter; label: string; description: string; icon: string; keywords: string }> = [
+  { key: "general", label: "Workspace", description: "Files, folders & recent locations", icon: "folder", keywords: "open create graph new refresh close current session manifest detection default console svg export import workspace" },
+  { key: "appearance", label: "Appearance", description: "Colors, typography & visibility", icon: "palette", keywords: "preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges custom css advanced stylesheet configuration import export reset" },
+  { key: "layout", label: "Layout", description: "Arrangement & spacing", icon: "layout", keywords: "engine algorithm level bfs sugiyama dagre layered layer node line height width tuning" },
+  { key: "ai", label: "AI assistant", description: "Providers & execution", icon: "ai", keywords: "provider model base url api key token temperature temp connection test ask review automatic read edit" },
 ];
 
 export type LayoutControlKey = keyof Pick<GraphLayoutAppearance, "columnGap" | "rowGap" | "edgeLaneGap" | "nodeHeight" | "maxNodeWidth">;
