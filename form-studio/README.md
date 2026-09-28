@@ -1,6 +1,6 @@
 # Form Studio
 
-An English visual form builder with a component library, live canvas and property inspector. Its blue palette, translucent panels and compact toolbar follow SVG Studio's visual language. Everything runs in your browser; preview responses are never sent to a server.
+An English visual form builder with a component library, live canvas and property inspector. A single-row toolbar and glass sidebars float above a full-window canvas. Everything runs in your browser; preview responses are never sent to a server.
 
 ## Run
 
@@ -31,8 +31,11 @@ Serve the app over HTTP rather than opening `index.html` directly. Deploy `dist/
 
 ## Workspace
 
-- **Design:** Click or drag one of 17 components onto the canvas. Configure labels, field keys, descriptions, defaults, options, validation and layout in the inspector.
-- **Panels:** Collapse either sidebar to make room for the canvas. Smaller screens use drawers. Use the panel buttons above the canvas to reopen them.
+- **Design:** Click or drag one of 17 components onto the canvas. The library uses compact two-column rows and a fixed search field. Configure labels, field keys, descriptions, defaults, options, validation and layout in the inspector.
+- **Panels:** The glass toolbar sits flush with the top edge; both sidebars reach the bottom edge. Collapse either sidebar to make room for the canvas. Smaller screens use drawers. Use the panel buttons in the toolbar to reopen them.
+- **Settings:** The toolbar's Settings button opens an independent page with Form layout, Form details, Appearance, Workspace and Keyboard shortcuts sections. Each section has a direct address, such as `#/settings/layout`, and supports browser back/forward navigation. Desktop uses a fixed sidebar; phones use a section selector. Back to editor restores the workspace, including unapplied Schema drafts. On narrow screens the toolbar stays on one row with accessible icon buttons; preview size and history remain available in Workspace settings.
+- **Label layout:** In Settings → Form layout, choose Above the control or On the same row and see an immediate layout example. The latter places each label to the left of its control, including nested fields. The layout is saved with the document and used in design, preview and export. Make this the default sets the layout for future blank forms and templates without rewriting existing documents.
+- **Glass and canvas:** Appearance settings offer clear or frosted glass and a canvas grid toggle. These preferences persist in the current browser. Systems that request reduced transparency use opaque surfaces.
 - **Document title:** Rename the form in the header. Enter saves; Escape cancels. Form settings also expose the title, description, submit label, success message and accent color.
 - **Structure:** Select nested fields in the tree. Change the parent container in the inspector to move fields between sections, grids and accordions. Grids support 1–4 columns.
 - **Conditions:** Show fields when all or any conditions match. Operators include equals, does not equal, contains, empty and not empty. Renaming and deleting fields updates their references.
@@ -61,7 +64,7 @@ Text inputs retain their native editing shortcuts.
 
 ## Schema compatibility
 
-The internal document uses `version: 2`. Exports retain the original `{ form, schema: { properties } }` shape with `x-component`, `x-component-props` and `x-visibility`. The `x-studio` extension preserves appearance, document copy, field IDs and widths.
+The internal document uses `version: 2`. Exports retain the original `{ form, schema: { properties } }` shape with `x-component`, `x-component-props` and `x-visibility`. The `x-studio` extension preserves appearance, document copy, label layout, field IDs and widths. `form.layout` exports as `horizontal` for inline labels or `vertical` for stacked labels. Older v2 documents without `labelLayout` retain their stacked appearance; legacy horizontal layouts are imported as inline.
 
 Legacy Input, Textarea, InputNumber, Select, Radio, Checkbox, Switch, Cascader, DatePicker, TimePicker, ColorPicker, Slider, Card, Grid, Collapse and Divider components can be imported. Option values, defaults, visibility, disabled and read-only states are preserved. Empty validator arrays and `ruleKey: required` are supported. Duplicate legacy names are disambiguated using property keys; invalid keys produce an error. Static Collapse panels become read-only child fields, and absolute Grid slots become a sequential grid.
 
@@ -78,11 +81,15 @@ src/
   model.ts                 Types, component catalog and validation
   schema.ts                Safe parsing, legacy migration and export
   store.ts                 Transactions, nesting, history and persistence
+  preferences.ts           Persistent workspace and new-form defaults
+  settings-route.ts        Independent settings sections and hash navigation
   starter-upgrade.ts       Exact-match upgrade of the old bundled example
   compat/legacy-starter.json  Original example for migration matching
   App.tsx                  Modes, panels, shortcuts, import/export and drag/drop
   components/              Library, canvas, inspector, preview and schema editor
   styles.css               Visual tokens and responsive workspace
+  workspace.css            Floating glass surfaces, compact library and toolbar breakpoints
+  settings.css             Independent settings page and mobile section navigation
   *.test.ts                Model, store and migration regression tests
 ```
 

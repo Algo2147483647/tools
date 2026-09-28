@@ -45,7 +45,8 @@ import {
 import { downloadJson, exportSchema, parseText } from './schema'
 import { useStudio } from './store'
 import { usePreferences } from './preferences'
-import SettingsMenu from './components/SettingsMenu'
+import SettingsPage from './components/SettingsPage'
+import { useSettingsRoute, settingsHref, type SettingsSection } from './settings-route'
 import Canvas from './components/Canvas'
 import Inspector from './components/Inspector'
 import Library from './components/Library'
@@ -72,7 +73,23 @@ export default function App() {
   const [libraryOpen, setLibraryOpen] = useState(true)
   const [inspectorOpen, setInspectorOpen] = useState(true)
   const [drawer, setDrawer] = useState<'library' | 'inspector' | null>(null)
-  const [dialog, setDialog] = useState<'templates' | 'shortcuts' | 'settings' | null>(null)
+  const [dialog, setDialog] = useState<'templates' | 'shortcuts' | null>(null)
+  const settingsSection = useSettingsRoute()
+  const lastSettingsSection = useRef<SettingsSection>('layout')
+  const wasSettings = useRef(false)
+  useEffect(() => {
+    if (settingsSection) {
+      lastSettingsSection.current = settingsSection
+      setDialog(null)
+      setDrawer(null)
+    } else if (wasSettings.current) {
+      document.getElementById('settings-trigger')?.focus()
+    }
+    wasSettings.current = !!settingsSection
+    document.title = settingsSection
+      ? 'Settings · Form Studio'
+      : 'Form Studio · Visual form builder'
+  }, [settingsSection])
   const [toast, setToast] = useState(''),
     [dragType, setDragType] = useState<FieldType | null>(null)
   const panelIsDrawer = (panel: 'library' | 'inspector') =>
@@ -120,7 +137,7 @@ export default function App() {
   }, [toast])
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (document.querySelector('dialog[open]')) return
+      if (settingsSection || document.querySelector('dialog[open]')) return
       const target = event.target as HTMLElement
       const editing = !!target.closest(
         'input, textarea, select, [contenteditable="true"], .cm-editor',
@@ -163,7 +180,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [mode])
+  }, [mode, settingsSection])
   function dragEnd(event: DragEndEvent) {
     setDragType(null)
     if (!event.over || event.active.id === event.over.id) return
@@ -198,341 +215,342 @@ export default function App() {
     <div
       className={`app-shell glass-${preferences.glass} ${preferences.canvasGrid ? '' : 'no-canvas-grid'}`}
     >
-      <header className="app-header glass-surface" aria-label="Workspace toolbar">
-        <div className="header-start">
-          <IconButton
-            label="Toggle component library"
-            disabled={mode !== 'design'}
-            onClick={() => togglePanel('library')}
-          >
-            <PanelLeft size={18} />
-          </IconButton>
-          <div className="document-info">
-            <input
-              className="document-title"
-              aria-label="Document title"
-              key={doc.title}
-              defaultValue={doc.title}
-              maxLength={150}
-              onBlur={(event) =>
-                perform(() =>
-                  studio.updateDocument({ title: event.target.value.trim() || 'Untitled form' }),
-                )
-              }
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') event.currentTarget.blur()
-                if (event.key === 'Escape') {
-                  event.currentTarget.value = doc.title
-                  event.currentTarget.blur()
+      <div className="editor-view" hidden={!!settingsSection}>
+        <header className="app-header glass-surface" aria-label="Workspace toolbar">
+          <div className="header-start">
+            <IconButton
+              label="Toggle component library"
+              disabled={mode !== 'design'}
+              onClick={() => togglePanel('library')}
+            >
+              <PanelLeft size={18} />
+            </IconButton>
+            <div className="document-info">
+              <input
+                className="document-title"
+                aria-label="Document title"
+                key={doc.title}
+                defaultValue={doc.title}
+                maxLength={150}
+                onBlur={(event) =>
+                  perform(() =>
+                    studio.updateDocument({ title: event.target.value.trim() || 'Untitled form' }),
+                  )
                 }
-              }}
-            />
-            <span
-              className={`save-status ${saveError ? 'save-error' : ''}`}
-              title={saveError ?? 'Saved locally'}
-              aria-label={saveError ? 'Save failed' : 'Saved locally'}
-            >
-              {saveError ? <ShieldCheck size={14} /> : <Check size={14} />}
-            </span>
-          </div>
-          <div className="header-history">
-            <IconButton
-              label="Undo (Ctrl+Z)"
-              disabled={!past.length || mode !== 'design'}
-              onClick={studio.undo}
-            >
-              <Undo2 size={17} />
-            </IconButton>
-            <IconButton
-              label="Redo (Ctrl+Shift+Z)"
-              disabled={!future.length || mode !== 'design'}
-              onClick={studio.redo}
-            >
-              <Redo2 size={17} />
-            </IconButton>
-          </div>
-        </div>
-        <nav className="mode-tabs" aria-label="Workspace mode">
-          <button
-            aria-label="Design"
-            title="Design"
-            aria-pressed={mode === 'design'}
-            className={mode === 'design' ? 'active' : ''}
-            onClick={() => setMode('design')}
-          >
-            <MousePointer2 size={16} />
-            <span>Design</span>
-          </button>
-          <button
-            aria-label="Preview"
-            title="Preview"
-            aria-pressed={mode === 'preview'}
-            className={mode === 'preview' ? 'active' : ''}
-            onClick={() => setMode('preview')}
-          >
-            <Monitor size={16} />
-            <span>Preview</span>
-          </button>
-          <button
-            aria-label="Schema"
-            title="Schema"
-            aria-pressed={mode === 'schema'}
-            className={mode === 'schema' ? 'active' : ''}
-            onClick={() => setMode('schema')}
-          >
-            <Code2 size={17} />
-            <span>Schema</span>
-          </button>
-        </nav>
-        <div className="header-actions">
-          <div className="device-toggle segmented" aria-label="Canvas size">
-            <button
-              aria-pressed={!mobile}
-              className={!mobile ? 'active' : ''}
-              aria-label="Desktop preview"
-              title="Desktop preview"
-              onClick={() => setMobile(false)}
-            >
-              <Monitor size={16} />
-            </button>
-            <button
-              aria-pressed={mobile}
-              className={mobile ? 'active' : ''}
-              aria-label="Mobile preview"
-              title="Mobile preview"
-              onClick={() => setMobile(true)}
-            >
-              <Smartphone size={15} />
-            </button>
-          </div>
-          <IconButton
-            label="Toggle inspector"
-            disabled={mode !== 'design'}
-            onClick={() => togglePanel('inspector')}
-          >
-            <PanelRight size={18} />
-          </IconButton>
-          <IconButton
-            label="Settings"
-            aria-haspopup="dialog"
-            aria-expanded={dialog === 'settings'}
-            onClick={() => setDialog('settings')}
-          >
-            <Settings2 size={18} />
-          </IconButton>
-          <span className="header-separator" />
-          <button
-            className="button header-import"
-            aria-label="Import"
-            title="Import"
-            onClick={() => fileRef.current?.click()}
-          >
-            <FileUp size={16} />
-            <span>Import</span>
-          </button>
-          <button
-            className="button primary header-export"
-            aria-label="Export Schema"
-            title="Export Schema"
-            onClick={exportFile}
-          >
-            <ArrowDownToLine size={16} />
-            <span>Export Schema</span>
-          </button>
-        </div>
-      </header>
-      {saveError && (
-        <div className="save-banner" role="alert">
-          {saveError}
-          <button onClick={exportFile}>Export backup</button>
-        </div>
-      )}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={collision}
-        onDragStart={(event) =>
-          setDragType(
-            event.active.data.current?.type ??
-              findField(doc.fields, String(event.active.id))?.type ??
-              null,
-          )
-        }
-        onDragEnd={dragEnd}
-        onDragCancel={() => setDragType(null)}
-      >
-        <main
-          className={`workspace mode-${mode} ${!libraryOpen ? 'hide-library' : ''} ${!inspectorOpen ? 'hide-inspector' : ''} ${drawer ? `show-${drawer}` : ''}`}
-        >
-          {mode === 'design' && (
-            <>
-              <div className="drawer-scrim" onClick={() => setDrawer(null)} />
-              <Library
-                onTemplates={() => setDialog('templates')}
-                onClose={() => closePanel('library')}
-                perform={perform}
-              />
-            </>
-          )}
-          <section
-            className="canvas-panel"
-            aria-label={
-              mode === 'design'
-                ? 'Form design canvas'
-                : mode === 'preview'
-                  ? 'Form preview'
-                  : 'Schema editor'
-            }
-          >
-            {mode === 'design' ? (
-              <Canvas
-                mobile={mobile}
-                perform={perform}
-                onAdd={() => {
-                  openPanel('library')
-                  document
-                    .querySelector<HTMLInputElement>('[aria-label="Search components"]')
-                    ?.focus()
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') event.currentTarget.blur()
+                  if (event.key === 'Escape') {
+                    event.currentTarget.value = doc.title
+                    event.currentTarget.blur()
+                  }
                 }}
               />
-            ) : mode === 'preview' ? (
-              <Preview doc={doc} mobile={mobile} />
-            ) : (
-              <Suspense
-                fallback={
-                  <div className="loading-state">
-                    <LoaderCircle className="spin" />
-                    Loading editor…
-                  </div>
-                }
+              <span
+                className={`save-status ${saveError ? 'save-error' : ''}`}
+                title={saveError ?? 'Saved locally'}
+                aria-label={saveError ? 'Save failed' : 'Saved locally'}
               >
-                <SchemaEditor doc={doc} onApply={(next) => studio.replace(next)} notify={notify} />
-              </Suspense>
-            )}
-          </section>
-          {mode === 'design' && (
-            <Inspector onClose={() => closePanel('inspector')} perform={perform} />
-          )}
-        </main>
-        <DragOverlay>
-          {dragType && (
-            <div className="drag-overlay">
-              <FieldIcon type={dragType} />
-              <span>{catalog.find((item) => item.type === dragType)?.title}</span>
+                {saveError ? <ShieldCheck size={14} /> : <Check size={14} />}
+              </span>
             </div>
-          )}
-        </DragOverlay>
-      </DndContext>
-      <footer className="status-bar glass-surface">
-        <div>
-          <span className="status-dot" />
-          <span>Local workspace</span>
-          <span className="status-separator">/</span>
-          <span>{flatten(doc.fields).length} components</span>
-          <span className="status-separator">/</span>
-          <span>Schema v2</span>
-        </div>
-        <div>
-          <span className="privacy-note">
-            <ShieldCheck size={12} />
-            Your data stays in this browser
-          </span>
-          <button onClick={() => setDialog('shortcuts')}>
-            <Command size={12} />
-            Shortcuts
-          </button>
-        </div>
-      </footer>
-      <input
-        type="file"
-        ref={fileRef}
-        accept=".json,application/json"
-        className="visually-hidden"
-        aria-label="Import Schema file"
-        onChange={importFile}
-      />
-      {toast && (
-        <div className="toast" role="status">
-          <span>{toast}</span>
-          <IconButton label="Dismiss notification" onClick={() => setToast('')}>
-            <X size={15} />
-          </IconButton>
-        </div>
-      )}
-      {dialog === 'settings' && (
-        <SettingsMenu
+            <div className="header-history">
+              <IconButton
+                label="Undo (Ctrl+Z)"
+                disabled={!past.length || mode !== 'design'}
+                onClick={studio.undo}
+              >
+                <Undo2 size={17} />
+              </IconButton>
+              <IconButton
+                label="Redo (Ctrl+Shift+Z)"
+                disabled={!future.length || mode !== 'design'}
+                onClick={studio.redo}
+              >
+                <Redo2 size={17} />
+              </IconButton>
+            </div>
+          </div>
+          <nav className="mode-tabs" aria-label="Workspace mode">
+            <button
+              aria-label="Design"
+              title="Design"
+              aria-pressed={mode === 'design'}
+              className={mode === 'design' ? 'active' : ''}
+              onClick={() => setMode('design')}
+            >
+              <MousePointer2 size={16} />
+              <span>Design</span>
+            </button>
+            <button
+              aria-label="Preview"
+              title="Preview"
+              aria-pressed={mode === 'preview'}
+              className={mode === 'preview' ? 'active' : ''}
+              onClick={() => setMode('preview')}
+            >
+              <Monitor size={16} />
+              <span>Preview</span>
+            </button>
+            <button
+              aria-label="Schema"
+              title="Schema"
+              aria-pressed={mode === 'schema'}
+              className={mode === 'schema' ? 'active' : ''}
+              onClick={() => setMode('schema')}
+            >
+              <Code2 size={17} />
+              <span>Schema</span>
+            </button>
+          </nav>
+          <div className="header-actions">
+            <div className="device-toggle segmented" aria-label="Canvas size">
+              <button
+                aria-pressed={!mobile}
+                className={!mobile ? 'active' : ''}
+                aria-label="Desktop preview"
+                title="Desktop preview"
+                onClick={() => setMobile(false)}
+              >
+                <Monitor size={16} />
+              </button>
+              <button
+                aria-pressed={mobile}
+                className={mobile ? 'active' : ''}
+                aria-label="Mobile preview"
+                title="Mobile preview"
+                onClick={() => setMobile(true)}
+              >
+                <Smartphone size={15} />
+              </button>
+            </div>
+            <IconButton
+              label="Toggle inspector"
+              disabled={mode !== 'design'}
+              onClick={() => togglePanel('inspector')}
+            >
+              <PanelRight size={18} />
+            </IconButton>
+            <IconButton
+              label="Settings"
+              id="settings-trigger"
+              onClick={() => {
+                window.location.hash = settingsHref(lastSettingsSection.current)
+              }}
+            >
+              <Settings2 size={18} />
+            </IconButton>
+            <span className="header-separator" />
+            <button
+              className="button header-import"
+              aria-label="Import"
+              title="Import"
+              onClick={() => fileRef.current?.click()}
+            >
+              <FileUp size={16} />
+              <span>Import</span>
+            </button>
+            <button
+              className="button primary header-export"
+              aria-label="Export Schema"
+              title="Export Schema"
+              onClick={exportFile}
+            >
+              <ArrowDownToLine size={16} />
+              <span>Export Schema</span>
+            </button>
+          </div>
+        </header>
+        {saveError && (
+          <div className="save-banner" role="alert">
+            {saveError}
+            <button onClick={exportFile}>Export backup</button>
+          </div>
+        )}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collision}
+          onDragStart={(event) =>
+            setDragType(
+              event.active.data.current?.type ??
+                findField(doc.fields, String(event.active.id))?.type ??
+                null,
+            )
+          }
+          onDragEnd={dragEnd}
+          onDragCancel={() => setDragType(null)}
+        >
+          <main
+            className={`workspace mode-${mode} ${!libraryOpen ? 'hide-library' : ''} ${!inspectorOpen ? 'hide-inspector' : ''} ${drawer ? `show-${drawer}` : ''}`}
+          >
+            {mode === 'design' && (
+              <>
+                <div className="drawer-scrim" onClick={() => setDrawer(null)} />
+                <Library
+                  onTemplates={() => setDialog('templates')}
+                  onClose={() => closePanel('library')}
+                  perform={perform}
+                />
+              </>
+            )}
+            <section
+              className="canvas-panel"
+              aria-label={
+                mode === 'design'
+                  ? 'Form design canvas'
+                  : mode === 'preview'
+                    ? 'Form preview'
+                    : 'Schema editor'
+              }
+            >
+              {mode === 'design' ? (
+                <Canvas
+                  mobile={mobile}
+                  perform={perform}
+                  onAdd={() => {
+                    openPanel('library')
+                    document
+                      .querySelector<HTMLInputElement>('[aria-label="Search components"]')
+                      ?.focus()
+                  }}
+                />
+              ) : mode === 'preview' ? (
+                <Preview doc={doc} mobile={mobile} />
+              ) : (
+                <Suspense
+                  fallback={
+                    <div className="loading-state">
+                      <LoaderCircle className="spin" />
+                      Loading editor…
+                    </div>
+                  }
+                >
+                  <SchemaEditor
+                    doc={doc}
+                    onApply={(next) => studio.replace(next)}
+                    notify={notify}
+                  />
+                </Suspense>
+              )}
+            </section>
+            {mode === 'design' && (
+              <Inspector onClose={() => closePanel('inspector')} perform={perform} />
+            )}
+          </main>
+          <DragOverlay>
+            {dragType && (
+              <div className="drag-overlay">
+                <FieldIcon type={dragType} />
+                <span>{catalog.find((item) => item.type === dragType)?.title}</span>
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+        <footer className="status-bar glass-surface">
+          <div>
+            <span className="status-dot" />
+            <span>Local workspace</span>
+            <span className="status-separator">/</span>
+            <span>{flatten(doc.fields).length} components</span>
+            <span className="status-separator">/</span>
+            <span>Schema v2</span>
+          </div>
+          <div>
+            <span className="privacy-note">
+              <ShieldCheck size={12} />
+              Your data stays in this browser
+            </span>
+            <button onClick={() => setDialog('shortcuts')}>
+              <Command size={12} />
+              Shortcuts
+            </button>
+          </div>
+        </footer>
+        <input
+          type="file"
+          ref={fileRef}
+          accept=".json,application/json"
+          className="visually-hidden"
+          aria-label="Import Schema file"
+          onChange={importFile}
+        />
+        {toast && (
+          <div className="toast" role="status">
+            <span>{toast}</span>
+            <IconButton label="Dismiss notification" onClick={() => setToast('')}>
+              <X size={15} />
+            </IconButton>
+          </div>
+        )}
+        {dialog === 'shortcuts' && (
+          <Modal
+            title="Keyboard shortcuts"
+            subtitle="Text inputs keep their native editing shortcuts."
+            onClose={() => setDialog(null)}
+          >
+            <div className="shortcut-list">
+              {[
+                ['Undo', 'Ctrl / ⌘ + Z'],
+                ['Redo', 'Ctrl / ⌘ + Shift + Z'],
+                ['Duplicate selected field', 'Ctrl / ⌘ + D'],
+                ['Delete selected field', 'Delete'],
+                ['Export Schema', 'Ctrl / ⌘ + S'],
+                ['Search components', '/'],
+                ['Clear selection', 'Esc'],
+                ['Reorder fields', 'Focus drag handle, then ↑ / ↓'],
+              ].map(([label, key]) => (
+                <div key={label}>
+                  <span>{label}</span>
+                  <kbd>{key}</kbd>
+                </div>
+              ))}
+            </div>
+          </Modal>
+        )}
+        {dialog === 'templates' && (
+          <Modal
+            title="Start with something good"
+            subtitle="Choose a starting point and make it yours. You can undo replacing your form."
+            onClose={() => setDialog(null)}
+            wide
+          >
+            <div className="template-grid">
+              <TemplateCard
+                title="Blank canvas"
+                description="A fresh start for your next idea."
+                kind="blank"
+                onClick={() => applyTemplate(emptyDocument())}
+              />
+              <TemplateCard
+                title="Event registration"
+                description="Bring curious people together."
+                kind="event"
+                onClick={() => applyTemplate(starterDocument())}
+              />
+              <TemplateCard
+                title="Feedback survey"
+                description="Make every response count."
+                kind="feedback"
+                onClick={() => applyTemplate(feedbackTemplate())}
+              />
+            </div>
+          </Modal>
+        )}
+      </div>
+      {settingsSection && (
+        <SettingsPage
+          section={settingsSection}
           mobile={mobile}
           onMobile={setMobile}
-          onClose={() => setDialog(null)}
-          onShortcuts={() => setDialog('shortcuts')}
+          panelsOpen={libraryOpen || inspectorOpen}
           onPanels={(show) => {
-            setMode('design')
             setLibraryOpen(show)
             setInspectorOpen(show)
-            setDrawer(
-              show
-                ? panelIsDrawer('library')
-                  ? 'library'
-                  : panelIsDrawer('inspector')
-                    ? 'inspector'
-                    : null
-                : null,
-            )
+            setDrawer(null)
+          }}
+          onBack={() => {
+            window.location.hash = ''
           }}
         />
-      )}
-      {dialog === 'shortcuts' && (
-        <Modal
-          title="Keyboard shortcuts"
-          subtitle="Text inputs keep their native editing shortcuts."
-          onClose={() => setDialog(null)}
-        >
-          <div className="shortcut-list">
-            {[
-              ['Undo', 'Ctrl / ⌘ + Z'],
-              ['Redo', 'Ctrl / ⌘ + Shift + Z'],
-              ['Duplicate selected field', 'Ctrl / ⌘ + D'],
-              ['Delete selected field', 'Delete'],
-              ['Export Schema', 'Ctrl / ⌘ + S'],
-              ['Search components', '/'],
-              ['Clear selection', 'Esc'],
-              ['Reorder fields', 'Focus drag handle, then ↑ / ↓'],
-            ].map(([label, key]) => (
-              <div key={label}>
-                <span>{label}</span>
-                <kbd>{key}</kbd>
-              </div>
-            ))}
-          </div>
-        </Modal>
-      )}
-      {dialog === 'templates' && (
-        <Modal
-          title="Start with something good"
-          subtitle="Choose a starting point and make it yours. You can undo replacing your form."
-          onClose={() => setDialog(null)}
-          wide
-        >
-          <div className="template-grid">
-            <TemplateCard
-              title="Blank canvas"
-              description="A fresh start for your next idea."
-              kind="blank"
-              onClick={() => applyTemplate(emptyDocument())}
-            />
-            <TemplateCard
-              title="Event registration"
-              description="Bring curious people together."
-              kind="event"
-              onClick={() => applyTemplate(starterDocument())}
-            />
-            <TemplateCard
-              title="Feedback survey"
-              description="Make every response count."
-              kind="feedback"
-              onClick={() => applyTemplate(feedbackTemplate())}
-            />
-          </div>
-        </Modal>
       )}
     </div>
   )

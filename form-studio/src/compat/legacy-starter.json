@@ -1,0 +1,170 @@
+{
+  "version": 2,
+  "title": "创意工作坊报名",
+  "description": "让灵感相遇，让好想法发生。\n欢迎加入我们的线下创意工作坊，请留下你的信息。",
+  "submitLabel": "提交报名",
+  "successMessage": "提交成功，感谢你的填写！",
+  "accent": "#147d68",
+  "fields": [
+    {
+      "id": "9257a87f-d8ed-43b9-b9fc-939db57a342f",
+      "type": "text",
+      "name": "name",
+      "title": "你的姓名",
+      "description": "",
+      "placeholder": "怎么称呼你？",
+      "required": true,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "half",
+      "defaultValue": "",
+      "options": [],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": []
+    },
+    {
+      "id": "1f6e3892-4de4-4592-81d5-20bb2f3c539a",
+      "type": "text",
+      "name": "company",
+      "title": "公司 / 团队",
+      "description": "",
+      "placeholder": "你所在的公司或团队",
+      "required": false,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "half",
+      "defaultValue": "",
+      "options": [],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": []
+    },
+    {
+      "id": "7ffaf22f-1280-47da-b270-6bcda0153a4f",
+      "type": "email",
+      "name": "email",
+      "title": "电子邮箱",
+      "description": "我们会通过邮件发送活动详情与入场凭证。",
+      "placeholder": "hello@example.com",
+      "required": true,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "full",
+      "defaultValue": "",
+      "options": [],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": []
+    },
+    {
+      "id": "30853653-9508-4fe2-be34-f231cdf86411",
+      "type": "select",
+      "name": "role",
+      "title": "你目前的角色",
+      "description": "",
+      "placeholder": "选择最适合你的角色",
+      "required": true,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "full",
+      "defaultValue": "",
+      "options": [
+        {
+          "label": "产品设计师",
+          "value": "designer"
+        },
+        {
+          "label": "开发工程师",
+          "value": "developer"
+        },
+        {
+          "label": "产品经理",
+          "value": "pm"
+        },
+        {
+          "label": "其他探索者",
+          "value": "other"
+        }
+      ],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": []
+    },
+    {
+      "id": "7b94d884-7219-4706-91c0-2621fb8afff7",
+      "type": "radio",
+      "name": "session",
+      "title": "想参加哪个场次？",
+      "description": "",
+      "placeholder": "请输入",
+      "required": true,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "full",
+      "defaultValue": "morning",
+      "options": [
+        {
+          "label": "上午场 · 10:00",
+          "value": "morning"
+        },
+        {
+          "label": "下午场 · 14:00",
+          "value": "afternoon"
+        }
+      ],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": []
+    },
+    {
+      "id": "124ebd07-97fb-4bfe-96c3-9dba25b9803e",
+      "type": "textarea",
+      "name": "expectation",
+      "title": "有什么想提前告诉我们？",
+      "description": "",
+      "placeholder": "聊聊你的期待，或想探讨的话题…",
+      "required": false,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "full",
+      "defaultValue": "",
+      "options": [],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": [],
+      "maxLength": 500
+    },
+    {
+      "id": "f01863e8-0102-4f77-9b52-6d0ba2331d10",
+      "type": "switch",
+      "name": "subscribe",
+      "title": "接收后续活动通知",
+      "description": "偶尔分享一些值得参与的好活动。",
+      "placeholder": "请输入",
+      "required": false,
+      "disabled": false,
+      "readOnly": false,
+      "hidden": false,
+      "width": "full",
+      "defaultValue": true,
+      "options": [],
+      "columns": 2,
+      "rules": [],
+      "ruleMatch": "all",
+      "children": []
+    }
+  ]
+}

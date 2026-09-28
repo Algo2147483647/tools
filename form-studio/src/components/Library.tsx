@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
-import { ChevronRight, Layers2, LayoutTemplate, Plus, Search, Shapes, X } from 'lucide-react'
+import { ChevronRight, Layers2, LayoutTemplate, Search, Shapes, X } from 'lucide-react'
 import { catalog, isContainer, type Field, type FieldType } from '../model'
 import { useStudio } from '../store'
 import { FieldIcon, IconButton } from './ui'
@@ -25,9 +25,8 @@ function LibraryItem({
       onClick={() => add(item.type)}
       title={`${item.hint} · Click or drag to add`}
     >
-      <FieldIcon type={item.type} />
+      <FieldIcon type={item.type} size={16} />
       <span>{item.title}</span>
-      <Plus size={12} className="library-plus" />
     </button>
   )
 }
@@ -73,10 +72,10 @@ export default function Library({
   )
   const groups = [...new Set(filtered.map((item) => item.group))]
   return (
-    <aside className="library-panel glass-surface">
+    <aside className="library-panel glass-surface" aria-label="Component library">
       <div className="panel-title">
         <span>Library</span>
-        <span className="tiny-label">BUILD</span>
+        <span className="tiny-label">{catalog.length} ITEMS</span>
         <span className="panel-close">
           <IconButton label="Close library" onClick={onClose}>
             <X size={16} />
@@ -96,20 +95,24 @@ export default function Library({
           Structure
         </button>
       </div>
+      {tab === 'components' && (
+        <div className="library-search">
+          {' '}
+          <div className="search-box">
+            <Search size={15} />
+            <input
+              aria-label="Search components"
+              placeholder="Search components…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <kbd>/</kbd>
+          </div>
+        </div>
+      )}
       <div className="library-scroll">
         {tab === 'components' ? (
           <>
-            <div className="search-box">
-              <Search size={15} />
-              <input
-                aria-label="Search components"
-                placeholder="Search components…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <kbd>/</kbd>
-            </div>
-            <p className="panel-caption">Click to add or drag to the canvas</p>
             {groups.map((group) => (
               <section className="library-group" key={group}>
                 <h3>
@@ -175,8 +178,8 @@ export default function Library({
           <LayoutTemplate size={19} />
         </span>
         <span>
-          <strong>Start with a template</strong>
-          <small>A little inspiration to get going</small>
+          <strong>Templates</strong>
+          <small>Start with a ready-made form</small>
         </span>
         <ChevronRight size={16} />
       </button>
