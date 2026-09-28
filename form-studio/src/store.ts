@@ -11,17 +11,27 @@ import {
   type FormDocument,
 } from './model'
 import { parseDocument } from './schema'
+import { upgradeStarter } from './starter-upgrade'
+import { usePreferences } from './preferences'
 
 const STORAGE_KEY = 'form-studio.document.v2'
 const clone = <T>(value: T): T => structuredClone(value)
 function load(): { doc: FormDocument; saveError: string | null } {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
-    return { doc: saved ? parseDocument(JSON.parse(saved)) : starterDocument(), saveError: null }
+    const original = saved
+      ? parseDocument(JSON.parse(saved))
+      : {
+          ...starterDocument(),
+          labelLayout: usePreferences.getState().defaultLabelLayout,
+        }
+    const doc = upgradeStarter(original)
+    return { doc, saveError: doc !== original ? save(doc) : null }
   } catch {
     return {
       doc: starterDocument(),
-      saveError: '本地草稿无法读取。当前显示示例，编辑后会保存新草稿。',
+      saveError:
+        'Could not load the local draft. A sample is shown; editing it will save a new draft.',
     }
   }
 }
@@ -71,7 +81,7 @@ function save(doc: FormDocument) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(doc))
     return null
   } catch {
-    return '自动保存失败：浏览器存储不可用或空间不足，请导出备份。'
+    return 'Autosave failed. Browser storage is unavailable or full. Export a backup.'
   }
 }
 export const useStudio = create<StudioState>((set, get) => ({
@@ -148,7 +158,7 @@ export const useStudio = create<StudioState>((set, get) => ({
       item.name = name
       item.id = uid()
     }
-    copy.title += '（副本）'
+    copy.title += ' (copy)'
     for (const item of flatten([copy]))
       item.rules = item.rules.map((rule) => ({
         ...rule,

@@ -23,7 +23,7 @@ function LibraryItem({
       {...listeners}
       className={`library-item ${isDragging ? 'dragging' : ''}`}
       onClick={() => add(item.type)}
-      title={`${item.hint} · 点击或拖动添加`}
+      title={`${item.hint} · Click or drag to add`}
     >
       <FieldIcon type={item.type} />
       <span>{item.title}</span>
@@ -45,7 +45,7 @@ function Tree({ fields, depth = 0 }: { fields: Field[]; depth?: number }) {
           >
             {isContainer(field.type) ? <ChevronRight size={12} /> : <span className="tree-dot" />}
             <FieldIcon type={field.type} size={15} />
-            <span>{field.title || '未命名'}</span>
+            <span>{field.title || 'Untitled'}</span>
             {field.required && <span className="required">*</span>}
           </button>
           {field.children.length > 0 && <Tree fields={field.children} depth={depth + 1} />}
@@ -73,12 +73,12 @@ export default function Library({
   )
   const groups = [...new Set(filtered.map((item) => item.group))]
   return (
-    <aside className="library-panel">
+    <aside className="library-panel glass-surface">
       <div className="panel-title">
-        <span>构建你的表单</span>
+        <span>Library</span>
         <span className="tiny-label">BUILD</span>
-        <span className="mobile-only">
-          <IconButton label="关闭组件面板" onClick={onClose}>
+        <span className="panel-close">
+          <IconButton label="Close library" onClick={onClose}>
             <X size={16} />
           </IconButton>
         </span>
@@ -89,11 +89,11 @@ export default function Library({
           onClick={() => setTab('components')}
         >
           <Shapes size={15} />
-          组件
+          Components
         </button>
         <button className={tab === 'tree' ? 'active' : ''} onClick={() => setTab('tree')}>
           <Layers2 size={15} />
-          结构
+          Structure
         </button>
       </div>
       <div className="library-scroll">
@@ -102,14 +102,14 @@ export default function Library({
             <div className="search-box">
               <Search size={15} />
               <input
-                aria-label="搜索组件"
-                placeholder="搜索组件…"
+                aria-label="Search components"
+                placeholder="Search components…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <kbd>/</kbd>
             </div>
-            <p className="panel-caption">点击添加，或拖入画布</p>
+            <p className="panel-caption">Click to add or drag to the canvas</p>
             {groups.map((group) => (
               <section className="library-group" key={group}>
                 <h3>
@@ -142,17 +142,19 @@ export default function Library({
             ))}
             {!filtered.length && (
               <div className="small-empty">
-                没有找到相关组件
+                No matching components
                 <br />
                 <button className="text-button" onClick={() => setSearch('')}>
-                  清除搜索
+                  Clear search
                 </button>
               </div>
             )}
           </>
         ) : (
           <>
-            <p className="panel-caption tree-caption">选择字段，在右侧调整层级与顺序</p>
+            <p className="panel-caption tree-caption">
+              Select a field to adjust its position and settings.
+            </p>
             <button
               className={`tree-root ${!selected ? 'active' : ''}`}
               onClick={() => useStudio.getState().select(null)}
@@ -163,7 +165,7 @@ export default function Library({
             </button>
             <Tree fields={doc.fields} />
             {!doc.fields.length && (
-              <div className="small-empty">添加组件后，结构会显示在这里。</div>
+              <div className="small-empty">Add a component to see your form structure.</div>
             )}
           </>
         )}
@@ -173,8 +175,8 @@ export default function Library({
           <LayoutTemplate size={19} />
         </span>
         <span>
-          <strong>好表单，从模板开始</strong>
-          <small>探索精心准备的起点</small>
+          <strong>Start with a template</strong>
+          <small>A little inspiration to get going</small>
         </span>
         <ChevronRight size={16} />
       </button>

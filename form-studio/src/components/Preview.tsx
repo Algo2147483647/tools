@@ -105,10 +105,10 @@ export default function Preview({ doc, mobile }: { doc: FormDocument; mobile: bo
     <div className="preview-stage">
       <div className="preview-notice">
         <span className="live-dot" />
-        实时预览 · 数据仅在当前浏览器中演示
+        Live preview · Responses stay in this browser
       </div>
       <div
-        className={`form-paper preview-paper ${mobile ? 'mobile-paper' : ''}`}
+        className={`form-paper preview-paper labels-${doc.labelLayout} ${mobile ? 'mobile-paper' : ''}`}
         style={{ '--accent': doc.accent } as CSSProperties}
       >
         {result ? (
@@ -117,8 +117,8 @@ export default function Preview({ doc, mobile }: { doc: FormDocument; mobile: bo
               <CheckCheck size={32} />
             </div>
             <span className="eyebrow">ALL SET!</span>
-            <h1>{doc.successMessage || '提交成功！'}</h1>
-            <p>以下是本次提交的数据，可复制或下载用于开发联调。</p>
+            <h1>{doc.successMessage || 'Response ready!'}</h1>
+            <p>Copy or download this sample response to use in your integration.</p>
             <pre>{JSON.stringify(result, null, 2)}</pre>
             <div className="button-row">
               <button
@@ -133,14 +133,14 @@ export default function Preview({ doc, mobile }: { doc: FormDocument; mobile: bo
                 }}
               >
                 {copied ? <Check size={16} /> : null}
-                {copied ? '已复制' : '复制数据'}
+                {copied ? 'Copied' : 'Copy data'}
               </button>
               <button className="button" onClick={() => downloadJson(result, 'form-response.json')}>
                 <Download size={16} />
-                下载数据
+                Download data
               </button>
               <button className="button primary" onClick={reset}>
-                再次填写
+                Submit another response
               </button>
             </div>
           </div>
@@ -150,7 +150,8 @@ export default function Preview({ doc, mobile }: { doc: FormDocument; mobile: bo
             <div className="form-grid">{render(doc.fields)}</div>
             {Object.keys(errors).length > 0 && (
               <p className="validation-summary" role="alert">
-                还有 {Object.keys(errors).length} 项需要检查，请查看字段下方的提示。
+                Please check {Object.keys(errors).length}{' '}
+                {Object.keys(errors).length === 1 ? 'field' : 'fields'} below before continuing.
               </p>
             )}
             <div className="form-submit">
@@ -160,14 +161,14 @@ export default function Preview({ doc, mobile }: { doc: FormDocument; mobile: bo
               </button>
               <button className="text-button" type="button" onClick={reset}>
                 <RotateCcw size={13} />
-                重新填写
+                Reset form
               </button>
             </div>
           </form>
         )}
         <div className="form-credit">
           Made with <strong>Form Studio</strong>
-          <span>用心收集每一个回答</span>
+          <span>Made for meaningful responses</span>
         </div>
       </div>
     </div>

@@ -1,25 +1,34 @@
-# 验证记录
+# Verification notes
 
-验证环境：Windows，Node.js 24.19，pnpm 11.19；2026-09-28。
+Environment: Windows, Node.js 24.19, pnpm 11.19; 2026-09-28.
 
-## 自动化回归
+## Automated regression
 
-`pnpm test`：17 项通过，覆盖 Schema 全组件往返、旧版迁移、非法结构、保留属性、默认值类型、重复标识、嵌套布局、条件显隐、校验、整树复制、引用更新、防循环移动、历史上限、撤销重做持久化。
+`pnpm test`: 20 tests covering component round trips, legacy migration, invalid imports, reserved properties, default types, duplicate keys, nested layouts, visibility conditions, validation, subtree duplication, reference updates, cycle prevention, history limits and persistence.
 
-`pnpm build`：TypeScript 严格检查与 Vite 生产构建。
+The English starter migration tests verify that an untouched legacy example is upgraded with its IDs preserved. Changes to content, validation, field order or appearance prevent migration. New English documents are left unchanged.
 
-## 浏览器实测
+`pnpm build`: strict TypeScript checks and a Vite production build.
 
-- 桌面三栏布局（1440 × 960）；手机布局（390 × 844）无水平溢出。
-- 选中邮箱字段，修改标题，撤销后恢复原文。
-- 空表单提交显示三项必填错误；填写姓名、邮箱、角色后得到包含布尔值的正确 JSON 结果。
-- 设置角色等于 developer 时显示多行文本；预览中随选择实时显隐。
-- 新增分组及日期子字段；通过属性面板移出分组，撤销后恢复嵌套。
-- 聚焦字段拖动柄后使用上下方向键排序，撤销恢复顺序。
-- Schema 应用往返成功；输入非法 JSON 显示错误，返回画布仍保留原有七个字段。
-- 手机抽屉打开、组件搜索、添加邮箱、切换属性抽屉、撤销新增。
-- 本地自动保存后刷新恢复编辑文档。
+`pnpm format:check`: source and documentation formatting.
 
-## 边界
+## English UI and layout checks
 
-预览提交是本地演示，不包含服务器投递。未声明跨浏览器认证或 WCAG 全面合规。导入时拒绝执行自定义脚本。浏览器存储失败时提示导出备份。
+- Desktop at 1440 × 960: blue workspace, compact header, editable title and independent sidebar collapse/reopen.
+- Tablet at 1024 × 768: library remains visible; inspector opens and closes as a drawer. No page overflow.
+- Phones at 390 × 844 and 320 × 740: responsive header and canvas, no horizontal page or canvas overflow.
+- Header title edit commits on Enter; Undo restores the original title.
+- Inspector properties and conditions use English labels, operators and help text.
+- Empty preview submission produces three English required-field errors. Filling in name, email and role produces the expected JSON response, including the Boolean subscription value.
+- Schema round trip applies successfully. Invalid JSON produces an English error and leaves the seven-field form intact.
+- Mobile library search, adding an email field, closing the library and opening the inspector work.
+- Template dialog and feedback template use English copy; template replacement can be undone.
+- Existing untouched Chinese starter is upgraded on load. Custom documents remain unchanged.
+
+## Earlier regression checks
+
+The preceding version was also checked for conditional visibility during entry, moving a date field into and out of a section, keyboard field reordering, rename/undo and draft restoration after refresh. Core model and store tests continue to cover these behaviors.
+
+## Scope
+
+Preview submission is a local demonstration, without server delivery. No cross-browser certification or comprehensive WCAG audit is claimed. Browser storage failures prompt users to export a backup. The Chinese strings in `src/compat/legacy-starter.json` are intentional matching data for the old example, not interface copy.

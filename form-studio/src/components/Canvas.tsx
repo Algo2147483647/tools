@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ArrowDown, ArrowUp, Copy, GripVertical, Plus, Sparkles, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Copy, GripVertical, Plus, Trash2 } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { isContainer, type Field } from '../model'
 import { useStudio } from '../store'
@@ -35,7 +35,7 @@ function FieldCard({
       data-field-id={field.id}
       tabIndex={0}
       role="group"
-      aria-label={`编辑 ${field.title}`}
+      aria-label={`Edit ${field.title}`}
       onClick={(e) => {
         e.stopPropagation()
         select(field.id)
@@ -56,8 +56,8 @@ function FieldCard({
               className="icon-button drag-handle"
               {...attributes}
               {...listeners}
-              aria-label={`拖动 ${field.title}`}
-              title="拖动排序，或用上下方向键移动"
+              aria-label={`Drag ${field.title}`}
+              title="Drag to reorder, or use the up and down arrow keys"
               onKeyDown={(e) => {
                 if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
                   e.preventDefault()
@@ -69,25 +69,25 @@ function FieldCard({
               <GripVertical size={14} />
             </button>
             <IconButton
-              label="上移字段"
+              label="Move field up"
               onClick={() => perform(() => useStudio.getState().nudge(field.id, -1))}
             >
               <ArrowUp size={13} />
             </IconButton>
             <IconButton
-              label="下移字段"
+              label="Move field down"
               onClick={() => perform(() => useStudio.getState().nudge(field.id, 1))}
             >
               <ArrowDown size={13} />
             </IconButton>
             <IconButton
-              label="复制字段"
+              label="Duplicate field"
               onClick={() => perform(() => useStudio.getState().duplicate(field.id))}
             >
               <Copy size={13} />
             </IconButton>
             <IconButton
-              label="删除字段"
+              label="Delete field"
               onClick={() => perform(() => useStudio.getState().remove(field.id))}
             >
               <Trash2 size={13} />
@@ -103,7 +103,7 @@ function FieldCard({
         <div className="design-container">
           <div className="container-heading">
             <span>{field.title}</span>
-            <small>{field.type === 'grid' ? `${field.columns} 列布局` : '分组'}</small>
+            <small>{field.type === 'grid' ? `${field.columns} columns` : 'Group'}</small>
           </div>
           <FieldList
             fields={field.children}
@@ -118,7 +118,7 @@ function FieldCard({
         </div>
       )}
       {(field.hidden || field.rules.length > 0) && (
-        <span className="field-status">{field.hidden ? '已隐藏' : '条件显示'}</span>
+        <span className="field-status">{field.hidden ? 'Hidden' : 'Conditional visibility'}</span>
       )}
     </div>
   )
@@ -152,8 +152,8 @@ export function FieldList({
       {!fields.length && (
         <div className="drop-empty">
           <Plus size={20} />
-          <span>将组件拖到这里</span>
-          <small>也可以选中此分组，再点击左侧组件</small>
+          <span>Drop a component here</span>
+          <small>Or select this group and add from the library</small>
         </div>
       )}
     </div>
@@ -172,28 +172,21 @@ export default function Canvas({
     select = useStudio((state) => state.select)
   return (
     <div className="canvas-scroll">
-      <div className="canvas-meta">
-        <span>
-          <span className="live-dot" />
-          设计画布
-        </span>
-        <span>{mobile ? '移动端 · 390 px' : '桌面端 · 自适应'}</span>
-      </div>
       <div
-        className={`form-paper ${mobile ? 'mobile-paper' : ''}`}
+        className={`form-paper labels-${doc.labelLayout} ${mobile ? 'mobile-paper' : ''}`}
         style={{ '--accent': doc.accent } as CSSProperties}
       >
         <button
           className="heading-select"
           onClick={() => select(null)}
-          aria-label="编辑表单标题和设置"
+          aria-label="Edit form title and settings"
         >
           <FormHeading doc={doc} />
         </button>
         <FieldList fields={doc.fields} perform={perform} />
         <button className="add-field" onClick={onAdd}>
           <Plus size={15} />
-          添加字段<span>从左侧选择一个组件</span>
+          Add a field<span>Choose a component from the library</span>
         </button>
         <div className="design-submit">
           <span>{doc.submitLabel}</span>
@@ -201,12 +194,8 @@ export default function Canvas({
         </div>
         <div className="form-credit">
           Made with <strong>Form Studio</strong>
-          <span>用心收集每一个回答</span>
+          <span>Made for meaningful responses</span>
         </div>
-      </div>
-      <div className="canvas-tip">
-        <Sparkles size={13} />
-        <span>好问题，是每一次连接的开始。</span>
       </div>
     </div>
   )

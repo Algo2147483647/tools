@@ -11,6 +11,23 @@ import {
 import { exportSchema, parseDocument, parseText } from './schema'
 
 describe('Schema integrity and migration', () => {
+  it('preserves inline label layout through JSON export and import', () => {
+    const doc = starterDocument()
+    doc.labelLayout = 'inline'
+    const exported = exportSchema(doc)
+    expect(exported.form.layout).toBe('horizontal')
+    expect(parseText(JSON.stringify(exported))).toEqual(doc)
+  })
+  it('keeps older v2 documents stacked when no layout is specified', () => {
+    const { labelLayout: _layout, ...oldDocument } = starterDocument()
+    expect(parseDocument(oldDocument).labelLayout).toBe('stacked')
+  })
+  it('imports legacy horizontal layouts and rejects invalid layout values', () => {
+    expect(
+      parseDocument({ form: { layout: 'horizontal' }, schema: { properties: {} } }).labelLayout,
+    ).toBe('inline')
+    expect(() => parseDocument({ ...emptyDocument(), labelLayout: 'unsupported' })).toThrow()
+  })
   it('round-trips every supported field, nested layout, typed default and condition', () => {
     const doc = emptyDocument()
     doc.fields = fieldTypes.map((type) => createField(type))
@@ -68,29 +85,29 @@ describe('Schema integrity and migration', () => {
   it('rejects unknown components instead of dropping them', () => {
     expect(() =>
       parseDocument({ schema: { properties: { test: { 'x-component': 'Unknown' } } } }),
-    ).toThrow('不支持')
+    ).toThrow('unsupported')
   })
   it('rejects dangerous keys, malformed JSON, excessive depth, and invalid defaults', () => {
     expect(() => parseText('{broken')).toThrow('JSON')
-    expect(() => parseText('{"__proto__":{}}')).toThrow('保留属性')
+    expect(() => parseText('{"__proto__":{}}')).toThrow('Reserved property')
     let deep: unknown = {}
     for (let i = 0; i < 40; i++) deep = { child: deep }
-    expect(() => parseDocument(deep)).toThrow('嵌套过深')
+    expect(() => parseDocument(deep)).toThrow('deeply nested')
     const doc = emptyDocument()
     doc.fields = [{ ...createField('switch'), defaultValue: 'false' }]
-    expect(() => parseDocument(doc)).toThrow('默认值类型')
+    expect(() => parseDocument(doc)).toThrow('default value type')
   })
   it('rejects duplicate identifiers, invalid ranges and broken rule references', () => {
     const doc = starterDocument()
     doc.fields[1].name = doc.fields[0].name
-    expect(() => parseDocument(doc)).toThrow('重复')
+    expect(() => parseDocument(doc)).toThrow('Duplicate')
     const numeric = emptyDocument()
     numeric.fields = [{ ...createField('number'), min: 5, max: 1 }]
-    expect(() => parseDocument(numeric)).toThrow('最小值')
+    expect(() => parseDocument(numeric)).toThrow('minimum')
     numeric.fields = [
       { ...createField('text'), rules: [{ field: 'missing', operator: 'equals', value: '' }] },
     ]
-    expect(() => parseDocument(numeric)).toThrow('引用无效')
+    expect(() => parseDocument(numeric)).toThrow('invalid condition reference')
   })
 })
 describe('Preview semantics', () => {
@@ -101,7 +118,7 @@ describe('Preview semantics', () => {
       createField('switch'),
     ]
     const checked = validateValues(fields, { number_1: 0, email_1: 'bad', switch_1: false })
-    expect(checked.errors).toEqual({ email_1: '请输入有效的邮箱地址' })
+    expect(checked.errors).toEqual({ email_1: 'Enter a valid email address.' })
     expect(checked.data.number_1).toBe(0)
     expect(checked.data.switch_1).toBe(false)
   })
@@ -131,7 +148,9 @@ describe('Preview semantics', () => {
   it('requires complete cascader paths and preserves selected leaf values', () => {
     const field = {
       ...createField('cascader'),
-      options: [{ label: '省', value: 'province', children: [{ label: '市', value: 'city' }] }],
+      options: [
+        { label: 'Province', value: 'province', children: [{ label: 'City', value: 'city' }] },
+      ],
     }
     expect(validateValues([field], { cascader_1: ['province'] }).errors.cascader_1).toBeDefined()
     expect(validateValues([field], { cascader_1: ['province', 'city'] })).toEqual({

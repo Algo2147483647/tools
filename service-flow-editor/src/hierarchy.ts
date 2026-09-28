@@ -39,6 +39,18 @@ function hierarchyIndex(workspace: Workspace) {
 }
 type Hierarchy = ReturnType<typeof hierarchyIndex>;
 
+function endpointAncestors(source: ServiceNode, target: ServiceNode, index: Hierarchy): Set<string> {
+  const result = new Set<string>();
+  for (const endpoint of [source, target]) {
+    let parentId = index.graphParents.get(endpoint.graphId);
+    while (parentId) {
+      result.add(parentId);
+      parentId = index.graphParents.get(index.byId.get(parentId)!.graphId);
+    }
+  }
+  return result;
+}
+
 /** Canonical origins never depend on expansion, content bounds, or display reflow. */
 function origins(workspace: Workspace, index = hierarchyIndex(workspace)): Map<string, Point> {
   const result = new Map<string, Point>([[workspace.rootGraphId, { x: 0, y: 0 }]]);
@@ -71,19 +83,24 @@ export function canonicalNode(workspace: Workspace, nodeId: string, ownerGraphId
 }
 
 export function rerouteEdges(workspace: Workspace): Workspace {
-  const allOrigins = origins(workspace);
+  const index = hierarchyIndex(workspace);
+  const allOrigins = origins(workspace, index);
   return {
     ...workspace,
     edges: workspace.edges.map((edge) => {
       const source = edgeEndpoint(workspace, edge, 'source');
       const target = edgeEndpoint(workspace, edge, 'target');
       if (!source || !target) return edge;
+      const ancestors = endpointAncestors(source, target, index);
       return {
         ...edge,
         points: reconnectEdge(
           edge,
           projectCanonical(source, edge.graphId, allOrigins),
           projectCanonical(target, edge.graphId, allOrigins),
+          edge.routing === 'auto'
+            ? (index.children.get(edge.graphId) ?? []).filter((node) => !ancestors.has(node.id))
+            : [],
         ),
       };
     }),
@@ -202,9 +219,15 @@ function renderEdges(
       target: targetNode.key,
       points: canonical.map((point) => ({ x: point.x + offset.x, y: point.y + offset.y })),
     };
+    const ancestors = endpointAncestors(source, target, index);
     result.push({
       ...rendered,
-      points: reconnectEdge(projected ? { ...rendered, points: [] } : rendered, sourceNode, targetNode),
+      points: reconnectEdge(
+        projected ? { ...rendered, points: [] } : rendered,
+        sourceNode,
+        targetNode,
+        original.routing === 'auto' ? visible.nodes.filter((node) => !ancestors.has(node.id)) : [],
+      ),
       original,
       sourceNode,
       targetNode,

@@ -9,8 +9,8 @@ import {
   validateWorkspace,
   type Workspace,
 } from '../src/model';
-import { rerouteEdges } from '../src/hierarchy';
-import { isOrthogonal } from '../src/routing';
+import { canonicalNode, rerouteEdges, scene } from '../src/hierarchy';
+import { anchor, isOrthogonal } from '../src/routing';
 
 function fixture() {
   const w = createWorkspace('Layout verification');
@@ -44,6 +44,8 @@ function fixture() {
     [b, b],
     [child, sibling],
     [leaf, sibling],
+    [b, leaf],
+    [leaf, b],
   ];
   for (const [source, target] of pairs)
     w.edges.push({
@@ -92,6 +94,14 @@ test('layered layout handles cycles, self loops, disconnected nodes and cross-le
     assert.equal(edge.targetNodeId, prior.targetNodeId);
     assert.deepEqual(edge.weights, prior.weights);
     assert.ok(isOrthogonal(edge.points));
+    assert.deepEqual(
+      edge.points[0],
+      anchor(canonicalNode(result, edge.sourceNodeId!, edge.graphId), edge.sourceSide),
+    );
+    assert.deepEqual(
+      edge.points.at(-1),
+      anchor(canonicalNode(result, edge.targetNodeId!, edge.graphId), edge.targetSide),
+    );
   }
   const collapsed = structuredClone(original);
   collapsed.nodes.forEach((node) => {
@@ -102,6 +112,69 @@ test('layered layout handles cycles, self loops, disconnected nodes and cross-le
     again.nodes.map((n) => [n.id, n.x, n.y]),
     result.nodes.map((n) => [n.id, n.x, n.y]),
   );
+  assert.deepEqual(again.edges, result.edges, 'ports must not depend on display expansion');
+  assert.deepEqual(
+    (await autoLayout(result, 'root', layout)).edges,
+    result.edges,
+    'repeated layout must be stable',
+  );
+});
+
+test('auto layout replaces old port choices and saved and displayed routes avoid sibling nodes', async () => {
+  const original = fixture();
+  original.nodes = original.nodes.filter((node) => ['Client', 'Service', 'Database'].includes(node.id));
+  original.nodes.forEach((node) => {
+    node.expanded = false;
+  });
+  original.graphs = original.graphs.filter(
+    (graph) => !graph.parentNodeId || original.nodes.some((node) => node.id === graph.parentNodeId),
+  );
+  original.edges = [
+    {
+      ...original.edges[0],
+      graphId: 'root',
+      source: 'Client',
+      sourceNodeId: 'Client',
+      target: 'Database',
+      targetNodeId: 'Database',
+      sourceSide: 'left',
+      targetSide: 'right',
+      routing: 'manual',
+    },
+  ];
+  const result = await autoLayout(original, 'root', async (graph) => ({
+    ...graph,
+    children: graph.children!.map((node) => ({
+      ...node,
+      x: node.id === 'node:Client' ? 0 : node.id === 'node:Service' ? 180 : 600,
+      y: 0,
+    })),
+  }));
+  const edge = result.edges[0];
+  assert.notEqual(edge.sourceSide, 'left');
+  assert.notEqual(edge.targetSide, 'right');
+  assert.equal(edge.routing, 'auto');
+  assert.equal(original.edges[0].sourceSide, 'left', 'the input stays untouched for undo');
+  const blocker = result.nodes.find((node) => node.id === 'Service')!;
+  for (const points of [edge.points, scene(result, 'root').edges[0].points]) {
+    assert.ok(isOrthogonal(points));
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1],
+        b = points[i];
+      const crosses =
+        a.x === b.x
+          ? a.x > blocker.x &&
+            a.x < blocker.x + blocker.width &&
+            Math.max(a.y, b.y) > blocker.y &&
+            Math.min(a.y, b.y) < blocker.y + blocker.height
+          : a.y > blocker.y &&
+            a.y < blocker.y + blocker.height &&
+            Math.max(a.x, b.x) > blocker.x &&
+            Math.min(a.x, b.x) < blocker.x + blocker.width;
+      assert.equal(crosses, false, 'a route must not cut through the intervening service');
+    }
+  }
+  validateWorkspace(result);
 });
 
 test('nested layout keeps outside geometry and flows unchanged and snaps to the configured grid', async () => {

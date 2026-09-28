@@ -2,6 +2,7 @@ import { Component, StrictMode, type ErrorInfo, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import './styles.css'
+import './workspace.css'
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: boolean }> {
   state = { error: false }
@@ -14,10 +15,10 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: boolean 
   render() {
     return this.state.error ? (
       <div className="error-page">
-        <h1>工作台暂时遇到问题</h1>
-        <p>已保存的草稿仍保留在浏览器中，请刷新后重试。</p>
+        <h1>Something went wrong</h1>
+        <p>Your saved draft is still in this browser. Reload to try again.</p>
         <button className="button primary" onClick={() => location.reload()}>
-          重新加载
+          Reload
         </button>
       </div>
     ) : (

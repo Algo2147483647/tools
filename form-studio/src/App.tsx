@@ -12,15 +12,12 @@ import {
 } from '@dnd-kit/core'
 import {
   ArrowDownToLine,
-  ArrowLeft,
   ArrowUpRight,
   Check,
-  ChevronRight,
   Code2,
   Command,
   FilePlus2,
   FileUp,
-  Grid2X2,
   LayoutTemplate,
   LoaderCircle,
   Monitor,
@@ -41,13 +38,14 @@ import {
   emptyDocument,
   findField,
   flatten,
-  isLayout,
   starterDocument,
   type FieldType,
   type FormDocument,
 } from './model'
 import { downloadJson, exportSchema, parseText } from './schema'
 import { useStudio } from './store'
+import { usePreferences } from './preferences'
+import SettingsMenu from './components/SettingsMenu'
 import Canvas from './components/Canvas'
 import Inspector from './components/Inspector'
 import Library from './components/Library'
@@ -68,27 +66,52 @@ const collision: CollisionDetection = (args) => {
 
 export default function App() {
   const studio = useStudio(),
-    { doc, selected, saveError, past, future } = studio
+    { doc, saveError, past, future } = studio
   const [mode, setMode] = useState<Mode>('design'),
     [mobile, setMobile] = useState(false)
+  const [libraryOpen, setLibraryOpen] = useState(true)
+  const [inspectorOpen, setInspectorOpen] = useState(true)
   const [drawer, setDrawer] = useState<'library' | 'inspector' | null>(null)
-  const [dialog, setDialog] = useState<'templates' | 'shortcuts' | null>(null)
+  const [dialog, setDialog] = useState<'templates' | 'shortcuts' | 'settings' | null>(null)
   const [toast, setToast] = useState(''),
     [dragType, setDragType] = useState<FieldType | null>(null)
+  const panelIsDrawer = (panel: 'library' | 'inspector') =>
+    window.matchMedia(panel === 'library' ? '(max-width: 760px)' : '(max-width: 1100px)').matches
+  const openPanel = (panel: 'library' | 'inspector') => {
+    if (panelIsDrawer(panel)) setDrawer(panel)
+    else if (panel === 'library') setLibraryOpen(true)
+    else setInspectorOpen(true)
+  }
+  const closePanel = (panel: 'library' | 'inspector') => {
+    setDrawer(null)
+    if (!panelIsDrawer(panel)) {
+      if (panel === 'library') setLibraryOpen(false)
+      else setInspectorOpen(false)
+    }
+  }
+  const togglePanel = (panel: 'library' | 'inspector') => {
+    if (panelIsDrawer(panel)) setDrawer((current) => (current === panel ? null : panel))
+    else if (panel === 'library') setLibraryOpen((value) => !value)
+    else setInspectorOpen((value) => !value)
+  }
   const fileRef = useRef<HTMLInputElement>(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 7 } }))
-  const count = flatten(doc.fields).filter((field) => !isLayout(field.type)).length
+  const preferences = usePreferences()
   const notify = (message: string) => setToast(message)
   const perform = (action: () => void) => {
     try {
       action()
     } catch (error) {
-      notify(error instanceof Error ? error.message : '操作未完成，请检查设置')
+      notify(
+        error instanceof Error
+          ? error.message
+          : 'Could not complete the action. Check your settings.',
+      )
     }
   }
   const exportFile = () => {
     downloadJson(exportSchema(useStudio.getState().doc), 'form-schema.json')
-    notify('Schema 已导出')
+    notify('Schema exported')
   }
   useEffect(() => {
     if (!toast) return
@@ -128,9 +151,9 @@ export default function App() {
       }
       if (event.key === '/') {
         event.preventDefault()
-        setDrawer('library')
+        openPanel('library')
         requestAnimationFrame(() =>
-          document.querySelector<HTMLInputElement>('[aria-label="搜索组件"]')?.focus(),
+          document.querySelector<HTMLInputElement>('[aria-label="Search components"]')?.focus(),
         )
       }
       if (event.key === 'Escape') {
@@ -157,123 +180,171 @@ export default function App() {
     event.target.value = ''
     if (!file) return
     try {
-      if (file.size > 2_000_000) throw new Error('文件不能超过 2 MB。')
+      if (file.size > 2_000_000) throw new Error('Files must be smaller than 2 MB.')
       studio.replace(parseText(await file.text()))
       setMode('design')
-      notify('导入成功，原表单可通过撤销恢复')
+      notify('Imported successfully. Undo to restore your previous form.')
     } catch (e) {
-      notify(e instanceof Error ? e.message : '文件读取失败')
+      notify(e instanceof Error ? e.message : 'Could not read the file.')
     }
   }
   function applyTemplate(template: FormDocument) {
-    studio.replace(template)
+    studio.replace({ ...template, labelLayout: usePreferences.getState().defaultLabelLayout })
     setDialog(null)
     setMode('design')
-    notify('模板已载入，可撤销恢复之前的表单')
+    notify('Template loaded. Undo to restore your previous form.')
   }
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <a
-          className="brand"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault()
-            setMode('design')
-          }}
-          aria-label="Form Studio 设计工作台"
-        >
-          <span className="brand-mark">
-            <span />
-            <span />
-            <span />
-          </span>
-          <span>
-            Form<span className="brand-light"> Studio</span>
-          </span>
-        </a>
-        <span className="header-divider" />
-        <div className="project-breadcrumb">
-          <span>我的工作空间</span>
-          <ChevronRight size={14} />
-          <strong>{doc.title}</strong>
-          <span className="draft-badge">草稿</span>
-        </div>
-        <div className="header-actions">
-          <span
-            className={`save-status ${saveError ? 'save-error' : ''}`}
-            title={saveError ?? '草稿保存在当前浏览器'}
+    <div
+      className={`app-shell glass-${preferences.glass} ${preferences.canvasGrid ? '' : 'no-canvas-grid'}`}
+    >
+      <header className="app-header glass-surface" aria-label="Workspace toolbar">
+        <div className="header-start">
+          <IconButton
+            label="Toggle component library"
+            disabled={mode !== 'design'}
+            onClick={() => togglePanel('library')}
           >
-            {saveError ? <ShieldCheck size={14} /> : <Check size={14} />}
-            {saveError ? '保存异常' : '已自动保存'}
-          </span>
-          <button className="button header-import" onClick={() => fileRef.current?.click()}>
-            <FileUp size={15} />
-            <span>导入</span>
-          </button>
-          <button className="button primary" onClick={exportFile}>
-            <ArrowDownToLine size={15} />
-            <span>导出 Schema</span>
-          </button>
-          <span className="avatar" title="本地工作空间">
-            F
-          </span>
+            <PanelLeft size={18} />
+          </IconButton>
+          <div className="document-info">
+            <input
+              className="document-title"
+              aria-label="Document title"
+              key={doc.title}
+              defaultValue={doc.title}
+              maxLength={150}
+              onBlur={(event) =>
+                perform(() =>
+                  studio.updateDocument({ title: event.target.value.trim() || 'Untitled form' }),
+                )
+              }
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') event.currentTarget.blur()
+                if (event.key === 'Escape') {
+                  event.currentTarget.value = doc.title
+                  event.currentTarget.blur()
+                }
+              }}
+            />
+            <span
+              className={`save-status ${saveError ? 'save-error' : ''}`}
+              title={saveError ?? 'Saved locally'}
+              aria-label={saveError ? 'Save failed' : 'Saved locally'}
+            >
+              {saveError ? <ShieldCheck size={14} /> : <Check size={14} />}
+            </span>
+          </div>
+          <div className="header-history">
+            <IconButton
+              label="Undo (Ctrl+Z)"
+              disabled={!past.length || mode !== 'design'}
+              onClick={studio.undo}
+            >
+              <Undo2 size={17} />
+            </IconButton>
+            <IconButton
+              label="Redo (Ctrl+Shift+Z)"
+              disabled={!future.length || mode !== 'design'}
+              onClick={studio.redo}
+            >
+              <Redo2 size={17} />
+            </IconButton>
+          </div>
         </div>
-      </header>
-      <div className="workspace-toolbar">
-        <div className="workspace-location">
-          <Grid2X2 size={16} />
-          <span>表单工作台</span>
-          <span className="version-label">2.0</span>
-        </div>
-        <nav className="mode-tabs" aria-label="工作模式">
-          <button className={mode === 'design' ? 'active' : ''} onClick={() => setMode('design')}>
-            <MousePointer2 size={15} />
-            设计
+        <nav className="mode-tabs" aria-label="Workspace mode">
+          <button
+            aria-label="Design"
+            title="Design"
+            aria-pressed={mode === 'design'}
+            className={mode === 'design' ? 'active' : ''}
+            onClick={() => setMode('design')}
+          >
+            <MousePointer2 size={16} />
+            <span>Design</span>
           </button>
-          <button className={mode === 'preview' ? 'active' : ''} onClick={() => setMode('preview')}>
-            <Monitor size={15} />
-            预览
+          <button
+            aria-label="Preview"
+            title="Preview"
+            aria-pressed={mode === 'preview'}
+            className={mode === 'preview' ? 'active' : ''}
+            onClick={() => setMode('preview')}
+          >
+            <Monitor size={16} />
+            <span>Preview</span>
           </button>
-          <button className={mode === 'schema' ? 'active' : ''} onClick={() => setMode('schema')}>
-            <Code2 size={16} />
-            Schema
+          <button
+            aria-label="Schema"
+            title="Schema"
+            aria-pressed={mode === 'schema'}
+            className={mode === 'schema' ? 'active' : ''}
+            onClick={() => setMode('schema')}
+          >
+            <Code2 size={17} />
+            <span>Schema</span>
           </button>
         </nav>
-        <div className="toolbar-actions">
+        <div className="header-actions">
+          <div className="device-toggle segmented" aria-label="Canvas size">
+            <button
+              aria-pressed={!mobile}
+              className={!mobile ? 'active' : ''}
+              aria-label="Desktop preview"
+              title="Desktop preview"
+              onClick={() => setMobile(false)}
+            >
+              <Monitor size={16} />
+            </button>
+            <button
+              aria-pressed={mobile}
+              className={mobile ? 'active' : ''}
+              aria-label="Mobile preview"
+              title="Mobile preview"
+              onClick={() => setMobile(true)}
+            >
+              <Smartphone size={15} />
+            </button>
+          </div>
           <IconButton
-            label="撤销 (Ctrl+Z)"
-            disabled={!past.length || mode !== 'design'}
-            onClick={studio.undo}
+            label="Toggle inspector"
+            disabled={mode !== 'design'}
+            onClick={() => togglePanel('inspector')}
           >
-            <Undo2 size={17} />
+            <PanelRight size={18} />
           </IconButton>
           <IconButton
-            label="重做 (Ctrl+Shift+Z)"
-            disabled={!future.length || mode !== 'design'}
-            onClick={studio.redo}
+            label="Settings"
+            aria-haspopup="dialog"
+            aria-expanded={dialog === 'settings'}
+            onClick={() => setDialog('settings')}
           >
-            <Redo2 size={17} />
+            <Settings2 size={18} />
           </IconButton>
-          <span className="action-divider" />
+          <span className="header-separator" />
           <button
-            className={`settings-button ${selected === null ? 'active' : ''}`}
-            aria-label="表单设置"
-            onClick={() => {
-              studio.select(null)
-              setDrawer('inspector')
-              setMode('design')
-            }}
+            className="button header-import"
+            aria-label="Import"
+            title="Import"
+            onClick={() => fileRef.current?.click()}
           >
-            <Settings2 size={16} />
-            <span>表单设置</span>
+            <FileUp size={16} />
+            <span>Import</span>
+          </button>
+          <button
+            className="button primary header-export"
+            aria-label="Export Schema"
+            title="Export Schema"
+            onClick={exportFile}
+          >
+            <ArrowDownToLine size={16} />
+            <span>Export Schema</span>
           </button>
         </div>
-      </div>
+      </header>
       {saveError && (
         <div className="save-banner" role="alert">
           {saveError}
-          <button onClick={exportFile}>导出备份</button>
+          <button onClick={exportFile}>Export backup</button>
         </div>
       )}
       <DndContext
@@ -289,13 +360,15 @@ export default function App() {
         onDragEnd={dragEnd}
         onDragCancel={() => setDragType(null)}
       >
-        <main className={`workspace mode-${mode} ${drawer ? `show-${drawer}` : ''}`}>
+        <main
+          className={`workspace mode-${mode} ${!libraryOpen ? 'hide-library' : ''} ${!inspectorOpen ? 'hide-inspector' : ''} ${drawer ? `show-${drawer}` : ''}`}
+        >
           {mode === 'design' && (
             <>
               <div className="drawer-scrim" onClick={() => setDrawer(null)} />
               <Library
                 onTemplates={() => setDialog('templates')}
-                onClose={() => setDrawer(null)}
+                onClose={() => closePanel('library')}
                 perform={perform}
               />
             </>
@@ -303,66 +376,22 @@ export default function App() {
           <section
             className="canvas-panel"
             aria-label={
-              mode === 'design' ? '表单设计画布' : mode === 'preview' ? '表单预览' : 'Schema 编辑'
+              mode === 'design'
+                ? 'Form design canvas'
+                : mode === 'preview'
+                  ? 'Form preview'
+                  : 'Schema editor'
             }
           >
-            {mode !== 'schema' && (
-              <div className="canvas-toolbar">
-                <div className="canvas-toolbar-start">
-                  {mode === 'design' ? (
-                    <>
-                      <span className="mobile-only">
-                        <IconButton label="打开组件面板" onClick={() => setDrawer('library')}>
-                          <PanelLeft size={17} />
-                        </IconButton>
-                      </span>
-                      <span className="canvas-title">{doc.title}</span>
-                      <span className="canvas-count">{count} 个字段</span>
-                    </>
-                  ) : (
-                    <button className="text-button" onClick={() => setMode('design')}>
-                      <ArrowLeft size={14} />
-                      返回编辑
-                    </button>
-                  )}
-                </div>
-                <div className="device-toggle segmented" aria-label="画布尺寸">
-                  <button
-                    className={!mobile ? 'active' : ''}
-                    aria-label="桌面端预览"
-                    title="桌面端"
-                    onClick={() => setMobile(false)}
-                  >
-                    <Monitor size={16} />
-                  </button>
-                  <button
-                    className={mobile ? 'active' : ''}
-                    aria-label="移动端预览"
-                    title="移动端"
-                    onClick={() => setMobile(true)}
-                  >
-                    <Smartphone size={15} />
-                  </button>
-                </div>
-                <div className="canvas-toolbar-end">
-                  <span className="zoom-label">100%</span>
-                  {mode === 'design' && (
-                    <span className="inspector-drawer-toggle">
-                      <IconButton label="打开属性面板" onClick={() => setDrawer('inspector')}>
-                        <PanelRight size={17} />
-                      </IconButton>
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
             {mode === 'design' ? (
               <Canvas
                 mobile={mobile}
                 perform={perform}
                 onAdd={() => {
-                  setDrawer('library')
-                  document.querySelector<HTMLInputElement>('[aria-label="搜索组件"]')?.focus()
+                  openPanel('library')
+                  document
+                    .querySelector<HTMLInputElement>('[aria-label="Search components"]')
+                    ?.focus()
                 }}
               />
             ) : mode === 'preview' ? (
@@ -372,7 +401,7 @@ export default function App() {
                 fallback={
                   <div className="loading-state">
                     <LoaderCircle className="spin" />
-                    正在加载编辑器…
+                    Loading editor…
                   </div>
                 }
               >
@@ -380,7 +409,9 @@ export default function App() {
               </Suspense>
             )}
           </section>
-          {mode === 'design' && <Inspector onClose={() => setDrawer(null)} perform={perform} />}
+          {mode === 'design' && (
+            <Inspector onClose={() => closePanel('inspector')} perform={perform} />
+          )}
         </main>
         <DragOverlay>
           {dragType && (
@@ -391,23 +422,23 @@ export default function App() {
           )}
         </DragOverlay>
       </DndContext>
-      <footer className="status-bar">
+      <footer className="status-bar glass-surface">
         <div>
           <span className="status-dot" />
-          <span>本地工作空间</span>
+          <span>Local workspace</span>
           <span className="status-separator">/</span>
-          <span>{flatten(doc.fields).length} 个组件</span>
+          <span>{flatten(doc.fields).length} components</span>
           <span className="status-separator">/</span>
           <span>Schema v2</span>
         </div>
         <div>
           <span className="privacy-note">
             <ShieldCheck size={12} />
-            数据留在你的浏览器
+            Your data stays in this browser
           </span>
           <button onClick={() => setDialog('shortcuts')}>
             <Command size={12} />
-            快捷键
+            Shortcuts
           </button>
         </div>
       </footer>
@@ -416,33 +447,55 @@ export default function App() {
         ref={fileRef}
         accept=".json,application/json"
         className="visually-hidden"
-        aria-label="导入 Schema 文件"
+        aria-label="Import Schema file"
         onChange={importFile}
       />
       {toast && (
         <div className="toast" role="status">
           <span>{toast}</span>
-          <IconButton label="关闭通知" onClick={() => setToast('')}>
+          <IconButton label="Dismiss notification" onClick={() => setToast('')}>
             <X size={15} />
           </IconButton>
         </div>
       )}
+      {dialog === 'settings' && (
+        <SettingsMenu
+          mobile={mobile}
+          onMobile={setMobile}
+          onClose={() => setDialog(null)}
+          onShortcuts={() => setDialog('shortcuts')}
+          onPanels={(show) => {
+            setMode('design')
+            setLibraryOpen(show)
+            setInspectorOpen(show)
+            setDrawer(
+              show
+                ? panelIsDrawer('library')
+                  ? 'library'
+                  : panelIsDrawer('inspector')
+                    ? 'inspector'
+                    : null
+                : null,
+            )
+          }}
+        />
+      )}
       {dialog === 'shortcuts' && (
         <Modal
-          title="用键盘，更进一步"
-          subtitle="编辑文字时，保留输入框本身的快捷键。"
+          title="Keyboard shortcuts"
+          subtitle="Text inputs keep their native editing shortcuts."
           onClose={() => setDialog(null)}
         >
           <div className="shortcut-list">
             {[
-              ['撤销', 'Ctrl / ⌘ + Z'],
-              ['重做', 'Ctrl / ⌘ + Shift + Z'],
-              ['复制选中字段', 'Ctrl / ⌘ + D'],
-              ['删除选中字段', 'Delete'],
-              ['导出 Schema', 'Ctrl / ⌘ + S'],
-              ['搜索组件', '/'],
-              ['取消选中', 'Esc'],
-              ['键盘排序', '聚焦拖动柄 → ↑ / ↓'],
+              ['Undo', 'Ctrl / ⌘ + Z'],
+              ['Redo', 'Ctrl / ⌘ + Shift + Z'],
+              ['Duplicate selected field', 'Ctrl / ⌘ + D'],
+              ['Delete selected field', 'Delete'],
+              ['Export Schema', 'Ctrl / ⌘ + S'],
+              ['Search components', '/'],
+              ['Clear selection', 'Esc'],
+              ['Reorder fields', 'Focus drag handle, then ↑ / ↓'],
             ].map(([label, key]) => (
               <div key={label}>
                 <span>{label}</span>
@@ -454,27 +507,27 @@ export default function App() {
       )}
       {dialog === 'templates' && (
         <Modal
-          title="从一个好起点开始"
-          subtitle="选择模板，继续创造。替换当前表单后，可以随时撤销。"
+          title="Start with something good"
+          subtitle="Choose a starting point and make it yours. You can undo replacing your form."
           onClose={() => setDialog(null)}
           wide
         >
           <div className="template-grid">
             <TemplateCard
-              title="空白画布"
-              description="自由构建你的下一个好表单"
+              title="Blank canvas"
+              description="A fresh start for your next idea."
               kind="blank"
               onClick={() => applyTemplate(emptyDocument())}
             />
             <TemplateCard
-              title="活动报名"
-              description="连接同频的人，让好想法发生"
+              title="Event registration"
+              description="Bring curious people together."
               kind="event"
               onClick={() => applyTemplate(starterDocument())}
             />
             <TemplateCard
-              title="意见反馈"
-              description="认真倾听每一个声音"
+              title="Feedback survey"
+              description="Make every response count."
               kind="feedback"
               onClick={() => applyTemplate(feedbackTemplate())}
             />
@@ -515,33 +568,33 @@ function TemplateCard({
 }
 function feedbackTemplate(): FormDocument {
   const doc = emptyDocument()
-  doc.title = '期待听见你的声音'
-  doc.description = '每一条建议，都让我们离更好的体验近一步。'
-  doc.submitLabel = '发送反馈'
+  doc.title = 'We would love your feedback'
+  doc.description = 'Help us make your next experience even better.'
+  doc.submitLabel = 'Send feedback'
   doc.accent = '#7253aa'
   doc.fields = [
     {
       ...createField('radio'),
       name: 'rating',
-      title: '整体体验如何？',
+      title: 'How was your experience?',
       required: true,
       options: [
-        { label: '非常满意', value: 'great' },
-        { label: '还不错', value: 'good' },
-        { label: '有待改进', value: 'improve' },
+        { label: 'Excellent', value: 'great' },
+        { label: 'Good', value: 'good' },
+        { label: 'Could be better', value: 'improve' },
       ],
     },
     {
       ...createField('textarea'),
       name: 'feedback',
-      title: '有哪些值得改进的地方？',
+      title: 'What could we improve?',
       required: true,
-      placeholder: '我们很想听听你的建议…',
+      placeholder: 'Share your ideas with us…',
     },
     {
       ...createField('email'),
       name: 'email',
-      title: '留下邮箱，方便我们回复',
+      title: 'Your email for a follow-up',
       placeholder: 'hello@example.com',
     },
   ]

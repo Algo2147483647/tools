@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { json, jsonParseLinter } from '@codemirror/lang-json'
 import { linter, lintGutter } from '@codemirror/lint'
@@ -19,6 +19,12 @@ export default function SchemaEditor({
     [error, setError] = useState('')
   const original = JSON.stringify(exportSchema(doc), null, 2),
     dirty = code !== original
+  const source = useRef(original)
+  useEffect(() => {
+    const previous = source.current
+    source.current = original
+    setCode((current) => (current === previous ? original : current))
+  }, [original])
   return (
     <div className="schema-view">
       <div className="schema-intro">
@@ -26,15 +32,15 @@ export default function SchemaEditor({
           <Braces size={24} />
         </span>
         <div>
-          <h1>设计与代码，保持同频。</h1>
-          <p>编辑或粘贴 Schema，校验通过后即可应用到画布。</p>
+          <h1>Your form, in code.</h1>
+          <p>Edit or paste a schema, then validate and apply it to your canvas.</p>
         </div>
       </div>
       <div className="editor-card">
         <header>
           <span>
             <span className="live-dot" />
-            form-schema.json{dirty && <small>未应用</small>}
+            form-schema.json{dirty && <small>Unapplied changes</small>}
           </span>
           <div>
             <button
@@ -42,14 +48,14 @@ export default function SchemaEditor({
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(code)
-                  notify('Schema 已复制到剪贴板')
+                  notify('Schema copied to clipboard')
                 } catch {
-                  notify('复制失败，请在编辑器中手动选择复制')
+                  notify('Could not copy. Select and copy the code manually.')
                 }
               }}
             >
               <Copy size={14} />
-              复制
+              Copy
             </button>
             <button
               className="text-button"
@@ -57,12 +63,12 @@ export default function SchemaEditor({
                 try {
                   downloadJson(JSON.parse(code), 'form-schema.json')
                 } catch {
-                  setError('请先修正 JSON 语法后导出。')
+                  setError('Fix the JSON syntax before exporting.')
                 }
               }}
             >
               <Download size={14} />
-              导出
+              Export
             </button>
           </div>
         </header>
@@ -74,7 +80,7 @@ export default function SchemaEditor({
             setCode(value)
             setError('')
           }}
-          aria-label="JSON Schema 编辑器"
+          aria-label="JSON Schema editor"
           basicSetup={{ foldGutter: true, lineNumbers: true, highlightActiveLine: true }}
         />
         <footer>
@@ -86,7 +92,7 @@ export default function SchemaEditor({
             ) : (
               <>
                 <Check size={14} />
-                支持 Form Studio v2 与旧版 Formily Schema
+                Supports Form Studio v2 and legacy Formily schemas
               </>
             )}
           </span>
@@ -96,18 +102,21 @@ export default function SchemaEditor({
               try {
                 onApply(parseText(code))
                 setError('')
-                notify('Schema 已应用，可在设计画布中继续编辑')
+                notify('Schema applied. Continue editing on the canvas.')
               } catch (e) {
-                setError(e instanceof Error ? e.message : '导入失败')
+                setError(e instanceof Error ? e.message : 'Import failed')
               }
             }}
           >
             <FileUp size={15} />
-            应用到画布
+            Apply to canvas
           </button>
         </footer>
       </div>
-      <p className="schema-note">关闭此页面不会应用未保存的代码。导入失败时，当前表单保持不变。</p>
+      <p className="schema-note">
+        Apply your changes before leaving this view. Failed imports leave your current form
+        unchanged.
+      </p>
     </div>
   )
 }

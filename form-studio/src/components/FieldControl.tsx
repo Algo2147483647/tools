@@ -48,7 +48,7 @@ export function FieldControl({
           value={String(stringValue)}
           onChange={(e) => onChange(e.target.value)}
         >
-          <option value="">{field.placeholder || '请选择'}</option>
+          <option value="">{field.placeholder || 'Select an option'}</option>
           {field.options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -103,7 +103,7 @@ export function FieldControl({
           onChange={(e) => onChange(e.target.checked)}
         />
         <span className="toggle-track" aria-hidden="true" />
-        <span>{value ? '已开启' : '已关闭'}</span>
+        <span>{value ? 'On' : 'Off'}</span>
       </label>
     )
   if (field.type === 'slider')
@@ -128,10 +128,10 @@ export function FieldControl({
           {...common}
           disabled={disabled}
           type="color"
-          value={String(value || '#147d68')}
+          value={String(value || '#176be8')}
           onChange={(e) => onChange(e.target.value)}
         />
-        <span className="mono">{String(value || '#147d68')}</span>
+        <span className="mono">{String(value || '#176be8')}</span>
       </div>
     )
   if (field.type === 'cascader') {
@@ -151,14 +151,14 @@ export function FieldControl({
             {...common}
             key={index}
             id={`${id}-${index}`}
-            aria-label={`${field.title} 第 ${index + 1} 级`}
+            aria-label={`${field.title}, level ${index + 1}`}
             disabled={disabled}
             value={path[index] ?? ''}
             onChange={(e) =>
               onChange([...path.slice(0, index), ...(e.target.value ? [e.target.value] : [])])
             }
           >
-            <option value="">请选择</option>
+            <option value="">Select an option</option>
             {level.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -207,22 +207,30 @@ export function FieldBody({
 }) {
   const id = `${design ? 'design' : 'preview'}-${field.id}`
   return (
-    <>
+    <div className="field-body">
       <label className="field-label" htmlFor={id}>
-        {field.title || '未命名字段'}
+        {field.title || 'Untitled field'}
         {field.required && <span className="required">*</span>}
       </label>
-      <FieldControl field={field} value={value} onChange={onChange} error={error} design={design} />
-      {field.description && (
-        <p id={`${id}-description`} className="field-description">
-          {field.description}
-        </p>
-      )}
-      {error && (
-        <p id={`${id}-error`} className="error-text" role="alert">
-          {error}
-        </p>
-      )}
-    </>
+      <div className="field-value">
+        <FieldControl
+          field={field}
+          value={value}
+          onChange={onChange}
+          error={error}
+          design={design}
+        />
+        {field.description && (
+          <p id={`${id}-description`} className="field-description">
+            {field.description}
+          </p>
+        )}
+        {error && (
+          <p id={`${id}-error`} className="error-text" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </div>
   )
 }

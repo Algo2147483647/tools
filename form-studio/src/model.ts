@@ -22,6 +22,7 @@ export const fieldTypes = [
 export type FieldType = (typeof fieldTypes)[number]
 export type Value = string | number | boolean | string[]
 export type Values = Record<string, Value>
+export type LabelLayout = 'stacked' | 'inline'
 export type Option = { label: string; value: string; children?: Option[] }
 export type Rule = {
   field: string
@@ -57,26 +58,47 @@ export interface FormDocument {
   submitLabel: string
   successMessage: string
   accent: string
+  labelLayout: LabelLayout
   fields: Field[]
 }
 export const catalog: { type: FieldType; title: string; hint: string; group: string }[] = [
-  { type: 'text', title: '单行文本', hint: '姓名、简短回答', group: '基础字段' },
-  { type: 'textarea', title: '多行文本', hint: '描述与长回答', group: '基础字段' },
-  { type: 'number', title: '数字', hint: '数量与数值', group: '基础字段' },
-  { type: 'email', title: '邮箱', hint: '自动校验格式', group: '基础字段' },
-  { type: 'select', title: '下拉选择', hint: '展开选择一项', group: '选择字段' },
-  { type: 'radio', title: '单项选择', hint: '平铺展示选项', group: '选择字段' },
-  { type: 'checkbox', title: '多项选择', hint: '选择一个或多个', group: '选择字段' },
-  { type: 'switch', title: '开关', hint: '开启或关闭', group: '选择字段' },
-  { type: 'cascader', title: '级联选择', hint: '多级关联选项', group: '选择字段' },
-  { type: 'date', title: '日期', hint: '选择日历日期', group: '高级字段' },
-  { type: 'time', title: '时间', hint: '选择具体时间', group: '高级字段' },
-  { type: 'slider', title: '滑动条', hint: '范围内选择数值', group: '高级字段' },
-  { type: 'color', title: '颜色', hint: '自定义颜色', group: '高级字段' },
-  { type: 'section', title: '分组卡片', hint: '组织相关字段', group: '布局组件' },
-  { type: 'grid', title: '栅格布局', hint: '灵活的多列排版', group: '布局组件' },
-  { type: 'collapse', title: '折叠分组', hint: '按需展开内容', group: '布局组件' },
-  { type: 'divider', title: '分割线', hint: '分隔不同内容', group: '布局组件' },
+  { type: 'text', title: 'Short text', hint: 'Names and short answers', group: 'Basic fields' },
+  {
+    type: 'textarea',
+    title: 'Long text',
+    hint: 'Descriptions and longer answers',
+    group: 'Basic fields',
+  },
+  { type: 'number', title: 'Number', hint: 'Quantities and values', group: 'Basic fields' },
+  { type: 'email', title: 'Email', hint: 'Validated email addresses', group: 'Basic fields' },
+  { type: 'select', title: 'Dropdown', hint: 'Choose from a dropdown', group: 'Choice fields' },
+  {
+    type: 'radio',
+    title: 'Single choice',
+    hint: 'Choose one visible option',
+    group: 'Choice fields',
+  },
+  {
+    type: 'checkbox',
+    title: 'Checkboxes',
+    hint: 'Choose one or more options',
+    group: 'Choice fields',
+  },
+  { type: 'switch', title: 'Switch', hint: 'A simple on or off choice', group: 'Choice fields' },
+  {
+    type: 'cascader',
+    title: 'Cascader',
+    hint: 'Connected levels of options',
+    group: 'Choice fields',
+  },
+  { type: 'date', title: 'Date', hint: 'Pick a calendar date', group: 'Advanced fields' },
+  { type: 'time', title: 'Time', hint: 'Pick a time', group: 'Advanced fields' },
+  { type: 'slider', title: 'Slider', hint: 'Choose a value in a range', group: 'Advanced fields' },
+  { type: 'color', title: 'Color', hint: 'Pick a custom color', group: 'Advanced fields' },
+  { type: 'section', title: 'Section', hint: 'Group related fields', group: 'Layout' },
+  { type: 'grid', title: 'Grid', hint: 'Arrange fields in columns', group: 'Layout' },
+  { type: 'collapse', title: 'Accordion', hint: 'Expand content on demand', group: 'Layout' },
+  { type: 'divider', title: 'Divider', hint: 'Separate your content', group: 'Layout' },
 ]
 export const isContainer = (type: FieldType) => ['section', 'grid', 'collapse'].includes(type)
 export const isLayout = (type: FieldType) => isContainer(type) || type === 'divider'
@@ -100,7 +122,7 @@ export function createField(type: FieldType, fields: Field[] = []): Field {
     name: `${type}_${index}`,
     title: catalog.find((item) => item.type === type)!.title,
     description: '',
-    placeholder: type === 'select' ? '请选择' : '请输入',
+    placeholder: type === 'select' ? 'Select an option' : 'Enter a value',
     required: false,
     disabled: false,
     readOnly: false,
@@ -114,12 +136,12 @@ export function createField(type: FieldType, fields: Field[] = []): Field {
           : type === 'slider'
             ? 0
             : type === 'color'
-              ? '#147d68'
+              ? '#176be8'
               : '',
     options: hasOptions(type)
       ? [
-          { label: '选项一', value: 'option_1' },
-          { label: '选项二', value: 'option_2' },
+          { label: 'Option 1', value: 'option_1' },
+          { label: 'Option 2', value: 'option_2' },
         ]
       : [],
     columns: 2,
@@ -143,7 +165,12 @@ const fieldSchema: z.ZodType<Field> = z.lazy(() =>
   z.object({
     id: z.string().min(1),
     type: z.enum(fieldTypes),
-    name: z.string().refine(validName, '字段标识须为字母、数字或下划线，且不能以数字开头'),
+    name: z
+      .string()
+      .refine(
+        validName,
+        'Field keys must use letters, numbers or underscores and cannot start with a number.',
+      ),
     title: z.string(),
     description: z.string(),
     placeholder: z.string(),
@@ -171,30 +198,35 @@ export const documentSchema = z
     submitLabel: z.string().min(1),
     successMessage: z.string(),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+    labelLayout: z.enum(['stacked', 'inline']).default('stacked'),
     fields: z.array(fieldSchema),
   })
   .superRefine((doc, ctx) => {
     const names = new Set<string>(),
       ids = new Set<string>()
     const all = flatten(doc.fields)
-    if (all.length > 500) ctx.addIssue({ code: 'custom', message: '最多支持 500 个组件' })
+    if (all.length > 500)
+      ctx.addIssue({ code: 'custom', message: 'A form can contain up to 500 components.' })
     for (const field of all) {
       if (names.has(field.name) || ids.has(field.id))
-        ctx.addIssue({ code: 'custom', message: `重复的字段标识或 ID：${field.name}` })
+        ctx.addIssue({ code: 'custom', message: `Duplicate field key or ID: ${field.name}` })
       names.add(field.name)
       ids.add(field.id)
       if (!isContainer(field.type) && field.children.length)
-        ctx.addIssue({ code: 'custom', message: `${field.title} 不能包含子组件` })
+        ctx.addIssue({ code: 'custom', message: `${field.title} cannot contain child components.` })
       if (field.min !== undefined && field.max !== undefined && field.min > field.max)
-        ctx.addIssue({ code: 'custom', message: `${field.title} 的最小值不能大于最大值` })
+        ctx.addIssue({ code: 'custom', message: `${field.title} minimum cannot exceed maximum.` })
       const values = field.options.map((option) => option.value)
       if (new Set(values).size !== values.length)
-        ctx.addIssue({ code: 'custom', message: `${field.title} 的选项值重复` })
+        ctx.addIssue({ code: 'custom', message: `${field.title} has duplicate option values.` })
       const checkOptions = (items: Option[]) => {
         const seen = new Set<string>()
         for (const item of items) {
           if (!item.value || seen.has(item.value))
-            ctx.addIssue({ code: 'custom', message: `${field.title} 的选项值不能为空或重复` })
+            ctx.addIssue({
+              code: 'custom',
+              message: `${field.title} option values must be nonempty and unique.`,
+            })
           seen.add(item.value)
           if (item.children) checkOptions(item.children)
         }
@@ -210,9 +242,16 @@ export const documentSchema = z
               : ['number', 'slider'].includes(field.type)
                 ? value === '' || typeof value === 'number'
                 : typeof value === 'string'
-        if (!valid) ctx.addIssue({ code: 'custom', message: `${field.title} 的默认值类型不正确` })
+        if (!valid)
+          ctx.addIssue({
+            code: 'custom',
+            message: `${field.title} has an invalid default value type.`,
+          })
         if (field.type === 'color' && !/^#[0-9a-fA-F]{6}$/.test(String(value)))
-          ctx.addIssue({ code: 'custom', message: `${field.title} 的默认颜色须为六位十六进制色值` })
+          ctx.addIssue({
+            code: 'custom',
+            message: `${field.title} default color must be a six-digit hex value.`,
+          })
       }
     }
     for (const field of all)
@@ -223,7 +262,7 @@ export const documentSchema = z
         )
           ctx.addIssue({
             code: 'custom',
-            message: `${field.title} 的显示条件引用无效：${rule.field}`,
+            message: `${field.title} has an invalid condition reference: ${rule.field}`,
           })
       }
   })
@@ -231,19 +270,21 @@ export const documentSchema = z
 export function emptyDocument(): FormDocument {
   return {
     version: 2,
-    title: '未命名表单',
-    description: '填写以下信息，开启一段新的连接。',
-    submitLabel: '提交表单',
-    successMessage: '提交成功，感谢你的填写！',
-    accent: '#147d68',
+    title: 'Untitled form',
+    description: 'A good conversation starts with a few thoughtful questions.',
+    submitLabel: 'Submit form',
+    successMessage: 'Thank you! Your response is ready.',
+    accent: '#176be8',
+    labelLayout: 'stacked',
     fields: [],
   }
 }
 export function starterDocument(): FormDocument {
   const doc = emptyDocument()
-  doc.title = '创意工作坊报名'
-  doc.description = '让灵感相遇，让好想法发生。\n欢迎加入我们的线下创意工作坊，请留下你的信息。'
-  doc.submitLabel = '提交报名'
+  doc.title = 'Creative workshop'
+  doc.description =
+    'A space for curious minds and fresh ideas.\nJoin our next hands-on workshop. Tell us a little about yourself.'
+  doc.submitLabel = 'Reserve my spot'
   const field = (type: FieldType, name: string, title: string, config: Partial<Field> = {}) => ({
     ...createField(type),
     name,
@@ -251,41 +292,44 @@ export function starterDocument(): FormDocument {
     ...config,
   })
   doc.fields = [
-    field('text', 'name', '你的姓名', {
+    field('text', 'name', 'Full name', {
       required: true,
-      placeholder: '怎么称呼你？',
+      placeholder: 'What should we call you?',
       width: 'half',
     }),
-    field('text', 'company', '公司 / 团队', { placeholder: '你所在的公司或团队', width: 'half' }),
-    field('email', 'email', '电子邮箱', {
+    field('text', 'company', 'Company or team', {
+      placeholder: 'Where do you work?',
+      width: 'half',
+    }),
+    field('email', 'email', 'Email address', {
       required: true,
       placeholder: 'hello@example.com',
-      description: '我们会通过邮件发送活动详情与入场凭证。',
+      description: 'We will send your invitation and event details here.',
     }),
-    field('select', 'role', '你目前的角色', {
+    field('select', 'role', 'What is your role?', {
       required: true,
-      placeholder: '选择最适合你的角色',
+      placeholder: 'Select your role',
       options: [
-        { label: '产品设计师', value: 'designer' },
-        { label: '开发工程师', value: 'developer' },
-        { label: '产品经理', value: 'pm' },
-        { label: '其他探索者', value: 'other' },
+        { label: 'Product designer', value: 'designer' },
+        { label: 'Developer', value: 'developer' },
+        { label: 'Product manager', value: 'pm' },
+        { label: 'Something else', value: 'other' },
       ],
     }),
-    field('radio', 'session', '想参加哪个场次？', {
+    field('radio', 'session', 'Choose your session', {
       required: true,
       defaultValue: 'morning',
       options: [
-        { label: '上午场 · 10:00', value: 'morning' },
-        { label: '下午场 · 14:00', value: 'afternoon' },
+        { label: 'Morning · 10:00 AM', value: 'morning' },
+        { label: 'Afternoon · 2:00 PM', value: 'afternoon' },
       ],
     }),
-    field('textarea', 'expectation', '有什么想提前告诉我们？', {
-      placeholder: '聊聊你的期待，或想探讨的话题…',
+    field('textarea', 'expectation', 'Anything you would like to share?', {
+      placeholder: 'Your expectations, ideas or questions…',
       maxLength: 500,
     }),
-    field('switch', 'subscribe', '接收后续活动通知', {
-      description: '偶尔分享一些值得参与的好活动。',
+    field('switch', 'subscribe', 'Keep me in the loop', {
+      description: 'Occasional updates about workshops worth joining.',
       defaultValue: true,
     }),
   ]
@@ -336,36 +380,36 @@ export function validateValues(fields: Field[], values: Values) {
         (Array.isArray(value) && !value.length) ||
         (typeof value === 'string' && !value.trim())
       if (field.required && (empty || (field.type === 'switch' && value !== true)))
-        errors[field.name] = `请${hasOptions(field.type) ? '选择' : '填写'}${field.title}`
+        errors[field.name] = `${field.title} is required.`
       if (empty) return
       if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value)))
-        errors[field.name] = '请输入有效的邮箱地址'
+        errors[field.name] = 'Enter a valid email address.'
       if (['number', 'slider'].includes(field.type)) {
         if (typeof value !== 'number' || !Number.isFinite(value))
-          errors[field.name] = '请输入有效的数字'
+          errors[field.name] = 'Enter a valid number.'
         else if (field.min !== undefined && value < field.min)
-          errors[field.name] = `不能小于 ${field.min}`
+          errors[field.name] = `Must be at least ${field.min}`
         else if (field.max !== undefined && value > field.max)
-          errors[field.name] = `不能大于 ${field.max}`
+          errors[field.name] = `Must be at most ${field.max}`
       }
       if (field.maxLength && String(value).length > field.maxLength)
-        errors[field.name] = `最多填写 ${field.maxLength} 个字符`
+        errors[field.name] = `Use at most ${field.maxLength} characters.`
       if (['select', 'radio', 'checkbox'].includes(field.type)) {
         const choices = Array.isArray(value) ? value : [String(value)]
         if (choices.some((choice) => !field.options.some((option) => option.value === choice)))
-          errors[field.name] = '请选择有效选项'
+          errors[field.name] = 'Select a valid option.'
       }
       if (field.type === 'cascader') {
         let level = field.options
         for (const choice of Array.isArray(value) ? value : []) {
           const option = level.find((item) => item.value === choice)
           if (!option) {
-            errors[field.name] = '请选择有效选项'
+            errors[field.name] = 'Select a valid option.'
             break
           }
           level = option.children ?? []
         }
-        if (level.length) errors[field.name] = '请完成所有层级的选择'
+        if (level.length) errors[field.name] = 'Complete every level of the selection.'
       }
     })
   visit(fields)

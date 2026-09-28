@@ -86,7 +86,7 @@ export function TextSetting({
       onChange(draft)
       setError('')
     } catch (e) {
-      setError(e instanceof Error ? e.message : '设置无效')
+      setError(e instanceof Error ? e.message : 'Invalid setting')
     }
   }
   return (
@@ -179,12 +179,14 @@ export function Modal({
   children,
   onClose,
   wide = false,
+  className = '',
 }: {
   title: string
   subtitle?: string
   children: ReactNode
   onClose: () => void
   wide?: boolean
+  className?: string
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
@@ -195,7 +197,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className={`modal ${wide ? 'modal-wide' : ''}`}
+      className={`modal ${wide ? 'modal-wide' : ''} ${className}`}
       onCancel={onClose}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -216,7 +218,7 @@ export function Modal({
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
-        <IconButton label="关闭弹窗" onClick={onClose}>
+        <IconButton label="Close dialog" onClick={onClose}>
           <X size={20} />
         </IconButton>
       </header>

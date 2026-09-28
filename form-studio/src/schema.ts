@@ -86,7 +86,7 @@ export function exportSchema(doc: FormDocument) {
     )
   const { fields: _fields, ...settings } = doc
   return {
-    form: { layout: 'vertical' },
+    form: { layout: doc.labelLayout === 'inline' ? 'horizontal' : 'vertical' },
     'x-studio': settings,
     schema: { type: 'object', properties: nodes(doc.fields) },
   }
@@ -97,11 +97,12 @@ function assertSafeShape(input: unknown) {
   let count = 0
   while (queue.length) {
     const [value, depth] = queue.pop()!
-    if (++count > 50000 || depth > 35) throw new Error('文件结构过大或嵌套过深，请简化后导入。')
+    if (++count > 50000 || depth > 35)
+      throw new Error('The file is too large or deeply nested. Simplify it before importing.')
     if (value && typeof value === 'object')
       for (const [key, child] of Object.entries(value)) {
         if (['__proto__', 'prototype', 'constructor'].includes(key))
-          throw new Error(`不允许使用保留属性：${key}`)
+          throw new Error(`Reserved property is not allowed: ${key}`)
         queue.push([child, depth + 1])
       }
   }
@@ -129,9 +130,10 @@ export function parseDocument(input: unknown): FormDocument {
       !object(root.schema).properties ||
       Array.isArray(object(root.schema).properties)
     )
-      throw new Error('需要 Form Studio 文档，或包含 schema.properties 的旧版 Schema。')
+      throw new Error('Expected a Form Studio document or a legacy schema with schema.properties.')
     const doc = {
       ...emptyDocument(),
+      labelLayout: object(root.form).layout === 'horizontal' ? 'inline' : 'stacked',
       ...object(root['x-studio']),
       fields: [] as Field[],
       version: 2 as const,
@@ -151,7 +153,7 @@ export function parseDocument(input: unknown): FormDocument {
               : typeMap[component]
           if (!type)
             throw new Error(
-              `字段「${key}」使用了不支持的组件：${component || '未指定'}。请先转换，原表单未更改。`,
+              `Field "${key}" uses an unsupported component: ${component || 'unspecified'}. Convert it before importing. Your current form is unchanged.`,
             )
           const validators = node['x-validator']
           if (
@@ -160,12 +162,16 @@ export function parseDocument(input: unknown): FormDocument {
               (!Array.isArray(validators) ||
                 validators.some((rule) => object(rule).ruleKey !== 'required')))
           )
-            throw new Error(`字段「${key}」包含自定义脚本或校验器，请先转换为可视化规则。`)
+            throw new Error(
+              `Field "${key}" contains custom scripts or validators. Convert them to visual rules first.`,
+            )
           let name = str(node.name, key)
           if (usedNames.has(name)) name = key
           if (!validName(name))
-            throw new Error(`字段「${key}」的标识「${name}」无效，请使用字母、数字与下划线。`)
-          if (usedNames.has(name)) throw new Error(`字段标识重复：${name}`)
+            throw new Error(
+              `Field "${key}" has an invalid key "${name}". Use letters, numbers and underscores.`,
+            )
+          if (usedNames.has(name)) throw new Error(`Duplicate field key: ${name}`)
           usedNames.add(name)
           const field = {
             ...createField(type),
@@ -211,7 +217,7 @@ export function parseDocument(input: unknown): FormDocument {
               return {
                 ...createField('textarea'),
                 name: `${field.name}_panel_${index + 1}`,
-                title: str(item.title, `分组 ${index + 1}`),
+                title: str(item.title, `Group ${index + 1}`),
                 defaultValue: str(item.content),
                 readOnly: true,
               }
@@ -226,18 +232,18 @@ export function parseDocument(input: unknown): FormDocument {
     throw new Error(
       result.error.issues
         .slice(0, 4)
-        .map((issue) => `${issue.path.length ? `${issue.path.join('.')}：` : ''}${issue.message}`)
+        .map((issue) => `${issue.path.length ? `${issue.path.join('.')}: ` : ''}${issue.message}`)
         .join('\n'),
     )
   return result.data
 }
 export function parseText(text: string) {
-  if (text.length > 2_000_000) throw new Error('文件不能超过 2 MB。')
+  if (text.length > 2_000_000) throw new Error('Files must be smaller than 2 MB.')
   let value: unknown
   try {
     value = JSON.parse(text)
   } catch {
-    throw new Error('JSON 格式错误，请检查引号、逗号和括号。')
+    throw new Error('Invalid JSON. Check quotes, commas and brackets.')
   }
   return parseDocument(value)
 }

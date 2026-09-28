@@ -1168,9 +1168,11 @@ test('auto layout runs in the browser worker, saves nested coordinates, and is o
   await page.getByRole('button', { name: 'Redo', exact: true }).click();
   await saved(page);
   expect((await disk(workspaceFolder)).nodes).toEqual(arranged.nodes);
+  expect((await disk(workspaceFolder)).edges).toEqual(arranged.edges);
   await page.reload();
   await open(page, workspaceFolder);
   expect((await disk(workspaceFolder)).nodes).toEqual(arranged.nodes);
+  expect((await disk(workspaceFolder)).edges).toEqual(arranged.edges);
   await page.getByRole('button', { name: 'View options', exact: true }).click();
   await page.getByRole('combobox', { name: 'Expand levels' }).selectOption('all');
   await page.getByRole('button', { name: 'Auto layout', exact: true }).click();
@@ -1302,4 +1304,40 @@ test('settings remain accessible at narrow widths and return keyboard focus when
   await expect(settings.getByRole('button', { name: 'Done', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(settings.getByRole('button', { name: 'Close settings', exact: true })).toBeFocused();
+});
+
+test('auto layout selects facing ports, updates the inspector, and restores old ports with undo', async ({
+  page,
+  workspaceFolder,
+}) => {
+  await create(page, workspaceFolder);
+  await addService(page, 'Sender');
+  await addService(page, 'Receiver');
+  await addFlow(page, 'Sender', 'Receiver', ['Request']);
+  await selectEdge(page, (await disk(workspaceFolder)).edges[0].id);
+  await page.getByRole('combobox', { name: 'Source port', exact: true }).selectOption('left');
+  await page.getByRole('combobox', { name: 'Target port', exact: true }).selectOption('right');
+  await saved(page);
+  const before = await disk(workspaceFolder);
+  await page.getByRole('button', { name: 'Auto layout', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Auto layout', exact: true })).toBeEnabled();
+  await expect(page.getByRole('combobox', { name: 'Source port', exact: true })).toHaveValue('right');
+  await expect(page.getByRole('combobox', { name: 'Target port', exact: true })).toHaveValue('left');
+  await saved(page);
+  const arranged = await disk(workspaceFolder);
+  expect(arranged.edges[0]).toMatchObject({ sourceSide: 'right', targetSide: 'left', routing: 'auto' });
+  expect(arranged.edges[0].points).toHaveLength(2);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await saved(page);
+  expect((await disk(workspaceFolder)).edges).toEqual(before.edges);
+  expect((await disk(workspaceFolder)).nodes).toEqual(before.nodes);
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await saved(page);
+  expect((await disk(workspaceFolder)).edges).toEqual(arranged.edges);
+  await page.reload();
+  await open(page, workspaceFolder);
+  expect((await disk(workspaceFolder)).edges).toEqual(arranged.edges);
+  await selectEdge(page, arranged.edges[0].id);
+  await expect(page.getByRole('combobox', { name: 'Source port', exact: true })).toHaveValue('right');
+  await expect(page.getByRole('combobox', { name: 'Target port', exact: true })).toHaveValue('left');
 });

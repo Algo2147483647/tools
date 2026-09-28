@@ -1,7 +1,15 @@
 import type { ElkNode } from 'elkjs/lib/elk-api';
-import { canvasSettings, edgeEndpoint, snapCoordinate, type ServiceNode, type Workspace } from './model';
-import { rerouteEdges } from './hierarchy';
+import {
+  canvasSettings,
+  edgeEndpoint,
+  snapCoordinate,
+  type Point,
+  type ServiceNode,
+  type Workspace,
+} from './model';
+import { canonicalNode, rerouteEdges } from './hierarchy';
 import { graphDepths } from './graphActions';
+import { autoRouteEdge } from './routing';
 
 export type LayoutEngine = (graph: ElkNode) => Promise<ElkNode>;
 
@@ -82,9 +90,37 @@ export async function autoLayout(
       )
       .map((edge) => edge.id),
   );
-  next.edges = next.edges.map((edge) =>
-    affected.has(edge.id) ? { ...edge, points: [], routing: 'auto' } : edge,
-  );
+  const routes = new Map<string, Point[][]>();
+  for (const edge of next.edges.filter((edge) => !affected.has(edge.id))) {
+    const previous = routes.get(edge.graphId) ?? [];
+    previous.push(edge.points);
+    routes.set(edge.graphId, previous);
+  }
+  // Score ports in the owning graph's collapsed frame, including proxy containers.
+  // This keeps the choice independent of which subgraphs happen to be expanded.
+  for (const edge of [...next.edges]
+    .filter((edge) => affected.has(edge.id))
+    .sort((a, b) => a.id.localeCompare(b.id))) {
+    const source = edgeEndpoint(next, edge, 'source')!;
+    const target = edgeEndpoint(next, edge, 'target')!;
+    let from = representative(source, edge.graphId)!;
+    let to = representative(target, edge.graphId)!;
+    const proxyIds = new Set([from.id, to.id]);
+    // An ancestor-to-descendant link is not a self-loop on its collapsed proxy.
+    if (from.id === to.id && source.id !== target.id) {
+      from = canonicalNode(next, source.id, edge.graphId);
+      to = canonicalNode(next, target.id, edge.graphId);
+    }
+    const peers = next.nodes.filter((node) => node.graphId === edge.graphId && !proxyIds.has(node.id));
+    const previous = routes.get(edge.graphId) ?? [];
+    const selected = autoRouteEdge(from, to, peers, previous);
+    edge.sourceSide = selected.sourceSide;
+    edge.targetSide = selected.targetSide;
+    edge.points = [];
+    edge.routing = 'auto';
+    previous.push(selected.points);
+    routes.set(edge.graphId, previous);
+  }
   const routed = rerouteEdges(next);
   next.edges = next.edges.map((edge, index) => (affected.has(edge.id) ? routed.edges[index] : edge));
   return next;

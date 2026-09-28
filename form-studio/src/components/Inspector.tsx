@@ -36,12 +36,12 @@ export default function Inspector({
     selected = useStudio((state) => state.selected)
   const field = selected ? findField(doc.fields, selected) : undefined
   return (
-    <aside className="inspector-panel">
+    <aside className="inspector-panel glass-surface">
       <div className="panel-title">
-        <span>{field ? '字段属性' : '表单设置'}</span>
+        <span>{field ? 'Inspector' : 'Form settings'}</span>
         <span className="tiny-label">{field ? 'INSPECT' : 'SETTINGS'}</span>
-        <span className="mobile-only">
-          <IconButton label="关闭属性面板" onClick={onClose}>
+        <span className="panel-close">
+          <IconButton label="Close inspector" onClick={onClose}>
             <X size={16} />
           </IconButton>
         </span>
@@ -53,7 +53,7 @@ export default function Inspector({
       )}
       <div className="inspector-footnote">
         <CircleHelp size={14} />
-        <span>所有更改自动保存到此浏览器</span>
+        <span>Changes are saved in this browser</span>
       </div>
     </aside>
   )
@@ -68,38 +68,38 @@ function FormInspector({ perform }: { perform: (action: () => void) => void }) {
           <Settings2 size={20} />
         </span>
         <div>
-          <strong>让表单成为你的作品</strong>
+          <strong>Make it your own</strong>
           <code>FORM SETTINGS</code>
         </div>
       </div>
       <section className="inspector-section">
-        <h3>基本信息</h3>
-        <TextSetting label="表单标题" value={doc.title} onChange={(title) => update({ title })} />
+        <h3>General</h3>
+        <TextSetting label="Form title" value={doc.title} onChange={(title) => update({ title })} />
         <TextSetting
-          label="表单描述"
+          label="Description"
           value={doc.description}
           multiline
           onChange={(description) => update({ description })}
         />
         <TextSetting
-          label="提交按钮"
+          label="Submit button"
           value={doc.submitLabel}
           onChange={(submitLabel) => update({ submitLabel })}
         />
         <TextSetting
-          label="提交成功提示"
+          label="Success message"
           value={doc.successMessage}
           multiline
           onChange={(successMessage) => update({ successMessage })}
         />
       </section>
       <section className="inspector-section">
-        <h3>外观设置</h3>
+        <h3>Appearance</h3>
         <label className="setting">
-          <span className="setting-label">表单主题色</span>
+          <span className="setting-label">Accent color</span>
           <div className="accent-picker">
             <input
-              aria-label="自定义主题色"
+              aria-label="Custom accent color"
               type="color"
               value={doc.accent}
               onChange={(e) => perform(() => update({ accent: e.target.value }))}
@@ -108,11 +108,11 @@ function FormInspector({ perform }: { perform: (action: () => void) => void }) {
           </div>
         </label>
         <div className="color-presets">
-          {['#147d68', '#3366cc', '#7253aa', '#b35732', '#334155'].map((color) => (
+          {['#176be8', '#3366cc', '#7253aa', '#b35732', '#334155'].map((color) => (
             <button
               key={color}
               style={{ background: color }}
-              aria-label={`使用主题色 ${color}`}
+              aria-label={`Use accent color ${color}`}
               className={color === doc.accent ? 'active' : ''}
               onClick={() => update({ accent: color })}
             />
@@ -121,7 +121,7 @@ function FormInspector({ perform }: { perform: (action: () => void) => void }) {
       </section>
       <div className="inspector-note">
         <SlidersHorizontal size={17} />
-        <p>点击画布中的任意字段，设置它的内容、校验和显示规则。</p>
+        <p>Select a field on the canvas to edit its content, validation and visibility.</p>
       </div>
     </div>
   )
@@ -152,16 +152,16 @@ function FieldInspector({
           <strong>{catalog.find((item) => item.type === field.type)?.title}</strong>
           <code>{field.name}</code>
         </div>
-        <span className="selection-badge">已选择</span>
+        <span className="selection-badge">Selected</span>
       </div>
       <div className="inspector-tabs">
         <button className={tab === 'general' ? 'active' : ''} onClick={() => setTab('general')}>
           <SlidersHorizontal size={14} />
-          基础设置
+          Properties
         </button>
         <button className={tab === 'rules' ? 'active' : ''} onClick={() => setTab('rules')}>
           <Workflow size={14} />
-          显示规则{field.rules.length > 0 && <span>{field.rules.length}</span>}
+          Conditions{field.rules.length > 0 && <span>{field.rules.length}</span>}
         </button>
       </div>
       <div className="inspector-scroll">
@@ -169,49 +169,49 @@ function FieldInspector({
           <>
             <section className="inspector-section">
               <h3>
-                字段内容
+                Content
                 <ChevronDown size={13} />
               </h3>
               <TextSetting
-                label="字段标题"
+                label="Label"
                 value={field.title}
                 onChange={(title) => update({ title })}
               />
               <TextSetting
-                label="字段标识"
+                label="Field key"
                 value={field.name}
                 mono
-                hint="用于提交数据的唯一键名"
+                hint="A unique key in the submitted data"
                 onChange={(name) => update({ name })}
               />
               {!isLayout(field.type) &&
                 !['radio', 'checkbox', 'switch', 'slider', 'color'].includes(field.type) && (
                   <TextSetting
-                    label="占位提示"
+                    label="Placeholder"
                     value={field.placeholder}
                     onChange={(placeholder) => update({ placeholder })}
                   />
                 )}
               <TextSetting
-                label="帮助说明"
+                label="Help text"
                 value={field.description}
                 multiline
-                placeholder="为填写者补充一点说明…"
+                placeholder="Add a little context…"
                 onChange={(description) => update({ description })}
               />
             </section>
             {hasOptions(field.type) && (
               <section className="inspector-section">
                 <h3>
-                  选项设置<span>{field.options.length} 项</span>
+                  Options<span>{field.options.length} options</span>
                 </h3>
                 {field.type === 'cascader' ? (
                   <TextSetting
-                    label="级联选项 JSON"
+                    label="Cascading options (JSON)"
                     multiline
                     value={JSON.stringify(field.options, null, 2)}
                     onChange={(value) => update({ options: JSON.parse(value) as Option[] })}
-                    hint="支持 label、value 和 children"
+                    hint="Supports label, value and children"
                   />
                 ) : (
                   <>
@@ -220,7 +220,7 @@ function FieldInspector({
                         <div className="option-number">{optionIndex + 1}</div>
                         <div>
                           <TextSetting
-                            label={`选项 ${optionIndex + 1} 文本`}
+                            label={`Option ${optionIndex + 1} label`}
                             value={option.label}
                             onChange={(label) =>
                               update({
@@ -231,7 +231,7 @@ function FieldInspector({
                             }
                           />
                           <TextSetting
-                            label={`选项 ${optionIndex + 1} 值`}
+                            label={`Option ${optionIndex + 1} value`}
                             mono
                             value={option.value}
                             onChange={(value) =>
@@ -244,7 +244,7 @@ function FieldInspector({
                           />
                         </div>
                         <IconButton
-                          label={`删除选项 ${optionIndex + 1}`}
+                          label={`Remove option ${optionIndex + 1}`}
                           onClick={() =>
                             perform(() =>
                               update({
@@ -266,14 +266,14 @@ function FieldInspector({
                           update({
                             options: [
                               ...field.options,
-                              { label: `选项 ${i}`, value: `option_${i}` },
+                              { label: `Option ${i}`, value: `option_${i}` },
                             ],
                           }),
                         )
                       }}
                     >
                       <Plus size={14} />
-                      添加选项
+                      Add option
                     </button>
                   </>
                 )}
@@ -281,41 +281,41 @@ function FieldInspector({
             )}
             <section className="inspector-section">
               <h3>
-                布局设置
+                Layout
                 <ChevronDown size={13} />
               </h3>
-              <span className="setting-label">字段宽度</span>
+              <span className="setting-label">Field width</span>
               <div className="segmented width-toggle">
                 <button
                   className={field.width === 'full' ? 'active' : ''}
                   onClick={() => update({ width: 'full' })}
                 >
                   <span className="width-symbol full-symbol" />
-                  整行
+                  Full width
                 </button>
                 <button
                   className={field.width === 'half' ? 'active' : ''}
                   onClick={() => update({ width: 'half' })}
                 >
                   <span className="width-symbol half-symbol" />
-                  半行
+                  Half width
                 </button>
               </div>
               {field.type === 'grid' && (
                 <SelectSetting
-                  label="栅格列数"
+                  label="Columns"
                   value={String(field.columns)}
                   onChange={(value) => update({ columns: Number(value) })}
                 >
                   {[1, 2, 3, 4].map((value) => (
                     <option key={value} value={value}>
-                      {value} 列
+                      {value} columns
                     </option>
                   ))}
                 </SelectSetting>
               )}
               <SelectSetting
-                label="所属分组"
+                label="Parent container"
                 value={parent?.id ?? ''}
                 onChange={(value) =>
                   perform(() =>
@@ -329,7 +329,7 @@ function FieldInspector({
                   )
                 }
               >
-                <option value="">表单根节点</option>
+                <option value="">Form root</option>
                 {all
                   .filter((item) => isContainer(item.type) && !descendants.includes(item.id))
                   .map((item) => (
@@ -342,22 +342,22 @@ function FieldInspector({
             {!isLayout(field.type) && (
               <section className="inspector-section">
                 <h3>
-                  校验与行为
+                  Validation & behavior
                   <ChevronDown size={13} />
                 </h3>
                 <Toggle
-                  label="必填字段"
-                  hint="填写后才能提交表单"
+                  label="Required"
+                  hint="Must be completed before submitting"
                   checked={field.required}
                   onChange={(required) => update({ required })}
                 />
                 <Toggle
-                  label="只读"
+                  label="Read only"
                   checked={field.readOnly}
                   onChange={(readOnly) => update({ readOnly })}
                 />
                 <Toggle
-                  label="禁用字段"
+                  label="Disabled"
                   checked={field.disabled}
                   onChange={(disabled) => update({ disabled })}
                 />
@@ -366,7 +366,7 @@ function FieldInspector({
                     {(['min', 'max'] as const).map((key) => (
                       <TextSetting
                         key={key}
-                        label={key === 'min' ? '最小值' : '最大值'}
+                        label={key === 'min' ? 'Minimum' : 'Maximum'}
                         value={field[key] === undefined ? '' : String(field[key])}
                         onChange={(value) =>
                           update({ [key]: value === '' ? undefined : Number(value) })
@@ -377,15 +377,15 @@ function FieldInspector({
                 )}
                 {['text', 'email', 'textarea'].includes(field.type) && (
                   <TextSetting
-                    label="最大字符数"
+                    label="Character limit"
                     value={field.maxLength ? String(field.maxLength) : ''}
-                    placeholder="不限"
+                    placeholder="No limit"
                     onChange={(value) => update({ maxLength: value ? Number(value) : undefined })}
                   />
                 )}
                 {field.type === 'switch' ? (
                   <Toggle
-                    label="默认开启"
+                    label="On by default"
                     checked={field.defaultValue === true}
                     onChange={(defaultValue) => update({ defaultValue })}
                   />
@@ -393,8 +393,8 @@ function FieldInspector({
                   <TextSetting
                     label={
                       ['checkbox', 'cascader'].includes(field.type)
-                        ? '默认值（JSON 数组）'
-                        : '默认值'
+                        ? 'Default value (JSON array)'
+                        : 'Default value'
                     }
                     value={
                       Array.isArray(field.defaultValue)
@@ -415,7 +415,7 @@ function FieldInspector({
               </section>
             )}
             <section className="inspector-section field-management">
-              <h3>管理字段</h3>
+              <h3>Manage field</h3>
               <div className="button-row">
                 <button
                   className="button"
@@ -423,7 +423,7 @@ function FieldInspector({
                   onClick={() => perform(() => useStudio.getState().nudge(field.id, -1))}
                 >
                   <ArrowUp size={14} />
-                  上移
+                  Up
                 </button>
                 <button
                   className="button"
@@ -431,14 +431,14 @@ function FieldInspector({
                   onClick={() => perform(() => useStudio.getState().nudge(field.id, 1))}
                 >
                   <ArrowDown size={14} />
-                  下移
+                  Down
                 </button>
                 <button
                   className="button"
                   onClick={() => perform(() => useStudio.getState().duplicate(field.id))}
                 >
                   <Copy size={14} />
-                  复制
+                  Duplicate
                 </button>
               </div>
               <button
@@ -446,40 +446,42 @@ function FieldInspector({
                 onClick={() => perform(() => useStudio.getState().remove(field.id))}
               >
                 <Trash2 size={14} />
-                删除字段
+                Delete field
               </button>
             </section>
           </>
         ) : (
           <>
             <section className="inspector-section">
-              <h3>可见性</h3>
+              <h3>Visibility</h3>
               <Toggle
-                label="始终隐藏"
-                hint="在预览和提交数据中排除此字段"
+                label="Always hidden"
+                hint="Exclude from preview and submitted data"
                 checked={field.hidden}
                 onChange={(hidden) => update({ hidden })}
               />
             </section>
             <section className="inspector-section">
-              <h3>条件显示</h3>
-              <p className="setting-hint">满足以下条件时显示，未设置条件则始终显示。</p>
+              <h3>Conditional visibility</h3>
+              <p className="setting-hint">
+                Show this field when these conditions match. No conditions means always visible.
+              </p>
               {field.rules.length > 0 && (
                 <SelectSetting
-                  label="条件关系"
+                  label="Match conditions"
                   value={field.ruleMatch}
                   onChange={(value) => update({ ruleMatch: value as 'all' | 'any' })}
                 >
-                  <option value="all">满足全部条件（AND）</option>
-                  <option value="any">满足任意条件（OR）</option>
+                  <option value="all">All conditions (AND)</option>
+                  <option value="any">Any condition (OR)</option>
                 </SelectSetting>
               )}
               {field.rules.map((rule, i) => (
                 <div className="rule-card" key={i}>
                   <header>
-                    <span>条件 {i + 1}</span>
+                    <span>Condition {i + 1}</span>
                     <IconButton
-                      label={`删除条件 ${i + 1}`}
+                      label={`Remove condition ${i + 1}`}
                       onClick={() =>
                         update({ rules: field.rules.filter((_, index) => index !== i) })
                       }
@@ -488,7 +490,7 @@ function FieldInspector({
                     </IconButton>
                   </header>
                   <SelectSetting
-                    label="当字段"
+                    label="When field"
                     value={rule.field}
                     onChange={(value) =>
                       update({
@@ -507,7 +509,7 @@ function FieldInspector({
                       ))}
                   </SelectSetting>
                   <SelectSetting
-                    label="判断方式"
+                    label="Operator"
                     value={rule.operator}
                     onChange={(value) =>
                       update({
@@ -518,11 +520,11 @@ function FieldInspector({
                     }
                   >
                     {[
-                      ['equals', '等于'],
-                      ['notEquals', '不等于'],
-                      ['contains', '包含'],
-                      ['isEmpty', '为空'],
-                      ['isNotEmpty', '不为空'],
+                      ['equals', 'Equals'],
+                      ['notEquals', 'Does not equal'],
+                      ['contains', 'Contains'],
+                      ['isEmpty', 'Is empty'],
+                      ['isNotEmpty', 'Is not empty'],
                     ].map(([value, title]) => (
                       <option key={value} value={value}>
                         {title}
@@ -531,9 +533,9 @@ function FieldInspector({
                   </SelectSetting>
                   {!['isEmpty', 'isNotEmpty'].includes(rule.operator) && (
                     <TextSetting
-                      label="比较值"
+                      label="Value"
                       value={rule.value}
-                      hint="使用选项值；开关使用 true / false"
+                      hint="Use option values; use true / false for switches"
                       onChange={(value) =>
                         update({
                           rules: field.rules.map((item, index) =>
@@ -563,12 +565,12 @@ function FieldInspector({
                 }
               >
                 <Plus size={14} />
-                添加显示条件
+                Add condition
               </button>
             </section>
             <div className="inspector-note">
               <Workflow size={18} />
-              <p>切换到「预览」，填写关联字段，即可检验显示逻辑。</p>
+              <p>Open Preview and fill in related fields to test your conditions.</p>
             </div>
           </>
         )}

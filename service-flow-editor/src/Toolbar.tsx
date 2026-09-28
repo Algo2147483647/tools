@@ -150,7 +150,7 @@ export default function Toolbar(p: Props) {
           <button
             className="secondary toolbar-layout"
             aria-label="Auto layout"
-            title="Auto layout current graph and its subgraphs"
+            title="Arrange this graph and its subgraphs, choosing connection ports automatically"
             disabled={!p.canConnect || p.layoutBusy}
             onClick={p.autoLayout}
           >

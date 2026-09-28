@@ -3,6 +3,7 @@ import test from 'node:test';
 import type { FlowEdge, ServiceNode, Side } from '../src/model';
 import {
   addBend,
+  autoRouteEdge,
   anchor,
   isOrthogonal,
   hasRouteCrossings,
@@ -53,6 +54,56 @@ test('anchor follows every side of a node', () => {
   assert.deepEqual(anchor(source, 'right'), { x: 160, y: 40 });
   assert.deepEqual(anchor(source, 'top'), { x: 80, y: 0 });
   assert.deepEqual(anchor(source, 'bottom'), { x: 80, y: 80 });
+});
+
+test('automatic ports face the destination in all four directions, including circular nodes', () => {
+  for (const type of ['service', 'terminal'] as const) {
+    const from = { ...source, type, height: 160 };
+    for (const [x, y, sourceSide, targetSide] of [
+      [400, 0, 'right', 'left'],
+      [-400, 0, 'left', 'right'],
+      [0, 400, 'bottom', 'top'],
+      [0, -400, 'top', 'bottom'],
+    ] as const) {
+      const to = { ...node('destination', x, y), type, height: 160 };
+      const selected = autoRouteEdge(from, to);
+      assert.equal(selected.sourceSide, sourceSide);
+      assert.equal(selected.targetSide, targetSide);
+      assert.equal(selected.points.length, 2, 'aligned nodes should connect without a detour');
+      assertPort(selected.points, from, sourceSide);
+      assertPort([...selected.points].reverse(), to, targetSide);
+    }
+  }
+});
+
+test('automatic ports avoid a blocked side and create readable self-loops', () => {
+  const to = node('destination', 600, 0);
+  const blocker = { ...node('blocker', 160, -80), width: 240, height: 320 };
+  const selected = autoRouteEdge(source, to, [blocker]);
+  assert.notEqual(selected.sourceSide, 'right', 'the right port opens directly into another node');
+  assertAvoids(selected.points, [source, to, blocker]);
+  assertPort(selected.points, source, selected.sourceSide);
+  assertPort([...selected.points].reverse(), to, selected.targetSide);
+  const loop = autoRouteEdge(source, source, [blocker]);
+  assert.notEqual(loop.sourceSide, loop.targetSide);
+  assert.ok(isOrthogonal(loop.points));
+  assert.ok(!hasRouteCrossings(loop.points));
+  assertAvoids(loop.points, [source, blocker]);
+});
+
+test('parallel and reverse flows can use distinct ports instead of sharing the complete path', () => {
+  const to = node('destination', 400, 0);
+  const first = autoRouteEdge(source, to);
+  const parallel = autoRouteEdge(source, to, [], [first.points]);
+  const reverse = autoRouteEdge(to, source, [], [first.points]);
+  assert.notDeepEqual([parallel.sourceSide, parallel.targetSide], [first.sourceSide, first.targetSide]);
+  assert.notDeepEqual([reverse.sourceSide, reverse.targetSide], [first.targetSide, first.sourceSide]);
+  for (const selected of [parallel, reverse]) {
+    assert.ok(isOrthogonal(selected.points));
+    assert.ok(!hasRouteCrossings(selected.points));
+    assertAvoids(selected.points, [source, to]);
+  }
+  assert.deepEqual(autoRouteEdge(source, to, [], [first.points]), parallel);
 });
 
 test('all port combinations produce anchored orthogonal routes, including overlaps and self loops', () => {

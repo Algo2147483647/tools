@@ -272,6 +272,12 @@ export function routeEdge(
   const from = anchor(source, sourceSide);
   const to = anchor(target, targetSide);
   const blockers = unrelatedObstacles(source, target, obstacles);
+  if (
+    leavesPort([from, to], sourceSide) &&
+    leavesPort([to, from], targetSide) &&
+    !crossesObstacles([from, to], blockers)
+  )
+    return [from, to];
   const start = offset(from, normals[sourceSide], portClearance(from, sourceSide, blockers));
   const finish = offset(to, normals[targetSide], portClearance(to, targetSide, blockers));
   return simplifyPoints([
@@ -279,6 +285,88 @@ export function routeEdge(
     ...connectPorts(start, finish, source, target, sourceSide, targetSide, blockers),
     to,
   ]);
+}
+
+/** Favor distinct, readable routes without counting a shared endpoint as a crossing. */
+function routeInterference(points: Point[], routes: Point[][]): number {
+  let cost = 0;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1],
+      b = points[i];
+    const vertical = a.x === b.x;
+    for (const route of routes)
+      for (let j = 1; j < route.length; j++) {
+        const c = route[j - 1],
+          d = route[j];
+        if (vertical === (c.x === d.x)) {
+          if (vertical ? a.x !== c.x : a.y !== c.y) continue;
+          const axis = vertical ? 'y' : 'x';
+          cost +=
+            2 *
+            Math.max(
+              0,
+              Math.min(Math.max(a[axis], b[axis]), Math.max(c[axis], d[axis])) -
+                Math.max(Math.min(a[axis], b[axis]), Math.min(c[axis], d[axis])),
+            );
+        } else {
+          const v1 = vertical ? a : c,
+            v2 = vertical ? b : d;
+          const h1 = vertical ? c : a,
+            h2 = vertical ? d : b;
+          if (
+            v1.x > Math.min(h1.x, h2.x) &&
+            v1.x < Math.max(h1.x, h2.x) &&
+            h1.y > Math.min(v1.y, v2.y) &&
+            h1.y < Math.max(v1.y, v2.y)
+          )
+            cost += 96;
+        }
+      }
+  }
+  return cost;
+}
+
+/** Choose ports only for an explicit auto-layout; ordinary edits keep their selected sides. */
+export function autoRouteEdge(
+  source: ServiceNode,
+  target: ServiceNode,
+  obstacles: ServiceNode[] = [],
+  otherRoutes: Point[][] = [],
+): Pick<FlowEdge, 'sourceSide' | 'targetSide' | 'points'> {
+  const blockers = unrelatedObstacles(source, target, obstacles);
+  const boxes = [source, target, ...blockers].filter(
+    (node) => !containsNode(node, source) && !containsNode(node, target),
+  );
+  const candidates = (['right', 'bottom', 'left', 'top'] as Side[])
+    .flatMap((sourceSide) =>
+      (['left', 'top', 'right', 'bottom'] as Side[]).flatMap((targetSide) => {
+        if (source.id === target.id && sourceSide === targetSide) return [];
+        const from = anchor(source, sourceSide),
+          to = anchor(target, targetSide);
+        // Anchor distance is a lower bound even when nearby nodes shorten port stubs.
+        return [{ sourceSide, targetSide, minimum: distance(from, to) }];
+      }),
+    )
+    .sort((a, b) => a.minimum - b.minimum);
+  let best:
+    | { route: Pick<FlowEdge, 'sourceSide' | 'targetSide' | 'points'>; blocked: number; cost: number }
+    | undefined;
+  for (const candidate of candidates) {
+    if (best?.blocked === 0 && candidate.minimum >= best.cost) break;
+    const points = routeEdge(source, target, candidate.sourceSide, candidate.targetSide, blockers);
+    const blocked = Number(crossesObstacles(points, boxes)) + Number(hasRouteCrossings(points));
+    const cost =
+      points.slice(1).reduce((sum, point, index) => sum + distance(points[index], point), 0) +
+      Math.max(0, points.length - 2) * 24 +
+      routeInterference(points, otherRoutes);
+    if (!best || blocked < best.blocked || (blocked === best.blocked && cost < best.cost))
+      best = {
+        route: { sourceSide: candidate.sourceSide, targetSide: candidate.targetSide, points },
+        blocked,
+        cost,
+      };
+  }
+  return best!.route;
 }
 
 function leavesPort(points: Point[], side: Side): boolean {
