@@ -35,7 +35,7 @@ export function useDefaultGraph(
           fileName: "example.json",
           fileHandle: null,
           selection,
-          status: `${Object.keys(dag).length} nodes loaded from example.json.`,
+          status: `${Object.keys(dag.nodes).length} nodes loaded from example.json.`,
         });
       } catch (error) {
         if (cancelled || suppressAutoLoadRef.current) {

@@ -48,9 +48,9 @@ export function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | unde
 export function buildVisibleGraph(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): VisibleGraph {
   const nodeKeys = collectReachableInLevelOrder(dag, roots, mapping);
   const visibleSet = new Set(nodeKeys);
-  const incoming: Record<NodeKey, NodeKey[]> = {};
-  const outgoing: Record<NodeKey, NodeKey[]> = {};
-  const orderByKey: Record<NodeKey, number> = {};
+  const incoming: Record<NodeKey, NodeKey[]> = Object.create(null);
+  const outgoing: Record<NodeKey, NodeKey[]> = Object.create(null);
+  const orderByKey: Record<NodeKey, number> = Object.create(null);
 
   nodeKeys.forEach((nodeKey, index) => {
     incoming[nodeKey] = [];

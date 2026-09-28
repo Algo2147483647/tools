@@ -67,7 +67,6 @@ interface TopbarProps {
   onInitializeCanvas: () => void;
   onExport: () => void;
   onSaveJson: () => void;
-  onFieldMappingOpen: () => void;
   onAiSettingsChange: (settings: AiSettings) => void;
   onAiConnectionTest: () => Promise<boolean>;
 }
@@ -130,7 +129,6 @@ export default function Topbar({
   onInitializeCanvas,
   onExport,
   onSaveJson,
-  onFieldMappingOpen,
   onAiSettingsChange,
   onAiConnectionTest,
 }: TopbarProps) {
@@ -214,7 +212,6 @@ export default function Topbar({
               onRelativeLinkRootSelect={onRelativeLinkRootSelect}
               onInitializeCanvas={onInitializeCanvas}
               onExport={onExport}
-              onFieldMappingOpen={onFieldMappingOpen}
               onAiSettingsChange={onAiSettingsChange}
               onAiConnectionTest={onAiConnectionTest}
             />

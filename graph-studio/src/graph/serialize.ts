@@ -1,29 +1,16 @@
 import type { FieldMapping } from "./fieldMapping";
-import { normalizeNodeWithSchema } from "./accessors";
-import type { NodeKey, NormalizedDag, RawGraphNode } from "./types";
+import { indexGraphDocument } from "./graphIndex";
+import type { GraphDocument, NormalizedDag } from "./types";
 
-export function serializeDag(dag: NormalizedDag, mapping?: FieldMapping): Record<NodeKey, RawGraphNode> {
-  const output: Record<NodeKey, RawGraphNode> = {};
-
-  Object.entries(dag).forEach(([key, value]) => {
-    if (!value || typeof value !== "object") {
-      return;
-    }
-
-    const normalizedNode = mapping ? normalizeNodeWithSchema(value, mapping) : value;
-    const nodeValue = structuredCloneValue(normalizedNode) as RawGraphNode;
-    if (nodeValue.key === key) {
-      delete nodeValue.key;
-    }
-    output[key] = nodeValue;
-  });
-
-  return output;
+export function serializeDag(dag: NormalizedDag, _mapping?: FieldMapping): GraphDocument {
+  // structuredClone excludes non-enumerable node IDs and adjacency indexes.
+  return structuredClone(dag);
 }
 
 export function structuredCloneValue<T>(value: T): T {
-  if (typeof structuredClone === "function") {
-    return structuredClone(value);
+  const clone = structuredClone(value);
+  if (clone && typeof clone === "object" && "format" in clone && clone.format === "graph-studio" && "nodes" in clone && "edges" in clone) {
+    indexGraphDocument(clone as unknown as NormalizedDag);
   }
-  return JSON.parse(JSON.stringify(value)) as T;
+  return clone;
 }

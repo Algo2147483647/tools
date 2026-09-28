@@ -43,7 +43,7 @@ export function buildAiGraphContext({
     };
   }
 
-  const keys = Object.keys(dag).sort((left, right) => left.localeCompare(right));
+  const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
   const edgeCount = countEdges(dag, mapping);
   const selectionText = formatSelection(selection);
   const shownKeys = keys.slice(0, MAX_CONTEXT_NODES);
@@ -89,7 +89,7 @@ function formatAppearanceSummary(appearance: GraphAppearance): string {
 }
 
 function countEdges(dag: NormalizedDag, mapping: FieldMapping): number {
-  return Object.values(dag).reduce((count, node) => count + getRelationKeys(getNodeChildren(node, mapping)).length, 0);
+  return Object.values(dag.nodes).reduce((count, node) => count + getRelationKeys(getNodeChildren(node, mapping)).length, 0);
 }
 
 function formatSelection(selection: GraphSelection | null): string {
@@ -106,7 +106,7 @@ function formatSelection(selection: GraphSelection | null): string {
 }
 
 function formatNodeSummary(key: NodeKey, dag: NormalizedDag, mapping: FieldMapping): string[] {
-  const node = dag[key];
+  const node = dag.nodes[key];
   const parents = getRelationKeys(getNodeParents(node, mapping));
   const children = getRelationKeys(getNodeChildren(node, mapping));
   const title = getNodeTitle(node, mapping);
@@ -126,7 +126,7 @@ function formatNodeSummary(key: NodeKey, dag: NormalizedDag, mapping: FieldMappi
 }
 
 function formatNodeIndexLine(key: NodeKey, dag: NormalizedDag, mapping: FieldMapping): string {
-  const node = dag[key];
+  const node = dag.nodes[key];
   const title = getNodeTitle(node, mapping);
   const type = getNodeType(node, mapping);
   return `- ${key} | title: ${formatPreview(title)} | type: ${formatPreview(type)}`;

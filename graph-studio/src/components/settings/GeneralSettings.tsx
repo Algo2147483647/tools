@@ -18,7 +18,6 @@ interface GeneralSettingsProps {
   onRelativeLinkRootSelect: () => void;
   onInitializeCanvas: () => void;
   onExport: () => void;
-  onFieldMappingOpen: () => void;
 }
 
 export default function GeneralSettings({
@@ -37,7 +36,6 @@ export default function GeneralSettings({
   onRelativeLinkRootSelect,
   onInitializeCanvas,
   onExport,
-  onFieldMappingOpen,
 }: GeneralSettingsProps) {
   const importFileClassName = [
     "ghost-btn",
@@ -89,18 +87,7 @@ export default function GeneralSettings({
       <section className="settings-section" aria-labelledby="data-actions-title">
         <p id="data-actions-title" className="control-label">Graph Data</p>
         <div className="workspace-action-row">
-          <button
-            id="field-mapping-btn"
-            className="ghost-btn settings-action-btn"
-            type="button"
-            onClick={() => {
-              onClose();
-              onFieldMappingOpen();
-            }}
-          >
-            Field Mapping
-          </button>
-          <button type="button" className="ghost-btn settings-action-btn" onClick={onInitializeCanvas}>Initialize</button>
+<button type="button" className="ghost-btn settings-action-btn" onClick={onInitializeCanvas}>Initialize</button>
         </div>
       </section>
 

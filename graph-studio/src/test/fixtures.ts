@@ -1,119 +1,18 @@
-import { normalizeDagInput } from "../graph/normalize";
-import { getDefaultFieldMapping, type FieldMapping } from "../graph/fieldMapping";
-import type { NormalizedDag } from "../graph/types";
-
-export function createSampleDag(): NormalizedDag {
-  return normalizeDagInput({
-    A: {
-      title: "Alpha",
-      define: "Root node",
-      children: {
-        B: "edge_ab",
-        C: "edge_ac",
-      },
-    },
-    B: {
-      title: "Beta",
-      define: "Child B",
-      parents: {
-        A: "edge_ab",
-      },
-      children: {
-        D: "edge_bd",
-      },
-    },
-    C: {
-      title: "Gamma",
-      define: "Child C",
-      parents: {
-        A: "edge_ac",
-      },
-    },
-    D: {
-      title: "Delta",
-      define: "Leaf D",
-      parents: {
-        B: "edge_bd",
-      },
-      meta: { priority: 1 },
-    },
-  });
+import { createGraphDocument } from "../graph/normalize";
+import { getDefaultFieldMapping } from "../graph/fieldMapping";
+export function createSampleDag() {
+  return createGraphDocument({
+    A:{title:"Alpha",define:"Root node"},
+    B:{title:"Beta",define:"Child B"},
+    C:{title:"Gamma",define:"Child C"},
+    D:{title:"Delta",define:"Leaf D",meta:{priority:1}},
+  },[
+    {id:"ab",source:"A",target:"B",value:"edge_ab"},
+    {id:"ac",source:"A",target:"C",value:"edge_ac"},
+    {id:"bd",source:"B",target:"D",value:"edge_bd"},
+  ]);
 }
-
-export function createForestDag(): NormalizedDag {
-  return normalizeDagInput({
-    Left: { define: "Left root" },
-    Right: { define: "Right root" },
-  });
-}
-
-export function createChildOnlyDag(): NormalizedDag {
-  return normalizeDagInput({
-    Root: {
-      children: {
-        Mid: "edge_rm",
-      },
-    },
-    Mid: {
-      children: {
-        Leaf: "edge_ml",
-      },
-    },
-    Leaf: {
-      define: "terminal",
-    },
-  });
-}
-
-export function createCustomFieldMapping(): FieldMapping {
-  return {
-    ...getDefaultFieldMapping(),
-    title: "label",
-    define: "description",
-    children: "next",
-    parents: "prev",
-    type: "kind",
-  };
-}
-
-export function createMappedSampleDag(): NormalizedDag {
-  return normalizeDagInput({
-    A: {
-      label: "Alpha",
-      description: "Root node",
-      kind: "root",
-      next: {
-        B: "edge_ab",
-        C: "edge_ac",
-      },
-    },
-    B: {
-      label: "Beta",
-      description: "Child B",
-      kind: "task",
-      prev: {
-        A: "edge_ab",
-      },
-      next: {
-        D: "edge_bd",
-      },
-    },
-    C: {
-      label: "Gamma",
-      description: "Child C",
-      kind: "task",
-      prev: {
-        A: "edge_ac",
-      },
-    },
-    D: {
-      label: "Delta",
-      description: "Leaf D",
-      kind: "task",
-      prev: {
-        B: "edge_bd",
-      },
-      meta: { priority: 1 },
-    },
-  });
-}
+export function createForestDag() {return createGraphDocument({Left:{define:"Left root"},Right:{define:"Right root"}});}
+export function createChildOnlyDag() {return createGraphDocument({Root:{},Mid:{},Leaf:{define:"terminal"}},[{id:"rm",source:"Root",target:"Mid",value:"edge_rm"},{id:"ml",source:"Mid",target:"Leaf",value:"edge_ml"}]);}
+export function createCustomFieldMapping(){return getDefaultFieldMapping();}
+export function createMappedSampleDag(){return createSampleDag();}

@@ -35,6 +35,7 @@ const TYPE_COLOR_SWATCHES = [
 
 export function buildStageData(input: {
   dag: NormalizedDag;
+  colorSourceDag?: NormalizedDag;
   mapping?: FieldMapping;
   selection: GraphSelection | null;
   layoutMode?: GraphLayoutMode;
@@ -44,7 +45,7 @@ export function buildStageData(input: {
 }): StageData | null {
   const { dag: sourceDag, mapping = getDefaultFieldMapping(), selection: requestedSelection, layoutMode = "sugiyama", appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = true, alignNodeWidthsToMax = false } = input;
   const theme = appearance.layout;
-  if (!sourceDag || Object.keys(sourceDag).length === 0) {
+  if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {
     return null;
   }
 
@@ -56,13 +57,14 @@ export function buildStageData(input: {
   const reachable = selection.isForest
     ? collectReachableFromRoots(layoutDag, selection.topLevelKeys, mapping)
     : collectReachableNodes(layoutDag, selection.rootKey, mapping);
-  const typeColorMap = buildTypeColorMap(sourceDag, mapping);
+  const typeColorMap = buildTypeColorMap(input.colorSourceDag ?? sourceDag, mapping);
+  const edgeIds = new Map(sourceDag.edges.map(edge => [JSON.stringify([edge.source, edge.target]), edge.id]));
   const visualByKey = buildNodeVisualMap(layoutDag, reachable, mapping, theme, showNodeDetail, alignNodeWidthsToMax);
   const layoutResult = resolveLayout(layoutMode, layoutDag, layoutRoots, mapping, visualByKey, theme);
   const coordinates = layoutResult.coordinates;
   const nodeKeys = Array.from(reachable).filter((key) => layoutDag[key] && coordinates.has(key));
   const nodesByLayer = new Map<number, StageNode[]>();
-  const nodeMap: Record<NodeKey, StageNode> = {};
+  const nodeMap: Record<NodeKey, StageNode> = Object.create(null);
   const edges: StageData["edges"] = [];
   const incomingMap = buildIncomingMap(layoutDag, nodeKeys, mapping);
 
@@ -241,7 +243,7 @@ export function buildStageData(input: {
             getRoutePointPosition(point, laneCenters, slotCountsByLayer, stageInnerHeight, theme, absoluteOffset)
           ));
       edges.push({
-        id: `${sourceKey}-->${targetKey}`,
+        id: edgeIds.get(JSON.stringify([sourceKey, targetKey]))!,
         source: sourceKey,
         target: targetKey,
         weight,
@@ -285,7 +287,7 @@ export function buildStageData(input: {
 
 function resolveLayout(
   layoutMode: GraphLayoutMode,
-  layoutDag: Record<NodeKey, NormalizedDag[NodeKey] | undefined>,
+  layoutDag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>,
   layoutRoots: NodeKey[],
   mapping: FieldMapping,
   visualByKey: Map<NodeKey, { width: number }>,
@@ -305,7 +307,7 @@ function resolveLayout(
 }
 
 function buildNodeVisualMap(
-  dag: Record<NodeKey, NormalizedDag[NodeKey] | undefined>,
+  dag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>,
   nodeKeys: Set<NodeKey>,
   mapping: FieldMapping,
   theme: GraphLayoutAppearance,
@@ -323,11 +325,11 @@ function buildNodeVisualMap(
   return visuals;
 }
 
-function collectReachableNodes(dag: Record<NodeKey, NormalizedDag[NodeKey] | undefined>, root: NodeKey, mapping: FieldMapping): Set<NodeKey> {
+function collectReachableNodes(dag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>, root: NodeKey, mapping: FieldMapping): Set<NodeKey> {
   return collectReachableFromRoots(dag, [root], mapping);
 }
 
-function collectReachableFromRoots(dag: Record<NodeKey, NormalizedDag[NodeKey] | undefined>, roots: NodeKey[], mapping: FieldMapping): Set<NodeKey> {
+function collectReachableFromRoots(dag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>, roots: NodeKey[], mapping: FieldMapping): Set<NodeKey> {
   const visited = new Set<NodeKey>();
   const stack = roots.slice();
   while (stack.length) {
@@ -342,9 +344,9 @@ function collectReachableFromRoots(dag: Record<NodeKey, NormalizedDag[NodeKey] |
   return visited;
 }
 
-function buildIncomingMap(dag: Record<NodeKey, NormalizedDag[NodeKey] | undefined>, nodeKeys: NodeKey[], mapping: FieldMapping): Record<NodeKey, NodeKey[]> {
+function buildIncomingMap(dag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>, nodeKeys: NodeKey[], mapping: FieldMapping): Record<NodeKey, NodeKey[]> {
   const visibleKeys = new Set(nodeKeys);
-  const incomingMap: Record<NodeKey, NodeKey[]> = {};
+  const incomingMap: Record<NodeKey, NodeKey[]> = Object.create(null);
   nodeKeys.forEach((nodeKey) => {
     incomingMap[nodeKey] = [];
   });
@@ -525,7 +527,7 @@ function buildConnectedKeysByNode(nodeKeys: NodeKey[], edges: StageData["edges"]
 
 function buildTypeColorMap(dag: NormalizedDag, mapping: FieldMapping): Map<string, StageNodeColorTokens> {
   const typeLabels = Array.from(new Set(
-    Object.values(dag)
+    Object.values(dag.nodes)
       .map((node) => normalizeTypeLabel(getNodeType(node, mapping)))
       .filter((value): value is string => Boolean(value)),
   )).sort((left, right) => left.localeCompare(right));

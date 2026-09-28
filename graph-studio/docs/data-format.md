@@ -1,284 +1,90 @@
-# Data Format Guide
+# Graph Studio JSON 协议 v2
 
-DAG Studio accepts JSON graph data, preserves custom fields, and can interpret a small set of graph-aware fields through per-document field mapping. This guide describes the recommended shape and the current load, mapping, and save behavior.
+应用只接受本协议，不兼容旧的节点字典、节点数组、字段别名和节点内 `parents / children`。格式不正确时明确拒绝整批导入，当前图保持不变。
 
-## Recommended Top-Level Shape
-
-The recommended and simplest format is an object keyed by node key:
+## 文档结构
 
 ```json
 {
-  "Graph": {
-    "define": "A graph is a set of vertices and edges.",
-    "children": {
-      "Tree": "subtype_of",
-      "DAG": "subtype_of"
-    }
+  "format": "graph-studio",
+  "version": 2,
+  "id": "demo",
+  "title": "示例图",
+  "metadata": {
+    "author": "Alice",
+    "tags": ["example"]
   },
-  "Tree": {
-    "define": "A tree is a connected acyclic graph.",
-    "parents": {
-      "Graph": "subtype_of"
-    },
-    "children": {
-      "Binary_Tree": "subtype_of"
-    }
+  "nodes": {
+    "A": { "title": "节点 A", "define": "说明，可用 Markdown", "type": "Concept", "custom": { "priority": 1 } },
+    "B": { "title": "节点 B", "type": "Theorem" }
   },
-  "Binary_Tree": {
-    "define": "A tree where each node has at most two children.",
-    "parents": {
-      "Tree": "subtype_of"
-    }
-  }
-}
-```
-
-If you are creating data from scratch, prefer this keyed-object form.
-
-## Graph-Aware Fields
-
-Each node is just a JSON object. DAG Studio treats only a small set of fields as graph-aware:
-
-- `children`: downstream node references
-- `parents`: upstream node references
-- `define`: main description shown in the node card and node viewer
-- `title`: optional display text for the node title
-- `type`: optional category used for node color grouping
-
-All other fields are preserved as-is and remain visible in `View Node`.
-
-If you are creating data from scratch, these default field names are still the recommended schema.
-
-Example:
-
-```json
-{
-  "Linear_Space": {
-    "title": "Linear Space",
-    "define": "A vector space over a field.",
-    "parents": {},
-    "children": {
-      "Affine_Space": "defined_on"
-    },
-    "aliases": ["vector space"],
-    "tags": ["algebra", "geometry"],
-    "metadata": {
-      "difficulty": "medium",
-      "domain": "mathematics"
-    }
-  }
-}
-```
-
-## Relationship Forms
-
-Both `children` and `parents` support two shapes.
-
-### Array Form
-
-Use this when you only care about structure:
-
-```json
-{
-  "A": {
-    "children": ["B", "C"]
-  },
-  "B": {
-    "parents": ["A"]
-  },
-  "C": {
-    "parents": ["A"]
-  }
-}
-```
-
-### Object Form
-
-Use this when you also want edge labels:
-
-```json
-{
-  "A": {
-    "children": {
-      "B": "subtype_of",
-      "C": "depends_on"
-    }
-  },
-  "B": {
-    "parents": {
-      "A": "subtype_of"
-    }
-  },
-  "C": {
-    "parents": {
-      "A": "depends_on"
-    }
-  }
-}
-```
-
-Object form is usually the better choice because edge labels can be shown in the graph.
-
-## Supported Top-Level Inputs
-
-The keyed-object format is recommended, but two additional input shapes are accepted.
-
-### Array of Nodes
-
-```json
-[
-  {
-    "key": "A",
-    "define": "Node A",
-    "children": ["B"]
-  },
-  {
-    "key": "B",
-    "define": "Node B"
-  }
-]
-```
-
-### Wrapper Object with `nodes`
-
-```json
-{
-  "nodes": [
+  "edges": [
     {
-      "key": "A",
-      "children": ["B"]
-    },
-    {
-      "key": "B"
+      "id": "edge-ab",
+      "source": "A",
+      "target": "B",
+      "value": "supports",
+      "metadata": { "source": "笔记" }
     }
   ]
 }
 ```
 
-## Field Mapping
+| 位置 | 规则 |
+| --- | --- |
+| `format` | 必填，固定为 `"graph-studio"` |
+| `version` | 必填，固定为数字 `2`；不接受字符串和未知版本 |
+| `id / title` | 可选字符串，表示文档标识和标题 |
+| `metadata` | 可选 JSON 对象，保存文档扩展信息 |
+| `nodes` | 必填对象，键是节点 ID，值是节点对象；允许空对象 |
+| `nodes[id].title / define / type` | 可选字符串，分别用于标题、说明、Type 筛选；不推断别名 |
+| 节点扩展字段 | 支持任意 JSON 值；禁止存储 `key / parents / children` |
+| `edges` | 必填数组，允许为空；唯一的关系存储 |
+| `edges[].id` | 必填，在文档内唯一；编辑边属性、重命名节点时保持稳定 |
+| `edges[].source / target` | 必填，必须引用已存在的节点 |
+| `edges[].value` | 可选 JSON 标量：字符串、有限数字、布尔值或 `null`；省略时 UI 按 `related_to` 显示，不自动写入文件 |
+| `edges[].metadata` | 可选 JSON 对象，保存边的扩展属性 |
+| 未知顶层字段、未知边字段 | 拒绝；扩展信息应放入对应的 `metadata` |
 
-DAG Studio can interpret alternate field names for the graph-aware roles above.
+节点 ID 和边 ID 必须是非空字符串，不含首尾空白、逗号、回车和换行。节点 ID 以对象键为准，不在节点对象内重复保存。
 
-For example, this document can be read without renaming its JSON keys:
+每个有向端点对最多一条边，不支持自环。A → B 与 B → A 是不同边；允许有向环，布局做尽力展示。本协议没有承诺强制 DAG。JSON 对象键必须唯一，生产方不得生成重复键；当前读取使用 JSON.parse，无法在解析后发现已被覆盖的重复原始对象键。
 
+结构化定义见 [graph.schema.json](../public/graph.schema.json)。JSON Schema 描述数据形状；边 ID 唯一、端点存在、端点对唯一及无自环由应用的运行时验证器额外检查。
+
+## 关系索引与编辑
+
+入边、出边索引统一由 `edges` 构建。运行时节点上的只读 `parents / children` 是计算结果，不是协议字段，也不参与 JSON 序列化。
+
+- 编辑节点字段保留其边及边元数据；重命名节点同步更新边端点。
+- “Edit Parents / Edit Children”和控制台关系命令修改 `edges`，随后重新构建两侧索引。
+- 删除节点同时删除关联边；这是用户的显式编辑操作。
+- 撤销、重做及保存保留完整文档包装和元数据。
+- Type 筛选只生成显示用投影，跨隐藏节点的桥接边不写回保存文件。
+- 空文档有效，应用显示空画布。
+
+节点详情 Raw JSON 和剪贴板使用独立的编辑包装：
 ```json
-{
-  "A": {
-    "label": "Alpha",
-    "description": "Root node",
-    "next": {
-      "B": "related_to"
-    },
-    "kind": "service"
-  },
-  "B": {
-    "prev": {
-      "A": "related_to"
-    }
-  }
-}
+{ "id": "A", "data": { "title": "节点 A", "type": "Concept" } }
 ```
+这只是单节点编辑格式，不能作为图文档导入。`data` 仅含节点字段；关系由专门的关系编辑入口处理。
 
-In that case, DAG Studio may infer a mapping like:
+## 多文件导入冲突
 
-- `title -> label`
-- `define -> description`
-- `children -> next`
-- `parents -> prev`
-- `type -> kind`
+所有文件先完成格式验证；任一 JSON 无法解析、结构不合法或版本未知，整批导入被拒绝。非 JSON 文件被忽略并计入状态提示。
 
-Important behavior notes:
+导入按文件顺序处理，以第一个文件作为初始文档。相同 ID 且内容完全相同的节点/边复用；其余冲突先展示报告，列出文件名、JSON 路径、现有值、传入值。可下载报告。全部冲突解决后才能点击 Apply import；取消不会修改当前图或源文件。
 
-- mapping is interpreted per opened document, not as one global schema for every file
-- changing mapping changes how the current document is interpreted in the UI
-- saving does not rename your JSON fields to system names
-- node viewer labels prefer the real JSON field name and only append the semantic role when helpful, such as `description (define)`
+| 策略 | 行为 |
+| --- | --- |
+| Keep existing | 经用户明确选择后保留现有冲突值。节点级保留不导入该节点的其他传入字段；传入边仍单独分析。 |
+| Merge fields | 合并对象中互补字段；对象子字段发生冲突继续请求决策；数组显式合并时保留原顺序并添加未出现的值。不同标量不提供自动合并。 |
+| Rename incoming | 同时保留两份。节点重命名会更新该文件所有相关边的端点；字段重命名保存为并列字段；边 ID 冲突可在端点不同的情况下重命名边。 |
 
-## Load and Save Behavior
+节点/字段/边可输入新名称或使用报告界面提供的唯一名称生成规则。重名或保留字段名会阻止导入。两条边端点相同不能通过只改 ID 变成平行边，需要保留或合并边属性。
 
-Loading performs only light structural normalization:
+文档 `id / title` 冲突也必须决策；选重命名时把传入值写入输出文档 `metadata`。边的 `value / metadata` 字段重命名后写入该边 `metadata`。原有值保持不变。
 
-- top-level keyed objects, arrays of nodes, and `{ "nodes": [...] }` wrappers are accepted
-- array entries use their `key` field as the node key
-- keyed-object entries are copied as node records and receive an internal `key` value matching the outer key
-- custom fields are preserved
+多文件结果额外保存 `metadata.importSources`，记录各来源文件名、原始文档 ID、标题和原始文档元数据；若此键已存在则使用唯一后缀，避免覆盖用户元数据。该记录不是完整的原始文件备份。
 
-Saving preserves the document's active field names:
-
-- if the document uses `children`, it saves `children`
-- if the document uses `next`, it saves `next`
-- if a node never had a relation field, saving does not add an empty one just because the mapping defines that role
-
-## Relationship Interpretation
-
-The app interprets graph relationships from whichever fields are mapped to `children` and `parents`.
-
-Behavior notes:
-
-- `children` and `parents` both accept array form and object form
-- root detection uses both explicit parent links and incoming edges inferred from child links
-- a file that only defines `children` can still render correctly
-- UI edits keep parent and child links synchronized once you mutate the graph in `Edit` mode
-
-For clarity and portability, explicitly storing both directions is still recommended, but it is no longer required just to get correct rendering.
-
-## Rendering Notes
-
-- node title is chosen from `title` or the node key
-- node subtitle is derived from `define`
-- edge labels come from relation values in the fields mapped to `children` or `parents`
-- card backgrounds stay neutral for readability, even when `type` color grouping is active
-
-## Node Color Grouping
-
-If a node includes a `type` field, DAG Studio groups nodes by unique `type` value and assigns each category its own accent color.
-
-- nodes with the same `type` share the same accent
-- accents affect borders, pins, and active states
-- if no nodes define `type`, default styling is used
-
-Example:
-
-```json
-{
-  "Model_Registry": {
-    "type": "data",
-    "children": {
-      "Online_Inference": "deploys_to"
-    }
-  },
-  "Online_Inference": {
-    "type": "service"
-  }
-}
-```
-
-## Minimal Example
-
-```json
-{
-  "A": {
-    "define": "Root node",
-    "children": {
-      "B": "related_to",
-      "C": "related_to"
-    }
-  },
-  "B": {
-    "define": "Child node B"
-  },
-  "C": {
-    "define": "Child node C"
-  }
-}
-```
-
-## Recommendations for Data Authors
-
-- use stable, unique keys
-- prefer the keyed-object top-level format
-- prefer object-form child relations if edge labels matter
-- use a single consistent schema within one document
-- if you use custom field names, keep the mapping stable across the dataset
-- use the mapped `define` role for the main readable description
-- keep additional metadata in custom fields instead of overloading relation fields
+不会自动删除冲突字段或改写源文件。只有点击保存原文件才写回具备写权限的单文件来源；多文件合并结果另存为新文件。

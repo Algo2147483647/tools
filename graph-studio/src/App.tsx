@@ -1,3 +1,6 @@
+import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./components/nodeDetailRawJson";
+import ImportConflictModal from "./components/ImportConflictModal";
+import { createGraphDocument } from "./graph/normalize";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { buildStageData } from "./layout/stage-layout";
 import { getNodeTitle } from "./graph/accessors";
@@ -31,7 +34,6 @@ import { initialGraphAppState } from "./state/initialState";
 import { loadGraphPagePreferences } from "./state/preferences";
 import ConsoleSidebar, { type ConsoleEntry, type ConsoleReviewCard } from "./components/ConsoleSidebar";
 import ContextMenu, { type ContextMenuAction } from "./components/ContextMenu";
-import FieldMappingModal from "./components/FieldMappingModal";
 import FilePreviewModal from "./components/FilePreviewModal";
 import NodeDetailModal from "./components/NodeDetailModal";
 import RelationEditorModal from "./components/RelationEditorModal";
@@ -71,7 +73,7 @@ import { loadPersistedAiHarnessState, savePersistedAiHarnessState } from "./ai/p
 
 export default function App() {
   const [state, dispatch] = useReducer(graphReducer, initialGraphAppState);
-  const [fieldMapping, setFieldMapping] = useState<FieldMapping>(() => loadGraphPagePreferences().fieldMapping || getDefaultFieldMapping());
+  const [fieldMapping, setFieldMapping] = useState<FieldMapping>(() => getDefaultFieldMapping());
   const [appearance, setAppearance] = useState<GraphAppearance>(() => loadGraphPagePreferences().appearance || DEFAULT_GRAPH_APPEARANCE);
   const [appearanceUndoStack, setAppearanceUndoStack] = useState<Array<{ label: string; before: GraphAppearance; after: GraphAppearance }>>([]);
   const [appearanceRedoStack, setAppearanceRedoStack] = useState<Array<{ label: string; before: GraphAppearance; after: GraphAppearance }>>([]);
@@ -82,7 +84,6 @@ export default function App() {
   const [defaultGraphAutoLoadEnabled, setDefaultGraphAutoLoadEnabled] = useState(false);
   const [aiHarness, setAiHarness] = useState(() => createInitialAiHarnessState(aiSettings.executionMode));
   const [aiBusy, setAiBusy] = useState(false);
-  const [fieldMappingOpen, setFieldMappingOpen] = useState(false);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const [consoleInput, setConsoleInput] = useState("");
@@ -112,6 +113,9 @@ export default function App() {
     closeFilePreview,
   } = useRelativeFilePreview(dispatch);
   const {
+    pendingImport,
+    confirmImport,
+    cancelImport,
     importFileButtonState,
     handleFileInputClick,
     handleFileInputChange,
@@ -174,7 +178,7 @@ export default function App() {
   }, [aiHarness.activePlan, aiHarness.graphId, consoleEntries]);
 
   useEffect(() => {
-    if (consoleContextNodeKey && state.dag && !state.dag[consoleContextNodeKey]) {
+    if (consoleContextNodeKey && state.dag && !state.dag.nodes[consoleContextNodeKey]) {
       setConsoleContextNodeKey(null);
     }
   }, [consoleContextNodeKey, state.dag]);
@@ -197,7 +201,7 @@ export default function App() {
     }
   }, [selectedType, typeOptions]);
   const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, fieldMapping) : null, [activeType, fieldMapping, state.dag]);
-  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, mapping: fieldMapping, selection: activeType ? { type: "full" } : state.selection, layoutMode: state.layout.mode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, fieldMapping, showNodeDetail, state.layout.mode, state.selection]);
+  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, colorSourceDag: state.dag ?? undefined, mapping: fieldMapping, selection: activeType ? { type: "full" } : state.selection, layoutMode: state.layout.mode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, state.dag, fieldMapping, showNodeDetail, state.layout.mode, state.selection]);
   const parentSelection = useMemo(() => !activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys, fieldMapping) : null, [activeType, fieldMapping, stage, state.dag]);
   const consoleSidebarVisible = state.ui.consoleSidebarOpen;
   const consoleSuggestions = useMemo(() => getConsoleSuggestions(consoleInput), [consoleInput]);
@@ -217,10 +221,10 @@ export default function App() {
       ? state.ui.status
       : `${layoutLabel} layout.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
   }, [activeType, fieldMapping, stage, state.dag, state.layout.mode, state.ui.status]);
-  const currentJsonContent = useMemo(() => serializeDagToJson(state.dag || {}, fieldMapping), [fieldMapping, state.dag]);
+  const currentJsonContent = useMemo(() => serializeDagToJson(state.dag || createGraphDocument(), fieldMapping), [fieldMapping, state.dag]);
   const savedJsonContent = useMemo(() => {
     const savedDag = getSavedRevisionDag(state.editHistory, state.dag);
-    return serializeDagToJson(savedDag || {}, fieldMapping);
+    return serializeDagToJson(savedDag || createGraphDocument(), fieldMapping);
   }, [fieldMapping, state.dag, state.editHistory]);
   const { handleOverwriteJson, handleSaveJsonAsNew } = useGraphSave({
     source: state.source,
@@ -287,7 +291,6 @@ export default function App() {
   useOutsideDismiss(Boolean(state.ui.contextMenu), () => dispatch({ type: "contextMenuClosed" }));
   useKeyboardShortcuts({
     onEscape: () => {
-      setFieldMappingOpen(false);
       dispatch({ type: "contextMenuClosed" });
       dispatch({ type: "modalClosed" });
     },
@@ -373,7 +376,7 @@ export default function App() {
       return;
     }
 
-    const executed = executeConsoleInstructions(state.dag || {}, parsed.instructions, consoleContextNodeKey, fieldMapping, appearance);
+    const executed = executeConsoleInstructions(state.dag || createGraphDocument(), parsed.instructions, consoleContextNodeKey, fieldMapping, appearance);
     if (!executed.ok) {
       setConsoleContextNodeKey(executed.contextNodeKey);
       appendConsoleEntry(
@@ -874,13 +877,13 @@ export default function App() {
   }
 
   async function handleCopyNodeJson(nodeKey: NodeKey) {
-    const node = state.dag?.[nodeKey];
+    const node = state.dag?.nodes[nodeKey];
     if (!node) {
       dispatch({ type: "statusChanged", status: `Node "${nodeKey}" does not exist.` });
       return;
     }
     try {
-      await copyTextToClipboard(JSON.stringify(node, null, 2));
+      await copyTextToClipboard(buildRawNodeEditorValue(nodeKey, node, fieldMapping));
       dispatch({ type: "statusChanged", status: `Copied node "${nodeKey}" JSON to the clipboard.` });
     } catch (error) {
       console.error(error);
@@ -920,7 +923,7 @@ export default function App() {
 
   function promptForPastedNodeKey(rawKey: string): NodeKey | null {
     const trimmedKey = rawKey.trim();
-    const defaultKey = trimmedKey && !state.dag?.[trimmedKey] ? trimmedKey : `${trimmedKey || "Pasted_Node"}_Copy`;
+    const defaultKey = trimmedKey && !state.dag?.nodes[trimmedKey] ? trimmedKey : `${trimmedKey || "Pasted_Node"}_Copy`;
     const input = window.prompt("Enter a new unique node key:", defaultKey);
     return input === null ? null : input.trim();
   }
@@ -1151,7 +1154,6 @@ export default function App() {
         onInitializeCanvas={initializeCanvas}
         onExport={handleExportSvg}
         onSaveJson={() => state.dag ? dispatch({ type: "saveDialogOpened" }) : dispatch({ type: "statusChanged", status: "Load or render a graph before saving JSON." })}
-        onFieldMappingOpen={() => setFieldMappingOpen(true)}
         onAiSettingsChange={setAiSettings}
         onAiConnectionTest={handleAiConnectionTest}
       />
@@ -1249,7 +1251,7 @@ export default function App() {
         nodeKey={relationEditor?.nodeKey || null}
         field={relationEditor?.field || null}
         fieldLabel={relationEditor?.field ? getDisplayFieldName(relationEditor.field, fieldMapping) : undefined}
-        node={relationEditor && state.dag ? state.dag[relationEditor.nodeKey] || null : null}
+        node={relationEditor && state.dag ? state.dag.nodes[relationEditor.nodeKey] || null : null}
         onSave={(relations) => {
           if (relationEditor) {
             commitCommand(relationEditor.field === "parents"
@@ -1263,7 +1265,7 @@ export default function App() {
       <NodeDetailModal
         open={Boolean(detailNodeKey)}
         nodeKey={detailNodeKey}
-        node={detailNodeKey && state.dag ? state.dag[detailNodeKey] || null : null}
+        node={detailNodeKey && state.dag ? state.dag.nodes[detailNodeKey] || null : null}
         fieldMapping={fieldMapping}
         initialFocus={nodeDetailInitialFocus}
         relativeLinkRoot={relativeLinkRoot}
@@ -1293,21 +1295,9 @@ export default function App() {
         onSaveNew={handleSaveJsonAsNew}
         onClose={() => dispatch({ type: "saveDialogClosed" })}
       />
-      <FieldMappingModal
-        open={fieldMappingOpen}
-        mapping={fieldMapping}
-        onSave={(nextMapping) => {
-          setFieldMapping(nextMapping);
-          dispatch({
-            type: "statusChanged",
-            status: state.dag
-        ? "Saved field mapping preferences. The graph is now being interpreted with the updated field names."
-        : "Saved field mapping preferences.",
-          });
-          setFieldMappingOpen(false);
-        }}
-        onClose={() => setFieldMappingOpen(false)}
-      />
+      {pendingImport && <ImportConflictModal documents={pendingImport.documents} onConfirm={confirmImport} onCancel={cancelImport} />}
+
+
     </div>
   );
 }
@@ -1446,27 +1436,8 @@ function serializeDagToJson(dag: NormalizedDag, mapping: FieldMapping): string {
 }
 
 function getPastedNodeFields(value: unknown): { key: NodeKey; fields: Record<string, unknown> } | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  const directFields = value as Record<string, unknown>;
-  const directKey = typeof directFields.key === "string" ? directFields.key.trim() : "";
-  if (directKey) {
-    return { key: directKey, fields: directFields };
-  }
-
-  const entries = Object.entries(directFields);
-  if (entries.length !== 1) {
-    return null;
-  }
-
-  const [entryKey, entryValue] = entries[0];
-  if (!entryKey.trim() || !entryValue || typeof entryValue !== "object" || Array.isArray(entryValue)) {
-    return null;
-  }
-
-  return { key: entryKey.trim(), fields: entryValue as Record<string, unknown> };
+  const parsed = parseRawNodeEditorValue(JSON.stringify(value), "", getDefaultFieldMapping());
+  return parsed.ok ? { key: parsed.nextKey, fields: parsed.fields } : null;
 }
 
 function hasDraggedFiles(dataTransfer: DataTransfer): boolean {
@@ -1485,7 +1456,7 @@ function getSavedRevisionDag(
     return null;
   }
   if (editHistory.savedRevision < 0) {
-    return {};
+    return createGraphDocument();
   }
   if (editHistory.savedRevision === editHistory.revision) {
     return currentDag;

@@ -3,10 +3,10 @@ import { getDefaultFieldMapping, type FieldMapping } from "./fieldMapping";
 import type { GraphSelection, NodeKey, NormalizedDag } from "./types";
 
 export function findRootsFromDag(dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): NodeKey[] {
-  const nodeKeys = Object.keys(dag);
+  const nodeKeys = Object.keys(dag.nodes);
   const nodesWithIncoming = new Set<NodeKey>();
   nodeKeys.forEach((nodeKey) => {
-    getNodeParentKeys(dag[nodeKey], mapping).forEach((parentKey) => {
+    getNodeParentKeys(dag.nodes[nodeKey], mapping).forEach((parentKey) => {
       if (parentKey && parentKey !== nodeKey) {
         nodesWithIncoming.add(nodeKey);
       }
@@ -14,7 +14,7 @@ export function findRootsFromDag(dag: NormalizedDag, mapping: FieldMapping = get
   });
 
   nodeKeys.forEach((nodeKey) => {
-    getNodeChildKeys(dag[nodeKey], mapping).forEach((childKey) => {
+    getNodeChildKeys(dag.nodes[nodeKey], mapping).forEach((childKey) => {
       if (childKey && childKey !== nodeKey) {
         nodesWithIncoming.add(childKey);
       }
@@ -59,12 +59,12 @@ export function isSelectionValid(selection: GraphSelection | null, dag: Normaliz
     return false;
   }
   if (selection.type === "full") {
-    return Object.keys(dag).length > 0;
+    return Object.keys(dag.nodes).length > 0;
   }
   if (selection.type === "node") {
-    return Boolean(dag[selection.key]);
+    return Boolean(dag.nodes[selection.key]);
   }
-  return selection.keys.some((key) => Boolean(dag[key]));
+  return selection.keys.some((key) => Boolean(dag.nodes[key]));
 }
 
 export function remapSelectionKeys(selection: GraphSelection | null, keyMapper: (key: NodeKey) => NodeKey | null): GraphSelection | null {
@@ -91,7 +91,7 @@ export function getParentLevelSelection(dag: NormalizedDag, topLevelKeys: NodeKe
     return null;
   }
 
-  const parentKeys = Array.from(new Set(topLevelKeys.flatMap((nodeKey) => getNodeParentKeys(dag[nodeKey], mapping))));
+  const parentKeys = Array.from(new Set(topLevelKeys.flatMap((nodeKey) => getNodeParentKeys(dag.nodes[nodeKey], mapping))));
   if (!parentKeys.length) {
     return null;
   }

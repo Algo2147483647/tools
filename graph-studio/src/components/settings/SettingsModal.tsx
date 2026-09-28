@@ -49,7 +49,6 @@ interface SettingsModalProps {
   onRelativeLinkRootSelect: () => void;
   onInitializeCanvas: () => void;
   onExport: () => void;
-  onFieldMappingOpen: () => void;
   onAiSettingsChange: (settings: AiSettings) => void;
   onAiConnectionTest: () => Promise<boolean>;
 }
@@ -91,7 +90,6 @@ export default function SettingsModal({
   onRelativeLinkRootSelect,
   onInitializeCanvas,
   onExport,
-  onFieldMappingOpen,
   onAiSettingsChange,
   onAiConnectionTest,
 }: SettingsModalProps) {
@@ -180,7 +178,6 @@ export default function SettingsModal({
                 onRelativeLinkRootSelect={onRelativeLinkRootSelect}
                 onInitializeCanvas={onInitializeCanvas}
                 onExport={onExport}
-                onFieldMappingOpen={onFieldMappingOpen}
               />
             ) : null}
 

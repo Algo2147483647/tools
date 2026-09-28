@@ -1,3 +1,4 @@
+import { createGraphDocument } from "../graph/normalize";
 import { executeConsoleInstructions } from "../console/executor";
 import { parseConsoleSource } from "../console/dsl";
 import { CONSOLE_COMMAND_REFERENCE } from "../console/reference";
@@ -362,7 +363,7 @@ export function validateCommandBatch(input: ValidateInput): ValidationReport {
     };
   }
 
-  const execution = executeConsoleInstructions(input.dag || {}, parsed.instructions, input.contextNodeKey, input.mapping, input.appearance || DEFAULT_GRAPH_APPEARANCE);
+  const execution = executeConsoleInstructions(input.dag || createGraphDocument(), parsed.instructions, input.contextNodeKey, input.mapping, input.appearance || DEFAULT_GRAPH_APPEARANCE);
   const commandRisks = input.batch.commands.map(classifyCommandRisk);
   const riskLevel = maxRisk([input.batch.riskLevel, ...commandRisks]);
   const destructive = input.batch.commands.some(isDestructiveCommand);
@@ -384,7 +385,7 @@ export function validateCommandBatch(input: ValidateInput): ValidationReport {
   }
 
   const diffPreview = [
-    ...buildDiffPreview(input.dag || {}, execution.dag, input.mapping),
+    ...buildDiffPreview(input.dag || createGraphDocument(), execution.dag, input.mapping),
     ...execution.appearanceResults.flatMap((result) => result.diff),
   ];
   const mutationSummary = diffPreview.length
@@ -707,8 +708,8 @@ function buildCommandWarnings(command: string): string[] {
 }
 
 function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag, mapping: FieldMapping): string[] {
-  const beforeKeys = new Set(Object.keys(beforeDag));
-  const afterKeys = new Set(Object.keys(afterDag));
+  const beforeKeys = new Set(Object.keys(beforeDag.nodes));
+  const afterKeys = new Set(Object.keys(afterDag.nodes));
   const lines: string[] = [];
 
   Array.from(afterKeys)
@@ -725,8 +726,8 @@ function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag, map
     .filter((key) => beforeKeys.has(key))
     .sort((left, right) => left.localeCompare(right))
     .forEach((key) => {
-      const beforeNode = beforeDag[key];
-      const afterNode = afterDag[key];
+      const beforeNode = beforeDag.nodes[key];
+      const afterNode = afterDag.nodes[key];
       const beforeFields = Object.keys(beforeNode).filter((field) => !isRelationField(field, mapping)).sort();
       const afterFields = Object.keys(afterNode).filter((field) => !isRelationField(field, mapping)).sort();
       const allFields = Array.from(new Set([...beforeFields, ...afterFields])).sort();
@@ -744,10 +745,10 @@ function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag, map
 
 function diffEdges(beforeDag: NormalizedDag, afterDag: NormalizedDag, mapping: FieldMapping, relation: "children" | "parents"): string[] {
   const lines: string[] = [];
-  const keys = Array.from(new Set([...Object.keys(beforeDag), ...Object.keys(afterDag)])).sort();
+  const keys = Array.from(new Set([...Object.keys(beforeDag.nodes), ...Object.keys(afterDag.nodes)])).sort();
   keys.forEach((key) => {
-    const beforeNode = beforeDag[key];
-    const afterNode = afterDag[key];
+    const beforeNode = beforeDag.nodes[key];
+    const afterNode = afterDag.nodes[key];
     const beforeRelations = beforeNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(beforeNode, mapping) : getNodeParents(beforeNode, mapping))) : new Set<string>();
     const afterRelations = afterNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(afterNode, mapping) : getNodeParents(afterNode, mapping))) : new Set<string>();
     Array.from(afterRelations)

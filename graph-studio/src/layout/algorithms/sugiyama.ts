@@ -137,7 +137,7 @@ function assignLayers(nodeKeys: NodeKey[], edges: LayoutEdge[], rootSet: Set<Nod
   nodeKeys.forEach((nodeKey) => incoming.set(nodeKey, []));
   edges.forEach((edge) => incoming.get(edge.target)?.push(edge));
 
-  const layerByKey: Record<NodeKey, number> = {};
+  const layerByKey: Record<NodeKey, number> = Object.create(null);
   const visiting = new Set<NodeKey>();
 
   const rankNode = (nodeKey: NodeKey): number => {
@@ -220,7 +220,7 @@ function normalizeLongEdges(edges: LayoutEdge[], layerByKey: Record<NodeKey, num
 }
 
 function buildStableOrderByKey(dag: Record<NodeKey, unknown>, graph: VisibleGraph): Record<NodeKey, number> {
-  const orderByKey: Record<NodeKey, number> = {};
+  const orderByKey: Record<NodeKey, number> = Object.create(null);
   const visibleSet = graph.visibleSet;
   let index = 0;
 
@@ -242,7 +242,7 @@ function buildStableOrderByKey(dag: Record<NodeKey, unknown>, graph: VisibleGrap
 }
 
 function buildOriginalOrderById(items: LayoutItem[], stableOrderByKey: Record<NodeKey, number>): Record<NodeKey, number> {
-  const originalOrderById: Record<NodeKey, number> = {};
+  const originalOrderById: Record<NodeKey, number> = Object.create(null);
   const fallbackOffset = Object.keys(stableOrderByKey).length;
   items.forEach((item, index) => {
     originalOrderById[item.id] = item.realKey ? stableOrderByKey[item.realKey] : fallbackOffset + index;
@@ -306,8 +306,8 @@ function reduceCrossings(layers: Map<number, LayoutItem[]>, segments: LayoutEdge
 }
 
 function buildCrossingIndex(layers: Map<number, LayoutItem[]>, segments: LayoutEdge[]): CrossingIndex {
-  const layerById: Record<NodeKey, number> = {};
-  const itemById: Record<NodeKey, LayoutItem> = {};
+  const layerById: Record<NodeKey, number> = Object.create(null);
+  const itemById: Record<NodeKey, LayoutItem> = Object.create(null);
   layers.forEach((layerItems, layer) => {
     layerItems.forEach((item) => {
       layerById[item.id] = layer;
@@ -315,8 +315,8 @@ function buildCrossingIndex(layers: Map<number, LayoutItem[]>, segments: LayoutE
     });
   });
 
-  const incoming: Record<NodeKey, NodeKey[]> = {};
-  const outgoing: Record<NodeKey, NodeKey[]> = {};
+  const incoming: Record<NodeKey, NodeKey[]> = Object.create(null);
+  const outgoing: Record<NodeKey, NodeKey[]> = Object.create(null);
   const segmentsByUpperLayer = new Map<number, LayerSegment[]>();
 
   segments.forEach((edge) => {

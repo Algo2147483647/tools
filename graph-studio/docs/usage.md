@@ -11,18 +11,15 @@ npm run dev
 
 Open the local Vite URL shown in the terminal. On first load, the app automatically opens [`public/example.json`](../public/example.json).
 
-## Main Modes
+## Editing
 
-- `Preview` mode is for safe browsing and inspection.
-- `Edit` mode enables graph mutation, the console sidebar, undo and redo, and save operations.
-
-The app remembers page preferences such as mode and layout selection across refreshes.
+The app opens in Edit mode. Graph edits, the console, undo, redo and saving are available directly.
 
 ## Controls
 
 The top bar controls button opens a settings dialog with three sections:
 
-- `General`: mode, console visibility, initialization, field mapping, SVG export, JSON file import, folder import, and status
+- `General`: console visibility, initialization, SVG export, JSON file import, folder import, and status
 - `Appearance`: UI configuration import/export/reset, layout engine, layout tuning, presets, tokens, custom CSS, title styling, detail visibility, borders, and width behavior
 - `AI`: provider, model, API key, execution mode, and connection test
 
@@ -38,20 +35,17 @@ You can work from sample data or start from scratch.
 - `Initialize Canvas` creates a new blank graph with a single centered root node named `Initial_Node`.
 - A newly initialized graph is treated as unsaved until you export or save it as JSON.
 
-## Field Mapping
+## JSON Import and Conflicts
 
-Each opened JSON file is interpreted using a field mapping.
+Import files or a folder using General settings, or drop JSON files onto the canvas. All files must follow [Graph Studio v2](data-format.md). An invalid or unknown document rejects the whole batch and shows the reason in the status area.
 
-- DAG Studio first tries to infer the document's own schema from its field names
-- if a file uses default fields such as `children`, `define`, and `type`, the default mapping is used
-- if a file uses custom fields such as `next`, `description`, or `kind`, the app can map those roles automatically
-- different files may therefore show different active mappings
+Multiple files are validated first, then a conflict report lists both values and their source paths. Choose Keep existing, Merge fields, or Rename incoming as applicable. Merging can reveal further nested field conflicts; every conflict needs a decision. Download report exports the current report. Apply import stays disabled until the choices are valid. Cancel import leaves the current graph intact.
 
-The `Field Mapping` dialog changes how the current document is interpreted in the UI. It does not rename fields in the source JSON just by saving the mapping.
+Document metadata and source headers are preserved. Source files are never modified by importing. Field mapping and legacy input shapes are no longer supported.
 
 ## Navigation
 
-After loading JSON, the renderer finds roots by looking at both parent links and incoming edges inferred from child links.
+After loading JSON, the renderer finds roots by looking at incoming indexes computed from the document’s edges.
 
 - If there is one root node, that node becomes the focused root.
 - If there are multiple root nodes, DAG Studio renders them as a forest.
@@ -62,7 +56,7 @@ After loading JSON, the renderer finds roots by looking at both parent links and
 
 ## Type Filtering
 
-The top bar's `Type` selector lists the non-empty types in the current graph, using the active field mapping. Select a type to display its nodes across the whole graph. Paths through hidden nodes become `filtered_path` links between the nearest visible nodes; existing direct links keep their original relation values.
+The top bar's `Type` selector lists the non-empty types in the current graph, using the fixed `type` field. Select a type to display its nodes across the whole graph. Paths through hidden nodes become `filtered_path` links between the nearest visible nodes; existing direct links keep their original relation values.
 
 `All types` and `Back` leave the filtered view. `Show all roots` clears the filter and shows the complete graph. While filtering, clicking highlights a node and double-clicking opens its details; `Up` is disabled. If the selected type disappears after an edit or import, the selector returns to `All types` automatically.
 
@@ -111,7 +105,7 @@ To reduce repaint cost, the app disables the most expensive hover-only visual ef
 
 ## Editing in the UI
 
-Switch to `Edit` mode to enable graph editing.
+Graph editing is available directly.
 
 Right-click a node to access:
 
@@ -135,18 +129,17 @@ Behavior notes:
 - `Edit Parents` and `Edit Children` update the graph and rerender immediately.
 - `View Node` in edit mode also supports field-by-field editing and raw JSON editing.
 
-In `Preview` mode, edit-only actions stay disabled while non-destructive actions remain available.
 
 ## View Node
 
 `View Node` opens a generic node detail view. It shows:
 
 - every key-value pair in the node
-- the mapped description field as readable text
-- the mapped parent and child relation fields as relation sets
+- the `define` field as readable text
+- custom node fields, preserving their JSON value types
 - the node's raw JSON
 
-The viewer is schema-agnostic, so custom node fields are preserved and still inspectable. Field labels prefer the real JSON field name. When a custom field is acting as a graph-aware role, the UI may show it like `description (define)`.
+Node fields use fixed semantic names (`title`, `define`, `type`). Raw editing and copy/paste use `{ "id": "A", "data": { ... } }`; relationships are edited separately through Edit Parents / Edit Children and stored in `edges`.
 
 ## Graph Console
 
@@ -243,8 +236,8 @@ Saving behavior notes:
 
 - `Overwrite Original` does not show an extra app confirmation after the save dialog action; the browser may still ask for write permission
 - `Save New Copy` does not mark the original source file as clean
-- saving preserves the document's active field names instead of rewriting them back to system names
-- changing field mapping affects interpretation, not the literal JSON keys written to disk
+- saving retains the full v2 envelope, node fields, edge IDs, and document/edge metadata
+- derived relation indexes and Type projection links are not serialized
 
 The app also supports exporting the current view as SVG. SVG export includes the current graph CSS and `--dag-*` appearance variables.
 

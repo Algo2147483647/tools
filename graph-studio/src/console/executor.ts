@@ -165,7 +165,7 @@ export function executeConsoleInstructions(
             : resolveExistingNodeKey(instruction.childKey, contextNodeKey, workingDag, instruction.line);
           if (instruction.createMissing) {
             [parentKey, childKey].forEach((key) => {
-              if (!workingDag[key]) {
+              if (!workingDag.nodes[key]) {
                 const addResult = applyGraphCommand(workingDag, { type: "addNode", key }, mapping);
                 workingDag = addResult.dag;
                 contextNodeKey = remapContextKey(contextNodeKey, addResult);
@@ -219,12 +219,12 @@ export function executeConsoleInstructions(
           if (instruction.field === "parents" || instruction.field === "children") {
             throw new Error(`Use ${instruction.field} to replace relation sets.`);
           }
-          const currentNode = workingDag[key];
+          const currentNode = workingDag.nodes[key];
           if (!currentNode) {
             throw new Error(`Node "${key}" does not exist.`);
           }
           const { key: _oldKey, ...fields } = structuredCloneValue(currentNode);
-          fields[instruction.field] = instruction.value;
+          Object.defineProperty(fields, instruction.field, { value: instruction.value, enumerable: true, writable: true, configurable: true });
           const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields }, mapping);
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
@@ -240,7 +240,7 @@ export function executeConsoleInstructions(
           if (instruction.field === "parents" || instruction.field === "children") {
             throw new Error(`Use ${instruction.field} or rm-edge to edit relation fields.`);
           }
-          const currentNode = workingDag[key];
+          const currentNode = workingDag.nodes[key];
           if (!currentNode) {
             throw new Error(`Node "${key}" does not exist.`);
           }
@@ -289,7 +289,7 @@ function resolveExistingNodeKey(
   if (!key) {
     throw new Error(`Line ${line}: Current context is empty. Use "use <node>" first.`);
   }
-  if (!dag[key]) {
+  if (!dag.nodes[key]) {
     throw new Error(`Node "${key}" does not exist.`);
   }
   return key;
@@ -351,7 +351,7 @@ export function collectBatchEffects(results: CommandResult[]): { renamedKeys: Ar
 }
 
 function buildKeyList(dag: NormalizedDag): string {
-  const keys = Object.keys(dag).sort((left, right) => left.localeCompare(right));
+  const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
   if (!keys.length) {
     return "Keys (0)";
   }
@@ -359,12 +359,12 @@ function buildKeyList(dag: NormalizedDag): string {
 }
 
 function buildGraphStats(dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string {
-  const keys = Object.keys(dag).sort((left, right) => left.localeCompare(right));
-  const edgeCount = keys.reduce((count, key) => count + getRelationKeys(getNodeChildren(dag[key], mapping)).length, 0);
-  const roots = keys.filter((key) => getRelationKeys(getNodeParents(dag[key], mapping)).length === 0);
-  const leaves = keys.filter((key) => getRelationKeys(getNodeChildren(dag[key], mapping)).length === 0);
+  const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
+  const edgeCount = keys.reduce((count, key) => count + getRelationKeys(getNodeChildren(dag.nodes[key], mapping)).length, 0);
+  const roots = keys.filter((key) => getRelationKeys(getNodeParents(dag.nodes[key], mapping)).length === 0);
+  const leaves = keys.filter((key) => getRelationKeys(getNodeChildren(dag.nodes[key], mapping)).length === 0);
   const typeCounts = keys.reduce<Record<string, number>>((counts, key) => {
-    const type = getNodeType(dag[key], mapping) || "(empty)";
+    const type = getNodeType(dag.nodes[key], mapping) || "(empty)";
     counts[type] = (counts[type] || 0) + 1;
     return counts;
   }, {});
@@ -384,8 +384,8 @@ function buildGraphStats(dag: NormalizedDag, mapping: FieldMapping = getDefaultF
 
 function buildFindResults(dag: NormalizedDag, query: string, mapping: FieldMapping = getDefaultFieldMapping()): string {
   const needle = normalizeSearchText(query);
-  const matches = Object.keys(dag)
-    .map((key) => ({ key, score: scoreNodeMatch(key, dag[key], needle, mapping) }))
+  const matches = Object.keys(dag.nodes)
+    .map((key) => ({ key, score: scoreNodeMatch(key, dag.nodes[key], needle, mapping) }))
     .filter((match) => match.score > 0)
     .sort((left, right) => right.score - left.score || left.key.localeCompare(right.key));
 
@@ -397,7 +397,7 @@ function buildFindResults(dag: NormalizedDag, query: string, mapping: FieldMappi
   return [
     `Matches (${shown.length}${matches.length > shown.length ? ` of ${matches.length}` : ""}) for "${query}":`,
     ...shown.map(({ key }) => {
-      const node = dag[key];
+      const node = dag.nodes[key];
       return `- ${key} | title: ${formatScalarPreview(getNodeTitle(node, mapping))} | type: ${formatScalarPreview(getNodeType(node, mapping))} | define: ${formatScalarPreview(getNodeDefine(node, mapping))}`;
     }),
   ].join("\n");
@@ -412,13 +412,13 @@ function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: numbe
     const parents = new Set<NodeKey>();
     const children = new Set<NodeKey>();
     frontier.forEach((key) => {
-      getRelationKeys(getNodeParents(dag[key], mapping)).forEach((parentKey) => {
-        if (!visited.has(parentKey) && dag[parentKey]) {
+      getRelationKeys(getNodeParents(dag.nodes[key], mapping)).forEach((parentKey) => {
+        if (!visited.has(parentKey) && dag.nodes[parentKey]) {
           parents.add(parentKey);
         }
       });
-      getRelationKeys(getNodeChildren(dag[key], mapping)).forEach((childKey) => {
-        if (!visited.has(childKey) && dag[childKey]) {
+      getRelationKeys(getNodeChildren(dag.nodes[key], mapping)).forEach((childKey) => {
+        if (!visited.has(childKey) && dag.nodes[childKey]) {
           children.add(childKey);
         }
       });
@@ -437,7 +437,7 @@ function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: numbe
     frontier = nextKeys;
   }
 
-  const node = dag[nodeKey];
+  const node = dag.nodes[nodeKey];
   return [
     buildNodeSummary(nodeKey, dag, mapping),
     `Neighbors up to depth ${depth}:`,
@@ -462,7 +462,7 @@ function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: Normali
 
   while (queue.length) {
     const currentKey = queue.shift() as NodeKey;
-    const children = getRelationKeys(getNodeChildren(dag[currentKey], mapping)).filter((key) => dag[key]);
+    const children = getRelationKeys(getNodeChildren(dag.nodes[currentKey], mapping)).filter((key) => dag.nodes[key]);
     for (const childKey of children) {
       if (visited.has(childKey)) {
         continue;
@@ -486,7 +486,7 @@ function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: Normali
 }
 
 function buildNodeSummary(nodeKey: NodeKey, dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string {
-  const node = dag[nodeKey];
+  const node = dag.nodes[nodeKey];
   const lines = [
     `Node: ${nodeKey}`,
     `title: ${formatScalarPreview(getNodeTitle(node, mapping))}`,

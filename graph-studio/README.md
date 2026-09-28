@@ -5,7 +5,7 @@ DAG Studio is a browser-based graph viewer and lightweight JSON editor for direc
 It is built for fast graph inspection and editing in the browser:
 
 - load a JSON graph and render it immediately
-- infer a document-specific field mapping when JSON uses custom field names
+- validate versioned graph documents and resolve multi-file conflicts before importing
 - navigate by root, subtree, or parent level
 - edit nodes and relationships directly in the UI
 - batch graph edits from a text console in `Edit` mode
@@ -51,7 +51,7 @@ npm test
 
 When the page loads, the app automatically reads [`public/example.json`](public/example.json).
 
-Each opened document can use its own field mapping. If one file uses `children / define / type` and another uses `next / description / kind`, DAG Studio will interpret each file using its detected schema while preserving the original JSON field names on save.
+Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 
 ## What You Can Do
 
@@ -69,7 +69,7 @@ Each opened document can use its own field mapping. If one file uses `children /
 
 - [Documentation Index](docs/index.md): overview of the available project docs
 - [Usage Guide](docs/usage.md): UI workflows, navigation, editing, saving, and layouts
-- [Data Format Guide](docs/data-format.md): supported JSON shapes, field rules, and normalization behavior
+- [Data Format Guide](docs/data-format.md): v2 document contract, metadata, validation, and import conflict strategies
 - [Graph Console DSL](docs/graph-console-dsl.md): command reference for the edit-mode console
 - [Development Guide](docs/development.md): local scripts, source layout, and implementation notes
 
@@ -77,19 +77,15 @@ Each opened document can use its own field mapping. If one file uses `children /
 
 ```json
 {
-  "A": {
-    "define": "Root node",
-    "children": {
-      "B": "related_to",
-      "C": "related_to"
-    }
+  "format": "graph-studio",
+  "version": 2,
+  "nodes": {
+    "A": { "title": "Root", "type": "Concept" },
+    "B": { "title": "Child", "type": "Theorem" }
   },
-  "B": {
-    "define": "Child node B"
-  },
-  "C": {
-    "define": "Child node C"
-  }
+  "edges": [
+    { "id": "edge-ab", "source": "A", "target": "B", "value": "supports" }
+  ]
 }
 ```
 

@@ -1,9 +1,8 @@
-import { createEmptyDagNode, getNodeChildKeys, getNodeChildren, getNodeParentKeys, getNodeParents, getNodeRelationMap, setNodeChildren, setNodeParents } from "./accessors";
+import { getNodeChildKeys } from "./accessors";
 import { getDefaultFieldMapping, type FieldMapping } from "./fieldMapping";
-import type { DagNode, NodeKey, NormalizedDag, RelationValue } from "./types";
-import { DEFAULT_RELATION_VALUE } from "./types";
-import { ensureNodeExists, getRelationKeys, removeRelation, renameRelation, syncBidirectionalRelationMap, syncBidirectionalRelations, toRelationMap } from "./relations";
-import { structuredCloneValue } from "./serialize";
+import { serializeDag } from "./serialize";
+import { normalizeDagInput, validateNodeKey, validateNodeFields } from "./normalize";
+import { DEFAULT_RELATION_VALUE, type NormalizedDag, type NodeKey, type RelationValue, type GraphEdge } from "./types";
 
 export type GraphCommand =
   | { type: "renameNode"; oldKey: NodeKey; newKey: NodeKey }
@@ -12,9 +11,9 @@ export type GraphCommand =
   | { type: "addNode"; key: NodeKey; parentKey?: NodeKey }
   | { type: "addNodeFromFields"; key: NodeKey; fields: Record<string, unknown>; parentKey?: NodeKey }
   | { type: "copyNode"; sourceKey: NodeKey; key: NodeKey; parentKey?: NodeKey }
+  | { type: "updateNodeFields"; key: NodeKey; nextKey?: NodeKey; fields: Record<string, unknown> }
   | { type: "setEdge"; parentKey: NodeKey; childKey: NodeKey; weight?: RelationValue }
   | { type: "removeEdge"; parentKey: NodeKey; childKey: NodeKey }
-  | { type: "updateNodeFields"; key: NodeKey; nextKey?: NodeKey; fields: Record<string, unknown> }
   | { type: "setParents"; key: NodeKey; parents: NodeKey[] }
   | { type: "setChildren"; key: NodeKey; children: NodeKey[] }
   | { type: "setParentRelations"; key: NodeKey; parents: Record<NodeKey, RelationValue> }
@@ -28,286 +27,110 @@ export interface CommandResult {
   message?: string;
 }
 
-export function applyGraphCommand(sourceDag: NormalizedDag, command: GraphCommand, mapping: FieldMapping = getDefaultFieldMapping()): CommandResult {
-  const dag = structuredCloneValue(sourceDag);
-
+export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, mapping: FieldMapping = getDefaultFieldMapping()): CommandResult {
+  const document = serializeDag(source);
+  const nodes = document.nodes;
+  const result: Omit<CommandResult, "dag"> = { changedKeys: [] };
+  const exists = (key: string) => Object.prototype.hasOwnProperty.call(nodes, key);
+  const requireNode = (key: string) => { if (!exists(key)) throw new Error(`Node "${key}" does not exist.`); };
+  const requireNew = (key: string, current?: string) => {
+    validateNodeKey(key);
+    if (key !== current && exists(key)) throw new Error(`Node key "${key}" already exists.`);
+  };
+  const putNode = (key: string, fields: Record<string, unknown>) => {
+    validateNodeFields(fields, `/nodes/${key}`);
+    Object.defineProperty(nodes, key, { value: structuredClone(fields), enumerable: true, writable: true, configurable: true });
+  };
+  const rename = (oldKey: string, key: string) => {
+    requireNode(oldKey); requireNew(key, oldKey);
+    if (oldKey === key) return;
+    putNode(key, nodes[oldKey]); delete nodes[oldKey];
+    document.edges.forEach(edge => {
+      if (edge.source === oldKey) edge.source = key;
+      if (edge.target === oldKey) edge.target = key;
+    });
+    result.renamedKey = { from: oldKey, to: key };
+  };
+  const setEdge = (source: string, target: string, value: RelationValue) => {
+    requireNode(source); requireNode(target);
+    if (source === target) throw new Error("A node cannot reference itself.");
+    const edge = document.edges.find(edge => edge.source === source && edge.target === target);
+    if (edge) edge.value = value;
+    else document.edges.push({ id: newEdgeId(document.edges), source, target, value });
+  };
   switch (command.type) {
     case "renameNode":
-      return renameNode(dag, mapping, command.oldKey, command.newKey);
+      rename(command.oldKey, command.newKey); result.message = `Renamed node ${command.oldKey} to ${command.newKey}.`; break;
     case "deleteNode":
-      return deleteNodes(dag, mapping, [command.key], `Deleted node ${command.key}.`);
-    case "deleteSubtree":
-      return deleteNodes(dag, mapping, collectSubtreeNodeKeys(dag, command.rootKey, mapping), `Deleted subtree rooted at ${command.rootKey}.`);
+    case "deleteSubtree": {
+      const keys = command.type === "deleteNode" ? [command.key] : collectSubtreeNodeKeys(source, command.rootKey, mapping);
+      keys.forEach(requireNode);
+      const removed = new Set(keys);
+      keys.forEach(key => delete nodes[key]);
+      document.edges = document.edges.filter(edge => !removed.has(edge.source) && !removed.has(edge.target));
+      result.deletedKeys = keys; result.message = `Deleted ${keys.length} node(s).`; break;
+    }
     case "addNode":
-      return addNode(dag, mapping, command.key, command.parentKey);
     case "addNodeFromFields":
-      return addNodeFromFields(dag, mapping, command.key, command.fields, command.parentKey);
-    case "copyNode":
-      return copyNode(dag, mapping, command.sourceKey, command.key, command.parentKey);
+    case "copyNode": {
+      requireNew(command.key);
+      if (command.type === "copyNode") requireNode(command.sourceKey);
+      const fields = command.type === "copyNode" ? nodes[command.sourceKey] : command.type === "addNodeFromFields" ? command.fields : { define: "", type: "" };
+      putNode(command.key, fields);
+      if (command.parentKey) setEdge(command.parentKey, command.key, DEFAULT_RELATION_VALUE);
+      result.message = `Added node ${command.key}.`; break;
+    }
+    case "updateNodeFields": {
+      const key = command.nextKey ?? command.key;
+      rename(command.key, key);
+      putNode(key, command.fields);
+      result.message = `Saved node ${key}.`; break;
+    }
     case "setEdge":
-      return setEdge(dag, mapping, command.parentKey, command.childKey, command.weight);
-    case "removeEdge":
-      return removeEdge(dag, mapping, command.parentKey, command.childKey);
-    case "setParents":
-      syncBidirectionalRelations(dag, mapping, command.key, "parents", command.parents);
-      return { dag, changedKeys: [command.key, ...command.parents], message: `Updated parents for ${command.key}.` };
-    case "setChildren":
-      syncBidirectionalRelations(dag, mapping, command.key, "children", command.children);
-      return { dag, changedKeys: [command.key, ...command.children], message: `Updated children for ${command.key}.` };
-    case "setParentRelations":
-      syncBidirectionalRelationMap(dag, mapping, command.key, "parents", command.parents);
-      return { dag, changedKeys: [command.key, ...Object.keys(command.parents)], message: `Updated parents for ${command.key}.` };
-    case "setChildRelations":
-      syncBidirectionalRelationMap(dag, mapping, command.key, "children", command.children);
-      return { dag, changedKeys: [command.key, ...Object.keys(command.children)], message: `Updated children for ${command.key}.` };
-    case "updateNodeFields":
-      return updateNodeFields(dag, mapping, command.key, command.nextKey || command.key, command.fields);
+      setEdge(command.parentKey, command.childKey, command.weight === undefined ? DEFAULT_RELATION_VALUE : command.weight);
+      result.message = `Updated edge ${command.parentKey} -> ${command.childKey}.`; break;
+    case "removeEdge": {
+      requireNode(command.parentKey); requireNode(command.childKey);
+      const count = document.edges.length;
+      document.edges = document.edges.filter(edge => edge.source !== command.parentKey || edge.target !== command.childKey);
+      if (count === document.edges.length) throw new Error("Edge does not exist.");
+      result.message = "Removed edge."; break;
+    }
+    default: {
+      requireNode(command.key);
+      const parents = command.type === "setParents" || command.type === "setParentRelations";
+      const oldEdges = document.edges.filter(edge => (parents ? edge.target : edge.source) === command.key);
+      const values = command.type === "setParents" ? command.parents : command.type === "setChildren" ? command.children : command.type === "setParentRelations" ? command.parents : command.children;
+      const relations = Array.isArray(values)
+        ? Object.fromEntries(values.map(key => {
+            const value = oldEdges.find(edge => (parents ? edge.source : edge.target) === key)?.value;
+            return [key, value === undefined ? DEFAULT_RELATION_VALUE : value];
+          }))
+        : values;
+      for (const [key, value] of Object.entries(relations)) setEdge(parents ? key : command.key, parents ? command.key : key, value);
+      document.edges = document.edges.filter(edge => (parents ? edge.target : edge.source) !== command.key || Object.prototype.hasOwnProperty.call(relations, parents ? edge.source : edge.target));
+      result.message = `Updated ${parents ? "parents" : "children"} for ${command.key}.`;
+    }
   }
+  const dag = normalizeDagInput(document);
+  return { ...result, dag, changedKeys: Object.keys(dag.nodes) };
 }
 
-function renameNode(dag: NormalizedDag, mapping: FieldMapping, oldKey: NodeKey, newKey: NodeKey): CommandResult {
-  const sourceKey = oldKey.trim();
-  const targetKey = newKey.trim();
-  assertValidNewKey(dag, targetKey, sourceKey);
-  const nodeValue = dag[sourceKey];
-  if (!nodeValue) {
-    throw new Error(`Node "${sourceKey}" does not exist.`);
-  }
-
-  delete dag[sourceKey];
-  dag[targetKey] = { ...nodeValue, key: targetKey };
-  Object.keys(dag).forEach((nodeKey) => {
-    renameRelation(dag[nodeKey], mapping, "parents", sourceKey, targetKey);
-    renameRelation(dag[nodeKey], mapping, "children", sourceKey, targetKey);
-  });
-  return {
-    dag,
-    changedKeys: [targetKey],
-    renamedKey: { from: sourceKey, to: targetKey },
-    message: `Renamed node key from ${sourceKey} to ${targetKey}.`,
-  };
+export function newEdgeId(edges: GraphEdge[]): string {
+  const used = new Set(edges.map(edge => edge.id));
+  let n = edges.length + 1;
+  while (used.has(`edge-${n}`)) n++;
+  return `edge-${n}`;
 }
 
-function deleteNodes(dag: NormalizedDag, mapping: FieldMapping, nodeKeys: NodeKey[], message: string): CommandResult {
-  const deleteSet = new Set(nodeKeys.filter((nodeKey) => Boolean(dag[nodeKey])));
-  if (!deleteSet.size) {
-    throw new Error("No matching nodes were found.");
-  }
-  if (deleteSet.size >= Object.keys(dag).length) {
-    throw new Error("At least one node must remain in the graph.");
-  }
-
-  deleteSet.forEach((nodeKey) => {
-    delete dag[nodeKey];
-  });
-
-  Object.keys(dag).forEach((otherKey) => {
-    deleteSet.forEach((deletedKey) => {
-      removeRelation(dag[otherKey], mapping, "parents", deletedKey);
-      removeRelation(dag[otherKey], mapping, "children", deletedKey);
-    });
-  });
-  return { dag, changedKeys: Object.keys(dag), deletedKeys: Array.from(deleteSet), message };
-}
-
-export function collectSubtreeNodeKeys(dag: NormalizedDag, rootKey: NodeKey, mapping: FieldMapping = getDefaultFieldMapping()): NodeKey[] {
-  if (!dag[rootKey]) {
-    return [];
-  }
-
-  const visited = new Set<NodeKey>();
-  const stack = [rootKey];
+export function collectSubtreeNodeKeys(dag: NormalizedDag, root: NodeKey, mapping: FieldMapping = getDefaultFieldMapping()): NodeKey[] {
+  const seen = new Set<NodeKey>();
+  const stack = [root];
   while (stack.length) {
-    const currentKey = stack.pop()!;
-    if (visited.has(currentKey) || !dag[currentKey]) {
-      continue;
-    }
-    visited.add(currentKey);
-    getNodeChildKeys(dag[currentKey], mapping).forEach((childKey) => stack.push(childKey));
+    const key = stack.pop()!;
+    if (seen.has(key) || !Object.prototype.hasOwnProperty.call(dag.nodes, key)) continue;
+    seen.add(key);
+    stack.push(...getNodeChildKeys(dag.nodes[key], mapping));
   }
-  return Array.from(visited);
-}
-
-function addNode(dag: NormalizedDag, mapping: FieldMapping, key: NodeKey, parentKey?: NodeKey): CommandResult {
-  const nextKey = key.trim();
-  assertValidNewKey(dag, nextKey);
-  dag[nextKey] = createEmptyDagNode(nextKey, mapping);
-  if (parentKey && dag[parentKey]) {
-    syncBidirectionalRelations(dag, mapping, parentKey, "children", [...getNodeChildKeys(dag[parentKey], mapping), nextKey]);
-  }
-  return { dag, changedKeys: parentKey ? [nextKey, parentKey] : [nextKey], message: `Added node ${nextKey}.` };
-}
-
-function addNodeFromFields(dag: NormalizedDag, mapping: FieldMapping, key: NodeKey, fields: Record<string, unknown>, parentKey?: NodeKey): CommandResult {
-  const nextKey = key.trim();
-  assertValidNewKey(dag, nextKey);
-
-  const nextNode = structuredCloneValue(fields) as DagNode;
-  nextNode.key = nextKey;
-  setNodeParents(nextNode, mapping, {});
-  setNodeChildren(nextNode, mapping, {});
-  dag[nextKey] = nextNode;
-
-  if (parentKey && dag[parentKey]) {
-    syncBidirectionalRelations(dag, mapping, parentKey, "children", [...getNodeChildKeys(dag[parentKey], mapping), nextKey]);
-  }
-
-  return { dag, changedKeys: parentKey ? [nextKey, parentKey] : [nextKey], message: `Added node ${nextKey}.` };
-}
-
-function copyNode(dag: NormalizedDag, mapping: FieldMapping, sourceKey: NodeKey, key: NodeKey, parentKey?: NodeKey): CommandResult {
-  const sourceNode = dag[sourceKey.trim()];
-  if (!sourceNode) {
-    throw new Error(`Node "${sourceKey}" does not exist.`);
-  }
-
-  const nextKey = key.trim();
-  assertValidNewKey(dag, nextKey);
-
-  const copiedFields = structuredCloneValue(sourceNode);
-  copiedFields.key = nextKey;
-  setNodeParents(copiedFields, mapping, {});
-  setNodeChildren(copiedFields, mapping, {});
-  dag[nextKey] = copiedFields;
-
-  if (parentKey && dag[parentKey]) {
-    syncBidirectionalRelations(dag, mapping, parentKey, "children", [...getNodeChildKeys(dag[parentKey], mapping), nextKey]);
-  }
-
-  return {
-    dag,
-    changedKeys: parentKey ? [nextKey, parentKey] : [nextKey],
-    message: `Copied node ${sourceKey} to ${nextKey}.`,
-  };
-}
-
-function setEdge(dag: NormalizedDag, mapping: FieldMapping, parentKey: NodeKey, childKey: NodeKey, weight: RelationValue = DEFAULT_RELATION_VALUE): CommandResult {
-  const sourceKey = parentKey.trim();
-  const targetKey = childKey.trim();
-  const parentNode = dag[sourceKey];
-  const childNode = dag[targetKey];
-
-  if (!parentNode) {
-    throw new Error(`Node "${sourceKey}" does not exist.`);
-  }
-  if (!childNode) {
-    throw new Error(`Node "${targetKey}" does not exist.`);
-  }
-  if (sourceKey === targetKey) {
-    throw new Error("A node cannot reference itself.");
-  }
-
-  const nextChildren = toRelationMap(getNodeChildren(parentNode, mapping));
-  nextChildren[targetKey] = weight;
-  setNodeChildren(parentNode, mapping, nextChildren);
-
-  const nextParents = toRelationMap(getNodeParents(childNode, mapping));
-  nextParents[sourceKey] = weight;
-  setNodeParents(childNode, mapping, nextParents);
-
-  return {
-    dag,
-    changedKeys: [sourceKey, targetKey],
-    message: weight === DEFAULT_RELATION_VALUE
-      ? `Linked ${sourceKey} -> ${targetKey}.`
-      : `Set edge ${sourceKey} -> ${targetKey} to ${String(weight)}.`,
-  };
-}
-
-function removeEdge(dag: NormalizedDag, mapping: FieldMapping, parentKey: NodeKey, childKey: NodeKey): CommandResult {
-  const sourceKey = parentKey.trim();
-  const targetKey = childKey.trim();
-  const parentNode = dag[sourceKey];
-  const childNode = dag[targetKey];
-
-  if (!parentNode) {
-    throw new Error(`Node "${sourceKey}" does not exist.`);
-  }
-  if (!childNode) {
-    throw new Error(`Node "${targetKey}" does not exist.`);
-  }
-  if (!getNodeChildKeys(parentNode, mapping).includes(targetKey)) {
-    throw new Error(`Edge "${sourceKey}" -> "${targetKey}" does not exist.`);
-  }
-
-  removeRelation(parentNode, mapping, "children", targetKey);
-  removeRelation(childNode, mapping, "parents", sourceKey);
-
-  return {
-    dag,
-    changedKeys: [sourceKey, targetKey],
-    message: `Removed edge ${sourceKey} -> ${targetKey}.`,
-  };
-}
-
-function updateNodeFields(dag: NormalizedDag, mapping: FieldMapping, oldKey: NodeKey, nextKey: NodeKey, fields: Record<string, unknown>): CommandResult {
-  const sourceKey = oldKey.trim();
-  const targetKey = nextKey.trim();
-  assertValidNewKey(dag, targetKey, sourceKey);
-  if (!dag[sourceKey]) {
-    throw new Error(`Node "${sourceKey}" does not exist.`);
-  }
-
-  const nextNode = { ...structuredCloneValue(fields), key: targetKey } as DagNode;
-  const nextParentKeys = getRelationKeys(nextNode[mapping.parents]);
-  const nextChildKeys = getRelationKeys(nextNode[mapping.children]);
-  if (nextParentKeys.includes(targetKey) || nextChildKeys.includes(targetKey)) {
-    throw new Error("A node cannot reference itself.");
-  }
-
-  const previousParentKeys = getNodeParentKeys(dag[sourceKey], mapping);
-  const previousChildKeys = getNodeChildKeys(dag[sourceKey], mapping);
-
-  if (sourceKey !== targetKey) {
-    delete dag[sourceKey];
-    Object.keys(dag).forEach((nodeKey) => {
-      renameRelation(dag[nodeKey], mapping, "parents", sourceKey, targetKey);
-      renameRelation(dag[nodeKey], mapping, "children", sourceKey, targetKey);
-    });
-  }
-
-  dag[targetKey] = nextNode;
-  syncEditedNodeRelations(dag, mapping, targetKey, previousParentKeys, previousChildKeys, nextParentKeys, nextChildKeys);
-
-  return {
-    dag,
-    changedKeys: [targetKey],
-    renamedKey: sourceKey === targetKey ? undefined : { from: sourceKey, to: targetKey },
-    message: `Saved node ${targetKey}.`,
-  };
-}
-
-function syncEditedNodeRelations(
-  dag: NormalizedDag,
-  mapping: FieldMapping,
-  nodeKey: NodeKey,
-  previousParentKeys: NodeKey[],
-  previousChildKeys: NodeKey[],
-  nextParentKeys: NodeKey[],
-  nextChildKeys: NodeKey[],
-): void {
-  previousParentKeys.forEach((parentKey) => {
-    if (!nextParentKeys.includes(parentKey) && dag[parentKey]) {
-      removeRelation(dag[parentKey], mapping, "children", nodeKey);
-    }
-  });
-  previousChildKeys.forEach((childKey) => {
-    if (!nextChildKeys.includes(childKey) && dag[childKey]) {
-      removeRelation(dag[childKey], mapping, "parents", nodeKey);
-    }
-  });
-  syncBidirectionalRelations(dag, mapping, nodeKey, "parents", nextParentKeys);
-  syncBidirectionalRelations(dag, mapping, nodeKey, "children", nextChildKeys);
-}
-
-function assertValidNewKey(dag: NormalizedDag, key: NodeKey, currentKey?: NodeKey): void {
-  if (!key) {
-    throw new Error("Node key cannot be empty.");
-  }
-  if (key.includes("\n") || key.includes(",")) {
-    throw new Error("Node key cannot contain commas or line breaks.");
-  }
-  if (key !== currentKey && Object.prototype.hasOwnProperty.call(dag, key)) {
-    throw new Error(`Node key "${key}" already exists.`);
-  }
+  return [...seen];
 }

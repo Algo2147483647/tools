@@ -1,3 +1,4 @@
+import { createGraphDocument } from "../graph/normalize";
 import assert from "node:assert/strict";
 import { parseConsoleSource } from "../console/dsl";
 import { buildConsoleMutationLabel, collectBatchEffects, executeConsoleInstructions } from "../console/executor";
@@ -62,7 +63,7 @@ export const consoleSuite = defineSuite("console", [
       return;
     }
 
-    assert.equal(executed.dag.A.type, "concept");
+    assert.equal(executed.dag.nodes.A.type, "concept");
     assert.equal(executed.contextNodeKey, "A");
     assert.equal(executed.instructionCount, 4);
     assert.equal(executed.mutationCount, 1);
@@ -161,7 +162,7 @@ export const consoleSuite = defineSuite("console", [
       return;
     }
 
-    const executed = executeConsoleInstructions({}, parsed.instructions, null, undefined, DEFAULT_GRAPH_APPEARANCE);
+    const executed = executeConsoleInstructions(createGraphDocument(), parsed.instructions, null, undefined, DEFAULT_GRAPH_APPEARANCE);
     assert.equal(executed.ok, true);
     if (!executed.ok) {
       return;
@@ -193,8 +194,8 @@ export const consoleSuite = defineSuite("console", [
       return;
     }
 
-    assert.ok(executed.dag.Final_Node);
-    assert.equal(executed.dag.Final_Node.title, "Created from console");
+    assert.ok(executed.dag.nodes.Final_Node);
+    assert.equal(executed.dag.nodes.Final_Node.title, "Created from console");
     assert.equal(executed.contextNodeKey, "A");
     assert.equal(executed.uiEffects.at(-1)?.type, "json");
     assert.equal(executed.mutationCount, 3);

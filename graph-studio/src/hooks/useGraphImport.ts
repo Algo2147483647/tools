@@ -1,10 +1,10 @@
 import type { ChangeEvent, Dispatch, MouseEvent, MutableRefObject, SetStateAction } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ensureJsonExtension } from "../adapters/download";
 import { openJsonDirectoryWithAccess, openJsonFilesWithAccess, readJsonFile, type PickedJsonCollection } from "../adapters/fileAccess";
 import { loadRecentImportMetadata, loadRecentJsonCollection, saveRecentDirectoryImport, saveRecentFileImport } from "../adapters/recentImport";
 import { type FieldMapping } from "../graph/fieldMapping";
-import { buildImportedDag, type ImportGraphDocument, type ImportWarning } from "../graph/importMerge";
+import { analyzeGraphImport, buildImportedDag, type ImportGraphDocument, type ImportWarning, type ImportResolutions } from "../graph/importMerge";
 import { getInitialSelection } from "../graph/selectors";
 import type { GraphAction } from "../state/graphActions";
 
@@ -31,6 +31,9 @@ export function useGraphImport({
     status: "idle",
     label: "Import File",
   });
+
+  const [pendingImport, setPendingImport] = useState<{ documents: ImportGraphDocument[]; resolve: (value: ImportResolutions | null) => void } | null>(null);
+  const importingRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -166,6 +169,16 @@ export function useGraphImport({
   }
 
   async function loadPickedJsonFiles(collection: PickedJsonCollection, fromFolder = false, cacheRecentImport = true) {
+    if (importingRef.current) {
+      dispatch({ type: "statusChanged", status: "Finish or cancel the current import before starting another." });
+      return;
+    }
+    importingRef.current = true;
+    try { await importCollection(collection, fromFolder, cacheRecentImport); }
+    finally { importingRef.current = false; }
+  }
+
+  async function importCollection(collection: PickedJsonCollection, fromFolder: boolean, cacheRecentImport: boolean) {
     suppressDefaultGraphRef.current = true;
     const { files: pickedFiles, name: sourceName } = collection;
     const jsonFiles = pickedFiles.filter((item) => isJsonFileName(item.path || item.file.name));
@@ -198,11 +211,11 @@ export function useGraphImport({
         });
       } catch (error) {
         console.error(error);
-        parseFailures.push(displayName);
+        parseFailures.push(`${displayName}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 
-    if (!documents.length) {
+    if (parseFailures.length || !documents.length) {
       if (!fromFolder) {
         setImportFileButtonState({
           status: "error",
@@ -211,28 +224,21 @@ export function useGraphImport({
       }
       dispatch({
         type: "statusChanged",
-        status: `Could not parse any selected JSON file${jsonFiles.length === 1 ? "" : "s"}.`,
+        status: `Import rejected: ${parseFailures.join("; ") || "No valid documents."}`,
       });
       return;
     }
 
     try {
-      const imported = buildImportedDag(documents, fieldMapping);
-      const dag = imported.dag;
-      if (Object.keys(dag).length === 0) {
-        if (!fromFolder) {
-          setImportFileButtonState({
-            status: "error",
-            label: "error",
-          });
-        }
-        dispatch({
-          type: "statusChanged",
-          status: "The selected JSON did not contain any graph nodes.",
-        });
-        return;
+      const analysis = analyzeGraphImport(documents);
+      let resolutions: ImportResolutions = {};
+      if (analysis.conflicts.length) {
+        const chosen = await new Promise<ImportResolutions | null>(resolve => setPendingImport({ documents, resolve }));
+        if (!chosen) return;
+        resolutions = chosen;
       }
-
+      const imported = buildImportedDag(documents, fieldMapping, resolutions);
+      const dag = imported.dag;
       const singleWritableSource = !fromFolder && jsonFiles.length === 1 && parseFailures.length === 0 ? jsonFiles[0] : null;
       const fileName = singleWritableSource ? singleWritableSource.file.name : ensureJsonExtension(sourceName || "merged-graph.json");
       if (!fromFolder) {
@@ -250,7 +256,7 @@ export function useGraphImport({
         fileHandle: singleWritableSource?.handle || null,
         selection: getInitialSelection(dag, imported.mapping),
         status: buildImportStatus({
-          nodeCount: Object.keys(dag).length,
+          nodeCount: Object.keys(dag.nodes).length,
           sourceName: fileName,
           loadedJsonCount: documents.length,
           selectedJsonCount: jsonFiles.length,
@@ -278,11 +284,19 @@ export function useGraphImport({
           label: "error",
         });
       }
-      dispatch({ type: "statusChanged", status: "The selected JSON files could not be loaded into a graph." });
+      dispatch({ type: "statusChanged", status: `Import rejected: ${error instanceof Error ? error.message : String(error)}` });
     }
   }
 
   return {
+    pendingImport,
+    confirmImport: (resolutions: ImportResolutions) => {
+      if (!pendingImport) return;
+      buildImportedDag(pendingImport.documents, fieldMapping, resolutions);
+      pendingImport.resolve(resolutions);
+      setPendingImport(null);
+    },
+    cancelImport: () => { pendingImport?.resolve(null); setPendingImport(null); },
     importFileButtonState,
     handleFileInputClick,
     handleFileInputChange,

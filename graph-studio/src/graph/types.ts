@@ -9,16 +9,33 @@ export interface RawGraphNode {
   [field: string]: unknown;
 }
 
-export type RawGraphInput =
-  | Record<NodeKey, RawGraphNode>
-  | RawGraphNode[]
-  | { nodes: RawGraphNode[] };
+export interface GraphEdge {
+  id: string;
+  source: NodeKey;
+  target: NodeKey;
+  value?: RelationValue;
+  metadata?: Record<string, unknown>;
+}
+
+export interface GraphDocument {
+  format: "graph-studio";
+  version: 2;
+  id?: string;
+  title?: string;
+  metadata?: Record<string, unknown>;
+  nodes: Record<NodeKey, RawGraphNode>;
+  edges: GraphEdge[];
+}
+
+export type RawGraphInput = GraphDocument;
 
 export interface DagNode extends RawGraphNode {
   key: NodeKey;
 }
 
-export type NormalizedDag = Record<NodeKey, DagNode>;
+export interface NormalizedDag extends GraphDocument {
+  nodes: Record<NodeKey, DagNode>;
+}
 
 export type GraphSelection =
   | { type: "node"; key: NodeKey }
