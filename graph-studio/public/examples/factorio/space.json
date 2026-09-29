@@ -1,0 +1,1379 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Asteroids and space",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 14
+  },
+  "nodes": {
+    "recipe:advanced-carbonic-asteroid-crushing": {
+      "title": "Advanced carbonic asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 5 s per craft.",
+      "recipe": "advanced-carbonic-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 5,
+          "name": "carbon",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "sulfur",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "probability": 0.05,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:carbonic-asteroid-chunk": {
+      "title": "Carbonic asteroid chunk",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "carbonic-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:carbon": {
+      "title": "Carbon",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "carbon",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:sulfur": {
+      "title": "Sulfur",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "sulfur",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:carbonic-asteroid-chunk": {
+      "title": "Carbonic asteroid chunk",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "carbonic-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:advanced-metallic-asteroid-crushing": {
+      "title": "Advanced metallic asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 5 s per craft.",
+      "recipe": "advanced-metallic-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 10,
+          "name": "iron-ore",
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "copper-ore",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "probability": 0.05,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:metallic-asteroid-chunk": {
+      "title": "Metallic asteroid chunk",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "metallic-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:iron-ore": {
+      "title": "Iron ore",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "iron-ore",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:copper-ore": {
+      "title": "Copper ore",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "copper-ore",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:metallic-asteroid-chunk": {
+      "title": "Metallic asteroid chunk",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "metallic-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:advanced-oxide-asteroid-crushing": {
+      "title": "Advanced oxide asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 5 s per craft.",
+      "recipe": "advanced-oxide-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "name": "ice",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "calcite",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "probability": 0.05,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:oxide-asteroid-chunk": {
+      "title": "Oxide asteroid chunk",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "oxide-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:ice": {
+      "title": "Ice",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "ice",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:calcite": {
+      "title": "Calcite",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "calcite",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:oxide-asteroid-chunk": {
+      "title": "Oxide asteroid chunk",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "oxide-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:asteroid-collector": {
+      "title": "Asteroid collector",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 10 s per craft.",
+      "recipe": "asteroid-collector",
+      "category": "crafting",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "low-density-structure",
+          "type": "item"
+        },
+        {
+          "amount": 8,
+          "name": "electric-engine-unit",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "name": "processing-unit",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "asteroid-collector",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "low-density-structure",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electric-engine-unit": {
+      "title": "Electric engine unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electric-engine-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:processing-unit": {
+      "title": "Processing unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "processing-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:asteroid-collector": {
+      "title": "Asteroid collector",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "asteroid-collector",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:carbonic-asteroid-crushing": {
+      "title": "Carbonic asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 2 s per craft.",
+      "recipe": "carbonic-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 10,
+          "name": "carbon",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:carbonic-asteroid-reprocessing": {
+      "title": "Carbonic asteroid reprocessing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 2 s per craft.",
+      "recipe": "carbonic-asteroid-reprocessing",
+      "category": "crushing",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "probability": 0.4,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:metallic-asteroid-crushing": {
+      "title": "Metallic asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 2 s per craft.",
+      "recipe": "metallic-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 20,
+          "name": "iron-ore",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:metallic-asteroid-reprocessing": {
+      "title": "Metallic asteroid reprocessing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 2 s per craft.",
+      "recipe": "metallic-asteroid-reprocessing",
+      "category": "crushing",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "probability": 0.4,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:oxide-asteroid-crushing": {
+      "title": "Oxide asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 2 s per craft.",
+      "recipe": "oxide-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 5,
+          "name": "ice",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:oxide-asteroid-reprocessing": {
+      "title": "Oxide asteroid reprocessing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 1 s per craft.",
+      "recipe": "oxide-asteroid-reprocessing",
+      "category": "crushing",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "probability": 0.4,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "metallic-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbonic-asteroid-chunk",
+          "probability": 0.2,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:rocket-part": {
+      "title": "Rocket part",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Rocket building · 3 s per craft.",
+      "recipe": "rocket-part",
+      "category": "rocket-building",
+      "secondsPerCraft": 3,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "processing-unit",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "low-density-structure",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "rocket-fuel",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "rocket-part",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "rocket-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:rocket-part": {
+      "title": "Rocket part",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "rocket-part",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:space-platform-foundation": {
+      "title": "Space platform foundation",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 10 s per craft.",
+      "recipe": "space-platform-foundation",
+      "category": "crafting",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "steel-plate",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "space-platform-foundation",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:steel-plate": {
+      "title": "Steel plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "steel-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:copper-cable": {
+      "title": "Copper cable",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:space-platform-foundation": {
+      "title": "Space platform foundation",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "space-platform-foundation",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:space-platform-starter-pack": {
+      "title": "Space platform starter pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 60 s per craft.",
+      "recipe": "space-platform-starter-pack",
+      "category": "crafting",
+      "secondsPerCraft": 60,
+      "ingredients": [
+        {
+          "amount": 60,
+          "name": "space-platform-foundation",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "steel-plate",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "processing-unit",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "space-platform-starter-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:space-platform-foundation": {
+      "title": "Space platform foundation",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "space-platform-foundation",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:space-platform-starter-pack": {
+      "title": "Space platform starter pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "space-platform-starter-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:space-science-pack": {
+      "title": "Space science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 15 s per craft.",
+      "recipe": "space-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "iron-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbon",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "ice",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 5,
+          "name": "space-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 0,
+          "min": 0,
+          "property": "gravity"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:iron-plate": {
+      "title": "Iron plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:carbon": {
+      "title": "Carbon",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "carbon",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:ice": {
+      "title": "Ice",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "ice",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:space-science-pack": {
+      "title": "Space science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "space-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:advanced-carbonic-asteroid-crushing:input:0",
+      "source": "input:carbonic-asteroid-chunk",
+      "target": "recipe:advanced-carbonic-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-carbonic-asteroid-crushing:output:0",
+      "source": "recipe:advanced-carbonic-asteroid-crushing",
+      "target": "output:carbon",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-carbonic-asteroid-crushing:output:1",
+      "source": "recipe:advanced-carbonic-asteroid-crushing",
+      "target": "output:sulfur",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-carbonic-asteroid-crushing:output:2",
+      "source": "recipe:advanced-carbonic-asteroid-crushing",
+      "target": "output:carbonic-asteroid-chunk",
+      "value": 0.05,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-metallic-asteroid-crushing:input:0",
+      "source": "input:metallic-asteroid-chunk",
+      "target": "recipe:advanced-metallic-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-metallic-asteroid-crushing:output:0",
+      "source": "recipe:advanced-metallic-asteroid-crushing",
+      "target": "output:iron-ore",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-metallic-asteroid-crushing:output:1",
+      "source": "recipe:advanced-metallic-asteroid-crushing",
+      "target": "output:copper-ore",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-metallic-asteroid-crushing:output:2",
+      "source": "recipe:advanced-metallic-asteroid-crushing",
+      "target": "output:metallic-asteroid-chunk",
+      "value": 0.05,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:input:0",
+      "source": "input:oxide-asteroid-chunk",
+      "target": "recipe:advanced-oxide-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:output:0",
+      "source": "recipe:advanced-oxide-asteroid-crushing",
+      "target": "output:ice",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:output:1",
+      "source": "recipe:advanced-oxide-asteroid-crushing",
+      "target": "output:calcite",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:output:2",
+      "source": "recipe:advanced-oxide-asteroid-crushing",
+      "target": "output:oxide-asteroid-chunk",
+      "value": 0.05,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:asteroid-collector:input:0",
+      "source": "input:low-density-structure",
+      "target": "recipe:asteroid-collector",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "asteroid-collector",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:asteroid-collector:input:1",
+      "source": "input:electric-engine-unit",
+      "target": "recipe:asteroid-collector",
+      "value": 8,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "asteroid-collector",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:asteroid-collector:input:2",
+      "source": "input:processing-unit",
+      "target": "recipe:asteroid-collector",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "asteroid-collector",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:asteroid-collector:output:0",
+      "source": "recipe:asteroid-collector",
+      "target": "output:asteroid-collector",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "asteroid-collector",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-crushing:input:0",
+      "source": "input:carbonic-asteroid-chunk",
+      "target": "recipe:carbonic-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-crushing:output:0",
+      "source": "recipe:carbonic-asteroid-crushing",
+      "target": "output:carbon",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-crushing:output:1",
+      "source": "recipe:carbonic-asteroid-crushing",
+      "target": "output:carbonic-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-reprocessing:input:0",
+      "source": "input:carbonic-asteroid-chunk",
+      "target": "recipe:carbonic-asteroid-reprocessing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-reprocessing:output:0",
+      "source": "recipe:carbonic-asteroid-reprocessing",
+      "target": "output:carbonic-asteroid-chunk",
+      "value": 0.4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-reprocessing:output:1",
+      "source": "recipe:carbonic-asteroid-reprocessing",
+      "target": "output:metallic-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbonic-asteroid-reprocessing:output:2",
+      "source": "recipe:carbonic-asteroid-reprocessing",
+      "target": "output:oxide-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbonic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-crushing:input:0",
+      "source": "input:metallic-asteroid-chunk",
+      "target": "recipe:metallic-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-crushing:output:0",
+      "source": "recipe:metallic-asteroid-crushing",
+      "target": "output:iron-ore",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-crushing:output:1",
+      "source": "recipe:metallic-asteroid-crushing",
+      "target": "output:metallic-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-reprocessing:input:0",
+      "source": "input:metallic-asteroid-chunk",
+      "target": "recipe:metallic-asteroid-reprocessing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-reprocessing:output:0",
+      "source": "recipe:metallic-asteroid-reprocessing",
+      "target": "output:metallic-asteroid-chunk",
+      "value": 0.4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-reprocessing:output:1",
+      "source": "recipe:metallic-asteroid-reprocessing",
+      "target": "output:carbonic-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallic-asteroid-reprocessing:output:2",
+      "source": "recipe:metallic-asteroid-reprocessing",
+      "target": "output:oxide-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallic-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-crushing:input:0",
+      "source": "input:oxide-asteroid-chunk",
+      "target": "recipe:oxide-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-crushing:output:0",
+      "source": "recipe:oxide-asteroid-crushing",
+      "target": "output:ice",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-crushing:output:1",
+      "source": "recipe:oxide-asteroid-crushing",
+      "target": "output:oxide-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-reprocessing:input:0",
+      "source": "input:oxide-asteroid-chunk",
+      "target": "recipe:oxide-asteroid-reprocessing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-reprocessing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-reprocessing:output:0",
+      "source": "recipe:oxide-asteroid-reprocessing",
+      "target": "output:oxide-asteroid-chunk",
+      "value": 0.4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-reprocessing:output:1",
+      "source": "recipe:oxide-asteroid-reprocessing",
+      "target": "output:metallic-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:oxide-asteroid-reprocessing:output:2",
+      "source": "recipe:oxide-asteroid-reprocessing",
+      "target": "output:carbonic-asteroid-chunk",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "oxide-asteroid-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:input:0",
+      "source": "input:processing-unit",
+      "target": "recipe:rocket-part",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-part",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:input:1",
+      "source": "input:low-density-structure",
+      "target": "recipe:rocket-part",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-part",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:input:2",
+      "source": "input:rocket-fuel",
+      "target": "recipe:rocket-part",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-part",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:output:0",
+      "source": "recipe:rocket-part",
+      "target": "output:rocket-part",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-part",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:space-platform-foundation:input:0",
+      "source": "input:steel-plate",
+      "target": "recipe:space-platform-foundation",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-foundation",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-platform-foundation:input:1",
+      "source": "input:copper-cable",
+      "target": "recipe:space-platform-foundation",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-foundation",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-platform-foundation:output:0",
+      "source": "recipe:space-platform-foundation",
+      "target": "output:space-platform-foundation",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-foundation",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:space-platform-starter-pack:input:0",
+      "source": "input:space-platform-foundation",
+      "target": "recipe:space-platform-starter-pack",
+      "value": 60,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-starter-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-platform-starter-pack:input:1",
+      "source": "input:steel-plate",
+      "target": "recipe:space-platform-starter-pack",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-starter-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-platform-starter-pack:input:2",
+      "source": "input:processing-unit",
+      "target": "recipe:space-platform-starter-pack",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-starter-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-platform-starter-pack:output:0",
+      "source": "recipe:space-platform-starter-pack",
+      "target": "output:space-platform-starter-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-platform-starter-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:input:0",
+      "source": "input:iron-plate",
+      "target": "recipe:space-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:input:1",
+      "source": "input:carbon",
+      "target": "recipe:space-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:input:2",
+      "source": "input:ice",
+      "target": "recipe:space-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:output:0",
+      "source": "recipe:space-science-pack",
+      "target": "output:space-science-pack",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

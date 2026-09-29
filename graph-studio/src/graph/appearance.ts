@@ -276,7 +276,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     "--dag-text-soft": "#8792a2",
     "--dag-edge": "rgba(76, 96, 132, 0.24)",
     "--dag-edge-active": "rgba(41, 92, 207, 0.72)",
-    "--dag-node-fill": "rgba(252, 253, 255, 0.88)",
+    "--dag-node-fill": "#ffffff",
     "--dag-node-border": "rgba(91, 109, 142, 0.17)",
     "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
     "--dag-title-font-family": "\"Georgia\", serif",
@@ -356,7 +356,11 @@ function sanitizeCssVars(input: unknown): Record<string, string> {
     if (!key.startsWith("--dag-") || typeof value !== "string") {
       return;
     }
-    vars[key] = value.slice(0, 500);
+    // The old translucent default let the drop shadow show through the card.
+    // Migrate that default in saved preferences without changing custom colors.
+    const isLegacyFill = ["--dag-node-fill", "--dag-node-root-fill", "--dag-node-active-fill"].includes(key)
+      && value.replace(/\s/g, "").toLowerCase() === "rgba(252,253,255,0.88)";
+    vars[key] = isLegacyFill ? "#ffffff" : value.slice(0, 500);
   });
   return vars;
 }

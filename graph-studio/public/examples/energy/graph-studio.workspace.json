@@ -1,0 +1,14 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "Energy flows",
+  "graphs": [
+    "energy.json"
+  ],
+  "defaultGraph": "energy.json",
+  "metadata": {
+    "assets": [
+      "README.md"
+    ]
+  }
+}

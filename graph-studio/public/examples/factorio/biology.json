@@ -1,0 +1,2195 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Biology and agriculture",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 27
+  },
+  "nodes": {
+    "recipe:agricultural-science-pack": {
+      "title": "Agricultural science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 4 s per craft.",
+      "recipe": "agricultural-science-pack",
+      "category": "organic",
+      "secondsPerCraft": 4,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "bioflux",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "pentapod-egg",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "agricultural-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:bioflux": {
+      "title": "Bioflux",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "bioflux",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:pentapod-egg": {
+      "title": "Pentapod egg",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "pentapod-egg",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:agricultural-science-pack": {
+      "title": "Agricultural science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "agricultural-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:biochamber": {
+      "title": "Biochamber",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 20 s per craft.",
+      "recipe": "biochamber",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 20,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "nutrients",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "pentapod-egg",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "iron-plate",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "name": "electronic-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "landfill",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "biochamber",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:nutrients": {
+      "title": "Nutrients",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "nutrients",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:iron-plate": {
+      "title": "Iron plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electronic-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:landfill": {
+      "title": "Landfill",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "landfill",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:biochamber": {
+      "title": "Biochamber",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "biochamber",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:bioflux": {
+      "title": "Bioflux",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 6 s per craft.",
+      "recipe": "bioflux",
+      "category": "organic",
+      "secondsPerCraft": 6,
+      "ingredients": [
+        {
+          "amount": 15,
+          "name": "yumako-mash",
+          "type": "item"
+        },
+        {
+          "amount": 12,
+          "name": "jelly",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 4,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:yumako-mash": {
+      "title": "Yumako mash",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "yumako-mash",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:jelly": {
+      "title": "Jelly",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "jelly",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:bioflux": {
+      "title": "Bioflux",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "bioflux",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:biolubricant": {
+      "title": "Biolubricant",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 3 s per craft.",
+      "recipe": "biolubricant",
+      "category": "organic",
+      "secondsPerCraft": 3,
+      "ingredients": [
+        {
+          "amount": 60,
+          "name": "jelly",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 20,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:lubricant": {
+      "title": "Lubricant",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "lubricant",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:bioplastic": {
+      "title": "Bioplastic",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 2 s per craft.",
+      "recipe": "bioplastic",
+      "category": "organic",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "bioflux",
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "yumako-mash",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "name": "plastic-bar",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "plastic-bar",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:biosulfur": {
+      "title": "Biosulfur",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 2 s per craft.",
+      "recipe": "biosulfur",
+      "category": "organic",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "spoilage",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "sulfur",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:spoilage": {
+      "title": "Spoilage",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "spoilage",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:sulfur": {
+      "title": "Sulfur",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "sulfur",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:biter-egg": {
+      "title": "Biter egg",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Captive spawner process · 10 s per craft.",
+      "recipe": "biter-egg",
+      "category": "captive-spawner-process",
+      "secondsPerCraft": 10,
+      "ingredients": {},
+      "products": [
+        {
+          "amount": 5,
+          "name": "biter-egg",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:biter-egg": {
+      "title": "Biter egg",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "biter-egg",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:burnt-spoilage": {
+      "title": "Burnt spoilage",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 12 s per craft.",
+      "recipe": "burnt-spoilage",
+      "category": "organic",
+      "secondsPerCraft": 12,
+      "ingredients": [
+        {
+          "amount": 6,
+          "name": "spoilage",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "carbon",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:carbon": {
+      "title": "Carbon",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "carbon",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:carbon-fiber": {
+      "title": "Carbon fiber",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 5 s per craft.",
+      "recipe": "carbon-fiber",
+      "category": "organic",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "yumako-mash",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbon",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "carbon-fiber",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:carbon": {
+      "title": "Carbon",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "carbon",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:carbon-fiber": {
+      "title": "Carbon fiber",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "carbon-fiber",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:copper-bacteria": {
+      "title": "Copper bacteria",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or hand crafting · 1 s per craft.",
+      "recipe": "copper-bacteria",
+      "category": "organic-or-hand-crafting",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 3,
+          "name": "yumako-mash",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "copper-bacteria",
+          "probability": 0.1,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "spoilage",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:copper-bacteria": {
+      "title": "Copper bacteria",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "copper-bacteria",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:spoilage": {
+      "title": "Spoilage",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "spoilage",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:copper-bacteria-cultivation": {
+      "title": "Copper bacteria cultivation",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 4 s per craft.",
+      "recipe": "copper-bacteria-cultivation",
+      "category": "organic",
+      "secondsPerCraft": 4,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-bacteria",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 4,
+          "name": "copper-bacteria",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:copper-bacteria": {
+      "title": "Copper bacteria",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-bacteria",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:fish-breeding": {
+      "title": "Fish breeding",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or chemistry · 6 s per craft.",
+      "recipe": "fish-breeding",
+      "category": "organic-or-chemistry",
+      "secondsPerCraft": 6,
+      "ingredients": [
+        {
+          "amount": 2,
+          "ignored_by_stats": 2,
+          "name": "raw-fish",
+          "type": "item"
+        },
+        {
+          "amount": 100,
+          "name": "nutrients",
+          "type": "item"
+        },
+        {
+          "amount": 100,
+          "name": "water",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "ignored_by_productivity": 2,
+          "ignored_by_stats": 2,
+          "name": "raw-fish",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 1000,
+          "min": 1000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:raw-fish": {
+      "title": "Raw fish",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "raw-fish",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:water": {
+      "title": "Water",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "water",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:raw-fish": {
+      "title": "Raw fish",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "raw-fish",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:heavy-oil-cracking": {
+      "title": "Heavy oil cracking",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or chemistry · 2 s per craft.",
+      "recipe": "heavy-oil-cracking",
+      "category": "organic-or-chemistry",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 30,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 40,
+          "name": "heavy-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 30,
+          "name": "light-oil",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:heavy-oil": {
+      "title": "Heavy oil",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "heavy-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:light-oil": {
+      "title": "Light oil",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "light-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:iron-bacteria": {
+      "title": "Iron bacteria",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or hand crafting · 1 s per craft.",
+      "recipe": "iron-bacteria",
+      "category": "organic-or-hand-crafting",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 6,
+          "name": "jelly",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-bacteria",
+          "probability": 0.1,
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "spoilage",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:iron-bacteria": {
+      "title": "Iron bacteria",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "iron-bacteria",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:iron-bacteria-cultivation": {
+      "title": "Iron bacteria cultivation",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 4 s per craft.",
+      "recipe": "iron-bacteria-cultivation",
+      "category": "organic",
+      "secondsPerCraft": 4,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-bacteria",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 4,
+          "name": "iron-bacteria",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:iron-bacteria": {
+      "title": "Iron bacteria",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-bacteria",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:jellynut-processing": {
+      "title": "Jellynut processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or hand crafting · 1 s per craft.",
+      "recipe": "jellynut-processing",
+      "category": "organic-or-hand-crafting",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "jellynut",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "jellynut-seed",
+          "probability": 0.02,
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "jelly",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:jellynut": {
+      "title": "Jellynut",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "jellynut",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:jellynut-seed": {
+      "title": "Jellynut seed",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "jellynut-seed",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:jelly": {
+      "title": "Jelly",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "jelly",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:light-oil-cracking": {
+      "title": "Light oil cracking",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or chemistry · 2 s per craft.",
+      "recipe": "light-oil-cracking",
+      "category": "organic-or-chemistry",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 30,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 30,
+          "name": "light-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 20,
+          "name": "petroleum-gas",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:light-oil": {
+      "title": "Light oil",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "light-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:petroleum-gas": {
+      "title": "Petroleum gas",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "petroleum-gas",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:nutrients-from-bioflux": {
+      "title": "Nutrients from bioflux",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 2 s per craft.",
+      "recipe": "nutrients-from-bioflux",
+      "category": "organic",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 40,
+          "name": "nutrients",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:nutrients": {
+      "title": "Nutrients",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "nutrients",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:nutrients-from-biter-egg": {
+      "title": "Nutrients from biter egg",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 2 s per craft.",
+      "recipe": "nutrients-from-biter-egg",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "biter-egg",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 20,
+          "name": "nutrients",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:biter-egg": {
+      "title": "Biter egg",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "biter-egg",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:nutrients-from-fish": {
+      "title": "Nutrients from fish",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 2 s per craft.",
+      "recipe": "nutrients-from-fish",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "raw-fish",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 20,
+          "name": "nutrients",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:nutrients-from-spoilage": {
+      "title": "Nutrients from spoilage",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 2 s per craft.",
+      "recipe": "nutrients-from-spoilage",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "spoilage",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "nutrients",
+          "percent_spoiled": 0.5,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:nutrients-from-yumako-mash": {
+      "title": "Nutrients from yumako mash",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 4 s per craft.",
+      "recipe": "nutrients-from-yumako-mash",
+      "category": "organic",
+      "secondsPerCraft": 4,
+      "ingredients": [
+        {
+          "amount": 4,
+          "name": "yumako-mash",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 6,
+          "name": "nutrients",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:pentapod-egg": {
+      "title": "Pentapod egg",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 15 s per craft.",
+      "recipe": "pentapod-egg",
+      "category": "organic",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 1,
+          "ignored_by_stats": 1,
+          "name": "pentapod-egg",
+          "type": "item"
+        },
+        {
+          "amount": 30,
+          "name": "nutrients",
+          "type": "item"
+        },
+        {
+          "amount": 60,
+          "name": "water",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "ignored_by_productivity": 1,
+          "ignored_by_stats": 1,
+          "name": "pentapod-egg",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:pentapod-egg": {
+      "title": "Pentapod egg",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "pentapod-egg",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 15 s per craft.",
+      "recipe": "rocket-fuel",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "solid-fuel",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "light-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "rocket-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:solid-fuel": {
+      "title": "Solid fuel",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "solid-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "rocket-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:rocket-fuel-from-jelly": {
+      "title": "Rocket fuel from jelly",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 10 s per craft.",
+      "recipe": "rocket-fuel-from-jelly",
+      "category": "organic",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 30,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 30,
+          "name": "jelly",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "rocket-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:wood-processing": {
+      "title": "Wood processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 2 s per craft.",
+      "recipe": "wood-processing",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "wood",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "tree-seed",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 1000,
+          "min": 1000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:wood": {
+      "title": "Wood",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "wood",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:tree-seed": {
+      "title": "Tree seed",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "tree-seed",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:yumako-processing": {
+      "title": "Yumako processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or hand crafting · 1 s per craft.",
+      "recipe": "yumako-processing",
+      "category": "organic-or-hand-crafting",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "yumako",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "yumako-seed",
+          "probability": 0.02,
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "yumako-mash",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:yumako": {
+      "title": "Yumako",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "yumako",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:yumako-seed": {
+      "title": "Yumako seed",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "yumako-seed",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:yumako-mash": {
+      "title": "Yumako mash",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "yumako-mash",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:agricultural-science-pack:input:0",
+      "source": "input:bioflux",
+      "target": "recipe:agricultural-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "agricultural-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:agricultural-science-pack:input:1",
+      "source": "input:pentapod-egg",
+      "target": "recipe:agricultural-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "agricultural-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:agricultural-science-pack:output:0",
+      "source": "recipe:agricultural-science-pack",
+      "target": "output:agricultural-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "agricultural-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:biochamber:input:0",
+      "source": "input:nutrients",
+      "target": "recipe:biochamber",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biochamber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biochamber:input:1",
+      "source": "input:pentapod-egg",
+      "target": "recipe:biochamber",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biochamber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biochamber:input:2",
+      "source": "input:iron-plate",
+      "target": "recipe:biochamber",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biochamber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biochamber:input:3",
+      "source": "input:electronic-circuit",
+      "target": "recipe:biochamber",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biochamber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biochamber:input:4",
+      "source": "input:landfill",
+      "target": "recipe:biochamber",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biochamber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biochamber:output:0",
+      "source": "recipe:biochamber",
+      "target": "output:biochamber",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biochamber",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:bioflux:input:0",
+      "source": "input:yumako-mash",
+      "target": "recipe:bioflux",
+      "value": 15,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioflux",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:bioflux:input:1",
+      "source": "input:jelly",
+      "target": "recipe:bioflux",
+      "value": 12,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioflux",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:bioflux:output:0",
+      "source": "recipe:bioflux",
+      "target": "output:bioflux",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioflux",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:biolubricant:input:0",
+      "source": "input:jelly",
+      "target": "recipe:biolubricant",
+      "value": 60,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biolubricant",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biolubricant:output:0",
+      "source": "recipe:biolubricant",
+      "target": "output:lubricant",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "biolubricant",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:bioplastic:input:0",
+      "source": "input:bioflux",
+      "target": "recipe:bioplastic",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioplastic",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:bioplastic:input:1",
+      "source": "input:yumako-mash",
+      "target": "recipe:bioplastic",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioplastic",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:bioplastic:output:0",
+      "source": "recipe:bioplastic",
+      "target": "output:plastic-bar",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioplastic",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:biosulfur:input:0",
+      "source": "input:spoilage",
+      "target": "recipe:biosulfur",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biosulfur",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biosulfur:input:1",
+      "source": "input:bioflux",
+      "target": "recipe:biosulfur",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biosulfur",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:biosulfur:output:0",
+      "source": "recipe:biosulfur",
+      "target": "output:sulfur",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biosulfur",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:biter-egg:output:0",
+      "source": "recipe:biter-egg",
+      "target": "output:biter-egg",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "biter-egg",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:burnt-spoilage:input:0",
+      "source": "input:spoilage",
+      "target": "recipe:burnt-spoilage",
+      "value": 6,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "burnt-spoilage",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:burnt-spoilage:output:0",
+      "source": "recipe:burnt-spoilage",
+      "target": "output:carbon",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "burnt-spoilage",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbon-fiber:input:0",
+      "source": "input:yumako-mash",
+      "target": "recipe:carbon-fiber",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbon-fiber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:carbon-fiber:input:1",
+      "source": "input:carbon",
+      "target": "recipe:carbon-fiber",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbon-fiber",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:carbon-fiber:output:0",
+      "source": "recipe:carbon-fiber",
+      "target": "output:carbon-fiber",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbon-fiber",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:copper-bacteria:input:0",
+      "source": "input:yumako-mash",
+      "target": "recipe:copper-bacteria",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-bacteria",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-bacteria:output:0",
+      "source": "recipe:copper-bacteria",
+      "target": "output:copper-bacteria",
+      "value": 0.1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-bacteria",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:copper-bacteria:output:1",
+      "source": "recipe:copper-bacteria",
+      "target": "output:spoilage",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-bacteria",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:copper-bacteria-cultivation:input:0",
+      "source": "input:copper-bacteria",
+      "target": "recipe:copper-bacteria-cultivation",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-bacteria-cultivation",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-bacteria-cultivation:input:1",
+      "source": "input:bioflux",
+      "target": "recipe:copper-bacteria-cultivation",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-bacteria-cultivation",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-bacteria-cultivation:output:0",
+      "source": "recipe:copper-bacteria-cultivation",
+      "target": "output:copper-bacteria",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-bacteria-cultivation",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:fish-breeding:input:0",
+      "source": "input:raw-fish",
+      "target": "recipe:fish-breeding",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "fish-breeding",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:fish-breeding:input:1",
+      "source": "input:nutrients",
+      "target": "recipe:fish-breeding",
+      "value": 100,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "fish-breeding",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:fish-breeding:input:2",
+      "source": "input:water",
+      "target": "recipe:fish-breeding",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "fish-breeding",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:fish-breeding:output:0",
+      "source": "recipe:fish-breeding",
+      "target": "output:raw-fish",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "fish-breeding",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:heavy-oil-cracking:input:0",
+      "source": "input:water",
+      "target": "recipe:heavy-oil-cracking",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "heavy-oil-cracking",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:heavy-oil-cracking:input:1",
+      "source": "input:heavy-oil",
+      "target": "recipe:heavy-oil-cracking",
+      "value": 40,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "heavy-oil-cracking",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:heavy-oil-cracking:output:0",
+      "source": "recipe:heavy-oil-cracking",
+      "target": "output:light-oil",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "heavy-oil-cracking",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-bacteria:input:0",
+      "source": "input:jelly",
+      "target": "recipe:iron-bacteria",
+      "value": 6,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-bacteria",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-bacteria:output:0",
+      "source": "recipe:iron-bacteria",
+      "target": "output:iron-bacteria",
+      "value": 0.1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-bacteria",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-bacteria:output:1",
+      "source": "recipe:iron-bacteria",
+      "target": "output:spoilage",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-bacteria",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-bacteria-cultivation:input:0",
+      "source": "input:iron-bacteria",
+      "target": "recipe:iron-bacteria-cultivation",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-bacteria-cultivation",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-bacteria-cultivation:input:1",
+      "source": "input:bioflux",
+      "target": "recipe:iron-bacteria-cultivation",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-bacteria-cultivation",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-bacteria-cultivation:output:0",
+      "source": "recipe:iron-bacteria-cultivation",
+      "target": "output:iron-bacteria",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-bacteria-cultivation",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:jellynut-processing:input:0",
+      "source": "input:jellynut",
+      "target": "recipe:jellynut-processing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "jellynut-processing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:jellynut-processing:output:0",
+      "source": "recipe:jellynut-processing",
+      "target": "output:jellynut-seed",
+      "value": 0.02,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "jellynut-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:jellynut-processing:output:1",
+      "source": "recipe:jellynut-processing",
+      "target": "output:jelly",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "jellynut-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:light-oil-cracking:input:0",
+      "source": "input:water",
+      "target": "recipe:light-oil-cracking",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "light-oil-cracking",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:light-oil-cracking:input:1",
+      "source": "input:light-oil",
+      "target": "recipe:light-oil-cracking",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "light-oil-cracking",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:light-oil-cracking:output:0",
+      "source": "recipe:light-oil-cracking",
+      "target": "output:petroleum-gas",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "light-oil-cracking",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-bioflux:input:0",
+      "source": "input:bioflux",
+      "target": "recipe:nutrients-from-bioflux",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-bioflux",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-bioflux:output:0",
+      "source": "recipe:nutrients-from-bioflux",
+      "target": "output:nutrients",
+      "value": 40,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-bioflux",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-biter-egg:input:0",
+      "source": "input:biter-egg",
+      "target": "recipe:nutrients-from-biter-egg",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-biter-egg",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-biter-egg:output:0",
+      "source": "recipe:nutrients-from-biter-egg",
+      "target": "output:nutrients",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-biter-egg",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-fish:input:0",
+      "source": "input:raw-fish",
+      "target": "recipe:nutrients-from-fish",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-fish",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-fish:output:0",
+      "source": "recipe:nutrients-from-fish",
+      "target": "output:nutrients",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-fish",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-spoilage:input:0",
+      "source": "input:spoilage",
+      "target": "recipe:nutrients-from-spoilage",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-spoilage",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-spoilage:output:0",
+      "source": "recipe:nutrients-from-spoilage",
+      "target": "output:nutrients",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-spoilage",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-yumako-mash:input:0",
+      "source": "input:yumako-mash",
+      "target": "recipe:nutrients-from-yumako-mash",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-yumako-mash",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-yumako-mash:output:0",
+      "source": "recipe:nutrients-from-yumako-mash",
+      "target": "output:nutrients",
+      "value": 6,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-yumako-mash",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:pentapod-egg:input:0",
+      "source": "input:pentapod-egg",
+      "target": "recipe:pentapod-egg",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "pentapod-egg",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:pentapod-egg:input:1",
+      "source": "input:nutrients",
+      "target": "recipe:pentapod-egg",
+      "value": 30,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "pentapod-egg",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:pentapod-egg:input:2",
+      "source": "input:water",
+      "target": "recipe:pentapod-egg",
+      "value": 60,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "pentapod-egg",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:pentapod-egg:output:0",
+      "source": "recipe:pentapod-egg",
+      "target": "output:pentapod-egg",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "pentapod-egg",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:0",
+      "source": "input:solid-fuel",
+      "target": "recipe:rocket-fuel",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:1",
+      "source": "input:light-oil",
+      "target": "recipe:rocket-fuel",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "rocket-fuel",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:output:0",
+      "source": "recipe:rocket-fuel",
+      "target": "output:rocket-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel-from-jelly:input:0",
+      "source": "input:water",
+      "target": "recipe:rocket-fuel-from-jelly",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "rocket-fuel-from-jelly",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel-from-jelly:input:1",
+      "source": "input:jelly",
+      "target": "recipe:rocket-fuel-from-jelly",
+      "value": 30,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel-from-jelly",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel-from-jelly:input:2",
+      "source": "input:bioflux",
+      "target": "recipe:rocket-fuel-from-jelly",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel-from-jelly",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel-from-jelly:output:0",
+      "source": "recipe:rocket-fuel-from-jelly",
+      "target": "output:rocket-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel-from-jelly",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:wood-processing:input:0",
+      "source": "input:wood",
+      "target": "recipe:wood-processing",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "wood-processing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:wood-processing:output:0",
+      "source": "recipe:wood-processing",
+      "target": "output:tree-seed",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "wood-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:yumako-processing:input:0",
+      "source": "input:yumako",
+      "target": "recipe:yumako-processing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "yumako-processing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:yumako-processing:output:0",
+      "source": "recipe:yumako-processing",
+      "target": "output:yumako-seed",
+      "value": 0.02,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "yumako-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:yumako-processing:output:1",
+      "source": "recipe:yumako-processing",
+      "target": "output:yumako-mash",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "yumako-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

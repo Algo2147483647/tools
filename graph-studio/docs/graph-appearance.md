@@ -92,6 +92,8 @@ Display flags control graph visibility choices that are not layout geometry or r
 
 Use **Settings → Appearance → Node shadows** for live shadow controls, and **Settings → Layout → Sankey flows** for flow styling. All values persist in browser preferences and appearance JSON. Older appearance configurations receive defaults for new fields. Shadow controls take precedence over custom CSS filters; dense graphs omit shadows for performance. Exported SVG retains the rendered styles and flow geometry.
 
+Ordinary node cards use an opaque pure-white fill (`#ffffff`) by default, so the shadow beneath a node cannot tint its surface. Saved configurations using the old translucent default are migrated to white. Shadow softness, distance and opacity adjust only the projection; node color remains a separate setting.
+
 Sankey node heights are derived from flow, while the node-height layout control sets the available vertical room. Node spacing separates bars. Column spacing reserves additional label room; card width settings cap label width. Edge-lane spacing and equal card widths apply to ordinary graph layouts. Sankey uses `.dag-edge__flow`, `.dag-node__flow-label`, and `.dag-node__flow-value` for CSS customization.
 
 ## CSS Variables

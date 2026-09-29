@@ -1,5 +1,6 @@
 import { parseWorkspaceManifest, WORKSPACE_MANIFEST } from "./discovery";
-import type { WorkspaceFolder } from "./types";
+import { resolveWorkspacePath } from "./paths";
+import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
 export const EXAMPLE_WORKSPACES = [
   { id: "mathematics", title: "Mathematics", kind: "Knowledge graph", description: "From sets to geometry, analysis, and probability. Explore connected concepts and their linked notes.", detail: "112 concepts · 8 subjects", accent: "#5576a9" },
@@ -11,22 +12,34 @@ export function isExampleId(id: unknown): id is string {
   return EXAMPLE_WORKSPACES.some(example => example.id === id);
 }
 
-/** Every open creates fresh File objects, with no writable handles to bundled originals. */
+/** Load the same manifest and files that can be opened locally as a workspace. */
 export async function loadExampleWorkspace(id: string, baseUrl: string, fetcher: typeof fetch = fetch): Promise<WorkspaceFolder> {
   const example = EXAMPLE_WORKSPACES.find(entry => entry.id === id);
   if (!example) throw new Error("Unknown example workspace.");
-  const response = await fetcher(`${baseUrl}examples/${id}.json`);
-  if (!response.ok) throw new Error(`Could not load the ${example.title} workspace. Please try again.`);
-  const bundle = await response.json();
-  if (bundle?.format !== "graph-studio-example" || bundle.version !== 1 || !bundle.files || typeof bundle.files !== "object" || Array.isArray(bundle.files)) {
-    throw new Error("Invalid example workspace bundle.");
+  const root = `${baseUrl}examples/${id}/`;
+  async function read(path: string): Promise<WorkspaceFile> {
+    const response = await fetcher(root + path.split("/").map(encodeURIComponent).join("/"));
+    const isFallbackPage = /\.(?:json|md)$/i.test(path) && /text\/html/i.test(response.headers.get("content-type") || "");
+    if (!response.ok || isFallbackPage) throw new Error(`Could not load ${example!.title}/${path}. Please try again.`);
+    const text = await response.text();
+    return { path, handle: null, file: new File([text], path.split("/").pop()!, { type: path.endsWith(".json") ? "application/json" : "text/markdown" }) };
   }
-  const entries = Object.entries(bundle.files).map(([path, text]) => {
-    if (typeof text !== "string" || !/^[\w./ -]+$/.test(path) || path.startsWith("/") || path.split("/").some(part => !part || part === "." || part === "..")) throw new Error("Invalid example workspace file.");
-    return [path, { path, handle: null, file: new File([text], path.split("/").pop()!, { type: path.endsWith(".json") ? "application/json" : "text/markdown" }) }] as const;
+  const manifestFile = await read(WORKSPACE_MANIFEST);
+  const manifest = parseWorkspaceManifest(JSON.parse(await manifestFile.file!.text()));
+  const assets: unknown = manifest.metadata?.assets ?? [];
+  if (!Array.isArray(assets)) throw new Error("Example workspace assets must be relative file paths.");
+  const assetPaths = assets.map((value: unknown) => {
+    if (typeof value !== "string" || value.trim() !== value || /[\\:?#]/.test(value) || resolveWorkspacePath(value) !== value) {
+      throw new Error("Example workspace assets must be canonical relative file paths.");
+    }
+    return value;
   });
-  const manifestText = bundle.files[WORKSPACE_MANIFEST];
-  if (typeof manifestText !== "string") throw new Error("Example workspace manifest is missing.");
-  parseWorkspaceManifest(JSON.parse(manifestText));
-  return { name: example.title, handle: null, files: new Map(entries), exampleId: id };
+  const paths = [...new Set([...manifest.graphs, ...assetPaths])].filter(path => path !== WORKSPACE_MANIFEST);
+  const files = new Map<string, WorkspaceFile>([[WORKSPACE_MANIFEST, manifestFile]]);
+  // Keep requests bounded, including the larger collection of mathematics notes.
+  for (let start = 0; start < paths.length; start += 6) {
+    const entries = await Promise.all(paths.slice(start, start + 6).map(read));
+    entries.forEach(entry => files.set(entry.path, entry));
+  }
+  return { name: example.title, handle: null, files, exampleId: id };
 }

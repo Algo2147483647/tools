@@ -1,6 +1,6 @@
 # Example workspaces
 
-The homepage includes three separate English workspaces. Each contains a standard workspace manifest, independent v2 graph documents, and Markdown notes. Opening an example creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the bundled original. Unsaved-change confirmation still applies when replacing an edited document.
+Below Recent workspaces, the homepage includes three separate English workspaces. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v2 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
 
 | Workspace | Contents |
 | --- | --- |
@@ -35,4 +35,29 @@ The mathematics source is the neighboring `math/content/math.json` and its conce
 
 To rebuild the Factorio subset, download the wiki-linked dump to `.example-source-cache/factorio-2.0.65.lua`, then run `python scripts/read-factorio-dump.py`. This parser reads Lua data tables without executing Lua code. The 20 MB cache is ignored by Git. Review the source checksum when refreshing a snapshot; changing versions requires revisiting the documented counts and tests.
 
-The generated `public/examples/*.json` files are transport bundles with `format: "graph-studio-example"`, `version: 1`, and a map of file paths to UTF-8 text. The loader constructs ordinary workspace files from these bundles. This envelope is separate from the graph and workspace protocols; individual graph documents still use Graph Studio v2.
+The generated files are ordinary, directly editable workspace folders:
+
+```text
+public/examples/
+  mathematics/
+    graph-studio.workspace.json
+    mathematics.json
+    algebra.json
+    ...
+    README.md
+    notes/
+      Set.md
+      ...
+  factorio/
+    graph-studio.workspace.json
+    all-products.json
+    start-here.json
+    ...
+    README.md
+  energy/
+    graph-studio.workspace.json
+    energy.json
+    README.md
+```
+
+Each folder can also be selected with **Open workspace**. The homepage fetches its manifest, the graph paths in `graphs`, and the relative note paths in `metadata.assets`. Requests are bounded to six at a time. Every file must load successfully before the new workspace replaces the current one. There is no separate example bundle format; individual graph documents use Graph Studio v2.

@@ -18,7 +18,6 @@ export default function WelcomeScreen({files,onNew,hasDocument}:{files:Workspace
         <button className="welcome-action" disabled={files.busy} onClick={files.openFile}><WorkspaceIcon name="file" size={25}/><span><strong>Open graph file</strong><small>Work with one Graph Studio JSON file</small></span><span aria-hidden="true">↗</span></button>
         <div className="welcome-quick"><button onClick={onNew} disabled={files.busy}>+ Create a graph</button>{(hasDocument || files.workspace) && <button onClick={()=>files.setHomeVisible(false)}>Return to current session →</button>}</div>
       </div>
-      <ExampleGallery onOpen={files.openExample} busy={files.busy}/>
       <section className="welcome-recents" aria-labelledby="recent-workspaces-title">
         <div className="welcome-section-heading"><h2 id="recent-workspaces-title"><WorkspaceIcon name="recent"/>Recent workspaces</h2><span>{workspaces.length ? `${workspaces.length} saved`:"Saved on this browser"}</span></div>
         {workspaces.length ? <ul className="recent-list">{workspaces.map(item=><li key={item.id}>
@@ -27,6 +26,7 @@ export default function WelcomeScreen({files,onNew,hasDocument}:{files:Workspace
         </li>)}</ul>:<div className="recent-empty"><WorkspaceIcon name="folder" size={28}/><div><strong>Your next workspace starts here</strong><p>Folders you open appear here for quick access. Your files stay on your computer.</p></div><button onClick={files.openWorkspace} disabled={files.busy}>Choose a folder</button></div>}
       </section>
       {singleFiles.length>0 && <section className="welcome-recent-files"><h2>Recent files</h2><div>{singleFiles.slice(0,6).map(item=><button disabled={files.busy} key={item.id} title={item.location} onClick={()=>files.openRecent(item)}><WorkspaceIcon name="file" size={16}/>{item.name}<span>↗</span></button>)}</div></section>}
+      <ExampleGallery onOpen={files.openExample} busy={files.busy}/>
       <p className="welcome-footnote">Workspace folders enable linked files. Single-file mode opens only the selected graph.</p>
     </div>
   </main>;

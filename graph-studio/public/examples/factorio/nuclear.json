@@ -1,0 +1,365 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Nuclear processing",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 4
+  },
+  "nodes": {
+    "recipe:kovarex-enrichment-process": {
+      "title": "Kovarex enrichment process",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Centrifuging · 60 s per craft.",
+      "recipe": "kovarex-enrichment-process",
+      "category": "centrifuging",
+      "secondsPerCraft": 60,
+      "ingredients": [
+        {
+          "amount": 40,
+          "ignored_by_stats": 40,
+          "name": "uranium-235",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "ignored_by_stats": 2,
+          "name": "uranium-238",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 41,
+          "ignored_by_productivity": 40,
+          "ignored_by_stats": 40,
+          "name": "uranium-235",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "ignored_by_productivity": 2,
+          "ignored_by_stats": 2,
+          "name": "uranium-238",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:uranium-235": {
+      "title": "Uranium 235",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "uranium-235",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:uranium-238": {
+      "title": "Uranium 238",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "uranium-238",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:uranium-235": {
+      "title": "Uranium 235",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "uranium-235",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:uranium-238": {
+      "title": "Uranium 238",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "uranium-238",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:nuclear-fuel": {
+      "title": "Nuclear fuel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Centrifuging · 90 s per craft.",
+      "recipe": "nuclear-fuel",
+      "category": "centrifuging",
+      "secondsPerCraft": 90,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "uranium-235",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "rocket-fuel",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "nuclear-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "rocket-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:nuclear-fuel": {
+      "title": "Nuclear fuel",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "nuclear-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:nuclear-fuel-reprocessing": {
+      "title": "Nuclear fuel reprocessing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Centrifuging · 60 s per craft.",
+      "recipe": "nuclear-fuel-reprocessing",
+      "category": "centrifuging",
+      "secondsPerCraft": 60,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "depleted-uranium-fuel-cell",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "name": "uranium-238",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:depleted-uranium-fuel-cell": {
+      "title": "Depleted uranium fuel cell",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "depleted-uranium-fuel-cell",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:uranium-processing": {
+      "title": "Uranium processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Centrifuging · 12 s per craft.",
+      "recipe": "uranium-processing",
+      "category": "centrifuging",
+      "secondsPerCraft": 12,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "uranium-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "uranium-235",
+          "probability": 0.007000000000000001,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "uranium-238",
+          "probability": 0.993,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:uranium-ore": {
+      "title": "Uranium ore",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "uranium-ore",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:kovarex-enrichment-process:input:0",
+      "source": "input:uranium-235",
+      "target": "recipe:kovarex-enrichment-process",
+      "value": 40,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "kovarex-enrichment-process",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:kovarex-enrichment-process:input:1",
+      "source": "input:uranium-238",
+      "target": "recipe:kovarex-enrichment-process",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "kovarex-enrichment-process",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:kovarex-enrichment-process:output:0",
+      "source": "recipe:kovarex-enrichment-process",
+      "target": "output:uranium-235",
+      "value": 41,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "kovarex-enrichment-process",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:kovarex-enrichment-process:output:1",
+      "source": "recipe:kovarex-enrichment-process",
+      "target": "output:uranium-238",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "kovarex-enrichment-process",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nuclear-fuel:input:0",
+      "source": "input:uranium-235",
+      "target": "recipe:nuclear-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nuclear-fuel",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nuclear-fuel:input:1",
+      "source": "input:rocket-fuel",
+      "target": "recipe:nuclear-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nuclear-fuel",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nuclear-fuel:output:0",
+      "source": "recipe:nuclear-fuel",
+      "target": "output:nuclear-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nuclear-fuel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:nuclear-fuel-reprocessing:input:0",
+      "source": "input:depleted-uranium-fuel-cell",
+      "target": "recipe:nuclear-fuel-reprocessing",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nuclear-fuel-reprocessing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nuclear-fuel-reprocessing:output:0",
+      "source": "recipe:nuclear-fuel-reprocessing",
+      "target": "output:uranium-238",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nuclear-fuel-reprocessing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:uranium-processing:input:0",
+      "source": "input:uranium-ore",
+      "target": "recipe:uranium-processing",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "uranium-processing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:uranium-processing:output:0",
+      "source": "recipe:uranium-processing",
+      "target": "output:uranium-235",
+      "value": 0.007,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "uranium-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:uranium-processing:output:1",
+      "source": "recipe:uranium-processing",
+      "target": "output:uranium-238",
+      "value": 0.993,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "uranium-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

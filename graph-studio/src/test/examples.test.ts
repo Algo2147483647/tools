@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { defineSuite, defineTest } from "./harness";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
 import { discoverWorkspace, readGraphFile } from "../workspace/discovery";
@@ -10,10 +10,16 @@ import { readRecentMetadata } from "../adapters/recentImport";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 
-async function bundle(id:string) { return JSON.parse(await readFile(`public/examples/${id}.json`, "utf8")); }
+async function exampleGraph(id:string, path:string) { return normalizeDagInput(JSON.parse(await readFile(`public/examples/${id}/${path}`, "utf8"))); }
+async function listFiles(directory: string, prefix = ""): Promise<string[]> {
+  const entries = await readdir(directory, {withFileTypes:true});
+  const files = await Promise.all(entries.map(entry => entry.isDirectory() ? listFiles(`${directory}/${entry.name}`, `${prefix}${entry.name}/`) : [`${prefix}${entry.name}`]));
+  return files.flat();
+}
 const localFetch = (async (url: string) => {
-  const id = url.split("/").pop()!.replace(".json", "");
-  return { ok: true, json: () => bundle(id) } as Response;
+  const path = decodeURIComponent(url.split("/examples/")[1]);
+  try { return new Response(await readFile(`public/examples/${path}`, "utf8")); }
+  catch { return new Response("Not found", {status:404}); }
 }) as typeof fetch;
 
 export const examplesSuite = defineSuite("Bundled example workspaces", [
@@ -24,6 +30,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       assert.ok(workspace.activePath);
       assert.equal(workspace.exampleId, example.id);
       assert.equal(workspace.handle, null);
+      assert.deepEqual([...folder.files.keys()].sort(), (await listFiles(`public/examples/${example.id}`)).sort(), "The homepage must load the actual workspace files");
       for (const entry of folder.files.values()) {
         assert.equal(entry.handle, null);
         const text = await entry.file!.text();
@@ -43,8 +50,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
   }),
   defineTest("Factorio covers every productive recipe in the pinned source", async () => {
     const source = JSON.parse(await readFile("scripts/data/factorio-recipes-2.0.65.json", "utf8"));
-    const data = await bundle("factorio");
-    const atlas = normalizeDagInput(JSON.parse(data.files["all-products.json"]));
+    const atlas = await exampleGraph("factorio", "all-products.json");
     const recipes = source.recipes.filter((r:{results?: unknown[]}) => Array.isArray(r.results) && r.results.length);
     assert.equal(recipes.length, 648);
     assert.equal(Object.values(atlas.nodes).filter(n => n.type === "Recipe").length, recipes.length);
@@ -79,13 +85,26 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
   defineTest("unknown or unavailable examples fail cleanly and respect the deployment base", async () => {
     await assert.rejects(loadExampleWorkspace("../escape", "/", localFetch), /Unknown/);
     let requested = "";
-    const unavailable = (async (url: string) => { requested = url; return {ok:false} as Response; }) as typeof fetch;
+    const unavailable = (async (url: string) => { requested = url; return new Response("Unavailable", {status:503}); }) as typeof fetch;
     await assert.rejects(loadExampleWorkspace("energy", "/graph-studio/", unavailable), /Could not load/);
-    assert.equal(requested, "/graph-studio/examples/energy.json");
+    assert.equal(requested, "/graph-studio/examples/energy/graph-studio.workspace.json");
+  }),
+  defineTest("invalid asset paths and missing workspace files fail without opening a partial example", async () => {
+    const manifest = JSON.parse(await readFile("public/examples/energy/graph-studio.workspace.json", "utf8"));
+    for (const asset of ["../outside.md", "/outside.md", "https://example.com/note.md", "notes/../README.md", "README.md?key=1"]) {
+      const invalid = {...manifest,metadata:{...manifest.metadata,assets:[asset]}};
+      let requests = 0;
+      const fetcher = (async () => { requests++; return new Response(JSON.stringify(invalid)); }) as typeof fetch;
+      await assert.rejects(loadExampleWorkspace("energy", "/", fetcher));
+      assert.equal(requests, 1, "Reject before requesting any file outside the manifest");
+    }
+    const missing = (async (url:string) => url.endsWith("README.md") ? new Response("", {status:404}) : localFetch(url)) as typeof fetch;
+    await assert.rejects(loadExampleWorkspace("energy", "/", missing), /Energy flows\/README.md/);
+    const fallback = (async (url:string) => url.endsWith("README.md") ? new Response("<!doctype html>", {headers:{"Content-Type":"text/html"}}) : localFetch(url)) as typeof fetch;
+    await assert.rejects(loadExampleWorkspace("energy", "/", fallback), /Energy flows\/README.md/);
   }),
   defineTest("switching from a Sankey example to mathematics restores a layered layout", async () => {
-    const data = await bundle("mathematics");
-    const dag = normalizeDagInput(JSON.parse(data.files["mathematics.json"]));
+    const dag = await exampleGraph("mathematics", "mathematics.json");
     assert.equal(Object.keys(dag.nodes).length, 112);
     const state = graphReducer({...initialGraphAppState,layout:{...initialGraphAppState.layout,mode:"sankey"}}, {type:"graphLoaded",dag,fileName:"mathematics.json",selection:{type:"full"},status:""});
     assert.equal(state.layout.mode, "level");

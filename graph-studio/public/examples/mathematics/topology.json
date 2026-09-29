@@ -1,0 +1,107 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "title": "Topology",
+  "metadata": {},
+  "nodes": {
+    "Euclidean_Space": {
+      "title": "Euclidean Space",
+      "type": "Geometry",
+      "define": "Euclidean space is the standard model of flat finite-dimensional geometry.",
+      "notes": "[Read concept note](./notes/Euclidean_Space.md)"
+    },
+    "Fiber_Bundle": {
+      "title": "Fiber Bundle",
+      "type": "Topology",
+      "define": "A fiber bundle is a space that locally looks like a product of a base space with a typical fiber.",
+      "notes": "[Read concept note](./notes/Fiber_Bundle.md)"
+    },
+    "Hausdorff_Space": {
+      "title": "Hausdorff Space",
+      "type": "Topology",
+      "define": "A Hausdorff space is a topological space in which any two distinct points can be separated by disjoint neighborhoods.",
+      "notes": "[Read concept note](./notes/Hausdorff_Space.md)"
+    },
+    "Knot": {
+      "title": "Knot",
+      "type": "Topology",
+      "define": "A knot is an embedding of a circle in three-dimensional space, studied up to continuous deformation.",
+      "notes": "[Read concept note](./notes/Knot.md)"
+    },
+    "Linear_Space": {
+      "title": "Linear Space",
+      "type": "Algebra",
+      "define": "A linear space is a set whose elements can be added and scaled by elements of a field.",
+      "notes": "[Read concept note](./notes/Linear_Space.md)"
+    },
+    "Metric_Space": {
+      "title": "Metric Space",
+      "type": "Topology",
+      "define": "A metric space is a set equipped with a distance function satisfying the basic rules of distance.",
+      "notes": "[Read concept note](./notes/Metric_Space.md)"
+    },
+    "Set": {
+      "title": "Set",
+      "type": "Mathematical Logic and Foundations",
+      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
+      "notes": "[Read concept note](./notes/Set.md)"
+    },
+    "Topological_Space": {
+      "title": "Topological Space",
+      "type": "Topology",
+      "define": "Topological Space is a space in which open sets are defined.",
+      "notes": "[Read concept note](./notes/Topological_Space.md)"
+    },
+    "Vector_Bundle": {
+      "title": "Vector Bundle",
+      "type": "Topology",
+      "define": "A vector bundle is a fiber bundle whose fibers are vector spaces and whose local trivializations are linear on fibers.",
+      "notes": "[Read concept note](./notes/Vector_Bundle.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "math-45",
+      "source": "Euclidean_Space",
+      "target": "Knot",
+      "value": "has_ambient_space"
+    },
+    {
+      "id": "math-49",
+      "source": "Fiber_Bundle",
+      "target": "Vector_Bundle",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-50",
+      "source": "Topological_Space",
+      "target": "Fiber_Bundle",
+      "value": "has_base_space"
+    },
+    {
+      "id": "math-76",
+      "source": "Topological_Space",
+      "target": "Hausdorff_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-100",
+      "source": "Linear_Space",
+      "target": "Vector_Bundle",
+      "value": "has_fiber_type"
+    },
+    {
+      "id": "math-110",
+      "source": "Topological_Space",
+      "target": "Metric_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-137",
+      "source": "Set",
+      "target": "Topological_Space",
+      "value": "has_underlying_set"
+    }
+  ]
+}

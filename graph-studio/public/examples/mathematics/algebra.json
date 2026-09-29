@@ -1,0 +1,401 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "title": "Algebra",
+  "metadata": {},
+  "nodes": {
+    "Algebra_Structure": {
+      "title": "Algebra Structure",
+      "type": "Algebra",
+      "define": "An algebraic structure is a set equipped with operations whose behavior is controlled by specified axioms.",
+      "notes": "[Read concept note](./notes/Algebra_Structure.md)"
+    },
+    "Boolean_Algebra": {
+      "title": "Boolean Algebra",
+      "type": "Algebra",
+      "define": "Boolean algebra is an algebraic structure that formalizes logical operations such as and, or, and not.",
+      "notes": "[Read concept note](./notes/Boolean_Algebra.md)"
+    },
+    "Chain_Complex": {
+      "title": "Chain Complex",
+      "type": "Algebra",
+      "define": "A chain complex is a sequence of modules or vector spaces linked by differentials whose successive composition is zero.",
+      "notes": "[Read concept note](./notes/Chain_Complex.md)"
+    },
+    "Complex_Field": {
+      "title": "Complex Field",
+      "type": "Algebra",
+      "define": "The complex field extends the real numbers by adjoining a square root of $-1$.",
+      "notes": "[Read concept note](./notes/Complex_Field.md)"
+    },
+    "Cubic_Function": {
+      "title": "Cubic Function",
+      "type": "Algebra",
+      "define": "A cubic function is a polynomial function whose highest-degree term has degree three.",
+      "notes": "[Read concept note](./notes/Cubic_Function.md)"
+    },
+    "Differential_Manifold": {
+      "title": "Differential Manifold",
+      "type": "Geometry",
+      "define": "A smooth manifold is a space that locally looks like $\\mathbb R^n$, and whose overlapping coordinate systems transform smoothly into one another.",
+      "notes": "[Read concept note](./notes/Differential_Manifold.md)"
+    },
+    "Field": {
+      "title": "Field",
+      "type": "Algebra",
+      "define": "A field is an algebraic structure where addition, subtraction, multiplication, and division by nonzero elements are all possible.",
+      "notes": "[Read concept note](./notes/Field.md)"
+    },
+    "Fourth_Order_Function": {
+      "title": "Fourth Order Function",
+      "type": "Algebra",
+      "define": "A fourth-order function is a polynomial function whose highest-degree term has degree four.",
+      "notes": "[Read concept note](./notes/Fourth_Order_Function.md)"
+    },
+    "Function": {
+      "title": "Function",
+      "type": "Mathematical Logic and Foundations",
+      "define": "A function assigns each input exactly one output.",
+      "notes": "[Read concept note](./notes/Function.md)"
+    },
+    "Group": {
+      "title": "Group",
+      "type": "Algebra",
+      "define": "A group is an algebraic structure that captures reversible composition with an identity element.",
+      "notes": "[Read concept note](./notes/Group.md)"
+    },
+    "Inner_Product_Space": {
+      "title": "Inner Product Space",
+      "type": "Algebra",
+      "define": "An inner product space is a vector space with a product that defines length, angle, and orthogonality.",
+      "notes": "[Read concept note](./notes/Inner_Product_Space.md)"
+    },
+    "Lattice": {
+      "title": "Lattice",
+      "type": "Discrete Mathematics",
+      "define": "A lattice is an ordered set in which every pair of elements has both a greatest lower bound and a least upper bound.",
+      "notes": "[Read concept note](./notes/Lattice.md)"
+    },
+    "Lie_Algebra": {
+      "title": "Lie Algebra",
+      "type": "Algebra",
+      "define": "A Lie algebra is a vector space equipped with a bilinear bracket satisfying antisymmetry and the Jacobi identity.",
+      "notes": "[Read concept note](./notes/Lie_Algebra.md)"
+    },
+    "Lie_Group": {
+      "title": "Lie Group",
+      "type": "Algebra",
+      "define": "A Lie group is a group whose operations vary smoothly with respect to a manifold structure.",
+      "notes": "[Read concept note](./notes/Lie_Group.md)"
+    },
+    "Linear_Function": {
+      "title": "Linear Function",
+      "type": "Algebra",
+      "define": "A linear function preserves addition and scalar multiplication.",
+      "notes": "[Read concept note](./notes/Linear_Function.md)"
+    },
+    "Linear_Space": {
+      "title": "Linear Space",
+      "type": "Algebra",
+      "define": "A linear space is a set whose elements can be added and scaled by elements of a field.",
+      "notes": "[Read concept note](./notes/Linear_Space.md)"
+    },
+    "Linear_Transformation": {
+      "title": "Linear Transformation",
+      "type": "Algebra",
+      "define": "A linear transformation is a structure-preserving map between vector spaces.",
+      "notes": "[Read concept note](./notes/Linear_Transformation.md)"
+    },
+    "Manifold": {
+      "title": "Manifold",
+      "type": "Geometry",
+      "define": "A manifold is a space that may be globally curved or complicated but locally looks like Euclidean space.",
+      "notes": "[Read concept note](./notes/Manifold.md)"
+    },
+    "Module": {
+      "title": "Module",
+      "type": "Algebra",
+      "define": "A module is a vector-space-like structure whose scalars come from a ring rather than necessarily from a field.",
+      "notes": "[Read concept note](./notes/Module.md)"
+    },
+    "Normed_Linear_Space": {
+      "title": "Normed Linear Space",
+      "type": "Analysis",
+      "define": "A normed linear space is a vector space equipped with a norm that measures vector length.",
+      "notes": "[Read concept note](./notes/Normed_Linear_Space.md)"
+    },
+    "Polynomial_Function": {
+      "title": "Polynomial Function",
+      "type": "Algebra",
+      "define": "A polynomial function is a function formed from powers of a variable using finitely many additions and scalar multiplications.",
+      "notes": "[Read concept note](./notes/Polynomial_Function.md)"
+    },
+    "Quadratic_Function": {
+      "title": "Quadratic Function",
+      "type": "Algebra",
+      "define": "A quadratic function is a polynomial function whose highest-degree term has degree two.",
+      "notes": "[Read concept note](./notes/Quadratic_Function.md)"
+    },
+    "Quaternion_Ring": {
+      "title": "Quaternion Ring",
+      "type": "Algebra",
+      "define": "The quaternion ring extends complex numbers with three imaginary units whose multiplication is noncommutative.",
+      "notes": "[Read concept note](./notes/Quaternion_Ring.md)"
+    },
+    "Rational_Number_Field": {
+      "title": "Rational Number Field",
+      "type": "Number Theory",
+      "define": "The rational number field consists of ratios of integers with nonzero denominator under ordinary arithmetic.",
+      "notes": "[Read concept note](./notes/Rational_Number_Field.md)"
+    },
+    "Real_Field": {
+      "title": "Real Field",
+      "type": "Algebra",
+      "define": "The real field is the complete ordered field that models the continuous number line.",
+      "notes": "[Read concept note](./notes/Real_Field.md)"
+    },
+    "Ring": {
+      "title": "Ring",
+      "type": "Algebra",
+      "define": "A ring is an algebraic structure with addition, subtraction, and multiplication, where multiplication need not be commutative or invertible.",
+      "notes": "[Read concept note](./notes/Ring.md)"
+    },
+    "Sequence": {
+      "title": "Sequence",
+      "type": "Analysis",
+      "define": "A sequence is a function whose domain is usually the natural numbers, listing objects in order.",
+      "notes": "[Read concept note](./notes/Sequence.md)"
+    },
+    "Set": {
+      "title": "Set",
+      "type": "Mathematical Logic and Foundations",
+      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
+      "notes": "[Read concept note](./notes/Set.md)"
+    },
+    "Tensor": {
+      "title": "Tensor",
+      "type": "Algebra",
+      "define": "A tensor is a multilinear object that generalizes scalars, vectors, covectors, and linear maps.",
+      "notes": "[Read concept note](./notes/Tensor.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "math-4",
+      "source": "Algebra_Structure",
+      "target": "Field",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-5",
+      "source": "Algebra_Structure",
+      "target": "Group",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-6",
+      "source": "Algebra_Structure",
+      "target": "Lattice",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-7",
+      "source": "Algebra_Structure",
+      "target": "Lie_Algebra",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-8",
+      "source": "Algebra_Structure",
+      "target": "Ring",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-9",
+      "source": "Set",
+      "target": "Algebra_Structure",
+      "value": "has_underlying_set"
+    },
+    {
+      "id": "math-17",
+      "source": "Lattice",
+      "target": "Boolean_Algebra",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-22",
+      "source": "Module",
+      "target": "Chain_Complex",
+      "value": "has_terms_in"
+    },
+    {
+      "id": "math-23",
+      "source": "Sequence",
+      "target": "Chain_Complex",
+      "value": "structured_as"
+    },
+    {
+      "id": "math-26",
+      "source": "Field",
+      "target": "Complex_Field",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-27",
+      "source": "Real_Field",
+      "target": "Complex_Field",
+      "value": "field_extension_of"
+    },
+    {
+      "id": "math-32",
+      "source": "Polynomial_Function",
+      "target": "Cubic_Function",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-34",
+      "source": "Differential_Manifold",
+      "target": "Lie_Group",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-37",
+      "source": "Manifold",
+      "target": "Differential_Manifold",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-53",
+      "source": "Field",
+      "target": "Linear_Space",
+      "value": "over_field"
+    },
+    {
+      "id": "math-55",
+      "source": "Field",
+      "target": "Rational_Number_Field",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-56",
+      "source": "Field",
+      "target": "Real_Field",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-59",
+      "source": "Polynomial_Function",
+      "target": "Fourth_Order_Function",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-62",
+      "source": "Function",
+      "target": "Linear_Transformation",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-63",
+      "source": "Function",
+      "target": "Polynomial_Function",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-66",
+      "source": "Function",
+      "target": "Sequence",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-74",
+      "source": "Group",
+      "target": "Lie_Group",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-81",
+      "source": "Normed_Linear_Space",
+      "target": "Inner_Product_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-92",
+      "source": "Lie_Group",
+      "target": "Lie_Algebra",
+      "value": "associated_to"
+    },
+    {
+      "id": "math-93",
+      "source": "Linear_Space",
+      "target": "Lie_Algebra",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-94",
+      "source": "Manifold",
+      "target": "Lie_Group",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-95",
+      "source": "Polynomial_Function",
+      "target": "Linear_Function",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-96",
+      "source": "Linear_Space",
+      "target": "Linear_Transformation",
+      "value": "maps_between"
+    },
+    {
+      "id": "math-97",
+      "source": "Linear_Space",
+      "target": "Normed_Linear_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-99",
+      "source": "Linear_Space",
+      "target": "Tensor",
+      "value": "over_vector_space"
+    },
+    {
+      "id": "math-101",
+      "source": "Module",
+      "target": "Linear_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-112",
+      "source": "Ring",
+      "target": "Module",
+      "value": "over_ring"
+    },
+    {
+      "id": "math-120",
+      "source": "Polynomial_Function",
+      "target": "Quadratic_Function",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-124",
+      "source": "Real_Field",
+      "target": "Quaternion_Ring",
+      "value": "over_field"
+    },
+    {
+      "id": "math-125",
+      "source": "Ring",
+      "target": "Quaternion_Ring",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-128",
+      "source": "Rational_Number_Field",
+      "target": "Real_Field",
+      "value": "field_extension_of"
+    }
+  ]
+}

@@ -152,7 +152,6 @@ export default function Topbar({
         </div>
         </>}
         <div className="topbar-group file-controls" aria-label="Graph file controls">
-          {!files.homeVisible && <button className="studio-icon-button" aria-label="Home" title="Home" onClick={() => files.setHomeVisible(true)}><WorkspaceIcon name="home"/></button>}
           {files.workspace && !files.homeVisible && <button className="studio-icon-button" aria-label="Toggle workspace explorer" title="Explorer" aria-pressed={files.explorerOpen} onClick={() => files.setExplorerOpen(value => !value)}><WorkspaceIcon name="panel"/></button>}
           {!files.homeVisible && <><IconButton id="undo-btn" label="Undo" disabled={!canUndo} onClick={onUndo} icon={<UndoIcon />} />
           <IconButton id="redo-btn" label="Redo" disabled={!canRedo} onClick={onRedo} icon={<RedoIcon />} />

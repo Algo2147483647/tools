@@ -1,0 +1,181 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Start here · circuit production",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 2
+  },
+  "nodes": {
+    "recipe:copper-cable": {
+      "title": "Copper cable",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electronics · 0.5 s per craft.",
+      "recipe": "copper-cable",
+      "category": "electronics",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:copper-plate": {
+      "title": "Copper plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:copper-cable": {
+      "title": "Copper cable",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electronics · 0.5 s per craft.",
+      "recipe": "electronic-circuit",
+      "category": "electronics",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        },
+        {
+          "amount": 3,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "electronic-circuit",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:iron-plate": {
+      "title": "Iron plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:copper-cable": {
+      "title": "Copper cable",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "electronic-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:copper-cable:input:0",
+      "source": "input:copper-plate",
+      "target": "recipe:copper-cable",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-cable",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-cable:output:0",
+      "source": "recipe:copper-cable",
+      "target": "output:copper-cable",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-cable",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:input:0",
+      "source": "input:iron-plate",
+      "target": "recipe:electronic-circuit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:input:1",
+      "source": "input:copper-cable",
+      "target": "recipe:electronic-circuit",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:output:0",
+      "source": "recipe:electronic-circuit",
+      "target": "output:electronic-circuit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

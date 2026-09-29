@@ -1,7 +1,7 @@
 """Rebuild the English example workspaces from pinned, local source data.
 
 Usage: python scripts/generate-examples.py [path/to/math/content]
-The application needs only the generated public/examples/*.json bundles.
+The application loads the generated public/examples/<workspace>/ folders.
 """
 import json
 import math
@@ -18,13 +18,17 @@ def text_json(data):
     return json.dumps(data, ensure_ascii=False, indent=2) + '\n'
 
 
-def write_bundle(key, title, graphs, notes, default, metadata=None):
+def write_workspace(key, title, graphs, notes, default, metadata=None):
     manifest = {'format': 'graph-studio-workspace', 'version': 1, 'name': title,
-                'graphs': list(graphs), 'defaultGraph': default, 'metadata': metadata or {}}
+                'graphs': list(graphs), 'defaultGraph': default,
+                'metadata': {**(metadata or {}), 'assets': list(notes)}}
     files = {'graph-studio.workspace.json': text_json(manifest),
              **{name: text_json(graph) for name, graph in graphs.items()}, **notes}
-    bundle = {'format': 'graph-studio-example', 'version': 1, 'files': files}
-    (OUT / f'{key}.json').write_text(text_json(bundle), encoding='utf-8')
+    workspace = OUT / key
+    for name, content in files.items():
+        path = workspace / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding='utf-8')
     print(f'{key}: {len(graphs)} graphs, {len(files)} files')
 
 
@@ -73,7 +77,7 @@ def mathematics():
         graphs[f'{slug}.json'] = graph(subject, {key: n for key, n in nodes.items() if key in selected},
                                      [e for e in relationships if e['source'] in selected and e['target'] in selected])
     notes['README.md'] = '# Mathematics\n\n112 concepts across eight subjects, adapted from the local math/studio knowledge graph (`math/content/math.json`).\n\nOpen the complete map or choose a subject in Explorer. Double-click a concept and follow its note link. Notes link to related concepts within this workspace. Subject views retain immediate prerequisites from other subjects.\n\nDefinitions and relationships are adapted from the corresponding English concept notes. These compact reference notes are not a replacement for full mathematical treatments.\n'
-    write_bundle('mathematics', 'Mathematics', graphs, notes, 'mathematics.json', {'source': 'math/content/math.json', 'concepts': len(nodes)})
+    write_workspace('mathematics', 'Mathematics', graphs, notes, 'mathematics.json', {'source': 'math/content/math.json', 'concepts': len(nodes)})
 
 
 def expected(product):
@@ -168,7 +172,7 @@ Source SHA-256: `{data['sha256']}`.
 
 This community example uses factual recipe quantities. Factorio is a game by Wube Software; this workspace is not an official Wube product.
 '''
-    write_bundle('factorio', 'Factorio production', graphs, {'README.md': readme}, 'start-here.json', metadata)
+    write_workspace('factorio', 'Factorio production', graphs, {'README.md': readme}, 'start-here.json', metadata)
     print(f'Factorio coverage: {len(recipes)} recipes, {len(products)} products')
 
 
@@ -176,7 +180,7 @@ def energy():
     demo = json.loads((ROOT / 'public/sankey-example.json').read_text(encoding='utf-8'))
     for node in demo['nodes'].values():
         node['notes'] = '[About the flows](./README.md)'
-    write_bundle('energy', 'Energy flows', {'energy.json': demo}, {'README.md': '# Energy flows\n\nAn illustrative energy system measured in GWh. The source values are invented for this example. Every intermediate node conserves incoming and outgoing energy.\n\nBand width encodes quantity. Double-click a node to inspect its details. Try the Sankey controls in Settings → Layout and node shadows in Settings → Appearance.\n'}, 'energy.json')
+    write_workspace('energy', 'Energy flows', {'energy.json': demo}, {'README.md': '# Energy flows\n\nAn illustrative energy system measured in GWh. The source values are invented for this example. Every intermediate node conserves incoming and outgoing energy.\n\nBand width encodes quantity. Double-click a node to inspect its details. Try the Sankey controls in Settings → Layout and node shadows in Settings → Appearance.\n'}, 'energy.json')
 
 
 mathematics()
