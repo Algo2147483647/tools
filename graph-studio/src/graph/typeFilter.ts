@@ -17,6 +17,8 @@ export function projectGraphByType(source: NormalizedDag, selectedType: string, 
   const doc = serializeDag(source);
   doc.nodes = Object.fromEntries(Object.entries(doc.nodes).filter(([key]) => visible.has(key)));
   doc.edges = doc.edges.filter(edge => visible.has(edge.source) && visible.has(edge.target));
+  // Hidden flows cannot be safely reconstructed from totals. Keep only measured direct flows.
+  if (source.diagram === "sankey") return normalizeDagInput(doc);
   const outgoing = new Map<string, string[]>();
   source.edges.forEach(edge => outgoing.set(edge.source, [...(outgoing.get(edge.source) || []), edge.target]));
   for (const sourceKey of visible) {

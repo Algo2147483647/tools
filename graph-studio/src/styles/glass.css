@@ -1,0 +1,96 @@
+/* Translucent navigation surfaces, with opaque fallbacks below. */
+:root {
+  --glass-surface: linear-gradient(145deg, #fffffff0, #f5f7fcaa 55%, #e9eef89e);
+  --glass-edge: #ffffffd9;
+  --glass-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 #ffffff70, 0 8px 28px #2436540d, 0 1px 3px #2436540a;
+}
+.app-shell {
+  background: radial-gradient(ellipse at 0 20%, #e4ebf8b3, transparent 50%), radial-gradient(ellipse at 95% 0, #ece6f5a6, transparent 45%), #f4f6f9;
+}
+.topbar {
+  margin: 10px 12px 0;
+  min-height: 60px;
+  padding: 10px 16px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 20px;
+  background: var(--glass-surface);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+}
+.topbar-group {
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #ffffff94;
+  border-radius: 12px;
+  background: #ffffff45;
+  box-shadow: inset 0 1px 0 #ffffffb3, 0 1px 3px #23375208;
+}
+.topbar .topbar-icon-btn, .topbar .settings-toggle-btn, .topbar .studio-icon-button { border-radius: 9px; color: #465268; }
+.topbar button:hover { background: #ffffffc4; box-shadow: 0 2px 6px #2737550f; }
+.topbar button:disabled { box-shadow: none; background: transparent; }
+.topbar select { background: #ffffff69; border-color: #c0cbde55; border-radius: 8px; }
+.source-breadcrumb { border-color: #a4b1c83d; }
+.workspace-split-shell { padding: 12px; gap: 12px; }
+.workspace-explorer, .workspace-sidebar-shell {
+  position: relative;
+  border: 1px solid var(--glass-edge);
+  border-radius: 20px;
+  background: var(--glass-surface);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(32px) saturate(145%);
+  -webkit-backdrop-filter: blur(32px) saturate(145%);
+}
+.workspace-sidebar-shell { padding: 0; height: 100%; overflow: hidden; }
+.workspace-explorer { width: 250px; flex-basis: 250px; }
+.explorer-heading { padding-top: 20px; color: #788397; letter-spacing: .9px; }
+.explorer-heading button { border-radius: 6px; }
+.explorer-heading button:hover { background: #ffffffa6; }
+.explorer-workspace { padding-bottom: 18px; }
+.explorer-search { background: #ffffff7a; border: 1px solid #b6c1d438; border-radius: 10px; box-shadow: inset 0 1px 3px #273b5910, 0 1px 0 #ffffffb3; }
+.explorer-file { border-radius: 10px; margin-bottom: 3px; }
+.explorer-file:hover { background: #ffffff8c; }
+.explorer-file.is-active { background: linear-gradient(135deg, #ffffffed, #e8effbe0); border-color: #ffffffd9; box-shadow: inset 0 1px 0 #fff, 0 3px 9px #36578210; }
+.workspace-explorer footer { background: #ffffff26; border-color: #a5b1c426; }
+.workspace-stage-shell { border-radius: 18px; overflow: hidden; border: 1px solid #dfe5ed80; background: #fff; }
+.workspace-sidebar-resizer { width: 4px; margin: 0 -10px; flex-shrink: 0; }
+.workspace-sidebar-resizer::before { background: #8091ad30; border-radius: 4px; left: 1px; top: 20px; bottom: 20px; }
+.workspace-sidebar-shell .console-sidebar--terminal { height: 100%; border: 0; border-radius: inherit; background: #162032d9; box-shadow: none; }
+.settings-modal-backdrop { background: #24314b30; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.settings-modal.studio-settings { background: #f7f9fce8; border: 1px solid #ffffffe6; border-radius: 22px; box-shadow: inset 0 1px 0 #fff, 0 28px 90px #18243c38; backdrop-filter: blur(36px) saturate(145%); -webkit-backdrop-filter: blur(36px) saturate(145%); }
+.studio-settings .settings-modal-body { border-color: #b6c0d333; }
+.studio-settings .settings-tabs { background: #e8eef74d; border-color: #a5b1c42b; padding: 14px 10px; }
+.studio-settings .settings-tab { border-radius: 11px; }
+.studio-settings .settings-tab.is-active { background: #ffffffc4; border-color: #ffffffe6; box-shadow: inset 0 1px 0 #fff, 0 3px 10px #324d790c; }
+.studio-settings .settings-page { background: #ffffffd9; }
+.settings-search { border-color: #b3bed33b; background: #ffffff73; border-radius: 11px; }
+.settings-footer { background: #ffffff42; border-color: #bac5d633; }
+.settings-graph-preview { overflow: visible; }
+.display-slider { display: flex; flex-direction: column; gap: 12px; font-size: 12px; padding: 12px 0; color: var(--studio-ink); }
+.display-slider>span { display: flex; justify-content: space-between; gap: 14px; }
+.display-slider output { color: var(--studio-muted); font-variant-numeric: tabular-nums; }
+.display-slider input { width: 100%; accent-color: var(--studio-accent); }
+.display-slider:has(input:disabled) { opacity: .45; }
+.layout-engine-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.layout-mini--sankey i { border-radius: 2px; background: #7899d7; }
+.stage-warning { position: absolute; z-index: 3; top: 12px; left: 16px; right: 16px; padding: 9px 13px; border: 1px solid #e5cfa469; border-radius: 10px; background: #fffaf0ef; color: #805e2b; font-size: 12px; line-height: 1.5; pointer-events: none; }
+@supports not (backdrop-filter: blur(1px)) {
+  .topbar, .workspace-explorer, .workspace-sidebar-shell, .settings-modal.studio-settings { background: #f1f4f9; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .topbar, .workspace-explorer, .workspace-sidebar-shell, .settings-modal.studio-settings { background: #f1f4f9; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .settings-modal-backdrop { backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) { .app-shell *, .studio-settings * { transition: none !important; } }
+@media (max-width: 900px) {
+  .workspace-split-shell { flex-direction: row; }
+  .workspace-sidebar-shell { width: min(360px, 42vw) !important; max-width: 42vw; height: 100%; padding: 0; }
+}
+@media (max-width: 650px) {
+  .topbar { margin: 6px 6px 0; padding: 8px 10px; border-radius: 16px; }
+  .workspace-split-shell { padding: 6px; gap: 6px; }
+  .workspace-explorer { width: 170px; flex-basis: 170px; border-radius: 14px; }
+  .workspace-sidebar-shell { position: absolute; inset: 6px; z-index: 4; width: auto !important; max-width: none; height: auto; }
+  .studio-settings .settings-tabs { padding: 8px; }
+  .layout-engine-grid { grid-template-columns: 1fr; }
+}

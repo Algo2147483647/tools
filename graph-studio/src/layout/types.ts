@@ -27,6 +27,7 @@ export interface StageNode {
   isRoot: boolean;
   x: number;
   y: number;
+  flow?: { value: number; incoming: number; outgoing: number; color: string; labelSide: "left" | "right"; labelY: number };
 }
 
 export interface StageEdge {
@@ -38,6 +39,7 @@ export interface StageEdge {
   points?: StageRoutePoint[];
   path: string;
   labelPosition: { x: number; y: number };
+  flow?: { width: number; color: string };
 }
 
 export interface StageLane {

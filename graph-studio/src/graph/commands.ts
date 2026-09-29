@@ -29,6 +29,7 @@ export interface CommandResult {
 
 export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, mapping: FieldMapping = getDefaultFieldMapping()): CommandResult {
   const document = serializeDag(source);
+  const defaultRelationValue = document.diagram === "sankey" ? 1 : DEFAULT_RELATION_VALUE;
   const nodes = document.nodes;
   const result: Omit<CommandResult, "dag"> = { changedKeys: [] };
   const exists = (key: string) => Object.prototype.hasOwnProperty.call(nodes, key);
@@ -77,7 +78,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, 
       if (command.type === "copyNode") requireNode(command.sourceKey);
       const fields = command.type === "copyNode" ? nodes[command.sourceKey] : command.type === "addNodeFromFields" ? command.fields : { define: "", type: "" };
       putNode(command.key, fields);
-      if (command.parentKey) setEdge(command.parentKey, command.key, DEFAULT_RELATION_VALUE);
+      if (command.parentKey) setEdge(command.parentKey, command.key, defaultRelationValue);
       result.message = `Added node ${command.key}.`; break;
     }
     case "updateNodeFields": {
@@ -87,7 +88,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, 
       result.message = `Saved node ${key}.`; break;
     }
     case "setEdge":
-      setEdge(command.parentKey, command.childKey, command.weight === undefined ? DEFAULT_RELATION_VALUE : command.weight);
+      setEdge(command.parentKey, command.childKey, command.weight === undefined ? defaultRelationValue : command.weight);
       result.message = `Updated edge ${command.parentKey} -> ${command.childKey}.`; break;
     case "removeEdge": {
       requireNode(command.parentKey); requireNode(command.childKey);
@@ -104,7 +105,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, 
       const relations = Array.isArray(values)
         ? Object.fromEntries(values.map(key => {
             const value = oldEdges.find(edge => (parents ? edge.source : edge.target) === key)?.value;
-            return [key, value === undefined ? DEFAULT_RELATION_VALUE : value];
+            return [key, value === undefined ? defaultRelationValue : value];
           }))
         : values;
       for (const [key, value] of Object.entries(relations)) setEdge(parents ? key : command.key, parents ? command.key : key, value);

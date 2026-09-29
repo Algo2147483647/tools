@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Graph Studio document v2",
-  "description": "Runtime validation also checks unique edge IDs and directed endpoint pairs, endpoint existence, and no self-loops.",
+  "description": "Runtime validation also checks unique edge IDs and directed endpoint pairs, endpoint existence, and no self-loops. Sankey diagrams additionally require finite non-negative flow values, finite node totals and no cycles.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,6 +16,10 @@
     },
     "version": {
       "const": 2
+    },
+    "diagram": {
+      "enum": ["dag", "sankey"],
+      "description": "Optional diagram semantics. Defaults to dag. Sankey opens in flow layout."
     },
     "id": {
       "type": "string"
@@ -42,6 +46,13 @@
       }
     }
   },
+  "allOf": [{
+    "if": { "required": ["diagram"], "properties": { "diagram": { "const": "sankey" } } },
+    "then": { "properties": { "edges": { "items": {
+      "required": ["value"],
+      "properties": { "value": { "type": "number", "minimum": 0 } }
+    } } } }
+  }],
   "$defs": {
     "id": {
       "type": "string",

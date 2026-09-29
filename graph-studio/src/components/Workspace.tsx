@@ -67,6 +67,7 @@ export default function Workspace({
           </>
         ) : null}
         <div className="workspace-stage-shell">
+          {stage && stage.warnings.length > 0 && <div className="stage-warning" role="status">{stage.warnings.join(" ")}</div>}
           {!stage && (emptyContent || <EmptyState message={status || "This graph has no nodes."} hidden={false} actionLabel="Create a graph" onAction={onInitializeCanvas} />)}
           <div id="main-content" ref={containerRef} className={stage ? "is-ready" : ""} aria-live="polite" onScroll={onScroll} onContextMenu={onBackgroundContextMenu}>
             {stage ? (

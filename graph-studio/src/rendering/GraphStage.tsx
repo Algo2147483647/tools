@@ -228,11 +228,11 @@ export default function GraphStage({ stage, focusedKey, hideNodeBorders, appeara
       height={stage.stageHeight}
       style={stageStyle}
       role="img"
-      aria-label={`DAG view focused on ${stage.selection.label}`}
+      aria-label={`${stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
       onContextMenu={onBackgroundContextMenu}
     >
       <GraphDefs appearanceCss={appearance.css} />
-      <GraphBackdrop stage={stage} />
+      {stage.layoutMode !== "sankey" && <GraphBackdrop stage={stage} />}
       <g className="dag-edge-layer">
         {stage.edges.map((edge) => (
           <GraphEdge

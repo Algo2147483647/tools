@@ -15,7 +15,7 @@ export default function WelcomeScreen({files,onNew,hasDocument}:{files:Workspace
       <div className="welcome-actions">
         <button className="welcome-action primary" disabled={files.busy} onClick={files.openWorkspace}><WorkspaceIcon name="folder" size={25}/><span><strong>Open workspace</strong><small>Choose a folder of graphs and notes</small></span><span aria-hidden="true">↗</span></button>
         <button className="welcome-action" disabled={files.busy} onClick={files.openFile}><WorkspaceIcon name="file" size={25}/><span><strong>Open graph file</strong><small>Work with one Graph Studio JSON file</small></span><span aria-hidden="true">↗</span></button>
-        <div className="welcome-quick"><button onClick={onNew} disabled={files.busy}>+ Create a graph</button>{(hasDocument || files.workspace) && <button onClick={()=>files.setHomeVisible(false)}>Return to current session →</button>}</div>
+        <div className="welcome-quick"><button onClick={onNew} disabled={files.busy}>+ Create a graph</button><button onClick={files.openSankeyExample} disabled={files.busy}>Try a Sankey diagram →</button>{(hasDocument || files.workspace) && <button onClick={()=>files.setHomeVisible(false)}>Return to current session →</button>}</div>
       </div>
       <section className="welcome-recents" aria-labelledby="recent-workspaces-title">
         <div className="welcome-section-heading"><h2 id="recent-workspaces-title"><WorkspaceIcon name="recent"/>Recent workspaces</h2><span>{workspaces.length ? `${workspaces.length} saved`:"Saved on this browser"}</span></div>

@@ -1,3 +1,5 @@
+import { GRAPH_EFFECTS_CSS } from "../graph/appearance";
+
 const ARROW_MARKER_WIDTH = 10;
 const ARROW_MARKER_HEIGHT = 8;
 
@@ -8,7 +10,7 @@ interface GraphDefsProps {
 export default function GraphDefs({ appearanceCss }: GraphDefsProps) {
   return (
     <defs>
-      <style>{appearanceCss}</style>
+      <style>{`${appearanceCss}\n${GRAPH_EFFECTS_CSS}`}</style>
       <marker
         id="arrowhead"
         viewBox={`0 0 ${ARROW_MARKER_WIDTH} ${ARROW_MARKER_HEIGHT}`}

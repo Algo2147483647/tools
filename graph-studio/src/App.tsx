@@ -319,6 +319,7 @@ export default function App() {
       const message = error instanceof Error ? error.message : "The graph command failed.";
       dispatch({ type: "statusChanged", status: message });
       window.alert(message);
+      return message;
     }
   }, [state]);
 
@@ -1229,11 +1230,13 @@ export default function App() {
         field={relationEditor?.field || null}
         fieldLabel={relationEditor?.field ? getDisplayFieldName(relationEditor.field, fieldMapping) : undefined}
         node={relationEditor && state.dag ? state.dag.nodes[relationEditor.nodeKey] || null : null}
+        sankey={state.dag?.diagram === "sankey"}
         onSave={(relations) => {
           if (relationEditor) {
-            commitCommand(relationEditor.field === "parents"
+            const error = commitCommand(relationEditor.field === "parents"
               ? { type: "setParentRelations", key: relationEditor.nodeKey, parents: relations }
               : { type: "setChildRelations", key: relationEditor.nodeKey, children: relations });
+            if (error) return error;
             dispatch({ type: "modalClosed" });
           }
         }}

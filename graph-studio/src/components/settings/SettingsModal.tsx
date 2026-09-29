@@ -183,6 +183,7 @@ export default function SettingsModal({
             {(shownChapter === "appearance" || shownChapter === "layout") ? (
               <AppearanceSettings
                 view={shownChapter as "appearance" | "layout"}
+                query={query}
                 layoutMode={layoutMode}
                 appearance={appearance}
                 showNodeDetail={showNodeDetail}

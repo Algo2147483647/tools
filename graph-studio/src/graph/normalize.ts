@@ -1,5 +1,6 @@
 import type { DagNode, GraphDocument, NormalizedDag, RawGraphNode } from "./types";
 import { indexGraphDocument } from "./graphIndex";
+import { getSankeyError } from "./sankey";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -34,7 +35,8 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
   if (!isRecord(input) || input.format !== "graph-studio" || input.version !== 2) {
     throw new Error('Unsupported graph format. Expected format "graph-studio", version 2, with nodes and edges.');
   }
-  const allowed = new Set(["format", "version", "id", "title", "metadata", "nodes", "edges"]);
+  const allowed = new Set(["format", "version", "diagram", "id", "title", "metadata", "nodes", "edges"]);
+  if (input.diagram !== undefined && input.diagram !== "dag" && input.diagram !== "sankey") throw new Error('/diagram must be "dag" or "sankey".');
   for (const name of Object.keys(input)) if (!allowed.has(name)) throw new Error(`Unknown document field /${name}. Put custom document fields in metadata.`);
   for (const name of ["id", "title"]) if (input[name] !== undefined && typeof input[name] !== "string") throw new Error(`/${name} must be a string.`);
   if (input.metadata !== undefined && !isRecord(input.metadata)) throw new Error("/metadata must be an object.");
@@ -62,6 +64,10 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
     if (edge.metadata !== undefined && !isRecord(edge.metadata)) throw new Error(`${path}/metadata must be an object.`);
   });
   validateJsonValue(input, "");
+  if (input.diagram === "sankey") {
+    const error = getSankeyError(nodes as GraphDocument["nodes"], input.edges as unknown as GraphDocument["edges"]);
+    if (error) throw new Error(error);
+  }
   return indexGraphDocument(structuredClone(input) as unknown as NormalizedDag);
 }
 

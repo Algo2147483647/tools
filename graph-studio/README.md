@@ -49,7 +49,7 @@ npm run build
 npm test
 ```
 
-The app starts on a welcome page. Open a single graph file, open a folder as a workspace, or reopen a recent location. The example is available for manual opening only.
+The app starts on a welcome page. Open a single graph file, open a folder as a workspace, reopen a recent location, or choose **Try a Sankey diagram** to explore the bundled flow example.
 
 Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 
@@ -59,7 +59,9 @@ Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `n
 - initialize a blank canvas with one starter node
 - focus a node, move back through focus history, or move up to parent levels
 - work with multiple roots as a forest
-- change layout modes between `BFS`, `Sugiyama layered`, and `Dagre layered`
+- change layout modes between `BFS`, `Sugiyama layered`, `Dagre layered`, and `Sankey flow`
+- configure node shadows in Appearance settings, with live preview and SVG export
+- visualize numeric flows using the optional v2 `diagram: "sankey"` protocol ([example](public/sankey-example.json))
 - inspect every node field in a generic node viewer
 - edit relationships, rename nodes, duplicate nodes, or delete a node or subtree
 - use the graph console for batch edits with undoable transactions

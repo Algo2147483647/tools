@@ -84,6 +84,16 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
   }
   function openFile(){selectFile();}
   function openWorkspace(){selectWorkspace();}
+  function openSankeyExample() {
+    void run(async()=>{
+      const response=await fetch(`${import.meta.env.BASE_URL}sankey-example.json`);
+      if(!response.ok)throw new Error("The Sankey example could not be loaded.");
+      const dag=normalizeDagInput(await response.json());
+      if(!mayReplace())return;
+      setWorkspace(null);
+      commit(dag,{path:"sankey-example.json",handle:null});
+    });
+  }
   async function onFileChange(event:ChangeEvent<HTMLInputElement>) {
     const files=Array.from(event.currentTarget.files || []);event.currentTarget.value="";
     const recent=pendingRecent.current;pendingRecent.current=undefined;
@@ -153,7 +163,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
   return {
     workspace,recents,homeVisible,setHomeVisible,busy,notice,setNotice,explorerOpen,setExplorerOpen,
     fileInputRef,folderInputRef,onFileChange,onFolderChange,openFile,openWorkspace,openRecent,removeRecent,
-    openWorkspaceGraph,refreshWorkspace,closeWorkspace,prepareNewDocument,exportWorkspaceManifest,handleDroppedFiles,
+    openWorkspaceGraph,refreshWorkspace,closeWorkspace,prepareNewDocument,exportWorkspaceManifest,handleDroppedFiles,openSankeyExample,
   };
 }
 

@@ -45,6 +45,7 @@ export const GRAPH_APPEARANCE_PRESETS: GraphAppearancePreset[] = [
       display: {
         ...DEFAULT_GRAPH_APPEARANCE.display,
         showEdgeLabels: false,
+        nodeShadow: false,
       },
       cssVars: {
         ...DEFAULT_GRAPH_APPEARANCE.cssVars,
@@ -137,7 +138,7 @@ export const GRAPH_APPEARANCE_PRESETS: GraphAppearancePreset[] = [
 .dag-node__shape {
   filter: none;
 }
-`.trim()),
+`.trim(), { nodeShadow: false }),
   },
   {
     id: "presentation",
@@ -266,9 +267,10 @@ function buildAppearanceDiff(before: GraphAppearance, after: GraphAppearance): s
   return lines.length ? lines : ["No appearance changes expected."];
 }
 
-function createPreset(cssVars: Record<string, string>, css: string): GraphAppearance {
+function createPreset(cssVars: Record<string, string>, css: string, display: Partial<GraphAppearance["display"]> = {}): GraphAppearance {
   return sanitizeGraphAppearance({
     ...DEFAULT_GRAPH_APPEARANCE,
+    display: { ...DEFAULT_GRAPH_APPEARANCE.display, ...display },
     cssVars: {
       ...DEFAULT_GRAPH_APPEARANCE.cssVars,
       ...cssVars,

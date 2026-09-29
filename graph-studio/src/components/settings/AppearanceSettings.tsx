@@ -1,5 +1,6 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
+import { appearanceToStageStyle, GRAPH_EFFECTS_CSS } from "../../graph/appearance";
 import { GRAPH_APPEARANCE_PRESETS, type GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import type { GraphLayoutMode } from "../../graph/types";
 import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
@@ -44,24 +45,34 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const matches = (keywords: string) => !p.query || p.query.toLowerCase().split(/\s+/).every(word => keywords.toLowerCase().includes(word));
 
   if (p.view === "layout") return <>
-    {matches("layout engine algorithm level bfs sugiyama dagre layered") && <section className="settings-section"><h3>Layout engine</h3><p>Choose how nodes are arranged. Your graph data stays unchanged.</p><div className="layout-engine-grid">
+    {matches("layout engine algorithm level bfs sugiyama dagre layered sankey flow") && <section className="settings-section"><h3>Layout engine</h3><p>Choose how nodes are arranged. Your graph data stays unchanged.</p><div className="layout-engine-grid">
       {([
         ["sugiyama","Layered","Reduce crossings in connected graphs."],
         ["level","Level","Follow the graph one level at a time."],
         ["dagre","Dagre","Balance complex directed layouts."],
+        ["sankey","Sankey","Show numeric flows as proportional bands."],
       ] as const).map(([value,label,description])=><button key={value} className={p.layoutMode===value?"is-selected":""} aria-pressed={p.layoutMode===value} onClick={()=>p.onLayoutModeChange(value)}><span className={`layout-mini layout-mini--${value}`} aria-hidden="true"><i/><i/><i/><i/></span><strong>{label}</strong><small>{description}</small></button>)}
+    </div></section>}
+    {matches("sankey flow width opacity bands") && <section className="settings-section"><h3>Sankey flows</h3><p>Use non-negative numeric edge values in an acyclic graph. Node heights and band widths share one flow scale. <a href="/sankey-example.json" download>Download an example</a>.</p><div className="settings-slider-grid">
+      <DisplaySlider label="Flow node width" value={p.appearance.display.sankeyNodeWidth} min={8} max={48} unit="px" onChange={value=>p.onAppearanceDisplayChange("sankeyNodeWidth",value)}/>
+      <DisplaySlider label="Flow opacity" value={p.appearance.display.sankeyLinkOpacity} min={5} max={90} unit="%" onChange={value=>p.onAppearanceDisplayChange("sankeyLinkOpacity",value)}/>
     </div></section>}
     {matches("layout spacing layer node line height width tuning") && <section className="settings-section"><h3>Spacing & dimensions</h3><p>Fine-tune graph density and label room.</p><div className="settings-slider-grid">{LAYOUT_CONTROLS.map(control=><LayoutSliderControl key={control.key} control={control} value={p.appearance.layout[control.key]} onChange={value=>p.onLayoutAppearanceChange(control.key,value)}/>)}</div></section>}
   </>;
 
   return <>
-    {!p.query && <section className="settings-preview-card"><div><span className="eyebrow">LIVE PREVIEW</span><small>Colors, type & borders</small></div><svg viewBox="0 0 600 145" className="settings-graph-preview" style={vars as React.CSSProperties} role="img" aria-label="Graph appearance preview">
-      <style>{p.appearance.css}</style><g className="dag-graph">
+    {!p.query && <section className="settings-preview-card"><div><span className="eyebrow">LIVE PREVIEW</span><small>Colors, type & shadows</small></div><svg viewBox="0 0 600 145" className="settings-graph-preview" style={appearanceToStageStyle(p.appearance)} role="img" aria-label="Graph appearance preview">
+      <style>{`${p.appearance.css}\n${GRAPH_EFFECTS_CSS}`}</style><g className="dag-graph">
         <g className="dag-edge"><path className="dag-edge__path" d="M220 74H365"/>{p.appearance.display.showEdgeLabels && <text className="dag-edge__label-text" x="280" y="58">supports</text>}</g>
         {[{x:35,label:"Concept",detail:"A connected idea"},{x:365,label:"Theorem",detail:"A derived result"}].map(item=><g key={item.label} className="dag-node" transform={`translate(${item.x} 39)`}><rect className="dag-node__shape" width="185" height="70" rx="12" style={p.hideNodeBorders?{stroke:"none"}:undefined}/><circle className="dag-node__pin" cx="20" cy="29" r="5" fill="var(--dag-text-strong)"/><text className="dag-node__title" x="36" y="34">{item.label}</text>{p.showNodeDetail&&<text x="36" y="52" fill="var(--dag-text-soft)" fontSize="11">{item.detail}</text>}</g>)}
       </g></svg></section>}
     {matches("appearance preset theme simple compact default slate blueprint contrast presentation") && <section className="settings-section"><h3>Style presets</h3><p>A starting point for your graph. Customize any value below.</p><div className="preset-grid">
       {GRAPH_APPEARANCE_PRESETS.map(preset=><button key={preset.id} className={selectedPreset?.id===preset.id?"is-selected":""} aria-pressed={selectedPreset?.id===preset.id} onClick={()=>p.onAppearancePresetChange(preset.id)}><span className="preset-sample" style={{background:preset.appearance.cssVars["--dag-node-fill"],color:preset.appearance.cssVars["--dag-text-strong"],borderColor:preset.appearance.cssVars["--dag-node-border"]}}><i/>Aa<span>→</span><i/></span><strong>{preset.label}</strong></button>)}
+    </div></section>}
+    {matches("appearance shadow shadows elevation blur offset opacity depth") && <section className="settings-section"><h3>Node shadows</h3><Toggle label="Soft shadows" description="A subtle contact shadow with a diffuse upper layer. Dense graphs omit shadows for performance." checked={p.appearance.display.nodeShadow} onChange={()=>p.onAppearanceDisplayChange("nodeShadow",!p.appearance.display.nodeShadow)}/><div className="settings-slider-grid">
+      <DisplaySlider label="Shadow softness" value={p.appearance.display.shadowBlur} min={0} max={32} unit="px" disabled={!p.appearance.display.nodeShadow} onChange={value=>p.onAppearanceDisplayChange("shadowBlur",value)}/>
+      <DisplaySlider label="Shadow distance" value={p.appearance.display.shadowOffset} min={0} max={16} unit="px" disabled={!p.appearance.display.nodeShadow} onChange={value=>p.onAppearanceDisplayChange("shadowOffset",value)}/>
+      <DisplaySlider label="Shadow opacity" value={p.appearance.display.shadowOpacity} min={0} max={40} unit="%" disabled={!p.appearance.display.nodeShadow} onChange={value=>p.onAppearanceDisplayChange("shadowOpacity",value)}/>
     </div></section>}
     {matches("appearance colors tokens fill border root edge active title soft text") && <section className="settings-section"><h3>Colors</h3><div className="color-settings-grid">{APPEARANCE_TOKEN_CONTROLS.filter(token=>token.key!=="--dag-title-font-size").map(token=><label key={token.key}><span>{token.label}</span><div><span className="color-swatch" style={{background:vars[token.key]}}/><input aria-label={token.label} value={p.cssVarDrafts[token.key] ?? vars[token.key] ?? ""} onChange={event=>p.onCssVarDraftsChange(current=>({...current,[token.key]:event.target.value}))} onBlur={event=>p.onAppearanceCssVarChange(token.key,event.target.value)} onKeyDown={event=>{if(event.key==="Enter")event.currentTarget.blur();}}/></div></label>)}</div></section>}
     {matches("appearance typography font title size bold italic") && <section className="settings-section"><h3>Typography</h3><div className="typography-settings"><label>Title font<select aria-label="Title font" value={titleFamily} onChange={event=>p.onAppearanceCssVarChange("--dag-title-font-family",event.target.value)}>{GRAPH_TITLE_FONT_OPTIONS.map(font=><option key={font.value} value={font.value}>{font.label}</option>)}</select></label><label>Size (px)<input aria-label="Title font size" type="number" min="10" max="28" value={p.titleSizeDraft} onChange={event=>p.onTitleSizeDraftChange(event.target.value)} onBlur={()=>p.onAppearanceCssVarChange("--dag-title-font-size",`${clampNumberInput(p.titleSizeDraft,10,28,p.titleFontSize)}px`)} onKeyDown={event=>{if(event.key==="Enter")event.currentTarget.blur();}}/></label><button className="studio-button" aria-label="Bold title" aria-pressed={vars["--dag-title-font-weight"]==="700"} onClick={()=>p.onAppearanceCssVarChange("--dag-title-font-weight",vars["--dag-title-font-weight"]==="700"?"400":"700")}><b>B</b></button><button className="studio-button" aria-label="Italic title" aria-pressed={vars["--dag-title-font-style"]==="italic"} onClick={()=>p.onAppearanceCssVarChange("--dag-title-font-style",vars["--dag-title-font-style"]==="italic"?"normal":"italic")}><i>I</i></button></div></section>}
@@ -76,4 +87,8 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
 }
 function Toggle({label,description,checked,onChange}:{label:string;description:string;checked:boolean;onChange:()=>void}) {
   return <label className="settings-toggle-row"><span><strong>{label}</strong><small>{description}</small></span><input type="checkbox" role="switch" checked={checked} onChange={onChange}/></label>;
+}
+
+function DisplaySlider({label,value,min,max,unit,disabled,onChange}:{label:string;value:number;min:number;max:number;unit:string;disabled?:boolean;onChange:(value:number)=>void}) {
+  return <label className="display-slider"><span>{label}<output>{value}{unit}</output></span><input type="range" aria-label={label} min={min} max={max} value={value} disabled={disabled} onChange={event=>onChange(Number(event.target.value))}/></label>;
 }

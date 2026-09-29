@@ -11,6 +11,8 @@ import type { LayoutRoutePoint, StageData, StageNode, StageNodeColorTokens, Stag
 import { buildLevelLayout } from "./algorithms/level";
 import { buildDagreLayout } from "./algorithms/dagre";
 import { buildSugiyamaLayout } from "./algorithms/sugiyama";
+import { buildSankeyStage } from "./algorithms/sankey";
+import { getSankeyError } from "../graph/sankey";
 import { buildSugiyamaStageRoutes, buildSugiyamaVerticalPlanner } from "./sugiyama-edge-routing";
 
 const DETAIL_HORIZONTAL_INSET = 74;
@@ -43,7 +45,7 @@ export function buildStageData(input: {
   showNodeDetail?: boolean;
   alignNodeWidthsToMax?: boolean;
 }): StageData | null {
-  const { dag: sourceDag, mapping = getDefaultFieldMapping(), selection: requestedSelection, layoutMode = "sugiyama", appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = true, alignNodeWidthsToMax = false } = input;
+  const { dag: sourceDag, mapping = getDefaultFieldMapping(), selection: requestedSelection, layoutMode = sourceDag.diagram === "sankey" ? "sankey" : "sugiyama", appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = true, alignNodeWidthsToMax = false } = input;
   const theme = appearance.layout;
   if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {
     return null;
@@ -60,6 +62,15 @@ export function buildStageData(input: {
   const typeColorMap = buildTypeColorMap(input.colorSourceDag ?? sourceDag, mapping);
   const edgeIds = new Map(sourceDag.edges.map(edge => [JSON.stringify([edge.source, edge.target]), edge.id]));
   const visualByKey = buildNodeVisualMap(layoutDag, reachable, mapping, theme, showNodeDetail, alignNodeWidthsToMax);
+  if (layoutMode === "sankey") {
+    const error = getSankeyError(sourceDag.nodes, sourceDag.edges);
+    if (error) {
+      const fallback = buildStageData({ ...input, layoutMode: "sugiyama" });
+      if (fallback) fallback.warnings.unshift(`${error} Showing the layered layout.`);
+      return fallback;
+    }
+    return buildSankeyStage(sourceDag, reachable, selection, visualByKey, appearance);
+  }
   const layoutResult = resolveLayout(layoutMode, layoutDag, layoutRoots, mapping, visualByKey, theme);
   const coordinates = layoutResult.coordinates;
   const nodeKeys = Array.from(reachable).filter((key) => layoutDag[key] && coordinates.has(key));

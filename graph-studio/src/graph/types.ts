@@ -20,6 +20,7 @@ export interface GraphEdge {
 export interface GraphDocument {
   format: "graph-studio";
   version: 2;
+  diagram?: "dag" | "sankey";
   id?: string;
   title?: string;
   metadata?: Record<string, unknown>;
@@ -44,10 +45,12 @@ export type GraphSelection =
 
 export type GraphMode = "edit";
 
-export type GraphLayoutMode = "level" | "sugiyama" | "dagre";
+export type GraphLayoutMode = "level" | "sugiyama" | "dagre" | "sankey";
 
 export function getGraphLayoutLabel(mode: GraphLayoutMode): string {
   switch (mode) {
+    case "sankey":
+      return "Sankey flow";
     case "sugiyama":
       return "Sugiyama layered";
     case "dagre":

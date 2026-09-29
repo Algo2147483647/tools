@@ -4,8 +4,8 @@ export type SettingsChapter = "general" | "appearance" | "layout" | "ai";
 
 export const SETTINGS_CHAPTERS: Array<{ key: SettingsChapter; label: string; description: string; icon: string; keywords: string }> = [
   { key: "general", label: "Workspace", description: "Files, folders & recent locations", icon: "folder", keywords: "open create graph new refresh close current session manifest detection default console svg export import workspace" },
-  { key: "appearance", label: "Appearance", description: "Colors, typography & visibility", icon: "palette", keywords: "preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges custom css advanced stylesheet configuration import export reset" },
-  { key: "layout", label: "Layout", description: "Arrangement & spacing", icon: "layout", keywords: "engine algorithm level bfs sugiyama dagre layered layer node line height width tuning" },
+  { key: "appearance", label: "Appearance", description: "Colors, typography & shadows", icon: "palette", keywords: "shadow shadows elevation blur offset opacity depth preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges custom css advanced stylesheet configuration import export reset" },
+  { key: "layout", label: "Layout", description: "Arrangement & spacing", icon: "layout", keywords: "sankey flow opacity bands spacing engine algorithm level bfs sugiyama dagre layered layer node line height width tuning" },
   { key: "ai", label: "AI assistant", description: "Providers & execution", icon: "ai", keywords: "provider model base url api key token temperature temp connection test ask review automatic read edit" },
 ];
 

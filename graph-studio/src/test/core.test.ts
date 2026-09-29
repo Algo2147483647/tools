@@ -7,6 +7,7 @@ import { importMergeSuite } from "./importMerge.test";
 import { runSuites } from "./harness";
 import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
+import { sankeySuite } from "./sankey.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -18,6 +19,7 @@ async function main() {
     fieldMappingSuite,
     stateSuite,
     workspaceSuite,
+    sankeySuite,
   ]);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);

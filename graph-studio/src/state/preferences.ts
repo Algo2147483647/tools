@@ -107,7 +107,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   if (parsed.mode === "edit") {
     next.mode = parsed.mode;
   }
-  if (parsed.layoutMode === "level" || parsed.layoutMode === "sugiyama" || parsed.layoutMode === "dagre") {
+  if (parsed.layoutMode === "level" || parsed.layoutMode === "sugiyama" || parsed.layoutMode === "dagre" || parsed.layoutMode === "sankey") {
     next.layoutMode = parsed.layoutMode;
   }
   if (parsed.appearance && typeof parsed.appearance === "object" && !Array.isArray(parsed.appearance)) {

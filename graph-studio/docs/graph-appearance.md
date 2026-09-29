@@ -83,6 +83,16 @@ Display flags control graph visibility choices that are not layout geometry or r
 | Key | Meaning |
 | --- | --- |
 | `showEdgeLabels` | Whether relation-value edge labels are rendered |
+| `nodeShadow` | Enable the two-layer node shadow (default `true`) |
+| `shadowBlur` | Diffuse shadow softness, 0–32 px (default 8) |
+| `shadowOffset` | Vertical shadow distance, 0–16 px (default 3) |
+| `shadowOpacity` | Shadow opacity, 0–40 percent (default 12) |
+| `sankeyNodeWidth` | Width of Sankey bars, 8–48 px (default 20) |
+| `sankeyLinkOpacity` | Flow-band opacity, 5–90 percent (default 32) |
+
+Use **Settings → Appearance → Node shadows** for live shadow controls, and **Settings → Layout → Sankey flows** for flow styling. All values persist in browser preferences and appearance JSON. Older appearance configurations receive defaults for new fields. Shadow controls take precedence over custom CSS filters; dense graphs omit shadows for performance. Exported SVG retains the rendered styles and flow geometry.
+
+Sankey node heights are derived from flow, while the node-height layout control sets the available vertical room. Node spacing separates bars. Column spacing reserves additional label room; card width settings cap label width. Edge-lane spacing and equal card widths apply to ordinary graph layouts. Sankey uses `.dag-edge__flow`, `.dag-node__flow-label`, and `.dag-node__flow-value` for CSS customization.
 
 ## CSS Variables
 

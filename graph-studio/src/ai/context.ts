@@ -57,6 +57,7 @@ export function buildAiGraphContext({
     commandReference,
     summary: [
       `Graph has ${keys.length} node${keys.length === 1 ? "" : "s"} and ${edgeCount} directed edge${edgeCount === 1 ? "" : "s"}.`,
+      dag.diagram === "sankey" ? "Sankey document: edge values are finite, non-negative numeric flows; cycles are rejected. Use numeric weights with /edge. Node colors can use a six-digit hex color field." : "",
       `Application mode: ${mode}`,
       `Layout mode: ${layoutMode}`,
       formatAppearanceSummary(appearance),

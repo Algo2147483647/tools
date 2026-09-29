@@ -16,7 +16,9 @@ const GraphEdge = memo(function GraphEdge({ edge, showLabel }: GraphEdgeProps) {
       data-label={edge.label}
       data-active="false"
     >
-      <path className="dag-edge__path" d={edge.path} markerEnd="url(#arrowhead)" />
+      <title>{`${edge.source} → ${edge.target}: ${edge.label}`}</title>
+      {edge.flow ? <path className="dag-edge__flow" d={edge.path} stroke={edge.flow.color} strokeWidth={edge.flow.width} />
+        : <path className="dag-edge__path" d={edge.path} markerEnd="url(#arrowhead)" />}
       {showLabel && edge.label ? <EdgeLabel label={edge.label} x={edge.labelPosition.x} y={edge.labelPosition.y} /> : null}
     </g>
   );

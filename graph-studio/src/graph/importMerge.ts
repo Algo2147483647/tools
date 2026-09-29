@@ -47,6 +47,9 @@ export function analyzeGraphImport(documents: ImportGraphDocument[], resolutions
     catch (error) { throw new Error(`${doc.name}: ${error instanceof Error ? error.message : String(error)}`); }
   });
   const output = structuredClone(parsed[0]);
+  if (parsed.some(doc => (doc.diagram ?? "dag") !== (output.diagram ?? "dag"))) {
+    throw new Error("DAG and Sankey documents use different edge semantics. Open them separately or explicitly convert them to the same diagram type before merging.");
+  }
   const conflicts: ImportConflict[] = [];
   const unresolved: ImportConflict[] = [];
   const decide = (index: number, path: string, kind: ImportConflict["kind"], existing: unknown, incoming: unknown, canMerge: boolean, canRename: boolean) => {

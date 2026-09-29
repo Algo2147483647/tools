@@ -28,7 +28,7 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
           savedRevision: 0,
         },
         mode: "edit",
-        layout: state.layout,
+        layout: { ...state.layout, mode: action.dag.diagram === "sankey" ? "sankey" : state.layout.mode },
         ui: {
           ...initialGraphAppState.ui,
           consoleSidebarOpen: state.ui.consoleSidebarOpen,

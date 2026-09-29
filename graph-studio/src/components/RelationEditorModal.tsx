@@ -9,7 +9,8 @@ interface RelationEditorModalProps {
   field: "parents" | "children" | null;
   fieldLabel?: string;
   node: DagNode | null;
-  onSave: (relations: Record<NodeKey, RelationValue>) => void;
+  sankey?: boolean;
+  onSave: (relations: Record<NodeKey, RelationValue>) => string | void;
   onClose: () => void;
 }
 
@@ -19,18 +20,18 @@ interface RelationRow {
   value: string;
 }
 
-export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, node, onSave, onClose }: RelationEditorModalProps) {
+export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, node, sankey = false, onSave, onClose }: RelationEditorModalProps) {
   const [value, setValue] = useState("");
   const [rows, setRows] = useState<RelationRow[]>([]);
   const [error, setError] = useState("");
   const nextRowIdRef = useRef(0);
 
-  function createRow(key = "", relationValue = ""): RelationRow {
+  function createRow(key = "", relationValue = sankey ? "1" : ""): RelationRow {
     nextRowIdRef.current += 1;
     return {
       id: `relation-row-${nextRowIdRef.current}`,
       key,
-      value: relationValue,
+      value: relationValue || (sankey ? "1" : ""),
     };
   }
 
@@ -56,7 +57,12 @@ export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, 
       setError(normalized.message);
       return;
     }
-    onSave(normalized.relations);
+    if (sankey && Object.values(normalized.relations).some(value => typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+      setError("Sankey flow values must be finite, non-negative numbers.");
+      return;
+    }
+    const saveError = onSave(normalized.relations);
+    if (saveError) setError(saveError);
   }
 
   return (
@@ -84,7 +90,7 @@ export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, 
             <thead>
               <tr>
                 <th scope="col">Key</th>
-                <th scope="col">Value</th>
+                <th scope="col">{sankey ? "Flow value (≥ 0)" : "Value"}</th>
                 <th scope="col" aria-label="Actions">Actions</th>
               </tr>
             </thead>
