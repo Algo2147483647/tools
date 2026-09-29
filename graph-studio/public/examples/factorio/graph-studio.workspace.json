@@ -3,30 +3,14 @@
   "version": 1,
   "name": "Factorio production",
   "graphs": [
-    "start-here.json",
-    "all-products.json",
-    "electronics.json",
-    "science.json",
-    "metallurgy.json",
-    "chemistry.json",
-    "biology.json",
-    "cryogenics.json",
-    "space.json",
-    "electromagnetics.json",
-    "nuclear.json",
-    "crafting.json",
-    "recycling.json"
+    "rocket-1-per-second.json",
+    "science-1-per-second.json"
   ],
-  "defaultGraph": "start-here.json",
+  "defaultGraph": "rocket-1-per-second.json",
   "metadata": {
     "version": "2.0.65",
-    "source": "https://wiki.factorio.com/Data.raw",
-    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
-    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
-    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
-    "interpretation": "Shared materials connect producing and consuming recipes across the full network. Return flows preserve recycling and catalysts. Quantities are per craft, not balanced factory throughput.",
-    "recipeCount": 648,
-    "productCount": 328,
+    "quantityBasis": "Per-second target-driven material balances",
+    "sciencePackCount": 12,
     "assets": [
       "README.md"
     ]

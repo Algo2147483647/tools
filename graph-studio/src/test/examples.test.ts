@@ -48,68 +48,79 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       }
     }
   }),
-  defineTest("Factorio covers every productive recipe in the pinned source", async () => {
-    const source = JSON.parse(await readFile("scripts/data/factorio-recipes-2.0.65.json", "utf8"));
-    const atlas = await exampleGraph("factorio", "all-products.json");
-    const recipes = source.recipes.filter((r:{results?: unknown[]}) => Array.isArray(r.results) && r.results.length);
-    assert.equal(recipes.length, 648);
-    assert.equal(Object.values(atlas.nodes).filter(n => n.type === "Recipe").length, recipes.length);
-    const products = new Set<string>(recipes.flatMap((r:{results:{name:string}[]}) => r.results.map(p => p.name)));
-    const outputs = new Set(atlas.edges.filter(e => e.metadata?.role === "output").map(e => atlas.nodes[e.target].productId));
-    assert.equal(outputs.size, 328);
-    assert.deepEqual(outputs, products);
-    assert.ok(Object.keys(atlas.nodes).every(key => !/^(input|output):/.test(key)));
-    for (const recipe of recipes) {
-      assert.ok(atlas.nodes[`recipe:${recipe.name}`], recipe.name);
-      assert.equal(atlas.edges.filter(e => e.metadata?.recipe === recipe.name).length, (recipe.ingredients?.length || 0) + recipe.results.length);
-      for (const p of Array.isArray(recipe.ingredients) ? recipe.ingredients : []) assert.ok(atlas.edges.some(e => e.source === `material:${p.type}:${p.name}` && e.target === `recipe:${recipe.name}`));
-      for (const p of recipe.results) assert.ok(atlas.edges.some(e => e.target === `material:${p.type}:${p.name}` && e.source === `recipe:${recipe.name}`));
+  defineTest("Factorio replaces the atlas with two target plans and restores obsolete recent paths", async () => {
+    const folder = await loadExampleWorkspace("factorio", "/", localFetch);
+    for (const previous of ["all-products.json", "start-here.json", "science.json"]) {
+      const workspace = await discoverWorkspace(folder, previous);
+      assert.deepEqual(workspace.graphs.map(g => g.path), ["rocket-1-per-second.json", "science-1-per-second.json"]);
+      assert.equal(workspace.activePath, "rocket-1-per-second.json");
     }
-    const recovered = atlas.edges.find(e => e.source === "recipe:accumulator-recycling" && e.target === "material:item:iron-plate");
-    assert.equal(recovered?.value, 0.5, "recycling fraction must not be counted twice");
-    const uranium = atlas.edges.find(e => e.source === "recipe:uranium-processing" && e.target === "material:item:uranium-235");
-    assert.equal(uranium?.value, 0.007);
-    const stage = buildStageData({ dag: atlas, selection: {type:"full"} })!;
-    assert.equal(stage.nodes.length, Object.keys(atlas.nodes).length);
-    assert.equal(stage.edges.length, atlas.edges.length);
-    assert.ok(stage.edges.every(e => !/NaN|Infinity/.test(e.path)));
-    assert.ok(stage.nodes.every(n => Number.isFinite(n.x) && Number.isFinite(n.y) && n.height >= 0));
-    assert.ok(stage.edges.find(e => e.id === recovered!.id)!.flow!.feedback);
-    assert.ok(new Set(stage.nodes.map(n => n.layer)).size > 3);
-  }),
-  defineTest("Factorio starter connects ore, smelting, cable and circuit production across seven layers", async () => {
-    const dag = await exampleGraph("factorio", "start-here.json");
-    const chain = ["material:item:copper-ore","recipe:copper-plate","material:item:copper-plate","recipe:copper-cable","material:item:copper-cable","recipe:electronic-circuit","material:item:electronic-circuit"];
-    const stage = buildStageData({dag,selection:{type:"full"}})!;
-    for (let i = 1; i < chain.length; i++) {
-      assert.ok(dag.edges.some(e => e.source === chain[i - 1] && e.target === chain[i]));
-      assert.ok(stage.nodeMap[chain[i]].x > stage.nodeMap[chain[i - 1]].x);
+    const rocket = await exampleGraph("factorio", "rocket-1-per-second.json");
+    assert.deepEqual(rocket.metadata!.targetsPerSecond, {"item:launch-ready-rocket":1});
+    assert.equal(rocket.nodes["recipe:rocket-part"].craftsPerSecond, 50);
+    for (const name of ["processing-unit", "low-density-structure", "rocket-fuel"]) {
+      assert.equal(rocket.edges.find(e => e.source === `material:item:${name}` && e.target === "recipe:rocket-part")!.value, 50);
     }
-    assert.ok(dag.edges.some(e => e.source === "material:item:iron-plate" && e.target === "recipe:electronic-circuit"));
-    assert.equal(Object.values(dag.nodes).filter(n => n.productId === "copper-cable").length, 1);
-    assert.equal(new Set(stage.nodes.map(n => n.layer)).size, 7);
-    assert.equal(dag.metadata?.upstreamRecipeCount, 2);
+    assert.equal(rocket.nodes["supply:item:copper-ore"].ratePerSecond, 3000);
+    assert.equal(rocket.nodes["supply:item:iron-ore"].ratePerSecond, 1705);
+    assert.ok(!rocket.nodes["recipe:rocket"], "A launch vehicle is not rocket ammunition");
+    const science = await exampleGraph("factorio", "science-1-per-second.json");
+    const packs = ["automation","logistic","military","chemical","production","utility","space","metallurgic","electromagnetic","agricultural","cryogenic","promethium"];
+    assert.deepEqual(science.metadata!.targetsPerSecond, Object.fromEntries(packs.map(name => [`item:${name}-science-pack`,1])));
+    for (const name of packs) assert.equal(science.nodes[`target:item:${name}-science-pack`].ratePerSecond, 1);
+    for (const [name, batch] of [["chemical",2],["military",2],["production",3],["utility",3],["space",5],["promethium",10],["agricultural",1.5],["metallurgic",1.5],["electromagnetic",1.5]] as const) {
+      assert.equal(science.nodes[`recipe:${name}-science-pack`].craftsPerSecond, 1 / batch);
+    }
   }),
-  defineTest("every focused Factorio view loads its upstream dependencies and preserves all flows", async () => {
-    const manifest = JSON.parse(await readFile("public/examples/factorio/graph-studio.workspace.json", "utf8"));
-    for (const file of manifest.graphs.filter((path:string) => path !== "all-products.json")) {
+  defineTest("Factorio rates balance every shared material and account for each recipe input and output", async () => {
+    const close = (a:number, b:number, message:string) => assert.ok(Math.abs(a - b) < 1e-8 * Math.max(1, Math.abs(a), Math.abs(b)), `${message}: ${a} != ${b}`);
+    for (const file of ["rocket-1-per-second.json", "science-1-per-second.json"]) {
+      const dag = await exampleGraph("factorio", file);
+      assert.ok(dag.edges.every(e => typeof e.value === "number" && Number.isFinite(e.value) && e.value > 0));
+      for (const [key, node] of Object.entries(dag.nodes)) {
+        const incoming = dag.edges.filter(e => e.target === key);
+        const outgoing = dag.edges.filter(e => e.source === key);
+        if (key.startsWith("material:")) {
+          const b = node.balancePerSecond as Record<string,number>;
+          close(b.produced + b.external, b.consumed + b.target + b.surplus, `${key} ledger`);
+          close(incoming.reduce((s,e) => s + Number(e.value),0), b.produced + b.external, `${key} incoming`);
+          close(outgoing.reduce((s,e) => s + Number(e.value),0), b.consumed + b.target + b.surplus, `${key} outgoing`);
+        }
+        if (key.startsWith("recipe:")) {
+          for (const [field, edges, endpoint] of [["inputsPerCraft",incoming,"source"],["outputsPerCraft",outgoing,"target"]] as const) {
+            const coefficients = node[field] as Record<string,number>;
+            assert.equal(edges.length, Object.keys(coefficients).length);
+            for (const [material, amount] of Object.entries(coefficients)) {
+              close(Number(edges.find(e => e[endpoint] === `material:${material}`)!.value), amount * Number(node.craftsPerSecond), `${key} ${material}`);
+            }
+          }
+        }
+      }
+      const reachable = new Set(Object.keys(dag.nodes).filter(key => key.startsWith("supply:")));
+      for (let previous = -1; previous !== reachable.size;) {
+        previous = reachable.size;
+        for (const edge of dag.edges) if (reachable.has(edge.source)) reachable.add(edge.target);
+      }
+      assert.equal(reachable.size, Object.keys(dag.nodes).length, "Every process and target must connect to upstream raw supply");
+    }
+  }),
+  defineTest("complete Factorio target chains render all branches and catalyst/coolant returns", async () => {
+    for (const file of ["rocket-1-per-second.json", "science-1-per-second.json"]) {
       const dag = await exampleGraph("factorio", file);
       const stage = buildStageData({dag,selection:{type:"full"}})!;
-      assert.equal(stage.edges.length, dag.edges.length, file);
-      assert.equal(stage.nodes.length, Object.keys(dag.nodes).length, file);
-      assert.ok(stage.edges.every(e => !/NaN|Infinity/.test(e.path)), file);
-      assert.ok(stage.nodes.every(n => [n.x,n.y,n.height].every(Number.isFinite)), file);
-      const external = new Set(dag.metadata!.externalInputs as string[]);
-      for (const edge of dag.edges.filter(e => e.metadata?.role === "input")) {
-        assert.ok(external.has(edge.source) || dag.edges.some(e => e.target === edge.source), `${file}: missing upstream ${edge.source}`);
-      }
+      assert.equal(stage.nodes.length, Object.keys(dag.nodes).length);
+      assert.equal(stage.edges.length, dag.edges.length);
+      assert.ok(stage.edges.every(e => !/NaN|Infinity/.test(e.path)));
+      assert.ok(stage.nodes.every(n => [n.x,n.y,n.height].every(Number.isFinite)));
+      assert.ok(new Set(stage.nodes.map(n => n.layer)).size > 8);
+      for (const edge of dag.edges.filter(e => e.metadata?.feedback)) assert.ok(stage.edges.find(e => e.id === edge.id)!.flow!.feedback);
+      for (const node of stage.nodes.filter(n => n.key.startsWith("target:"))) assert.equal(node.layer, Math.max(...stage.nodes.map(n => n.layer)));
     }
-    const electronics = await exampleGraph("factorio", "electronics.json");
-    for (const name of ["iron-plate","copper-plate","plastic-bar","sulfuric-acid"]) assert.ok(electronics.nodes[`recipe:${name}`], name);
-    const nuclear = await exampleGraph("factorio", "nuclear.json");
-    assert.ok(nuclear.nodes["recipe:advanced-oil-processing"], "Rocket fuel must trace oil back to refining, not a barrel filling/emptying cycle");
-    assert.ok(nuclear.nodes["material:fluid:crude-oil"]);
-    assert.ok(!nuclear.nodes["recipe:empty-light-oil-barrel"]);
+    const science = await exampleGraph("factorio", "science-1-per-second.json");
+    assert.ok(science.edges.some(e => e.source === "recipe:pentapod-egg" && e.target === "material:item:pentapod-egg" && e.metadata?.feedback));
+    assert.ok(science.edges.some(e => e.source === "recipe:cryogenic-science-pack" && e.target === "material:fluid:fluoroketone-hot" && e.metadata?.feedback));
+    assert.ok(science.edges.some(e => e.source === "material:item:bioflux" && e.target === "recipe:biter-egg"));
+    assert.ok(science.nodes["recipe:nutrients-from-bioflux"]);
   }),
   defineTest("example opens are independent copies and recent entries reopen without folder permission", async () => {
     const first = await loadExampleWorkspace("energy", "/", localFetch);

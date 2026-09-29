@@ -1,4 +1,4 @@
-import { sankey, sankeyJustify } from "d3-sankey";
+import { sankey } from "d3-sankey";
 import type { GraphAppearance } from "../../graph/appearance";
 import type { GraphEdge, NormalizedDag } from "../../graph/types";
 import { findFeedbackEdges, formatFlow } from "../../graph/sankey";
@@ -48,7 +48,10 @@ export function buildSankeyStage(
     }
   }
   const lastLayer = Math.max(0, ...rank.values());
-  const layerOf = (key: string) => feedback.size || outgoing.has(key) ? rank.get(key)! : lastLayer;
+  // Keep final outputs at the right edge even when other branches have cycles.
+  // A node with a return-only output is still a producer, not a terminal sink.
+  const producers = new Set(positiveEdges.map(edge => edge.source));
+  const layerOf = (key: string) => producers.has(key) ? rank.get(key)! : lastLayer;
   const columns = new Map<number, string[]>();
   activeKeys.forEach(key => columns.set(layerOf(key), [...(columns.get(layerOf(key)) ?? []), key]));
   const padding = Math.max(18, theme.rowGap);
@@ -88,7 +91,7 @@ export function buildSankeyStage(
   if (forwardEdges.length) {
     const result = sankey<FlowNode, FlowLink>()
       .nodeId(node => node.id).nodeWidth(nodeWidth).nodePadding(padding)
-      .nodeAlign(feedback.size ? node => rank.get(node.id)! : sankeyJustify).iterations(32)
+      .nodeAlign(node => layerOf(node.id)).iterations(32)
       .extent([[left, theme.stagePaddingY], [right, theme.stagePaddingY + innerHeight]])({
         nodes: [...activeKeys].map(id => ({ id, fixedValue: normalizedTotal(id) })),
         links: forwardEdges.map(edge => ({ id: edge.id, source: edge.source, target: edge.target, value: Number(edge.value) / maximum })),

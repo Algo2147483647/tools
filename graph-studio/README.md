@@ -52,12 +52,12 @@ npm test
 The app starts on a welcome page. Open a graph file, open a folder as a workspace, reopen a recent location, or explore one of three independent example workspaces:
 
 - **Mathematics:** 112 concepts, eight subject views, and linked English notes adapted from `math/studio`.
-- **Factorio production:** 648 production and recycling recipes, covering 328 recipe products in the official wiki's Factorio 2.0.65 Space Age snapshot. Thirteen views include a complete recipe atlas and smaller manufacturing topics.
+- **Factorio production:** two demand-driven Space Age 2.0.65 Sankey plans: one complete launch-ready rocket per second, or all 12 science packs simultaneously at one of each per second. Both trace production back to raw resources.
 - **Energy flows:** a compact, balanced Sankey example with eight nodes and nine flows.
 
 Examples open fresh editable copies and can be reopened from Recents without folder permissions. The canvas fills the window, with the `math/studio` glass toolbar and workspace panels floating above it. Fit uses the area visible beside the panels; panning can move the graph beneath them.
 
-Factorio values describe one craft per recipe, with expected probabilistic outputs. Shared material nodes connect production across multiple stages; recycling and catalysts use return bands. Focused views include representative upstream recipes. The network describes dependencies and per-craft quantities, not a balanced factory-rate calculation; mining, spoilage and other non-recipe events are outside its scope. See [Example workspaces](docs/examples.md) for sources and regeneration.
+Factorio values are calculated per-second material flows, including batch yields, built-in machine productivity, biological fuel, credited coproducts and catalyst/coolant returns. Surplus output is explicit. These aggregate material plans exclude power, heating, transport, spoilage in transit, construction and launch scheduling. See [Example workspaces](docs/examples.md) for sources, assumptions and regeneration.
 
 Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 

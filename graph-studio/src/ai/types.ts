@@ -1,6 +1,6 @@
 export type AiProvider = "openai-compatible" | "deepseek" | "anthropic" | "gemini" | "ollama";
 
-export type AiExecutionMode = "ask" | "review" | "auto-readonly" | "auto-edit";
+export type AiExecutionMode = "ask" | "review" | "auto-edit";
 
 export interface AiSettings {
   provider: AiProvider;

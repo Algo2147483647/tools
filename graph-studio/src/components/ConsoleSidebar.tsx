@@ -2,30 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { AiEvent, AiHarnessState, CommandBatch, ValidationReport } from "../ai/types";
 import type { NodeKey } from "../graph/types";
 
-export interface ConsoleReviewCard {
-  planId: string;
-  title: string;
-  goal: string;
-  riskLevel: "low" | "medium" | "high";
-  status: "ready" | "failed" | "applied" | "dismissed" | "stale";
-  commandCount: number;
-  changeCount: number;
-  commands: string[];
-  diffPreview: string[];
-  validationSummary: string;
-  canApply: boolean;
-}
-
-export type ConsoleEntryTone = "input" | "success" | "error" | "info" | "ai" | "ai-action" | "ai-review";
-
-export type ConsoleEntry =
-  | { id: number; tone: Exclude<ConsoleEntryTone, "ai-review">; text: string }
-  | { id: number; tone: "ai-review"; text: string; review: ConsoleReviewCard };
-
-interface ConsoleSuggestion {
-  label: string;
-  insertText: string;
-}
+import type { ConsoleEntry, ConsoleReviewCard, ConsoleSuggestion } from "../console/types";
 
 interface ConsoleSidebarProps {
   hasGraph: boolean;

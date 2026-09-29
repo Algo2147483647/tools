@@ -1,3 +1,4 @@
+import { classifyCommandRisk, isDestructiveCommand } from "./executionPolicy";
 import { createGraphDocument } from "../graph/normalize";
 import { executeConsoleInstructions } from "../console/executor";
 import { parseConsoleSource } from "../console/dsl";
@@ -482,21 +483,7 @@ export function markPendingBatchExecuted(harness: AiHarnessState, turnId: string
   };
 }
 
-export function shouldExecuteValidatedBatch(mode: AiExecutionMode, validation: ValidationReport): boolean {
-  if (!validation.allPassed) {
-    return false;
-  }
-  if (mode === "auto-readonly") {
-    return validation.riskLevel === "low" && !validation.requiresConfirmation;
-  }
-  if (mode !== "auto-edit") {
-    return false;
-  }
-  if (validation.riskLevel === "high") {
-    return false;
-  }
-  return !validation.results.some((result) => result.command.trim().toLowerCase().startsWith("/rm"));
-}
+
 
 export function formatPlanCard(plan: ActionPlan): string {
   const commandCount = plan.commandBatch?.commands.length || 0;
@@ -531,31 +518,10 @@ export function formatReviewInstruction(mode: AiExecutionMode): string {
   if (mode === "review") {
     return "Review mode: preflight passed. Type \"apply it\" to execute the pending command batch.";
   }
-  if (mode === "auto-readonly") {
-    return "Auto Readonly mode: edit commands are held for review. Switch to Review or Auto Edit to apply them.";
-  }
   return "Auto Edit mode: command batch is ready.";
 }
 
-export function isReadOnlyCommand(command: string): boolean {
-  const normalized = command.trim().toLowerCase();
-  return (
-    normalized === "/help"
-    || normalized === "/keys"
-    || normalized === "/graph"
-    || normalized === "/clear"
-    || normalized === "/cls"
-    || normalized.startsWith("/find ")
-    || normalized.startsWith("/ls ")
-    || normalized.startsWith("/neighbors ")
-    || normalized.startsWith("/path ")
-    || normalized.startsWith("/use ")
-    || normalized.startsWith("/show ")
-    || normalized.startsWith("/json ")
-    || normalized === "/style-css"
-    || normalized === "/style-css show"
-  );
-}
+
 
 function createEmptyWorkingMemory(): WorkingMemory {
   return {
@@ -624,7 +590,7 @@ function collectChangesFromResponse(response: Extract<AiResponse, { kind: "propo
   const commands = response.kind === "run_console" ? response.commandBatch.commands : response.commands;
   return commands.map((command, index) => ({
     id: createId(`change-${index}`),
-    kind: isReadOnlyCommand(command) ? "set_property" : inferChangeKind(command),
+    kind: inferChangeKind(command),
     rationale: response.answer,
     draftCommands: [command],
     dependencies: [],
@@ -767,27 +733,9 @@ function isRelationField(field: string, mapping: FieldMapping): boolean {
   return field === mapping.parents || field === mapping.children;
 }
 
-function classifyCommandRisk(command: string): AiRiskLevel {
-  const normalized = command.trim().toLowerCase();
-  if (normalized.startsWith("/style-reset") || normalized.startsWith("/style-css replace")) {
-    return "medium";
-  }
-  if (normalized.startsWith("/style-") || normalized.startsWith("/layout ")) {
-    return "low";
-  }
-  if (isDestructiveCommand(normalized) || normalized.startsWith("/parents ") || normalized.startsWith("/children ")) {
-    return "high";
-  }
-  if (isReadOnlyCommand(normalized)) {
-    return "low";
-  }
-  return "medium";
-}
 
-function isDestructiveCommand(command: string): boolean {
-  const normalized = command.trim().toLowerCase();
-  return normalized.startsWith("/rm ") || normalized.startsWith("/rm-edge ") || normalized.startsWith("/unset ");
-}
+
+
 
 function maxRisk(values: Array<AiRiskLevel | undefined>): AiRiskLevel {
   if (values.includes("high")) {

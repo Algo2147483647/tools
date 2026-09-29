@@ -4,7 +4,7 @@ import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
 export const EXAMPLE_WORKSPACES = [
   { id: "mathematics", title: "Mathematics", kind: "Knowledge graph", description: "From sets to geometry, analysis, and probability. Explore connected concepts and their linked notes.", detail: "112 concepts · 8 subjects", accent: "#5576a9" },
-  { id: "factorio", title: "Factorio production", kind: "Sankey diagrams", description: "Trace connected production chains from raw materials to finished products, including recycling and catalyst returns.", detail: "Base game + Space Age · 2.0.65", accent: "#a57540" },
+  { id: "factorio", title: "Factorio production", kind: "Sankey diagrams", description: "Work backwards from 1 launch-ready rocket/s or all 12 science packs at 1 each/s. Trace calculated demand to raw resources.", detail: "2 production targets · Space Age 2.0.65", accent: "#a57540" },
   { id: "energy", title: "Energy flows", kind: "Sankey essentials", description: "A small, balanced flow diagram connecting energy sources, conversion, and everyday use.", detail: "8 nodes · 9 flows", accent: "#4d8b7e" },
 ] as const;
 

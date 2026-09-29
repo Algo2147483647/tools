@@ -1,3 +1,4 @@
+import { normalizeAiExecutionMode } from "./executionPolicy";
 import type { ActionPlan, AiEvent, AiExecutionMode, AiHarnessState, AiRiskLevel, CommandBatch, ProposedChange, ValidationReport, WorkingMemory } from "./types";
 
 const AI_HARNESS_STORAGE_PREFIX = "graph-studio:ai-harness:";
@@ -91,7 +92,7 @@ export function parsePersistedAiHarnessState(raw: string | null, fallbackMode: A
         lastDiff: sanitizeOptionalString(parsed.artifactRefs.lastDiff),
       }
       : {},
-    mode: sanitizeAiExecutionMode(parsed.mode, fallbackMode),
+    mode: normalizeAiExecutionMode(parsed.mode, fallbackMode),
   };
 }
 
@@ -344,9 +345,7 @@ function sanitizeCommandBatchStatus(value: unknown): CommandBatch["status"] {
     : "draft";
 }
 
-function sanitizeAiExecutionMode(value: unknown, fallback: AiExecutionMode): AiExecutionMode {
-  return value === "ask" || value === "review" || value === "auto-readonly" || value === "auto-edit" ? value : fallback;
-}
+
 
 function sanitizeRiskLevel(value: unknown): AiRiskLevel {
   return value === "low" || value === "medium" || value === "high" ? value : "medium";

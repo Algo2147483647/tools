@@ -1,3 +1,4 @@
+import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { GraphLayoutMode, GraphMode } from "../graph/types";
 import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance, type GraphAppearance } from "../graph/appearance";
 import { getDefaultFieldMapping, sanitizeFieldMapping, type FieldMapping } from "../graph/fieldMapping";
@@ -165,7 +166,7 @@ function sanitizeAiSettings(input: object): AiSettings {
     model: sanitizeString(record.model, DEFAULT_AI_SETTINGS.model),
     temperature: clampFloatPreference(record.temperature, DEFAULT_AI_SETTINGS.temperature, 0, 2),
     maxTokens: clampNumericPreference(record.maxTokens, DEFAULT_AI_SETTINGS.maxTokens, 128, 8000),
-    executionMode: sanitizeAiExecutionMode(record.executionMode),
+    executionMode: normalizeAiExecutionMode(record.executionMode),
   };
 }
 
@@ -175,11 +176,7 @@ function sanitizeAiProvider(value: unknown): AiProvider {
     : DEFAULT_AI_SETTINGS.provider;
 }
 
-function sanitizeAiExecutionMode(value: unknown): AiExecutionMode {
-  return value === "ask" || value === "review" || value === "auto-readonly" || value === "auto-edit"
-    ? value
-    : DEFAULT_AI_SETTINGS.executionMode;
-}
+
 
 function sanitizeString(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;

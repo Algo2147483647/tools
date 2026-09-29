@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .example-source-cache/
+__pycache__/
 .npm-cache/
 .vite-dev*.log
 # Converted from package-lock.json by the shared Windows launcher.

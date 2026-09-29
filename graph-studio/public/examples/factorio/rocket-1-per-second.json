@@ -1,0 +1,1771 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Rocket · 1 launch-ready vehicle / s",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "Steady-state items/s and fluid units/s, calculated backwards from final demand.",
+    "targetsPerSecond": {
+      "item:launch-ready-rocket": 1.0
+    },
+    "rawInputsPerSecond": {
+      "fluid:crude-oil": 8760.68376068376,
+      "fluid:water": 6982.9059829059825,
+      "item:coal": 225.0,
+      "item:copper-ore": 3000.0,
+      "item:iron-ore": 1705.0
+    },
+    "surplusPerSecond": {},
+    "materialBalancesPerSecond": {
+      "fluid:crude-oil": {
+        "produced": 0.0,
+        "consumed": 8760.68376068376,
+        "target": 0.0,
+        "external": 8760.68376068376,
+        "surplus": 0.0
+      },
+      "fluid:heavy-oil": {
+        "produced": 2190.17094017094,
+        "consumed": 2190.17094017094,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "fluid:light-oil": {
+        "produced": 5584.9358974358975,
+        "consumed": 5584.9358974358975,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "fluid:petroleum-gas": {
+        "produced": 4875.0,
+        "consumed": 4875.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "fluid:sulfuric-acid": {
+        "produced": 250.0,
+        "consumed": 250.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "fluid:water": {
+        "produced": 0.0,
+        "consumed": 6982.9059829059825,
+        "target": 0.0,
+        "external": 6982.9059829059825,
+        "surplus": 0.0
+      },
+      "item:advanced-circuit": {
+        "produced": 100.0,
+        "consumed": 100.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:coal": {
+        "produced": 0.0,
+        "consumed": 225.0,
+        "target": 0.0,
+        "external": 225.0,
+        "surplus": 0.0
+      },
+      "item:copper-cable": {
+        "produced": 4000.0,
+        "consumed": 4000.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:copper-ore": {
+        "produced": 0.0,
+        "consumed": 3000.0,
+        "target": 0.0,
+        "external": 3000.0,
+        "surplus": 0.0
+      },
+      "item:copper-plate": {
+        "produced": 3000.0,
+        "consumed": 3000.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:electronic-circuit": {
+        "produced": 1200.0,
+        "consumed": 1200.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:iron-ore": {
+        "produced": 0.0,
+        "consumed": 1705.0,
+        "target": 0.0,
+        "external": 1705.0,
+        "surplus": 0.0
+      },
+      "item:iron-plate": {
+        "produced": 1705.0,
+        "consumed": 1705.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:launch-ready-rocket": {
+        "produced": 1.0,
+        "consumed": 0.0,
+        "target": 1.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:low-density-structure": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:plastic-bar": {
+        "produced": 450.0,
+        "consumed": 450.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:processing-unit": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:rocket-fuel": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:rocket-part": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:solid-fuel": {
+        "produced": 500.0,
+        "consumed": 500.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:steel-plate": {
+        "produced": 100.0,
+        "consumed": 100.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "item:sulfur": {
+        "produced": 25.0,
+        "consumed": 25.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      }
+    },
+    "assumptions": "Normal quality; no modules, beacons or researched productivity; selected machines include built-in productivity and biological fuel. Expected probabilistic output; no spoilage in transit. Power, heating, logistics, construction and startup inventory are excluded.",
+    "calculation": "Exact rational, nonnegative material balances. Minimize required scrap recycling, then oil refining, then continuous machine equivalents within the selected routes. Credit coproducts and expose unused output as surplus.",
+    "readingOrder": "Start at the 1/s target sinks on the right and trace upstream to raw-resource supplies. Bands point in the physical production direction."
+  },
+  "nodes": {
+    "material:fluid:crude-oil": {
+      "title": "Crude oil",
+      "type": "Fluid",
+      "color": "#699fae",
+      "define": "8760.68 per second through this shared material.",
+      "materialId": "fluid:crude-oil",
+      "balancePerSecond": {
+        "produced": 0.0,
+        "consumed": 8760.68376068376,
+        "target": 0.0,
+        "external": 8760.68376068376,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "supply:fluid:crude-oil": {
+      "title": "Crude oil supply",
+      "type": "Raw resource",
+      "color": "#8393ae",
+      "define": "8760.68/s from mining, pumping, harvesting or asteroid collection.",
+      "materialId": "fluid:crude-oil",
+      "ratePerSecond": 8760.68376068376
+    },
+    "material:fluid:heavy-oil": {
+      "title": "Heavy oil",
+      "type": "Fluid",
+      "color": "#699fae",
+      "define": "2190.17 per second through this shared material.",
+      "materialId": "fluid:heavy-oil",
+      "balancePerSecond": {
+        "produced": 2190.17094017094,
+        "consumed": 2190.17094017094,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:fluid:light-oil": {
+      "title": "Light oil",
+      "type": "Fluid",
+      "color": "#699fae",
+      "define": "5584.94 per second through this shared material.",
+      "materialId": "fluid:light-oil",
+      "balancePerSecond": {
+        "produced": 5584.9358974358975,
+        "consumed": 5584.9358974358975,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:fluid:petroleum-gas": {
+      "title": "Petroleum gas",
+      "type": "Fluid",
+      "color": "#699fae",
+      "define": "4875 per second through this shared material.",
+      "materialId": "fluid:petroleum-gas",
+      "balancePerSecond": {
+        "produced": 4875.0,
+        "consumed": 4875.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:fluid:sulfuric-acid": {
+      "title": "Sulfuric acid",
+      "type": "Fluid",
+      "color": "#699fae",
+      "define": "250 per second through this shared material.",
+      "materialId": "fluid:sulfuric-acid",
+      "balancePerSecond": {
+        "produced": 250.0,
+        "consumed": 250.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:fluid:water": {
+      "title": "Water",
+      "type": "Fluid",
+      "color": "#699fae",
+      "define": "6982.91 per second through this shared material.",
+      "materialId": "fluid:water",
+      "balancePerSecond": {
+        "produced": 0.0,
+        "consumed": 6982.9059829059825,
+        "target": 0.0,
+        "external": 6982.9059829059825,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "supply:fluid:water": {
+      "title": "Water supply",
+      "type": "Raw resource",
+      "color": "#8393ae",
+      "define": "6982.91/s from mining, pumping, harvesting or asteroid collection.",
+      "materialId": "fluid:water",
+      "ratePerSecond": 6982.9059829059825
+    },
+    "material:item:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Material",
+      "color": "#799778",
+      "define": "100 per second through this shared material.",
+      "materialId": "item:advanced-circuit",
+      "balancePerSecond": {
+        "produced": 100.0,
+        "consumed": 100.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:coal": {
+      "title": "Coal",
+      "type": "Material",
+      "color": "#799778",
+      "define": "225 per second through this shared material.",
+      "materialId": "item:coal",
+      "balancePerSecond": {
+        "produced": 0.0,
+        "consumed": 225.0,
+        "target": 0.0,
+        "external": 225.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "supply:item:coal": {
+      "title": "Coal supply",
+      "type": "Raw resource",
+      "color": "#8393ae",
+      "define": "225/s from mining, pumping, harvesting or asteroid collection.",
+      "materialId": "item:coal",
+      "ratePerSecond": 225.0
+    },
+    "material:item:copper-cable": {
+      "title": "Copper cable",
+      "type": "Material",
+      "color": "#799778",
+      "define": "4000 per second through this shared material.",
+      "materialId": "item:copper-cable",
+      "balancePerSecond": {
+        "produced": 4000.0,
+        "consumed": 4000.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:copper-ore": {
+      "title": "Copper ore",
+      "type": "Material",
+      "color": "#799778",
+      "define": "3000 per second through this shared material.",
+      "materialId": "item:copper-ore",
+      "balancePerSecond": {
+        "produced": 0.0,
+        "consumed": 3000.0,
+        "target": 0.0,
+        "external": 3000.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "supply:item:copper-ore": {
+      "title": "Copper ore supply",
+      "type": "Raw resource",
+      "color": "#8393ae",
+      "define": "3000/s from mining, pumping, harvesting or asteroid collection.",
+      "materialId": "item:copper-ore",
+      "ratePerSecond": 3000.0
+    },
+    "material:item:copper-plate": {
+      "title": "Copper plate",
+      "type": "Material",
+      "color": "#799778",
+      "define": "3000 per second through this shared material.",
+      "materialId": "item:copper-plate",
+      "balancePerSecond": {
+        "produced": 3000.0,
+        "consumed": 3000.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Material",
+      "color": "#799778",
+      "define": "1200 per second through this shared material.",
+      "materialId": "item:electronic-circuit",
+      "balancePerSecond": {
+        "produced": 1200.0,
+        "consumed": 1200.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:iron-ore": {
+      "title": "Iron ore",
+      "type": "Material",
+      "color": "#799778",
+      "define": "1705 per second through this shared material.",
+      "materialId": "item:iron-ore",
+      "balancePerSecond": {
+        "produced": 0.0,
+        "consumed": 1705.0,
+        "target": 0.0,
+        "external": 1705.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "supply:item:iron-ore": {
+      "title": "Iron ore supply",
+      "type": "Raw resource",
+      "color": "#8393ae",
+      "define": "1705/s from mining, pumping, harvesting or asteroid collection.",
+      "materialId": "item:iron-ore",
+      "ratePerSecond": 1705.0
+    },
+    "material:item:iron-plate": {
+      "title": "Iron plate",
+      "type": "Material",
+      "color": "#799778",
+      "define": "1705 per second through this shared material.",
+      "materialId": "item:iron-plate",
+      "balancePerSecond": {
+        "produced": 1705.0,
+        "consumed": 1705.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:launch-ready-rocket": {
+      "title": "Launch ready rocket",
+      "type": "Material",
+      "color": "#799778",
+      "define": "1 per second through this shared material.",
+      "materialId": "item:launch-ready-rocket",
+      "balancePerSecond": {
+        "produced": 1.0,
+        "consumed": 0.0,
+        "target": 1.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Material",
+      "color": "#799778",
+      "define": "50 per second through this shared material.",
+      "materialId": "item:low-density-structure",
+      "balancePerSecond": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Material",
+      "color": "#799778",
+      "define": "450 per second through this shared material.",
+      "materialId": "item:plastic-bar",
+      "balancePerSecond": {
+        "produced": 450.0,
+        "consumed": 450.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:processing-unit": {
+      "title": "Processing unit",
+      "type": "Material",
+      "color": "#799778",
+      "define": "50 per second through this shared material.",
+      "materialId": "item:processing-unit",
+      "balancePerSecond": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Material",
+      "color": "#799778",
+      "define": "50 per second through this shared material.",
+      "materialId": "item:rocket-fuel",
+      "balancePerSecond": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:rocket-part": {
+      "title": "Rocket part",
+      "type": "Material",
+      "color": "#799778",
+      "define": "50 per second through this shared material.",
+      "materialId": "item:rocket-part",
+      "balancePerSecond": {
+        "produced": 50.0,
+        "consumed": 50.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:solid-fuel": {
+      "title": "Solid fuel",
+      "type": "Material",
+      "color": "#799778",
+      "define": "500 per second through this shared material.",
+      "materialId": "item:solid-fuel",
+      "balancePerSecond": {
+        "produced": 500.0,
+        "consumed": 500.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:steel-plate": {
+      "title": "Steel plate",
+      "type": "Material",
+      "color": "#799778",
+      "define": "100 per second through this shared material.",
+      "materialId": "item:steel-plate",
+      "balancePerSecond": {
+        "produced": 100.0,
+        "consumed": 100.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "material:item:sulfur": {
+      "title": "Sulfur",
+      "type": "Material",
+      "color": "#799778",
+      "define": "25 per second through this shared material.",
+      "materialId": "item:sulfur",
+      "balancePerSecond": {
+        "produced": 25.0,
+        "consumed": 25.0,
+        "target": 0.0,
+        "external": 0.0,
+        "surplus": 0.0
+      },
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "100 crafts/s · Assembling machine 3",
+      "recipe": "advanced-circuit",
+      "craftsPerSecond": 100.0,
+      "craftsPerSecondExact": "100",
+      "machine": "assembling-machine-3",
+      "machineEquivalents": 480.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:electronic-circuit": 2.0,
+        "item:plastic-bar": 2.0,
+        "item:copper-cable": 4.0
+      },
+      "outputsPerCraft": {
+        "item:advanced-circuit": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:advanced-oil-processing": {
+      "title": "Advanced oil processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "87.6068 crafts/s · Oil refinery",
+      "recipe": "advanced-oil-processing",
+      "craftsPerSecond": 87.6068376068376,
+      "craftsPerSecondExact": "10250/117",
+      "machine": "oil-refinery",
+      "machineEquivalents": 438.03418803418805,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "fluid:water": 50.0,
+        "fluid:crude-oil": 100.0
+      },
+      "outputsPerCraft": {
+        "fluid:heavy-oil": 25.0,
+        "fluid:light-oil": 45.0,
+        "fluid:petroleum-gas": 55.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:complete-rocket": {
+      "title": "Complete launch vehicle",
+      "type": "Assembly",
+      "color": "#a68458",
+      "define": "50 rocket parts per launch-ready vehicle; completion accounting, not an extra crafting recipe.",
+      "recipe": "complete-rocket",
+      "craftsPerSecond": 1.0,
+      "craftsPerSecondExact": "1",
+      "machine": "rocket-silo",
+      "machineEquivalents": 0.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:rocket-part": 50.0
+      },
+      "outputsPerCraft": {
+        "item:launch-ready-rocket": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:copper-cable": {
+      "title": "Copper cable",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "2000 crafts/s · Assembling machine 3",
+      "recipe": "copper-cable",
+      "craftsPerSecond": 2000.0,
+      "craftsPerSecondExact": "2000",
+      "machine": "assembling-machine-3",
+      "machineEquivalents": 800.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:copper-plate": 1.0
+      },
+      "outputsPerCraft": {
+        "item:copper-cable": 2.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:copper-plate": {
+      "title": "Copper plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "3000 crafts/s · Electric furnace",
+      "recipe": "copper-plate",
+      "craftsPerSecond": 3000.0,
+      "craftsPerSecondExact": "3000",
+      "machine": "electric-furnace",
+      "machineEquivalents": 4800.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:copper-ore": 1.0
+      },
+      "outputsPerCraft": {
+        "item:copper-plate": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "1200 crafts/s · Assembling machine 3",
+      "recipe": "electronic-circuit",
+      "craftsPerSecond": 1200.0,
+      "craftsPerSecondExact": "1200",
+      "machine": "assembling-machine-3",
+      "machineEquivalents": 480.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:iron-plate": 1.0,
+        "item:copper-cable": 3.0
+      },
+      "outputsPerCraft": {
+        "item:electronic-circuit": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:heavy-oil-cracking": {
+      "title": "Heavy oil cracking",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "54.7543 crafts/s · Chemical plant",
+      "recipe": "heavy-oil-cracking",
+      "craftsPerSecond": 54.754273504273506,
+      "craftsPerSecondExact": "25625/468",
+      "machine": "chemical-plant",
+      "machineEquivalents": 109.50854700854701,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "fluid:water": 30.0,
+        "fluid:heavy-oil": 40.0
+      },
+      "outputsPerCraft": {
+        "fluid:light-oil": 30.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:iron-plate": {
+      "title": "Iron plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "1705 crafts/s · Electric furnace",
+      "recipe": "iron-plate",
+      "craftsPerSecond": 1705.0,
+      "craftsPerSecondExact": "1705",
+      "machine": "electric-furnace",
+      "machineEquivalents": 2728.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:iron-ore": 1.0
+      },
+      "outputsPerCraft": {
+        "item:iron-plate": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:light-oil-cracking": {
+      "title": "Light oil cracking",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "2.8312 crafts/s · Chemical plant",
+      "recipe": "light-oil-cracking",
+      "craftsPerSecond": 2.8311965811965814,
+      "craftsPerSecondExact": "1325/468",
+      "machine": "chemical-plant",
+      "machineEquivalents": 5.662393162393163,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "fluid:water": 30.0,
+        "fluid:light-oil": 30.0
+      },
+      "outputsPerCraft": {
+        "fluid:petroleum-gas": 20.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "50 crafts/s · Assembling machine 3",
+      "recipe": "low-density-structure",
+      "craftsPerSecond": 50.0,
+      "craftsPerSecondExact": "50",
+      "machine": "assembling-machine-3",
+      "machineEquivalents": 600.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:steel-plate": 2.0,
+        "item:copper-plate": 20.0,
+        "item:plastic-bar": 5.0
+      },
+      "outputsPerCraft": {
+        "item:low-density-structure": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "225 crafts/s · Chemical plant",
+      "recipe": "plastic-bar",
+      "craftsPerSecond": 225.0,
+      "craftsPerSecondExact": "225",
+      "machine": "chemical-plant",
+      "machineEquivalents": 225.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "fluid:petroleum-gas": 20.0,
+        "item:coal": 1.0
+      },
+      "outputsPerCraft": {
+        "item:plastic-bar": 2.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:processing-unit": {
+      "title": "Processing unit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "50 crafts/s · Assembling machine 3",
+      "recipe": "processing-unit",
+      "craftsPerSecond": 50.0,
+      "craftsPerSecondExact": "50",
+      "machine": "assembling-machine-3",
+      "machineEquivalents": 400.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:electronic-circuit": 20.0,
+        "item:advanced-circuit": 2.0,
+        "fluid:sulfuric-acid": 5.0
+      },
+      "outputsPerCraft": {
+        "item:processing-unit": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "50 crafts/s · Assembling machine 3",
+      "recipe": "rocket-fuel",
+      "craftsPerSecond": 50.0,
+      "craftsPerSecondExact": "50",
+      "machine": "assembling-machine-3",
+      "machineEquivalents": 600.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:solid-fuel": 10.0,
+        "fluid:light-oil": 10.0
+      },
+      "outputsPerCraft": {
+        "item:rocket-fuel": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:rocket-part": {
+      "title": "Rocket part",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "50 crafts/s · Rocket silo",
+      "recipe": "rocket-part",
+      "craftsPerSecond": 50.0,
+      "craftsPerSecondExact": "50",
+      "machine": "rocket-silo",
+      "machineEquivalents": 150.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:processing-unit": 1.0,
+        "item:low-density-structure": 1.0,
+        "item:rocket-fuel": 1.0
+      },
+      "outputsPerCraft": {
+        "item:rocket-part": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:solid-fuel-from-light-oil": {
+      "title": "Solid fuel from light oil",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "500 crafts/s · Chemical plant",
+      "recipe": "solid-fuel-from-light-oil",
+      "craftsPerSecond": 500.0,
+      "craftsPerSecondExact": "500",
+      "machine": "chemical-plant",
+      "machineEquivalents": 500.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "fluid:light-oil": 10.0
+      },
+      "outputsPerCraft": {
+        "item:solid-fuel": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:steel-plate": {
+      "title": "Steel plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "100 crafts/s · Electric furnace",
+      "recipe": "steel-plate",
+      "craftsPerSecond": 100.0,
+      "craftsPerSecondExact": "100",
+      "machine": "electric-furnace",
+      "machineEquivalents": 800.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:iron-plate": 5.0
+      },
+      "outputsPerCraft": {
+        "item:steel-plate": 1.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:sulfur": {
+      "title": "Sulfur",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "12.5 crafts/s · Chemical plant",
+      "recipe": "sulfur",
+      "craftsPerSecond": 12.5,
+      "craftsPerSecondExact": "25/2",
+      "machine": "chemical-plant",
+      "machineEquivalents": 12.5,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "fluid:water": 30.0,
+        "fluid:petroleum-gas": 30.0
+      },
+      "outputsPerCraft": {
+        "item:sulfur": 2.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "recipe:sulfuric-acid": {
+      "title": "Sulfuric acid",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "5 crafts/s · Chemical plant",
+      "recipe": "sulfuric-acid",
+      "craftsPerSecond": 5.0,
+      "craftsPerSecondExact": "5",
+      "machine": "chemical-plant",
+      "machineEquivalents": 5.0,
+      "baseProductivity": 0.0,
+      "inputsPerCraft": {
+        "item:sulfur": 5.0,
+        "item:iron-plate": 1.0,
+        "fluid:water": 100.0
+      },
+      "outputsPerCraft": {
+        "fluid:sulfuric-acid": 50.0
+      },
+      "fuelPerCraft": {},
+      "surfaceConditions": [],
+      "notes": "[Plan assumptions and rates](./README.md)"
+    },
+    "target:item:launch-ready-rocket": {
+      "title": "Launch-ready rocket · 1/s",
+      "type": "Target",
+      "color": "#c17a49",
+      "define": "Final requested output · 60 per minute.",
+      "materialId": "item:launch-ready-rocket",
+      "ratePerSecond": 1.0
+    }
+  },
+  "edges": [
+    {
+      "id": "supply:fluid:crude-oil",
+      "source": "supply:fluid:crude-oil",
+      "target": "material:fluid:crude-oil",
+      "value": 8760.68376068376,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "1025000/117",
+        "role": "supply"
+      }
+    },
+    {
+      "id": "supply:fluid:water",
+      "source": "supply:fluid:water",
+      "target": "material:fluid:water",
+      "value": 6982.9059829059825,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "817000/117",
+        "role": "supply"
+      }
+    },
+    {
+      "id": "supply:item:coal",
+      "source": "supply:item:coal",
+      "target": "material:item:coal",
+      "value": 225.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "225",
+        "role": "supply"
+      }
+    },
+    {
+      "id": "supply:item:copper-ore",
+      "source": "supply:item:copper-ore",
+      "target": "material:item:copper-ore",
+      "value": 3000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "3000",
+        "role": "supply"
+      }
+    },
+    {
+      "id": "supply:item:iron-ore",
+      "source": "supply:item:iron-ore",
+      "target": "material:item:iron-ore",
+      "value": 1705.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1705",
+        "role": "supply"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:input:item:electronic-circuit",
+      "source": "material:item:electronic-circuit",
+      "target": "recipe:advanced-circuit",
+      "value": 200.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "200",
+        "role": "input",
+        "recipe": "advanced-circuit"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:input:item:plastic-bar",
+      "source": "material:item:plastic-bar",
+      "target": "recipe:advanced-circuit",
+      "value": 200.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "200",
+        "role": "input",
+        "recipe": "advanced-circuit"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:input:item:copper-cable",
+      "source": "material:item:copper-cable",
+      "target": "recipe:advanced-circuit",
+      "value": 400.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "400",
+        "role": "input",
+        "recipe": "advanced-circuit"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:output:item:advanced-circuit",
+      "source": "recipe:advanced-circuit",
+      "target": "material:item:advanced-circuit",
+      "value": 100.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "100",
+        "role": "output",
+        "recipe": "advanced-circuit"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:input:fluid:water",
+      "source": "material:fluid:water",
+      "target": "recipe:advanced-oil-processing",
+      "value": 4380.34188034188,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "512500/117",
+        "role": "input",
+        "recipe": "advanced-oil-processing"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:input:fluid:crude-oil",
+      "source": "material:fluid:crude-oil",
+      "target": "recipe:advanced-oil-processing",
+      "value": 8760.68376068376,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "1025000/117",
+        "role": "input",
+        "recipe": "advanced-oil-processing"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:fluid:heavy-oil",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:heavy-oil",
+      "value": 2190.17094017094,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "256250/117",
+        "role": "output",
+        "recipe": "advanced-oil-processing"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:fluid:light-oil",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:light-oil",
+      "value": 3942.3076923076924,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "51250/13",
+        "role": "output",
+        "recipe": "advanced-oil-processing"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:fluid:petroleum-gas",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:petroleum-gas",
+      "value": 4818.376068376068,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "563750/117",
+        "role": "output",
+        "recipe": "advanced-oil-processing"
+      }
+    },
+    {
+      "id": "recipe:complete-rocket:input:item:rocket-part",
+      "source": "material:item:rocket-part",
+      "target": "recipe:complete-rocket",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "input",
+        "recipe": "complete-rocket"
+      }
+    },
+    {
+      "id": "recipe:complete-rocket:output:item:launch-ready-rocket",
+      "source": "recipe:complete-rocket",
+      "target": "material:item:launch-ready-rocket",
+      "value": 1.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1",
+        "role": "output",
+        "recipe": "complete-rocket"
+      }
+    },
+    {
+      "id": "recipe:copper-cable:input:item:copper-plate",
+      "source": "material:item:copper-plate",
+      "target": "recipe:copper-cable",
+      "value": 2000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "2000",
+        "role": "input",
+        "recipe": "copper-cable"
+      }
+    },
+    {
+      "id": "recipe:copper-cable:output:item:copper-cable",
+      "source": "recipe:copper-cable",
+      "target": "material:item:copper-cable",
+      "value": 4000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "4000",
+        "role": "output",
+        "recipe": "copper-cable"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:input:item:copper-ore",
+      "source": "material:item:copper-ore",
+      "target": "recipe:copper-plate",
+      "value": 3000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "3000",
+        "role": "input",
+        "recipe": "copper-plate"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:output:item:copper-plate",
+      "source": "recipe:copper-plate",
+      "target": "material:item:copper-plate",
+      "value": 3000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "3000",
+        "role": "output",
+        "recipe": "copper-plate"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:input:item:iron-plate",
+      "source": "material:item:iron-plate",
+      "target": "recipe:electronic-circuit",
+      "value": 1200.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1200",
+        "role": "input",
+        "recipe": "electronic-circuit"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:input:item:copper-cable",
+      "source": "material:item:copper-cable",
+      "target": "recipe:electronic-circuit",
+      "value": 3600.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "3600",
+        "role": "input",
+        "recipe": "electronic-circuit"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:output:item:electronic-circuit",
+      "source": "recipe:electronic-circuit",
+      "target": "material:item:electronic-circuit",
+      "value": 1200.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1200",
+        "role": "output",
+        "recipe": "electronic-circuit"
+      }
+    },
+    {
+      "id": "recipe:heavy-oil-cracking:input:fluid:water",
+      "source": "material:fluid:water",
+      "target": "recipe:heavy-oil-cracking",
+      "value": 1642.628205128205,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "128125/78",
+        "role": "input",
+        "recipe": "heavy-oil-cracking"
+      }
+    },
+    {
+      "id": "recipe:heavy-oil-cracking:input:fluid:heavy-oil",
+      "source": "material:fluid:heavy-oil",
+      "target": "recipe:heavy-oil-cracking",
+      "value": 2190.17094017094,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "256250/117",
+        "role": "input",
+        "recipe": "heavy-oil-cracking"
+      }
+    },
+    {
+      "id": "recipe:heavy-oil-cracking:output:fluid:light-oil",
+      "source": "recipe:heavy-oil-cracking",
+      "target": "material:fluid:light-oil",
+      "value": 1642.628205128205,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "128125/78",
+        "role": "output",
+        "recipe": "heavy-oil-cracking"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:input:item:iron-ore",
+      "source": "material:item:iron-ore",
+      "target": "recipe:iron-plate",
+      "value": 1705.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1705",
+        "role": "input",
+        "recipe": "iron-plate"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:output:item:iron-plate",
+      "source": "recipe:iron-plate",
+      "target": "material:item:iron-plate",
+      "value": 1705.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1705",
+        "role": "output",
+        "recipe": "iron-plate"
+      }
+    },
+    {
+      "id": "recipe:light-oil-cracking:input:fluid:water",
+      "source": "material:fluid:water",
+      "target": "recipe:light-oil-cracking",
+      "value": 84.93589743589743,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "6625/78",
+        "role": "input",
+        "recipe": "light-oil-cracking"
+      }
+    },
+    {
+      "id": "recipe:light-oil-cracking:input:fluid:light-oil",
+      "source": "material:fluid:light-oil",
+      "target": "recipe:light-oil-cracking",
+      "value": 84.93589743589743,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "6625/78",
+        "role": "input",
+        "recipe": "light-oil-cracking"
+      }
+    },
+    {
+      "id": "recipe:light-oil-cracking:output:fluid:petroleum-gas",
+      "source": "recipe:light-oil-cracking",
+      "target": "material:fluid:petroleum-gas",
+      "value": 56.623931623931625,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "6625/117",
+        "role": "output",
+        "recipe": "light-oil-cracking"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:input:item:steel-plate",
+      "source": "material:item:steel-plate",
+      "target": "recipe:low-density-structure",
+      "value": 100.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "100",
+        "role": "input",
+        "recipe": "low-density-structure"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:input:item:copper-plate",
+      "source": "material:item:copper-plate",
+      "target": "recipe:low-density-structure",
+      "value": 1000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1000",
+        "role": "input",
+        "recipe": "low-density-structure"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:input:item:plastic-bar",
+      "source": "material:item:plastic-bar",
+      "target": "recipe:low-density-structure",
+      "value": 250.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "250",
+        "role": "input",
+        "recipe": "low-density-structure"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:output:item:low-density-structure",
+      "source": "recipe:low-density-structure",
+      "target": "material:item:low-density-structure",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "output",
+        "recipe": "low-density-structure"
+      }
+    },
+    {
+      "id": "recipe:plastic-bar:input:fluid:petroleum-gas",
+      "source": "material:fluid:petroleum-gas",
+      "target": "recipe:plastic-bar",
+      "value": 4500.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "4500",
+        "role": "input",
+        "recipe": "plastic-bar"
+      }
+    },
+    {
+      "id": "recipe:plastic-bar:input:item:coal",
+      "source": "material:item:coal",
+      "target": "recipe:plastic-bar",
+      "value": 225.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "225",
+        "role": "input",
+        "recipe": "plastic-bar"
+      }
+    },
+    {
+      "id": "recipe:plastic-bar:output:item:plastic-bar",
+      "source": "recipe:plastic-bar",
+      "target": "material:item:plastic-bar",
+      "value": 450.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "450",
+        "role": "output",
+        "recipe": "plastic-bar"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:input:item:electronic-circuit",
+      "source": "material:item:electronic-circuit",
+      "target": "recipe:processing-unit",
+      "value": 1000.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1000",
+        "role": "input",
+        "recipe": "processing-unit"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:input:item:advanced-circuit",
+      "source": "material:item:advanced-circuit",
+      "target": "recipe:processing-unit",
+      "value": 100.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "100",
+        "role": "input",
+        "recipe": "processing-unit"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:input:fluid:sulfuric-acid",
+      "source": "material:fluid:sulfuric-acid",
+      "target": "recipe:processing-unit",
+      "value": 250.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "250",
+        "role": "input",
+        "recipe": "processing-unit"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:output:item:processing-unit",
+      "source": "recipe:processing-unit",
+      "target": "material:item:processing-unit",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "output",
+        "recipe": "processing-unit"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:item:solid-fuel",
+      "source": "material:item:solid-fuel",
+      "target": "recipe:rocket-fuel",
+      "value": 500.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "500",
+        "role": "input",
+        "recipe": "rocket-fuel"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:fluid:light-oil",
+      "source": "material:fluid:light-oil",
+      "target": "recipe:rocket-fuel",
+      "value": 500.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "500",
+        "role": "input",
+        "recipe": "rocket-fuel"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:output:item:rocket-fuel",
+      "source": "recipe:rocket-fuel",
+      "target": "material:item:rocket-fuel",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "output",
+        "recipe": "rocket-fuel"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:input:item:processing-unit",
+      "source": "material:item:processing-unit",
+      "target": "recipe:rocket-part",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "input",
+        "recipe": "rocket-part"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:input:item:low-density-structure",
+      "source": "material:item:low-density-structure",
+      "target": "recipe:rocket-part",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "input",
+        "recipe": "rocket-part"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:input:item:rocket-fuel",
+      "source": "material:item:rocket-fuel",
+      "target": "recipe:rocket-part",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "input",
+        "recipe": "rocket-part"
+      }
+    },
+    {
+      "id": "recipe:rocket-part:output:item:rocket-part",
+      "source": "recipe:rocket-part",
+      "target": "material:item:rocket-part",
+      "value": 50.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "50",
+        "role": "output",
+        "recipe": "rocket-part"
+      }
+    },
+    {
+      "id": "recipe:solid-fuel-from-light-oil:input:fluid:light-oil",
+      "source": "material:fluid:light-oil",
+      "target": "recipe:solid-fuel-from-light-oil",
+      "value": 5000.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "5000",
+        "role": "input",
+        "recipe": "solid-fuel-from-light-oil"
+      }
+    },
+    {
+      "id": "recipe:solid-fuel-from-light-oil:output:item:solid-fuel",
+      "source": "recipe:solid-fuel-from-light-oil",
+      "target": "material:item:solid-fuel",
+      "value": 500.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "500",
+        "role": "output",
+        "recipe": "solid-fuel-from-light-oil"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:input:item:iron-plate",
+      "source": "material:item:iron-plate",
+      "target": "recipe:steel-plate",
+      "value": 500.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "500",
+        "role": "input",
+        "recipe": "steel-plate"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:output:item:steel-plate",
+      "source": "recipe:steel-plate",
+      "target": "material:item:steel-plate",
+      "value": 100.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "100",
+        "role": "output",
+        "recipe": "steel-plate"
+      }
+    },
+    {
+      "id": "recipe:sulfur:input:fluid:water",
+      "source": "material:fluid:water",
+      "target": "recipe:sulfur",
+      "value": 375.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "375",
+        "role": "input",
+        "recipe": "sulfur"
+      }
+    },
+    {
+      "id": "recipe:sulfur:input:fluid:petroleum-gas",
+      "source": "material:fluid:petroleum-gas",
+      "target": "recipe:sulfur",
+      "value": 375.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "375",
+        "role": "input",
+        "recipe": "sulfur"
+      }
+    },
+    {
+      "id": "recipe:sulfur:output:item:sulfur",
+      "source": "recipe:sulfur",
+      "target": "material:item:sulfur",
+      "value": 25.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "25",
+        "role": "output",
+        "recipe": "sulfur"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:input:item:sulfur",
+      "source": "material:item:sulfur",
+      "target": "recipe:sulfuric-acid",
+      "value": 25.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "25",
+        "role": "input",
+        "recipe": "sulfuric-acid"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:input:item:iron-plate",
+      "source": "material:item:iron-plate",
+      "target": "recipe:sulfuric-acid",
+      "value": 5.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "5",
+        "role": "input",
+        "recipe": "sulfuric-acid"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:input:fluid:water",
+      "source": "material:fluid:water",
+      "target": "recipe:sulfuric-acid",
+      "value": 500.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "500",
+        "role": "input",
+        "recipe": "sulfuric-acid"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:output:fluid:sulfuric-acid",
+      "source": "recipe:sulfuric-acid",
+      "target": "material:fluid:sulfuric-acid",
+      "value": 250.0,
+      "metadata": {
+        "label": "fluid units/s",
+        "unit": "fluid units/s",
+        "rateExact": "250",
+        "role": "output",
+        "recipe": "sulfuric-acid"
+      }
+    },
+    {
+      "id": "target:item:launch-ready-rocket",
+      "source": "material:item:launch-ready-rocket",
+      "target": "target:item:launch-ready-rocket",
+      "value": 1.0,
+      "metadata": {
+        "label": "items/s",
+        "unit": "items/s",
+        "rateExact": "1",
+        "role": "target"
+      }
+    }
+  ]
+}

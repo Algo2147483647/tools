@@ -84,7 +84,6 @@ export default function AiSettingsPanel({
           <select id="ai-execution-mode-select" className="settings-select-input" value={aiSettings.executionMode} onChange={(event) => updateAiSetting("executionMode", event.currentTarget.value as AiExecutionMode)}>
             <option value="ask">Ask</option>
             <option value="review">Review</option>
-            <option value="auto-readonly">Auto Readonly</option>
             <option value="auto-edit">Auto Edit</option>
           </select>
         </label>

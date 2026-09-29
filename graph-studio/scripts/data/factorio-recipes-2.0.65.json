@@ -86,7 +86,8 @@
           "min": 4000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": false
     },
     {
       "name": "active-provider-chest",
@@ -177,7 +178,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": true
     },
     {
       "name": "advanced-circuit",
@@ -206,7 +208,8 @@
           "name": "advanced-circuit",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "advanced-circuit-recycling",
@@ -270,7 +273,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": true
     },
     {
       "name": "advanced-oil-processing",
@@ -305,7 +309,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "advanced-oxide-asteroid-crushing",
@@ -336,7 +341,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": true
     },
     {
       "name": "advanced-thruster-fuel",
@@ -373,7 +379,8 @@
           "min": 0,
           "property": "gravity"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "advanced-thruster-oxidizer",
@@ -410,7 +417,8 @@
           "min": 0,
           "property": "gravity"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "agricultural-science-pack",
@@ -442,7 +450,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "agricultural-science-pack-recycling",
@@ -568,7 +577,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "ammoniacal-solution-separation",
@@ -593,7 +603,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "arithmetic-combinator",
@@ -678,7 +689,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "artificial-jellynut-soil-recycling",
@@ -747,7 +759,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "artificial-yumako-soil-recycling",
@@ -1332,7 +1345,8 @@
           "name": "automation-science-pack",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "automation-science-pack-recycling",
@@ -1376,7 +1390,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "intermediate-product"
+      "subgroup": "intermediate-product",
+      "allow_productivity": true
     },
     {
       "name": "barrel-recycling",
@@ -1421,7 +1436,8 @@
         }
       ],
       "subgroup": "fluid-recipes",
-      "main_product": ""
+      "main_product": "",
+      "allow_productivity": true
     },
     {
       "name": "battery",
@@ -1450,7 +1466,8 @@
           "name": "battery",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "battery-equipment",
@@ -2023,7 +2040,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "bioflux-recycling",
@@ -2129,7 +2147,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "bioplastic",
@@ -2154,7 +2173,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "biosulfur",
@@ -2179,7 +2199,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "biter-egg",
@@ -2622,7 +2643,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "calcite-recycling",
@@ -2923,7 +2945,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "raw-material"
+      "subgroup": "raw-material",
+      "allow_productivity": true
     },
     {
       "name": "carbon-fiber",
@@ -2948,7 +2971,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "carbon-fiber-recycling",
@@ -3046,7 +3070,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": true
     },
     {
       "name": "carbonic-asteroid-reprocessing",
@@ -3079,7 +3104,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": false
     },
     {
       "name": "cargo-bay",
@@ -3283,7 +3309,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "casting-copper-cable",
@@ -3304,7 +3331,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "casting-iron",
@@ -3325,7 +3353,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "casting-iron-gear-wheel",
@@ -3346,7 +3375,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "casting-iron-stick",
@@ -3367,7 +3397,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "casting-low-density-structure",
@@ -3397,7 +3428,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "casting-pipe",
@@ -3418,7 +3450,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "energy-pipe-distribution"
+      "subgroup": "energy-pipe-distribution",
+      "allow_productivity": false
     },
     {
       "name": "casting-pipe-to-ground",
@@ -3444,7 +3477,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "energy-pipe-distribution"
+      "subgroup": "energy-pipe-distribution",
+      "allow_productivity": false
     },
     {
       "name": "casting-steel",
@@ -3465,7 +3499,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "centrifuge",
@@ -3637,7 +3672,8 @@
           "name": "chemical-science-pack",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "chemical-science-pack-recycling",
@@ -3837,7 +3873,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "coal-recycling",
@@ -3891,7 +3928,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "raw-material"
+      "subgroup": "raw-material",
+      "allow_productivity": true
     },
     {
       "name": "coin-recycling",
@@ -4046,7 +4084,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "concrete-recycling",
@@ -4205,7 +4244,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "copper-bacteria-cultivation",
@@ -4237,7 +4277,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "copper-bacteria-recycling",
@@ -4279,7 +4320,8 @@
           "name": "copper-cable",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "copper-cable-recycling",
@@ -4343,7 +4385,8 @@
           "name": "copper-plate",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "copper-plate-recycling",
@@ -4603,7 +4646,8 @@
           "min": 300,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "cryogenic-science-pack-recycling",
@@ -5246,7 +5290,8 @@
           "name": "electric-engine-unit",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "electric-engine-unit-recycling",
@@ -5425,7 +5470,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fulgora-processes"
+      "subgroup": "fulgora-processes",
+      "allow_productivity": true
     },
     {
       "name": "electromagnetic-plant",
@@ -5545,7 +5591,8 @@
           "min": 99,
           "property": "magnetic-field"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "electromagnetic-science-pack-recycling",
@@ -5592,7 +5639,8 @@
           "name": "electronic-circuit",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "electronic-circuit-recycling",
@@ -6035,7 +6083,8 @@
           "name": "engine-unit",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "engine-unit-recycling",
@@ -6319,7 +6368,8 @@
           "name": "explosives",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "explosives-recycling",
@@ -6925,7 +6975,8 @@
           "min": 1000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": false
     },
     {
       "name": "fission-reactor-equipment",
@@ -7264,7 +7315,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "fluoroketone-cold-barrel",
@@ -7337,7 +7389,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": false
     },
     {
       "name": "fluoroketone-hot-barrel",
@@ -7420,7 +7473,8 @@
           "name": "flying-robot-frame",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "flying-robot-frame-recycling",
@@ -7721,7 +7775,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "fusion-power-cell-recycling",
@@ -8468,7 +8523,8 @@
         }
       ],
       "subgroup": "fluid-recipes",
-      "main_product": ""
+      "main_product": "",
+      "allow_productivity": true
     },
     {
       "name": "holmium-ore-recycling",
@@ -8513,7 +8569,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "fulgora-processes"
+      "subgroup": "fulgora-processes",
+      "allow_productivity": true
     },
     {
       "name": "holmium-plate-recycling",
@@ -8568,7 +8625,8 @@
         }
       ],
       "subgroup": "fulgora-processes",
-      "main_product": "holmium-solution"
+      "main_product": "holmium-solution",
+      "allow_productivity": true
     },
     {
       "name": "ice-melting",
@@ -8588,7 +8646,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "ice-platform",
@@ -8877,7 +8936,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "iron-bacteria-cultivation",
@@ -8909,7 +8969,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "iron-bacteria-recycling",
@@ -8988,7 +9049,8 @@
           "name": "iron-gear-wheel",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "iron-gear-wheel-recycling",
@@ -9052,7 +9114,8 @@
           "name": "iron-plate",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "iron-plate-recycling",
@@ -9093,7 +9156,8 @@
           "name": "iron-stick",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "iron-stick-recycling",
@@ -9187,7 +9251,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-processes"
+      "subgroup": "agriculture-processes",
+      "allow_productivity": true
     },
     {
       "name": "jellynut-recycling",
@@ -9272,7 +9337,8 @@
         }
       ],
       "subgroup": "uranium-processing",
-      "main_product": ""
+      "main_product": "",
+      "allow_productivity": true
     },
     {
       "name": "lab",
@@ -9626,7 +9692,8 @@
         }
       ],
       "subgroup": "fluid-recipes",
-      "main_product": ""
+      "main_product": "",
+      "allow_productivity": true
     },
     {
       "name": "lightning-collector",
@@ -9847,7 +9914,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "lithium-plate",
@@ -9867,7 +9935,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "lithium-plate-recycling",
@@ -10132,7 +10201,8 @@
           "name": "logistic-science-pack",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "logistic-science-pack-recycling",
@@ -10245,7 +10315,8 @@
           "name": "low-density-structure",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "low-density-structure-recycling",
@@ -10298,7 +10369,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "lubricant-barrel",
@@ -10542,7 +10614,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": true
     },
     {
       "name": "metallic-asteroid-reprocessing",
@@ -10575,7 +10648,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": false
     },
     {
       "name": "metallurgic-science-pack",
@@ -10611,7 +10685,8 @@
           "min": 4000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "metallurgic-science-pack-recycling",
@@ -10663,7 +10738,8 @@
           "name": "military-science-pack",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "military-science-pack-recycling",
@@ -10763,7 +10839,8 @@
         }
       ],
       "subgroup": "vulcanus-processes",
-      "main_product": "molten-copper"
+      "main_product": "molten-copper",
+      "allow_productivity": true
     },
     {
       "name": "molten-copper-from-lava",
@@ -10793,7 +10870,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "molten-iron",
@@ -10819,7 +10897,8 @@
         }
       ],
       "subgroup": "vulcanus-processes",
-      "main_product": "molten-iron"
+      "main_product": "molten-iron",
+      "allow_productivity": true
     },
     {
       "name": "molten-iron-from-lava",
@@ -10849,7 +10928,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "night-vision-equipment",
@@ -10924,7 +11004,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "uranium-processing"
+      "subgroup": "uranium-processing",
+      "allow_productivity": true
     },
     {
       "name": "nuclear-fuel-recycling",
@@ -10973,7 +11054,8 @@
         }
       ],
       "subgroup": "uranium-processing",
-      "main_product": ""
+      "main_product": "",
+      "allow_productivity": true
     },
     {
       "name": "nuclear-reactor",
@@ -11065,7 +11147,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-processes"
+      "subgroup": "agriculture-processes",
+      "allow_productivity": true
     },
     {
       "name": "nutrients-from-biter-egg",
@@ -11085,7 +11168,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "nauvis-agriculture"
+      "subgroup": "nauvis-agriculture",
+      "allow_productivity": true
     },
     {
       "name": "nutrients-from-fish",
@@ -11105,7 +11189,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "nauvis-agriculture"
+      "subgroup": "nauvis-agriculture",
+      "allow_productivity": false
     },
     {
       "name": "nutrients-from-spoilage",
@@ -11126,7 +11211,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-processes"
+      "subgroup": "agriculture-processes",
+      "allow_productivity": true
     },
     {
       "name": "nutrients-from-yumako-mash",
@@ -11146,7 +11232,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-processes"
+      "subgroup": "agriculture-processes",
+      "allow_productivity": true
     },
     {
       "name": "nutrients-recycling",
@@ -11394,7 +11481,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "overgrowth-jellynut-soil-recycling",
@@ -11479,7 +11567,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "overgrowth-yumako-soil-recycling",
@@ -11568,7 +11657,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": true
     },
     {
       "name": "oxide-asteroid-reprocessing",
@@ -11601,57 +11691,68 @@
           "type": "item"
         }
       ],
-      "subgroup": "space-crushing"
+      "subgroup": "space-crushing",
+      "allow_productivity": false
     },
     {
       "name": "parameter-0",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-1",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-2",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-3",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-4",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-5",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-6",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-7",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-8",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "parameter-9",
       "category": "parameters",
-      "subgroup": "parameters"
+      "subgroup": "parameters",
+      "allow_productivity": true
     },
     {
       "name": "passive-provider-chest",
@@ -11751,7 +11852,8 @@
           "min": 2000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "pentapod-egg-recycling",
@@ -12303,7 +12405,8 @@
           "name": "plastic-bar",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "plastic-bar-recycling",
@@ -12622,7 +12725,8 @@
           "name": "processing-unit",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "processing-unit-recycling",
@@ -12677,7 +12781,8 @@
           "name": "production-science-pack",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "production-science-pack-recycling",
@@ -13019,7 +13124,8 @@
           "min": 0,
           "property": "gravity"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "promethium-science-pack-recycling",
@@ -13447,7 +13553,8 @@
           "max": 600,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "quantum-processor-recycling",
@@ -14459,7 +14566,8 @@
           "name": "rocket-fuel",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "rocket-fuel-from-jelly",
@@ -14489,7 +14597,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-products"
+      "subgroup": "agriculture-products",
+      "allow_productivity": true
     },
     {
       "name": "rocket-fuel-recycling",
@@ -14600,7 +14709,8 @@
           "name": "rocket-part",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "rocket-recycling",
@@ -15141,7 +15251,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "simple-entity-with-force-recycling",
@@ -15508,7 +15619,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "aquilo-processes"
+      "subgroup": "aquilo-processes",
+      "allow_productivity": true
     },
     {
       "name": "solid-fuel-from-heavy-oil",
@@ -15528,7 +15640,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "solid-fuel-from-light-oil",
@@ -15548,7 +15661,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "solid-fuel-from-petroleum-gas",
@@ -15568,7 +15682,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "solid-fuel-recycling",
@@ -15764,7 +15879,8 @@
           "min": 0,
           "property": "gravity"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "space-science-pack-recycling",
@@ -16463,7 +16579,8 @@
           "name": "steel-plate",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "steel-plate-recycling",
@@ -16506,7 +16623,8 @@
           "name": "stone-brick",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "stone-brick-recycling",
@@ -16886,7 +17004,8 @@
           "name": "sulfur",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "sulfur-recycling",
@@ -16940,7 +17059,8 @@
           "type": "fluid"
         }
       ],
-      "subgroup": "fluid-recipes"
+      "subgroup": "fluid-recipes",
+      "allow_productivity": true
     },
     {
       "name": "sulfuric-acid-barrel",
@@ -17030,7 +17150,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "fulgora-processes"
+      "subgroup": "fulgora-processes",
+      "allow_productivity": true
     },
     {
       "name": "supercapacitor-recycling",
@@ -17105,7 +17226,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "fulgora-processes"
+      "subgroup": "fulgora-processes",
+      "allow_productivity": true
     },
     {
       "name": "superconductor-recycling",
@@ -17462,7 +17584,8 @@
           "min": 0,
           "property": "gravity"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "thruster-oxidizer",
@@ -17494,7 +17617,8 @@
           "min": 0,
           "property": "gravity"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "thruster-recycling",
@@ -17776,7 +17900,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "tungsten-carbide-recycling",
@@ -17849,7 +17974,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "vulcanus-processes"
+      "subgroup": "vulcanus-processes",
+      "allow_productivity": true
     },
     {
       "name": "tungsten-plate-recycling",
@@ -18325,7 +18451,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "uranium-processing"
+      "subgroup": "uranium-processing",
+      "allow_productivity": true
     },
     {
       "name": "uranium-fuel-cell-recycling",
@@ -18400,7 +18527,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "uranium-processing"
+      "subgroup": "uranium-processing",
+      "allow_productivity": true
     },
     {
       "name": "uranium-rounds-magazine",
@@ -18478,7 +18606,8 @@
           "name": "utility-science-pack",
           "type": "item"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "utility-science-pack-recycling",
@@ -18579,7 +18708,8 @@
           "min": 1000,
           "property": "pressure"
         }
-      ]
+      ],
+      "allow_productivity": true
     },
     {
       "name": "wood-recycling",
@@ -18691,7 +18821,8 @@
           "type": "item"
         }
       ],
-      "subgroup": "agriculture-processes"
+      "subgroup": "agriculture-processes",
+      "allow_productivity": true
     },
     {
       "name": "yumako-recycling",
@@ -18741,5 +18872,156 @@
       "subgroup": "agriculture-processes",
       "hidden": true
     }
-  ]
+  ],
+  "machines": {
+    "assembling-machine-3": {
+      "crafting_categories": [
+        "basic-crafting",
+        "crafting",
+        "advanced-crafting",
+        "crafting-with-fluid",
+        "electronics",
+        "electronics-with-fluid",
+        "pressing",
+        "metallurgy-or-assembling",
+        "organic-or-hand-crafting",
+        "organic-or-assembling",
+        "electronics-or-assembling",
+        "cryogenics-or-assembling",
+        "crafting-with-fluid-or-metallurgy"
+      ],
+      "crafting_speed": 1.25,
+      "energy_usage": "375kW",
+      "base_productivity": 0
+    },
+    "electric-furnace": {
+      "crafting_categories": [
+        "smelting"
+      ],
+      "crafting_speed": 2,
+      "energy_usage": "180kW",
+      "base_productivity": 0
+    },
+    "chemical-plant": {
+      "crafting_categories": [
+        "chemistry",
+        "chemistry-or-cryogenics",
+        "organic-or-chemistry"
+      ],
+      "crafting_speed": 1,
+      "energy_usage": "210kW",
+      "base_productivity": 0
+    },
+    "oil-refinery": {
+      "crafting_categories": [
+        "oil-processing"
+      ],
+      "crafting_speed": 1,
+      "energy_usage": "420kW",
+      "base_productivity": 0
+    },
+    "centrifuge": {
+      "crafting_categories": [
+        "centrifuging"
+      ],
+      "crafting_speed": 1,
+      "energy_usage": "350kW",
+      "base_productivity": 0
+    },
+    "crusher": {
+      "crafting_categories": [
+        "crushing"
+      ],
+      "crafting_speed": 1,
+      "energy_usage": "540kW",
+      "base_productivity": 0
+    },
+    "recycler": {
+      "crafting_categories": [
+        "recycling",
+        "recycling-or-hand-crafting"
+      ],
+      "crafting_speed": 0.5,
+      "energy_usage": "180kW",
+      "base_productivity": 0
+    },
+    "foundry": {
+      "crafting_categories": [
+        "metallurgy",
+        "pressing",
+        "crafting-with-fluid-or-metallurgy",
+        "metallurgy-or-assembling"
+      ],
+      "crafting_speed": 4,
+      "energy_usage": "2500kW",
+      "base_productivity": 0.5
+    },
+    "electromagnetic-plant": {
+      "crafting_categories": [
+        "electromagnetics",
+        "electronics",
+        "electronics-with-fluid",
+        "electronics-or-assembling"
+      ],
+      "crafting_speed": 2,
+      "energy_usage": "2000kW",
+      "base_productivity": 0.5
+    },
+    "biochamber": {
+      "crafting_categories": [
+        "organic",
+        "organic-or-hand-crafting",
+        "organic-or-assembling",
+        "organic-or-chemistry"
+      ],
+      "crafting_speed": 2,
+      "energy_usage": "500kW",
+      "base_productivity": 0.5,
+      "fuel_categories": [
+        "nutrients"
+      ],
+      "effectivity": 1
+    },
+    "cryogenic-plant": {
+      "crafting_categories": [
+        "cryogenics",
+        "chemistry-or-cryogenics",
+        "cryogenics-or-assembling"
+      ],
+      "crafting_speed": 2,
+      "energy_usage": "1500kW",
+      "base_productivity": 0
+    },
+    "captive-biter-spawner": {
+      "crafting_categories": [
+        "captive-spawner-process"
+      ],
+      "crafting_speed": 1,
+      "energy_usage": "100kW",
+      "base_productivity": 0,
+      "fuel_categories": [
+        "food"
+      ],
+      "effectivity": 1
+    },
+    "rocket-silo": {
+      "crafting_categories": [
+        "rocket-building"
+      ],
+      "crafting_speed": 1,
+      "energy_usage": "250kW",
+      "rocket_parts_required": 50,
+      "base_productivity": 0
+    }
+  },
+  "fuels": {
+    "nutrients": {
+      "fuel_value": "2MJ",
+      "fuel_category": "nutrients"
+    },
+    "bioflux": {
+      "fuel_value": "6MJ",
+      "fuel_category": "food"
+    }
+  }
 }
