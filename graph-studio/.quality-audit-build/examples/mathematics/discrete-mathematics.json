@@ -1,0 +1,125 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "title": "Discrete Mathematics",
+  "metadata": {},
+  "nodes": {
+    "Algebra_Structure": {
+      "title": "Algebra Structure",
+      "type": "Algebra",
+      "define": "An algebraic structure is a set equipped with operations whose behavior is controlled by specified axioms.",
+      "notes": "[Read concept note](./notes/Algebra_Structure.md)"
+    },
+    "Binary_Tree": {
+      "title": "Binary Tree",
+      "type": "Discrete Mathematics",
+      "define": "A binary tree is a rooted tree in which each node has at most two children.",
+      "notes": "[Read concept note](./notes/Binary_Tree.md)"
+    },
+    "Bipartite_Graph": {
+      "title": "Bipartite Graph",
+      "type": "Discrete Mathematics",
+      "define": "A bipartite graph is a graph whose vertices can be split into two parts so that every edge connects the two parts.",
+      "notes": "[Read concept note](./notes/Bipartite_Graph.md)"
+    },
+    "Complete_Graph": {
+      "title": "Complete Graph",
+      "type": "Discrete Mathematics",
+      "define": "A complete graph is a graph in which every pair of distinct vertices is connected by an edge.",
+      "notes": "[Read concept note](./notes/Complete_Graph.md)"
+    },
+    "Directed_Acyclic_Graph": {
+      "title": "Directed Acyclic Graph",
+      "type": "Discrete Mathematics",
+      "define": "A directed acyclic graph is a directed graph with no directed cycles.",
+      "notes": "[Read concept note](./notes/Directed_Acyclic_Graph.md)"
+    },
+    "Graph": {
+      "title": "Graph",
+      "type": "Discrete Mathematics",
+      "define": "A graph is a structure made of vertices and edges that records pairwise relationships.",
+      "notes": "[Read concept note](./notes/Graph.md)"
+    },
+    "Lattice": {
+      "title": "Lattice",
+      "type": "Discrete Mathematics",
+      "define": "A lattice is an ordered set in which every pair of elements has both a greatest lower bound and a least upper bound.",
+      "notes": "[Read concept note](./notes/Lattice.md)"
+    },
+    "Ordered_Set": {
+      "title": "Ordered Set",
+      "type": "Discrete Mathematics",
+      "define": "An ordered set is a set where the elements can be compared to tell which comes before or after another.",
+      "notes": "[Read concept note](./notes/Ordered_Set.md)"
+    },
+    "Set": {
+      "title": "Set",
+      "type": "Mathematical Logic and Foundations",
+      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
+      "notes": "[Read concept note](./notes/Set.md)"
+    },
+    "Tree": {
+      "title": "Tree",
+      "type": "Discrete Mathematics",
+      "define": "A tree is a connected acyclic graph.",
+      "notes": "[Read concept note](./notes/Tree.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "math-6",
+      "source": "Algebra_Structure",
+      "target": "Lattice",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-9",
+      "source": "Set",
+      "target": "Algebra_Structure",
+      "value": "has_underlying_set"
+    },
+    {
+      "id": "math-14",
+      "source": "Tree",
+      "target": "Binary_Tree",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-15",
+      "source": "Bipartite_Graph",
+      "target": "Tree",
+      "value": "related_to"
+    },
+    {
+      "id": "math-16",
+      "source": "Graph",
+      "target": "Bipartite_Graph",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-24",
+      "source": "Graph",
+      "target": "Complete_Graph",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-40",
+      "source": "Graph",
+      "target": "Directed_Acyclic_Graph",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-73",
+      "source": "Set",
+      "target": "Graph",
+      "value": "has_underlying_set"
+    },
+    {
+      "id": "math-115",
+      "source": "Set",
+      "target": "Ordered_Set",
+      "value": "subtype_of"
+    }
+  ]
+}

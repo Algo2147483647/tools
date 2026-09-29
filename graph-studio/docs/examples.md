@@ -5,7 +5,7 @@ Below Recent workspaces, the homepage includes three separate English workspaces
 | Workspace | Contents |
 | --- | --- |
 | Mathematics | 112 concepts; complete map and eight subject views; 112 linked concept notes |
-| Factorio production | 648 recipes and 328 recipe products; 13 Sankey views; source and quantity notes |
+| Factorio production | 648 recipes and 328 recipe products; 13 connected Sankey views with upstream chains and return flows; source and quantity notes |
 | Energy flows | 8 nodes, 9 flows; GWh values with conserved intermediate flows |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
@@ -16,7 +16,9 @@ The source is the **2.0.65 Space Age data.raw snapshot** linked by the [official
 
 Every recipe with products is included, including hidden recycling recipes. The ten parameter placeholders and empty `recipe-unknown` placeholder are excluded. The full atlas's recipe count and product coverage are tested against that pinned subset. “All products” means all recipe outputs in this snapshot. Non-recipe events such as mining, harvesting, spoilage and rocket-launch transformations are outside its scope; raw inputs remain boundary nodes.
 
-Every view uses **ingredient roles → recipes → product roles**. Input and output occurrences of the same material are separate nodes. This keeps alternatives, catalyst returns and recycling visible without circular Sankey links. The atlas does not automatically route one recipe's outputs into another recipe's inputs.
+Every item or fluid uses one **shared material node**, connecting the recipes that produce it to the recipes that consume it. The starter follows iron and copper ore through smelting, cable and circuit production across seven layers. The complete view retains every alternative. Recycling and catalyst outputs use return bands below the chart; further cycles are detected automatically, preserving all original endpoints and quantities.
+
+Topic views recursively include representative upstream recipes. They use production before recycling, prefer the material's named recipe, then a non-catalytic producer with fewer surface constraints and ingredients. Barrel unpacking is not treated as a source of its own fluid. Extraction, harvesting, collection and spoilage remain external inputs; those processes are not present in the pinned recipe source. `focusRecipes`, `upstreamRecipeCount` and `externalInputs` record each view's scope. All alternative recipes remain in All products. Catalyst startup supplies and throughput balancing are not calculated.
 
 Values represent **one craft of each recipe** at normal quality, without productivity bonuses. Probabilistic results use expected quantities. Item amounts in the pre-runtime dump are coerced to integers, then `extra_count_fraction` is applied once. Item counts and fluid units remain distinct units in the edge labels; their combined widths are not conserved mass. The interface reports unequal totals rather than changing them.
 

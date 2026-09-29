@@ -57,7 +57,7 @@ The app starts on a welcome page. Open a graph file, open a folder as a workspac
 
 Examples open fresh editable copies and can be reopened from Recents without folder permissions. The canvas fills the window, with the `math/studio` glass toolbar and workspace panels floating above it. Fit uses the area visible beside the panels; panning can move the graph beneath them.
 
-Factorio values describe one craft per recipe, with expected probabilistic outputs. Separate input and output roles preserve recycling without cycles. This is a recipe atlas, not a balanced factory-rate calculator; mining, spoilage and other non-recipe events are outside its scope. See [Example workspaces](docs/examples.md) for sources and regeneration.
+Factorio values describe one craft per recipe, with expected probabilistic outputs. Shared material nodes connect production across multiple stages; recycling and catalysts use return bands. Focused views include representative upstream recipes. The network describes dependencies and per-craft quantities, not a balanced factory-rate calculation; mining, spoilage and other non-recipe events are outside its scope. See [Example workspaces](docs/examples.md) for sources and regeneration.
 
 Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 

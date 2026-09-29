@@ -4,11 +4,13 @@ A recipe reference for Factorio **2.0.65 with Space Age**, pinned to the officia
 
 ## Explore
 
-Start here shows copper cable and electronic circuits. Choose All products for the complete atlas, or a focused manufacturing view in Explorer. Double-click a recipe for its original ingredients, results, crafting time and surface conditions. Item names are readable forms of the official prototype identifiers.
+Start here follows iron and copper ore through smelting, copper cable and electronic circuits. Choose All products for the connected network of every recipe, or a focused manufacturing view in Explorer. Topic views recursively include representative upstream recipes, stopping at external resources. They use production before recycling, prefer the material's named recipe, then non-catalytic recipes with fewer surface constraints and ingredients. Unpacking a barrel is not treated as a source of its own fluid. Other alternatives remain available in All products. Double-click a recipe for its original ingredients, results, crafting time and surface conditions. Item names are readable forms of the official prototype identifiers.
 
 ## Read the flows
 
-Each diagram has three stages: **ingredients → recipes → products**. The same material has separate input and output roles. This preserves every alternative, catalyst return and recycling recipe without creating a circular Sankey graph. Outputs are not automatically fed into another recipe in this atlas.
+Each item or fluid has one shared material node connecting **all producing and consuming recipes in the view**. Follow a material across as many production stages as its dependencies require. Recycling outputs and catalyst returns use return bands below the chart; additional cycles are routed there automatically. Arrows and Return flow labels retain the original direction. No relationship is dropped or duplicated to flatten the diagram.
+
+The complete network includes every recipe alternative at once, so it is large. Use topic views for readable chains. Their focusRecipes, upstreamRecipeCount and externalInputs metadata explain their scope. Raw mined resources, harvested inputs, collected asteroid chunks and spoilage can enter from outside the recipe model; no mining or harvesting recipe is invented. Catalyst cycles require an initial supply that is not calculated here.
 
 Band values are the quantities for **one craft of each recipe**, at normal quality with no productivity bonus. Probabilistic outputs show expected amounts. Recycling fractions are counted once after integer coercion of the item amount. These are recipe quantities, not a balanced factory plan or rates per second.
 

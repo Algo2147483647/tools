@@ -1,0 +1,2670 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Smelting and metallurgy",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 30
+  },
+  "nodes": {
+    "recipe:big-mining-drill": {
+      "title": "Big mining drill",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 30 s per craft.",
+      "recipe": "big-mining-drill",
+      "category": "metallurgy",
+      "secondsPerCraft": 30,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "electric-mining-drill",
+          "type": "item"
+        },
+        {
+          "amount": 200,
+          "name": "molten-iron",
+          "type": "fluid"
+        },
+        {
+          "amount": 20,
+          "name": "tungsten-carbide",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "electric-engine-unit",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "advanced-circuit",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "big-mining-drill",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:electric-mining-drill": {
+      "title": "Electric mining drill",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electric-mining-drill",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:molten-iron": {
+      "title": "Molten iron",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "molten-iron",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:tungsten-carbide": {
+      "title": "Tungsten carbide",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "tungsten-carbide",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electric-engine-unit": {
+      "title": "Electric engine unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electric-engine-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "advanced-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:big-mining-drill": {
+      "title": "Big mining drill",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "big-mining-drill",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-copper": {
+      "title": "Casting copper",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 3.2 s per craft.",
+      "recipe": "casting-copper",
+      "category": "metallurgy",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 20,
+          "fluidbox_multiplier": 10,
+          "name": "molten-copper",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:molten-copper": {
+      "title": "Molten copper",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "molten-copper",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:copper-plate": {
+      "title": "Copper plate",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "copper-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-copper-cable": {
+      "title": "Casting copper cable",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 1 s per craft.",
+      "recipe": "casting-copper-cable",
+      "category": "metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 5,
+          "fluidbox_multiplier": 5,
+          "name": "molten-copper",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:copper-cable": {
+      "title": "Copper cable",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-iron": {
+      "title": "Casting iron",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 3.2 s per craft.",
+      "recipe": "casting-iron",
+      "category": "metallurgy",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 20,
+          "fluidbox_multiplier": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:iron-plate": {
+      "title": "Iron plate",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-iron-gear-wheel": {
+      "title": "Casting iron gear wheel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 1 s per craft.",
+      "recipe": "casting-iron-gear-wheel",
+      "category": "metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 10,
+          "fluidbox_multiplier": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:iron-gear-wheel": {
+      "title": "Iron gear wheel",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "iron-gear-wheel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-iron-stick": {
+      "title": "Casting iron stick",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 1 s per craft.",
+      "recipe": "casting-iron-stick",
+      "category": "metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 20,
+          "fluidbox_multiplier": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 4,
+          "name": "iron-stick",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:iron-stick": {
+      "title": "Iron stick",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "iron-stick",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-low-density-structure": {
+      "title": "Casting low density structure",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 15 s per craft.",
+      "recipe": "casting-low-density-structure",
+      "category": "metallurgy",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 80,
+          "name": "molten-iron",
+          "type": "fluid"
+        },
+        {
+          "amount": 250,
+          "name": "molten-copper",
+          "type": "fluid"
+        },
+        {
+          "amount": 5,
+          "name": "plastic-bar",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "low-density-structure",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "plastic-bar",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "low-density-structure",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-pipe": {
+      "title": "Casting pipe",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 1 s per craft.",
+      "recipe": "casting-pipe",
+      "category": "metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 10,
+          "fluidbox_multiplier": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "pipe",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:pipe": {
+      "title": "Pipe",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "pipe",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-pipe-to-ground": {
+      "title": "Casting pipe to ground",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 1 s per craft.",
+      "recipe": "casting-pipe-to-ground",
+      "category": "metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 50,
+          "fluidbox_multiplier": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        },
+        {
+          "amount": 10,
+          "name": "pipe",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "pipe-to-ground",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:pipe": {
+      "title": "Pipe",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "pipe",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:pipe-to-ground": {
+      "title": "Pipe to ground",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "pipe-to-ground",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:casting-steel": {
+      "title": "Casting steel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 3.2 s per craft.",
+      "recipe": "casting-steel",
+      "category": "metallurgy",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 30,
+          "fluidbox_multiplier": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "steel-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:steel-plate": {
+      "title": "Steel plate",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "steel-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:concrete-from-molten-iron": {
+      "title": "Concrete from molten iron",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 10 s per craft.",
+      "recipe": "concrete-from-molten-iron",
+      "category": "metallurgy",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "molten-iron",
+          "type": "fluid"
+        },
+        {
+          "amount": 100,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 5,
+          "name": "stone-brick",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 10,
+          "name": "concrete",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:water": {
+      "title": "Water",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "water",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:stone-brick": {
+      "title": "Stone brick",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "stone-brick",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:concrete": {
+      "title": "Concrete",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "concrete",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:copper-plate": {
+      "title": "Copper plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "recipe": "copper-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:copper-ore": {
+      "title": "Copper ore",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-ore",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:express-splitter": {
+      "title": "Express splitter",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting with fluid or metallurgy · 2 s per craft.",
+      "recipe": "express-splitter",
+      "category": "crafting-with-fluid-or-metallurgy",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "fast-splitter",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "advanced-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 80,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "express-splitter",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:fast-splitter": {
+      "title": "Fast splitter",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "fast-splitter",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:iron-gear-wheel": {
+      "title": "Iron gear wheel",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-gear-wheel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:lubricant": {
+      "title": "Lubricant",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "lubricant",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:express-splitter": {
+      "title": "Express splitter",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "express-splitter",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:express-transport-belt": {
+      "title": "Express transport belt",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting with fluid or metallurgy · 0.5 s per craft.",
+      "recipe": "express-transport-belt",
+      "category": "crafting-with-fluid-or-metallurgy",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "fast-transport-belt",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "express-transport-belt",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:fast-transport-belt": {
+      "title": "Fast transport belt",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "fast-transport-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:express-transport-belt": {
+      "title": "Express transport belt",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "express-transport-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:express-underground-belt": {
+      "title": "Express underground belt",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting with fluid or metallurgy · 2 s per craft.",
+      "recipe": "express-underground-belt",
+      "category": "crafting-with-fluid-or-metallurgy",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 80,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "fast-underground-belt",
+          "type": "item"
+        },
+        {
+          "amount": 40,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "express-underground-belt",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:fast-underground-belt": {
+      "title": "Fast underground belt",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "fast-underground-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:express-underground-belt": {
+      "title": "Express underground belt",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "express-underground-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:foundry": {
+      "title": "Foundry",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy or assembling · 10 s per craft.",
+      "recipe": "foundry",
+      "category": "metallurgy-or-assembling",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 50,
+          "name": "tungsten-carbide",
+          "type": "item"
+        },
+        {
+          "amount": 50,
+          "name": "steel-plate",
+          "type": "item"
+        },
+        {
+          "amount": 30,
+          "name": "electronic-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "refined-concrete",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "foundry",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:steel-plate": {
+      "title": "Steel plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "steel-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electronic-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:refined-concrete": {
+      "title": "Refined concrete",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "refined-concrete",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:foundry": {
+      "title": "Foundry",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "foundry",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:holmium-plate": {
+      "title": "Holmium plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting with fluid or metallurgy · 1 s per craft.",
+      "recipe": "holmium-plate",
+      "category": "crafting-with-fluid-or-metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 20,
+          "fluidbox_multiplier": 10,
+          "name": "holmium-solution",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "holmium-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:holmium-solution": {
+      "title": "Holmium solution",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "holmium-solution",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:holmium-plate": {
+      "title": "Holmium plate",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "holmium-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:iron-plate": {
+      "title": "Iron plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "recipe": "iron-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:iron-ore": {
+      "title": "Iron ore",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-ore",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:lithium-plate": {
+      "title": "Lithium plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 6.4 s per craft.",
+      "recipe": "lithium-plate",
+      "category": "smelting",
+      "secondsPerCraft": 6.4,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "lithium",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "lithium-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:lithium": {
+      "title": "Lithium",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "lithium",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:lithium-plate": {
+      "title": "Lithium plate",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "lithium-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:metallurgic-science-pack": {
+      "title": "Metallurgic science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 10 s per craft.",
+      "recipe": "metallurgic-science-pack",
+      "category": "metallurgy",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 3,
+          "name": "tungsten-carbide",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "tungsten-plate",
+          "type": "item"
+        },
+        {
+          "amount": 200,
+          "name": "molten-copper",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "metallurgic-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:tungsten-plate": {
+      "title": "Tungsten plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "tungsten-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:metallurgic-science-pack": {
+      "title": "Metallurgic science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "metallurgic-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:molten-copper": {
+      "title": "Molten copper",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 32 s per craft.",
+      "recipe": "molten-copper",
+      "category": "metallurgy",
+      "secondsPerCraft": 32,
+      "ingredients": [
+        {
+          "amount": 50,
+          "name": "copper-ore",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "calcite",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 500,
+          "name": "molten-copper",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:calcite": {
+      "title": "Calcite",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "calcite",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:molten-copper": {
+      "title": "Molten copper",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "molten-copper",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:molten-copper-from-lava": {
+      "title": "Molten copper from lava",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 16 s per craft.",
+      "recipe": "molten-copper-from-lava",
+      "category": "metallurgy",
+      "secondsPerCraft": 16,
+      "ingredients": [
+        {
+          "amount": 500,
+          "name": "lava",
+          "type": "fluid"
+        },
+        {
+          "amount": 1,
+          "name": "calcite",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 250,
+          "name": "molten-copper",
+          "type": "fluid"
+        },
+        {
+          "amount": 15,
+          "name": "stone",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:lava": {
+      "title": "Lava",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "lava",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:stone": {
+      "title": "Stone",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "stone",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:molten-iron": {
+      "title": "Molten iron",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 32 s per craft.",
+      "recipe": "molten-iron",
+      "category": "metallurgy",
+      "secondsPerCraft": 32,
+      "ingredients": [
+        {
+          "amount": 50,
+          "name": "iron-ore",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "calcite",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 500,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:molten-iron": {
+      "title": "Molten iron",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "molten-iron",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:molten-iron-from-lava": {
+      "title": "Molten iron from lava",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 16 s per craft.",
+      "recipe": "molten-iron-from-lava",
+      "category": "metallurgy",
+      "secondsPerCraft": 16,
+      "ingredients": [
+        {
+          "amount": 500,
+          "name": "lava",
+          "type": "fluid"
+        },
+        {
+          "amount": 1,
+          "name": "calcite",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 250,
+          "name": "molten-iron",
+          "type": "fluid"
+        },
+        {
+          "amount": 10,
+          "name": "stone",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:steel-plate": {
+      "title": "Steel plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 16 s per craft.",
+      "recipe": "steel-plate",
+      "category": "smelting",
+      "secondsPerCraft": 16,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "steel-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:iron-plate": {
+      "title": "Iron plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:stone-brick": {
+      "title": "Stone brick",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "recipe": "stone-brick",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "stone",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "stone-brick",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:stone": {
+      "title": "Stone",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "stone",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:stone-brick": {
+      "title": "Stone brick",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "stone-brick",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:tungsten-plate": {
+      "title": "Tungsten plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 10 s per craft.",
+      "recipe": "tungsten-plate",
+      "category": "metallurgy",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 4,
+          "name": "tungsten-ore",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "molten-iron",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "tungsten-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:tungsten-ore": {
+      "title": "Tungsten ore",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "tungsten-ore",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:tungsten-plate": {
+      "title": "Tungsten plate",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "tungsten-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:turbo-splitter": {
+      "title": "Turbo splitter",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 2 s per craft.",
+      "recipe": "turbo-splitter",
+      "category": "metallurgy",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "express-splitter",
+          "type": "item"
+        },
+        {
+          "amount": 15,
+          "name": "tungsten-plate",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "processing-unit",
+          "type": "item"
+        },
+        {
+          "amount": 80,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "turbo-splitter",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:express-splitter": {
+      "title": "Express splitter",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "express-splitter",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:processing-unit": {
+      "title": "Processing unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "processing-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:turbo-splitter": {
+      "title": "Turbo splitter",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "turbo-splitter",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:turbo-transport-belt": {
+      "title": "Turbo transport belt",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 0.5 s per craft.",
+      "recipe": "turbo-transport-belt",
+      "category": "metallurgy",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "tungsten-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "express-transport-belt",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "turbo-transport-belt",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:express-transport-belt": {
+      "title": "Express transport belt",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "express-transport-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:turbo-transport-belt": {
+      "title": "Turbo transport belt",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "turbo-transport-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:turbo-underground-belt": {
+      "title": "Turbo underground belt",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 2 s per craft.",
+      "recipe": "turbo-underground-belt",
+      "category": "metallurgy",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 40,
+          "name": "tungsten-plate",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "express-underground-belt",
+          "type": "item"
+        },
+        {
+          "amount": 40,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "turbo-underground-belt",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:express-underground-belt": {
+      "title": "Express underground belt",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "express-underground-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:turbo-underground-belt": {
+      "title": "Turbo underground belt",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "turbo-underground-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:big-mining-drill:input:0",
+      "source": "input:electric-mining-drill",
+      "target": "recipe:big-mining-drill",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "big-mining-drill",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:big-mining-drill:input:1",
+      "source": "input:molten-iron",
+      "target": "recipe:big-mining-drill",
+      "value": 200,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "big-mining-drill",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:big-mining-drill:input:2",
+      "source": "input:tungsten-carbide",
+      "target": "recipe:big-mining-drill",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "big-mining-drill",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:big-mining-drill:input:3",
+      "source": "input:electric-engine-unit",
+      "target": "recipe:big-mining-drill",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "big-mining-drill",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:big-mining-drill:input:4",
+      "source": "input:advanced-circuit",
+      "target": "recipe:big-mining-drill",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "big-mining-drill",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:big-mining-drill:output:0",
+      "source": "recipe:big-mining-drill",
+      "target": "output:big-mining-drill",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "big-mining-drill",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-copper:input:0",
+      "source": "input:molten-copper",
+      "target": "recipe:casting-copper",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-copper",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-copper:output:0",
+      "source": "recipe:casting-copper",
+      "target": "output:copper-plate",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-copper",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-copper-cable:input:0",
+      "source": "input:molten-copper",
+      "target": "recipe:casting-copper-cable",
+      "value": 5,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-copper-cable",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-copper-cable:output:0",
+      "source": "recipe:casting-copper-cable",
+      "target": "output:copper-cable",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-copper-cable",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-iron:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-iron",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-iron",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-iron:output:0",
+      "source": "recipe:casting-iron",
+      "target": "output:iron-plate",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-iron",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-iron-gear-wheel:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-iron-gear-wheel",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-iron-gear-wheel",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-iron-gear-wheel:output:0",
+      "source": "recipe:casting-iron-gear-wheel",
+      "target": "output:iron-gear-wheel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-iron-gear-wheel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-iron-stick:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-iron-stick",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-iron-stick",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-iron-stick:output:0",
+      "source": "recipe:casting-iron-stick",
+      "target": "output:iron-stick",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-iron-stick",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-low-density-structure:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-low-density-structure",
+      "value": 80,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-low-density-structure",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-low-density-structure:input:1",
+      "source": "input:molten-copper",
+      "target": "recipe:casting-low-density-structure",
+      "value": 250,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-low-density-structure",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-low-density-structure:input:2",
+      "source": "input:plastic-bar",
+      "target": "recipe:casting-low-density-structure",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-low-density-structure",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-low-density-structure:output:0",
+      "source": "recipe:casting-low-density-structure",
+      "target": "output:low-density-structure",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-low-density-structure",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-pipe:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-pipe",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-pipe",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-pipe:output:0",
+      "source": "recipe:casting-pipe",
+      "target": "output:pipe",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-pipe",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-pipe-to-ground:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-pipe-to-ground",
+      "value": 50,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-pipe-to-ground",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-pipe-to-ground:input:1",
+      "source": "input:pipe",
+      "target": "recipe:casting-pipe-to-ground",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-pipe-to-ground",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-pipe-to-ground:output:0",
+      "source": "recipe:casting-pipe-to-ground",
+      "target": "output:pipe-to-ground",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-pipe-to-ground",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:casting-steel:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:casting-steel",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "casting-steel",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:casting-steel:output:0",
+      "source": "recipe:casting-steel",
+      "target": "output:steel-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "casting-steel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:concrete-from-molten-iron:input:0",
+      "source": "input:molten-iron",
+      "target": "recipe:concrete-from-molten-iron",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "concrete-from-molten-iron",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:concrete-from-molten-iron:input:1",
+      "source": "input:water",
+      "target": "recipe:concrete-from-molten-iron",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "concrete-from-molten-iron",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:concrete-from-molten-iron:input:2",
+      "source": "input:stone-brick",
+      "target": "recipe:concrete-from-molten-iron",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "concrete-from-molten-iron",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:concrete-from-molten-iron:output:0",
+      "source": "recipe:concrete-from-molten-iron",
+      "target": "output:concrete",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "concrete-from-molten-iron",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:input:0",
+      "source": "input:copper-ore",
+      "target": "recipe:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:output:0",
+      "source": "recipe:copper-plate",
+      "target": "output:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:express-splitter:input:0",
+      "source": "input:fast-splitter",
+      "target": "recipe:express-splitter",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-splitter",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-splitter:input:1",
+      "source": "input:iron-gear-wheel",
+      "target": "recipe:express-splitter",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-splitter",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-splitter:input:2",
+      "source": "input:advanced-circuit",
+      "target": "recipe:express-splitter",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-splitter",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-splitter:input:3",
+      "source": "input:lubricant",
+      "target": "recipe:express-splitter",
+      "value": 80,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "express-splitter",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-splitter:output:0",
+      "source": "recipe:express-splitter",
+      "target": "output:express-splitter",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-splitter",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:express-transport-belt:input:0",
+      "source": "input:iron-gear-wheel",
+      "target": "recipe:express-transport-belt",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-transport-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-transport-belt:input:1",
+      "source": "input:fast-transport-belt",
+      "target": "recipe:express-transport-belt",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-transport-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-transport-belt:input:2",
+      "source": "input:lubricant",
+      "target": "recipe:express-transport-belt",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "express-transport-belt",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-transport-belt:output:0",
+      "source": "recipe:express-transport-belt",
+      "target": "output:express-transport-belt",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-transport-belt",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:express-underground-belt:input:0",
+      "source": "input:iron-gear-wheel",
+      "target": "recipe:express-underground-belt",
+      "value": 80,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-underground-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-underground-belt:input:1",
+      "source": "input:fast-underground-belt",
+      "target": "recipe:express-underground-belt",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-underground-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-underground-belt:input:2",
+      "source": "input:lubricant",
+      "target": "recipe:express-underground-belt",
+      "value": 40,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "express-underground-belt",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:express-underground-belt:output:0",
+      "source": "recipe:express-underground-belt",
+      "target": "output:express-underground-belt",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "express-underground-belt",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:foundry:input:0",
+      "source": "input:tungsten-carbide",
+      "target": "recipe:foundry",
+      "value": 50,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "foundry",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:foundry:input:1",
+      "source": "input:steel-plate",
+      "target": "recipe:foundry",
+      "value": 50,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "foundry",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:foundry:input:2",
+      "source": "input:electronic-circuit",
+      "target": "recipe:foundry",
+      "value": 30,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "foundry",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:foundry:input:3",
+      "source": "input:refined-concrete",
+      "target": "recipe:foundry",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "foundry",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:foundry:input:4",
+      "source": "input:lubricant",
+      "target": "recipe:foundry",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "foundry",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:foundry:output:0",
+      "source": "recipe:foundry",
+      "target": "output:foundry",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "foundry",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:holmium-plate:input:0",
+      "source": "input:holmium-solution",
+      "target": "recipe:holmium-plate",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "holmium-plate",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:holmium-plate:output:0",
+      "source": "recipe:holmium-plate",
+      "target": "output:holmium-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "holmium-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:input:0",
+      "source": "input:iron-ore",
+      "target": "recipe:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:output:0",
+      "source": "recipe:iron-plate",
+      "target": "output:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:lithium-plate:input:0",
+      "source": "input:lithium",
+      "target": "recipe:lithium-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "lithium-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:lithium-plate:output:0",
+      "source": "recipe:lithium-plate",
+      "target": "output:lithium-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "lithium-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:input:0",
+      "source": "input:tungsten-carbide",
+      "target": "recipe:metallurgic-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:input:1",
+      "source": "input:tungsten-plate",
+      "target": "recipe:metallurgic-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:input:2",
+      "source": "input:molten-copper",
+      "target": "recipe:metallurgic-science-pack",
+      "value": 200,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:output:0",
+      "source": "recipe:metallurgic-science-pack",
+      "target": "output:metallurgic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:molten-copper:input:0",
+      "source": "input:copper-ore",
+      "target": "recipe:molten-copper",
+      "value": 50,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-copper",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-copper:input:1",
+      "source": "input:calcite",
+      "target": "recipe:molten-copper",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-copper",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-copper:output:0",
+      "source": "recipe:molten-copper",
+      "target": "output:molten-copper",
+      "value": 500,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "molten-copper",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:molten-copper-from-lava:input:0",
+      "source": "input:lava",
+      "target": "recipe:molten-copper-from-lava",
+      "value": 500,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "molten-copper-from-lava",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-copper-from-lava:input:1",
+      "source": "input:calcite",
+      "target": "recipe:molten-copper-from-lava",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-copper-from-lava",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-copper-from-lava:output:0",
+      "source": "recipe:molten-copper-from-lava",
+      "target": "output:molten-copper",
+      "value": 250,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "molten-copper-from-lava",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:molten-copper-from-lava:output:1",
+      "source": "recipe:molten-copper-from-lava",
+      "target": "output:stone",
+      "value": 15,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-copper-from-lava",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:molten-iron:input:0",
+      "source": "input:iron-ore",
+      "target": "recipe:molten-iron",
+      "value": 50,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-iron",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-iron:input:1",
+      "source": "input:calcite",
+      "target": "recipe:molten-iron",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-iron",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-iron:output:0",
+      "source": "recipe:molten-iron",
+      "target": "output:molten-iron",
+      "value": 500,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "molten-iron",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:molten-iron-from-lava:input:0",
+      "source": "input:lava",
+      "target": "recipe:molten-iron-from-lava",
+      "value": 500,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "molten-iron-from-lava",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-iron-from-lava:input:1",
+      "source": "input:calcite",
+      "target": "recipe:molten-iron-from-lava",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-iron-from-lava",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:molten-iron-from-lava:output:0",
+      "source": "recipe:molten-iron-from-lava",
+      "target": "output:molten-iron",
+      "value": 250,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "molten-iron-from-lava",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:molten-iron-from-lava:output:1",
+      "source": "recipe:molten-iron-from-lava",
+      "target": "output:stone",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "molten-iron-from-lava",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:input:0",
+      "source": "input:iron-plate",
+      "target": "recipe:steel-plate",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "steel-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:output:0",
+      "source": "recipe:steel-plate",
+      "target": "output:steel-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "steel-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:stone-brick:input:0",
+      "source": "input:stone",
+      "target": "recipe:stone-brick",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "stone-brick",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:stone-brick:output:0",
+      "source": "recipe:stone-brick",
+      "target": "output:stone-brick",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "stone-brick",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:tungsten-plate:input:0",
+      "source": "input:tungsten-ore",
+      "target": "recipe:tungsten-plate",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tungsten-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tungsten-plate:input:1",
+      "source": "input:molten-iron",
+      "target": "recipe:tungsten-plate",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "tungsten-plate",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tungsten-plate:output:0",
+      "source": "recipe:tungsten-plate",
+      "target": "output:tungsten-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tungsten-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:turbo-splitter:input:0",
+      "source": "input:express-splitter",
+      "target": "recipe:turbo-splitter",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-splitter",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-splitter:input:1",
+      "source": "input:tungsten-plate",
+      "target": "recipe:turbo-splitter",
+      "value": 15,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-splitter",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-splitter:input:2",
+      "source": "input:processing-unit",
+      "target": "recipe:turbo-splitter",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-splitter",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-splitter:input:3",
+      "source": "input:lubricant",
+      "target": "recipe:turbo-splitter",
+      "value": 80,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "turbo-splitter",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-splitter:output:0",
+      "source": "recipe:turbo-splitter",
+      "target": "output:turbo-splitter",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-splitter",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:turbo-transport-belt:input:0",
+      "source": "input:tungsten-plate",
+      "target": "recipe:turbo-transport-belt",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-transport-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-transport-belt:input:1",
+      "source": "input:express-transport-belt",
+      "target": "recipe:turbo-transport-belt",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-transport-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-transport-belt:input:2",
+      "source": "input:lubricant",
+      "target": "recipe:turbo-transport-belt",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "turbo-transport-belt",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-transport-belt:output:0",
+      "source": "recipe:turbo-transport-belt",
+      "target": "output:turbo-transport-belt",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-transport-belt",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:turbo-underground-belt:input:0",
+      "source": "input:tungsten-plate",
+      "target": "recipe:turbo-underground-belt",
+      "value": 40,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-underground-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-underground-belt:input:1",
+      "source": "input:express-underground-belt",
+      "target": "recipe:turbo-underground-belt",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-underground-belt",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-underground-belt:input:2",
+      "source": "input:lubricant",
+      "target": "recipe:turbo-underground-belt",
+      "value": 40,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "turbo-underground-belt",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:turbo-underground-belt:output:0",
+      "source": "recipe:turbo-underground-belt",
+      "target": "output:turbo-underground-belt",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "turbo-underground-belt",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

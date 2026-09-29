@@ -9,10 +9,55 @@
     "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
     "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
     "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
-    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "interpretation": "Shared materials connect producing and consuming recipes across the full network. Return flows preserve recycling and catalysts. Quantities are per craft, not balanced factory throughput.",
     "recipeCount": 648,
     "productCount": 328,
-    "viewRecipeCount": 31
+    "viewRecipeCount": 41,
+    "focusRecipes": [
+      "acid-neutralisation",
+      "advanced-oil-processing",
+      "advanced-thruster-fuel",
+      "advanced-thruster-oxidizer",
+      "ammonia-rocket-fuel",
+      "ammoniacal-solution-separation",
+      "basic-oil-processing",
+      "battery",
+      "carbon",
+      "coal-liquefaction",
+      "coal-synthesis",
+      "explosives",
+      "fish-breeding",
+      "flamethrower-ammo",
+      "heavy-oil-cracking",
+      "holmium-solution",
+      "ice-melting",
+      "light-oil-cracking",
+      "lithium",
+      "lubricant",
+      "plastic-bar",
+      "simple-coal-liquefaction",
+      "solid-fuel-from-ammonia",
+      "solid-fuel-from-heavy-oil",
+      "solid-fuel-from-light-oil",
+      "solid-fuel-from-petroleum-gas",
+      "steam-condensation",
+      "sulfur",
+      "sulfuric-acid",
+      "thruster-fuel",
+      "thruster-oxidizer"
+    ],
+    "upstreamRecipeCount": 10,
+    "externalInputs": [
+      "material:fluid:ammoniacal-solution",
+      "material:fluid:crude-oil",
+      "material:fluid:lithium-brine",
+      "material:item:copper-ore",
+      "material:item:iron-ore",
+      "material:item:jellynut",
+      "material:item:scrap",
+      "material:item:yumako"
+    ],
+    "upstreamPolicy": "Representative non-recycling recipes to external resources; all alternatives are in All products."
   },
   "nodes": {
     "recipe:acid-neutralisation": {
@@ -20,6 +65,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "acid-neutralisation",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 5,
@@ -52,29 +98,29 @@
       ],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:calcite": {
+    "material:item:calcite": {
       "title": "Calcite",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "calcite",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:sulfuric-acid": {
+    "material:fluid:sulfuric-acid": {
       "title": "Sulfuric acid",
-      "type": "Ingredient",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "sulfuric-acid",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:steam": {
+    "material:fluid:steam": {
       "title": "Steam",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "steam",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
@@ -84,6 +130,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "advanced-oil-processing",
       "category": "oil-processing",
       "secondsPerCraft": 5,
@@ -119,49 +166,104 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:water": {
+    "material:fluid:water": {
       "title": "Water",
-      "type": "Ingredient",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "water",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:crude-oil": {
+    "material:fluid:crude-oil": {
       "title": "Crude oil",
-      "type": "Ingredient",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
       "productId": "crude-oil",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:heavy-oil": {
+    "material:fluid:heavy-oil": {
       "title": "Heavy oil",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "heavy-oil",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:light-oil": {
+    "material:fluid:light-oil": {
       "title": "Light oil",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "light-oil",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:petroleum-gas": {
+    "material:fluid:petroleum-gas": {
       "title": "Petroleum gas",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "petroleum-gas",
       "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:advanced-oxide-asteroid-crushing": {
+      "title": "Advanced oxide asteroid crushing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crushing · 5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "advanced-oxide-asteroid-crushing",
+      "category": "crushing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "name": "ice",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "calcite",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "oxide-asteroid-chunk",
+          "probability": 0.05,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:oxide-asteroid-chunk": {
+      "title": "Oxide asteroid chunk",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "oxide-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:ice": {
+      "title": "Ice",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "ice",
+      "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
     "recipe:advanced-thruster-fuel": {
@@ -169,6 +271,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 10 s per craft.",
+      "viewRole": "Focus",
       "recipe": "advanced-thruster-fuel",
       "category": "chemistry",
       "secondsPerCraft": 10,
@@ -205,20 +308,20 @@
       ],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:carbon": {
+    "material:item:carbon": {
       "title": "Carbon",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "carbon",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:thruster-fuel": {
+    "material:fluid:thruster-fuel": {
       "title": "Thruster fuel",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "thruster-fuel",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
@@ -228,6 +331,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 10 s per craft.",
+      "viewRole": "Focus",
       "recipe": "advanced-thruster-oxidizer",
       "category": "chemistry",
       "secondsPerCraft": 10,
@@ -264,20 +368,20 @@
       ],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:iron-ore": {
+    "material:item:iron-ore": {
       "title": "Iron ore",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
       "productId": "iron-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:thruster-oxidizer": {
+    "material:fluid:thruster-oxidizer": {
       "title": "Thruster oxidizer",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "thruster-oxidizer",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
@@ -287,6 +391,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 10 s per craft.",
+      "viewRole": "Focus",
       "recipe": "ammonia-rocket-fuel",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 10,
@@ -317,29 +422,29 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:solid-fuel": {
+    "material:item:solid-fuel": {
       "title": "Solid fuel",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "solid-fuel",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:ammonia": {
+    "material:fluid:ammonia": {
       "title": "Ammonia",
-      "type": "Ingredient",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "ammonia",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:rocket-fuel": {
+    "material:item:rocket-fuel": {
       "title": "Rocket fuel",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "rocket-fuel",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -349,6 +454,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "ammoniacal-solution-separation",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 1,
@@ -374,30 +480,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:ammoniacal-solution": {
+    "material:fluid:ammoniacal-solution": {
       "title": "Ammoniacal solution",
-      "type": "Ingredient",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
       "productId": "ammoniacal-solution",
-      "unit": "fluid units",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:ice": {
-      "title": "Ice",
-      "type": "Product",
-      "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "ice",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:ammonia": {
-      "title": "Ammonia",
-      "type": "Product",
-      "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
-      "productId": "ammonia",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -406,6 +494,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "basic-oil-processing",
       "category": "oil-processing",
       "secondsPerCraft": 5,
@@ -433,6 +522,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 4 s per craft.",
+      "viewRole": "Focus",
       "recipe": "battery",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 4,
@@ -463,30 +553,88 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:iron-plate": {
+    "material:item:iron-plate": {
       "title": "Iron plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "iron-plate",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:copper-plate": {
+    "material:item:copper-plate": {
       "title": "Copper plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "copper-plate",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:battery": {
+    "material:item:battery": {
       "title": "Battery",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "battery",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:bioflux": {
+      "title": "Bioflux",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 6 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "bioflux",
+      "category": "organic",
+      "secondsPerCraft": 6,
+      "ingredients": [
+        {
+          "amount": 15,
+          "name": "yumako-mash",
+          "type": "item"
+        },
+        {
+          "amount": 12,
+          "name": "jelly",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 4,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:yumako-mash": {
+      "title": "Yumako mash",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "yumako-mash",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:jelly": {
+      "title": "Jelly",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "jelly",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:bioflux": {
+      "title": "Bioflux",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "bioflux",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -495,6 +643,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "carbon",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 1,
@@ -520,21 +669,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:coal": {
+    "material:item:coal": {
       "title": "Coal",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "coal",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:carbon": {
-      "title": "Carbon",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "carbon",
+      "define": "Shared material · items per craft.",
+      "productId": "coal",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -543,6 +683,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "coal-liquefaction",
       "category": "oil-processing",
       "secondsPerCraft": 5,
@@ -586,29 +727,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:heavy-oil": {
-      "title": "Heavy oil",
-      "type": "Ingredient",
-      "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
-      "productId": "heavy-oil",
-      "unit": "fluid units",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "input:steam": {
-      "title": "Steam",
-      "type": "Ingredient",
-      "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
-      "productId": "steam",
-      "unit": "fluid units",
-      "notes": "[Reading this diagram](./README.md)"
-    },
     "recipe:coal-synthesis": {
       "title": "Coal synthesis",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "coal-synthesis",
       "category": "chemistry",
       "secondsPerCraft": 2,
@@ -639,21 +763,47 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:sulfur": {
+    "material:item:sulfur": {
       "title": "Sulfur",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "sulfur",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:coal": {
-      "title": "Coal",
-      "type": "Product",
+    "recipe:copper-plate": {
+      "title": "Copper plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "copper-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:copper-ore": {
+      "title": "Copper ore",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "coal",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "copper-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -662,6 +812,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 4 s per craft.",
+      "viewRole": "Focus",
       "recipe": "explosives",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 4,
@@ -692,11 +843,11 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "output:explosives": {
+    "material:item:explosives": {
       "title": "Explosives",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "explosives",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -706,6 +857,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Organic or chemistry · 6 s per craft.",
+      "viewRole": "Focus",
       "recipe": "fish-breeding",
       "category": "organic-or-chemistry",
       "secondsPerCraft": 6,
@@ -745,30 +897,21 @@
       ],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:raw-fish": {
+    "material:item:raw-fish": {
       "title": "Raw fish",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "raw-fish",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "input:nutrients": {
-      "title": "Nutrients",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "nutrients",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:raw-fish": {
-      "title": "Raw fish",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "raw-fish",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:nutrients": {
+      "title": "Nutrients",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "nutrients",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -777,6 +920,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 6 s per craft.",
+      "viewRole": "Focus",
       "recipe": "flamethrower-ammo",
       "category": "chemistry",
       "secondsPerCraft": 6,
@@ -802,20 +946,20 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:steel-plate": {
+    "material:item:steel-plate": {
       "title": "Steel plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "steel-plate",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:flamethrower-ammo": {
+    "material:item:flamethrower-ammo": {
       "title": "Flamethrower ammo",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "flamethrower-ammo",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -825,6 +969,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Organic or chemistry · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "heavy-oil-cracking",
       "category": "organic-or-chemistry",
       "secondsPerCraft": 2,
@@ -850,11 +995,57 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
+    "recipe:holmium-plate": {
+      "title": "Holmium plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting with fluid or metallurgy · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "holmium-plate",
+      "category": "crafting-with-fluid-or-metallurgy",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 20,
+          "fluidbox_multiplier": 10,
+          "name": "holmium-solution",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "holmium-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:fluid:holmium-solution": {
+      "title": "Holmium solution",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "holmium-solution",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:holmium-plate": {
+      "title": "Holmium plate",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "holmium-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
     "recipe:holmium-solution": {
       "title": "Holmium solution",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 10 s per craft.",
+      "viewRole": "Focus",
       "recipe": "holmium-solution",
       "category": "chemistry",
       "secondsPerCraft": 10,
@@ -885,31 +1076,22 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:holmium-ore": {
+    "material:item:holmium-ore": {
       "title": "Holmium ore",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "holmium-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:stone": {
+    "material:item:stone": {
       "title": "Stone",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "stone",
       "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:holmium-solution": {
-      "title": "Holmium solution",
-      "type": "Product",
-      "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
-      "productId": "holmium-solution",
-      "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
     "recipe:ice-melting": {
@@ -917,6 +1099,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "ice-melting",
       "category": "chemistry",
       "secondsPerCraft": 1,
@@ -937,22 +1120,80 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:ice": {
-      "title": "Ice",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "ice",
+    "recipe:iron-plate": {
+      "title": "Iron plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "iron-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:jellynut-processing": {
+      "title": "Jellynut processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or hand crafting · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "jellynut-processing",
+      "category": "organic-or-hand-crafting",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "jellynut",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "jellynut-seed",
+          "probability": 0.02,
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "jelly",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:jellynut": {
+      "title": "Jellynut",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "jellynut",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:water": {
-      "title": "Water",
-      "type": "Product",
-      "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
-      "productId": "water",
-      "unit": "fluid units",
+    "material:item:jellynut-seed": {
+      "title": "Jellynut seed",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "jellynut-seed",
+      "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
     "recipe:light-oil-cracking": {
@@ -960,6 +1201,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Organic or chemistry · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "light-oil-cracking",
       "category": "organic-or-chemistry",
       "secondsPerCraft": 2,
@@ -985,20 +1227,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:light-oil": {
-      "title": "Light oil",
-      "type": "Ingredient",
-      "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
-      "productId": "light-oil",
-      "unit": "fluid units",
-      "notes": "[Reading this diagram](./README.md)"
-    },
     "recipe:lithium": {
       "title": "Lithium",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 20 s per craft.",
+      "viewRole": "Focus",
       "recipe": "lithium",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 20,
@@ -1029,29 +1263,20 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:holmium-plate": {
-      "title": "Holmium plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "holmium-plate",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "input:lithium-brine": {
+    "material:fluid:lithium-brine": {
       "title": "Lithium brine",
-      "type": "Ingredient",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
       "productId": "lithium-brine",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:lithium": {
+    "material:item:lithium": {
       "title": "Lithium",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "lithium",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -1061,6 +1286,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "lubricant",
       "category": "chemistry",
       "secondsPerCraft": 1,
@@ -1081,20 +1307,47 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "output:lubricant": {
+    "material:fluid:lubricant": {
       "title": "Lubricant",
-      "type": "Product",
+      "type": "Fluid",
       "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
+      "define": "Shared material · fluid units per craft.",
       "productId": "lubricant",
       "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:nutrients-from-bioflux": {
+      "title": "Nutrients from bioflux",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "nutrients-from-bioflux",
+      "category": "organic",
+      "secondsPerCraft": 2,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "bioflux",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 40,
+          "name": "nutrients",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
     },
     "recipe:plastic-bar": {
       "title": "Plastic bar",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "plastic-bar",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 1,
@@ -1120,21 +1373,180 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:petroleum-gas": {
-      "title": "Petroleum gas",
-      "type": "Ingredient",
-      "color": "#6696a8",
-      "define": "Input role · fluid units per craft.",
-      "productId": "petroleum-gas",
-      "unit": "fluid units",
+    "material:item:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "plastic-bar",
+      "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:plastic-bar": {
-      "title": "Plastic bar",
-      "type": "Product",
+    "recipe:scrap-recycling": {
+      "title": "Scrap recycling",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Recycling or hand crafting · 0.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "scrap-recycling",
+      "category": "recycling-or-hand-crafting",
+      "secondsPerCraft": 0.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "scrap",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-gear-wheel",
+          "probability": 0.2,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "solid-fuel",
+          "probability": 0.07,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "concrete",
+          "probability": 0.06,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "ice",
+          "probability": 0.05,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "steel-plate",
+          "probability": 0.04,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "battery",
+          "probability": 0.04,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "stone",
+          "probability": 0.04,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "advanced-circuit",
+          "probability": 0.03,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "copper-cable",
+          "probability": 0.03,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "processing-unit",
+          "probability": 0.02,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "low-density-structure",
+          "probability": 0.01,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "holmium-ore",
+          "probability": 0.01,
+          "show_details_in_recipe_tooltip": false,
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:scrap": {
+      "title": "Scrap",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "plastic-bar",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "scrap",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:iron-gear-wheel": {
+      "title": "Iron gear wheel",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "iron-gear-wheel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:concrete": {
+      "title": "Concrete",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "concrete",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "advanced-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:copper-cable": {
+      "title": "Copper cable",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:processing-unit": {
+      "title": "Processing unit",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "processing-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "low-density-structure",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -1143,6 +1555,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "simple-coal-liquefaction",
       "category": "oil-processing",
       "secondsPerCraft": 5,
@@ -1178,6 +1591,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 0.5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "solid-fuel-from-ammonia",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 0.5,
@@ -1203,20 +1617,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "output:solid-fuel": {
-      "title": "Solid fuel",
-      "type": "Product",
-      "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "solid-fuel",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
     "recipe:solid-fuel-from-heavy-oil": {
       "title": "Solid fuel from heavy oil",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "solid-fuel-from-heavy-oil",
       "category": "chemistry",
       "secondsPerCraft": 1,
@@ -1242,6 +1648,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "solid-fuel-from-light-oil",
       "category": "chemistry",
       "secondsPerCraft": 1,
@@ -1267,6 +1674,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "solid-fuel-from-petroleum-gas",
       "category": "chemistry",
       "secondsPerCraft": 1,
@@ -1292,6 +1700,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "steam-condensation",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 1,
@@ -1312,11 +1721,38 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
+    "recipe:steel-plate": {
+      "title": "Steel plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 16 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "steel-plate",
+      "category": "smelting",
+      "secondsPerCraft": 16,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "steel-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
     "recipe:sulfur": {
       "title": "Sulfur",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "sulfur",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 1,
@@ -1342,20 +1778,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "output:sulfur": {
-      "title": "Sulfur",
-      "type": "Product",
-      "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "sulfur",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
     "recipe:sulfuric-acid": {
       "title": "Sulfuric acid",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "sulfuric-acid",
       "category": "chemistry-or-cryogenics",
       "secondsPerCraft": 1,
@@ -1386,20 +1814,12 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "output:sulfuric-acid": {
-      "title": "Sulfuric acid",
-      "type": "Product",
-      "color": "#6696a8",
-      "define": "Output role · fluid units per craft.",
-      "productId": "sulfuric-acid",
-      "unit": "fluid units",
-      "notes": "[Reading this diagram](./README.md)"
-    },
     "recipe:thruster-fuel": {
       "title": "Thruster fuel",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "thruster-fuel",
       "category": "chemistry",
       "secondsPerCraft": 2,
@@ -1436,6 +1856,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Chemistry · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "thruster-oxidizer",
       "category": "chemistry",
       "secondsPerCraft": 2,
@@ -1466,12 +1887,62 @@
         }
       ],
       "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:yumako-processing": {
+      "title": "Yumako processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or hand crafting · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "yumako-processing",
+      "category": "organic-or-hand-crafting",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "yumako",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "yumako-seed",
+          "probability": 0.02,
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "yumako-mash",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:yumako": {
+      "title": "Yumako",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "yumako",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:yumako-seed": {
+      "title": "Yumako seed",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "yumako-seed",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
     }
   },
   "edges": [
     {
       "id": "recipe:acid-neutralisation:input:0",
-      "source": "input:calcite",
+      "source": "material:item:calcite",
       "target": "recipe:acid-neutralisation",
       "value": 1,
       "metadata": {
@@ -1483,7 +1954,7 @@
     },
     {
       "id": "recipe:acid-neutralisation:input:1",
-      "source": "input:sulfuric-acid",
+      "source": "material:fluid:sulfuric-acid",
       "target": "recipe:acid-neutralisation",
       "value": 1000,
       "metadata": {
@@ -1496,7 +1967,7 @@
     {
       "id": "recipe:acid-neutralisation:output:0",
       "source": "recipe:acid-neutralisation",
-      "target": "output:steam",
+      "target": "material:fluid:steam",
       "value": 10000,
       "metadata": {
         "label": "fluid units/craft",
@@ -1507,7 +1978,7 @@
     },
     {
       "id": "recipe:advanced-oil-processing:input:0",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:advanced-oil-processing",
       "value": 50,
       "metadata": {
@@ -1519,7 +1990,7 @@
     },
     {
       "id": "recipe:advanced-oil-processing:input:1",
-      "source": "input:crude-oil",
+      "source": "material:fluid:crude-oil",
       "target": "recipe:advanced-oil-processing",
       "value": 100,
       "metadata": {
@@ -1532,7 +2003,7 @@
     {
       "id": "recipe:advanced-oil-processing:output:0",
       "source": "recipe:advanced-oil-processing",
-      "target": "output:heavy-oil",
+      "target": "material:fluid:heavy-oil",
       "value": 25,
       "metadata": {
         "label": "fluid units/craft",
@@ -1544,7 +2015,7 @@
     {
       "id": "recipe:advanced-oil-processing:output:1",
       "source": "recipe:advanced-oil-processing",
-      "target": "output:light-oil",
+      "target": "material:fluid:light-oil",
       "value": 45,
       "metadata": {
         "label": "fluid units/craft",
@@ -1556,7 +2027,7 @@
     {
       "id": "recipe:advanced-oil-processing:output:2",
       "source": "recipe:advanced-oil-processing",
-      "target": "output:petroleum-gas",
+      "target": "material:fluid:petroleum-gas",
       "value": 55,
       "metadata": {
         "label": "fluid units/craft",
@@ -1566,8 +2037,57 @@
       }
     },
     {
+      "id": "recipe:advanced-oxide-asteroid-crushing:input:0",
+      "source": "material:item:oxide-asteroid-chunk",
+      "target": "recipe:advanced-oxide-asteroid-crushing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:output:0",
+      "source": "recipe:advanced-oxide-asteroid-crushing",
+      "target": "material:item:ice",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:output:1",
+      "source": "recipe:advanced-oxide-asteroid-crushing",
+      "target": "material:item:calcite",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oxide-asteroid-crushing:output:2",
+      "source": "recipe:advanced-oxide-asteroid-crushing",
+      "target": "material:item:oxide-asteroid-chunk",
+      "value": 0.05,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-oxide-asteroid-crushing",
+        "unit": "items",
+        "role": "output",
+        "feedback": true
+      }
+    },
+    {
       "id": "recipe:advanced-thruster-fuel:input:0",
-      "source": "input:carbon",
+      "source": "material:item:carbon",
       "target": "recipe:advanced-thruster-fuel",
       "value": 2,
       "metadata": {
@@ -1579,7 +2099,7 @@
     },
     {
       "id": "recipe:advanced-thruster-fuel:input:1",
-      "source": "input:calcite",
+      "source": "material:item:calcite",
       "target": "recipe:advanced-thruster-fuel",
       "value": 1,
       "metadata": {
@@ -1591,7 +2111,7 @@
     },
     {
       "id": "recipe:advanced-thruster-fuel:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:advanced-thruster-fuel",
       "value": 100,
       "metadata": {
@@ -1604,7 +2124,7 @@
     {
       "id": "recipe:advanced-thruster-fuel:output:0",
       "source": "recipe:advanced-thruster-fuel",
-      "target": "output:thruster-fuel",
+      "target": "material:fluid:thruster-fuel",
       "value": 1500,
       "metadata": {
         "label": "fluid units/craft",
@@ -1615,7 +2135,7 @@
     },
     {
       "id": "recipe:advanced-thruster-oxidizer:input:0",
-      "source": "input:iron-ore",
+      "source": "material:item:iron-ore",
       "target": "recipe:advanced-thruster-oxidizer",
       "value": 2,
       "metadata": {
@@ -1627,7 +2147,7 @@
     },
     {
       "id": "recipe:advanced-thruster-oxidizer:input:1",
-      "source": "input:calcite",
+      "source": "material:item:calcite",
       "target": "recipe:advanced-thruster-oxidizer",
       "value": 1,
       "metadata": {
@@ -1639,7 +2159,7 @@
     },
     {
       "id": "recipe:advanced-thruster-oxidizer:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:advanced-thruster-oxidizer",
       "value": 100,
       "metadata": {
@@ -1652,7 +2172,7 @@
     {
       "id": "recipe:advanced-thruster-oxidizer:output:0",
       "source": "recipe:advanced-thruster-oxidizer",
-      "target": "output:thruster-oxidizer",
+      "target": "material:fluid:thruster-oxidizer",
       "value": 1500,
       "metadata": {
         "label": "fluid units/craft",
@@ -1663,7 +2183,7 @@
     },
     {
       "id": "recipe:ammonia-rocket-fuel:input:0",
-      "source": "input:solid-fuel",
+      "source": "material:item:solid-fuel",
       "target": "recipe:ammonia-rocket-fuel",
       "value": 10,
       "metadata": {
@@ -1675,7 +2195,7 @@
     },
     {
       "id": "recipe:ammonia-rocket-fuel:input:1",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:ammonia-rocket-fuel",
       "value": 50,
       "metadata": {
@@ -1687,7 +2207,7 @@
     },
     {
       "id": "recipe:ammonia-rocket-fuel:input:2",
-      "source": "input:ammonia",
+      "source": "material:fluid:ammonia",
       "target": "recipe:ammonia-rocket-fuel",
       "value": 500,
       "metadata": {
@@ -1700,7 +2220,7 @@
     {
       "id": "recipe:ammonia-rocket-fuel:output:0",
       "source": "recipe:ammonia-rocket-fuel",
-      "target": "output:rocket-fuel",
+      "target": "material:item:rocket-fuel",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1711,7 +2231,7 @@
     },
     {
       "id": "recipe:ammoniacal-solution-separation:input:0",
-      "source": "input:ammoniacal-solution",
+      "source": "material:fluid:ammoniacal-solution",
       "target": "recipe:ammoniacal-solution-separation",
       "value": 50,
       "metadata": {
@@ -1724,7 +2244,7 @@
     {
       "id": "recipe:ammoniacal-solution-separation:output:0",
       "source": "recipe:ammoniacal-solution-separation",
-      "target": "output:ice",
+      "target": "material:item:ice",
       "value": 5,
       "metadata": {
         "label": "items/craft",
@@ -1736,7 +2256,7 @@
     {
       "id": "recipe:ammoniacal-solution-separation:output:1",
       "source": "recipe:ammoniacal-solution-separation",
-      "target": "output:ammonia",
+      "target": "material:fluid:ammonia",
       "value": 50,
       "metadata": {
         "label": "fluid units/craft",
@@ -1747,7 +2267,7 @@
     },
     {
       "id": "recipe:basic-oil-processing:input:0",
-      "source": "input:crude-oil",
+      "source": "material:fluid:crude-oil",
       "target": "recipe:basic-oil-processing",
       "value": 100,
       "metadata": {
@@ -1760,7 +2280,7 @@
     {
       "id": "recipe:basic-oil-processing:output:0",
       "source": "recipe:basic-oil-processing",
-      "target": "output:petroleum-gas",
+      "target": "material:fluid:petroleum-gas",
       "value": 45,
       "metadata": {
         "label": "fluid units/craft",
@@ -1771,7 +2291,7 @@
     },
     {
       "id": "recipe:battery:input:0",
-      "source": "input:sulfuric-acid",
+      "source": "material:fluid:sulfuric-acid",
       "target": "recipe:battery",
       "value": 20,
       "metadata": {
@@ -1783,7 +2303,7 @@
     },
     {
       "id": "recipe:battery:input:1",
-      "source": "input:iron-plate",
+      "source": "material:item:iron-plate",
       "target": "recipe:battery",
       "value": 1,
       "metadata": {
@@ -1795,7 +2315,7 @@
     },
     {
       "id": "recipe:battery:input:2",
-      "source": "input:copper-plate",
+      "source": "material:item:copper-plate",
       "target": "recipe:battery",
       "value": 1,
       "metadata": {
@@ -1808,7 +2328,7 @@
     {
       "id": "recipe:battery:output:0",
       "source": "recipe:battery",
-      "target": "output:battery",
+      "target": "material:item:battery",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1818,8 +2338,44 @@
       }
     },
     {
+      "id": "recipe:bioflux:input:0",
+      "source": "material:item:yumako-mash",
+      "target": "recipe:bioflux",
+      "value": 15,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioflux",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:bioflux:input:1",
+      "source": "material:item:jelly",
+      "target": "recipe:bioflux",
+      "value": 12,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioflux",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:bioflux:output:0",
+      "source": "recipe:bioflux",
+      "target": "material:item:bioflux",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "bioflux",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:carbon:input:0",
-      "source": "input:coal",
+      "source": "material:item:coal",
       "target": "recipe:carbon",
       "value": 2,
       "metadata": {
@@ -1831,7 +2387,7 @@
     },
     {
       "id": "recipe:carbon:input:1",
-      "source": "input:sulfuric-acid",
+      "source": "material:fluid:sulfuric-acid",
       "target": "recipe:carbon",
       "value": 20,
       "metadata": {
@@ -1844,7 +2400,7 @@
     {
       "id": "recipe:carbon:output:0",
       "source": "recipe:carbon",
-      "target": "output:carbon",
+      "target": "material:item:carbon",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1855,7 +2411,7 @@
     },
     {
       "id": "recipe:coal-liquefaction:input:0",
-      "source": "input:coal",
+      "source": "material:item:coal",
       "target": "recipe:coal-liquefaction",
       "value": 10,
       "metadata": {
@@ -1867,7 +2423,7 @@
     },
     {
       "id": "recipe:coal-liquefaction:input:1",
-      "source": "input:heavy-oil",
+      "source": "material:fluid:heavy-oil",
       "target": "recipe:coal-liquefaction",
       "value": 25,
       "metadata": {
@@ -1879,7 +2435,7 @@
     },
     {
       "id": "recipe:coal-liquefaction:input:2",
-      "source": "input:steam",
+      "source": "material:fluid:steam",
       "target": "recipe:coal-liquefaction",
       "value": 50,
       "metadata": {
@@ -1892,19 +2448,20 @@
     {
       "id": "recipe:coal-liquefaction:output:0",
       "source": "recipe:coal-liquefaction",
-      "target": "output:heavy-oil",
+      "target": "material:fluid:heavy-oil",
       "value": 90,
       "metadata": {
         "label": "fluid units/craft",
         "recipe": "coal-liquefaction",
         "unit": "fluid units",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:coal-liquefaction:output:1",
       "source": "recipe:coal-liquefaction",
-      "target": "output:light-oil",
+      "target": "material:fluid:light-oil",
       "value": 20,
       "metadata": {
         "label": "fluid units/craft",
@@ -1916,7 +2473,7 @@
     {
       "id": "recipe:coal-liquefaction:output:2",
       "source": "recipe:coal-liquefaction",
-      "target": "output:petroleum-gas",
+      "target": "material:fluid:petroleum-gas",
       "value": 10,
       "metadata": {
         "label": "fluid units/craft",
@@ -1927,7 +2484,7 @@
     },
     {
       "id": "recipe:coal-synthesis:input:0",
-      "source": "input:carbon",
+      "source": "material:item:carbon",
       "target": "recipe:coal-synthesis",
       "value": 5,
       "metadata": {
@@ -1939,7 +2496,7 @@
     },
     {
       "id": "recipe:coal-synthesis:input:1",
-      "source": "input:sulfur",
+      "source": "material:item:sulfur",
       "target": "recipe:coal-synthesis",
       "value": 1,
       "metadata": {
@@ -1951,7 +2508,7 @@
     },
     {
       "id": "recipe:coal-synthesis:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:coal-synthesis",
       "value": 10,
       "metadata": {
@@ -1964,7 +2521,7 @@
     {
       "id": "recipe:coal-synthesis:output:0",
       "source": "recipe:coal-synthesis",
-      "target": "output:coal",
+      "target": "material:item:coal",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1974,8 +2531,32 @@
       }
     },
     {
+      "id": "recipe:copper-plate:input:0",
+      "source": "material:item:copper-ore",
+      "target": "recipe:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:output:0",
+      "source": "recipe:copper-plate",
+      "target": "material:item:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:explosives:input:0",
-      "source": "input:sulfur",
+      "source": "material:item:sulfur",
       "target": "recipe:explosives",
       "value": 1,
       "metadata": {
@@ -1987,7 +2568,7 @@
     },
     {
       "id": "recipe:explosives:input:1",
-      "source": "input:coal",
+      "source": "material:item:coal",
       "target": "recipe:explosives",
       "value": 1,
       "metadata": {
@@ -1999,7 +2580,7 @@
     },
     {
       "id": "recipe:explosives:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:explosives",
       "value": 10,
       "metadata": {
@@ -2012,7 +2593,7 @@
     {
       "id": "recipe:explosives:output:0",
       "source": "recipe:explosives",
-      "target": "output:explosives",
+      "target": "material:item:explosives",
       "value": 2,
       "metadata": {
         "label": "items/craft",
@@ -2023,7 +2604,7 @@
     },
     {
       "id": "recipe:fish-breeding:input:0",
-      "source": "input:raw-fish",
+      "source": "material:item:raw-fish",
       "target": "recipe:fish-breeding",
       "value": 2,
       "metadata": {
@@ -2035,7 +2616,7 @@
     },
     {
       "id": "recipe:fish-breeding:input:1",
-      "source": "input:nutrients",
+      "source": "material:item:nutrients",
       "target": "recipe:fish-breeding",
       "value": 100,
       "metadata": {
@@ -2047,7 +2628,7 @@
     },
     {
       "id": "recipe:fish-breeding:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:fish-breeding",
       "value": 100,
       "metadata": {
@@ -2060,18 +2641,19 @@
     {
       "id": "recipe:fish-breeding:output:0",
       "source": "recipe:fish-breeding",
-      "target": "output:raw-fish",
+      "target": "material:item:raw-fish",
       "value": 3,
       "metadata": {
         "label": "items/craft",
         "recipe": "fish-breeding",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:flamethrower-ammo:input:0",
-      "source": "input:steel-plate",
+      "source": "material:item:steel-plate",
       "target": "recipe:flamethrower-ammo",
       "value": 5,
       "metadata": {
@@ -2083,7 +2665,7 @@
     },
     {
       "id": "recipe:flamethrower-ammo:input:1",
-      "source": "input:crude-oil",
+      "source": "material:fluid:crude-oil",
       "target": "recipe:flamethrower-ammo",
       "value": 100,
       "metadata": {
@@ -2096,7 +2678,7 @@
     {
       "id": "recipe:flamethrower-ammo:output:0",
       "source": "recipe:flamethrower-ammo",
-      "target": "output:flamethrower-ammo",
+      "target": "material:item:flamethrower-ammo",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -2107,7 +2689,7 @@
     },
     {
       "id": "recipe:heavy-oil-cracking:input:0",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:heavy-oil-cracking",
       "value": 30,
       "metadata": {
@@ -2119,7 +2701,7 @@
     },
     {
       "id": "recipe:heavy-oil-cracking:input:1",
-      "source": "input:heavy-oil",
+      "source": "material:fluid:heavy-oil",
       "target": "recipe:heavy-oil-cracking",
       "value": 40,
       "metadata": {
@@ -2132,7 +2714,7 @@
     {
       "id": "recipe:heavy-oil-cracking:output:0",
       "source": "recipe:heavy-oil-cracking",
-      "target": "output:light-oil",
+      "target": "material:fluid:light-oil",
       "value": 30,
       "metadata": {
         "label": "fluid units/craft",
@@ -2142,8 +2724,32 @@
       }
     },
     {
+      "id": "recipe:holmium-plate:input:0",
+      "source": "material:fluid:holmium-solution",
+      "target": "recipe:holmium-plate",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "holmium-plate",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:holmium-plate:output:0",
+      "source": "recipe:holmium-plate",
+      "target": "material:item:holmium-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "holmium-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:holmium-solution:input:0",
-      "source": "input:holmium-ore",
+      "source": "material:item:holmium-ore",
       "target": "recipe:holmium-solution",
       "value": 2,
       "metadata": {
@@ -2155,7 +2761,7 @@
     },
     {
       "id": "recipe:holmium-solution:input:1",
-      "source": "input:stone",
+      "source": "material:item:stone",
       "target": "recipe:holmium-solution",
       "value": 1,
       "metadata": {
@@ -2167,7 +2773,7 @@
     },
     {
       "id": "recipe:holmium-solution:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:holmium-solution",
       "value": 10,
       "metadata": {
@@ -2180,7 +2786,7 @@
     {
       "id": "recipe:holmium-solution:output:0",
       "source": "recipe:holmium-solution",
-      "target": "output:holmium-solution",
+      "target": "material:fluid:holmium-solution",
       "value": 100,
       "metadata": {
         "label": "fluid units/craft",
@@ -2191,7 +2797,7 @@
     },
     {
       "id": "recipe:ice-melting:input:0",
-      "source": "input:ice",
+      "source": "material:item:ice",
       "target": "recipe:ice-melting",
       "value": 1,
       "metadata": {
@@ -2204,7 +2810,7 @@
     {
       "id": "recipe:ice-melting:output:0",
       "source": "recipe:ice-melting",
-      "target": "output:water",
+      "target": "material:fluid:water",
       "value": 20,
       "metadata": {
         "label": "fluid units/craft",
@@ -2214,8 +2820,68 @@
       }
     },
     {
+      "id": "recipe:iron-plate:input:0",
+      "source": "material:item:iron-ore",
+      "target": "recipe:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:output:0",
+      "source": "recipe:iron-plate",
+      "target": "material:item:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:jellynut-processing:input:0",
+      "source": "material:item:jellynut",
+      "target": "recipe:jellynut-processing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "jellynut-processing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:jellynut-processing:output:0",
+      "source": "recipe:jellynut-processing",
+      "target": "material:item:jellynut-seed",
+      "value": 0.02,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "jellynut-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:jellynut-processing:output:1",
+      "source": "recipe:jellynut-processing",
+      "target": "material:item:jelly",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "jellynut-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:light-oil-cracking:input:0",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:light-oil-cracking",
       "value": 30,
       "metadata": {
@@ -2227,7 +2893,7 @@
     },
     {
       "id": "recipe:light-oil-cracking:input:1",
-      "source": "input:light-oil",
+      "source": "material:fluid:light-oil",
       "target": "recipe:light-oil-cracking",
       "value": 30,
       "metadata": {
@@ -2240,7 +2906,7 @@
     {
       "id": "recipe:light-oil-cracking:output:0",
       "source": "recipe:light-oil-cracking",
-      "target": "output:petroleum-gas",
+      "target": "material:fluid:petroleum-gas",
       "value": 20,
       "metadata": {
         "label": "fluid units/craft",
@@ -2251,7 +2917,7 @@
     },
     {
       "id": "recipe:lithium:input:0",
-      "source": "input:holmium-plate",
+      "source": "material:item:holmium-plate",
       "target": "recipe:lithium",
       "value": 1,
       "metadata": {
@@ -2263,7 +2929,7 @@
     },
     {
       "id": "recipe:lithium:input:1",
-      "source": "input:lithium-brine",
+      "source": "material:fluid:lithium-brine",
       "target": "recipe:lithium",
       "value": 50,
       "metadata": {
@@ -2275,7 +2941,7 @@
     },
     {
       "id": "recipe:lithium:input:2",
-      "source": "input:ammonia",
+      "source": "material:fluid:ammonia",
       "target": "recipe:lithium",
       "value": 50,
       "metadata": {
@@ -2288,7 +2954,7 @@
     {
       "id": "recipe:lithium:output:0",
       "source": "recipe:lithium",
-      "target": "output:lithium",
+      "target": "material:item:lithium",
       "value": 5,
       "metadata": {
         "label": "items/craft",
@@ -2299,7 +2965,7 @@
     },
     {
       "id": "recipe:lubricant:input:0",
-      "source": "input:heavy-oil",
+      "source": "material:fluid:heavy-oil",
       "target": "recipe:lubricant",
       "value": 10,
       "metadata": {
@@ -2312,7 +2978,7 @@
     {
       "id": "recipe:lubricant:output:0",
       "source": "recipe:lubricant",
-      "target": "output:lubricant",
+      "target": "material:fluid:lubricant",
       "value": 10,
       "metadata": {
         "label": "fluid units/craft",
@@ -2322,8 +2988,32 @@
       }
     },
     {
+      "id": "recipe:nutrients-from-bioflux:input:0",
+      "source": "material:item:bioflux",
+      "target": "recipe:nutrients-from-bioflux",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-bioflux",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:nutrients-from-bioflux:output:0",
+      "source": "recipe:nutrients-from-bioflux",
+      "target": "material:item:nutrients",
+      "value": 40,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "nutrients-from-bioflux",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:plastic-bar:input:0",
-      "source": "input:petroleum-gas",
+      "source": "material:fluid:petroleum-gas",
       "target": "recipe:plastic-bar",
       "value": 20,
       "metadata": {
@@ -2335,7 +3025,7 @@
     },
     {
       "id": "recipe:plastic-bar:input:1",
-      "source": "input:coal",
+      "source": "material:item:coal",
       "target": "recipe:plastic-bar",
       "value": 1,
       "metadata": {
@@ -2348,7 +3038,7 @@
     {
       "id": "recipe:plastic-bar:output:0",
       "source": "recipe:plastic-bar",
-      "target": "output:plastic-bar",
+      "target": "material:item:plastic-bar",
       "value": 2,
       "metadata": {
         "label": "items/craft",
@@ -2358,8 +3048,164 @@
       }
     },
     {
+      "id": "recipe:scrap-recycling:input:0",
+      "source": "material:item:scrap",
+      "target": "recipe:scrap-recycling",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:0",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:iron-gear-wheel",
+      "value": 0.2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:1",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:solid-fuel",
+      "value": 0.07,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:2",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:concrete",
+      "value": 0.06,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:3",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:ice",
+      "value": 0.05,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:4",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:steel-plate",
+      "value": 0.04,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:5",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:battery",
+      "value": 0.04,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:6",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:stone",
+      "value": 0.04,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:7",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:advanced-circuit",
+      "value": 0.03,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:8",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:copper-cable",
+      "value": 0.03,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:9",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:processing-unit",
+      "value": 0.02,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:10",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:low-density-structure",
+      "value": 0.01,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:scrap-recycling:output:11",
+      "source": "recipe:scrap-recycling",
+      "target": "material:item:holmium-ore",
+      "value": 0.01,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "scrap-recycling",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:simple-coal-liquefaction:input:0",
-      "source": "input:coal",
+      "source": "material:item:coal",
       "target": "recipe:simple-coal-liquefaction",
       "value": 10,
       "metadata": {
@@ -2371,7 +3217,7 @@
     },
     {
       "id": "recipe:simple-coal-liquefaction:input:1",
-      "source": "input:calcite",
+      "source": "material:item:calcite",
       "target": "recipe:simple-coal-liquefaction",
       "value": 2,
       "metadata": {
@@ -2383,7 +3229,7 @@
     },
     {
       "id": "recipe:simple-coal-liquefaction:input:2",
-      "source": "input:sulfuric-acid",
+      "source": "material:fluid:sulfuric-acid",
       "target": "recipe:simple-coal-liquefaction",
       "value": 25,
       "metadata": {
@@ -2396,7 +3242,7 @@
     {
       "id": "recipe:simple-coal-liquefaction:output:0",
       "source": "recipe:simple-coal-liquefaction",
-      "target": "output:heavy-oil",
+      "target": "material:fluid:heavy-oil",
       "value": 50,
       "metadata": {
         "label": "fluid units/craft",
@@ -2407,7 +3253,7 @@
     },
     {
       "id": "recipe:solid-fuel-from-ammonia:input:0",
-      "source": "input:ammonia",
+      "source": "material:fluid:ammonia",
       "target": "recipe:solid-fuel-from-ammonia",
       "value": 15,
       "metadata": {
@@ -2419,7 +3265,7 @@
     },
     {
       "id": "recipe:solid-fuel-from-ammonia:input:1",
-      "source": "input:crude-oil",
+      "source": "material:fluid:crude-oil",
       "target": "recipe:solid-fuel-from-ammonia",
       "value": 6,
       "metadata": {
@@ -2432,7 +3278,7 @@
     {
       "id": "recipe:solid-fuel-from-ammonia:output:0",
       "source": "recipe:solid-fuel-from-ammonia",
-      "target": "output:solid-fuel",
+      "target": "material:item:solid-fuel",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -2443,7 +3289,7 @@
     },
     {
       "id": "recipe:solid-fuel-from-heavy-oil:input:0",
-      "source": "input:heavy-oil",
+      "source": "material:fluid:heavy-oil",
       "target": "recipe:solid-fuel-from-heavy-oil",
       "value": 20,
       "metadata": {
@@ -2456,7 +3302,7 @@
     {
       "id": "recipe:solid-fuel-from-heavy-oil:output:0",
       "source": "recipe:solid-fuel-from-heavy-oil",
-      "target": "output:solid-fuel",
+      "target": "material:item:solid-fuel",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -2467,7 +3313,7 @@
     },
     {
       "id": "recipe:solid-fuel-from-light-oil:input:0",
-      "source": "input:light-oil",
+      "source": "material:fluid:light-oil",
       "target": "recipe:solid-fuel-from-light-oil",
       "value": 10,
       "metadata": {
@@ -2480,7 +3326,7 @@
     {
       "id": "recipe:solid-fuel-from-light-oil:output:0",
       "source": "recipe:solid-fuel-from-light-oil",
-      "target": "output:solid-fuel",
+      "target": "material:item:solid-fuel",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -2491,7 +3337,7 @@
     },
     {
       "id": "recipe:solid-fuel-from-petroleum-gas:input:0",
-      "source": "input:petroleum-gas",
+      "source": "material:fluid:petroleum-gas",
       "target": "recipe:solid-fuel-from-petroleum-gas",
       "value": 20,
       "metadata": {
@@ -2504,7 +3350,7 @@
     {
       "id": "recipe:solid-fuel-from-petroleum-gas:output:0",
       "source": "recipe:solid-fuel-from-petroleum-gas",
-      "target": "output:solid-fuel",
+      "target": "material:item:solid-fuel",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -2515,7 +3361,7 @@
     },
     {
       "id": "recipe:steam-condensation:input:0",
-      "source": "input:steam",
+      "source": "material:fluid:steam",
       "target": "recipe:steam-condensation",
       "value": 1000,
       "metadata": {
@@ -2528,7 +3374,7 @@
     {
       "id": "recipe:steam-condensation:output:0",
       "source": "recipe:steam-condensation",
-      "target": "output:water",
+      "target": "material:fluid:water",
       "value": 90,
       "metadata": {
         "label": "fluid units/craft",
@@ -2538,8 +3384,32 @@
       }
     },
     {
+      "id": "recipe:steel-plate:input:0",
+      "source": "material:item:iron-plate",
+      "target": "recipe:steel-plate",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "steel-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:output:0",
+      "source": "recipe:steel-plate",
+      "target": "material:item:steel-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "steel-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:sulfur:input:0",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:sulfur",
       "value": 30,
       "metadata": {
@@ -2551,7 +3421,7 @@
     },
     {
       "id": "recipe:sulfur:input:1",
-      "source": "input:petroleum-gas",
+      "source": "material:fluid:petroleum-gas",
       "target": "recipe:sulfur",
       "value": 30,
       "metadata": {
@@ -2564,7 +3434,7 @@
     {
       "id": "recipe:sulfur:output:0",
       "source": "recipe:sulfur",
-      "target": "output:sulfur",
+      "target": "material:item:sulfur",
       "value": 2,
       "metadata": {
         "label": "items/craft",
@@ -2575,7 +3445,7 @@
     },
     {
       "id": "recipe:sulfuric-acid:input:0",
-      "source": "input:sulfur",
+      "source": "material:item:sulfur",
       "target": "recipe:sulfuric-acid",
       "value": 5,
       "metadata": {
@@ -2587,7 +3457,7 @@
     },
     {
       "id": "recipe:sulfuric-acid:input:1",
-      "source": "input:iron-plate",
+      "source": "material:item:iron-plate",
       "target": "recipe:sulfuric-acid",
       "value": 1,
       "metadata": {
@@ -2599,7 +3469,7 @@
     },
     {
       "id": "recipe:sulfuric-acid:input:2",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:sulfuric-acid",
       "value": 100,
       "metadata": {
@@ -2612,7 +3482,7 @@
     {
       "id": "recipe:sulfuric-acid:output:0",
       "source": "recipe:sulfuric-acid",
-      "target": "output:sulfuric-acid",
+      "target": "material:fluid:sulfuric-acid",
       "value": 50,
       "metadata": {
         "label": "fluid units/craft",
@@ -2623,7 +3493,7 @@
     },
     {
       "id": "recipe:thruster-fuel:input:0",
-      "source": "input:carbon",
+      "source": "material:item:carbon",
       "target": "recipe:thruster-fuel",
       "value": 2,
       "metadata": {
@@ -2635,7 +3505,7 @@
     },
     {
       "id": "recipe:thruster-fuel:input:1",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:thruster-fuel",
       "value": 10,
       "metadata": {
@@ -2648,7 +3518,7 @@
     {
       "id": "recipe:thruster-fuel:output:0",
       "source": "recipe:thruster-fuel",
-      "target": "output:thruster-fuel",
+      "target": "material:fluid:thruster-fuel",
       "value": 75,
       "metadata": {
         "label": "fluid units/craft",
@@ -2659,7 +3529,7 @@
     },
     {
       "id": "recipe:thruster-oxidizer:input:0",
-      "source": "input:iron-ore",
+      "source": "material:item:iron-ore",
       "target": "recipe:thruster-oxidizer",
       "value": 2,
       "metadata": {
@@ -2671,7 +3541,7 @@
     },
     {
       "id": "recipe:thruster-oxidizer:input:1",
-      "source": "input:water",
+      "source": "material:fluid:water",
       "target": "recipe:thruster-oxidizer",
       "value": 10,
       "metadata": {
@@ -2684,12 +3554,48 @@
     {
       "id": "recipe:thruster-oxidizer:output:0",
       "source": "recipe:thruster-oxidizer",
-      "target": "output:thruster-oxidizer",
+      "target": "material:fluid:thruster-oxidizer",
       "value": 75,
       "metadata": {
         "label": "fluid units/craft",
         "recipe": "thruster-oxidizer",
         "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:yumako-processing:input:0",
+      "source": "material:item:yumako",
+      "target": "recipe:yumako-processing",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "yumako-processing",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:yumako-processing:output:0",
+      "source": "recipe:yumako-processing",
+      "target": "material:item:yumako-seed",
+      "value": 0.02,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "yumako-processing",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:yumako-processing:output:1",
+      "source": "recipe:yumako-processing",
+      "target": "material:item:yumako-mash",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "yumako-processing",
+        "unit": "items",
         "role": "output"
       }
     }

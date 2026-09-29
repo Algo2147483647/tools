@@ -8,6 +8,7 @@ import { buildStageData } from "../layout/stage-layout";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 import { parseGraphPagePreferences } from "../state/preferences";
+import { getInitialSelection } from "../graph/selectors";
 import { DEFAULT_GRAPH_APPEARANCE, appearanceToStageStyle, sanitizeGraphAppearance } from "../graph/appearance";
 import { defineSuite, defineTest } from "./harness";
 
@@ -31,7 +32,7 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
     }
     const cyclic = document();
     cyclic.edges.push({ id: "ca", source: "C", target: "A", value: 0 });
-    assert.throws(() => normalizeDagInput(cyclic), /acyclic/);
+    assert.deepEqual(serializeDag(normalizeDagInput(cyclic)), cyclic);
   }),
   defineTest("flow widths share one scale and fill balanced nodes exactly", () => {
     const stage = stageFor(document());
@@ -85,7 +86,9 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
     const dag = normalizeDagInput(document());
     const updated = applyGraphCommand(dag, { type: "addNode", key: "E", parentKey: "A" }).dag;
     assert.equal(updated.edges.find(edge => edge.target === "E")!.value, 1);
-    assert.throws(() => applyGraphCommand(dag, { type: "setEdge", parentKey: "C", childKey: "A", weight: 3 }), /acyclic/);
+    const circular = applyGraphCommand(dag, { type: "setEdge", parentKey: "C", childKey: "A", weight: 3 }).dag;
+    assert.ok(circular.edges.some(edge => edge.source === "C" && edge.target === "A" && edge.value === 3));
+    assert.ok(stageFor(serializeDag(circular)).edges.some(edge => edge.flow?.feedback));
     assert.throws(() => applyGraphCommand(dag, { type: "setEdge", parentKey: "A", childKey: "B", weight: -3 }), /non-negative/);
     assert.equal(dag.edges[0].value, 100);
     const filtered = projectGraphByType(dag, "Visible");
@@ -98,6 +101,67 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
     const state = graphReducer(initialGraphAppState, { type: "graphLoaded", dag, fileName: "flow.json", selection: { type: "full" }, status: "loaded" });
     assert.equal(state.layout.mode, "sankey");
     assert.equal(parseGraphPagePreferences('{"layoutMode":"sankey"}')!.layoutMode, "sankey");
+  }),
+  defineTest("circular flows preserve direction, port totals, scale and saved data", () => {
+    const input = document();
+    input.edges.push({ id: "ca", source: "C", target: "A", value: 25 });
+    const dag = normalizeDagInput(input);
+    const stage = stageFor(input);
+    assert.deepEqual(serializeDag(dag), input);
+    assert.equal(stage.edges.length, input.edges.length);
+    const returns = stage.edges.filter(edge => edge.flow?.feedback);
+    assert.equal(returns.length, 1);
+    for (const edge of stage.edges) {
+      const original = input.edges.find(e => e.id === edge.id)!;
+      assert.equal(edge.source, original.source);
+      assert.equal(edge.target, original.target);
+      assert.ok(Math.abs(edge.flow!.width / Number(edge.weight) - stage.edges[0].flow!.width / 100) < 1e-9);
+      assert.doesNotMatch(edge.path, /NaN|Infinity/);
+    }
+    for (const node of stage.nodes) {
+      const incoming = stage.edges.filter(e => e.target === node.key).reduce((sum, e) => sum + e.flow!.width, 0);
+      const outgoing = stage.edges.filter(e => e.source === node.key).reduce((sum, e) => sum + e.flow!.width, 0);
+      assert.ok(Math.abs(Math.max(incoming, outgoing) - node.height) < 1e-8);
+    }
+    for (const edge of returns) {
+      assert.match(edge.label, /Return flow/);
+      assert.ok(edge.flow!.directionPath);
+      // Include stroke extents, not just centerlines, in fitted bounds.
+      const points = edge.path.match(/-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi)!.map(Number);
+      for (let i = 0; i < points.length; i += 2) {
+        assert.ok(points[i] - edge.flow!.width / 2 >= 0);
+        assert.ok(points[i] + edge.flow!.width / 2 <= stage.stageWidth);
+        assert.ok(points[i + 1] - edge.flow!.width / 2 >= 0);
+        assert.ok(points[i + 1] + edge.flow!.width / 2 <= stage.stageHeight);
+      }
+    }
+  }),
+  defineTest("full view retains disconnected cycles alongside ordinary roots", () => {
+    const input = {...document(), nodes:{...document().nodes, X:{},Y:{}}};
+    input.edges.push({id:"xy",source:"X",target:"Y",value:2},{id:"yx",source:"Y",target:"X",value:2});
+    const dag = normalizeDagInput(input);
+    assert.deepEqual(getInitialSelection(dag), {type:"full"});
+    const stage = stageFor(input);
+    assert.equal(stage.nodes.length, 6);
+    assert.equal(stage.edges.length, 5);
+    assert.ok(stage.edges.some(e => e.flow?.feedback));
+  }),
+  defineTest("return-only graphs and multiple catalysts keep finite geometry without synthetic nodes", () => {
+    for (const forced of [false, true]) {
+      const input = {format:"graph-studio",version:2,diagram:"sankey",nodes:{A:{},B:{},C:{}},edges:[
+        {id:"ab",source:"A",target:"B",value:40,metadata:{feedback:forced}},
+        {id:"ba",source:"B",target:"A",value:41,metadata:{feedback:true}},
+        {id:"bc",source:"B",target:"C",value:2,metadata:{feedback:forced}},
+        {id:"cb",source:"C",target:"B",value:5,metadata:{feedback:forced}},
+      ]};
+      const stage = stageFor(input);
+      assert.equal(stage.nodes.length, 3);
+      assert.equal(stage.edges.length, 4);
+      assert.ok(stage.nodes.every(n => [n.x,n.y,n.height].every(Number.isFinite)));
+      assert.ok(stage.edges.every(e => !/NaN|Infinity/.test(e.path) && Number.isFinite(e.flow!.width)));
+      assert.deepEqual(stage.edges.map(e => e.id), input.edges.map(e => e.id));
+      assert.deepEqual(stageFor(input), stage, "Layout must be deterministic");
+    }
   }),
   defineTest("shadow settings clamp, migrate and persist through appearance JSON", () => {
     const legacy = sanitizeGraphAppearance({ display: { showEdgeLabels: false } });

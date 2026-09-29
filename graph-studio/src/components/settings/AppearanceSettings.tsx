@@ -53,7 +53,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
         ["sankey","Sankey","Show numeric flows as proportional bands."],
       ] as const).map(([value,label,description])=><button key={value} className={p.layoutMode===value?"is-selected":""} aria-pressed={p.layoutMode===value} onClick={()=>p.onLayoutModeChange(value)}><span className={`layout-mini layout-mini--${value}`} aria-hidden="true"><i/><i/><i/><i/></span><strong>{label}</strong><small>{description}</small></button>)}
     </div></section>}
-    {matches("sankey flow width opacity bands") && <section className="settings-section"><h3>Sankey flows</h3><p>Use non-negative numeric edge values in an acyclic graph. Node heights and band widths share one flow scale. <a href="/sankey-example.json" download>Download an example</a>.</p><div className="settings-slider-grid">
+    {matches("sankey flow width opacity bands") && <section className="settings-section"><h3>Sankey flows</h3><p>Use non-negative numeric edge values. Cycles appear as return flows below the chart. Node heights and all band widths share one flow scale. <a href="/sankey-example.json" download>Download an example</a>.</p><div className="settings-slider-grid">
       <DisplaySlider label="Flow node width" value={p.appearance.display.sankeyNodeWidth} min={8} max={48} unit="px" onChange={value=>p.onAppearanceDisplayChange("sankeyNodeWidth",value)}/>
       <DisplaySlider label="Flow opacity" value={p.appearance.display.sankeyLinkOpacity} min={5} max={90} unit="%" onChange={value=>p.onAppearanceDisplayChange("sankeyLinkOpacity",value)}/>
     </div></section>}

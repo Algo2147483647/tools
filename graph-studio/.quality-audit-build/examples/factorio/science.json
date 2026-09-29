@@ -1,0 +1,1453 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Science packs",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 12
+  },
+  "nodes": {
+    "recipe:agricultural-science-pack": {
+      "title": "Agricultural science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic · 4 s per craft.",
+      "recipe": "agricultural-science-pack",
+      "category": "organic",
+      "secondsPerCraft": 4,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "bioflux",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "pentapod-egg",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "agricultural-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 2000,
+          "min": 2000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:bioflux": {
+      "title": "Bioflux",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "bioflux",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:pentapod-egg": {
+      "title": "Pentapod egg",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "pentapod-egg",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:agricultural-science-pack": {
+      "title": "Agricultural science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "agricultural-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:automation-science-pack": {
+      "title": "Automation science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 5 s per craft.",
+      "recipe": "automation-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "automation-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:copper-plate": {
+      "title": "Copper plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:iron-gear-wheel": {
+      "title": "Iron gear wheel",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-gear-wheel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:automation-science-pack": {
+      "title": "Automation science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "automation-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:chemical-science-pack": {
+      "title": "Chemical science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 24 s per craft.",
+      "recipe": "chemical-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 24,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "engine-unit",
+          "type": "item"
+        },
+        {
+          "amount": 3,
+          "name": "advanced-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "sulfur",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "chemical-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:engine-unit": {
+      "title": "Engine unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "engine-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "advanced-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:sulfur": {
+      "title": "Sulfur",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "sulfur",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:chemical-science-pack": {
+      "title": "Chemical science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "chemical-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:cryogenic-science-pack": {
+      "title": "Cryogenic science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Cryogenics · 20 s per craft.",
+      "recipe": "cryogenic-science-pack",
+      "category": "cryogenics",
+      "secondsPerCraft": 20,
+      "ingredients": [
+        {
+          "amount": 3,
+          "name": "ice",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "lithium-plate",
+          "type": "item"
+        },
+        {
+          "amount": 6,
+          "ignored_by_stats": 3,
+          "name": "fluoroketone-cold",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "cryogenic-science-pack",
+          "type": "item"
+        },
+        {
+          "amount": 3,
+          "ignored_by_productivity": 3,
+          "ignored_by_stats": 3,
+          "name": "fluoroketone-hot",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 300,
+          "min": 300,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:ice": {
+      "title": "Ice",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "ice",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:lithium-plate": {
+      "title": "Lithium plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "lithium-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:fluoroketone-cold": {
+      "title": "Fluoroketone cold",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "fluoroketone-cold",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:cryogenic-science-pack": {
+      "title": "Cryogenic science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "cryogenic-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:fluoroketone-hot": {
+      "title": "Fluoroketone hot",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "fluoroketone-hot",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:electromagnetic-science-pack": {
+      "title": "Electromagnetic science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 10 s per craft.",
+      "recipe": "electromagnetic-science-pack",
+      "category": "electromagnetics",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "supercapacitor",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "accumulator",
+          "type": "item"
+        },
+        {
+          "amount": 25,
+          "name": "electrolyte",
+          "type": "fluid"
+        },
+        {
+          "amount": 25,
+          "name": "holmium-solution",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "electromagnetic-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 99,
+          "min": 99,
+          "property": "magnetic-field"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:supercapacitor": {
+      "title": "Supercapacitor",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "supercapacitor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:accumulator": {
+      "title": "Accumulator",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "accumulator",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electrolyte": {
+      "title": "Electrolyte",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "electrolyte",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:holmium-solution": {
+      "title": "Holmium solution",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "holmium-solution",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:electromagnetic-science-pack": {
+      "title": "Electromagnetic science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "electromagnetic-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:logistic-science-pack": {
+      "title": "Logistic science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 6 s per craft.",
+      "recipe": "logistic-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 6,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "inserter",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "transport-belt",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "logistic-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:inserter": {
+      "title": "Inserter",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "inserter",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:transport-belt": {
+      "title": "Transport belt",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "transport-belt",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:logistic-science-pack": {
+      "title": "Logistic science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "logistic-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:metallurgic-science-pack": {
+      "title": "Metallurgic science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Metallurgy · 10 s per craft.",
+      "recipe": "metallurgic-science-pack",
+      "category": "metallurgy",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 3,
+          "name": "tungsten-carbide",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "tungsten-plate",
+          "type": "item"
+        },
+        {
+          "amount": 200,
+          "name": "molten-copper",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "metallurgic-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 4000,
+          "min": 4000,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:tungsten-carbide": {
+      "title": "Tungsten carbide",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "tungsten-carbide",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:tungsten-plate": {
+      "title": "Tungsten plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "tungsten-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:molten-copper": {
+      "title": "Molten copper",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "molten-copper",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:metallurgic-science-pack": {
+      "title": "Metallurgic science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "metallurgic-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:military-science-pack": {
+      "title": "Military science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 10 s per craft.",
+      "recipe": "military-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "piercing-rounds-magazine",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "grenade",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "stone-wall",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "military-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:piercing-rounds-magazine": {
+      "title": "Piercing rounds magazine",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "piercing-rounds-magazine",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:grenade": {
+      "title": "Grenade",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "grenade",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:stone-wall": {
+      "title": "Stone wall",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "stone-wall",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:military-science-pack": {
+      "title": "Military science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "military-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:production-science-pack": {
+      "title": "Production science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 21 s per craft.",
+      "recipe": "production-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 21,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "electric-furnace",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "productivity-module",
+          "type": "item"
+        },
+        {
+          "amount": 30,
+          "name": "rail",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "name": "production-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:electric-furnace": {
+      "title": "Electric furnace",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electric-furnace",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:productivity-module": {
+      "title": "Productivity module",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "productivity-module",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:rail": {
+      "title": "Rail",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "rail",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:production-science-pack": {
+      "title": "Production science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "production-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:promethium-science-pack": {
+      "title": "Promethium science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Cryogenics · 5 s per craft.",
+      "recipe": "promethium-science-pack",
+      "category": "cryogenics",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 25,
+          "name": "promethium-asteroid-chunk",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "quantum-processor",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "biter-egg",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 10,
+          "name": "promethium-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 0,
+          "min": 0,
+          "property": "gravity"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:promethium-asteroid-chunk": {
+      "title": "Promethium asteroid chunk",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "promethium-asteroid-chunk",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:quantum-processor": {
+      "title": "Quantum processor",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "quantum-processor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:biter-egg": {
+      "title": "Biter egg",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "biter-egg",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:promethium-science-pack": {
+      "title": "Promethium science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "promethium-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:space-science-pack": {
+      "title": "Space science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 15 s per craft.",
+      "recipe": "space-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "iron-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbon",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "ice",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 5,
+          "name": "space-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 0,
+          "min": 0,
+          "property": "gravity"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:iron-plate": {
+      "title": "Iron plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:carbon": {
+      "title": "Carbon",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "carbon",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:space-science-pack": {
+      "title": "Space science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "space-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:utility-science-pack": {
+      "title": "Utility science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 21 s per craft.",
+      "recipe": "utility-science-pack",
+      "category": "crafting",
+      "secondsPerCraft": 21,
+      "ingredients": [
+        {
+          "amount": 3,
+          "name": "low-density-structure",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "processing-unit",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "flying-robot-frame",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 3,
+          "name": "utility-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "low-density-structure",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:processing-unit": {
+      "title": "Processing unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "processing-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:flying-robot-frame": {
+      "title": "Flying robot frame",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "flying-robot-frame",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:utility-science-pack": {
+      "title": "Utility science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "utility-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:agricultural-science-pack:input:0",
+      "source": "input:bioflux",
+      "target": "recipe:agricultural-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "agricultural-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:agricultural-science-pack:input:1",
+      "source": "input:pentapod-egg",
+      "target": "recipe:agricultural-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "agricultural-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:agricultural-science-pack:output:0",
+      "source": "recipe:agricultural-science-pack",
+      "target": "output:agricultural-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "agricultural-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:automation-science-pack:input:0",
+      "source": "input:copper-plate",
+      "target": "recipe:automation-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "automation-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:automation-science-pack:input:1",
+      "source": "input:iron-gear-wheel",
+      "target": "recipe:automation-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "automation-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:automation-science-pack:output:0",
+      "source": "recipe:automation-science-pack",
+      "target": "output:automation-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "automation-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:chemical-science-pack:input:0",
+      "source": "input:engine-unit",
+      "target": "recipe:chemical-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "chemical-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:chemical-science-pack:input:1",
+      "source": "input:advanced-circuit",
+      "target": "recipe:chemical-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "chemical-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:chemical-science-pack:input:2",
+      "source": "input:sulfur",
+      "target": "recipe:chemical-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "chemical-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:chemical-science-pack:output:0",
+      "source": "recipe:chemical-science-pack",
+      "target": "output:chemical-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "chemical-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:cryogenic-science-pack:input:0",
+      "source": "input:ice",
+      "target": "recipe:cryogenic-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "cryogenic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:cryogenic-science-pack:input:1",
+      "source": "input:lithium-plate",
+      "target": "recipe:cryogenic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "cryogenic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:cryogenic-science-pack:input:2",
+      "source": "input:fluoroketone-cold",
+      "target": "recipe:cryogenic-science-pack",
+      "value": 6,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "cryogenic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:cryogenic-science-pack:output:0",
+      "source": "recipe:cryogenic-science-pack",
+      "target": "output:cryogenic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "cryogenic-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:cryogenic-science-pack:output:1",
+      "source": "recipe:cryogenic-science-pack",
+      "target": "output:fluoroketone-hot",
+      "value": 3,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "cryogenic-science-pack",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:0",
+      "source": "input:supercapacitor",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:1",
+      "source": "input:accumulator",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:2",
+      "source": "input:electrolyte",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 25,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:3",
+      "source": "input:holmium-solution",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 25,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:output:0",
+      "source": "recipe:electromagnetic-science-pack",
+      "target": "output:electromagnetic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:logistic-science-pack:input:0",
+      "source": "input:inserter",
+      "target": "recipe:logistic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "logistic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:logistic-science-pack:input:1",
+      "source": "input:transport-belt",
+      "target": "recipe:logistic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "logistic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:logistic-science-pack:output:0",
+      "source": "recipe:logistic-science-pack",
+      "target": "output:logistic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "logistic-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:input:0",
+      "source": "input:tungsten-carbide",
+      "target": "recipe:metallurgic-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:input:1",
+      "source": "input:tungsten-plate",
+      "target": "recipe:metallurgic-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:input:2",
+      "source": "input:molten-copper",
+      "target": "recipe:metallurgic-science-pack",
+      "value": 200,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:metallurgic-science-pack:output:0",
+      "source": "recipe:metallurgic-science-pack",
+      "target": "output:metallurgic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "metallurgic-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:military-science-pack:input:0",
+      "source": "input:piercing-rounds-magazine",
+      "target": "recipe:military-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "military-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:military-science-pack:input:1",
+      "source": "input:grenade",
+      "target": "recipe:military-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "military-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:military-science-pack:input:2",
+      "source": "input:stone-wall",
+      "target": "recipe:military-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "military-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:military-science-pack:output:0",
+      "source": "recipe:military-science-pack",
+      "target": "output:military-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "military-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:production-science-pack:input:0",
+      "source": "input:electric-furnace",
+      "target": "recipe:production-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "production-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:production-science-pack:input:1",
+      "source": "input:productivity-module",
+      "target": "recipe:production-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "production-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:production-science-pack:input:2",
+      "source": "input:rail",
+      "target": "recipe:production-science-pack",
+      "value": 30,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "production-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:production-science-pack:output:0",
+      "source": "recipe:production-science-pack",
+      "target": "output:production-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "production-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:promethium-science-pack:input:0",
+      "source": "input:promethium-asteroid-chunk",
+      "target": "recipe:promethium-science-pack",
+      "value": 25,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "promethium-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:promethium-science-pack:input:1",
+      "source": "input:quantum-processor",
+      "target": "recipe:promethium-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "promethium-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:promethium-science-pack:input:2",
+      "source": "input:biter-egg",
+      "target": "recipe:promethium-science-pack",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "promethium-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:promethium-science-pack:output:0",
+      "source": "recipe:promethium-science-pack",
+      "target": "output:promethium-science-pack",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "promethium-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:input:0",
+      "source": "input:iron-plate",
+      "target": "recipe:space-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:input:1",
+      "source": "input:carbon",
+      "target": "recipe:space-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:input:2",
+      "source": "input:ice",
+      "target": "recipe:space-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:space-science-pack:output:0",
+      "source": "recipe:space-science-pack",
+      "target": "output:space-science-pack",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "space-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:utility-science-pack:input:0",
+      "source": "input:low-density-structure",
+      "target": "recipe:utility-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "utility-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:utility-science-pack:input:1",
+      "source": "input:processing-unit",
+      "target": "recipe:utility-science-pack",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "utility-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:utility-science-pack:input:2",
+      "source": "input:flying-robot-frame",
+      "target": "recipe:utility-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "utility-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:utility-science-pack:output:0",
+      "source": "recipe:utility-science-pack",
+      "target": "output:utility-science-pack",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "utility-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

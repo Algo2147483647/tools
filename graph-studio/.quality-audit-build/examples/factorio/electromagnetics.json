@@ -1,0 +1,1263 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Electromagnetics",
+  "metadata": {
+    "version": "2.0.65",
+    "source": "https://wiki.factorio.com/Data.raw",
+    "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
+    "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
+    "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
+    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "recipeCount": 648,
+    "productCount": 328,
+    "viewRecipeCount": 9
+  },
+  "nodes": {
+    "recipe:electrolyte": {
+      "title": "Electrolyte",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 5 s per craft.",
+      "recipe": "electrolyte",
+      "category": "electromagnetics",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "stone",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "heavy-oil",
+          "type": "fluid"
+        },
+        {
+          "amount": 10,
+          "name": "holmium-solution",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 10,
+          "name": "electrolyte",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:stone": {
+      "title": "Stone",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "stone",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:heavy-oil": {
+      "title": "Heavy oil",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "heavy-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:holmium-solution": {
+      "title": "Holmium solution",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "holmium-solution",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:electrolyte": {
+      "title": "Electrolyte",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "electrolyte",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:electromagnetic-science-pack": {
+      "title": "Electromagnetic science pack",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 10 s per craft.",
+      "recipe": "electromagnetic-science-pack",
+      "category": "electromagnetics",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "supercapacitor",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "accumulator",
+          "type": "item"
+        },
+        {
+          "amount": 25,
+          "name": "electrolyte",
+          "type": "fluid"
+        },
+        {
+          "amount": 25,
+          "name": "holmium-solution",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "electromagnetic-science-pack",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 99,
+          "min": 99,
+          "property": "magnetic-field"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:supercapacitor": {
+      "title": "Supercapacitor",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "supercapacitor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:accumulator": {
+      "title": "Accumulator",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "accumulator",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electrolyte": {
+      "title": "Electrolyte",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "electrolyte",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:electromagnetic-science-pack": {
+      "title": "Electromagnetic science pack",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "electromagnetic-science-pack",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:lightning-collector": {
+      "title": "Lightning collector",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 5 s per craft.",
+      "recipe": "lightning-collector",
+      "category": "electromagnetics",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "lightning-rod",
+          "type": "item"
+        },
+        {
+          "amount": 8,
+          "name": "supercapacitor",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "accumulator",
+          "type": "item"
+        },
+        {
+          "amount": 80,
+          "name": "electrolyte",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "lightning-collector",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 99,
+          "min": 99,
+          "property": "magnetic-field"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:lightning-rod": {
+      "title": "Lightning rod",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "lightning-rod",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:lightning-collector": {
+      "title": "Lightning collector",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "lightning-collector",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:quantum-processor": {
+      "title": "Quantum processor",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 30 s per craft.",
+      "recipe": "quantum-processor",
+      "category": "electromagnetics",
+      "secondsPerCraft": 30,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "tungsten-carbide",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "processing-unit",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "superconductor",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "carbon-fiber",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "lithium-plate",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "ignored_by_stats": 5,
+          "name": "fluoroketone-cold",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "quantum-processor",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "ignored_by_productivity": 5,
+          "ignored_by_stats": 5,
+          "name": "fluoroketone-hot",
+          "temperature": 180,
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [
+        {
+          "max": 600,
+          "property": "pressure"
+        }
+      ],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:tungsten-carbide": {
+      "title": "Tungsten carbide",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "tungsten-carbide",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:processing-unit": {
+      "title": "Processing unit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "processing-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:superconductor": {
+      "title": "Superconductor",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "superconductor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:carbon-fiber": {
+      "title": "Carbon fiber",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "carbon-fiber",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:lithium-plate": {
+      "title": "Lithium plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "lithium-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:fluoroketone-cold": {
+      "title": "Fluoroketone cold",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "fluoroketone-cold",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:quantum-processor": {
+      "title": "Quantum processor",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "quantum-processor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:fluoroketone-hot": {
+      "title": "Fluoroketone hot",
+      "type": "Product",
+      "color": "#6696a8",
+      "define": "Output role · fluid units per craft.",
+      "productId": "fluoroketone-hot",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:supercapacitor": {
+      "title": "Supercapacitor",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 10 s per craft.",
+      "recipe": "supercapacitor",
+      "category": "electromagnetics",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "holmium-plate",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "superconductor",
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "electronic-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "battery",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "electrolyte",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "supercapacitor",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:holmium-plate": {
+      "title": "Holmium plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "holmium-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "electronic-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:battery": {
+      "title": "Battery",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "battery",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:supercapacitor": {
+      "title": "Supercapacitor",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "supercapacitor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:superconductor": {
+      "title": "Superconductor",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 5 s per craft.",
+      "recipe": "superconductor",
+      "category": "electromagnetics",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "holmium-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "plastic-bar",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "name": "light-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "superconductor",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:copper-plate": {
+      "title": "Copper plate",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "copper-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "plastic-bar",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "input:light-oil": {
+      "title": "Light oil",
+      "type": "Ingredient",
+      "color": "#6696a8",
+      "define": "Input role · fluid units per craft.",
+      "productId": "light-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:superconductor": {
+      "title": "Superconductor",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "superconductor",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:tesla-ammo": {
+      "title": "Tesla ammo",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 30 s per craft.",
+      "recipe": "tesla-ammo",
+      "category": "electromagnetics",
+      "secondsPerCraft": 30,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "supercapacitor",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "plastic-bar",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "electrolyte",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "tesla-ammo",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:tesla-ammo": {
+      "title": "Tesla ammo",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "tesla-ammo",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:tesla-turret": {
+      "title": "Tesla turret",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 30 s per craft.",
+      "recipe": "tesla-turret",
+      "category": "electromagnetics",
+      "secondsPerCraft": 30,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "teslagun",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "supercapacitor",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "processing-unit",
+          "type": "item"
+        },
+        {
+          "amount": 50,
+          "name": "superconductor",
+          "type": "item"
+        },
+        {
+          "amount": 500,
+          "name": "electrolyte",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "tesla-turret",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "input:teslagun": {
+      "title": "Teslagun",
+      "type": "Ingredient",
+      "color": "#8393ae",
+      "define": "Input role · items per craft.",
+      "productId": "teslagun",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "output:tesla-turret": {
+      "title": "Tesla turret",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "tesla-turret",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:teslagun": {
+      "title": "Teslagun",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electromagnetics · 30 s per craft.",
+      "recipe": "teslagun",
+      "category": "electromagnetics",
+      "secondsPerCraft": 30,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "holmium-plate",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "superconductor",
+          "type": "item"
+        },
+        {
+          "amount": 30,
+          "name": "plastic-bar",
+          "type": "item"
+        },
+        {
+          "amount": 100,
+          "name": "electrolyte",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "teslagun",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "output:teslagun": {
+      "title": "Teslagun",
+      "type": "Product",
+      "color": "#74957a",
+      "define": "Output role · items per craft.",
+      "productId": "teslagun",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "recipe:electrolyte:input:0",
+      "source": "input:stone",
+      "target": "recipe:electrolyte",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electrolyte",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electrolyte:input:1",
+      "source": "input:heavy-oil",
+      "target": "recipe:electrolyte",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electrolyte",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electrolyte:input:2",
+      "source": "input:holmium-solution",
+      "target": "recipe:electrolyte",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electrolyte",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electrolyte:output:0",
+      "source": "recipe:electrolyte",
+      "target": "output:electrolyte",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electrolyte",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:0",
+      "source": "input:supercapacitor",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:1",
+      "source": "input:accumulator",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:2",
+      "source": "input:electrolyte",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 25,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:input:3",
+      "source": "input:holmium-solution",
+      "target": "recipe:electromagnetic-science-pack",
+      "value": 25,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electromagnetic-science-pack:output:0",
+      "source": "recipe:electromagnetic-science-pack",
+      "target": "output:electromagnetic-science-pack",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electromagnetic-science-pack",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:lightning-collector:input:0",
+      "source": "input:lightning-rod",
+      "target": "recipe:lightning-collector",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "lightning-collector",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:lightning-collector:input:1",
+      "source": "input:supercapacitor",
+      "target": "recipe:lightning-collector",
+      "value": 8,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "lightning-collector",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:lightning-collector:input:2",
+      "source": "input:accumulator",
+      "target": "recipe:lightning-collector",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "lightning-collector",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:lightning-collector:input:3",
+      "source": "input:electrolyte",
+      "target": "recipe:lightning-collector",
+      "value": 80,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "lightning-collector",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:lightning-collector:output:0",
+      "source": "recipe:lightning-collector",
+      "target": "output:lightning-collector",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "lightning-collector",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:input:0",
+      "source": "input:tungsten-carbide",
+      "target": "recipe:quantum-processor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "quantum-processor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:input:1",
+      "source": "input:processing-unit",
+      "target": "recipe:quantum-processor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "quantum-processor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:input:2",
+      "source": "input:superconductor",
+      "target": "recipe:quantum-processor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "quantum-processor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:input:3",
+      "source": "input:carbon-fiber",
+      "target": "recipe:quantum-processor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "quantum-processor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:input:4",
+      "source": "input:lithium-plate",
+      "target": "recipe:quantum-processor",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "quantum-processor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:input:5",
+      "source": "input:fluoroketone-cold",
+      "target": "recipe:quantum-processor",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "quantum-processor",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:output:0",
+      "source": "recipe:quantum-processor",
+      "target": "output:quantum-processor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "quantum-processor",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:quantum-processor:output:1",
+      "source": "recipe:quantum-processor",
+      "target": "output:fluoroketone-hot",
+      "value": 5,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "quantum-processor",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:supercapacitor:input:0",
+      "source": "input:holmium-plate",
+      "target": "recipe:supercapacitor",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "supercapacitor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:supercapacitor:input:1",
+      "source": "input:superconductor",
+      "target": "recipe:supercapacitor",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "supercapacitor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:supercapacitor:input:2",
+      "source": "input:electronic-circuit",
+      "target": "recipe:supercapacitor",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "supercapacitor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:supercapacitor:input:3",
+      "source": "input:battery",
+      "target": "recipe:supercapacitor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "supercapacitor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:supercapacitor:input:4",
+      "source": "input:electrolyte",
+      "target": "recipe:supercapacitor",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "supercapacitor",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:supercapacitor:output:0",
+      "source": "recipe:supercapacitor",
+      "target": "output:supercapacitor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "supercapacitor",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:superconductor:input:0",
+      "source": "input:holmium-plate",
+      "target": "recipe:superconductor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "superconductor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:superconductor:input:1",
+      "source": "input:copper-plate",
+      "target": "recipe:superconductor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "superconductor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:superconductor:input:2",
+      "source": "input:plastic-bar",
+      "target": "recipe:superconductor",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "superconductor",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:superconductor:input:3",
+      "source": "input:light-oil",
+      "target": "recipe:superconductor",
+      "value": 5,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "superconductor",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:superconductor:output:0",
+      "source": "recipe:superconductor",
+      "target": "output:superconductor",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "superconductor",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:tesla-ammo:input:0",
+      "source": "input:supercapacitor",
+      "target": "recipe:tesla-ammo",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-ammo",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-ammo:input:1",
+      "source": "input:plastic-bar",
+      "target": "recipe:tesla-ammo",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-ammo",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-ammo:input:2",
+      "source": "input:electrolyte",
+      "target": "recipe:tesla-ammo",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "tesla-ammo",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-ammo:output:0",
+      "source": "recipe:tesla-ammo",
+      "target": "output:tesla-ammo",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-ammo",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:tesla-turret:input:0",
+      "source": "input:teslagun",
+      "target": "recipe:tesla-turret",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-turret",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-turret:input:1",
+      "source": "input:supercapacitor",
+      "target": "recipe:tesla-turret",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-turret",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-turret:input:2",
+      "source": "input:processing-unit",
+      "target": "recipe:tesla-turret",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-turret",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-turret:input:3",
+      "source": "input:superconductor",
+      "target": "recipe:tesla-turret",
+      "value": 50,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-turret",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-turret:input:4",
+      "source": "input:electrolyte",
+      "target": "recipe:tesla-turret",
+      "value": 500,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "tesla-turret",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:tesla-turret:output:0",
+      "source": "recipe:tesla-turret",
+      "target": "output:tesla-turret",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "tesla-turret",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:teslagun:input:0",
+      "source": "input:holmium-plate",
+      "target": "recipe:teslagun",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "teslagun",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:teslagun:input:1",
+      "source": "input:superconductor",
+      "target": "recipe:teslagun",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "teslagun",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:teslagun:input:2",
+      "source": "input:plastic-bar",
+      "target": "recipe:teslagun",
+      "value": 30,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "teslagun",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:teslagun:input:3",
+      "source": "input:electrolyte",
+      "target": "recipe:teslagun",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "teslagun",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:teslagun:output:0",
+      "source": "recipe:teslagun",
+      "target": "output:teslagun",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "teslagun",
+        "unit": "items",
+        "role": "output"
+      }
+    }
+  ]
+}

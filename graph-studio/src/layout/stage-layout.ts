@@ -56,7 +56,9 @@ export function buildStageData(input: {
   const layoutDag = withSyntheticSelectionRoot(dag, selection, mapping);
   const forestTopLevelSet = new Set(selection.topLevelKeys);
   const layoutRoots = selection.isForest ? selection.topLevelKeys : [selection.rootKey];
-  const reachable = selection.isForest
+  const reachable = layoutMode === "sankey" && selection.appSelection.type === "full"
+    ? new Set(Object.keys(sourceDag.nodes))
+    : selection.isForest
     ? collectReachableFromRoots(layoutDag, selection.topLevelKeys, mapping)
     : collectReachableNodes(layoutDag, selection.rootKey, mapping);
   const typeColorMap = buildTypeColorMap(input.colorSourceDag ?? sourceDag, mapping);

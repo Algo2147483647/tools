@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Graph Studio document v2",
-  "description": "Runtime validation also checks unique edge IDs and directed endpoint pairs, endpoint existence, and no self-loops. Sankey diagrams additionally require finite non-negative flow values, finite node totals and no cycles.",
+  "description": "Runtime validation also checks unique edge IDs and directed endpoint pairs, endpoint existence, and no self-loops. Sankey diagrams additionally require finite non-negative flow values, finite node totals. Cycles are supported as return flows.",
   "type": "object",
   "additionalProperties": false,
   "required": [

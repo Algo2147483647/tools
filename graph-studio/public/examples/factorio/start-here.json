@@ -9,10 +9,20 @@
     "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
     "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
     "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
-    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "interpretation": "Shared materials connect producing and consuming recipes across the full network. Return flows preserve recycling and catalysts. Quantities are per craft, not balanced factory throughput.",
     "recipeCount": 648,
     "productCount": 328,
-    "viewRecipeCount": 2
+    "viewRecipeCount": 4,
+    "focusRecipes": [
+      "copper-cable",
+      "electronic-circuit"
+    ],
+    "upstreamRecipeCount": 2,
+    "externalInputs": [
+      "material:item:copper-ore",
+      "material:item:iron-ore"
+    ],
+    "upstreamPolicy": "Representative non-recycling recipes to external resources; all alternatives are in All products."
   },
   "nodes": {
     "recipe:copper-cable": {
@@ -20,6 +30,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Electronics · 0.5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "copper-cable",
       "category": "electronics",
       "secondsPerCraft": 0.5,
@@ -40,21 +51,56 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:copper-plate": {
+    "material:item:copper-plate": {
       "title": "Copper plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "copper-plate",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:copper-cable": {
+    "material:item:copper-cable": {
       "title": "Copper cable",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:copper-plate": {
+      "title": "Copper plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "copper-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:copper-ore": {
+      "title": "Copper ore",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "copper-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -63,6 +109,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Electronics · 0.5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "electronic-circuit",
       "category": "electronics",
       "secondsPerCraft": 0.5,
@@ -88,30 +135,56 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:iron-plate": {
+    "material:item:iron-plate": {
       "title": "Iron plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "iron-plate",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:copper-cable": {
-      "title": "Copper cable",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "copper-cable",
+    "material:item:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "electronic-circuit",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:electronic-circuit": {
-      "title": "Electronic circuit",
-      "type": "Product",
+    "recipe:iron-plate": {
+      "title": "Iron plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "iron-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:iron-ore": {
+      "title": "Iron ore",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "electronic-circuit",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "iron-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     }
@@ -119,7 +192,7 @@
   "edges": [
     {
       "id": "recipe:copper-cable:input:0",
-      "source": "input:copper-plate",
+      "source": "material:item:copper-plate",
       "target": "recipe:copper-cable",
       "value": 1,
       "metadata": {
@@ -132,7 +205,7 @@
     {
       "id": "recipe:copper-cable:output:0",
       "source": "recipe:copper-cable",
-      "target": "output:copper-cable",
+      "target": "material:item:copper-cable",
       "value": 2,
       "metadata": {
         "label": "items/craft",
@@ -142,8 +215,32 @@
       }
     },
     {
+      "id": "recipe:copper-plate:input:0",
+      "source": "material:item:copper-ore",
+      "target": "recipe:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:output:0",
+      "source": "recipe:copper-plate",
+      "target": "material:item:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:electronic-circuit:input:0",
-      "source": "input:iron-plate",
+      "source": "material:item:iron-plate",
       "target": "recipe:electronic-circuit",
       "value": 1,
       "metadata": {
@@ -155,7 +252,7 @@
     },
     {
       "id": "recipe:electronic-circuit:input:1",
-      "source": "input:copper-cable",
+      "source": "material:item:copper-cable",
       "target": "recipe:electronic-circuit",
       "value": 3,
       "metadata": {
@@ -168,11 +265,35 @@
     {
       "id": "recipe:electronic-circuit:output:0",
       "source": "recipe:electronic-circuit",
-      "target": "output:electronic-circuit",
+      "target": "material:item:electronic-circuit",
       "value": 1,
       "metadata": {
         "label": "items/craft",
         "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:input:0",
+      "source": "material:item:iron-ore",
+      "target": "recipe:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:output:0",
+      "source": "recipe:iron-plate",
+      "target": "material:item:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
         "unit": "items",
         "role": "output"
       }

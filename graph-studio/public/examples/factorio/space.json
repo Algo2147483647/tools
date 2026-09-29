@@ -9,10 +9,33 @@
     "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
     "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
     "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
-    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "interpretation": "Shared materials connect producing and consuming recipes across the full network. Return flows preserve recycling and catalysts. Quantities are per craft, not balanced factory throughput.",
     "recipeCount": 648,
     "productCount": 328,
-    "viewRecipeCount": 14
+    "viewRecipeCount": 35,
+    "focusRecipes": [
+      "advanced-carbonic-asteroid-crushing",
+      "advanced-metallic-asteroid-crushing",
+      "advanced-oxide-asteroid-crushing",
+      "asteroid-collector",
+      "carbonic-asteroid-crushing",
+      "carbonic-asteroid-reprocessing",
+      "metallic-asteroid-crushing",
+      "metallic-asteroid-reprocessing",
+      "oxide-asteroid-crushing",
+      "oxide-asteroid-reprocessing",
+      "rocket-part",
+      "space-platform-foundation",
+      "space-platform-starter-pack",
+      "space-science-pack"
+    ],
+    "upstreamRecipeCount": 21,
+    "externalInputs": [
+      "material:fluid:crude-oil",
+      "material:fluid:water",
+      "material:item:coal"
+    ],
+    "upstreamPolicy": "Representative non-recycling recipes to external resources; all alternatives are in All products."
   },
   "nodes": {
     "recipe:advanced-carbonic-asteroid-crushing": {
@@ -20,6 +43,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "advanced-carbonic-asteroid-crushing",
       "category": "crushing",
       "secondsPerCraft": 5,
@@ -51,39 +75,102 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:carbonic-asteroid-chunk": {
+    "material:item:carbonic-asteroid-chunk": {
       "title": "Carbonic asteroid chunk",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "carbonic-asteroid-chunk",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:carbon": {
+    "material:item:carbon": {
       "title": "Carbon",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "carbon",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:sulfur": {
+    "material:item:sulfur": {
       "title": "Sulfur",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "sulfur",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:carbonic-asteroid-chunk": {
-      "title": "Carbonic asteroid chunk",
-      "type": "Product",
+    "recipe:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electronics · 6 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "advanced-circuit",
+      "category": "electronics",
+      "secondsPerCraft": 6,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "electronic-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "plastic-bar",
+          "type": "item"
+        },
+        {
+          "amount": 4,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "advanced-circuit",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "carbonic-asteroid-chunk",
+      "define": "Shared material · items per craft.",
+      "productId": "electronic-circuit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "plastic-bar",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:copper-cable": {
+      "title": "Copper cable",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "copper-cable",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:advanced-circuit": {
+      "title": "Advanced circuit",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "advanced-circuit",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -92,6 +179,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "advanced-metallic-asteroid-crushing",
       "category": "crushing",
       "secondsPerCraft": 5,
@@ -123,40 +211,117 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:metallic-asteroid-chunk": {
+    "material:item:metallic-asteroid-chunk": {
       "title": "Metallic asteroid chunk",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "metallic-asteroid-chunk",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:iron-ore": {
+    "material:item:iron-ore": {
       "title": "Iron ore",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "iron-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:copper-ore": {
+    "material:item:copper-ore": {
       "title": "Copper ore",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "copper-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:metallic-asteroid-chunk": {
-      "title": "Metallic asteroid chunk",
-      "type": "Product",
-      "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "metallic-asteroid-chunk",
-      "unit": "items",
+    "recipe:advanced-oil-processing": {
+      "title": "Advanced oil processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "advanced-oil-processing",
+      "category": "oil-processing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 50,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 100,
+          "name": "crude-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 25,
+          "name": "heavy-oil",
+          "type": "fluid"
+        },
+        {
+          "amount": 45,
+          "name": "light-oil",
+          "type": "fluid"
+        },
+        {
+          "amount": 55,
+          "name": "petroleum-gas",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:fluid:water": {
+      "title": "Water",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "water",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:crude-oil": {
+      "title": "Crude oil",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "crude-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:heavy-oil": {
+      "title": "Heavy oil",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "heavy-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:light-oil": {
+      "title": "Light oil",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "light-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:petroleum-gas": {
+      "title": "Petroleum gas",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "petroleum-gas",
+      "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
     "recipe:advanced-oxide-asteroid-crushing": {
@@ -164,6 +329,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 5 s per craft.",
+      "viewRole": "Focus",
       "recipe": "advanced-oxide-asteroid-crushing",
       "category": "crushing",
       "secondsPerCraft": 5,
@@ -195,39 +361,30 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:oxide-asteroid-chunk": {
+    "material:item:oxide-asteroid-chunk": {
       "title": "Oxide asteroid chunk",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "oxide-asteroid-chunk",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:ice": {
+    "material:item:ice": {
       "title": "Ice",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "ice",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:calcite": {
+    "material:item:calcite": {
       "title": "Calcite",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "calcite",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:oxide-asteroid-chunk": {
-      "title": "Oxide asteroid chunk",
-      "type": "Product",
-      "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "oxide-asteroid-chunk",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
@@ -236,6 +393,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crafting · 10 s per craft.",
+      "viewRole": "Focus",
       "recipe": "asteroid-collector",
       "category": "crafting",
       "secondsPerCraft": 10,
@@ -266,40 +424,117 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:low-density-structure": {
+    "material:item:low-density-structure": {
       "title": "Low density structure",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "low-density-structure",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:electric-engine-unit": {
+    "material:item:electric-engine-unit": {
       "title": "Electric engine unit",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "electric-engine-unit",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:processing-unit": {
+    "material:item:processing-unit": {
       "title": "Processing unit",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "processing-unit",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:asteroid-collector": {
+    "material:item:asteroid-collector": {
       "title": "Asteroid collector",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "asteroid-collector",
       "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:basic-oil-processing": {
+      "title": "Basic oil processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "basic-oil-processing",
+      "category": "oil-processing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 100,
+          "fluidbox_index": 2,
+          "name": "crude-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 45,
+          "fluidbox_index": 3,
+          "name": "petroleum-gas",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:carbon": {
+      "title": "Carbon",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "carbon",
+      "category": "chemistry-or-cryogenics",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "coal",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "sulfuric-acid",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "carbon",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:coal": {
+      "title": "Coal",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "coal",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:sulfuric-acid": {
+      "title": "Sulfuric acid",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "sulfuric-acid",
+      "unit": "fluid units",
       "notes": "[Reading this diagram](./README.md)"
     },
     "recipe:carbonic-asteroid-crushing": {
@@ -307,6 +542,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "carbonic-asteroid-crushing",
       "category": "crushing",
       "secondsPerCraft": 2,
@@ -338,6 +574,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "carbonic-asteroid-reprocessing",
       "category": "crushing",
       "secondsPerCraft": 2,
@@ -371,11 +608,344 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
+    "recipe:copper-cable": {
+      "title": "Copper cable",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electronics · 0.5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "copper-cable",
+      "category": "electronics",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:copper-plate": {
+      "title": "Copper plate",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "copper-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:copper-plate": {
+      "title": "Copper plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "copper-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "copper-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "copper-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:electric-engine-unit": {
+      "title": "Electric engine unit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting with fluid · 10 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "electric-engine-unit",
+      "category": "crafting-with-fluid",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "engine-unit",
+          "type": "item"
+        },
+        {
+          "amount": 15,
+          "name": "lubricant",
+          "type": "fluid"
+        },
+        {
+          "amount": 2,
+          "name": "electronic-circuit",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "electric-engine-unit",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:engine-unit": {
+      "title": "Engine unit",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "engine-unit",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:lubricant": {
+      "title": "Lubricant",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "lubricant",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:electronic-circuit": {
+      "title": "Electronic circuit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electronics · 0.5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "electronic-circuit",
+      "category": "electronics",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        },
+        {
+          "amount": 3,
+          "name": "copper-cable",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "electronic-circuit",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:iron-plate": {
+      "title": "Iron plate",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "iron-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:engine-unit": {
+      "title": "Engine unit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Advanced crafting · 10 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "engine-unit",
+      "category": "advanced-crafting",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "steel-plate",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "pipe",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "engine-unit",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:steel-plate": {
+      "title": "Steel plate",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "steel-plate",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:iron-gear-wheel": {
+      "title": "Iron gear wheel",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "iron-gear-wheel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:pipe": {
+      "title": "Pipe",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "pipe",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:iron-gear-wheel": {
+      "title": "Iron gear wheel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 0.5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "iron-gear-wheel",
+      "category": "crafting",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-gear-wheel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:iron-plate": {
+      "title": "Iron plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 3.2 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "iron-plate",
+      "category": "smelting",
+      "secondsPerCraft": 3.2,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-ore",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:low-density-structure": {
+      "title": "Low density structure",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 15 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "low-density-structure",
+      "category": "crafting",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 2,
+          "name": "steel-plate",
+          "type": "item"
+        },
+        {
+          "amount": 20,
+          "name": "copper-plate",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "name": "plastic-bar",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "low-density-structure",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:lubricant": {
+      "title": "Lubricant",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "lubricant",
+      "category": "chemistry",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "heavy-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 10,
+          "name": "lubricant",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
     "recipe:metallic-asteroid-crushing": {
       "title": "Metallic asteroid crushing",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "metallic-asteroid-crushing",
       "category": "crushing",
       "secondsPerCraft": 2,
@@ -407,6 +977,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "metallic-asteroid-reprocessing",
       "category": "crushing",
       "secondsPerCraft": 2,
@@ -445,6 +1016,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 2 s per craft.",
+      "viewRole": "Focus",
       "recipe": "oxide-asteroid-crushing",
       "category": "crushing",
       "secondsPerCraft": 2,
@@ -476,6 +1048,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crushing · 1 s per craft.",
+      "viewRole": "Focus",
       "recipe": "oxide-asteroid-reprocessing",
       "category": "crushing",
       "secondsPerCraft": 1,
@@ -509,11 +1082,154 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
+    "recipe:pipe": {
+      "title": "Pipe",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Crafting · 0.5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "pipe",
+      "category": "crafting",
+      "secondsPerCraft": 0.5,
+      "ingredients": [
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "pipe",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:plastic-bar": {
+      "title": "Plastic bar",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "plastic-bar",
+      "category": "chemistry-or-cryogenics",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "petroleum-gas",
+          "type": "fluid"
+        },
+        {
+          "amount": 1,
+          "name": "coal",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "plastic-bar",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:processing-unit": {
+      "title": "Processing unit",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Electronics with fluid · 10 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "processing-unit",
+      "category": "electronics-with-fluid",
+      "secondsPerCraft": 10,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "electronic-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 2,
+          "name": "advanced-circuit",
+          "type": "item"
+        },
+        {
+          "amount": 5,
+          "name": "sulfuric-acid",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "processing-unit",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 15 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "rocket-fuel",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "solid-fuel",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "light-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "rocket-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:solid-fuel": {
+      "title": "Solid fuel",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "solid-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:item:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "rocket-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
     "recipe:rocket-part": {
       "title": "Rocket part",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Rocket building · 3 s per craft.",
+      "viewRole": "Focus",
       "recipe": "rocket-part",
       "category": "rocket-building",
       "secondsPerCraft": 3,
@@ -544,29 +1260,47 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:rocket-fuel": {
-      "title": "Rocket fuel",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "rocket-fuel",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:rocket-part": {
+    "material:item:rocket-part": {
       "title": "Rocket part",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "rocket-part",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:solid-fuel-from-heavy-oil": {
+      "title": "Solid fuel from heavy oil",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "solid-fuel-from-heavy-oil",
+      "category": "chemistry",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "heavy-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "solid-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
     },
     "recipe:space-platform-foundation": {
       "title": "Space platform foundation",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crafting · 10 s per craft.",
+      "viewRole": "Focus",
       "recipe": "space-platform-foundation",
       "category": "crafting",
       "secondsPerCraft": 10,
@@ -592,29 +1326,11 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:steel-plate": {
-      "title": "Steel plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "steel-plate",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "input:copper-cable": {
-      "title": "Copper cable",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "copper-cable",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:space-platform-foundation": {
+    "material:item:space-platform-foundation": {
       "title": "Space platform foundation",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "space-platform-foundation",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -624,6 +1340,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crafting · 60 s per craft.",
+      "viewRole": "Focus",
       "recipe": "space-platform-starter-pack",
       "category": "crafting",
       "secondsPerCraft": 60,
@@ -654,20 +1371,11 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:space-platform-foundation": {
-      "title": "Space platform foundation",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "space-platform-foundation",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:space-platform-starter-pack": {
+    "material:item:space-platform-starter-pack": {
       "title": "Space platform starter pack",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "space-platform-starter-pack",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -677,6 +1385,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Crafting · 15 s per craft.",
+      "viewRole": "Focus",
       "recipe": "space-science-pack",
       "category": "crafting",
       "secondsPerCraft": 15,
@@ -713,47 +1422,113 @@
       ],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:iron-plate": {
-      "title": "Iron plate",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "iron-plate",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "input:carbon": {
-      "title": "Carbon",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "carbon",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "input:ice": {
-      "title": "Ice",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "ice",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:space-science-pack": {
+    "material:item:space-science-pack": {
       "title": "Space science pack",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "space-science-pack",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:steel-plate": {
+      "title": "Steel plate",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Smelting · 16 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "steel-plate",
+      "category": "smelting",
+      "secondsPerCraft": 16,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "iron-plate",
+          "type": "item"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "steel-plate",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:sulfur": {
+      "title": "Sulfur",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "sulfur",
+      "category": "chemistry-or-cryogenics",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 30,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 30,
+          "name": "petroleum-gas",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 2,
+          "name": "sulfur",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "recipe:sulfuric-acid": {
+      "title": "Sulfuric acid",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry or cryogenics · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "sulfuric-acid",
+      "category": "chemistry-or-cryogenics",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 5,
+          "name": "sulfur",
+          "type": "item"
+        },
+        {
+          "amount": 1,
+          "name": "iron-plate",
+          "type": "item"
+        },
+        {
+          "amount": 100,
+          "name": "water",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 50,
+          "name": "sulfuric-acid",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
     }
   },
   "edges": [
     {
       "id": "recipe:advanced-carbonic-asteroid-crushing:input:0",
-      "source": "input:carbonic-asteroid-chunk",
+      "source": "material:item:carbonic-asteroid-chunk",
       "target": "recipe:advanced-carbonic-asteroid-crushing",
       "value": 1,
       "metadata": {
@@ -766,7 +1541,7 @@
     {
       "id": "recipe:advanced-carbonic-asteroid-crushing:output:0",
       "source": "recipe:advanced-carbonic-asteroid-crushing",
-      "target": "output:carbon",
+      "target": "material:item:carbon",
       "value": 5,
       "metadata": {
         "label": "items/craft",
@@ -778,7 +1553,7 @@
     {
       "id": "recipe:advanced-carbonic-asteroid-crushing:output:1",
       "source": "recipe:advanced-carbonic-asteroid-crushing",
-      "target": "output:sulfur",
+      "target": "material:item:sulfur",
       "value": 2,
       "metadata": {
         "label": "items/craft",
@@ -790,18 +1565,67 @@
     {
       "id": "recipe:advanced-carbonic-asteroid-crushing:output:2",
       "source": "recipe:advanced-carbonic-asteroid-crushing",
-      "target": "output:carbonic-asteroid-chunk",
+      "target": "material:item:carbonic-asteroid-chunk",
       "value": 0.05,
       "metadata": {
         "label": "items/craft",
         "recipe": "advanced-carbonic-asteroid-crushing",
+        "unit": "items",
+        "role": "output",
+        "feedback": true
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:input:0",
+      "source": "material:item:electronic-circuit",
+      "target": "recipe:advanced-circuit",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:input:1",
+      "source": "material:item:plastic-bar",
+      "target": "recipe:advanced-circuit",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:input:2",
+      "source": "material:item:copper-cable",
+      "target": "recipe:advanced-circuit",
+      "value": 4,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-circuit:output:0",
+      "source": "recipe:advanced-circuit",
+      "target": "material:item:advanced-circuit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "advanced-circuit",
         "unit": "items",
         "role": "output"
       }
     },
     {
       "id": "recipe:advanced-metallic-asteroid-crushing:input:0",
-      "source": "input:metallic-asteroid-chunk",
+      "source": "material:item:metallic-asteroid-chunk",
       "target": "recipe:advanced-metallic-asteroid-crushing",
       "value": 1,
       "metadata": {
@@ -814,7 +1638,7 @@
     {
       "id": "recipe:advanced-metallic-asteroid-crushing:output:0",
       "source": "recipe:advanced-metallic-asteroid-crushing",
-      "target": "output:iron-ore",
+      "target": "material:item:iron-ore",
       "value": 10,
       "metadata": {
         "label": "items/craft",
@@ -826,7 +1650,7 @@
     {
       "id": "recipe:advanced-metallic-asteroid-crushing:output:1",
       "source": "recipe:advanced-metallic-asteroid-crushing",
-      "target": "output:copper-ore",
+      "target": "material:item:copper-ore",
       "value": 4,
       "metadata": {
         "label": "items/craft",
@@ -838,18 +1662,79 @@
     {
       "id": "recipe:advanced-metallic-asteroid-crushing:output:2",
       "source": "recipe:advanced-metallic-asteroid-crushing",
-      "target": "output:metallic-asteroid-chunk",
+      "target": "material:item:metallic-asteroid-chunk",
       "value": 0.05,
       "metadata": {
         "label": "items/craft",
         "recipe": "advanced-metallic-asteroid-crushing",
         "unit": "items",
+        "role": "output",
+        "feedback": true
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:input:0",
+      "source": "material:fluid:water",
+      "target": "recipe:advanced-oil-processing",
+      "value": 50,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:input:1",
+      "source": "material:fluid:crude-oil",
+      "target": "recipe:advanced-oil-processing",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:0",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:heavy-oil",
+      "value": 25,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:1",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:light-oil",
+      "value": 45,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:2",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:petroleum-gas",
+      "value": 55,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
         "role": "output"
       }
     },
     {
       "id": "recipe:advanced-oxide-asteroid-crushing:input:0",
-      "source": "input:oxide-asteroid-chunk",
+      "source": "material:item:oxide-asteroid-chunk",
       "target": "recipe:advanced-oxide-asteroid-crushing",
       "value": 1,
       "metadata": {
@@ -862,7 +1747,7 @@
     {
       "id": "recipe:advanced-oxide-asteroid-crushing:output:0",
       "source": "recipe:advanced-oxide-asteroid-crushing",
-      "target": "output:ice",
+      "target": "material:item:ice",
       "value": 3,
       "metadata": {
         "label": "items/craft",
@@ -874,7 +1759,7 @@
     {
       "id": "recipe:advanced-oxide-asteroid-crushing:output:1",
       "source": "recipe:advanced-oxide-asteroid-crushing",
-      "target": "output:calcite",
+      "target": "material:item:calcite",
       "value": 2,
       "metadata": {
         "label": "items/craft",
@@ -886,18 +1771,19 @@
     {
       "id": "recipe:advanced-oxide-asteroid-crushing:output:2",
       "source": "recipe:advanced-oxide-asteroid-crushing",
-      "target": "output:oxide-asteroid-chunk",
+      "target": "material:item:oxide-asteroid-chunk",
       "value": 0.05,
       "metadata": {
         "label": "items/craft",
         "recipe": "advanced-oxide-asteroid-crushing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:asteroid-collector:input:0",
-      "source": "input:low-density-structure",
+      "source": "material:item:low-density-structure",
       "target": "recipe:asteroid-collector",
       "value": 20,
       "metadata": {
@@ -909,7 +1795,7 @@
     },
     {
       "id": "recipe:asteroid-collector:input:1",
-      "source": "input:electric-engine-unit",
+      "source": "material:item:electric-engine-unit",
       "target": "recipe:asteroid-collector",
       "value": 8,
       "metadata": {
@@ -921,7 +1807,7 @@
     },
     {
       "id": "recipe:asteroid-collector:input:2",
-      "source": "input:processing-unit",
+      "source": "material:item:processing-unit",
       "target": "recipe:asteroid-collector",
       "value": 5,
       "metadata": {
@@ -934,7 +1820,7 @@
     {
       "id": "recipe:asteroid-collector:output:0",
       "source": "recipe:asteroid-collector",
-      "target": "output:asteroid-collector",
+      "target": "material:item:asteroid-collector",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -944,8 +1830,68 @@
       }
     },
     {
+      "id": "recipe:basic-oil-processing:input:0",
+      "source": "material:fluid:crude-oil",
+      "target": "recipe:basic-oil-processing",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "basic-oil-processing",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:basic-oil-processing:output:0",
+      "source": "recipe:basic-oil-processing",
+      "target": "material:fluid:petroleum-gas",
+      "value": 45,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "basic-oil-processing",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:carbon:input:0",
+      "source": "material:item:coal",
+      "target": "recipe:carbon",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbon",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:carbon:input:1",
+      "source": "material:fluid:sulfuric-acid",
+      "target": "recipe:carbon",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "carbon",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:carbon:output:0",
+      "source": "recipe:carbon",
+      "target": "material:item:carbon",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "carbon",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:carbonic-asteroid-crushing:input:0",
-      "source": "input:carbonic-asteroid-chunk",
+      "source": "material:item:carbonic-asteroid-chunk",
       "target": "recipe:carbonic-asteroid-crushing",
       "value": 1,
       "metadata": {
@@ -958,7 +1904,7 @@
     {
       "id": "recipe:carbonic-asteroid-crushing:output:0",
       "source": "recipe:carbonic-asteroid-crushing",
-      "target": "output:carbon",
+      "target": "material:item:carbon",
       "value": 10,
       "metadata": {
         "label": "items/craft",
@@ -970,18 +1916,19 @@
     {
       "id": "recipe:carbonic-asteroid-crushing:output:1",
       "source": "recipe:carbonic-asteroid-crushing",
-      "target": "output:carbonic-asteroid-chunk",
+      "target": "material:item:carbonic-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
         "recipe": "carbonic-asteroid-crushing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:carbonic-asteroid-reprocessing:input:0",
-      "source": "input:carbonic-asteroid-chunk",
+      "source": "material:item:carbonic-asteroid-chunk",
       "target": "recipe:carbonic-asteroid-reprocessing",
       "value": 1,
       "metadata": {
@@ -994,19 +1941,20 @@
     {
       "id": "recipe:carbonic-asteroid-reprocessing:output:0",
       "source": "recipe:carbonic-asteroid-reprocessing",
-      "target": "output:carbonic-asteroid-chunk",
+      "target": "material:item:carbonic-asteroid-chunk",
       "value": 0.4,
       "metadata": {
         "label": "items/craft",
         "recipe": "carbonic-asteroid-reprocessing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:carbonic-asteroid-reprocessing:output:1",
       "source": "recipe:carbonic-asteroid-reprocessing",
-      "target": "output:metallic-asteroid-chunk",
+      "target": "material:item:metallic-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
@@ -1018,7 +1966,7 @@
     {
       "id": "recipe:carbonic-asteroid-reprocessing:output:2",
       "source": "recipe:carbonic-asteroid-reprocessing",
-      "target": "output:oxide-asteroid-chunk",
+      "target": "material:item:oxide-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
@@ -1028,8 +1976,308 @@
       }
     },
     {
+      "id": "recipe:copper-cable:input:0",
+      "source": "material:item:copper-plate",
+      "target": "recipe:copper-cable",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-cable",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-cable:output:0",
+      "source": "recipe:copper-cable",
+      "target": "material:item:copper-cable",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-cable",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:input:0",
+      "source": "material:item:copper-ore",
+      "target": "recipe:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:copper-plate:output:0",
+      "source": "recipe:copper-plate",
+      "target": "material:item:copper-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "copper-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:electric-engine-unit:input:0",
+      "source": "material:item:engine-unit",
+      "target": "recipe:electric-engine-unit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electric-engine-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electric-engine-unit:input:1",
+      "source": "material:fluid:lubricant",
+      "target": "recipe:electric-engine-unit",
+      "value": 15,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "electric-engine-unit",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electric-engine-unit:input:2",
+      "source": "material:item:electronic-circuit",
+      "target": "recipe:electric-engine-unit",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electric-engine-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electric-engine-unit:output:0",
+      "source": "recipe:electric-engine-unit",
+      "target": "material:item:electric-engine-unit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electric-engine-unit",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:input:0",
+      "source": "material:item:iron-plate",
+      "target": "recipe:electronic-circuit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:input:1",
+      "source": "material:item:copper-cable",
+      "target": "recipe:electronic-circuit",
+      "value": 3,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:electronic-circuit:output:0",
+      "source": "recipe:electronic-circuit",
+      "target": "material:item:electronic-circuit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "electronic-circuit",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:engine-unit:input:0",
+      "source": "material:item:steel-plate",
+      "target": "recipe:engine-unit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "engine-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:engine-unit:input:1",
+      "source": "material:item:iron-gear-wheel",
+      "target": "recipe:engine-unit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "engine-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:engine-unit:input:2",
+      "source": "material:item:pipe",
+      "target": "recipe:engine-unit",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "engine-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:engine-unit:output:0",
+      "source": "recipe:engine-unit",
+      "target": "material:item:engine-unit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "engine-unit",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-gear-wheel:input:0",
+      "source": "material:item:iron-plate",
+      "target": "recipe:iron-gear-wheel",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-gear-wheel",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-gear-wheel:output:0",
+      "source": "recipe:iron-gear-wheel",
+      "target": "material:item:iron-gear-wheel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-gear-wheel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:input:0",
+      "source": "material:item:iron-ore",
+      "target": "recipe:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:iron-plate:output:0",
+      "source": "recipe:iron-plate",
+      "target": "material:item:iron-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "iron-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:input:0",
+      "source": "material:item:steel-plate",
+      "target": "recipe:low-density-structure",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "low-density-structure",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:input:1",
+      "source": "material:item:copper-plate",
+      "target": "recipe:low-density-structure",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "low-density-structure",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:input:2",
+      "source": "material:item:plastic-bar",
+      "target": "recipe:low-density-structure",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "low-density-structure",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:low-density-structure:output:0",
+      "source": "recipe:low-density-structure",
+      "target": "material:item:low-density-structure",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "low-density-structure",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:lubricant:input:0",
+      "source": "material:fluid:heavy-oil",
+      "target": "recipe:lubricant",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "lubricant",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:lubricant:output:0",
+      "source": "recipe:lubricant",
+      "target": "material:fluid:lubricant",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "lubricant",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:metallic-asteroid-crushing:input:0",
-      "source": "input:metallic-asteroid-chunk",
+      "source": "material:item:metallic-asteroid-chunk",
       "target": "recipe:metallic-asteroid-crushing",
       "value": 1,
       "metadata": {
@@ -1042,7 +2290,7 @@
     {
       "id": "recipe:metallic-asteroid-crushing:output:0",
       "source": "recipe:metallic-asteroid-crushing",
-      "target": "output:iron-ore",
+      "target": "material:item:iron-ore",
       "value": 20,
       "metadata": {
         "label": "items/craft",
@@ -1054,18 +2302,19 @@
     {
       "id": "recipe:metallic-asteroid-crushing:output:1",
       "source": "recipe:metallic-asteroid-crushing",
-      "target": "output:metallic-asteroid-chunk",
+      "target": "material:item:metallic-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
         "recipe": "metallic-asteroid-crushing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:metallic-asteroid-reprocessing:input:0",
-      "source": "input:metallic-asteroid-chunk",
+      "source": "material:item:metallic-asteroid-chunk",
       "target": "recipe:metallic-asteroid-reprocessing",
       "value": 1,
       "metadata": {
@@ -1078,19 +2327,20 @@
     {
       "id": "recipe:metallic-asteroid-reprocessing:output:0",
       "source": "recipe:metallic-asteroid-reprocessing",
-      "target": "output:metallic-asteroid-chunk",
+      "target": "material:item:metallic-asteroid-chunk",
       "value": 0.4,
       "metadata": {
         "label": "items/craft",
         "recipe": "metallic-asteroid-reprocessing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:metallic-asteroid-reprocessing:output:1",
       "source": "recipe:metallic-asteroid-reprocessing",
-      "target": "output:carbonic-asteroid-chunk",
+      "target": "material:item:carbonic-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
@@ -1102,7 +2352,7 @@
     {
       "id": "recipe:metallic-asteroid-reprocessing:output:2",
       "source": "recipe:metallic-asteroid-reprocessing",
-      "target": "output:oxide-asteroid-chunk",
+      "target": "material:item:oxide-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
@@ -1113,7 +2363,7 @@
     },
     {
       "id": "recipe:oxide-asteroid-crushing:input:0",
-      "source": "input:oxide-asteroid-chunk",
+      "source": "material:item:oxide-asteroid-chunk",
       "target": "recipe:oxide-asteroid-crushing",
       "value": 1,
       "metadata": {
@@ -1126,7 +2376,7 @@
     {
       "id": "recipe:oxide-asteroid-crushing:output:0",
       "source": "recipe:oxide-asteroid-crushing",
-      "target": "output:ice",
+      "target": "material:item:ice",
       "value": 5,
       "metadata": {
         "label": "items/craft",
@@ -1138,18 +2388,19 @@
     {
       "id": "recipe:oxide-asteroid-crushing:output:1",
       "source": "recipe:oxide-asteroid-crushing",
-      "target": "output:oxide-asteroid-chunk",
+      "target": "material:item:oxide-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
         "recipe": "oxide-asteroid-crushing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:oxide-asteroid-reprocessing:input:0",
-      "source": "input:oxide-asteroid-chunk",
+      "source": "material:item:oxide-asteroid-chunk",
       "target": "recipe:oxide-asteroid-reprocessing",
       "value": 1,
       "metadata": {
@@ -1162,19 +2413,20 @@
     {
       "id": "recipe:oxide-asteroid-reprocessing:output:0",
       "source": "recipe:oxide-asteroid-reprocessing",
-      "target": "output:oxide-asteroid-chunk",
+      "target": "material:item:oxide-asteroid-chunk",
       "value": 0.4,
       "metadata": {
         "label": "items/craft",
         "recipe": "oxide-asteroid-reprocessing",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:oxide-asteroid-reprocessing:output:1",
       "source": "recipe:oxide-asteroid-reprocessing",
-      "target": "output:metallic-asteroid-chunk",
+      "target": "material:item:metallic-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
@@ -1186,7 +2438,7 @@
     {
       "id": "recipe:oxide-asteroid-reprocessing:output:2",
       "source": "recipe:oxide-asteroid-reprocessing",
-      "target": "output:carbonic-asteroid-chunk",
+      "target": "material:item:carbonic-asteroid-chunk",
       "value": 0.2,
       "metadata": {
         "label": "items/craft",
@@ -1196,8 +2448,152 @@
       }
     },
     {
+      "id": "recipe:pipe:input:0",
+      "source": "material:item:iron-plate",
+      "target": "recipe:pipe",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "pipe",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:pipe:output:0",
+      "source": "recipe:pipe",
+      "target": "material:item:pipe",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "pipe",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:plastic-bar:input:0",
+      "source": "material:fluid:petroleum-gas",
+      "target": "recipe:plastic-bar",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "plastic-bar",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:plastic-bar:input:1",
+      "source": "material:item:coal",
+      "target": "recipe:plastic-bar",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "plastic-bar",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:plastic-bar:output:0",
+      "source": "recipe:plastic-bar",
+      "target": "material:item:plastic-bar",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "plastic-bar",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:input:0",
+      "source": "material:item:electronic-circuit",
+      "target": "recipe:processing-unit",
+      "value": 20,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "processing-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:input:1",
+      "source": "material:item:advanced-circuit",
+      "target": "recipe:processing-unit",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "processing-unit",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:input:2",
+      "source": "material:fluid:sulfuric-acid",
+      "target": "recipe:processing-unit",
+      "value": 5,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "processing-unit",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:processing-unit:output:0",
+      "source": "recipe:processing-unit",
+      "target": "material:item:processing-unit",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "processing-unit",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:0",
+      "source": "material:item:solid-fuel",
+      "target": "recipe:rocket-fuel",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:1",
+      "source": "material:fluid:light-oil",
+      "target": "recipe:rocket-fuel",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "rocket-fuel",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:output:0",
+      "source": "recipe:rocket-fuel",
+      "target": "material:item:rocket-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:rocket-part:input:0",
-      "source": "input:processing-unit",
+      "source": "material:item:processing-unit",
       "target": "recipe:rocket-part",
       "value": 1,
       "metadata": {
@@ -1209,7 +2605,7 @@
     },
     {
       "id": "recipe:rocket-part:input:1",
-      "source": "input:low-density-structure",
+      "source": "material:item:low-density-structure",
       "target": "recipe:rocket-part",
       "value": 1,
       "metadata": {
@@ -1221,7 +2617,7 @@
     },
     {
       "id": "recipe:rocket-part:input:2",
-      "source": "input:rocket-fuel",
+      "source": "material:item:rocket-fuel",
       "target": "recipe:rocket-part",
       "value": 1,
       "metadata": {
@@ -1234,7 +2630,7 @@
     {
       "id": "recipe:rocket-part:output:0",
       "source": "recipe:rocket-part",
-      "target": "output:rocket-part",
+      "target": "material:item:rocket-part",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1244,8 +2640,32 @@
       }
     },
     {
+      "id": "recipe:solid-fuel-from-heavy-oil:input:0",
+      "source": "material:fluid:heavy-oil",
+      "target": "recipe:solid-fuel-from-heavy-oil",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "solid-fuel-from-heavy-oil",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:solid-fuel-from-heavy-oil:output:0",
+      "source": "recipe:solid-fuel-from-heavy-oil",
+      "target": "material:item:solid-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "solid-fuel-from-heavy-oil",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:space-platform-foundation:input:0",
-      "source": "input:steel-plate",
+      "source": "material:item:steel-plate",
       "target": "recipe:space-platform-foundation",
       "value": 20,
       "metadata": {
@@ -1257,7 +2677,7 @@
     },
     {
       "id": "recipe:space-platform-foundation:input:1",
-      "source": "input:copper-cable",
+      "source": "material:item:copper-cable",
       "target": "recipe:space-platform-foundation",
       "value": 20,
       "metadata": {
@@ -1270,7 +2690,7 @@
     {
       "id": "recipe:space-platform-foundation:output:0",
       "source": "recipe:space-platform-foundation",
-      "target": "output:space-platform-foundation",
+      "target": "material:item:space-platform-foundation",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1281,7 +2701,7 @@
     },
     {
       "id": "recipe:space-platform-starter-pack:input:0",
-      "source": "input:space-platform-foundation",
+      "source": "material:item:space-platform-foundation",
       "target": "recipe:space-platform-starter-pack",
       "value": 60,
       "metadata": {
@@ -1293,7 +2713,7 @@
     },
     {
       "id": "recipe:space-platform-starter-pack:input:1",
-      "source": "input:steel-plate",
+      "source": "material:item:steel-plate",
       "target": "recipe:space-platform-starter-pack",
       "value": 20,
       "metadata": {
@@ -1305,7 +2725,7 @@
     },
     {
       "id": "recipe:space-platform-starter-pack:input:2",
-      "source": "input:processing-unit",
+      "source": "material:item:processing-unit",
       "target": "recipe:space-platform-starter-pack",
       "value": 20,
       "metadata": {
@@ -1318,7 +2738,7 @@
     {
       "id": "recipe:space-platform-starter-pack:output:0",
       "source": "recipe:space-platform-starter-pack",
-      "target": "output:space-platform-starter-pack",
+      "target": "material:item:space-platform-starter-pack",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -1329,7 +2749,7 @@
     },
     {
       "id": "recipe:space-science-pack:input:0",
-      "source": "input:iron-plate",
+      "source": "material:item:iron-plate",
       "target": "recipe:space-science-pack",
       "value": 2,
       "metadata": {
@@ -1341,7 +2761,7 @@
     },
     {
       "id": "recipe:space-science-pack:input:1",
-      "source": "input:carbon",
+      "source": "material:item:carbon",
       "target": "recipe:space-science-pack",
       "value": 1,
       "metadata": {
@@ -1353,7 +2773,7 @@
     },
     {
       "id": "recipe:space-science-pack:input:2",
-      "source": "input:ice",
+      "source": "material:item:ice",
       "target": "recipe:space-science-pack",
       "value": 1,
       "metadata": {
@@ -1366,12 +2786,120 @@
     {
       "id": "recipe:space-science-pack:output:0",
       "source": "recipe:space-science-pack",
-      "target": "output:space-science-pack",
+      "target": "material:item:space-science-pack",
       "value": 5,
       "metadata": {
         "label": "items/craft",
         "recipe": "space-science-pack",
         "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:input:0",
+      "source": "material:item:iron-plate",
+      "target": "recipe:steel-plate",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "steel-plate",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:steel-plate:output:0",
+      "source": "recipe:steel-plate",
+      "target": "material:item:steel-plate",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "steel-plate",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:sulfur:input:0",
+      "source": "material:fluid:water",
+      "target": "recipe:sulfur",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "sulfur",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:sulfur:input:1",
+      "source": "material:fluid:petroleum-gas",
+      "target": "recipe:sulfur",
+      "value": 30,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "sulfur",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:sulfur:output:0",
+      "source": "recipe:sulfur",
+      "target": "material:item:sulfur",
+      "value": 2,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "sulfur",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:input:0",
+      "source": "material:item:sulfur",
+      "target": "recipe:sulfuric-acid",
+      "value": 5,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "sulfuric-acid",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:input:1",
+      "source": "material:item:iron-plate",
+      "target": "recipe:sulfuric-acid",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "sulfuric-acid",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:input:2",
+      "source": "material:fluid:water",
+      "target": "recipe:sulfuric-acid",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "sulfuric-acid",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:sulfuric-acid:output:0",
+      "source": "recipe:sulfuric-acid",
+      "target": "material:fluid:sulfuric-acid",
+      "value": 50,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "sulfuric-acid",
+        "unit": "fluid units",
         "role": "output"
       }
     }

@@ -1099,7 +1099,7 @@ export default function App() {
         canUp={Boolean(parentSelection)}
         canUndo={state.editHistory.undoStack.length > 0 || appearanceUndoStack.length > 0}
         canRedo={state.editHistory.redoStack.length > 0 || appearanceRedoStack.length > 0}
-        zoomPercent={Math.round(state.zoom.scale * 100)}
+        zoomPercent={Number((state.zoom.scale * 100).toFixed(state.zoom.scale < 0.1 ? 1 : 0))}
         canZoomOut={Boolean(stage) && state.zoom.scale > state.zoom.minScale + 0.001}
         canZoomIn={Boolean(stage) && state.zoom.scale < state.zoom.maxScale - 0.001}
         settingsOpen={state.ui.settingsOpen}

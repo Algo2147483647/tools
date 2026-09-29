@@ -39,7 +39,7 @@ export interface StageEdge {
   points?: StageRoutePoint[];
   path: string;
   labelPosition: { x: number; y: number };
-  flow?: { width: number; color: string };
+  flow?: { width: number; color: string; feedback?: boolean; directionPath?: string };
 }
 
 export interface StageLane {

@@ -15,10 +15,12 @@ const GraphEdge = memo(function GraphEdge({ edge, showLabel }: GraphEdgeProps) {
       data-weight={String(edge.weight ?? "")}
       data-label={edge.label}
       data-active="false"
+      data-feedback={edge.flow?.feedback || undefined}
     >
       <title>{`${edge.source} → ${edge.target}: ${edge.label}`}</title>
       {edge.flow ? <path className="dag-edge__flow" d={edge.path} stroke={edge.flow.color} strokeWidth={edge.flow.width} />
         : <path className="dag-edge__path" d={edge.path} markerEnd="url(#arrowhead)" />}
+      {edge.flow?.directionPath && <path d={edge.flow.directionPath} fill="none" stroke={edge.flow.color} strokeWidth={2} pointerEvents="none" />}
       {showLabel && edge.label ? <EdgeLabel label={edge.label} x={edge.labelPosition.x} y={edge.labelPosition.y} /> : null}
     </g>
   );

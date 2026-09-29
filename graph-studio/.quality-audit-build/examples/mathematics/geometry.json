@@ -1,0 +1,317 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "title": "Geometry",
+  "metadata": {},
+  "nodes": {
+    "Abelian_Variety": {
+      "title": "Abelian Variety",
+      "type": "Geometry",
+      "define": "An abelian variety is a complete algebraic group variety, central in arithmetic geometry.",
+      "notes": "[Read concept note](./notes/Abelian_Variety.md)"
+    },
+    "Affine_Space": {
+      "title": "Affine Space",
+      "type": "Geometry",
+      "define": "An affine space is a geometric space with no distinguished origin.",
+      "notes": "[Read concept note](./notes/Affine_Space.md)"
+    },
+    "Cone": {
+      "title": "Cone",
+      "type": "Geometry",
+      "define": "A cone is a subset closed under multiplication by positive scalars.",
+      "notes": "[Read concept note](./notes/Cone.md)"
+    },
+    "Convex_Set": {
+      "title": "Convex Set",
+      "type": "Geometry",
+      "define": "A convex set is a subset that contains the line segment joining any two of its points.",
+      "notes": "[Read concept note](./notes/Convex_Set.md)"
+    },
+    "Differential_Manifold": {
+      "title": "Differential Manifold",
+      "type": "Geometry",
+      "define": "A smooth manifold is a space that locally looks like $\\mathbb R^n$, and whose overlapping coordinate systems transform smoothly into one another.",
+      "notes": "[Read concept note](./notes/Differential_Manifold.md)"
+    },
+    "Elliptic_Curve": {
+      "title": "Elliptic Curve",
+      "type": "Geometry",
+      "define": "An elliptic curve is a smooth projective genus-one curve with a chosen rational point, equivalently an abelian variety of dimension one.",
+      "notes": "[Read concept note](./notes/Elliptic_Curve.md)"
+    },
+    "Euclidean_Space": {
+      "title": "Euclidean Space",
+      "type": "Geometry",
+      "define": "Euclidean space is the standard model of flat finite-dimensional geometry.",
+      "notes": "[Read concept note](./notes/Euclidean_Space.md)"
+    },
+    "Fractal": {
+      "title": "Fractal",
+      "type": "Geometry",
+      "define": "A fractal is a geometric object whose structure exhibits detail across scales, often through self-similarity.",
+      "notes": "[Read concept note](./notes/Fractal.md)"
+    },
+    "Hausdorff_Space": {
+      "title": "Hausdorff Space",
+      "type": "Topology",
+      "define": "A Hausdorff space is a topological space in which any two distinct points can be separated by disjoint neighborhoods.",
+      "notes": "[Read concept note](./notes/Hausdorff_Space.md)"
+    },
+    "Hilbert_Space": {
+      "title": "Hilbert Space",
+      "type": "Analysis",
+      "define": "A Hilbert space is a complete inner product space where geometric notions such as length and angle support limits.",
+      "notes": "[Read concept note](./notes/Hilbert_Space.md)"
+    },
+    "Linear_Space": {
+      "title": "Linear Space",
+      "type": "Algebra",
+      "define": "A linear space is a set whose elements can be added and scaled by elements of a field.",
+      "notes": "[Read concept note](./notes/Linear_Space.md)"
+    },
+    "Manifold": {
+      "title": "Manifold",
+      "type": "Geometry",
+      "define": "A manifold is a space that may be globally curved or complicated but locally looks like Euclidean space.",
+      "notes": "[Read concept note](./notes/Manifold.md)"
+    },
+    "Modular_Curve": {
+      "title": "Modular Curve",
+      "type": "Geometry",
+      "define": "A modular curve is an algebraic curve that parametrizes elliptic curves equipped with level structure.",
+      "notes": "[Read concept note](./notes/Modular_Curve.md)"
+    },
+    "Polyhedron": {
+      "title": "Polyhedron",
+      "type": "Geometry",
+      "define": "A polyhedron is a solid in three-dimensional space bounded by finitely many polygonal faces.",
+      "notes": "[Read concept note](./notes/Polyhedron.md)"
+    },
+    "Projective_Space": {
+      "title": "Projective Space",
+      "type": "Geometry",
+      "define": "Projective space is the space of lines through the origin of a vector space.",
+      "notes": "[Read concept note](./notes/Projective_Space.md)"
+    },
+    "Real_Field": {
+      "title": "Real Field",
+      "type": "Algebra",
+      "define": "The real field is the complete ordered field that models the continuous number line.",
+      "notes": "[Read concept note](./notes/Real_Field.md)"
+    },
+    "Riemannian_Manifold": {
+      "title": "Riemannian Manifold",
+      "type": "Geometry",
+      "define": "A Riemannian manifold is a smooth manifold equipped with a positive definite metric tensor.",
+      "notes": "[Read concept note](./notes/Riemannian_Manifold.md)"
+    },
+    "Scheme": {
+      "title": "Scheme",
+      "type": "Geometry",
+      "define": "A scheme is a space obtained by gluing together spectra of commutative rings.",
+      "notes": "[Read concept note](./notes/Scheme.md)"
+    },
+    "Set": {
+      "title": "Set",
+      "type": "Mathematical Logic and Foundations",
+      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
+      "notes": "[Read concept note](./notes/Set.md)"
+    },
+    "Sheaf": {
+      "title": "Sheaf",
+      "type": "Geometry",
+      "define": "A sheaf is a device for assigning local data to open sets in a way that can be uniquely glued from compatible local pieces.",
+      "notes": "[Read concept note](./notes/Sheaf.md)"
+    },
+    "Simplex": {
+      "title": "Simplex",
+      "type": "Geometry",
+      "define": "A simplex is the simplest convex polytope in a given dimension.",
+      "notes": "[Read concept note](./notes/Simplex.md)"
+    },
+    "Symplectic_Manifold": {
+      "title": "Symplectic Manifold",
+      "type": "Geometry",
+      "define": "A symplectic manifold is a smooth manifold equipped with a closed nondegenerate differential 2-form.",
+      "notes": "[Read concept note](./notes/Symplectic_Manifold.md)"
+    },
+    "Tensor": {
+      "title": "Tensor",
+      "type": "Algebra",
+      "define": "A tensor is a multilinear object that generalizes scalars, vectors, covectors, and linear maps.",
+      "notes": "[Read concept note](./notes/Tensor.md)"
+    },
+    "Topological_Space": {
+      "title": "Topological Space",
+      "type": "Topology",
+      "define": "Topological Space is a space in which open sets are defined.",
+      "notes": "[Read concept note](./notes/Topological_Space.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "math-0",
+      "source": "Abelian_Variety",
+      "target": "Elliptic_Curve",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-1",
+      "source": "Scheme",
+      "target": "Abelian_Variety",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-2",
+      "source": "Affine_Space",
+      "target": "Convex_Set",
+      "value": "has_ambient_space"
+    },
+    {
+      "id": "math-3",
+      "source": "Linear_Space",
+      "target": "Affine_Space",
+      "value": "modeled_on"
+    },
+    {
+      "id": "math-28",
+      "source": "Linear_Space",
+      "target": "Cone",
+      "value": "has_ambient_space"
+    },
+    {
+      "id": "math-29",
+      "source": "Set",
+      "target": "Cone",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-30",
+      "source": "Convex_Set",
+      "target": "Polyhedron",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-31",
+      "source": "Set",
+      "target": "Convex_Set",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-33",
+      "source": "Differential_Manifold",
+      "target": "Euclidean_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-35",
+      "source": "Differential_Manifold",
+      "target": "Riemannian_Manifold",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-36",
+      "source": "Differential_Manifold",
+      "target": "Symplectic_Manifold",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-37",
+      "source": "Manifold",
+      "target": "Differential_Manifold",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-46",
+      "source": "Hilbert_Space",
+      "target": "Euclidean_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-47",
+      "source": "Real_Field",
+      "target": "Euclidean_Space",
+      "value": "over_field"
+    },
+    {
+      "id": "math-60",
+      "source": "Set",
+      "target": "Fractal",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-75",
+      "source": "Hausdorff_Space",
+      "target": "Manifold",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-76",
+      "source": "Topological_Space",
+      "target": "Hausdorff_Space",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-98",
+      "source": "Linear_Space",
+      "target": "Projective_Space",
+      "value": "projectivization_of"
+    },
+    {
+      "id": "math-99",
+      "source": "Linear_Space",
+      "target": "Tensor",
+      "value": "over_vector_space"
+    },
+    {
+      "id": "math-111",
+      "source": "Scheme",
+      "target": "Modular_Curve",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-119",
+      "source": "Polyhedron",
+      "target": "Simplex",
+      "value": "subtype_of"
+    },
+    {
+      "id": "math-132",
+      "source": "Tensor",
+      "target": "Riemannian_Manifold",
+      "value": "has_defining_structure"
+    },
+    {
+      "id": "math-133",
+      "source": "Sheaf",
+      "target": "Scheme",
+      "value": "has_defining_structure"
+    },
+    {
+      "id": "math-134",
+      "source": "Topological_Space",
+      "target": "Scheme",
+      "value": "has_underlying_space"
+    },
+    {
+      "id": "math-137",
+      "source": "Set",
+      "target": "Topological_Space",
+      "value": "has_underlying_set"
+    },
+    {
+      "id": "math-138",
+      "source": "Topological_Space",
+      "target": "Sheaf",
+      "value": "has_base_space"
+    },
+    {
+      "id": "math-141",
+      "source": "Tensor",
+      "target": "Symplectic_Manifold",
+      "value": "has_defining_structure"
+    }
+  ]
+}

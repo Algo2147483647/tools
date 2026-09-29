@@ -7,7 +7,7 @@ interface ZoomInputProps {
 }
 
 export default function ZoomInput({ value, disabled, onCommit }: ZoomInputProps) {
-  const digits = String(Math.max(0, Math.trunc(Math.abs(value || 0)))).length;
+  const digits = String(value || 0).length;
   const inputWidth = `${Math.max(2, digits) + 0.35}ch`;
 
   const handleCommit = (event: FocusEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +21,7 @@ export default function ZoomInput({ value, disabled, onCommit }: ZoomInputProps)
         className="zoom-value-input"
         type="number"
         min={0.0001}
-        step={1}
+        step={value < 10 ? 0.1 : 1}
         value={value}
         disabled={disabled}
         style={{ width: inputWidth, minWidth: inputWidth }}

@@ -93,41 +93,94 @@ def factorio():
     data = json.loads((ROOT / 'scripts/data/factorio-recipes-2.0.65.json').read_text(encoding='utf-8'))
     recipes = [r for r in data['recipes'] if r.get('results')]
     products = {p['name'] for r in recipes for p in r['results']}
+    material_id = lambda p: f'material:{p["type"]}:{p["name"]}'
+    regular = [r for r in recipes if not r.get('category', '').startswith('recycling') or r['name'] == 'scrap-recycling']
+    # Extraction, harvesting, collection and spoilage are outside this recipe
+    # snapshot. Do not replace mined ore with an asteroid/recycling alternative.
+    boundaries = set('iron-ore copper-ore stone coal uranium-ore calcite tungsten-ore crude-oil water lava ammoniacal-solution fluorine lithium-brine scrap yumako jellynut wood raw-fish biter-egg spoilage metallic-asteroid-chunk carbonic-asteroid-chunk oxide-asteroid-chunk promethium-asteroid-chunk'.split())
+    producers = {}
+    for recipe in regular:
+        # Unpacking moves a fluid between containers; it cannot supply that fluid
+        # to its own filling recipe. Keep these recipes in the full network.
+        if recipe.get('subgroup') == 'empty-barrel':
+            continue
+        for product in recipe['results']:
+            consumed = sum(p['amount'] for p in recipe.get('ingredients', []) if material_id(p) == material_id(product))
+            if expected(product) > consumed:
+                producers.setdefault(material_id(product), []).append(recipe)
+
+    def with_upstream(focus):
+        selected = {r['name']: r for r in focus}
+        pending = list(focus)
+        visited = set()
+        while pending:
+            recipe = pending.pop()
+            for material in recipe.get('ingredients', []):
+                key = material_id(material)
+                if key in visited or material['name'] in boundaries:
+                    continue
+                visited.add(key)
+                candidates = producers.get(key, [])
+                if not candidates:
+                    continue
+                # A deterministic representative route keeps topic views useful.
+                # All products retains every alternative, including recycling.
+                producer = min(candidates, key=lambda r: (
+                    r.get('category', '').startswith('recycling'),
+                    r['name'] != material['name'],
+                    any(material_id(p) == key for p in r.get('ingredients', [])),
+                    len(r.get('surface_conditions', [])),
+                    len(r.get('ingredients', [])), r['name']))
+                if producer['name'] not in selected:
+                    selected[producer['name']] = producer
+                    pending.append(producer)
+        return sorted(selected.values(), key=lambda r: r['name'])
     title = lambda name: name.replace('-', ' ').capitalize()
     provenance = {k: data[k] for k in ('version', 'source', 'dump', 'sha256')}
     metadata = {**provenance, 'quantityBasis': 'One craft of each recipe; expected output; normal quality; no productivity bonus.',
-                'interpretation': 'Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.',
+                'interpretation': 'Shared materials connect producing and consuming recipes across the full network. Return flows preserve recycling and catalysts. Quantities are per craft, not balanced factory throughput.',
                 'recipeCount': len(recipes), 'productCount': len(products)}
 
-    def atlas(name, selected):
+    def atlas(name, focus, expand=True):
+        selected = with_upstream(focus) if expand else focus
         nodes, edges = {}, []
         for recipe in selected:
             rid = 'recipe:' + recipe['name']
             category = recipe.get('category', 'crafting')
             nodes[rid] = {'title': title(recipe['name']), 'type': 'Recipe', 'color': '#a68458',
                           'define': f'{title(category)} · {recipe.get("energy_required", 0.5):g} s per craft.',
+                          'viewRole': 'Focus' if recipe in focus else 'Upstream',
                           'recipe': recipe['name'], 'category': category, 'secondsPerCraft': recipe.get('energy_required', 0.5),
                           'ingredients': recipe.get('ingredients', []), 'products': recipe['results'],
                           'surfaceConditions': recipe.get('surface_conditions', []),
                           'notes': '[Quantities and sources](./README.md)'}
             for direction, entries in [('input', recipe.get('ingredients', [])), ('output', recipe['results'])]:
                 for index, p in enumerate(entries):
-                    material = f'{direction}:{p["name"]}'
+                    material = material_id(p)
                     unit = 'fluid units' if p['type'] == 'fluid' else 'items'
-                    nodes[material] = {'title': title(p['name']), 'type': 'Ingredient' if direction == 'input' else 'Product',
-                                       'color': '#6696a8' if p['type'] == 'fluid' else '#74957a' if direction == 'output' else '#8393ae',
-                                       'define': f'{title(direction)} role · {unit} per craft.', 'productId': p['name'], 'unit': unit,
+                    nodes[material] = {'title': title(p['name']), 'type': 'Fluid' if p['type'] == 'fluid' else 'Material',
+                                       'color': '#6696a8' if p['type'] == 'fluid' else '#74957a',
+                                       'define': f'Shared material · {unit} per craft.', 'productId': p['name'], 'unit': unit,
                                        'notes': '[Reading this diagram](./README.md)'}
                     value = p['amount'] if direction == 'input' else expected(p)
                     assert value > 0, (recipe['name'], p)
                     edges.append({'id': f'{rid}:{direction}:{index}', 'source': material if direction == 'input' else rid,
                                   'target': rid if direction == 'input' else material, 'value': value,
-                                  'metadata': {'label': f'{unit}/craft', 'recipe': recipe['name'], 'unit': unit, 'role': direction}})
-        return graph(name, nodes, edges, 'sankey', {**metadata, 'viewRecipeCount': len(selected)})
+                                  'metadata': {'label': f'{unit}/craft', 'recipe': recipe['name'], 'unit': unit, 'role': direction,
+                                               **({'feedback': True} if direction == 'output' and (
+                                                   (category.startswith('recycling') and recipe['name'] != 'scrap-recycling') or
+                                                   any(material_id(i) == material for i in recipe.get('ingredients', []))) else {})}})
+        source_materials = {e['source'] for e in edges if e['source'].startswith('material:')}
+        produced_materials = {e['target'] for e in edges if e['target'].startswith('material:')}
+        for key in source_materials - produced_materials:
+            nodes[key]['define'] = 'External supply · extraction, harvesting or another non-recipe process.'
+        return graph(name, nodes, edges, 'sankey', {**metadata, 'viewRecipeCount': len(selected),
+                     'focusRecipes': [r['name'] for r in focus], 'upstreamRecipeCount': len(selected) - len(focus),
+                     'externalInputs': sorted(source_materials - produced_materials),
+                     'upstreamPolicy': 'Representative non-recycling recipes to external resources; all alternatives are in All products.' if expand else 'Every recipe in the pinned snapshot.'})
 
-    regular = [r for r in recipes if not r.get('category', '').startswith('recycling')]
     graphs = {'start-here.json': atlas('Start here · circuit production', [r for r in recipes if r['name'] in ('copper-cable', 'electronic-circuit')]),
-              'all-products.json': atlas(f'All products · {len(recipes)} recipes', recipes)}
+              'all-products.json': atlas(f'All products · {len(recipes)} recipes', recipes, expand=False)}
     groups = [
         ('electronics', 'Electronics', lambda r: 'electronic' in r.get('category', '') or r['name'] in ('copper-cable', 'electronic-circuit', 'advanced-circuit', 'processing-unit')),
         ('science', 'Science packs', lambda r: 'science-pack' in r['name']),
@@ -149,11 +202,13 @@ A recipe reference for Factorio **2.0.65 with Space Age**, pinned to the officia
 
 ## Explore
 
-Start here shows copper cable and electronic circuits. Choose All products for the complete atlas, or a focused manufacturing view in Explorer. Double-click a recipe for its original ingredients, results, crafting time and surface conditions. Item names are readable forms of the official prototype identifiers.
+Start here follows iron and copper ore through smelting, copper cable and electronic circuits. Choose All products for the connected network of every recipe, or a focused manufacturing view in Explorer. Topic views recursively include representative upstream recipes, stopping at external resources. They use production before recycling, prefer the material's named recipe, then non-catalytic recipes with fewer surface constraints and ingredients. Unpacking a barrel is not treated as a source of its own fluid. Other alternatives remain available in All products. Double-click a recipe for its original ingredients, results, crafting time and surface conditions. Item names are readable forms of the official prototype identifiers.
 
 ## Read the flows
 
-Each diagram has three stages: **ingredients → recipes → products**. The same material has separate input and output roles. This preserves every alternative, catalyst return and recycling recipe without creating a circular Sankey graph. Outputs are not automatically fed into another recipe in this atlas.
+Each item or fluid has one shared material node connecting **all producing and consuming recipes in the view**. Follow a material across as many production stages as its dependencies require. Recycling outputs and catalyst returns use return bands below the chart; additional cycles are routed there automatically. Arrows and Return flow labels retain the original direction. No relationship is dropped or duplicated to flatten the diagram.
+
+The complete network includes every recipe alternative at once, so it is large. Use topic views for readable chains. Their focusRecipes, upstreamRecipeCount and externalInputs metadata explain their scope. Raw mined resources, harvested inputs, collected asteroid chunks and spoilage can enter from outside the recipe model; no mining or harvesting recipe is invented. Catalyst cycles require an initial supply that is not calculated here.
 
 Band values are the quantities for **one craft of each recipe**, at normal quality with no productivity bonus. Probabilistic outputs show expected amounts. Recycling fractions are counted once after integer coercion of the item amount. These are recipe quantities, not a balanced factory plan or rates per second.
 

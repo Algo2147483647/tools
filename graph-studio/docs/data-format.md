@@ -40,9 +40,9 @@ The application accepts only this protocol. Legacy node maps, arrays, field alia
 
 IDs must be nonempty strings without leading/trailing whitespace, commas, carriage returns or newlines. Node IDs are object keys and are not repeated inside their node objects.
 
-Each directed endpoint pair has at most one edge. Self-loops are rejected. Ordinary graphs may contain directed cycles, which layouts display on a best-effort basis. Sankey documents must be acyclic, including zero-value edges. Producers must use unique JSON object keys: JSON.parse cannot detect keys overwritten during parsing.
+Each directed endpoint pair has at most one edge. Self-loops are rejected. Ordinary graphs may contain directed cycles, which layouts display on a best-effort basis. Sankey documents may contain directed cycles; the flow layout preserves their direction using return bands below the chart. Producers must use unique JSON object keys: JSON.parse cannot detect keys overwritten during parsing.
 
-The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime validation additionally checks unique edge IDs, existing endpoints, unique endpoint pairs, self-loops and Sankey cycles/totals.
+The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime validation additionally checks unique edge IDs, existing endpoints, unique endpoint pairs, self-loops and Sankey values/totals.
 
 ## Sankey diagrams
 
@@ -65,8 +65,9 @@ Set `"diagram": "sankey"` at document level. Every edge must have a finite, nonn
 - Node `color` accepts a six-digit hex color. Otherwise colors are assigned consistently by type or ID. Bands inherit their source color. Edge `metadata.label` optionally prefixes the displayed value.
 - Zero-value edges remain in the document without visible bands. Nodes without positive flows appear below the chart with zero markers. No minimum flow is invented.
 - Type filtering retains actual edges between visible nodes without replacement flows across hidden nodes. Focusing a branch recalculates its visible flows and scale.
-- Editing and console commands support numeric values, such as `/edge supply use 42.5`. New Sankey relations default to `1`. Invalid values and cycles reject the entire mutation. Saving, undo and redo preserve diagram type and quantities.
-- Ordinary numeric graphs can temporarily use **Settings → Layout → Sankey**. Invalid quantities or cycles produce a notice and a layered fallback. Choosing a layout does not change the document's `diagram` field.
+- Editing and console commands support numeric values, such as `/edge supply use 42.5`. New Sankey relations default to `1`. Invalid values reject the entire mutation. Circular relations are supported. Saving, undo and redo preserve diagram type and quantities.
+- Cyclic flows retain their original endpoints, values and direction. Feedback bands run in lanes below the chart with arrows and `Return flow` labels. All bands, including returns, share the same scale and contribute to node totals. Set an edge's `metadata.feedback` to `true` to explicitly route a recycling or catalyst output as a return; other feedback edges are detected automatically. Zero-value edges are saved but have no visible band.
+- Ordinary numeric graphs can temporarily use **Settings → Layout → Sankey**. Invalid quantities produce a notice and a layered fallback. Choosing a layout does not change the document's `diagram` field.
 - Ordinary graphs and Sankey documents cannot be merged directly; explicitly align their type and quantity semantics first. Older applications may reject the optional `diagram` field.
 
 Use consistent units for conserved flows. The Factorio example is a per-craft recipe atlas with separate ingredient/product roles, mixed units and possible unequal totals; see its included README.

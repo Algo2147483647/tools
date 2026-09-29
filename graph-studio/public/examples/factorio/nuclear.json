@@ -9,17 +9,118 @@
     "dump": "https://gist.githubusercontent.com/Bilka2/6b8a6a9e4a4ec779573ad703d03c1ae7/raw",
     "sha256": "4b52c795d4895896730344436ea39044866ae40a106b56e57e2f8989332c33d1",
     "quantityBasis": "One craft of each recipe; expected output; normal quality; no productivity bonus.",
-    "interpretation": "Ingredient roles → recipes → product roles. Item counts and fluid units are distinct units, not conserved mass or factory throughput.",
+    "interpretation": "Shared materials connect producing and consuming recipes across the full network. Return flows preserve recycling and catalysts. Quantities are per craft, not balanced factory throughput.",
     "recipeCount": 648,
     "productCount": 328,
-    "viewRecipeCount": 4
+    "viewRecipeCount": 7,
+    "focusRecipes": [
+      "kovarex-enrichment-process",
+      "nuclear-fuel",
+      "nuclear-fuel-reprocessing",
+      "uranium-processing"
+    ],
+    "upstreamRecipeCount": 3,
+    "externalInputs": [
+      "material:fluid:crude-oil",
+      "material:fluid:water",
+      "material:item:depleted-uranium-fuel-cell",
+      "material:item:uranium-ore"
+    ],
+    "upstreamPolicy": "Representative non-recycling recipes to external resources; all alternatives are in All products."
   },
   "nodes": {
+    "recipe:advanced-oil-processing": {
+      "title": "Advanced oil processing",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Oil processing · 5 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "advanced-oil-processing",
+      "category": "oil-processing",
+      "secondsPerCraft": 5,
+      "ingredients": [
+        {
+          "amount": 50,
+          "name": "water",
+          "type": "fluid"
+        },
+        {
+          "amount": 100,
+          "name": "crude-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 25,
+          "name": "heavy-oil",
+          "type": "fluid"
+        },
+        {
+          "amount": 45,
+          "name": "light-oil",
+          "type": "fluid"
+        },
+        {
+          "amount": 55,
+          "name": "petroleum-gas",
+          "type": "fluid"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:fluid:water": {
+      "title": "Water",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "water",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:crude-oil": {
+      "title": "Crude oil",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
+      "productId": "crude-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:heavy-oil": {
+      "title": "Heavy oil",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "heavy-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:light-oil": {
+      "title": "Light oil",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "light-oil",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "material:fluid:petroleum-gas": {
+      "title": "Petroleum gas",
+      "type": "Fluid",
+      "color": "#6696a8",
+      "define": "Shared material · fluid units per craft.",
+      "productId": "petroleum-gas",
+      "unit": "fluid units",
+      "notes": "[Reading this diagram](./README.md)"
+    },
     "recipe:kovarex-enrichment-process": {
       "title": "Kovarex enrichment process",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Centrifuging · 60 s per craft.",
+      "viewRole": "Focus",
       "recipe": "kovarex-enrichment-process",
       "category": "centrifuging",
       "secondsPerCraft": 60,
@@ -56,38 +157,20 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:uranium-235": {
+    "material:item:uranium-235": {
       "title": "Uranium 235",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "uranium-235",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "input:uranium-238": {
+    "material:item:uranium-238": {
       "title": "Uranium 238",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
-      "productId": "uranium-238",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:uranium-235": {
-      "title": "Uranium 235",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
-      "productId": "uranium-235",
-      "unit": "items",
-      "notes": "[Reading this diagram](./README.md)"
-    },
-    "output:uranium-238": {
-      "title": "Uranium 238",
-      "type": "Product",
-      "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "uranium-238",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -97,6 +180,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Centrifuging · 90 s per craft.",
+      "viewRole": "Focus",
       "recipe": "nuclear-fuel",
       "category": "centrifuging",
       "secondsPerCraft": 90,
@@ -122,20 +206,20 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:rocket-fuel": {
+    "material:item:rocket-fuel": {
       "title": "Rocket fuel",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
       "productId": "rocket-fuel",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
     },
-    "output:nuclear-fuel": {
+    "material:item:nuclear-fuel": {
       "title": "Nuclear fuel",
-      "type": "Product",
+      "type": "Material",
       "color": "#74957a",
-      "define": "Output role · items per craft.",
+      "define": "Shared material · items per craft.",
       "productId": "nuclear-fuel",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -145,6 +229,7 @@
       "type": "Recipe",
       "color": "#a68458",
       "define": "Centrifuging · 60 s per craft.",
+      "viewRole": "Focus",
       "recipe": "nuclear-fuel-reprocessing",
       "category": "centrifuging",
       "secondsPerCraft": 60,
@@ -165,20 +250,87 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:depleted-uranium-fuel-cell": {
+    "material:item:depleted-uranium-fuel-cell": {
       "title": "Depleted uranium fuel cell",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
       "productId": "depleted-uranium-fuel-cell",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:rocket-fuel": {
+      "title": "Rocket fuel",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Organic or assembling · 15 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "rocket-fuel",
+      "category": "organic-or-assembling",
+      "secondsPerCraft": 15,
+      "ingredients": [
+        {
+          "amount": 10,
+          "name": "solid-fuel",
+          "type": "item"
+        },
+        {
+          "amount": 10,
+          "name": "light-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "rocket-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
+    },
+    "material:item:solid-fuel": {
+      "title": "Solid fuel",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "Shared material · items per craft.",
+      "productId": "solid-fuel",
+      "unit": "items",
+      "notes": "[Reading this diagram](./README.md)"
+    },
+    "recipe:solid-fuel-from-heavy-oil": {
+      "title": "Solid fuel from heavy oil",
+      "type": "Recipe",
+      "color": "#a68458",
+      "define": "Chemistry · 1 s per craft.",
+      "viewRole": "Upstream",
+      "recipe": "solid-fuel-from-heavy-oil",
+      "category": "chemistry",
+      "secondsPerCraft": 1,
+      "ingredients": [
+        {
+          "amount": 20,
+          "name": "heavy-oil",
+          "type": "fluid"
+        }
+      ],
+      "products": [
+        {
+          "amount": 1,
+          "name": "solid-fuel",
+          "type": "item"
+        }
+      ],
+      "surfaceConditions": [],
+      "notes": "[Quantities and sources](./README.md)"
     },
     "recipe:uranium-processing": {
       "title": "Uranium processing",
       "type": "Recipe",
       "color": "#a68458",
       "define": "Centrifuging · 12 s per craft.",
+      "viewRole": "Focus",
       "recipe": "uranium-processing",
       "category": "centrifuging",
       "secondsPerCraft": 12,
@@ -206,11 +358,11 @@
       "surfaceConditions": [],
       "notes": "[Quantities and sources](./README.md)"
     },
-    "input:uranium-ore": {
+    "material:item:uranium-ore": {
       "title": "Uranium ore",
-      "type": "Ingredient",
-      "color": "#8393ae",
-      "define": "Input role · items per craft.",
+      "type": "Material",
+      "color": "#74957a",
+      "define": "External supply · extraction, harvesting or another non-recipe process.",
       "productId": "uranium-ore",
       "unit": "items",
       "notes": "[Reading this diagram](./README.md)"
@@ -218,8 +370,68 @@
   },
   "edges": [
     {
+      "id": "recipe:advanced-oil-processing:input:0",
+      "source": "material:fluid:water",
+      "target": "recipe:advanced-oil-processing",
+      "value": 50,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:input:1",
+      "source": "material:fluid:crude-oil",
+      "target": "recipe:advanced-oil-processing",
+      "value": 100,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:0",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:heavy-oil",
+      "value": 25,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:1",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:light-oil",
+      "value": 45,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:advanced-oil-processing:output:2",
+      "source": "recipe:advanced-oil-processing",
+      "target": "material:fluid:petroleum-gas",
+      "value": 55,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "advanced-oil-processing",
+        "unit": "fluid units",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:kovarex-enrichment-process:input:0",
-      "source": "input:uranium-235",
+      "source": "material:item:uranium-235",
       "target": "recipe:kovarex-enrichment-process",
       "value": 40,
       "metadata": {
@@ -231,7 +443,7 @@
     },
     {
       "id": "recipe:kovarex-enrichment-process:input:1",
-      "source": "input:uranium-238",
+      "source": "material:item:uranium-238",
       "target": "recipe:kovarex-enrichment-process",
       "value": 5,
       "metadata": {
@@ -244,30 +456,32 @@
     {
       "id": "recipe:kovarex-enrichment-process:output:0",
       "source": "recipe:kovarex-enrichment-process",
-      "target": "output:uranium-235",
+      "target": "material:item:uranium-235",
       "value": 41,
       "metadata": {
         "label": "items/craft",
         "recipe": "kovarex-enrichment-process",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:kovarex-enrichment-process:output:1",
       "source": "recipe:kovarex-enrichment-process",
-      "target": "output:uranium-238",
+      "target": "material:item:uranium-238",
       "value": 2,
       "metadata": {
         "label": "items/craft",
         "recipe": "kovarex-enrichment-process",
         "unit": "items",
-        "role": "output"
+        "role": "output",
+        "feedback": true
       }
     },
     {
       "id": "recipe:nuclear-fuel:input:0",
-      "source": "input:uranium-235",
+      "source": "material:item:uranium-235",
       "target": "recipe:nuclear-fuel",
       "value": 1,
       "metadata": {
@@ -279,7 +493,7 @@
     },
     {
       "id": "recipe:nuclear-fuel:input:1",
-      "source": "input:rocket-fuel",
+      "source": "material:item:rocket-fuel",
       "target": "recipe:nuclear-fuel",
       "value": 1,
       "metadata": {
@@ -292,7 +506,7 @@
     {
       "id": "recipe:nuclear-fuel:output:0",
       "source": "recipe:nuclear-fuel",
-      "target": "output:nuclear-fuel",
+      "target": "material:item:nuclear-fuel",
       "value": 1,
       "metadata": {
         "label": "items/craft",
@@ -303,7 +517,7 @@
     },
     {
       "id": "recipe:nuclear-fuel-reprocessing:input:0",
-      "source": "input:depleted-uranium-fuel-cell",
+      "source": "material:item:depleted-uranium-fuel-cell",
       "target": "recipe:nuclear-fuel-reprocessing",
       "value": 5,
       "metadata": {
@@ -316,7 +530,7 @@
     {
       "id": "recipe:nuclear-fuel-reprocessing:output:0",
       "source": "recipe:nuclear-fuel-reprocessing",
-      "target": "output:uranium-238",
+      "target": "material:item:uranium-238",
       "value": 3,
       "metadata": {
         "label": "items/craft",
@@ -326,8 +540,68 @@
       }
     },
     {
+      "id": "recipe:rocket-fuel:input:0",
+      "source": "material:item:solid-fuel",
+      "target": "recipe:rocket-fuel",
+      "value": 10,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel",
+        "unit": "items",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:input:1",
+      "source": "material:fluid:light-oil",
+      "target": "recipe:rocket-fuel",
+      "value": 10,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "rocket-fuel",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:rocket-fuel:output:0",
+      "source": "recipe:rocket-fuel",
+      "target": "material:item:rocket-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "rocket-fuel",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
+      "id": "recipe:solid-fuel-from-heavy-oil:input:0",
+      "source": "material:fluid:heavy-oil",
+      "target": "recipe:solid-fuel-from-heavy-oil",
+      "value": 20,
+      "metadata": {
+        "label": "fluid units/craft",
+        "recipe": "solid-fuel-from-heavy-oil",
+        "unit": "fluid units",
+        "role": "input"
+      }
+    },
+    {
+      "id": "recipe:solid-fuel-from-heavy-oil:output:0",
+      "source": "recipe:solid-fuel-from-heavy-oil",
+      "target": "material:item:solid-fuel",
+      "value": 1,
+      "metadata": {
+        "label": "items/craft",
+        "recipe": "solid-fuel-from-heavy-oil",
+        "unit": "items",
+        "role": "output"
+      }
+    },
+    {
       "id": "recipe:uranium-processing:input:0",
-      "source": "input:uranium-ore",
+      "source": "material:item:uranium-ore",
       "target": "recipe:uranium-processing",
       "value": 10,
       "metadata": {
@@ -340,7 +614,7 @@
     {
       "id": "recipe:uranium-processing:output:0",
       "source": "recipe:uranium-processing",
-      "target": "output:uranium-235",
+      "target": "material:item:uranium-235",
       "value": 0.007,
       "metadata": {
         "label": "items/craft",
@@ -352,7 +626,7 @@
     {
       "id": "recipe:uranium-processing:output:1",
       "source": "recipe:uranium-processing",
-      "target": "output:uranium-238",
+      "target": "material:item:uranium-238",
       "value": 0.993,
       "metadata": {
         "label": "items/craft",

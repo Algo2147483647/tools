@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { StageData } from "../layout/types";
 
-const MIN_ZOOM_FLOOR = 0.05;
+// Complete production networks can be much wider/taller than a small diagram.
+const MIN_ZOOM_FLOOR = 0.001;
 const ZOOM_STEP_FACTOR = 1.15;
 const WHEEL_ZOOM_SENSITIVITY = Math.log(ZOOM_STEP_FACTOR) / 120;
 const TRACKPAD_PIXEL_DELTA_THRESHOLD = 60;

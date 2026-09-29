@@ -1,7 +1,7 @@
-import { sankey, sankeyJustify, sankeyLinkHorizontal, type SankeyNode } from "d3-sankey";
+import { sankey, sankeyJustify } from "d3-sankey";
 import type { GraphAppearance } from "../../graph/appearance";
 import type { GraphEdge, NormalizedDag } from "../../graph/types";
-import { formatFlow } from "../../graph/sankey";
+import { findFeedbackEdges, formatFlow } from "../../graph/sankey";
 import type { ResolvedStageSelection, StageData, StageNode } from "../types";
 import { truncateTitleToWidth } from "../text";
 
@@ -26,12 +26,16 @@ export function buildSankeyStage(
     totals.get(edge.source)!.outgoing += Number(edge.value);
     totals.get(edge.target)!.incoming += Number(edge.value);
   });
+  const feedback = findFeedbackEdges(activeKeys, positiveEdges);
+  const forwardEdges = positiveEdges.filter(edge => !feedback.has(edge.id));
+  const returnEdges = positiveEdges.filter(edge => feedback.has(edge.id));
 
-  // Longest-path ranks provide space for every column before D3 optimizes crossings.
+  // Position only the acyclic backbone. Every original edge still contributes to
+  // node size, port allocation and the common width scale, including returns.
   const rank = new Map([...activeKeys].map(key => [key, 0]));
   const degrees = new Map([...activeKeys].map(key => [key, 0]));
   const outgoing = new Map<string, GraphEdge[]>();
-  positiveEdges.forEach(edge => {
+  forwardEdges.forEach(edge => {
     degrees.set(edge.target, degrees.get(edge.target)! + 1);
     outgoing.set(edge.source, [...(outgoing.get(edge.source) ?? []), edge]);
   });
@@ -44,15 +48,27 @@ export function buildSankeyStage(
     }
   }
   const lastLayer = Math.max(0, ...rank.values());
-  const counts = new Map<number, number>();
-  activeKeys.forEach(key => {
-    const layer = outgoing.has(key) ? rank.get(key)! : lastLayer;
-    counts.set(layer, (counts.get(layer) ?? 0) + 1);
-  });
+  const layerOf = (key: string) => feedback.size || outgoing.has(key) ? rank.get(key)! : lastLayer;
+  const columns = new Map<number, string[]>();
+  activeKeys.forEach(key => columns.set(layerOf(key), [...(columns.get(layerOf(key)) ?? []), key]));
+  const padding = Math.max(18, theme.rowGap);
+  const innerHeight = Math.max(theme.stageMinHeight - 2 * theme.stagePaddingY,
+    Math.max(1, ...[...columns.values()].map(column => column.length)) * (Math.max(48, theme.nodeHeight) + padding));
+  const maximum = Math.max(1e-300, ...positiveEdges.map(edge => Number(edge.value)));
+  const normalizedTotal = (key: string) => Math.max(totals.get(key)!.incoming, totals.get(key)!.outgoing) / maximum;
+  const positionScale = positiveEdges.length ? Math.min(...[...columns.values()].map(column =>
+    (innerHeight - (column.length - 1) * padding) / column.reduce((sum, key) => sum + normalizedTotal(key), 0))) : 0;
+  // Keep return gutters compact even when a catalyst dominates the quantities.
+  // Shrink every band and bar by the same factor, retaining proportional values.
+  // D3's roomier node centers still reserve space for readable labels.
+  const largestReturn = Math.max(0, ...returnEdges.map(edge => Number(edge.value) / maximum));
+  const scale = largestReturn ? Math.min(positionScale, 96 / largestReturn) : positionScale;
+  const widthOf = (edge: GraphEdge) => Number(edge.value) / maximum * scale;
+  const returnWidth = Math.max(0, ...returnEdges.map(widthOf));
+  const gutter = returnEdges.length ? returnWidth / 2 + 32 : 0;
   const nodeWidth = appearance.display.sankeyNodeWidth;
-  const columnStep = nodeWidth + Math.max(theme.columnGap, theme.maxNodeWidth + 32);
-  const innerHeight = Math.max(theme.stageMinHeight - 2 * theme.stagePaddingY, Math.max(1, ...counts.values()) * (Math.max(48, theme.nodeHeight) + theme.rowGap));
-  const left = theme.stagePaddingX;
+  const columnStep = nodeWidth + Math.max(theme.columnGap, theme.maxNodeWidth + 32, gutter * 2 + returnWidth + 32);
+  const left = theme.stagePaddingX + gutter + returnWidth / 2;
   const right = left + lastLayer * columnStep + nodeWidth;
   const nodeMap: Record<string, StageNode> = Object.create(null);
   const topLevel = new Set(selection.topLevelKeys);
@@ -69,37 +85,29 @@ export function buildSankeyStage(
       flow: { ...total, value: Math.max(total.incoming, total.outgoing), color, labelSide: "right", labelY: y },
     };
   };
-  const stageEdges: StageData["edges"] = [];
-  if (positiveEdges.length) {
-    const maximum = Math.max(...positiveEdges.map(edge => Number(edge.value)));
-    // Normalize the solver's values to avoid overflow for large units; retain original values in the document/UI.
+  if (forwardEdges.length) {
     const result = sankey<FlowNode, FlowLink>()
-      .nodeId(node => node.id).nodeWidth(nodeWidth).nodePadding(Math.max(18, theme.rowGap))
-      .nodeAlign(sankeyJustify).iterations(32)
+      .nodeId(node => node.id).nodeWidth(nodeWidth).nodePadding(padding)
+      .nodeAlign(feedback.size ? node => rank.get(node.id)! : sankeyJustify).iterations(32)
       .extent([[left, theme.stagePaddingY], [right, theme.stagePaddingY + innerHeight]])({
-        nodes: [...activeKeys].map(id => ({ id })),
-        links: positiveEdges.map(edge => ({ id: edge.id, source: edge.source, target: edge.target, value: Number(edge.value) / maximum })),
+        nodes: [...activeKeys].map(id => ({ id, fixedValue: normalizedTotal(id) })),
+        links: forwardEdges.map(edge => ({ id: edge.id, source: edge.source, target: edge.target, value: Number(edge.value) / maximum })),
       });
-    result.nodes.forEach((node, index) => addNode(node.id, (node.x0! + node.x1!) / 2, (node.y0! + node.y1!) / 2, node.y1! - node.y0!, Math.round((node.x0! - left) / columnStep), index));
-    const path = sankeyLinkHorizontal<FlowNode, FlowLink>();
-    const originalById = new Map(edges.map(edge => [edge.id, edge]));
-    result.links.forEach(link => {
-      const source = link.source as SankeyNode<FlowNode, FlowLink>;
-      const target = link.target as SankeyNode<FlowNode, FlowLink>;
-      const edge = originalById.get(link.id)!;
-      const valueLabel = formatFlow(Number(edge.value));
-      stageEdges.push({
-        id: edge.id, source: edge.source, target: edge.target, weight: edge.value,
-        label: typeof edge.metadata?.label === "string" ? `${edge.metadata.label} · ${valueLabel}` : valueLabel,
-        path: path(link)!, labelPosition: { x: (source.x1! + target.x0!) / 2, y: (link.y0! + link.y1!) / 2 },
-        flow: { width: link.width!, color: nodeMap[edge.source].flow!.color },
-      });
+    result.nodes.forEach((node, index) => addNode(node.id, (node.x0! + node.x1!) / 2,
+      (node.y0! + node.y1!) / 2, normalizedTotal(node.id) * scale, layerOf(node.id), index));
+  } else {
+    // D3 divides by the number of column gaps; place a return-only column directly.
+    let y = theme.stagePaddingY;
+    [...activeKeys].forEach((key, index) => {
+      const height = normalizedTotal(key) * scale;
+      addNode(key, left + nodeWidth / 2, y + height / 2, height, 0, index);
+      y += height + padding;
     });
   }
   const quietStartY = positiveEdges.length ? theme.stagePaddingY + innerHeight + 64 : theme.stagePaddingY + 24;
   quietKeys.forEach((key, i) => addNode(key, left + nodeWidth / 2, quietStartY + i * 54, 0, 0, i));
 
-  // Keep labels legible even when several very small flows meet a much larger one.
+  // Keep labels legible even when several very small flows meet a larger one.
   for (let layer = 0; layer <= lastLayer; layer++) {
     const column = Object.values(nodeMap).filter(node => node.layer === layer).sort((a, b) => a.y - b.y);
     let labelBottom = theme.stagePaddingY - 24;
@@ -109,7 +117,63 @@ export function buildSankeyStage(
       labelBottom = node.flow!.labelY;
     });
   }
-  const connectedKeysByNode = new Map([...keys].map(key => [key, new Set<string>()]));
+  const nodes = Object.values(nodeMap);
+  const bottom = Math.max(theme.stagePaddingY + innerHeight,
+    ...nodes.map(node => Math.max(node.y + node.height / 2, node.flow!.labelY + 24)));
+
+  // Non-overlapping horizontal spans can share a lane. Reserve the widest band.
+  const lanes: { right: number; width: number; y: number }[] = [];
+  const laneByEdge = new Map<string, number>();
+  returnEdges.slice().sort((a, b) => Math.min(nodeMap[a.source].x, nodeMap[a.target].x) - Math.min(nodeMap[b.source].x, nodeMap[b.target].x) || a.id.localeCompare(b.id)).forEach(edge => {
+    const minX = Math.min(nodeMap[edge.source].x, nodeMap[edge.target].x) - gutter - nodeWidth;
+    const maxX = Math.max(nodeMap[edge.source].x, nodeMap[edge.target].x) + gutter + nodeWidth;
+    let index = lanes.findIndex(lane => lane.right + 24 < minX);
+    if (index < 0) { index = lanes.length; lanes.push({ right: maxX, width: 0, y: 0 }); }
+    lanes[index].right = maxX;
+    lanes[index].width = Math.max(lanes[index].width, widthOf(edge));
+    laneByEdge.set(edge.id, index);
+  });
+  let laneBottom = bottom + 40;
+  lanes.forEach(lane => { lane.y = laneBottom + lane.width / 2; laneBottom += lane.width + 28; });
+
+  const ports = new Map(positiveEdges.map(edge => [edge.id, { source: 0, target: 0 }]));
+  for (const end of ["source", "target"] as const) {
+    const grouped = new Map<string, GraphEdge[]>();
+    positiveEdges.forEach(edge => grouped.set(edge[end], [...(grouped.get(edge[end]) ?? []), edge]));
+    grouped.forEach((list, key) => {
+      const other = end === "source" ? "target" : "source";
+      list.sort((a, b) => Number(feedback.has(a.id)) - Number(feedback.has(b.id)) || nodeMap[a[other]].y - nodeMap[b[other]].y || a.id.localeCompare(b.id));
+      let y = nodeMap[key].y - nodeMap[key].height / 2;
+      list.forEach(edge => { const width = widthOf(edge); ports.get(edge.id)![end] = y + width / 2; y += width; });
+    });
+  }
+  const stageEdges: StageData["edges"] = positiveEdges.map(edge => {
+    const source = nodeMap[edge.source], target = nodeMap[edge.target];
+    const sx = source.x + nodeWidth / 2, tx = target.x - nodeWidth / 2;
+    const sy = ports.get(edge.id)!.source, ty = ports.get(edge.id)!.target;
+    const mx = (sx + tx) / 2;
+    const valueLabel = formatFlow(Number(edge.value));
+    const label = typeof edge.metadata?.label === "string" ? `${edge.metadata.label} · ${valueLabel}` : valueLabel;
+    const result: StageData["edges"][number] = {
+      id: edge.id, source: edge.source, target: edge.target, weight: edge.value, label,
+      path: `M${sx},${sy}C${mx},${sy} ${mx},${ty} ${tx},${ty}`,
+      labelPosition: { x: mx, y: (sy + ty) / 2 },
+      flow: { width: widthOf(edge), color: source.flow!.color },
+    };
+    if (feedback.has(edge.id)) {
+      const y = lanes[laneByEdge.get(edge.id)!].y;
+      const outX = sx + gutter, inX = tx - gutter;
+      const direction = Math.sign(inX - outX) || -1;
+      const radius = Math.min(16 + widthOf(edge) / 2, Math.abs(inX - outX) / 2);
+      result.path = `M${sx},${sy}Q${outX},${sy} ${outX},${sy + radius}L${outX},${y - radius}Q${outX},${y} ${outX + direction * radius},${y}L${inX - direction * radius},${y}Q${inX},${y} ${inX},${y - radius}L${inX},${ty + radius}Q${inX},${ty} ${tx},${ty}`;
+      result.label = `Return flow · ${label}`;
+      result.labelPosition = { x: mx, y: y - widthOf(edge) / 2 - 12 };
+      result.flow!.feedback = true;
+      result.flow!.directionPath = `M${mx - direction * 6},${y - 4}L${mx},${y}L${mx - direction * 6},${y + 4}`;
+    }
+    return result;
+  });
+  const connectedKeysByNode = new Map([...keys].map(key => [key, new Set<string>([key])]));
   edges.forEach(edge => {
     connectedKeysByNode.get(edge.source)!.add(edge.target);
     connectedKeysByNode.get(edge.target)!.add(edge.source);
@@ -117,14 +181,14 @@ export function buildSankeyStage(
   const warnings: string[] = [];
   const zeros = edges.length - positiveEdges.length;
   if (zeros) warnings.push(`${zeros} zero-value flow(s) have no visible band. Zero-flow nodes appear below the chart.`);
+  if (returnEdges.length) warnings.push(`${returnEdges.length} return flow(s) run below the chart; arrows show their original direction.`);
   const unbalanced = [...totals.values()].filter(t => t.incoming > 0 && t.outgoing > 0 && Math.abs(t.incoming - t.outgoing) > Math.max(t.incoming, t.outgoing) * 1e-9).length;
   if (unbalanced) warnings.push(`${unbalanced} node(s) have different incoming and outgoing totals; heights use the larger total.`);
-  const nodes = Object.values(nodeMap);
   return {
     dag: dag.nodes, layoutMode: "sankey", root: selection.rootKey, selection, topLevelKeys: selection.topLevelKeys, isForest: selection.isForest,
     nodes, nodeMap, edges: stageEdges, connectedKeysByNode, lanes: [],
-    stageWidth: Math.max(theme.stageMinWidth, right + theme.maxNodeWidth + theme.stagePaddingX),
-    stageHeight: Math.max(theme.stageMinHeight, theme.stagePaddingY + innerHeight + theme.stagePaddingY, ...nodes.map(node => Math.max(node.y + node.height / 2, node.flow!.labelY + 24) + theme.stagePaddingY)),
+    stageWidth: Math.max(theme.stageMinWidth, right + Math.max(theme.maxNodeWidth, gutter + returnWidth / 2) + theme.stagePaddingX),
+    stageHeight: Math.max(theme.stageMinHeight, (lanes.length ? laneBottom : bottom) + theme.stagePaddingY),
     warnings,
   };
 }

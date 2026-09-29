@@ -26,6 +26,8 @@ export function findRootsFromDag(dag: NormalizedDag, mapping: FieldMapping = get
 }
 
 export function getInitialSelection(dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): GraphSelection {
+  // A cyclic component can have no root even when another component has one.
+  if (dag.diagram === "sankey") return { type: "full" };
   const roots = findRootsFromDag(dag, mapping);
   if (roots.length === 1) {
     return { type: "node", key: roots[0] };
