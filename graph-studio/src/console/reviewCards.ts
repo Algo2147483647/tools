@@ -21,3 +21,4 @@ export function buildConsoleReviewCard(
     validationSummary: validation.summary,
     canApply: validation.allPassed && commands.length > 0 && !statusOverride,
   };
+}
