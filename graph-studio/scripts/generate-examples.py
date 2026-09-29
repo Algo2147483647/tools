@@ -38,10 +38,15 @@ def mathematics():
     original = json.loads((content / 'math.json').read_text(encoding='utf-8'))
     nodes, edges, notes = {}, {}, {}
     title = lambda key: key.replace('_', ' ')
+    definitions = {
+        'Real_Valued_Sequence': 'A real-valued sequence is an ordered family of real numbers indexed by the natural numbers.',
+        'Polyhedron': 'A polyhedron is a solid in three-dimensional space bounded by finitely many polygonal faces.',
+    }
     for key, node in original.items():
         note = (content / f'{key}.md').read_text(encoding='utf-8')
         definition = re.search(r'^> (.+)$', note, re.M)
         definition = definition[1] if definition else f'A concept in {node.get("type") or "mathematical foundations"}.'
+        definition = definitions.get(key, definition)
         assert not re.search('[\u4e00-\u9fff]', definition)
         nodes[key] = {'title': title(key), 'type': node.get('type') or 'Mathematical Logic and Foundations',
                       'define': definition, 'notes': f'[Read concept note](./notes/{key}.md)'}
@@ -113,7 +118,7 @@ def factorio():
                     assert value > 0, (recipe['name'], p)
                     edges.append({'id': f'{rid}:{direction}:{index}', 'source': material if direction == 'input' else rid,
                                   'target': rid if direction == 'input' else material, 'value': value,
-                                  'metadata': {'label': f'{title(p["name"])} · {unit}/craft', 'recipe': recipe['name'], 'unit': unit, 'role': direction}})
+                                  'metadata': {'label': f'{unit}/craft', 'recipe': recipe['name'], 'unit': unit, 'role': direction}})
         return graph(name, nodes, edges, 'sankey', {**metadata, 'viewRecipeCount': len(selected)})
 
     regular = [r for r in recipes if not r.get('category', '').startswith('recycling')]

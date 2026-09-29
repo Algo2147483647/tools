@@ -91,7 +91,11 @@ const GraphNode = memo(function GraphNode({
         {Math.abs(node.flow.labelY - node.y) > 2 && <path d={`M${node.width},${node.height / 2}L${node.width + 8},${node.flow.labelY - node.y + node.height / 2}`} fill="none" stroke={node.flow.color} strokeWidth={1} opacity={0.5} />}
         <text className="dag-node__flow-label" x={node.flow.labelSide === "left" ? -12 : node.width + 12} y={node.flow.labelY - node.y + node.height / 2 - 3} textAnchor={node.flow.labelSide === "left" ? "end" : "start"}>
           {node.displayTitle}
-          <tspan className="dag-node__flow-value" x={node.flow.labelSide === "left" ? -12 : node.width + 12} dy={18}>{formatFlow(node.flow.value)}</tspan>
+          <tspan className="dag-node__flow-value" x={node.flow.labelSide === "left" ? -12 : node.width + 12} dy={18}>
+            {node.flow.incoming > 0 && node.flow.outgoing > 0 && Math.abs(node.flow.incoming - node.flow.outgoing) > node.flow.value * 1e-9
+              ? `${formatFlow(node.flow.incoming)} in · ${formatFlow(node.flow.outgoing)} out`
+              : formatFlow(node.flow.value)}
+          </tspan>
         </text>
       </> : <>
       <rect className="dag-node__shape" width={node.width} height={node.height} rx={24} ry={24} />

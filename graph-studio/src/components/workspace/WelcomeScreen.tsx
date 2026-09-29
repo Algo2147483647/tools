@@ -10,7 +10,7 @@ export default function WelcomeScreen({files,onNew,hasDocument}:{files:Workspace
       <div className="welcome-heading">
         <span className="welcome-mark"><WorkspaceIcon size={30}/></span>
         <p className="eyebrow">GRAPH STUDIO / LOCAL WORKSPACE</p>
-        <h1>Your graphs,<br/><span>in one place.</span></h1>
+        <h1>Your graphs,<br/> <span>in one place.</span></h1>
         <p>Open a single graph, or bring your graphs and linked notes together in a workspace.</p>
       </div>
       <div className="welcome-actions">

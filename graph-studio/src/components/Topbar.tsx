@@ -122,7 +122,7 @@ export default function Topbar({
   onAiConnectionTest,
 }: TopbarProps) {
   return (
-    <header ref={topbarRef} className="topbar">
+    <header ref={topbarRef} className={`topbar${files.homeVisible ? " topbar--home" : ""}`}>
       <div className="topbar-brand">
         <button className="brand-home" aria-label="Go to home" onClick={() => files.setHomeVisible(true)}><strong>Graph Studio</strong></button>
       </div>

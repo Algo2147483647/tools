@@ -25,9 +25,11 @@
 .topbar-brand { flex: 0 0 auto; min-width: 132px; overflow: visible; }
 .brand-home { padding: 4px 2px; }
 .brand-home strong { font: 600 26px/.96 "Cormorant Garamond", Georgia, serif; letter-spacing: 0; }
-.topbar-actions { gap: 6px; min-width: 0; flex: 1 1 auto; flex-wrap: wrap; }
+.topbar-actions { gap: 6px; min-width: 0; flex: 1 1 auto; flex-wrap: wrap; align-items: center; }
 .topbar .type-filter-control { width: clamp(154px, 16vw, 220px); }
 .topbar-group {
+  width: auto;
+  flex-shrink: 0;
   gap: 3px;
   padding: 3px;
   min-height: 34px;
@@ -36,6 +38,8 @@
   background: #fafcff47;
   box-shadow: inset 0 1px 0 #ffffff2e, 0 1px 0 #ffffff14;
 }
+.topbar .control-dock { width: auto; flex: 0 0 auto; }
+.topbar .file-controls > *, .topbar .nav-controls > * { flex: 0 0 auto; }
 .topbar .topbar-icon-btn, .topbar .settings-toggle-btn, .topbar .studio-icon-button { border-radius: 50%; color: #465268; }
 .topbar button:hover { background: #ffffffc4; box-shadow: 0 2px 6px #2737550f; }
 .topbar button:disabled { box-shadow: none; background: transparent; }
@@ -126,6 +130,7 @@
   .topbar-brand { flex: 0 0 auto; min-width: 0; }
   .brand-home strong { font-size: 23px; }
   .topbar-actions { flex: 1 1 100%; }
+  .topbar--home .topbar-actions { flex: 1 1 auto; }
   .topbar .nav-controls, .topbar .zoom-controls { display: inline-flex; }
   .workspace-overlays { left: 6px; bottom: 6px; max-width: calc(100% - 12px); }
   .workspace-explorer { width: 190px; flex-basis: 190px; }
