@@ -3,7 +3,7 @@ export function downloadTextFile(content: string, fileName: string, type = "text
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = fileName;
+  anchor.download = fileName.split(/[\\/]/).pop() || "graph.json";
   anchor.click();
   URL.revokeObjectURL(url);
 }

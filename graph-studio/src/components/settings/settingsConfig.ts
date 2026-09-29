@@ -2,11 +2,6 @@ import type { GraphLayoutAppearance } from "../../graph/appearance";
 
 export type SettingsChapter = "general" | "appearance" | "layout" | "ai";
 
-export const DIRECTORY_INPUT_PROPS = {
-  directory: "",
-  webkitdirectory: "",
-} as Record<string, string>;
-
 export const SETTINGS_CHAPTERS: Array<{ key: SettingsChapter; label: string; description: string; icon: string; keywords: string }> = [
   { key: "general", label: "Workspace", description: "Files, folders & recent locations", icon: "folder", keywords: "open create graph new refresh close current session manifest detection default console svg export import workspace" },
   { key: "appearance", label: "Appearance", description: "Colors, typography & visibility", icon: "palette", keywords: "preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges custom css advanced stylesheet configuration import export reset" },

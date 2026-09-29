@@ -136,11 +136,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .studio-settings .settings-tab small { display:block; font-size:10px; color:#8a97a9; line-height:1.6; margin-top:3px; }
 .studio-settings .settings-tab.is-active { color:#315fce; background:#eaf0fc; border-color:#dce6fb; }
 .studio-settings .settings-tab:hover { background:#edf2f8; }
-.studio-settings .settings-page { overflow:auto; padding:26px 30px 34px; min-width:0; background:#fff; }
+.studio-settings .settings-page { display:block; overflow:auto; padding:26px 30px 34px; min-width:0; background:#fff; }
 .settings-page-heading { margin-bottom:18px; }
 .settings-page-heading h2 { font:600 20px/1.4 "Segoe UI",sans-serif; margin:0 0 4px; letter-spacing:-.3px; }
 .settings-page-heading p { color:#8c98a8; font-size:12px; margin:0; }
-.studio-settings .settings-section { border:0; border-radius:0; border-bottom:1px solid #edf0f5; padding:0 0 24px; margin:0 0 26px; box-shadow:none; background:transparent; }
+.studio-settings .settings-section { display:block; border:0; border-radius:0; border-bottom:1px solid #edf0f5; padding:0 0 24px; margin:0 0 26px; box-shadow:none; background:transparent; }
 .studio-settings .settings-section:last-child { border:0; margin:0; }
 .studio-settings .settings-section h3 { font:600 13px/1.5 "Segoe UI",sans-serif; margin:0 0 6px; }
 .studio-settings .settings-section>p,.studio-settings .settings-section-header p { font:12px/1.7 "Segoe UI",sans-serif; margin:0 0 16px; color:var(--studio-muted); }
@@ -226,7 +226,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .studio-settings .layout-slider-label { font:12px/1.5 "Segoe UI",sans-serif; color:#66778e; }
 .studio-settings .layout-value-pill { border:1px solid var(--studio-border); background:#fff; box-shadow:none; border-radius:6px; }
 .studio-settings .layout-slider { accent-color:var(--studio-accent); }
-.studio-settings .settings-text-input,.studio-settings .settings-select-input,.studio-settings .ai-provider-trigger { background:#fff; border:1px solid #dbe3ee; box-shadow:none; border-radius:6px; color:#334a68; min-height:38px; padding:8px 10px; font:12px "Segoe UI",sans-serif; }
+.studio-settings .settings-text-input,.studio-settings .settings-select-input,.studio-settings .provider-select-button { background:#fff; border:1px solid #dbe3ee; box-shadow:none; border-radius:6px; color:#334a68; min-height:38px; padding:8px 10px; font:12px "Segoe UI",sans-serif; }
 .studio-settings .settings-field-label>span { font-size:11px; color:#6d7c91; font-weight:500; }
 .studio-settings .ai-settings-grid { gap:18px; }
 .studio-settings .ai-connection-test-btn { display:inline-flex; border:1px solid #bdd0f0; background:#f0f5ff; color:#315fce; box-shadow:none; border-radius:6px; font:600 12px "Segoe UI",sans-serif; padding:10px 15px; margin-top:22px; cursor:pointer; }

@@ -17,7 +17,7 @@ export function resolveWorkspacePath(value: string, baseFile = ""): string {
   return parts.join("/");
 }
 export function manifestPath(value: unknown): string {
-  if (typeof value !== "string" || value.trim() !== value || /[?#]/.test(value)) throw new Error("Graph paths must be relative file paths, without URL suffixes.");
+  if (typeof value !== "string" || value.trim() !== value || /[\\:?#]/.test(value)) throw new Error("Graph paths must be relative file paths, without URL suffixes.");
   const path = resolveWorkspacePath(value);
   if (path !== value || !/\.json$/i.test(path)) throw new Error(`Use a canonical relative JSON path: ${value}`);
   return path;

@@ -171,7 +171,7 @@ export default function SettingsModal({
               <GeneralSettings
                 onClose={onClose}
                 fileName={fileName}
-              files={files}
+                files={files}
                 hasGraph={hasGraph}
                 consoleSidebarOpen={consoleSidebarOpen}
                 onConsoleSidebarToggle={onConsoleSidebarToggle}

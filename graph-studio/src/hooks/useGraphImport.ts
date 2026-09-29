@@ -67,7 +67,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
   function selectFile(recent?:RecentLocation) {
     if(lock.current)return;
     pendingRecent.current=recent;
-    if(true /* temporary QA fallback */ || !window.showOpenFilePicker){fileInputRef.current?.click();return;}
+    if(!window.showOpenFilePicker){fileInputRef.current?.click();return;}
     void run(async()=>{
       const handles=await window.showOpenFilePicker!({multiple:false,types:[{description:"Graph Studio graph",accept:{"application/json":[".json"]}}]});
       if(handles[0])await loadFile({path:handles[0].name,handle:handles[0]},handles[0].name===recent?.location?recent.id:undefined);
@@ -76,7 +76,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
   function selectWorkspace(recent?:RecentLocation) {
     if(lock.current)return;
     pendingRecent.current=recent;
-    if(true /* temporary QA fallback */ || !window.showDirectoryPicker){folderInputRef.current?.click();return;}
+    if(!window.showDirectoryPicker){folderInputRef.current?.click();return;}
     void run(async()=>{
       const handle=await window.showDirectoryPicker!({mode:"read",id:"graph-studio-workspace"});
       await loadFolder(await readWorkspaceDirectory(handle),handle.name===recent?.location?recent:undefined);

@@ -1,11 +1,11 @@
-import type { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction } from "react";
+import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import { GRAPH_APPEARANCE_PRESETS, type GraphAppearancePresetId } from "../../graph/appearanceCommands";
-import type { GraphLayoutMode, GraphTitleFontFamily } from "../../graph/types";
+import type { GraphLayoutMode } from "../../graph/types";
 import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
 import LayoutSliderControl from "./LayoutSliderControl";
 import { APPEARANCE_TOKEN_CONTROLS, LAYOUT_CONTROLS } from "./settingsConfig";
-import { clampNumberInput, parseCssPixelValue } from "./settingsUtils";
+import { clampNumberInput } from "./settingsUtils";
 
 interface AppearanceSettingsProps {
   view?: "appearance" | "layout";
