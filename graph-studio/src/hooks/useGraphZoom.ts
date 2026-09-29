@@ -75,6 +75,17 @@ export function useGraphZoom({ containerRef, svgRef, topbarRef, stage, scale, mi
   }, [stage]);
 
   useEffect(() => {
+    const overlays = containerRef.current?.closest(".workspace")?.querySelector(".workspace-overlays");
+    if (!overlays || typeof ResizeObserver !== "function") return;
+    const observer = new ResizeObserver(() => {
+      const current = zoomStateRef.current;
+      refresh(Math.abs(current.scale - current.minScale) >= 0.001);
+    });
+    observer.observe(overlays);
+    return () => observer.disconnect();
+  }, [containerRef, refresh]);
+
+  useEffect(() => {
     const container = containerRef.current;
     if (!container || !stage) {
       return;
@@ -142,10 +153,10 @@ function applyGraphZoom(container: HTMLElement, svg: SVGSVGElement, topbar: HTML
   const containerRect = container.getBoundingClientRect();
   const scaledWidth = stage.stageWidth * scale;
   const scaledHeight = stage.stageHeight * scale;
-  const marginLeft = Math.max((viewportMetrics.availableWidth - scaledWidth) / 2, 0);
+  const marginLeft = viewportMetrics.safeLeft + Math.max((viewportMetrics.availableWidth - scaledWidth) / 2, 0);
   const marginTop = viewportMetrics.safeTop + Math.max((viewportMetrics.availableHeight - scaledHeight) / 2, 0);
-  const anchorOffsetX = anchor ? anchor.clientX - containerRect.left : container.clientWidth / 2;
-  const anchorOffsetY = anchor ? anchor.clientY - containerRect.top : container.clientHeight / 2;
+  const anchorOffsetX = anchor ? anchor.clientX - containerRect.left : viewportMetrics.safeLeft + viewportMetrics.availableWidth / 2;
+  const anchorOffsetY = anchor ? anchor.clientY - containerRect.top : viewportMetrics.safeTop + viewportMetrics.availableHeight / 2;
   const zoomOriginX = preserveCenter || anchor ? (container.scrollLeft + anchorOffsetX - previousMarginLeft) / previousScale : stage.stageWidth / 2;
   const zoomOriginY = preserveCenter || anchor ? (container.scrollTop + anchorOffsetY - previousMarginTop) / previousScale : stage.stageHeight / 2;
 
@@ -186,10 +197,17 @@ function getViewportMetrics(container: HTMLElement, topbar: HTMLElement | null) 
   const topbarRect = topbar ? topbar.getBoundingClientRect() : null;
   const safeTop = topbarRect ? Math.max(topbarRect.bottom - containerRect.top + 12, 0) : 0;
   const horizontalInset = 24;
+  const overlays = container.closest(".workspace")?.querySelector(".workspace-overlays");
+  const overlayRect = overlays?.getBoundingClientRect();
+  // Fit into the visible area; the scrollable canvas itself still fills the page.
+  const safeLeft = overlayRect && overlayRect.width > 0 && overlayRect.width < container.clientWidth * 0.75
+    ? Math.max(horizontalInset, overlayRect.right - containerRect.left + 16)
+    : horizontalInset;
   const bottomInset = 16;
   return {
     safeTop,
-    availableWidth: container.clientWidth - horizontalInset * 2,
+    safeLeft,
+    availableWidth: container.clientWidth - safeLeft - horizontalInset,
     availableHeight: container.clientHeight - safeTop - bottomInset,
   };
 }

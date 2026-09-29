@@ -9,6 +9,7 @@ import { loadRecentLocations, readRecentMetadata, rememberLocation, forgetRecent
 import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../adapters/workspaceAccess";
 import { createWorkspaceManifest, discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
 import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
+import { loadExampleWorkspace } from "../workspace/examples";
 
 export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>;state:GraphAppState}) {
   const [workspace,setWorkspace]=useState<GraphWorkspace|null>(null);
@@ -61,7 +62,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
     setWorkspace(found);setExplorerOpen(true);setHomeVisible(false);
     if(dag && entry)commit(dag,entry);
     else dispatch({type:"graphClosed",status:found.graphs.length?"Choose a graph from the workspace.":"No graph documents found. Add a Graph Studio v2 JSON file to this folder."});
-    const recentId=await remember({id:recent?.id,kind:"workspace",name:found.name,location:folder.handle?.name || folder.name,handle:folder.handle || undefined,lastGraph:found.activePath || undefined});
+    const recentId=await remember({id:recent?.id,kind:"workspace",name:found.name,location:folder.handle?.name || folder.name,handle:folder.handle || undefined,lastGraph:found.activePath || undefined,exampleId:folder.exampleId});
     setWorkspace({...found,recentId});
   }
   function selectFile(recent?:RecentLocation) {
@@ -84,15 +85,8 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
   }
   function openFile(){selectFile();}
   function openWorkspace(){selectWorkspace();}
-  function openSankeyExample() {
-    void run(async()=>{
-      const response=await fetch(`${import.meta.env.BASE_URL}sankey-example.json`);
-      if(!response.ok)throw new Error("The Sankey example could not be loaded.");
-      const dag=normalizeDagInput(await response.json());
-      if(!mayReplace())return;
-      setWorkspace(null);
-      commit(dag,{path:"sankey-example.json",handle:null});
-    });
+  function openExample(id:string, recent?:RecentLocation) {
+    void run(async()=>loadFolder(await loadExampleWorkspace(id,import.meta.env.BASE_URL),recent));
   }
   async function onFileChange(event:ChangeEvent<HTMLInputElement>) {
     const files=Array.from(event.currentTarget.files || []);event.currentTarget.value="";
@@ -112,6 +106,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
     });
   }
   function openRecent(item:RecentLocation) {
+    if(item.exampleId){openExample(item.exampleId,item);return;}
     if(!item.handle) {
       setNotice(`Select "${item.location}" again to restore access.`);
       if(item.kind==="workspace")selectWorkspace(item);else selectFile(item);
@@ -133,13 +128,21 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
       if(!mayReplace())return;
       commit(dag,entry);
       const next={...folder,activePath:path};setWorkspace(next);
-      const recentId=await remember({id:folder.recentId,kind:"workspace",name:folder.name,location:folder.rootName,handle:folder.handle || undefined,lastGraph:path});
+      const recentId=await remember({id:folder.recentId,kind:"workspace",name:folder.name,location:folder.rootName,handle:folder.handle || undefined,lastGraph:path,exampleId:folder.exampleId});
       setWorkspace({...next,recentId});
     });
   }
   function refreshWorkspace() {
     if(!workspace)return;
     const folder=workspace;
+    if(folder.exampleId){
+      void run(async()=>{
+        const found=await discoverWorkspace(await loadExampleWorkspace(folder.exampleId!,import.meta.env.BASE_URL),folder.activePath || undefined);
+        setWorkspace({...found,activePath:folder.activePath,recentId:folder.recentId});
+        setNotice("Example files refreshed. The open document and its edits were kept unchanged.");
+      });
+      return;
+    }
     if(!folder.handle){setNotice("Choose the folder again to refresh files in this browser.");selectWorkspace(recents.find(item=>item.id===folder.recentId));return;}
     void run(async()=>{
       const found=await discoverWorkspace(await readWorkspaceDirectory(folder.handle!),folder.activePath || undefined);
@@ -163,7 +166,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
   return {
     workspace,recents,homeVisible,setHomeVisible,busy,notice,setNotice,explorerOpen,setExplorerOpen,
     fileInputRef,folderInputRef,onFileChange,onFolderChange,openFile,openWorkspace,openRecent,removeRecent,
-    openWorkspaceGraph,refreshWorkspace,closeWorkspace,prepareNewDocument,exportWorkspaceManifest,handleDroppedFiles,openSankeyExample,
+    openWorkspaceGraph,refreshWorkspace,closeWorkspace,prepareNewDocument,exportWorkspaceManifest,handleDroppedFiles,openExample,
   };
 }
 

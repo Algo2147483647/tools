@@ -1,0 +1,28 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "sankey",
+  "title": "Energy flows",
+  "metadata": { "unit": "GWh", "description": "Illustrative energy flows; all intermediate nodes conserve flow." },
+  "nodes": {
+    "solar": { "title": "Solar", "type": "Source", "color": "#d8ac5b" },
+    "wind": { "title": "Wind", "type": "Source", "color": "#63afa6" },
+    "gas": { "title": "Natural gas", "type": "Source", "color": "#9a91c5" },
+    "electricity": { "title": "Electricity", "type": "Conversion", "color": "#6396d7" },
+    "heat": { "title": "District heat", "type": "Conversion", "color": "#d4947c" },
+    "homes": { "title": "Homes", "type": "Use", "color": "#73a69a" },
+    "industry": { "title": "Industry", "type": "Use", "color": "#889bbb" },
+    "transport": { "title": "Transport", "type": "Use", "color": "#b594bd" }
+  },
+  "edges": [
+    { "id": "solar-electricity", "source": "solar", "target": "electricity", "value": 45 },
+    { "id": "wind-electricity", "source": "wind", "target": "electricity", "value": 65 },
+    { "id": "gas-electricity", "source": "gas", "target": "electricity", "value": 30 },
+    { "id": "gas-heat", "source": "gas", "target": "heat", "value": 50 },
+    { "id": "electricity-homes", "source": "electricity", "target": "homes", "value": 55 },
+    { "id": "electricity-industry", "source": "electricity", "target": "industry", "value": 60 },
+    { "id": "electricity-transport", "source": "electricity", "target": "transport", "value": 25 },
+    { "id": "heat-homes", "source": "heat", "target": "homes", "value": 35 },
+    { "id": "heat-industry", "source": "heat", "target": "industry", "value": 15 }
+  ]
+}

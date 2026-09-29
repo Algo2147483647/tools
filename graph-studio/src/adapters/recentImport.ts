@@ -1,4 +1,7 @@
+import { isExampleId } from "../workspace/examples";
+
 export interface RecentLocation {
+  exampleId?: string;
   id: string;
   kind: "file" | "workspace";
   name: string;
@@ -21,7 +24,7 @@ export function readRecentMetadata(storage: StorageLike | null = browserStorage(
     const items: unknown = JSON.parse(storage?.getItem(STORAGE_KEY) || "[]");
     if (!Array.isArray(items)) return [];
     return items.filter(item => item && typeof item.id === "string" && ["file","workspace"].includes(item.kind) && typeof item.name === "string" && typeof item.location === "string" && Number.isFinite(item.openedAt))
-      .map(({id,kind,name,location,openedAt,lastGraph}) => ({id,kind,name,location,openedAt,lastGraph: typeof lastGraph === "string" ? lastGraph : undefined,canReopen:false}))
+      .map(({id,kind,name,location,openedAt,lastGraph,exampleId}) => ({id,kind,name,location,openedAt,lastGraph: typeof lastGraph === "string" ? lastGraph : undefined,exampleId: isExampleId(exampleId) ? exampleId : undefined,canReopen: isExampleId(exampleId)}))
       .sort((a,b) => b.openedAt-a.openedAt).slice(0,LIMIT);
   } catch { return []; }
 }
@@ -60,7 +63,7 @@ export async function loadRecentLocations(): Promise<RecentLocation[]> {
     const byId=new Map(stored.map(item=>[item.id,item]));
     return metadata.map(item=>{
       const handle=byId.get(item.id)?.handle;
-      return {...item,handle,canReopen:Boolean(handle)};
+      return {...item,handle,canReopen:Boolean(handle || item.exampleId)};
     });
   } catch { return metadata; }
 }
@@ -74,9 +77,9 @@ export async function rememberLocation(input: Omit<RecentLocation,"id"|"openedAt
       try { if(await handle.isSameEntry(item.handle as FileSystemHandle)){id=item.id;break;} } catch { /* A removed location is kept as an unavailable recent item. */ }
     }
   }
-  const next:RecentLocation={...input,id:id || crypto.randomUUID(),openedAt:Date.now(),canReopen:Boolean(input.handle)};
+  const next:RecentLocation={...input,id:id || (input.exampleId ? `example:${input.exampleId}` : crypto.randomUUID()),openedAt:Date.now(),canReopen:Boolean(input.handle || input.exampleId)};
   try { await storeRequest("readwrite",store=>store.put(next)); }
-  catch { next.canReopen=false; delete next.handle; }
+  catch { next.canReopen=Boolean(input.exampleId); delete next.handle; }
   const result=rankRecentLocations(current,next);
   saveMetadata(result);
   const retained=new Set(result.map(item=>item.id));

@@ -264,6 +264,12 @@ export default function App() {
 
   const handleResize = useCallback(() => zoom.refresh(true), [zoom]);
   useResizeObserver(containerRef, handleResize);
+  const handleChromeResize = useCallback(() => {
+    const topbar = topbarRef.current;
+    if (topbar) topbar.parentElement?.style.setProperty("--toolbar-bottom", `${topbar.offsetTop + topbar.offsetHeight + 8}px`);
+    zoom.refresh(true);
+  }, [zoom]);
+  useResizeObserver(topbarRef, handleChromeResize);
   useGraphPan({ containerRef, enabled: Boolean(stage), onPanStart: () => dispatch({ type: "contextMenuClosed" }) });
 
   useOutsideDismiss(Boolean(state.ui.contextMenu), () => dispatch({ type: "contextMenuClosed" }));

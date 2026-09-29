@@ -8,6 +8,7 @@ import { runSuites } from "./harness";
 import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
 import { sankeySuite } from "./sankey.test";
+import { examplesSuite } from "./examples.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -20,6 +21,7 @@ async function main() {
     stateSuite,
     workspaceSuite,
     sankeySuite,
+    examplesSuite,
   ]);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);

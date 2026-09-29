@@ -19,6 +19,6 @@ export default function WorkspaceExplorer({files,onOpenAsset,dirty}:{files:Works
       {!graphs.length && <p className="explorer-empty">{query?"No matching graphs.":"No graph files detected."}</p>}
       <details open={Boolean(query)}><summary>Linked files <span>{assets.length}</span></summary>{matchingAssets.slice(0,200).map(path=><button key={path} className="explorer-file asset-file" title={path} onClick={()=>onOpenAsset(path)}><WorkspaceIcon name="file" size={16}/><span>{path}</span></button>)}{matchingAssets.length>200&&<p className="explorer-empty">Refine your search to see more files.</p>}</details>
     </div>
-    <footer><span className="workspace-detection-dot"/>{workspace.manifest?"Workspace manifest":"Auto-detected"}<small>{workspace.files.size} files · {workspace.handle?"Folder access":"Selected files"}</small></footer>
+    <footer><span className="workspace-detection-dot"/>{workspace.exampleId?"Example workspace":workspace.manifest?"Workspace manifest":"Auto-detected"}<small>{workspace.files.size} files · {workspace.exampleId?"Editable copy":workspace.handle?"Folder access":"Selected files"}</small></footer>
   </aside>;
 }

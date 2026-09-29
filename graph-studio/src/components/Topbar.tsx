@@ -124,8 +124,7 @@ export default function Topbar({
   return (
     <header ref={topbarRef} className="topbar">
       <div className="topbar-brand">
-        <button className="brand-home" aria-label="Go to home" onClick={() => files.setHomeVisible(true)}><WorkspaceIcon/><strong>Graph Studio</strong></button>
-        <span className="source-breadcrumb" title={files.workspace ? `${files.workspace.name} / ${fileName}` : fileName}>{files.workspace?.name || (files.homeVisible ? "Welcome" : fileName || "Untitled graph")}</span>
+        <button className="brand-home" aria-label="Go to home" onClick={() => files.setHomeVisible(true)}><strong>Graph Studio</strong></button>
       </div>
       <div className="topbar-actions">
         {!files.homeVisible && <><label className="topbar-group type-filter-control">

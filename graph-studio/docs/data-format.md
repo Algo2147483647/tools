@@ -1,61 +1,52 @@
-# Graph Studio JSON 协议 v2
+# Graph Studio JSON protocol v2
 
-应用只接受本协议，不兼容旧的节点字典、节点数组、字段别名和节点内 `parents / children`。格式不正确时明确拒绝打开该文档，当前图保持不变。
+The application accepts only this protocol. Legacy node maps, arrays, field aliases, and stored node-level `parents` / `children` are rejected. Invalid documents do not replace the currently open graph.
 
-## 文档结构
+## Document structure
 
 ```json
 {
   "format": "graph-studio",
   "version": 2,
   "id": "demo",
-  "title": "示例图",
-  "metadata": {
-    "author": "Alice",
-    "tags": ["example"]
-  },
+  "title": "Example graph",
+  "metadata": { "author": "Alice" },
   "nodes": {
-    "A": { "title": "节点 A", "define": "说明，可用 Markdown", "type": "Concept", "custom": { "priority": 1 } },
-    "B": { "title": "节点 B", "type": "Theorem" }
+    "A": { "title": "Node A", "define": "Markdown description", "type": "Concept" },
+    "B": { "title": "Node B", "type": "Theorem" }
   },
   "edges": [
-    {
-      "id": "edge-ab",
-      "source": "A",
-      "target": "B",
-      "value": "supports",
-      "metadata": { "source": "笔记" }
-    }
+    { "id": "edge-ab", "source": "A", "target": "B", "value": "supports", "metadata": { "source": "Notes" } }
   ]
 }
 ```
 
-| 位置 | 规则 |
+| Field | Rule |
 | --- | --- |
-| `format` | 必填，固定为 `"graph-studio"` |
-| `version` | 必填，固定为数字 `2`；不接受字符串和未知版本 |
-| `diagram` | 可选 `"dag"` 或 `"sankey"`；省略时为普通图。Sankey 文档打开时自动选择流量布局 |
-| `id / title` | 可选字符串，表示文档标识和标题 |
-| `metadata` | 可选 JSON 对象，保存文档扩展信息 |
-| `nodes` | 必填对象，键是节点 ID，值是节点对象；允许空对象 |
-| `nodes[id].title / define / type` | 可选字符串，分别用于标题、说明、Type 筛选；不推断别名 |
-| 节点扩展字段 | 支持任意 JSON 值；禁止存储 `key / parents / children` |
-| `edges` | 必填数组，允许为空；唯一的关系存储 |
-| `edges[].id` | 必填，在文档内唯一；编辑边属性、重命名节点时保持稳定 |
-| `edges[].source / target` | 必填，必须引用已存在的节点 |
-| `edges[].value` | 可选 JSON 标量：字符串、有限数字、布尔值或 `null`；省略时 UI 按 `related_to` 显示，不自动写入文件 |
-| `edges[].metadata` | 可选 JSON 对象，保存边的扩展属性 |
-| 未知顶层字段、未知边字段 | 拒绝；扩展信息应放入对应的 `metadata` |
+| `format` | Required; exactly `"graph-studio"` |
+| `version` | Required; the number `2`, not a string or an unknown version |
+| `diagram` | Optional `"dag"` or `"sankey"`; omitted means an ordinary graph. Sankey documents automatically select the flow layout |
+| `id`, `title` | Optional document identifier and title strings |
+| `metadata` | Optional object for document extensions |
+| `nodes` | Required object mapping IDs to node objects; may be empty |
+| `nodes[id].title`, `define`, `type` | Optional strings for title, description and type filtering; aliases are not inferred |
+| Custom node fields | Arbitrary JSON values; stored `key`, `parents` and `children` are forbidden |
+| `edges` | Required array; the only stored relationship collection; may be empty |
+| `edges[].id` | Required and unique; stable when editing the edge or renaming endpoints |
+| `edges[].source`, `target` | Required references to existing nodes |
+| `edges[].value` | Optional scalar: string, finite number, boolean or `null`. An omitted value appears as `related_to` without being written into the file |
+| `edges[].metadata` | Optional object for edge extensions |
+| Unknown top-level or edge fields | Rejected; place extensions in the corresponding `metadata` |
 
-节点 ID 和边 ID 必须是非空字符串，不含首尾空白、逗号、回车和换行。节点 ID 以对象键为准，不在节点对象内重复保存。
+IDs must be nonempty strings without leading/trailing whitespace, commas, carriage returns or newlines. Node IDs are object keys and are not repeated inside their node objects.
 
-每个有向端点对最多一条边，不支持自环。普通图允许有向环，布局做尽力展示；Sankey 文档必须无环（含零流量边）。JSON 对象键必须唯一，生产方不得生成重复键；当前读取使用 JSON.parse，无法在解析后发现已被覆盖的重复原始对象键。
+Each directed endpoint pair has at most one edge. Self-loops are rejected. Ordinary graphs may contain directed cycles, which layouts display on a best-effort basis. Sankey documents must be acyclic, including zero-value edges. Producers must use unique JSON object keys: JSON.parse cannot detect keys overwritten during parsing.
 
-结构化定义见 [graph.schema.json](../public/graph.schema.json)。JSON Schema 描述数据形状；边 ID 唯一、端点存在、端点对唯一及无自环由应用的运行时验证器额外检查。
+The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime validation additionally checks unique edge IDs, existing endpoints, unique endpoint pairs, self-loops and Sankey cycles/totals.
 
-## Sankey 流量图
+## Sankey diagrams
 
-在文档顶层添加 `"diagram": "sankey"`，每条边的 `value` 必须是有限、非负的数字，不接受数字字符串、缺失值、布尔值和 `null`。完整示例见 [sankey-example.json](../public/sankey-example.json)，也可在欢迎页点击 **Try a Sankey diagram**。
+Set `"diagram": "sankey"` at document level. Every edge must have a finite, nonnegative numeric `value`. Missing values, numeric strings, booleans and `null` are rejected. See the [energy example](../public/sankey-example.json), or open an example workspace on the homepage.
 
 ```json
 {
@@ -70,53 +61,53 @@
 }
 ```
 
-- 节点高度取入流、出流总量的较大值；所有流带共享同一比例尺。中间节点不守恒时明确提示，不修改原始数值。
-- `nodes[id].color` 可使用六位十六进制颜色；未设置时按类型或节点 ID 分配稳定颜色。流带沿用起点颜色。`edges[].metadata.label` 可提供流量标签的文字前缀。
-- `value: 0` 的边保存在文档中但不画流带。没有正流量的节点显示在下方，以零值标记表示；不会虚构最小流量。
-- Type 筛选只保留可见节点间真实存在的边，不生成跨隐藏节点的替代流量。聚焦分支后重新计算可见子图的流量和比例尺。
-- 编辑和控制台命令沿用数值关系值，例如 `/edge supply use 42.5`。新建关系默认流量为 `1`；无效值和环路会阻止整个修改。保存、撤销和重做保留 `diagram` 和流量。
-- 普通数值图可通过 **Settings → Layout → Sankey** 临时查看；缺少合法流量或存在环路时，显示提示并回退到分层布局。布局选择不更改文档 `diagram`。
-- 普通图和 Sankey 文档不直接混合导入，需先显式统一类型和流量语义。旧版应用可能不接受新增的 `diagram` 字段。
+- Node height uses the larger incoming/outgoing total. Bands share one linear scale. Unequal intermediate totals produce a notice; original values remain unchanged.
+- Node `color` accepts a six-digit hex color. Otherwise colors are assigned consistently by type or ID. Bands inherit their source color. Edge `metadata.label` optionally prefixes the displayed value.
+- Zero-value edges remain in the document without visible bands. Nodes without positive flows appear below the chart with zero markers. No minimum flow is invented.
+- Type filtering retains actual edges between visible nodes without replacement flows across hidden nodes. Focusing a branch recalculates its visible flows and scale.
+- Editing and console commands support numeric values, such as `/edge supply use 42.5`. New Sankey relations default to `1`. Invalid values and cycles reject the entire mutation. Saving, undo and redo preserve diagram type and quantities.
+- Ordinary numeric graphs can temporarily use **Settings → Layout → Sankey**. Invalid quantities or cycles produce a notice and a layered fallback. Choosing a layout does not change the document's `diagram` field.
+- Ordinary graphs and Sankey documents cannot be merged directly; explicitly align their type and quantity semantics first. Older applications may reject the optional `diagram` field.
 
-## 关系索引与编辑
+Use consistent units for conserved flows. The Factorio example is a per-craft recipe atlas with separate ingredient/product roles, mixed units and possible unequal totals; see its included README.
 
-入边、出边索引统一由 `edges` 构建。运行时节点上的只读 `parents / children` 是计算结果，不是协议字段，也不参与 JSON 序列化。
+## Relationship indexes and editing
 
-- 编辑节点字段保留其边及边元数据；重命名节点同步更新边端点。
-- “Edit Parents / Edit Children”和控制台关系命令修改 `edges`，随后重新构建两侧索引。
-- 删除节点同时删除关联边；这是用户的显式编辑操作。
-- 撤销、重做及保存保留完整文档包装和元数据。
-- Type 筛选只生成显示用投影，跨隐藏节点的桥接边不写回保存文件。
-- 空文档有效，应用显示空画布。
+Indexes are derived from `edges`. Runtime `parents` / `children` are read-only conveniences, not protocol fields, and are excluded from serialization.
 
-节点详情 Raw JSON 和剪贴板使用独立的编辑包装：
+- Editing node fields preserves incident edges and metadata; renaming a node updates its edge endpoints.
+- Parent/child editors and console commands update `edges`, then rebuild both indexes.
+- Deleting a node also deletes incident edges as an explicit edit.
+- Undo, redo and saving preserve the complete document envelope and metadata.
+- Type-filter projections and display-only bridge edges are never saved to the source.
+- Empty documents are valid and display an empty canvas.
+
+Node detail Raw JSON and the node clipboard use a separate editing envelope:
+
 ```json
-{ "id": "A", "data": { "title": "节点 A", "type": "Concept" } }
+{ "id": "A", "data": { "title": "Node A", "type": "Concept" } }
 ```
-这只是单节点编辑格式，不能作为图文档导入。`data` 仅含节点字段；关系由专门的关系编辑入口处理。
 
-## 工作区和多文件
+This is a single-node editing format, not an importable graph document. `data` contains node fields only; relationships have separate editors.
 
-当前界面使用单文件或工作区打开模式。工作区中各图独立，不再批量合并文件，所以同名字段不会互相覆盖。详见 [工作区协议](workspaces.md)。
+## Workspaces and multiple files
 
-### 合并模块（供程序调用）
+The interface opens single files or workspaces. Each graph in a workspace is independent; identical IDs in different graphs do not overwrite one another. See the [workspace protocol](workspaces.md) and [example workspaces](examples.md).
 
-`src/graph/importMerge.ts` 保留显式冲突决策能力及测试；当前文件打开流程不调用此模块。以下规则描述该模块，而非工作区加载行为。
+### Merge module for programmatic callers
 
-所有文件先完成格式验证；任一 JSON 无法解析、结构不合法或版本未知，整批导入被拒绝。非 JSON 文件被忽略并计入状态提示。
+`src/graph/importMerge.ts` retains explicit conflict handling and tests. The current file/workspace opening flow does not call this module.
 
-导入按文件顺序处理，以第一个文件作为初始文档。相同 ID 且内容完全相同的节点/边复用；其余冲突生成报告，列出文件名、JSON 路径、现有值、传入值。全部冲突解决后才返回可应用结果；模块不写入源文件。
+All files are validated before merging. Invalid JSON, structure or versions reject the batch. Non-JSON files are ignored and counted in status information. Files are processed in order, starting with the first document. Identical nodes/edges with matching IDs are reused. Other conflicts report the filename, JSON path, existing value and incoming value. Results are returned only after every conflict is resolved; source files are not written.
 
-| 策略 | 行为 |
+| Strategy | Behavior |
 | --- | --- |
-| Keep existing | 经用户明确选择后保留现有冲突值。节点级保留不导入该节点的其他传入字段；传入边仍单独分析。 |
-| Merge fields | 合并对象中互补字段；对象子字段发生冲突继续请求决策；数组显式合并时保留原顺序并添加未出现的值。不同标量不提供自动合并。 |
-| Rename incoming | 同时保留两份。节点重命名会更新该文件所有相关边的端点；字段重命名保存为并列字段；边 ID 冲突可在端点不同的情况下重命名边。 |
+| Keep existing | Retains the selected existing value. Keeping a whole node does not import other incoming fields from it; incoming edges are analyzed separately |
+| Merge fields | Combines complementary object fields and requests decisions for conflicting children. Explicit array merges retain order and add distinct values; different scalars are not automatically merged |
+| Rename incoming | Retains both copies. Node renaming updates that file's edge endpoints. Field renaming creates a sibling field. Edge IDs can be renamed only if their endpoint pairs differ |
 
-节点/字段/边可输入新名称或使用模块提供的唯一名称生成规则。重名或保留字段名会阻止导入。两条边端点相同不能通过只改 ID 变成平行边，需要保留或合并边属性。
+Names can be provided or generated uniquely. Duplicate/reserved names block import. Renaming an edge ID cannot create parallel edges with identical endpoints; keep or merge their properties instead.
 
-文档 `id / title` 冲突也必须决策；选重命名时把传入值写入输出文档 `metadata`。边的 `value / metadata` 字段重命名后写入该边 `metadata`。原有值保持不变。
+Document `id` / `title` conflicts require decisions; renamed incoming values are stored in document metadata. Renamed edge `value` / `metadata` fields are stored in that edge's metadata without overwriting original values.
 
-多文件结果额外保存 `metadata.importSources`，记录各来源文件名、原始文档 ID、标题和原始文档元数据；若此键已存在则使用唯一后缀，避免覆盖用户元数据。该记录不是完整的原始文件备份。
-
-不会自动删除冲突字段或改写源文件。只有点击保存原文件才写回具备写权限的单文件来源；多文件合并结果另存为新文件。
+Merged results record source filenames, original IDs, titles and metadata in `metadata.importSources`. A unique suffix avoids overwriting an existing field. This is not a complete source backup. Merged results are saved as new files; sources are not rewritten automatically. Saving to an original single file requires its writable handle.

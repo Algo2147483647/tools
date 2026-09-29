@@ -5,6 +5,7 @@ export interface WorkspaceFile {
   file?: File;
 }
 export interface WorkspaceFolder {
+  exampleId?: string;
   name: string;
   handle: FileSystemDirectoryHandle | null;
   files: Map<string, WorkspaceFile>;

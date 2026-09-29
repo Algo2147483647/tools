@@ -51,6 +51,7 @@ export default function Workspace({
   return (
     <main id="workspace" className={`workspace${sidebarOpen ? " workspace--split" : ""}`}>
       <div className="workspace-split-shell">
+        <div className="workspace-overlays">
         {explorer}
         {sidebarOpen ? (
           <>
@@ -66,6 +67,7 @@ export default function Workspace({
             />
           </>
         ) : null}
+        </div>
         <div className="workspace-stage-shell">
           {stage && stage.warnings.length > 0 && <div className="stage-warning" role="status">{stage.warnings.join(" ")}</div>}
           {!stage && (emptyContent || <EmptyState message={status || "This graph has no nodes."} hidden={false} actionLabel="Create a graph" onAction={onInitializeCanvas} />)}
