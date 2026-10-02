@@ -11,6 +11,8 @@ npm run dev
 
 Open the local Vite URL shown in the terminal. On first load, the app shows the welcome page without loading a graph.
 
+On Windows, `start.bat` prepares dependencies and opens the app. Successful installs are cached and verified on later launches. Only one launcher can prepare a project's dependencies at a time. If dependencies need repair while that project's Vite/esbuild process is running, the launcher reports the process IDs before removing any files. Stop the corresponding dev/build terminal with Ctrl+C, then run `start.bat` again.
+
 ## Editing
 
 The app opens in Edit mode. Graph edits, the console, undo, redo and saving are available directly.
