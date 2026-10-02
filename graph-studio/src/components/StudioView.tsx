@@ -122,6 +122,7 @@ export default function StudioView({
           containerRef={viewport.containerRef}
           svgRef={viewport.svgRef}
           stage={viewport.stage}
+          documentGeneration={state.document.generation}
           status={viewport.status}
           sidebar={
             <ConsoleSidebar

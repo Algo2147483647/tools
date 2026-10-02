@@ -369,6 +369,9 @@ summary:focus-visible {
   bottom: 12px;
   right: 12px;
   max-width: min(520px, calc(100% - 28px));
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   padding: 8px 12px;
   border: 1px solid #e5cfa469;
   border-radius: 10px;
@@ -376,7 +379,30 @@ summary:focus-visible {
   color: #805e2b;
   font-size: 11px;
   line-height: 1.5;
-  pointer-events: none;
+}
+.stage-warning > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.stage-warning button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.stage-warning button:hover {
+  background: #805e2b14;
+}
+.stage-warning button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 .source-notice {
   top: calc(var(--toolbar-bottom) + 8px);

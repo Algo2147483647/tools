@@ -1,12 +1,15 @@
+import { useState } from "react";
 import type { GraphAppearance } from "../graph/appearance";
 import type { StageData } from "../layout/types";
 import GraphStage from "../rendering/GraphStage";
 import EmptyState from "./EmptyState";
+import { CloseIcon } from "./ui/ModalIcons";
 
 interface WorkspaceProps {
   containerRef: React.RefObject<HTMLDivElement>;
   svgRef: React.RefObject<SVGSVGElement>;
   stage: StageData | null;
+  documentGeneration: number;
   status: string;
   explorer?: React.ReactNode;
   emptyContent?: React.ReactNode;
@@ -30,6 +33,7 @@ export default function Workspace({
   containerRef,
   svgRef,
   stage,
+  documentGeneration,
   status,
   explorer,
   emptyContent,
@@ -70,9 +74,10 @@ export default function Workspace({
         </div>
         <div className="workspace-stage-shell">
           {stage && stage.warnings.length > 0 && (
-            <div className="stage-warning" role="status">
-              {stage.warnings.join(" ")}
-            </div>
+            <StageWarning
+              key={JSON.stringify([documentGeneration, stage.layoutMode, stage.warnings])}
+              message={stage.warnings.join(" ")}
+            />
           )}
           {!stage &&
             (emptyContent || (
@@ -109,5 +114,23 @@ export default function Workspace({
         </div>
       </div>
     </main>
+  );
+}
+
+function StageWarning({ message }: { message: string }) {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
+  return (
+    <div className="stage-warning" role="status">
+      <span>{message}</span>
+      <button
+        type="button"
+        aria-label="Dismiss layout warning"
+        title="Dismiss layout warning"
+        onClick={() => setDismissed(true)}
+      >
+        <CloseIcon />
+      </button>
+    </div>
   );
 }
