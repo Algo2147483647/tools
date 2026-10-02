@@ -1,10 +1,13 @@
-import type { WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 import { resolveWorkspacePath } from "../workspace/paths";
+import type { WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 
 const IGNORED = new Set(["node_modules", "dist", "build", "coverage", "vendor", ".git", ".hg", ".svn"]);
 const MAX_FILES = 20000;
 function isIgnoredWorkspacePath(path: string): boolean {
-  return path.split("/").slice(0, -1).some(part => IGNORED.has(part) || part.startsWith("."));
+  return path
+    .split("/")
+    .slice(0, -1)
+    .some((part) => IGNORED.has(part) || part.startsWith("."));
 }
 export async function readWorkspaceDirectory(handle: FileSystemDirectoryHandle): Promise<WorkspaceFolder> {
   const files = new Map<string, WorkspaceFile>();
@@ -14,9 +17,11 @@ export async function readWorkspaceDirectory(handle: FileSystemDirectoryHandle):
     for await (const [name, item] of directory.entries()) {
       const path = prefix + name;
       if (item.kind === "directory" || "entries" in item) {
-        if (!IGNORED.has(name) && !name.startsWith(".")) await walk(item as FileSystemDirectoryHandle, path + "/", depth + 1);
+        if (!IGNORED.has(name) && !name.startsWith("."))
+          await walk(item as FileSystemDirectoryHandle, path + "/", depth + 1);
       } else {
-        if (files.size >= MAX_FILES) throw new Error("This workspace contains more than 20,000 files. Open a smaller folder.");
+        if (files.size >= MAX_FILES)
+          throw new Error("This workspace contains more than 20,000 files. Open a smaller folder.");
         files.set(path, { path, handle: item as FileSystemFileHandle });
       }
     }
@@ -43,6 +48,6 @@ export function workspaceFromFiles(files: File[]): WorkspaceFolder {
 }
 export async function requestReadAccess(handle: FileSystemFileHandle | FileSystemDirectoryHandle): Promise<boolean> {
   if (!handle.queryPermission) return true;
-  if (await handle.queryPermission({ mode: "read" }) === "granted") return true;
-  return Boolean(handle.requestPermission && await handle.requestPermission({ mode: "read" }) === "granted");
+  if ((await handle.queryPermission({ mode: "read" })) === "granted") return true;
+  return Boolean(handle.requestPermission && (await handle.requestPermission({ mode: "read" })) === "granted");
 }

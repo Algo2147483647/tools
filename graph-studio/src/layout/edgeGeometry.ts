@@ -30,7 +30,13 @@ export function resolveStageEdgeGeometry(
   };
 }
 
-function buildRoutedPath(startX: number, startY: number, points: { x: number; y: number }[], endX: number, endY: number): string {
+function buildRoutedPath(
+  startX: number,
+  startY: number,
+  points: { x: number; y: number }[],
+  endX: number,
+  endY: number,
+): string {
   if (!points.length) {
     const horizontalSpan = Math.max(endX - startX, 24);
     const verticalSpan = Math.abs(endY - startY);
@@ -62,7 +68,13 @@ function buildRoutedPath(startX: number, startY: number, points: { x: number; y:
   return commands.join(" ");
 }
 
-function buildCompactLayeredPath(startX: number, startY: number, points: { x: number; y: number }[], endX: number, endY: number): string {
+function buildCompactLayeredPath(
+  startX: number,
+  startY: number,
+  points: { x: number; y: number }[],
+  endX: number,
+  endY: number,
+): string {
   const route = points.length
     ? normalizeOrthogonalRoute([{ x: startX, y: startY }, ...points, { x: endX, y: endY }])
     : normalizeOrthogonalRoute(buildSingleElbowRoute(startX, startY, endX, endY));
@@ -74,7 +86,13 @@ function buildCompactLayeredPath(startX: number, startY: number, points: { x: nu
   return buildRoundedOrthogonalPath(route);
 }
 
-function getLabelPosition(startX: number, startY: number, points: { x: number; y: number }[], endX: number, endY: number): { x: number; y: number } {
+function getLabelPosition(
+  startX: number,
+  startY: number,
+  points: { x: number; y: number }[],
+  endX: number,
+  endY: number,
+): { x: number; y: number } {
   if (!points.length) {
     return { x: (startX + endX) / 2, y: (startY + endY) / 2 - 9 };
   }
@@ -84,7 +102,13 @@ function getLabelPosition(startX: number, startY: number, points: { x: number; y
   return { x: midpoint.x, y: midpoint.y - 9 };
 }
 
-function getOrthogonalLabelPosition(startX: number, startY: number, points: { x: number; y: number }[], endX: number, endY: number): { x: number; y: number } {
+function getOrthogonalLabelPosition(
+  startX: number,
+  startY: number,
+  points: { x: number; y: number }[],
+  endX: number,
+  endY: number,
+): { x: number; y: number } {
   const route = points.length
     ? normalizeOrthogonalRoute([{ x: startX, y: startY }, ...points, { x: endX, y: endY }])
     : normalizeOrthogonalRoute(buildSingleElbowRoute(startX, startY, endX, endY));
@@ -209,7 +233,11 @@ function buildRoundedOrthogonalPath(route: { x: number; y: number }[]): string {
   return commands.join(" ");
 }
 
-function moveToward(from: { x: number; y: number }, to: { x: number; y: number }, distancePx: number): { x: number; y: number } {
+function moveToward(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  distancePx: number,
+): { x: number; y: number } {
   if (nearlyEqual(from.x, to.x) && nearlyEqual(from.y, to.y)) {
     return { x: from.x, y: from.y };
   }

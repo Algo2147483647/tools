@@ -1,6 +1,6 @@
-import GraphStage from "../rendering/GraphStage";
-import type { StageData } from "../layout/types";
 import type { GraphAppearance } from "../graph/appearance";
+import type { StageData } from "../layout/types";
+import GraphStage from "../rendering/GraphStage";
 import EmptyState from "./EmptyState";
 
 interface WorkspaceProps {
@@ -52,26 +52,45 @@ export default function Workspace({
     <main id="workspace" className={`workspace${sidebarOpen ? " workspace--split" : ""}`}>
       <div className="workspace-split-shell">
         <div className="workspace-overlays">
-        {explorer}
-        {sidebarOpen ? (
-          <>
-            <aside className="workspace-sidebar-shell" style={{ width: sidebarWidth }}>
-              {sidebar}
-            </aside>
-            <div
-              className="workspace-sidebar-resizer"
-              role="separator"
-              aria-orientation="vertical"
-              aria-label="Resize console sidebar"
-              onPointerDown={onSidebarResizeStart}
-            />
-          </>
-        ) : null}
+          {explorer}
+          {sidebarOpen ? (
+            <>
+              <aside className="workspace-sidebar-shell" style={{ width: sidebarWidth }}>
+                {sidebar}
+              </aside>
+              <div
+                className="workspace-sidebar-resizer"
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Resize console sidebar"
+                onPointerDown={onSidebarResizeStart}
+              />
+            </>
+          ) : null}
         </div>
         <div className="workspace-stage-shell">
-          {stage && stage.warnings.length > 0 && <div className="stage-warning" role="status">{stage.warnings.join(" ")}</div>}
-          {!stage && (emptyContent || <EmptyState message={status || "This graph has no nodes."} hidden={false} actionLabel="Create a graph" onAction={onInitializeCanvas} />)}
-          <div id="main-content" ref={containerRef} className={stage ? "is-ready" : ""} aria-live="polite" onScroll={onScroll} onContextMenu={onBackgroundContextMenu}>
+          {stage && stage.warnings.length > 0 && (
+            <div className="stage-warning" role="status">
+              {stage.warnings.join(" ")}
+            </div>
+          )}
+          {!stage &&
+            (emptyContent || (
+              <EmptyState
+                message={status || "This graph has no nodes."}
+                hidden={false}
+                actionLabel="Create a graph"
+                onAction={onInitializeCanvas}
+              />
+            ))}
+          <div
+            id="main-content"
+            ref={containerRef}
+            className={stage ? "is-ready" : ""}
+            aria-live="polite"
+            onScroll={onScroll}
+            onContextMenu={onBackgroundContextMenu}
+          >
             {stage ? (
               <GraphStage
                 stage={stage}

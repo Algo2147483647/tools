@@ -1,6 +1,6 @@
 import { getNodeDefine, getNodeTitle } from "../graph/accessors";
-import type { DagNode, NodeKey } from "../graph/types";
 import { sanitizeNodeLabel } from "../graph/selectors";
+import type { DagNode, NodeKey } from "../graph/types";
 
 export function getNodeVisual(
   nodeKey: NodeKey,
@@ -70,7 +70,9 @@ export function truncateTitleToWidth(text: string, nodeWidth: number): string {
 }
 
 export function wrapDetailText(text: string, maxLineWidth: number, maxLines: number): string[] {
-  const normalized = String(text || "").replace(/\s+/g, " ").trim();
+  const normalized = String(text || "")
+    .replace(/\s+/g, " ")
+    .trim();
   if (!normalized) {
     return [""];
   }
@@ -98,7 +100,10 @@ export function wrapDetailText(text: string, maxLineWidth: number, maxLines: num
 }
 
 function estimateTextWidth(text: string, fontSize: number): number {
-  return Array.from(String(text || "")).reduce((width, character) => width + getCharacterEmWidth(character) * fontSize, 0);
+  return Array.from(String(text || "")).reduce(
+    (width, character) => width + getCharacterEmWidth(character) * fontSize,
+    0,
+  );
 }
 
 function findWrapIndex(text: string, maxLineWidth: number): number {
@@ -149,10 +154,12 @@ function fitTextWithEllipsis(text: string, maxLineWidth: number): string {
 }
 
 function isBreakOpportunity(character: string): boolean {
-  return /\s/.test(character)
-    || /[\u3000-\u303f\uff00-\uffef]/.test(character)
-    || /[，。！？、；：,.!?:;)\]}]/.test(character)
-    || isCjkCharacter(character);
+  return (
+    /\s/.test(character) ||
+    /[\u3000-\u303f\uff00-\uffef]/.test(character) ||
+    /[，。！？、；：,.!?:;)\]}]/.test(character) ||
+    isCjkCharacter(character)
+  );
 }
 
 function getCharacterEmWidth(character: string): number {

@@ -1,62 +1,5 @@
-import { classifyCommandRisk, isDestructiveCommand } from "./executionPolicy";
-import { createGraphDocument } from "../graph/normalize";
-import { executeConsoleInstructions } from "../console/executor";
-import { parseConsoleSource } from "../console/dsl";
-import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../graph/appearance";
-import { getNodeChildren, getNodeParents } from "../graph/accessors";
-import { getRelationKeys } from "../graph/relations";
-import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
-import { buildAiGraphContext } from "./context";
-import type {
-  ActionPlan,
-  AiContextPacket,
-  AiEvent,
-  AiExecutionMode,
-  AiHarnessState,
-  AiResponse,
-  AiRiskLevel,
-  CommandBatch,
-  ProposedChange,
-  ValidationReport,
-  WorkingMemory,
-} from "./types";
-
-interface ConsoleHistoryEntry {
-  tone: string;
-  text: string;
-}
-
-interface BuildContextInput {
-  harness: AiHarnessState;
-  dag: NormalizedDag | null;
-  mode: GraphMode;
-  layoutMode: GraphLayoutMode;
-  chartType?: GraphChartType;
-  selection: GraphSelection | null;
-  contextNodeKey: NodeKey | null;
-
-  appearance?: GraphAppearance;
-  consoleEntries: ConsoleHistoryEntry[];
-}
-
-interface PlanInput {
-  response: Extract<AiResponse, { kind: "propose_changes" | "run_console" | "inspect" }>;
-  harness: AiHarnessState;
-  turnId: string;
-  userMessage: string;
-}
-
-interface ValidateInput {
-  batch: CommandBatch;
-  dag: NormalizedDag | null;
-  contextNodeKey: NodeKey | null;
-
-  appearance?: GraphAppearance;
-  graphRevision: string;
-}
-
-const MAX_RECENT_EVENTS = 40;
-const MAX_RECENT_CONSOLE_LINES = 16;
+import { createId, MAX_RECENT_EVENTS } from "./harnessUtils";
+import type { ActionPlan, AiEvent, AiExecutionMode, AiHarnessState, ValidationReport, WorkingMemory } from "./types";
 
 export function createInitialAiHarnessState(mode: AiExecutionMode): AiHarnessState {
   const sessionId = createId("session");
@@ -79,10 +22,22 @@ export function syncHarnessRuntime(
   harness: AiHarnessState,
   input: { graphId: string; graphRevision: string; mode: AiExecutionMode },
 ): AiHarnessState {
-  const activePlan = harness.activePlan && isOpenPlanStatus(harness.activePlan.status) && harness.activePlan.scope.graphRevisionBase !== input.graphRevision
-    ? { ...harness.activePlan, status: "superseded" as const, timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() } }
-    : harness.activePlan;
-  const pendingCommandBatch = activePlan?.status === "superseded" ? undefined : harness.pendingCommandBatch;
+  const activePlan =
+    harness.activePlan &&
+    isOpenPlanStatus(harness.activePlan.status) &&
+    (harness.activePlan.scope.graphRevisionBase !== input.graphRevision || harness.activePlan.graphId !== input.graphId)
+      ? {
+          ...harness.activePlan,
+          status: "superseded" as const,
+          timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
+        }
+      : harness.activePlan;
+  const pendingCommandBatch =
+    harness.graphId !== input.graphId ||
+    harness.graphRevision !== input.graphRevision ||
+    activePlan?.status === "superseded"
+      ? undefined
+      : harness.pendingCommandBatch;
   return {
     ...harness,
     graphId: input.graphId,
@@ -99,7 +54,15 @@ export function syncHarnessRuntime(
 }
 
 function isOpenPlanStatus(status: ActionPlan["status"]): boolean {
-  return status === "draft" || status === "proposed" || status === "approved" || status === "validating" || status === "ready" || status === "executing";
+  return (
+    status === "draft" ||
+    status === "proposed" ||
+    status === "approved" ||
+    status === "validating" ||
+    status === "ready" ||
+    status === "executing" ||
+    status === "failed"
+  );
 }
 
 export function appendAiEvents(harness: AiHarnessState, events: AiEvent[]): AiHarnessState {
@@ -128,152 +91,6 @@ export function createAiEvent(
   };
 }
 
-export function referencesPreviousWork(message: string): boolean {
-  const normalized = message.toLocaleLowerCase();
-  return [
-    "previous",
-    "just now",
-    "above",
-    "as you said",
-    "based on your",
-    "apply it",
-    "do it",
-    "continue",
-    "complete",
-  ].some((phrase) => normalized.includes(phrase));
-}
-
-export function buildAiContextPacket(input: BuildContextInput): AiContextPacket {
-  const graphContext = buildAiGraphContext({
-    dag: input.dag,
-    mode: input.mode,
-    layoutMode: input.layoutMode,
-    chartType: input.chartType,
-    selection: input.selection,
-    contextNodeKey: input.contextNodeKey,
-    appearance: input.appearance || DEFAULT_GRAPH_APPEARANCE,
-  });
-  const recentConsoleEvents = input.consoleEntries
-    .slice(-MAX_RECENT_CONSOLE_LINES)
-    .map((entry, index) => createSyntheticConsoleEvent(input.harness, index, entry));
-
-  return {
-    system: {
-      role: "graph_editing_agent",
-      language: "auto",
-      responseProtocolVersion: "v2",
-      editPolicy: {
-        mode: input.harness.mode,
-        autoEditEnabled: input.harness.mode === "auto-edit",
-        requireReviewForDestructiveChanges: true,
-      },
-    },
-    graph: {
-      ...graphContext,
-      graphRevision: input.harness.graphRevision,
-      currentSelection: formatSelectionKeys(input.selection),
-      focusedNodes: input.contextNodeKey ? [input.contextNodeKey] : [],
-    },
-    tools: {
-      availableCommands: graphContext.commandReference,
-      commandExamples: [
-        "/find Group",
-        "/neighbors Group 2",
-        "/add Subgroup -p Group",
-        "/set Group define \"A group is a set with an associative binary operation, an identity element, and inverses.\"",
-        "/edge Group Representation_Theory",
-        "/style-preset slate",
-        "/style-var --dag-node-fill \"rgba(18, 24, 38, 0.94)\"",
-        "/style-css append \".dag-node[data-type=\\\"service\\\"] .dag-node__shape { fill: #eef6ff; }\"",
-        "/layout rowGap 34",
-      ],
-      constraints: [
-        "All commands must start with /.",
-        "Use /find, /ls, /neighbors, /path, or /graph when more graph facts are needed.",
-        "Do not reference missing nodes unless the same command batch creates them first or uses /edge --create-missing.",
-        "Use /set for title, type, define, and other non-relation fields.",
-        "Use /parents, /children, /edge, or /rm-edge for relation fields.",
-        "Use /style-var, /style-css, /style-preset, /style-reset, and /layout for UI appearance changes.",
-        "Only use --dag-* CSS variables and stable .dag-* SVG selectors for appearance CSS.",
-      ],
-    },
-    memory: {
-      recentEvents: [...input.harness.recentEvents, ...recentConsoleEvents].slice(-MAX_RECENT_EVENTS),
-      activePlan: input.harness.activePlan,
-      workingMemory: input.harness.workingMemory,
-    },
-    execution: {
-      pendingCommandBatch: input.harness.pendingCommandBatch,
-      lastValidation: input.harness.pendingCommandBatch?.validation || input.harness.activePlan?.validation,
-    },
-    budget: {
-      maxInputTokens: 9000,
-      reservedOutputTokens: 1400,
-      compressionLevel: "light",
-    },
-  };
-}
-
-export function createPlanFromAiResponse(input: PlanInput): ActionPlan {
-  const now = Date.now();
-  const response = input.response;
-  const commands = collectCommandsFromResponse(response);
-  const riskLevel = maxRisk([
-    response.kind === "run_console" ? response.commandBatch.riskLevel : undefined,
-    ...collectChangesFromResponse(response).map((change) => change.risk),
-    ...commands.map(classifyCommandRisk),
-  ]);
-  const batch: CommandBatch | undefined = commands.length
-    ? {
-      id: createId("batch"),
-      status: "draft",
-      title: getResponseTitle(response),
-      commands,
-      expectedGraphEffects: getExpectedGraphEffects(response),
-      riskLevel,
-      createdAt: now,
-    }
-    : undefined;
-
-  const changes = collectChangesFromResponse(response);
-  const title = getResponseTitle(response);
-  const goal = response.kind === "propose_changes" ? response.plan.goal : response.answer;
-  const affectedNodes = response.kind === "propose_changes" ? response.plan.affectedNodes || [] : extractMentionedNodes(commands);
-  const planId = createId("plan");
-  const commandBatch = batch ? { ...batch, planId } : undefined;
-
-  return {
-    id: planId,
-    sessionId: input.harness.sessionId,
-    graphId: input.harness.graphId,
-    status: "proposed",
-    title,
-    goal,
-    source: {
-      userTurnId: input.turnId,
-      createdFromMessage: input.userMessage,
-    },
-    scope: {
-      targetNodes: affectedNodes,
-      targetEdges: [],
-      affectedConcepts: affectedNodes,
-      graphRevisionBase: input.harness.graphRevision,
-    },
-    assumptions: response.kind === "propose_changes" ? response.plan.assumptions || [] : [],
-    changes,
-    commandBatch,
-    ui: {
-      displaySummary: buildPlanSummary(title, changes, commandBatch),
-      requiresUserConfirmation: riskLevel !== "low" || Boolean(commandBatch?.commands.some(isDestructiveCommand)),
-      riskLevel,
-    },
-    timestamps: {
-      createdAt: now,
-      updatedAt: now,
-    },
-  };
-}
-
 export function installPlan(harness: AiHarnessState, plan: ActionPlan, turnId: string): AiHarnessState {
   const planEvent = createAiEvent(harness, turnId, "plan.created", {
     planId: plan.id,
@@ -283,11 +100,17 @@ export function installPlan(harness: AiHarnessState, plan: ActionPlan, turnId: s
     riskLevel: plan.ui.riskLevel,
   });
   const commandEvent = plan.commandBatch
-    ? createAiEvent(harness, turnId, "command.drafted", {
-      planId: plan.id,
-      commandBatchId: plan.commandBatch.id,
-      commands: plan.commandBatch.commands,
-    }, { parentEventIds: [planEvent.id], sourcePlanId: plan.id, sourceCommandBatchId: plan.commandBatch.id })
+    ? createAiEvent(
+        harness,
+        turnId,
+        "command.drafted",
+        {
+          planId: plan.id,
+          commandBatchId: plan.commandBatch.id,
+          commands: plan.commandBatch.commands,
+        },
+        { parentEventIds: [planEvent.id], sourcePlanId: plan.id, sourceCommandBatchId: plan.commandBatch.id },
+      )
     : null;
 
   return {
@@ -313,123 +136,40 @@ export function installPlan(harness: AiHarnessState, plan: ActionPlan, turnId: s
   };
 }
 
-export function validateCommandBatch(input: ValidateInput): ValidationReport {
-  const reportBase = {
-    commandBatchId: input.batch.id,
-    graphRevisionBase: input.graphRevision,
-    riskLevel: input.batch.riskLevel,
-  };
-
-  if (!input.batch.commands.length) {
-    return {
-      ...reportBase,
-      results: [],
-      allPassed: false,
-      requiresConfirmation: true,
-      summary: "No commands were provided.",
-    };
-  }
-
-  const source = input.batch.commands.join("\n");
-  const parsed = parseConsoleSource(source);
-  if (!parsed.ok) {
-    return {
-      ...reportBase,
-      results: input.batch.commands.map((command, index) => ({
-        command,
-        valid: index + 1 !== parsed.error.line,
-        errors: index + 1 === parsed.error.line ? [parsed.error.message] : [],
-        warnings: [],
-      })),
-      allPassed: false,
-      riskLevel: maxRisk([input.batch.riskLevel, ...input.batch.commands.map(classifyCommandRisk)]),
-      requiresConfirmation: true,
-      summary: `Command syntax failed on line ${parsed.error.line}: ${parsed.error.message}`,
-    };
-  }
-
-  if (!input.dag && parsed.instructions.some((instruction) => !["help", "clear", "appearance", "appearanceCssShow"].includes(instruction.type))) {
-    return {
-      ...reportBase,
-      results: input.batch.commands.map((command) => ({
-        command,
-        valid: false,
-        errors: ["No graph is loaded."],
-        warnings: [],
-      })),
-      allPassed: false,
-      requiresConfirmation: true,
-      summary: "No graph is loaded.",
-    };
-  }
-
-  const execution = executeConsoleInstructions(input.dag || createGraphDocument(), parsed.instructions, input.contextNodeKey, input.appearance || DEFAULT_GRAPH_APPEARANCE);
-  const commandRisks = input.batch.commands.map(classifyCommandRisk);
-  const riskLevel = maxRisk([input.batch.riskLevel, ...commandRisks]);
-  const destructive = input.batch.commands.some(isDestructiveCommand);
-
-  if (!execution.ok) {
-    return {
-      ...reportBase,
-      results: input.batch.commands.map((command, index) => ({
-        command,
-        valid: index + 1 !== execution.line,
-        errors: index + 1 === execution.line ? [execution.message] : [],
-        warnings: buildCommandWarnings(command),
-      })),
-      allPassed: false,
-      riskLevel,
-      requiresConfirmation: true,
-      summary: `Command validation failed on line ${execution.line}: ${execution.message}`,
-    };
-  }
-
-  const diffPreview = [
-    ...buildDiffPreview(input.dag || createGraphDocument(), execution.dag),
-    ...execution.appearanceResults.flatMap((result) => result.diff),
-  ];
-  const mutationSummary = diffPreview.length
-    ? diffPreview
-    : ["No graph mutations expected."];
-  return {
-    ...reportBase,
-    results: input.batch.commands.map((command, index) => ({
-      command,
-      valid: true,
-      errors: [],
-      warnings: buildCommandWarnings(command),
-      expectedDiff: index === 0 ? mutationSummary : undefined,
-    })),
-    allPassed: true,
-    riskLevel,
-    requiresConfirmation: destructive || riskLevel === "high" || execution.mutationCount > 0,
-    summary: [
-      `Preflight passed for ${execution.instructionCount} command${execution.instructionCount === 1 ? "" : "s"}.`,
-      ...mutationSummary,
-      `Risk: ${riskLevel}.`,
-    ].join(" "),
-  };
-}
-
-export function attachValidationToHarness(harness: AiHarnessState, validation: ValidationReport, turnId: string): AiHarnessState {
+export function attachValidationToHarness(
+  harness: AiHarnessState,
+  validation: ValidationReport,
+  turnId: string,
+): AiHarnessState {
   const pending = harness.pendingCommandBatch
-    ? { ...harness.pendingCommandBatch, status: validation.allPassed ? "validated" as const : "failed" as const, validation, riskLevel: validation.riskLevel }
+    ? {
+        ...harness.pendingCommandBatch,
+        status: validation.allPassed ? ("validated" as const) : ("failed" as const),
+        validation,
+        riskLevel: validation.riskLevel,
+      }
     : undefined;
   const activePlan = harness.activePlan
     ? {
-      ...harness.activePlan,
-      status: validation.allPassed ? "ready" as const : "failed" as const,
-      commandBatch: pending,
-      validation,
-      timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
-    }
+        ...harness.activePlan,
+        status: validation.allPassed ? ("ready" as const) : ("failed" as const),
+        commandBatch: pending,
+        validation,
+        timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
+      }
     : undefined;
-  const event = createAiEvent(harness, turnId, "command.validated", {
-    commandBatchId: validation.commandBatchId,
-    allPassed: validation.allPassed,
-    riskLevel: validation.riskLevel,
-    summary: validation.summary,
-  }, pending ? { parentEventIds: [], sourcePlanId: pending.planId, sourceCommandBatchId: pending.id } : undefined);
+  const event = createAiEvent(
+    harness,
+    turnId,
+    "command.validated",
+    {
+      commandBatchId: validation.commandBatchId,
+      allPassed: validation.allPassed,
+      riskLevel: validation.riskLevel,
+      summary: validation.summary,
+    },
+    pending ? { parentEventIds: [], sourcePlanId: pending.planId, sourceCommandBatchId: pending.id } : undefined,
+  );
 
   return {
     ...appendAiEvents(harness, [event]),
@@ -453,17 +193,23 @@ export function markPendingBatchExecuted(harness: AiHarnessState, turnId: string
     : undefined;
   const activePlan = harness.activePlan
     ? {
-      ...harness.activePlan,
-      status: "applied" as const,
-      commandBatch: pending,
-      timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
-    }
+        ...harness.activePlan,
+        status: "applied" as const,
+        commandBatch: pending,
+        timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
+      }
     : undefined;
-  const event = createAiEvent(harness, turnId, "command.executed", {
-    commandBatchId: pending?.id,
-    planId: activePlan?.id,
-    commandCount: pending?.commands.length || 0,
-  }, pending ? { parentEventIds: [], sourcePlanId: pending.planId, sourceCommandBatchId: pending.id } : undefined);
+  const event = createAiEvent(
+    harness,
+    turnId,
+    "command.executed",
+    {
+      commandBatchId: pending?.id,
+      planId: activePlan?.id,
+      commandCount: pending?.commands.length || 0,
+    },
+    pending ? { parentEventIds: [], sourcePlanId: pending.planId, sourceCommandBatchId: pending.id } : undefined,
+  );
 
   return {
     ...appendAiEvents(harness, [event]),
@@ -473,34 +219,15 @@ export function markPendingBatchExecuted(harness: AiHarnessState, turnId: string
       ...harness.workingMemory,
       activePlanId: activePlan?.id,
       pendingCommandBatchId: undefined,
-      currentIntent: activePlan ? {
-        type: "execute_pending_commands",
-        confidence: 1,
-        sourceUserMessage: activePlan.source.createdFromMessage,
-      } : harness.workingMemory.currentIntent,
+      currentIntent: activePlan
+        ? {
+            type: "execute_pending_commands",
+            confidence: 1,
+            sourceUserMessage: activePlan.source.createdFromMessage,
+          }
+        : harness.workingMemory.currentIntent,
     },
   };
-}
-
-export function formatValidationReport(validation: ValidationReport): string {
-  const failed = validation.results.filter((result) => !result.valid);
-  const warnings = validation.results.flatMap((result) => result.warnings.map((warning) => `${result.command}: ${warning}`));
-  return [
-    `Preflight: ${validation.allPassed ? "passed" : "failed"}`,
-    validation.summary,
-    warnings.length ? `Warnings:\n${warnings.map((warning) => `- ${warning}`).join("\n")}` : "",
-    failed.length ? `Errors:\n${failed.map((result) => `- ${result.command}: ${result.errors.join("; ")}`).join("\n")}` : "",
-  ].filter(Boolean).join("\n");
-}
-
-export function formatReviewInstruction(mode: AiExecutionMode): string {
-  if (mode === "ask") {
-    return "Ask mode: commands are saved as a pending plan. Type \"apply it\" after switching to Review or Auto Edit, or copy the commands to run them manually.";
-  }
-  if (mode === "review") {
-    return "Review mode: preflight passed. Type \"apply it\" to execute the pending command batch.";
-  }
-  return "Auto Edit mode: command batch is ready.";
 }
 
 function createEmptyWorkingMemory(): WorkingMemory {
@@ -516,216 +243,4 @@ function createEmptyWorkingMemory(): WorkingMemory {
     },
     unresolvedQuestions: [],
   };
-}
-
-function createSyntheticConsoleEvent(harness: AiHarnessState, index: number, entry: ConsoleHistoryEntry): AiEvent {
-  return {
-    id: `console-${index}`,
-    sessionId: harness.sessionId,
-    turnId: "console-history",
-    type: entry.tone === "input" ? "user.message" : "assistant.answer",
-    timestamp: Date.now() - (MAX_RECENT_CONSOLE_LINES - index),
-    graphRevisionBefore: harness.graphRevision,
-    payload: {
-      tone: entry.tone,
-      text: entry.text,
-    },
-  };
-}
-
-function formatSelectionKeys(selection: GraphSelection | null): string[] {
-  if (!selection) {
-    return [];
-  }
-  if (selection.type === "node") {
-    return [selection.key];
-  }
-  if ("keys" in selection) {
-    return selection.keys;
-  }
-  return [];
-}
-
-function collectCommandsFromResponse(response: Extract<AiResponse, { kind: "propose_changes" | "run_console" | "inspect" }>): string[] {
-  if (response.kind === "run_console") {
-    return response.commandBatch.commands;
-  }
-  if (response.kind === "inspect") {
-    return response.commands;
-  }
-  const draftCommands = response.draftCommands?.map((draft) => draft.command) || [];
-  const changeCommands = response.plan.changes.flatMap((change) => change.draftCommands);
-  return dedupeCommands([...draftCommands, ...changeCommands]);
-}
-
-function collectChangesFromResponse(response: Extract<AiResponse, { kind: "propose_changes" | "run_console" | "inspect" }>): ProposedChange[] {
-  if (response.kind === "propose_changes") {
-    return response.plan.changes.map((change, index) => ({
-      ...change,
-      id: change.id || createId(`change-${index}`),
-      dependencies: change.dependencies || [],
-      risk: change.risk || maxRisk(change.draftCommands.map(classifyCommandRisk)),
-    }));
-  }
-  const commands = response.kind === "run_console" ? response.commandBatch.commands : response.commands;
-  return commands.map((command, index) => ({
-    id: createId(`change-${index}`),
-    kind: inferChangeKind(command),
-    rationale: response.answer,
-    draftCommands: [command],
-    dependencies: [],
-    risk: classifyCommandRisk(command),
-  }));
-}
-
-function getResponseTitle(response: Extract<AiResponse, { kind: "propose_changes" | "run_console" | "inspect" }>): string {
-  if (response.kind === "propose_changes") {
-    return response.plan.title;
-  }
-  if (response.kind === "run_console") {
-    return response.commandBatch.title || "AI command batch";
-  }
-  return "AI inspection commands";
-}
-
-function getExpectedGraphEffects(response: Extract<AiResponse, { kind: "propose_changes" | "run_console" | "inspect" }>): string[] {
-  if (response.kind === "propose_changes") {
-    return collectChangeRationales(response.plan.changes);
-  }
-  if (response.kind === "run_console") {
-    return response.commandBatch.expectedGraphEffects || [];
-  }
-  return ["Inspect graph state with read-only commands."];
-}
-
-function collectChangeRationales(changes: ProposedChange[]): string[] {
-  return changes.map((change) => change.rationale).filter(Boolean);
-}
-
-function dedupeCommands(commands: string[]): string[] {
-  const seen = new Set<string>();
-  return commands
-    .map((command) => command.trim())
-    .filter((command) => {
-      if (!command || !command.startsWith("/") || seen.has(command)) {
-        return false;
-      }
-      seen.add(command);
-      return true;
-    });
-}
-
-function inferChangeKind(command: string): ProposedChange["kind"] {
-  const normalized = command.trim().toLowerCase();
-  if (normalized.startsWith("/add ")) return "add_node";
-  if (normalized.startsWith("/edge ")) return "add_edge";
-  if (normalized.startsWith("/rm-edge ")) return "remove_edge";
-  if (normalized.startsWith("/mv ")) return "rename_node";
-  if (normalized.startsWith("/rm ")) return "remove_edge";
-  if (normalized.startsWith("/style-") || normalized.startsWith("/layout ")) return "set_property";
-  return "set_property";
-}
-
-function extractMentionedNodes(commands: string[]): string[] {
-  const candidates = commands.flatMap((command) => command.split(/\s+/).slice(1, 4));
-  return Array.from(new Set(candidates.filter((item) => item && !item.startsWith("-") && !item.includes("="))));
-}
-
-function buildPlanSummary(title: string, changes: ProposedChange[], batch: CommandBatch | undefined): string {
-  return `${title}: ${changes.length} proposed change${changes.length === 1 ? "" : "s"}, ${batch?.commands.length || 0} command${batch?.commands.length === 1 ? "" : "s"}.`;
-}
-
-function buildCommandWarnings(command: string): string[] {
-  const normalized = command.trim().toLowerCase();
-  const warnings: string[] = [];
-  if (normalized.startsWith("/set ") && normalized.includes(" define ")) {
-    warnings.push("definition field will be overwritten");
-  }
-  if (normalized.startsWith("/parents ") || normalized.startsWith("/children ")) {
-    warnings.push("relation set replacement can remove existing edges");
-  }
-  if (isDestructiveCommand(command)) {
-    warnings.push("destructive command requires review");
-  }
-  if (normalized.startsWith("/style-css replace")) {
-    warnings.push("custom CSS will replace the current graph appearance stylesheet");
-  }
-  return warnings;
-}
-
-function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag): string[] {
-  const beforeKeys = new Set(Object.keys(beforeDag.nodes));
-  const afterKeys = new Set(Object.keys(afterDag.nodes));
-  const lines: string[] = [];
-
-  Array.from(afterKeys)
-    .filter((key) => !beforeKeys.has(key))
-    .sort((left, right) => left.localeCompare(right))
-    .forEach((key) => lines.push(`+ Node: ${key}`));
-
-  Array.from(beforeKeys)
-    .filter((key) => !afterKeys.has(key))
-    .sort((left, right) => left.localeCompare(right))
-    .forEach((key) => lines.push(`- Node: ${key}`));
-
-  Array.from(afterKeys)
-    .filter((key) => beforeKeys.has(key))
-    .sort((left, right) => left.localeCompare(right))
-    .forEach((key) => {
-      const beforeNode = beforeDag.nodes[key];
-      const afterNode = afterDag.nodes[key];
-      const beforeFields = Object.keys(beforeNode).filter((field) => !isRelationField(field)).sort();
-      const afterFields = Object.keys(afterNode).filter((field) => !isRelationField(field)).sort();
-      const allFields = Array.from(new Set([...beforeFields, ...afterFields])).sort();
-      allFields.forEach((field) => {
-        if (JSON.stringify(beforeNode[field]) !== JSON.stringify(afterNode[field])) {
-          lines.push(`~ ${key}.${field}`);
-        }
-      });
-    });
-
-  diffEdges(beforeDag, afterDag, "children").forEach((line) => lines.push(line));
-
-  return lines.slice(0, 24);
-}
-
-function diffEdges(beforeDag: NormalizedDag, afterDag: NormalizedDag, relation: "children" | "parents"): string[] {
-  const lines: string[] = [];
-  const keys = Array.from(new Set([...Object.keys(beforeDag.nodes), ...Object.keys(afterDag.nodes)])).sort();
-  keys.forEach((key) => {
-    const beforeNode = beforeDag.nodes[key];
-    const afterNode = afterDag.nodes[key];
-    const beforeRelations = beforeNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(beforeNode) : getNodeParents(beforeNode))) : new Set<string>();
-    const afterRelations = afterNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(afterNode) : getNodeParents(afterNode))) : new Set<string>();
-    Array.from(afterRelations)
-      .filter((target) => !beforeRelations.has(target))
-      .sort((left, right) => left.localeCompare(right))
-      .forEach((target) => lines.push(`+ Edge: ${key} -> ${target}`));
-    Array.from(beforeRelations)
-      .filter((target) => !afterRelations.has(target))
-      .sort((left, right) => left.localeCompare(right))
-      .forEach((target) => lines.push(`- Edge: ${key} -> ${target}`));
-  });
-  return lines;
-}
-
-function isRelationField(field: string): boolean {
-  return field === "parents" || field === "children";
-}
-
-function maxRisk(values: Array<AiRiskLevel | undefined>): AiRiskLevel {
-  if (values.includes("high")) {
-    return "high";
-  }
-  if (values.includes("medium")) {
-    return "medium";
-  }
-  return "low";
-}
-
-function createId(prefix: string): string {
-  const random = typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID().slice(0, 8)
-    : Math.random().toString(36).slice(2, 10);
-  return `${prefix}-${Date.now().toString(36)}-${random}`;
 }

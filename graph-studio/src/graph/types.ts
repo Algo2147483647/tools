@@ -37,9 +37,7 @@ export interface NormalizedDag extends GraphDocument {
 }
 
 export type GraphSelection =
-  | { type: "node"; key: NodeKey }
-  | { type: "full" }
-  | { type: "forest"; keys: NodeKey[]; label: string };
+  { type: "node"; key: NodeKey } | { type: "full" } | { type: "forest"; keys: NodeKey[]; label: string };
 
 export type GraphMode = "edit";
 
@@ -72,11 +70,11 @@ export function getGraphLayoutLabel(mode: GraphRenderMode): string {
 }
 
 export const GRAPH_TITLE_FONT_OPTIONS = [
-  { label: "Georgia", value: "\"Georgia\", serif" },
-  { label: "Times", value: "\"Times New Roman\", serif" },
-  { label: "Sans", value: "\"IBM Plex Sans\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif" },
-  { label: "Display", value: "\"Cormorant Garamond\", \"Georgia\", serif" },
-  { label: "Mono", value: "\"IBM Plex Mono\", \"SFMono-Regular\", Consolas, monospace" },
+  { label: "Georgia", value: '"Georgia", serif' },
+  { label: "Times", value: '"Times New Roman", serif' },
+  { label: "Sans", value: '"IBM Plex Sans", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif' },
+  { label: "Display", value: '"Cormorant Garamond", "Georgia", serif' },
+  { label: "Mono", value: '"IBM Plex Mono", "SFMono-Regular", Consolas, monospace' },
 ] as const;
 
 export const DEFAULT_RELATION_VALUE: RelationValue = "related_to";

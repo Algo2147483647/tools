@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildStageData } from "../layout/stage-layout";
 import { getNodeTitle } from "../graph/accessors";
+import type { GraphAppearance } from "../graph/appearance";
 import { getFullGraphSelection, getParentLevelSelection, sanitizeNodeLabel } from "../graph/selectors";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
 import { getGraphLayoutLabel, getGraphRenderMode } from "../graph/types";
-import type { GraphAppearance } from "../graph/appearance";
-import { useGraphZoom } from "../hooks/useGraphZoom";
 import { useGraphPan } from "../hooks/useGraphPan";
+import { useGraphZoom } from "../hooks/useGraphZoom";
 import { useResizeObserver } from "../hooks/useResizeObserver";
+import { type StageAppearance, getStageAppearance } from "../layout/appearance";
+import { buildStageData } from "../layout/stage-layout";
 import { downloadSvg } from "../rendering/export-svg";
 import type { DocumentSessionController } from "./useDocumentSession";
 
@@ -20,39 +21,81 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   const topbarRef = useRef<HTMLElement>(null);
   const pendingNodeClickTimeoutRef = useRef<number | null>(null);
   const resizeCleanupRef = useRef<(() => void) | null>(null);
-  useEffect(() => () => { clearPendingNodeClick(); resizeCleanupRef.current?.(); }, []);
-  const typeOptions = useMemo(() => state.dag ? getGraphTypeOptions(state.dag) : [], [state.dag]);
+  useEffect(
+    () => () => {
+      clearPendingNodeClick();
+      resizeCleanupRef.current?.();
+    },
+    [],
+  );
+  const typeOptions = useMemo(() => (state.dag ? getGraphTypeOptions(state.dag) : []), [state.dag]);
   const activeType = typeOptions.includes(selectedType) ? selectedType : "";
   useEffect(() => {
     if (selectedType && !typeOptions.includes(selectedType)) {
       setSelectedType("");
     }
   }, [selectedType, typeOptions]);
-  const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, state.chartType) : null, [activeType, state.dag, state.chartType]);
+  const displayDag = useMemo(
+    () => (state.dag ? projectGraphByType(state.dag, activeType, state.chartType) : null),
+    [activeType, state.dag, state.chartType],
+  );
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
-  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, colorSourceDag: state.dag ?? undefined, selection: activeType ? { type: "full" } : state.selection, layoutMode: renderMode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, state.dag, showNodeDetail, renderMode, state.selection]);
-  const parentSelection = useMemo(() => !activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys) : null, [activeType, stage, state.dag]);
+  const geometryJson = JSON.stringify(getStageAppearance(appearance));
+  const geometryAppearance = useMemo(() => JSON.parse(geometryJson) as StageAppearance, [geometryJson]);
+  const stage = useMemo(
+    () =>
+      displayDag
+        ? buildStageData({
+            dag: displayDag,
+            colorSourceDag: state.dag ?? undefined,
+            selection: activeType ? { type: "full" } : state.selection,
+            layoutMode: renderMode,
+            appearance: geometryAppearance,
+            showNodeDetail,
+            alignNodeWidthsToMax,
+          })
+        : null,
+    [
+      activeType,
+      alignNodeWidthsToMax,
+      geometryAppearance,
+      displayDag,
+      state.dag,
+      showNodeDetail,
+      renderMode,
+      state.selection,
+    ],
+  );
+  const parentSelection = useMemo(
+    () => (!activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys) : null),
+    [activeType, stage, state.dag],
+  );
   const status = useMemo(() => {
     if (!state.dag || !stage) {
       return state.ui.status;
     }
     const focusNode = stage.dag[stage.root];
     const focusTitle = focusNode ? getNodeTitle(focusNode) : "";
-    const focusLabel = focusNode?.synthetic ? focusTitle || "Selected roots" : sanitizeNodeLabel(focusTitle || stage.root);
+    const focusLabel = focusNode?.synthetic
+      ? focusTitle || "Selected roots"
+      : sanitizeNodeLabel(focusTitle || stage.root);
     const layoutLabel = getGraphLayoutLabel(stage.layoutMode);
     const warningText = stage.warnings.length ? ` ${stage.warnings[0]}` : "";
-    return state.ui.status
-      && !state.ui.status.includes("loaded from")
-      && !state.ui.status.startsWith("Mode:")
-      && !state.ui.status.startsWith("Layout:")
-      && !state.ui.status.startsWith("Chart type:")
+    return state.ui.status &&
+      !state.ui.status.includes("loaded from") &&
+      !state.ui.status.startsWith("Mode:") &&
+      !state.ui.status.startsWith("Layout:") &&
+      !state.ui.status.startsWith("Chart type:")
       ? state.ui.status
       : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
   }, [activeType, stage, state.dag, state.layout.mode, state.ui.status]);
 
-  const handleZoomChange = useCallback((scale: number, minScale?: number) => {
-    dispatch({ type: "zoomChanged", scale, minScale });
-  }, [dispatch]);
+  const handleZoomChange = useCallback(
+    (scale: number, minScale?: number) => {
+      dispatch({ type: "zoomChanged", scale, minScale });
+    },
+    [dispatch],
+  );
   const zoom = useGraphZoom({
     containerRef,
     svgRef,
@@ -68,7 +111,8 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   useResizeObserver(containerRef, handleResize);
   const handleChromeResize = useCallback(() => {
     const topbar = topbarRef.current;
-    if (topbar) topbar.parentElement?.style.setProperty("--toolbar-bottom", `${topbar.offsetTop + topbar.offsetHeight + 8}px`);
+    if (topbar)
+      topbar.parentElement?.style.setProperty("--toolbar-bottom", `${topbar.offsetTop + topbar.offsetHeight + 8}px`);
     zoom.refresh(true);
   }, [zoom]);
   useResizeObserver(topbarRef, handleChromeResize);
@@ -118,7 +162,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   }
 
   function handleBackgroundContextMenu(event: React.MouseEvent<Element>) {
-    if (!state.dag || event.target instanceof Element && event.target.closest(".dag-node")) {
+    if (!state.dag || (event.target instanceof Element && event.target.closest(".dag-node"))) {
       return;
     }
     event.preventDefault();
@@ -132,24 +176,28 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     });
   }
 
-  const handleConsoleSidebarResizeStart = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    resizeCleanupRef.current?.();
-    const startX = event.clientX;
-    const startWidth = state.ui.consoleSidebarWidth;
-    const move = (next: PointerEvent) => dispatch({ type: "consoleSidebarWidthChanged", width: startWidth + next.clientX - startX });
-    const stop = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", stop);
-      window.removeEventListener("pointercancel", stop);
-      window.removeEventListener("blur", stop);
-      resizeCleanupRef.current = null;
-    };
-    resizeCleanupRef.current = stop;
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", stop);
-    window.addEventListener("pointercancel", stop);
-    window.addEventListener("blur", stop);
-  }, [dispatch, state.ui.consoleSidebarWidth]);
+  const handleConsoleSidebarResizeStart = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      resizeCleanupRef.current?.();
+      const startX = event.clientX;
+      const startWidth = state.ui.consoleSidebarWidth;
+      const move = (next: PointerEvent) =>
+        dispatch({ type: "consoleSidebarWidthChanged", width: startWidth + next.clientX - startX });
+      const stop = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", stop);
+        window.removeEventListener("pointercancel", stop);
+        window.removeEventListener("blur", stop);
+        resizeCleanupRef.current = null;
+      };
+      resizeCleanupRef.current = stop;
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", stop);
+      window.addEventListener("pointercancel", stop);
+      window.addEventListener("blur", stop);
+    },
+    [dispatch, state.ui.consoleSidebarWidth],
+  );
   function handleExportSvg() {
     if (!svgRef.current) {
       dispatch({ type: "statusChanged", status: "Render a DAG first, then export the SVG." });
@@ -176,15 +224,31 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     dispatch({ type: "selectionChanged", selection: getFullGraphSelection(), pushHistory: true });
   }
   return {
-    containerRef, svgRef, topbarRef, stage, status, focusedKey, setFocusedKey,
-    typeOptions, activeType, changeType, back, up, showAll, zoom,
+    containerRef,
+    svgRef,
+    topbarRef,
+    stage,
+    status,
+    focusedKey,
+    setFocusedKey,
+    typeOptions,
+    activeType,
+    changeType,
+    back,
+    up,
+    showAll,
+    zoom,
     canBack: Boolean(activeType) || state.history.length > 0,
     canUp: Boolean(parentSelection),
     zoomPercent: Number((state.zoom.scale * 100).toFixed(state.zoom.scale < 0.1 ? 1 : 0)),
     canZoomOut: Boolean(stage) && state.zoom.scale > state.zoom.minScale + 0.001,
     canZoomIn: Boolean(stage) && state.zoom.scale < state.zoom.maxScale - 0.001,
-    handleNodeClick, handleNodeDoubleClick, handleNodeContextMenu, handleBackgroundContextMenu,
-    handleConsoleSidebarResizeStart, handleExportSvg,
+    handleNodeClick,
+    handleNodeDoubleClick,
+    handleNodeContextMenu,
+    handleBackgroundContextMenu,
+    handleConsoleSidebarResizeStart,
+    handleExportSvg,
   };
 }
 

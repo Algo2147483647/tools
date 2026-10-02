@@ -69,7 +69,10 @@ export function buildSugiyamaVerticalPlanner(input: {
 
   sortedLayers.forEach((layer) => {
     const layerNodes = (nodesByLayer.get(layer) || []).slice().sort((left, right) => left.order - right.order);
-    const logicalSlotCount = Math.max(logicalSlotCountsByLayer.get(layer) || layerNodes.length || 1, layerNodes.length || 1);
+    const logicalSlotCount = Math.max(
+      logicalSlotCountsByLayer.get(layer) || layerNodes.length || 1,
+      layerNodes.length || 1,
+    );
     const plan = buildLayerVerticalPlan(layerNodes, logicalSlotCount, theme);
     planByLayer.set(layer, plan);
     stageInnerHeight = Math.max(stageInnerHeight, plan.totalHeight);
@@ -157,10 +160,7 @@ export function buildSugiyamaStageRoutes(input: {
 
   const channelXByBoundary = new Map<number, Map<string, number>>();
   boundarySegments.forEach((segments, boundaryLayer) => {
-    channelXByBoundary.set(
-      boundaryLayer,
-      assignSugiyamaBoundaryChannels(segments, boundaryLayer, layerBounds),
-    );
+    channelXByBoundary.set(boundaryLayer, assignSugiyamaBoundaryChannels(segments, boundaryLayer, layerBounds));
   });
 
   const stageRoutes = new Map<string, StageRoutePoint[]>();
@@ -198,7 +198,11 @@ export function buildSugiyamaStageRoutes(input: {
   return stageRoutes;
 }
 
-function buildLayerVerticalPlan(nodes: StageNode[], logicalSlotCount: number, theme: GraphLayoutAppearance): LayerVerticalPlan {
+function buildLayerVerticalPlan(
+  nodes: StageNode[],
+  logicalSlotCount: number,
+  theme: GraphLayoutAppearance,
+): LayerVerticalPlan {
   const nodeBands: LayerNodeBand[] = [];
   const orderY = new Map<number, number>();
   const realNodes = nodes.slice().sort((left, right) => left.order - right.order);
@@ -241,14 +245,20 @@ function buildLayerVerticalPlan(nodes: StageNode[], logicalSlotCount: number, th
   return { totalHeight: cursorY || theme.nodeHeight, nodeBands, orderY };
 }
 
-function buildLayerEdgeCorridors(nodes: StageNode[], logicalSlotCount: number, theme: GraphLayoutAppearance): LayerEdgeCorridor[] {
+function buildLayerEdgeCorridors(
+  nodes: StageNode[],
+  logicalSlotCount: number,
+  theme: GraphLayoutAppearance,
+): LayerEdgeCorridor[] {
   if (!nodes.length) {
     const logicalOrders = buildLogicalOrderRange(0, logicalSlotCount - 1);
-    return [{
-      logicalOrders,
-      laneYs: [],
-      height: computeCorridorHeight(logicalOrders.length, theme),
-    }];
+    return [
+      {
+        logicalOrders,
+        laneYs: [],
+        height: computeCorridorHeight(logicalOrders.length, theme),
+      },
+    ];
   }
 
   const corridors: LayerEdgeCorridor[] = [];
@@ -278,7 +288,8 @@ function computeCorridorHeight(laneCount: number, theme: GraphLayoutAppearance):
   if (laneCount <= 0) {
     return EMPTY_CORRIDOR_HEIGHT;
   }
-  const edgeDemand = laneCount * EDGE_STROKE_WIDTH + Math.max(laneCount - 1, 0) * theme.edgeLaneGap + EDGE_NODE_CLEARANCE_Y * 2;
+  const edgeDemand =
+    laneCount * EDGE_STROKE_WIDTH + Math.max(laneCount - 1, 0) * theme.edgeLaneGap + EDGE_NODE_CLEARANCE_Y * 2;
   return Math.max(edgeDemand, EMPTY_CORRIDOR_HEIGHT, theme.rowGap);
 }
 
@@ -288,9 +299,13 @@ function assignCorridorYs(corridor: LayerEdgeCorridor, topY: number, theme: Grap
     return;
   }
 
-  const laneBandHeight = corridor.logicalOrders.length * EDGE_STROKE_WIDTH + Math.max(corridor.logicalOrders.length - 1, 0) * theme.edgeLaneGap;
+  const laneBandHeight =
+    corridor.logicalOrders.length * EDGE_STROKE_WIDTH +
+    Math.max(corridor.logicalOrders.length - 1, 0) * theme.edgeLaneGap;
   const laneStartY = topY + (corridor.height - laneBandHeight) / 2 + EDGE_STROKE_WIDTH / 2;
-  corridor.laneYs = corridor.logicalOrders.map((_, index) => laneStartY + index * (EDGE_STROKE_WIDTH + theme.edgeLaneGap));
+  corridor.laneYs = corridor.logicalOrders.map(
+    (_, index) => laneStartY + index * (EDGE_STROKE_WIDTH + theme.edgeLaneGap),
+  );
 }
 
 function buildLogicalOrderRange(start: number, end: number): number[] {
@@ -304,7 +319,9 @@ function buildLogicalOrderRange(start: number, end: number): number[] {
   return values;
 }
 
-function buildSugiyamaLayerBounds(nodesByLayer: Map<number, StageNode[]>): Map<number, { left: number; right: number; center: number }> {
+function buildSugiyamaLayerBounds(
+  nodesByLayer: Map<number, StageNode[]>,
+): Map<number, { left: number; right: number; center: number }> {
   const bounds = new Map<number, { left: number; right: number; center: number }>();
   nodesByLayer.forEach((nodes, layer) => {
     if (!nodes.length) {
@@ -373,9 +390,8 @@ function assignSugiyamaBoundaryChannels(
   const channelCount = Math.max(channelTailY.length, 1);
   const minimumSpread = Math.max(channelCount - 1, 0) * SUGIYAMA_CHANNEL_MIN_SPACING;
   const desiredSpread = corridorWidth * SUGIYAMA_CHANNEL_WIDTH_UTILIZATION;
-  const preferredSpread = channelCount <= 1
-    ? 0
-    : Math.max(0, Math.min(corridorWidth, Math.max(minimumSpread, desiredSpread)));
+  const preferredSpread =
+    channelCount <= 1 ? 0 : Math.max(0, Math.min(corridorWidth, Math.max(minimumSpread, desiredSpread)));
   const step = channelCount > 1 ? preferredSpread / (channelCount - 1) : 0;
   const bandStart = center - preferredSpread / 2;
   const xByEdge = new Map<string, number>();
@@ -418,7 +434,11 @@ function buildSugiyamaBoundaryBundles(segments: SugiyamaBoundarySegment[]): Sugi
   return Array.from(bundlesByKey.values());
 }
 
-function simplifyStageRoutePoints(points: StageRoutePoint[], sourceNode: StageNode, targetNode: StageNode): StageRoutePoint[] {
+function simplifyStageRoutePoints(
+  points: StageRoutePoint[],
+  sourceNode: StageNode,
+  targetNode: StageNode,
+): StageRoutePoint[] {
   const simplified: StageRoutePoint[] = [];
   const start = { x: sourceNode.x + sourceNode.width / 2 + 4, y: sourceNode.y };
   const end = { x: targetNode.x - targetNode.width / 2, y: targetNode.y };
@@ -445,7 +465,11 @@ function simplifyStageRoutePoints(points: StageRoutePoint[], sourceNode: StageNo
   while (simplified.length && nearlyEqual(simplified[0].x, start.x) && nearlyEqual(simplified[0].y, start.y)) {
     simplified.shift();
   }
-  while (simplified.length && nearlyEqual(simplified[simplified.length - 1].x, end.x) && nearlyEqual(simplified[simplified.length - 1].y, end.y)) {
+  while (
+    simplified.length &&
+    nearlyEqual(simplified[simplified.length - 1].x, end.x) &&
+    nearlyEqual(simplified[simplified.length - 1].y, end.y)
+  ) {
     simplified.pop();
   }
 
@@ -461,8 +485,10 @@ function isCollinearOrthogonal(
   middle: { x: number; y: number },
   last: { x: number; y: number },
 ): boolean {
-  return (nearlyEqual(first.x, middle.x) && nearlyEqual(middle.x, last.x))
-    || (nearlyEqual(first.y, middle.y) && nearlyEqual(middle.y, last.y));
+  return (
+    (nearlyEqual(first.x, middle.x) && nearlyEqual(middle.x, last.x)) ||
+    (nearlyEqual(first.y, middle.y) && nearlyEqual(middle.y, last.y))
+  );
 }
 
 function nearlyEqual(left: number, right: number): boolean {

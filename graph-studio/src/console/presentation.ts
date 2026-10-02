@@ -1,6 +1,6 @@
 import type { NodeKey } from "../graph/types";
-import type { ConsoleSuggestion } from "./types";
 import { CONSOLE_COMMAND_REFERENCE } from "./reference";
+import type { ConsoleSuggestion } from "./types";
 
 export function buildConsoleSuccessMessage(
   instructionCount: number,
@@ -50,5 +50,7 @@ export function getConsoleSuggestions(input: string): ConsoleSuggestion[] {
   }
 
   const mnemonic = trimmedStart.split(/\s+/, 1)[0]?.toLowerCase() || "";
-  return COMMAND_TEMPLATES.filter((item) => item.label.toLowerCase().startsWith(`${mnemonic} `) || item.label.toLowerCase() === mnemonic).slice(0, 6);
+  return COMMAND_TEMPLATES.filter(
+    (item) => item.label.toLowerCase().startsWith(`${mnemonic} `) || item.label.toLowerCase() === mnemonic,
+  ).slice(0, 6);
 }

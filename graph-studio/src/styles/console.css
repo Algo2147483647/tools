@@ -18,7 +18,11 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.46) transparent;
   padding: 8px 10px;
-  font: 13px/1.55 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    13px/1.55 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
 }
 
 .console-terminal__panel-tabs {
@@ -37,7 +41,11 @@
   border-radius: 5px;
   background: transparent;
   color: rgba(226, 232, 240, 0.72);
-  font: 12px/1.2 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.2 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
   cursor: pointer;
 }
 
@@ -92,7 +100,11 @@
   border-radius: 8px;
   background: rgba(15, 23, 42, 0.88);
   color: #f8fafc;
-  font: 12px/1.45 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.45 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
 }
 
 .console-review-card--failed {
@@ -122,7 +134,11 @@
 .console-review-card__header h3 {
   margin: 2px 0 0;
   color: #fff;
-  font: 700 13px/1.25 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    700 13px/1.25 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
 }
 
 .console-review-card__eyebrow,
@@ -195,7 +211,11 @@
   border-radius: 6px;
   background: rgba(2, 6, 23, 0.72);
   color: #ffd18a;
-  font: 12px/1.45 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.45 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
   white-space: pre-wrap;
 }
 
@@ -212,7 +232,11 @@
   padding: 4px 9px;
   background: rgba(30, 41, 59, 0.92);
   color: #f8fafc;
-  font: 12px/1.2 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.2 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
   cursor: pointer;
 }
 
@@ -236,7 +260,11 @@
   padding: 8px 10px;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.46) transparent;
-  font: 12px/1.45 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.45 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
 }
 
 .console-activity__summary,
@@ -280,7 +308,11 @@
 .console-activity__block-header h3 {
   margin: 2px 0 0;
   color: #fff;
-  font: 700 13px/1.25 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    700 13px/1.25 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
 }
 
 .console-activity__eyebrow,
@@ -357,7 +389,11 @@
   border-radius: 6px;
   background: rgba(2, 6, 23, 0.72);
   color: #ffd18a;
-  font: 12px/1.45 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.45 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -369,7 +405,11 @@
   padding: 4px 9px;
   background: rgba(30, 41, 59, 0.92);
   color: #f8fafc;
-  font: 12px/1.2 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.2 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
   cursor: pointer;
 }
 
@@ -436,7 +476,11 @@
   min-height: 42px;
   padding: 0 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font: 13px/1.4 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    13px/1.4 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
 }
 
 .console-terminal__prompt {
@@ -524,7 +568,11 @@
   padding: 6px 8px;
   background: transparent;
   color: rgba(242, 242, 242, 0.72);
-  font: 12px/1.4 "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+  font:
+    12px/1.4 "Cascadia Mono",
+    "IBM Plex Mono",
+    Consolas,
+    monospace;
   text-align: left;
   cursor: pointer;
 }

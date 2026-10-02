@@ -1,6 +1,5 @@
-import { canOverwrite } from "../adapters/fileAccess";
 import { useMemo } from "react";
-import { getSankeyError } from "../graph/sankey";
+import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
 import type { AppearanceHistoryController } from "../controllers/useAppearanceHistory";
 import type { ConsoleController } from "../controllers/useConsoleController";
@@ -8,12 +7,14 @@ import type { DocumentSessionController } from "../controllers/useDocumentSessio
 import type { GraphTransactionsController } from "../controllers/useGraphTransactions";
 import type { GraphViewportController } from "../controllers/useGraphViewport";
 import type { NodeActionsController } from "../controllers/useNodeActions";
+import { getSankeyError } from "../graph/sankey";
 import ConsoleSidebar from "./ConsoleSidebar";
 import ContextMenu from "./ContextMenu";
 import FilePreviewModal from "./FilePreviewModal";
 import NodeDetailModal from "./NodeDetailModal";
 import RelationEditorModal from "./RelationEditorModal";
 import SaveJsonModal from "./SaveJsonModal";
+import SettingsModal from "./settings/SettingsModal";
 import Topbar from "./Topbar";
 import Workspace from "./Workspace";
 import WelcomeScreen from "./workspace/WelcomeScreen";
@@ -30,30 +31,54 @@ interface StudioViewProps {
   nodeActions: NodeActionsController;
 }
 
-export default function StudioView({ session, appearanceHistory, transactions, consoleController, ai, viewport, nodeActions }: StudioViewProps) {
+export default function StudioView({
+  session,
+  appearanceHistory,
+  transactions,
+  consoleController,
+  ai,
+  viewport,
+  nodeActions,
+}: StudioViewProps) {
   const { state, files, filePreview, relativeLinkRoot } = session;
   const { appearance } = appearanceHistory;
   const relationEditor = state.ui.relationEditor;
   const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
   const consoleSidebarVisible = state.ui.consoleSidebarOpen;
-  const sankeyUnavailableReason = useMemo(() => state.dag ? getSankeyError(state.dag.nodes, state.dag.edges) : null, [state.dag]);
+  const sankeyUnavailableReason = useMemo(
+    () => (state.dag ? getSankeyError(state.dag.nodes, state.dag.edges) : null),
+    [state.dag],
+  );
 
   return (
     <div className="app-shell" onDragOver={session.handleAppDragOver} onDrop={session.handleAppDrop}>
-      <input hidden type="file" ref={files.fileInputRef} accept=".json,application/json" onChange={files.onFileChange} />
-      <input hidden type="file" ref={files.folderInputRef} multiple {...{ webkitdirectory: "", directory: "" }} onChange={files.onFolderChange} />
-      {(files.busy || files.notice) && <div className={`source-notice${files.busy ? " is-busy" : ""}`} role={files.busy ? "status" : "alert"}><span>{files.busy ? "Opening your files…" : files.notice}</span>{!files.busy && <button aria-label="Dismiss message" onClick={() => files.setNotice("")}>×</button>}</div>}
+      <input
+        hidden
+        type="file"
+        ref={files.fileInputRef}
+        accept=".json,application/json"
+        onChange={files.onFileChange}
+      />
+      <input
+        hidden
+        type="file"
+        ref={files.folderInputRef}
+        multiple
+        {...{ webkitdirectory: "", directory: "" }}
+        onChange={files.onFolderChange}
+      />
+      {(files.busy || files.notice) && (
+        <div className={`source-notice${files.busy ? " is-busy" : ""}`} role={files.busy ? "status" : "alert"}>
+          <span>{files.busy ? "Opening your files…" : files.notice}</span>
+          {!files.busy && (
+            <button aria-label="Dismiss message" onClick={() => files.setNotice("")}>
+              ×
+            </button>
+          )}
+        </div>
+      )}
       <Topbar
         topbarRef={viewport.topbarRef}
-        layoutMode={state.layout.mode}
-        chartType={state.chartType}
-        sankeyUnavailableReason={sankeyUnavailableReason}
-        onChartTypeChange={session.changeChartType}
-        appearance={appearance}
-        showNodeDetail={session.showNodeDetail}
-        hideNodeBorders={session.hideNodeBorders}
-        alignNodeWidthsToMax={session.alignNodeWidthsToMax}
-        fileName={state.source.fileName}
         files={files}
         hasGraph={Boolean(state.dag)}
         typeOptions={viewport.typeOptions}
@@ -67,9 +92,6 @@ export default function StudioView({ session, appearanceHistory, transactions, c
         canZoomOut={viewport.canZoomOut}
         canZoomIn={viewport.canZoomIn}
         settingsOpen={state.ui.settingsOpen}
-        consoleSidebarOpen={consoleSidebarVisible}
-        aiSettings={session.aiSettings}
-        aiBusy={ai.busy}
         onBack={viewport.back}
         onUp={viewport.up}
         onAll={viewport.showAll}
@@ -80,7 +102,79 @@ export default function StudioView({ session, appearanceHistory, transactions, c
         onZoomFit={viewport.zoom.zoomFit}
         onZoomPercentCommit={viewport.zoom.setZoomPercent}
         onSettingsToggle={session.toggleSettings}
-        onConsoleSidebarToggle={session.toggleConsole}
+        onSaveJson={session.requestSave}
+      />
+
+      {files.homeVisible ? (
+        <WelcomeScreen files={files} onNew={session.initializeCanvas} hasDocument={Boolean(state.dag)} />
+      ) : (
+        <Workspace
+          explorer={
+            files.workspace && files.explorerOpen ? (
+              <WorkspaceExplorer
+                files={files}
+                dirty={state.source.dirty}
+                onOpenAsset={(path) => void session.handleOpenRelativeLink(path, "")}
+              />
+            ) : null
+          }
+          emptyContent={files.workspace && !state.dag ? <WorkspaceOverview files={files} /> : undefined}
+          containerRef={viewport.containerRef}
+          svgRef={viewport.svgRef}
+          stage={viewport.stage}
+          status={viewport.status}
+          sidebar={
+            <ConsoleSidebar
+              hasGraph={Boolean(state.dag)}
+              entries={consoleController.entries}
+              inputValue={consoleController.input}
+              contextNodeKey={consoleController.contextNodeKey}
+              aiBusy={ai.busy}
+              aiHarness={ai.harness}
+              suggestions={consoleController.suggestions}
+              activeSuggestionIndex={consoleController.activeSuggestionIndex}
+              onReviewApply={ai.applyReview}
+              onReviewDismiss={ai.dismissReview}
+              onReviewCopy={ai.copyReview}
+              onInputChange={consoleController.changeInput}
+              onKeyDown={(event) => consoleController.handleKeyDown(event, ai.request)}
+              onPaste={(event) => consoleController.handlePaste(event, ai.request)}
+              onSuggestionSelect={(suggestion) => consoleController.changeInput(suggestion.insertText)}
+            />
+          }
+          sidebarOpen={consoleSidebarVisible}
+          sidebarWidth={state.ui.consoleSidebarWidth}
+          appearance={appearance}
+          onInitializeCanvas={session.initializeCanvas}
+          focusedKey={viewport.focusedKey}
+          hideNodeBorders={session.hideNodeBorders}
+          onNodeClick={viewport.handleNodeClick}
+          onNodeDoubleClick={viewport.handleNodeDoubleClick}
+          onNodeContextMenu={viewport.handleNodeContextMenu}
+          onBackgroundContextMenu={viewport.handleBackgroundContextMenu}
+          onFocusChange={viewport.setFocusedKey}
+          onScroll={session.closeContextMenu}
+          onSidebarResizeStart={viewport.handleConsoleSidebarResizeStart}
+        />
+      )}
+
+      <SettingsModal
+        open={state.ui.settingsOpen}
+        chartType={state.chartType}
+        sankeyUnavailableReason={sankeyUnavailableReason}
+        onChartTypeChange={session.changeChartType}
+        layoutMode={state.layout.mode}
+        appearance={appearance}
+        showNodeDetail={session.showNodeDetail}
+        hideNodeBorders={session.hideNodeBorders}
+        alignNodeWidthsToMax={session.alignNodeWidthsToMax}
+        fileName={state.source.fileName}
+        files={files}
+        hasGraph={Boolean(state.dag)}
+        consoleSidebarOpen={consoleSidebarVisible}
+        aiSettings={session.aiSettings}
+        aiBusy={ai.busy}
+        onClose={session.toggleSettings}
         onLayoutModeChange={session.changeLayout}
         onLayoutAppearanceChange={appearanceHistory.handleLayoutAppearanceChange}
         onAppearanceCssVarChange={appearanceHistory.handleAppearanceCssVarChange}
@@ -94,54 +188,12 @@ export default function StudioView({ session, appearanceHistory, transactions, c
         onNodeDetailToggle={session.toggleNodeDetail}
         onNodeBordersToggle={session.toggleNodeBorders}
         onNodeWidthAlignToggle={session.toggleNodeWidthAlign}
+        onConsoleSidebarToggle={session.toggleConsole}
         onInitializeCanvas={session.initializeCanvas}
         onExport={viewport.handleExportSvg}
-        onSaveJson={session.requestSave}
         onAiSettingsChange={session.setAiSettings}
         onAiConnectionTest={ai.testConnection}
       />
-
-      {files.homeVisible ? <WelcomeScreen files={files} onNew={session.initializeCanvas} hasDocument={Boolean(state.dag)} /> : <Workspace
-        explorer={files.workspace && files.explorerOpen ? <WorkspaceExplorer files={files} dirty={state.source.dirty} onOpenAsset={path => void session.handleOpenRelativeLink(path, "")} /> : null}
-        emptyContent={files.workspace && !state.dag ? <WorkspaceOverview files={files} /> : undefined}
-        containerRef={viewport.containerRef}
-        svgRef={viewport.svgRef}
-        stage={viewport.stage}
-        status={viewport.status}
-        sidebar={(
-          <ConsoleSidebar
-            hasGraph={Boolean(state.dag)}
-            entries={consoleController.entries}
-            inputValue={consoleController.input}
-            contextNodeKey={consoleController.contextNodeKey}
-            aiBusy={ai.busy}
-            aiHarness={ai.harness}
-            suggestions={consoleController.suggestions}
-            activeSuggestionIndex={consoleController.activeSuggestionIndex}
-            onReviewApply={ai.applyReview}
-            onReviewDismiss={ai.dismissReview}
-            onReviewCopy={ai.copyReview}
-            onInputChange={consoleController.changeInput}
-            onKeyDown={event => consoleController.handleKeyDown(event, ai.request)}
-            onPaste={event => consoleController.handlePaste(event, ai.request)}
-            onSuggestionSelect={suggestion => consoleController.changeInput(suggestion.insertText)}
-          />
-        )}
-        sidebarOpen={consoleSidebarVisible}
-        sidebarWidth={state.ui.consoleSidebarWidth}
-        appearance={appearance}
-        onInitializeCanvas={session.initializeCanvas}
-        focusedKey={viewport.focusedKey}
-        hideNodeBorders={session.hideNodeBorders}
-        onNodeClick={viewport.handleNodeClick}
-        onNodeDoubleClick={viewport.handleNodeDoubleClick}
-        onNodeContextMenu={viewport.handleNodeContextMenu}
-        onBackgroundContextMenu={viewport.handleBackgroundContextMenu}
-        onFocusChange={viewport.setFocusedKey}
-        onScroll={session.closeContextMenu}
-        onSidebarResizeStart={viewport.handleConsoleSidebarResizeStart}
-      />}
-
       <ContextMenu menu={state.ui.contextMenu} onAction={nodeActions.handleContextMenuAction} />
       <RelationEditorModal
         open={Boolean(relationEditor)}
@@ -167,8 +219,12 @@ export default function StudioView({ session, appearanceHistory, transactions, c
       />
       <FilePreviewModal
         preview={filePreview}
-        relativeLinkRoot={relativeLinkRoot && filePreview ? { ...relativeLinkRoot, baseFile: filePreview.relativePath } : relativeLinkRoot}
-        onOpenRelativeLink={url => void session.handleOpenRelativeLink(url, filePreview?.relativePath)}
+        relativeLinkRoot={
+          relativeLinkRoot && filePreview
+            ? { ...relativeLinkRoot, baseFile: filePreview.relativePath }
+            : relativeLinkRoot
+        }
+        onOpenRelativeLink={(url) => void session.handleOpenRelativeLink(url, filePreview?.relativePath)}
         onRelativeLinkError={session.handleRelativeLinkError}
         onClose={session.closeFilePreview}
       />

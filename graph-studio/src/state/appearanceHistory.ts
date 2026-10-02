@@ -15,9 +15,7 @@ interface AppearanceHistory {
 }
 
 type AppearanceHistoryAction =
-  | { type: "commit"; appearance: GraphAppearance; label: string }
-  | { type: "undo" }
-  | { type: "redo" };
+  { type: "commit"; appearance: GraphAppearance; label: string } | { type: "undo" } | { type: "redo" };
 
 function createAppearanceHistory(appearance: GraphAppearance): AppearanceHistory {
   return { appearance, undoStack: [], redoStack: [] };
@@ -32,7 +30,10 @@ export function createChartAppearanceHistory(styles: ChartStyles): ChartAppearan
   };
 }
 
-export function chartAppearanceHistoryReducer(state: ChartAppearanceHistory, input: { chartType: GraphChartType; action: AppearanceHistoryAction }): ChartAppearanceHistory {
+export function chartAppearanceHistoryReducer(
+  state: ChartAppearanceHistory,
+  input: { chartType: GraphChartType; action: AppearanceHistoryAction },
+): ChartAppearanceHistory {
   const history = appearanceHistoryReducer(state[input.chartType], input.action);
   return history === state[input.chartType] ? state : { ...state, [input.chartType]: history };
 }
@@ -46,19 +47,23 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
     }
     case "undo": {
       const transaction = state.undoStack.at(-1);
-      return transaction ? {
-        appearance: transaction.before,
-        undoStack: state.undoStack.slice(0, -1),
-        redoStack: [...state.redoStack, transaction],
-      } : state;
+      return transaction
+        ? {
+            appearance: transaction.before,
+            undoStack: state.undoStack.slice(0, -1),
+            redoStack: [...state.redoStack, transaction],
+          }
+        : state;
     }
     case "redo": {
       const transaction = state.redoStack.at(-1);
-      return transaction ? {
-        appearance: transaction.after,
-        undoStack: [...state.undoStack, transaction].slice(-100),
-        redoStack: state.redoStack.slice(0, -1),
-      } : state;
+      return transaction
+        ? {
+            appearance: transaction.after,
+            undoStack: [...state.undoStack, transaction].slice(-100),
+            redoStack: state.redoStack.slice(0, -1),
+          }
+        : state;
     }
   }
 }

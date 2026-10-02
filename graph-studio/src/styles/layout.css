@@ -10,28 +10,13 @@
 }
 
 .topbar {
-  position: absolute;
   top: 8px;
   left: 8px;
   right: 8px;
-  z-index: 5;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.22));
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 10px 24px rgba(26, 39, 63, 0.03);
   backdrop-filter: blur(16px);
-}
-
-.topbar-brand {
-  flex: 0 0 auto;
-  min-width: 132px;
 }
 
 .topbar h1 {
@@ -61,33 +46,17 @@
 
 .topbar-actions {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
-  gap: 6px;
-  min-width: 0;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
 }
 
 .topbar-group {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  min-height: 34px;
-  padding: 3px;
-  border: 1px solid rgba(91, 109, 142, 0.1);
-  border-radius: 999px;
-  background: rgba(250, 252, 255, 0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .workspace {
-  position: relative;
   z-index: 1;
   flex: 1;
-  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
@@ -95,38 +64,27 @@
 .workspace-split-shell {
   position: absolute;
   inset: 0;
-  display: flex;
   min-width: 0;
   min-height: 0;
 }
 
 .workspace-sidebar-shell {
-  position: relative;
   z-index: 2;
-  height: 100%;
-  padding: 78px 0 0 12px;
 }
 
 .workspace-sidebar-resizer {
   position: relative;
   z-index: 2;
-  width: 14px;
   cursor: col-resize;
 }
 
 .workspace-sidebar-resizer::before {
   content: "";
   position: absolute;
-  top: 84px;
-  bottom: 12px;
-  left: 6px;
   width: 2px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(84, 104, 138, 0.1), rgba(84, 104, 138, 0.22), rgba(84, 104, 138, 0.1));
 }
 
 .workspace-stage-shell {
-  position: relative;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;

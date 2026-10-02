@@ -279,7 +279,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     "--dag-node-fill": "#ffffff",
     "--dag-node-border": "rgba(91, 109, 142, 0.17)",
     "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
-    "--dag-title-font-family": "\"Georgia\", serif",
+    "--dag-title-font-family": '"Georgia", serif',
     "--dag-title-font-size": "15px",
     "--dag-title-font-style": "italic",
     "--dag-title-font-weight": "400",
@@ -294,12 +294,14 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
 
   const record = input as Record<string, unknown>;
   const defaultLayout = DEFAULT_GRAPH_APPEARANCE.layout;
-  const layoutInput = record.layout && typeof record.layout === "object" && !Array.isArray(record.layout)
-    ? record.layout as Record<string, unknown>
-    : {};
-  const displayInput = record.display && typeof record.display === "object" && !Array.isArray(record.display)
-    ? record.display as Record<string, unknown>
-    : {};
+  const layoutInput =
+    record.layout && typeof record.layout === "object" && !Array.isArray(record.layout)
+      ? (record.layout as Record<string, unknown>)
+      : {};
+  const displayInput =
+    record.display && typeof record.display === "object" && !Array.isArray(record.display)
+      ? (record.display as Record<string, unknown>)
+      : {};
   const minNodeWidth = clampNumeric(layoutInput.minNodeWidth, defaultLayout.minNodeWidth, 140, 260);
   const maxNodeWidth = clampNumeric(layoutInput.maxNodeWidth, defaultLayout.maxNodeWidth, minNodeWidth, 480);
 
@@ -318,7 +320,10 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
       stageMinHeight: clampNumeric(layoutInput.stageMinHeight, defaultLayout.stageMinHeight, 240, 3000),
     },
     display: {
-      showEdgeLabels: displayInput.showEdgeLabels === undefined ? DEFAULT_GRAPH_APPEARANCE.display.showEdgeLabels : displayInput.showEdgeLabels === true,
+      showEdgeLabels:
+        displayInput.showEdgeLabels === undefined
+          ? DEFAULT_GRAPH_APPEARANCE.display.showEdgeLabels
+          : displayInput.showEdgeLabels === true,
       nodeShadow: typeof displayInput.nodeShadow === "boolean" ? displayInput.nodeShadow : true,
       shadowBlur: clampNumeric(displayInput.shadowBlur, 8, 0, 32),
       shadowOffset: clampNumeric(displayInput.shadowOffset, 3, 0, 16),
@@ -333,9 +338,16 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
 
 export function appearanceToStageStyle(appearance: GraphAppearance): CSSProperties {
   const { nodeShadow, shadowBlur, shadowOffset, shadowOpacity, sankeyLinkOpacity } = appearance.display;
-  const shadow = (active: boolean) => !nodeShadow ? "none" :
-    `drop-shadow(0 1px 1px rgba(24, 39, 64, ${shadowOpacity / 200})) drop-shadow(0 ${shadowOffset * (active ? 1.5 : 1)}px ${shadowBlur * (active ? 1.25 : 1)}px rgba(24, 39, 64, ${shadowOpacity / 100}))`;
-  return { ...appearance.cssVars, "--dag-node-shadow": shadow(false), "--dag-node-shadow-active": shadow(true), "--dag-sankey-opacity": sankeyLinkOpacity / 100 } as CSSProperties;
+  const shadow = (active: boolean) =>
+    !nodeShadow
+      ? "none"
+      : `drop-shadow(0 1px 1px rgba(24, 39, 64, ${shadowOpacity / 200})) drop-shadow(0 ${shadowOffset * (active ? 1.5 : 1)}px ${shadowBlur * (active ? 1.25 : 1)}px rgba(24, 39, 64, ${shadowOpacity / 100}))`;
+  return {
+    ...appearance.cssVars,
+    "--dag-node-shadow": shadow(false),
+    "--dag-node-shadow-active": shadow(true),
+    "--dag-sankey-opacity": sankeyLinkOpacity / 100,
+  } as CSSProperties;
 }
 
 function sanitizeCss(css: unknown): string {
@@ -358,8 +370,9 @@ function sanitizeCssVars(input: unknown): Record<string, string> {
     }
     // The old translucent default let the drop shadow show through the card.
     // Migrate that default in saved preferences without changing custom colors.
-    const isLegacyFill = ["--dag-node-fill", "--dag-node-root-fill", "--dag-node-active-fill"].includes(key)
-      && value.replace(/\s/g, "").toLowerCase() === "rgba(252,253,255,0.88)";
+    const isLegacyFill =
+      ["--dag-node-fill", "--dag-node-root-fill", "--dag-node-active-fill"].includes(key) &&
+      value.replace(/\s/g, "").toLowerCase() === "rgba(252,253,255,0.88)";
     vars[key] = isLegacyFill ? "#ffffff" : value.slice(0, 500);
   });
   return vars;

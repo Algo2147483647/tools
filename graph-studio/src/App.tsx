@@ -11,17 +11,34 @@ import { useGraphPreferences } from "./hooks/useGraphPreferences";
 
 export default function App() {
   const session = useDocumentSession();
-  const appearanceHistory = useAppearanceHistory(session.preferences.chartStyles, session.state.chartType, session.dispatch);
+  const appearanceHistory = useAppearanceHistory(
+    session.preferences.chartStyles,
+    session.state.chartType,
+    session.dispatch,
+  );
   const { appearance } = appearanceHistory;
   const transactions = useGraphTransactions({ ...session, appearanceHistory });
-  const consoleController = useConsoleController({ ...session, appearance, transactions,
-    commitAppearance: appearanceHistory.commitAppearance });
+  const consoleController = useConsoleController({
+    ...session,
+    appearance,
+    transactions,
+    commitAppearance: appearanceHistory.commitAppearance,
+  });
   const ai = useAiController({ ...session, appearance, settings: session.aiSettings, consoleController });
   const viewport = useGraphViewport(session, appearance);
   const nodeActions = useNodeActions(session, transactions);
   useStudioShortcuts(session, transactions);
   useGraphPreferences({ ...session, appearanceByChart: appearanceHistory.appearanceByChart });
 
-  return <StudioView session={session} appearanceHistory={appearanceHistory} transactions={transactions}
-    consoleController={consoleController} ai={ai} viewport={viewport} nodeActions={nodeActions} />;
+  return (
+    <StudioView
+      session={session}
+      appearanceHistory={appearanceHistory}
+      transactions={transactions}
+      consoleController={consoleController}
+      ai={ai}
+      viewport={viewport}
+      nodeActions={nodeActions}
+    />
+  );
 }

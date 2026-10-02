@@ -65,24 +65,23 @@ function copyInlineSvgStyles(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement):
     }
 
     const computedStyle = window.getComputedStyle(sourceElement);
-    const inlineStyle = EXPORT_STYLE_PROPERTIES
-      .map((propertyName) => {
-        const propertyValue = computedStyle.getPropertyValue(propertyName);
-        if (!propertyValue) {
-          return "";
-        }
-        const trimmedValue = propertyValue.trim();
-        if (!trimmedValue || trimmedValue === "normal") {
-          return "";
-        }
-        if (trimmedValue === "none" && EXPORT_OPTIONAL_NONE_PROPERTIES.has(propertyName)) {
-          return "";
-        }
-        if (propertyName === "filter" && /^url\(/i.test(trimmedValue)) {
-          return "";
-        }
-        return `${propertyName}: ${trimmedValue};`;
-      })
+    const inlineStyle = EXPORT_STYLE_PROPERTIES.map((propertyName) => {
+      const propertyValue = computedStyle.getPropertyValue(propertyName);
+      if (!propertyValue) {
+        return "";
+      }
+      const trimmedValue = propertyValue.trim();
+      if (!trimmedValue || trimmedValue === "normal") {
+        return "";
+      }
+      if (trimmedValue === "none" && EXPORT_OPTIONAL_NONE_PROPERTIES.has(propertyName)) {
+        return "";
+      }
+      if (propertyName === "filter" && /^url\(/i.test(trimmedValue)) {
+        return "";
+      }
+      return `${propertyName}: ${trimmedValue};`;
+    })
       .filter(Boolean)
       .join(" ");
 

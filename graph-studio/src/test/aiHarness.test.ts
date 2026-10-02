@@ -1,14 +1,10 @@
 import assert from "node:assert/strict";
-import {
-  createInitialAiHarnessState,
-  createPlanFromAiResponse,
-  createTurnId,
-  installPlan,
-  referencesPreviousWork,
-  validateCommandBatch,
-} from "../ai/harness";
-import { parseAiResponse } from "../ai/providers";
+import { createInitialAiHarnessState, createTurnId, installPlan } from "../ai/harness";
 import { buildAiHarnessStorageKey, parsePersistedAiHarnessState } from "../ai/persistence";
+import { createPlanFromAiResponse } from "../ai/plans";
+import { referencesPreviousWork } from "../ai/presentation";
+import { parseAiResponse } from "../ai/responseParser";
+import { validateCommandBatch } from "../ai/validation";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
@@ -21,17 +17,16 @@ export const aiHarnessSuite = defineSuite("ai harness", [
   }),
 
   defineTest("parses AI JSON responses wrapped in a markdown fence", () => {
-    const parsed = parseAiResponse([
-      "```json",
-      "{\"kind\":\"answer\",\"answer\":\"ok\"}",
-      "```",
-    ].join("\n"));
+    const parsed = parseAiResponse(["```json", '{"kind":"answer","answer":"ok"}', "```"].join("\n"));
     assert.deepEqual(parsed, { kind: "answer", answer: "ok" });
   }),
 
   defineTest("reports invalid AI JSON with command quoting guidance", () => {
     assert.throws(
-      () => parseAiResponse("{\"kind\":\"run_console\",\"answer\":\"x\",\"commandBatch\":{\"commands\":[\"/set Water define \"2H2 + O2 -> 2H2O\"\"]}}"),
+      () =>
+        parseAiResponse(
+          '{"kind":"run_console","answer":"x","commandBatch":{"commands":["/set Water define "2H2 + O2 -> 2H2O""]}}',
+        ),
       /Command strings must escape nested double quotes/,
     );
   }),
@@ -55,10 +50,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
               kind: "add_node",
               target: { nodeId: "Subgroup" },
               rationale: "Subgroups are a core construction in group theory.",
-              draftCommands: [
-                "/add Subgroup -p Group",
-                "/set Subgroup title \"Subgroup\"",
-              ],
+              draftCommands: ["/add Subgroup -p Group", '/set Subgroup title "Subgroup"'],
               risk: "medium",
             },
           ],
@@ -67,10 +59,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     });
     const next = installPlan(harness, plan, turnId);
     assert.equal(next.activePlan?.title, "Group theory chain cleanup");
-    assert.deepEqual(next.pendingCommandBatch?.commands, [
-      "/add Subgroup -p Group",
-      "/set Subgroup title \"Subgroup\"",
-    ]);
+    assert.deepEqual(next.pendingCommandBatch?.commands, ["/add Subgroup -p Group", '/set Subgroup title "Subgroup"']);
   }),
 
   defineTest("validates command batches before execution and reports risk", () => {
@@ -86,7 +75,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
         commandBatch: {
           commands: [
             "/add Subgroup -p A",
-            "/set Subgroup define \"A subset that forms a group under the inherited operation.\"",
+            '/set Subgroup define "A subset that forms a group under the inherited operation."',
           ],
         },
       },
@@ -117,11 +106,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
         kind: "run_console",
         answer: "Applying a slate UI style.",
         commandBatch: {
-          commands: [
-            "/style-preset slate",
-            "/layout rowGap 36",
-            "/style-var --dag-edge \"rgba(120, 160, 255, 0.45)\"",
-          ],
+          commands: ["/style-preset slate", "/layout rowGap 36", '/style-var --dag-edge "rgba(120, 160, 255, 0.45)"'],
         },
       },
     });

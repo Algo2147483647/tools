@@ -31,5 +31,14 @@ export function useGraphPreferences({
       consoleSidebarWidth: state.ui.consoleSidebarWidth,
       aiSettings,
     });
-  }, [aiSettings, appearanceByChart, displayByChart, state.chartType, state.layout.mode, state.mode, state.ui.consoleSidebarOpen, state.ui.consoleSidebarWidth]);
+  }, [
+    aiSettings,
+    appearanceByChart,
+    displayByChart,
+    state.chartType,
+    state.layout.mode,
+    state.mode,
+    state.ui.consoleSidebarOpen,
+    state.ui.consoleSidebarWidth,
+  ]);
 }

@@ -1,8 +1,8 @@
-import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
-import { MarkdownValue } from "./NodeFieldEditor";
 import type { FilePreviewState } from "../hooks/useRelativeFilePreview";
+import { MarkdownValue } from "./NodeFieldEditor";
+import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 
 interface FilePreviewModalProps {
   preview: FilePreviewState | null;
@@ -31,7 +31,8 @@ export default function FilePreviewModal({
       return;
     }
 
-    preview.file.text()
+    preview.file
+      .text()
       .then((content) => {
         if (!cancelled) {
           setTextContent(content);
@@ -79,7 +80,13 @@ export default function FilePreviewModal({
             >
               <FullscreenIcon active={isFullscreen} />
             </button>
-            <button className="ghost-btn modal-icon-close-btn" type="button" title="Close preview" aria-label="Close preview" onClick={onClose}>
+            <button
+              className="ghost-btn modal-icon-close-btn"
+              type="button"
+              title="Close preview"
+              aria-label="Close preview"
+              onClick={onClose}
+            >
               <CloseIcon />
             </button>
           </div>
@@ -107,17 +114,25 @@ export default function FilePreviewModal({
           onOpenRelativeLink={onOpenRelativeLink}
           onRelativeLinkError={onRelativeLinkError}
         />
-      ) : <p className="node-detail-empty">Reading file: {activePreview.path}</p>;
+      ) : (
+        <p className="node-detail-empty">Reading file: {activePreview.path}</p>
+      );
     }
     if (activePreview.previewKind === "text") {
-      return textContent ? <pre className="file-preview-text">{textContent}</pre> : <p className="node-detail-empty">Reading file: {activePreview.path}</p>;
+      return textContent ? (
+        <pre className="file-preview-text">{textContent}</pre>
+      ) : (
+        <p className="node-detail-empty">Reading file: {activePreview.path}</p>
+      );
     }
     return (
       <div className="file-preview-unsupported">
         <p>This file type is not supported for preview.</p>
         <p>Original link: {activePreview.originalUrl}</p>
         <p>Resolved target: {activePreview.path}</p>
-        <a href={activePreview.url} target="_blank" rel="noreferrer">Open in browser</a>
+        <a href={activePreview.url} target="_blank" rel="noreferrer">
+          Open in browser
+        </a>
       </div>
     );
   }

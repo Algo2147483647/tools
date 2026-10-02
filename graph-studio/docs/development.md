@@ -24,6 +24,8 @@ npm run dev
 npm run build
 npm test
 npm run preview
+npm run format
+npm run check
 ```
 
 Script behavior:
@@ -32,13 +34,19 @@ Script behavior:
 - `npm run build`: type-checks (including unused locals and parameters) and creates a production build
 - `npm test`: runs the configured test script from `package.json`
 - `npm run preview`: serves the built app locally
+- `npm run format`: formats source and project configuration with Prettier
+- `npm run format:check`: checks formatting without modifying files
+- `npm run check`: runs formatting checks, regression tests, type checks, and the production build
 
 ## Source Layout
 
 - [`src/App.tsx`](../src/App.tsx): top-level application composition
 - [`src/components/`](../src/components/): UI components such as the workspace, top bar, modals, and console sidebar
 - [`src/graph/`](../src/graph/): graph types, normalization, serialization, selectors, command-layer mutations, and appearance commands
-- [`src/state/`](../src/state/): reducer, actions, derived state, preferences, and recent-file state
+- [`src/state/`](../src/state/): pure state initialization, document sessions, edit transactions, save snapshots, and preferences
+- [`src/controllers/`](../src/controllers/): React orchestration for document, console, AI, appearance, and viewport behavior
+- [`src/workspace/`](../src/workspace/): file discovery and preparation of candidate documents before opening
+- [`src/ai/`](../src/ai/): context packets, plans, validation, presentation, transport, and response parsing
 - [`src/layout/`](../src/layout/): graph layout selection and algorithm implementations
 - [`src/rendering/`](../src/rendering/): SVG stage, nodes, edges, and export helpers
 - [`src/console/`](../src/console/): console DSL parsing, execution, and reference content
@@ -60,6 +68,14 @@ The codebase is organized around a few clear responsibilities:
 - graph appearance is a CSS-first configuration object stored separately from graph JSON
 - the console DSL acts as a textual front end for the same graph mutation and appearance command cores used by the UI
 
+Document identity combines a recent location ID and a workspace-relative graph path. A new opening increments the document generation, even when reopening the same file. AI persistence uses document identity; pending requests and plans also carry runtime generation/revision context. The browser fallback creates a new identity when it cannot verify filesystem identity.
+
+All edits use `prepareGraphTransaction` and `graphCommandsCommitted`. Revision IDs increase monotonically across undo branches. Saving captures the document generation, revision and DAG that were actually written; late completion cannot clear later edits or another document. The last saved DAG is retained directly so history truncation does not corrupt the save comparison.
+
+Preferences are loaded once by `useDocumentSession`, then passed to the pure initial-state factory. Workspace preparation is separate from the React hook, and recent-location persistence is managed by `useRecentLocations`. `StudioView` composes settings directly; the toolbar owns only toolbar controls.
+
+Layout consumes `StageAppearance`, which contains only geometry inputs. Colors, custom CSS, shadows and link opacity are applied by rendering without recalculating layout. Styles are grouped into `chrome.css`, `workspace.css`, and `settings.css`; each owns its responsive variants and transparency fallbacks. Shared variables live in `tokens.css`.
+
 ## Sample Data and Docs
 
 - [`public/example.json`](../public/example.json): sample graph, opened manually
@@ -71,7 +87,7 @@ The codebase is organized around a few clear responsibilities:
 ## Suggested Workflow for Changes
 
 - use `npm run dev` while iterating on UI and graph behavior
-- run `npm test` if your local workflow depends on the configured test script
-- run `npm run build` before finalizing changes to catch type or bundling issues
+- run `npm run format` after edits
+- run `npm run check` before finalizing changes
 
 Workspace discovery, manifest validation, recent-location persistence, and bounded link resolution are implemented in `src/workspace/`, `src/adapters/workspaceAccess.ts`, and `src/hooks/useGraphImport.ts`. See [Workspace Guide](workspaces.md).

@@ -1,15 +1,15 @@
-import type { NodeKey } from "../graph/types";
-import { getSemanticFieldName, type SystemFieldKey } from "../graph/fieldRoles";
-import { normalizeRelationField } from "../graph/relations";
-import type { RelativeLinkRoot } from "../adapters/relativeLinks";
-import { isExternalUrl, isRelativeLink, resolveRelativeFile, resolveRelativePath } from "../adapters/relativeLinks";
-import { parseRelationInput } from "./RelationEditorModal";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import type { RelativeLinkRoot } from "../adapters/relativeLinks";
+import { isExternalUrl, isRelativeLink, resolveRelativeFile, resolveRelativePath } from "../adapters/relativeLinks";
+import { type SystemFieldKey, getSemanticFieldName } from "../graph/fieldRoles";
+import { normalizeRelationField } from "../graph/relations";
+import type { NodeKey } from "../graph/types";
+import { parseRelationInput } from "./RelationEditorModal";
 
 type FieldEditorKind = "plainText" | "multilineText" | "json" | "relation";
 export type FieldDisplayMode = "markdown" | "link" | "text";
@@ -33,9 +33,25 @@ interface NodeFieldEditorProps {
   onChange: (value: string) => void;
 }
 
-export default function NodeFieldEditor({ field, value, displayMode, relativeLinkRoot, onOpenRelativeLink, onRelativeLinkError, onChange }: NodeFieldEditorProps) {
+export default function NodeFieldEditor({
+  field,
+  value,
+  displayMode,
+  relativeLinkRoot,
+  onOpenRelativeLink,
+  onRelativeLinkError,
+  onChange,
+}: NodeFieldEditorProps) {
   if (field.name === "key") {
-    return <input className="node-detail-editor node-detail-editor--input" type="text" spellCheck={false} value={value} onChange={(event) => onChange(event.target.value)} />;
+    return (
+      <input
+        className="node-detail-editor node-detail-editor--input"
+        type="text"
+        spellCheck={false}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    );
   }
 
   return (
@@ -93,7 +109,9 @@ export function MarkdownValue({
         "node-detail-markdown",
         emphasize ? "node-detail-markdown--define" : "",
         previewSurface ? "node-detail-markdown--preview" : "",
-      ].filter(Boolean).join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
@@ -102,13 +120,26 @@ export function MarkdownValue({
           a: ({ href, children, ...props }) => {
             const url = String(href || "");
             if (!url || isExternalUrl(url) || !isRelativeLink(url)) {
-              return <a href={href} target={isExternalUrl(url) ? "_blank" : undefined} rel={isExternalUrl(url) ? "noreferrer" : undefined} {...props}>{children}</a>;
+              return (
+                <a
+                  href={href}
+                  target={isExternalUrl(url) ? "_blank" : undefined}
+                  rel={isExternalUrl(url) ? "noreferrer" : undefined}
+                  {...props}
+                >
+                  {children}
+                </a>
+              );
             }
             const resolved = resolveRelativePath(url, relativeLinkRoot?.baseFile);
             return (
               <a
                 href={href}
-                title={resolved.ok ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}` : resolved.message}
+                title={
+                  resolved.ok
+                    ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}`
+                    : resolved.message
+                }
                 {...props}
                 onClick={(event) => {
                   event.preventDefault();
@@ -199,14 +230,7 @@ function RelativeMarkdownImage({
     return <span className="node-detail-image-loading">Loading image: {src}</span>;
   }
 
-  return (
-    <img
-      src={resolvedSrc}
-      alt={alt}
-      {...props}
-      onError={() => setUnavailable(true)}
-    />
-  );
+  return <img src={resolvedSrc} alt={alt} {...props} onError={() => setUnavailable(true)} />;
 }
 
 export function LinkValue({
@@ -231,12 +255,7 @@ export function LinkValue({
 
   return (
     <div className={`node-detail-link-text${previewSurface ? " node-detail-link-text--preview" : ""}`}>
-      <DisplayLink
-        label={url}
-        url={url}
-        relativeLinkRoot={relativeLinkRoot}
-        onOpenRelativeLink={onOpenRelativeLink}
-      />
+      <DisplayLink label={url} url={url} relativeLinkRoot={relativeLinkRoot} onOpenRelativeLink={onOpenRelativeLink} />
     </div>
   );
 }
@@ -258,7 +277,11 @@ function DisplayLink({
       <a
         className="node-detail-link"
         href={url}
-        title={resolved.ok ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}` : resolved.message}
+        title={
+          resolved.ok
+            ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}`
+            : resolved.message
+        }
         onClick={(event) => {
           event.preventDefault();
           onOpenRelativeLink?.(url);
@@ -278,10 +301,7 @@ function DisplayLink({
 
 export function hasDisplayLink(value: string): boolean {
   const text = String(value || "").trim();
-  return Boolean(text)
-    && !/\s/.test(text)
-    && !/[{}\\]/.test(text)
-    && isDisplayLinkUrl(text);
+  return Boolean(text) && !/\s/.test(text) && !/[{}\\]/.test(text) && isDisplayLinkUrl(text);
 }
 
 function isDisplayLinkUrl(value: string): boolean {
@@ -296,12 +316,10 @@ function isDisplayLinkUrl(value: string): boolean {
 }
 
 function isLikelyRelativeLink(value: string): boolean {
-  return isRelativeLink(value)
-    && (
-      /^\.{1,2}\//.test(value)
-      || value.includes("/")
-      || /\.[A-Za-z0-9]{2,8}(?:[?#].*)?$/.test(value)
-    );
+  return (
+    isRelativeLink(value) &&
+    (/^\.{1,2}\//.test(value) || value.includes("/") || /\.[A-Za-z0-9]{2,8}(?:[?#].*)?$/.test(value))
+  );
 }
 
 export function buildEditableFields(nodeKey: NodeKey, node: Record<string, unknown>): EditableField[] {
@@ -335,12 +353,17 @@ export function formatEditorValue(field: EditableField): string {
 }
 
 export function supportsDisplayMode(field: EditableField): boolean {
-  return field.name !== "key"
-    && typeof field.value === "string"
-    && (field.editorKind === "plainText" || field.editorKind === "multilineText");
+  return (
+    field.name !== "key" &&
+    typeof field.value === "string" &&
+    (field.editorKind === "plainText" || field.editorKind === "multilineText")
+  );
 }
 
-export function parseNodeFieldValue(field: EditableField, rawValue: string): { ok: true; value: unknown } | { ok: false; message: string } {
+export function parseNodeFieldValue(
+  field: EditableField,
+  rawValue: string,
+): { ok: true; value: unknown } | { ok: false; message: string } {
   const text = String(rawValue || "");
   const trimmed = text.trim();
 
@@ -379,7 +402,10 @@ export function parseNodeFieldValue(field: EditableField, rawValue: string): { o
   return parseJsonEditorValue(field.displayName, trimmed || "null");
 }
 
-function parseJsonEditorValue(fieldName: string, rawJson: string): { ok: true; value: unknown } | { ok: false; message: string } {
+function parseJsonEditorValue(
+  fieldName: string,
+  rawJson: string,
+): { ok: true; value: unknown } | { ok: false; message: string } {
   try {
     return { ok: true, value: JSON.parse(rawJson) };
   } catch {
@@ -392,7 +418,7 @@ function inferEditorKind(name: string, value: unknown): FieldEditorKind {
   if (semanticFieldName === "parents" || semanticFieldName === "children") {
     return "relation";
   }
-  if (semanticFieldName === "define" || typeof value === "string" && value.length > 80) {
+  if (semanticFieldName === "define" || (typeof value === "string" && value.length > 80)) {
     return "multilineText";
   }
   if (typeof value === "string") {

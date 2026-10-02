@@ -1,8 +1,8 @@
 import {
-  DEFAULT_GRAPH_APPEARANCE,
-  sanitizeGraphAppearance,
   type GraphAppearance,
   type GraphLayoutAppearance,
+  DEFAULT_GRAPH_APPEARANCE,
+  sanitizeGraphAppearance,
 } from "./appearance";
 
 export type AppearanceCommand =
@@ -14,7 +14,8 @@ export type AppearanceCommand =
   | { type: "resetAppearance" }
   | { type: "applyPreset"; presetId: GraphAppearancePresetId };
 
-export type GraphAppearancePresetId = "simple" | "compact" | "default" | "slate" | "blueprint" | "contrast" | "presentation";
+export type GraphAppearancePresetId =
+  "simple" | "compact" | "default" | "slate" | "blueprint" | "contrast" | "presentation";
 
 interface GraphAppearancePreset {
   id: GraphAppearancePresetId;
@@ -86,15 +87,17 @@ export const GRAPH_APPEARANCE_PRESETS: GraphAppearancePreset[] = [
   {
     id: "slate",
     label: "Slate",
-    appearance: createPreset({
-      "--dag-text-strong": "#e5eefc",
-      "--dag-text-soft": "#9aa8bd",
-      "--dag-edge": "rgba(148, 163, 184, 0.34)",
-      "--dag-edge-active": "rgba(125, 211, 252, 0.78)",
-      "--dag-node-fill": "rgba(18, 24, 38, 0.94)",
-      "--dag-node-border": "rgba(125, 211, 252, 0.26)",
-      "--dag-node-border-strong": "rgba(125, 211, 252, 0.52)",
-    }, `
+    appearance: createPreset(
+      {
+        "--dag-text-strong": "#e5eefc",
+        "--dag-text-soft": "#9aa8bd",
+        "--dag-edge": "rgba(148, 163, 184, 0.34)",
+        "--dag-edge-active": "rgba(125, 211, 252, 0.78)",
+        "--dag-node-fill": "rgba(18, 24, 38, 0.94)",
+        "--dag-node-border": "rgba(125, 211, 252, 0.26)",
+        "--dag-node-border-strong": "rgba(125, 211, 252, 0.52)",
+      },
+      `
 .dag-stage__halo {
   fill: rgba(15, 23, 42, 0.82);
 }
@@ -102,43 +105,51 @@ export const GRAPH_APPEARANCE_PRESETS: GraphAppearancePreset[] = [
 .dag-node__shape {
   filter: drop-shadow(0 16px 28px rgba(2, 8, 23, 0.24));
 }
-`.trim()),
+`.trim(),
+    ),
   },
   {
     id: "blueprint",
     label: "Blueprint",
-    appearance: createPreset({
-      "--dag-text-strong": "#123154",
-      "--dag-text-soft": "#53708f",
-      "--dag-edge": "rgba(37, 99, 235, 0.32)",
-      "--dag-edge-active": "rgba(29, 78, 216, 0.82)",
-      "--dag-node-fill": "rgba(239, 246, 255, 0.94)",
-      "--dag-node-border": "rgba(59, 130, 246, 0.28)",
-      "--dag-node-border-strong": "rgba(37, 99, 235, 0.54)",
-    }, `
+    appearance: createPreset(
+      {
+        "--dag-text-strong": "#123154",
+        "--dag-text-soft": "#53708f",
+        "--dag-edge": "rgba(37, 99, 235, 0.32)",
+        "--dag-edge-active": "rgba(29, 78, 216, 0.82)",
+        "--dag-node-fill": "rgba(239, 246, 255, 0.94)",
+        "--dag-node-border": "rgba(59, 130, 246, 0.28)",
+        "--dag-node-border-strong": "rgba(37, 99, 235, 0.54)",
+      },
+      `
 .dag-stage__halo {
   fill: rgba(239, 246, 255, 0.72);
 }
-`.trim()),
+`.trim(),
+    ),
   },
   {
     id: "contrast",
     label: "High Contrast",
-    appearance: createPreset({
-      "--dag-text-strong": "#050505",
-      "--dag-text-soft": "#333333",
-      "--dag-edge": "rgba(0, 0, 0, 0.58)",
-      "--dag-edge-active": "#000000",
-      "--dag-node-fill": "#ffffff",
-      "--dag-node-border": "#111111",
-      "--dag-node-border-strong": "#000000",
-      "--dag-title-font-style": "normal",
-      "--dag-title-font-weight": "700",
-    }, `
+    appearance: createPreset(
+      {
+        "--dag-text-strong": "#050505",
+        "--dag-text-soft": "#333333",
+        "--dag-edge": "rgba(0, 0, 0, 0.58)",
+        "--dag-edge-active": "#000000",
+        "--dag-node-fill": "#ffffff",
+        "--dag-node-border": "#111111",
+        "--dag-node-border-strong": "#000000",
+        "--dag-title-font-style": "normal",
+        "--dag-title-font-weight": "700",
+      },
+      `
 .dag-node__shape {
   filter: none;
 }
-`.trim(), { nodeShadow: false }),
+`.trim(),
+      { nodeShadow: false },
+    ),
   },
   {
     id: "presentation",
@@ -257,7 +268,11 @@ function buildAppearanceDiff(before: GraphAppearance, after: GraphAppearance): s
   return lines.length ? lines : ["No appearance changes expected."];
 }
 
-function createPreset(cssVars: Record<string, string>, css: string, display: Partial<GraphAppearance["display"]> = {}): GraphAppearance {
+function createPreset(
+  cssVars: Record<string, string>,
+  css: string,
+  display: Partial<GraphAppearance["display"]> = {},
+): GraphAppearance {
   return sanitizeGraphAppearance({
     ...DEFAULT_GRAPH_APPEARANCE,
     display: { ...DEFAULT_GRAPH_APPEARANCE.display, ...display },

@@ -1,14 +1,12 @@
-import type { AppearanceCommand, GraphAppearancePresetId } from "../graph/appearanceCommands";
 import type { GraphLayoutAppearance } from "../graph/appearance";
+import type { AppearanceCommand, GraphAppearancePresetId } from "../graph/appearanceCommands";
 
 interface ConsoleLineError {
   line: number;
   message: string;
 }
 
-export type ConsoleNodeOperand =
-  | { type: "key"; value: string }
-  | { type: "context" };
+export type ConsoleNodeOperand = { type: "key"; value: string } | { type: "context" };
 
 export type ConsoleInstruction =
   | { type: "help"; line: number }
@@ -25,7 +23,14 @@ export type ConsoleInstruction =
   | { type: "delete"; key: ConsoleNodeOperand; recursive: boolean; line: number }
   | { type: "add"; key: string; parentKey?: ConsoleNodeOperand; line: number }
   | { type: "copy"; sourceKey: ConsoleNodeOperand; key: string; parentKey?: ConsoleNodeOperand; line: number }
-  | { type: "setEdge"; parentKey: ConsoleNodeOperand; childKey: ConsoleNodeOperand; weight?: string | number | boolean | null; createMissing?: boolean; line: number }
+  | {
+      type: "setEdge";
+      parentKey: ConsoleNodeOperand;
+      childKey: ConsoleNodeOperand;
+      weight?: string | number | boolean | null;
+      createMissing?: boolean;
+      line: number;
+    }
   | { type: "removeEdge"; parentKey: ConsoleNodeOperand; childKey: ConsoleNodeOperand; line: number }
   | { type: "setParents"; key: ConsoleNodeOperand; keys: ConsoleNodeOperand[]; line: number }
   | { type: "setChildren"; key: ConsoleNodeOperand; keys: ConsoleNodeOperand[]; line: number }
@@ -36,11 +41,11 @@ export type ConsoleInstruction =
   | { type: "json"; key: ConsoleNodeOperand; line: number };
 
 type ConsoleToken =
-  | { type: "word"; value: string }
-  | { type: "string"; value: string }
-  | { type: "symbol"; value: "," | "=" };
+  { type: "word"; value: string } | { type: "string"; value: string } | { type: "symbol"; value: "," | "=" };
 
-export function parseConsoleSource(source: string): { ok: true; instructions: ConsoleInstruction[] } | { ok: false; error: ConsoleLineError } {
+export function parseConsoleSource(
+  source: string,
+): { ok: true; instructions: ConsoleInstruction[] } | { ok: false; error: ConsoleLineError } {
   const instructions: ConsoleInstruction[] = [];
   const lines = source.split(/\r?\n/);
 
@@ -74,7 +79,10 @@ export function parseConsoleSource(source: string): { ok: true; instructions: Co
 function normalizeCommandLine(line: string): { ok: true; line: string } | { ok: false; message: string } {
   const trimmedStart = line.trimStart();
   if (!trimmedStart.startsWith("/")) {
-    return { ok: false, message: "Console commands must start with /. Type /help for available commands, or enter plain text to ask AI." };
+    return {
+      ok: false,
+      message: "Console commands must start with /. Type /help for available commands, or enter plain text to ask AI.",
+    };
   }
   const commandLine = trimmedStart.slice(1);
   if (!commandLine.trim()) {
@@ -98,12 +106,12 @@ function tokenizeLine(line: string): { ok: true; tokens: ConsoleToken[] } | { ok
       index += 1;
       continue;
     }
-    if (char === "\"") {
+    if (char === '"') {
       let cursor = index + 1;
       let escaped = false;
       while (cursor < line.length) {
         const current = line[cursor];
-        if (current === "\"" && !escaped) {
+        if (current === '"' && !escaped) {
           break;
         }
         escaped = current === "\\" && !escaped;
@@ -112,7 +120,7 @@ function tokenizeLine(line: string): { ok: true; tokens: ConsoleToken[] } | { ok
         }
         cursor += 1;
       }
-      if (cursor >= line.length || line[cursor] !== "\"") {
+      if (cursor >= line.length || line[cursor] !== '"') {
         return { ok: false, message: "Unterminated string literal." };
       }
       try {
@@ -135,7 +143,10 @@ function tokenizeLine(line: string): { ok: true; tokens: ConsoleToken[] } | { ok
   return { ok: true, tokens };
 }
 
-function parseInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (!tokens.length) {
     return { ok: false, error: { line, message: "Expected an instruction." } };
   }
@@ -204,46 +215,68 @@ function parseInstruction(tokens: ConsoleToken[], line: number): { ok: true; ins
   }
 }
 
-function parseHelpInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseHelpInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length !== 1) {
     return { ok: false, error: { line, message: "help does not accept any arguments." } };
   }
   return { ok: true, instruction: { type: "help", line } };
 }
 
-function parseClearInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseClearInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length !== 1) {
     return { ok: false, error: { line, message: "clear does not accept any arguments." } };
   }
   return { ok: true, instruction: { type: "clear", line } };
 }
 
-function parseKeysInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseKeysInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length !== 1) {
     return { ok: false, error: { line, message: "keys does not accept any arguments." } };
   }
   return { ok: true, instruction: { type: "keys", line } };
 }
 
-function parseGraphInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseGraphInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length !== 1) {
     return { ok: false, error: { line, message: "graph does not accept any arguments." } };
   }
   return { ok: true, instruction: { type: "graphStats", line } };
 }
 
-function parseFindInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseFindInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length < 2) {
     return { ok: false, error: { line, message: "find expects a search query." } };
   }
-  const query = tokens.slice(1).map((token) => token.value).join(" ").trim();
+  const query = tokens
+    .slice(1)
+    .map((token) => token.value)
+    .join(" ")
+    .trim();
   if (!query) {
     return { ok: false, error: { line, message: "find expects a search query." } };
   }
   return { ok: true, instruction: { type: "find", query, line } };
 }
 
-function parseNeighborsInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parseNeighborsInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length !== 2 && tokens.length !== 3) {
     return { ok: false, error: { line, message: "neighbors expects <node> and optional depth." } };
   }
@@ -258,7 +291,10 @@ function parseNeighborsInstruction(tokens: ConsoleToken[], line: number): { ok: 
   return { ok: true, instruction: { type: "neighbors", key, depth, line } };
 }
 
-function parsePathInstruction(tokens: ConsoleToken[], line: number): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
+function parsePathInstruction(
+  tokens: ConsoleToken[],
+  line: number,
+): { ok: true; instruction: ConsoleInstruction } | { ok: false; error: ConsoleLineError } {
   if (tokens.length !== 3) {
     return { ok: false, error: { line, message: "path expects <from-node> <to-node>." } };
   }
@@ -338,7 +374,10 @@ function parseAddInstruction(tokens: ConsoleToken[], line: number) {
 
 function parseCopyInstruction(tokens: ConsoleToken[], line: number) {
   if (tokens.length !== 3 && tokens.length !== 5) {
-    return { ok: false, error: { line, message: "cp expects <source> <new-key> or <source> <new-key> -p <parent>." } } as const;
+    return {
+      ok: false,
+      error: { line, message: "cp expects <source> <new-key> or <source> <new-key> -p <parent>." },
+    } as const;
   }
   const sourceKey = parseNodeOperand(tokens[1], true);
   const key = parseLiteralToken(tokens[2]);
@@ -360,17 +399,25 @@ function parseCopyInstruction(tokens: ConsoleToken[], line: number) {
 
 function parseEdgeInstruction(tokens: ConsoleToken[], line: number) {
   const createMissingFlag = "--create-missing";
-  const filteredTokens = tokens.filter((token, index) => index === 0 || expectWordToken(token)?.value !== createMissingFlag);
+  const filteredTokens = tokens.filter(
+    (token, index) => index === 0 || expectWordToken(token)?.value !== createMissingFlag,
+  );
   const createMissing = filteredTokens.length !== tokens.length;
 
   if (filteredTokens.length !== 3 && filteredTokens.length !== 4) {
-    return { ok: false, error: { line, message: "edge expects <parent> <child> [weight] and optionally --create-missing." } } as const;
+    return {
+      ok: false,
+      error: { line, message: "edge expects <parent> <child> [weight] and optionally --create-missing." },
+    } as const;
   }
 
   const parentKey = parseNodeOperand(filteredTokens[1], true);
   const childKey = parseNodeOperand(filteredTokens[2], true);
   if (!parentKey || !childKey) {
-    return { ok: false, error: { line, message: "edge expects <parent> <child> [weight] and optionally --create-missing." } } as const;
+    return {
+      ok: false,
+      error: { line, message: "edge expects <parent> <child> [weight] and optionally --create-missing." },
+    } as const;
   }
 
   if (filteredTokens.length === 3) {
@@ -399,17 +446,19 @@ function parseRemoveEdgeInstruction(tokens: ConsoleToken[], line: number) {
   return { ok: true, instruction: { type: "removeEdge", parentKey, childKey, line } } as const;
 }
 
-function parseRelationInstruction(
-  tokens: ConsoleToken[],
-  line: number,
-  type: "setParents" | "setChildren",
-) {
+function parseRelationInstruction(tokens: ConsoleToken[], line: number, type: "setParents" | "setChildren") {
   if (tokens.length < 3) {
-    return { ok: false, error: { line, message: `${type === "setParents" ? "parents" : "children"} expects <node> = <list>.` } } as const;
+    return {
+      ok: false,
+      error: { line, message: `${type === "setParents" ? "parents" : "children"} expects <node> = <list>.` },
+    } as const;
   }
   const key = parseNodeOperand(tokens[1], true);
   if (!key || tokens[2].type !== "symbol" || tokens[2].value !== "=") {
-    return { ok: false, error: { line, message: `${type === "setParents" ? "parents" : "children"} expects <node> = <list>.` } } as const;
+    return {
+      ok: false,
+      error: { line, message: `${type === "setParents" ? "parents" : "children"} expects <node> = <list>.` },
+    } as const;
   }
   const parsedList = parseNodeList(tokens.slice(3));
   if (!parsedList.ok) {
@@ -452,26 +501,38 @@ function parseLayoutInstruction(tokens: ConsoleToken[], line: number) {
   if (!isLayoutKey(key) || !Number.isFinite(value)) {
     return { ok: false, error: { line, message: "layout expects a valid layout key and finite number." } } as const;
   }
-  return { ok: true, instruction: { type: "appearance", command: { type: "setLayout", key, value }, line } satisfies ConsoleInstruction } as const;
+  return {
+    ok: true,
+    instruction: { type: "appearance", command: { type: "setLayout", key, value }, line } satisfies ConsoleInstruction,
+  } as const;
 }
 
 function parseStyleVarInstruction(tokens: ConsoleToken[], line: number) {
   if (tokens.length !== 3) {
-    return { ok: false, error: { line, message: "style-var expects <var-name> <value>, or --unset <var-name>." } } as const;
+    return {
+      ok: false,
+      error: { line, message: "style-var expects <var-name> <value>, or --unset <var-name>." },
+    } as const;
   }
   if (tokens.length === 3 && expectWordToken(tokens[1])?.value === "--unset") {
     const key = parseLiteralToken(tokens[2]);
     if (!isDagCssVarName(key)) {
       return { ok: false, error: { line, message: "style-var --unset expects a --dag-* variable name." } } as const;
     }
-    return { ok: true, instruction: { type: "appearance", command: { type: "unsetCssVar", key }, line } satisfies ConsoleInstruction } as const;
+    return {
+      ok: true,
+      instruction: { type: "appearance", command: { type: "unsetCssVar", key }, line } satisfies ConsoleInstruction,
+    } as const;
   }
   const key = parseLiteralToken(tokens[1]);
   const value = parseLiteralToken(tokens[2]);
   if (!isDagCssVarName(key) || value === null) {
     return { ok: false, error: { line, message: "style-var expects a --dag-* variable name and value." } } as const;
   }
-  return { ok: true, instruction: { type: "appearance", command: { type: "setCssVar", key, value }, line } satisfies ConsoleInstruction } as const;
+  return {
+    ok: true,
+    instruction: { type: "appearance", command: { type: "setCssVar", key, value }, line } satisfies ConsoleInstruction,
+  } as const;
 }
 
 function parseStyleCssInstruction(tokens: ConsoleToken[], line: number) {
@@ -490,10 +551,16 @@ function parseStyleCssInstruction(tokens: ConsoleToken[], line: number) {
     return { ok: false, error: { line, message: "style-css expects CSS text." } } as const;
   }
   if (operation === "append") {
-    return { ok: true, instruction: { type: "appearance", command: { type: "appendCss", css }, line } satisfies ConsoleInstruction } as const;
+    return {
+      ok: true,
+      instruction: { type: "appearance", command: { type: "appendCss", css }, line } satisfies ConsoleInstruction,
+    } as const;
   }
   if (operation === "replace") {
-    return { ok: true, instruction: { type: "appearance", command: { type: "replaceCss", css }, line } satisfies ConsoleInstruction } as const;
+    return {
+      ok: true,
+      instruction: { type: "appearance", command: { type: "replaceCss", css }, line } satisfies ConsoleInstruction,
+    } as const;
   }
   return { ok: false, error: { line, message: "style-css operation must be append, replace, or show." } } as const;
 }
@@ -502,7 +569,10 @@ function parseStyleResetInstruction(tokens: ConsoleToken[], line: number) {
   if (tokens.length !== 1) {
     return { ok: false, error: { line, message: "style-reset does not accept arguments." } } as const;
   }
-  return { ok: true, instruction: { type: "appearance", command: { type: "resetAppearance" }, line } satisfies ConsoleInstruction } as const;
+  return {
+    ok: true,
+    instruction: { type: "appearance", command: { type: "resetAppearance" }, line } satisfies ConsoleInstruction,
+  } as const;
 }
 
 function parseStylePresetInstruction(tokens: ConsoleToken[], line: number) {
@@ -510,13 +580,31 @@ function parseStylePresetInstruction(tokens: ConsoleToken[], line: number) {
     return { ok: false, error: { line, message: "style-preset expects a preset id." } } as const;
   }
   const presetId = parseLiteralToken(tokens[1]);
-  if (!presetId || !["simple", "compact", "default", "slate", "blueprint", "contrast", "presentation"].includes(presetId)) {
-    return { ok: false, error: { line, message: "style-preset expects simple, compact, default, slate, blueprint, contrast, or presentation." } } as const;
+  if (
+    !presetId ||
+    !["simple", "compact", "default", "slate", "blueprint", "contrast", "presentation"].includes(presetId)
+  ) {
+    return {
+      ok: false,
+      error: {
+        line,
+        message: "style-preset expects simple, compact, default, slate, blueprint, contrast, or presentation.",
+      },
+    } as const;
   }
-  return { ok: true, instruction: { type: "appearance", command: { type: "applyPreset", presetId: presetId as GraphAppearancePresetId }, line } satisfies ConsoleInstruction } as const;
+  return {
+    ok: true,
+    instruction: {
+      type: "appearance",
+      command: { type: "applyPreset", presetId: presetId as GraphAppearancePresetId },
+      line,
+    } satisfies ConsoleInstruction,
+  } as const;
 }
 
-function parseNodeList(tokens: ConsoleToken[]): { ok: true; operands: ConsoleNodeOperand[] } | { ok: false; message: string } {
+function parseNodeList(
+  tokens: ConsoleToken[],
+): { ok: true; operands: ConsoleNodeOperand[] } | { ok: false; message: string } {
   if (!tokens.length) {
     return { ok: true, operands: [] };
   }
@@ -606,7 +694,7 @@ function parseSetValueTokens(tokens: ConsoleToken[]): { ok: true; value: unknown
     return { ok: false };
   }
 
-  if (trimmedValue.startsWith("{") || trimmedValue.startsWith("[") || trimmedValue.startsWith("\"")) {
+  if (trimmedValue.startsWith("{") || trimmedValue.startsWith("[") || trimmedValue.startsWith('"')) {
     try {
       return { ok: true, value: JSON.parse(trimmedValue) };
     } catch {
@@ -648,14 +736,16 @@ function isDagCssVarName(value: string | null): value is `--dag-${string}` {
 }
 
 function isLayoutKey(value: string | null): value is keyof GraphLayoutAppearance {
-  return value === "stagePaddingX"
-    || value === "stagePaddingY"
-    || value === "columnGap"
-    || value === "rowGap"
-    || value === "edgeLaneGap"
-    || value === "nodeHeight"
-    || value === "minNodeWidth"
-    || value === "maxNodeWidth"
-    || value === "stageMinWidth"
-    || value === "stageMinHeight";
+  return (
+    value === "stagePaddingX" ||
+    value === "stagePaddingY" ||
+    value === "columnGap" ||
+    value === "rowGap" ||
+    value === "edgeLaneGap" ||
+    value === "nodeHeight" ||
+    value === "minNodeWidth" ||
+    value === "maxNodeWidth" ||
+    value === "stageMinWidth" ||
+    value === "stageMinHeight"
+  );
 }

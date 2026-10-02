@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { appearanceToStageStyle, DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
 import { buildStageData } from "../layout/stage-layout";
 import { parseGraphPagePreferences } from "../state/preferences";
-import { defineSuite, defineTest } from "./harness";
 import { createSampleDag } from "./fixtures";
+import { defineSuite, defineTest } from "./harness";
 
 export const appearanceSuite = defineSuite("appearance", [
   defineTest("sanitizeGraphAppearance fills defaults and clamps layout values", () => {
@@ -55,15 +55,21 @@ export const appearanceSuite = defineSuite("appearance", [
   }),
 
   defineTest("legacy translucent cards become white and shadow changes do not recolor them", () => {
-    const legacy = sanitizeGraphAppearance({cssVars:{"--dag-node-fill":"rgba(252, 253, 255, 0.88)"}});
+    const legacy = sanitizeGraphAppearance({ cssVars: { "--dag-node-fill": "rgba(252, 253, 255, 0.88)" } });
     assert.equal(legacy.cssVars["--dag-node-fill"], "#ffffff");
-    const changed = sanitizeGraphAppearance({...legacy,display:{...legacy.display,shadowBlur:24,shadowOffset:10,shadowOpacity:35}});
-    const before = appearanceToStageStyle(legacy) as Record<string,unknown>;
-    const after = appearanceToStageStyle(changed) as Record<string,unknown>;
+    const changed = sanitizeGraphAppearance({
+      ...legacy,
+      display: { ...legacy.display, shadowBlur: 24, shadowOffset: 10, shadowOpacity: 35 },
+    });
+    const before = appearanceToStageStyle(legacy) as Record<string, unknown>;
+    const after = appearanceToStageStyle(changed) as Record<string, unknown>;
     assert.equal(after["--dag-node-fill"], "#ffffff");
     assert.notEqual(before["--dag-node-shadow"], after["--dag-node-shadow"]);
     assert.deepEqual(changed.cssVars, legacy.cssVars);
-    assert.equal(sanitizeGraphAppearance({cssVars:{"--dag-node-fill":"#ffeedd"}}).cssVars["--dag-node-fill"], "#ffeedd");
+    assert.equal(
+      sanitizeGraphAppearance({ cssVars: { "--dag-node-fill": "#ffeedd" } }).cssVars["--dag-node-fill"],
+      "#ffeedd",
+    );
   }),
 
   defineTest("latest preferences parse appearance directly", () => {

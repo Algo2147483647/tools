@@ -1,6 +1,6 @@
-import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeDetailRawJson";
-import type { ContextMenuAction } from "../components/ContextMenu";
 import { copyTextToClipboard, readTextFromClipboard } from "../adapters/clipboard";
+import type { ContextMenuAction } from "../components/ContextMenu";
+import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeDetailRawJson";
 import type { NodeKey, RelationValue } from "../graph/types";
 import type { DocumentSessionController } from "./useDocumentSession";
 import type { GraphTransactionsController } from "./useGraphTransactions";
@@ -150,9 +150,11 @@ export function useNodeActions(session: DocumentSessionController, transactions:
   function saveRelations(relations: Record<NodeKey, RelationValue>) {
     const editor = state.ui.relationEditor;
     if (!editor) return;
-    const error = commitCommand(editor.field === "parents"
-      ? { type: "setParentRelations", key: editor.nodeKey, parents: relations }
-      : { type: "setChildRelations", key: editor.nodeKey, children: relations });
+    const error = commitCommand(
+      editor.field === "parents"
+        ? { type: "setParentRelations", key: editor.nodeKey, parents: relations }
+        : { type: "setChildRelations", key: editor.nodeKey, children: relations },
+    );
     if (error) return error;
     session.closeModals();
   }

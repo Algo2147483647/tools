@@ -1,6 +1,6 @@
 import type { DagNode, NodeKey } from "../../graph/types";
 import type { LayoutEdgeRoute, LayoutResult } from "../types";
-import { buildVisibleGraph, getExistingRoots, type VisibleGraph } from "./shared";
+import { type VisibleGraph, buildVisibleGraph, getExistingRoots } from "./shared";
 
 const CROSSING_REDUCTION_PASSES = 6;
 
@@ -168,12 +168,20 @@ function assignLayers(nodeKeys: NodeKey[], edges: LayoutEdge[], rootSet: Set<Nod
   return layerByKey;
 }
 
-function normalizeLongEdges(edges: LayoutEdge[], layerByKey: Record<NodeKey, number>): {
+function normalizeLongEdges(
+  edges: LayoutEdge[],
+  layerByKey: Record<NodeKey, number>,
+): {
   items: LayoutItem[];
   segments: LayoutEdge[];
   routes: NormalizedRoute[];
 } {
-  const items: LayoutItem[] = Object.entries(layerByKey).map(([key, layer]) => ({ id: key, realKey: key, layer, order: 0 }));
+  const items: LayoutItem[] = Object.entries(layerByKey).map(([key, layer]) => ({
+    id: key,
+    realKey: key,
+    layer,
+    order: 0,
+  }));
   const segments: LayoutEdge[] = [];
   const routes: NormalizedRoute[] = [];
 
@@ -198,7 +206,12 @@ function normalizeLongEdges(edges: LayoutEdge[], layerByKey: Record<NodeKey, num
     let previous = edge.source;
     for (let layer = sourceLayer + 1; layer < targetLayer; layer += 1) {
       const dummyId = `__sugiyama_dummy_${edgeIndex}_${layer}__`;
-      const dummy: LayoutItem = { id: dummyId, layer, order: 0, dummyFor: JSON.stringify([edge.originalSource, edge.originalTarget]) };
+      const dummy: LayoutItem = {
+        id: dummyId,
+        layer,
+        order: 0,
+        dummyFor: JSON.stringify([edge.originalSource, edge.originalTarget]),
+      };
       items.push(dummy);
       routeItems.push(dummy);
       segments.push({ ...edge, source: previous, target: dummyId });
@@ -240,7 +253,10 @@ function buildStableOrderByKey(dag: Record<NodeKey, unknown>, graph: VisibleGrap
   return orderByKey;
 }
 
-function buildOriginalOrderById(items: LayoutItem[], stableOrderByKey: Record<NodeKey, number>): Record<NodeKey, number> {
+function buildOriginalOrderById(
+  items: LayoutItem[],
+  stableOrderByKey: Record<NodeKey, number>,
+): Record<NodeKey, number> {
   const originalOrderById: Record<NodeKey, number> = Object.create(null);
   const fallbackOffset = Object.keys(stableOrderByKey).length;
   items.forEach((item, index) => {
@@ -265,7 +281,11 @@ function buildLayers(items: LayoutItem[], originalOrderById: Record<NodeKey, num
   return layers;
 }
 
-function reduceCrossings(layers: Map<number, LayoutItem[]>, segments: LayoutEdge[], originalOrder: Record<NodeKey, number>): void {
+function reduceCrossings(
+  layers: Map<number, LayoutItem[]>,
+  segments: LayoutEdge[],
+  originalOrder: Record<NodeKey, number>,
+): void {
   const sortedLayerIndexes = Array.from(layers.keys()).sort((a, b) => a - b);
   if (sortedLayerIndexes.length < 2) {
     return;
@@ -367,7 +387,9 @@ function getNeighborScore(
   neighborMap: Record<NodeKey, NodeKey[]>,
   crossingIndex: CrossingIndex,
 ): { median: number; average: number } {
-  const orders = (neighborMap[itemId] || []).map((neighborKey) => getItemOrder(neighborKey, crossingIndex)).sort((a, b) => a - b);
+  const orders = (neighborMap[itemId] || [])
+    .map((neighborKey) => getItemOrder(neighborKey, crossingIndex))
+    .sort((a, b) => a - b);
   if (!orders.length) {
     const ownOrder = getItemOrder(itemId, crossingIndex);
     return { median: ownOrder, average: ownOrder };
@@ -405,12 +427,20 @@ function transposeLayer(layers: Map<number, LayoutItem[]>, layer: number, crossi
 
 function countAdjacentSwapCrossingDelta(firstId: NodeKey, secondId: NodeKey, crossingIndex: CrossingIndex): number {
   return (
-    countNeighborSwapDelta(crossingIndex.incoming[firstId] || [], crossingIndex.incoming[secondId] || [], crossingIndex) +
+    countNeighborSwapDelta(
+      crossingIndex.incoming[firstId] || [],
+      crossingIndex.incoming[secondId] || [],
+      crossingIndex,
+    ) +
     countNeighborSwapDelta(crossingIndex.outgoing[firstId] || [], crossingIndex.outgoing[secondId] || [], crossingIndex)
   );
 }
 
-function countNeighborSwapDelta(firstNeighbors: NodeKey[], secondNeighbors: NodeKey[], crossingIndex: CrossingIndex): number {
+function countNeighborSwapDelta(
+  firstNeighbors: NodeKey[],
+  secondNeighbors: NodeKey[],
+  crossingIndex: CrossingIndex,
+): number {
   let before = 0;
   let after = 0;
   firstNeighbors.forEach((firstNeighbor) => {
@@ -430,7 +460,10 @@ function countTotalCrossings(layers: Map<number, LayoutItem[]>, crossingIndex: C
   const sortedLayerIndexes = Array.from(layers.keys()).sort((a, b) => a - b);
   let crossings = 0;
   for (let index = 0; index < sortedLayerIndexes.length - 1; index += 1) {
-    crossings += countCrossingsBetweenLayerSegments(crossingIndex.segmentsByUpperLayer.get(sortedLayerIndexes[index]) || [], crossingIndex);
+    crossings += countCrossingsBetweenLayerSegments(
+      crossingIndex.segmentsByUpperLayer.get(sortedLayerIndexes[index]) || [],
+      crossingIndex,
+    );
   }
   return crossings;
 }
@@ -441,7 +474,10 @@ function countCrossingsBetweenLayerSegments(segments: LayerSegment[], crossingIn
   }
 
   const orderedSegments = segments
-    .map((edge) => ({ sourceOrder: getItemOrder(edge.source, crossingIndex), targetOrder: getItemOrder(edge.target, crossingIndex) }))
+    .map((edge) => ({
+      sourceOrder: getItemOrder(edge.source, crossingIndex),
+      targetOrder: getItemOrder(edge.target, crossingIndex),
+    }))
     .sort((a, b) => (a.sourceOrder === b.sourceOrder ? a.targetOrder - b.targetOrder : a.sourceOrder - b.sourceOrder));
 
   const maxTargetOrder = orderedSegments.reduce((maxOrder, edge) => Math.max(maxOrder, edge.targetOrder), 0);

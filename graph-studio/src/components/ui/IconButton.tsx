@@ -11,7 +11,16 @@ interface IconButtonProps {
   className?: string;
 }
 
-export default function IconButton({ id, label, icon, disabled, onClick, ariaControls, ariaExpanded, className = "ghost-btn topbar-icon-btn" }: IconButtonProps) {
+export default function IconButton({
+  id,
+  label,
+  icon,
+  disabled,
+  onClick,
+  ariaControls,
+  ariaExpanded,
+  className = "ghost-btn topbar-icon-btn",
+}: IconButtonProps) {
   return (
     <button
       id={id}
@@ -24,7 +33,9 @@ export default function IconButton({ id, label, icon, disabled, onClick, ariaCon
       disabled={disabled}
       onClick={onClick}
     >
-      <span className="topbar-icon" aria-hidden="true">{icon}</span>
+      <span className="topbar-icon" aria-hidden="true">
+        {icon}
+      </span>
     </button>
   );
 }

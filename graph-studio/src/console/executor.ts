@@ -1,9 +1,16 @@
-import { applyGraphCommand, type CommandResult } from "../graph/commands";
-import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../graph/appearance";
-import { applyAppearanceCommand, type AppearanceCommandResult } from "../graph/appearanceCommands";
-import { getCustomFieldNames, getNodeChildren, getNodeDefine, getNodeParents, getNodeTitle, getNodeType } from "../graph/accessors";
+import {
+  getCustomFieldNames,
+  getNodeChildren,
+  getNodeDefine,
+  getNodeParents,
+  getNodeTitle,
+  getNodeType,
+} from "../graph/accessors";
+import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { type AppearanceCommandResult, applyAppearanceCommand } from "../graph/appearanceCommands";
+import { type CommandResult, applyGraphCommand } from "../graph/commands";
 import { getRelationKeys } from "../graph/relations";
-import { structuredCloneValue, cloneGraphDocument } from "../graph/serialize";
+import { cloneGraphDocument, structuredCloneValue } from "../graph/serialize";
 import type { NodeKey, NormalizedDag } from "../graph/types";
 import type { ConsoleInstruction, ConsoleNodeOperand } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
@@ -16,24 +23,24 @@ interface ConsoleUiEffect {
 
 type ConsoleRunResult =
   | {
-    ok: true;
-    dag: NormalizedDag;
-    contextNodeKey: NodeKey | null;
-    results: CommandResult[];
-    appearance: GraphAppearance;
-    appearanceResults: AppearanceCommandResult[];
-    uiEffects: ConsoleUiEffect[];
-    outputMessages: string[];
-    instructionCount: number;
-    mutationCount: number;
-    appearanceMutationCount: number;
-  }
+      ok: true;
+      dag: NormalizedDag;
+      contextNodeKey: NodeKey | null;
+      results: CommandResult[];
+      appearance: GraphAppearance;
+      appearanceResults: AppearanceCommandResult[];
+      uiEffects: ConsoleUiEffect[];
+      outputMessages: string[];
+      instructionCount: number;
+      mutationCount: number;
+      appearanceMutationCount: number;
+    }
   | {
-    ok: false;
-    line: number;
-    message: string;
-    contextNodeKey: NodeKey | null;
-  };
+      ok: false;
+      line: number;
+      message: string;
+      contextNodeKey: NodeKey | null;
+    };
 
 export function executeConsoleInstructions(
   dag: NormalizedDag,
@@ -124,7 +131,10 @@ export function executeConsoleInstructions(
         }
         case "delete": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          const result = applyGraphCommand(workingDag, instruction.recursive ? { type: "deleteSubtree", rootKey: key } : { type: "deleteNode", key });
+          const result = applyGraphCommand(
+            workingDag,
+            instruction.recursive ? { type: "deleteSubtree", rootKey: key } : { type: "deleteNode", key },
+          );
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -147,7 +157,12 @@ export function executeConsoleInstructions(
           const parentKey = instruction.parentKey
             ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
             : undefined;
-          const result = applyGraphCommand(workingDag, { type: "copyNode", sourceKey, key: instruction.key, parentKey });
+          const result = applyGraphCommand(workingDag, {
+            type: "copyNode",
+            sourceKey,
+            key: instruction.key,
+            parentKey,
+          });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -172,7 +187,12 @@ export function executeConsoleInstructions(
               }
             });
           }
-          const result = applyGraphCommand(workingDag, { type: "setEdge", parentKey, childKey, weight: instruction.weight });
+          const result = applyGraphCommand(workingDag, {
+            type: "setEdge",
+            parentKey,
+            childKey,
+            weight: instruction.weight,
+          });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -191,7 +211,9 @@ export function executeConsoleInstructions(
         }
         case "setParents": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          const parents = instruction.keys.map((item) => resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line));
+          const parents = instruction.keys.map((item) =>
+            resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line),
+          );
           const result = applyGraphCommand(workingDag, { type: "setParents", key, parents });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
@@ -201,7 +223,9 @@ export function executeConsoleInstructions(
         }
         case "setChildren": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          const children = instruction.keys.map((item) => resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line));
+          const children = instruction.keys.map((item) =>
+            resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line),
+          );
           const result = applyGraphCommand(workingDag, { type: "setChildren", key, children });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
@@ -222,7 +246,12 @@ export function executeConsoleInstructions(
             throw new Error(`Node "${key}" does not exist.`);
           }
           const { key: _oldKey, ...fields } = structuredCloneValue(currentNode);
-          Object.defineProperty(fields, instruction.field, { value: instruction.value, enumerable: true, writable: true, configurable: true });
+          Object.defineProperty(fields, instruction.field, {
+            value: instruction.value,
+            enumerable: true,
+            writable: true,
+            configurable: true,
+          });
           const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
@@ -334,20 +363,6 @@ export function buildConsoleMutationLabel(mutationCount: number, fallbackMessage
   return `Executed ${mutationCount} console commands.`;
 }
 
-export function collectBatchEffects(results: CommandResult[]): { renamedKeys: Array<{ from: NodeKey; to: NodeKey }>; deletedKeys: NodeKey[] } {
-  const renamedKeys: Array<{ from: NodeKey; to: NodeKey }> = [];
-  const deletedKeys = new Set<NodeKey>();
-
-  results.forEach((result) => {
-    if (result.renamedKey) {
-      renamedKeys.push(result.renamedKey);
-    }
-    result.deletedKeys?.forEach((key) => deletedKeys.add(key));
-  });
-
-  return { renamedKeys, deletedKeys: Array.from(deletedKeys) };
-}
-
 function buildKeyList(dag: NormalizedDag): string {
   const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
   if (!keys.length) {
@@ -441,9 +456,9 @@ function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: numbe
     `Neighbors up to depth ${depth}:`,
     ...(layers.length
       ? layers.flatMap((layer) => [
-        `depth ${layer.depth} parents: ${formatKeySample(layer.parents)}`,
-        `depth ${layer.depth} children: ${formatKeySample(layer.children)}`,
-      ])
+          `depth ${layer.depth} parents: ${formatKeySample(layer.parents)}`,
+          `depth ${layer.depth} children: ${formatKeySample(layer.children)}`,
+        ])
       : ["(none)"]),
     `Definition: ${formatScalarPreview(getNodeDefine(node))}`,
   ].join("\n");
@@ -532,7 +547,9 @@ function formatKeySample(keys: NodeKey[], limit = 18): string {
 }
 
 function normalizeSearchText(value: unknown): string {
-  return String(value ?? "").trim().toLocaleLowerCase();
+  return String(value ?? "")
+    .trim()
+    .toLocaleLowerCase();
 }
 
 function scoreNodeMatch(nodeKey: NodeKey, node: Record<string, unknown>, needle: string): number {

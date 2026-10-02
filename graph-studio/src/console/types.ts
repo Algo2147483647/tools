@@ -22,4 +22,3 @@ export interface ConsoleSuggestion {
   label: string;
   insertText: string;
 }
-

@@ -1,9 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { downloadJsonFile } from "../adapters/download";
-import { analyzeGraphImport, type ImportGraphDocument, type ImportResolutions, type ConflictStrategy } from "../graph/importMerge";
+import {
+  type ConflictStrategy,
+  type ImportGraphDocument,
+  type ImportResolutions,
+  analyzeGraphImport,
+} from "../graph/importMerge";
 
-export default function ImportConflictModal({ documents, onConfirm, onCancel }: {
+export default function ImportConflictModal({
+  documents,
+  onConfirm,
+  onCancel,
+}: {
   documents: ImportGraphDocument[];
   onConfirm: (resolutions: ImportResolutions) => void;
   onCancel: () => void;
@@ -17,7 +26,9 @@ export default function ImportConflictModal({ documents, onConfirm, onCancel }: 
   useEffect(() => {
     const previous = document.activeElement;
     dialogRef.current?.focus();
-    return () => { if (previous instanceof HTMLElement) previous.focus(); };
+    return () => {
+      if (previous instanceof HTMLElement) previous.focus();
+    };
   }, []);
 
   const result = useMemo(() => {
@@ -33,7 +44,7 @@ export default function ImportConflictModal({ documents, onConfirm, onCancel }: 
 
   function update(id: string, strategy: ConflictStrategy | "", name?: string) {
     setCommitError("");
-    setResolutions(current => {
+    setResolutions((current) => {
       const next = { ...current };
       if (strategy) next[id] = { strategy, name };
       else delete next[id];
@@ -50,7 +61,7 @@ export default function ImportConflictModal({ documents, onConfirm, onCancel }: 
         role="dialog"
         aria-modal="true"
         aria-labelledby="import-conflict-title"
-        onKeyDown={event => {
+        onKeyDown={(event) => {
           event.stopPropagation();
           if (event.key === "Escape") {
             event.preventDefault();
@@ -58,35 +69,62 @@ export default function ImportConflictModal({ documents, onConfirm, onCancel }: 
           } else if ((event.ctrlKey || event.metaKey) && ["s", "z", "y"].includes(event.key.toLowerCase())) {
             event.preventDefault();
           } else if (event.key === "Tab") {
-            const controls = [...event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), select, input")];
-            const first = controls[0], last = controls[controls.length - 1];
-            if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) {
-              event.preventDefault(); last?.focus();
+            const controls = [
+              ...event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), select, input"),
+            ];
+            const first = controls[0],
+              last = controls[controls.length - 1];
+            if (
+              event.shiftKey &&
+              (document.activeElement === first || document.activeElement === event.currentTarget)
+            ) {
+              event.preventDefault();
+              last?.focus();
             } else if (!event.shiftKey && document.activeElement === last) {
-              event.preventDefault(); first?.focus();
+              event.preventDefault();
+              first?.focus();
             }
           }
         }}
       >
         <h2 id="import-conflict-title">Import conflict report</h2>
-        <p>{documents.length} files · {report.conflicts.length} conflicts · {report.unresolved.length} unresolved</p>
-        <p>Keep uses the existing value. Merge combines objects or arrays and asks about conflicting fields. Rename preserves the incoming value under a new name.</p>
-        <p>Renaming a node also updates its incoming and outgoing edges from that file. Nothing is loaded until you apply the import.</p>
-        <p>Renamed document headers and edge payload fields are kept in metadata. Files are processed in this order: {documents.map(doc => doc.name).join(" → ")}.</p>
+        <p>
+          {documents.length} files · {report.conflicts.length} conflicts · {report.unresolved.length} unresolved
+        </p>
+        <p>
+          Keep uses the existing value. Merge combines objects or arrays and asks about conflicting fields. Rename
+          preserves the incoming value under a new name.
+        </p>
+        <p>
+          Renaming a node also updates its incoming and outgoing edges from that file. Nothing is loaded until you apply
+          the import.
+        </p>
+        <p>
+          Renamed document headers and edge payload fields are kept in metadata. Files are processed in this order:{" "}
+          {documents.map((doc) => doc.name).join(" → ")}.
+        </p>
         <div className="import-conflict-list">
-          {report.conflicts.map(conflict => (
+          {report.conflicts.map((conflict) => (
             <article key={conflict.id} className="import-conflict-item">
-              <strong>{conflict.source} · {conflict.path}</strong>
+              <strong>
+                {conflict.source} · {conflict.path}
+              </strong>
               <div className="import-conflict-values">
-                <div><span>Existing</span><pre>{JSON.stringify(conflict.existing, null, 2)}</pre></div>
-                <div><span>Incoming</span><pre>{JSON.stringify(conflict.incoming, null, 2)}</pre></div>
+                <div>
+                  <span>Existing</span>
+                  <pre>{JSON.stringify(conflict.existing, null, 2)}</pre>
+                </div>
+                <div>
+                  <span>Incoming</span>
+                  <pre>{JSON.stringify(conflict.incoming, null, 2)}</pre>
+                </div>
               </div>
               <label>
                 Strategy
                 <select
                   aria-label={`Strategy for ${conflict.source} ${conflict.path}`}
                   value={resolutions[conflict.id]?.strategy || ""}
-                  onChange={event => update(conflict.id, event.target.value as ConflictStrategy)}
+                  onChange={(event) => update(conflict.id, event.target.value as ConflictStrategy)}
                 >
                   <option value="">Choose a strategy</option>
                   <option value="keep">Keep existing</option>
@@ -101,7 +139,7 @@ export default function ImportConflictModal({ documents, onConfirm, onCancel }: 
                     aria-label={`New name for ${conflict.source} ${conflict.path}`}
                     placeholder="Generate a unique name"
                     value={resolutions[conflict.id]?.name || ""}
-                    onChange={event => update(conflict.id, "rename", event.target.value)}
+                    onChange={(event) => update(conflict.id, "rename", event.target.value)}
                   />
                 </label>
               )}
@@ -110,20 +148,44 @@ export default function ImportConflictModal({ documents, onConfirm, onCancel }: 
         </div>
         {(result.error || commitError) && <p role="alert">{result.error || commitError}</p>}
         <footer>
-          <button type="button" className="ghost-btn" onClick={() => downloadJsonFile(
-            JSON.stringify({ files: documents.map(doc => doc.name), conflicts: report.conflicts, resolutions, error: result.error || undefined }, null, 2),
-            "import-conflicts.json",
-          )}>Download report</button>
-          <button type="button" className="ghost-btn" onClick={onCancel}>Cancel import</button>
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={() =>
+              downloadJsonFile(
+                JSON.stringify(
+                  {
+                    files: documents.map((doc) => doc.name),
+                    conflicts: report.conflicts,
+                    resolutions,
+                    error: result.error || undefined,
+                  },
+                  null,
+                  2,
+                ),
+                "import-conflicts.json",
+              )
+            }
+          >
+            Download report
+          </button>
+          <button type="button" className="ghost-btn" onClick={onCancel}>
+            Cancel import
+          </button>
           <button
             type="button"
             className="primary-btn"
             disabled={Boolean(result.error) || report.unresolved.length > 0}
             onClick={() => {
-              try { onConfirm(resolutions); }
-              catch (error) { setCommitError(error instanceof Error ? error.message : String(error)); }
+              try {
+                onConfirm(resolutions);
+              } catch (error) {
+                setCommitError(error instanceof Error ? error.message : String(error));
+              }
             }}
-          >Apply import</button>
+          >
+            Apply import
+          </button>
         </footer>
       </section>
     </div>,

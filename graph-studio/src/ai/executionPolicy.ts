@@ -1,4 +1,4 @@
-import { parseConsoleSource, type ConsoleInstruction } from "../console/dsl";
+import { type ConsoleInstruction, parseConsoleSource } from "../console/dsl";
 import type { AiExecutionMode, AiRiskLevel, ValidationReport } from "./types";
 
 export function normalizeAiExecutionMode(value: unknown, fallback: AiExecutionMode = "ask"): AiExecutionMode {
@@ -15,16 +15,23 @@ export function classifyCommandRisk(source: string): AiRiskLevel {
 
 export function isDestructiveCommand(source: string): boolean {
   const parsed = parseConsoleSource(source);
-  return !parsed.ok || parsed.instructions.some(instruction =>
-    instruction.type === "delete" || instruction.type === "removeEdge" || instruction.type === "unsetField");
+  return (
+    !parsed.ok ||
+    parsed.instructions.some(
+      (instruction) =>
+        instruction.type === "delete" || instruction.type === "removeEdge" || instruction.type === "unsetField",
+    )
+  );
 }
 
 export function shouldExecuteValidatedBatch(mode: AiExecutionMode, validation: ValidationReport): boolean {
-  return mode === "auto-edit"
-    && validation.allPassed
-    && validation.results.length > 0
-    && validation.riskLevel !== "high"
-    && validation.results.every(result => result.valid && !isDestructiveCommand(result.command));
+  return (
+    mode === "auto-edit" &&
+    validation.allPassed &&
+    validation.results.length > 0 &&
+    validation.riskLevel !== "high" &&
+    validation.results.every((result) => result.valid && !isDestructiveCommand(result.command))
+  );
 }
 
 function classifyInstructionRisk(instruction: ConsoleInstruction): AiRiskLevel {
@@ -42,7 +49,9 @@ function classifyInstructionRisk(instruction: ConsoleInstruction): AiRiskLevel {
     case "setEdge":
       return "medium";
     case "appearance":
-      return instruction.command.type === "resetAppearance" || instruction.command.type === "replaceCss" ? "medium" : "low";
+      return instruction.command.type === "resetAppearance" || instruction.command.type === "replaceCss"
+        ? "medium"
+        : "low";
     default:
       return "low";
   }

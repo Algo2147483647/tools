@@ -1,11 +1,14 @@
+import { findRootsFromDag } from "../graph/selectors";
 import type { DagNode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { ResolvedStageSelection } from "./types";
-import { findRootsFromDag } from "../graph/selectors";
 
 const GRAPH_ROOT_KEY = "__graph_root__";
 const SELECTION_ROOT_KEY = "__selection_root__";
 
-export function resolveStageSelection(dag: NormalizedDag, requestedSelection: GraphSelection | null): ResolvedStageSelection {
+export function resolveStageSelection(
+  dag: NormalizedDag,
+  requestedSelection: GraphSelection | null,
+): ResolvedStageSelection {
   const roots = findRootsFromDag(dag);
   const syntheticKey = (base: string) => {
     let key = base;
@@ -56,7 +59,10 @@ export function resolveStageSelection(dag: NormalizedDag, requestedSelection: Gr
   };
 }
 
-export function withSyntheticSelectionRoot(dag: NormalizedDag, selection: ResolvedStageSelection): Record<NodeKey, DagNode & { synthetic?: boolean }> {
+export function withSyntheticSelectionRoot(
+  dag: NormalizedDag,
+  selection: ResolvedStageSelection,
+): Record<NodeKey, DagNode & { synthetic?: boolean }> {
   const nextDag: Record<NodeKey, DagNode & { synthetic?: boolean }> = Object.assign(Object.create(null), dag.nodes);
   if (selection.isForest) {
     nextDag[selection.rootKey] = {

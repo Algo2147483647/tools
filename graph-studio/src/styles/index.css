@@ -6,5 +6,6 @@
 @import "./console.css";
 @import "./modals.css";
 
-@import "./studio.css";
-@import "./glass.css";
+@import "./chrome.css";
+@import "./workspace.css";
+@import "./settings.css";

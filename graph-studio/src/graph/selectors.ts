@@ -68,7 +68,10 @@ export function isSelectionValid(selection: GraphSelection | null, dag: Normaliz
   return selection.keys.some((key) => Boolean(dag.nodes[key]));
 }
 
-export function remapSelectionKeys(selection: GraphSelection | null, keyMapper: (key: NodeKey) => NodeKey | null): GraphSelection | null {
+export function remapSelectionKeys(
+  selection: GraphSelection | null,
+  keyMapper: (key: NodeKey) => NodeKey | null,
+): GraphSelection | null {
   if (!selection) {
     return null;
   }

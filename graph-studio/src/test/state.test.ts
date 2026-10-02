@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { applyGraphCommand } from "../graph/commands";
-import { repairSelectionAfterCommand } from "../state/derived";
-import { graphReducer, repairHistoryAfterCommand } from "../state/graphReducer";
-import { initialGraphAppState, type EditTransaction, type GraphAppState } from "../state/initialState";
-import { defineSuite, defineTest } from "./harness";
+import { repairHistoryAfterCommand, repairSelectionAfterCommand } from "../state/derived";
+import { graphReducer } from "../state/graphReducer";
+import { type EditTransaction, type GraphAppState, initialGraphAppState } from "../state/initialState";
 import { createSampleDag } from "./fixtures";
+import { defineSuite, defineTest } from "./harness";
 
 export const stateSuite = defineSuite("state", [
   defineTest("graphLoaded preserves workspace preferences while resetting document state", () => {
@@ -23,6 +23,7 @@ export const stateSuite = defineSuite("state", [
 
     const nextState = graphReducer(state, {
       type: "graphLoaded",
+      documentId: "test-document",
       dag,
       fileName: "sample.json",
       fileHandle: null,
@@ -39,7 +40,7 @@ export const stateSuite = defineSuite("state", [
     assert.equal(nextState.editHistory.undoStack.length, 0);
   }),
 
-  defineTest("graphCommandCommitted advances undo history and dirty tracking", () => {
+  defineTest("graphCommandsCommitted advances undo history and dirty tracking", () => {
     const dag = createSampleDag();
     const baseState: GraphAppState = {
       ...initialGraphAppState,
@@ -73,8 +74,10 @@ export const stateSuite = defineSuite("state", [
     };
 
     const nextState = graphReducer(baseState, {
-      type: "graphCommandCommitted",
-      result,
+      type: "graphCommandsCommitted",
+      renamedKeys: [],
+      deletedKeys: [],
+      status: result.message || "Updated",
       transaction,
     });
 

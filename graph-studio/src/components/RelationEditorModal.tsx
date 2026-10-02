@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { formatRelationValue, parseRelationValue, uniqueKeys } from "../graph/relations";
 import type { DagNode, NodeKey, RelationField, RelationValue } from "../graph/types";
 import { DEFAULT_RELATION_VALUE } from "../graph/types";
-import { uniqueKeys, parseRelationValue, formatRelationValue } from "../graph/relations";
 
 interface RelationEditorModalProps {
   open: boolean;
@@ -20,7 +20,16 @@ interface RelationRow {
   value: string;
 }
 
-export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, node, sankey = false, onSave, onClose }: RelationEditorModalProps) {
+export default function RelationEditorModal({
+  open,
+  nodeKey,
+  field,
+  fieldLabel,
+  node,
+  sankey = false,
+  onSave,
+  onClose,
+}: RelationEditorModalProps) {
   const [value, setValue] = useState("");
   const [rows, setRows] = useState<RelationRow[]>([]);
   const [error, setError] = useState("");
@@ -57,7 +66,12 @@ export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, 
       setError(normalized.message);
       return;
     }
-    if (sankey && Object.values(normalized.relations).some(value => typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+    if (
+      sankey &&
+      Object.values(normalized.relations).some(
+        (value) => typeof value !== "number" || !Number.isFinite(value) || value < 0,
+      )
+    ) {
       setError("Sankey flow values must be finite, non-negative numbers.");
       return;
     }
@@ -69,7 +83,9 @@ export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, 
     <div id="relation-editor-modal" className="relation-editor-modal is-visible" aria-hidden="false">
       <div className="relation-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="relation-editor-title">
         <h3 id="relation-editor-title">Edit {displayFieldName}</h3>
-        <p id="relation-editor-description" className="relation-editor-description">Editing {displayFieldName} for node {activeNodeKey}.</p>
+        <p id="relation-editor-description" className="relation-editor-description">
+          Editing {displayFieldName} for node {activeNodeKey}.
+        </p>
         <textarea
           id="relation-editor-input"
           rows={4}
@@ -84,69 +100,82 @@ export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, 
           placeholder={`Edit ${displayFieldName} keys here. Use one key per line or separate keys with commas.`}
           autoFocus
         />
-        <p className="relation-editor-hint">This text box edits the {displayFieldName} key set directly. The table below stays in sync and lets you edit each relation value.</p>
+        <p className="relation-editor-hint">
+          This text box edits the {displayFieldName} key set directly. The table below stays in sync and lets you edit
+          each relation value.
+        </p>
         <div className="relation-editor-table-wrap">
           <table className="relation-editor-table">
             <thead>
               <tr>
                 <th scope="col">Key</th>
                 <th scope="col">{sankey ? "Flow value (≥ 0)" : "Value"}</th>
-                <th scope="col" aria-label="Actions">Actions</th>
+                <th scope="col" aria-label="Actions">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
-              {rows.length ? rows.map((row) => (
-                <tr key={row.id}>
-                  <td>
-                    <input
-                      className="field-mapping-input relation-editor-cell-input"
-                      type="text"
-                      spellCheck={false}
-                      value={row.key}
-                      onChange={(event) => {
-                        const nextValue = event.target.value;
-                        setError("");
-                        setRows((current) => {
-                          const nextRows = current.map((item) => (item.id === row.id ? { ...item, key: nextValue } : item));
-                          setValue(formatRelationKeys(nextRows));
-                          return nextRows;
-                        });
-                      }}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="field-mapping-input relation-editor-cell-input"
-                      type="text"
-                      spellCheck={false}
-                      value={row.value}
-                      onChange={(event) => {
-                        const nextValue = event.target.value;
-                        setError("");
-                        setRows((current) => current.map((item) => (item.id === row.id ? { ...item, value: nextValue } : item)));
-                      }}
-                    />
-                  </td>
-                  <td className="relation-editor-actions-cell">
-                    <button
-                      className="ghost-btn relation-editor-remove-btn"
-                      type="button"
-                      onClick={() => {
-                        setError("");
-                        setRows((current) => {
-                          const nextRows = current.filter((item) => item.id !== row.id);
-                          setValue(formatRelationKeys(nextRows));
-                          return nextRows;
-                        });
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              )) : (
+              {rows.length ? (
+                rows.map((row) => (
+                  <tr key={row.id}>
+                    <td>
+                      <input
+                        className="field-mapping-input relation-editor-cell-input"
+                        type="text"
+                        spellCheck={false}
+                        value={row.key}
+                        onChange={(event) => {
+                          const nextValue = event.target.value;
+                          setError("");
+                          setRows((current) => {
+                            const nextRows = current.map((item) =>
+                              item.id === row.id ? { ...item, key: nextValue } : item,
+                            );
+                            setValue(formatRelationKeys(nextRows));
+                            return nextRows;
+                          });
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field-mapping-input relation-editor-cell-input"
+                        type="text"
+                        spellCheck={false}
+                        value={row.value}
+                        onChange={(event) => {
+                          const nextValue = event.target.value;
+                          setError("");
+                          setRows((current) =>
+                            current.map((item) => (item.id === row.id ? { ...item, value: nextValue } : item)),
+                          );
+                        }}
+                      />
+                    </td>
+                    <td className="relation-editor-actions-cell">
+                      <button
+                        className="ghost-btn relation-editor-remove-btn"
+                        type="button"
+                        onClick={() => {
+                          setError("");
+                          setRows((current) => {
+                            const nextRows = current.filter((item) => item.id !== row.id);
+                            setValue(formatRelationKeys(nextRows));
+                            return nextRows;
+                          });
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <td colSpan={3} className="relation-editor-empty">No {displayFieldName} added yet.</td>
+                  <td colSpan={3} className="relation-editor-empty">
+                    No {displayFieldName} added yet.
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -170,8 +199,12 @@ export default function RelationEditorModal({ open, nodeKey, field, fieldLabel, 
         </div>
         {error ? <p className="relation-editor-error">{error}</p> : null}
         <div className="relation-editor-actions">
-          <button id="relation-editor-cancel" className="ghost-btn" type="button" onClick={onClose}>Cancel</button>
-          <button id="relation-editor-save" className="primary-btn" type="button" onClick={saveRelations}>Save</button>
+          <button id="relation-editor-cancel" className="ghost-btn" type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button id="relation-editor-save" className="primary-btn" type="button" onClick={saveRelations}>
+            Save
+          </button>
         </div>
       </div>
     </div>
@@ -182,7 +215,10 @@ export function parseRelationInput(rawText: string): NodeKey[] {
   return uniqueKeys(String(rawText || "").split(/[\n,]/));
 }
 
-function buildRelationRows(relationField: RelationField, createRow: (key?: string, relationValue?: string) => RelationRow): RelationRow[] {
+function buildRelationRows(
+  relationField: RelationField,
+  createRow: (key?: string, relationValue?: string) => RelationRow,
+): RelationRow[] {
   if (Array.isArray(relationField)) {
     return relationField.map((key) => createRow(key, String(DEFAULT_RELATION_VALUE)));
   }
@@ -224,7 +260,10 @@ function reconcileRowsWithKeys(
   return nextRows;
 }
 
-function normalizeRelationRows(rows: RelationRow[], nodeKey: NodeKey): { ok: true; relations: Record<NodeKey, RelationValue> } | { ok: false; message: string } {
+function normalizeRelationRows(
+  rows: RelationRow[],
+  nodeKey: NodeKey,
+): { ok: true; relations: Record<NodeKey, RelationValue> } | { ok: false; message: string } {
   const relations: Record<NodeKey, RelationValue> = Object.create(null);
 
   for (const row of rows) {
@@ -248,5 +287,8 @@ function normalizeRelationRows(rows: RelationRow[], nodeKey: NodeKey): { ok: tru
 }
 
 function formatRelationKeys(rows: RelationRow[]): string {
-  return rows.map((row) => row.key.trim()).filter(Boolean).join("\n");
+  return rows
+    .map((row) => row.key.trim())
+    .filter(Boolean)
+    .join("\n");
 }

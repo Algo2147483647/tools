@@ -19,7 +19,9 @@ export default function LayoutSliderControl({ control, value, onChange }: Layout
 
   return (
     <div className="layout-slider-control">
-      <label htmlFor={inputId} className="layout-slider-label">{control.label}</label>
+      <label htmlFor={inputId} className="layout-slider-label">
+        {control.label}
+      </label>
       <div className="layout-slider-inputs">
         <input
           id={inputId}

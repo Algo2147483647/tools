@@ -1,4 +1,4 @@
-import { sanitizeGraphAppearance, type GraphAppearance } from "../graph/appearance";
+import { type GraphAppearance, sanitizeGraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
 
 export interface ChartDisplayOptions {
@@ -14,7 +14,7 @@ interface ChartStyle extends ChartDisplayOptions {
 export type ChartStyles = Record<GraphChartType, ChartStyle>;
 
 export function sanitizeChartStyle(value: unknown): ChartStyle {
-  const input = value && typeof value === "object" && !Array.isArray(value) ? value as Partial<ChartStyle> : {};
+  const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Partial<ChartStyle>) : {};
   return {
     appearance: sanitizeGraphAppearance(input.appearance),
     showNodeDetail: typeof input.showNodeDetail === "boolean" ? input.showNodeDetail : true,

@@ -1,21 +1,32 @@
-import { useCallback, useMemo, useReducer, type Dispatch } from "react";
-import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance, type GraphAppearance, type GraphLayoutAppearance } from "../graph/appearance";
-import { applyAppearanceCommand, type GraphAppearancePresetId } from "../graph/appearanceCommands";
+import { type Dispatch, useCallback, useMemo, useReducer } from "react";
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
 import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
-import type { GraphAction } from "../state/graphActions";
+import {
+  type GraphAppearance,
+  type GraphLayoutAppearance,
+  DEFAULT_GRAPH_APPEARANCE,
+  sanitizeGraphAppearance,
+} from "../graph/appearance";
+import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
+import type { GraphChartType } from "../graph/types";
 import { chartAppearanceHistoryReducer, createChartAppearanceHistory } from "../state/appearanceHistory";
 import type { ChartStyles } from "../state/chartStyles";
-import type { GraphChartType } from "../graph/types";
+import type { GraphAction } from "../state/graphActions";
 
 export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
   const [histories, updateHistories] = useReducer(chartAppearanceHistoryReducer, styles, createChartAppearanceHistory);
   const history = histories[chartType];
-  const appearanceByChart = useMemo(() => ({ "node-link": histories["node-link"].appearance, sankey: histories.sankey.appearance }), [histories]);
+  const appearanceByChart = useMemo(
+    () => ({ "node-link": histories["node-link"].appearance, sankey: histories.sankey.appearance }),
+    [histories],
+  );
   const { appearance } = history;
-  const commitAppearance = useCallback((nextAppearance: GraphAppearance, label: string) => {
-    updateHistories({ chartType, action: { type: "commit", appearance: nextAppearance, label } });
-  }, [chartType]);
+  const commitAppearance = useCallback(
+    (nextAppearance: GraphAppearance, label: string) => {
+      updateHistories({ chartType, action: { type: "commit", appearance: nextAppearance, label } });
+    },
+    [chartType],
+  );
   const undo = useCallback(() => {
     const transaction = history.undoStack.at(-1);
     if (!transaction) return;
@@ -28,7 +39,10 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
     updateHistories({ chartType, action: { type: "redo" } });
     dispatch({ type: "statusChanged", status: `Redid: ${transaction.label}` });
   }, [chartType, dispatch, history.redoStack]);
-  function handleLayoutAppearanceChange<K extends keyof GraphLayoutAppearance>(key: K, value: GraphLayoutAppearance[K]) {
+  function handleLayoutAppearanceChange<K extends keyof GraphLayoutAppearance>(
+    key: K,
+    value: GraphLayoutAppearance[K],
+  ) {
     const nextAppearance = sanitizeGraphAppearance({
       ...appearance,
       layout: {
@@ -50,7 +64,10 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
     commitAppearance(nextAppearance, `Set ${key}.`);
   }
 
-  function handleAppearanceDisplayChange<K extends keyof GraphAppearance["display"]>(key: K, value: GraphAppearance["display"][K]) {
+  function handleAppearanceDisplayChange<K extends keyof GraphAppearance["display"]>(
+    key: K,
+    value: GraphAppearance["display"][K],
+  ) {
     const nextAppearance = sanitizeGraphAppearance({
       ...appearance,
       display: {
@@ -66,7 +83,10 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
   }
 
   function handleAppearancePresetChange(presetId: GraphAppearancePresetId) {
-    commitAppearance(applyAppearanceCommand(appearance, { type: "applyPreset", presetId }).appearance, `Applied ${presetId} appearance preset.`);
+    commitAppearance(
+      applyAppearanceCommand(appearance, { type: "applyPreset", presetId }).appearance,
+      `Applied ${presetId} appearance preset.`,
+    );
   }
 
   function handleAppearanceReset() {
@@ -123,12 +143,22 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
   }
 
   return {
-    appearance, appearanceByChart, commitAppearance, undo, redo,
-    canUndo: history.undoStack.length > 0, canRedo: history.redoStack.length > 0,
-    handleLayoutAppearanceChange, handleAppearanceCssVarChange,
-    handleAppearanceDisplayChange, handleAppearanceCssChange,
-    handleAppearancePresetChange, handleAppearanceReset, handleAppearanceExport,
-    handleAppearanceImportClick, handleAppearanceImportChange,
+    appearance,
+    appearanceByChart,
+    commitAppearance,
+    undo,
+    redo,
+    canUndo: history.undoStack.length > 0,
+    canRedo: history.redoStack.length > 0,
+    handleLayoutAppearanceChange,
+    handleAppearanceCssVarChange,
+    handleAppearanceDisplayChange,
+    handleAppearanceCssChange,
+    handleAppearancePresetChange,
+    handleAppearanceReset,
+    handleAppearanceExport,
+    handleAppearanceImportClick,
+    handleAppearanceImportChange,
   };
 }
 

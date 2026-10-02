@@ -183,12 +183,9 @@
 .settings-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 40;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
-  background: rgba(255, 255, 255, 0.42);
   backdrop-filter: blur(14px) saturate(1.18);
 }
 
@@ -596,7 +593,11 @@
 }
 
 .ai-connection-test-btn {
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease;
 }
 
 .ai-connection-test-btn-success {
@@ -645,7 +646,7 @@
   }
 
   .zoom-fit-btn,
-.zoom-pill {
+  .zoom-pill {
     flex: 1 1 0;
   }
 
@@ -743,5 +744,3 @@
   border-color: rgba(40, 95, 223, 0.28);
   box-shadow: 0 0 0 3px rgba(40, 95, 223, 0.1);
 }
-
-

@@ -1,11 +1,14 @@
-import { DEFAULT_RELATION_VALUE, type NormalizedDag, type RelationValue } from "./types";
+import { type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
 
 // Non-enumerable read-only projections: edges are the only stored relation data.
 export function indexGraphDocument(dag: NormalizedDag): NormalizedDag {
   Object.setPrototypeOf(dag.nodes, null);
   const incoming = new Map<string, Record<string, RelationValue>>();
   const outgoing = new Map<string, Record<string, RelationValue>>();
-  for (const key of Object.keys(dag.nodes)) { incoming.set(key, Object.create(null)); outgoing.set(key, Object.create(null)); }
+  for (const key of Object.keys(dag.nodes)) {
+    incoming.set(key, Object.create(null));
+    outgoing.set(key, Object.create(null));
+  }
   for (const edge of dag.edges) {
     const value = edge.value === undefined ? DEFAULT_RELATION_VALUE : edge.value;
     outgoing.get(edge.source)![edge.target] = value;

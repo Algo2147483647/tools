@@ -1,7 +1,7 @@
-import { collectDescendantKeys } from "./traversal";
+import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
-import { normalizeDagInput, validateNodeKey, validateNodeFields } from "./normalize";
-import { DEFAULT_RELATION_VALUE, type NormalizedDag, type NodeKey, type RelationValue, type GraphEdge } from "./types";
+import { collectDescendantKeys } from "./traversal";
+import { type GraphEdge, type NodeKey, type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
 
 export type GraphCommand =
   | { type: "renameNode"; oldKey: NodeKey; newKey: NodeKey }
@@ -32,83 +32,127 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
   const nodes = document.nodes;
   const result: Omit<CommandResult, "dag"> = { changedKeys: [] };
   const exists = (key: string) => Object.prototype.hasOwnProperty.call(nodes, key);
-  const requireNode = (key: string) => { if (!exists(key)) throw new Error(`Node "${key}" does not exist.`); };
+  const requireNode = (key: string) => {
+    if (!exists(key)) throw new Error(`Node "${key}" does not exist.`);
+  };
   const requireNew = (key: string, current?: string) => {
     validateNodeKey(key);
     if (key !== current && exists(key)) throw new Error(`Node key "${key}" already exists.`);
   };
   const putNode = (key: string, fields: Record<string, unknown>) => {
     validateNodeFields(fields, `/nodes/${key}`);
-    Object.defineProperty(nodes, key, { value: structuredClone(fields), enumerable: true, writable: true, configurable: true });
+    Object.defineProperty(nodes, key, {
+      value: structuredClone(fields),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   };
   const rename = (oldKey: string, key: string) => {
-    requireNode(oldKey); requireNew(key, oldKey);
+    requireNode(oldKey);
+    requireNew(key, oldKey);
     if (oldKey === key) return;
-    putNode(key, nodes[oldKey]); delete nodes[oldKey];
-    document.edges.forEach(edge => {
+    putNode(key, nodes[oldKey]);
+    delete nodes[oldKey];
+    document.edges.forEach((edge) => {
       if (edge.source === oldKey) edge.source = key;
       if (edge.target === oldKey) edge.target = key;
     });
     result.renamedKey = { from: oldKey, to: key };
   };
   const setEdge = (source: string, target: string, value: RelationValue) => {
-    requireNode(source); requireNode(target);
+    requireNode(source);
+    requireNode(target);
     if (source === target) throw new Error("A node cannot reference itself.");
-    const edge = document.edges.find(edge => edge.source === source && edge.target === target);
+    const edge = document.edges.find((edge) => edge.source === source && edge.target === target);
     if (edge) edge.value = value;
     else document.edges.push({ id: newEdgeId(document.edges), source, target, value });
   };
   switch (command.type) {
     case "renameNode":
-      rename(command.oldKey, command.newKey); result.message = `Renamed node ${command.oldKey} to ${command.newKey}.`; break;
+      rename(command.oldKey, command.newKey);
+      result.message = `Renamed node ${command.oldKey} to ${command.newKey}.`;
+      break;
     case "deleteNode":
     case "deleteSubtree": {
       const keys = command.type === "deleteNode" ? [command.key] : collectSubtreeNodeKeys(source, command.rootKey);
       keys.forEach(requireNode);
       const removed = new Set(keys);
-      keys.forEach(key => delete nodes[key]);
-      document.edges = document.edges.filter(edge => !removed.has(edge.source) && !removed.has(edge.target));
-      result.deletedKeys = keys; result.message = `Deleted ${keys.length} node(s).`; break;
+      keys.forEach((key) => delete nodes[key]);
+      document.edges = document.edges.filter((edge) => !removed.has(edge.source) && !removed.has(edge.target));
+      result.deletedKeys = keys;
+      result.message = `Deleted ${keys.length} node(s).`;
+      break;
     }
     case "addNode":
     case "addNodeFromFields":
     case "copyNode": {
       requireNew(command.key);
       if (command.type === "copyNode") requireNode(command.sourceKey);
-      const fields = command.type === "copyNode" ? nodes[command.sourceKey] : command.type === "addNodeFromFields" ? command.fields : { define: "", type: "" };
+      const fields =
+        command.type === "copyNode"
+          ? nodes[command.sourceKey]
+          : command.type === "addNodeFromFields"
+            ? command.fields
+            : { define: "", type: "" };
       putNode(command.key, fields);
       if (command.parentKey) setEdge(command.parentKey, command.key, defaultRelationValue);
-      result.message = `Added node ${command.key}.`; break;
+      result.message = `Added node ${command.key}.`;
+      break;
     }
     case "updateNodeFields": {
       const key = command.nextKey ?? command.key;
       rename(command.key, key);
       putNode(key, command.fields);
-      result.message = `Saved node ${key}.`; break;
+      result.message = `Saved node ${key}.`;
+      break;
     }
     case "setEdge":
-      setEdge(command.parentKey, command.childKey, command.weight === undefined ? defaultRelationValue : command.weight);
-      result.message = `Updated edge ${command.parentKey} -> ${command.childKey}.`; break;
+      setEdge(
+        command.parentKey,
+        command.childKey,
+        command.weight === undefined ? defaultRelationValue : command.weight,
+      );
+      result.message = `Updated edge ${command.parentKey} -> ${command.childKey}.`;
+      break;
     case "removeEdge": {
-      requireNode(command.parentKey); requireNode(command.childKey);
+      requireNode(command.parentKey);
+      requireNode(command.childKey);
       const count = document.edges.length;
-      document.edges = document.edges.filter(edge => edge.source !== command.parentKey || edge.target !== command.childKey);
+      document.edges = document.edges.filter(
+        (edge) => edge.source !== command.parentKey || edge.target !== command.childKey,
+      );
       if (count === document.edges.length) throw new Error("Edge does not exist.");
-      result.message = "Removed edge."; break;
+      result.message = "Removed edge.";
+      break;
     }
     default: {
       requireNode(command.key);
       const parents = command.type === "setParents" || command.type === "setParentRelations";
-      const oldEdges = document.edges.filter(edge => (parents ? edge.target : edge.source) === command.key);
-      const values = command.type === "setParents" ? command.parents : command.type === "setChildren" ? command.children : command.type === "setParentRelations" ? command.parents : command.children;
+      const oldEdges = document.edges.filter((edge) => (parents ? edge.target : edge.source) === command.key);
+      const values =
+        command.type === "setParents"
+          ? command.parents
+          : command.type === "setChildren"
+            ? command.children
+            : command.type === "setParentRelations"
+              ? command.parents
+              : command.children;
       const relations = Array.isArray(values)
-        ? Object.fromEntries(values.map(key => {
-            const value = oldEdges.find(edge => (parents ? edge.source : edge.target) === key)?.value;
-            return [key, value === undefined ? defaultRelationValue : value];
-          }))
+        ? Object.fromEntries(
+            values.map((key) => {
+              const value = oldEdges.find((edge) => (parents ? edge.source : edge.target) === key)?.value;
+              return [key, value === undefined ? defaultRelationValue : value];
+            }),
+          )
         : values;
-      for (const [key, value] of Object.entries(relations)) setEdge(parents ? key : command.key, parents ? command.key : key, value);
-      document.edges = document.edges.filter(edge => (parents ? edge.target : edge.source) !== command.key || Object.prototype.hasOwnProperty.call(relations, parents ? edge.source : edge.target));
+      for (const [key, value] of Object.entries(relations))
+        setEdge(parents ? key : command.key, parents ? command.key : key, value);
+      document.edges = document.edges.filter(
+        (edge) =>
+          (parents ? edge.target : edge.source) !== command.key ||
+          Object.prototype.hasOwnProperty.call(relations, parents ? edge.source : edge.target),
+      );
       result.message = `Updated ${parents ? "parents" : "children"} for ${command.key}.`;
     }
   }
@@ -117,7 +161,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
 }
 
 export function newEdgeId(edges: GraphEdge[]): string {
-  const used = new Set(edges.map(edge => edge.id));
+  const used = new Set(edges.map((edge) => edge.id));
   let n = edges.length + 1;
   while (used.has(`edge-${n}`)) n++;
   return `edge-${n}`;

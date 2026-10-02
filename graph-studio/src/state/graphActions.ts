@@ -1,15 +1,32 @@
-import type { CommandResult } from "../graph/commands";
-import type { GraphChartType, GraphLayoutMode, GraphSelection, NormalizedDag, NodeKey } from "../graph/types";
+import type { GraphChartType, GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { EditTransaction } from "./initialState";
 
 export type GraphAction =
   | { type: "graphClosed"; status: string }
-  | { type: "graphLoaded"; dag: NormalizedDag; fileName: string; fileHandle?: FileSystemFileHandle | null; selection: GraphSelection; status: string }
-  | { type: "graphReinterpreted"; dag: NormalizedDag; selection: GraphSelection | null; history: GraphSelection[]; status: string }
-  | { type: "canvasInitialized"; dag: NormalizedDag; fileName: string; selection: GraphSelection; status: string }
-  | { type: "graphLoadFailed"; status: string }
-  | { type: "graphCommandCommitted"; result: CommandResult; transaction: EditTransaction; status?: string }
-  | { type: "graphCommandsCommitted"; transaction: EditTransaction; renamedKeys: Array<{ from: NodeKey; to: NodeKey }>; deletedKeys: NodeKey[]; status: string }
+  | {
+      type: "graphLoaded";
+      documentId: string;
+      dag: NormalizedDag;
+      fileName: string;
+      fileHandle?: FileSystemFileHandle | null;
+      selection: GraphSelection;
+      status: string;
+    }
+  | {
+      type: "canvasInitialized";
+      documentId: string;
+      dag: NormalizedDag;
+      fileName: string;
+      selection: GraphSelection;
+      status: string;
+    }
+  | {
+      type: "graphCommandsCommitted";
+      transaction: EditTransaction;
+      renamedKeys: Array<{ from: NodeKey; to: NodeKey }>;
+      deletedKeys: NodeKey[];
+      status: string;
+    }
   | { type: "undoRequested" }
   | { type: "redoRequested" }
   | { type: "selectionChanged"; selection: GraphSelection; pushHistory?: boolean }
@@ -27,6 +44,6 @@ export type GraphAction =
   | { type: "modalClosed" }
   | { type: "saveDialogOpened" }
   | { type: "saveDialogClosed" }
-  | { type: "saved"; status: string }
+  | { type: "saved"; generation: number; revision: number; dag: NormalizedDag; status: string }
   | { type: "savedAsCopy"; status: string }
   | { type: "statusChanged"; status: string };

@@ -1,9 +1,8 @@
-import { collectBatchEffects } from "../console/executor";
+import { collectBatchEffects } from "../graph/commandEffects";
 import type { CommandResult } from "../graph/commands";
 import type { GraphSelection } from "../graph/types";
-import { repairSelectionAfterCommand } from "./derived";
+import { repairHistoryAfterCommand, repairSelectionAfterCommand } from "./derived";
 import type { GraphAction } from "./graphActions";
-import { repairHistoryAfterCommand } from "./graphReducer";
 import type { GraphAppState } from "./initialState";
 
 export function prepareGraphTransaction(
@@ -32,7 +31,7 @@ export function prepareGraphTransaction(
       beforeNavigationHistory: state.history,
       afterNavigationHistory: history,
       revisionBefore: state.editHistory.revision,
-      revisionAfter: state.editHistory.revision + 1,
+      revisionAfter: state.nextRevision,
     },
     ...collectBatchEffects(results),
     status: label,

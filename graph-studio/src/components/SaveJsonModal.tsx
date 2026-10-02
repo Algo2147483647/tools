@@ -1,5 +1,5 @@
-import { CloseIcon } from "./ui/ModalIcons";
 import { ensureJsonExtension } from "../adapters/download";
+import { CloseIcon } from "./ui/ModalIcons";
 
 interface SaveJsonModalProps {
   open: boolean;
@@ -40,9 +40,18 @@ export default function SaveJsonModal({
       <div className="save-json-dialog" role="dialog" aria-modal="true" aria-labelledby="save-json-title">
         <div className="save-json-header">
           <div>
-            <p id="save-json-title" className="save-json-eyebrow">Save Graph JSON</p>
+            <p id="save-json-title" className="save-json-eyebrow">
+              Save Graph JSON
+            </p>
           </div>
-          <button id="save-json-cancel-top" className="ghost-btn modal-icon-close-btn" type="button" title="Close" aria-label="Close" onClick={onClose}>
+          <button
+            id="save-json-cancel-top"
+            className="ghost-btn modal-icon-close-btn"
+            type="button"
+            title="Close"
+            aria-label="Close"
+            onClick={onClose}
+          >
             <CloseIcon />
           </button>
         </div>
@@ -67,9 +76,26 @@ export default function SaveJsonModal({
           )}
         </section>
         <div className="save-json-actions">
-          <button id="save-json-overwrite" className="primary-btn save-json-overwrite-btn" type="button" disabled={!canOverwrite} title={canOverwrite ? `Overwrite ${normalizedFileName}` : "Open the JSON with file access to enable direct overwrite."} onClick={onOverwrite}>Overwrite Original</button>
-          <button id="save-json-new" className="ghost-btn" type="button" onClick={onSaveNew}>Save New Copy</button>
-          <button id="save-json-cancel" className="ghost-btn" type="button" onClick={onClose}>Cancel</button>
+          <button
+            id="save-json-overwrite"
+            className="primary-btn save-json-overwrite-btn"
+            type="button"
+            disabled={!canOverwrite}
+            title={
+              canOverwrite
+                ? `Overwrite ${normalizedFileName}`
+                : "Open the JSON with file access to enable direct overwrite."
+            }
+            onClick={onOverwrite}
+          >
+            Overwrite Original
+          </button>
+          <button id="save-json-new" className="ghost-btn" type="button" onClick={onSaveNew}>
+            Save New Copy
+          </button>
+          <button id="save-json-cancel" className="ghost-btn" type="button" onClick={onClose}>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -107,18 +133,18 @@ function buildLineDiff(previousContent: string, currentContent: string): DiffLin
   const newLines = splitLines(currentContent);
   let prefixLength = 0;
   while (
-    prefixLength < oldLines.length
-    && prefixLength < newLines.length
-    && oldLines[prefixLength] === newLines[prefixLength]
+    prefixLength < oldLines.length &&
+    prefixLength < newLines.length &&
+    oldLines[prefixLength] === newLines[prefixLength]
   ) {
     prefixLength += 1;
   }
 
   let suffixLength = 0;
   while (
-    suffixLength < oldLines.length - prefixLength
-    && suffixLength < newLines.length - prefixLength
-    && oldLines[oldLines.length - 1 - suffixLength] === newLines[newLines.length - 1 - suffixLength]
+    suffixLength < oldLines.length - prefixLength &&
+    suffixLength < newLines.length - prefixLength &&
+    oldLines[oldLines.length - 1 - suffixLength] === newLines[newLines.length - 1 - suffixLength]
   ) {
     suffixLength += 1;
   }
@@ -142,7 +168,12 @@ function buildLineDiff(previousContent: string, currentContent: string): DiffLin
   return output;
 }
 
-function buildMiddleDiff(oldLines: string[], newLines: string[], oldStartLine: number, newStartLine: number): DiffLine[] {
+function buildMiddleDiff(
+  oldLines: string[],
+  newLines: string[],
+  oldStartLine: number,
+  newStartLine: number,
+): DiffLine[] {
   if (!oldLines.length) {
     return newLines.map((text, index) => ({ kind: "add", oldLine: null, newLine: newStartLine + index, text }));
   }
@@ -151,7 +182,12 @@ function buildMiddleDiff(oldLines: string[], newLines: string[], oldStartLine: n
   }
   if (oldLines.length * newLines.length > 250000) {
     return [
-      ...oldLines.map((text, index): DiffLine => ({ kind: "remove", oldLine: oldStartLine + index, newLine: null, text })),
+      ...oldLines.map((text, index): DiffLine => ({
+        kind: "remove",
+        oldLine: oldStartLine + index,
+        newLine: null,
+        text,
+      })),
       ...newLines.map((text, index): DiffLine => ({ kind: "add", oldLine: null, newLine: newStartLine + index, text })),
     ];
   }
@@ -173,7 +209,10 @@ function buildMiddleDiff(oldLines: string[], newLines: string[], oldStartLine: n
       newIndex += 1;
       continue;
     }
-    if (newIndex < newLines.length && (oldIndex === oldLines.length || table[oldIndex][newIndex + 1] >= table[oldIndex + 1][newIndex])) {
+    if (
+      newIndex < newLines.length &&
+      (oldIndex === oldLines.length || table[oldIndex][newIndex + 1] >= table[oldIndex + 1][newIndex])
+    ) {
       output.push({ kind: "add", oldLine: null, newLine: newStartLine + newIndex, text: newLines[newIndex] });
       newIndex += 1;
       continue;
@@ -191,9 +230,10 @@ function buildLcsTable(oldLines: string[], newLines: string[]): number[][] {
   const table = Array.from({ length: oldLines.length + 1 }, () => Array(newLines.length + 1).fill(0));
   for (let oldIndex = oldLines.length - 1; oldIndex >= 0; oldIndex -= 1) {
     for (let newIndex = newLines.length - 1; newIndex >= 0; newIndex -= 1) {
-      table[oldIndex][newIndex] = oldLines[oldIndex] === newLines[newIndex]
-        ? table[oldIndex + 1][newIndex + 1] + 1
-        : Math.max(table[oldIndex + 1][newIndex], table[oldIndex][newIndex + 1]);
+      table[oldIndex][newIndex] =
+        oldLines[oldIndex] === newLines[newIndex]
+          ? table[oldIndex + 1][newIndex + 1] + 1
+          : Math.max(table[oldIndex + 1][newIndex], table[oldIndex][newIndex + 1]);
     }
   }
   return table;

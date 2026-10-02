@@ -1,5 +1,5 @@
-import { useCallback, type Dispatch } from "react";
-import { applyGraphCommand, type CommandResult, type GraphCommand } from "../graph/commands";
+import { type Dispatch, useCallback } from "react";
+import { type CommandResult, type GraphCommand, applyGraphCommand } from "../graph/commands";
 import type { GraphSelection } from "../graph/types";
 import type { GraphAction } from "../state/graphActions";
 import { prepareGraphTransaction } from "../state/graphTransactions";
@@ -12,31 +12,41 @@ interface AppearanceUndo {
   redo: () => void;
 }
 
-export function useGraphTransactions({ state, dispatch, appearanceHistory }: {
+export function useGraphTransactions({
+  state,
+  dispatch,
+  appearanceHistory,
+}: {
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;
 
   appearanceHistory: AppearanceUndo;
 }) {
-  const commitBatch = useCallback((results: CommandResult[], label: string, selection?: GraphSelection | null): boolean => {
-    const action = prepareGraphTransaction(state, results, label, selection);
-    if (!action) return false;
-    dispatch(action);
-    return true;
-  }, [dispatch, state]);
+  const commitBatch = useCallback(
+    (results: CommandResult[], label: string, selection?: GraphSelection | null): boolean => {
+      const action = prepareGraphTransaction(state, results, label, selection);
+      if (!action) return false;
+      dispatch(action);
+      return true;
+    },
+    [dispatch, state],
+  );
 
-  const commitCommand = useCallback((command: GraphCommand, selection = state.selection): string | undefined => {
-    if (!state.dag) return "No graph loaded.";
-    try {
-      const result = applyGraphCommand(state.dag, command);
-      commitBatch([result], result.message || "Updated graph.", selection);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "The graph command failed.";
-      dispatch({ type: "statusChanged", status: message });
-      window.alert(message);
-      return message;
-    }
-  }, [commitBatch, dispatch, state.dag, state.selection]);
+  const commitCommand = useCallback(
+    (command: GraphCommand, selection = state.selection): string | undefined => {
+      if (!state.dag) return "No graph loaded.";
+      try {
+        const result = applyGraphCommand(state.dag, command);
+        commitBatch([result], result.message || "Updated graph.", selection);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "The graph command failed.";
+        dispatch({ type: "statusChanged", status: message });
+        window.alert(message);
+        return message;
+      }
+    },
+    [commitBatch, dispatch, state.dag, state.selection],
+  );
 
   const undo = useCallback(() => {
     if (state.editHistory.undoStack.length) dispatch({ type: "undoRequested" });
@@ -49,7 +59,10 @@ export function useGraphTransactions({ state, dispatch, appearanceHistory }: {
   }, [appearanceHistory.redo, dispatch, state.editHistory.redoStack.length]);
 
   return {
-    commitCommand, commitBatch, undo, redo,
+    commitCommand,
+    commitBatch,
+    undo,
+    redo,
     canUndo: state.editHistory.undoStack.length > 0 || appearanceHistory.canUndo,
     canRedo: state.editHistory.redoStack.length > 0 || appearanceHistory.canRedo,
   };

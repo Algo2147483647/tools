@@ -45,4 +45,3 @@ export async function writeJsonToHandle(fileHandle: FileSystemFileHandle, conten
   await writable.write(content);
   await writable.close();
 }
-

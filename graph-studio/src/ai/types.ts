@@ -15,47 +15,47 @@ export interface AiSettings {
 export type AiResponse =
   | { kind: "answer"; answer: string; memoryPatch?: Partial<WorkingMemory> }
   | {
-    kind: "propose_changes";
-    answer: string;
-    plan: {
-      title: string;
-      goal: string;
-      assumptions?: string[];
-      affectedNodes?: string[];
-      changes: ProposedChange[];
-    };
-    draftCommands?: ConsoleCommandDraft[];
-    nextAction?: {
-      type: "await_user_confirmation" | "validate_then_execute" | "needs_inspection";
-      message: string;
-    };
-    memoryPatch?: Partial<WorkingMemory>;
-  }
+      kind: "propose_changes";
+      answer: string;
+      plan: {
+        title: string;
+        goal: string;
+        assumptions?: string[];
+        affectedNodes?: string[];
+        changes: ProposedChange[];
+      };
+      draftCommands?: ConsoleCommandDraft[];
+      nextAction?: {
+        type: "await_user_confirmation" | "validate_then_execute" | "needs_inspection";
+        message: string;
+      };
+      memoryPatch?: Partial<WorkingMemory>;
+    }
   | {
-    kind: "run_console";
-    answer: string;
-    commandBatch: {
-      title?: string;
+      kind: "run_console";
+      answer: string;
+      commandBatch: {
+        title?: string;
+        commands: string[];
+        expectedGraphEffects?: string[];
+        riskLevel?: AiRiskLevel;
+      };
+      preflightRequired?: boolean;
+      memoryPatch?: Partial<WorkingMemory>;
+    }
+  | {
+      kind: "clarify";
+      answer: string;
+      missingInformation?: Array<{ field: string; reason: string; candidates?: string[] }>;
+      fallbackActions?: string[];
+      memoryPatch?: Partial<WorkingMemory>;
+    }
+  | {
+      kind: "inspect";
+      answer: string;
       commands: string[];
-      expectedGraphEffects?: string[];
-      riskLevel?: AiRiskLevel;
+      memoryPatch?: Partial<WorkingMemory>;
     };
-    preflightRequired?: boolean;
-    memoryPatch?: Partial<WorkingMemory>;
-  }
-  | {
-    kind: "clarify";
-    answer: string;
-    missingInformation?: Array<{ field: string; reason: string; candidates?: string[] }>;
-    fallbackActions?: string[];
-    memoryPatch?: Partial<WorkingMemory>;
-  }
-  | {
-    kind: "inspect";
-    answer: string;
-    commands: string[];
-    memoryPatch?: Partial<WorkingMemory>;
-  };
 
 export type AiRiskLevel = "low" | "medium" | "high";
 
@@ -128,13 +128,7 @@ interface ConsoleCommandDraft {
 export interface ProposedChange {
   id?: string;
   kind:
-    | "add_node"
-    | "set_property"
-    | "add_edge"
-    | "remove_edge"
-    | "merge_node"
-    | "rename_node"
-    | "restructure_subgraph";
+    "add_node" | "set_property" | "add_edge" | "remove_edge" | "merge_node" | "rename_node" | "restructure_subgraph";
   target?: {
     nodeId?: string;
     edgeId?: string;
@@ -163,7 +157,17 @@ export interface ActionPlan {
   id: string;
   sessionId: string;
   graphId: string;
-  status: "draft" | "proposed" | "approved" | "validating" | "ready" | "executing" | "applied" | "failed" | "cancelled" | "superseded";
+  status:
+    | "draft"
+    | "proposed"
+    | "approved"
+    | "validating"
+    | "ready"
+    | "executing"
+    | "applied"
+    | "failed"
+    | "cancelled"
+    | "superseded";
   title: string;
   goal: string;
   source: {
@@ -230,6 +234,7 @@ export interface AiGraphContext {
 }
 
 export interface AiRequest {
+  signal?: AbortSignal;
   settings: AiSettings;
   context: AiContextPacket;
   message: string;
@@ -273,5 +278,4 @@ export interface AiContextPacket {
 }
 
 export type LegacyAiPlan =
-  | { type: "answer"; text: string }
-  | { type: "run_console"; explanation: string; commands: string[] };
+  { type: "answer"; text: string } | { type: "run_console"; explanation: string; commands: string[] };

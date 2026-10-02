@@ -73,20 +73,26 @@ export default function ConsoleSidebar({
 
       {activePanel === "console" ? (
         <div ref={outputRef} className="console-terminal__output">
-          {entries.map((entry) => entry.tone === "ai-review" ? (
-            <AiReviewCardView
-              key={entry.id}
-              review={entry.review}
-              onApply={onReviewApply}
-              onDismiss={onReviewDismiss}
-              onCopy={onReviewCopy}
-            />
-          ) : (
-            <div key={entry.id} className={`console-terminal__line console-terminal__line--${entry.tone}`}>
-              <span>{entry.text}</span>
+          {entries.map((entry) =>
+            entry.tone === "ai-review" ? (
+              <AiReviewCardView
+                key={entry.id}
+                review={entry.review}
+                onApply={onReviewApply}
+                onDismiss={onReviewDismiss}
+                onCopy={onReviewCopy}
+              />
+            ) : (
+              <div key={entry.id} className={`console-terminal__line console-terminal__line--${entry.tone}`}>
+                <span>{entry.text}</span>
+              </div>
+            ),
+          )}
+          {!hasGraph ? (
+            <div className="console-terminal__line console-terminal__line--info">
+              Load or initialize a graph to enable mutations.
             </div>
-          ))}
-          {!hasGraph ? <div className="console-terminal__line console-terminal__line--info">Load or initialize a graph to enable mutations.</div> : null}
+          ) : null}
           {aiBusy ? <div className="console-terminal__line console-terminal__line--ai">AI is thinking...</div> : null}
         </div>
       ) : (
@@ -152,7 +158,14 @@ function AiActivityPanel({
   const plan = harness.activePlan;
   const batch = harness.pendingCommandBatch || plan?.commandBatch;
   const events = harness.recentEvents.slice().reverse();
-  const canApply = Boolean(plan && batch?.commands.length && batch.validation?.allPassed && plan.status !== "applied" && plan.status !== "superseded" && plan.status !== "cancelled");
+  const canApply = Boolean(
+    plan &&
+    batch?.commands.length &&
+    batch.validation?.allPassed &&
+    plan.status !== "applied" &&
+    plan.status !== "superseded" &&
+    plan.status !== "cancelled",
+  );
 
   return (
     <div className="console-activity" aria-label="AI activity records">
@@ -182,14 +195,26 @@ function AiActivityPanel({
             <div className="console-activity__section">
               <p className="console-activity__label">Assumptions</p>
               <ul>
-                {plan.assumptions.map((assumption, index) => <li key={`${assumption}-${index}`}>{assumption}</li>)}
+                {plan.assumptions.map((assumption, index) => (
+                  <li key={`${assumption}-${index}`}>{assumption}</li>
+                ))}
               </ul>
             </div>
           ) : null}
           <div className="console-activity__actions">
-            <button type="button" disabled={!canApply} onClick={() => onApply(plan.id)}>Apply</button>
-            <button type="button" disabled={!batch?.commands.length} onClick={() => batch && onCopy(batch.commands)}>Copy Commands</button>
-            <button type="button" disabled={plan.status === "cancelled" || plan.status === "applied"} onClick={() => onDismiss(plan.id)}>Dismiss</button>
+            <button type="button" disabled={!canApply} onClick={() => onApply(plan.id)}>
+              Apply
+            </button>
+            <button type="button" disabled={!batch?.commands.length} onClick={() => batch && onCopy(batch.commands)}>
+              Copy Commands
+            </button>
+            <button
+              type="button"
+              disabled={plan.status === "cancelled" || plan.status === "applied"}
+              onClick={() => onDismiss(plan.id)}
+            >
+              Dismiss
+            </button>
           </div>
         </section>
       ) : (
@@ -208,7 +233,9 @@ function AiActivityPanel({
         </div>
         {events.length ? (
           <ol className="console-activity__events">
-            {events.map((event) => <AiEventItem key={event.id} event={event} />)}
+            {events.map((event) => (
+              <AiEventItem key={event.id} event={event} />
+            ))}
           </ol>
         ) : (
           <div className="console-activity__empty">No AI events recorded yet.</div>
@@ -232,7 +259,9 @@ function CommandBatchView({ batch }: { batch: CommandBatch }) {
         <div className="console-activity__section">
           <p className="console-activity__label">Expected Effects</p>
           <ul>
-            {batch.expectedGraphEffects.map((effect, index) => <li key={`${effect}-${index}`}>{effect}</li>)}
+            {batch.expectedGraphEffects.map((effect, index) => (
+              <li key={`${effect}-${index}`}>{effect}</li>
+            ))}
           </ul>
         </div>
       ) : null}
@@ -249,7 +278,9 @@ function ValidationReportView({ validation }: { validation: ValidationReport }) 
           <p className="console-activity__eyebrow">Validation</p>
           <h3>{validation.allPassed ? "Passed" : "Needs Attention"}</h3>
         </div>
-        <span className={`console-activity__status console-activity__status--${validation.riskLevel}`}>{validation.riskLevel}</span>
+        <span className={`console-activity__status console-activity__status--${validation.riskLevel}`}>
+          {validation.riskLevel}
+        </span>
       </div>
       <p className="console-activity__text">{validation.summary}</p>
       <ol className="console-activity__validation">
@@ -303,13 +334,18 @@ function AiReviewCardView({
   onCopy: (commands: string[]) => void;
 }) {
   return (
-    <article className={`console-review-card console-review-card--${review.status}`} aria-label={`AI review plan ${review.title}`}>
+    <article
+      className={`console-review-card console-review-card--${review.status}`}
+      aria-label={`AI review plan ${review.title}`}
+    >
       <div className="console-review-card__header">
         <div>
           <p className="console-review-card__eyebrow">AI Review</p>
           <h3>{review.title}</h3>
         </div>
-        <span className={`console-review-card__risk console-review-card__risk--${review.riskLevel}`}>{review.riskLevel}</span>
+        <span className={`console-review-card__risk console-review-card__risk--${review.riskLevel}`}>
+          {review.riskLevel}
+        </span>
       </div>
       <p className="console-review-card__goal">{review.goal}</p>
       <div className="console-review-card__meta" aria-label="Plan summary">
@@ -329,9 +365,15 @@ function AiReviewCardView({
         <pre>{review.commands.join("\n")}</pre>
       </div>
       <div className="console-review-card__actions">
-        <button type="button" disabled={!review.canApply} onClick={() => onApply(review.planId)}>Apply</button>
-        <button type="button" onClick={() => onCopy(review.commands)}>Copy Commands</button>
-        <button type="button" onClick={() => onDismiss(review.planId)}>Dismiss</button>
+        <button type="button" disabled={!review.canApply} onClick={() => onApply(review.planId)}>
+          Apply
+        </button>
+        <button type="button" onClick={() => onCopy(review.commands)}>
+          Copy Commands
+        </button>
+        <button type="button" onClick={() => onDismiss(review.planId)}>
+          Dismiss
+        </button>
       </div>
     </article>
   );

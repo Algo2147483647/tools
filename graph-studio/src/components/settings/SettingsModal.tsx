@@ -1,16 +1,16 @@
-import type { WorkspaceControls } from "../../hooks/useGraphImport";
-import WorkspaceIcon from "../workspace/WorkspaceIcon";
-import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import { type ChangeEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import type { AiSettings } from "../../ai/types";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
-import type { AiSettings } from "../../ai/types";
+import type { WorkspaceControls } from "../../hooks/useGraphImport";
 import { CloseIcon } from "../topbar/TopbarIcons";
+import WorkspaceIcon from "../workspace/WorkspaceIcon";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
 import AppearanceSettings from "./AppearanceSettings";
 import GeneralSettings from "./GeneralSettings";
-import { APPEARANCE_TOKEN_CONTROLS, SETTINGS_CHAPTERS, type SettingsChapter } from "./settingsConfig";
+import { type SettingsChapter, APPEARANCE_TOKEN_CONTROLS, SETTINGS_CHAPTERS } from "./settingsConfig";
 import { parseCssPixelValue } from "./settingsUtils";
 
 interface SettingsModalProps {
@@ -34,7 +34,10 @@ interface SettingsModalProps {
   onLayoutAppearanceChange: <K extends keyof GraphLayoutAppearance>(key: K, value: GraphLayoutAppearance[K]) => void;
   onAppearanceCssVarChange: (key: string, value: string) => void;
   onAppearanceCssChange: (css: string) => void;
-  onAppearanceDisplayChange: <K extends keyof GraphAppearance["display"]>(key: K, value: GraphAppearance["display"][K]) => void;
+  onAppearanceDisplayChange: <K extends keyof GraphAppearance["display"]>(
+    key: K,
+    value: GraphAppearance["display"][K],
+  ) => void;
   onAppearancePresetChange: (presetId: GraphAppearancePresetId) => void;
   onAppearanceReset: () => void;
   onAppearanceExport: () => void;
@@ -93,10 +96,24 @@ export default function SettingsModal({
   const [aiConnectionStatus, setAiConnectionStatus] = useState<AiConnectionStatus>("idle");
   const [appearanceCssDraft, setAppearanceCssDraft] = useState(appearance.css);
   const [cssVarDrafts, setCssVarDrafts] = useState<Record<string, string>>(() => buildCssVarDrafts(appearance));
-  const [titleSizeDraft, setTitleSizeDraft] = useState(() => String(parseCssPixelValue(appearance.cssVars["--dag-title-font-size"], 15)));
-  const chapters = SETTINGS_CHAPTERS.filter(chapter => !query || query.toLowerCase().split(/\s+/).every(word => `${chapter.label} ${chapter.description} ${chapter.keywords}`.toLowerCase().includes(word)));
-  const shownChapter = chapters.some(chapter => chapter.key === activeChapter) ? activeChapter : chapters[0]?.key;
-  useEffect(() => { if (open) { setQuery(""); searchRef.current?.focus(); } }, [open]);
+  const [titleSizeDraft, setTitleSizeDraft] = useState(() =>
+    String(parseCssPixelValue(appearance.cssVars["--dag-title-font-size"], 15)),
+  );
+  const chapters = SETTINGS_CHAPTERS.filter(
+    (chapter) =>
+      !query ||
+      query
+        .toLowerCase()
+        .split(/\s+/)
+        .every((word) => `${chapter.label} ${chapter.description} ${chapter.keywords}`.toLowerCase().includes(word)),
+  );
+  const shownChapter = chapters.some((chapter) => chapter.key === activeChapter) ? activeChapter : chapters[0]?.key;
+  useEffect(() => {
+    if (open) {
+      setQuery("");
+      searchRef.current?.focus();
+    }
+  }, [open]);
   const titleFontSize = parseCssPixelValue(appearance.cssVars["--dag-title-font-size"], 15);
 
   useEffect(() => {
@@ -133,26 +150,70 @@ export default function SettingsModal({
         }
       }}
     >
-      <section id="settings-modal" className="settings-modal studio-settings" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title" onKeyDown={event => {
-        event.stopPropagation();
-        if (event.key === "Escape") { event.preventDefault(); onClose(); }
-        if (event.key === "Tab") {
-          const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), input:not([type="file"]), select, textarea, summary')].filter(el => el.offsetParent !== null);
-          const first = controls[0], last = controls[controls.length - 1];
-          if (event.shiftKey && document.activeElement === first) {event.preventDefault();last?.focus();}
-          else if (!event.shiftKey && document.activeElement === last) {event.preventDefault();first?.focus();}
-        }
-      }}>
+      <section
+        id="settings-modal"
+        className="settings-modal studio-settings"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-modal-title"
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          if (event.key === "Escape") {
+            event.preventDefault();
+            onClose();
+          }
+          if (event.key === "Tab") {
+            const controls = [
+              ...event.currentTarget.querySelectorAll<HTMLElement>(
+                'button:not(:disabled), input:not([type="file"]), select, textarea, summary',
+              ),
+            ].filter((el) => el.offsetParent !== null);
+            const first = controls[0],
+              last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first?.focus();
+            }
+          }
+        }}
+      >
         <div className="settings-modal-header">
           <div>
-            <h2 id="settings-modal-title">Settings</h2><p>Make Graph Studio work for you.</p>
+            <h2 id="settings-modal-title">Settings</h2>
+            <p>Make Graph Studio work for you.</p>
           </div>
-          <button type="button" className="ghost-btn topbar-icon-btn" title="Close settings" aria-label="Close settings" onClick={onClose}>
-            <span className="topbar-icon" aria-hidden="true"><CloseIcon /></span>
+          <button
+            type="button"
+            className="ghost-btn topbar-icon-btn"
+            title="Close settings"
+            aria-label="Close settings"
+            onClick={onClose}
+          >
+            <span className="topbar-icon" aria-hidden="true">
+              <CloseIcon />
+            </span>
           </button>
         </div>
 
-        <label className="settings-search"><WorkspaceIcon name="search" size={18}/><input ref={searchRef} aria-label="Search settings" placeholder="Search settings…" value={query} onChange={event => setQuery(event.target.value)}/>{query && <button type="button" aria-label="Clear settings search" onClick={() => setQuery("")}>×</button>}<kbd>Esc</kbd></label>
+        <label className="settings-search">
+          <WorkspaceIcon name="search" size={18} />
+          <input
+            ref={searchRef}
+            aria-label="Search settings"
+            placeholder="Search settings…"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          {query && (
+            <button type="button" aria-label="Clear settings search" onClick={() => setQuery("")}>
+              ×
+            </button>
+          )}
+          <kbd>Esc</kbd>
+        </label>
         <div className="settings-modal-body">
           <nav className="settings-tabs" aria-label="Settings sections">
             {chapters.map((chapter) => (
@@ -163,14 +224,29 @@ export default function SettingsModal({
                 aria-pressed={shownChapter === chapter.key}
                 onClick={() => setActiveChapter(chapter.key)}
               >
-                <WorkspaceIcon name={chapter.icon}/><span><strong>{chapter.label}</strong><small>{chapter.description}</small></span>
+                <WorkspaceIcon name={chapter.icon} />
+                <span>
+                  <strong>{chapter.label}</strong>
+                  <small>{chapter.description}</small>
+                </span>
               </button>
             ))}
           </nav>
 
           <div className="settings-page" key={shownChapter || "empty"}>
-            {!shownChapter && <div className="settings-no-results"><WorkspaceIcon name="search" size={30}/><h3>No matching settings</h3><p>Try “colors”, “spacing”, “workspace” or “AI”.</p></div>}
-            {shownChapter && <div className="settings-page-heading"><h2>{SETTINGS_CHAPTERS.find(chapter => chapter.key === shownChapter)?.label}</h2><p>{SETTINGS_CHAPTERS.find(chapter => chapter.key === shownChapter)?.description}</p></div>}
+            {!shownChapter && (
+              <div className="settings-no-results">
+                <WorkspaceIcon name="search" size={30} />
+                <h3>No matching settings</h3>
+                <p>Try “colors”, “spacing”, “workspace” or “AI”.</p>
+              </div>
+            )}
+            {shownChapter && (
+              <div className="settings-page-heading">
+                <h2>{SETTINGS_CHAPTERS.find((chapter) => chapter.key === shownChapter)?.label}</h2>
+                <p>{SETTINGS_CHAPTERS.find((chapter) => chapter.key === shownChapter)?.description}</p>
+              </div>
+            )}
             {shownChapter === "general" ? (
               <GeneralSettings
                 onClose={onClose}
@@ -184,7 +260,7 @@ export default function SettingsModal({
               />
             ) : null}
 
-            {(shownChapter === "chart" || shownChapter === "appearance" || shownChapter === "layout") ? (
+            {shownChapter === "chart" || shownChapter === "appearance" || shownChapter === "layout" ? (
               <AppearanceSettings
                 key={chartType}
                 view={shownChapter}
@@ -233,7 +309,12 @@ export default function SettingsModal({
             ) : null}
           </div>
         </div>
-        <footer className="settings-footer"><span>Preferences are saved in this browser.</span><button className="studio-button primary" onClick={onClose}>Done</button></footer>
+        <footer className="settings-footer">
+          <span>Preferences are saved in this browser.</span>
+          <button className="studio-button primary" onClick={onClose}>
+            Done
+          </button>
+        </footer>
       </section>
     </div>,
     document.body,

@@ -1,11 +1,11 @@
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
-import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
-import { createChartStyles, sanitizeChartStyle, type ChartStyles } from "./chartStyles";
 import type { AiProvider, AiSettings } from "../ai/types";
+import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
+import { type ChartStyles, createChartStyles, sanitizeChartStyle } from "./chartStyles";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
 
-interface GraphPagePreferences {
+export interface GraphPagePreferences {
   mode: GraphMode;
   chartType: GraphChartType;
   layoutMode: GraphLayoutMode;
@@ -39,7 +39,7 @@ export function getInitialGraphPagePreferences(): GraphPagePreferences {
     chartStyles: createChartStyles(),
     consoleSidebarOpen: false,
     consoleSidebarWidth: 360,
-    aiSettings: DEFAULT_AI_SETTINGS,
+    aiSettings: { ...DEFAULT_AI_SETTINGS },
   };
 }
 
@@ -119,7 +119,12 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
       "node-link": sanitizeChartStyle(styles["node-link"]),
       sankey: sanitizeChartStyle(styles.sankey),
     };
-  } else if (parsed.appearance || [parsed.showNodeDetail, parsed.hideNodeBorders, parsed.alignNodeWidthsToMax].some(value => typeof value === "boolean")) {
+  } else if (
+    parsed.appearance ||
+    [parsed.showNodeDetail, parsed.hideNodeBorders, parsed.alignNodeWidthsToMax].some(
+      (value) => typeof value === "boolean",
+    )
+  ) {
     next.chartStyles = { "node-link": sanitizeChartStyle(parsed), sankey: sanitizeChartStyle(parsed) };
   }
   if (typeof parsed.consoleSidebarOpen === "boolean") {
@@ -168,7 +173,11 @@ function sanitizeAiSettings(input: object): AiSettings {
 }
 
 function sanitizeAiProvider(value: unknown): AiProvider {
-  return value === "openai-compatible" || value === "deepseek" || value === "anthropic" || value === "gemini" || value === "ollama"
+  return value === "openai-compatible" ||
+    value === "deepseek" ||
+    value === "anthropic" ||
+    value === "gemini" ||
+    value === "ollama"
     ? value
     : DEFAULT_AI_SETTINGS.provider;
 }

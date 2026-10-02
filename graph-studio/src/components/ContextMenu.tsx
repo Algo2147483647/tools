@@ -1,7 +1,19 @@
 import type React from "react";
 import type { NodeKey } from "../graph/types";
 
-export type ContextMenuAction = "view-node" | "copy-key" | "rename-node" | "delete-node" | "delete-subtree" | "edit-parents" | "edit-children" | "add-node" | "copy-node" | "copy-node-to-child" | "paste-node" | "paste-node-to-child";
+export type ContextMenuAction =
+  | "view-node"
+  | "copy-key"
+  | "rename-node"
+  | "delete-node"
+  | "delete-subtree"
+  | "edit-parents"
+  | "edit-children"
+  | "add-node"
+  | "copy-node"
+  | "copy-node-to-child"
+  | "paste-node"
+  | "paste-node-to-child";
 
 interface ContextMenuProps {
   menu: null | { x: number; y: number; nodeKey: NodeKey | null };
@@ -40,7 +52,12 @@ export default function ContextMenu({ menu, onAction }: ContextMenuProps) {
   const entries = menu?.nodeKey ? nodeEntries : backgroundEntries;
 
   return (
-    <div id="node-context-menu" className={`node-context-menu${isVisible ? " is-visible" : ""}`} aria-hidden={!isVisible} style={{ left, top }}>
+    <div
+      id="node-context-menu"
+      className={`node-context-menu${isVisible ? " is-visible" : ""}`}
+      aria-hidden={!isVisible}
+      style={{ left, top }}
+    >
       {entries.map((item, index) => {
         if (item.type === "divider") {
           return <div key={`divider-${index}`} className="context-menu-divider" aria-hidden="true" />;
@@ -62,7 +79,9 @@ export default function ContextMenu({ menu, onAction }: ContextMenuProps) {
               }
             }}
           >
-            <span className="context-menu-icon" aria-hidden="true">{renderContextMenuIcon(item.action)}</span>
+            <span className="context-menu-icon" aria-hidden="true">
+              {renderContextMenuIcon(item.action)}
+            </span>
             <span className="context-menu-label">{item.label}</span>
           </button>
         );
@@ -73,7 +92,15 @@ export default function ContextMenu({ menu, onAction }: ContextMenuProps) {
 
 function ContextMenuIcon({ children }: { children: React.ReactNode }) {
   return (
-    <svg viewBox="0 0 24 24" className="context-menu-icon-svg" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      viewBox="0 0 24 24"
+      className="context-menu-icon-svg"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       {children}
     </svg>
   );

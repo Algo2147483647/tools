@@ -13,7 +13,11 @@ export default function EmptyState({ message, hidden, actionLabel, onAction }: E
       <p id="empty-state-message" className="empty-state__message">
         {message}
       </p>
-      {actionLabel && onAction ? <button id="empty-state-action" className="primary-btn empty-state__action" type="button" onClick={onAction}>{actionLabel}</button> : null}
+      {actionLabel && onAction ? (
+        <button id="empty-state-action" className="primary-btn empty-state__action" type="button" onClick={onAction}>
+          {actionLabel}
+        </button>
+      ) : null}
     </section>
   );
 }

@@ -1,8 +1,22 @@
-import { getCustomFieldNames, getNodeChildren, getNodeDefine, getNodeParents, getNodeTitle, getNodeType } from "../graph/accessors";
-import { getRelationKeys } from "../graph/relations";
-import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
-import type { GraphAppearance } from "../graph/appearance";
 import { CONSOLE_COMMAND_REFERENCE } from "../console/reference";
+import {
+  getCustomFieldNames,
+  getNodeChildren,
+  getNodeDefine,
+  getNodeParents,
+  getNodeTitle,
+  getNodeType,
+} from "../graph/accessors";
+import type { GraphAppearance } from "../graph/appearance";
+import { getRelationKeys } from "../graph/relations";
+import type {
+  GraphChartType,
+  GraphLayoutMode,
+  GraphMode,
+  GraphSelection,
+  NodeKey,
+  NormalizedDag,
+} from "../graph/types";
 import type { AiGraphContext } from "./types";
 
 const MAX_CONTEXT_NODES = 80;
@@ -26,9 +40,7 @@ export function buildAiGraphContext({
 
   appearance: GraphAppearance;
 }): AiGraphContext {
-  const commandReference = CONSOLE_COMMAND_REFERENCE
-    .map((command) => `${command.label}: ${command.help}`)
-    .join("\n");
+  const commandReference = CONSOLE_COMMAND_REFERENCE.map((command) => `${command.label}: ${command.help}`).join("\n");
 
   if (!dag) {
     return {
@@ -36,9 +48,9 @@ export function buildAiGraphContext({
       summary: [
         "No graph is currently loaded.",
         `Application mode: ${mode}`,
-      `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
-      formatAppearanceSummary(appearance),
-      "Console commands are available for help and graph mutation after a graph is loaded.",
+        `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
+        formatAppearanceSummary(appearance),
+        "Console commands are available for help and graph mutation after a graph is loaded.",
       ].join("\n"),
     };
   }
@@ -57,7 +69,9 @@ export function buildAiGraphContext({
     commandReference,
     summary: [
       `Graph has ${keys.length} node${keys.length === 1 ? "" : "s"} and ${edgeCount} directed edge${edgeCount === 1 ? "" : "s"}.`,
-      dag.diagram === "sankey" ? "Sankey document: edge values are finite, non-negative numeric flows; cycles are shown as return flows. Use numeric weights with /edge. Node colors can use a six-digit hex color field." : "",
+      dag.diagram === "sankey"
+        ? "Sankey document: edge values are finite, non-negative numeric flows; cycles are shown as return flows. Use numeric weights with /edge. Node colors can use a six-digit hex color field."
+        : "",
       `Application mode: ${mode}`,
       `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
       formatAppearanceSummary(appearance),
@@ -65,11 +79,17 @@ export function buildAiGraphContext({
       `Current selection: ${selectionText}`,
       "Node lookup index:",
       ...nodeIndexLines,
-      indexOmittedCount > 0 ? `... ${indexOmittedCount} additional node index item${indexOmittedCount === 1 ? "" : "s"} omitted. Use /find <query> to search beyond this context.` : "",
+      indexOmittedCount > 0
+        ? `... ${indexOmittedCount} additional node index item${indexOmittedCount === 1 ? "" : "s"} omitted. Use /find <query> to search beyond this context.`
+        : "",
       "Nodes:",
       ...nodeLines,
-      omittedCount > 0 ? `... ${omittedCount} additional detailed node summar${omittedCount === 1 ? "y" : "ies"} omitted from AI context. Use /find, /ls, /neighbors, /path, or /graph for more data.` : "",
-    ].filter(Boolean).join("\n"),
+      omittedCount > 0
+        ? `... ${omittedCount} additional detailed node summar${omittedCount === 1 ? "y" : "ies"} omitted from AI context. Use /find, /ls, /neighbors, /path, or /graph for more data.`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
   };
 }
 
@@ -81,7 +101,7 @@ function formatAppearanceSummary(appearance: GraphAppearance): string {
   return [
     "Appearance can be edited with /layout, /style-var, /style-css, /style-preset, and /style-reset.",
     "Stable SVG selectors: .dag-graph, .dag-node, .dag-node__shape, .dag-node__title, .dag-node__detail, .dag-edge, .dag-edge__path, .dag-stage__lane.",
-    "Useful data selectors: .dag-node[data-type=\"service\"], .dag-node[data-root=\"true\"], .dag-edge[data-weight=\"2\"], .dag-edge[data-active=\"true\"].",
+    'Useful data selectors: .dag-node[data-type="service"], .dag-node[data-root="true"], .dag-edge[data-weight="2"], .dag-edge[data-active="true"].',
     `Appearance layout: ${JSON.stringify(appearance.layout)}`,
     `Appearance display: ${JSON.stringify(appearance.display)}`,
     "Appearance cssVars:",
