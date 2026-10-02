@@ -19,6 +19,7 @@ interface UseGraphZoomInput {
   svgRef: React.RefObject<SVGSVGElement>;
   topbarRef: React.RefObject<HTMLElement>;
   stage: StageData | null;
+  viewKey?: string;
   scale: number;
   minScale: number;
   maxScale: number;
@@ -30,12 +31,15 @@ export function useGraphZoom({
   svgRef,
   topbarRef,
   stage,
+  viewKey,
   scale,
   minScale,
   maxScale,
   onZoomChange,
 }: UseGraphZoomInput) {
   const zoomStateRef = useRef({ scale, minScale, maxScale });
+  const previousStageRef = useRef<{ stage: StageData | null; viewKey?: string }>({ stage: null });
+  const layoutAnchorRef = useRef<{ id: string; clientX: number; clientY: number } | null>(null);
   const wheelZoomRef = useRef<{ frame: number; deltaY: number; anchor: ZoomAnchor | null }>({
     frame: 0,
     deltaY: 0,
@@ -87,9 +91,11 @@ export function useGraphZoom({
         return;
       }
       const currentZoom = zoomStateRef.current;
-      const nextMinScale = getFitZoomScale(container, topbarRef.current, stage);
+      const fitScale = getFitZoomScale(container, topbarRef.current, stage);
+      const keepCompoundScale = preserveCenter && stage.layoutMode === "compound";
+      const nextMinScale = keepCompoundScale ? Math.min(fitScale, currentZoom.scale) : fitScale;
       const nextScale =
-        Math.abs(currentZoom.scale - currentZoom.minScale) < 0.001
+        !keepCompoundScale && Math.abs(currentZoom.scale - currentZoom.minScale) < 0.001
           ? nextMinScale
           : clamp(currentZoom.scale, nextMinScale, currentZoom.maxScale);
       apply(nextScale, preserveCenter, nextMinScale);
@@ -98,7 +104,21 @@ export function useGraphZoom({
   );
 
   useLayoutEffect(() => {
-    refresh(false);
+    const previous = previousStageRef.current;
+    const preserve =
+      stage?.layoutMode === "compound" && previous.stage?.layoutMode === "compound" && previous.viewKey === viewKey;
+    refresh(preserve);
+    const anchor = layoutAnchorRef.current;
+    if (preserve && anchor && stage && svgRef.current && containerRef.current) {
+      const point = getItemOrigin(stage, anchor.id);
+      if (point) {
+        const rect = svgRef.current.getBoundingClientRect();
+        containerRef.current.scrollLeft += rect.left + (point.x * rect.width) / stage.stageWidth - anchor.clientX;
+        containerRef.current.scrollTop += rect.top + (point.y * rect.height) / stage.stageHeight - anchor.clientY;
+      }
+    }
+    layoutAnchorRef.current = null;
+    previousStageRef.current = { stage, viewKey };
   }, [stage]);
 
   useEffect(() => {
@@ -153,7 +173,22 @@ export function useGraphZoom({
     () => ({
       zoomIn: () => zoomBy(ZOOM_STEP_FACTOR),
       zoomOut: () => zoomBy(1 / ZOOM_STEP_FACTOR),
-      zoomFit: () => apply(minScale, false),
+      zoomFit: () => {
+        if (containerRef.current && stage) {
+          const fitScale = getFitZoomScale(containerRef.current, topbarRef.current, stage);
+          apply(fitScale, false, fitScale);
+        }
+      },
+      captureLayoutAnchor: (id: string) => {
+        const point = stage && getItemOrigin(stage, id);
+        const rect = svgRef.current?.getBoundingClientRect();
+        if (stage && point && rect)
+          layoutAnchorRef.current = {
+            id,
+            clientX: rect.left + (point.x * rect.width) / stage.stageWidth,
+            clientY: rect.top + (point.y * rect.height) / stage.stageHeight,
+          };
+      },
       setZoomPercent: (percent: number) => {
         if (!Number.isFinite(percent) || percent <= 0) {
           return false;
@@ -163,8 +198,15 @@ export function useGraphZoom({
       },
       refresh,
     }),
-    [apply, minScale, refresh, zoomBy],
+    [apply, minScale, refresh, zoomBy, stage, containerRef, svgRef, topbarRef],
   );
+}
+
+function getItemOrigin(stage: StageData, id: string) {
+  const group = stage.groups?.find((item) => item.id === id);
+  if (group) return { x: group.x, y: group.y };
+  const node = stage.nodeMap[id];
+  return node ? { x: node.x - node.width / 2, y: node.y - node.height / 2 } : null;
 }
 
 function getFitZoomScale(container: HTMLElement, topbar: HTMLElement | null, stage: StageData): number {

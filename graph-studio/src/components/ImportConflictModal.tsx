@@ -130,6 +130,7 @@ export default function ImportConflictModal({
                   <option value="keep">Keep existing</option>
                   {conflict.canMerge && <option value="merge">Merge fields</option>}
                   {conflict.canRename && <option value="rename">Rename incoming</option>}
+                  {conflict.canReplace && <option value="replace">Use incoming parent</option>}
                 </select>
               </label>
               {resolutions[conflict.id]?.strategy === "rename" && (

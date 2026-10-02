@@ -179,7 +179,7 @@ function graph(id, title, nodes, edges, metadata = {}) {
   assertAcyclic(nodes, edges, id);
   return {
     format: "graph-studio",
-    version: 2,
+    version: 3,
     diagram: "dag",
     id,
     title,

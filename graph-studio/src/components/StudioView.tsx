@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
 import type { AppearanceHistoryController } from "../controllers/useAppearanceHistory";
@@ -9,6 +9,7 @@ import type { GraphViewportController } from "../controllers/useGraphViewport";
 import type { NodeActionsController } from "../controllers/useNodeActions";
 import { getSankeyError } from "../graph/sankey";
 import ConsoleSidebar from "./ConsoleSidebar";
+import CompoundPanel from "./CompoundPanel";
 import ContextMenu from "./ContextMenu";
 import FilePreviewModal from "./FilePreviewModal";
 import NodeDetailModal from "./NodeDetailModal";
@@ -41,6 +42,9 @@ export default function StudioView({
   nodeActions,
 }: StudioViewProps) {
   const { state, files, filePreview, relativeLinkRoot } = session;
+  useEffect(() => {
+    if (state.chartType === "compound") files.setExplorerOpen(false);
+  }, [state.chartType, state.document.generation]);
   const { appearance } = appearanceHistory;
   const relationEditor = state.ui.relationEditor;
   const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
@@ -109,6 +113,21 @@ export default function StudioView({
         <WelcomeScreen files={files} onNew={session.initializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
+          compoundTools={
+            state.chartType === "compound" && state.dag && !files.explorerOpen ? (
+              <CompoundPanel
+                key={state.document.generation}
+                dag={state.dag}
+                view={viewport.compound.view}
+                onViewChange={viewport.compound.setView}
+                onCommand={transactions.commitCommand}
+                onSelect={viewport.setFocusedKey}
+                onOpenNode={session.openNodeDetail}
+              />
+            ) : undefined
+          }
+          onGroupToggle={viewport.toggleGroup}
+          onGroupEnter={viewport.enterGroup}
           explorer={
             files.workspace && files.explorerOpen ? (
               <WorkspaceExplorer
@@ -118,7 +137,15 @@ export default function StudioView({
               />
             ) : null
           }
-          emptyContent={files.workspace && !state.dag ? <WorkspaceOverview files={files} /> : undefined}
+          emptyContent={
+            state.chartType === "compound" && state.dag && !viewport.stage ? (
+              <div className="compound-loading" role={viewport.compoundLayout.error ? "alert" : "status"}>
+                {viewport.status}
+              </div>
+            ) : files.workspace && !state.dag ? (
+              <WorkspaceOverview files={files} />
+            ) : undefined
+          }
           containerRef={viewport.containerRef}
           svgRef={viewport.svgRef}
           stage={viewport.stage}

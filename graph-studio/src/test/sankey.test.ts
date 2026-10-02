@@ -14,7 +14,7 @@ import { defineSuite, defineTest } from "./harness";
 
 const document = () => ({
   format: "graph-studio",
-  version: 2,
+  version: 3,
   diagram: "sankey",
   nodes: {
     A: { title: "Supply", type: "Visible" },
@@ -185,7 +185,7 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
     for (const forced of [false, true]) {
       const input = {
         format: "graph-studio",
-        version: 2,
+        version: 3,
         diagram: "sankey",
         nodes: { A: {}, B: {}, C: {} },
         edges: [

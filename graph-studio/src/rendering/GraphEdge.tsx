@@ -17,7 +17,7 @@ const GraphEdge = memo(function GraphEdge({ edge, showLabel }: GraphEdgeProps) {
       data-active="false"
       data-feedback={edge.flow?.feedback || undefined}
     >
-      <title>{`${edge.source} → ${edge.target}: ${edge.label}`}</title>
+      <title>{edge.description || `${edge.source} → ${edge.target}: ${edge.label}`}</title>
       {edge.flow ? (
         <path className="dag-edge__flow" d={edge.path} stroke={edge.flow.color} strokeWidth={edge.flow.width} />
       ) : (

@@ -17,7 +17,11 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
   const [histories, updateHistories] = useReducer(chartAppearanceHistoryReducer, styles, createChartAppearanceHistory);
   const history = histories[chartType];
   const appearanceByChart = useMemo(
-    () => ({ "node-link": histories["node-link"].appearance, sankey: histories.sankey.appearance }),
+    () => ({
+      "node-link": histories["node-link"].appearance,
+      sankey: histories.sankey.appearance,
+      compound: histories.compound.appearance,
+    }),
     [histories],
   );
   const { appearance } = history;

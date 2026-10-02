@@ -7,6 +7,7 @@ It is built for fast graph inspection and editing in the browser:
 - load a JSON graph and render it immediately
 - validate versioned graph documents and resolve multi-file conflicts before importing
 - navigate by root, subtree, or parent level
+- explore and edit arbitrarily nested subgraphs with the independent Nested node-link chart type ([guide](docs/compound.md))
 - edit nodes and relationships directly in the UI
 - batch graph edits from a text console in `Edit` mode
 - undo and redo graph mutations without losing navigation history
@@ -59,18 +60,18 @@ Examples open fresh editable copies and can be reopened from Recents without fol
 
 Factorio values are calculated per-second material flows, including batch yields, built-in machine productivity, biological fuel, credited coproducts and catalyst/coolant returns. Surplus output is explicit. These aggregate material plans exclude power, heating, transport, spoilage in transit, construction and launch scheduling. See [Example workspaces](docs/examples.md) for sources, assumptions and regeneration.
 
-Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
+Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 
 ## What You Can Do
 
-- inspect and edit v2 graphs directly
+- inspect and edit v3 graphs directly
 - initialize a blank canvas with one starter node
 - focus a node, move back through focus history, or move up to parent levels
 - work with multiple roots as a forest
 - switch chart type between `Node-link` and `Sankey`, each with its own saved appearance
 - arrange Node-link charts with `BFS`, `Sugiyama` or `Dagre`; Sankey uses automatic flow layout
 - configure node shadows in Appearance settings, with live preview and SVG export
-- visualize numeric flows using the optional v2 `diagram: "sankey"` protocol ([example](public/sankey-example.json))
+- visualize numeric flows using the optional v3 `diagram: "sankey"` protocol ([example](public/sankey-example.json))
 - inspect every node field in a generic node viewer
 - edit relationships, rename nodes, duplicate nodes, or delete a node or subtree
 - use the graph console for batch edits with undoable transactions
@@ -81,7 +82,7 @@ Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `n
 - [Documentation Index](docs/index.md): overview of the available project docs
 - [Workspace Guide](docs/workspaces.md): opening modes, recent locations, discovery manifest, and local links
 - [Usage Guide](docs/usage.md): UI workflows, navigation, editing, saving, and layouts
-- [Data Format Guide](docs/data-format.md): v2 document contract, metadata, validation, and import conflict strategies
+- [Data Format Guide](docs/data-format.md): v3 document contract, metadata, validation, and import conflict strategies
 - [Graph Console DSL](docs/graph-console-dsl.md): command reference for the edit-mode console
 - [Development Guide](docs/development.md): local scripts, source layout, and implementation notes
 
@@ -90,7 +91,7 @@ Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `n
 ```json
 {
   "format": "graph-studio",
-  "version": 2,
+  "version": 3,
   "nodes": {
     "A": { "title": "Root", "type": "Concept" },
     "B": { "title": "Child", "type": "Theorem" }

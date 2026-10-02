@@ -61,7 +61,10 @@ export const mathematicsSuite = defineSuite("Mathematics curriculum", [
     const overview = await graph("mathematics");
     assert.equal(Object.keys(overview.nodes).length, subjects.length + 1);
     assert.equal(overview.metadata!.conceptCount, owned.size);
-    assert.equal(EXAMPLE_WORKSPACES[0].detail, `${owned.size} concepts · ${subjects.length} subjects`);
+    assert.equal(
+      EXAMPLE_WORKSPACES.find((example) => example.id === "mathematics")!.detail,
+      `${owned.size} concepts · ${subjects.length} subjects`,
+    );
   }),
   defineTest(
     "external prerequisites stay linked in details and notes and connected in the complete atlas",

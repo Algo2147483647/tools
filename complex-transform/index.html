@@ -15,6 +15,7 @@
     <script defer src="geometry.js"></script>
     <script defer src="presets.js"></script>
     <script defer src="app.js"></script>
+    <script defer src="analysis-ui.js"></script>
   </head>
   <body>
     <svg
@@ -177,7 +178,6 @@
                 id="infinite-mode"
                 type="button"
                 aria-pressed="true"
-                aria-describedby="extent-hint"
               >
                 Infinite
               </button>
@@ -185,14 +185,10 @@
                 id="finite-mode"
                 type="button"
                 aria-pressed="false"
-                aria-describedby="extent-hint"
               >
                 Finite
               </button>
             </div>
-            <p id="extent-hint" class="extent-hint">
-              Extends with the input view.
-            </p>
             <div class="control-row">
               <label for="domain">Domain half-span</label
               ><span
@@ -290,14 +286,13 @@
                   aria-label="Probe imaginary part"
               /></label>
             </div>
-            <span class="panel-hint">Drag to probe · Shift-drag to pan</span>
           </section>
         </div>
       </aside>
       <aside
         id="target-panel"
         class="config-panel target-config glass"
-        aria-label="Output settings"
+        aria-label="Output"
       >
         <button
           class="panel-heading"
@@ -327,6 +322,8 @@
               |z| = 0.86 · |f(z)| = 0.74
             </p>
           </section>
+          <nav id="sidebar-tabs" class="sidebar-tabs" aria-label="Output mode"><button id="view-toggle" type="button" aria-pressed="true" aria-controls="output-view">View</button><button id="analysis-toggle" type="button" aria-pressed="false" aria-expanded="false" aria-controls="analysis-panel">Analysis</button></nav>
+          <div id="output-view">
           <section class="control-section">
             <div class="control-row">
               <label for="morph">Transformation</label
@@ -424,12 +421,44 @@
               ><svg class="icon"><use href="#icon-chevron" /></svg>
             </button>
           </section>
+          </div>
+      <section id="analysis-panel" class="analysis-panel" aria-label="Analysis" hidden>
+        <div id="engine-status" class="engine-status" role="status">Connecting…</div>
+        <nav class="analysis-tabs" aria-label="Analysis tools">
+          <button type="button" data-analysis="local" aria-pressed="true">Derivatives</button>
+          <button type="button" data-analysis="landmarks" aria-pressed="false">Singularities</button>
+          <button type="button" data-analysis="integral" aria-pressed="false">Integrals</button>
+          <button type="button" data-analysis="residue" aria-pressed="false">Residues</button>
+          <button type="button" data-analysis="series" aria-pressed="false">Series</button>
+          <button type="button" data-analysis="branches" aria-pressed="false">Branches</button>
+        </nav>
+        <div class="analysis-scroll">
+          <div class="analysis-fields analysis-probe"><label>Re z₀<input id="analysis-real" type="number" value="0.7" step="any"></label><label>Im z₀<input id="analysis-imag" type="number" value="0.5" step="any"></label></div>
+          <div class="analysis-options" data-for="local"><label class="check-label"><input id="show-linear" type="checkbox" checked> Local approximation</label></div>
+          <div class="analysis-options" data-for="landmarks" hidden>
+            <div class="analysis-fields"><label>Re min<input id="region-left" type="number" value="-2" step="any"></label><label>Re max<input id="region-right" type="number" value="2" step="any"></label><label>Im min<input id="region-bottom" type="number" value="-2" step="any"></label><label>Im max<input id="region-top" type="number" value="2" step="any"></label></div>
+            <button id="use-view" type="button" class="secondary-button">Use viewport</button>
+          </div>
+          <div class="analysis-options" data-for="integral" hidden>
+            <label>Path<select id="path-type"><option value="circle">Circle / arc</option><option value="line">Polyline</option><option value="polygon">Polygon</option><option value="parametric">Parametric</option></select></label>
+            <div data-path="circle"><div class="analysis-fields"><label>Center Re<input id="path-re" type="number" value="0" step="any"></label><label>Center Im<input id="path-im" type="number" value="0" step="any"></label><label>Radius<input id="path-radius" type="number" value="1" min="0.000001" step="any"></label><label>Start °<input id="path-start" type="number" value="0"></label><label>End °<input id="path-end" type="number" value="360"></label></div></div>
+            <div data-path="vertices" hidden><label>Vertices (Re, Im)<textarea id="path-vertices" rows="4" spellcheck="false">-1, -1
+1, -1
+1, 1
+-1, 1</textarea></label><button id="pick-vertex" type="button" class="secondary-button">Add probe</button></div>
+            <div data-path="parametric" hidden><label>γ(t)<input id="path-expression" value="exp(2*pi*i*t)" spellcheck="false"></label><div class="analysis-fields"><label>t start<input id="path-t0" type="number" value="0" step="any"></label><label>t end<input id="path-t1" type="number" value="1" step="any"></label></div></div>
+            <button id="preview-path" class="secondary-button" type="button">Preview</button>
+          </div>
+          <div class="analysis-options" data-for="residue" hidden><label>Contour radius<input id="residue-radius" type="number" value="0.25" min="0.000001" step="any"></label></div>
+          <div class="analysis-options" data-for="series" hidden><div class="analysis-fields"><label>Order ±N<input id="series-order" type="number" value="6" min="1" max="16"></label><label>Annulus radius<input id="series-radius" type="number" value="0.5" min="0.000001" step="any"></label></div></div>
+          <div class="analysis-options" data-for="branches" hidden><div class="analysis-fields"><label>Branch k<input id="branch-index" type="number" value="0" min="-100" max="100"></label><label>Cut angle θ °<input id="branch-angle" type="number" value="180" min="-180" max="180" step="any"></label></div><button id="apply-branch" type="button" class="secondary-button">Apply branch</button><output id="branch-preview"></output></div>
+          <div class="analysis-run"><label>Tolerance<select id="analysis-tolerance"><option value="1e-6">10⁻⁶</option><option value="1e-9" selected>10⁻⁹</option><option value="1e-12">10⁻¹²</option></select></label><button id="analysis-run" type="button">Calculate</button></div>
+          <div id="analysis-results" aria-live="polite"></div>
+        </div>
+      </section>
         </div>
       </aside>
-      <div class="canvas-hints" aria-hidden="true">
-        <span>Drag to probe · Shift-drag to pan · Scroll to zoom</span
-        ><span>Drag to pan · Scroll to zoom</span>
-      </div>
+
       <dialog
         id="preset-dialog"
         class="floating-dialog glass"
@@ -438,7 +467,6 @@
         <div class="dialog-heading">
           <div>
             <h2 id="presets-title">Functions</h2>
-            <span class="quiet">Start with a familiar transformation</span>
           </div>
           <button
             type="button"
@@ -480,55 +508,11 @@
           </button>
         </div>
         <div class="syntax-content">
-          <p>
-            Variable <code>z</code>; constants
-            <code>i · pi / π · e · tau</code>.
-          </p>
-          <p>
-            Use <code>+ − * / ^</code>, parentheses, and implicit
-            multiplication: <code>2z</code>, <code>iz</code>,
-            <code>(z+1)(z−1)</code>. Press Enter to apply.
-          </p>
-          <h3>Functions</h3>
-          <p>
-            <code
-              >exp log ln sqrt sin cos tan sinh cosh tanh asin acos atan abs arg
-              re im conj</code
-            >
-          </p>
-          <p><code>pow(z, 2)</code> · <code>complex(1, 2)</code></p>
-          <h3>Domain &amp; grid extent</h3>
-          <p>
-            Enter any positive finite domain half-span, including scientific
-            notation. Choose Infinite to extend the grid as you pan and zoom.
-            Choose Finite to keep a fixed domain around zero: a square for
-            Cartesian grids or a disk for polar grids. Panning and zooming in
-            Finite mode only change the view; edit the half-span to resize the
-            domain.
-          </p>
-          <p>
-            Infinite grid spacing adapts to the view. The output maps the
-            sampled input region. Floating-point precision and function overflow
-            still apply at extreme scales.
-          </p>
-          <h3>Numerical conventions</h3>
-          <p>
-            Angles use radians. Logarithms, roots, and noninteger powers use
-            principal values. Poles and detected discontinuities leave gaps;
-            fast oscillations may exceed sampling resolution.
-          </p>
-          <p>
-            Animation shows <code>(1−t)z + t f(z)</code>. The point inspector
-            always reports the full <code>f(z)</code>.
-          </p>
-          <h3>Navigation</h3>
-          <p>
-            Input: choose Probe or Pan, or hold Shift while dragging to pan.
-            Arrow keys follow the selected tool. Both canvases support
-            <code>+ / −</code> and the scroll wheel for zoom.
-            <code>0</code> resets the input or fits the output. Escape closes
-            dialogs.
-          </p>
+          <h3>Variable</h3><p><code>z</code></p>
+          <h3>Constants</h3><p><code>i · pi / π · e · tau</code></p>
+          <h3>Operators</h3><p><code>+ − * / ^ · ( )</code></p>
+          <h3>Functions</h3><p><code>exp log ln sqrt sin cos tan sinh cosh tanh asin acos atan abs arg re im conj</code></p>
+          <h3>Two arguments</h3><p><code>pow(z, 2) · complex(1, 2)</code></p>
         </div>
       </dialog>
     </main>

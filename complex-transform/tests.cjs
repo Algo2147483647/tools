@@ -22,6 +22,22 @@ close("z^2", C(1, 1), C(0, 2));
 close("1/z", C(1, 1), C(0.5, -0.5));
 close("exp(i*pi)", C(0), C(-1));
 close("log(-1)", C(0), C(0, Math.PI));
+// Branch settings must also affect the offline renderer, not just the backend.
+for (const [expression, options, input, expected] of [
+  ["log(z)", { branch: 1 }, C(1), C(0, 2*Math.PI)],
+  ["sqrt(z)", { branch: 1 }, C(4), C(-2)],
+  ["log(z)", { cutAngle: 0 }, C(-1), C(0, -Math.PI)],
+  ["z^(1/3)", { branch: 1 }, C(1), C(-.5, Math.sqrt(3)/2)],
+  ["z^2", { branch: 1, cutAngle: 0 }, C(1, 1), C(0, 2)],
+]) {
+  const actual = compile(expression, options)(input);
+  assert.ok(Math.hypot(actual.re-expected.re, actual.im-expected.im) < 1e-10);
+  checks++;
+}
+assert.equal(compile("pi + 1.2e-3").ast.args[0].constant, "pi");
+assert.equal(compile("pi + 1.2e-3").ast.args[1].literal, "1.2e-3");
+assert.throws(() => compile("z", { branch: .5 }));
+checks += 3;
 close("sqrt(-4)", C(0), C(0, 2));
 close("(-1)^0.5", C(0), C(0, 1));
 close("conj(z)", C(2, 3), C(2, -3));

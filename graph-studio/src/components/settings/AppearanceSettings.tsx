@@ -73,6 +73,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             [
               ["node-link", "Node-link", "Nodes and connecting lines show relationships."],
               ["sankey", "Sankey", "Band widths show the amount flowing between nodes."],
+              ["compound", "Nested node-link", "Group nodes into subgraphs, then expand, collapse and explore."],
             ] as const
           ).map(([value, label, description]) => (
             <button
@@ -95,6 +96,14 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                       <rect key={y} x={x} y={y} width="28" height="20" rx="5" fill="white" stroke="currentColor" />
                     ))}
                   </>
+                ) : value === "compound" ? (
+                  <g fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="10" y="5" width="95" height="60" rx="5" />
+                    <rect x="20" y="22" width="45" height="33" rx="4" />
+                    <rect x="29" y="33" width="20" height="12" rx="2" />
+                    <path d="M49 39H125" />
+                    <rect x="125" y="29" width="25" height="20" rx="4" />
+                  </g>
                 ) : (
                   <>
                     <path
@@ -138,35 +147,45 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
     return (
       <>
         {context}
-        {!isSankey && matches("layout engine algorithm level bfs sugiyama dagre layered node link") && (
+        {p.chartType === "node-link" &&
+          matches("layout engine algorithm level bfs sugiyama dagre layered node link") && (
+            <section className="settings-section">
+              <h3>Node-link layout</h3>
+              <p>Choose how nodes are arranged.</p>
+              <div className="layout-engine-grid">
+                {(
+                  [
+                    ["sugiyama", "Sugiyama", "Reduce crossings in connected graphs."],
+                    ["level", "BFS", "Follow the graph one level at a time."],
+                    ["dagre", "Dagre", "Balance complex directed layouts."],
+                  ] as const
+                ).map(([value, label, description]) => (
+                  <button
+                    key={value}
+                    className={p.layoutMode === value ? "is-selected" : ""}
+                    aria-pressed={p.layoutMode === value}
+                    onClick={() => p.onLayoutModeChange(value)}
+                  >
+                    <span className={`layout-mini layout-mini--${value}`} aria-hidden="true">
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    <strong>{label}</strong>
+                    <small>{description}</small>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+        {p.chartType === "compound" && (
           <section className="settings-section">
-            <h3>Node-link layout</h3>
-            <p>Choose how nodes are arranged.</p>
-            <div className="layout-engine-grid">
-              {(
-                [
-                  ["sugiyama", "Sugiyama", "Reduce crossings in connected graphs."],
-                  ["level", "BFS", "Follow the graph one level at a time."],
-                  ["dagre", "Dagre", "Balance complex directed layouts."],
-                ] as const
-              ).map(([value, label, description]) => (
-                <button
-                  key={value}
-                  className={p.layoutMode === value ? "is-selected" : ""}
-                  aria-pressed={p.layoutMode === value}
-                  onClick={() => p.onLayoutModeChange(value)}
-                >
-                  <span className={`layout-mini layout-mini--${value}`} aria-hidden="true">
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                  <strong>{label}</strong>
-                  <small>{description}</small>
-                </button>
-              ))}
-            </div>
+            <h3>Nested layout</h3>
+            <p>
+              ELK arranges nested containers and routes relationships across group boundaries. Expand and collapse
+              groups on the canvas.
+            </p>
           </section>
         )}
         {isSankey && matches("layout sankey flow automatic width") && (

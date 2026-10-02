@@ -1,6 +1,6 @@
 {
   "format": "graph-studio",
-  "version": 2,
+  "version": 3,
   "id": "math-example",
   "title": "Mathematics example",
   "nodes": {

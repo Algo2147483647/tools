@@ -122,7 +122,7 @@
         const value = Number(number[0]);
         if (!Number.isFinite(value))
           throw new Error(`Number is too large at position ${offset + 1}.`);
-        tokens.push({ type: "number", value, pos: offset });
+        tokens.push({ type: "number", value, literal: number[0], pos: offset });
         offset += number[0].length;
       } else if (name) {
         const value = name[0].toLowerCase();
@@ -150,7 +150,24 @@
     return tokens;
   }
 
-  function compile(input) {
+  function compile(input, options = {}) {
+    const cutAngle = options.cutAngle ?? Math.PI;
+    const branch = options.branch ?? 0;
+    if (!Number.isFinite(cutAngle) || !Number.isInteger(branch) || Math.abs(branch) > 100)
+      throw new Error("Branch must be an integer from −100 to 100; cut angle must be finite.");
+    const branchLog = (z) => {
+      if (z.re === 0 && z.im === 0) return invalid();
+      let angle = Math.atan2(z.im, z.re);
+      angle -= 2 * Math.PI * Math.ceil((angle - cutAngle) / (2 * Math.PI));
+      return C(Math.log(Math.hypot(z.re, z.im)), angle + 2 * Math.PI * branch);
+    };
+    const branchPow = (a, b) => b.im === 0 && Number.isInteger(b.re)
+      ? pow(a, b) : a.re === 0 && a.im === 0 ? pow(a, b) : exp(mul(b, branchLog(a)));
+    const localFunctions = new Map(functions);
+    localFunctions.set("log", branchLog);
+    localFunctions.set("ln", branchLog);
+    localFunctions.set("sqrt", (z) => cutAngle === Math.PI && branch === 0 ? sqrt(z) : branchPow(z, C(0.5)));
+    localFunctions.set("pow", branchPow);
     if (input.length > 512)
       throw new Error("Keep the expression within 512 characters.");
     const source = input
@@ -172,11 +189,11 @@
     function expression(minimum = 0, depth = 0) {
       if (depth > 48) throw new Error("Too many nested expressions.");
       const token = tokens[cursor++];
-      if (token.type === "number") code.push({ value: C(token.value) });
+      if (token.type === "number") code.push({ value: C(token.value), literal: token.literal });
       else if (token.type === "name") {
         if (token.value === "z") code.push({ variable: true });
         else if (constants.has(token.value))
-          code.push({ value: constants.get(token.value) });
+          code.push({ value: constants.get(token.value), constant: token.value });
         else if (functions.has(token.value)) {
           expect("(");
           const arity =
@@ -186,7 +203,7 @@
             expression(0, depth + 1);
           }
           expect(")");
-          code.push({ fn: functions.get(token.value), arity });
+          code.push({ fn: localFunctions.get(token.value), arity, op: token.value });
         } else
           throw new Error(
             `Unknown name “${token.value}”. Use z or a function from the expression guide.`,
@@ -196,7 +213,7 @@
         expect(")");
       } else if (token.type === "+" || token.type === "-") {
         expression(25, depth + 1);
-        if (token.type === "-") code.push({ fn: neg, arity: 1 });
+        if (token.type === "-") code.push({ fn: neg, arity: 1, op: "neg" });
       } else
         throw new Error(
           `Expected a number, z, or a function at position ${token.pos + 1}.`,
@@ -218,7 +235,7 @@
         if (precedence < minimum) break;
         if (!implicit) cursor++;
         expression(precedence + (op === "^" ? 0 : 1), depth + 1);
-        code.push({ fn: operators.get(op), arity: 2 });
+        code.push({ fn: op === "^" ? branchPow : operators.get(op), arity: 2, op });
       }
     }
     expression();
@@ -226,7 +243,7 @@
       throw new Error(
         `Unexpected “${peek().value}” at position ${peek().pos + 1}.`,
       );
-    return function evaluate(z) {
+    function evaluate(z) {
       const stack = [];
       for (const instruction of code) {
         if (instruction.variable) stack.push(z);
@@ -240,7 +257,16 @@
         }
       }
       return stack[0];
-    };
+    }
+    const tree = [];
+    for (const instruction of code) {
+      const args = instruction.arity ? tree.splice(-instruction.arity) : [];
+      tree.push({ ...instruction, args });
+    }
+    evaluate.ast = tree[0];
+    evaluate.options = { cutAngle, branch };
+    evaluate.source = input;
+    return evaluate;
   }
   const api = { compile, C, finite, add, sub, mul, div, pow };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

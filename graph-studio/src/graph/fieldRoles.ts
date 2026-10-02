@@ -1,4 +1,4 @@
-// Graph Studio v2 uses fixed semantic fields; other node fields remain custom data.
+// Graph Studio v3 uses fixed semantic fields; other node fields remain custom data.
 export const SYSTEM_FIELD_KEYS = ["children", "parents", "define", "title", "type"] as const;
 export type SystemFieldKey = (typeof SYSTEM_FIELD_KEYS)[number];
 

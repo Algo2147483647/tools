@@ -40,9 +40,15 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
               dirty: isNew,
             }
           : initial.source,
-        selection: loaded ? action.selection : null,
+        selection: loaded ? (action.dag.hierarchy ? { type: "full" } : action.selection) : null,
         editHistory: { ...initial.editHistory, savedRevision: isNew ? -1 : 0 },
-        chartType: loaded ? (action.dag.diagram === "sankey" ? "sankey" : "node-link") : state.chartType,
+        chartType: loaded
+          ? action.dag.hierarchy
+            ? "compound"
+            : action.dag.diagram === "sankey"
+              ? "sankey"
+              : "node-link"
+          : state.chartType,
         layout: state.layout,
         ui: {
           ...initial.ui,

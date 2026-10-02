@@ -96,7 +96,7 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
         type: "graphClosed",
         status: found.graphs.length
           ? "Choose a graph from the workspace."
-          : "No graph documents found. Add a Graph Studio v2 JSON file to this folder.",
+          : "No graph documents found. Add a Graph Studio v3 JSON file to this folder.",
       });
   }
   function selectFile() {

@@ -42,7 +42,24 @@ function ExampleArt({ kind, color }: { kind: string; color: string }) {
         </pattern>
       </defs>
       <rect width="320" height="132" fill={`url(#dots-${kind})`} />
-      {kind === "mathematics" ? (
+      {kind === "commerce" ? (
+        <g stroke={color}>
+          <rect x="22" y="16" width="200" height="100" rx="9" fill="white" fillOpacity=".7" strokeOpacity=".5" />
+          <text x="34" y="34" fill={color} stroke="none" fontSize="11">
+            Commerce
+          </text>
+          <rect x="34" y="45" width="115" height="59" rx="7" fill={color} fillOpacity=".06" strokeOpacity=".4" />
+          <text x="45" y="62" fill={color} stroke="none" fontSize="10">
+            Payments
+          </text>
+          <rect x="45" y="73" width="43" height="20" rx="5" fill="white" />
+          <rect x="99" y="73" width="37" height="20" rx="5" fill="white" />
+          <rect x="165" y="71" width="43" height="24" rx="5" fill="white" />
+          <path d="M88 83H99M136 83H165M208 83H243V59H260" />
+          <rect x="260" y="44" width="38" height="30" rx="6" fill="white" />
+          <circle cx="279" cy="59" r="4" fill={color} />
+        </g>
+      ) : kind === "mathematics" ? (
         <>
           <g stroke={color} opacity=".4">
             <path d="M73 66H110C130 66 120 28 146 28H180M110 66H146M110 66C130 66 120 104 146 104H180M208 28C236 28 226 47 251 47M208 104C236 104 226 85 251 85" />

@@ -1,4 +1,4 @@
-# Graph Studio JSON protocol v2
+# Graph Studio JSON protocol v3
 
 The application accepts only this protocol. Legacy node maps, arrays, field aliases, and stored node-level `parents` / `children` are rejected. Invalid documents do not replace the currently open graph.
 
@@ -7,7 +7,7 @@ The application accepts only this protocol. Legacy node maps, arrays, field alia
 ```json
 {
   "format": "graph-studio",
-  "version": 2,
+  "version": 3,
   "id": "demo",
   "title": "Example graph",
   "metadata": { "author": "Alice" },
@@ -24,10 +24,11 @@ The application accepts only this protocol. Legacy node maps, arrays, field alia
 | Field | Rule |
 | --- | --- |
 | `format` | Required; exactly `"graph-studio"` |
-| `version` | Required; the number `2`, not a string or an unknown version |
+| `version` | Required; the number `3`, not a string or an unknown version |
 | `diagram` | Optional `"dag"` or `"sankey"`; omitted means an ordinary graph. Sankey documents automatically select the flow layout |
 | `id`, `title` | Optional document identifier and title strings |
 | `metadata` | Optional object for document extensions |
+| `hierarchy` | Optional containment forest H: `id`, `groups`, and `parentById`; independent of G's edges. Its presence initially selects Nested node-link |
 | `nodes` | Required object mapping IDs to node objects; may be empty |
 | `nodes[id].title`, `define`, `type` | Optional strings for title, description and type filtering; aliases are not inferred |
 | Custom node fields | Arbitrary JSON values; stored `key`, `parents` and `children` are forbidden |
@@ -44,6 +45,8 @@ Each directed endpoint pair has at most one edge. Self-loops are rejected. Ordin
 
 The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime validation additionally checks unique edge IDs, existing endpoints, unique endpoint pairs, self-loops and Sankey values/totals.
 
+For independent containment H and the `compound` chart type, see [Nested node-link](compound.md). Its hierarchy describes membership; the document's `edges` continue to describe only G relationships.
+
 ## Sankey diagrams
 
 Set `"diagram": "sankey"` at document level. Every edge must have a finite, nonnegative numeric `value`. Missing values, numeric strings, booleans and `null` are rejected. See the [energy example](../public/sankey-example.json), or open an example workspace on the homepage.
@@ -51,7 +54,7 @@ Set `"diagram": "sankey"` at document level. Every edge must have a finite, nonn
 ```json
 {
   "format": "graph-studio",
-  "version": 2,
+  "version": 3,
   "diagram": "sankey",
   "nodes": {
     "supply": { "title": "Supply", "color": "#6396d7" },

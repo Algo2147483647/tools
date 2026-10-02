@@ -19,6 +19,7 @@ export function useDocumentSession() {
   const [displayByChart, setDisplayByChart] = useState<Record<GraphChartType, ChartDisplayOptions>>(() => ({
     "node-link": displayOptions(preferences.chartStyles["node-link"]),
     sankey: displayOptions(preferences.chartStyles.sankey),
+    compound: displayOptions(preferences.chartStyles.compound),
   }));
   const { showNodeDetail, hideNodeBorders, alignNodeWidthsToMax } = displayByChart[state.chartType];
   function toggleDisplay(key: keyof ChartDisplayOptions) {

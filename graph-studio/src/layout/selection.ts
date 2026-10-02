@@ -1,4 +1,5 @@
 import { findRootsFromDag } from "../graph/selectors";
+import { collectDescendantKeys } from "../graph/traversal";
 import type { DagNode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { ResolvedStageSelection } from "./types";
 
@@ -40,7 +41,13 @@ export function resolveStageSelection(
   }
 
   if (requestedSelection?.type === "full" || roots.length !== 1) {
-    const topLevelKeys = roots.length ? roots : Object.keys(dag.nodes);
+    const topLevelKeys = roots.slice();
+    const covered = new Set(collectDescendantKeys(dag.nodes, topLevelKeys));
+    for (const key of Object.keys(dag.nodes)) {
+      if (covered.has(key)) continue;
+      topLevelKeys.push(key);
+      collectDescendantKeys(dag.nodes, [key]).forEach((id) => covered.add(id));
+    }
     return {
       rootKey: syntheticKey(GRAPH_ROOT_KEY),
       topLevelKeys,

@@ -16,7 +16,7 @@ import { defineSuite, defineTest } from "./harness";
 
 const graph = (title = "Example") => ({
   format: "graph-studio",
-  version: 2,
+  version: 3,
   title,
   metadata: { author: "User" },
   nodes: { A: { title: "Hello" } },

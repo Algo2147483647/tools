@@ -19,13 +19,26 @@ export interface GraphEdge {
 
 export interface GraphDocument {
   format: "graph-studio";
-  version: 2;
+  version: 3;
   diagram?: "dag" | "sankey";
   id?: string;
   title?: string;
   metadata?: Record<string, unknown>;
   nodes: Record<NodeKey, RawGraphNode>;
   edges: GraphEdge[];
+  hierarchy?: GraphHierarchy;
+}
+
+export interface GraphHierarchy {
+  id: string;
+  groups: Record<string, { title: string }>;
+  /** Missing entries belong to the implicit root. Only groups may be parents. */
+  parentById: Record<string, string>;
+}
+
+export interface CompoundView {
+  collapsedGroupIds: string[];
+  focusGroupId: string | null;
 }
 
 export interface DagNode extends RawGraphNode {
@@ -41,23 +54,25 @@ export type GraphSelection =
 
 export type GraphMode = "edit";
 
-export type GraphChartType = "node-link" | "sankey";
+export type GraphChartType = "node-link" | "sankey" | "compound";
 
 export type GraphLayoutMode = "level" | "sugiyama" | "dagre";
 
 /** Internal rendering pipeline; Sankey is a chart type, not a node-link layout. */
-export type GraphRenderMode = GraphLayoutMode | "sankey";
+export type GraphRenderMode = GraphLayoutMode | "sankey" | "compound";
 
 export function getGraphChartLabel(type: GraphChartType): string {
-  return type === "sankey" ? "Sankey" : "Node-link";
+  return type === "sankey" ? "Sankey" : type === "compound" ? "Nested node-link" : "Node-link";
 }
 
 export function getGraphRenderMode(type: GraphChartType, layout: GraphLayoutMode): GraphRenderMode {
-  return type === "sankey" ? "sankey" : layout;
+  return type === "node-link" ? layout : type;
 }
 
 export function getGraphLayoutLabel(mode: GraphRenderMode): string {
   switch (mode) {
+    case "compound":
+      return "Nested node-link · ELK";
     case "sankey":
       return "Sankey flow";
     case "sugiyama":

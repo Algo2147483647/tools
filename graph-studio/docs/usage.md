@@ -31,11 +31,11 @@ For the full graph UI configuration model, see [Graph Appearance System](graph-a
 
 ## Opening graphs and workspaces
 
-Use Open graph file for one document or Open workspace for a folder. A workspace lists independent v2 graph documents; it does not merge their contents. The app remembers recent locations and the last selected graph in each workspace. New graph creates an unsaved document with one starter node.
+Use Open graph file for one document or Open workspace for a folder. A workspace lists independent v3 graph documents; it does not merge their contents. The app remembers recent locations and the last selected graph in each workspace. New graph creates an unsaved document with one starter node.
 
 The home page shows recent workspaces and graph files together in a timeline on the left, grouped by local date and ordered by last opened time. Open actions remain on the right. Each location appears once; reopening updates its time. Removing an entry only removes it from Recents.
 
-A root graph-studio.workspace.json manifest can specify graph files and a default graph. Without it, the app detects native v2 JSON documents. Multiple graphs without a clear default remain in the explorer for selection. Invalid files show an error; opening does not modify source files. See the [Workspace Guide](workspaces.md) for the full discovery contract and browser permission behavior.
+A root graph-studio.workspace.json manifest can specify graph files and a default graph. Without it, the app detects native v3 JSON documents. Multiple graphs without a clear default remain in the explorer for selection. Invalid files show an error; opening does not modify source files. See the [Workspace Guide](workspaces.md) for the full discovery contract and browser permission behavior.
 
 Local links resolve only inside an open workspace, relative to the source JSON or Markdown file. Resolve Path has been removed.
 
@@ -238,7 +238,7 @@ Saving behavior notes:
 
 - `Overwrite Original` does not show an extra app confirmation after the save dialog action; the browser may still ask for write permission
 - `Save New Copy` does not mark the original source file as clean
-- saving retains the full v2 envelope, node fields, edge IDs, and document/edge metadata
+- saving retains the full v3 envelope, node fields, edge IDs, and document/edge metadata
 - derived relation indexes and Type projection links are not serialized
 
 The app also supports exporting the current view as SVG. SVG export includes the current graph CSS and `--dag-*` appearance variables.

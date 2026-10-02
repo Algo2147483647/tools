@@ -1,0 +1,419 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "order-journey",
+  "title": "Order journey: checkout to delivery",
+  "metadata": {
+    "description": "Fictional reference architecture for nested node-link exploration.",
+    "relationshipSemantics": "Directed API calls, events and operational handoffs; not quantities."
+  },
+  "nodes": {
+    "web": {
+      "title": "Web storefront",
+      "type": "channel",
+      "define": "Customer shopping and self-service returns.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "mobile": {
+      "title": "Mobile app",
+      "type": "channel",
+      "define": "Mobile checkout and order tracking.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "gateway": {
+      "title": "Storefront API",
+      "type": "service",
+      "define": "Routes customer requests to domain services.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "cart": {
+      "title": "Shopping cart",
+      "type": "service",
+      "define": "Holds proposed line items before order placement.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "pricing": {
+      "title": "Pricing & promotions",
+      "type": "service",
+      "define": "Produces an immutable price quote.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "orders": {
+      "title": "Order orchestration",
+      "type": "service",
+      "define": "Coordinates stock, payment and fulfillment; operations are idempotent.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "order-db": {
+      "title": "Order records",
+      "type": "data",
+      "define": "Stores order state and correlation IDs.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "fraud": {
+      "title": "Fraud screening",
+      "type": "service",
+      "define": "Evaluates payment risk before authorization.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "risk-rules": {
+      "title": "Risk rules",
+      "type": "data",
+      "define": "Versioned policy input to fraud screening.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "authorize": {
+      "title": "Payment authorization",
+      "type": "service",
+      "define": "Requests authorization from the payment partner.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "capture": {
+      "title": "Payment capture",
+      "type": "service",
+      "define": "Captures an authorized amount after stock is reserved.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "payment-ledger": {
+      "title": "Payment ledger",
+      "type": "data",
+      "define": "Records authorization, capture and refund outcomes.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "reserve": {
+      "title": "Stock reservation",
+      "type": "service",
+      "define": "Reserves stock with an expiry; releases it after a failed payment.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "stock-db": {
+      "title": "Stock records",
+      "type": "data",
+      "define": "Available, reserved and returned stock.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "pick": {
+      "title": "Picking",
+      "type": "operation",
+      "define": "Picks reserved items after payment confirmation.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "pack": {
+      "title": "Packing",
+      "type": "operation",
+      "define": "Checks items and prepares parcels.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "shipment": {
+      "title": "Shipment creation",
+      "type": "service",
+      "define": "Creates the shipment and requests a carrier label.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "dispatch": {
+      "title": "Parcel dispatch",
+      "type": "operation",
+      "define": "Hands the parcel to the carrier.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "tracking": {
+      "title": "Delivery tracking",
+      "type": "service",
+      "define": "Consumes carrier events and publishes delivery status.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "events": {
+      "title": "Domain event bus",
+      "type": "service",
+      "define": "Delivers domain events; consumers deduplicate event IDs.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "notifications": {
+      "title": "Customer notifications",
+      "type": "service",
+      "define": "Builds order, shipment and refund messages.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "email": {
+      "title": "Email delivery",
+      "type": "service",
+      "define": "Delivers transactional email.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "bank": {
+      "title": "Payment provider",
+      "type": "partner",
+      "define": "External authorization, capture and refund API.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "carrier": {
+      "title": "Parcel carrier",
+      "type": "partner",
+      "define": "External label and tracking API.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "relationship-1",
+      "source": "web",
+      "target": "gateway",
+      "value": "request"
+    },
+    {
+      "id": "relationship-2",
+      "source": "mobile",
+      "target": "gateway",
+      "value": "request"
+    },
+    {
+      "id": "relationship-3",
+      "source": "gateway",
+      "target": "cart",
+      "value": "request"
+    },
+    {
+      "id": "relationship-4",
+      "source": "cart",
+      "target": "pricing",
+      "value": "request"
+    },
+    {
+      "id": "relationship-5",
+      "source": "gateway",
+      "target": "orders",
+      "value": "request"
+    },
+    {
+      "id": "relationship-6",
+      "source": "pricing",
+      "target": "orders",
+      "value": "quote"
+    },
+    {
+      "id": "relationship-7",
+      "source": "orders",
+      "target": "order-db",
+      "value": "write"
+    },
+    {
+      "id": "relationship-8",
+      "source": "orders",
+      "target": "reserve",
+      "value": "request"
+    },
+    {
+      "id": "relationship-9",
+      "source": "reserve",
+      "target": "stock-db",
+      "value": "write"
+    },
+    {
+      "id": "relationship-10",
+      "source": "reserve",
+      "target": "orders",
+      "value": "reserved"
+    },
+    {
+      "id": "relationship-11",
+      "source": "orders",
+      "target": "fraud",
+      "value": "request"
+    },
+    {
+      "id": "relationship-12",
+      "source": "risk-rules",
+      "target": "fraud",
+      "value": "policy"
+    },
+    {
+      "id": "relationship-13",
+      "source": "fraud",
+      "target": "authorize",
+      "value": "approved"
+    },
+    {
+      "id": "relationship-14",
+      "source": "authorize",
+      "target": "bank",
+      "value": "request"
+    },
+    {
+      "id": "relationship-15",
+      "source": "authorize",
+      "target": "payment-ledger",
+      "value": "write"
+    },
+    {
+      "id": "relationship-16",
+      "source": "authorize",
+      "target": "capture",
+      "value": "authorized"
+    },
+    {
+      "id": "relationship-17",
+      "source": "capture",
+      "target": "bank",
+      "value": "request"
+    },
+    {
+      "id": "relationship-18",
+      "source": "capture",
+      "target": "payment-ledger",
+      "value": "write"
+    },
+    {
+      "id": "relationship-19",
+      "source": "capture",
+      "target": "orders",
+      "value": "paid"
+    },
+    {
+      "id": "relationship-20",
+      "source": "orders",
+      "target": "pick",
+      "value": "release"
+    },
+    {
+      "id": "relationship-21",
+      "source": "pick",
+      "target": "pack",
+      "value": "picked"
+    },
+    {
+      "id": "relationship-22",
+      "source": "pack",
+      "target": "shipment",
+      "value": "packed"
+    },
+    {
+      "id": "relationship-23",
+      "source": "shipment",
+      "target": "carrier",
+      "value": "request"
+    },
+    {
+      "id": "relationship-24",
+      "source": "shipment",
+      "target": "dispatch",
+      "value": "label-ready"
+    },
+    {
+      "id": "relationship-25",
+      "source": "dispatch",
+      "target": "carrier",
+      "value": "handover"
+    },
+    {
+      "id": "relationship-26",
+      "source": "carrier",
+      "target": "tracking",
+      "value": "tracking-event"
+    },
+    {
+      "id": "relationship-27",
+      "source": "tracking",
+      "target": "orders",
+      "value": "delivered"
+    },
+    {
+      "id": "relationship-28",
+      "source": "orders",
+      "target": "events",
+      "value": "publish"
+    },
+    {
+      "id": "relationship-29",
+      "source": "tracking",
+      "target": "events",
+      "value": "publish"
+    },
+    {
+      "id": "relationship-30",
+      "source": "events",
+      "target": "notifications",
+      "value": "event"
+    },
+    {
+      "id": "relationship-31",
+      "source": "notifications",
+      "target": "email",
+      "value": "send"
+    }
+  ],
+  "hierarchy": {
+    "id": "commerce-domains",
+    "groups": {
+      "experience": {
+        "title": "Customer experience"
+      },
+      "commerce": {
+        "title": "Commerce domain"
+      },
+      "checkout": {
+        "title": "Checkout & orders"
+      },
+      "payments": {
+        "title": "Payments"
+      },
+      "risk": {
+        "title": "Risk checks"
+      },
+      "settlement": {
+        "title": "Settlement"
+      },
+      "fulfillment": {
+        "title": "Fulfillment"
+      },
+      "warehouse": {
+        "title": "Warehouse"
+      },
+      "delivery": {
+        "title": "Delivery"
+      },
+      "platform": {
+        "title": "Platform services"
+      },
+      "messaging": {
+        "title": "Messaging"
+      },
+      "partners": {
+        "title": "External partners"
+      }
+    },
+    "parentById": {
+      "checkout": "commerce",
+      "payments": "commerce",
+      "risk": "payments",
+      "settlement": "payments",
+      "fulfillment": "commerce",
+      "warehouse": "fulfillment",
+      "delivery": "fulfillment",
+      "messaging": "platform",
+      "web": "experience",
+      "mobile": "experience",
+      "gateway": "experience",
+      "cart": "checkout",
+      "pricing": "checkout",
+      "orders": "checkout",
+      "order-db": "checkout",
+      "fraud": "risk",
+      "risk-rules": "risk",
+      "authorize": "settlement",
+      "capture": "settlement",
+      "payment-ledger": "settlement",
+      "reserve": "warehouse",
+      "stock-db": "warehouse",
+      "pick": "warehouse",
+      "pack": "warehouse",
+      "shipment": "delivery",
+      "dispatch": "delivery",
+      "tracking": "delivery",
+      "events": "messaging",
+      "notifications": "messaging",
+      "email": "messaging",
+      "bank": "partners",
+      "carrier": "partners"
+    }
+  }
+}

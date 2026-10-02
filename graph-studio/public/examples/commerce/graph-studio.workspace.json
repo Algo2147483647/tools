@@ -1,0 +1,18 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "Commerce operations",
+  "defaultGraph": "commerce.json",
+  "graphs": [
+    "commerce.json",
+    "order-journey.json",
+    "returns-journey.json"
+  ],
+  "metadata": {
+    "assets": [
+      "README.md",
+      "notes/scenario.md",
+      "notes/exceptions.md"
+    ]
+  }
+}

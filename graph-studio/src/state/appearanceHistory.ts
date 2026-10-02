@@ -27,6 +27,7 @@ export function createChartAppearanceHistory(styles: ChartStyles): ChartAppearan
   return {
     "node-link": createAppearanceHistory(styles["node-link"].appearance),
     sankey: createAppearanceHistory(styles.sankey.appearance),
+    compound: createAppearanceHistory(styles.compound.appearance),
   };
 }
 

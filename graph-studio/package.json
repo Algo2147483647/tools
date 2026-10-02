@@ -10,17 +10,20 @@
     "build": "tsc --noEmit && vite build",
     "test": "node --loader ts-node/esm --experimental-specifier-resolution=node src/test/core.test.ts",
     "preview": "vite preview",
-    "format": "prettier --write src scripts/build-mathematics.mjs scripts/data/mathematics package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "format:check": "prettier --check src scripts/build-mathematics.mjs scripts/data/mathematics package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "format": "prettier --write src scripts/build-mathematics.mjs scripts/build-commerce.mjs scripts/data/mathematics package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "format:check": "prettier --check src scripts/build-mathematics.mjs scripts/build-commerce.mjs scripts/data/mathematics package.json tsconfig.json vite.config.ts .prettierrc.json",
     "examples:mathematics": "node scripts/build-mathematics.mjs",
     "examples:mathematics:check": "node scripts/build-mathematics.mjs --check",
-    "check": "npm run format:check && npm run examples:mathematics:check && npm test && npm run build"
+    "examples:commerce": "node scripts/build-commerce.mjs",
+    "examples:commerce:check": "node scripts/build-commerce.mjs --check",
+    "check": "npm run format:check && npm run examples:mathematics:check && npm run examples:commerce:check && npm test && npm run build"
   },
   "dependencies": {
     "@types/dagre": "^0.7.54",
     "@vitejs/plugin-react": "^4.2.1",
     "d3-sankey": "^0.12.3",
     "dagre": "^0.8.5",
+    "elkjs": "^0.12.0",
     "katex": "^0.16.45",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

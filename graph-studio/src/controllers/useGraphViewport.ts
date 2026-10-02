@@ -3,10 +3,12 @@ import { getNodeTitle } from "../graph/accessors";
 import type { GraphAppearance } from "../graph/appearance";
 import { getFullGraphSelection, getParentLevelSelection, sanitizeNodeLabel } from "../graph/selectors";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
-import { getGraphLayoutLabel, getGraphRenderMode } from "../graph/types";
+import { getGraphLayoutLabel, getGraphRenderMode, type CompoundView } from "../graph/types";
 import { useGraphPan } from "../hooks/useGraphPan";
 import { useGraphZoom } from "../hooks/useGraphZoom";
 import { useResizeObserver } from "../hooks/useResizeObserver";
+import { useCompoundView } from "../hooks/useCompoundView";
+import { useCompoundStage } from "../hooks/useCompoundStage";
 import { type StageAppearance, getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
 import { downloadSvg } from "../rendering/export-svg";
@@ -14,6 +16,11 @@ import type { DocumentSessionController } from "./useDocumentSession";
 
 export function useGraphViewport(session: DocumentSessionController, appearance: GraphAppearance) {
   const { state, dispatch, showNodeDetail, alignNodeWidthsToMax } = session;
+  const compound = useCompoundView(
+    state.document.id,
+    state.dag?.hierarchy?.id,
+    Object.keys(state.dag?.hierarchy?.groups ?? {}),
+  );
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -36,13 +43,14 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     }
   }, [selectedType, typeOptions]);
   const displayDag = useMemo(
-    () => (state.dag ? projectGraphByType(state.dag, activeType, state.chartType) : null),
+    () =>
+      state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, activeType, state.chartType) : null,
     [activeType, state.dag, state.chartType],
   );
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
   const geometryJson = JSON.stringify(getStageAppearance(appearance));
   const geometryAppearance = useMemo(() => JSON.parse(geometryJson) as StageAppearance, [geometryJson]);
-  const stage = useMemo(
+  const flatStage = useMemo(
     () =>
       displayDag
         ? buildStageData({
@@ -66,11 +74,37 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       state.selection,
     ],
   );
+  const compoundInput = useMemo(
+    () =>
+      state.chartType === "compound" && state.dag
+        ? {
+            dag: state.dag,
+            view: compound.view,
+            selectedType: activeType,
+            appearance: geometryAppearance,
+            showNodeDetail,
+            alignNodeWidthsToMax,
+          }
+        : null,
+    [state.chartType, state.dag, compound.view, activeType, geometryAppearance, showNodeDetail, alignNodeWidthsToMax],
+  );
+  const compoundLayout = useCompoundStage(compoundInput);
+  const stage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
   const parentSelection = useMemo(
-    () => (!activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys) : null),
-    [activeType, stage, state.dag],
+    () =>
+      state.chartType !== "compound" && !activeType && state.dag && stage
+        ? getParentLevelSelection(state.dag, stage.topLevelKeys)
+        : null,
+    [activeType, stage, state.dag, state.chartType],
   );
   const status = useMemo(() => {
+    if (state.chartType === "compound") {
+      if (compoundLayout.loading) return "Arranging subgraphs…";
+      if (compoundLayout.error) return `Nested layout failed: ${compoundLayout.error}`;
+      return stage
+        ? `${stage.nodes.length} visible nodes and summaries · ${stage.groups?.length ?? 0} expanded groups · ${stage.edges.length} visible relationships`
+        : "No nodes match this view.";
+    }
     if (!state.dag || !stage) {
       return state.ui.status;
     }
@@ -88,7 +122,16 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       !state.ui.status.startsWith("Chart type:")
       ? state.ui.status
       : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
-  }, [activeType, stage, state.dag, state.layout.mode, state.ui.status]);
+  }, [
+    activeType,
+    stage,
+    state.dag,
+    state.layout.mode,
+    state.ui.status,
+    state.chartType,
+    compoundLayout.loading,
+    compoundLayout.error,
+  ]);
 
   const handleZoomChange = useCallback(
     (scale: number, minScale?: number) => {
@@ -101,6 +144,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     svgRef,
     topbarRef,
     stage,
+    viewKey: JSON.stringify([state.document.generation, state.chartType, compound.view.focusGroupId, activeType]),
     scale: state.zoom.scale,
     minScale: state.zoom.minScale,
     maxScale: state.zoom.maxScale,
@@ -120,6 +164,10 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
 
   function handleNodeClick(nodeKey: string) {
     clearPendingNodeClick();
+    if (state.chartType === "compound") {
+      setFocusedKey(nodeKey);
+      return;
+    }
     if (activeType) {
       setFocusedKey(nodeKey);
       return;
@@ -134,6 +182,13 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
 
   function handleNodeDoubleClick(nodeKey: string) {
     clearPendingNodeClick();
+    if (
+      state.chartType === "compound" &&
+      Object.prototype.hasOwnProperty.call(state.dag?.hierarchy?.groups ?? {}, nodeKey)
+    ) {
+      enterGroup(nodeKey);
+      return;
+    }
     if (!stage?.nodeMap[nodeKey]) {
       return;
     }
@@ -151,6 +206,10 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   function handleNodeContextMenu(event: React.MouseEvent<SVGGElement>, nodeKey: string) {
     event.preventDefault();
     event.stopPropagation();
+    if (!Object.prototype.hasOwnProperty.call(state.dag?.nodes ?? {}, nodeKey)) {
+      setFocusedKey(nodeKey);
+      return;
+    }
     const menuWidth = 190;
     const menuHeight = 368;
     dispatch({
@@ -213,17 +272,53 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     setSelectedType(type);
   }
   function back() {
-    if (activeType) changeType("");
+    if (state.chartType === "compound") compound.back();
+    else if (activeType) changeType("");
     else dispatch({ type: "navigateBack" });
   }
   function up() {
+    if (state.chartType === "compound") {
+      const id = compound.view.focusGroupId;
+      enterGroup(id ? (state.dag?.hierarchy?.parentById[id] ?? null) : null);
+      return;
+    }
     if (parentSelection) dispatch({ type: "selectionChanged", selection: parentSelection, pushHistory: true });
   }
   function showAll() {
     changeType("");
+    if (state.chartType === "compound") {
+      enterGroup(null);
+      return;
+    }
     dispatch({ type: "selectionChanged", selection: getFullGraphSelection(), pushHistory: true });
   }
+  function enterGroup(id: string | null) {
+    setFocusedKey(null);
+    compound.setView({ ...compound.view, focusGroupId: id });
+  }
+  function toggleGroup(id: string) {
+    changeCompoundView({
+      ...compound.view,
+      collapsedGroupIds: compound.view.collapsedGroupIds.includes(id)
+        ? compound.view.collapsedGroupIds.filter((key) => key !== id)
+        : [...compound.view.collapsedGroupIds, id],
+    });
+  }
+  function changeCompoundView(view: CompoundView) {
+    setFocusedKey(null);
+    if (view.focusGroupId === compound.view.focusGroupId) {
+      const before = new Set(compound.view.collapsedGroupIds);
+      const after = new Set(view.collapsedGroupIds);
+      const changed = [...new Set([...before, ...after])].filter((id) => before.has(id) !== after.has(id));
+      if (changed.length === 1) zoom.captureLayoutAnchor(changed[0]);
+    }
+    compound.setView(view);
+  }
   return {
+    compound: { ...compound, setView: changeCompoundView },
+    compoundLayout,
+    enterGroup,
+    toggleGroup,
     containerRef,
     svgRef,
     topbarRef,
@@ -238,8 +333,8 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     up,
     showAll,
     zoom,
-    canBack: Boolean(activeType) || state.history.length > 0,
-    canUp: Boolean(parentSelection),
+    canBack: state.chartType === "compound" ? compound.canBack : Boolean(activeType) || state.history.length > 0,
+    canUp: state.chartType === "compound" ? Boolean(compound.view.focusGroupId) : Boolean(parentSelection),
     zoomPercent: Number((state.zoom.scale * 100).toFixed(state.zoom.scale < 0.1 ? 1 : 0)),
     canZoomOut: Boolean(stage) && state.zoom.scale > state.zoom.minScale + 0.001,
     canZoomIn: Boolean(stage) && state.zoom.scale < state.zoom.maxScale - 0.001,

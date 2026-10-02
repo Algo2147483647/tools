@@ -24,5 +24,9 @@ export function sanitizeChartStyle(value: unknown): ChartStyle {
 }
 
 export function createChartStyles(): ChartStyles {
-  return { "node-link": sanitizeChartStyle(null), sankey: sanitizeChartStyle(null) };
+  return {
+    "node-link": sanitizeChartStyle(null),
+    sankey: sanitizeChartStyle(null),
+    compound: sanitizeChartStyle(null),
+  };
 }

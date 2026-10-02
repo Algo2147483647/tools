@@ -17,7 +17,10 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
     }
 
     function handleMouseDown(event: MouseEvent) {
-      if (event.button !== 0 || (event.target instanceof Element && event.target.closest(".dag-node"))) {
+      if (
+        event.button !== 0 ||
+        (event.target instanceof Element && event.target.closest(".dag-node, .dag-group-controls"))
+      ) {
         return;
       }
       panState.current = {

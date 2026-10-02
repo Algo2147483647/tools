@@ -6,7 +6,7 @@ Graph Studio 启动时显示首页，不加载示例，也不自动恢复上次�
 
 | 模式 | 行为 |
 | --- | --- |
-| Open graph file | 打开一个 Graph Studio v2 JSON；编辑和保存该文档；不解析相邻文件。 |
+| Open graph file | 打开一个 Graph Studio v3 JSON；编辑和保存该文档；不解析相邻文件。 |
 | Open workspace | 以所选文件夹为根目录，识别图文档，显示文件列表，按规则选择启动图；图文件相互独立。 |
 | Recent workspaces | 重新打开所选工作区，并优先打开上次使用的图。权限失效时请求重新授权，或提示重新选择文件夹。 |
 
@@ -38,7 +38,7 @@ Graph Studio 启动时显示首页，不加载示例，也不自动恢复上次�
 
 ## 无清单时的识别
 
-扫描 JSON 内容，仅识别 `format: "graph-studio"` 的正式 v2 图。无关 JSON（例如 package.json）不会被导入。根目录 `graph.json` 和所有 `*.graph.json` 视为明确声明的图：格式错误会列出错误，不会默默忽略。
+扫描 JSON 内容，仅识别 `format: "graph-studio"` 的正式 v3 图。无关 JSON（例如 package.json）不会被导入。根目录 `graph.json` 和所有 `*.graph.json` 视为明确声明的图：格式错误会列出错误，不会默默忽略。
 
 启动图的优先顺序：
 

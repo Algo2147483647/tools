@@ -1,14 +1,17 @@
 # Example workspaces
 
-Below Recent workspaces, the homepage includes three separate English workspaces. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v2 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
+Below Recent workspaces, the homepage includes four separate English workspaces. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
 
 | Workspace           | Contents                                                                                                                                |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Commerce operations | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes |
 | Mathematics         | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography          |
 | Factorio production | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes |
 | Energy flows        | 8 nodes, 9 flows; GWh values with conserved intermediate flows                                                                          |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
+
+The [Commerce operations guide](compound.md) covers the nested node-link example. Regenerate its graphs with `npm run examples:commerce`; its reproducibility check runs in `npm run check`.
 
 ## Factorio data and interpretation
 
@@ -74,4 +77,4 @@ public/examples/
     README.md
 ```
 
-Each folder can also be selected with **Open workspace**. The homepage fetches its manifest, the graph paths in `graphs`, and the relative note paths in `metadata.assets`. Requests are bounded to six at a time. Every file must load successfully before the new workspace replaces the current one. There is no separate example bundle format; individual graph documents use Graph Studio v2.
+Each folder can also be selected with **Open workspace**. The homepage fetches its manifest, the graph paths in `graphs`, and the relative note paths in `metadata.assets`. Requests are bounded to six at a time. Every file must load successfully before the new workspace replaces the current one. There is no separate example bundle format; individual graph documents use Graph Studio v3.

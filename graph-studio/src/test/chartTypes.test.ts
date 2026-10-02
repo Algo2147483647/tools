@@ -20,7 +20,7 @@ import { defineSuite, defineTest } from "./harness";
 const graph = (value: number | string = 10) =>
   normalizeDagInput({
     format: "graph-studio",
-    version: 2,
+    version: 3,
     nodes: { A: {}, B: {} },
     edges: [{ id: "ab", source: "A", target: "B", value }],
   });
@@ -29,7 +29,7 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
   defineTest("filtering an ordinary numeric graph in Sankey view never invents flows", () => {
     const source = normalizeDagInput({
       format: "graph-studio",
-      version: 2,
+      version: 3,
       nodes: { A: { type: "Visible" }, B: { type: "Hidden" }, C: { type: "Visible" } },
       edges: [
         { id: "ab", source: "A", target: "B", value: 10 },

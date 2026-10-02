@@ -1,4 +1,5 @@
 import { indexGraphDocument } from "./graphIndex";
+import { validateHierarchy } from "./hierarchy";
 import { getSankeyError } from "./sankey";
 import type { GraphDocument, NormalizedDag, RawGraphNode } from "./types";
 
@@ -40,10 +41,10 @@ export function validateJsonValue(value: unknown, path: string): void {
 }
 
 export function normalizeDagInput(input: unknown): NormalizedDag {
-  if (!isRecord(input) || input.format !== "graph-studio" || input.version !== 2) {
-    throw new Error('Unsupported graph format. Expected format "graph-studio", version 2, with nodes and edges.');
+  if (!isRecord(input) || input.format !== "graph-studio" || input.version !== 3) {
+    throw new Error('Unsupported graph format. Expected format "graph-studio", version 3, with nodes and edges.');
   }
-  const allowed = new Set(["format", "version", "diagram", "id", "title", "metadata", "nodes", "edges"]);
+  const allowed = new Set(["format", "version", "diagram", "id", "title", "metadata", "nodes", "edges", "hierarchy"]);
   if (input.diagram !== undefined && input.diagram !== "dag" && input.diagram !== "sankey")
     throw new Error('/diagram must be "dag" or "sankey".');
   for (const name of Object.keys(input))
@@ -85,6 +86,7 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
     if (edge.metadata !== undefined && !isRecord(edge.metadata)) throw new Error(`${path}/metadata must be an object.`);
   });
   validateJsonValue(input, "");
+  if (input.hierarchy !== undefined) validateHierarchy(input.hierarchy, nodes as GraphDocument["nodes"]);
   if (input.diagram === "sankey") {
     const error = getSankeyError(nodes as GraphDocument["nodes"], input.edges as unknown as GraphDocument["edges"]);
     if (error) throw new Error(error);
@@ -96,5 +98,5 @@ export function createGraphDocument(
   nodes: Record<string, RawGraphNode> = {},
   edges: GraphDocument["edges"] = [],
 ): NormalizedDag {
-  return normalizeDagInput({ format: "graph-studio", version: 2, nodes, edges });
+  return normalizeDagInput({ format: "graph-studio", version: 3, nodes, edges });
 }

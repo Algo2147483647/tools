@@ -24,6 +24,7 @@ export function projectGraphByType(
   if (!selectedType) return source;
   const visible = new Set(Object.keys(source.nodes).filter((key) => getNodeType(source.nodes[key]) === selectedType));
   const doc = serializeDag(source);
+  delete doc.hierarchy; // Type filtering is a G-only projection; H remains on the source document.
   doc.nodes = Object.fromEntries(Object.entries(doc.nodes).filter(([key]) => visible.has(key)));
   doc.edges = doc.edges.filter((edge) => visible.has(edge.source) && visible.has(edge.target));
   // Hidden flows cannot be safely reconstructed from totals. Keep only measured direct flows.

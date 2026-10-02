@@ -20,7 +20,7 @@ import { buildStageData } from "../layout/stage-layout";
 import { createForestDag, createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 
-export const graphSuite = defineSuite("v2 document and graph", [
+export const graphSuite = defineSuite("v3 document and graph", [
   defineTest("shared traversal preserves depth-first order and handles cycles, duplicate and missing roots", () => {
     const graph = createGraphDocument({ A: {}, B: {}, C: {} }, [
       { id: "ab", source: "A", target: "B" },
@@ -62,7 +62,7 @@ export const graphSuite = defineSuite("v2 document and graph", [
   defineTest("document metadata and arbitrary node/edge metadata round-trip without adjacency fields", () => {
     const input = {
       format: "graph-studio",
-      version: 2,
+      version: 3,
       id: "test",
       title: "Test",
       metadata: { owner: "me", nested: [null, true, 3] },
@@ -84,17 +84,17 @@ export const graphSuite = defineSuite("v2 document and graph", [
       { A: {} },
       [{ key: "A" }],
       { nodes: [{ key: "A" }] },
-      { format: "unknown", version: 2, nodes: {}, edges: [] },
-      { format: "graph-studio", version: 3, nodes: {}, edges: [] },
+      { format: "unknown", version: 3, nodes: {}, edges: [] },
+      { format: "graph-studio", version: 99, nodes: {}, edges: [] },
     ])
       assert.throws(() => normalizeDagInput(input), /Unsupported graph format/);
     assert.throws(
-      () => normalizeDagInput({ format: "graph-studio", version: 2, nodes: {}, edges: [], extra: 1 }),
+      () => normalizeDagInput({ format: "graph-studio", version: 3, nodes: {}, edges: [], extra: 1 }),
       /Unknown document field/,
     );
   }),
   defineTest("invalid node fields, missing endpoints and duplicate edge identities are rejected", () => {
-    const base = { format: "graph-studio", version: 2, nodes: { A: {}, B: {}, C: {} }, edges: [] };
+    const base = { format: "graph-studio", version: 3, nodes: { A: {}, B: {}, C: {} }, edges: [] };
     for (const node of [null, 3, [], { parents: {} }, { children: {} }, { key: "A" }, { type: ["x"] }])
       assert.throws(() => normalizeDagInput({ ...base, nodes: { A: node } }));
     assert.throws(
@@ -121,7 +121,7 @@ export const graphSuite = defineSuite("v2 document and graph", [
   defineTest("special object keys survive serialization and edge indexes", () => {
     const dag = normalizeDagInput(
       JSON.parse(
-        '{"format":"graph-studio","version":2,"nodes":{"__proto__":{},"constructor":{}},"edges":[{"id":"e","source":"__proto__","target":"constructor","value":false}]}',
+        '{"format":"graph-studio","version":3,"nodes":{"__proto__":{},"constructor":{}},"edges":[{"id":"e","source":"__proto__","target":"constructor","value":false}]}',
       ),
     );
     assert.deepEqual(Object.keys(dag.nodes), ["__proto__", "constructor"]);
@@ -172,7 +172,7 @@ export const graphSuite = defineSuite("v2 document and graph", [
     const clone = cloneGraphDocument(source);
     assert.deepEqual(getNodeChildren(clone.nodes.A), { B: "edge_ab", C: "edge_ac" });
     assert.equal(buildStageData({ dag: createGraphDocument(), selection: { type: "full" } }), null);
-    assert.equal(serializeDag(createInitialCanvasDag()).version, 2);
+    assert.equal(serializeDag(createInitialCanvasDag()).version, 3);
     const fields = { format: "graph-studio", nodes: { key: "custom" }, edges: 42 };
     assert.deepEqual(structuredCloneValue(fields), fields);
   }),

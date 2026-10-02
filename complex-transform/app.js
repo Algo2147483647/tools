@@ -20,6 +20,7 @@
   };
   const state = {
     expression: "z^2",
+    branchOptions: { cutAngle: Math.PI, branch: 0 },
     fn: compile("z^2"),
     sourceView: { re: 0, im: 0, span: 2 },
     extentMode: "infinite",
@@ -296,6 +297,7 @@
       drawCurve(source, sourceGeometry[index], line);
       drawCurve(target, geometry[index], line);
     });
+    if (window.ComplexLab) window.ComplexLab.draw({ source, target, pixel, drawCurve, mapped, state });
     drawProbe(source, state.probe, "z");
     const w = mapped(state.probe),
       onScreen = drawProbe(target, w, state.t === 1 ? "f(z)" : "wₜ");
@@ -345,6 +347,7 @@
     $("probe-detail").textContent =
       `|z| = ${format(Math.hypot(state.probe.re, state.probe.im))} · |f(z)| = ${finite(w) ? format(Math.hypot(w.re, w.im)) : "undefined"}`;
     requestDraw();
+    window.dispatchEvent(new CustomEvent("complex-probe"));
   }
   function setMorph(value) {
     state.t = value;
@@ -376,7 +379,7 @@
   function applyExpression() {
     let fn;
     try {
-      fn = compile($("expression").value);
+      fn = compile($("expression").value, state.branchOptions);
     } catch (error) {
       $("expression-error").textContent =
         `${error.message} Still showing ${state.expression}.`;
@@ -400,6 +403,7 @@
     setMorph(1);
     fitView();
     updateProbe(false);
+    window.dispatchEvent(new CustomEvent("complex-expression"));
   }
   $("function-form").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -449,9 +453,6 @@
     $("extent-badge").title = bounded
       ? "The domain stays fixed while the view moves"
       : "The grid extends with the input view";
-    $("extent-hint").textContent = bounded
-      ? `Fixed at ±${format(state.finiteExtent)} around 0.`
-      : "Extends with the input view.";
     $("domain").value = String(
       bounded ? state.finiteExtent : state.sourceView.span,
     );
@@ -778,8 +779,7 @@
     }
   });
 
-  // The canvases always occupy two equal viewport halves. Controls only overlay
-  // them, and folding a panel must not resize or change the plotted coordinates.
+  // The output sidebar shares view and analysis controls.
   const compactViewport = window.matchMedia("(max-width: 900px)");
   function setPanelCollapsed(side, collapsed) {
     const panel = $(`${side}-panel`),
@@ -790,6 +790,7 @@
     panel.dataset.collapsed = String(collapsed);
     controls.hidden = collapsed;
     toggle.setAttribute("aria-expanded", String(!collapsed));
+    if (side === "target") document.body.classList.toggle("output-open", !collapsed);
   }
   for (const side of ["source", "target"]) {
     $(`${side}-toggle`).addEventListener("click", () => {
@@ -908,6 +909,14 @@
     });
   }
 
+  window.ComplexApp = {
+    prepareAnalysis: () => { stopAnimation(); setMorph(1); setPanelCollapsed("source", true); },
+    snapshot: () => ({ expression: state.expression, fn: state.fn, probe: { ...state.probe },
+      bounds: viewBounds(state.sourceView, source.width, source.height), branchOptions: { ...state.branchOptions } }),
+    redraw: () => requestDraw(),
+    setBranch: (options) => { state.branchOptions = options; $("expression").value = state.expression; applyExpression(); },
+    setProbe: (value) => { state.probe = value; updateProbe(); },
+  };
   const observer = new ResizeObserver(() => requestDraw(true));
   observer.observe(source.canvas);
   observer.observe(target.canvas);

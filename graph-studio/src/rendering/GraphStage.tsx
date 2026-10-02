@@ -5,6 +5,7 @@ import GraphBackdrop from "./GraphBackdrop";
 import GraphDefs from "./GraphDefs";
 import GraphEdge from "./GraphEdge";
 import GraphNode from "./GraphNode";
+import { GroupHeader, GroupControls } from "./GraphGroup";
 
 const EMPTY_CONNECTED_KEYS = new Set<string>();
 const DENSE_STAGE_NODE_THRESHOLD = 220;
@@ -12,6 +13,8 @@ const DENSE_STAGE_EDGE_THRESHOLD = 440;
 const DENSE_STAGE_AREA_THRESHOLD = 20_000_000;
 
 interface GraphStageProps {
+  onGroupToggle?: (id: string) => void;
+  onGroupEnter?: (id: string) => void;
   stage: StageData;
   focusedKey: string | null;
   hideNodeBorders: boolean;
@@ -35,6 +38,8 @@ export default function GraphStage({
   onNodeContextMenu,
   onBackgroundContextMenu,
   onFocusChange,
+  onGroupToggle,
+  onGroupEnter,
 }: GraphStageProps) {
   const hoveredKeyRef = useRef<string | null>(null);
   const focusedKeyRef = useRef<string | null>(focusedKey);
@@ -242,12 +247,26 @@ export default function GraphStage({
       width={stage.stageWidth}
       height={stage.stageHeight}
       style={stageStyle}
-      role="img"
-      aria-label={`${stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
+      role={stage.layoutMode === "compound" ? "group" : "img"}
+      aria-label={`${stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
       onContextMenu={onBackgroundContextMenu}
     >
       <GraphDefs appearanceCss={appearance.css} />
-      {stage.layoutMode !== "sankey" && <GraphBackdrop stage={stage} />}
+      {stage.layoutMode !== "sankey" && stage.layoutMode !== "compound" && <GraphBackdrop stage={stage} />}
+      <g className="dag-group-backgrounds">
+        {stage.groups?.map((group) => (
+          <rect
+            key={group.id}
+            data-group-id={group.id}
+            className="dag-group-background"
+            x={group.x}
+            y={group.y}
+            width={group.width}
+            height={group.height}
+            rx={12}
+          />
+        ))}
+      </g>
       <g className="dag-edge-layer">
         {stage.edges.map((edge) => (
           <GraphEdge key={edge.id} edge={edge} showLabel={appearance.display.showEdgeLabels} />
@@ -265,6 +284,25 @@ export default function GraphStage({
             onFocusChange={onFocusChange}
           />
         ))}
+      </g>
+      <g className="dag-group-headers">
+        {stage.groups?.map((group) => (
+          <GroupHeader key={group.id} group={group} onToggle={onGroupToggle} onEnter={onGroupEnter} />
+        ))}
+        {stage.nodes
+          .filter((node) => node.kind === "group")
+          .map((node) => (
+            <GroupControls
+              key={node.key}
+              id={node.key}
+              x={node.x + node.width / 2 - 64}
+              y={node.y - node.height / 2 + 8}
+              collapsed
+              external={node.external}
+              onToggle={onGroupToggle}
+              onEnter={onGroupEnter}
+            />
+          ))}
       </g>
     </svg>
   );

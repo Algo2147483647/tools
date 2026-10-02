@@ -107,7 +107,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   if (parsed.layoutMode === "level" || parsed.layoutMode === "sugiyama" || parsed.layoutMode === "dagre") {
     next.layoutMode = parsed.layoutMode;
   }
-  if (parsed.chartType === "node-link" || parsed.chartType === "sankey") {
+  if (parsed.chartType === "node-link" || parsed.chartType === "sankey" || parsed.chartType === "compound") {
     next.chartType = parsed.chartType;
   } else if (parsed.layoutMode === "sankey") {
     next.chartType = "sankey";
@@ -118,6 +118,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     next.chartStyles = {
       "node-link": sanitizeChartStyle(styles["node-link"]),
       sankey: sanitizeChartStyle(styles.sankey),
+      compound: sanitizeChartStyle(styles.compound),
     };
   } else if (
     parsed.appearance ||
@@ -125,7 +126,11 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
       (value) => typeof value === "boolean",
     )
   ) {
-    next.chartStyles = { "node-link": sanitizeChartStyle(parsed), sankey: sanitizeChartStyle(parsed) };
+    next.chartStyles = {
+      "node-link": sanitizeChartStyle(parsed),
+      sankey: sanitizeChartStyle(parsed),
+      compound: sanitizeChartStyle(null),
+    };
   }
   if (typeof parsed.consoleSidebarOpen === "boolean") {
     next.consoleSidebarOpen = parsed.consoleSidebarOpen;

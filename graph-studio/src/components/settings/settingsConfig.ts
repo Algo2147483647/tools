@@ -20,9 +20,10 @@ export const SETTINGS_CHAPTERS: Array<{
   {
     key: "chart",
     label: "Chart type",
-    description: "Node-link or Sankey",
+    description: "Node-link, nested subgraphs or Sankey",
     icon: "graph",
-    keywords: "diagram visualization display node link network sankey flow numeric value",
+    keywords:
+      "diagram visualization display node link network sankey flow numeric value nested compound subgraph hierarchy group",
   },
   {
     key: "layout",

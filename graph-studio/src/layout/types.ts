@@ -13,6 +13,8 @@ export interface StageNodeColorTokens {
 }
 
 export interface StageNode {
+  kind?: "node" | "group";
+  external?: boolean;
   key: NodeKey;
   layer: number;
   order: number;
@@ -38,6 +40,8 @@ export interface StageNode {
 }
 
 export interface StageEdge {
+  originalEdgeIds?: string[];
+  description?: string;
   id: string;
   source: NodeKey;
   target: NodeKey;
@@ -96,6 +100,7 @@ export interface ResolvedStageSelection {
 }
 
 export interface StageData {
+  groups?: StageGroup[];
   dag: Record<NodeKey, DagNode & { synthetic?: boolean }>;
   layoutMode: GraphRenderMode;
   root: NodeKey;
@@ -110,4 +115,15 @@ export interface StageData {
   stageWidth: number;
   stageHeight: number;
   warnings: string[];
+}
+
+export interface StageGroup {
+  id: string;
+  title: string;
+  depth: number;
+  leafCount: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }

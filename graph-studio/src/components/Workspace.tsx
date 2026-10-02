@@ -6,6 +6,9 @@ import EmptyState from "./EmptyState";
 import { CloseIcon } from "./ui/ModalIcons";
 
 interface WorkspaceProps {
+  compoundTools?: React.ReactNode;
+  onGroupToggle?: (id: string) => void;
+  onGroupEnter?: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement>;
   svgRef: React.RefObject<SVGSVGElement>;
   stage: StageData | null;
@@ -51,12 +54,16 @@ export default function Workspace({
   onFocusChange,
   onScroll,
   onSidebarResizeStart,
+  compoundTools,
+  onGroupToggle,
+  onGroupEnter,
 }: WorkspaceProps) {
   return (
     <main id="workspace" className={`workspace${sidebarOpen ? " workspace--split" : ""}`}>
       <div className="workspace-split-shell">
         <div className="workspace-overlays">
           {explorer}
+          {compoundTools}
           {sidebarOpen ? (
             <>
               <aside className="workspace-sidebar-shell" style={{ width: sidebarWidth }}>
@@ -98,6 +105,8 @@ export default function Workspace({
           >
             {stage ? (
               <GraphStage
+                onGroupToggle={onGroupToggle}
+                onGroupEnter={onGroupEnter}
                 stage={stage}
                 focusedKey={focusedKey}
                 hideNodeBorders={hideNodeBorders}

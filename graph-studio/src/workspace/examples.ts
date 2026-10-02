@@ -4,6 +4,15 @@ import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
 export const EXAMPLE_WORKSPACES = [
   {
+    id: "commerce",
+    title: "Commerce operations",
+    kind: "Nested node-link",
+    description:
+      "Explore checkout, payments, warehouse, delivery and returns. Expand domain boundaries and trace their original relationships.",
+    detail: "32 nodes · 14 groups · 3 journeys",
+    accent: "#527f82",
+  },
+  {
     id: "mathematics",
     title: "Mathematics",
     kind: "Knowledge graph",

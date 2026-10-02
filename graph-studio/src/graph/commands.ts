@@ -1,9 +1,11 @@
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
+import { applyHierarchyCommand, pruneEmptyGroups, type HierarchyCommand } from "./hierarchy";
 import { collectDescendantKeys } from "./traversal";
 import { type GraphEdge, type NodeKey, type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
 
 export type GraphCommand =
+  | HierarchyCommand
   | { type: "renameNode"; oldKey: NodeKey; newKey: NodeKey }
   | { type: "deleteNode"; key: NodeKey }
   | { type: "deleteSubtree"; rootKey: NodeKey }
@@ -28,6 +30,15 @@ export interface CommandResult {
 
 export function applyGraphCommand(source: NormalizedDag, command: GraphCommand): CommandResult {
   const document = serializeDag(source);
+  if (
+    command.type === "groupCreate" ||
+    command.type === "groupMove" ||
+    command.type === "groupRename" ||
+    command.type === "groupDissolve"
+  ) {
+    applyHierarchyCommand(document, command);
+    return { dag: normalizeDagInput(document), changedKeys: [], message: "Updated subgraph hierarchy." };
+  }
   const defaultRelationValue = document.diagram === "sankey" ? 1 : DEFAULT_RELATION_VALUE;
   const nodes = document.nodes;
   const result: Omit<CommandResult, "dag"> = { changedKeys: [] };
@@ -38,6 +49,8 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
   const requireNew = (key: string, current?: string) => {
     validateNodeKey(key);
     if (key !== current && exists(key)) throw new Error(`Node key "${key}" already exists.`);
+    if (Object.prototype.hasOwnProperty.call(document.hierarchy?.groups ?? {}, key))
+      throw new Error(`Group ID "${key}" already exists.`);
   };
   const putNode = (key: string, fields: Record<string, unknown>) => {
     validateNodeFields(fields, `/nodes/${key}`);
@@ -54,6 +67,16 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     if (oldKey === key) return;
     putNode(key, nodes[oldKey]);
     delete nodes[oldKey];
+    const parents = document.hierarchy?.parentById;
+    if (parents && Object.prototype.hasOwnProperty.call(parents, oldKey)) {
+      Object.defineProperty(parents, key, {
+        value: parents[oldKey],
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
+      delete parents[oldKey];
+    }
     document.edges.forEach((edge) => {
       if (edge.source === oldKey) edge.source = key;
       if (edge.target === oldKey) edge.target = key;
@@ -81,6 +104,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
       keys.forEach((key) => delete nodes[key]);
       document.edges = document.edges.filter((edge) => !removed.has(edge.source) && !removed.has(edge.target));
       result.deletedKeys = keys;
+      pruneEmptyGroups(document);
       result.message = `Deleted ${keys.length} node(s).`;
       break;
     }

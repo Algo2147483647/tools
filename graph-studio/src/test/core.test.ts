@@ -1,3 +1,4 @@
+import { compoundSuite } from "./compound.test";
 import { aiHarnessSuite } from "./aiHarness.test";
 import { documentSessionSuite } from "./documentSession.test";
 import { appearanceSuite } from "./appearance.test";
@@ -15,6 +16,7 @@ import { workspaceSuite } from "./workspace.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
+    compoundSuite,
     aiHarnessSuite,
     documentSessionSuite,
     appearanceSuite,

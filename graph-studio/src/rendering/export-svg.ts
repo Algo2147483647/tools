@@ -2,7 +2,9 @@ import { downloadTextFile } from "../adapters/download";
 
 const EXPORT_STYLE_PROPERTIES = [
   "fill",
+  "fill-opacity",
   "stroke",
+  "stroke-opacity",
   "stroke-width",
   "stroke-linecap",
   "stroke-linejoin",

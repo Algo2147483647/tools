@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Graph Studio document v2",
+  "title": "Graph Studio document v3",
   "description": "Runtime validation also checks unique edge IDs and directed endpoint pairs, endpoint existence, and no self-loops. Sankey diagrams additionally require finite non-negative flow values, finite node totals. Cycles are supported as return flows.",
   "type": "object",
   "additionalProperties": false,
@@ -15,10 +15,13 @@
       "const": "graph-studio"
     },
     "version": {
-      "const": 2
+      "const": 3
     },
     "diagram": {
-      "enum": ["dag", "sankey"],
+      "enum": [
+        "dag",
+        "sankey"
+      ],
       "description": "Optional diagram semantics. Defaults to dag. Sankey opens in flow layout."
     },
     "id": {
@@ -44,15 +47,76 @@
       "items": {
         "$ref": "#/$defs/edge"
       }
+    },
+    "hierarchy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "groups",
+        "parentById"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "groups": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "title"
+            ],
+            "properties": {
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "parentById": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     }
   },
-  "allOf": [{
-    "if": { "required": ["diagram"], "properties": { "diagram": { "const": "sankey" } } },
-    "then": { "properties": { "edges": { "items": {
-      "required": ["value"],
-      "properties": { "value": { "type": "number", "minimum": 0 } }
-    } } } }
-  }],
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "diagram"
+        ],
+        "properties": {
+          "diagram": {
+            "const": "sankey"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "edges": {
+            "items": {
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "id": {
       "type": "string",

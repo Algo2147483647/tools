@@ -27,7 +27,7 @@ const pair = () => [
     payload: doc({ A: { title: "Second", right: 2 }, C: {} }, [{ id: "ac", source: "A", target: "C", value: "new" }]),
   },
 ];
-export const importMergeSuite = defineSuite("conflict-aware v2 import", [
+export const importMergeSuite = defineSuite("conflict-aware v3 import", [
   defineTest("analysis reports both values without mutating input or implicitly resolving", () => {
     const input = pair();
     const before = structuredClone(input);

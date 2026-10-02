@@ -1,0 +1,311 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "returns-journey",
+  "title": "Return journey: inspection, refund and restocking",
+  "metadata": {
+    "description": "Fictional reference architecture for nested node-link exploration.",
+    "relationshipSemantics": "Directed API calls, events and operational handoffs; not quantities."
+  },
+  "nodes": {
+    "web": {
+      "title": "Web storefront",
+      "type": "channel",
+      "define": "Customer shopping and self-service returns.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "gateway": {
+      "title": "Storefront API",
+      "type": "service",
+      "define": "Routes customer requests to domain services.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "orders": {
+      "title": "Order orchestration",
+      "type": "service",
+      "define": "Coordinates stock, payment and fulfillment; operations are idempotent.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "order-db": {
+      "title": "Order records",
+      "type": "data",
+      "define": "Stores order state and correlation IDs.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "refund": {
+      "title": "Refund execution",
+      "type": "service",
+      "define": "Issues an idempotent refund for an approved return.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "payment-ledger": {
+      "title": "Payment ledger",
+      "type": "data",
+      "define": "Records authorization, capture and refund outcomes.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "stock-db": {
+      "title": "Stock records",
+      "type": "data",
+      "define": "Available, reserved and returned stock.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "restock": {
+      "title": "Return restocking",
+      "type": "operation",
+      "define": "Returns accepted items to available stock.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "return-case": {
+      "title": "Return request",
+      "type": "service",
+      "define": "Links a customer claim to the original order.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "inspection": {
+      "title": "Return inspection",
+      "type": "operation",
+      "define": "Approves condition and eligibility before refund and restocking.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "case-db": {
+      "title": "After-sales records",
+      "type": "data",
+      "define": "Stores case decisions and refund correlation IDs.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "events": {
+      "title": "Domain event bus",
+      "type": "service",
+      "define": "Delivers domain events; consumers deduplicate event IDs.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "notifications": {
+      "title": "Customer notifications",
+      "type": "service",
+      "define": "Builds order, shipment and refund messages.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "email": {
+      "title": "Email delivery",
+      "type": "service",
+      "define": "Delivers transactional email.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "audit": {
+      "title": "Audit trail",
+      "type": "data",
+      "define": "Receives business audit events.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "metrics": {
+      "title": "Metrics & alerts",
+      "type": "service",
+      "define": "Receives application health metrics.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "synthetic-monitor": {
+      "title": "Synthetic checkout monitor",
+      "type": "operation",
+      "define": "Intentionally unconnected in this business-event graph: still a member of Observability.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "bank": {
+      "title": "Payment provider",
+      "type": "partner",
+      "define": "External authorization, capture and refund API.",
+      "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "relationship-1",
+      "source": "web",
+      "target": "gateway",
+      "value": "request"
+    },
+    {
+      "id": "relationship-5",
+      "source": "gateway",
+      "target": "orders",
+      "value": "request"
+    },
+    {
+      "id": "relationship-7",
+      "source": "orders",
+      "target": "order-db",
+      "value": "write"
+    },
+    {
+      "id": "relationship-28",
+      "source": "orders",
+      "target": "events",
+      "value": "publish"
+    },
+    {
+      "id": "relationship-30",
+      "source": "events",
+      "target": "notifications",
+      "value": "event"
+    },
+    {
+      "id": "relationship-31",
+      "source": "notifications",
+      "target": "email",
+      "value": "send"
+    },
+    {
+      "id": "relationship-32",
+      "source": "events",
+      "target": "audit",
+      "value": "record"
+    },
+    {
+      "id": "relationship-33",
+      "source": "orders",
+      "target": "metrics",
+      "value": "telemetry"
+    },
+    {
+      "id": "relationship-34",
+      "source": "gateway",
+      "target": "return-case",
+      "value": "request"
+    },
+    {
+      "id": "relationship-35",
+      "source": "return-case",
+      "target": "orders",
+      "value": "lookup"
+    },
+    {
+      "id": "relationship-36",
+      "source": "return-case",
+      "target": "case-db",
+      "value": "write"
+    },
+    {
+      "id": "relationship-37",
+      "source": "return-case",
+      "target": "inspection",
+      "value": "review"
+    },
+    {
+      "id": "relationship-38",
+      "source": "inspection",
+      "target": "restock",
+      "value": "accepted"
+    },
+    {
+      "id": "relationship-39",
+      "source": "restock",
+      "target": "stock-db",
+      "value": "write"
+    },
+    {
+      "id": "relationship-40",
+      "source": "inspection",
+      "target": "refund",
+      "value": "approved"
+    },
+    {
+      "id": "relationship-41",
+      "source": "refund",
+      "target": "bank",
+      "value": "request"
+    },
+    {
+      "id": "relationship-42",
+      "source": "refund",
+      "target": "payment-ledger",
+      "value": "write"
+    },
+    {
+      "id": "relationship-43",
+      "source": "refund",
+      "target": "return-case",
+      "value": "refunded"
+    },
+    {
+      "id": "relationship-44",
+      "source": "return-case",
+      "target": "events",
+      "value": "publish"
+    },
+    {
+      "id": "relationship-45",
+      "source": "refund",
+      "target": "metrics",
+      "value": "telemetry"
+    }
+  ],
+  "hierarchy": {
+    "id": "commerce-domains",
+    "groups": {
+      "experience": {
+        "title": "Customer experience"
+      },
+      "commerce": {
+        "title": "Commerce domain"
+      },
+      "checkout": {
+        "title": "Checkout & orders"
+      },
+      "payments": {
+        "title": "Payments"
+      },
+      "settlement": {
+        "title": "Settlement"
+      },
+      "fulfillment": {
+        "title": "Fulfillment"
+      },
+      "warehouse": {
+        "title": "Warehouse"
+      },
+      "aftersales": {
+        "title": "After-sales"
+      },
+      "platform": {
+        "title": "Platform services"
+      },
+      "messaging": {
+        "title": "Messaging"
+      },
+      "observability": {
+        "title": "Observability"
+      },
+      "partners": {
+        "title": "External partners"
+      }
+    },
+    "parentById": {
+      "checkout": "commerce",
+      "payments": "commerce",
+      "settlement": "payments",
+      "fulfillment": "commerce",
+      "warehouse": "fulfillment",
+      "aftersales": "commerce",
+      "messaging": "platform",
+      "observability": "platform",
+      "web": "experience",
+      "gateway": "experience",
+      "orders": "checkout",
+      "order-db": "checkout",
+      "refund": "settlement",
+      "payment-ledger": "settlement",
+      "stock-db": "warehouse",
+      "restock": "warehouse",
+      "return-case": "aftersales",
+      "inspection": "aftersales",
+      "case-db": "aftersales",
+      "events": "messaging",
+      "notifications": "messaging",
+      "email": "messaging",
+      "audit": "observability",
+      "metrics": "observability",
+      "synthetic-monitor": "observability",
+      "bank": "partners"
+    }
+  }
+}
