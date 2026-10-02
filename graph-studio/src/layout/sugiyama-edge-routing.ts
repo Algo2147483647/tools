@@ -49,7 +49,7 @@ interface LayerVerticalPlan {
   orderY: Map<number, number>;
 }
 
-export interface SugiyamaVerticalPlanner {
+interface SugiyamaVerticalPlanner {
   stageInnerHeight: number;
   nodeCenterYByKey: Map<NodeKey, number>;
   nodeDisplayOrderByKey: Map<NodeKey, number>;
@@ -111,10 +111,9 @@ export function buildSugiyamaStageRoutes(input: {
   edgeRoutes: Map<string, LayoutEdgeRoute> | undefined;
   nodeMap: Record<NodeKey, StageNode>;
   nodesByLayer: Map<number, StageNode[]>;
-  laneCenters: Map<number, number>;
   planner: SugiyamaVerticalPlanner;
 }): Map<string, StageRoutePoint[]> {
-  const { edgeRoutes, nodeMap, nodesByLayer, laneCenters, planner } = input;
+  const { edgeRoutes, nodeMap, nodesByLayer, planner } = input;
   if (!edgeRoutes?.size) {
     return new Map();
   }

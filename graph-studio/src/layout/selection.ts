@@ -3,8 +3,8 @@ import type { DagNode, GraphSelection, NodeKey, NormalizedDag } from "../graph/t
 import type { ResolvedStageSelection } from "./types";
 import { findRootsFromDag } from "../graph/selectors";
 
-export const GRAPH_ROOT_KEY = "__graph_root__";
-export const SELECTION_ROOT_KEY = "__selection_root__";
+const GRAPH_ROOT_KEY = "__graph_root__";
+const SELECTION_ROOT_KEY = "__selection_root__";
 
 export function resolveStageSelection(dag: NormalizedDag, requestedSelection: GraphSelection | null, mapping: FieldMapping): ResolvedStageSelection {
   const roots = findRootsFromDag(dag, mapping);

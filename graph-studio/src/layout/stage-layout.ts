@@ -230,7 +230,6 @@ export function buildStageData(input: {
           edgeRoutes: layoutResult.edgeRoutes,
           nodeMap,
           nodesByLayer,
-          laneCenters,
           planner: sugiyamaVerticalPlanner || buildSugiyamaVerticalPlanner({
             nodesByLayer,
             logicalSlotCountsByLayer: slotCountsByLayer,

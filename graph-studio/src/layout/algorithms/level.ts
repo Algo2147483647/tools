@@ -2,7 +2,7 @@ import { getNodeChildKeys } from "../../graph/accessors";
 import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 import type { LayoutResult } from "../types";
-import { getExistingRoots, type LayoutGraphNode } from "./shared";
+import { getExistingRoots } from "./shared";
 
 export function buildLevelLayout(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): LayoutResult {
   const coordinates: LayoutResult["coordinates"] = new Map();

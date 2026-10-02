@@ -83,18 +83,6 @@
     0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.graph-summary {
-  margin: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(91, 109, 142, 0.1);
-  border-radius: 8px;
-  background: rgba(248, 250, 252, 0.72);
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: left;
-}
-
 .workspace {
   position: relative;
   z-index: 1;
@@ -218,14 +206,6 @@
   .topbar-group {
     width: 100%;
     justify-content: stretch;
-  }
-
-  .graph-summary {
-    width: 100%;
-    flex: 0 0 auto;
-    min-width: 0;
-    max-width: none;
-    text-align: left;
   }
 
   .workspace-split-shell {

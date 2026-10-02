@@ -1,7 +1,7 @@
 import type { AppearanceCommand, GraphAppearancePresetId } from "../graph/appearanceCommands";
 import type { GraphLayoutAppearance } from "../graph/appearance";
 
-export interface ConsoleLineError {
+interface ConsoleLineError {
   line: number;
   message: string;
 }

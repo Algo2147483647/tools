@@ -8,22 +8,22 @@ interface AppearanceTransaction {
   after: GraphAppearance;
 }
 
-export interface AppearanceHistory {
+interface AppearanceHistory {
   appearance: GraphAppearance;
   undoStack: AppearanceTransaction[];
   redoStack: AppearanceTransaction[];
 }
 
-export type AppearanceHistoryAction =
+type AppearanceHistoryAction =
   | { type: "commit"; appearance: GraphAppearance; label: string }
   | { type: "undo" }
   | { type: "redo" };
 
-export function createAppearanceHistory(appearance: GraphAppearance): AppearanceHistory {
+function createAppearanceHistory(appearance: GraphAppearance): AppearanceHistory {
   return { appearance, undoStack: [], redoStack: [] };
 }
 
-export type ChartAppearanceHistory = Record<GraphChartType, AppearanceHistory>;
+type ChartAppearanceHistory = Record<GraphChartType, AppearanceHistory>;
 
 export function createChartAppearanceHistory(styles: ChartStyles): ChartAppearanceHistory {
   return {
@@ -37,7 +37,7 @@ export function chartAppearanceHistoryReducer(state: ChartAppearanceHistory, inp
   return history === state[input.chartType] ? state : { ...state, [input.chartType]: history };
 }
 
-export function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHistoryAction): AppearanceHistory {
+function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHistoryAction): AppearanceHistory {
   switch (action.type) {
     case "commit": {
       if (JSON.stringify(state.appearance) === JSON.stringify(action.appearance)) return state;

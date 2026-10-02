@@ -16,7 +16,7 @@ export interface ResolvedRelativeFile {
   url: string;
   previewKind: FilePreviewKind;
 }
-export type FilePreviewKind = "markdown" | "html" | "image" | "text" | "unsupported";
+type FilePreviewKind = "markdown" | "html" | "image" | "text" | "unsupported";
 export function isExternalUrl(value: string): boolean {
   return /^(?:https?:)?\/\//i.test(value) || /^(?:mailto|tel|data|blob):/i.test(value);
 }
@@ -39,7 +39,7 @@ export async function resolveRelativeFile(root: RelativeLinkRoot | null, origina
     return {ok:true,file:{originalUrl,path:`${root.name}/${resolved.path}`,relativePath:resolved.path,file,url:URL.createObjectURL(file),previewKind:getFilePreviewKind(file.name,file.type)}};
   } catch(error) {return {ok:false,message:`Unable to open ${resolved.path}: ${error instanceof Error?error.message:String(error)}`};}
 }
-export function getFilePreviewKind(fileName: string,mimeType=""):FilePreviewKind {
+function getFilePreviewKind(fileName: string,mimeType=""):FilePreviewKind {
   if(mimeType.startsWith("image/") || /\.(?:png|jpe?g|gif|webp|bmp|svg|avif|ico)$/i.test(fileName))return "image";
   if(/\.md(?:own)?$/i.test(fileName))return "markdown";
   if(mimeType==="text/html" || /\.html?$/i.test(fileName))return "html";

@@ -1,13 +1,12 @@
-import { getDefaultFieldMapping, type FieldMapping } from "./fieldMapping";
 import { isRecord, normalizeDagInput, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
-import type { GraphDocument, GraphEdge, NormalizedDag } from "./types";
+import type { GraphEdge, NormalizedDag } from "./types";
 
 export interface ImportGraphDocument { name: string; payload: unknown }
 export type ConflictStrategy = "keep" | "merge" | "rename";
-export interface ConflictResolution { strategy: ConflictStrategy; name?: string }
+interface ConflictResolution { strategy: ConflictStrategy; name?: string }
 export type ImportResolutions = Record<string, ConflictResolution>;
-export interface ImportConflict {
+interface ImportConflict {
   id: string;
   source: string;
   path: string;
@@ -18,8 +17,7 @@ export interface ImportConflict {
   canRename: boolean;
   resolution?: ConflictResolution;
 }
-export interface ImportWarning { type: "info"; message: string }
-export interface ImportAnalysis {
+interface ImportAnalysis {
   dag: NormalizedDag;
   conflicts: ImportConflict[];
   unresolved: ImportConflict[];
@@ -156,8 +154,3 @@ export function analyzeGraphImport(documents: ImportGraphDocument[], resolutions
   return {dag:normalizeDagInput(output),conflicts,unresolved,documentCount:documents.length};
 }
 
-export function buildImportedDag(documents: ImportGraphDocument[], _mapping?: FieldMapping, resolutions: ImportResolutions = {}) {
-  const analysis=analyzeGraphImport(documents,resolutions);
-  if (analysis.unresolved.length) throw new Error(`${analysis.unresolved.length} import conflict(s) require a strategy before loading.`);
-  return {...analysis,mapping:getDefaultFieldMapping(),warnings:[] as ImportWarning[],duplicateRenameCount:analysis.conflicts.filter(c=>c.resolution?.strategy==="rename").length};
-}

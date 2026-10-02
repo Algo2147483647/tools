@@ -28,8 +28,6 @@ export interface GraphDocument {
   edges: GraphEdge[];
 }
 
-export type RawGraphInput = GraphDocument;
-
 export interface DagNode extends RawGraphNode {
   key: NodeKey;
 }
@@ -73,9 +71,6 @@ export function getGraphLayoutLabel(mode: GraphRenderMode): string {
   }
 }
 
-export type GraphTitleFontStyle = "normal" | "italic";
-export type GraphTitleFontWeight = 400 | 700;
-
 export const GRAPH_TITLE_FONT_OPTIONS = [
   { label: "Georgia", value: "\"Georgia\", serif" },
   { label: "Times", value: "\"Times New Roman\", serif" },
@@ -83,7 +78,5 @@ export const GRAPH_TITLE_FONT_OPTIONS = [
   { label: "Display", value: "\"Cormorant Garamond\", \"Georgia\", serif" },
   { label: "Mono", value: "\"IBM Plex Mono\", \"SFMono-Regular\", Consolas, monospace" },
 ] as const;
-
-export type GraphTitleFontFamily = typeof GRAPH_TITLE_FONT_OPTIONS[number]["value"];
 
 export const DEFAULT_RELATION_VALUE: RelationValue = "related_to";

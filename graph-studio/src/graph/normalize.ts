@@ -1,4 +1,4 @@
-import type { DagNode, GraphDocument, NormalizedDag, RawGraphNode } from "./types";
+import type { GraphDocument, NormalizedDag, RawGraphNode } from "./types";
 import { indexGraphDocument } from "./graphIndex";
 import { getSankeyError } from "./sankey";
 
@@ -73,10 +73,4 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
 
 export function createGraphDocument(nodes: Record<string, RawGraphNode> = {}, edges: GraphDocument["edges"] = []): NormalizedDag {
   return normalizeDagInput({ format: "graph-studio", version: 2, nodes, edges });
-}
-
-export function normalizeNodeValue(key: string, value: RawGraphNode): DagNode {
-  validateNodeKey(key);
-  validateNodeFields(value, `/nodes/${key}`);
-  return { ...value, key };
 }

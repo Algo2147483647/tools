@@ -20,7 +20,7 @@ const EXPORT_STYLE_PROPERTIES = [
 
 const EXPORT_OPTIONAL_NONE_PROPERTIES = new Set(["stroke", "stroke-dasharray", "filter"]);
 
-export function buildExportSvg(sourceSvg: SVGSVGElement): SVGSVGElement {
+function buildExportSvg(sourceSvg: SVGSVGElement): SVGSVGElement {
   const clone = sourceSvg.cloneNode(true) as SVGSVGElement;
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
@@ -36,7 +36,7 @@ export function buildExportSvg(sourceSvg: SVGSVGElement): SVGSVGElement {
   return clone;
 }
 
-export function copyDagCssVars(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement): void {
+function copyDagCssVars(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement): void {
   const sourceInlineStyle = sourceSvg.getAttribute("style") || "";
   sourceInlineStyle
     .split(";")
@@ -54,7 +54,7 @@ export function copyDagCssVars(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement
     });
 }
 
-export function copyInlineSvgStyles(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement): void {
+function copyInlineSvgStyles(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement): void {
   const sourceElements = [sourceSvg, ...Array.from(sourceSvg.querySelectorAll("*"))];
   const cloneElements = [cloneSvg, ...Array.from(cloneSvg.querySelectorAll("*"))];
 
@@ -94,7 +94,7 @@ export function copyInlineSvgStyles(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGEl
   });
 }
 
-export function normalizeExportMarkerColor(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement): void {
+function normalizeExportMarkerColor(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement): void {
   const firstEdge = sourceSvg.querySelector(".dag-edge__path");
   const edgeStroke = firstEdge ? window.getComputedStyle(firstEdge).stroke.trim() : "";
   if (!edgeStroke) {

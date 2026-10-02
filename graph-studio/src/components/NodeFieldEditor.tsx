@@ -11,7 +11,7 @@ import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
-export type FieldEditorKind = "plainText" | "multilineText" | "json" | "relation";
+type FieldEditorKind = "plainText" | "multilineText" | "json" | "relation";
 export type FieldDisplayMode = "markdown" | "link" | "text";
 
 export interface EditableField {
@@ -339,8 +339,6 @@ export function supportsDisplayMode(field: EditableField): boolean {
     && typeof field.value === "string"
     && (field.editorKind === "plainText" || field.editorKind === "multilineText");
 }
-
-export const supportsMarkdown = supportsDisplayMode;
 
 export function parseNodeFieldValue(field: EditableField, rawValue: string): { ok: true; value: unknown } | { ok: false; message: string } {
   const text = String(rawValue || "");

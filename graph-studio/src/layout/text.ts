@@ -28,12 +28,12 @@ export function getNodeVisual(
   return { title: title || nodeKey, detail, width };
 }
 
-export function getNodeDetail(node: DagNode, fallbackTitle: string, mapping: FieldMapping): string {
+function getNodeDetail(node: DagNode, fallbackTitle: string, mapping: FieldMapping): string {
   const defineText = stripRichText(getNodeDefine(node, mapping));
   return firstMeaningfulSegment(defineText) || fallbackTitle;
 }
 
-export function stripRichText(text: unknown): string {
+function stripRichText(text: unknown): string {
   return String(text || "")
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/\$\$[\s\S]*?\$\$/g, " ")
@@ -47,7 +47,7 @@ export function stripRichText(text: unknown): string {
     .trim();
 }
 
-export function firstMeaningfulSegment(text: string): string {
+function firstMeaningfulSegment(text: string): string {
   if (!text) {
     return "";
   }
@@ -58,7 +58,7 @@ export function firstMeaningfulSegment(text: string): string {
   return segments.find((segment) => /[A-Za-z\u4e00-\u9fff]/.test(segment)) || "";
 }
 
-export function truncate(text: string, maxLength: number): string {
+function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) {
     return text;
   }
@@ -99,7 +99,7 @@ export function wrapDetailText(text: string, maxLineWidth: number, maxLines: num
   return lines.slice(0, maxLines);
 }
 
-export function estimateTextWidth(text: string, fontSize: number): number {
+function estimateTextWidth(text: string, fontSize: number): number {
   return Array.from(String(text || "")).reduce((width, character) => width + getCharacterEmWidth(character) * fontSize, 0);
 }
 

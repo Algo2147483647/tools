@@ -9,13 +9,13 @@ import type { NodeKey, NormalizedDag } from "../graph/types";
 import type { ConsoleInstruction, ConsoleNodeOperand } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
 
-export interface ConsoleUiEffect {
+interface ConsoleUiEffect {
   type: "show" | "json";
   nodeKey: NodeKey;
   line: number;
 }
 
-export type ConsoleRunResult =
+type ConsoleRunResult =
   | {
     ok: true;
     dag: NormalizedDag;

@@ -29,7 +29,7 @@ npm run preview
 Script behavior:
 
 - `npm run dev`: starts the Vite development server
-- `npm run build`: type-checks and creates a production build
+- `npm run build`: type-checks (including unused locals and parameters) and creates a production build
 - `npm test`: runs the configured test script from `package.json`
 - `npm run preview`: serves the built app locally
 

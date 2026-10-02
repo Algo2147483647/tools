@@ -23,7 +23,6 @@ interface SettingsModalProps {
   showNodeDetail: boolean;
   hideNodeBorders: boolean;
   alignNodeWidthsToMax: boolean;
-  status: string;
   fileName: string;
   files: WorkspaceControls;
   hasGraph: boolean;
@@ -61,7 +60,6 @@ export default function SettingsModal({
   showNodeDetail,
   hideNodeBorders,
   alignNodeWidthsToMax,
-  status,
   fileName,
   files,
   hasGraph,

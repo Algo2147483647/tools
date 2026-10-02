@@ -44,7 +44,6 @@
 .topbar button:hover { background: #ffffffc4; box-shadow: 0 2px 6px #2737550f; }
 .topbar button:disabled { box-shadow: none; background: transparent; }
 .topbar select { background: #ffffff69; border-color: #c0cbde55; border-radius: 8px; }
-.source-breadcrumb { border-color: #a4b1c83d; }
 .workspace { position: absolute; inset: 0; width: 100%; height: 100%; }
 .workspace-split-shell { display: block; padding: 0; }
 .workspace-overlays { position: absolute; z-index: 3; top: var(--toolbar-bottom); bottom: 8px; left: 8px; display: flex; gap: 8px; max-width: calc(100% - 16px); pointer-events: none; }
@@ -90,7 +89,6 @@
 .display-slider input { width: 100%; accent-color: var(--studio-accent); }
 .display-slider:has(input:disabled) { opacity: .45; }
 .layout-engine-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-.layout-mini--sankey i { border-radius: 2px; background: #7899d7; }
 .stage-warning { position: absolute; z-index: 2; bottom: 12px; right: 12px; max-width: min(520px, calc(100% - 28px)); padding: 8px 12px; border: 1px solid #e5cfa469; border-radius: 10px; background: #fffaf0eb; color: #805e2b; font-size: 11px; line-height: 1.5; pointer-events: none; }
 .welcome-screen { padding-top: var(--toolbar-bottom); background: radial-gradient(ellipse at 12% 0, #ecf2fb, transparent 52%), #fff; }
 .welcome-inner { padding-top: 42px; }

@@ -1,4 +1,3 @@
-import type { NormalizedDag } from "../graph/types";
 export interface WorkspaceFile {
   path: string;
   handle: FileSystemFileHandle | null;
@@ -33,4 +32,3 @@ export interface GraphWorkspace extends WorkspaceFolder {
   recentId?: string;
   notices: string[];
 }
-export interface OpenedGraph { dag: NormalizedDag; entry: WorkspaceFile }

@@ -6,7 +6,6 @@
 .brand-home { display:flex; align-items:center; gap:10px; border:0; background:none; color:var(--studio-ink); font:inherit; cursor:pointer; white-space:nowrap; padding:5px 0; }
 .brand-home svg { color:var(--studio-accent); }
 .brand-home strong { font-size:17px; letter-spacing:-.5px; }
-.source-breadcrumb { color:var(--studio-muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-left:1px solid var(--studio-border); padding-left:16px; }
 .topbar-actions { gap:10px; flex:0 0 auto; }
 .topbar-group { box-shadow:none; background:none; border:0; padding:0 7px; border-radius:0; border-left:1px solid var(--studio-border); }
 .topbar .topbar-icon-btn,.topbar .settings-toggle-btn,.studio-icon-button { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; padding:7px; color:#5b6b80; background:transparent; border:0; border-radius:6px; box-shadow:none; cursor:pointer; }
@@ -148,7 +147,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .studio-settings .settings-section>p,.studio-settings .settings-section-header p { font:12px/1.7 "Segoe UI",sans-serif; margin:0 0 16px; color:var(--studio-muted); }
 .studio-settings .settings-section-header { margin:0; }
 .studio-settings .settings-section-header>div { width:100%; }
-.studio-settings .control-label { font:600 13px/1.5 "Segoe UI",sans-serif; letter-spacing:0; text-transform:none; color:var(--studio-ink); }
 .settings-open-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
 .settings-open-grid button { display:flex; align-items:center; gap:12px; text-align:left; padding:16px; color:#5978aa; background:#fff; border:1px solid var(--studio-border); border-radius:8px; cursor:pointer; }
 .settings-open-grid button:hover { border-color:#b7cbed; background:#f8faff; }
@@ -243,7 +241,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .studio-settings .ai-connection-test-btn { display:inline-flex; border:1px solid #bdd0f0; background:#f0f5ff; color:#315fce; box-shadow:none; border-radius:6px; font:600 12px "Segoe UI",sans-serif; padding:10px 15px; margin-top:22px; cursor:pointer; }
 .studio-settings button:disabled { opacity:.4; cursor:not-allowed; }
 @media(max-width:1000px) {
- .source-breadcrumb { display:none; }
  .welcome-inner { gap:32px; padding:40px 32px; }
  .topbar { flex-direction:row; align-items:center; }
  .topbar-actions { flex-direction:row; }

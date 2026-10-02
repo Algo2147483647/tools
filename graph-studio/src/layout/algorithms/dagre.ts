@@ -2,7 +2,7 @@ import dagre from "dagre";
 import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 import type { LayoutEdgeRoute, LayoutResult } from "../types";
-import { buildVisibleGraph, type LayoutGraphNode } from "./shared";
+import { buildVisibleGraph } from "./shared";
 
 const DEFAULT_NODE_WIDTH = 220;
 const DEFAULT_NODE_HEIGHT = 74;

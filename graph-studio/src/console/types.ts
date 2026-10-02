@@ -12,7 +12,7 @@ export interface ConsoleReviewCard {
   canApply: boolean;
 }
 
-export type ConsoleEntryTone = "input" | "success" | "error" | "info" | "ai" | "ai-action" | "ai-review";
+type ConsoleEntryTone = "input" | "success" | "error" | "info" | "ai" | "ai-action" | "ai-review";
 
 export type ConsoleEntry =
   | { id: number; tone: Exclude<ConsoleEntryTone, "ai-review">; text: string }

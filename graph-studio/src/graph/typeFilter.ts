@@ -5,7 +5,7 @@ import { serializeDag } from "./serialize";
 import { newEdgeId } from "./commands";
 import type { GraphChartType, NormalizedDag } from "./types";
 
-export const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";
+const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";
 
 export function getGraphTypeOptions(dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string[] {
   return [...new Set(Object.values(dag.nodes).map(node => getNodeType(node, mapping)).filter(Boolean))].sort((a,b) => a.localeCompare(b));

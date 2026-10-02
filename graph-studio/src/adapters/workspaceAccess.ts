@@ -3,7 +3,7 @@ import { resolveWorkspacePath } from "../workspace/paths";
 
 const IGNORED = new Set(["node_modules", "dist", "build", "coverage", "vendor", ".git", ".hg", ".svn"]);
 const MAX_FILES = 20000;
-export function isIgnoredWorkspacePath(path: string): boolean {
+function isIgnoredWorkspacePath(path: string): boolean {
   return path.split("/").slice(0, -1).some(part => IGNORED.has(part) || part.startsWith("."));
 }
 export async function readWorkspaceDirectory(handle: FileSystemDirectoryHandle): Promise<WorkspaceFolder> {

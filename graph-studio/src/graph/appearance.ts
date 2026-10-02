@@ -8,7 +8,7 @@ export interface GraphAppearance {
   css: string;
 }
 
-export interface GraphDisplayAppearance {
+interface GraphDisplayAppearance {
   showEdgeLabels: boolean;
   nodeShadow: boolean;
   shadowBlur: number;
@@ -49,7 +49,7 @@ export interface GraphLayoutAppearance {
   stageMinHeight: number;
 }
 
-export const DEFAULT_GRAPH_CSS = `
+const DEFAULT_GRAPH_CSS = `
 .dag-graph,
 .dag-backdrop {
   fill: none;

@@ -10,7 +10,7 @@ export const SETTINGS_CHAPTERS: Array<{ key: SettingsChapter; label: string; des
   { key: "ai", label: "AI assistant", description: "Providers & execution", icon: "ai", keywords: "provider model base url api key token temperature temp connection test ask review automatic read edit" },
 ];
 
-export type LayoutControlKey = keyof Pick<GraphLayoutAppearance, "columnGap" | "rowGap" | "edgeLaneGap" | "nodeHeight" | "maxNodeWidth">;
+type LayoutControlKey = keyof Pick<GraphLayoutAppearance, "columnGap" | "rowGap" | "edgeLaneGap" | "nodeHeight" | "maxNodeWidth">;
 
 export interface LayoutControlDefinition {
   key: LayoutControlKey;

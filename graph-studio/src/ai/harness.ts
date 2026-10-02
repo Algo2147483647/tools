@@ -2,7 +2,6 @@ import { classifyCommandRisk, isDestructiveCommand } from "./executionPolicy";
 import { createGraphDocument } from "../graph/normalize";
 import { executeConsoleInstructions } from "../console/executor";
 import { parseConsoleSource } from "../console/dsl";
-import { CONSOLE_COMMAND_REFERENCE } from "../console/reference";
 import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../graph/appearance";
 import { getNodeChildren, getNodeParents } from "../graph/accessors";
 import type { FieldMapping } from "../graph/fieldMapping";
@@ -485,23 +484,6 @@ export function markPendingBatchExecuted(harness: AiHarnessState, turnId: string
   };
 }
 
-
-
-export function formatPlanCard(plan: ActionPlan): string {
-  const commandCount = plan.commandBatch?.commands.length || 0;
-  const changeCount = plan.changes.length;
-  return [
-    `Proposed Plan: ${plan.title}`,
-    `Goal: ${plan.goal}`,
-    `Changes: ${changeCount}`,
-    `Commands: ${commandCount}`,
-    `Risk: ${plan.ui.riskLevel}`,
-    plan.assumptions.length ? `Assumptions: ${plan.assumptions.join("; ")}` : "",
-    plan.commandBatch ? "Draft commands:" : "",
-    ...(plan.commandBatch?.commands || []),
-  ].filter(Boolean).join("\n");
-}
-
 export function formatValidationReport(validation: ValidationReport): string {
   const failed = validation.results.filter((result) => !result.valid);
   const warnings = validation.results.flatMap((result) => result.warnings.map((warning) => `${result.command}: ${warning}`));
@@ -755,5 +737,3 @@ function createId(prefix: string): string {
     : Math.random().toString(36).slice(2, 10);
   return `${prefix}-${Date.now().toString(36)}-${random}`;
 }
-
-export const AI_COMMAND_REFERENCE = CONSOLE_COMMAND_REFERENCE;

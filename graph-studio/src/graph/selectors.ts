@@ -43,7 +43,7 @@ export function areSelectionsEqual(left: GraphSelection | null, right: GraphSele
   return selectionToKey(left) === selectionToKey(right);
 }
 
-export function selectionToKey(selection: GraphSelection | null): string {
+function selectionToKey(selection: GraphSelection | null): string {
   if (!selection) {
     return "";
   }

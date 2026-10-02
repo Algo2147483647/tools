@@ -7,7 +7,7 @@ export function uniqueKeys(keys: Iterable<unknown>): NodeKey[] {
 export function getRelationKeys(value: unknown): NodeKey[] {
   return Array.isArray(value) ? uniqueKeys(value) : value && typeof value === "object" ? Object.keys(value) : [];
 }
-export function coerceRelationValue(value: unknown): RelationValue {
+function coerceRelationValue(value: unknown): RelationValue {
   if (value === null || typeof value === "string" || typeof value === "boolean" || typeof value === "number" && Number.isFinite(value)) return value;
   throw new Error("Edge values must be JSON scalars.");
 }

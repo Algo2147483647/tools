@@ -1,4 +1,4 @@
-import { buildTimestampFileName, ensureJsonExtension } from "../adapters/download";
+import { ensureJsonExtension } from "../adapters/download";
 
 interface SaveJsonModalProps {
   open: boolean;
@@ -31,7 +31,6 @@ export default function SaveJsonModal({
   }
 
   const normalizedFileName = ensureJsonExtension(sourceFileName || "graph.json");
-  const newFileName = buildTimestampFileName(normalizedFileName);
   const diffLines = buildLineDiff(previousContent, currentContent);
   const summary = summarizeDiff(diffLines);
 

@@ -42,16 +42,16 @@ export interface StageEdge {
   flow?: { width: number; color: string; feedback?: boolean; directionPath?: string };
 }
 
-export interface StageLane {
+interface StageLane {
   layer: number;
   label: string;
   x: number;
   width: number;
 }
 
-export type LayoutCoordinate = [number, number];
+type LayoutCoordinate = [number, number];
 
-export type LayoutCoordinateMap = Map<NodeKey, LayoutCoordinate>;
+type LayoutCoordinateMap = Map<NodeKey, LayoutCoordinate>;
 
 export interface LayoutRoutePoint {
   layer: number;

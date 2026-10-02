@@ -2,10 +2,6 @@ import { getNodeChildKeys } from "../../graph/accessors";
 import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 
-export interface LayoutGraphNode {
-  [field: string]: unknown;
-}
-
 export interface VisibleGraph {
   nodeKeys: NodeKey[];
   visibleSet: Set<NodeKey>;
@@ -18,11 +14,7 @@ export function getExistingRoots(dag: Record<NodeKey, unknown>, roots: NodeKey[]
   return Array.from(new Set(roots.filter((root) => Boolean(dag[root]))));
 }
 
-export function collectReachableFromRoots(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): Set<NodeKey> {
-  return new Set(collectReachableInLevelOrder(dag, roots, mapping));
-}
-
-export function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): NodeKey[] {
+function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): NodeKey[] {
   const queue = getExistingRoots(dag, roots);
   const visited = new Set(queue);
   const nodeKeys: NodeKey[] = [];

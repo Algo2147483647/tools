@@ -20,7 +20,6 @@ interface TopbarProps {
   showNodeDetail: boolean;
   hideNodeBorders: boolean;
   alignNodeWidthsToMax: boolean;
-  status: string;
   fileName: string;
   files: WorkspaceControls;
   hasGraph: boolean;
@@ -79,7 +78,6 @@ export default function Topbar({
   showNodeDetail,
   hideNodeBorders,
   alignNodeWidthsToMax,
-  status,
   fileName,
   files,
   hasGraph,
@@ -182,7 +180,6 @@ export default function Topbar({
               showNodeDetail={showNodeDetail}
               hideNodeBorders={hideNodeBorders}
               alignNodeWidthsToMax={alignNodeWidthsToMax}
-              status={status}
               fileName={fileName}
               files={files}
               hasGraph={hasGraph}

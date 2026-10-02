@@ -15,14 +15,11 @@
 
 .relation-editor-modal,
 .save-json-modal,
-.field-mapping-modal,
 .file-preview-modal,
 .relation-editor-dialog,
 .save-json-dialog,
-.field-mapping-dialog,
 .file-preview-dialog,
 .relation-editor-table-wrap,
-.field-mapping-table-wrap,
 .file-preview-body,
 .file-preview-text,
 .node-detail-body,
@@ -36,14 +33,11 @@
 
 .relation-editor-modal::-webkit-scrollbar,
 .save-json-modal::-webkit-scrollbar,
-.field-mapping-modal::-webkit-scrollbar,
 .file-preview-modal::-webkit-scrollbar,
 .relation-editor-dialog::-webkit-scrollbar,
 .save-json-dialog::-webkit-scrollbar,
-.field-mapping-dialog::-webkit-scrollbar,
 .file-preview-dialog::-webkit-scrollbar,
 .relation-editor-table-wrap::-webkit-scrollbar,
-.field-mapping-table-wrap::-webkit-scrollbar,
 .file-preview-body::-webkit-scrollbar,
 .file-preview-text::-webkit-scrollbar,
 .node-detail-body::-webkit-scrollbar,
@@ -57,14 +51,11 @@
 
 .relation-editor-modal::-webkit-scrollbar-track,
 .save-json-modal::-webkit-scrollbar-track,
-.field-mapping-modal::-webkit-scrollbar-track,
 .file-preview-modal::-webkit-scrollbar-track,
 .relation-editor-dialog::-webkit-scrollbar-track,
 .save-json-dialog::-webkit-scrollbar-track,
-.field-mapping-dialog::-webkit-scrollbar-track,
 .file-preview-dialog::-webkit-scrollbar-track,
 .relation-editor-table-wrap::-webkit-scrollbar-track,
-.field-mapping-table-wrap::-webkit-scrollbar-track,
 .file-preview-body::-webkit-scrollbar-track,
 .file-preview-text::-webkit-scrollbar-track,
 .node-detail-body::-webkit-scrollbar-track,
@@ -77,14 +68,11 @@
 
 .relation-editor-modal::-webkit-scrollbar-thumb,
 .save-json-modal::-webkit-scrollbar-thumb,
-.field-mapping-modal::-webkit-scrollbar-thumb,
 .file-preview-modal::-webkit-scrollbar-thumb,
 .relation-editor-dialog::-webkit-scrollbar-thumb,
 .save-json-dialog::-webkit-scrollbar-thumb,
-.field-mapping-dialog::-webkit-scrollbar-thumb,
 .file-preview-dialog::-webkit-scrollbar-thumb,
 .relation-editor-table-wrap::-webkit-scrollbar-thumb,
-.field-mapping-table-wrap::-webkit-scrollbar-thumb,
 .file-preview-body::-webkit-scrollbar-thumb,
 .file-preview-text::-webkit-scrollbar-thumb,
 .node-detail-body::-webkit-scrollbar-thumb,
@@ -100,14 +88,11 @@
 
 .relation-editor-modal::-webkit-scrollbar-thumb:hover,
 .save-json-modal::-webkit-scrollbar-thumb:hover,
-.field-mapping-modal::-webkit-scrollbar-thumb:hover,
 .file-preview-modal::-webkit-scrollbar-thumb:hover,
 .relation-editor-dialog::-webkit-scrollbar-thumb:hover,
 .save-json-dialog::-webkit-scrollbar-thumb:hover,
-.field-mapping-dialog::-webkit-scrollbar-thumb:hover,
 .file-preview-dialog::-webkit-scrollbar-thumb:hover,
 .relation-editor-table-wrap::-webkit-scrollbar-thumb:hover,
-.field-mapping-table-wrap::-webkit-scrollbar-thumb:hover,
 .file-preview-body::-webkit-scrollbar-thumb:hover,
 .file-preview-text::-webkit-scrollbar-thumb:hover,
 .node-detail-body::-webkit-scrollbar-thumb:hover,
@@ -121,14 +106,11 @@
 
 .relation-editor-modal::-webkit-scrollbar-corner,
 .save-json-modal::-webkit-scrollbar-corner,
-.field-mapping-modal::-webkit-scrollbar-corner,
 .file-preview-modal::-webkit-scrollbar-corner,
 .relation-editor-dialog::-webkit-scrollbar-corner,
 .save-json-dialog::-webkit-scrollbar-corner,
-.field-mapping-dialog::-webkit-scrollbar-corner,
 .file-preview-dialog::-webkit-scrollbar-corner,
 .relation-editor-table-wrap::-webkit-scrollbar-corner,
-.field-mapping-table-wrap::-webkit-scrollbar-corner,
 .file-preview-body::-webkit-scrollbar-corner,
 .file-preview-text::-webkit-scrollbar-corner,
 .node-detail-body::-webkit-scrollbar-corner,
@@ -230,14 +212,12 @@
 }
 
 .relation-editor-modal.is-visible,
-.save-json-modal.is-visible,
-.field-mapping-modal.is-visible {
+.save-json-modal.is-visible {
   display: flex;
 }
 
 .relation-editor-dialog,
-.save-json-dialog,
-.field-mapping-dialog {
+.save-json-dialog {
   width: min(540px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   overflow: auto;
@@ -253,15 +233,13 @@
 }
 
 .relation-editor-dialog h3,
-.save-json-dialog h3,
-.field-mapping-dialog h3 {
+.save-json-dialog h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
 }
 
-.relation-editor-description,
-.field-mapping-description {
+.relation-editor-description {
   margin: 8px 0 0;
   color: var(--text-muted);
   font-size: 13px;
@@ -278,18 +256,6 @@
   padding: 16px;
   overflow: auto;
   background: rgba(18, 28, 43, 0.28);
-}
-
-.field-mapping-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 56;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  overflow: auto;
-  background: rgba(18, 28, 43, 0.32);
 }
 
 .save-json-dialog {
@@ -441,11 +407,6 @@
   font-size: 13px;
 }
 
-.field-mapping-dialog {
-  width: min(760px, calc(100vw - 32px));
-  border-radius: 18px;
-}
-
 .save-json-actions {
   display: flex;
   flex-wrap: wrap;
@@ -488,40 +449,6 @@
     0 10px 18px rgba(153, 27, 27, 0.1);
 }
 
-.field-mapping-table-wrap {
-  margin-top: 16px;
-  overflow: auto;
-  border: 1px solid rgba(96, 118, 151, 0.14);
-  border-radius: 14px;
-}
-
-.field-mapping-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.field-mapping-table th,
-.field-mapping-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(96, 118, 151, 0.1);
-  text-align: left;
-  font-size: 13px;
-}
-
-.field-mapping-table th {
-  color: var(--text-soft);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  background: rgba(246, 249, 253, 0.96);
-}
-
-.field-mapping-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
 .field-mapping-input {
   width: 100%;
   min-height: 40px;
@@ -537,21 +464,6 @@
 .field-mapping-input:focus {
   border-color: rgba(40, 95, 223, 0.42);
   box-shadow: 0 0 0 3px rgba(40, 95, 223, 0.12);
-}
-
-.field-mapping-error {
-  margin: 12px 0 0;
-  color: #a23434;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.field-mapping-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
 }
 
 #relation-editor-input {
@@ -880,24 +792,6 @@
   line-height: 1.5;
 }
 
-.node-detail-chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.node-detail-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: rgba(40, 95, 223, 0.1);
-  color: var(--accent-strong);
-  font-size: 12px;
-  font-weight: 600;
-}
-
 .node-detail-text,
 .node-detail-empty {
   margin: 0;
@@ -906,10 +800,6 @@
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.node-detail-text--define {
-  color: var(--text-strong);
 }
 
 .node-detail-link-text {
@@ -1012,8 +902,7 @@
   border-radius: 8px;
 }
 
-.node-detail-image-loading,
-.node-detail-image-error {
+.node-detail-image-loading {
   display: inline-block;
   margin: 6px 0 12px;
   border-radius: 8px;
@@ -1025,11 +914,6 @@
 .node-detail-image-loading {
   background: rgba(240, 245, 251, 0.92);
   color: var(--text-soft);
-}
-
-.node-detail-image-error {
-  background: rgba(254, 226, 226, 0.9);
-  color: #991b1b;
 }
 
 .node-detail-markdown blockquote {
@@ -1157,19 +1041,11 @@
   word-break: break-word;
 }
 
-.file-preview-eyebrow,
 .file-preview-source {
   margin: 0;
   color: var(--text-soft);
   font-size: 12px;
   line-height: 1.45;
-}
-
-.file-preview-eyebrow {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .file-preview-actions {

@@ -2,11 +2,11 @@ import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
 import { createChartStyles, sanitizeChartStyle, type ChartStyles } from "./chartStyles";
 import { getDefaultFieldMapping, sanitizeFieldMapping, type FieldMapping } from "../graph/fieldMapping";
-import type { AiExecutionMode, AiProvider, AiSettings } from "../ai/types";
+import type { AiProvider, AiSettings } from "../ai/types";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
 
-export interface GraphPagePreferences {
+interface GraphPagePreferences {
   mode: GraphMode;
   chartType: GraphChartType;
   layoutMode: GraphLayoutMode;
@@ -17,7 +17,7 @@ export interface GraphPagePreferences {
   aiSettings: AiSettings;
 }
 
-export const DEFAULT_AI_SETTINGS: AiSettings = {
+const DEFAULT_AI_SETTINGS: AiSettings = {
   provider: "openai-compatible",
   baseUrl: "https://api.openai.com/v1",
   apiKey: "",

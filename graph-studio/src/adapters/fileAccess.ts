@@ -1,4 +1,4 @@
-export interface PickedJsonFile {
+interface PickedJsonFile {
   file: File;
   handle: FileSystemFileHandle | null;
   path: string;

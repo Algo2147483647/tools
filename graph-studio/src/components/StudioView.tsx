@@ -54,7 +54,6 @@ export default function StudioView({ session, appearanceHistory, transactions, c
         showNodeDetail={session.showNodeDetail}
         hideNodeBorders={session.hideNodeBorders}
         alignNodeWidthsToMax={session.alignNodeWidthsToMax}
-        status={viewport.status}
         fileName={state.source.fileName}
         files={files}
         hasGraph={Boolean(state.dag)}

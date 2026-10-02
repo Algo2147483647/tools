@@ -1,6 +1,6 @@
 import type { AiProvider } from "./types";
 
-export interface AiProviderPreset {
+interface AiProviderPreset {
   label: string;
   logoSrc: string;
   baseUrl: string;

@@ -16,7 +16,7 @@ export type AppearanceCommand =
 
 export type GraphAppearancePresetId = "simple" | "compact" | "default" | "slate" | "blueprint" | "contrast" | "presentation";
 
-export interface GraphAppearancePreset {
+interface GraphAppearancePreset {
   id: GraphAppearancePresetId;
   label: string;
   appearance: GraphAppearance;
@@ -171,16 +171,6 @@ export function applyAppearanceCommand(source: GraphAppearance, command: Appeara
     message: buildAppearanceCommandMessage(command),
     diff: buildAppearanceDiff(before, after),
   };
-}
-
-export function isAppearanceCommand(command: string): boolean {
-  const normalized = command.trim().toLowerCase();
-  return normalized.startsWith("/layout ")
-    || normalized.startsWith("/style-var ")
-    || normalized.startsWith("/style-css ")
-    || normalized === "/style-css"
-    || normalized.startsWith("/style-reset")
-    || normalized.startsWith("/style-preset ");
 }
 
 export function buildAppearanceMutationLabel(count: number, fallbackMessage: string | undefined): string {

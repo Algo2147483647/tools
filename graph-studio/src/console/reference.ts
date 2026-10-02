@@ -1,4 +1,4 @@
-export interface ConsoleCommandReference {
+interface ConsoleCommandReference {
   label: string;
   insertText: string;
   help: string;

@@ -59,7 +59,7 @@ export type AiResponse =
 
 export type AiRiskLevel = "low" | "medium" | "high";
 
-export type AiEventType =
+type AiEventType =
   | "user.message"
   | "assistant.answer"
   | "analysis.proposed"
@@ -119,7 +119,7 @@ export interface WorkingMemory {
   unresolvedQuestions: string[];
 }
 
-export interface ConsoleCommandDraft {
+interface ConsoleCommandDraft {
   command: string;
   rationale?: string;
   risk?: AiRiskLevel;

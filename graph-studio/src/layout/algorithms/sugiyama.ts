@@ -1,7 +1,7 @@
 import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 import type { LayoutEdgeRoute, LayoutResult } from "../types";
-import { buildVisibleGraph, getExistingRoots, type LayoutGraphNode, type VisibleGraph } from "./shared";
+import { buildVisibleGraph, getExistingRoots, type VisibleGraph } from "./shared";
 
 const CROSSING_REDUCTION_PASSES = 6;
 

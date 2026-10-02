@@ -40,20 +40,6 @@ export function savePersistedAiHarnessState(
   }
 }
 
-export function clearPersistedAiHarnessState(
-  graphId: string,
-  storage: StorageLike | null = getBrowserStorage(),
-): void {
-  if (!storage) {
-    return;
-  }
-  try {
-    storage.removeItem(buildAiHarnessStorageKey(graphId));
-  } catch {
-    // Ignore storage failures.
-  }
-}
-
 export function parsePersistedAiHarnessState(raw: string | null, fallbackMode: AiExecutionMode): AiHarnessState | null {
   if (!raw) {
     return null;
