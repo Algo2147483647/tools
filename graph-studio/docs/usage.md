@@ -68,7 +68,9 @@ Filtering does not alter source data: JSON saves contain the complete graph, whi
 
 `Sankey` displays non-negative numeric edge values as proportional flow bands, using an automatic flow layout. Its layout controls adjust bar width, vertical spacing and label room. Text relationships cannot be converted to flows by switching chart type. Invalid values disable Sankey with an explanation.
 
-Changing chart type preserves the graph document and its edit history. Switching back to Node-link restores the selected BFS, Sugiyama or Dagre layout. Opening a Sankey document selects Sankey; opening other documents or creating a graph selects Node-link.
+`Nested node-link` uses an independent containment hierarchy and rounded, orthogonal connections. It supports expanding, collapsing, entering and editing arbitrarily nested subgraphs. See [Nested node-link](compound.md).
+
+Changing chart type preserves the graph document and its edit history. Switching back to Node-link restores the selected BFS, Sugiyama or Dagre layout. Opening a document with H selects Nested node-link; other Sankey documents select Sankey, and ordinary documents select Node-link.
 
 ## Graph Appearance
 
@@ -109,39 +111,25 @@ To reduce repaint cost, the app disables the most expensive hover-only visual ef
 
 Graph editing is available directly.
 
-Right-click a node to access:
+Right-click a node to open details, rename its ID, or delete it. **Connections** contains incoming/outgoing relationship editing and creation of a connected node. **Copy & paste** contains ID/JSON copying, duplication and pasting with a connection. Ordinary node-link also offers **Delete reachable nodes** under Connections; it follows G's directed edges.
 
-- `View Node`
-- `Copy Key`
-- `Copy Node`
-- `Add Child Node`
-- `Edit Children`
-- `Edit Parents`
-- `Rename Node Key`
-- `Delete Node`
-- `Delete Subtree`
+In Nested node-link, **Subgraph membership** groups siblings, moves members to another subgraph, or promotes them one level. Right-click a collapsed summary, an expanded group header/border, or a Subgraphs panel row to operate on that group. Its menu supports entry, folding, renaming, member creation/grouping, movement and **Ungroup · keep members**. Ungrouping promotes its members and retains all G nodes and relationships.
 
-Behavior notes:
+Blank canvas menus create or paste nodes in the currently focused scope. Adding a node to a group records its creation and membership in one undo step. Membership changes do not create G relationships. Move dialogs exclude the member itself and its descendants.
 
-- `Copy Node` duplicates the selected node's non-relation fields into a new node.
-- `Add Child Node` creates a node and links it as a child immediately.
-- `Rename Node Key` prevents duplicate keys.
-- `Delete Node` removes the node and clears references from other nodes.
-- `Delete Subtree` removes the selected node and all descendants.
-- `Edit Parents` and `Edit Children` update the graph and rerender immediately.
-- `View Node` in edit mode also supports field-by-field editing and raw JSON editing.
+Press **Shift+F10** on a focused graph node or group header to open its menu. Hover or click a section to open its submenu; the target remains visible in the main menu. Submenus switch sides near the viewport edge and use a single-panel view when space is limited. Arrow Up/Down and Home/End navigate items, Right opens a section, and Left or Escape returns from it. Escape at the main menu closes it and restores focus. Typing the start of a label jumps to that action. Disabled actions explain why they are unavailable.
 
 
 ## View Node
 
-`View Node` opens a generic node detail view. It shows:
+`Open details` opens a generic node detail view. It shows:
 
 - every key-value pair in the node
 - the `define` field as readable text
 - custom node fields, preserving their JSON value types
 - the node's raw JSON
 
-Node fields use fixed semantic names (`title`, `define`, `type`). Raw editing and copy/paste use `{ "id": "A", "data": { ... } }`; relationships are edited separately through Edit Parents / Edit Children and stored in `edges`.
+Node fields use fixed semantic names (`title`, `define`, `type`). Raw editing and copy/paste use `{ "id": "A", "data": { ... } }`; relationships are edited separately through Connections → Edit incoming/outgoing relationships and stored in `edges`.
 
 ## Graph Console
 

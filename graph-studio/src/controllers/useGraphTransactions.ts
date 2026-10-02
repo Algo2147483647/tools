@@ -2,7 +2,7 @@ import { type Dispatch, useCallback } from "react";
 import { type CommandResult, type GraphCommand, applyGraphCommand } from "../graph/commands";
 import type { GraphSelection } from "../graph/types";
 import type { GraphAction } from "../state/graphActions";
-import { prepareGraphTransaction } from "../state/graphTransactions";
+import { prepareGraphTransaction, prepareCommandTransaction } from "../state/graphTransactions";
 import type { GraphAppState } from "../state/initialState";
 
 interface AppearanceUndo {
@@ -53,6 +53,18 @@ export function useGraphTransactions({
     else appearanceHistory.undo();
   }, [appearanceHistory.undo, dispatch, state.editHistory.undoStack.length]);
 
+  const commitCommands = useCallback(
+    (commands: GraphCommand[], label: string): string | undefined => {
+      try {
+        const action = prepareCommandTransaction(state, commands, label);
+        if (action) dispatch(action);
+      } catch (error) {
+        return error instanceof Error ? error.message : "Unable to update the graph.";
+      }
+    },
+    [state, dispatch],
+  );
+
   const redo = useCallback(() => {
     if (state.editHistory.redoStack.length) dispatch({ type: "redoRequested" });
     else appearanceHistory.redo();
@@ -60,6 +72,7 @@ export function useGraphTransactions({
 
   return {
     commitCommand,
+    commitCommands,
     commitBatch,
     undo,
     redo,

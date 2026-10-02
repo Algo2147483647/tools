@@ -4,6 +4,7 @@ import type { CompoundView, NormalizedDag } from "../graph/types";
 import type { StageAppearance } from "./appearance";
 import { getNodeVisual, truncateTitleToWidth, wrapDetailText } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
+import { roundedPolylinePath } from "./rounded-path";
 
 export async function buildCompoundStage(
   input: {
@@ -154,9 +155,7 @@ export async function buildCompoundStage(
           return `${id}: ${source.source} → ${source.target}${source.value === undefined ? "" : ` (${source.value})`}`;
         })
         .join("\n"),
-      path: sections
-        .map((section) => section.map((point, i) => `${i ? "L" : "M"}${point.x},${point.y}`).join(" "))
-        .join(" "),
+      path: sections.map((section) => roundedPolylinePath(section)).join(" "),
       labelPosition:
         label && label.x !== undefined && label.y !== undefined
           ? { x: label.x + offset.x + (label.width ?? 0) / 2, y: label.y + offset.y + 10 }

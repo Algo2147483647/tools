@@ -1,5 +1,6 @@
 import type { GraphChartType, GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { EditTransaction } from "./initialState";
+import type { GraphContextTarget } from "./contextMenu";
 
 export type GraphAction =
   | { type: "graphClosed"; status: string }
@@ -37,7 +38,7 @@ export type GraphAction =
   | { type: "settingsToggled"; open?: boolean }
   | { type: "consoleSidebarToggled"; open?: boolean }
   | { type: "consoleSidebarWidthChanged"; width: number }
-  | { type: "contextMenuOpened"; x: number; y: number; nodeKey: NodeKey | null }
+  | { type: "contextMenuOpened"; x: number; y: number; target: GraphContextTarget }
   | { type: "contextMenuClosed" }
   | { type: "relationEditorOpened"; nodeKey: NodeKey; field: "parents" | "children" }
   | { type: "nodeDetailOpened"; nodeKey: NodeKey }

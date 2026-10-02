@@ -53,6 +53,16 @@ try {
     $null = Initialize-ToolsProject -ProjectPath $fixture
     Assert-RuntimeTest ($installCalls.Count -eq 2) 'unchanged healthy dependencies skip installation'
     Set-Content -LiteralPath (Join-Path $fixture 'package-lock.json') -Encoding ascii -Value '{"lockfileVersion":3,"name":"updated"}'
+    $script:simulateBusy = $true
+    function Get-ToolsDependencyUsers {
+        param([string]$ProjectPath)
+        if ($script:simulateBusy) { [pscustomobject]@{ Name = 'esbuild.exe'; ProcessId = 123; ParentProcessId = 100 } }
+    }
+    try { $null = Initialize-ToolsProject -ProjectPath $fixture; throw 'Busy process was not detected' } catch {
+        Assert-RuntimeTest ($_.Exception.Message -like '*files are in use*PID 123*No dependencies were removed*') 'reports the project process holding dependencies before installation'
+    }
+    Assert-RuntimeTest ($installCalls.Count -eq 2 -and (Test-Path -LiteralPath (Join-Path $fixture 'node_modules/.tools-install-ready'))) 'busy dependencies leave the installation and its stamp untouched'
+    $script:simulateBusy = $false
     $script:failInstall = $true
     try { $null = Initialize-ToolsProject -ProjectPath $fixture; throw 'Failure was not propagated' } catch {
         Assert-RuntimeTest ($_.Exception.Message -eq 'Simulated failed installation') 'failed package-manager commands propagate errors'

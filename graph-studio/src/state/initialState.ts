@@ -7,6 +7,7 @@ import type {
   NormalizedDag,
 } from "../graph/types";
 import { type GraphPagePreferences, getInitialGraphPagePreferences } from "./preferences";
+import type { GraphContextMenu } from "./contextMenu";
 
 export interface EditTransaction {
   label: string;
@@ -52,7 +53,7 @@ export interface GraphAppState {
     settingsOpen: boolean;
     consoleSidebarOpen: boolean;
     consoleSidebarWidth: number;
-    contextMenu: null | { x: number; y: number; nodeKey: NodeKey | null };
+    contextMenu: GraphContextMenu | null;
     relationEditor: null | { nodeKey: NodeKey; field: "parents" | "children" };
     nodeDetail: null | { nodeKey: NodeKey };
     saveDialogOpen: boolean;

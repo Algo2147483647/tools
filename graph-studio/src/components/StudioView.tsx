@@ -11,6 +11,7 @@ import { getSankeyError } from "../graph/sankey";
 import ConsoleSidebar from "./ConsoleSidebar";
 import CompoundPanel from "./CompoundPanel";
 import ContextMenu from "./ContextMenu";
+import HierarchyEditorModal from "./HierarchyEditorModal";
 import FilePreviewModal from "./FilePreviewModal";
 import NodeDetailModal from "./NodeDetailModal";
 import RelationEditorModal from "./RelationEditorModal";
@@ -123,6 +124,7 @@ export default function StudioView({
                 onCommand={transactions.commitCommand}
                 onSelect={viewport.setFocusedKey}
                 onOpenNode={session.openNodeDetail}
+                onMemberContextMenu={viewport.handleNodeContextMenu}
               />
             ) : undefined
           }
@@ -222,12 +224,27 @@ export default function StudioView({
         onAiSettingsChange={session.setAiSettings}
         onAiConnectionTest={ai.testConnection}
       />
-      <ContextMenu menu={state.ui.contextMenu} onAction={nodeActions.handleContextMenuAction} />
+      <ContextMenu
+        menu={state.ui.contextMenu}
+        dag={state.dag}
+        chartType={state.chartType}
+        view={viewport.compound.view}
+        onAction={nodeActions.handleContextMenuAction}
+        onClose={session.closeContextMenu}
+      />
+      {nodeActions.hierarchyEdit && state.dag && (
+        <HierarchyEditorModal
+          edit={nodeActions.hierarchyEdit}
+          dag={state.dag}
+          onSave={transactions.commitCommands}
+          onClose={nodeActions.closeHierarchyEditor}
+        />
+      )}
       <RelationEditorModal
         open={Boolean(relationEditor)}
         nodeKey={relationEditor?.nodeKey || null}
         field={relationEditor?.field || null}
-        fieldLabel={relationEditor?.field}
+        fieldLabel={relationEditor?.field === "parents" ? "incoming relationships" : "outgoing relationships"}
         node={relationEditor && state.dag ? state.dag.nodes[relationEditor.nodeKey] || null : null}
         sankey={state.dag?.diagram === "sankey"}
         onSave={nodeActions.saveRelations}

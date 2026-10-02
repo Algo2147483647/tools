@@ -19,7 +19,7 @@ export function GroupControls({
   onEnter?: (id: string) => void;
 }) {
   return (
-    <g transform={`translate(${x}, ${y})`} className="dag-group-controls">
+    <g transform={`translate(${x}, ${y})`} className="dag-group-controls" data-group-id={id}>
       {(!external ? ["toggle", "enter"] : ["enter"]).map((action, i) => (
         <g
           key={action}
@@ -60,7 +60,23 @@ export function GroupHeader({
   onEnter?: (id: string) => void;
 }) {
   return (
-    <g className="dag-group-header" data-group-id={group.id}>
+    <g
+      className="dag-group-header"
+      data-group-id={group.id}
+      tabIndex={0}
+      role="group"
+      aria-label={`${group.title} subgraph`}
+      onKeyDown={(event) => {
+        if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
+          event.preventDefault();
+          event.stopPropagation();
+          const rect = event.currentTarget.getBoundingClientRect();
+          event.currentTarget.dispatchEvent(
+            new MouseEvent("contextmenu", { bubbles: true, clientX: rect.left + 20, clientY: rect.top + 20 }),
+          );
+        }
+      }}
+    >
       <title>{`${group.title} · ${group.leafCount} nodes`}</title>
       <text x={group.x + 16} y={group.y + 26} className="dag-group-title">
         {truncateTitleToWidth(group.title, group.width - 55)}

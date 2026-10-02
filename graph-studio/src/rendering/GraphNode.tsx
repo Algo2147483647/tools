@@ -50,6 +50,18 @@ const GraphNode = memo(function GraphNode({
   const affordanceX = node.width - AFFORDANCE_MAX_INSET - affordanceWidth;
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
+    if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
+      event.preventDefault();
+      const rect = event.currentTarget.getBoundingClientRect();
+      event.currentTarget.dispatchEvent(
+        new MouseEvent("contextmenu", {
+          bubbles: true,
+          clientX: rect.left + rect.width / 2,
+          clientY: rect.top + rect.height / 2,
+        }),
+      );
+      return;
+    }
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onClick(node.key);

@@ -1,9 +1,26 @@
 import { collectBatchEffects } from "../graph/commandEffects";
-import type { CommandResult } from "../graph/commands";
+import { applyGraphCommand, type CommandResult, type GraphCommand } from "../graph/commands";
 import type { GraphSelection } from "../graph/types";
 import { repairHistoryAfterCommand, repairSelectionAfterCommand } from "./derived";
 import type { GraphAction } from "./graphActions";
 import type { GraphAppState } from "./initialState";
+
+/** Validate the entire edit before publishing one undoable transaction. */
+export function prepareCommandTransaction(
+  state: GraphAppState,
+  commands: GraphCommand[],
+  label: string,
+  selection = state.selection,
+) {
+  if (!state.dag) throw new Error("No graph loaded.");
+  let dag = state.dag;
+  const results = commands.map((command) => {
+    const result = applyGraphCommand(dag, command);
+    dag = result.dag;
+    return result;
+  });
+  return prepareGraphTransaction(state, results, label, selection);
+}
 
 export function prepareGraphTransaction(
   state: GraphAppState,

@@ -26,7 +26,7 @@ export default function App() {
   });
   const ai = useAiController({ ...session, appearance, settings: session.aiSettings, consoleController });
   const viewport = useGraphViewport(session, appearance);
-  const nodeActions = useNodeActions(session, transactions);
+  const nodeActions = useNodeActions(session, transactions, viewport);
   useStudioShortcuts(session, transactions);
   useGraphPreferences({ ...session, appearanceByChart: appearanceHistory.appearanceByChart });
 

@@ -13,7 +13,10 @@ import { getStageAppearance } from "../layout/appearance";
 import { buildCompoundStage } from "../layout/compound-layout";
 import { buildStageData } from "../layout/stage-layout";
 import { graphReducer } from "../state/graphReducer";
-import { prepareGraphTransaction } from "../state/graphTransactions";
+import { prepareGraphTransaction, prepareCommandTransaction } from "../state/graphTransactions";
+import { roundedPolylinePath } from "../layout/rounded-path";
+import { getContextMenuPages } from "../components/contextMenuModel";
+import { placeContextMenu, placeContextSubmenu } from "../components/contextMenuPosition";
 import { createInitialGraphState } from "../state/initialState";
 import { defineSuite, defineTest } from "./harness";
 
@@ -56,6 +59,98 @@ const layout = (dag = compoundFixture(), currentView = view()) =>
   );
 
 export const compoundSuite = defineSuite("Compound hierarchy, projection and layout", [
+  defineTest("context menus stay within the viewport and flyouts flip or fall back to one panel", () => {
+    const viewport = { width: 1280, height: 720 };
+    const size = { width: 304, height: 250 };
+    assert.deepEqual(placeContextMenu({ x: 1279, y: 719 }, size, viewport), { left: 968, top: 462 });
+    const root = { left: 100, right: 380, top: 100, width: 280, height: 390 };
+    assert.deepEqual(placeContextSubmenu(root, 200, size, viewport), {
+      left: 384,
+      top: 194,
+      side: "right",
+      inline: false,
+    });
+    const flipped = placeContextSubmenu({ ...root, left: 900, right: 1180 }, 700, size, viewport);
+    assert.deepEqual(flipped, { left: 592, top: 462, side: "left", inline: false });
+    const narrow = placeContextSubmenu({ ...root, left: 72, right: 352 }, 200, size, { width: 360, height: 640 });
+    assert.equal(narrow.inline, true);
+    assert.equal(narrow.left, 72);
+  }),
+  defineTest("rounded routes preserve endpoints and clamp bends on short and repeated segments", () => {
+    assert.equal(
+      roundedPolylinePath([
+        { x: 0, y: 0 },
+        { x: 40, y: 0 },
+        { x: 40, y: 40 },
+      ]),
+      "M0,0 L28,0 Q40,0 40,12 L40,40",
+    );
+    assert.equal(
+      roundedPolylinePath([
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 4, y: 0 },
+        { x: 4, y: 2 },
+      ]),
+      "M0,0 L3,0 Q4,0 4,1 L4,2",
+    );
+    assert.equal(
+      roundedPolylinePath([
+        { x: 4, y: 2 },
+        { x: 0, y: 2 },
+      ]),
+      "M4,2 L0,2",
+    );
+    assert.equal(roundedPolylinePath([]), "");
+  }),
+  defineTest("context menus distinguish G connections, H membership and external summaries", () => {
+    const dag = compoundFixture();
+    const group = getContextMenuPages({ kind: "group", id: "b" }, dag, "compound", view());
+    const actions = Object.values(group).flatMap((page) => page.sections.flat().map((item) => item.action));
+    assert.ok(
+      actions.includes("group-dissolve") && actions.includes("group-members") && actions.includes("group-move"),
+    );
+    assert.ok(!actions.includes("delete-node") && !actions.includes("edit-parents"));
+    const node = getContextMenuPages({ kind: "node", id: "a" }, dag, "compound", view());
+    assert.ok(node.root.sections.flat().some((item) => item.page === "organize"));
+    assert.ok(node.connections.sections.flat().some((item) => item.action === "edit-parents"));
+    assert.ok(!node.connections.sections.flat().some((item) => item.action === "delete-subtree"));
+    const ordinary = getContextMenuPages({ kind: "node", id: "a" }, dag, "node-link", view());
+    assert.ok(!ordinary.root.sections.flat().some((item) => item.page === "organize"));
+    const external = getContextMenuPages({ kind: "group", id: "c" }, dag, "compound", view([], "b"));
+    assert.ok(!external.root.sections.flat().some((item) => item.action === "group-toggle"));
+    const promote = external.organize.sections.flat().find((item) => item.action === "group-promote")!;
+    assert.equal(promote.disabled, true);
+    assert.equal(promote.disabledReason, "Already at the top level");
+  }),
+  defineTest("adding a group member is one atomic undoable edit and adds no G relationship", () => {
+    const dag = compoundFixture();
+    const state = { ...createInitialGraphState(), dag, selection: { type: "full" } as const };
+    const action = prepareCommandTransaction(
+      state,
+      [
+        { type: "addNodeFromFields", key: "new", fields: { title: "New member" } },
+        { type: "groupMove", memberIds: ["new"], parentId: "b" },
+      ],
+      "Add member",
+    )!;
+    const edited = graphReducer(state, action);
+    assert.equal(edited.dag!.hierarchy!.parentById.new, "b");
+    assert.deepEqual(edited.dag!.edges, dag.edges);
+    assert.equal(edited.editHistory.undoStack.length, 1);
+    assert.deepEqual(graphReducer(edited, { type: "undoRequested" }).dag, dag);
+    assert.throws(() =>
+      prepareCommandTransaction(
+        state,
+        [
+          { type: "addNode", key: "new" },
+          { type: "groupMove", memberIds: ["new"], parentId: "missing" },
+        ],
+        "Invalid member",
+      ),
+    );
+    assert.equal(dag.nodes.new, undefined);
+  }),
   defineTest("v3 preserves independent G and H and rejects v2", () => {
     const doc = compoundFixture();
     assert.deepEqual(normalizeDagInput(serializeDag(doc)), doc);

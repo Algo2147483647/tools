@@ -30,6 +30,8 @@ Select **Nested node-link** in Settings → Chart type. Documents containing H s
 
 Select sibling members in the panel, enter a group name and choose **Group**. **Move** changes their parent. Selecting one group exposes **Rename** and **Ungroup**. Invalid cycles fail without partially modifying the document. Toggle the workspace explorer to switch between graph/note files and the Subgraphs panel.
 
+Right-click a node, subgraph summary, group header/border or panel member to open its context menu. Node menus separate **Connections** (G) from **Subgraph membership** (H). Group menus include enter/fold, rename, **Members**, membership and ungrouping. **Members → Group members** creates a child group from selected members; **Subgraph membership → Group with siblings** wraps the target and selected siblings in a new parent. Move dialogs omit self/descendant destinations. Adding a node inside a group is one atomic, undoable operation with no automatic G edge. External summaries offer entry rather than an ineffective local expansion.
+
 Collapse state and focus are local preferences keyed by workspace document and hierarchy identity. They are not exported into G or H and do not mark a document dirty. Folding preserves zoom and anchors the operated group where scrolling bounds allow. Entering another scope fits its new view. **Fit** explicitly fits the whole visible projection.
 
 ## Relationships and layout
@@ -38,7 +40,7 @@ The visible projection maps each G node to itself or its outermost collapsed anc
 
 Inside a focused subgraph, incident relationships to outside members remain visible through external summaries. Only those incident connections are shown. External summaries are marked **External** and offer entry to their group. Type filtering retains matching leaves and necessary ancestor containers; it does not invent transitive relationships.
 
-ELK Layered lays out nested containers with cross-boundary, orthogonal edge routing. The browser uses a dedicated Worker, cancels obsolete requests, and caches up to 24 projections per immutable document. Existing geometry remains on screen while a fold is arranged. Expanded parents contain child rectangles; headers and controls render above edges and nodes. SVG export uses the same visible geometry.
+ELK Layered lays out nested containers with cross-boundary, orthogonal edge routing. Bends use rounded quadratic corners, capped at half of each adjacent segment so short routes retain their endpoints and arrow direction. The browser uses a dedicated Worker, cancels obsolete requests, and caches up to 24 projections per immutable document. Existing geometry remains on screen while a fold is arranged. Expanded parents contain child rectangles; headers and controls render above edges and nodes. SVG export uses the same visible geometry.
 
 ## Classic business example
 

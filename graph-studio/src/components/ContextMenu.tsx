@@ -1,192 +1,331 @@
-import type React from "react";
-import type { NodeKey } from "../graph/types";
-
-export type ContextMenuAction =
-  | "view-node"
-  | "copy-key"
-  | "rename-node"
-  | "delete-node"
-  | "delete-subtree"
-  | "edit-parents"
-  | "edit-children"
-  | "add-node"
-  | "copy-node"
-  | "copy-node-to-child"
-  | "paste-node"
-  | "paste-node-to-child";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import type { CompoundView, GraphChartType, NormalizedDag } from "../graph/types";
+import { getNodeTitle } from "../graph/accessors";
+import { indexHierarchy } from "../graph/hierarchy";
+import type { GraphContextMenu, GraphContextTarget } from "../state/contextMenu";
+import { getContextMenuPages, type ContextMenuAction, type MenuPage } from "./contextMenuModel";
+import { placeContextMenu, placeContextSubmenu } from "./contextMenuPosition";
+import ContextMenuIcon from "./ContextMenuIcon";
+export type { ContextMenuAction } from "./contextMenuModel";
 
 interface ContextMenuProps {
-  menu: null | { x: number; y: number; nodeKey: NodeKey | null };
-  onAction: (action: ContextMenuAction, nodeKey: NodeKey | null) => void;
+  menu: GraphContextMenu | null;
+  dag: NormalizedDag | null;
+  chartType: GraphChartType;
+  view: CompoundView;
+  onAction: (action: ContextMenuAction, target: GraphContextTarget) => void;
+  onClose: () => void;
 }
 
-type ContextMenuEntry =
-  | { type: "action"; action: ContextMenuAction; label: string; requiresNode?: boolean; tone?: "default" | "danger" }
-  | { type: "divider" };
-
-const nodeEntries: ContextMenuEntry[] = [
-  { type: "action", action: "view-node", label: "View Node", requiresNode: true },
-  { type: "action", action: "copy-key", label: "Copy Key", requiresNode: true },
-  { type: "action", action: "rename-node", label: "Rename Key", requiresNode: true },
-  { type: "divider" },
-  { type: "action", action: "copy-node", label: "Copy Node", requiresNode: true },
-  { type: "action", action: "paste-node-to-child", label: "Paste Node to Child", requiresNode: true },
-  { type: "action", action: "copy-node-to-child", label: "Copy Self to Child", requiresNode: true },
-  { type: "action", action: "add-node", label: "Add Child Node" },
-  { type: "action", action: "edit-children", label: "Edit Children", requiresNode: true },
-  { type: "action", action: "edit-parents", label: "Edit Parents", requiresNode: true },
-  { type: "divider" },
-  { type: "action", action: "delete-node", label: "Delete Node", requiresNode: true, tone: "danger" },
-  { type: "action", action: "delete-subtree", label: "Delete Subtree", requiresNode: true, tone: "danger" },
+const enabledItems = (element: HTMLElement | null) => [
+  ...(element?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? []),
 ];
 
-const backgroundEntries: ContextMenuEntry[] = [
-  { type: "action", action: "add-node", label: "Add Node" },
-  { type: "action", action: "paste-node", label: "Paste Node" },
-];
+export default function ContextMenu(props: ContextMenuProps) {
+  if (!props.menu || !props.dag) return null;
+  return <MenuContent key={JSON.stringify(props.menu)} {...props} menu={props.menu} dag={props.dag} />;
+}
 
-export default function ContextMenu({ menu, onAction }: ContextMenuProps) {
-  const isVisible = Boolean(menu);
-  const left = menu ? Math.max(8, menu.x) : 0;
-  const top = menu ? Math.max(8, menu.y) : 0;
-  const entries = menu?.nodeKey ? nodeEntries : backgroundEntries;
+function MenuContent({
+  menu,
+  dag,
+  chartType,
+  view,
+  onAction,
+  onClose,
+}: ContextMenuProps & { menu: GraphContextMenu; dag: NormalizedDag }) {
+  const [pageId, setPageId] = useState<string | null>(null);
+  const [inline, setInline] = useState(false);
+  const [viewport, setViewport] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const rootRef = useRef<HTMLDivElement>(null);
+  const childRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const originRef = useRef(document.activeElement);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout>>();
+  const pendingFocus = useRef(false);
+  const typeahead = useRef({ query: "", time: 0 });
+  const pages = getContextMenuPages(menu.target, dag, chartType, view);
+  const page = pageId ? pages[pageId] : null;
+  const id = menu.target.kind === "canvas" ? menu.target.parentId : menu.target.id;
+  const title = id
+    ? (menu.target.kind === "node" ? getNodeTitle(dag.nodes[id]) : dag.hierarchy?.groups[id]?.title) || id
+    : "All nodes";
+  const hierarchy = useMemo(() => (chartType === "compound" ? indexHierarchy(dag) : null), [dag, chartType]);
+  const parent = menu.target.kind === "canvas" ? menu.target.parentId : hierarchy?.parent.get(menu.target.id);
+  const scopeLabel = parent ? dag.hierarchy?.groups[parent]?.title || parent : "Top level";
+  const detail =
+    menu.target.kind === "group"
+      ? `${hierarchy?.leafCount.get(menu.target.id) ?? 0} nodes · ${hierarchy?.children.get(menu.target.id)?.length ?? 0} direct members`
+      : menu.target.kind === "node"
+        ? hierarchy
+          ? `In ${scopeLabel}`
+          : id
+        : id
+          ? "Add or organize members here"
+          : `${Object.keys(dag.nodes).length} nodes`;
+
+  const clearHover = () => clearTimeout(hoverTimer.current);
+  function restoreOrigin() {
+    const origin = originRef.current;
+    const target =
+      origin === document.body && menu.target.kind !== "canvas"
+        ? document.querySelector<SVGElement>(
+            `.dag-node[data-key="${CSS.escape(menu.target.id)}"], [data-group-id="${CSS.escape(menu.target.id)}"][tabindex]`,
+          )
+        : origin;
+    if ((target instanceof HTMLElement || target instanceof SVGElement) && target.isConnected)
+      target.focus({ preventScroll: true });
+  }
+  function openPage(next: string, trigger: HTMLButtonElement, focus: boolean) {
+    clearHover();
+    triggerRef.current = trigger;
+    pendingFocus.current = focus;
+    if (next === pageId && focus) {
+      enabledItems(childRef.current)[inline ? 1 : 0]?.focus();
+      pendingFocus.current = false;
+    } else setPageId(next);
+  }
+  function closePage() {
+    clearHover();
+    setPageId(null);
+    pendingFocus.current = false;
+    // Restore after the inline page releases visibility on the root menu.
+    requestAnimationFrame(() => triggerRef.current?.focus({ preventScroll: true }));
+  }
+
+  useEffect(() => {
+    const resize = () => setViewport({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", resize);
+    return () => {
+      window.removeEventListener("resize", resize);
+      clearTimeout(hoverTimer.current);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    enabledItems(rootRef.current)[0]?.focus({ preventScroll: true });
+  }, []);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const pos = placeContextMenu(menu, root.getBoundingClientRect(), viewport);
+    Object.assign(root.style, { left: `${pos.left}px`, top: `${pos.top}px` });
+    const child = childRef.current;
+    const trigger = triggerRef.current;
+    if (!pageId || !child || !trigger) return;
+    const size = child.getBoundingClientRect();
+    const placement = placeContextSubmenu(
+      root.getBoundingClientRect(),
+      trigger.getBoundingClientRect().top,
+      size,
+      viewport,
+    );
+    const childPos = placement.inline ? placeContextMenu(menu, size, viewport) : placement;
+    Object.assign(child.style, { left: `${childPos.left}px`, top: `${childPos.top}px` });
+    child.dataset.side = placement.side;
+    root.dataset.submenuSide = placement.inline ? "inline" : placement.side;
+    setInline(placement.inline);
+    if (pendingFocus.current || (placement.inline && root.contains(document.activeElement))) {
+      // Inline pages include a Back item; focus the first action, not Back.
+      const firstAction = child.querySelector<HTMLButtonElement>("[data-action]:not(:disabled)");
+      firstAction?.focus({ preventScroll: true });
+      pendingFocus.current = false;
+    }
+  }, [menu, pageId, viewport, inline]);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>, child: boolean) {
+    const buttons = enabledItems(event.currentTarget);
+    const active = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault();
+      event.stopPropagation();
+      clearHover();
+      const next =
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? buttons.length - 1
+            : (active + (event.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+      buttons[next]?.focus();
+    } else if (event.key === "ArrowRight" && !child) {
+      const trigger = document.activeElement as HTMLButtonElement;
+      if (trigger.dataset.page) {
+        event.preventDefault();
+        event.stopPropagation();
+        openPage(trigger.dataset.page, trigger, true);
+      }
+    } else if ((event.key === "ArrowLeft" && child) || (event.key === "Escape" && pageId)) {
+      event.preventDefault();
+      event.stopPropagation();
+      closePage();
+    } else if (event.key === "Escape" || event.key === "Tab") {
+      event.stopPropagation();
+      clearHover();
+      if (event.key === "Escape") event.preventDefault();
+      restoreOrigin();
+      onClose();
+    } else if (event.key.length === 1 && event.key !== " " && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      clearHover();
+      const now = Date.now();
+      const previous = now - typeahead.current.time < 600 ? typeahead.current.query : "";
+      const query = previous + event.key.toLowerCase();
+      typeahead.current = { query, time: now };
+      const search = [...buttons.slice(active + 1), ...buttons.slice(0, active + 1)];
+      const match =
+        search.find((button) => button.dataset.label?.toLowerCase().startsWith(query)) ??
+        search.find((button) => button.dataset.label?.toLowerCase().startsWith(event.key.toLowerCase()));
+      match?.focus();
+    }
+  }
+
+  function sections(content: MenuPage, child = false) {
+    return content.sections.map((section, index) => (
+      <div key={index} role="group" className="context-menu-section">
+        {section.map((item) => {
+          const expanded = Boolean(item.page && item.page === pageId);
+          const icon =
+            item.action === "group-toggle"
+              ? view.collapsedGroupIds.includes(id!)
+                ? "expand"
+                : "collapse"
+              : (item.action ?? item.page!);
+          return (
+            <button
+              key={item.action ?? item.page}
+              type="button"
+              role="menuitem"
+              tabIndex={-1}
+              className={`context-menu-item${item.danger ? " context-menu-item-danger" : ""}${expanded ? " is-expanded" : ""}`}
+              disabled={item.disabled}
+              title={item.disabledReason}
+              data-label={item.label}
+              data-page={item.page}
+              data-action={item.action}
+              aria-label={item.label}
+              aria-describedby={
+                item.description || item.disabledReason ? `context-description-${item.action}` : undefined
+              }
+              aria-haspopup={item.page ? "menu" : undefined}
+              aria-expanded={item.page ? expanded : undefined}
+              aria-controls={expanded ? "context-submenu" : undefined}
+              onPointerEnter={(event) => {
+                if (child || event.pointerType !== "mouse") return;
+                clearHover();
+                const trigger = event.currentTarget;
+                hoverTimer.current = setTimeout(
+                  () => (item.page ? openPage(item.page, trigger, false) : setPageId(null)),
+                  180,
+                );
+              }}
+              onPointerLeave={clearHover}
+              onFocus={() => {
+                if (!child && item.page !== pageId) {
+                  clearHover();
+                  setPageId(null);
+                }
+              }}
+              onClick={(event) =>
+                item.page ? openPage(item.page, event.currentTarget, true) : onAction(item.action!, menu.target)
+              }
+            >
+              <ContextMenuIcon name={icon} />
+              <span className="context-menu-copy">
+                <span>{item.label}</span>
+                {(item.disabledReason || item.description) && (
+                  <small id={`context-description-${item.action}`}>{item.disabledReason ?? item.description}</small>
+                )}
+              </span>
+              {item.page && <ContextMenuIcon name="chevron" />}
+            </button>
+          );
+        })}
+      </div>
+    ));
+  }
 
   return (
     <div
-      id="node-context-menu"
-      className={`node-context-menu${isVisible ? " is-visible" : ""}`}
-      aria-hidden={!isVisible}
-      style={{ left, top }}
+      className="context-menu-layer"
+      onClick={(event) => event.stopPropagation()}
+      onContextMenu={(event) => event.preventDefault()}
     >
-      {entries.map((item, index) => {
-        if (item.type === "divider") {
-          return <div key={`divider-${index}`} className="context-menu-divider" aria-hidden="true" />;
-        }
-
-        const disabled = Boolean(item.requiresNode && !menu?.nodeKey);
-        return (
-          <button
-            key={item.action}
-            type="button"
-            className={`context-menu-item${item.tone === "danger" ? " context-menu-item-danger" : ""}`}
-            data-action={item.action}
-            disabled={disabled}
-            style={{ opacity: disabled ? 0.45 : 1 }}
-            onClick={(event) => {
-              event.stopPropagation();
-              if (!disabled) {
-                onAction(item.action, menu?.nodeKey || null);
-              }
-            }}
-          >
-            <span className="context-menu-icon" aria-hidden="true">
-              {renderContextMenuIcon(item.action)}
+      <div
+        id="node-context-menu"
+        className={`node-context-menu${page && inline ? " is-obscured" : ""}`}
+        ref={rootRef}
+        role="menu"
+        aria-label={`${pages.root.label}: ${title}`}
+        aria-hidden={Boolean(page && inline) || undefined}
+        style={{ left: menu.x, top: menu.y }}
+        onKeyDown={(event) => handleKeyDown(event, false)}
+        onScroll={() => {
+          clearHover();
+          setPageId(null);
+        }}
+      >
+        <div className={`context-menu-heading context-menu-heading-${menu.target.kind}`}>
+          <span className="context-menu-target-icon">
+            <ContextMenuIcon name={menu.target.kind} />
+          </span>
+          <div>
+            <span className="context-menu-kind">{pages.root.label}</span>
+            <strong title={title}>{title}</strong>
+            <small title={detail ?? undefined}>{detail}</small>
+          </div>
+        </div>
+        {sections(pages.root)}
+        <div className="context-menu-footer" aria-hidden="true">
+          <span>
+            <kbd>↑↓</kbd> Navigate
+          </span>
+          <span>
+            <kbd>↵</kbd> Select
+          </span>
+          <span>
+            <kbd>Esc</kbd> Close
+          </span>
+        </div>
+      </div>
+      {page && (
+        <div
+          id="context-submenu"
+          ref={childRef}
+          className={`node-context-menu context-menu-submenu${inline ? " is-inline" : ""}`}
+          role="menu"
+          aria-label={`${page.label}: ${title}`}
+          onPointerEnter={clearHover}
+          onKeyDown={(event) => handleKeyDown(event, true)}
+        >
+          {inline && (
+            <button
+              type="button"
+              role="menuitem"
+              tabIndex={-1}
+              className="context-menu-item context-menu-back"
+              onClick={closePage}
+            >
+              <ContextMenuIcon name="back" />
+              <span>Back to {pages.root.label.toLowerCase()}</span>
+            </button>
+          )}
+          <div className="context-submenu-heading">
+            <strong>{page.label}</strong>
+            <small title={title}>{title}</small>
+          </div>
+          {sections(page, true)}
+          <div className="context-menu-footer" aria-hidden="true">
+            <span>
+              <kbd>←</kbd> Back
             </span>
-            <span className="context-menu-label">{item.label}</span>
-          </button>
-        );
-      })}
+            <span>
+              <kbd>↵</kbd> Select
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function ContextMenuIcon({ children }: { children: React.ReactNode }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="context-menu-icon-svg"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {children}
-    </svg>
-  );
-}
-
-function renderContextMenuIcon(action: ContextMenuAction) {
-  switch (action) {
-    case "view-node":
-      return (
-        <ContextMenuIcon>
-          <path d="M3 12S6.4 5.5 12 5.5S21 12 21 12S17.6 18.5 12 18.5S3 12 3 12Z" />
-          <circle cx="12" cy="12" r="2.6" />
-        </ContextMenuIcon>
-      );
-    case "copy-key":
-    case "copy-node":
-      return (
-        <ContextMenuIcon>
-          <rect x="8" y="8" width="11" height="11" rx="2" />
-          <path d="M5 15V6C5 5.4 5.4 5 6 5H15" />
-        </ContextMenuIcon>
-      );
-    case "copy-node-to-child":
-      return (
-        <ContextMenuIcon>
-          <rect x="5" y="4" width="9" height="7" rx="2" />
-          <rect x="10" y="14" width="9" height="7" rx="2" />
-          <path d="M9.5 11V13.5H14.5" />
-          <path d="M14.5 13.5V14" />
-        </ContextMenuIcon>
-      );
-    case "paste-node":
-    case "paste-node-to-child":
-      return (
-        <ContextMenuIcon>
-          <path d="M9 4H15L16 6H18C18.6 6 19 6.4 19 7V19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V7C5 6.4 5.4 6 6 6H8Z" />
-          <path d="M9 6H15" />
-          <path d="M12 10V16" />
-          <path d="M9.5 13.5L12 16L14.5 13.5" />
-        </ContextMenuIcon>
-      );
-    case "add-node":
-      return (
-        <ContextMenuIcon>
-          <circle cx="12" cy="12" r="7" />
-          <path d="M12 8V16" />
-          <path d="M8 12H16" />
-        </ContextMenuIcon>
-      );
-    case "edit-children":
-      return (
-        <ContextMenuIcon>
-          <circle cx="12" cy="6" r="2" />
-          <circle cx="7" cy="18" r="2" />
-          <circle cx="17" cy="18" r="2" />
-          <path d="M12 8V12H7V16" />
-          <path d="M12 12H17V16" />
-        </ContextMenuIcon>
-      );
-    case "edit-parents":
-      return (
-        <ContextMenuIcon>
-          <circle cx="7" cy="6" r="2" />
-          <circle cx="17" cy="6" r="2" />
-          <circle cx="12" cy="18" r="2" />
-          <path d="M7 8V12H12V16" />
-          <path d="M17 8V12H12" />
-        </ContextMenuIcon>
-      );
-    case "rename-node":
-      return (
-        <ContextMenuIcon>
-          <path d="M5 19L8.5 18.2L18.2 8.5L15.5 5.8L5.8 15.5Z" />
-          <path d="M14.5 6.8L17.2 9.5" />
-        </ContextMenuIcon>
-      );
-    case "delete-node":
-    case "delete-subtree":
-      return (
-        <ContextMenuIcon>
-          <path d="M5 7H19" />
-          <path d="M10 11V17" />
-          <path d="M14 11V17" />
-          <path d="M8 7L9 19H15L16 7" />
-          <path d="M9.5 7V5H14.5V7" />
-        </ContextMenuIcon>
-      );
-  }
 }

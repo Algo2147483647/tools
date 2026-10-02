@@ -203,20 +203,17 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     pendingNodeClickTimeoutRef.current = null;
   }
 
-  function handleNodeContextMenu(event: React.MouseEvent<SVGGElement>, nodeKey: string) {
+  function handleNodeContextMenu(event: React.MouseEvent<Element>, nodeKey: string) {
     event.preventDefault();
     event.stopPropagation();
-    if (!Object.prototype.hasOwnProperty.call(state.dag?.nodes ?? {}, nodeKey)) {
-      setFocusedKey(nodeKey);
-      return;
-    }
-    const menuWidth = 190;
-    const menuHeight = 368;
+    const group =
+      state.chartType === "compound" &&
+      Object.prototype.hasOwnProperty.call(state.dag?.hierarchy?.groups ?? {}, nodeKey);
     dispatch({
       type: "contextMenuOpened",
-      x: Math.min(event.clientX, window.innerWidth - menuWidth - 8),
-      y: Math.min(event.clientY, window.innerHeight - menuHeight - 8),
-      nodeKey,
+      x: event.clientX,
+      y: event.clientY,
+      target: { kind: group ? "group" : "node", id: nodeKey },
     });
   }
 
@@ -225,13 +222,18 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       return;
     }
     event.preventDefault();
-    const menuWidth = 190;
-    const menuHeight = 96;
+    event.stopPropagation();
+    const groupId =
+      state.chartType === "compound" && event.target instanceof Element
+        ? event.target.closest<SVGElement>("[data-group-id]")?.dataset.groupId
+        : undefined;
     dispatch({
       type: "contextMenuOpened",
-      x: Math.min(event.clientX, window.innerWidth - menuWidth - 8),
-      y: Math.min(event.clientY, window.innerHeight - menuHeight - 8),
-      nodeKey: null,
+      x: event.clientX,
+      y: event.clientY,
+      target: groupId
+        ? { kind: "group", id: groupId }
+        : { kind: "canvas", parentId: state.chartType === "compound" ? compound.view.focusGroupId : null },
     });
   }
 

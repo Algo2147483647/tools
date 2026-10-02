@@ -89,7 +89,37 @@ for (const name of ['vite', 'tsx', 'next']) {
     return $LASTEXITCODE -eq 0
 }
 
+function Get-ToolsDependencyUsers {
+    param([string]$ProjectPath)
+    $modules = [System.IO.Path]::GetFullPath((Join-Path $ProjectPath 'node_modules')).TrimEnd('\') + '\'
+    # Include npm's retired binary directories: a running esbuild can retain its old image path.
+    Get-CimInstance Win32_Process | Where-Object {
+        ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($modules, [System.StringComparison]::OrdinalIgnoreCase)) -or
+        ($_.Name -eq 'node.exe' -and $_.CommandLine -and $_.CommandLine.Replace('/', '\').IndexOf($modules, [System.StringComparison]::OrdinalIgnoreCase) -ge 0)
+    } | Select-Object Name, ProcessId, ParentProcessId
+}
+
 function Initialize-ToolsProject {
+    param([Parameter(Mandatory = $true)][string]$ProjectPath, [switch]$ForceInstall)
+    $project = (Resolve-Path -LiteralPath $ProjectPath).Path
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try { $key = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($project.ToLowerInvariant()))).Replace('-', '') }
+    finally { $sha.Dispose() }
+    # Keep this lock outside node_modules, which npm ci removes. Concurrent launches must not
+    # erase one another's installs or read a success stamp while installation is in progress.
+    $mutex = New-Object System.Threading.Mutex($false, "Local\ToolsNodeInstall-$key")
+    $acquired = $false
+    try {
+        try { $acquired = $mutex.WaitOne(0) } catch [System.Threading.AbandonedMutexException] { $acquired = $true }
+        if (-not $acquired) { throw "Another launcher is preparing dependencies for $project. Wait for it to finish, then retry. No dependencies were changed by this launcher." }
+        return Initialize-ToolsProjectCore -ProjectPath $project -ForceInstall:$ForceInstall
+    } finally {
+        if ($acquired) { $mutex.ReleaseMutex() }
+        $mutex.Dispose()
+    }
+}
+
+function Initialize-ToolsProjectCore {
     param([Parameter(Mandatory = $true)][string]$ProjectPath, [switch]$ForceInstall)
     $project = (Resolve-Path -LiteralPath $ProjectPath).Path
     if (-not (Test-Path -LiteralPath (Join-Path $project 'package.json'))) { throw "No package.json found in $project" }
@@ -100,6 +130,12 @@ function Initialize-ToolsProject {
     $installed = if (Test-Path -LiteralPath $stampPath) { (Get-Content -LiteralPath $stampPath -Raw).Trim() } else { '' }
     $ready = -not $ForceInstall -and $installed -eq $fingerprint -and (Test-ToolsDependencies -ProjectPath $project -Node $node)
     if (-not $ready) {
+        # Check before npm ci deletes anything, including the previous success stamp.
+        $dependencyUsers = @(Get-ToolsDependencyUsers -ProjectPath $project)
+        if ($dependencyUsers.Count -gt 0) {
+            $owners = ($dependencyUsers | ForEach-Object { "$($_.Name) PID $($_.ProcessId) (parent $($_.ParentProcessId))" }) -join ', '
+            throw "Dependencies need installation, but this project's files are in use: $owners. Stop this project's dev/build terminals with Ctrl+C and rerun the launcher. No dependencies were removed."
+        }
         $manifest = Get-Content -LiteralPath (Join-Path $project 'package.json') -Raw | ConvertFrom-Json
         $preferPnpm = $manifest.packageManager -like 'pnpm@*' -or -not (Test-Path -LiteralPath (Join-Path $project 'package-lock.json'))
         $managerName = if ($preferPnpm) { 'pnpm' } else { 'npm' }

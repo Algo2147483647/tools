@@ -217,7 +217,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
     case "consoleSidebarWidthChanged":
       return { ...state, ui: { ...state.ui, consoleSidebarWidth: clampConsoleSidebarWidth(action.width) } };
     case "contextMenuOpened":
-      return { ...state, ui: { ...state.ui, contextMenu: { x: action.x, y: action.y, nodeKey: action.nodeKey } } };
+      return { ...state, ui: { ...state.ui, contextMenu: { x: action.x, y: action.y, target: action.target } } };
     case "contextMenuClosed":
       return { ...state, ui: { ...state.ui, contextMenu: null } };
     case "relationEditorOpened":
