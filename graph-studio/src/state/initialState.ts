@@ -1,4 +1,4 @@
-import type { GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
+import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import { loadGraphPagePreferences } from "./preferences";
 
 export interface EditTransaction {
@@ -29,6 +29,7 @@ export interface GraphAppState {
     savedRevision: number;
   };
   mode: GraphMode;
+  chartType: GraphChartType;
   layout: {
     mode: GraphLayoutMode;
   };
@@ -67,6 +68,7 @@ export const initialGraphAppState: GraphAppState = {
     savedRevision: 0,
   },
   mode: savedPreferences.mode,
+  chartType: savedPreferences.chartType,
   layout: {
     mode: savedPreferences.layoutMode,
   },

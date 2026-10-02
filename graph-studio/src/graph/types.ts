@@ -45,9 +45,22 @@ export type GraphSelection =
 
 export type GraphMode = "edit";
 
-export type GraphLayoutMode = "level" | "sugiyama" | "dagre" | "sankey";
+export type GraphChartType = "node-link" | "sankey";
 
-export function getGraphLayoutLabel(mode: GraphLayoutMode): string {
+export type GraphLayoutMode = "level" | "sugiyama" | "dagre";
+
+/** Internal rendering pipeline; Sankey is a chart type, not a node-link layout. */
+export type GraphRenderMode = GraphLayoutMode | "sankey";
+
+export function getGraphChartLabel(type: GraphChartType): string {
+  return type === "sankey" ? "Sankey" : "Node-link";
+}
+
+export function getGraphRenderMode(type: GraphChartType, layout: GraphLayoutMode): GraphRenderMode {
+  return type === "sankey" ? "sankey" : layout;
+}
+
+export function getGraphLayoutLabel(mode: GraphRenderMode): string {
   switch (mode) {
     case "sankey":
       return "Sankey flow";
@@ -56,7 +69,7 @@ export function getGraphLayoutLabel(mode: GraphLayoutMode): string {
     case "dagre":
       return "Dagre layered";
     default:
-      return "Level layout";
+      return "BFS levels";
   }
 }
 

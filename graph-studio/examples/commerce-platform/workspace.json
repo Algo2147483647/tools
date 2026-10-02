@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "name": "Commerce platform",
+  "rootGraphId": "root",
+  "graphs": [
+    { "id": "root", "parentNodeId": null },
+    { "id": "gateway-internal", "parentNodeId": "node-gateway" },
+    { "id": "order-internal", "parentNodeId": "node-order" },
+    { "id": "validator-internal", "parentNodeId": "node-validator" },
+    { "id": "publisher-internal", "parentNodeId": "node-publisher" },
+    { "id": "retry-internal", "parentNodeId": "node-retry" }
+  ],
+  "nodes": [
+    {
+      "id": "node-gateway",
+      "key": "API Gateway",
+      "graphId": "root",
+      "x": 80,
+      "y": 140,
+      "width": 224,
+      "height": 124,
+      "childGraphId": "gateway-internal"
+    },
+    {
+      "id": "node-order",
+      "key": "Order Service",
+      "graphId": "root",
+      "x": 550,
+      "y": 140,
+      "width": 224,
+      "height": 124,
+      "childGraphId": "order-internal"
+    },
+    {
+      "id": "node-validator",
+      "key": "Validator",
+      "graphId": "order-internal",
+      "x": 80,
+      "y": 100,
+      "width": 224,
+      "height": 124,
+      "childGraphId": "validator-internal"
+    },
+    {
+      "id": "node-publisher",
+      "key": "Event Publisher",
+      "graphId": "order-internal",
+      "x": 490,
+      "y": 240,
+      "width": 240,
+      "height": 124,
+      "childGraphId": "publisher-internal"
+    },
+    {
+      "id": "node-retry",
+      "key": "Retry Queue",
+      "graphId": "publisher-internal",
+      "x": 180,
+      "y": 120,
+      "width": 224,
+      "height": 124,
+      "childGraphId": "retry-internal"
+    }
+  ],
+  "edges": [
+    {
+      "id": "flow-orders",
+      "graphId": "root",
+      "source": "API Gateway",
+      "target": "Order Service",
+      "weights": ["POST /orders", "OrderRequest"],
+      "sourceSide": "right",
+      "targetSide": "left",
+      "points": [
+        { "x": 304, "y": 202 },
+        { "x": 550, "y": 202 }
+      ]
+    },
+    {
+      "id": "flow-validated-order",
+      "graphId": "order-internal",
+      "source": "Validator",
+      "target": "Event Publisher",
+      "weights": ["OrderValidated", "ValidatedOrder"],
+      "sourceSide": "right",
+      "targetSide": "left",
+      "points": [
+        { "x": 304, "y": 162 },
+        { "x": 400, "y": 162 },
+        { "x": 400, "y": 302 },
+        { "x": 490, "y": 302 }
+      ]
+    },
+    {
+      "id": "flow-retry",
+      "graphId": "publisher-internal",
+      "source": "Retry Queue",
+      "target": "Retry Queue",
+      "weights": ["RetryScheduled", "BackoffExpired"],
+      "sourceSide": "right",
+      "targetSide": "top",
+      "points": [
+        { "x": 404, "y": 182 },
+        { "x": 452, "y": 182 },
+        { "x": 452, "y": 72 },
+        { "x": 292, "y": 72 },
+        { "x": 292, "y": 120 }
+      ]
+    }
+  ],
+  "revision": 0
+}

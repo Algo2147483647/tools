@@ -99,8 +99,9 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
   defineTest("Sankey loading and preferences select the flow engine", () => {
     const dag = normalizeDagInput(document());
     const state = graphReducer(initialGraphAppState, { type: "graphLoaded", dag, fileName: "flow.json", selection: { type: "full" }, status: "loaded" });
-    assert.equal(state.layout.mode, "sankey");
-    assert.equal(parseGraphPagePreferences('{"layoutMode":"sankey"}')!.layoutMode, "sankey");
+    assert.equal(state.chartType, "sankey");
+    assert.equal(state.layout.mode, "sugiyama");
+    assert.equal(parseGraphPagePreferences('{"layoutMode":"sankey"}')!.chartType, "sankey");
   }),
   defineTest("circular flows preserve direction, port totals, scale and saved data", () => {
     const input = document();

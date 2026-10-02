@@ -1,4 +1,4 @@
-import type { DagNode, GraphLayoutMode, GraphSelection, NodeKey, RelationValue } from "../graph/types";
+import type { DagNode, GraphRenderMode, GraphSelection, NodeKey, RelationValue } from "../graph/types";
 
 export interface StageNodeColorTokens {
   glow: string;
@@ -90,7 +90,7 @@ export interface ResolvedStageSelection {
 
 export interface StageData {
   dag: Record<NodeKey, DagNode & { synthetic?: boolean }>;
-  layoutMode: GraphLayoutMode;
+  layoutMode: GraphRenderMode;
   root: NodeKey;
   selection: ResolvedStageSelection;
   topLevelKeys: NodeKey[];

@@ -3,7 +3,7 @@ import { getNodeType } from "./accessors";
 import { normalizeDagInput } from "./normalize";
 import { serializeDag } from "./serialize";
 import { newEdgeId } from "./commands";
-import type { NormalizedDag } from "./types";
+import type { GraphChartType, NormalizedDag } from "./types";
 
 export const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";
 
@@ -11,14 +11,14 @@ export function getGraphTypeOptions(dag: NormalizedDag, mapping: FieldMapping = 
   return [...new Set(Object.values(dag.nodes).map(node => getNodeType(node, mapping)).filter(Boolean))].sort((a,b) => a.localeCompare(b));
 }
 
-export function projectGraphByType(source: NormalizedDag, selectedType: string, mapping: FieldMapping = getDefaultFieldMapping()): NormalizedDag {
+export function projectGraphByType(source: NormalizedDag, selectedType: string, mapping: FieldMapping = getDefaultFieldMapping(), chartType: GraphChartType = "node-link"): NormalizedDag {
   if (!selectedType) return source;
   const visible = new Set(Object.keys(source.nodes).filter(key => getNodeType(source.nodes[key], mapping) === selectedType));
   const doc = serializeDag(source);
   doc.nodes = Object.fromEntries(Object.entries(doc.nodes).filter(([key]) => visible.has(key)));
   doc.edges = doc.edges.filter(edge => visible.has(edge.source) && visible.has(edge.target));
   // Hidden flows cannot be safely reconstructed from totals. Keep only measured direct flows.
-  if (source.diagram === "sankey") return normalizeDagInput(doc);
+  if (source.diagram === "sankey" || chartType === "sankey") return normalizeDagInput(doc);
   const outgoing = new Map<string, string[]>();
   source.edges.forEach(edge => outgoing.set(edge.source, [...(outgoing.get(edge.source) || []), edge.target]));
   for (const sourceKey of visible) {

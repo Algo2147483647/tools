@@ -1,4 +1,4 @@
-import type { GraphLayoutMode } from "../graph/types";
+import type { GraphRenderMode } from "../graph/types";
 import type { StageNode, StageRoutePoint } from "./types";
 
 const SOURCE_EDGE_GAP = 4;
@@ -8,7 +8,7 @@ const ELBOW_MIN_OFFSET = 34;
 const ELBOW_MAX_OFFSET = 92;
 
 export function resolveStageEdgeGeometry(
-  layoutMode: GraphLayoutMode,
+  layoutMode: GraphRenderMode,
   sourceNode: StageNode,
   targetNode: StageNode,
   points?: StageRoutePoint[],

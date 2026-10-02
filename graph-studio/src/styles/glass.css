@@ -107,7 +107,6 @@
 .example-card-body strong > span { font: 16px/1.4 "Segoe UI", sans-serif; color: #7d8c9f; }
 .example-description { font-size: 12px; line-height: 1.7; color: var(--studio-muted); }
 .example-detail { padding-top: 8px; margin-top: auto; font-size: 10px; color: #7f8c9e; }
-.example-gallery-note { margin: 13px 0 0; color: var(--studio-muted); font-size: 11px; line-height: 1.6; }
 .source-notice { top: calc(var(--toolbar-bottom) + 8px); }
 @supports not (backdrop-filter: blur(1px)) {
   .topbar, .workspace-explorer, .workspace-sidebar-shell, .settings-modal.studio-settings { background: #f1f4f9; }

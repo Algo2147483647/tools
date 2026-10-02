@@ -120,7 +120,7 @@ export function useAiController({ state, dispatch, fieldMapping, appearance, set
       && snapshot.contextNodeKey === current.current.contextNodeKey;
     try {
       const context = buildAiContextPacket({ harness: next, dag: state.dag, mode: state.mode,
-        layoutMode: state.layout.mode, selection: state.selection, contextNodeKey, mapping: fieldMapping,
+        layoutMode: state.layout.mode, chartType: state.chartType, selection: state.selection, contextNodeKey, mapping: fieldMapping,
         appearance, consoleEntries: entries });
       const response = await requestAiPlan({ settings, context, message });
       if (!isCurrent()) {
@@ -150,7 +150,7 @@ export function useAiController({ state, dispatch, fieldMapping, appearance, set
         setBusy(false);
       }
     }
-  }, [appearance, appendMessage, contextNodeKey, entries, fieldMapping, recordInput, runtimeHarness, settings, state.dag, state.layout.mode, state.mode, state.selection, validateAndExecute]);
+  }, [appearance, appendMessage, contextNodeKey, entries, fieldMapping, recordInput, runtimeHarness, settings, state.dag, state.chartType, state.layout.mode, state.mode, state.selection, validateAndExecute]);
 
   const applyReview = useCallback((planId: string) => {
     if (busyRef.current) return;

@@ -1,29 +1,33 @@
-import { useCallback, useReducer, type Dispatch } from "react";
+import { useCallback, useMemo, useReducer, type Dispatch } from "react";
 import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance, type GraphAppearance, type GraphLayoutAppearance } from "../graph/appearance";
 import { applyAppearanceCommand, type GraphAppearancePresetId } from "../graph/appearanceCommands";
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
 import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
 import type { GraphAction } from "../state/graphActions";
-import { appearanceHistoryReducer, createAppearanceHistory } from "../state/appearanceHistory";
+import { chartAppearanceHistoryReducer, createChartAppearanceHistory } from "../state/appearanceHistory";
+import type { ChartStyles } from "../state/chartStyles";
+import type { GraphChartType } from "../graph/types";
 
-export function useAppearanceHistory(initialAppearance: GraphAppearance, dispatch: Dispatch<GraphAction>) {
-  const [history, updateHistory] = useReducer(appearanceHistoryReducer, initialAppearance, createAppearanceHistory);
+export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
+  const [histories, updateHistories] = useReducer(chartAppearanceHistoryReducer, styles, createChartAppearanceHistory);
+  const history = histories[chartType];
+  const appearanceByChart = useMemo(() => ({ "node-link": histories["node-link"].appearance, sankey: histories.sankey.appearance }), [histories]);
   const { appearance } = history;
   const commitAppearance = useCallback((nextAppearance: GraphAppearance, label: string) => {
-    updateHistory({ type: "commit", appearance: nextAppearance, label });
-  }, []);
+    updateHistories({ chartType, action: { type: "commit", appearance: nextAppearance, label } });
+  }, [chartType]);
   const undo = useCallback(() => {
     const transaction = history.undoStack.at(-1);
     if (!transaction) return;
-    updateHistory({ type: "undo" });
+    updateHistories({ chartType, action: { type: "undo" } });
     dispatch({ type: "statusChanged", status: `Undid: ${transaction.label}` });
-  }, [dispatch, history.undoStack]);
+  }, [chartType, dispatch, history.undoStack]);
   const redo = useCallback(() => {
     const transaction = history.redoStack.at(-1);
     if (!transaction) return;
-    updateHistory({ type: "redo" });
+    updateHistories({ chartType, action: { type: "redo" } });
     dispatch({ type: "statusChanged", status: `Redid: ${transaction.label}` });
-  }, [dispatch, history.redoStack]);
+  }, [chartType, dispatch, history.redoStack]);
   function handleLayoutAppearanceChange<K extends keyof GraphLayoutAppearance>(key: K, value: GraphLayoutAppearance[K]) {
     const nextAppearance = sanitizeGraphAppearance({
       ...appearance,
@@ -70,7 +74,7 @@ export function useAppearanceHistory(initialAppearance: GraphAppearance, dispatc
   }
 
   function handleAppearanceExport() {
-    const outputFileName = buildTimestampFileName("dag-appearance.json");
+    const outputFileName = buildTimestampFileName(`${chartType}-appearance.json`);
     downloadJsonFile(JSON.stringify(appearance, null, 2), outputFileName);
     dispatch({ type: "statusChanged", status: `Exported current UI appearance as ${outputFileName}.` });
   }
@@ -119,7 +123,7 @@ export function useAppearanceHistory(initialAppearance: GraphAppearance, dispatc
   }
 
   return {
-    appearance, commitAppearance, undo, redo,
+    appearance, appearanceByChart, commitAppearance, undo, redo,
     canUndo: history.undoStack.length > 0, canRedo: history.redoStack.length > 0,
     handleLayoutAppearanceChange, handleAppearanceCssVarChange,
     handleAppearanceDisplayChange, handleAppearanceCssChange,

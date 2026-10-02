@@ -17,11 +17,12 @@ The app opens in Edit mode. Graph edits, the console, undo, redo and saving are 
 
 ## Controls
 
-The Settings button opens a searchable dialog with four sections:
+The Settings button opens a searchable dialog with five sections:
 
 - Workspace: open files/folders, recent locations, manifest export, and console visibility
-- Appearance: live preview, presets, colors, typography, visible details, advanced CSS and configuration
-- Layout: engine selection and spacing/dimension sliders
+- Chart type: Node-link or Sankey, with numeric-flow requirements shown before switching
+- Layout: BFS, Sugiyama or Dagre for Node-link; automatic flow arrangement for Sankey
+- Appearance: a separate live preview, presets, colors, typography, visible details and custom CSS for each chart type
 - AI assistant: provider, model, API key, execution mode, and connection test
 
 AI providers include OpenAI-compatible endpoints, DeepSeek, Anthropic, Gemini, and Ollama.
@@ -31,6 +32,8 @@ For the full graph UI configuration model, see [Graph Appearance System](graph-a
 ## Opening graphs and workspaces
 
 Use Open graph file for one document or Open workspace for a folder. A workspace lists independent v2 graph documents; it does not merge their contents. The app remembers recent locations and the last selected graph in each workspace. New graph creates an unsaved document with one starter node.
+
+The home page shows recent workspaces and graph files together in a timeline on the left, grouped by local date and ordered by last opened time. Open actions remain on the right. Each location appears once; reopening updates its time. Removing an entry only removes it from Recents.
 
 A root graph-studio.workspace.json manifest can specify graph files and a default graph. Without it, the app detects native v2 JSON documents. Multiple graphs without a clear default remain in the explorer for selection. Invalid files show an error; opening does not modify source files. See the [Workspace Guide](workspaces.md) for the full discovery contract and browser permission behavior.
 
@@ -55,11 +58,17 @@ The top bar's `Type` selector lists the non-empty types in the current graph, us
 
 Filtering does not alter source data: JSON saves contain the complete graph, while SVG export reflects the currently displayed view.
 
-## Layout Modes
+## Chart Types and Layouts
+
+`Node-link` displays relationships as nodes and connecting lines. Its layouts are:
 
 - `BFS` keeps the selected traversal close to breadth-first discovery order.
 - `Sugiyama layered` ranks nodes by dependency depth and applies crossing reduction before rendering.
 - `Dagre layered` uses Dagre's layered engine for a library-backed dependency layout.
+
+`Sankey` displays non-negative numeric edge values as proportional flow bands, using an automatic flow layout. Its layout controls adjust bar width, vertical spacing and label room. Text relationships cannot be converted to flows by switching chart type. Invalid values disable Sankey with an explanation.
+
+Changing chart type preserves the graph document and its edit history. Switching back to Node-link restores the selected BFS, Sugiyama or Dagre layout. Opening a Sankey document selects Sankey; opening other documents or creating a graph selects Node-link.
 
 ## Graph Appearance
 
@@ -75,7 +84,7 @@ Key workflows:
 - `Custom CSS` replaces the graph CSS block used by the renderer and SVG export.
 - The separate `Layout` category adjusts spacing, node height, width, and stage minimums.
 
-Appearance changes are remembered across refreshes in page preferences. They are not embedded into saved graph JSON.
+Each chart type independently remembers its appearance, dimensions, visibility settings and custom CSS across refreshes. Appearance imports, exports, presets, reset and appearance undo/redo apply to the active type. Sankey opacity is in Appearance; bar width is in Layout. Existing shared appearance preferences migrate to both types on first load. Appearance is not embedded into saved graph JSON.
 
 ## Dense Graph Hover Mode
 

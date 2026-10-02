@@ -1,5 +1,7 @@
 import { canOverwrite } from "../adapters/fileAccess";
+import { useMemo } from "react";
 import { getDisplayFieldName } from "../graph/fieldMapping";
+import { getSankeyError } from "../graph/sankey";
 import type { AiController } from "../controllers/useAiController";
 import type { AppearanceHistoryController } from "../controllers/useAppearanceHistory";
 import type { ConsoleController } from "../controllers/useConsoleController";
@@ -35,6 +37,7 @@ export default function StudioView({ session, appearanceHistory, transactions, c
   const relationEditor = state.ui.relationEditor;
   const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
   const consoleSidebarVisible = state.ui.consoleSidebarOpen;
+  const sankeyUnavailableReason = useMemo(() => state.dag ? getSankeyError(state.dag.nodes, state.dag.edges) : null, [state.dag]);
 
   return (
     <div className="app-shell" onDragOver={session.handleAppDragOver} onDrop={session.handleAppDrop}>
@@ -44,6 +47,9 @@ export default function StudioView({ session, appearanceHistory, transactions, c
       <Topbar
         topbarRef={viewport.topbarRef}
         layoutMode={state.layout.mode}
+        chartType={state.chartType}
+        sankeyUnavailableReason={sankeyUnavailableReason}
+        onChartTypeChange={session.changeChartType}
         appearance={appearance}
         showNodeDetail={session.showNodeDetail}
         hideNodeBorders={session.hideNodeBorders}

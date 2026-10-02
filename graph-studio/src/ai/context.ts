@@ -1,7 +1,7 @@
 import { getCustomFieldNames, getNodeChildren, getNodeDefine, getNodeParents, getNodeTitle, getNodeType } from "../graph/accessors";
 import type { FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
-import type { GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
+import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { GraphAppearance } from "../graph/appearance";
 import { CONSOLE_COMMAND_REFERENCE } from "../console/reference";
 import type { AiGraphContext } from "./types";
@@ -13,6 +13,7 @@ export function buildAiGraphContext({
   dag,
   mode,
   layoutMode,
+  chartType = "node-link",
   selection,
   contextNodeKey,
   mapping,
@@ -21,6 +22,7 @@ export function buildAiGraphContext({
   dag: NormalizedDag | null;
   mode: GraphMode;
   layoutMode: GraphLayoutMode;
+  chartType?: GraphChartType;
   selection: GraphSelection | null;
   contextNodeKey: NodeKey | null;
   mapping: FieldMapping;
@@ -36,7 +38,7 @@ export function buildAiGraphContext({
       summary: [
         "No graph is currently loaded.",
         `Application mode: ${mode}`,
-      `Layout mode: ${layoutMode}`,
+      `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
       formatAppearanceSummary(appearance),
       "Console commands are available for help and graph mutation after a graph is loaded.",
       ].join("\n"),
@@ -57,9 +59,9 @@ export function buildAiGraphContext({
     commandReference,
     summary: [
       `Graph has ${keys.length} node${keys.length === 1 ? "" : "s"} and ${edgeCount} directed edge${edgeCount === 1 ? "" : "s"}.`,
-      dag.diagram === "sankey" ? "Sankey document: edge values are finite, non-negative numeric flows; cycles are rejected. Use numeric weights with /edge. Node colors can use a six-digit hex color field." : "",
+      dag.diagram === "sankey" ? "Sankey document: edge values are finite, non-negative numeric flows; cycles are shown as return flows. Use numeric weights with /edge. Node colors can use a six-digit hex color field." : "",
       `Application mode: ${mode}`,
-      `Layout mode: ${layoutMode}`,
+      `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
       formatAppearanceSummary(appearance),
       `Current console context node: ${contextNodeKey || "(unset)"}`,
       `Current selection: ${selectionText}`,

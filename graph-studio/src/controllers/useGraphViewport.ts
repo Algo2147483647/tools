@@ -3,7 +3,7 @@ import { buildStageData } from "../layout/stage-layout";
 import { getNodeTitle } from "../graph/accessors";
 import { getFullGraphSelection, getParentLevelSelection, sanitizeNodeLabel } from "../graph/selectors";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
-import { getGraphLayoutLabel } from "../graph/types";
+import { getGraphLayoutLabel, getGraphRenderMode } from "../graph/types";
 import type { GraphAppearance } from "../graph/appearance";
 import { useGraphZoom } from "../hooks/useGraphZoom";
 import { useGraphPan } from "../hooks/useGraphPan";
@@ -28,8 +28,9 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       setSelectedType("");
     }
   }, [selectedType, typeOptions]);
-  const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, fieldMapping) : null, [activeType, fieldMapping, state.dag]);
-  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, colorSourceDag: state.dag ?? undefined, mapping: fieldMapping, selection: activeType ? { type: "full" } : state.selection, layoutMode: state.layout.mode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, state.dag, fieldMapping, showNodeDetail, state.layout.mode, state.selection]);
+  const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, fieldMapping, state.chartType) : null, [activeType, fieldMapping, state.dag, state.chartType]);
+  const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
+  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, colorSourceDag: state.dag ?? undefined, mapping: fieldMapping, selection: activeType ? { type: "full" } : state.selection, layoutMode: renderMode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, state.dag, fieldMapping, showNodeDetail, renderMode, state.selection]);
   const parentSelection = useMemo(() => !activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys, fieldMapping) : null, [activeType, fieldMapping, stage, state.dag]);
   const status = useMemo(() => {
     if (!state.dag || !stage) {
@@ -38,14 +39,15 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     const focusNode = stage.dag[stage.root];
     const focusTitle = focusNode ? getNodeTitle(focusNode, fieldMapping) : "";
     const focusLabel = focusNode?.synthetic ? focusTitle || "Selected roots" : sanitizeNodeLabel(focusTitle || stage.root);
-    const layoutLabel = getGraphLayoutLabel(state.layout.mode);
+    const layoutLabel = getGraphLayoutLabel(stage.layoutMode);
     const warningText = stage.warnings.length ? ` ${stage.warnings[0]}` : "";
     return state.ui.status
       && !state.ui.status.includes("loaded from")
       && !state.ui.status.startsWith("Mode:")
       && !state.ui.status.startsWith("Layout:")
+      && !state.ui.status.startsWith("Chart type:")
       ? state.ui.status
-      : `${layoutLabel} layout.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
+      : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
   }, [activeType, fieldMapping, stage, state.dag, state.layout.mode, state.ui.status]);
 
   const handleZoomChange = useCallback((scale: number, minScale?: number) => {

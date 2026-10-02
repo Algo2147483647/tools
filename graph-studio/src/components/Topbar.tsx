@@ -3,7 +3,7 @@ import WorkspaceIcon from "./workspace/WorkspaceIcon";
 import type { ChangeEvent, MouseEvent, RefObject } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../graph/appearance";
 import type { GraphAppearancePresetId } from "../graph/appearanceCommands";
-import type { GraphLayoutMode } from "../graph/types";
+import type { GraphChartType, GraphLayoutMode } from "../graph/types";
 import type { AiSettings } from "../ai/types";
 import SettingsModal from "./settings/SettingsModal";
 import { ArrowLeftIcon, ArrowUpIcon, FitIcon, GraphRootsIcon, MinusIcon, PlusIcon, RedoIcon, SaveIcon, SlidersIcon, UndoIcon } from "./topbar/TopbarIcons";
@@ -12,6 +12,9 @@ import ZoomInput from "./ui/ZoomInput";
 
 interface TopbarProps {
   topbarRef: RefObject<HTMLElement>;
+  chartType: GraphChartType;
+  sankeyUnavailableReason: string | null;
+  onChartTypeChange: (type: GraphChartType) => void;
   layoutMode: GraphLayoutMode;
   appearance: GraphAppearance;
   showNodeDetail: boolean;
@@ -68,6 +71,9 @@ interface TopbarProps {
 
 export default function Topbar({
   topbarRef,
+  chartType,
+  sankeyUnavailableReason,
+  onChartTypeChange,
   layoutMode,
   appearance,
   showNodeDetail,
@@ -168,7 +174,10 @@ export default function Topbar({
             />
             <SettingsModal
               open={settingsOpen}
-              layoutMode={layoutMode}
+              chartType={chartType}
+                sankeyUnavailableReason={sankeyUnavailableReason}
+                onChartTypeChange={onChartTypeChange}
+                layoutMode={layoutMode}
               appearance={appearance}
               showNodeDetail={showNodeDetail}
               hideNodeBorders={hideNodeBorders}

@@ -1,6 +1,6 @@
 import { getNodeChildKeys, getNodeChildren, getNodeType } from "../graph/accessors";
 import { getDefaultFieldMapping, type FieldMapping } from "../graph/fieldMapping";
-import type { GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag, RelationValue } from "../graph/types";
+import type { GraphRenderMode, GraphSelection, NodeKey, NormalizedDag, RelationValue } from "../graph/types";
 import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance, type GraphLayoutAppearance } from "../graph/appearance";
 import { getRelationKeys } from "../graph/relations";
 import { cloneGraphDocument } from "../graph/serialize";
@@ -40,7 +40,7 @@ export function buildStageData(input: {
   colorSourceDag?: NormalizedDag;
   mapping?: FieldMapping;
   selection: GraphSelection | null;
-  layoutMode?: GraphLayoutMode;
+  layoutMode?: GraphRenderMode;
   appearance?: GraphAppearance;
   showNodeDetail?: boolean;
   alignNodeWidthsToMax?: boolean;
@@ -299,7 +299,7 @@ export function buildStageData(input: {
 }
 
 function resolveLayout(
-  layoutMode: GraphLayoutMode,
+  layoutMode: GraphRenderMode,
   layoutDag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>,
   layoutRoots: NodeKey[],
   mapping: FieldMapping,

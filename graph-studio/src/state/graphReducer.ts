@@ -1,5 +1,6 @@
 import { areSelectionsEqual, isSelectionValid, remapSelectionKeys, removeSelectionKeys } from "../graph/selectors";
-import { getGraphLayoutLabel } from "../graph/types";
+import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";
+import { getSankeyError } from "../graph/sankey";
 import { initialGraphAppState, type GraphAppState } from "./initialState";
 import type { GraphAction } from "./graphActions";
 import { clampConsoleSidebarWidth } from "./preferences";
@@ -7,9 +8,18 @@ import { clampConsoleSidebarWidth } from "./preferences";
 const EDIT_HISTORY_LIMIT = 100;
 
 export function graphReducer(state: GraphAppState, action: GraphAction): GraphAppState {
+  const next = reduceGraphState(state, action);
+  if (next.chartType === "sankey" && next.dag && (next.dag !== state.dag || next.chartType !== state.chartType)) {
+    const error = getSankeyError(next.dag.nodes, next.dag.edges);
+    if (error) return { ...next, chartType: "node-link", ui: { ...next.ui, status: `${error} Showing the node-link chart.` } };
+  }
+  return next;
+}
+
+function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
     case "graphClosed":
-      return { ...initialGraphAppState, layout: state.layout, ui: { ...initialGraphAppState.ui, consoleSidebarOpen: state.ui.consoleSidebarOpen, consoleSidebarWidth: state.ui.consoleSidebarWidth, status: action.status } };
+      return { ...initialGraphAppState, chartType: state.chartType, layout: state.layout, ui: { ...initialGraphAppState.ui, consoleSidebarOpen: state.ui.consoleSidebarOpen, consoleSidebarWidth: state.ui.consoleSidebarWidth, status: action.status } };
     case "graphLoaded":
       return {
         ...initialGraphAppState,
@@ -28,7 +38,8 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
           savedRevision: 0,
         },
         mode: "edit",
-        layout: { ...state.layout, mode: action.dag.diagram === "sankey" ? "sankey" : state.layout.mode === "sankey" ? "level" : state.layout.mode },
+        chartType: action.dag.diagram === "sankey" ? "sankey" : "node-link",
+        layout: state.layout,
         ui: {
           ...initialGraphAppState.ui,
           consoleSidebarOpen: state.ui.consoleSidebarOpen,
@@ -59,6 +70,7 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
     case "canvasInitialized":
       return {
         ...initialGraphAppState,
+        chartType: "node-link",
         dag: action.dag,
         source: {
           fileName: action.fileName,
@@ -223,6 +235,7 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
       };
     }
     case "layoutModeChanged":
+      if (state.chartType !== "node-link") return state;
       return {
         ...state,
         layout: { ...state.layout, mode: action.mode },
@@ -232,6 +245,14 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
           status: state.dag ? `Layout: ${getGraphLayoutLabel(action.mode)}.` : state.ui.status,
         },
       };
+    case "chartTypeChanged": {
+      if (action.chartType === state.chartType) return state;
+      if (action.chartType === "sankey" && state.dag) {
+        const error = getSankeyError(state.dag.nodes, state.dag.edges);
+        if (error) return { ...state, ui: { ...state.ui, status: error } };
+      }
+      return { ...state, chartType: action.chartType, ui: { ...state.ui, contextMenu: null, status: `Chart type: ${getGraphChartLabel(action.chartType)}.` } };
+    }
     case "zoomChanged":
       if (
         Math.abs(state.zoom.scale - action.scale) < 0.0001

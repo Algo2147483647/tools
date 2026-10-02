@@ -15,6 +15,10 @@ DAG Studio separates graph data from graph appearance.
 
 Appearance changes do not rewrite graph JSON. They affect how the current graph is rendered and how exported SVG output looks.
 
+Settings separates **Chart type**, **Layout**, and **Appearance**. `Node-link` and `Sankey` are chart types; BFS, Sugiyama and Dagre are Node-link layouts. Sankey uses automatic flow layout. The application stores separate `chartStyles["node-link"]` and `chartStyles.sankey` profiles, including appearance and visibility options. Each type has its own in-session appearance undo/redo history. The Node-link layout choice survives chart-type switches. Older shared preferences are copied into both profiles during migration, preserving the existing look.
+
+Appearance configuration import/export and reset target the current type. The downloaded appearance JSON format remains unchanged. SVG exports use the active profile. Only relevant controls are shown: Sankey exposes flow opacity, while its bar width and spacing live under Layout.
+
 ## Appearance Document
 
 The editable appearance object is `GraphAppearance`.

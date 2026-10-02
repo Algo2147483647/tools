@@ -9,11 +9,13 @@ import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
 import { sankeySuite } from "./sankey.test";
 import { examplesSuite } from "./examples.test";
+import { chartTypesSuite } from "./chartTypes.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
     aiHarnessSuite,
     appearanceSuite,
+    chartTypesSuite,
     graphSuite,
     importMergeSuite,
     consoleSuite,

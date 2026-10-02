@@ -67,7 +67,8 @@ Graph documents use the strict Graph Studio v2 envelope: `format`, `version`, `n
 - initialize a blank canvas with one starter node
 - focus a node, move back through focus history, or move up to parent levels
 - work with multiple roots as a forest
-- change layout modes between `BFS`, `Sugiyama layered`, `Dagre layered`, and `Sankey flow`
+- switch chart type between `Node-link` and `Sankey`, each with its own saved appearance
+- arrange Node-link charts with `BFS`, `Sugiyama` or `Dagre`; Sankey uses automatic flow layout
 - configure node shadows in Appearance settings, with live preview and SVG export
 - visualize numeric flows using the optional v2 `diagram: "sankey"` protocol ([example](public/sankey-example.json))
 - inspect every node field in a generic node viewer

@@ -3,7 +3,8 @@ import { createGraphDocument } from "../graph/normalize";
 import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import { createInitialCanvasDag, INITIAL_CANVAS_FILE_NAME } from "../graph/initialCanvas";
 import { getInitialSelection } from "../graph/selectors";
-import type { GraphLayoutMode, NodeKey } from "../graph/types";
+import type { GraphChartType, GraphLayoutMode, NodeKey } from "../graph/types";
+import type { ChartDisplayOptions } from "../state/chartStyles";
 import { useGraphImport } from "../hooks/useGraphImport";
 import { useGraphSave } from "../hooks/useGraphSave";
 import { useRelativeFilePreview } from "../hooks/useRelativeFilePreview";
@@ -16,9 +17,14 @@ export function useDocumentSession() {
   const [preferences] = useState(loadGraphPagePreferences);
   const [state, dispatch] = useReducer(graphReducer, initialGraphAppState);
   const [fieldMapping] = useState(getDefaultFieldMapping);
-  const [showNodeDetail, setShowNodeDetail] = useState(preferences.showNodeDetail);
-  const [hideNodeBorders, setHideNodeBorders] = useState(preferences.hideNodeBorders);
-  const [alignNodeWidthsToMax, setAlignNodeWidthsToMax] = useState(preferences.alignNodeWidthsToMax);
+  const [displayByChart, setDisplayByChart] = useState<Record<GraphChartType, ChartDisplayOptions>>(() => ({
+    "node-link": displayOptions(preferences.chartStyles["node-link"]),
+    sankey: displayOptions(preferences.chartStyles.sankey),
+  }));
+  const { showNodeDetail, hideNodeBorders, alignNodeWidthsToMax } = displayByChart[state.chartType];
+  function toggleDisplay(key: keyof ChartDisplayOptions) {
+    setDisplayByChart(current => ({ ...current, [state.chartType]: { ...current[state.chartType], [key]: !current[state.chartType][key] } }));
+  }
   const [aiSettings, setAiSettings] = useState(preferences.aiSettings);
   const [nodeDetailInitialFocus, setNodeDetailInitialFocus] = useState<"fields" | "raw">("fields");
   const files = useGraphImport({ dispatch, state });
@@ -76,18 +82,23 @@ export function useDocumentSession() {
     currentJsonContent, savedJsonContent, nodeDetailInitialFocus, openNodeDetail,
     closeModals, closeContextMenu, requestSave, initializeCanvas,
     handleAppDragOver, handleAppDrop, aiSettings, setAiSettings,
-    showNodeDetail, hideNodeBorders, alignNodeWidthsToMax,
-    toggleNodeDetail: () => setShowNodeDetail(current => !current),
-    toggleNodeBorders: () => setHideNodeBorders(current => !current),
-    toggleNodeWidthAlign: () => setAlignNodeWidthsToMax(current => !current),
+    showNodeDetail, hideNodeBorders, alignNodeWidthsToMax, displayByChart,
+    toggleNodeDetail: () => toggleDisplay("showNodeDetail"),
+    toggleNodeBorders: () => toggleDisplay("hideNodeBorders"),
+    toggleNodeWidthAlign: () => toggleDisplay("alignNodeWidthsToMax"),
     toggleSettings: () => dispatch({ type: "settingsToggled" }),
     toggleConsole: () => dispatch({ type: "consoleSidebarToggled" }),
     closeSaveDialog: () => dispatch({ type: "saveDialogClosed" }),
     changeLayout: (mode: GraphLayoutMode) => dispatch({ type: "layoutModeChanged", mode }),
+    changeChartType: (chartType: GraphChartType) => dispatch({ type: "chartTypeChanged", chartType }),
   };
 }
 
 export type DocumentSessionController = ReturnType<typeof useDocumentSession>;
+
+function displayOptions({ showNodeDetail, hideNodeBorders, alignNodeWidthsToMax }: ChartDisplayOptions): ChartDisplayOptions {
+  return { showNodeDetail, hideNodeBorders, alignNodeWidthsToMax };
+}
 
 function hasDraggedFiles(dataTransfer: DataTransfer): boolean {
   return Array.from(dataTransfer.types || []).includes("Files");

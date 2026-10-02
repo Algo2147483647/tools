@@ -1,0 +1,16 @@
+
+  VITE v4.5.14  ready in 390 ms
+
+  ➜  Local:   http://127.0.0.1:5188/
+  ➜  press h to show help
+11:48:41 [vite] hmr update /src/App.tsx
+11:48:41 [vite] hmr update /src/App.tsx
+11:48:41 [vite] hmr update /src/App.tsx
+11:48:41 [vite] hmr update /src/App.tsx
+11:48:41 [vite] hmr update /src/components/StudioView.tsx
+11:50:18 [vite] hmr update /src/styles/index.css
+11:50:18 [vite] hmr update /src/components/settings/AppearanceSettings.tsx
+11:50:18 [vite] hmr update /src/styles/index.css
+11:50:18 [vite] hmr update /src/components/workspace/RecentProjects.tsx
+11:50:18 [vite] hmr update /src/components/settings/AppearanceSettings.tsx
+11:51:14 [vite] hmr update /src/components/workspace/RecentProjects.tsx

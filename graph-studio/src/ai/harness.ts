@@ -7,7 +7,7 @@ import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../graph/appeara
 import { getNodeChildren, getNodeParents } from "../graph/accessors";
 import type { FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
-import type { GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
+import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import { buildAiGraphContext } from "./context";
 import type {
   ActionPlan,
@@ -33,6 +33,7 @@ interface BuildContextInput {
   dag: NormalizedDag | null;
   mode: GraphMode;
   layoutMode: GraphLayoutMode;
+  chartType?: GraphChartType;
   selection: GraphSelection | null;
   contextNodeKey: NodeKey | null;
   mapping: FieldMapping;
@@ -149,6 +150,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
     dag: input.dag,
     mode: input.mode,
     layoutMode: input.layoutMode,
+    chartType: input.chartType,
     selection: input.selection,
     contextNodeKey: input.contextNodeKey,
     mapping: input.mapping,

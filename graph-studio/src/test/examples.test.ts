@@ -159,8 +159,9 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
   defineTest("switching from a Sankey example to mathematics restores a layered layout", async () => {
     const dag = await exampleGraph("mathematics", "mathematics.json");
     assert.equal(Object.keys(dag.nodes).length, 112);
-    const state = graphReducer({...initialGraphAppState,layout:{...initialGraphAppState.layout,mode:"sankey"}}, {type:"graphLoaded",dag,fileName:"mathematics.json",selection:{type:"full"},status:""});
-    assert.equal(state.layout.mode, "level");
+    const state = graphReducer({...initialGraphAppState,chartType:"sankey",layout:{mode:"dagre"}}, {type:"graphLoaded",dag,fileName:"mathematics.json",selection:{type:"full"},status:""});
+    assert.equal(state.chartType, "node-link");
+    assert.equal(state.layout.mode, "dagre");
     assert.equal(state.source.dirty, false);
   }),
 ]);

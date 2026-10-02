@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type MouseEvent } from "
 import { createPortal } from "react-dom";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
-import type { GraphLayoutMode } from "../../graph/types";
+import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import type { AiSettings } from "../../ai/types";
 import { CloseIcon } from "../topbar/TopbarIcons";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
@@ -15,6 +15,9 @@ import { parseCssPixelValue } from "./settingsUtils";
 
 interface SettingsModalProps {
   open: boolean;
+  chartType: GraphChartType;
+  sankeyUnavailableReason: string | null;
+  onChartTypeChange: (type: GraphChartType) => void;
   layoutMode: GraphLayoutMode;
   appearance: GraphAppearance;
   showNodeDetail: boolean;
@@ -50,6 +53,9 @@ interface SettingsModalProps {
 
 export default function SettingsModal({
   open,
+  chartType,
+  sankeyUnavailableReason,
+  onChartTypeChange,
   layoutMode,
   appearance,
   showNodeDetail,
@@ -180,10 +186,14 @@ export default function SettingsModal({
               />
             ) : null}
 
-            {(shownChapter === "appearance" || shownChapter === "layout") ? (
+            {(shownChapter === "chart" || shownChapter === "appearance" || shownChapter === "layout") ? (
               <AppearanceSettings
-                view={shownChapter as "appearance" | "layout"}
+                key={chartType}
+                view={shownChapter}
                 query={query}
+                chartType={chartType}
+                sankeyUnavailableReason={sankeyUnavailableReason}
+                onChartTypeChange={onChartTypeChange}
                 layoutMode={layoutMode}
                 appearance={appearance}
                 showNodeDetail={showNodeDetail}

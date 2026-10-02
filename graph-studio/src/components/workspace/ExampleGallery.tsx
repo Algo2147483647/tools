@@ -7,7 +7,6 @@ export default function ExampleGallery({ onOpen, busy }: { onOpen: (id: string) 
       <ExampleArt kind={example.id} color={example.accent}/>
       <span className="example-card-body"><span className="eyebrow">{example.kind}</span><strong>{example.title}<span aria-hidden="true">↗</span></strong><span className="example-description">{example.description}</span><span className="example-detail">{example.detail}</span></span>
     </button>)}</div>
-    <p className="example-gallery-note">Each example opens as a separate workspace. Edit freely and save your own copy.</p>
   </section>;
 }
 

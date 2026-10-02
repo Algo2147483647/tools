@@ -85,10 +85,10 @@ export const appearanceSuite = defineSuite("appearance", [
     });
     const parsed = parseGraphPagePreferences(raw);
 
-    assert.equal(parsed?.appearance?.layout.columnGap, 144);
-    assert.equal(parsed?.appearance?.display.showEdgeLabels, false);
-    assert.equal(parsed?.appearance?.cssVars["--dag-title-font-size"], "18px");
-    assert.equal(parsed?.appearance?.cssVars["--dag-title-font-style"], "normal");
+    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.layout.columnGap, 144);
+    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.display.showEdgeLabels, false);
+    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.cssVars["--dag-title-font-size"], "18px");
+    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.cssVars["--dag-title-font-style"], "normal");
   }),
 
   defineTest("buildStageData uses appearance layout minimum stage size", () => {

@@ -1,6 +1,6 @@
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
-import type { GraphLayoutMode, GraphMode } from "../graph/types";
-import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance, type GraphAppearance } from "../graph/appearance";
+import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
+import { createChartStyles, sanitizeChartStyle, type ChartStyles } from "./chartStyles";
 import { getDefaultFieldMapping, sanitizeFieldMapping, type FieldMapping } from "../graph/fieldMapping";
 import type { AiExecutionMode, AiProvider, AiSettings } from "../ai/types";
 
@@ -8,11 +8,9 @@ const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
 
 export interface GraphPagePreferences {
   mode: GraphMode;
+  chartType: GraphChartType;
   layoutMode: GraphLayoutMode;
-  appearance: GraphAppearance;
-  showNodeDetail: boolean;
-  hideNodeBorders: boolean;
-  alignNodeWidthsToMax: boolean;
+  chartStyles: ChartStyles;
   consoleSidebarOpen: boolean;
   consoleSidebarWidth: number;
   fieldMapping: FieldMapping;
@@ -37,11 +35,9 @@ interface StorageLike {
 export function getInitialGraphPagePreferences(): GraphPagePreferences {
   return {
     mode: "edit",
+    chartType: "node-link",
     layoutMode: "sugiyama",
-    appearance: DEFAULT_GRAPH_APPEARANCE,
-    showNodeDetail: true,
-    hideNodeBorders: false,
-    alignNodeWidthsToMax: false,
+    chartStyles: createChartStyles(),
     consoleSidebarOpen: false,
     consoleSidebarWidth: 360,
     fieldMapping: getDefaultFieldMapping(),
@@ -85,6 +81,8 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
 
   let parsed: {
     mode?: unknown;
+    chartType?: unknown;
+    chartStyles?: unknown;
     layoutMode?: unknown;
     consoleSidebarOpen?: unknown;
     consoleSidebarWidth?: unknown;
@@ -108,20 +106,23 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   if (parsed.mode === "edit") {
     next.mode = parsed.mode;
   }
-  if (parsed.layoutMode === "level" || parsed.layoutMode === "sugiyama" || parsed.layoutMode === "dagre" || parsed.layoutMode === "sankey") {
+  if (parsed.layoutMode === "level" || parsed.layoutMode === "sugiyama" || parsed.layoutMode === "dagre") {
     next.layoutMode = parsed.layoutMode;
   }
-  if (parsed.appearance && typeof parsed.appearance === "object" && !Array.isArray(parsed.appearance)) {
-    next.appearance = sanitizeGraphAppearance(parsed.appearance);
+  if (parsed.chartType === "node-link" || parsed.chartType === "sankey") {
+    next.chartType = parsed.chartType;
+  } else if (parsed.layoutMode === "sankey") {
+    next.chartType = "sankey";
   }
-  if (typeof parsed.showNodeDetail === "boolean") {
-    next.showNodeDetail = parsed.showNodeDetail;
-  }
-  if (typeof parsed.hideNodeBorders === "boolean") {
-    next.hideNodeBorders = parsed.hideNodeBorders;
-  }
-  if (typeof parsed.alignNodeWidthsToMax === "boolean") {
-    next.alignNodeWidthsToMax = parsed.alignNodeWidthsToMax;
+  // Preserve the formerly shared style for both types on first migration.
+  if (parsed.chartStyles && typeof parsed.chartStyles === "object" && !Array.isArray(parsed.chartStyles)) {
+    const styles = parsed.chartStyles as Record<string, unknown>;
+    next.chartStyles = {
+      "node-link": sanitizeChartStyle(styles["node-link"]),
+      sankey: sanitizeChartStyle(styles.sankey),
+    };
+  } else if (parsed.appearance || [parsed.showNodeDetail, parsed.hideNodeBorders, parsed.alignNodeWidthsToMax].some(value => typeof value === "boolean")) {
+    next.chartStyles = { "node-link": sanitizeChartStyle(parsed), sankey: sanitizeChartStyle(parsed) };
   }
   if (typeof parsed.consoleSidebarOpen === "boolean") {
     next.consoleSidebarOpen = parsed.consoleSidebarOpen;
