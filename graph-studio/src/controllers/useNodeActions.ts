@@ -1,13 +1,12 @@
 import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeDetailRawJson";
 import type { ContextMenuAction } from "../components/ContextMenu";
 import { copyTextToClipboard, readTextFromClipboard } from "../adapters/clipboard";
-import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import type { NodeKey, RelationValue } from "../graph/types";
 import type { DocumentSessionController } from "./useDocumentSession";
 import type { GraphTransactionsController } from "./useGraphTransactions";
 
 export function useNodeActions(session: DocumentSessionController, transactions: GraphTransactionsController) {
-  const { state, dispatch, fieldMapping } = session;
+  const { state, dispatch } = session;
   const { commitCommand } = transactions;
   function handleContextMenuAction(action: ContextMenuAction, nodeKey: NodeKey | null) {
     dispatch({ type: "contextMenuClosed" });
@@ -77,7 +76,7 @@ export function useNodeActions(session: DocumentSessionController, transactions:
       return;
     }
     try {
-      await copyTextToClipboard(buildRawNodeEditorValue(nodeKey, node, fieldMapping));
+      await copyTextToClipboard(buildRawNodeEditorValue(nodeKey, node));
       dispatch({ type: "statusChanged", status: `Copied node "${nodeKey}" JSON to the clipboard.` });
     } catch (error) {
       console.error(error);
@@ -169,6 +168,6 @@ export function useNodeActions(session: DocumentSessionController, transactions:
 export type NodeActionsController = ReturnType<typeof useNodeActions>;
 
 function getPastedNodeFields(value: unknown): { key: NodeKey; fields: Record<string, unknown> } | null {
-  const parsed = parseRawNodeEditorValue(JSON.stringify(value), "", getDefaultFieldMapping());
+  const parsed = parseRawNodeEditorValue(JSON.stringify(value));
   return parsed.ok ? { key: parsed.nextKey, fields: parsed.fields } : null;
 }

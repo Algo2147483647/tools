@@ -50,6 +50,8 @@ Script behavior:
 The codebase is organized around a few clear responsibilities:
 
 - graph loading and normalization happen in the graph layer
+- v2 semantic fields are fixed in `graph/fieldRoles.ts`; UI, layout, console and AI use them directly without passing a mapping object
+- descendant traversal is shared by graph commands and stage layout in `graph/traversal.ts`; layout-specific breadth-first ordering stays in the layout layer
 - graph documents are validated as v2; edges are authoritative and graphIndex builds non-enumerable read-only adjacency projections
 - importMerge produces explicit conflicts before committing a multi-file document; metadata survives serialization
 - edits flow through graph commands and reducer-managed history

@@ -3,7 +3,6 @@ import type { AiSettings } from "../ai/types";
 import type { GraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
 import type { ChartDisplayOptions } from "../state/chartStyles";
-import type { FieldMapping } from "../graph/fieldMapping";
 import type { GraphAppState } from "../state/initialState";
 import { saveGraphPagePreferences } from "../state/preferences";
 
@@ -11,13 +10,12 @@ export function useGraphPreferences({
   state,
   appearanceByChart,
   displayByChart,
-  fieldMapping,
   aiSettings,
 }: {
   state: GraphAppState;
   appearanceByChart: Record<GraphChartType, GraphAppearance>;
   displayByChart: Record<GraphChartType, ChartDisplayOptions>;
-  fieldMapping: FieldMapping;
+
   aiSettings: AiSettings;
 }) {
   useEffect(() => {
@@ -31,8 +29,7 @@ export function useGraphPreferences({
       },
       consoleSidebarOpen: state.ui.consoleSidebarOpen,
       consoleSidebarWidth: state.ui.consoleSidebarWidth,
-      fieldMapping,
       aiSettings,
     });
-  }, [aiSettings, appearanceByChart, displayByChart, fieldMapping, state.chartType, state.layout.mode, state.mode, state.ui.consoleSidebarOpen, state.ui.consoleSidebarWidth]);
+  }, [aiSettings, appearanceByChart, displayByChart, state.chartType, state.layout.mode, state.mode, state.ui.consoleSidebarOpen, state.ui.consoleSidebarWidth]);
 }

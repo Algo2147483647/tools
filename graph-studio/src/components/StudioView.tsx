@@ -1,6 +1,5 @@
 import { canOverwrite } from "../adapters/fileAccess";
 import { useMemo } from "react";
-import { getDisplayFieldName } from "../graph/fieldMapping";
 import { getSankeyError } from "../graph/sankey";
 import type { AiController } from "../controllers/useAiController";
 import type { AppearanceHistoryController } from "../controllers/useAppearanceHistory";
@@ -32,7 +31,7 @@ interface StudioViewProps {
 }
 
 export default function StudioView({ session, appearanceHistory, transactions, consoleController, ai, viewport, nodeActions }: StudioViewProps) {
-  const { state, files, fieldMapping, filePreview, relativeLinkRoot } = session;
+  const { state, files, filePreview, relativeLinkRoot } = session;
   const { appearance } = appearanceHistory;
   const relationEditor = state.ui.relationEditor;
   const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
@@ -148,7 +147,7 @@ export default function StudioView({ session, appearanceHistory, transactions, c
         open={Boolean(relationEditor)}
         nodeKey={relationEditor?.nodeKey || null}
         field={relationEditor?.field || null}
-        fieldLabel={relationEditor?.field ? getDisplayFieldName(relationEditor.field, fieldMapping) : undefined}
+        fieldLabel={relationEditor?.field}
         node={relationEditor && state.dag ? state.dag.nodes[relationEditor.nodeKey] || null : null}
         sankey={state.dag?.diagram === "sankey"}
         onSave={nodeActions.saveRelations}
@@ -158,7 +157,7 @@ export default function StudioView({ session, appearanceHistory, transactions, c
         open={Boolean(detailNodeKey)}
         nodeKey={detailNodeKey}
         node={detailNodeKey && state.dag ? state.dag.nodes[detailNodeKey] || null : null}
-        fieldMapping={fieldMapping}
+
         initialFocus={session.nodeDetailInitialFocus}
         relativeLinkRoot={relativeLinkRoot}
         onOpenRelativeLink={session.handleOpenRelativeLink}

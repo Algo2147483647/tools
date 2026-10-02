@@ -1,3 +1,4 @@
+import { CloseIcon } from "./ui/ModalIcons";
 import { ensureJsonExtension } from "../adapters/download";
 
 interface SaveJsonModalProps {
@@ -72,15 +73,6 @@ export default function SaveJsonModal({
         </div>
       </div>
     </div>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="modal-icon-close-svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 6L18 18" />
-      <path d="M18 6L6 18" />
-    </svg>
   );
 }
 

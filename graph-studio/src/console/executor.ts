@@ -2,7 +2,6 @@ import { applyGraphCommand, type CommandResult } from "../graph/commands";
 import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../graph/appearance";
 import { applyAppearanceCommand, type AppearanceCommandResult } from "../graph/appearanceCommands";
 import { getCustomFieldNames, getNodeChildren, getNodeDefine, getNodeParents, getNodeTitle, getNodeType } from "../graph/accessors";
-import { getDefaultFieldMapping, type FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
 import { structuredCloneValue, cloneGraphDocument } from "../graph/serialize";
 import type { NodeKey, NormalizedDag } from "../graph/types";
@@ -40,7 +39,6 @@ export function executeConsoleInstructions(
   dag: NormalizedDag,
   instructions: ConsoleInstruction[],
   initialContextNodeKey: NodeKey | null,
-  mapping: FieldMapping = getDefaultFieldMapping(),
   appearance: GraphAppearance = DEFAULT_GRAPH_APPEARANCE,
 ): ConsoleRunResult {
   let workingDag = cloneGraphDocument(dag);
@@ -77,22 +75,22 @@ export function executeConsoleInstructions(
           break;
         }
         case "graphStats": {
-          outputMessages.push(buildGraphStats(workingDag, mapping));
+          outputMessages.push(buildGraphStats(workingDag));
           break;
         }
         case "find": {
-          outputMessages.push(buildFindResults(workingDag, instruction.query, mapping));
+          outputMessages.push(buildFindResults(workingDag, instruction.query));
           break;
         }
         case "neighbors": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          outputMessages.push(buildNeighborSummary(key, workingDag, instruction.depth, mapping));
+          outputMessages.push(buildNeighborSummary(key, workingDag, instruction.depth));
           break;
         }
         case "path": {
           const fromKey = resolveExistingNodeKey(instruction.fromKey, contextNodeKey, workingDag, instruction.line);
           const toKey = resolveExistingNodeKey(instruction.toKey, contextNodeKey, workingDag, instruction.line);
-          outputMessages.push(buildDirectedPathSummary(fromKey, toKey, workingDag, mapping));
+          outputMessages.push(buildDirectedPathSummary(fromKey, toKey, workingDag));
           break;
         }
         case "use": {
@@ -107,7 +105,7 @@ export function executeConsoleInstructions(
         }
         case "list": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          outputMessages.push(buildNodeSummary(key, workingDag, mapping));
+          outputMessages.push(buildNodeSummary(key, workingDag));
           break;
         }
         case "json": {
@@ -117,7 +115,7 @@ export function executeConsoleInstructions(
         }
         case "rename": {
           const oldKey = resolveExistingNodeKey(instruction.oldKey, contextNodeKey, workingDag, instruction.line);
-          const result = applyGraphCommand(workingDag, { type: "renameNode", oldKey, newKey: instruction.newKey }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "renameNode", oldKey, newKey: instruction.newKey });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -126,7 +124,7 @@ export function executeConsoleInstructions(
         }
         case "delete": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          const result = applyGraphCommand(workingDag, instruction.recursive ? { type: "deleteSubtree", rootKey: key } : { type: "deleteNode", key }, mapping);
+          const result = applyGraphCommand(workingDag, instruction.recursive ? { type: "deleteSubtree", rootKey: key } : { type: "deleteNode", key });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -137,7 +135,7 @@ export function executeConsoleInstructions(
           const parentKey = instruction.parentKey
             ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
             : undefined;
-          const result = applyGraphCommand(workingDag, { type: "addNode", key: instruction.key, parentKey }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "addNode", key: instruction.key, parentKey });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -149,7 +147,7 @@ export function executeConsoleInstructions(
           const parentKey = instruction.parentKey
             ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
             : undefined;
-          const result = applyGraphCommand(workingDag, { type: "copyNode", sourceKey, key: instruction.key, parentKey }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "copyNode", sourceKey, key: instruction.key, parentKey });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -166,7 +164,7 @@ export function executeConsoleInstructions(
           if (instruction.createMissing) {
             [parentKey, childKey].forEach((key) => {
               if (!workingDag.nodes[key]) {
-                const addResult = applyGraphCommand(workingDag, { type: "addNode", key }, mapping);
+                const addResult = applyGraphCommand(workingDag, { type: "addNode", key });
                 workingDag = addResult.dag;
                 contextNodeKey = remapContextKey(contextNodeKey, addResult);
                 syncUiEffects(uiEffects, addResult);
@@ -174,7 +172,7 @@ export function executeConsoleInstructions(
               }
             });
           }
-          const result = applyGraphCommand(workingDag, { type: "setEdge", parentKey, childKey, weight: instruction.weight }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "setEdge", parentKey, childKey, weight: instruction.weight });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -184,7 +182,7 @@ export function executeConsoleInstructions(
         case "removeEdge": {
           const parentKey = resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line);
           const childKey = resolveExistingNodeKey(instruction.childKey, contextNodeKey, workingDag, instruction.line);
-          const result = applyGraphCommand(workingDag, { type: "removeEdge", parentKey, childKey }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "removeEdge", parentKey, childKey });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -194,7 +192,7 @@ export function executeConsoleInstructions(
         case "setParents": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
           const parents = instruction.keys.map((item) => resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line));
-          const result = applyGraphCommand(workingDag, { type: "setParents", key, parents }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "setParents", key, parents });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -204,7 +202,7 @@ export function executeConsoleInstructions(
         case "setChildren": {
           const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
           const children = instruction.keys.map((item) => resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line));
-          const result = applyGraphCommand(workingDag, { type: "setChildren", key, children }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "setChildren", key, children });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -225,7 +223,7 @@ export function executeConsoleInstructions(
           }
           const { key: _oldKey, ...fields } = structuredCloneValue(currentNode);
           Object.defineProperty(fields, instruction.field, { value: instruction.value, enumerable: true, writable: true, configurable: true });
-          const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -250,7 +248,7 @@ export function executeConsoleInstructions(
           }
           const { key: _oldKey, ...fields } = structuredCloneValue(currentNode);
           delete fields[instruction.field];
-          const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields }, mapping);
+          const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields });
           workingDag = result.dag;
           contextNodeKey = remapContextKey(contextNodeKey, result);
           syncUiEffects(uiEffects, result);
@@ -358,13 +356,13 @@ function buildKeyList(dag: NormalizedDag): string {
   return [`Keys (${keys.length}):`, ...keys].join("\n");
 }
 
-function buildGraphStats(dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string {
+function buildGraphStats(dag: NormalizedDag): string {
   const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
-  const edgeCount = keys.reduce((count, key) => count + getRelationKeys(getNodeChildren(dag.nodes[key], mapping)).length, 0);
-  const roots = keys.filter((key) => getRelationKeys(getNodeParents(dag.nodes[key], mapping)).length === 0);
-  const leaves = keys.filter((key) => getRelationKeys(getNodeChildren(dag.nodes[key], mapping)).length === 0);
+  const edgeCount = keys.reduce((count, key) => count + getRelationKeys(getNodeChildren(dag.nodes[key])).length, 0);
+  const roots = keys.filter((key) => getRelationKeys(getNodeParents(dag.nodes[key])).length === 0);
+  const leaves = keys.filter((key) => getRelationKeys(getNodeChildren(dag.nodes[key])).length === 0);
   const typeCounts = keys.reduce<Record<string, number>>((counts, key) => {
-    const type = getNodeType(dag.nodes[key], mapping) || "(empty)";
+    const type = getNodeType(dag.nodes[key]) || "(empty)";
     counts[type] = (counts[type] || 0) + 1;
     return counts;
   }, {});
@@ -382,10 +380,10 @@ function buildGraphStats(dag: NormalizedDag, mapping: FieldMapping = getDefaultF
   ].join("\n");
 }
 
-function buildFindResults(dag: NormalizedDag, query: string, mapping: FieldMapping = getDefaultFieldMapping()): string {
+function buildFindResults(dag: NormalizedDag, query: string): string {
   const needle = normalizeSearchText(query);
   const matches = Object.keys(dag.nodes)
-    .map((key) => ({ key, score: scoreNodeMatch(key, dag.nodes[key], needle, mapping) }))
+    .map((key) => ({ key, score: scoreNodeMatch(key, dag.nodes[key], needle) }))
     .filter((match) => match.score > 0)
     .sort((left, right) => right.score - left.score || left.key.localeCompare(right.key));
 
@@ -398,12 +396,12 @@ function buildFindResults(dag: NormalizedDag, query: string, mapping: FieldMappi
     `Matches (${shown.length}${matches.length > shown.length ? ` of ${matches.length}` : ""}) for "${query}":`,
     ...shown.map(({ key }) => {
       const node = dag.nodes[key];
-      return `- ${key} | title: ${formatScalarPreview(getNodeTitle(node, mapping))} | type: ${formatScalarPreview(getNodeType(node, mapping))} | define: ${formatScalarPreview(getNodeDefine(node, mapping))}`;
+      return `- ${key} | title: ${formatScalarPreview(getNodeTitle(node))} | type: ${formatScalarPreview(getNodeType(node))} | define: ${formatScalarPreview(getNodeDefine(node))}`;
     }),
   ].join("\n");
 }
 
-function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: number, mapping: FieldMapping = getDefaultFieldMapping()): string {
+function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: number): string {
   const visited = new Set<NodeKey>([nodeKey]);
   let frontier = [nodeKey];
   const layers: Array<{ depth: number; parents: NodeKey[]; children: NodeKey[] }> = [];
@@ -412,12 +410,12 @@ function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: numbe
     const parents = new Set<NodeKey>();
     const children = new Set<NodeKey>();
     frontier.forEach((key) => {
-      getRelationKeys(getNodeParents(dag.nodes[key], mapping)).forEach((parentKey) => {
+      getRelationKeys(getNodeParents(dag.nodes[key])).forEach((parentKey) => {
         if (!visited.has(parentKey) && dag.nodes[parentKey]) {
           parents.add(parentKey);
         }
       });
-      getRelationKeys(getNodeChildren(dag.nodes[key], mapping)).forEach((childKey) => {
+      getRelationKeys(getNodeChildren(dag.nodes[key])).forEach((childKey) => {
         if (!visited.has(childKey) && dag.nodes[childKey]) {
           children.add(childKey);
         }
@@ -439,7 +437,7 @@ function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: numbe
 
   const node = dag.nodes[nodeKey];
   return [
-    buildNodeSummary(nodeKey, dag, mapping),
+    buildNodeSummary(nodeKey, dag),
     `Neighbors up to depth ${depth}:`,
     ...(layers.length
       ? layers.flatMap((layer) => [
@@ -447,11 +445,11 @@ function buildNeighborSummary(nodeKey: NodeKey, dag: NormalizedDag, depth: numbe
         `depth ${layer.depth} children: ${formatKeySample(layer.children)}`,
       ])
       : ["(none)"]),
-    `Definition: ${formatScalarPreview(getNodeDefine(node, mapping))}`,
+    `Definition: ${formatScalarPreview(getNodeDefine(node))}`,
   ].join("\n");
 }
 
-function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string {
+function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: NormalizedDag): string {
   if (fromKey === toKey) {
     return `Path: ${fromKey}`;
   }
@@ -462,7 +460,7 @@ function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: Normali
 
   while (queue.length) {
     const currentKey = queue.shift() as NodeKey;
-    const children = getRelationKeys(getNodeChildren(dag.nodes[currentKey], mapping)).filter((key) => dag.nodes[key]);
+    const children = getRelationKeys(getNodeChildren(dag.nodes[currentKey])).filter((key) => dag.nodes[key]);
     for (const childKey of children) {
       if (visited.has(childKey)) {
         continue;
@@ -485,18 +483,18 @@ function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: Normali
   return `No directed path from "${fromKey}" to "${toKey}".`;
 }
 
-function buildNodeSummary(nodeKey: NodeKey, dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string {
+function buildNodeSummary(nodeKey: NodeKey, dag: NormalizedDag): string {
   const node = dag.nodes[nodeKey];
   const lines = [
     `Node: ${nodeKey}`,
-    `title: ${formatScalarPreview(getNodeTitle(node, mapping))}`,
-    `type: ${formatScalarPreview(getNodeType(node, mapping))}`,
-    `define: ${formatScalarPreview(getNodeDefine(node, mapping))}`,
-    `parents: ${formatRelationPreview(getNodeParents(node, mapping))}`,
-    `children: ${formatRelationPreview(getNodeChildren(node, mapping))}`,
+    `title: ${formatScalarPreview(getNodeTitle(node))}`,
+    `type: ${formatScalarPreview(getNodeType(node))}`,
+    `define: ${formatScalarPreview(getNodeDefine(node))}`,
+    `parents: ${formatRelationPreview(getNodeParents(node))}`,
+    `children: ${formatRelationPreview(getNodeChildren(node))}`,
   ];
 
-  const customFieldNames = getCustomFieldNames(node, mapping);
+  const customFieldNames = getCustomFieldNames(node);
   if (customFieldNames.length) {
     lines.push(`custom: ${customFieldNames.join(", ")}`);
   }
@@ -537,16 +535,16 @@ function normalizeSearchText(value: unknown): string {
   return String(value ?? "").trim().toLocaleLowerCase();
 }
 
-function scoreNodeMatch(nodeKey: NodeKey, node: Record<string, unknown>, needle: string, mapping: FieldMapping): number {
+function scoreNodeMatch(nodeKey: NodeKey, node: Record<string, unknown>, needle: string): number {
   if (!needle) {
     return 0;
   }
 
   const key = normalizeSearchText(nodeKey);
-  const title = normalizeSearchText(getNodeTitle(node, mapping));
-  const type = normalizeSearchText(getNodeType(node, mapping));
-  const define = normalizeSearchText(getNodeDefine(node, mapping));
-  const custom = getCustomFieldNames(node, mapping)
+  const title = normalizeSearchText(getNodeTitle(node));
+  const type = normalizeSearchText(getNodeType(node));
+  const define = normalizeSearchText(getNodeDefine(node));
+  const custom = getCustomFieldNames(node)
     .map((fieldName) => normalizeSearchText(node[fieldName]))
     .join(" ");
 

@@ -1,6 +1,5 @@
 import { useCallback, type Dispatch } from "react";
 import { applyGraphCommand, type CommandResult, type GraphCommand } from "../graph/commands";
-import type { FieldMapping } from "../graph/fieldMapping";
 import type { GraphSelection } from "../graph/types";
 import type { GraphAction } from "../state/graphActions";
 import { prepareGraphTransaction } from "../state/graphTransactions";
@@ -13,10 +12,10 @@ interface AppearanceUndo {
   redo: () => void;
 }
 
-export function useGraphTransactions({ state, dispatch, fieldMapping, appearanceHistory }: {
+export function useGraphTransactions({ state, dispatch, appearanceHistory }: {
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;
-  fieldMapping: FieldMapping;
+
   appearanceHistory: AppearanceUndo;
 }) {
   const commitBatch = useCallback((results: CommandResult[], label: string, selection?: GraphSelection | null): boolean => {
@@ -29,7 +28,7 @@ export function useGraphTransactions({ state, dispatch, fieldMapping, appearance
   const commitCommand = useCallback((command: GraphCommand, selection = state.selection): string | undefined => {
     if (!state.dag) return "No graph loaded.";
     try {
-      const result = applyGraphCommand(state.dag, command, fieldMapping);
+      const result = applyGraphCommand(state.dag, command);
       commitBatch([result], result.message || "Updated graph.", selection);
     } catch (error) {
       const message = error instanceof Error ? error.message : "The graph command failed.";
@@ -37,7 +36,7 @@ export function useGraphTransactions({ state, dispatch, fieldMapping, appearance
       window.alert(message);
       return message;
     }
-  }, [commitBatch, dispatch, fieldMapping, state.dag, state.selection]);
+  }, [commitBatch, dispatch, state.dag, state.selection]);
 
   const undo = useCallback(() => {
     if (state.editHistory.undoStack.length) dispatch({ type: "undoRequested" });

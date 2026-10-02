@@ -142,7 +142,7 @@ export const consoleSuite = defineSuite("console", [
       return;
     }
 
-    const executed = executeConsoleInstructions(createSampleDag(), parsed.instructions, null, undefined, DEFAULT_GRAPH_APPEARANCE);
+    const executed = executeConsoleInstructions(createSampleDag(), parsed.instructions, null, DEFAULT_GRAPH_APPEARANCE);
     assert.equal(executed.ok, true);
     if (!executed.ok) {
       return;
@@ -162,7 +162,7 @@ export const consoleSuite = defineSuite("console", [
       return;
     }
 
-    const executed = executeConsoleInstructions(createGraphDocument(), parsed.instructions, null, undefined, DEFAULT_GRAPH_APPEARANCE);
+    const executed = executeConsoleInstructions(createGraphDocument(), parsed.instructions, null, DEFAULT_GRAPH_APPEARANCE);
     assert.equal(executed.ok, true);
     if (!executed.ok) {
       return;

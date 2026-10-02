@@ -1,5 +1,4 @@
-import { getNodeChildKeys } from "./accessors";
-import { getDefaultFieldMapping, type FieldMapping } from "./fieldMapping";
+import { collectDescendantKeys } from "./traversal";
 import { serializeDag } from "./serialize";
 import { normalizeDagInput, validateNodeKey, validateNodeFields } from "./normalize";
 import { DEFAULT_RELATION_VALUE, type NormalizedDag, type NodeKey, type RelationValue, type GraphEdge } from "./types";
@@ -27,7 +26,7 @@ export interface CommandResult {
   message?: string;
 }
 
-export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, mapping: FieldMapping = getDefaultFieldMapping()): CommandResult {
+export function applyGraphCommand(source: NormalizedDag, command: GraphCommand): CommandResult {
   const document = serializeDag(source);
   const defaultRelationValue = document.diagram === "sankey" ? 1 : DEFAULT_RELATION_VALUE;
   const nodes = document.nodes;
@@ -64,7 +63,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand, 
       rename(command.oldKey, command.newKey); result.message = `Renamed node ${command.oldKey} to ${command.newKey}.`; break;
     case "deleteNode":
     case "deleteSubtree": {
-      const keys = command.type === "deleteNode" ? [command.key] : collectSubtreeNodeKeys(source, command.rootKey, mapping);
+      const keys = command.type === "deleteNode" ? [command.key] : collectSubtreeNodeKeys(source, command.rootKey);
       keys.forEach(requireNode);
       const removed = new Set(keys);
       keys.forEach(key => delete nodes[key]);
@@ -124,14 +123,6 @@ export function newEdgeId(edges: GraphEdge[]): string {
   return `edge-${n}`;
 }
 
-export function collectSubtreeNodeKeys(dag: NormalizedDag, root: NodeKey, mapping: FieldMapping = getDefaultFieldMapping()): NodeKey[] {
-  const seen = new Set<NodeKey>();
-  const stack = [root];
-  while (stack.length) {
-    const key = stack.pop()!;
-    if (seen.has(key) || !Object.prototype.hasOwnProperty.call(dag.nodes, key)) continue;
-    seen.add(key);
-    stack.push(...getNodeChildKeys(dag.nodes[key], mapping));
-  }
-  return [...seen];
+export function collectSubtreeNodeKeys(dag: NormalizedDag, root: NodeKey): NodeKey[] {
+  return collectDescendantKeys(dag.nodes, [root]);
 }

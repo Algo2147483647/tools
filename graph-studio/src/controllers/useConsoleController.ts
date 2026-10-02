@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildAppearanceMutationLabel } from "../graph/appearanceCommands";
 import { createGraphDocument } from "../graph/normalize";
 import type { GraphAppearance } from "../graph/appearance";
-import type { FieldMapping } from "../graph/fieldMapping";
 import type { NodeKey } from "../graph/types";
 import type { GraphAppState } from "../state/initialState";
 import { parseConsoleSource } from "../console/dsl";
@@ -13,9 +12,9 @@ import type { GraphTransactionsController } from "./useGraphTransactions";
 
 type Ask = (message: string) => Promise<void>;
 
-export function useConsoleController({ state, fieldMapping, appearance, transactions, commitAppearance, openNodeDetail }: {
+export function useConsoleController({ state, appearance, transactions, commitAppearance, openNodeDetail }: {
   state: GraphAppState;
-  fieldMapping: FieldMapping;
+
   appearance: GraphAppearance;
   transactions: Pick<GraphTransactionsController, "commitBatch">;
   commitAppearance: (next: GraphAppearance, label: string) => void;
@@ -85,7 +84,7 @@ export function useConsoleController({ state, fieldMapping, appearance, transact
       appendMessage("error", "No graph loaded. Load or initialize a graph before running console instructions.");
       return false;
     }
-    const executed = executeConsoleInstructions(state.dag || createGraphDocument(), parsed.instructions, contextNodeKey, fieldMapping, appearance);
+    const executed = executeConsoleInstructions(state.dag || createGraphDocument(), parsed.instructions, contextNodeKey, appearance);
     setContextNodeKey(executed.contextNodeKey);
     if (!executed.ok) {
       appendMessage("error", executed.message.startsWith("Line ") ? executed.message : `Line ${executed.line}: ${executed.message}`);
@@ -106,7 +105,7 @@ export function useConsoleController({ state, fieldMapping, appearance, transact
     appendMessage("success", buildConsoleSuccessMessage(executed.instructionCount, executed.mutationCount,
       executed.appearanceMutationCount, executed.contextNodeKey, finalUiEffect?.type));
     return true;
-  }, [appearance, appendMessage, clear, commitAppearance, contextNodeKey, fieldMapping, openNodeDetail, recordInput, state.dag, transactions.commitBatch]);
+  }, [appearance, appendMessage, clear, commitAppearance, contextNodeKey, openNodeDetail, recordInput, state.dag, transactions.commitBatch]);
 
   const changeInput = useCallback((value: string) => {
     setInput(value);

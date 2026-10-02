@@ -12,17 +12,16 @@ import { requestAiPlan, testAiConnection } from "../ai/providers";
 import type { AiHarnessState, AiSettings } from "../ai/types";
 import { buildConsoleReviewCard } from "../console/reviewCards";
 import type { GraphAppearance } from "../graph/appearance";
-import type { FieldMapping } from "../graph/fieldMapping";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
 import type { ConsoleController } from "./useConsoleController";
 
 type AiConsole = Pick<ConsoleController, "entries" | "contextNodeKey" | "appendMessage" | "recordInput" | "upsertReview" | "setReviewStatus" | "runSource">;
 
-export function useAiController({ state, dispatch, fieldMapping, appearance, settings, consoleController }: {
+export function useAiController({ state, dispatch, appearance, settings, consoleController }: {
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;
-  fieldMapping: FieldMapping;
+
   appearance: GraphAppearance;
   settings: AiSettings;
   consoleController: AiConsole;
@@ -74,7 +73,7 @@ export function useAiController({ state, dispatch, fieldMapping, appearance, set
     const batch = next.pendingCommandBatch;
     if (!batch) return next;
     const validation = validateCommandBatch({ batch, dag: state.dag, contextNodeKey,
-      mapping: fieldMapping, appearance, graphRevision });
+      appearance, graphRevision });
     next = attachValidationToHarness(next, validation, turnId);
     if (next.activePlan) upsertReview(buildConsoleReviewCard(next.activePlan, validation));
     if (!validation.allPassed) {
@@ -93,7 +92,7 @@ export function useAiController({ state, dispatch, fieldMapping, appearance, set
       upsertReview(buildConsoleReviewCard(next.activePlan, next.activePlan.commandBatch.validation, "applied"));
     }
     return next;
-  }, [appearance, appendMessage, contextNodeKey, fieldMapping, graphRevision, runSource, settings.executionMode, state.dag, upsertReview]);
+  }, [appearance, appendMessage, contextNodeKey, graphRevision, runSource, settings.executionMode, state.dag, upsertReview]);
 
   const request = useCallback(async (rawMessage: string) => {
     const message = rawMessage.trim();
@@ -120,8 +119,7 @@ export function useAiController({ state, dispatch, fieldMapping, appearance, set
       && snapshot.contextNodeKey === current.current.contextNodeKey;
     try {
       const context = buildAiContextPacket({ harness: next, dag: state.dag, mode: state.mode,
-        layoutMode: state.layout.mode, chartType: state.chartType, selection: state.selection, contextNodeKey, mapping: fieldMapping,
-        appearance, consoleEntries: entries });
+        layoutMode: state.layout.mode, chartType: state.chartType, selection: state.selection, contextNodeKey, appearance, consoleEntries: entries });
       const response = await requestAiPlan({ settings, context, message });
       if (!isCurrent()) {
         if (generation === requestGeneration.current) appendMessage("info", "AI response discarded because its document, context or settings changed. Please try again.");
@@ -150,7 +148,7 @@ export function useAiController({ state, dispatch, fieldMapping, appearance, set
         setBusy(false);
       }
     }
-  }, [appearance, appendMessage, contextNodeKey, entries, fieldMapping, recordInput, runtimeHarness, settings, state.dag, state.chartType, state.layout.mode, state.mode, state.selection, validateAndExecute]);
+  }, [appearance, appendMessage, contextNodeKey, entries, recordInput, runtimeHarness, settings, state.dag, state.chartType, state.layout.mode, state.mode, state.selection, validateAndExecute]);
 
   const applyReview = useCallback((planId: string) => {
     if (busyRef.current) return;

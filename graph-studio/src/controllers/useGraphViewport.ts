@@ -12,7 +12,7 @@ import { downloadSvg } from "../rendering/export-svg";
 import type { DocumentSessionController } from "./useDocumentSession";
 
 export function useGraphViewport(session: DocumentSessionController, appearance: GraphAppearance) {
-  const { state, dispatch, fieldMapping, showNodeDetail, alignNodeWidthsToMax } = session;
+  const { state, dispatch, showNodeDetail, alignNodeWidthsToMax } = session;
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,23 +21,23 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   const pendingNodeClickTimeoutRef = useRef<number | null>(null);
   const resizeCleanupRef = useRef<(() => void) | null>(null);
   useEffect(() => () => { clearPendingNodeClick(); resizeCleanupRef.current?.(); }, []);
-  const typeOptions = useMemo(() => state.dag ? getGraphTypeOptions(state.dag, fieldMapping) : [], [fieldMapping, state.dag]);
+  const typeOptions = useMemo(() => state.dag ? getGraphTypeOptions(state.dag) : [], [state.dag]);
   const activeType = typeOptions.includes(selectedType) ? selectedType : "";
   useEffect(() => {
     if (selectedType && !typeOptions.includes(selectedType)) {
       setSelectedType("");
     }
   }, [selectedType, typeOptions]);
-  const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, fieldMapping, state.chartType) : null, [activeType, fieldMapping, state.dag, state.chartType]);
+  const displayDag = useMemo(() => state.dag ? projectGraphByType(state.dag, activeType, state.chartType) : null, [activeType, state.dag, state.chartType]);
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
-  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, colorSourceDag: state.dag ?? undefined, mapping: fieldMapping, selection: activeType ? { type: "full" } : state.selection, layoutMode: renderMode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, state.dag, fieldMapping, showNodeDetail, renderMode, state.selection]);
-  const parentSelection = useMemo(() => !activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys, fieldMapping) : null, [activeType, fieldMapping, stage, state.dag]);
+  const stage = useMemo(() => displayDag ? buildStageData({ dag: displayDag, colorSourceDag: state.dag ?? undefined, selection: activeType ? { type: "full" } : state.selection, layoutMode: renderMode, appearance, showNodeDetail, alignNodeWidthsToMax }) : null, [activeType, alignNodeWidthsToMax, appearance, displayDag, state.dag, showNodeDetail, renderMode, state.selection]);
+  const parentSelection = useMemo(() => !activeType && state.dag && stage ? getParentLevelSelection(state.dag, stage.topLevelKeys) : null, [activeType, stage, state.dag]);
   const status = useMemo(() => {
     if (!state.dag || !stage) {
       return state.ui.status;
     }
     const focusNode = stage.dag[stage.root];
-    const focusTitle = focusNode ? getNodeTitle(focusNode, fieldMapping) : "";
+    const focusTitle = focusNode ? getNodeTitle(focusNode) : "";
     const focusLabel = focusNode?.synthetic ? focusTitle || "Selected roots" : sanitizeNodeLabel(focusTitle || stage.root);
     const layoutLabel = getGraphLayoutLabel(stage.layoutMode);
     const warningText = stage.warnings.length ? ` ${stage.warnings[0]}` : "";
@@ -48,7 +48,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       && !state.ui.status.startsWith("Chart type:")
       ? state.ui.status
       : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
-  }, [activeType, fieldMapping, stage, state.dag, state.layout.mode, state.ui.status]);
+  }, [activeType, stage, state.dag, state.layout.mode, state.ui.status]);
 
   const handleZoomChange = useCallback((scale: number, minScale?: number) => {
     dispatch({ type: "zoomChanged", scale, minScale });

@@ -1,11 +1,10 @@
 import { createGraphDocument } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import type { FieldMapping } from "../graph/fieldMapping";
 import type { NormalizedDag } from "../graph/types";
 import type { EditTransaction } from "./initialState";
 
-export function serializeDagToJson(dag: NormalizedDag, mapping: FieldMapping): string {
-  return JSON.stringify(serializeDag(dag, mapping), null, 2);
+export function serializeDagToJson(dag: NormalizedDag): string {
+  return JSON.stringify(serializeDag(dag), null, 2);
 }
 
 export function getSavedRevisionDag(

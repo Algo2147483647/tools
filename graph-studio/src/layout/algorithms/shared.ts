@@ -1,5 +1,4 @@
 import { getNodeChildKeys } from "../../graph/accessors";
-import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 
 export interface VisibleGraph {
@@ -14,7 +13,7 @@ export function getExistingRoots(dag: Record<NodeKey, unknown>, roots: NodeKey[]
   return Array.from(new Set(roots.filter((root) => Boolean(dag[root]))));
 }
 
-function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): NodeKey[] {
+function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[]): NodeKey[] {
   const queue = getExistingRoots(dag, roots);
   const visited = new Set(queue);
   const nodeKeys: NodeKey[] = [];
@@ -26,7 +25,7 @@ function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>,
       continue;
     }
     nodeKeys.push(key);
-    getNodeChildKeys(node, mapping).forEach((childKey) => {
+    getNodeChildKeys(node).forEach((childKey) => {
       if (dag[childKey] && !visited.has(childKey)) {
         visited.add(childKey);
         queue.push(childKey);
@@ -37,8 +36,8 @@ function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>,
   return nodeKeys;
 }
 
-export function buildVisibleGraph(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): VisibleGraph {
-  const nodeKeys = collectReachableInLevelOrder(dag, roots, mapping);
+export function buildVisibleGraph(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[]): VisibleGraph {
+  const nodeKeys = collectReachableInLevelOrder(dag, roots);
   const visibleSet = new Set(nodeKeys);
   const incoming: Record<NodeKey, NodeKey[]> = Object.create(null);
   const outgoing: Record<NodeKey, NodeKey[]> = Object.create(null);
@@ -55,7 +54,7 @@ export function buildVisibleGraph(dag: Record<NodeKey, DagNode | undefined>, roo
     if (!sourceNode) {
       return;
     }
-    getNodeChildKeys(sourceNode, mapping).forEach((targetKey) => {
+    getNodeChildKeys(sourceNode).forEach((targetKey) => {
       if (visibleSet.has(targetKey)) {
         outgoing[sourceKey].push(targetKey);
         incoming[targetKey].push(sourceKey);

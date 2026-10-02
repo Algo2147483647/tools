@@ -4,7 +4,6 @@ import { executeConsoleInstructions } from "../console/executor";
 import { parseConsoleSource } from "../console/dsl";
 import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../graph/appearance";
 import { getNodeChildren, getNodeParents } from "../graph/accessors";
-import type { FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
 import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import { buildAiGraphContext } from "./context";
@@ -35,7 +34,7 @@ interface BuildContextInput {
   chartType?: GraphChartType;
   selection: GraphSelection | null;
   contextNodeKey: NodeKey | null;
-  mapping: FieldMapping;
+
   appearance?: GraphAppearance;
   consoleEntries: ConsoleHistoryEntry[];
 }
@@ -51,7 +50,7 @@ interface ValidateInput {
   batch: CommandBatch;
   dag: NormalizedDag | null;
   contextNodeKey: NodeKey | null;
-  mapping: FieldMapping;
+
   appearance?: GraphAppearance;
   graphRevision: string;
 }
@@ -152,7 +151,6 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
     chartType: input.chartType,
     selection: input.selection,
     contextNodeKey: input.contextNodeKey,
-    mapping: input.mapping,
     appearance: input.appearance || DEFAULT_GRAPH_APPEARANCE,
   });
   const recentConsoleEvents = input.consoleEntries
@@ -365,7 +363,7 @@ export function validateCommandBatch(input: ValidateInput): ValidationReport {
     };
   }
 
-  const execution = executeConsoleInstructions(input.dag || createGraphDocument(), parsed.instructions, input.contextNodeKey, input.mapping, input.appearance || DEFAULT_GRAPH_APPEARANCE);
+  const execution = executeConsoleInstructions(input.dag || createGraphDocument(), parsed.instructions, input.contextNodeKey, input.appearance || DEFAULT_GRAPH_APPEARANCE);
   const commandRisks = input.batch.commands.map(classifyCommandRisk);
   const riskLevel = maxRisk([input.batch.riskLevel, ...commandRisks]);
   const destructive = input.batch.commands.some(isDestructiveCommand);
@@ -387,7 +385,7 @@ export function validateCommandBatch(input: ValidateInput): ValidationReport {
   }
 
   const diffPreview = [
-    ...buildDiffPreview(input.dag || createGraphDocument(), execution.dag, input.mapping),
+    ...buildDiffPreview(input.dag || createGraphDocument(), execution.dag),
     ...execution.appearanceResults.flatMap((result) => result.diff),
   ];
   const mutationSummary = diffPreview.length
@@ -504,8 +502,6 @@ export function formatReviewInstruction(mode: AiExecutionMode): string {
   }
   return "Auto Edit mode: command batch is ready.";
 }
-
-
 
 function createEmptyWorkingMemory(): WorkingMemory {
   return {
@@ -657,7 +653,7 @@ function buildCommandWarnings(command: string): string[] {
   return warnings;
 }
 
-function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag, mapping: FieldMapping): string[] {
+function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag): string[] {
   const beforeKeys = new Set(Object.keys(beforeDag.nodes));
   const afterKeys = new Set(Object.keys(afterDag.nodes));
   const lines: string[] = [];
@@ -678,8 +674,8 @@ function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag, map
     .forEach((key) => {
       const beforeNode = beforeDag.nodes[key];
       const afterNode = afterDag.nodes[key];
-      const beforeFields = Object.keys(beforeNode).filter((field) => !isRelationField(field, mapping)).sort();
-      const afterFields = Object.keys(afterNode).filter((field) => !isRelationField(field, mapping)).sort();
+      const beforeFields = Object.keys(beforeNode).filter((field) => !isRelationField(field)).sort();
+      const afterFields = Object.keys(afterNode).filter((field) => !isRelationField(field)).sort();
       const allFields = Array.from(new Set([...beforeFields, ...afterFields])).sort();
       allFields.forEach((field) => {
         if (JSON.stringify(beforeNode[field]) !== JSON.stringify(afterNode[field])) {
@@ -688,19 +684,19 @@ function buildDiffPreview(beforeDag: NormalizedDag, afterDag: NormalizedDag, map
       });
     });
 
-  diffEdges(beforeDag, afterDag, mapping, "children").forEach((line) => lines.push(line));
+  diffEdges(beforeDag, afterDag, "children").forEach((line) => lines.push(line));
 
   return lines.slice(0, 24);
 }
 
-function diffEdges(beforeDag: NormalizedDag, afterDag: NormalizedDag, mapping: FieldMapping, relation: "children" | "parents"): string[] {
+function diffEdges(beforeDag: NormalizedDag, afterDag: NormalizedDag, relation: "children" | "parents"): string[] {
   const lines: string[] = [];
   const keys = Array.from(new Set([...Object.keys(beforeDag.nodes), ...Object.keys(afterDag.nodes)])).sort();
   keys.forEach((key) => {
     const beforeNode = beforeDag.nodes[key];
     const afterNode = afterDag.nodes[key];
-    const beforeRelations = beforeNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(beforeNode, mapping) : getNodeParents(beforeNode, mapping))) : new Set<string>();
-    const afterRelations = afterNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(afterNode, mapping) : getNodeParents(afterNode, mapping))) : new Set<string>();
+    const beforeRelations = beforeNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(beforeNode) : getNodeParents(beforeNode))) : new Set<string>();
+    const afterRelations = afterNode ? new Set(getRelationKeys(relation === "children" ? getNodeChildren(afterNode) : getNodeParents(afterNode))) : new Set<string>();
     Array.from(afterRelations)
       .filter((target) => !beforeRelations.has(target))
       .sort((left, right) => left.localeCompare(right))
@@ -713,13 +709,9 @@ function diffEdges(beforeDag: NormalizedDag, afterDag: NormalizedDag, mapping: F
   return lines;
 }
 
-function isRelationField(field: string, mapping: FieldMapping): boolean {
-  return field === mapping.parents || field === mapping.children;
+function isRelationField(field: string): boolean {
+  return field === "parents" || field === "children";
 }
-
-
-
-
 
 function maxRisk(values: Array<AiRiskLevel | undefined>): AiRiskLevel {
   if (values.includes("high")) {

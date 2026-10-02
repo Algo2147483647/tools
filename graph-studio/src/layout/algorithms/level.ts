@@ -1,10 +1,9 @@
 import { getNodeChildKeys } from "../../graph/accessors";
-import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 import type { LayoutResult } from "../types";
 import { getExistingRoots } from "./shared";
 
-export function buildLevelLayout(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[], mapping: FieldMapping): LayoutResult {
+export function buildLevelLayout(dag: Record<NodeKey, DagNode | undefined>, roots: NodeKey[]): LayoutResult {
   const coordinates: LayoutResult["coordinates"] = new Map();
   const queue = getExistingRoots(dag, roots);
   const visited = new Set(queue);
@@ -20,7 +19,7 @@ export function buildLevelLayout(dag: Record<NodeKey, DagNode | undefined>, root
         continue;
       }
       coordinates.set(key, [level, index]);
-      getNodeChildKeys(node, mapping).forEach((childKey) => {
+      getNodeChildKeys(node).forEach((childKey) => {
         if (dag[childKey] && !visited.has(childKey)) {
           visited.add(childKey);
           queue.push(childKey);

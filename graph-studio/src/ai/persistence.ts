@@ -331,8 +331,6 @@ function sanitizeCommandBatchStatus(value: unknown): CommandBatch["status"] {
     : "draft";
 }
 
-
-
 function sanitizeRiskLevel(value: unknown): AiRiskLevel {
   return value === "low" || value === "medium" || value === "high" ? value : "medium";
 }

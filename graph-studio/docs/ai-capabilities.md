@@ -202,7 +202,7 @@ AI state is split between page preferences and per-graph harness state.
 
 | Storage Area | Key | Contents |
 | --- | --- | --- |
-| Page preferences | `dag-studio:page-preferences` | AI settings, UI preferences, field mapping, appearance, mode, layout, and console sidebar state. |
+| Page preferences | `dag-studio:page-preferences` | AI settings, UI preferences, appearance, mode, layout, and console sidebar state. |
 | AI harness | `dag-studio:ai-harness:<encoded graph id>` | Session id, graph id, graph revision, working memory, active plan, pending command batch, recent events, artifact refs, and mode. |
 
 Persisted AI harness data is sanitized on load. Invalid plans, command batches, validation reports, events, and working memory are dropped or defaulted rather than trusted blindly.

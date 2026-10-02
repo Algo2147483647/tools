@@ -9,7 +9,6 @@ import {
 } from "../ai/harness";
 import { parseAiResponse } from "../ai/providers";
 import { buildAiHarnessStorageKey, parsePersistedAiHarnessState } from "../ai/persistence";
-import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
@@ -97,7 +96,6 @@ export const aiHarnessSuite = defineSuite("ai harness", [
       batch: plan.commandBatch,
       dag: createSampleDag(),
       contextNodeKey: null,
-      mapping: getDefaultFieldMapping(),
       graphRevision: "0",
     });
     assert.equal(validation.allPassed, true);
@@ -132,7 +130,6 @@ export const aiHarnessSuite = defineSuite("ai harness", [
       batch: plan.commandBatch,
       dag: createSampleDag(),
       contextNodeKey: null,
-      mapping: getDefaultFieldMapping(),
       appearance: DEFAULT_GRAPH_APPEARANCE,
       graphRevision: "0",
     });

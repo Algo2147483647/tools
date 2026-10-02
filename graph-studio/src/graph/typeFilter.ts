@@ -1,4 +1,3 @@
-import { getDefaultFieldMapping, type FieldMapping } from "./fieldMapping";
 import { getNodeType } from "./accessors";
 import { normalizeDagInput } from "./normalize";
 import { serializeDag } from "./serialize";
@@ -7,13 +6,13 @@ import type { GraphChartType, NormalizedDag } from "./types";
 
 const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";
 
-export function getGraphTypeOptions(dag: NormalizedDag, mapping: FieldMapping = getDefaultFieldMapping()): string[] {
-  return [...new Set(Object.values(dag.nodes).map(node => getNodeType(node, mapping)).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+export function getGraphTypeOptions(dag: NormalizedDag): string[] {
+  return [...new Set(Object.values(dag.nodes).map(node => getNodeType(node)).filter(Boolean))].sort((a,b) => a.localeCompare(b));
 }
 
-export function projectGraphByType(source: NormalizedDag, selectedType: string, mapping: FieldMapping = getDefaultFieldMapping(), chartType: GraphChartType = "node-link"): NormalizedDag {
+export function projectGraphByType(source: NormalizedDag, selectedType: string, chartType: GraphChartType = "node-link"): NormalizedDag {
   if (!selectedType) return source;
-  const visible = new Set(Object.keys(source.nodes).filter(key => getNodeType(source.nodes[key], mapping) === selectedType));
+  const visible = new Set(Object.keys(source.nodes).filter(key => getNodeType(source.nodes[key]) === selectedType));
   const doc = serializeDag(source);
   doc.nodes = Object.fromEntries(Object.entries(doc.nodes).filter(([key]) => visible.has(key)));
   doc.edges = doc.edges.filter(edge => visible.has(edge.source) && visible.has(edge.target));

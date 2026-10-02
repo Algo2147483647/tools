@@ -1,5 +1,4 @@
 import dagre from "dagre";
-import type { FieldMapping } from "../../graph/fieldMapping";
 import type { DagNode, NodeKey } from "../../graph/types";
 import type { LayoutEdgeRoute, LayoutResult } from "../types";
 import { buildVisibleGraph } from "./shared";
@@ -11,10 +10,9 @@ const LAYER_EPSILON = 0.5;
 export function buildDagreLayout(
   dag: Record<NodeKey, DagNode | undefined>,
   roots: NodeKey[],
-  mapping: FieldMapping,
   nodeSizes: Map<NodeKey, { width: number; height: number }>,
 ): LayoutResult {
-  const visible = buildVisibleGraph(dag, roots, mapping);
+  const visible = buildVisibleGraph(dag, roots);
   // Keep arbitrary document IDs out of Graphlib's internal object-key namespace.
   const internalIds = new Map(visible.nodeKeys.map((key, index) => [key, `node-${index}`]));
   const graphId = (key: NodeKey) => internalIds.get(key)!;

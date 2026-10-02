@@ -1,5 +1,4 @@
 import { getCustomFieldNames, getNodeChildren, getNodeDefine, getNodeParents, getNodeTitle, getNodeType } from "../graph/accessors";
-import type { FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
 import type { GraphChartType, GraphLayoutMode, GraphMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { GraphAppearance } from "../graph/appearance";
@@ -16,7 +15,6 @@ export function buildAiGraphContext({
   chartType = "node-link",
   selection,
   contextNodeKey,
-  mapping,
   appearance,
 }: {
   dag: NormalizedDag | null;
@@ -25,7 +23,7 @@ export function buildAiGraphContext({
   chartType?: GraphChartType;
   selection: GraphSelection | null;
   contextNodeKey: NodeKey | null;
-  mapping: FieldMapping;
+
   appearance: GraphAppearance;
 }): AiGraphContext {
   const commandReference = CONSOLE_COMMAND_REFERENCE
@@ -46,14 +44,14 @@ export function buildAiGraphContext({
   }
 
   const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
-  const edgeCount = countEdges(dag, mapping);
+  const edgeCount = countEdges(dag);
   const selectionText = formatSelection(selection);
   const shownKeys = keys.slice(0, MAX_CONTEXT_NODES);
   const omittedCount = Math.max(0, keys.length - shownKeys.length);
   const indexedKeys = keys.slice(0, MAX_NODE_INDEX_ITEMS);
   const indexOmittedCount = Math.max(0, keys.length - indexedKeys.length);
-  const nodeLines = shownKeys.flatMap((key) => formatNodeSummary(key, dag, mapping));
-  const nodeIndexLines = indexedKeys.map((key) => formatNodeIndexLine(key, dag, mapping));
+  const nodeLines = shownKeys.flatMap((key) => formatNodeSummary(key, dag));
+  const nodeIndexLines = indexedKeys.map((key) => formatNodeIndexLine(key, dag));
 
   return {
     commandReference,
@@ -91,8 +89,8 @@ function formatAppearanceSummary(appearance: GraphAppearance): string {
   ].join("\n");
 }
 
-function countEdges(dag: NormalizedDag, mapping: FieldMapping): number {
-  return Object.values(dag.nodes).reduce((count, node) => count + getRelationKeys(getNodeChildren(node, mapping)).length, 0);
+function countEdges(dag: NormalizedDag): number {
+  return Object.values(dag.nodes).reduce((count, node) => count + getRelationKeys(getNodeChildren(node)).length, 0);
 }
 
 function formatSelection(selection: GraphSelection | null): string {
@@ -108,14 +106,14 @@ function formatSelection(selection: GraphSelection | null): string {
   return `${selection.type} ${selection.keys.join(", ")}`;
 }
 
-function formatNodeSummary(key: NodeKey, dag: NormalizedDag, mapping: FieldMapping): string[] {
+function formatNodeSummary(key: NodeKey, dag: NormalizedDag): string[] {
   const node = dag.nodes[key];
-  const parents = getRelationKeys(getNodeParents(node, mapping));
-  const children = getRelationKeys(getNodeChildren(node, mapping));
-  const title = getNodeTitle(node, mapping);
-  const type = getNodeType(node, mapping);
-  const define = getNodeDefine(node, mapping);
-  const customFields = getCustomFieldNames(node, mapping);
+  const parents = getRelationKeys(getNodeParents(node));
+  const children = getRelationKeys(getNodeChildren(node));
+  const title = getNodeTitle(node);
+  const type = getNodeType(node);
+  const define = getNodeDefine(node);
+  const customFields = getCustomFieldNames(node);
 
   return [
     `- ${key}`,
@@ -128,10 +126,10 @@ function formatNodeSummary(key: NodeKey, dag: NormalizedDag, mapping: FieldMappi
   ].filter(Boolean);
 }
 
-function formatNodeIndexLine(key: NodeKey, dag: NormalizedDag, mapping: FieldMapping): string {
+function formatNodeIndexLine(key: NodeKey, dag: NormalizedDag): string {
   const node = dag.nodes[key];
-  const title = getNodeTitle(node, mapping);
-  const type = getNodeType(node, mapping);
+  const title = getNodeTitle(node);
+  const type = getNodeType(node);
   return `- ${key} | title: ${formatPreview(title)} | type: ${formatPreview(type)}`;
 }
 

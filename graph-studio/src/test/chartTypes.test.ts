@@ -22,7 +22,7 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
       nodes: { A: { type: "Visible" }, B: { type: "Hidden" }, C: { type: "Visible" } },
       edges: [{ id: "ab", source: "A", target: "B", value: 10 }, { id: "bc", source: "B", target: "C", value: 10 }],
     });
-    const filtered = projectGraphByType(source, "Visible", undefined, "sankey");
+    const filtered = projectGraphByType(source, "Visible", "sankey");
     assert.equal(filtered.diagram, undefined);
     assert.equal(filtered.edges.length, 0);
     assert.equal(Object.keys(filtered.nodes).length, 2);

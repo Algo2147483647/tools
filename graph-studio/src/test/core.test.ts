@@ -1,7 +1,7 @@
 import { aiHarnessSuite } from "./aiHarness.test";
 import { appearanceSuite } from "./appearance.test";
 import { consoleSuite } from "./console.test";
-import { fieldMappingSuite } from "./fieldMapping.test";
+import { fieldRolesSuite } from "./fieldRoles.test";
 import { graphSuite } from "./graph.test";
 import { importMergeSuite } from "./importMerge.test";
 import { runSuites } from "./harness";
@@ -19,7 +19,7 @@ async function main() {
     graphSuite,
     importMergeSuite,
     consoleSuite,
-    fieldMappingSuite,
+    fieldRolesSuite,
     stateSuite,
     workspaceSuite,
     sankeySuite,

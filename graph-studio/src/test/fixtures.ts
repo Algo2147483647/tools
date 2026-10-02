@@ -1,5 +1,5 @@
 import { createGraphDocument } from "../graph/normalize";
-import { getDefaultFieldMapping } from "../graph/fieldMapping";
+
 export function createSampleDag() {
   return createGraphDocument({
     A:{title:"Alpha",define:"Root node"},
@@ -14,5 +14,3 @@ export function createSampleDag() {
 }
 export function createForestDag() {return createGraphDocument({Left:{define:"Left root"},Right:{define:"Right root"}});}
 export function createChildOnlyDag() {return createGraphDocument({Root:{},Mid:{},Leaf:{define:"terminal"}},[{id:"rm",source:"Root",target:"Mid",value:"edge_rm"},{id:"ml",source:"Mid",target:"Leaf",value:"edge_ml"}]);}
-export function createCustomFieldMapping(){return getDefaultFieldMapping();}
-export function createMappedSampleDag(){return createSampleDag();}

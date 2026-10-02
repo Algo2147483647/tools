@@ -1,4 +1,3 @@
-import { getMappedFieldName, type FieldMapping } from "../graph/fieldMapping";
 import type { DagNode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { ResolvedStageSelection } from "./types";
 import { findRootsFromDag } from "../graph/selectors";
@@ -6,8 +5,8 @@ import { findRootsFromDag } from "../graph/selectors";
 const GRAPH_ROOT_KEY = "__graph_root__";
 const SELECTION_ROOT_KEY = "__selection_root__";
 
-export function resolveStageSelection(dag: NormalizedDag, requestedSelection: GraphSelection | null, mapping: FieldMapping): ResolvedStageSelection {
-  const roots = findRootsFromDag(dag, mapping);
+export function resolveStageSelection(dag: NormalizedDag, requestedSelection: GraphSelection | null): ResolvedStageSelection {
+  const roots = findRootsFromDag(dag);
   const syntheticKey = (base: string) => {
     let key = base;
     while (Object.prototype.hasOwnProperty.call(dag.nodes, key)) key += "_";
@@ -57,14 +56,14 @@ export function resolveStageSelection(dag: NormalizedDag, requestedSelection: Gr
   };
 }
 
-export function withSyntheticSelectionRoot(dag: NormalizedDag, selection: ResolvedStageSelection, mapping: FieldMapping): Record<NodeKey, DagNode & { synthetic?: boolean }> {
+export function withSyntheticSelectionRoot(dag: NormalizedDag, selection: ResolvedStageSelection): Record<NodeKey, DagNode & { synthetic?: boolean }> {
   const nextDag: Record<NodeKey, DagNode & { synthetic?: boolean }> = Object.assign(Object.create(null), dag.nodes);
   if (selection.isForest) {
     nextDag[selection.rootKey] = {
       key: selection.rootKey,
-      [getMappedFieldName(mapping, "title")]: selection.label,
-      [getMappedFieldName(mapping, "children")]: selection.topLevelKeys,
-      [getMappedFieldName(mapping, "parents")]: {},
+      title: selection.label,
+      children: selection.topLevelKeys,
+      parents: {},
       synthetic: true,
     };
   }

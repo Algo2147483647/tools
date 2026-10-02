@@ -1,6 +1,6 @@
+import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 import { useEffect, useState } from "react";
 import type { DagNode, NodeKey } from "../graph/types";
-import { getMappedFieldName, type FieldMapping } from "../graph/fieldMapping";
 import { getRelationKeys } from "../graph/relations";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import NodeFieldEditor, { LinkValue, MarkdownValue, buildEditableFields, formatEditorValue, hasDisplayLink, parseNodeFieldValue, supportsDisplayMode, type EditableField, type FieldDisplayMode } from "./NodeFieldEditor";
@@ -10,7 +10,7 @@ interface NodeDetailModalProps {
   open: boolean;
   nodeKey: NodeKey | null;
   node: DagNode | null;
-  fieldMapping: FieldMapping;
+
   initialFocus?: "fields" | "raw";
   relativeLinkRoot: RelativeLinkRoot | null;
   onOpenRelativeLink: (url: string) => void;
@@ -19,7 +19,7 @@ interface NodeDetailModalProps {
   onClose: () => void;
 }
 
-export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, initialFocus = "fields", relativeLinkRoot, onOpenRelativeLink, onRelativeLinkError, onSave, onClose }: NodeDetailModalProps) {
+export default function NodeDetailModal({ open, nodeKey, node, initialFocus = "fields", relativeLinkRoot, onOpenRelativeLink, onRelativeLinkError, onSave, onClose }: NodeDetailModalProps) {
   const [fields, setFields] = useState<EditableField[]>([]);
   const [values, setValues] = useState<Record<string, string>>({});
   const [rawJsonValue, setRawJsonValue] = useState("");
@@ -31,16 +31,16 @@ export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, ini
 
   useEffect(() => {
     if (open && node && nodeKey) {
-      const nextFields = buildEditableFields(nodeKey, node, fieldMapping);
+      const nextFields = buildEditableFields(nodeKey, node);
       setFields(nextFields);
       setValues(Object.fromEntries(nextFields.map((field) => [field.name, formatEditorValue(field)])));
-      setRawJsonValue(buildRawNodeEditorValue(nodeKey, node, fieldMapping));
+      setRawJsonValue(buildRawNodeEditorValue(nodeKey, node));
       setLastEdited("fields");
       setFieldDisplayModes(buildDefaultFieldDisplayModes(nextFields));
       setIsEditing(false);
       setError("");
     }
-  }, [fieldMapping, node, nodeKey, open]);
+  }, [node, nodeKey, open]);
 
   useEffect(() => {
     if (open) {
@@ -168,7 +168,7 @@ export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, ini
     setLastEdited("fields");
     setError("");
 
-    const nextRawJson = tryBuildRawJsonFromFieldValues(fields, nextValues, currentNodeKey, fieldMapping);
+    const nextRawJson = tryBuildRawJsonFromFieldValues(fields, nextValues, currentNodeKey);
     if (nextRawJson) {
       setRawJsonValue(nextRawJson);
     }
@@ -179,12 +179,12 @@ export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, ini
     setLastEdited("raw");
     setError("");
 
-    const parsed = parseRawNodeEditorValue(nextRawJson, currentNodeKey, fieldMapping);
+    const parsed = parseRawNodeEditorValue(nextRawJson);
     if (!parsed.ok) {
       return;
     }
 
-    const nextFields = buildEditableFields(parsed.nextKey, { ...parsed.fields, key: parsed.nextKey }, fieldMapping);
+    const nextFields = buildEditableFields(parsed.nextKey, { ...parsed.fields, key: parsed.nextKey });
     setFields(nextFields);
     setValues(Object.fromEntries(nextFields.map((field) => [field.name, formatEditorValue(field)])));
     setFieldDisplayModes((current) => {
@@ -195,12 +195,12 @@ export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, ini
 
   function handleSave() {
     if (lastEdited === "raw") {
-      const parsed = parseRawNodeEditorValue(rawJsonValue, currentNodeKey, fieldMapping);
+      const parsed = parseRawNodeEditorValue(rawJsonValue);
       if (!parsed.ok) {
         setError(parsed.message);
         return;
       }
-      if (!validateNodeRelations(parsed.nextKey, parsed.fields, fieldMapping)) {
+      if (!validateNodeRelations(parsed.nextKey, parsed.fields)) {
         setError("A node cannot reference itself.");
         return;
       }
@@ -232,7 +232,7 @@ export default function NodeDetailModal({ open, nodeKey, node, fieldMapping, ini
       patch[field.name] = parsed.value;
     }
 
-    if (!validateNodeRelations(nextKey, patch, fieldMapping)) {
+    if (!validateNodeRelations(nextKey, patch)) {
       setError("A node cannot reference itself.");
       return;
     }
@@ -279,7 +279,6 @@ function tryBuildRawJsonFromFieldValues(
   fields: EditableField[],
   values: Record<string, string>,
   fallbackKey: NodeKey,
-  fieldMapping: FieldMapping,
 ): string | null {
   const nextKey = String(values.key ?? fallbackKey).trim();
   if (!nextKey || nextKey.includes("\n") || nextKey.includes(",")) {
@@ -298,26 +297,17 @@ function tryBuildRawJsonFromFieldValues(
     patch[field.name] = parsed.value;
   }
 
-  if (!validateNodeRelations(nextKey, patch, fieldMapping)) {
+  if (!validateNodeRelations(nextKey, patch)) {
     return null;
   }
 
-  return buildRawNodeEditorValue(nextKey, patch, fieldMapping);
+  return buildRawNodeEditorValue(nextKey, patch);
 }
 
-function validateNodeRelations(nextKey: NodeKey, fields: Record<string, unknown>, fieldMapping: FieldMapping): boolean {
-  const parentKeys = getRelationKeys(fields[getMappedFieldName(fieldMapping, "parents")]);
-  const childKeys = getRelationKeys(fields[getMappedFieldName(fieldMapping, "children")]);
+function validateNodeRelations(nextKey: NodeKey, fields: Record<string, unknown>): boolean {
+  const parentKeys = getRelationKeys(fields.parents);
+  const childKeys = getRelationKeys(fields.children);
   return !parentKeys.includes(nextKey) && !childKeys.includes(nextKey);
-}
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="modal-icon-close-svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 6L18 18" />
-      <path d="M18 6L6 18" />
-    </svg>
-  );
 }
 
 function EditIcon() {
@@ -335,28 +325,6 @@ function SaveIcon() {
       <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
       <path d="M17 21v-8H7v8" />
       <path d="M7 3v5h8" />
-    </svg>
-  );
-}
-
-function FullscreenIcon({ active }: { active: boolean }) {
-  if (active) {
-    return (
-      <svg viewBox="0 0 24 24" className="modal-icon-close-svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M8 3v5H3" />
-        <path d="M21 8h-5V3" />
-        <path d="M16 21v-5h5" />
-        <path d="M3 16h5v5" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 24 24" className="modal-icon-close-svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 8V3h5" />
-      <path d="M16 3h5v5" />
-      <path d="M21 16v5h-5" />
-      <path d="M8 21H3v-5" />
     </svg>
   );
 }

@@ -5,7 +5,6 @@ import { createGraphDocument, normalizeDagInput } from "../graph/normalize";
 import { serializeDag, structuredCloneValue, cloneGraphDocument } from "../graph/serialize";
 import { getNodeChildren, getNodeParents } from "../graph/accessors";
 import { parseRelationValue, formatRelationValue } from "../graph/relations";
-import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import { getParentLevelSelection, getInitialSelection, remapSelectionKeys, removeSelectionKeys, sanitizeNodeLabel } from "../graph/selectors";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
 import { createInitialCanvasDag } from "../graph/initialCanvas";
@@ -13,8 +12,21 @@ import { buildStageData } from "../layout/stage-layout";
 import { parseRawNodeEditorValue, buildRawNodeEditorValue } from "../components/nodeDetailRawJson";
 import { defineSuite, defineTest } from "./harness";
 import { createSampleDag, createForestDag } from "./fixtures";
-const m=getDefaultFieldMapping();
+import { collectDescendantKeys } from "../graph/traversal";
+
 export const graphSuite=defineSuite("v2 document and graph",[
+ defineTest("shared traversal preserves depth-first order and handles cycles, duplicate and missing roots",()=>{
+   const graph=createGraphDocument({A:{},B:{},C:{}},[
+     {id:"ab",source:"A",target:"B"},
+     {id:"ac",source:"A",target:"C"},
+     {id:"ba",source:"B",target:"A"},
+   ]);
+   const before=serializeDag(graph);
+   const nodes={...graph.nodes,missing:undefined};
+   assert.deepEqual(collectDescendantKeys(nodes,["A","A","missing","constructor"]),["A","C","B"]);
+   assert.deepEqual(collectSubtreeNodeKeys(graph,"A"),["A","C","B"]);
+   assert.deepEqual(serializeDag(graph),before);
+ }),
  defineTest("bundled sample uses the native protocol and preserves its edges",()=>{
    const sample=JSON.parse(readFileSync(new URL("../../public/example.json",import.meta.url),"utf8"));
    const dag=normalizeDagInput(sample);
@@ -41,8 +53,8 @@ export const graphSuite=defineSuite("v2 document and graph",[
      nodes:{A:{title:"Alpha",custom:{x:[1,2]}},B:{}},edges:[{id:"edge",source:"A",target:"B",value:null,metadata:{source:"book"}}]};
    const dag=normalizeDagInput(input);
    assert.deepEqual(serializeDag(dag),input);
-   assert.deepEqual(getNodeChildren(dag.nodes.A,m),{B:null});
-   assert.deepEqual(getNodeParents(dag.nodes.B,m),{A:null});
+   assert.deepEqual(getNodeChildren(dag.nodes.A),{B:null});
+   assert.deepEqual(getNodeParents(dag.nodes.B),{A:null});
    assert.deepEqual(Object.keys(dag.nodes.A),["title","custom"]);
    assert.throws(()=>{dag.nodes.A.children={};});
    assert.deepEqual(serializeDag(normalizeDagInput(serializeDag(dag))),input);
@@ -63,7 +75,7 @@ export const graphSuite=defineSuite("v2 document and graph",[
    const dag=normalizeDagInput(JSON.parse('{"format":"graph-studio","version":2,"nodes":{"__proto__":{},"constructor":{}},"edges":[{"id":"e","source":"__proto__","target":"constructor","value":false}]}'));
    assert.deepEqual(Object.keys(dag.nodes),["__proto__","constructor"]);
    const constructorKey: string = "constructor";
-   assert.deepEqual(getNodeParents(dag.nodes[constructorKey],m),JSON.parse('{"__proto__":false}'));
+   assert.deepEqual(getNodeParents(dag.nodes[constructorKey]),JSON.parse('{"__proto__":false}'));
    assert.equal(Object.keys(serializeDag(dag).nodes).length,2);
    for(const layoutMode of ["level","sugiyama","dagre"] as const) {
      assert.equal(buildStageData({dag,selection:{type:"full"},layoutMode})?.nodes.length,2);
@@ -80,8 +92,8 @@ export const graphSuite=defineSuite("v2 document and graph",[
    const source=createSampleDag();source.edges[0].metadata={proof:1};
    const updated=applyGraphCommand(source,{type:"setParentRelations",key:"B",parents:{A:"new"}}).dag;
    assert.deepEqual(updated.edges[0],{...source.edges[0],value:"new"});
-   assert.deepEqual(getNodeChildren(updated.nodes.A,m),{B:"new",C:"edge_ac"});
-   assert.deepEqual(getNodeParents(updated.nodes.B,m),{A:"new"});
+   assert.deepEqual(getNodeChildren(updated.nodes.A),{B:"new",C:"edge_ac"});
+   assert.deepEqual(getNodeParents(updated.nodes.B),{A:"new"});
    assert.equal(source.edges[0].value,"edge_ab");
  }),
  defineTest("rename and delete update authoritative edge endpoints",()=>{
@@ -95,7 +107,7 @@ export const graphSuite=defineSuite("v2 document and graph",[
  }),
  defineTest("cloning and empty documents keep a consistent graph model",()=>{
    const source=createSampleDag(); const clone=cloneGraphDocument(source);
-   assert.deepEqual(getNodeChildren(clone.nodes.A,m),{B:"edge_ab",C:"edge_ac"});
+   assert.deepEqual(getNodeChildren(clone.nodes.A),{B:"edge_ab",C:"edge_ac"});
    assert.equal(buildStageData({dag:createGraphDocument(),selection:{type:"full"}}),null);
    assert.equal(serializeDag(createInitialCanvasDag()).version,2);
    const fields={format:"graph-studio",nodes:{key:"custom"},edges:42};
@@ -125,8 +137,8 @@ export const graphSuite=defineSuite("v2 document and graph",[
    assert.equal(sanitizeNodeLabel("Alpha-Beta_Title"),"Alpha-Beta Title");
  }),
  defineTest("raw node editor uses explicit id/data envelope and does not guess wrappers",()=>{
-   const raw=buildRawNodeEditorValue("A",{metadata:{difficulty:"easy"}},m);
-   assert.deepEqual(parseRawNodeEditorValue(raw,"",m),{ok:true,nextKey:"A",fields:{metadata:{difficulty:"easy"}}});
-   assert.equal(parseRawNodeEditorValue('{"metadata":{"difficulty":"easy"}}',"A",m).ok,false);
+   const raw=buildRawNodeEditorValue("A",{metadata:{difficulty:"easy"}});
+   assert.deepEqual(parseRawNodeEditorValue(raw),{ok:true,nextKey:"A",fields:{metadata:{difficulty:"easy"}}});
+   assert.equal(parseRawNodeEditorValue('{"metadata":{"difficulty":"easy"}}').ok,false);
  }),
 ]);

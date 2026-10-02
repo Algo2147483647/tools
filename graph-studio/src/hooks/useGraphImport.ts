@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type ChangeEvent, type Dispatch } from "react";
-import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import { getInitialSelection } from "../graph/selectors";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
@@ -41,7 +40,7 @@ export function useGraphImport({dispatch,state}: {dispatch:Dispatch<GraphAction>
     } finally {lock.current=false;setBusy(false);}
   }
   function commit(dag: ReturnType<typeof normalizeDagInput>, entry:WorkspaceFile) {
-    dispatch({type:"graphLoaded",dag,fileName:entry.path,fileHandle:entry.handle,selection:getInitialSelection(dag,getDefaultFieldMapping()),status:`${Object.keys(dag.nodes).length} nodes loaded from ${entry.path}.`});
+    dispatch({type:"graphLoaded",dag,fileName:entry.path,fileHandle:entry.handle,selection:getInitialSelection(dag),status:`${Object.keys(dag.nodes).length} nodes loaded from ${entry.path}.`});
     setHomeVisible(false);
   }
   async function remember(input:Parameters<typeof rememberLocation>[0]) {

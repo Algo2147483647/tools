@@ -1,7 +1,6 @@
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
 import { createChartStyles, sanitizeChartStyle, type ChartStyles } from "./chartStyles";
-import { getDefaultFieldMapping, sanitizeFieldMapping, type FieldMapping } from "../graph/fieldMapping";
 import type { AiProvider, AiSettings } from "../ai/types";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
@@ -13,7 +12,7 @@ interface GraphPagePreferences {
   chartStyles: ChartStyles;
   consoleSidebarOpen: boolean;
   consoleSidebarWidth: number;
-  fieldMapping: FieldMapping;
+
   aiSettings: AiSettings;
 }
 
@@ -40,7 +39,6 @@ export function getInitialGraphPagePreferences(): GraphPagePreferences {
     chartStyles: createChartStyles(),
     consoleSidebarOpen: false,
     consoleSidebarWidth: 360,
-    fieldMapping: getDefaultFieldMapping(),
     aiSettings: DEFAULT_AI_SETTINGS,
   };
 }
@@ -90,7 +88,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     showNodeDetail?: unknown;
     hideNodeBorders?: unknown;
     alignNodeWidthsToMax?: unknown;
-    fieldMapping?: unknown;
+
     aiSettings?: unknown;
   } | null;
   try {
@@ -130,9 +128,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   if (typeof parsed.consoleSidebarWidth === "number" && Number.isFinite(parsed.consoleSidebarWidth)) {
     next.consoleSidebarWidth = clampConsoleSidebarWidth(parsed.consoleSidebarWidth);
   }
-  if (parsed.fieldMapping && typeof parsed.fieldMapping === "object" && !Array.isArray(parsed.fieldMapping)) {
-    next.fieldMapping = sanitizeFieldMapping(parsed.fieldMapping);
-  }
+
   if (parsed.aiSettings && typeof parsed.aiSettings === "object" && !Array.isArray(parsed.aiSettings)) {
     next.aiSettings = sanitizeAiSettings(parsed.aiSettings);
   }
@@ -176,8 +172,6 @@ function sanitizeAiProvider(value: unknown): AiProvider {
     ? value
     : DEFAULT_AI_SETTINGS.provider;
 }
-
-
 
 function sanitizeString(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;

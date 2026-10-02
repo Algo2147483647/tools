@@ -1,8 +1,7 @@
-import type { FieldMapping } from "./fieldMapping";
 import { indexGraphDocument } from "./graphIndex";
 import type { GraphDocument, NormalizedDag } from "./types";
 
-export function serializeDag(dag: NormalizedDag, _mapping?: FieldMapping): GraphDocument {
+export function serializeDag(dag: NormalizedDag): GraphDocument {
   // structuredClone excludes non-enumerable node IDs and adjacency indexes.
   return structuredClone(dag);
 }

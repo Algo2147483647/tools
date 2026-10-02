@@ -1,5 +1,5 @@
 import type { NodeKey } from "../graph/types";
-import { formatMappedFieldLabel, getSemanticFieldName, type FieldMapping, type MappableSystemFieldKey } from "../graph/fieldMapping";
+import { getSemanticFieldName, type SystemFieldKey } from "../graph/fieldRoles";
 import { normalizeRelationField } from "../graph/relations";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import { isExternalUrl, isRelativeLink, resolveRelativeFile, resolveRelativePath } from "../adapters/relativeLinks";
@@ -19,7 +19,7 @@ export interface EditableField {
   displayName: string;
   value: unknown;
   editorKind: FieldEditorKind;
-  semanticFieldName: MappableSystemFieldKey | null;
+  semanticFieldName: SystemFieldKey | null;
   locked?: boolean;
 }
 
@@ -304,7 +304,7 @@ function isLikelyRelativeLink(value: string): boolean {
     );
 }
 
-export function buildEditableFields(nodeKey: NodeKey, node: Record<string, unknown>, fieldMapping: FieldMapping): EditableField[] {
+export function buildEditableFields(nodeKey: NodeKey, node: Record<string, unknown>): EditableField[] {
   const clonedNode = { ...node };
   if (clonedNode.key === nodeKey) {
     delete clonedNode.key;
@@ -313,10 +313,10 @@ export function buildEditableFields(nodeKey: NodeKey, node: Record<string, unkno
     { name: "key", displayName: "key", value: nodeKey, editorKind: "plainText", semanticFieldName: null },
     ...Object.entries(clonedNode).map(([name, value]) => ({
       name,
-      displayName: formatMappedFieldLabel(name, fieldMapping),
+      displayName: name,
       value,
-      editorKind: inferEditorKind(name, value, fieldMapping),
-      semanticFieldName: getSemanticFieldName(name, fieldMapping),
+      editorKind: inferEditorKind(name, value),
+      semanticFieldName: getSemanticFieldName(name),
     })),
   ];
 }
@@ -387,8 +387,8 @@ function parseJsonEditorValue(fieldName: string, rawJson: string): { ok: true; v
   }
 }
 
-function inferEditorKind(name: string, value: unknown, fieldMapping: FieldMapping): FieldEditorKind {
-  const semanticFieldName = getSemanticFieldName(name, fieldMapping);
+function inferEditorKind(name: string, value: unknown): FieldEditorKind {
+  const semanticFieldName = getSemanticFieldName(name);
   if (semanticFieldName === "parents" || semanticFieldName === "children") {
     return "relation";
   }

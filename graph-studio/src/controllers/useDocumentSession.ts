@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { createGraphDocument } from "../graph/normalize";
-import { getDefaultFieldMapping } from "../graph/fieldMapping";
 import { createInitialCanvasDag, INITIAL_CANVAS_FILE_NAME } from "../graph/initialCanvas";
 import { getInitialSelection } from "../graph/selectors";
 import type { GraphChartType, GraphLayoutMode, NodeKey } from "../graph/types";
@@ -16,7 +15,7 @@ import { getSavedRevisionDag, serializeDagToJson } from "../state/documentSerial
 export function useDocumentSession() {
   const [preferences] = useState(loadGraphPagePreferences);
   const [state, dispatch] = useReducer(graphReducer, initialGraphAppState);
-  const [fieldMapping] = useState(getDefaultFieldMapping);
+
   const [displayByChart, setDisplayByChart] = useState<Record<GraphChartType, ChartDisplayOptions>>(() => ({
     "node-link": displayOptions(preferences.chartStyles["node-link"]),
     sankey: displayOptions(preferences.chartStyles.sankey),
@@ -33,10 +32,10 @@ export function useDocumentSession() {
     files: files.workspace.files, baseFile: files.workspace.activePath || "",
   } : null, [files.workspace?.name, files.workspace?.handle, files.workspace?.files, files.workspace?.activePath]);
   const preview = useRelativeFilePreview(dispatch, relativeRoot);
-  const currentJsonContent = useMemo(() => serializeDagToJson(state.dag || createGraphDocument(), fieldMapping), [fieldMapping, state.dag]);
+  const currentJsonContent = useMemo(() => serializeDagToJson(state.dag || createGraphDocument()), [state.dag]);
   const savedJsonContent = useMemo(() => serializeDagToJson(
-    getSavedRevisionDag(state.editHistory, state.dag) || createGraphDocument(), fieldMapping,
-  ), [fieldMapping, state.dag, state.editHistory]);
+    getSavedRevisionDag(state.editHistory, state.dag) || createGraphDocument(),
+  ), [state.dag, state.editHistory]);
   const save = useGraphSave({ source: state.source, currentJsonContent, dispatch });
   const openNodeDetail = useCallback((nodeKey: NodeKey, focus: "fields" | "raw" = "fields") => {
     setNodeDetailInitialFocus(focus);
@@ -50,12 +49,12 @@ export function useDocumentSession() {
   }, [state.dag]);
   function initializeCanvas() {
     if (!files.prepareNewDocument()) return;
-    const dag = createInitialCanvasDag(fieldMapping);
+    const dag = createInitialCanvasDag();
     dispatch({
       type: "canvasInitialized",
       dag,
       fileName: INITIAL_CANVAS_FILE_NAME,
-      selection: getInitialSelection(dag, fieldMapping),
+      selection: getInitialSelection(dag),
       status: "Initialized a new canvas with one starting node.",
     });
   }
@@ -78,7 +77,7 @@ export function useDocumentSession() {
   }
 
   return {
-    state, dispatch, preferences, fieldMapping, files, ...preview, ...save,
+    state, dispatch, preferences, files, ...preview, ...save,
     currentJsonContent, savedJsonContent, nodeDetailInitialFocus, openNodeDetail,
     closeModals, closeContextMenu, requestSave, initializeCanvas,
     handleAppDragOver, handleAppDrop, aiSettings, setAiSettings,

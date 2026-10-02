@@ -6,3 +6,4 @@ __pycache__/
 .vite-dev*.log
 # Converted from package-lock.json by the shared Windows launcher.
 pnpm-lock.yaml
+test-results/
