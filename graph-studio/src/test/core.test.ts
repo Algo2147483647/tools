@@ -8,6 +8,7 @@ import { fieldRolesSuite } from "./fieldRoles.test";
 import { graphSuite } from "./graph.test";
 import { runSuites } from "./harness";
 import { importMergeSuite } from "./importMerge.test";
+import { mathematicsSuite } from "./mathematics.test";
 import { sankeySuite } from "./sankey.test";
 import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
@@ -26,6 +27,7 @@ async function main() {
     workspaceSuite,
     sankeySuite,
     examplesSuite,
+    mathematicsSuite,
   ]);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);

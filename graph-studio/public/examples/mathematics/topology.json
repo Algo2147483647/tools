@@ -2,106 +2,596 @@
   "format": "graph-studio",
   "version": 2,
   "diagram": "dag",
+  "id": "topology",
   "title": "Topology",
-  "metadata": {},
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "topology",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 7,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
   "nodes": {
-    "Euclidean_Space": {
-      "title": "Euclidean Space",
-      "type": "Geometry",
-      "define": "Euclidean space is the standard model of flat finite-dimensional geometry.",
-      "notes": "[Read concept note](./notes/Euclidean_Space.md)"
-    },
-    "Fiber_Bundle": {
-      "title": "Fiber Bundle",
+    "subject.topology": {
+      "title": "Topology",
+      "define": "Point-set foundations and algebraic topology, from compactness to homotopy, homology and duality.",
       "type": "Topology",
-      "define": "A fiber bundle is a space that locally looks like a product of a base space with a typical fiber.",
-      "notes": "[Read concept note](./notes/Fiber_Bundle.md)"
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Sets, maps, equivalence relations, basic real analysis and groups for algebraic topology.",
+      "learning_outcomes": "- Keep compactness, separation and countability assumptions distinct.\n- Compute homotopy and homology invariants by decomposition.\n- Recognize the coefficient and orientation requirements in duality.",
+      "study_route": "[Topological spaces and continuity](./notes/tp.spaces.md) → [Subspace, product and quotient topologies](./notes/tp.subspace.md) → [Compactness and Hausdorff spaces](./notes/tp.compact.md) → [Connectedness and path connectedness](./notes/tp.connected.md) → [Homotopies and homotopy equivalence](./notes/tp.homotopy.md) → [Fundamental group](./notes/tp.fundamental.md) → [Covering-space classification](./notes/tp.coverings.md) → [Singular homology](./notes/tp.homology.md) → [Cohomology and cup product](./notes/tp.cohomology.md)",
+      "notes": "[Subject guide](./guides/topology.md)",
+      "graph_file": "Open topology.json in the workspace graph list.",
+      "references": "- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text."
     },
-    "Hausdorff_Space": {
-      "title": "Hausdorff Space",
+    "tp.spaces": {
+      "title": "Topological spaces and continuity",
+      "define": "A topology contains the empty set and the whole space, is closed under arbitrary unions and finite intersections. A map is continuous when inverse images of open sets are open.",
+      "statement": "A topology contains the empty set and the whole space, is closed under arbitrary unions and finite intersections. A map is continuous when inverse images of open sets are open.",
       "type": "Topology",
-      "define": "A Hausdorff space is a topological space in which any two distinct points can be separated by disjoint neighborhoods.",
-      "notes": "[Read concept note](./notes/Hausdorff_Space.md)"
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Open sets, rather than a chosen metric, are the primitive data.",
+      "example": "The discrete and indiscrete topologies put very different structures on the same underlying set.",
+      "caution": "Sequential continuity need not characterize continuity in arbitrary spaces.",
+      "prerequisites": "**From other subjects**\n\n- [Sets, functions and relations](./notes/sl.sets.md) — Set theory and mathematical logic",
+      "references": "TOP: topologies and continuity.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Topological spaces and continuity](./notes/tp.spaces.md)"
     },
-    "Knot": {
-      "title": "Knot",
+    "tp.metric": {
+      "title": "Metric and Polish spaces",
+      "define": "A metric induces open balls and hence a topology. A Polish space is separable and completely metrizable: some compatible metric is complete.",
+      "statement": "A metric induces open balls and hence a topology. A Polish space is separable and completely metrizable: some compatible metric is complete.",
       "type": "Topology",
-      "define": "A knot is an embedding of a circle in three-dimensional space, studied up to continuous deformation.",
-      "notes": "[Read concept note](./notes/Knot.md)"
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Completeness depends on the metric; complete metrizability is a property of the topology.",
+      "example": "An open interval is Polish although its usual Euclidean metric is not complete.",
+      "caution": "Not every topological space is metrizable.",
+      "prerequisites": "**Within this subject**\n\n- [Topological spaces and continuity](./notes/tp.spaces.md)\n\n**From other subjects**\n\n- [Metric limits and completeness](./notes/ra.metric.md) — Real analysis",
+      "references": "TOP: metric spaces.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Metric and Polish spaces](./notes/tp.metric.md)"
     },
-    "Linear_Space": {
-      "title": "Linear Space",
-      "type": "Algebra",
-      "define": "A linear space is a set whose elements can be added and scaled by elements of a field.",
-      "notes": "[Read concept note](./notes/Linear_Space.md)"
-    },
-    "Metric_Space": {
-      "title": "Metric Space",
+    "tp.subspace": {
+      "title": "Subspace, product and quotient topologies",
+      "define": "Subspaces inherit intersections with ambient open sets. Product topology is generated by finite-coordinate restrictions. A quotient map declares a set open exactly when its preimage is open.",
+      "statement": "Subspaces inherit intersections with ambient open sets. Product topology is generated by finite-coordinate restrictions. A quotient map declares a set open exactly when its preimage is open.",
       "type": "Topology",
-      "define": "A metric space is a set equipped with a distance function satisfying the basic rules of distance.",
-      "notes": "[Read concept note](./notes/Metric_Space.md)"
+      "kind": "Construction",
+      "level": "Core",
+      "hypotheses": "The infinite product topology differs from the box topology.",
+      "example": "Identifying the endpoints of a closed interval produces a circle.",
+      "caution": "Quotients of Hausdorff spaces need not be Hausdorff.",
+      "prerequisites": "**Within this subject**\n\n- [Topological spaces and continuity](./notes/tp.spaces.md)",
+      "references": "TOP: subspaces, products and quotients.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Subspace, product and quotient topologies](./notes/tp.subspace.md)"
     },
-    "Set": {
-      "title": "Set",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
-      "notes": "[Read concept note](./notes/Set.md)"
-    },
-    "Topological_Space": {
-      "title": "Topological Space",
+    "tp.separation": {
+      "title": "Separation axioms",
+      "define": "A Hausdorff space separates distinct points by disjoint open neighborhoods. A regular T1 space separates a point from a disjoint closed set; a normal T1 space separates disjoint closed sets.",
+      "statement": "A Hausdorff space separates distinct points by disjoint open neighborhoods. A regular T1 space separates a point from a disjoint closed set; a normal T1 space separates disjoint closed sets.",
       "type": "Topology",
-      "define": "Topological Space is a space in which open sets are defined.",
-      "notes": "[Read concept note](./notes/Topological_Space.md)"
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The T1 condition is included explicitly in the regular and normal conventions here.",
+      "example": "Metric spaces are normal and Hausdorff.",
+      "caution": "Separation axioms are distinct from countability axioms.",
+      "prerequisites": "**Within this subject**\n\n- [Topological spaces and continuity](./notes/tp.spaces.md)",
+      "references": "TOP: separation properties.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Separation axioms](./notes/tp.separation.md)"
     },
-    "Vector_Bundle": {
-      "title": "Vector Bundle",
+    "tp.compact": {
+      "title": "Compactness and Hausdorff spaces",
+      "define": "A space is compact when every open cover has a finite subcover. A continuous image of a compact space is compact; compact subsets of Hausdorff spaces are closed.",
+      "statement": "A space is compact when every open cover has a finite subcover. A continuous image of a compact space is compact; compact subsets of Hausdorff spaces are closed.",
       "type": "Topology",
-      "define": "A vector bundle is a fiber bundle whose fibers are vector spaces and whose local trivializations are linear on fibers.",
-      "notes": "[Read concept note](./notes/Vector_Bundle.md)"
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Hausdorffness is needed for the closedness conclusion.",
+      "example": "Closed bounded subsets of Euclidean space are compact.",
+      "caution": "Closed bounded subsets of infinite-dimensional normed spaces need not be compact.",
+      "proof_idea": "Pull covers back along the map; use Hausdorff neighborhoods and a finite subcover to separate points from compact sets.",
+      "prerequisites": "**Within this subject**\n\n- [Topological spaces and continuity](./notes/tp.spaces.md)\n- [Separation axioms](./notes/tp.separation.md)",
+      "references": "TOP: compactness.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Compactness and Hausdorff spaces](./notes/tp.compact.md)"
+    },
+    "tp.tychonoff": {
+      "title": "Tychonoff theorem",
+      "define": "An arbitrary product of compact spaces is compact in the product topology.",
+      "statement": "An arbitrary product of compact spaces is compact in the product topology.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This form is stated in ZFC; the corresponding general theorem is equivalent to choice over ZF.",
+      "example": "Products of closed bounded intervals are compact, including products with infinitely many factors.",
+      "caution": "Using the box topology instead invalidates the general conclusion.",
+      "proof_idea": "Extend a family with the finite-intersection property to an ultrafilter and use convergence in every coordinate.",
+      "prerequisites": "**Within this subject**\n\n- [Compactness and Hausdorff spaces](./notes/tp.compact.md)\n- [Subspace, product and quotient topologies](./notes/tp.subspace.md)\n\n**From other subjects**\n\n- [Axiom of choice, Zorn and well-ordering](./notes/sl.choice.md) — Set theory and mathematical logic",
+      "references": "TOP: products and compactness.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Tychonoff theorem](./notes/tp.tychonoff.md)"
+    },
+    "tp.connected": {
+      "title": "Connectedness and path connectedness",
+      "define": "A connected space has no decomposition into two disjoint nonempty open subsets. A path-connected space joins every two points by a continuous map from the unit interval.",
+      "statement": "A connected space has no decomposition into two disjoint nonempty open subsets. A path-connected space joins every two points by a continuous map from the unit interval.",
+      "type": "Topology",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Path connectedness implies connectedness; the converse requires further hypotheses.",
+      "example": "The topologist's sine curve is connected but not path connected.",
+      "caution": "Local connectedness and global connectedness are different properties.",
+      "prerequisites": "**Within this subject**\n\n- [Topological spaces and continuity](./notes/tp.spaces.md)",
+      "references": "TOP: connectedness.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Connectedness and path connectedness](./notes/tp.connected.md)"
+    },
+    "tp.metrization": {
+      "title": "Urysohn metrization theorem",
+      "define": "Every second-countable regular T1 space is metrizable.",
+      "statement": "Every second-countable regular T1 space is metrizable.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Second countability means a countable base, not merely a countable dense subset.",
+      "example": "The theorem supplies compatible metrics for many abstractly defined spaces.",
+      "caution": "A general regular separable space need not be metrizable.",
+      "proof_idea": "Construct countably many continuous functions separating points and embed the space in a countable cube.",
+      "prerequisites": "**Within this subject**\n\n- [Separation axioms](./notes/tp.separation.md)\n- [Metric and Polish spaces](./notes/tp.metric.md)",
+      "references": "TOP: countability and metrization.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.",
+      "notes": "[Urysohn metrization theorem](./notes/tp.metrization.md)"
+    },
+    "tp.homotopy": {
+      "title": "Homotopies and homotopy equivalence",
+      "define": "Homotopies deform maps continuously; homotopy equivalences preserve algebraic invariants.",
+      "statement": "Maps f,g are homotopic when a continuous $H:X\\times[0,1]\\to Y$ interpolates between them. A homotopy equivalence has an inverse up to homotopy.",
+      "type": "Topology",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "For based constructions, specify which basepoints are fixed throughout.",
+      "example": "A punctured plane deformation retracts onto a circle.",
+      "caution": "Homotopy equivalence is weaker than homeomorphism.",
+      "prerequisites": "**Within this subject**\n\n- [Subspace, product and quotient topologies](./notes/tp.subspace.md)",
+      "references": "AT: homotopy.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Homotopies and homotopy equivalence](./notes/tp.homotopy.md)"
+    },
+    "tp.fundamental": {
+      "title": "Fundamental group",
+      "define": "Based loops modulo homotopy form a group detecting one-dimensional holes.",
+      "statement": "The group $\\pi_1(X,x_0)$ consists of based loops modulo based homotopy, with concatenation as multiplication. Continuous based maps induce homomorphisms.",
+      "type": "Topology",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "In a path-connected space basepoint changes give isomorphisms, generally dependent on a chosen path.",
+      "example": "$\\pi_1(S^1)\\cong\\mathbb Z$.",
+      "caution": "The fundamental group alone does not determine the homotopy type.",
+      "prerequisites": "**Within this subject**\n\n- [Homotopies and homotopy equivalence](./notes/tp.homotopy.md)\n\n**From other subjects**\n\n- [Groups and homomorphisms](./notes/gt.groups.md) — Group theory",
+      "references": "AT: fundamental group.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Fundamental group](./notes/tp.fundamental.md)"
+    },
+    "tp.van-kampen": {
+      "title": "Seifert–van Kampen theorem",
+      "define": "Compatible open decompositions compute fundamental groups by a group pushout.",
+      "statement": "If $X=U\\cup V$ with U,V and their intersection path connected and U,V open, $\\pi_1(X)$ is the pushout of $\\pi_1(U)$ and $\\pi_1(V)$ over $\\pi_1(U\\cap V)$.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Choose the basepoint in the intersection; disconnected intersections require a more general formulation.",
+      "example": "A bouquet of two circles has free fundamental group on two generators.",
+      "caution": "An arbitrary closed cover does not meet these stated hypotheses.",
+      "proof_idea": "Subdivide loops and homotopies along the cover, then identify exactly the intersection relations.",
+      "prerequisites": "**Within this subject**\n\n- [Fundamental group](./notes/tp.fundamental.md)\n\n**From other subjects**\n\n- [Free groups and presentations](./notes/gt.presentations.md) — Group theory",
+      "references": "AT: van Kampen theorem.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Seifert–van Kampen theorem](./notes/tp.van-kampen.md)"
+    },
+    "tp.coverings": {
+      "title": "Covering-space classification",
+      "define": "Under local connectivity assumptions, connected coverings correspond to subgroups.",
+      "statement": "For connected, locally path-connected, semilocally simply connected X, connected based coverings correspond to subgroups of $\\pi_1(X,x_0)$. Unbased coverings correspond to conjugacy classes of subgroups.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "A covering is locally a disjoint union of homeomorphic sheets.",
+      "example": "$z\\mapsto z^n$ gives an n-sheeted cover of the circle.",
+      "caution": "Dropping the local assumptions can break this classification and existence of a universal cover.",
+      "proof_idea": "Path lifting gives the subgroup; homotopy classes of paths construct the covering with a prescribed subgroup.",
+      "prerequisites": "**Within this subject**\n\n- [Fundamental group](./notes/tp.fundamental.md)\n\n**From other subjects**\n\n- [Subgroups and generated subgroups](./notes/gt.subgroups.md) — Group theory",
+      "references": "AT: covering spaces.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Covering-space classification](./notes/tp.coverings.md)"
+    },
+    "tp.manifolds": {
+      "title": "Topological manifolds",
+      "define": "Topological manifolds are locally Euclidean spaces with separation and countability conditions.",
+      "statement": "An n-manifold is a Hausdorff second-countable space locally homeomorphic to $\\mathbb R^n$. Manifolds with boundary instead use a closed half-space in their local models.",
+      "type": "Topology",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The boundary convention must be specified; a manifold here has no boundary unless stated.",
+      "example": "Spheres and tori are compact manifolds.",
+      "caution": "A topological manifold is not automatically supplied with a smooth structure.",
+      "prerequisites": "**Within this subject**\n\n- [Separation axioms](./notes/tp.separation.md)\n- [Subspace, product and quotient topologies](./notes/tp.subspace.md)",
+      "references": "TOP: local Euclidean spaces; AT: manifolds.\n\n- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Topological manifolds](./notes/tp.manifolds.md)"
+    },
+    "tp.cw": {
+      "title": "CW complexes",
+      "define": "A CW complex is built inductively by attaching disks along their boundary spheres, with the closure-finite and weak-topology conditions.",
+      "statement": "A CW complex is built inductively by attaching disks along their boundary spheres, with the closure-finite and weak-topology conditions.",
+      "type": "Topology",
+      "kind": "Construction",
+      "level": "Core",
+      "hypotheses": "Attaching maps need not be embeddings.",
+      "example": "A circle has one 0-cell and one 1-cell; a torus has a standard finite cell structure.",
+      "caution": "A cell decomposition is extra structure and is not unique.",
+      "prerequisites": "**Within this subject**\n\n- [Subspace, product and quotient topologies](./notes/tp.subspace.md)\n- [Homotopies and homotopy equivalence](./notes/tp.homotopy.md)",
+      "references": "AT: cell complexes.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[CW complexes](./notes/tp.cw.md)"
+    },
+    "tp.homology": {
+      "title": "Singular homology",
+      "define": "Homology records cycles modulo boundaries in a chain complex.",
+      "statement": "Singular chains are finite linear combinations of maps from simplices to X. The alternating face boundary satisfies $\\partial^2=0$, giving $H_n(X;R)=\\ker\\partial_n/\\operatorname{im}\\partial_{n+1}$.",
+      "type": "Topology",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Fix a coefficient ring; homology is functorial and homotopy invariant.",
+      "example": "$H_1(S^1;\\mathbb Z)\\cong\\mathbb Z$.",
+      "caution": "Cycles need not be boundaries; the quotient records precisely this difference.",
+      "prerequisites": "**Within this subject**\n\n- [Homotopies and homotopy equivalence](./notes/tp.homotopy.md)\n\n**From other subjects**\n\n- [Normal subgroups and quotients](./notes/gt.quotients.md) — Group theory",
+      "references": "AT: singular homology.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Singular homology](./notes/tp.homology.md)"
+    },
+    "tp.exact": {
+      "title": "Long exact sequence of a pair",
+      "define": "Relative homology connects a subspace, its ambient space and their pair.",
+      "statement": "For $A\\subseteq X$, relative chains give $\\cdots\\to H_n(A)\\to H_n(X)\\to H_n(X,A)\\to H_{n-1}(A)\\to\\cdots$.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "All groups use the same coefficients; relative chains are the quotient chain complex.",
+      "example": "The pair consisting of a disk and its boundary computes sphere homology.",
+      "caution": "Exactness means image equals kernel, not that all maps are injective or surjective.",
+      "proof_idea": "Lift a relative cycle, take its boundary in A and check the resulting connecting map and exactness.",
+      "prerequisites": "**Within this subject**\n\n- [Singular homology](./notes/tp.homology.md)",
+      "references": "AT: relative homology.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Long exact sequence of a pair](./notes/tp.exact.md)"
+    },
+    "tp.excision": {
+      "title": "Excision",
+      "define": "Removing a suitably interior subset preserves relative homology.",
+      "statement": "If $U\\subseteq A\\subseteq X$ and $\\overline U\\subseteq\\operatorname{int}_X A$, inclusion induces $H_n(X\\setminus U,A\\setminus U)\\cong H_n(X,A)$ for every n.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The closure-interior condition is taken in X.",
+      "example": "Excision turns suitable local relative-homology calculations into computations in a small neighborhood.",
+      "caution": "Removing an arbitrary subset from both members of a pair need not preserve relative homology.",
+      "proof_idea": "Repeated barycentric subdivision makes chains small enough for the relevant open cover.",
+      "prerequisites": "**Within this subject**\n\n- [Long exact sequence of a pair](./notes/tp.exact.md)",
+      "references": "AT: excision.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Excision](./notes/tp.excision.md)"
+    },
+    "tp.mayer-vietoris": {
+      "title": "Mayer–Vietoris sequence",
+      "define": "An open cover relates homology of the pieces, their intersection and their union.",
+      "statement": "For an open cover $X=U\\cup V$, homology fits into $\\cdots\\to H_n(U\\cap V)\\to H_n(U)\\oplus H_n(V)\\to H_n(X)\\to H_{n-1}(U\\cap V)\\to\\cdots$.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Use a consistent sign convention for the two inclusion maps.",
+      "example": "Two enlarged hemispheres compute the reduced homology of a sphere.",
+      "caution": "The intersection carries gluing information and cannot generally be discarded.",
+      "proof_idea": "Use small chains for the cover and the short exact sequence comparing intersection, pieces and union.",
+      "prerequisites": "**Within this subject**\n\n- [Excision](./notes/tp.excision.md)",
+      "references": "AT: Mayer-Vietoris.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Mayer–Vietoris sequence](./notes/tp.mayer-vietoris.md)"
+    },
+    "tp.cohomology": {
+      "title": "Cohomology and cup product",
+      "define": "Cohomology adds a graded product to the additive invariants of a space.",
+      "statement": "Applying $\\operatorname{Hom}(-,R)$ to chains gives cohomology $H^*(X;R)$. The cup product makes it a graded ring with $ab=(-1)^{pq}ba$ for degrees p,q and commutative coefficients.",
+      "type": "Topology",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Integral cohomology is not always just the dual of integral homology; Ext terms can appear.",
+      "example": "The cup product distinguishes spaces with identical additive cohomology groups.",
+      "caution": "Chain-level cup products need not be strictly graded commutative before passing to cohomology.",
+      "prerequisites": "**Within this subject**\n\n- [Singular homology](./notes/tp.homology.md)",
+      "references": "AT: cohomology and cup products.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Cohomology and cup product](./notes/tp.cohomology.md)"
+    },
+    "tp.poincare": {
+      "title": "Poincaré duality",
+      "define": "Orientation pairs complementary homology and cohomology degrees on a closed manifold.",
+      "statement": "For a closed connected oriented n-manifold M, cap product with its fundamental class gives $H^k(M;\\mathbb Z)\\cong H_{n-k}(M;\\mathbb Z)$.",
+      "type": "Topology",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "Closed means compact without boundary; nonorientable manifolds require suitable coefficients or local systems.",
+      "example": "On an oriented closed surface, first cohomology pairs nondegenerately by intersection.",
+      "caution": "For noncompact manifolds or manifolds with boundary the duality statement needs compact supports or relative groups.",
+      "proof_idea": "Patch local orientation classes using relative homology and Mayer–Vietoris.",
+      "prerequisites": "**Within this subject**\n\n- [Topological manifolds](./notes/tp.manifolds.md)\n- [Cohomology and cup product](./notes/tp.cohomology.md)\n- [Long exact sequence of a pair](./notes/tp.exact.md)",
+      "references": "AT: Poincare duality.\n\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text.",
+      "notes": "[Poincaré duality](./notes/tp.poincare.md)"
     }
   },
   "edges": [
     {
-      "id": "math-45",
-      "source": "Euclidean_Space",
-      "target": "Knot",
-      "value": "has_ambient_space"
+      "id": "subject.topology--tp.spaces",
+      "source": "subject.topology",
+      "target": "tp.spaces",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
     },
     {
-      "id": "math-49",
-      "source": "Fiber_Bundle",
-      "target": "Vector_Bundle",
-      "value": "subtype_of"
+      "id": "tp.spaces--tp.metric",
+      "source": "tp.spaces",
+      "target": "tp.metric",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Topological spaces and continuity supplies selected background for Metric and Polish spaces; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-50",
-      "source": "Topological_Space",
-      "target": "Fiber_Bundle",
-      "value": "has_base_space"
+      "id": "tp.spaces--tp.subspace",
+      "source": "tp.spaces",
+      "target": "tp.subspace",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Topological spaces and continuity supplies selected background for Subspace, product and quotient topologies; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-76",
-      "source": "Topological_Space",
-      "target": "Hausdorff_Space",
-      "value": "subtype_of"
+      "id": "tp.spaces--tp.separation",
+      "source": "tp.spaces",
+      "target": "tp.separation",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Topological spaces and continuity supplies selected background for Separation axioms; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-100",
-      "source": "Linear_Space",
-      "target": "Vector_Bundle",
-      "value": "has_fiber_type"
+      "id": "tp.spaces--tp.compact",
+      "source": "tp.spaces",
+      "target": "tp.compact",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Topological spaces and continuity supplies selected background for Compactness and Hausdorff spaces; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-110",
-      "source": "Topological_Space",
-      "target": "Metric_Space",
-      "value": "subtype_of"
+      "id": "tp.separation--tp.compact",
+      "source": "tp.separation",
+      "target": "tp.compact",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Separation axioms supplies selected background for Compactness and Hausdorff spaces; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-137",
-      "source": "Set",
-      "target": "Topological_Space",
-      "value": "has_underlying_set"
+      "id": "tp.compact--tp.tychonoff",
+      "source": "tp.compact",
+      "target": "tp.tychonoff",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Compactness and Hausdorff spaces supplies selected background for Tychonoff theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.subspace--tp.tychonoff",
+      "source": "tp.subspace",
+      "target": "tp.tychonoff",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Subspace, product and quotient topologies supplies selected background for Tychonoff theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.spaces--tp.connected",
+      "source": "tp.spaces",
+      "target": "tp.connected",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Topological spaces and continuity supplies selected background for Connectedness and path connectedness; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.separation--tp.metrization",
+      "source": "tp.separation",
+      "target": "tp.metrization",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Separation axioms supplies selected background for Urysohn metrization theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.metric--tp.metrization",
+      "source": "tp.metric",
+      "target": "tp.metrization",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Metric and Polish spaces supplies selected background for Urysohn metrization theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.subspace--tp.homotopy",
+      "source": "tp.subspace",
+      "target": "tp.homotopy",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Subspace, product and quotient topologies supplies selected background for Homotopies and homotopy equivalence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.homotopy--tp.fundamental",
+      "source": "tp.homotopy",
+      "target": "tp.fundamental",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Homotopies and homotopy equivalence supplies selected background for Fundamental group; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.fundamental--tp.van-kampen",
+      "source": "tp.fundamental",
+      "target": "tp.van-kampen",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Fundamental group supplies selected background for Seifert–van Kampen theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.fundamental--tp.coverings",
+      "source": "tp.fundamental",
+      "target": "tp.coverings",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Fundamental group supplies selected background for Covering-space classification; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.separation--tp.manifolds",
+      "source": "tp.separation",
+      "target": "tp.manifolds",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Separation axioms supplies selected background for Topological manifolds; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.subspace--tp.manifolds",
+      "source": "tp.subspace",
+      "target": "tp.manifolds",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Subspace, product and quotient topologies supplies selected background for Topological manifolds; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.subspace--tp.cw",
+      "source": "tp.subspace",
+      "target": "tp.cw",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Subspace, product and quotient topologies supplies selected background for CW complexes; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.homotopy--tp.cw",
+      "source": "tp.homotopy",
+      "target": "tp.cw",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Homotopies and homotopy equivalence supplies selected background for CW complexes; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.homotopy--tp.homology",
+      "source": "tp.homotopy",
+      "target": "tp.homology",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Homotopies and homotopy equivalence supplies selected background for Singular homology; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.homology--tp.exact",
+      "source": "tp.homology",
+      "target": "tp.exact",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Singular homology supplies selected background for Long exact sequence of a pair; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.exact--tp.excision",
+      "source": "tp.exact",
+      "target": "tp.excision",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Long exact sequence of a pair supplies selected background for Excision; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.excision--tp.mayer-vietoris",
+      "source": "tp.excision",
+      "target": "tp.mayer-vietoris",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Excision supplies selected background for Mayer–Vietoris sequence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.homology--tp.cohomology",
+      "source": "tp.homology",
+      "target": "tp.cohomology",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Singular homology supplies selected background for Cohomology and cup product; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.manifolds--tp.poincare",
+      "source": "tp.manifolds",
+      "target": "tp.poincare",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Topological manifolds supplies selected background for Poincaré duality; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.cohomology--tp.poincare",
+      "source": "tp.cohomology",
+      "target": "tp.poincare",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cohomology and cup product supplies selected background for Poincaré duality; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "tp.exact--tp.poincare",
+      "source": "tp.exact",
+      "target": "tp.poincare",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Long exact sequence of a pair supplies selected background for Poincaré duality; consult both entries for the scope of the connection."
+      }
     }
   ]
 }

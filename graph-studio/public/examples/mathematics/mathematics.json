@@ -2,1540 +2,341 @@
   "format": "graph-studio",
   "version": 2,
   "diagram": "dag",
-  "title": "Mathematics · complete map",
-  "metadata": {},
+  "id": "mathematics-overview",
+  "title": "Mathematics — subject overview",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "overview",
+    "conceptCount": 202,
+    "subjectCount": 10
+  },
   "nodes": {
-    "Abelian_Variety": {
-      "title": "Abelian Variety",
-      "type": "Geometry",
-      "define": "An abelian variety is a complete algebraic group variety, central in arithmetic geometry.",
-      "notes": "[Read concept note](./notes/Abelian_Variety.md)"
+    "mathematics": {
+      "title": "Mathematics",
+      "define": "A connected atlas of analysis, algebra, probability, foundations and geometry.",
+      "type": "Atlas",
+      "kind": "Navigation",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "conventions": "An arrow labeled prerequisite suggests study order. Contains and bridge arrows are navigation. Read each theorem's hypotheses before using it.",
+      "notes": "[Start here](./README.md) · [Study pathways](./STUDY-PATHWAYS.md) · [Bibliography](./BIBLIOGRAPHY.md)"
     },
-    "Affine_Space": {
-      "title": "Affine Space",
-      "type": "Geometry",
-      "define": "An affine space is a geometric space with no distinguished origin.",
-      "notes": "[Read concept note](./notes/Affine_Space.md)"
+    "subject.complex-analysis": {
+      "title": "Complex analysis",
+      "define": "Holomorphic rigidity, contour methods, analytic continuation and the geometry of Riemann surfaces.",
+      "type": "Complex analysis",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Real multivariable calculus, metric limits, elementary topology and line integration.",
+      "learning_outcomes": "- Use Cauchy theory to derive local analyticity and rigidity.\n- Choose contour, residue and zero-counting arguments with the correct domain hypotheses.\n- Separate local continuation from global single-valuedness.",
+      "study_route": "[Holomorphic functions](./notes/ca.holomorphic.md) → [Cauchy–Goursat theorem](./notes/ca.cauchy.md) → [Cauchy integral formula](./notes/ca.cauchy-formula.md) → [Power series and analyticity](./notes/ca.series.md) → [Laurent series and isolated singularities](./notes/ca.singularities.md) → [Residue theorem](./notes/ca.residues.md) → [Montel's theorem](./notes/ca.normal.md) → [Riemann mapping theorem](./notes/ca.riemann-mapping.md)",
+      "notes": "[Subject guide](./guides/complex-analysis.md)",
+      "graph_file": "Open complex-analysis.json in the workspace graph list.",
+      "references": "- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.\n- **CM** — John M. Lee. [Introduction to Complex Manifolds](https://sites.math.washington.edu/~lee/Books/ICM/). Author's book page."
     },
-    "Algebra_Structure": {
-      "title": "Algebra Structure",
-      "type": "Algebra",
-      "define": "An algebraic structure is a set equipped with operations whose behavior is controlled by specified axioms.",
-      "notes": "[Read concept note](./notes/Algebra_Structure.md)"
+    "subject.real-analysis": {
+      "title": "Real analysis",
+      "define": "Limits, measure, integration, convergence and the function spaces underlying modern analysis.",
+      "type": "Real analysis",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Proof-based calculus, sequences, elementary linear algebra and set operations.",
+      "learning_outcomes": "- Choose the correct convergence theorem before exchanging limits and integrals.\n- Distinguish pointwise, almost-everywhere, uniform and norm convergence.\n- Use measures, densities and weak derivatives as separate mathematical objects.",
+      "study_route": "[Completeness of the real numbers](./notes/ra.completeness.md) → [Metric limits and completeness](./notes/ra.metric.md) → [Measure spaces](./notes/ra.measure.md) → [Carathéodory extension](./notes/ra.outer.md) → [Lebesgue integration](./notes/ra.integral.md) → [Monotone convergence](./notes/ra.mct.md) → [Dominated convergence](./notes/ra.dct.md) → [Tonelli and Fubini](./notes/ra.fubini.md) → [Radon–Nikodym theorem](./notes/ra.rn.md) → [Lp spaces](./notes/ra.lp.md)",
+      "notes": "[Subject guide](./guides/real-analysis.md)",
+      "graph_file": "Open real-analysis.json in the workspace graph list.",
+      "references": "- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999."
     },
-    "Automorphic_Form": {
-      "title": "Automorphic Form",
-      "type": "Number Theory",
-      "define": "An automorphic form is a highly symmetric complex-valued function on an arithmetic quotient of a reductive group.",
-      "notes": "[Read concept note](./notes/Automorphic_Form.md)"
+    "subject.functional-analysis": {
+      "title": "Functional analysis",
+      "define": "Banach and Hilbert spaces, duality, operator theory and variational methods.",
+      "type": "Functional analysis",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Linear algebra, metric completeness, Lebesgue integration, Lp spaces and basic topology.",
+      "learning_outcomes": "- Track completeness and domain assumptions in the central Banach-space theorems.\n- Distinguish weak, weak-star and norm topology.\n- Choose the spectral theorem appropriate to the operator and formulate variational problems correctly.",
+      "study_route": "[Banach spaces](./notes/fa.banach.md) → [Bounded linear operators](./notes/fa.operators.md) → [Continuous dual and bidual](./notes/fa.dual.md) → [Hahn–Banach extension theorem](./notes/fa.hahn-banach.md) → [Baire category theorem](./notes/fa.baire.md) → [Open mapping and bounded inverse](./notes/fa.open-mapping.md) → [Hilbert spaces and orthogonal projection](./notes/fa.hilbert.md) → [Compact self-adjoint spectral theorem](./notes/fa.compact-spectral.md)",
+      "notes": "[Subject guide](./guides/functional-analysis.md)",
+      "graph_file": "Open functional-analysis.json in the workspace graph list.",
+      "references": "- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.\n- **FA3** — Gerald Teschl. [Mathematical Methods in Quantum Mechanics](https://radon.mat.univie.ac.at/~gerald/ftp/book-schroe/index.html). Second edition, AMS, 2014; spectral theory."
     },
-    "Banach_Space": {
-      "title": "Banach Space",
-      "type": "Analysis",
-      "define": "A Banach space is a normed vector space in which every Cauchy sequence converges.",
-      "notes": "[Read concept note](./notes/Banach_Space.md)"
+    "subject.group-theory": {
+      "title": "Group theory",
+      "define": "Symmetry through actions, quotient structures, finite-group structure and representation theory.",
+      "type": "Group theory",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Sets, maps, equivalence relations and finite-dimensional linear algebra; field basics for Galois theory.",
+      "learning_outcomes": "- Move between internal group structure, quotient maps and actions.\n- Use Sylow arithmetic and conjugation to constrain finite groups.\n- Relate representations and Galois groups to their underlying algebraic hypotheses.",
+      "study_route": "[Groups and homomorphisms](./notes/gt.groups.md) → [Subgroups and generated subgroups](./notes/gt.subgroups.md) → [Cosets and Lagrange's theorem](./notes/gt.lagrange.md) → [Normal subgroups and quotients](./notes/gt.quotients.md) → [Group actions](./notes/gt.actions.md) → [Sylow theorems](./notes/gt.sylow.md) → [Derived series and solvable groups](./notes/gt.solvable.md) → [Linear representations](./notes/gt.representations.md) → [Characters and orthogonality](./notes/gt.characters.md)",
+      "notes": "[Subject guide](./guides/group-theory.md)",
+      "graph_file": "Open group-theory.json in the workspace graph list.",
+      "references": "- **GT** — J. S. Milne. [Group Theory](https://www.jmilne.org/math/CourseNotes/GT.pdf). Version 4.01, 2025.\n- **FT** — J. S. Milne. [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/FT.pdf). Version 5.10, 2022."
     },
-    "Bessel_Function": {
-      "title": "Bessel Function",
-      "type": "Analysis",
-      "define": "Bessel functions are special functions that naturally arise as radial solutions of differential equations with cylindrical symmetry.",
-      "notes": "[Read concept note](./notes/Bessel_Function.md)"
+    "subject.number-theory": {
+      "title": "Number theory",
+      "define": "Arithmetic from divisibility to number fields, local fields, prime distribution and rational points.",
+      "type": "Number theory",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Abstract algebra including rings and fields, elementary group theory, complex analysis for analytic topics.",
+      "learning_outcomes": "- Distinguish element factorization, prime-ideal factorization and class groups.\n- Connect global arithmetic with completions and ramification.\n- Separate proven distribution theorems from stronger error estimates and conjectures.",
+      "study_route": "[Euclidean algorithm and unique factorization](./notes/nt.divisibility.md) → [Chinese remainder theorem](./notes/nt.crt.md) → [Finite fields](./notes/nt.finite-fields.md) → [Number fields, norm and trace](./notes/nt.number-fields.md) → [Algebraic integers](./notes/nt.integers.md) → [Dedekind domains and ideal factorization](./notes/nt.ideals.md) → [Ideal class group](./notes/nt.class-group.md) → [p-adic numbers and Hensel lifting](./notes/nt.padic.md) → [Riemann zeta function](./notes/nt.zeta.md)",
+      "notes": "[Subject guide](./guides/number-theory.md)",
+      "graph_file": "Open number-theory.json in the workspace graph list.",
+      "references": "- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.\n- **NT3** — Keith Conrad. [The Local–Global Principle](https://kconrad.math.uconn.edu/blurbs/gradnumthy/localglobal.pdf). Author's expository notes; quadratic forms and failures of local-global principles.\n- **FT** — J. S. Milne. [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/FT.pdf). Version 5.10, 2022.\n- **EC** — J. S. Milne. [Elliptic Curves](https://www.jmilne.org/math/Books/EC2.pdf). Second edition, World Scientific, 2020; author-hosted text."
     },
-    "Binary_Tree": {
-      "title": "Binary Tree",
-      "type": "Discrete Mathematics",
-      "define": "A binary tree is a rooted tree in which each node has at most two children.",
-      "notes": "[Read concept note](./notes/Binary_Tree.md)"
+    "subject.probability-theory": {
+      "title": "Probability theory",
+      "define": "Measure-theoretic probability, limit laws, conditional expectation, martingales and stochastic processes.",
+      "type": "Probability theory",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Measure and integration, Lp spaces, elementary real analysis and linear algebra.",
+      "learning_outcomes": "- Identify the convergence mode and moment assumptions in each limit law.\n- Formulate conditioning as an almost-everywhere integral identity.\n- Check filtration, stopping-time and integrability conditions before stochastic calculations.",
+      "study_route": "[Probability spaces and random variables](./notes/pr.space.md) → [Independence and product laws](./notes/pr.independence.md) → [Modes of convergence](./notes/pr.convergence.md) → [Strong law of large numbers](./notes/pr.slln.md) → [Central limit theorem](./notes/pr.clt.md) → [Conditional expectation](./notes/pr.conditional.md) → [Filtrations and martingales](./notes/pr.martingale.md) → [Optional stopping](./notes/pr.stopping.md) → [Brownian motion](./notes/pr.brownian.md)",
+      "notes": "[Subject guide](./guides/probability-theory.md)",
+      "graph_file": "Open probability-theory.json in the workspace graph list.",
+      "references": "- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.\n- **PR2** — University of Cambridge, DPMMS. [Probability and Measure](https://www.dpmms.cam.ac.uk/study/II/Probability%2BMeasure/2019-2020/lecture-notes-1-18.pdf). 2019–2020, lectures 1–18."
     },
-    "Bipartite_Graph": {
-      "title": "Bipartite Graph",
-      "type": "Discrete Mathematics",
-      "define": "A bipartite graph is a graph whose vertices can be split into two parts so that every edge connects the two parts.",
-      "notes": "[Read concept note](./notes/Bipartite_Graph.md)"
+    "subject.set-theory-logic": {
+      "title": "Set theory and mathematical logic",
+      "define": "Syntax, semantics, computability and axiomatic set theory, with explicit metatheoretic assumptions.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Proof techniques, elementary sets and functions; elementary arithmetic for coding computations.",
+      "learning_outcomes": "- Distinguish provability, truth in a structure and logical validity.\n- State incompleteness with effective-axiomatization and consistency assumptions.\n- Distinguish internal cardinality, external cardinality and relative consistency.",
+      "study_route": "[Sets, functions and relations](./notes/sl.sets.md) → [First-order syntax and proofs](./notes/sl.syntax.md) → [Structures, satisfaction and elementary maps](./notes/sl.semantics.md) → [Gödel completeness theorem](./notes/sl.completeness.md) → [Compactness theorem](./notes/sl.compactness.md) → [Computability and enumerable theories](./notes/sl.computability.md) → [First incompleteness theorem](./notes/sl.incompleteness-one.md) → [Ordinals and well-orders](./notes/sl.ordinals.md) → [ZF axioms and the cumulative hierarchy](./notes/sl.zf.md) → [Continuum hypothesis and independence](./notes/sl.ch.md)",
+      "notes": "[Subject guide](./guides/set-theory-logic.md)",
+      "graph_file": "Open set-theory-logic.json in the workspace graph list.",
+      "references": "- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.\n- **MODEL** — David Marker. [Model Theory: An Introduction](https://homepages.math.uic.edu/~marker/mt-intro.html). Springer GTM 217, 2002.\n- **SET** — Joel David Hamkins. [How the Continuum Hypothesis Could Have Been Fundamental](https://jdh.hamkins.org/wp-content/uploads/Slides-CH-could-have-been-fundamental-Hamkins-Oslo-June-2024.pdf). Oslo lecture slides, June 2024; independence background.\n- **FORCING** — Joel David Hamkins. [Lectures on Set Theory](https://jdh.hamkins.org/lectures-on-set-theory-beijing-june-2025/). Peking University, June 2025; Lecture 3: Forcing."
     },
-    "Boolean_Algebra": {
-      "title": "Boolean Algebra",
-      "type": "Algebra",
-      "define": "Boolean algebra is an algebraic structure that formalizes logical operations such as and, or, and not.",
-      "notes": "[Read concept note](./notes/Boolean_Algebra.md)"
-    },
-    "Branching_Process": {
-      "title": "Branching Process",
-      "type": "Probability Theory",
-      "define": "A branching process models a population in which each individual reproduces randomly and independently.",
-      "notes": "[Read concept note](./notes/Branching_Process.md)"
-    },
-    "Brownian_Motion": {
-      "title": "Brownian Motion",
-      "type": "Probability Theory",
-      "define": "Brownian motion is the continuous Gaussian process with stationary independent increments.",
-      "notes": "[Read concept note](./notes/Brownian_Motion.md)"
-    },
-    "Chain_Complex": {
-      "title": "Chain Complex",
-      "type": "Algebra",
-      "define": "A chain complex is a sequence of modules or vector spaces linked by differentials whose successive composition is zero.",
-      "notes": "[Read concept note](./notes/Chain_Complex.md)"
-    },
-    "Complete_Graph": {
-      "title": "Complete Graph",
-      "type": "Discrete Mathematics",
-      "define": "A complete graph is a graph in which every pair of distinct vertices is connected by an edge.",
-      "notes": "[Read concept note](./notes/Complete_Graph.md)"
-    },
-    "Complex_Field": {
-      "title": "Complex Field",
-      "type": "Algebra",
-      "define": "The complex field extends the real numbers by adjoining a square root of $-1$.",
-      "notes": "[Read concept note](./notes/Complex_Field.md)"
-    },
-    "Cone": {
-      "title": "Cone",
-      "type": "Geometry",
-      "define": "A cone is a subset closed under multiplication by positive scalars.",
-      "notes": "[Read concept note](./notes/Cone.md)"
-    },
-    "Convex_Set": {
-      "title": "Convex Set",
-      "type": "Geometry",
-      "define": "A convex set is a subset that contains the line segment joining any two of its points.",
-      "notes": "[Read concept note](./notes/Convex_Set.md)"
-    },
-    "Cubic_Function": {
-      "title": "Cubic Function",
-      "type": "Algebra",
-      "define": "A cubic function is a polynomial function whose highest-degree term has degree three.",
-      "notes": "[Read concept note](./notes/Cubic_Function.md)"
-    },
-    "Differential_Manifold": {
-      "title": "Differential Manifold",
-      "type": "Geometry",
-      "define": "A smooth manifold is a space that locally looks like $\\mathbb R^n$, and whose overlapping coordinate systems transform smoothly into one another.",
-      "notes": "[Read concept note](./notes/Differential_Manifold.md)"
-    },
-    "Diffusion_Process": {
-      "title": "Diffusion Process",
-      "type": "Probability Theory",
-      "define": "A diffusion process is a Markov process with continuous sample paths.",
-      "notes": "[Read concept note](./notes/Diffusion_Process.md)"
-    },
-    "Dirac_Delta_Function": {
-      "title": "Dirac Delta Function",
-      "type": "Analysis",
-      "define": "The Dirac delta is a generalized function that represents unit mass concentrated at a single point.",
-      "notes": "[Read concept note](./notes/Dirac_Delta_Function.md)"
-    },
-    "Directed_Acyclic_Graph": {
-      "title": "Directed Acyclic Graph",
-      "type": "Discrete Mathematics",
-      "define": "A directed acyclic graph is a directed graph with no directed cycles.",
-      "notes": "[Read concept note](./notes/Directed_Acyclic_Graph.md)"
-    },
-    "Dirichlet_Character": {
-      "title": "Dirichlet Character",
-      "type": "Number Theory",
-      "define": "A Dirichlet character is a periodic multiplicative arithmetic function modulo an integer.",
-      "notes": "[Read concept note](./notes/Dirichlet_Character.md)"
-    },
-    "Dirichlet_Series": {
-      "title": "Dirichlet Series",
-      "type": "Analysis",
-      "define": "A Dirichlet series is a complex-valued function given by a series of the form $\\sum a_n n^{-s}$.",
-      "notes": "[Read concept note](./notes/Dirichlet_Series.md)"
-    },
-    "Elliptic_Curve": {
-      "title": "Elliptic Curve",
-      "type": "Geometry",
-      "define": "An elliptic curve is a smooth projective genus-one curve with a chosen rational point, equivalently an abelian variety of dimension one.",
-      "notes": "[Read concept note](./notes/Elliptic_Curve.md)"
-    },
-    "Elliptic_Integral": {
-      "title": "Elliptic Integral",
-      "type": "Analysis",
-      "define": "Elliptic integrals are integrals involving square roots of cubic or quartic polynomials that generally cannot be expressed by elementary functions.",
-      "notes": "[Read concept note](./notes/Elliptic_Integral.md)"
-    },
-    "Euclidean_Space": {
-      "title": "Euclidean Space",
-      "type": "Geometry",
-      "define": "Euclidean space is the standard model of flat finite-dimensional geometry.",
-      "notes": "[Read concept note](./notes/Euclidean_Space.md)"
-    },
-    "Exponential_Function": {
-      "title": "Exponential Function",
-      "type": "Analysis",
-      "define": "The exponential function is the function whose rate of change is proportional to its current value.",
-      "notes": "[Read concept note](./notes/Exponential_Function.md)"
-    },
-    "Fiber_Bundle": {
-      "title": "Fiber Bundle",
+    "subject.topology": {
+      "title": "Topology",
+      "define": "Point-set foundations and algebraic topology, from compactness to homotopy, homology and duality.",
       "type": "Topology",
-      "define": "A fiber bundle is a space that locally looks like a product of a base space with a typical fiber.",
-      "notes": "[Read concept note](./notes/Fiber_Bundle.md)"
-    },
-    "Field": {
-      "title": "Field",
-      "type": "Algebra",
-      "define": "A field is an algebraic structure where addition, subtraction, multiplication, and division by nonzero elements are all possible.",
-      "notes": "[Read concept note](./notes/Field.md)"
-    },
-    "Filtered_Probability_Space": {
-      "title": "Filtered Probability Space",
-      "type": "Probability Theory",
-      "define": "A filtered probability space is a probability space equipped with an increasing family of sigma-algebras representing information over time.",
-      "notes": "[Read concept note](./notes/Filtered_Probability_Space.md)"
-    },
-    "Fourth_Order_Function": {
-      "title": "Fourth Order Function",
-      "type": "Algebra",
-      "define": "A fourth-order function is a polynomial function whose highest-degree term has degree four.",
-      "notes": "[Read concept note](./notes/Fourth_Order_Function.md)"
-    },
-    "Fractal": {
-      "title": "Fractal",
-      "type": "Geometry",
-      "define": "A fractal is a geometric object whose structure exhibits detail across scales, often through self-similarity.",
-      "notes": "[Read concept note](./notes/Fractal.md)"
-    },
-    "Function": {
-      "title": "Function",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A function assigns each input exactly one output.",
-      "notes": "[Read concept note](./notes/Function.md)"
-    },
-    "Galois_Representation": {
-      "title": "Galois Representation",
-      "type": "Number Theory",
-      "define": "A Galois representation is a homomorphism from a Galois group into a linear group over a coefficient field.",
-      "notes": "[Read concept note](./notes/Galois_Representation.md)"
-    },
-    "Gamma_Function": {
-      "title": "Gamma Function",
-      "type": "Analysis",
-      "define": "The Gamma function extends the factorial function from positive integers to complex and real arguments.",
-      "notes": "[Read concept note](./notes/Gamma_Function.md)"
-    },
-    "Gaussian_Process": {
-      "title": "Gaussian Process",
-      "type": "Probability Theory",
-      "define": "A Gaussian process is a stochastic process whose every finite family of coordinates is jointly Gaussian.",
-      "notes": "[Read concept note](./notes/Gaussian_Process.md)"
-    },
-    "Global_Field": {
-      "title": "Global Field",
-      "type": "Number Theory",
-      "define": "A global field is either a number field or a function field of one variable over a finite field.",
-      "notes": "[Read concept note](./notes/Global_Field.md)"
-    },
-    "Graph": {
-      "title": "Graph",
-      "type": "Discrete Mathematics",
-      "define": "A graph is a structure made of vertices and edges that records pairwise relationships.",
-      "notes": "[Read concept note](./notes/Graph.md)"
-    },
-    "Group": {
-      "title": "Group",
-      "type": "Algebra",
-      "define": "A group is an algebraic structure that captures reversible composition with an identity element.",
-      "notes": "[Read concept note](./notes/Group.md)"
-    },
-    "Hausdorff_Space": {
-      "title": "Hausdorff Space",
-      "type": "Topology",
-      "define": "A Hausdorff space is a topological space in which any two distinct points can be separated by disjoint neighborhoods.",
-      "notes": "[Read concept note](./notes/Hausdorff_Space.md)"
-    },
-    "Hilbert_Space": {
-      "title": "Hilbert Space",
-      "type": "Analysis",
-      "define": "A Hilbert space is a complete inner product space where geometric notions such as length and angle support limits.",
-      "notes": "[Read concept note](./notes/Hilbert_Space.md)"
-    },
-    "Holomorphic_Function": {
-      "title": "Holomorphic Function",
-      "type": "Analysis",
-      "define": "A holomorphic function is a complex function that is complex differentiable in a neighborhood of every point of its domain.",
-      "notes": "[Read concept note](./notes/Holomorphic_Function.md)"
-    },
-    "Hypergeometric_Function": {
-      "title": "Hypergeometric Function",
-      "type": "Analysis",
-      "define": "Hypergeometric functions are special functions defined by power series whose coefficient ratios are rational functions of the index.",
-      "notes": "[Read concept note](./notes/Hypergeometric_Function.md)"
-    },
-    "Inner_Product_Space": {
-      "title": "Inner Product Space",
-      "type": "Algebra",
-      "define": "An inner product space is a vector space with a product that defines length, angle, and orthogonality.",
-      "notes": "[Read concept note](./notes/Inner_Product_Space.md)"
-    },
-    "Integer_Ring": {
-      "title": "Integer Ring",
-      "type": "Number Theory",
-      "define": "The integer ring is the set of integers with usual addition and multiplication.",
-      "notes": "[Read concept note](./notes/Integer_Ring.md)"
-    },
-    "Knot": {
-      "title": "Knot",
-      "type": "Topology",
-      "define": "A knot is an embedding of a circle in three-dimensional space, studied up to continuous deformation.",
-      "notes": "[Read concept note](./notes/Knot.md)"
-    },
-    "L_Function": {
-      "title": "L Function",
-      "type": "Number Theory",
-      "define": "An $L$-function is a complex analytic object that encodes arithmetic data through Euler products, Dirichlet series, and functional equations.",
-      "notes": "[Read concept note](./notes/L_Function.md)"
-    },
-    "Lattice": {
-      "title": "Lattice",
-      "type": "Discrete Mathematics",
-      "define": "A lattice is an ordered set in which every pair of elements has both a greatest lower bound and a least upper bound.",
-      "notes": "[Read concept note](./notes/Lattice.md)"
-    },
-    "Levy_Process": {
-      "title": "Levy Process",
-      "type": "Probability Theory",
-      "define": "A Levy process is a cadlag process with stationary independent increments.",
-      "notes": "[Read concept note](./notes/Levy_Process.md)"
-    },
-    "Lie_Algebra": {
-      "title": "Lie Algebra",
-      "type": "Algebra",
-      "define": "A Lie algebra is a vector space equipped with a bilinear bracket satisfying antisymmetry and the Jacobi identity.",
-      "notes": "[Read concept note](./notes/Lie_Algebra.md)"
-    },
-    "Lie_Group": {
-      "title": "Lie Group",
-      "type": "Algebra",
-      "define": "A Lie group is a group whose operations vary smoothly with respect to a manifold structure.",
-      "notes": "[Read concept note](./notes/Lie_Group.md)"
-    },
-    "Linear_Function": {
-      "title": "Linear Function",
-      "type": "Algebra",
-      "define": "A linear function preserves addition and scalar multiplication.",
-      "notes": "[Read concept note](./notes/Linear_Function.md)"
-    },
-    "Linear_Space": {
-      "title": "Linear Space",
-      "type": "Algebra",
-      "define": "A linear space is a set whose elements can be added and scaled by elements of a field.",
-      "notes": "[Read concept note](./notes/Linear_Space.md)"
-    },
-    "Linear_Transformation": {
-      "title": "Linear Transformation",
-      "type": "Algebra",
-      "define": "A linear transformation is a structure-preserving map between vector spaces.",
-      "notes": "[Read concept note](./notes/Linear_Transformation.md)"
-    },
-    "Local_Field": {
-      "title": "Local Field",
-      "type": "Number Theory",
-      "define": "A local field is a field complete with respect to a nontrivial discrete valuation and having finite residue field.",
-      "notes": "[Read concept note](./notes/Local_Field.md)"
-    },
-    "Logic": {
-      "title": "Logic",
-      "type": "Mathematical Logic and Foundations",
-      "define": "Logic studies formal languages, truth conditions, and inference rules for valid reasoning.",
-      "notes": "[Read concept note](./notes/Logic.md)"
-    },
-    "Manifold": {
-      "title": "Manifold",
-      "type": "Geometry",
-      "define": "A manifold is a space that may be globally curved or complicated but locally looks like Euclidean space.",
-      "notes": "[Read concept note](./notes/Manifold.md)"
-    },
-    "Markov_Chain": {
-      "title": "Markov Chain",
-      "type": "Probability Theory",
-      "define": "A Markov chain is a discrete-time Markov process.",
-      "notes": "[Read concept note](./notes/Markov_Chain.md)"
-    },
-    "Markov_Process": {
-      "title": "Markov Process",
-      "type": "Probability Theory",
-      "define": "A Markov process is a stochastic process whose future depends on the present state and not on the past history.",
-      "notes": "[Read concept note](./notes/Markov_Process.md)"
-    },
-    "Martingale": {
-      "title": "Martingale",
-      "type": "Probability Theory",
-      "define": "A martingale is a stochastic process whose conditional future value equals its present value.",
-      "notes": "[Read concept note](./notes/Martingale.md)"
-    },
-    "Measurable_Space": {
-      "title": "Measurable Space",
-      "type": "Analysis",
-      "define": "A measurable space is a set equipped with a sigma-algebra specifying which subsets are measurable.",
-      "notes": "[Read concept note](./notes/Measurable_Space.md)"
-    },
-    "Measure_Space": {
-      "title": "Measure Space",
-      "type": "Analysis",
-      "define": "A measure space is a measurable space equipped with a measure assigning sizes to measurable sets.",
-      "notes": "[Read concept note](./notes/Measure_Space.md)"
-    },
-    "Metric_Space": {
-      "title": "Metric Space",
-      "type": "Topology",
-      "define": "A metric space is a set equipped with a distance function satisfying the basic rules of distance.",
-      "notes": "[Read concept note](./notes/Metric_Space.md)"
-    },
-    "Mobius_Function": {
-      "title": "Mobius Function",
-      "type": "Number Theory",
-      "define": "The Mobius function is an arithmetic function that records the square-free prime factor structure of an integer.",
-      "notes": "[Read concept note](./notes/Mobius_Function.md)"
-    },
-    "Modular_Curve": {
-      "title": "Modular Curve",
-      "type": "Geometry",
-      "define": "A modular curve is an algebraic curve that parametrizes elliptic curves equipped with level structure.",
-      "notes": "[Read concept note](./notes/Modular_Curve.md)"
-    },
-    "Modular_Form": {
-      "title": "Modular Form",
-      "type": "Number Theory",
-      "define": "A modular form is a holomorphic function on the upper half-plane satisfying a specific transformation law and growth condition.",
-      "notes": "[Read concept note](./notes/Modular_Form.md)"
-    },
-    "Module": {
-      "title": "Module",
-      "type": "Algebra",
-      "define": "A module is a vector-space-like structure whose scalars come from a ring rather than necessarily from a field.",
-      "notes": "[Read concept note](./notes/Module.md)"
-    },
-    "Natural_Number": {
-      "title": "Natural Number",
-      "type": "Number Theory",
-      "define": "Natural numbers are the discrete numbers used for counting and indexing.",
-      "notes": "[Read concept note](./notes/Natural_Number.md)"
-    },
-    "Normed_Linear_Space": {
-      "title": "Normed Linear Space",
-      "type": "Analysis",
-      "define": "A normed linear space is a vector space equipped with a norm that measures vector length.",
-      "notes": "[Read concept note](./notes/Normed_Linear_Space.md)"
-    },
-    "Number_Field": {
-      "title": "Number Field",
-      "type": "Number Theory",
-      "define": "A number field is a finite field extension of the rational numbers.",
-      "notes": "[Read concept note](./notes/Number_Field.md)"
-    },
-    "Ordered_Set": {
-      "title": "Ordered Set",
-      "type": "Discrete Mathematics",
-      "define": "An ordered set is a set where the elements can be compared to tell which comes before or after another.",
-      "notes": "[Read concept note](./notes/Ordered_Set.md)"
-    },
-    "Point_Process": {
-      "title": "Point Process",
-      "type": "Probability Theory",
-      "define": "A point process is a random locally finite configuration of points.",
-      "notes": "[Read concept note](./notes/Point_Process.md)"
-    },
-    "Poisson_Point_Process": {
-      "title": "Poisson Point Process",
-      "type": "Probability Theory",
-      "define": "A Poisson point process is a point process with independent increments and constant intensity.",
-      "notes": "[Read concept note](./notes/Poisson_Point_Process.md)"
-    },
-    "Poisson_Process": {
-      "title": "Poisson Process",
-      "type": "Probability Theory",
-      "define": "A Poisson process is the counting process with stationary independent increments.",
-      "notes": "[Read concept note](./notes/Poisson_Process.md)"
-    },
-    "Polyhedron": {
-      "title": "Polyhedron",
-      "type": "Geometry",
-      "define": "A polyhedron is a solid in three-dimensional space bounded by finitely many polygonal faces.",
-      "notes": "[Read concept note](./notes/Polyhedron.md)"
-    },
-    "Polynomial_Function": {
-      "title": "Polynomial Function",
-      "type": "Algebra",
-      "define": "A polynomial function is a function formed from powers of a variable using finitely many additions and scalar multiplications.",
-      "notes": "[Read concept note](./notes/Polynomial_Function.md)"
-    },
-    "Prime": {
-      "title": "Prime",
-      "type": "Number Theory",
-      "define": "A prime number is a natural number greater than one whose only positive divisors are one and itself.",
-      "notes": "[Read concept note](./notes/Prime.md)"
-    },
-    "Probability_Distribution": {
-      "title": "Probability Distribution",
-      "type": "Probability Theory",
-      "define": "A probability distribution is the law induced by a random element on its state space.",
-      "notes": "[Read concept note](./notes/Probability_Distribution.md)"
-    },
-    "Probability_Space": {
-      "title": "Probability Space",
-      "type": "Probability Theory",
-      "define": "A probability space is a measure space whose total measure is one.",
-      "notes": "[Read concept note](./notes/Probability_Space.md)"
-    },
-    "Projective_Space": {
-      "title": "Projective Space",
-      "type": "Geometry",
-      "define": "Projective space is the space of lines through the origin of a vector space.",
-      "notes": "[Read concept note](./notes/Projective_Space.md)"
-    },
-    "Quadratic_Function": {
-      "title": "Quadratic Function",
-      "type": "Algebra",
-      "define": "A quadratic function is a polynomial function whose highest-degree term has degree two.",
-      "notes": "[Read concept note](./notes/Quadratic_Function.md)"
-    },
-    "Quaternion_Ring": {
-      "title": "Quaternion Ring",
-      "type": "Algebra",
-      "define": "The quaternion ring extends complex numbers with three imaginary units whose multiplication is noncommutative.",
-      "notes": "[Read concept note](./notes/Quaternion_Ring.md)"
-    },
-    "Radon_Transform": {
-      "title": "Radon Transform",
-      "type": "Analysis",
-      "define": "The Radon transform represents a function by its integrals over affine hyperplanes.",
-      "notes": "[Read concept note](./notes/Radon_Transform.md)"
-    },
-    "Random_Element": {
-      "title": "Random Element",
-      "type": "Probability Theory",
-      "define": "A random element is a measurable map from a probability space into a measurable state space.",
-      "notes": "[Read concept note](./notes/Random_Element.md)"
-    },
-    "Random_Field": {
-      "title": "Random Field",
-      "type": "Probability Theory",
-      "define": "A random field is a stochastic process indexed by a multidimensional parameter set.",
-      "notes": "[Read concept note](./notes/Random_Field.md)"
-    },
-    "Random_Variable": {
-      "title": "Random Variable",
-      "type": "Probability Theory",
-      "define": "A random variable is a real-valued random element.",
-      "notes": "[Read concept note](./notes/Random_Variable.md)"
-    },
-    "Random_Walk": {
-      "title": "Random Walk",
-      "type": "Probability Theory",
-      "define": "A random walk is the partial-sum process of independent random increments.",
-      "notes": "[Read concept note](./notes/Random_Walk.md)"
-    },
-    "Rational_Number_Field": {
-      "title": "Rational Number Field",
-      "type": "Number Theory",
-      "define": "The rational number field consists of ratios of integers with nonzero denominator under ordinary arithmetic.",
-      "notes": "[Read concept note](./notes/Rational_Number_Field.md)"
-    },
-    "Real_Field": {
-      "title": "Real Field",
-      "type": "Algebra",
-      "define": "The real field is the complete ordered field that models the continuous number line.",
-      "notes": "[Read concept note](./notes/Real_Field.md)"
-    },
-    "Relation": {
-      "title": "Relation",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A relation records which ordered tuples of elements are considered related.",
-      "notes": "[Read concept note](./notes/Relation.md)"
-    },
-    "Riemann_Zeta_Function": {
-      "title": "Riemann Zeta Function",
-      "type": "Number Theory",
-      "define": "The Riemann zeta function packages the arithmetic of positive integers into a complex analytic function.",
-      "notes": "[Read concept note](./notes/Riemann_Zeta_Function.md)"
-    },
-    "Riemannian_Manifold": {
-      "title": "Riemannian Manifold",
-      "type": "Geometry",
-      "define": "A Riemannian manifold is a smooth manifold equipped with a positive definite metric tensor.",
-      "notes": "[Read concept note](./notes/Riemannian_Manifold.md)"
-    },
-    "Ring": {
-      "title": "Ring",
-      "type": "Algebra",
-      "define": "A ring is an algebraic structure with addition, subtraction, and multiplication, where multiplication need not be commutative or invertible.",
-      "notes": "[Read concept note](./notes/Ring.md)"
-    },
-    "Scheme": {
-      "title": "Scheme",
-      "type": "Geometry",
-      "define": "A scheme is a space obtained by gluing together spectra of commutative rings.",
-      "notes": "[Read concept note](./notes/Scheme.md)"
-    },
-    "Semimartingale": {
-      "title": "Semimartingale",
-      "type": "Probability Theory",
-      "define": "A semimartingale is the basic integrator class for modern stochastic calculus.",
-      "notes": "[Read concept note](./notes/Semimartingale.md)"
-    },
-    "Sequence": {
-      "title": "Sequence",
-      "type": "Analysis",
-      "define": "A sequence is a function whose domain is usually the natural numbers, listing objects in order.",
-      "notes": "[Read concept note](./notes/Sequence.md)"
-    },
-    "Set": {
-      "title": "Set",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
-      "notes": "[Read concept note](./notes/Set.md)"
-    },
-    "Sheaf": {
-      "title": "Sheaf",
-      "type": "Geometry",
-      "define": "A sheaf is a device for assigning local data to open sets in a way that can be uniquely glued from compatible local pieces.",
-      "notes": "[Read concept note](./notes/Sheaf.md)"
-    },
-    "Simplex": {
-      "title": "Simplex",
-      "type": "Geometry",
-      "define": "A simplex is the simplest convex polytope in a given dimension.",
-      "notes": "[Read concept note](./notes/Simplex.md)"
-    },
-    "Spherical_Harmonics": {
-      "title": "Spherical Harmonics",
-      "type": "Analysis",
-      "define": "Spherical harmonics are special functions on the sphere that form angular modes for rotationally symmetric problems.",
-      "notes": "[Read concept note](./notes/Spherical_Harmonics.md)"
-    },
-    "Stationary_Process": {
-      "title": "Stationary Process",
-      "type": "Probability Theory",
-      "define": "A stationary process is a stochastic process whose law is invariant under time shifts.",
-      "notes": "[Read concept note](./notes/Stationary_Process.md)"
-    },
-    "Stochastic_Process": {
-      "title": "Stochastic Process",
-      "type": "Probability Theory",
-      "define": "A stochastic process is a family of random variables indexed by time or another parameter.",
-      "notes": "[Read concept note](./notes/Stochastic_Process.md)"
-    },
-    "Stopping_Time": {
-      "title": "Stopping Time",
-      "type": "Probability Theory",
-      "define": "A stopping time is a random time whose occurrence can be determined from the information available up to that time.",
-      "notes": "[Read concept note](./notes/Stopping_Time.md)"
-    },
-    "Symplectic_Manifold": {
-      "title": "Symplectic Manifold",
-      "type": "Geometry",
-      "define": "A symplectic manifold is a smooth manifold equipped with a closed nondegenerate differential 2-form.",
-      "notes": "[Read concept note](./notes/Symplectic_Manifold.md)"
-    },
-    "Tensor": {
-      "title": "Tensor",
-      "type": "Algebra",
-      "define": "A tensor is a multilinear object that generalizes scalars, vectors, covectors, and linear maps.",
-      "notes": "[Read concept note](./notes/Tensor.md)"
-    },
-    "Topological_Space": {
-      "title": "Topological Space",
-      "type": "Topology",
-      "define": "Topological Space is a space in which open sets are defined.",
-      "notes": "[Read concept note](./notes/Topological_Space.md)"
-    },
-    "Tree": {
-      "title": "Tree",
-      "type": "Discrete Mathematics",
-      "define": "A tree is a connected acyclic graph.",
-      "notes": "[Read concept note](./notes/Tree.md)"
-    },
-    "Vector_Bundle": {
-      "title": "Vector Bundle",
-      "type": "Topology",
-      "define": "A vector bundle is a fiber bundle whose fibers are vector spaces and whose local trivializations are linear on fibers.",
-      "notes": "[Read concept note](./notes/Vector_Bundle.md)"
-    },
-    "p_Adic_Number": {
-      "title": "p Adic Number",
-      "type": "Number Theory",
-      "define": "The $p$-adic numbers form the basic characteristic-zero local field attached to a prime $p$.",
-      "notes": "[Read concept note](./notes/p_Adic_Number.md)"
-    },
-    "Real_Valued_Function": {
-      "title": "Real Valued Function",
-      "type": "Analysis",
-      "define": "A real-valued function assigns a real number to each point of its domain.",
-      "notes": "[Read concept note](./notes/Real_Valued_Function.md)"
-    },
-    "Real_Valued_Sequence": {
-      "title": "Real Valued Sequence",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A real-valued sequence is an ordered family of real numbers indexed by the natural numbers.",
-      "notes": "[Read concept note](./notes/Real_Valued_Sequence.md)"
-    },
-    "Complex_Valued_Function": {
-      "title": "Complex Valued Function",
-      "type": "Analysis",
-      "define": "A complex-valued function assigns a complex number to each point of its domain.",
-      "notes": "[Read concept note](./notes/Complex_Valued_Function.md)"
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Sets, maps, equivalence relations, basic real analysis and groups for algebraic topology.",
+      "learning_outcomes": "- Keep compactness, separation and countability assumptions distinct.\n- Compute homotopy and homology invariants by decomposition.\n- Recognize the coefficient and orientation requirements in duality.",
+      "study_route": "[Topological spaces and continuity](./notes/tp.spaces.md) → [Subspace, product and quotient topologies](./notes/tp.subspace.md) → [Compactness and Hausdorff spaces](./notes/tp.compact.md) → [Connectedness and path connectedness](./notes/tp.connected.md) → [Homotopies and homotopy equivalence](./notes/tp.homotopy.md) → [Fundamental group](./notes/tp.fundamental.md) → [Covering-space classification](./notes/tp.coverings.md) → [Singular homology](./notes/tp.homology.md) → [Cohomology and cup product](./notes/tp.cohomology.md)",
+      "notes": "[Subject guide](./guides/topology.md)",
+      "graph_file": "Open topology.json in the workspace graph list.",
+      "references": "- **TOP** — Allen Hatcher. [Notes on Introductory Point-Set Topology](https://pi.math.cornell.edu/~hatcher/Top/TopNotes.pdf). Author's course notes.\n- **AT** — Allen Hatcher. [Algebraic Topology](https://pi.math.cornell.edu/~hatcher/AT/ATpage.html). Cambridge University Press, 2002; author-hosted text."
+    },
+    "subject.differential-geometry": {
+      "title": "Differential geometry",
+      "define": "Smooth manifolds, differential forms, Riemannian geometry, curvature and global geometric theorems.",
+      "type": "Differential geometry",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Multivariable calculus, linear algebra, elementary ODEs and manifold topology.",
+      "learning_outcomes": "- Express differentiation and integration independently of a coordinate chart.\n- Distinguish metric, connection and curvature data.\n- Connect local differential geometry to global topological restrictions.",
+      "study_route": "[Smooth manifolds and smooth maps](./notes/dg.smooth.md) → [Tangent spaces and differentials](./notes/dg.tangent.md) → [Differential forms and exterior derivative](./notes/dg.forms.md) → [Stokes' theorem](./notes/dg.stokes.md) → [de Rham theorem](./notes/dg.derham.md) → [Riemannian metrics](./notes/dg.metric.md) → [Levi-Civita connection](./notes/dg.levi-civita.md) → [Geodesics and the exponential map](./notes/dg.geodesics.md) → [Curvature and sectional curvature](./notes/dg.curvature.md)",
+      "notes": "[Subject guide](./guides/differential-geometry.md)",
+      "graph_file": "Open differential-geometry.json in the workspace graph list.",
+      "references": "- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.\n- **DG2** — Peter S. Park. [Hodge Theory](https://people.math.harvard.edu/~pspark/harvardminorthesis.pdf). Author's Harvard minor thesis exposition, Section 2."
+    },
+    "subject.algebraic-geometry": {
+      "title": "Algebraic geometry",
+      "define": "Commutative algebra, varieties and schemes, followed by local properties, divisors and cohomology of curves.",
+      "type": "Algebraic geometry",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Commutative algebra, modules and tensor products, elementary topology and field extensions.",
+      "learning_outcomes": "- Translate geometry into coordinate rings and local rings.\n- Retain generic points and nilpotents when passing from varieties to schemes.\n- Use divisors, line bundles and cohomology with smoothness and properness hypotheses.",
+      "study_route": "[Commutative rings, ideals and modules](./notes/ag.rings.md) → [Noetherian rings and Hilbert basis theorem](./notes/ag.noetherian.md) → [Localization and local rings](./notes/ag.localization.md) → [Hilbert Nullstellensatz](./notes/ag.nullstellensatz.md) → [Prime spectrum and Zariski topology](./notes/ag.spec.md) → [Sheaves and stalks](./notes/ag.sheaves.md) → [Schemes and structure sheaves](./notes/ag.schemes.md) → [Scheme morphisms and fiber products](./notes/ag.morphisms.md) → [Smooth projective curves and genus](./notes/ag.curves.md) → [Riemann–Roch for curves](./notes/ag.riemann-roch.md)",
+      "notes": "[Subject guide](./guides/algebraic-geometry.md)",
+      "graph_file": "Open algebraic-geometry.json in the workspace graph list.",
+      "references": "- **AG** — J. S. Milne. [Algebraic Geometry](https://www.jmilne.org/math/CourseNotes/AG.pdf). Version 6.10, 2024.\n- **CAALG** — J. S. Milne. [A Primer of Commutative Algebra](https://www.jmilne.org/math/xnotes/ca.html). Author's course notes.\n- **STACKS** — The Stacks Project Authors. [The Stacks Project](https://stacks.math.columbia.edu/browse). Living reference; schemes, morphisms and algebraic curves."
     }
   },
   "edges": [
     {
-      "id": "math-0",
-      "source": "Abelian_Variety",
-      "target": "Elliptic_Curve",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-1",
-      "source": "Scheme",
-      "target": "Abelian_Variety",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-2",
-      "source": "Affine_Space",
-      "target": "Convex_Set",
-      "value": "has_ambient_space"
-    },
-    {
-      "id": "math-3",
-      "source": "Linear_Space",
-      "target": "Affine_Space",
-      "value": "modeled_on"
-    },
-    {
-      "id": "math-4",
-      "source": "Algebra_Structure",
-      "target": "Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-5",
-      "source": "Algebra_Structure",
-      "target": "Group",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-6",
-      "source": "Algebra_Structure",
-      "target": "Lattice",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-7",
-      "source": "Algebra_Structure",
-      "target": "Lie_Algebra",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-8",
-      "source": "Algebra_Structure",
-      "target": "Ring",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-9",
-      "source": "Set",
-      "target": "Algebra_Structure",
-      "value": "has_underlying_set"
-    },
-    {
-      "id": "math-10",
-      "source": "Automorphic_Form",
-      "target": "Modular_Form",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-11",
-      "source": "Complex_Valued_Function",
-      "target": "Automorphic_Form",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-12",
-      "source": "Normed_Linear_Space",
-      "target": "Banach_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-13",
-      "source": "Function",
-      "target": "Bessel_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-14",
-      "source": "Tree",
-      "target": "Binary_Tree",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-15",
-      "source": "Bipartite_Graph",
-      "target": "Tree",
-      "value": "related_to"
-    },
-    {
-      "id": "math-16",
-      "source": "Graph",
-      "target": "Bipartite_Graph",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-17",
-      "source": "Lattice",
-      "target": "Boolean_Algebra",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-18",
-      "source": "Markov_Chain",
-      "target": "Branching_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-19",
-      "source": "Diffusion_Process",
-      "target": "Brownian_Motion",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-20",
-      "source": "Gaussian_Process",
-      "target": "Brownian_Motion",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-21",
-      "source": "Levy_Process",
-      "target": "Brownian_Motion",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-22",
-      "source": "Module",
-      "target": "Chain_Complex",
-      "value": "has_terms_in"
-    },
-    {
-      "id": "math-23",
-      "source": "Sequence",
-      "target": "Chain_Complex",
-      "value": "structured_as"
-    },
-    {
-      "id": "math-24",
-      "source": "Graph",
-      "target": "Complete_Graph",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-25",
-      "source": "Complex_Field",
-      "target": "Complex_Valued_Function",
-      "value": "has_codomain"
-    },
-    {
-      "id": "math-26",
-      "source": "Field",
-      "target": "Complex_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-27",
-      "source": "Real_Field",
-      "target": "Complex_Field",
-      "value": "field_extension_of"
-    },
-    {
-      "id": "math-28",
-      "source": "Linear_Space",
-      "target": "Cone",
-      "value": "has_ambient_space"
-    },
-    {
-      "id": "math-29",
-      "source": "Set",
-      "target": "Cone",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-30",
-      "source": "Convex_Set",
-      "target": "Polyhedron",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-31",
-      "source": "Set",
-      "target": "Convex_Set",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-32",
-      "source": "Polynomial_Function",
-      "target": "Cubic_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-33",
-      "source": "Differential_Manifold",
-      "target": "Euclidean_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-34",
-      "source": "Differential_Manifold",
-      "target": "Lie_Group",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-35",
-      "source": "Differential_Manifold",
-      "target": "Riemannian_Manifold",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-36",
-      "source": "Differential_Manifold",
-      "target": "Symplectic_Manifold",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-37",
-      "source": "Manifold",
-      "target": "Differential_Manifold",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-38",
-      "source": "Markov_Process",
-      "target": "Diffusion_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-39",
-      "source": "Function",
-      "target": "Dirac_Delta_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-40",
-      "source": "Graph",
-      "target": "Directed_Acyclic_Graph",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-41",
-      "source": "Function",
-      "target": "Dirichlet_Character",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-42",
-      "source": "Integer_Ring",
-      "target": "Dirichlet_Character",
-      "value": "has_domain"
-    },
-    {
-      "id": "math-43",
-      "source": "Complex_Valued_Function",
-      "target": "Dirichlet_Series",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-44",
-      "source": "Real_Valued_Function",
-      "target": "Elliptic_Integral",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-45",
-      "source": "Euclidean_Space",
-      "target": "Knot",
-      "value": "has_ambient_space"
-    },
-    {
-      "id": "math-46",
-      "source": "Hilbert_Space",
-      "target": "Euclidean_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-47",
-      "source": "Real_Field",
-      "target": "Euclidean_Space",
-      "value": "over_field"
-    },
-    {
-      "id": "math-48",
-      "source": "Function",
-      "target": "Exponential_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-49",
-      "source": "Fiber_Bundle",
-      "target": "Vector_Bundle",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-50",
-      "source": "Topological_Space",
-      "target": "Fiber_Bundle",
-      "value": "has_base_space"
-    },
-    {
-      "id": "math-51",
-      "source": "Field",
-      "target": "Galois_Representation",
-      "value": "over_field"
-    },
-    {
-      "id": "math-52",
-      "source": "Field",
-      "target": "Global_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-53",
-      "source": "Field",
-      "target": "Linear_Space",
-      "value": "over_field"
-    },
-    {
-      "id": "math-54",
-      "source": "Field",
-      "target": "Local_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-55",
-      "source": "Field",
-      "target": "Rational_Number_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-56",
-      "source": "Field",
-      "target": "Real_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-57",
-      "source": "Filtered_Probability_Space",
-      "target": "Stopping_Time",
-      "value": "with_respect_to_filtration"
-    },
-    {
-      "id": "math-58",
-      "source": "Probability_Space",
-      "target": "Filtered_Probability_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-59",
-      "source": "Polynomial_Function",
-      "target": "Fourth_Order_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-60",
-      "source": "Set",
-      "target": "Fractal",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-61",
-      "source": "Function",
-      "target": "Galois_Representation",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-62",
-      "source": "Function",
-      "target": "Linear_Transformation",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-63",
-      "source": "Function",
-      "target": "Polynomial_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-64",
-      "source": "Function",
-      "target": "Radon_Transform",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-65",
-      "source": "Function",
-      "target": "Random_Element",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-66",
-      "source": "Function",
-      "target": "Sequence",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-67",
-      "source": "Function",
-      "target": "Real_Valued_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-68",
-      "source": "Function",
-      "target": "Complex_Valued_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-69",
-      "source": "Relation",
-      "target": "Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-70",
-      "source": "Complex_Valued_Function",
-      "target": "Gamma_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-71",
-      "source": "Stochastic_Process",
-      "target": "Gaussian_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-72",
-      "source": "Global_Field",
-      "target": "Number_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-73",
-      "source": "Set",
-      "target": "Graph",
-      "value": "has_underlying_set"
-    },
-    {
-      "id": "math-74",
-      "source": "Group",
-      "target": "Lie_Group",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-75",
-      "source": "Hausdorff_Space",
-      "target": "Manifold",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-76",
-      "source": "Topological_Space",
-      "target": "Hausdorff_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-77",
-      "source": "Inner_Product_Space",
-      "target": "Hilbert_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-78",
-      "source": "Metric_Space",
-      "target": "Hilbert_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-79",
-      "source": "Complex_Valued_Function",
-      "target": "Holomorphic_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-80",
-      "source": "Complex_Valued_Function",
-      "target": "Hypergeometric_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-81",
-      "source": "Normed_Linear_Space",
-      "target": "Inner_Product_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-82",
-      "source": "Integer_Ring",
-      "target": "Mobius_Function",
-      "value": "has_domain"
-    },
-    {
-      "id": "math-83",
-      "source": "Integer_Ring",
-      "target": "Rational_Number_Field",
-      "value": "fraction_field_of"
-    },
-    {
-      "id": "math-84",
-      "source": "Integer_Ring",
-      "target": "Prime",
-      "value": "related_to"
-    },
-    {
-      "id": "math-85",
-      "source": "Natural_Number",
-      "target": "Integer_Ring",
-      "value": "extends_number_system"
-    },
-    {
-      "id": "math-86",
-      "source": "Ring",
-      "target": "Integer_Ring",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-87",
-      "source": "L_Function",
-      "target": "Riemann_Zeta_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-88",
-      "source": "Complex_Valued_Function",
-      "target": "L_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-89",
-      "source": "Levy_Process",
-      "target": "Poisson_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-90",
-      "source": "Markov_Process",
-      "target": "Levy_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-91",
-      "source": "Semimartingale",
-      "target": "Levy_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-92",
-      "source": "Lie_Group",
-      "target": "Lie_Algebra",
-      "value": "associated_to"
-    },
-    {
-      "id": "math-93",
-      "source": "Linear_Space",
-      "target": "Lie_Algebra",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-94",
-      "source": "Manifold",
-      "target": "Lie_Group",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-95",
-      "source": "Polynomial_Function",
-      "target": "Linear_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-96",
-      "source": "Linear_Space",
-      "target": "Linear_Transformation",
-      "value": "maps_between"
-    },
-    {
-      "id": "math-97",
-      "source": "Linear_Space",
-      "target": "Normed_Linear_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-98",
-      "source": "Linear_Space",
-      "target": "Projective_Space",
-      "value": "projectivization_of"
-    },
-    {
-      "id": "math-99",
-      "source": "Linear_Space",
-      "target": "Tensor",
-      "value": "over_vector_space"
-    },
-    {
-      "id": "math-100",
-      "source": "Linear_Space",
-      "target": "Vector_Bundle",
-      "value": "has_fiber_type"
-    },
-    {
-      "id": "math-101",
-      "source": "Module",
-      "target": "Linear_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-102",
-      "source": "Local_Field",
-      "target": "p_Adic_Number",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-103",
-      "source": "Markov_Chain",
-      "target": "Random_Walk",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-104",
-      "source": "Markov_Process",
-      "target": "Markov_Chain",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-105",
-      "source": "Stochastic_Process",
-      "target": "Markov_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-106",
-      "source": "Stochastic_Process",
-      "target": "Martingale",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-107",
-      "source": "Measurable_Space",
-      "target": "Measure_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-108",
-      "source": "Set",
-      "target": "Measurable_Space",
-      "value": "has_underlying_set"
-    },
-    {
-      "id": "math-109",
-      "source": "Measure_Space",
-      "target": "Probability_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-110",
-      "source": "Topological_Space",
-      "target": "Metric_Space",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-111",
-      "source": "Scheme",
-      "target": "Modular_Curve",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-112",
-      "source": "Ring",
-      "target": "Module",
-      "value": "over_ring"
-    },
-    {
-      "id": "math-113",
-      "source": "Set",
-      "target": "Natural_Number",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-114",
-      "source": "Rational_Number_Field",
-      "target": "Number_Field",
-      "value": "field_extension_of"
-    },
-    {
-      "id": "math-115",
-      "source": "Set",
-      "target": "Ordered_Set",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-116",
-      "source": "Point_Process",
-      "target": "Poisson_Point_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-117",
-      "source": "Point_Process",
-      "target": "Poisson_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-118",
-      "source": "Stochastic_Process",
-      "target": "Point_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-119",
-      "source": "Polyhedron",
-      "target": "Simplex",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-120",
-      "source": "Polynomial_Function",
-      "target": "Quadratic_Function",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-121",
-      "source": "Random_Element",
-      "target": "Probability_Distribution",
-      "value": "induced_by"
-    },
-    {
-      "id": "math-122",
-      "source": "Probability_Space",
-      "target": "Random_Element",
-      "value": "has_base_space"
-    },
-    {
-      "id": "math-123",
-      "source": "Probability_Space",
-      "target": "Stochastic_Process",
-      "value": "has_base_space"
-    },
-    {
-      "id": "math-124",
-      "source": "Real_Field",
-      "target": "Quaternion_Ring",
-      "value": "over_field"
-    },
-    {
-      "id": "math-125",
-      "source": "Ring",
-      "target": "Quaternion_Ring",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-126",
-      "source": "Random_Element",
-      "target": "Random_Variable",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-127",
-      "source": "Stochastic_Process",
-      "target": "Random_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-128",
-      "source": "Rational_Number_Field",
-      "target": "Real_Field",
-      "value": "field_extension_of"
-    },
-    {
-      "id": "math-129",
-      "source": "Rational_Number_Field",
-      "target": "p_Adic_Number",
-      "value": "field_extension_of"
-    },
-    {
-      "id": "math-130",
-      "source": "Real_Field",
-      "target": "Real_Valued_Function",
-      "value": "has_codomain"
-    },
-    {
-      "id": "math-131",
-      "source": "Set",
-      "target": "Relation",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-132",
-      "source": "Tensor",
-      "target": "Riemannian_Manifold",
-      "value": "has_defining_structure"
-    },
-    {
-      "id": "math-133",
-      "source": "Sheaf",
-      "target": "Scheme",
-      "value": "has_defining_structure"
-    },
-    {
-      "id": "math-134",
-      "source": "Topological_Space",
-      "target": "Scheme",
-      "value": "has_underlying_space"
-    },
-    {
-      "id": "math-135",
-      "source": "Stochastic_Process",
-      "target": "Semimartingale",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-136",
-      "source": "Sequence",
-      "target": "Real_Valued_Sequence",
-      "value": "related_to"
-    },
-    {
-      "id": "math-137",
-      "source": "Set",
-      "target": "Topological_Space",
-      "value": "has_underlying_set"
-    },
-    {
-      "id": "math-138",
-      "source": "Topological_Space",
-      "target": "Sheaf",
-      "value": "has_base_space"
-    },
-    {
-      "id": "math-139",
-      "source": "Complex_Valued_Function",
-      "target": "Spherical_Harmonics",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-140",
-      "source": "Stochastic_Process",
-      "target": "Stationary_Process",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-141",
-      "source": "Tensor",
-      "target": "Symplectic_Manifold",
-      "value": "has_defining_structure"
-    },
-    {
-      "id": "math-142",
-      "source": "Real_Valued_Function",
-      "target": "Real_Valued_Sequence",
-      "value": "related_to"
+      "id": "mathematics--subject.complex-analysis",
+      "source": "mathematics",
+      "target": "subject.complex-analysis",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.real-analysis",
+      "source": "mathematics",
+      "target": "subject.real-analysis",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.functional-analysis",
+      "source": "mathematics",
+      "target": "subject.functional-analysis",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.group-theory",
+      "source": "mathematics",
+      "target": "subject.group-theory",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.number-theory",
+      "source": "mathematics",
+      "target": "subject.number-theory",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.probability-theory",
+      "source": "mathematics",
+      "target": "subject.probability-theory",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.set-theory-logic",
+      "source": "mathematics",
+      "target": "subject.set-theory-logic",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.topology",
+      "source": "mathematics",
+      "target": "subject.topology",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.differential-geometry",
+      "source": "mathematics",
+      "target": "subject.differential-geometry",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "mathematics--subject.algebraic-geometry",
+      "source": "mathematics",
+      "target": "subject.algebraic-geometry",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "Navigate to the subject guide and its graph file."
+      }
+    },
+    {
+      "id": "subject.real-analysis--subject.complex-analysis",
+      "source": "subject.real-analysis",
+      "target": "subject.complex-analysis",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Metric limits and uniform convergence support holomorphic function theory."
+      }
+    },
+    {
+      "id": "subject.real-analysis--subject.functional-analysis",
+      "source": "subject.real-analysis",
+      "target": "subject.functional-analysis",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Integration and Lp spaces supply the principal infinite-dimensional examples."
+      }
+    },
+    {
+      "id": "subject.real-analysis--subject.probability-theory",
+      "source": "subject.real-analysis",
+      "target": "subject.probability-theory",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Probability is normalized measure theory with additional independence structure."
+      }
+    },
+    {
+      "id": "subject.topology--subject.differential-geometry",
+      "source": "subject.topology",
+      "target": "subject.differential-geometry",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Topological manifolds acquire smooth atlases, forms and metrics."
+      }
+    },
+    {
+      "id": "subject.group-theory--subject.number-theory",
+      "source": "subject.group-theory",
+      "target": "subject.number-theory",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Group actions and Galois theory organize arithmetic symmetry."
+      }
+    },
+    {
+      "id": "subject.group-theory--subject.algebraic-geometry",
+      "source": "subject.group-theory",
+      "target": "subject.algebraic-geometry",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Quotients and algebraic structures lead to rings, modules and coordinate algebras."
+      }
+    },
+    {
+      "id": "subject.complex-analysis--subject.algebraic-geometry",
+      "source": "subject.complex-analysis",
+      "target": "subject.algebraic-geometry",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Riemann surfaces connect complex analysis with smooth projective curves over the complex numbers."
+      }
+    },
+    {
+      "id": "subject.functional-analysis--subject.differential-geometry",
+      "source": "subject.functional-analysis",
+      "target": "subject.differential-geometry",
+      "value": "bridge",
+      "metadata": {
+        "relation": "bridge",
+        "rationale": "Elliptic operators connect Sobolev estimates with Hodge theory."
+      }
     }
   ]
 }

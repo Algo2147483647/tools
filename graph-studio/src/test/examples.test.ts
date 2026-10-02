@@ -8,6 +8,7 @@ import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 import { discoverWorkspace, readGraphFile } from "../workspace/discovery";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
+import { resolveWorkspacePath } from "../workspace/paths";
 import { defineSuite, defineTest } from "./harness";
 
 async function exampleGraph(id: string, path: string) {
@@ -51,9 +52,8 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
         const text = await entry.file!.text();
         assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
         // Resolve every generated Markdown link, including the graph's note fields.
-        for (const match of text.matchAll(/\]\(\.\/([\w/.-]+)\)/g)) {
-          const directory = entry.path.includes("/") ? entry.path.slice(0, entry.path.lastIndexOf("/") + 1) : "";
-          assert.ok(folder.files.has(directory + match[1]), `${entry.path}: missing ${match[1]}`);
+        for (const match of text.matchAll(/\]\((\.{1,2}\/[\w/.-]+)\)/g)) {
+          assert.ok(folder.files.has(resolveWorkspacePath(match[1], entry.path)), `${entry.path}: missing ${match[1]}`);
         }
       }
       for (const entry of workspace.graphs) {
@@ -268,7 +268,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
   }),
   defineTest("switching from a Sankey example to mathematics restores a layered layout", async () => {
     const dag = await exampleGraph("mathematics", "mathematics.json");
-    assert.equal(Object.keys(dag.nodes).length, 112);
+    assert.equal(Object.keys(dag.nodes).length, 11);
     const state = graphReducer(
       { ...initialGraphAppState, chartType: "sankey", layout: { mode: "dagre" } },
       {

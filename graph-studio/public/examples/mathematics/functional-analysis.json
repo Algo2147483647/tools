@@ -1,0 +1,611 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "id": "functional-analysis",
+  "title": "Functional analysis",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "functional-analysis",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 9,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
+  "nodes": {
+    "subject.functional-analysis": {
+      "title": "Functional analysis",
+      "define": "Banach and Hilbert spaces, duality, operator theory and variational methods.",
+      "type": "Functional analysis",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Linear algebra, metric completeness, Lebesgue integration, Lp spaces and basic topology.",
+      "learning_outcomes": "- Track completeness and domain assumptions in the central Banach-space theorems.\n- Distinguish weak, weak-star and norm topology.\n- Choose the spectral theorem appropriate to the operator and formulate variational problems correctly.",
+      "study_route": "[Banach spaces](./notes/fa.banach.md) → [Bounded linear operators](./notes/fa.operators.md) → [Continuous dual and bidual](./notes/fa.dual.md) → [Hahn–Banach extension theorem](./notes/fa.hahn-banach.md) → [Baire category theorem](./notes/fa.baire.md) → [Open mapping and bounded inverse](./notes/fa.open-mapping.md) → [Hilbert spaces and orthogonal projection](./notes/fa.hilbert.md) → [Compact self-adjoint spectral theorem](./notes/fa.compact-spectral.md)",
+      "notes": "[Subject guide](./guides/functional-analysis.md)",
+      "graph_file": "Open functional-analysis.json in the workspace graph list.",
+      "references": "- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.\n- **FA3** — Gerald Teschl. [Mathematical Methods in Quantum Mechanics](https://radon.mat.univie.ac.at/~gerald/ftp/book-schroe/index.html). Second edition, AMS, 2014; spectral theory."
+    },
+    "fa.banach": {
+      "title": "Banach spaces",
+      "define": "A Banach space is a normed real or complex vector space complete for its norm metric.",
+      "statement": "A Banach space is a normed real or complex vector space complete for its norm metric.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The scalar field and norm must be specified.",
+      "example": "$L^p(\\mu)$ is Banach for $1\\le p\\le\\infty$; $C(K)$ is Banach with the sup norm for compact K.",
+      "caution": "A linear subspace of a Banach space is complete in the inherited norm exactly when it is closed.",
+      "prerequisites": "**From other subjects**\n\n- [Lp spaces](./notes/ra.lp.md) — Real analysis\n- [Metric limits and completeness](./notes/ra.metric.md) — Real analysis",
+      "references": "FA: Banach space theory.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Banach spaces](./notes/fa.banach.md)"
+    },
+    "fa.hilbert": {
+      "title": "Hilbert spaces and orthogonal projection",
+      "define": "A Hilbert space is complete in its inner-product norm. Every vector has a unique orthogonal decomposition relative to a closed linear subspace.",
+      "statement": "A Hilbert space is complete in its inner-product norm. Every vector has a unique orthogonal decomposition relative to a closed linear subspace.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The subspace must be closed; use real or complex inner products consistently.",
+      "example": "Least-squares approximation projects onto a finite-dimensional span.",
+      "caution": "Projection onto a nonclosed subspace may fail to exist.",
+      "proof_idea": "Minimize distance using the parallelogram identity to make a minimizing sequence Cauchy.",
+      "prerequisites": "**Within this subject**\n\n- [Banach spaces](./notes/fa.banach.md)",
+      "references": "FA: Hilbert spaces; orthogonal projection.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Hilbert spaces and orthogonal projection](./notes/fa.hilbert.md)"
+    },
+    "fa.operators": {
+      "title": "Bounded linear operators",
+      "define": "Continuity of a linear map is equivalent to a uniform norm bound.",
+      "statement": "A linear map $T:X\\to Y$ between normed spaces is bounded if $\\|Tx\\|\\le C\\|x\\|$. This is equivalent to continuity. Its operator norm is $\\sup_{\\|x\\|\\le1}\\|Tx\\|$.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Boundedness is a global linear estimate.",
+      "example": "Differentiation is bounded from C1 with its C1 norm to C with its sup norm, but not with only the sup norm on the domain.",
+      "caution": "An operator's boundedness depends on its domain and the chosen norms.",
+      "prerequisites": "**Within this subject**\n\n- [Banach spaces](./notes/fa.banach.md)",
+      "references": "FA: bounded operators.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Bounded linear operators](./notes/fa.operators.md)"
+    },
+    "fa.dual": {
+      "title": "Continuous dual and bidual",
+      "define": "The continuous dual records bounded linear measurements of a normed space.",
+      "statement": "The continuous dual $X^*$ consists of bounded linear scalar-valued functionals. The canonical map $J:X\\to X^{**}$ is given by $Jx(\\ell)=\\ell(x)$ and is isometric.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Use the continuous dual rather than the algebraic dual.",
+      "example": "For $1<p<\\infty$ on a sigma-finite measure space, $(L^p)^*$ is identified with $L^q$ by integration.",
+      "caution": "The full dual of $L^\\infty$ generally exceeds $L^1$.",
+      "prerequisites": "**Within this subject**\n\n- [Bounded linear operators](./notes/fa.operators.md)\n\n**From other subjects**\n\n- [Hölder and Minkowski inequalities](./notes/ra.holder.md) — Real analysis",
+      "references": "FA: duality; FA2: Lp duality.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.",
+      "notes": "[Continuous dual and bidual](./notes/fa.dual.md)"
+    },
+    "fa.hahn-banach": {
+      "title": "Hahn–Banach extension theorem",
+      "define": "A bounded linear functional on a linear subspace of a normed space extends to the entire space with unchanged norm.",
+      "statement": "A bounded linear functional on a linear subspace of a normed space extends to the entire space with unchanged norm.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The extension is scalar-valued; the real sublinear-domination version yields the complex normed-space statement as well.",
+      "example": "A nonzero vector can be separated from zero by a norm-one continuous functional.",
+      "caution": "Arbitrary vector-valued operators need not admit norm-preserving extensions.",
+      "proof_idea": "Extend one dimension at a time under a domination bound and use a maximal extension argument.",
+      "prerequisites": "**Within this subject**\n\n- [Continuous dual and bidual](./notes/fa.dual.md)\n\n**From other subjects**\n\n- [Axiom of choice, Zorn and well-ordering](./notes/sl.choice.md) — Set theory and mathematical logic",
+      "references": "FA: Hahn–Banach theorem.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Hahn–Banach extension theorem](./notes/fa.hahn-banach.md)"
+    },
+    "fa.baire": {
+      "title": "Baire category theorem",
+      "define": "A nonempty complete metric space cannot be a countable union of nowhere dense sets. Equivalently, countable intersections of dense open sets are dense.",
+      "statement": "A nonempty complete metric space cannot be a countable union of nowhere dense sets. Equivalently, countable intersections of dense open sets are dense.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Completeness is a sufficient hypothesis; locally compact Hausdorff spaces are another important version.",
+      "example": "This underlies the uniform boundedness and open mapping principles.",
+      "caution": "Meagre and measure-zero are different notions of smallness.",
+      "proof_idea": "Choose nested closed balls avoiding successive nowhere dense sets; completeness supplies a common point.",
+      "prerequisites": "**From other subjects**\n\n- [Metric limits and completeness](./notes/ra.metric.md) — Real analysis",
+      "references": "FA: Baire category.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Baire category theorem](./notes/fa.baire.md)"
+    },
+    "fa.uniform-boundedness": {
+      "title": "Uniform boundedness principle",
+      "define": "Pointwise bounded operator families on a Banach domain have uniformly bounded norms.",
+      "statement": "If X is Banach and $\\{T_i:X\\to Y\\}$ are bounded linear maps with $\\sup_i\\|T_i x\\|<\\infty$ for each x, then $\\sup_i\\|T_i\\|<\\infty$.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Y need only be normed; the completeness requirement is on X.",
+      "example": "Pointwise bounded continuous linear functionals on a Banach space have uniformly bounded norms.",
+      "caution": "Pointwise boundedness on a merely dense set is not enough.",
+      "proof_idea": "Apply Baire to closed sets on which all operator values have a common bound, then translate and rescale a ball.",
+      "prerequisites": "**Within this subject**\n\n- [Baire category theorem](./notes/fa.baire.md)\n- [Bounded linear operators](./notes/fa.operators.md)",
+      "references": "FA: uniform boundedness.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Uniform boundedness principle](./notes/fa.uniform-boundedness.md)"
+    },
+    "fa.open-mapping": {
+      "title": "Open mapping and bounded inverse",
+      "define": "A surjective bounded linear map between Banach spaces is open. A bounded linear bijection between Banach spaces therefore has bounded inverse.",
+      "statement": "A surjective bounded linear map between Banach spaces is open. A bounded linear bijection between Banach spaces therefore has bounded inverse.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Both spaces are complete, and surjectivity is required for openness.",
+      "example": "Equivalent Banach norms can be proved equivalent by the bounded inverse theorem when the identity map is a bounded bijection.",
+      "caution": "An algebraic inverse need not be continuous when completeness fails.",
+      "proof_idea": "Baire gives a ball in the closure of an image; a convergent correction series upgrades closure to actual inclusion.",
+      "prerequisites": "**Within this subject**\n\n- [Baire category theorem](./notes/fa.baire.md)\n- [Bounded linear operators](./notes/fa.operators.md)",
+      "references": "FA: open mapping theorem.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Open mapping and bounded inverse](./notes/fa.open-mapping.md)"
+    },
+    "fa.closed-graph": {
+      "title": "Closed graph theorem",
+      "define": "An everywhere-defined linear map between Banach spaces is bounded if and only if its graph is closed in the product space.",
+      "statement": "An everywhere-defined linear map between Banach spaces is bounded if and only if its graph is closed in the product space.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The map is defined on all of X; X and Y are Banach.",
+      "example": "A closed differential operator may be unbounded when its domain is only a dense proper subspace.",
+      "caution": "Closedness of a densely defined operator alone does not imply boundedness.",
+      "proof_idea": "View the graph as a Banach space and apply the bounded inverse theorem to its projection onto X.",
+      "prerequisites": "**Within this subject**\n\n- [Open mapping and bounded inverse](./notes/fa.open-mapping.md)",
+      "references": "FA: closed graph theorem.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Closed graph theorem](./notes/fa.closed-graph.md)"
+    },
+    "fa.weak": {
+      "title": "Weak and weak-star topologies",
+      "define": "Weak and weak-star topologies test convergence against different families of functionals.",
+      "statement": "Weak convergence in X means convergence against every element of $X^*$. Weak-star convergence in $X^*$ means pointwise convergence on X.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The specified predual determines the weak-star topology.",
+      "example": "An orthonormal sequence in a Hilbert space converges weakly to zero but not in norm.",
+      "caution": "Weak and weak-star topologies generally differ; their compactness is naturally formulated using nets, not only sequences.",
+      "prerequisites": "**Within this subject**\n\n- [Continuous dual and bidual](./notes/fa.dual.md)",
+      "references": "FA2: weak topologies.\n\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.",
+      "notes": "[Weak and weak-star topologies](./notes/fa.weak.md)"
+    },
+    "fa.alaoglu": {
+      "title": "Banach–Alaoglu theorem",
+      "define": "A dual unit ball is compact for the weak-star topology.",
+      "statement": "The closed unit ball of $X^*$ is compact in the weak-star topology for every normed space X.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Weak-star compactness is not norm compactness.",
+      "example": "If X is separable, this weak-star compact ball is metrizable and hence sequentially compact.",
+      "caution": "Without metrizability, compactness does not automatically imply sequential compactness.",
+      "proof_idea": "Embed the dual ball into a product of compact scalar disks and verify that the functional conditions define a closed subset.",
+      "prerequisites": "**Within this subject**\n\n- [Weak and weak-star topologies](./notes/fa.weak.md)\n\n**From other subjects**\n\n- [Tychonoff theorem](./notes/tp.tychonoff.md) — Topology",
+      "references": "FA2: weak-star compactness.\n\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.",
+      "notes": "[Banach–Alaoglu theorem](./notes/fa.alaoglu.md)"
+    },
+    "fa.reflexive": {
+      "title": "Reflexive spaces",
+      "define": "Reflexivity identifies a Banach space with its bidual and gives weak ball compactness.",
+      "statement": "A Banach space X is reflexive when $J:X\\to X^{**}$ is onto. This is equivalent to weak compactness of its closed unit ball.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Weak topology is the topology induced by the continuous dual.",
+      "example": "Hilbert spaces and $L^p$ for $1<p<\\infty$ are reflexive.",
+      "caution": "$L^1([0,1])$ and $L^\\infty([0,1])$ with Lebesgue measure are not reflexive.",
+      "proof_idea": "For reflexive spaces identify the ball with a weak-star compact bidual ball; the converse uses separation and density of the canonical image.",
+      "prerequisites": "**Within this subject**\n\n- [Banach–Alaoglu theorem](./notes/fa.alaoglu.md)\n- [Hahn–Banach extension theorem](./notes/fa.hahn-banach.md)",
+      "references": "FA2: reflexivity.\n\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.",
+      "notes": "[Reflexive spaces](./notes/fa.reflexive.md)"
+    },
+    "fa.riesz": {
+      "title": "Riesz representation in Hilbert space",
+      "define": "Every continuous Hilbert-space functional is inner product with a unique vector.",
+      "statement": "With inner product linear in the first variable, every continuous linear functional on H has the unique form $x\\mapsto\\langle x,y\\rangle$ for some y, with norm $\\|y\\|$.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "H is a Hilbert space; the convention fixes the conjugate-linearity of the representing correspondence.",
+      "example": "Coordinate evaluation on $\\ell^2$ is represented by a standard basis vector.",
+      "caution": "This is distinct from the Riesz–Markov theorem representing functionals by measures.",
+      "proof_idea": "Project onto the orthogonal complement of the functional's kernel.",
+      "prerequisites": "**Within this subject**\n\n- [Hilbert spaces and orthogonal projection](./notes/fa.hilbert.md)\n- [Continuous dual and bidual](./notes/fa.dual.md)",
+      "references": "FA: Hilbert space representation.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Riesz representation in Hilbert space](./notes/fa.riesz.md)"
+    },
+    "fa.compact": {
+      "title": "Compact operators",
+      "define": "A bounded operator is compact if it sends the unit ball to a relatively norm-compact set.",
+      "statement": "A bounded operator is compact if it sends the unit ball to a relatively norm-compact set.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The domain and codomain are normed; the standard operator theory below uses Banach spaces.",
+      "example": "Finite-rank operators are compact, and their operator-norm limits into a Banach space are compact.",
+      "caution": "The identity on an infinite-dimensional Banach space is not compact.",
+      "prerequisites": "**Within this subject**\n\n- [Bounded linear operators](./notes/fa.operators.md)\n\n**From other subjects**\n\n- [Arzelà–Ascoli theorem](./notes/ra.ascoli.md) — Real analysis",
+      "references": "FA: compact operators.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Compact operators](./notes/fa.compact.md)"
+    },
+    "fa.fredholm": {
+      "title": "Fredholm alternative for I minus compact",
+      "define": "Identity minus a compact operator has equivalent injectivity and surjectivity.",
+      "statement": "For compact K on a Banach space X, $I-K$ is injective if and only if it is surjective. Its kernel is finite-dimensional and its range is closed.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The operator has the particular form identity minus a compact operator.",
+      "example": "A second-kind integral equation has either unique solvability for every right-hand side or a nontrivial homogeneous solution.",
+      "caution": "For a nontrivial kernel, solvability still requires compatibility conditions; arbitrary bounded operators need not satisfy this alternative.",
+      "proof_idea": "Compactness prevents infinite separated sequences in successive kernels or ranges.",
+      "prerequisites": "**Within this subject**\n\n- [Compact operators](./notes/fa.compact.md)\n- [Open mapping and bounded inverse](./notes/fa.open-mapping.md)",
+      "references": "FA: Fredholm alternative.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Fredholm alternative for I minus compact](./notes/fa.fredholm.md)"
+    },
+    "fa.spectrum": {
+      "title": "Spectrum and resolvent",
+      "define": "The spectrum records failure of a bounded everywhere-defined inverse.",
+      "statement": "For a bounded operator T on a complex Banach space, $\\sigma(T)$ consists of scalars for which $T-\\lambda I$ has no bounded everywhere-defined inverse. It is nonempty and compact.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Nonemptiness uses the complex scalar field and a nonzero Banach space.",
+      "example": "The unilateral shift has spectral points that are not eigenvalues.",
+      "caution": "In infinite dimensions, spectrum and set of eigenvalues are not the same.",
+      "prerequisites": "**Within this subject**\n\n- [Bounded linear operators](./notes/fa.operators.md)\n\n**From other subjects**\n\n- [Liouville and the fundamental theorem of algebra](./notes/ca.liouville.md) — Complex analysis",
+      "references": "FA3: spectral theory.\n\n- **FA3** — Gerald Teschl. [Mathematical Methods in Quantum Mechanics](https://radon.mat.univie.ac.at/~gerald/ftp/book-schroe/index.html). Second edition, AMS, 2014; spectral theory.",
+      "notes": "[Spectrum and resolvent](./notes/fa.spectrum.md)"
+    },
+    "fa.compact-spectral": {
+      "title": "Compact self-adjoint spectral theorem",
+      "define": "A compact self-adjoint operator on a Hilbert space has orthogonal finite-dimensional eigenspaces for its nonzero eigenvalues; those eigenvalues can accumulate only at zero. The closed span of these eigenspaces is the orthogonal complement of the kernel.",
+      "statement": "A compact self-adjoint operator on a Hilbert space has orthogonal finite-dimensional eigenspaces for its nonzero eigenvalues; those eigenvalues can accumulate only at zero. The closed span of these eigenspaces is the orthogonal complement of the kernel.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Self-adjointness and compactness are both assumed.",
+      "example": "A diagonal operator on l2 with real diagonal entries tending to zero is compact and self-adjoint.",
+      "caution": "A kernel may be infinite-dimensional; zero need not be an eigenvalue when it is a spectral limit point.",
+      "proof_idea": "Maximize the quadratic form to obtain an eigenvector, then iterate on orthogonal complements.",
+      "prerequisites": "**Within this subject**\n\n- [Compact operators](./notes/fa.compact.md)\n- [Hilbert spaces and orthogonal projection](./notes/fa.hilbert.md)\n- [Spectrum and resolvent](./notes/fa.spectrum.md)",
+      "references": "FA: compact self-adjoint operators.\n\n- **FA** — Casey Rodriguez; Richard Melrose. [MIT 18.102: Introduction to Functional Analysis](https://ocw.mit.edu/courses/18-102-introduction-to-functional-analysis-spring-2021/pages/lecture-notes-and-readings/). Spring 2021; includes Melrose's 2020 notes.",
+      "notes": "[Compact self-adjoint spectral theorem](./notes/fa.compact-spectral.md)"
+    },
+    "fa.spectral-measure": {
+      "title": "Spectral theorem for bounded normal operators",
+      "define": "Bounded normal operators have a projection-valued spectral representation.",
+      "statement": "A bounded normal operator on a complex Hilbert space admits a projection-valued measure E with $T=\\int_{\\sigma(T)}z\\,dE(z)$ and a bounded Borel functional calculus.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "Normality means $TT^*=T^*T$.",
+      "example": "Multiplication by the coordinate function on L2 can have continuous spectrum without an eigenbasis.",
+      "caution": "The compact eigenvector formulation does not describe every bounded normal operator.",
+      "proof_idea": "Represent the commutative operator algebra by continuous functions and then extend the calculus to spectral projections.",
+      "prerequisites": "**Within this subject**\n\n- [Riesz representation in Hilbert space](./notes/fa.riesz.md)\n- [Spectrum and resolvent](./notes/fa.spectrum.md)\n\n**From other subjects**\n\n- [Measure spaces](./notes/ra.measure.md) — Real analysis",
+      "references": "FA3: spectral theorem.\n\n- **FA3** — Gerald Teschl. [Mathematical Methods in Quantum Mechanics](https://radon.mat.univie.ac.at/~gerald/ftp/book-schroe/index.html). Second edition, AMS, 2014; spectral theory.",
+      "notes": "[Spectral theorem for bounded normal operators](./notes/fa.spectral-measure.md)"
+    },
+    "fa.unbounded": {
+      "title": "Unbounded self-adjoint operators",
+      "define": "Self-adjointness of an unbounded operator includes equality of operator domains.",
+      "statement": "A densely defined operator A is self-adjoint when $A=A^*$ including equality of domains. Such operators have real spectrum and a spectral calculus respecting domains.",
+      "type": "Functional analysis",
+      "kind": "Definition",
+      "level": "Advanced gateway",
+      "hypotheses": "Specify the dense domain and adjoint domain, not just a formal expression.",
+      "example": "Different boundary conditions for a differential expression can produce different self-adjoint operators.",
+      "caution": "A symmetric operator need not be self-adjoint or essentially self-adjoint.",
+      "prerequisites": "**Within this subject**\n\n- [Spectral theorem for bounded normal operators](./notes/fa.spectral-measure.md)",
+      "references": "FA3: unbounded operators.\n\n- **FA3** — Gerald Teschl. [Mathematical Methods in Quantum Mechanics](https://radon.mat.univie.ac.at/~gerald/ftp/book-schroe/index.html). Second edition, AMS, 2014; spectral theory.",
+      "notes": "[Unbounded self-adjoint operators](./notes/fa.unbounded.md)"
+    },
+    "fa.lax-milgram": {
+      "title": "Lax–Milgram theorem",
+      "define": "Bounded coercive forms give unique variational solutions with a norm estimate.",
+      "statement": "A bounded coercive sesquilinear form a on a Hilbert space yields a unique solution u to $a(u,v)=\\ell(v)$ for every continuous antilinear functional $\\ell$, with $\\|u\\|\\le\\|\\ell\\|/\\alpha$.",
+      "type": "Functional analysis",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "The form is linear in its first variable and $\\operatorname{Re}a(v,v)\\ge\\alpha\\|v\\|^2$ for some $\\alpha>0$.",
+      "example": "The weak Dirichlet problem for the coercive form integral of gradient products is a model application on H1_0 with an appropriate norm.",
+      "caution": "Positivity without a uniform coercivity bound is insufficient.",
+      "proof_idea": "Represent the form by a bounded operator, use coercivity for closed range and an adjoint argument for density.",
+      "prerequisites": "**Within this subject**\n\n- [Riesz representation in Hilbert space](./notes/fa.riesz.md)\n\n**From other subjects**\n\n- [Sobolev spaces](./notes/ra.sobolev.md) — Real analysis",
+      "references": "FA2: coercive forms and variational methods.\n\n- **FA2** — Haim Brezis. [Functional Analysis, Sobolev Spaces and Partial Differential Equations](https://link.springer.com/book/10.1007/978-0-387-70914-7). Springer, 2011.",
+      "notes": "[Lax–Milgram theorem](./notes/fa.lax-milgram.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "subject.functional-analysis--fa.banach",
+      "source": "subject.functional-analysis",
+      "target": "fa.banach",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "subject.functional-analysis--fa.baire",
+      "source": "subject.functional-analysis",
+      "target": "fa.baire",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "fa.banach--fa.hilbert",
+      "source": "fa.banach",
+      "target": "fa.hilbert",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Banach spaces supplies selected background for Hilbert spaces and orthogonal projection; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.banach--fa.operators",
+      "source": "fa.banach",
+      "target": "fa.operators",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Banach spaces supplies selected background for Bounded linear operators; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.operators--fa.dual",
+      "source": "fa.operators",
+      "target": "fa.dual",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Bounded linear operators supplies selected background for Continuous dual and bidual; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.dual--fa.hahn-banach",
+      "source": "fa.dual",
+      "target": "fa.hahn-banach",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Continuous dual and bidual supplies selected background for Hahn–Banach extension theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.baire--fa.uniform-boundedness",
+      "source": "fa.baire",
+      "target": "fa.uniform-boundedness",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Baire category theorem supplies selected background for Uniform boundedness principle; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.operators--fa.uniform-boundedness",
+      "source": "fa.operators",
+      "target": "fa.uniform-boundedness",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Bounded linear operators supplies selected background for Uniform boundedness principle; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.baire--fa.open-mapping",
+      "source": "fa.baire",
+      "target": "fa.open-mapping",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Baire category theorem supplies selected background for Open mapping and bounded inverse; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.operators--fa.open-mapping",
+      "source": "fa.operators",
+      "target": "fa.open-mapping",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Bounded linear operators supplies selected background for Open mapping and bounded inverse; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.open-mapping--fa.closed-graph",
+      "source": "fa.open-mapping",
+      "target": "fa.closed-graph",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Open mapping and bounded inverse supplies selected background for Closed graph theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.dual--fa.weak",
+      "source": "fa.dual",
+      "target": "fa.weak",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Continuous dual and bidual supplies selected background for Weak and weak-star topologies; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.weak--fa.alaoglu",
+      "source": "fa.weak",
+      "target": "fa.alaoglu",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Weak and weak-star topologies supplies selected background for Banach–Alaoglu theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.alaoglu--fa.reflexive",
+      "source": "fa.alaoglu",
+      "target": "fa.reflexive",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Banach–Alaoglu theorem supplies selected background for Reflexive spaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.hahn-banach--fa.reflexive",
+      "source": "fa.hahn-banach",
+      "target": "fa.reflexive",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Hahn–Banach extension theorem supplies selected background for Reflexive spaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.hilbert--fa.riesz",
+      "source": "fa.hilbert",
+      "target": "fa.riesz",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Hilbert spaces and orthogonal projection supplies selected background for Riesz representation in Hilbert space; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.dual--fa.riesz",
+      "source": "fa.dual",
+      "target": "fa.riesz",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Continuous dual and bidual supplies selected background for Riesz representation in Hilbert space; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.operators--fa.compact",
+      "source": "fa.operators",
+      "target": "fa.compact",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Bounded linear operators supplies selected background for Compact operators; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.compact--fa.fredholm",
+      "source": "fa.compact",
+      "target": "fa.fredholm",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Compact operators supplies selected background for Fredholm alternative for I minus compact; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.open-mapping--fa.fredholm",
+      "source": "fa.open-mapping",
+      "target": "fa.fredholm",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Open mapping and bounded inverse supplies selected background for Fredholm alternative for I minus compact; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.operators--fa.spectrum",
+      "source": "fa.operators",
+      "target": "fa.spectrum",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Bounded linear operators supplies selected background for Spectrum and resolvent; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.compact--fa.compact-spectral",
+      "source": "fa.compact",
+      "target": "fa.compact-spectral",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Compact operators supplies selected background for Compact self-adjoint spectral theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.hilbert--fa.compact-spectral",
+      "source": "fa.hilbert",
+      "target": "fa.compact-spectral",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Hilbert spaces and orthogonal projection supplies selected background for Compact self-adjoint spectral theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.spectrum--fa.compact-spectral",
+      "source": "fa.spectrum",
+      "target": "fa.compact-spectral",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Spectrum and resolvent supplies selected background for Compact self-adjoint spectral theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.riesz--fa.spectral-measure",
+      "source": "fa.riesz",
+      "target": "fa.spectral-measure",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Riesz representation in Hilbert space supplies selected background for Spectral theorem for bounded normal operators; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.spectrum--fa.spectral-measure",
+      "source": "fa.spectrum",
+      "target": "fa.spectral-measure",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Spectrum and resolvent supplies selected background for Spectral theorem for bounded normal operators; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.spectral-measure--fa.unbounded",
+      "source": "fa.spectral-measure",
+      "target": "fa.unbounded",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Spectral theorem for bounded normal operators supplies selected background for Unbounded self-adjoint operators; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "fa.riesz--fa.lax-milgram",
+      "source": "fa.riesz",
+      "target": "fa.lax-milgram",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Riesz representation in Hilbert space supplies selected background for Lax–Milgram theorem; consult both entries for the scope of the connection."
+      }
+    }
+  ]
+}

@@ -1,0 +1,574 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "id": "complex-analysis",
+  "title": "Complex analysis",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "complex-analysis",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 5,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
+  "nodes": {
+    "subject.complex-analysis": {
+      "title": "Complex analysis",
+      "define": "Holomorphic rigidity, contour methods, analytic continuation and the geometry of Riemann surfaces.",
+      "type": "Complex analysis",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Real multivariable calculus, metric limits, elementary topology and line integration.",
+      "learning_outcomes": "- Use Cauchy theory to derive local analyticity and rigidity.\n- Choose contour, residue and zero-counting arguments with the correct domain hypotheses.\n- Separate local continuation from global single-valuedness.",
+      "study_route": "[Holomorphic functions](./notes/ca.holomorphic.md) → [Cauchy–Goursat theorem](./notes/ca.cauchy.md) → [Cauchy integral formula](./notes/ca.cauchy-formula.md) → [Power series and analyticity](./notes/ca.series.md) → [Laurent series and isolated singularities](./notes/ca.singularities.md) → [Residue theorem](./notes/ca.residues.md) → [Montel's theorem](./notes/ca.normal.md) → [Riemann mapping theorem](./notes/ca.riemann-mapping.md)",
+      "notes": "[Subject guide](./guides/complex-analysis.md)",
+      "graph_file": "Open complex-analysis.json in the workspace graph list.",
+      "references": "- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.\n- **CM** — John M. Lee. [Introduction to Complex Manifolds](https://sites.math.washington.edu/~lee/Books/ICM/). Author's book page."
+    },
+    "ca.holomorphic": {
+      "title": "Holomorphic functions",
+      "define": "Complex differentiability throughout an open set imposes strong local rigidity.",
+      "statement": "A function on an open set $U\\subset\\mathbb C$ is holomorphic if the complex derivative exists at every point of $U$. This is stronger than real differentiability.",
+      "type": "Complex analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The derivative limit must be independent of the direction of approach.",
+      "example": "$z^2$ is holomorphic; $\\bar z$ is not holomorphic on any nonempty open set.",
+      "caution": "Complex differentiability at one isolated point does not imply local holomorphy.",
+      "prerequisites": "**From other subjects**\n\n- [Metric limits and completeness](./notes/ra.metric.md) — Real analysis",
+      "references": "CA: analytic functions.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Holomorphic functions](./notes/ca.holomorphic.md)"
+    },
+    "ca.cr": {
+      "title": "Cauchy–Riemann equations",
+      "define": "The real differential of a holomorphic function is complex linear.",
+      "statement": "For $f=u+iv$ with real $C^1$ components, holomorphy is equivalent to $u_x=v_y$ and $u_y=-v_x$. Equivalently, $\\partial_{\\bar z}f=0$.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The sufficient condition here assumes continuous first partial derivatives on an open set.",
+      "example": "For $e^{x+iy}$, the equations hold everywhere.",
+      "caution": "Pointwise equations without regularity are not the stated sufficient criterion.",
+      "proof_idea": "Identify the real differential with multiplication by a complex number.",
+      "prerequisites": "**Within this subject**\n\n- [Holomorphic functions](./notes/ca.holomorphic.md)",
+      "references": "CA: analytic functions.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Cauchy–Riemann equations](./notes/ca.cr.md)"
+    },
+    "ca.series": {
+      "title": "Power series and analyticity",
+      "define": "A complex power series converges locally uniformly inside its radius of convergence and may be differentiated termwise there. Holomorphic functions locally equal their Taylor series.",
+      "statement": "A complex power series converges locally uniformly inside its radius of convergence and may be differentiated termwise there. Holomorphic functions locally equal their Taylor series.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Taylor expansion is inside a disk contained in the domain of holomorphy.",
+      "example": "$1/(1-z)=\\sum_{n\\ge0}z^n$ for $|z|<1$.",
+      "caution": "Real smoothness does not imply analyticity; boundary convergence needs a separate argument.",
+      "proof_idea": "Use uniform convergence on smaller disks and Cauchy estimates for the Taylor remainder.",
+      "prerequisites": "**Within this subject**\n\n- [Cauchy integral formula](./notes/ca.cauchy-formula.md)\n\n**From other subjects**\n\n- [Uniform convergence](./notes/ra.uniform.md) — Real analysis",
+      "references": "CA: power series; Cauchy formula.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Power series and analyticity](./notes/ca.series.md)"
+    },
+    "ca.contours": {
+      "title": "Contour integrals and winding number",
+      "define": "Winding number measures the signed turns of a closed contour around a point.",
+      "statement": "For a piecewise $C^1$ closed curve $\\gamma$ and $a$ off its image, $\\operatorname{Ind}(\\gamma,a)=(2\\pi i)^{-1}\\int_\\gamma dz/(z-a)$ is an integer.",
+      "type": "Complex analysis",
+      "kind": "Construction",
+      "level": "Core",
+      "hypotheses": "Orientation and the parametrized curve, including repeated traversal, matter.",
+      "example": "A positively oriented circle winds once around its center and zero times around an exterior point.",
+      "caution": "Being geometrically enclosed is inadequate for self-intersecting or multiply traversed curves.",
+      "prerequisites": "**Within this subject**\n\n- [Holomorphic functions](./notes/ca.holomorphic.md)",
+      "references": "CA: line integrals; general Cauchy theorem.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Contour integrals and winding number](./notes/ca.contours.md)"
+    },
+    "ca.cauchy": {
+      "title": "Cauchy–Goursat theorem",
+      "define": "Holomorphic functions have zero closed-contour integrals on simply connected domains.",
+      "statement": "If $f$ is holomorphic on a simply connected domain $U$, then $\\int_\\gamma f(z)\\,dz=0$ for every closed piecewise $C^1$ curve in $U$.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The entire curve lies in the domain. Holomorphy does not require an a priori continuous derivative.",
+      "example": "The integral of $1/z$ around the unit circle is nonzero because the punctured plane is not simply connected.",
+      "caution": "The general homological version requires a null-homologous cycle in the domain.",
+      "proof_idea": "Prove the triangle theorem by subdivision, then construct primitives locally and use simple connectivity.",
+      "prerequisites": "**Within this subject**\n\n- [Contour integrals and winding number](./notes/ca.contours.md)",
+      "references": "CA: Cauchy–Goursat; general Cauchy theorem.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Cauchy–Goursat theorem](./notes/ca.cauchy.md)"
+    },
+    "ca.cauchy-formula": {
+      "title": "Cauchy integral formula",
+      "define": "Boundary values recover all interior derivatives of a holomorphic function.",
+      "statement": "If $f$ is holomorphic near a closed disk and $z$ is interior, then $f^{(n)}(z)=\\frac{n!}{2\\pi i}\\int_{\\partial D}\\frac{f(\\zeta)}{(\\zeta-z)^{n+1}}\\,d\\zeta$.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The circle is positively oriented; $n$ is a nonnegative integer.",
+      "example": "On a radius-$R$ circle about $z$, $|f^{(n)}(z)|\\le n!\\max_{\\partial D}|f|/R^n$.",
+      "caution": "The evaluation point must stay off the integration curve.",
+      "proof_idea": "Apply Cauchy's theorem after removing a small disk around the evaluation point, then differentiate under the integral.",
+      "prerequisites": "**Within this subject**\n\n- [Cauchy–Goursat theorem](./notes/ca.cauchy.md)",
+      "references": "CA: special Cauchy formula and applications.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Cauchy integral formula](./notes/ca.cauchy-formula.md)"
+    },
+    "ca.identity": {
+      "title": "Identity theorem",
+      "define": "Two holomorphic functions on a connected domain coincide if their agreement set has an accumulation point in that domain.",
+      "statement": "Two holomorphic functions on a connected domain coincide if their agreement set has an accumulation point in that domain.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The accumulation point is interior, and the domain is connected.",
+      "example": "A holomorphic function vanishing on a real interval inside its domain is identically zero.",
+      "caution": "Zeros may accumulate at a boundary point without forcing global vanishing.",
+      "proof_idea": "The first nonzero Taylor coefficient makes a zero isolated; propagate equality across the connected domain.",
+      "prerequisites": "**Within this subject**\n\n- [Power series and analyticity](./notes/ca.series.md)",
+      "references": "CA: local properties of analytic functions.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Identity theorem](./notes/ca.identity.md)"
+    },
+    "ca.liouville": {
+      "title": "Liouville and the fundamental theorem of algebra",
+      "define": "Every bounded entire function is constant. Consequently every nonconstant complex polynomial has a complex root.",
+      "statement": "Every bounded entire function is constant. Consequently every nonconstant complex polynomial has a complex root.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Boundedness is global on the entire complex plane.",
+      "example": "If a polynomial had no zero, its reciprocal would be entire and bounded.",
+      "caution": "A bounded holomorphic function on a proper domain need not be constant.",
+      "proof_idea": "Let the radius in the first-derivative Cauchy estimate tend to infinity.",
+      "prerequisites": "**Within this subject**\n\n- [Cauchy integral formula](./notes/ca.cauchy-formula.md)",
+      "references": "CA: Cauchy estimates.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Liouville and the fundamental theorem of algebra](./notes/ca.liouville.md)"
+    },
+    "ca.maximum": {
+      "title": "Maximum modulus principle",
+      "define": "A nonconstant holomorphic function on a connected domain cannot have a local interior maximum of its modulus.",
+      "statement": "A nonconstant holomorphic function on a connected domain cannot have a local interior maximum of its modulus.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The maximized quantity is the modulus, not an ordering of complex values.",
+      "example": "For a function continuous on a closed disk and holomorphic inside, its maximum modulus is attained on the boundary.",
+      "caution": "The boundary conclusion requires compactness and continuous extension to the boundary.",
+      "proof_idea": "Use the mean-value identity and its equality case, or the local power-series expansion.",
+      "prerequisites": "**Within this subject**\n\n- [Cauchy integral formula](./notes/ca.cauchy-formula.md)",
+      "references": "CA: local mapping; maximum modulus.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Maximum modulus principle](./notes/ca.maximum.md)"
+    },
+    "ca.singularities": {
+      "title": "Laurent series and isolated singularities",
+      "define": "An isolated singularity is removable, a pole, or essential according to whether the Laurent principal part is zero, finite nonzero, or infinite.",
+      "statement": "An isolated singularity is removable, a pole, or essential according to whether the Laurent principal part is zero, finite nonzero, or infinite.",
+      "type": "Complex analysis",
+      "kind": "Classification",
+      "level": "Core",
+      "hypotheses": "The function is holomorphic on a punctured disk.",
+      "example": "$\\sin z/z$, $1/z^2$, and $e^{1/z}$ illustrate the three cases at zero.",
+      "caution": "A branch point such as zero for a logarithm is not an isolated singularity of a single-valued holomorphic function on a punctured disk.",
+      "prerequisites": "**Within this subject**\n\n- [Power series and analyticity](./notes/ca.series.md)",
+      "references": "CA: isolated singularities; Laurent series.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Laurent series and isolated singularities](./notes/ca.singularities.md)"
+    },
+    "ca.residues": {
+      "title": "Residue theorem",
+      "define": "Contour integrals of meromorphic functions reduce to weighted residues at poles.",
+      "statement": "For a meromorphic function with finitely many poles relevant to a null-homologous contour, $\\int_\\gamma f\\,dz=2\\pi i\\sum_a\\operatorname{Ind}(\\gamma,a)\\operatorname{Res}_a f$.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The contour avoids poles and is null-homologous in the original domain before removing them.",
+      "example": "The residue of $g(z)/(z-a)$ is $g(a)$ when $g$ is holomorphic near $a$.",
+      "caution": "Higher-order poles require the Laurent coefficient, not simply the numerator value.",
+      "proof_idea": "Subtract principal parts and apply Cauchy's theorem to the remaining holomorphic function.",
+      "prerequisites": "**Within this subject**\n\n- [Laurent series and isolated singularities](./notes/ca.singularities.md)\n- [Contour integrals and winding number](./notes/ca.contours.md)",
+      "references": "CA: residue theorem.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Residue theorem](./notes/ca.residues.md)"
+    },
+    "ca.argument": {
+      "title": "Argument principle",
+      "define": "The winding of function values counts interior zeros minus poles.",
+      "statement": "For a positively oriented Jordan boundary, $(2\\pi i)^{-1}\\int f'/f$ equals the number of zeros minus poles inside, counted with multiplicity.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The Jordan boundary is piecewise C1. The function is meromorphic near the enclosed closed region and has no zero or pole on the boundary.",
+      "example": "A zero of order $m$ contributes residue $m$ to $f'/f$.",
+      "caution": "Zeros on the contour invalidate the formula without an additional limiting prescription.",
+      "proof_idea": "Compute the local residues of the logarithmic derivative.",
+      "prerequisites": "**Within this subject**\n\n- [Residue theorem](./notes/ca.residues.md)",
+      "references": "CA: argument principle.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Argument principle](./notes/ca.argument.md)"
+    },
+    "ca.rouche": {
+      "title": "Rouché's theorem",
+      "define": "A strict boundary perturbation bound preserves the number of interior zeros.",
+      "statement": "If $f,g$ are holomorphic near a closed Jordan region and $|g|<|f|$ on its boundary, then $f$ and $f+g$ have the same number of interior zeros.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Zeros are counted with multiplicity; the strict boundary inequality is the stated version.",
+      "example": "On $|z|=2$, $z^5$ dominates $z+1$, so $z^5+z+1$ has five zeros inside.",
+      "caution": "The theorem counts zeros but does not locate individual roots.",
+      "proof_idea": "The boundary functions $f+tg$ avoid zero, so their winding number is constant for $0\\le t\\le1$.",
+      "prerequisites": "**Within this subject**\n\n- [Argument principle](./notes/ca.argument.md)",
+      "references": "CA: Rouché theorem.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Rouché's theorem](./notes/ca.rouche.md)"
+    },
+    "ca.schwarz": {
+      "title": "Schwarz lemma",
+      "define": "A disk self-map fixing zero contracts radial size, with rigid equality cases.",
+      "statement": "For holomorphic $f:\\mathbb D\\to\\mathbb D$ with $f(0)=0$, $|f(z)|\\le|z|$ and $|f'(0)|\\le1$. Equality at a nonzero point, or in the derivative bound, forces a rotation.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The normalization at zero is essential to this form.",
+      "example": "$f(z)=e^{i\\theta}z$ realizes equality.",
+      "caution": "For general disk maps use automorphisms and Schwarz–Pick, not the unnormalized inequality.",
+      "proof_idea": "Apply the maximum principle to the removable extension of $f(z)/z$.",
+      "prerequisites": "**Within this subject**\n\n- [Maximum modulus principle](./notes/ca.maximum.md)",
+      "references": "CA: Schwarz lemma.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Schwarz lemma](./notes/ca.schwarz.md)"
+    },
+    "ca.normal": {
+      "title": "Montel's theorem",
+      "define": "A locally uniformly bounded family of holomorphic functions on a plane domain has a subsequence converging uniformly on compact subsets from every sequence in the family.",
+      "statement": "A locally uniformly bounded family of holomorphic functions on a plane domain has a subsequence converging uniformly on compact subsets from every sequence in the family.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The locally bounded version yields a finite holomorphic limit; the compact-open topology is intended.",
+      "example": "Holomorphic disk maps with values in $\\mathbb D$ form a normal family.",
+      "caution": "Pointwise boundedness is not the hypothesis, and meromorphic normality uses the spherical metric.",
+      "proof_idea": "Cauchy estimates give equicontinuity on compact subsets; apply compactness and a diagonal exhaustion.",
+      "prerequisites": "**Within this subject**\n\n- [Cauchy integral formula](./notes/ca.cauchy-formula.md)\n\n**From other subjects**\n\n- [Arzelà–Ascoli theorem](./notes/ra.ascoli.md) — Real analysis",
+      "references": "CA: normal families.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Montel's theorem](./notes/ca.normal.md)"
+    },
+    "ca.riemann-mapping": {
+      "title": "Riemann mapping theorem",
+      "define": "Proper simply connected plane domains are conformally equivalent to the disk.",
+      "statement": "Every nonempty simply connected proper plane domain is biholomorphic to $\\mathbb D$. Specifying an interior image of zero and a positive real derivative fixes the normalized inverse map uniquely.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The domain is open, connected, simply connected, and different from the whole plane.",
+      "example": "The upper half-plane is mapped to the disk by a Möbius transformation.",
+      "caution": "The theorem does not by itself assert continuous extension to an arbitrary boundary.",
+      "proof_idea": "Optimize a normalized univalent family using normality; a missing image point would permit an improving map.",
+      "prerequisites": "**Within this subject**\n\n- [Montel's theorem](./notes/ca.normal.md)\n- [Schwarz lemma](./notes/ca.schwarz.md)",
+      "references": "CA: Riemann mapping theorem.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Riemann mapping theorem](./notes/ca.riemann-mapping.md)"
+    },
+    "ca.continuation": {
+      "title": "Analytic continuation and monodromy",
+      "define": "Local holomorphic germs continue uniquely along a fixed chain where overlaps agree. If a germ can be continued along every path in a simply connected domain, monodromy makes the continuation single-valued.",
+      "statement": "Local holomorphic germs continue uniquely along a fixed chain where overlaps agree. If a germ can be continued along every path in a simply connected domain, monodromy makes the continuation single-valued.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Continuation along all paths is an extra existence assumption, not a consequence of simple connectivity alone.",
+      "example": "Continuing a logarithm around zero changes its value by an integer multiple of $2\\pi i$.",
+      "caution": "Uniqueness on overlaps does not eliminate monodromy in a multiply connected domain.",
+      "proof_idea": "Use the identity theorem and deform path chains through a homotopy.",
+      "prerequisites": "**Within this subject**\n\n- [Identity theorem](./notes/ca.identity.md)\n\n**From other subjects**\n\n- [Homotopies and homotopy equivalence](./notes/tp.homotopy.md) — Topology",
+      "references": "CA: analytic continuation; CM: Riemann surfaces.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.\n- **CM** — John M. Lee. [Introduction to Complex Manifolds](https://sites.math.washington.edu/~lee/Books/ICM/). Author's book page.",
+      "notes": "[Analytic continuation and monodromy](./notes/ca.continuation.md)"
+    },
+    "ca.harmonic": {
+      "title": "Harmonic functions and conjugates",
+      "define": "Harmonic functions on simply connected plane domains admit global conjugates.",
+      "statement": "Real and imaginary parts of a holomorphic function are harmonic. A real $C^2$ harmonic function on a simply connected plane domain is the real part of a holomorphic function.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The global conjugate conclusion requires the stated topological condition.",
+      "example": "$\\log|z|$ is harmonic off zero but has no global single-valued harmonic conjugate on $\\mathbb C\\setminus\\{0\\}$.",
+      "caution": "Harmonicity is a real second-order condition; holomorphy is a complex first-order condition.",
+      "proof_idea": "The Cauchy–Riemann equations define a closed differential form whose periods vanish on a simply connected domain.",
+      "prerequisites": "**Within this subject**\n\n- [Cauchy–Riemann equations](./notes/ca.cr.md)\n- [Cauchy–Goursat theorem](./notes/ca.cauchy.md)",
+      "references": "CA: harmonic functions.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Harmonic functions and conjugates](./notes/ca.harmonic.md)"
+    },
+    "ca.riemann-surfaces": {
+      "title": "Riemann surfaces",
+      "define": "A Riemann surface is a connected, Hausdorff, second-countable complex manifold of complex dimension one, with holomorphic coordinate transitions.",
+      "statement": "A Riemann surface is a connected, Hausdorff, second-countable complex manifold of complex dimension one, with holomorphic coordinate transitions.",
+      "type": "Complex analysis",
+      "kind": "Definition",
+      "level": "Advanced gateway",
+      "hypotheses": "The topology and complex atlas are part of the structure.",
+      "example": "The Riemann sphere and complex tori $\\mathbb C/\\Lambda$ are compact examples.",
+      "caution": "A topological surface may carry many inequivalent conformal structures; compact does not mean biholomorphic to the sphere.",
+      "prerequisites": "**Within this subject**\n\n- [Analytic continuation and monodromy](./notes/ca.continuation.md)\n\n**From other subjects**\n\n- [Topological manifolds](./notes/tp.manifolds.md) — Topology",
+      "references": "CM: complex manifolds and Riemann surfaces.\n\n- **CM** — John M. Lee. [Introduction to Complex Manifolds](https://sites.math.washington.edu/~lee/Books/ICM/). Author's book page.",
+      "notes": "[Riemann surfaces](./notes/ca.riemann-surfaces.md)"
+    },
+    "ca.mittag-leffler": {
+      "title": "Mittag–Leffler theorem",
+      "define": "On a plane domain, arbitrary prescribed finite principal parts at a discrete set of points are realized by a meromorphic function with no other poles.",
+      "statement": "On a plane domain, arbitrary prescribed finite principal parts at a discrete set of points are realized by a meromorphic function with no other poles.",
+      "type": "Complex analysis",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "The prescribed set has no accumulation point inside the domain.",
+      "example": "Prescribing simple poles with residue one at the integers leads to meromorphic partial-fraction constructions.",
+      "caution": "On compact Riemann surfaces analogous prescriptions have global obstructions; unrestricted plane-domain existence does not transfer.",
+      "proof_idea": "Correct successive finite sums by holomorphic approximants to obtain convergence on compact exhaustions.",
+      "prerequisites": "**Within this subject**\n\n- [Laurent series and isolated singularities](./notes/ca.singularities.md)\n- [Montel's theorem](./notes/ca.normal.md)",
+      "references": "CA: Mittag–Leffler theorem.\n\n- **CA** — Sigurdur Helgason; notes by Hongxi Wang. [MIT 18.112: Functions of a Complex Variable](https://ocw.mit.edu/courses/18-112-functions-of-a-complex-variable-fall-2008/pages/lecture-notes/). Fall 2008 lecture notes.",
+      "notes": "[Mittag–Leffler theorem](./notes/ca.mittag-leffler.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "subject.complex-analysis--ca.holomorphic",
+      "source": "subject.complex-analysis",
+      "target": "ca.holomorphic",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "ca.holomorphic--ca.cr",
+      "source": "ca.holomorphic",
+      "target": "ca.cr",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Holomorphic functions supplies selected background for Cauchy–Riemann equations; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cauchy-formula--ca.series",
+      "source": "ca.cauchy-formula",
+      "target": "ca.series",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy integral formula supplies selected background for Power series and analyticity; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.holomorphic--ca.contours",
+      "source": "ca.holomorphic",
+      "target": "ca.contours",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Holomorphic functions supplies selected background for Contour integrals and winding number; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.contours--ca.cauchy",
+      "source": "ca.contours",
+      "target": "ca.cauchy",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Contour integrals and winding number supplies selected background for Cauchy–Goursat theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cauchy--ca.cauchy-formula",
+      "source": "ca.cauchy",
+      "target": "ca.cauchy-formula",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy–Goursat theorem supplies selected background for Cauchy integral formula; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.series--ca.identity",
+      "source": "ca.series",
+      "target": "ca.identity",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Power series and analyticity supplies selected background for Identity theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cauchy-formula--ca.liouville",
+      "source": "ca.cauchy-formula",
+      "target": "ca.liouville",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy integral formula supplies selected background for Liouville and the fundamental theorem of algebra; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cauchy-formula--ca.maximum",
+      "source": "ca.cauchy-formula",
+      "target": "ca.maximum",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy integral formula supplies selected background for Maximum modulus principle; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.series--ca.singularities",
+      "source": "ca.series",
+      "target": "ca.singularities",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Power series and analyticity supplies selected background for Laurent series and isolated singularities; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.singularities--ca.residues",
+      "source": "ca.singularities",
+      "target": "ca.residues",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Laurent series and isolated singularities supplies selected background for Residue theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.contours--ca.residues",
+      "source": "ca.contours",
+      "target": "ca.residues",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Contour integrals and winding number supplies selected background for Residue theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.residues--ca.argument",
+      "source": "ca.residues",
+      "target": "ca.argument",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Residue theorem supplies selected background for Argument principle; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.argument--ca.rouche",
+      "source": "ca.argument",
+      "target": "ca.rouche",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Argument principle supplies selected background for Rouché's theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.maximum--ca.schwarz",
+      "source": "ca.maximum",
+      "target": "ca.schwarz",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Maximum modulus principle supplies selected background for Schwarz lemma; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cauchy-formula--ca.normal",
+      "source": "ca.cauchy-formula",
+      "target": "ca.normal",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy integral formula supplies selected background for Montel's theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.normal--ca.riemann-mapping",
+      "source": "ca.normal",
+      "target": "ca.riemann-mapping",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Montel's theorem supplies selected background for Riemann mapping theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.schwarz--ca.riemann-mapping",
+      "source": "ca.schwarz",
+      "target": "ca.riemann-mapping",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Schwarz lemma supplies selected background for Riemann mapping theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.identity--ca.continuation",
+      "source": "ca.identity",
+      "target": "ca.continuation",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Identity theorem supplies selected background for Analytic continuation and monodromy; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cr--ca.harmonic",
+      "source": "ca.cr",
+      "target": "ca.harmonic",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy–Riemann equations supplies selected background for Harmonic functions and conjugates; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.cauchy--ca.harmonic",
+      "source": "ca.cauchy",
+      "target": "ca.harmonic",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cauchy–Goursat theorem supplies selected background for Harmonic functions and conjugates; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.continuation--ca.riemann-surfaces",
+      "source": "ca.continuation",
+      "target": "ca.riemann-surfaces",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Analytic continuation and monodromy supplies selected background for Riemann surfaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.singularities--ca.mittag-leffler",
+      "source": "ca.singularities",
+      "target": "ca.mittag-leffler",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Laurent series and isolated singularities supplies selected background for Mittag–Leffler theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ca.normal--ca.mittag-leffler",
+      "source": "ca.normal",
+      "target": "ca.mittag-leffler",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Montel's theorem supplies selected background for Mittag–Leffler theorem; consult both entries for the scope of the connection."
+      }
+    }
+  ]
+}

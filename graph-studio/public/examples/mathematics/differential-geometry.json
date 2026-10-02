@@ -1,0 +1,577 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "id": "differential-geometry",
+  "title": "Differential geometry",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "differential-geometry",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 8,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
+  "nodes": {
+    "subject.differential-geometry": {
+      "title": "Differential geometry",
+      "define": "Smooth manifolds, differential forms, Riemannian geometry, curvature and global geometric theorems.",
+      "type": "Differential geometry",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Multivariable calculus, linear algebra, elementary ODEs and manifold topology.",
+      "learning_outcomes": "- Express differentiation and integration independently of a coordinate chart.\n- Distinguish metric, connection and curvature data.\n- Connect local differential geometry to global topological restrictions.",
+      "study_route": "[Smooth manifolds and smooth maps](./notes/dg.smooth.md) → [Tangent spaces and differentials](./notes/dg.tangent.md) → [Differential forms and exterior derivative](./notes/dg.forms.md) → [Stokes' theorem](./notes/dg.stokes.md) → [de Rham theorem](./notes/dg.derham.md) → [Riemannian metrics](./notes/dg.metric.md) → [Levi-Civita connection](./notes/dg.levi-civita.md) → [Geodesics and the exponential map](./notes/dg.geodesics.md) → [Curvature and sectional curvature](./notes/dg.curvature.md)",
+      "notes": "[Subject guide](./guides/differential-geometry.md)",
+      "graph_file": "Open differential-geometry.json in the workspace graph list.",
+      "references": "- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.\n- **DG2** — Peter S. Park. [Hodge Theory](https://people.math.harvard.edu/~pspark/harvardminorthesis.pdf). Author's Harvard minor thesis exposition, Section 2."
+    },
+    "dg.smooth": {
+      "title": "Smooth manifolds and smooth maps",
+      "define": "A smooth structure is a maximal atlas whose coordinate changes are smooth. A map between smooth manifolds is smooth when its coordinate representations are smooth.",
+      "statement": "A smooth structure is a maximal atlas whose coordinate changes are smooth. A map between smooth manifolds is smooth when its coordinate representations are smooth.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Manifolds are finite dimensional, Hausdorff and second countable; boundary is excluded unless stated.",
+      "example": "The sphere has compatible charts obtained by stereographic projection.",
+      "caution": "A homeomorphism need not be a diffeomorphism; topology alone does not specify a smooth structure.",
+      "prerequisites": "**From other subjects**\n\n- [Topological manifolds](./notes/tp.manifolds.md) — Topology",
+      "references": "DG: smooth manifolds and maps.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Smooth manifolds and smooth maps](./notes/dg.smooth.md)"
+    },
+    "dg.tangent": {
+      "title": "Tangent spaces and differentials",
+      "define": "Tangent vectors are derivations, and smooth maps differentiate by the chain rule.",
+      "statement": "A tangent vector at p is a derivation on germs of smooth functions at p. A smooth map f induces $df_p:T_pM\\to T_{f(p)}N$ with $d(g\\circ f)_p=dg_{f(p)}\\circ df_p$.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Derivations are linear and satisfy the Leibniz rule.",
+      "example": "A curve through p gives a tangent vector by differentiating functions along it.",
+      "caution": "A tangent vector is intrinsic; a chosen coordinate tuple is its representation.",
+      "prerequisites": "**Within this subject**\n\n- [Smooth manifolds and smooth maps](./notes/dg.smooth.md)",
+      "references": "DG: tangent vectors.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Tangent spaces and differentials](./notes/dg.tangent.md)"
+    },
+    "dg.rank": {
+      "title": "Inverse, implicit and constant-rank theorems",
+      "define": "An invertible differential gives local smooth coordinates in which a map is a diffeomorphism. A constant-rank map has local normal form consisting of a projection followed by an inclusion.",
+      "statement": "An invertible differential gives local smooth coordinates in which a map is a diffeomorphism. A constant-rank map has local normal form consisting of a projection followed by an inclusion.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Invertibility is required at the point for the inverse theorem; rank is constant on a neighborhood for the constant-rank theorem.",
+      "example": "A regular level set of a smooth real-valued function is a codimension-one submanifold.",
+      "caution": "A critical level can be singular even when the map is smooth.",
+      "proof_idea": "Apply the Euclidean inverse function theorem to selected coordinate components and solve for the remaining ones.",
+      "prerequisites": "**Within this subject**\n\n- [Tangent spaces and differentials](./notes/dg.tangent.md)",
+      "references": "DG: submersions, immersions and embeddings.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Inverse, implicit and constant-rank theorems](./notes/dg.rank.md)"
+    },
+    "dg.cotangent": {
+      "title": "Cotangent bundles and tensor fields",
+      "define": "Covectors and tensors encode multilinear data intrinsically on a manifold.",
+      "statement": "The cotangent space is $T_p^*M=\\operatorname{Hom}(T_pM,\\mathbb R)$. Tensor fields are smooth sections of tensor products of tangent and cotangent bundles.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Covariant and contravariant indices transform differently under coordinate changes.",
+      "example": "The differential of a smooth function is a covector field.",
+      "caution": "A metric identifies vectors and covectors only after that metric is chosen.",
+      "prerequisites": "**Within this subject**\n\n- [Tangent spaces and differentials](./notes/dg.tangent.md)",
+      "references": "DG: cotangent bundles and tensors.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Cotangent bundles and tensor fields](./notes/dg.cotangent.md)"
+    },
+    "dg.flows": {
+      "title": "Vector fields, Lie brackets and flows",
+      "define": "Vector fields generate local flows; their commutators define the Lie bracket.",
+      "statement": "A vector field acts as a derivation on smooth functions. Its Lie bracket is $[X,Y]f=X(Yf)-Y(Xf)$. Local flows solve the associated ordinary differential equation.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Local existence and uniqueness use smoothness; global flows require completeness of the vector field.",
+      "example": "Every smooth vector field on a compact manifold without boundary is complete.",
+      "caution": "A vector field on a noncompact manifold may escape in finite time.",
+      "prerequisites": "**Within this subject**\n\n- [Tangent spaces and differentials](./notes/dg.tangent.md)",
+      "references": "DG: vector fields and flows.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Vector fields, Lie brackets and flows](./notes/dg.flows.md)"
+    },
+    "dg.forms": {
+      "title": "Differential forms and exterior derivative",
+      "define": "Alternating tensor fields carry a coordinate-independent exterior derivative.",
+      "statement": "A k-form is a smooth alternating covariant k-tensor. The exterior derivative satisfies $d^2=0$ and $d(\\alpha\\wedge\\beta)=d\\alpha\\wedge\\beta+(-1)^k\\alpha\\wedge d\\beta$.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Here alpha has degree k; pullback commutes with exterior derivative.",
+      "example": "On the punctured plane, $(-y\\,dx+x\\,dy)/(x^2+y^2)$ is closed but not exact.",
+      "caution": "Closed forms need not be globally exact.",
+      "prerequisites": "**Within this subject**\n\n- [Cotangent bundles and tensor fields](./notes/dg.cotangent.md)",
+      "references": "DG: differential forms.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Differential forms and exterior derivative](./notes/dg.forms.md)"
+    },
+    "dg.orientation": {
+      "title": "Orientation and integration",
+      "define": "An orientation consistently chooses positive ordered tangent bases. Compactly supported top-degree forms can be integrated on oriented manifolds using oriented charts and a partition of unity.",
+      "statement": "An orientation consistently chooses positive ordered tangent bases. Compactly supported top-degree forms can be integrated on oriented manifolds using oriented charts and a partition of unity.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Integration of forms requires orientation; densities provide a different orientation-free construction.",
+      "example": "A nowhere-vanishing top form determines an orientation.",
+      "caution": "The Mobius strip admits no global orientation.",
+      "prerequisites": "**Within this subject**\n\n- [Differential forms and exterior derivative](./notes/dg.forms.md)",
+      "references": "DG: orientations and integration.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Orientation and integration](./notes/dg.orientation.md)"
+    },
+    "dg.stokes": {
+      "title": "Stokes' theorem",
+      "define": "Integrating an exterior derivative equals integrating the form over the oriented boundary.",
+      "statement": "For an oriented smooth n-manifold M with boundary and a compactly supported smooth (n-1)-form omega, $\\int_M d\\omega=\\int_{\\partial M}\\omega$.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The boundary orientation uses the outward-normal-first convention; compact support controls behavior at infinity.",
+      "example": "The fundamental theorem of calculus and the classical divergence theorem are instances.",
+      "caution": "Changing the boundary orientation changes the sign.",
+      "proof_idea": "Prove the formula in half-space coordinates and combine the local identities with a partition of unity.",
+      "prerequisites": "**Within this subject**\n\n- [Orientation and integration](./notes/dg.orientation.md)",
+      "references": "DG: Stokes theorem.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Stokes' theorem](./notes/dg.stokes.md)"
+    },
+    "dg.derham": {
+      "title": "de Rham theorem",
+      "define": "Differential forms compute real singular cohomology by integration.",
+      "statement": "Integration of closed forms over smooth singular cycles induces $H^k_{\\mathrm{dR}}(M)\\cong H^k(M;\\mathbb R)$.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "M is a smooth manifold; the comparison is with real singular cohomology.",
+      "example": "A closed one-form on a circle has a nontrivial class when its period is nonzero.",
+      "caution": "Real differential forms do not detect integral torsion classes.",
+      "proof_idea": "Use the local Poincare lemma and a Mayer–Vietoris or sheaf argument to pass from local to global.",
+      "prerequisites": "**Within this subject**\n\n- [Stokes' theorem](./notes/dg.stokes.md)\n\n**From other subjects**\n\n- [Cohomology and cup product](./notes/tp.cohomology.md) — Topology",
+      "references": "DG: de Rham cohomology.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[de Rham theorem](./notes/dg.derham.md)"
+    },
+    "dg.metric": {
+      "title": "Riemannian metrics",
+      "define": "A Riemannian metric is a smooth positive-definite inner product on each tangent space. It defines lengths, angles, curve lengths and an induced distance on each connected component.",
+      "statement": "A Riemannian metric is a smooth positive-definite inner product on each tangent space. It defines lengths, angles, curve lengths and an induced distance on each connected component.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Positive definiteness distinguishes this setting from pseudo-Riemannian geometry.",
+      "example": "The sphere inherits its round metric from Euclidean space.",
+      "caution": "Different metrics on the same smooth manifold can have different curvature and completeness.",
+      "prerequisites": "**Within this subject**\n\n- [Cotangent bundles and tensor fields](./notes/dg.cotangent.md)",
+      "references": "RG: Riemannian metrics.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Riemannian metrics](./notes/dg.metric.md)"
+    },
+    "dg.levi-civita": {
+      "title": "Levi-Civita connection",
+      "define": "A Riemannian metric determines a unique torsion-free metric connection.",
+      "statement": "Every Riemannian metric has a unique connection with $\\nabla g=0$ and zero torsion: $\\nabla_XY-\\nabla_YX=[X,Y]$.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The connection is on the tangent bundle and is real-linear in the vector field being differentiated.",
+      "example": "In Cartesian Euclidean coordinates its Christoffel symbols vanish.",
+      "caution": "Christoffel symbols depend on coordinates and are not tensor components.",
+      "proof_idea": "The Koszul formula both determines the connection uniquely and constructs it.",
+      "prerequisites": "**Within this subject**\n\n- [Riemannian metrics](./notes/dg.metric.md)\n- [Vector fields, Lie brackets and flows](./notes/dg.flows.md)",
+      "references": "RG: Riemannian connections.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Levi-Civita connection](./notes/dg.levi-civita.md)"
+    },
+    "dg.geodesics": {
+      "title": "Geodesics and the exponential map",
+      "define": "Geodesics have parallel velocity and define the local exponential map.",
+      "statement": "A geodesic satisfies $\\nabla_{\\dot\\gamma}\\dot\\gamma=0$. The exponential map sends an initial vector v to the value at time one of its geodesic, when defined.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Local existence and uniqueness follow from the smooth geodesic ODE.",
+      "example": "Great circles are geodesics of the round sphere.",
+      "caution": "Geodesics minimize distance locally, but may cease to minimize globally past a cut point.",
+      "prerequisites": "**Within this subject**\n\n- [Levi-Civita connection](./notes/dg.levi-civita.md)",
+      "references": "RG: geodesics.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Geodesics and the exponential map](./notes/dg.geodesics.md)"
+    },
+    "dg.curvature": {
+      "title": "Curvature and sectional curvature",
+      "define": "Curvature measures the failure of covariant derivatives to commute.",
+      "statement": "Use $R(X,Y)Z=\\nabla_X\\nabla_YZ-\\nabla_Y\\nabla_XZ-\\nabla_{[X,Y]}Z$. For a plane spanned by X,Y, $K=\\langle R(X,Y)Y,X\\rangle/(|X|^2|Y|^2-\\langle X,Y\\rangle^2)$.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "X,Y must be linearly independent; curvature sign conventions vary between texts.",
+      "example": "With this convention the unit round sphere has sectional curvature +1.",
+      "caution": "Coordinate-dependent connection coefficients should not be mistaken for curvature.",
+      "prerequisites": "**Within this subject**\n\n- [Levi-Civita connection](./notes/dg.levi-civita.md)",
+      "references": "RG: curvature.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Curvature and sectional curvature](./notes/dg.curvature.md)"
+    },
+    "dg.jacobi": {
+      "title": "Jacobi fields",
+      "define": "Jacobi fields describe first-order separation of nearby geodesics.",
+      "statement": "A variation through geodesics has variation field J satisfying $\\nabla_t^2J+R(J,\\dot\\gamma)\\dot\\gamma=0$. Conversely local Jacobi fields arise from suitable geodesic variations.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "The curvature convention is the one specified in the curvature entry; derivatives are covariant.",
+      "example": "On the round sphere initially diverging meridians reconverge at the antipode.",
+      "caution": "A conjugate point and a cut point are related but not identical notions.",
+      "proof_idea": "Differentiate the geodesic equation along the variation and commute the two covariant derivatives.",
+      "prerequisites": "**Within this subject**\n\n- [Curvature and sectional curvature](./notes/dg.curvature.md)\n- [Geodesics and the exponential map](./notes/dg.geodesics.md)",
+      "references": "RG: Jacobi fields.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Jacobi fields](./notes/dg.jacobi.md)"
+    },
+    "dg.hopf-rinow": {
+      "title": "Hopf–Rinow theorem",
+      "define": "For a connected finite-dimensional Riemannian manifold without boundary, metric completeness is equivalent to geodesic completeness and to compactness of closed bounded subsets. Completeness also ensures a minimizing geodesic between any two points.",
+      "statement": "For a connected finite-dimensional Riemannian manifold without boundary, metric completeness is equivalent to geodesic completeness and to compactness of closed bounded subsets. Completeness also ensures a minimizing geodesic between any two points.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The metric is the Riemannian length metric; finite dimension is essential.",
+      "example": "A compact Riemannian manifold without boundary is complete.",
+      "caution": "General infinite-dimensional Hilbert manifolds do not satisfy this entire equivalence.",
+      "proof_idea": "Extend radial minimizing geodesics using compactness of tangent spheres and the metric completion argument.",
+      "prerequisites": "**Within this subject**\n\n- [Geodesics and the exponential map](./notes/dg.geodesics.md)\n\n**From other subjects**\n\n- [Compactness and Hausdorff spaces](./notes/tp.compact.md) — Topology\n- [Metric limits and completeness](./notes/ra.metric.md) — Real analysis",
+      "references": "RG: completeness.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Hopf–Rinow theorem](./notes/dg.hopf-rinow.md)"
+    },
+    "dg.gauss-bonnet": {
+      "title": "Gauss–Bonnet for closed surfaces",
+      "define": "Total Gaussian curvature of a closed oriented surface is determined by its Euler characteristic.",
+      "statement": "For a closed oriented Riemannian surface M, $\\int_M K\\,dA=2\\pi\\chi(M)$.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "K is Gaussian curvature; surfaces with boundary require geodesic-curvature and corner terms.",
+      "example": "The unit sphere has total curvature 4 pi and Euler characteristic two.",
+      "caution": "Pointwise curvature depends on the metric even though this total is topological.",
+      "proof_idea": "Integrate the local curvature identity on a triangulation and sum angle defects; internal boundary terms cancel.",
+      "prerequisites": "**Within this subject**\n\n- [Curvature and sectional curvature](./notes/dg.curvature.md)\n- [Stokes' theorem](./notes/dg.stokes.md)\n\n**From other subjects**\n\n- [Singular homology](./notes/tp.homology.md) — Topology",
+      "references": "RG: Gauss-Bonnet theorem.\n\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Gauss–Bonnet for closed surfaces](./notes/dg.gauss-bonnet.md)"
+    },
+    "dg.lie": {
+      "title": "Lie groups and Lie algebras",
+      "define": "A Lie group is a smooth manifold with smooth multiplication and inverse. Left-invariant vector fields identify its tangent space at the identity with a Lie algebra.",
+      "statement": "A Lie group is a smooth manifold with smooth multiplication and inverse. Left-invariant vector fields identify its tangent space at the identity with a Lie algebra.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The bracket is inherited from vector-field commutators; finite-dimensional real Lie groups are the default here.",
+      "example": "For matrix groups the Lie bracket is the matrix commutator.",
+      "caution": "The Lie algebra captures local structure but need not distinguish globally different Lie groups.",
+      "prerequisites": "**Within this subject**\n\n- [Vector fields, Lie brackets and flows](./notes/dg.flows.md)\n\n**From other subjects**\n\n- [Groups and homomorphisms](./notes/gt.groups.md) — Group theory",
+      "references": "DG: Lie groups and Lie algebras.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Lie groups and Lie algebras](./notes/dg.lie.md)"
+    },
+    "dg.bundles": {
+      "title": "Vector bundles and connections",
+      "define": "Vector bundles carry local linear data; connections differentiate their sections.",
+      "statement": "A vector bundle is locally a product with a fixed vector space and linear transition maps. A connection differentiates sections with $\\nabla(fs)=df\\otimes s+f\\nabla s$.",
+      "type": "Differential geometry",
+      "kind": "Definition",
+      "level": "Advanced gateway",
+      "hypotheses": "A connection is additional structure, not part of the definition of a vector bundle.",
+      "example": "The tangent bundle of a sphere is a natural vector bundle that need not be trivial.",
+      "caution": "A local frame need not extend to a global frame.",
+      "prerequisites": "**Within this subject**\n\n- [Cotangent bundles and tensor fields](./notes/dg.cotangent.md)\n- [Differential forms and exterior derivative](./notes/dg.forms.md)",
+      "references": "DG: vector bundles; RG: connections.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.\n- **RG** — John M. Lee. [Introduction to Riemannian Manifolds](https://sites.math.washington.edu/~lee/Books/RM/). Second edition, Springer, 2018; author's page.",
+      "notes": "[Vector bundles and connections](./notes/dg.bundles.md)"
+    },
+    "dg.sard": {
+      "title": "Sard's theorem and regular values",
+      "define": "For a smooth map between finite-dimensional smooth manifolds, the set of critical values has measure zero in every target coordinate chart.",
+      "statement": "For a smooth map between finite-dimensional smooth manifolds, the set of critical values has measure zero in every target coordinate chart.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The map is smooth here; finite differentiability versions require a dimension-dependent derivative bound.",
+      "example": "A generic target value gives a regular level set when the preimage is nonempty.",
+      "caution": "A null set of critical values does not mean the set of critical points is small.",
+      "proof_idea": "Reduce to Euclidean charts, separate rank strata and control images of critical sets by Taylor estimates.",
+      "prerequisites": "**Within this subject**\n\n- [Inverse, implicit and constant-rank theorems](./notes/dg.rank.md)\n\n**From other subjects**\n\n- [Measure spaces](./notes/ra.measure.md) — Real analysis",
+      "references": "DG: Sard theorem.\n\n- **DG** — John M. Lee. [Introduction to Smooth Manifolds](https://sites.math.washington.edu/~lee/Books/ISM/). Second edition, Springer, 2013; author's page.",
+      "notes": "[Sard's theorem and regular values](./notes/dg.sard.md)"
+    },
+    "dg.hodge": {
+      "title": "Hodge theorem",
+      "define": "On a closed oriented Riemannian manifold, cohomology classes have unique harmonic representatives.",
+      "statement": "On a closed oriented Riemannian manifold, each real de Rham cohomology class has exactly one harmonic representative, annihilated by $\\Delta=dd^*+d^*d$.",
+      "type": "Differential geometry",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "Compactness without boundary and the Riemannian metric are part of this statement.",
+      "example": "The dimension of harmonic k-forms equals the kth real Betti number.",
+      "caution": "Manifolds with boundary require boundary conditions, and noncompact versions require analytic qualifications.",
+      "proof_idea": "Elliptic estimates and compactness give an orthogonal decomposition into harmonic, exact and coexact forms.",
+      "prerequisites": "**Within this subject**\n\n- [de Rham theorem](./notes/dg.derham.md)\n- [Riemannian metrics](./notes/dg.metric.md)\n\n**From other subjects**\n\n- [Lax–Milgram theorem](./notes/fa.lax-milgram.md) — Functional analysis",
+      "references": "DG2: Hodge theory.\n\n- **DG2** — Peter S. Park. [Hodge Theory](https://people.math.harvard.edu/~pspark/harvardminorthesis.pdf). Author's Harvard minor thesis exposition, Section 2.",
+      "notes": "[Hodge theorem](./notes/dg.hodge.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "subject.differential-geometry--dg.smooth",
+      "source": "subject.differential-geometry",
+      "target": "dg.smooth",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "dg.smooth--dg.tangent",
+      "source": "dg.smooth",
+      "target": "dg.tangent",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Smooth manifolds and smooth maps supplies selected background for Tangent spaces and differentials; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.tangent--dg.rank",
+      "source": "dg.tangent",
+      "target": "dg.rank",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Tangent spaces and differentials supplies selected background for Inverse, implicit and constant-rank theorems; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.tangent--dg.cotangent",
+      "source": "dg.tangent",
+      "target": "dg.cotangent",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Tangent spaces and differentials supplies selected background for Cotangent bundles and tensor fields; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.tangent--dg.flows",
+      "source": "dg.tangent",
+      "target": "dg.flows",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Tangent spaces and differentials supplies selected background for Vector fields, Lie brackets and flows; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.cotangent--dg.forms",
+      "source": "dg.cotangent",
+      "target": "dg.forms",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cotangent bundles and tensor fields supplies selected background for Differential forms and exterior derivative; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.forms--dg.orientation",
+      "source": "dg.forms",
+      "target": "dg.orientation",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Differential forms and exterior derivative supplies selected background for Orientation and integration; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.orientation--dg.stokes",
+      "source": "dg.orientation",
+      "target": "dg.stokes",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Orientation and integration supplies selected background for Stokes' theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.stokes--dg.derham",
+      "source": "dg.stokes",
+      "target": "dg.derham",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Stokes' theorem supplies selected background for de Rham theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.cotangent--dg.metric",
+      "source": "dg.cotangent",
+      "target": "dg.metric",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cotangent bundles and tensor fields supplies selected background for Riemannian metrics; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.metric--dg.levi-civita",
+      "source": "dg.metric",
+      "target": "dg.levi-civita",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Riemannian metrics supplies selected background for Levi-Civita connection; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.flows--dg.levi-civita",
+      "source": "dg.flows",
+      "target": "dg.levi-civita",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Vector fields, Lie brackets and flows supplies selected background for Levi-Civita connection; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.levi-civita--dg.geodesics",
+      "source": "dg.levi-civita",
+      "target": "dg.geodesics",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Levi-Civita connection supplies selected background for Geodesics and the exponential map; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.levi-civita--dg.curvature",
+      "source": "dg.levi-civita",
+      "target": "dg.curvature",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Levi-Civita connection supplies selected background for Curvature and sectional curvature; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.curvature--dg.jacobi",
+      "source": "dg.curvature",
+      "target": "dg.jacobi",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Curvature and sectional curvature supplies selected background for Jacobi fields; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.geodesics--dg.jacobi",
+      "source": "dg.geodesics",
+      "target": "dg.jacobi",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Geodesics and the exponential map supplies selected background for Jacobi fields; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.geodesics--dg.hopf-rinow",
+      "source": "dg.geodesics",
+      "target": "dg.hopf-rinow",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Geodesics and the exponential map supplies selected background for Hopf–Rinow theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.curvature--dg.gauss-bonnet",
+      "source": "dg.curvature",
+      "target": "dg.gauss-bonnet",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Curvature and sectional curvature supplies selected background for Gauss–Bonnet for closed surfaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.stokes--dg.gauss-bonnet",
+      "source": "dg.stokes",
+      "target": "dg.gauss-bonnet",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Stokes' theorem supplies selected background for Gauss–Bonnet for closed surfaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.flows--dg.lie",
+      "source": "dg.flows",
+      "target": "dg.lie",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Vector fields, Lie brackets and flows supplies selected background for Lie groups and Lie algebras; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.cotangent--dg.bundles",
+      "source": "dg.cotangent",
+      "target": "dg.bundles",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cotangent bundles and tensor fields supplies selected background for Vector bundles and connections; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.forms--dg.bundles",
+      "source": "dg.forms",
+      "target": "dg.bundles",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Differential forms and exterior derivative supplies selected background for Vector bundles and connections; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.rank--dg.sard",
+      "source": "dg.rank",
+      "target": "dg.sard",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Inverse, implicit and constant-rank theorems supplies selected background for Sard's theorem and regular values; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.derham--dg.hodge",
+      "source": "dg.derham",
+      "target": "dg.hodge",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "de Rham theorem supplies selected background for Hodge theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "dg.metric--dg.hodge",
+      "source": "dg.metric",
+      "target": "dg.hodge",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Riemannian metrics supplies selected background for Hodge theorem; consult both entries for the scope of the connection."
+      }
+    }
+  ]
+}

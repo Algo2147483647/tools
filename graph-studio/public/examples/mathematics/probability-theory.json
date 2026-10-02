@@ -2,316 +2,580 @@
   "format": "graph-studio",
   "version": 2,
   "diagram": "dag",
-  "title": "Probability Theory",
-  "metadata": {},
+  "id": "probability-theory",
+  "title": "Probability theory",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "probability-theory",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 10,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
   "nodes": {
-    "Branching_Process": {
-      "title": "Branching Process",
-      "type": "Probability Theory",
-      "define": "A branching process models a population in which each individual reproduces randomly and independently.",
-      "notes": "[Read concept note](./notes/Branching_Process.md)"
+    "subject.probability-theory": {
+      "title": "Probability theory",
+      "define": "Measure-theoretic probability, limit laws, conditional expectation, martingales and stochastic processes.",
+      "type": "Probability theory",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Measure and integration, Lp spaces, elementary real analysis and linear algebra.",
+      "learning_outcomes": "- Identify the convergence mode and moment assumptions in each limit law.\n- Formulate conditioning as an almost-everywhere integral identity.\n- Check filtration, stopping-time and integrability conditions before stochastic calculations.",
+      "study_route": "[Probability spaces and random variables](./notes/pr.space.md) → [Independence and product laws](./notes/pr.independence.md) → [Modes of convergence](./notes/pr.convergence.md) → [Strong law of large numbers](./notes/pr.slln.md) → [Central limit theorem](./notes/pr.clt.md) → [Conditional expectation](./notes/pr.conditional.md) → [Filtrations and martingales](./notes/pr.martingale.md) → [Optional stopping](./notes/pr.stopping.md) → [Brownian motion](./notes/pr.brownian.md)",
+      "notes": "[Subject guide](./guides/probability-theory.md)",
+      "graph_file": "Open probability-theory.json in the workspace graph list.",
+      "references": "- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.\n- **PR2** — University of Cambridge, DPMMS. [Probability and Measure](https://www.dpmms.cam.ac.uk/study/II/Probability%2BMeasure/2019-2020/lecture-notes-1-18.pdf). 2019–2020, lectures 1–18."
     },
-    "Brownian_Motion": {
-      "title": "Brownian Motion",
-      "type": "Probability Theory",
-      "define": "Brownian motion is the continuous Gaussian process with stationary independent increments.",
-      "notes": "[Read concept note](./notes/Brownian_Motion.md)"
+    "pr.space": {
+      "title": "Probability spaces and random variables",
+      "define": "Random variables are measurable maps whose laws are probability measures.",
+      "statement": "A probability space $(\\Omega,\\mathcal F,\\mathbb P)$ is a measure space of mass one. A random variable is a measurable map to a measurable state space; its law is the pushforward measure.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Events must belong to the chosen sigma-algebra.",
+      "example": "Real random variables have laws on the Borel sets of the real line.",
+      "caution": "A random variable and its law are different objects.",
+      "prerequisites": "**From other subjects**\n\n- [Measure spaces](./notes/ra.measure.md) — Real analysis",
+      "references": "PR: probability spaces.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Probability spaces and random variables](./notes/pr.space.md)"
     },
-    "Diffusion_Process": {
-      "title": "Diffusion Process",
-      "type": "Probability Theory",
-      "define": "A diffusion process is a Markov process with continuous sample paths.",
-      "notes": "[Read concept note](./notes/Diffusion_Process.md)"
+    "pr.independence": {
+      "title": "Independence and product laws",
+      "define": "Sigma-algebras are independent when probabilities of intersections factor for every finite subfamily. Variables are independent when their generated sigma-algebras are independent.",
+      "statement": "Sigma-algebras are independent when probabilities of intersections factor for every finite subfamily. Variables are independent when their generated sigma-algebras are independent.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Mutual independence requires more than pairwise independence.",
+      "example": "Two independent fair bits and their sum modulo two are pairwise independent but not mutually independent.",
+      "caution": "Zero covariance alone does not imply independence.",
+      "prerequisites": "**Within this subject**\n\n- [Probability spaces and random variables](./notes/pr.space.md)\n\n**From other subjects**\n\n- [Tonelli and Fubini](./notes/ra.fubini.md) — Real analysis",
+      "references": "PR: independence.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Independence and product laws](./notes/pr.independence.md)"
     },
-    "Filtered_Probability_Space": {
-      "title": "Filtered Probability Space",
-      "type": "Probability Theory",
-      "define": "A filtered probability space is a probability space equipped with an increasing family of sigma-algebras representing information over time.",
-      "notes": "[Read concept note](./notes/Filtered_Probability_Space.md)"
+    "pr.convergence": {
+      "title": "Modes of convergence",
+      "define": "Almost-sure, probability, distribution and mean convergence are distinct notions.",
+      "statement": "Almost-sure convergence implies convergence in probability, which implies convergence in distribution. $L^p$ convergence for $p\\ge1$ implies convergence in probability.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Almost-sure and probability convergence compare variables on one probability space; convergence in law compares distributions.",
+      "example": "Rare tall spikes may converge in probability without converging in mean.",
+      "caution": "Convergence in law generally does not imply convergence in probability.",
+      "prerequisites": "**Within this subject**\n\n- [Probability spaces and random variables](./notes/pr.space.md)\n\n**From other subjects**\n\n- [Lp spaces](./notes/ra.lp.md) — Real analysis",
+      "references": "PR: convergence modes.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Modes of convergence](./notes/pr.convergence.md)"
     },
-    "Function": {
-      "title": "Function",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A function assigns each input exactly one output.",
-      "notes": "[Read concept note](./notes/Function.md)"
+    "pr.borel-cantelli": {
+      "title": "Borel–Cantelli lemmas",
+      "define": "Summable event probabilities prevent infinitely many occurrences almost surely.",
+      "statement": "If $\\sum_n\\mathbb P(A_n)<\\infty$, only finitely many $A_n$ occur almost surely. If the events are independent and the sum diverges, infinitely many occur almost surely.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Independence is needed for the second conclusion in this version.",
+      "example": "Independent fair tosses produce infinitely many heads almost surely.",
+      "caution": "Divergence of the sum for dependent events does not suffice.",
+      "proof_idea": "A union bound proves the first part; independence and a product bound prove the second.",
+      "prerequisites": "**Within this subject**\n\n- [Independence and product laws](./notes/pr.independence.md)",
+      "references": "PR: Borel-Cantelli lemmas.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Borel–Cantelli lemmas](./notes/pr.borel-cantelli.md)"
     },
-    "Gaussian_Process": {
-      "title": "Gaussian Process",
-      "type": "Probability Theory",
-      "define": "A Gaussian process is a stochastic process whose every finite family of coordinates is jointly Gaussian.",
-      "notes": "[Read concept note](./notes/Gaussian_Process.md)"
+    "pr.slln": {
+      "title": "Strong law of large numbers",
+      "define": "Independent identically distributed integrable averages converge almost surely to the mean.",
+      "statement": "For iid real variables with $\\mathbb E|X_1|<\\infty$, $n^{-1}\\sum_{k=1}^nX_k\\to\\mathbb E X_1$ almost surely.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The variables are independent, identically distributed and absolutely integrable.",
+      "example": "Empirical event frequencies converge to their probabilities.",
+      "caution": "Finite variance is unnecessary, but an undefined mean cannot appear as the limit here.",
+      "proof_idea": "Truncate large values, control centered partial sums, apply Borel–Cantelli and remove truncation.",
+      "prerequisites": "**Within this subject**\n\n- [Borel–Cantelli lemmas](./notes/pr.borel-cantelli.md)\n\n**From other subjects**\n\n- [Lebesgue integration](./notes/ra.integral.md) — Real analysis",
+      "references": "PR: laws of large numbers.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Strong law of large numbers](./notes/pr.slln.md)"
     },
-    "Levy_Process": {
-      "title": "Levy Process",
-      "type": "Probability Theory",
-      "define": "A Levy process is a cadlag process with stationary independent increments.",
-      "notes": "[Read concept note](./notes/Levy_Process.md)"
+    "pr.characteristic": {
+      "title": "Characteristic functions",
+      "define": "Fourier transforms of probability laws encode distributions and independent sums.",
+      "statement": "The function $\\varphi_X(t)=\\mathbb E e^{itX}$ determines the law of a real variable. Independence turns characteristic functions of sums into products.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The bounded exponential ensures existence for every real random variable.",
+      "example": "For $N(0,1)$, $\\varphi(t)=e^{-t^2/2}$.",
+      "caution": "Moment-generating functions, unlike characteristic functions, need not exist near zero.",
+      "prerequisites": "**Within this subject**\n\n- [Independence and product laws](./notes/pr.independence.md)\n\n**From other subjects**\n\n- [Plancherel theorem](./notes/ra.fourier.md) — Real analysis",
+      "references": "PR: characteristic functions.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Characteristic functions](./notes/pr.characteristic.md)"
     },
-    "Markov_Chain": {
-      "title": "Markov Chain",
-      "type": "Probability Theory",
-      "define": "A Markov chain is a discrete-time Markov process.",
-      "notes": "[Read concept note](./notes/Markov_Chain.md)"
+    "pr.weak": {
+      "title": "Weak convergence and Portmanteau",
+      "define": "Weak convergence is tested by bounded continuous functions and closed-set inequalities.",
+      "statement": "For Borel probability measures on a metric space, weak convergence means convergence of integrals of all bounded continuous real functions. Equivalently, $\\limsup_n\\mu_n(F)\\le\\mu(F)$ for every closed F.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The measures live on the same metric space.",
+      "example": "Probabilities converge for sets whose boundary has limiting measure zero.",
+      "caution": "Integrals of unbounded continuous functions need not converge.",
+      "proof_idea": "Approximate closed-set indicators by distance cutoffs and use level-set bounds for the converse.",
+      "prerequisites": "**Within this subject**\n\n- [Modes of convergence](./notes/pr.convergence.md)\n\n**From other subjects**\n\n- [Topological spaces and continuity](./notes/tp.spaces.md) — Topology",
+      "references": "PR: weak convergence.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Weak convergence and Portmanteau](./notes/pr.weak.md)"
     },
-    "Markov_Process": {
-      "title": "Markov Process",
-      "type": "Probability Theory",
-      "define": "A Markov process is a stochastic process whose future depends on the present state and not on the past history.",
-      "notes": "[Read concept note](./notes/Markov_Process.md)"
+    "pr.clt": {
+      "title": "Central limit theorem",
+      "define": "Finite-variance independent identically distributed sums have a Gaussian scaling limit.",
+      "statement": "For iid real variables with mean $\\mu$ and variance $0<\\sigma^2<\\infty$, $(\\sum_{k=1}^nX_k-n\\mu)/(\\sigma\\sqrt n)$ converges in law to $N(0,1)$.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This version assumes finite, strictly positive variance.",
+      "example": "Standardized binomial counts approach the normal law.",
+      "caution": "Infinite-variance laws may require different scaling and different limits.",
+      "proof_idea": "Expand the characteristic function at zero to second order and apply its continuity theorem.",
+      "prerequisites": "**Within this subject**\n\n- [Characteristic functions](./notes/pr.characteristic.md)\n- [Weak convergence and Portmanteau](./notes/pr.weak.md)",
+      "references": "PR: central limit theorem.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Central limit theorem](./notes/pr.clt.md)"
     },
-    "Martingale": {
-      "title": "Martingale",
-      "type": "Probability Theory",
-      "define": "A martingale is a stochastic process whose conditional future value equals its present value.",
-      "notes": "[Read concept note](./notes/Martingale.md)"
+    "pr.conditional": {
+      "title": "Conditional expectation",
+      "define": "Conditional expectation matches integrals on all events observable in a sub-sigma-algebra.",
+      "statement": "For $X\\in L^1$ and a sub-sigma-algebra $\\mathcal G$, there is a $\\mathcal G$-measurable integrable Y such that $\\int_A Y\\,d\\mathbb P=\\int_A X\\,d\\mathbb P$ for all $A\\in\\mathcal G$. It is unique almost surely and denoted $\\mathbb E[X\\mid\\mathcal G]$.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Equality and uniqueness are modulo null sets.",
+      "example": "For a finite partition, conditioning averages over cells of positive probability.",
+      "caution": "The elementary ratio formula cannot condition directly on a probability-zero event.",
+      "proof_idea": "Apply Radon–Nikodym to positive and negative parts on the sub-sigma-algebra.",
+      "prerequisites": "**Within this subject**\n\n- [Probability spaces and random variables](./notes/pr.space.md)\n\n**From other subjects**\n\n- [Radon–Nikodym theorem](./notes/ra.rn.md) — Real analysis",
+      "references": "PR: conditional expectation.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Conditional expectation](./notes/pr.conditional.md)"
     },
-    "Measure_Space": {
-      "title": "Measure Space",
-      "type": "Analysis",
-      "define": "A measure space is a measurable space equipped with a measure assigning sizes to measurable sets.",
-      "notes": "[Read concept note](./notes/Measure_Space.md)"
+    "pr.regular": {
+      "title": "Regular conditional distributions",
+      "define": "For random elements X,Y in standard Borel spaces, the conditional law of X given Y admits a probability-kernel version K(y,A) satisfying the conditional integral identities.",
+      "statement": "For random elements X,Y in standard Borel spaces, the conditional law of X given Y admits a probability-kernel version K(y,A) satisfying the conditional integral identities.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "A standard Borel space is measurably isomorphic to a Borel subset of a Polish space.",
+      "example": "Conditional densities, when available, give concrete kernels.",
+      "caution": "Versions can differ on Y-null sets; arbitrary measurable spaces need not admit such kernels.",
+      "proof_idea": "Construct conditional probabilities on a countable determining family and extend to measures.",
+      "prerequisites": "**Within this subject**\n\n- [Conditional expectation](./notes/pr.conditional.md)\n\n**From other subjects**\n\n- [Metric and Polish spaces](./notes/tp.metric.md) — Topology",
+      "references": "PR: regular conditional probabilities.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Regular conditional distributions](./notes/pr.regular.md)"
     },
-    "Point_Process": {
-      "title": "Point Process",
-      "type": "Probability Theory",
-      "define": "A point process is a random locally finite configuration of points.",
-      "notes": "[Read concept note](./notes/Point_Process.md)"
+    "pr.ui": {
+      "title": "Uniform integrability",
+      "define": "Uniform tail control is the missing ingredient for convergence in mean.",
+      "statement": "A family $\\mathcal X\\subset L^1$ is uniformly integrable if $\\sup_{X\\in\\mathcal X}\\mathbb E[|X|1_{|X|>K}]\\to0$. For integrable X, convergence in probability plus uniform integrability of the sequence is equivalent to $L^1$ convergence.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "All variables are on one probability space.",
+      "example": "A uniform Lp bound for some p greater than one implies uniform integrability.",
+      "caution": "Uniform L1 boundedness alone allows rare tall spikes and is insufficient.",
+      "prerequisites": "**Within this subject**\n\n- [Modes of convergence](./notes/pr.convergence.md)\n\n**From other subjects**\n\n- [Lp spaces](./notes/ra.lp.md) — Real analysis",
+      "references": "PR: uniform integrability.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Uniform integrability](./notes/pr.ui.md)"
     },
-    "Poisson_Point_Process": {
-      "title": "Poisson Point Process",
-      "type": "Probability Theory",
-      "define": "A Poisson point process is a point process with independent increments and constant intensity.",
-      "notes": "[Read concept note](./notes/Poisson_Point_Process.md)"
+    "pr.martingale": {
+      "title": "Filtrations and martingales",
+      "define": "A martingale preserves its conditional mean as information grows.",
+      "statement": "A filtration is an increasing sequence $\\mathcal F_n$ of sigma-algebras. An integrable adapted process is a martingale if $\\mathbb E[M_{n+1}\\mid\\mathcal F_n]=M_n$ almost surely.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The filtration is part of the data.",
+      "example": "Centered partial sums of independent integrable increments form a martingale.",
+      "caution": "Martingales need not have independent increments.",
+      "prerequisites": "**Within this subject**\n\n- [Conditional expectation](./notes/pr.conditional.md)",
+      "references": "PR: martingales.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Filtrations and martingales](./notes/pr.martingale.md)"
     },
-    "Poisson_Process": {
-      "title": "Poisson Process",
-      "type": "Probability Theory",
-      "define": "A Poisson process is the counting process with stationary independent increments.",
-      "notes": "[Read concept note](./notes/Poisson_Process.md)"
+    "pr.doob": {
+      "title": "Doob maximal inequality",
+      "define": "A terminal Lp bound controls the maximum along a finite martingale path.",
+      "statement": "For a discrete-time martingale, finite horizon n and $p>1$, $\\|\\max_{0\\le k\\le n}|M_k|\\|_p\\le p/(p-1)\\,\\|M_n\\|_p$.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The terminal value is in Lp.",
+      "example": "The terminal Lp size controls the maximum along a finite path.",
+      "caution": "The strong inequality has no finite constant of this form at p = 1.",
+      "proof_idea": "Stop at the first threshold crossing, bound the tail and integrate using Holder's inequality.",
+      "prerequisites": "**Within this subject**\n\n- [Filtrations and martingales](./notes/pr.martingale.md)\n\n**From other subjects**\n\n- [Hölder and Minkowski inequalities](./notes/ra.holder.md) — Real analysis",
+      "references": "PR: maximal inequalities.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Doob maximal inequality](./notes/pr.doob.md)"
     },
-    "Probability_Distribution": {
-      "title": "Probability Distribution",
-      "type": "Probability Theory",
-      "define": "A probability distribution is the law induced by a random element on its state space.",
-      "notes": "[Read concept note](./notes/Probability_Distribution.md)"
+    "pr.stopping": {
+      "title": "Optional stopping",
+      "define": "Optional stopping preserves martingale identities under boundedness or uniform integrability.",
+      "statement": "For a discrete-time martingale and bounded stopping times $S\\le T$, $\\mathbb E[M_T\\mid\\mathcal F_S]=M_S$. The same holds for almost-surely finite S,T when the martingale is uniformly integrable.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Stopping times cannot depend on future information; integrability controls passage to limits.",
+      "example": "Stopping an integrable fair game before a fixed round preserves expected capital.",
+      "caution": "An unbounded doubling strategy lacks the required integrability control.",
+      "proof_idea": "Sum stopped increments at finite horizons, then use uniform integrability for unbounded horizons.",
+      "prerequisites": "**Within this subject**\n\n- [Filtrations and martingales](./notes/pr.martingale.md)\n- [Uniform integrability](./notes/pr.ui.md)",
+      "references": "PR: optional stopping.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Optional stopping](./notes/pr.stopping.md)"
     },
-    "Probability_Space": {
-      "title": "Probability Space",
-      "type": "Probability Theory",
-      "define": "A probability space is a measure space whose total measure is one.",
-      "notes": "[Read concept note](./notes/Probability_Space.md)"
+    "pr.martingale-limit": {
+      "title": "Martingale convergence",
+      "define": "L1-bounded martingales converge almost surely; uniform integrability strengthens the limit.",
+      "statement": "If $\\sup_n\\mathbb E|M_n|<\\infty$, a discrete-time martingale converges almost surely to an integrable limit. Under uniform integrability it also converges in $L^1$ and $M_n=\\mathbb E[M_\\infty\\mid\\mathcal F_n]$.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "L1 boundedness and uniform integrability have distinct consequences.",
+      "example": "Nonnegative martingales converge almost surely but can lose expectation in the limit.",
+      "caution": "L1 boundedness alone does not ensure L1 convergence.",
+      "proof_idea": "The upcrossing inequality excludes oscillation; Fatou gives integrability and uniform integrability justifies the conditional limit.",
+      "prerequisites": "**Within this subject**\n\n- [Filtrations and martingales](./notes/pr.martingale.md)\n- [Uniform integrability](./notes/pr.ui.md)",
+      "references": "PR: martingale convergence.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Martingale convergence](./notes/pr.martingale-limit.md)"
     },
-    "Random_Element": {
-      "title": "Random Element",
-      "type": "Probability Theory",
-      "define": "A random element is a measurable map from a probability space into a measurable state space.",
-      "notes": "[Read concept note](./notes/Random_Element.md)"
+    "pr.markov": {
+      "title": "Finite-state Markov chains",
+      "define": "An irreducible finite-state Markov chain has a unique stationary probability vector. If also aperiodic, its distribution converges to that vector from every initial distribution.",
+      "statement": "An irreducible finite-state Markov chain has a unique stationary probability vector. If also aperiodic, its distribution converges to that vector from every initial distribution.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Transition-matrix rows sum to one; irreducibility means all states communicate.",
+      "example": "Deterministic alternation between two states is irreducible but periodic.",
+      "caution": "Stationarity alone does not guarantee convergence.",
+      "proof_idea": "Irreducibility yields the stationary eigenvector; aperiodicity removes other peripheral eigenvalues.",
+      "prerequisites": "**Within this subject**\n\n- [Conditional expectation](./notes/pr.conditional.md)",
+      "references": "PR: Markov chains.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Finite-state Markov chains](./notes/pr.markov.md)"
     },
-    "Random_Field": {
-      "title": "Random Field",
-      "type": "Probability Theory",
-      "define": "A random field is a stochastic process indexed by a multidimensional parameter set.",
-      "notes": "[Read concept note](./notes/Random_Field.md)"
+    "pr.extension": {
+      "title": "Kolmogorov extension theorem",
+      "define": "A consistent family of finite-dimensional probability laws on products of standard Borel state spaces determines a unique probability measure on the cylinder sigma-algebra of the full product.",
+      "statement": "A consistent family of finite-dimensional probability laws on products of standard Borel state spaces determines a unique probability measure on the cylinder sigma-algebra of the full product.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Marginalization and coordinate permutations preserve the prescribed laws.",
+      "example": "Consistent Gaussian laws of covariance min(s,t) specify Brownian finite-dimensional distributions.",
+      "caution": "Extension alone does not give continuous sample paths.",
+      "proof_idea": "Define cylinder probabilities and use the state-space regularity to establish the countable additivity needed for extension.",
+      "prerequisites": "**Within this subject**\n\n- [Probability spaces and random variables](./notes/pr.space.md)\n\n**From other subjects**\n\n- [Measure spaces](./notes/ra.measure.md) — Real analysis",
+      "references": "PR: construction of processes.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Kolmogorov extension theorem](./notes/pr.extension.md)"
     },
-    "Random_Variable": {
-      "title": "Random Variable",
-      "type": "Probability Theory",
-      "define": "A random variable is a real-valued random element.",
-      "notes": "[Read concept note](./notes/Random_Variable.md)"
+    "pr.brownian": {
+      "title": "Brownian motion",
+      "define": "Brownian motion has continuous paths and independent Gaussian increments.",
+      "statement": "Standard Brownian motion starts at zero, has continuous paths and independent stationary increments with $B_t-B_s\\sim N(0,t-s)$ for $0\\le s<t$.",
+      "type": "Probability theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "For stochastic calculus the filtration must make future increments independent of present information.",
+      "example": "$\\mathbb E[B_sB_t]=\\min(s,t)$.",
+      "caution": "Paths are almost surely nowhere differentiable despite continuity.",
+      "prerequisites": "**Within this subject**\n\n- [Kolmogorov extension theorem](./notes/pr.extension.md)\n- [Independence and product laws](./notes/pr.independence.md)",
+      "references": "PR: Brownian motion.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Brownian motion](./notes/pr.brownian.md)"
     },
-    "Random_Walk": {
-      "title": "Random Walk",
-      "type": "Probability Theory",
-      "define": "A random walk is the partial-sum process of independent random increments.",
-      "notes": "[Read concept note](./notes/Random_Walk.md)"
+    "pr.ito-integral": {
+      "title": "Itô integral and isometry",
+      "define": "The Brownian stochastic integral is constructed by an L2 isometry.",
+      "statement": "For predictable H with $\\mathbb E\\int_0^T H_t^2dt<\\infty$, the Brownian integral obeys $\\mathbb E(\\int_0^T H_t\\,dB_t)^2=\\mathbb E\\int_0^T H_t^2dt$.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "Use a Brownian filtration with the usual conditions and square integrability in time and probability.",
+      "example": "$\\int_0^T B_t\\,dB_t=(B_T^2-T)/2$.",
+      "caution": "This is not ordinary integration against a path of bounded variation.",
+      "proof_idea": "Define the integral on adapted step processes, prove the isometry by independent increments and complete in L2.",
+      "prerequisites": "**Within this subject**\n\n- [Brownian motion](./notes/pr.brownian.md)\n- [Filtrations and martingales](./notes/pr.martingale.md)\n\n**From other subjects**\n\n- [Hilbert spaces and orthogonal projection](./notes/fa.hilbert.md) — Functional analysis",
+      "references": "PR: stochastic integration.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Itô integral and isometry](./notes/pr.ito-integral.md)"
     },
-    "Semimartingale": {
-      "title": "Semimartingale",
-      "type": "Probability Theory",
-      "define": "A semimartingale is the basic integrator class for modern stochastic calculus.",
-      "notes": "[Read concept note](./notes/Semimartingale.md)"
-    },
-    "Stationary_Process": {
-      "title": "Stationary Process",
-      "type": "Probability Theory",
-      "define": "A stationary process is a stochastic process whose law is invariant under time shifts.",
-      "notes": "[Read concept note](./notes/Stationary_Process.md)"
-    },
-    "Stochastic_Process": {
-      "title": "Stochastic Process",
-      "type": "Probability Theory",
-      "define": "A stochastic process is a family of random variables indexed by time or another parameter.",
-      "notes": "[Read concept note](./notes/Stochastic_Process.md)"
-    },
-    "Stopping_Time": {
-      "title": "Stopping Time",
-      "type": "Probability Theory",
-      "define": "A stopping time is a random time whose occurrence can be determined from the information available up to that time.",
-      "notes": "[Read concept note](./notes/Stopping_Time.md)"
+    "pr.ito-formula": {
+      "title": "Itô's formula",
+      "define": "The stochastic chain rule includes a second-order quadratic-variation correction.",
+      "statement": "For $f\\in C^{1,2}([0,T]\\times\\mathbb R)$, $df(t,B_t)=(f_t+\\tfrac12f_{xx})(t,B_t)dt+f_x(t,B_t)dB_t$, locally when global integrability is unavailable.",
+      "type": "Probability theory",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "One continuous time derivative and two continuous spatial derivatives suffice in this version.",
+      "example": "$d(B_t^2)=2B_t\\,dB_t+dt$.",
+      "caution": "The second-derivative term records quadratic variation and cannot be omitted.",
+      "proof_idea": "Taylor-expand along partitions; squared increments converge to elapsed time and higher-order remainders vanish after localization.",
+      "prerequisites": "**Within this subject**\n\n- [Itô integral and isometry](./notes/pr.ito-integral.md)",
+      "references": "PR: Ito formula.\n\n- **PR** — Rick Durrett. [Probability: Theory and Examples](https://sites.math.duke.edu/~rtd/PTE/PTE5_011119.pdf). Fifth-edition author manuscript, 2019.",
+      "notes": "[Itô's formula](./notes/pr.ito-formula.md)"
     }
   },
   "edges": [
     {
-      "id": "math-18",
-      "source": "Markov_Chain",
-      "target": "Branching_Process",
-      "value": "subtype_of"
+      "id": "subject.probability-theory--pr.space",
+      "source": "subject.probability-theory",
+      "target": "pr.space",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
     },
     {
-      "id": "math-19",
-      "source": "Diffusion_Process",
-      "target": "Brownian_Motion",
-      "value": "subtype_of"
+      "id": "pr.space--pr.independence",
+      "source": "pr.space",
+      "target": "pr.independence",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Probability spaces and random variables supplies selected background for Independence and product laws; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-20",
-      "source": "Gaussian_Process",
-      "target": "Brownian_Motion",
-      "value": "subtype_of"
+      "id": "pr.space--pr.convergence",
+      "source": "pr.space",
+      "target": "pr.convergence",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Probability spaces and random variables supplies selected background for Modes of convergence; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-21",
-      "source": "Levy_Process",
-      "target": "Brownian_Motion",
-      "value": "subtype_of"
+      "id": "pr.independence--pr.borel-cantelli",
+      "source": "pr.independence",
+      "target": "pr.borel-cantelli",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Independence and product laws supplies selected background for Borel–Cantelli lemmas; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-38",
-      "source": "Markov_Process",
-      "target": "Diffusion_Process",
-      "value": "subtype_of"
+      "id": "pr.borel-cantelli--pr.slln",
+      "source": "pr.borel-cantelli",
+      "target": "pr.slln",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Borel–Cantelli lemmas supplies selected background for Strong law of large numbers; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-57",
-      "source": "Filtered_Probability_Space",
-      "target": "Stopping_Time",
-      "value": "with_respect_to_filtration"
+      "id": "pr.independence--pr.characteristic",
+      "source": "pr.independence",
+      "target": "pr.characteristic",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Independence and product laws supplies selected background for Characteristic functions; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-58",
-      "source": "Probability_Space",
-      "target": "Filtered_Probability_Space",
-      "value": "subtype_of"
+      "id": "pr.convergence--pr.weak",
+      "source": "pr.convergence",
+      "target": "pr.weak",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Modes of convergence supplies selected background for Weak convergence and Portmanteau; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-65",
-      "source": "Function",
-      "target": "Random_Element",
-      "value": "subtype_of"
+      "id": "pr.characteristic--pr.clt",
+      "source": "pr.characteristic",
+      "target": "pr.clt",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Characteristic functions supplies selected background for Central limit theorem; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-71",
-      "source": "Stochastic_Process",
-      "target": "Gaussian_Process",
-      "value": "subtype_of"
+      "id": "pr.weak--pr.clt",
+      "source": "pr.weak",
+      "target": "pr.clt",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Weak convergence and Portmanteau supplies selected background for Central limit theorem; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-89",
-      "source": "Levy_Process",
-      "target": "Poisson_Process",
-      "value": "subtype_of"
+      "id": "pr.space--pr.conditional",
+      "source": "pr.space",
+      "target": "pr.conditional",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Probability spaces and random variables supplies selected background for Conditional expectation; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-90",
-      "source": "Markov_Process",
-      "target": "Levy_Process",
-      "value": "subtype_of"
+      "id": "pr.conditional--pr.regular",
+      "source": "pr.conditional",
+      "target": "pr.regular",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Conditional expectation supplies selected background for Regular conditional distributions; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-91",
-      "source": "Semimartingale",
-      "target": "Levy_Process",
-      "value": "subtype_of"
+      "id": "pr.convergence--pr.ui",
+      "source": "pr.convergence",
+      "target": "pr.ui",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Modes of convergence supplies selected background for Uniform integrability; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-103",
-      "source": "Markov_Chain",
-      "target": "Random_Walk",
-      "value": "subtype_of"
+      "id": "pr.conditional--pr.martingale",
+      "source": "pr.conditional",
+      "target": "pr.martingale",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Conditional expectation supplies selected background for Filtrations and martingales; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-104",
-      "source": "Markov_Process",
-      "target": "Markov_Chain",
-      "value": "subtype_of"
+      "id": "pr.martingale--pr.doob",
+      "source": "pr.martingale",
+      "target": "pr.doob",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Filtrations and martingales supplies selected background for Doob maximal inequality; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-105",
-      "source": "Stochastic_Process",
-      "target": "Markov_Process",
-      "value": "subtype_of"
+      "id": "pr.martingale--pr.stopping",
+      "source": "pr.martingale",
+      "target": "pr.stopping",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Filtrations and martingales supplies selected background for Optional stopping; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-106",
-      "source": "Stochastic_Process",
-      "target": "Martingale",
-      "value": "subtype_of"
+      "id": "pr.ui--pr.stopping",
+      "source": "pr.ui",
+      "target": "pr.stopping",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Uniform integrability supplies selected background for Optional stopping; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-109",
-      "source": "Measure_Space",
-      "target": "Probability_Space",
-      "value": "subtype_of"
+      "id": "pr.martingale--pr.martingale-limit",
+      "source": "pr.martingale",
+      "target": "pr.martingale-limit",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Filtrations and martingales supplies selected background for Martingale convergence; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-116",
-      "source": "Point_Process",
-      "target": "Poisson_Point_Process",
-      "value": "subtype_of"
+      "id": "pr.ui--pr.martingale-limit",
+      "source": "pr.ui",
+      "target": "pr.martingale-limit",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Uniform integrability supplies selected background for Martingale convergence; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-117",
-      "source": "Point_Process",
-      "target": "Poisson_Process",
-      "value": "subtype_of"
+      "id": "pr.conditional--pr.markov",
+      "source": "pr.conditional",
+      "target": "pr.markov",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Conditional expectation supplies selected background for Finite-state Markov chains; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-118",
-      "source": "Stochastic_Process",
-      "target": "Point_Process",
-      "value": "subtype_of"
+      "id": "pr.space--pr.extension",
+      "source": "pr.space",
+      "target": "pr.extension",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Probability spaces and random variables supplies selected background for Kolmogorov extension theorem; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-121",
-      "source": "Random_Element",
-      "target": "Probability_Distribution",
-      "value": "induced_by"
+      "id": "pr.extension--pr.brownian",
+      "source": "pr.extension",
+      "target": "pr.brownian",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Kolmogorov extension theorem supplies selected background for Brownian motion; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-122",
-      "source": "Probability_Space",
-      "target": "Random_Element",
-      "value": "has_base_space"
+      "id": "pr.independence--pr.brownian",
+      "source": "pr.independence",
+      "target": "pr.brownian",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Independence and product laws supplies selected background for Brownian motion; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-123",
-      "source": "Probability_Space",
-      "target": "Stochastic_Process",
-      "value": "has_base_space"
+      "id": "pr.brownian--pr.ito-integral",
+      "source": "pr.brownian",
+      "target": "pr.ito-integral",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Brownian motion supplies selected background for Itô integral and isometry; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-126",
-      "source": "Random_Element",
-      "target": "Random_Variable",
-      "value": "subtype_of"
+      "id": "pr.martingale--pr.ito-integral",
+      "source": "pr.martingale",
+      "target": "pr.ito-integral",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Filtrations and martingales supplies selected background for Itô integral and isometry; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-127",
-      "source": "Stochastic_Process",
-      "target": "Random_Field",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-135",
-      "source": "Stochastic_Process",
-      "target": "Semimartingale",
-      "value": "subtype_of"
-    },
-    {
-      "id": "math-140",
-      "source": "Stochastic_Process",
-      "target": "Stationary_Process",
-      "value": "subtype_of"
+      "id": "pr.ito-integral--pr.ito-formula",
+      "source": "pr.ito-integral",
+      "target": "pr.ito-formula",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Itô integral and isometry supplies selected background for Itô's formula; consult both entries for the scope of the connection."
+      }
     }
   ]
 }

@@ -2,262 +2,591 @@
   "format": "graph-studio",
   "version": 2,
   "diagram": "dag",
-  "title": "Number Theory",
-  "metadata": {},
+  "id": "number-theory",
+  "title": "Number theory",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "number-theory",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 12,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
   "nodes": {
-    "Automorphic_Form": {
-      "title": "Automorphic Form",
-      "type": "Number Theory",
-      "define": "An automorphic form is a highly symmetric complex-valued function on an arithmetic quotient of a reductive group.",
-      "notes": "[Read concept note](./notes/Automorphic_Form.md)"
+    "subject.number-theory": {
+      "title": "Number theory",
+      "define": "Arithmetic from divisibility to number fields, local fields, prime distribution and rational points.",
+      "type": "Number theory",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Abstract algebra including rings and fields, elementary group theory, complex analysis for analytic topics.",
+      "learning_outcomes": "- Distinguish element factorization, prime-ideal factorization and class groups.\n- Connect global arithmetic with completions and ramification.\n- Separate proven distribution theorems from stronger error estimates and conjectures.",
+      "study_route": "[Euclidean algorithm and unique factorization](./notes/nt.divisibility.md) → [Chinese remainder theorem](./notes/nt.crt.md) → [Finite fields](./notes/nt.finite-fields.md) → [Number fields, norm and trace](./notes/nt.number-fields.md) → [Algebraic integers](./notes/nt.integers.md) → [Dedekind domains and ideal factorization](./notes/nt.ideals.md) → [Ideal class group](./notes/nt.class-group.md) → [p-adic numbers and Hensel lifting](./notes/nt.padic.md) → [Riemann zeta function](./notes/nt.zeta.md)",
+      "notes": "[Subject guide](./guides/number-theory.md)",
+      "graph_file": "Open number-theory.json in the workspace graph list.",
+      "references": "- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.\n- **NT3** — Keith Conrad. [The Local–Global Principle](https://kconrad.math.uconn.edu/blurbs/gradnumthy/localglobal.pdf). Author's expository notes; quadratic forms and failures of local-global principles.\n- **FT** — J. S. Milne. [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/FT.pdf). Version 5.10, 2022.\n- **EC** — J. S. Milne. [Elliptic Curves](https://www.jmilne.org/math/Books/EC2.pdf). Second edition, World Scientific, 2020; author-hosted text."
     },
-    "Dirichlet_Character": {
-      "title": "Dirichlet Character",
-      "type": "Number Theory",
-      "define": "A Dirichlet character is a periodic multiplicative arithmetic function modulo an integer.",
-      "notes": "[Read concept note](./notes/Dirichlet_Character.md)"
+    "nt.divisibility": {
+      "title": "Euclidean algorithm and unique factorization",
+      "define": "The Euclidean algorithm underlies Bezout identities and unique integer factorization.",
+      "statement": "Every integer greater than one factors uniquely into primes up to order. For integers a,b not both zero, their positive gcd is $ua+vb$ for some integers u,v.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Factorization is in the ordinary integers.",
+      "example": "$\\gcd(30,18)=6=2\\cdot18-30$.",
+      "caution": "Unique factorization of elements may fail in rings of algebraic integers.",
+      "proof_idea": "The Euclidean algorithm gives Bezout's identity; Euclid's lemma then proves uniqueness by induction.",
+      "prerequisites": "**From other subjects**\n\n- [Sets, functions and relations](./notes/sl.sets.md) — Set theory and mathematical logic",
+      "references": "NT: unique factorization.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Euclidean algorithm and unique factorization](./notes/nt.divisibility.md)"
     },
-    "Field": {
-      "title": "Field",
-      "type": "Algebra",
-      "define": "A field is an algebraic structure where addition, subtraction, multiplication, and division by nonzero elements are all possible.",
-      "notes": "[Read concept note](./notes/Field.md)"
+    "nt.crt": {
+      "title": "Chinese remainder theorem",
+      "define": "Coprime congruence conditions combine into one unique residue class.",
+      "statement": "For pairwise coprime positive integers $m_i$, $\\mathbb Z/(\\prod m_i)\\cong\\prod_i\\mathbb Z/m_i$ as rings via the residue map.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Pairwise coprimality permits arbitrary independent residues.",
+      "example": "$x\\equiv2\\pmod3$, $x\\equiv3\\pmod5$ gives $x\\equiv8\\pmod{15}$.",
+      "caution": "Without coprimality, residues must satisfy compatibility conditions.",
+      "proof_idea": "Bezout coefficients construct idempotents selecting each coordinate.",
+      "prerequisites": "**Within this subject**\n\n- [Euclidean algorithm and unique factorization](./notes/nt.divisibility.md)",
+      "references": "NT: Chinese remainder theorem.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Chinese remainder theorem](./notes/nt.crt.md)"
     },
-    "Function": {
-      "title": "Function",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A function assigns each input exactly one output.",
-      "notes": "[Read concept note](./notes/Function.md)"
+    "nt.finite-fields": {
+      "title": "Finite fields",
+      "define": "Finite fields exist uniquely at prime-power sizes and have cyclic unit groups.",
+      "statement": "A finite field has $p^n$ elements. For each prime p and positive n there is exactly one up to isomorphism, the splitting field of $x^{p^n}-x$ over $\\mathbb F_p$. Its multiplicative group is cyclic.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Cardinality must be a prime power.",
+      "example": "$\\mathbb F_4=\\mathbb F_2[t]/(t^2+t+1)$.",
+      "caution": "$\\mathbb Z/4\\mathbb Z$ is not a field.",
+      "proof_idea": "Frobenius identifies the roots as a field; root bounds for polynomials prove multiplicative cyclicity.",
+      "prerequisites": "**Within this subject**\n\n- [Euclidean algorithm and unique factorization](./notes/nt.divisibility.md)\n\n**From other subjects**\n\n- [Groups and homomorphisms](./notes/gt.groups.md) — Group theory",
+      "references": "FT: finite fields.\n\n- **FT** — J. S. Milne. [Fields and Galois Theory](https://www.jmilne.org/math/CourseNotes/FT.pdf). Version 5.10, 2022.",
+      "notes": "[Finite fields](./notes/nt.finite-fields.md)"
     },
-    "Galois_Representation": {
-      "title": "Galois Representation",
-      "type": "Number Theory",
-      "define": "A Galois representation is a homomorphism from a Galois group into a linear group over a coefficient field.",
-      "notes": "[Read concept note](./notes/Galois_Representation.md)"
+    "nt.reciprocity": {
+      "title": "Quadratic reciprocity",
+      "define": "Quadratic reciprocity relates square residues modulo two odd primes.",
+      "statement": "For distinct odd primes p,q, $(\\frac pq)(\\frac qp)=(-1)^{(p-1)(q-1)/4}$. Also $(\\frac{-1}p)=(-1)^{(p-1)/2}$ and $(\\frac2p)=(-1)^{(p^2-1)/8}$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The Legendre symbol is 1 for a nonzero square, -1 for a nonsquare, and 0 for a multiple of p.",
+      "example": "$(\\frac3{11})=1$.",
+      "caution": "A Jacobi symbol of one does not certify a square modulo a composite integer.",
+      "proof_idea": "Gauss's lemma turns the symbols into parity counts of lattice points.",
+      "prerequisites": "**Within this subject**\n\n- [Finite fields](./notes/nt.finite-fields.md)",
+      "references": "NT2: quadratic reciprocity.\n\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.",
+      "notes": "[Quadratic reciprocity](./notes/nt.reciprocity.md)"
     },
-    "Global_Field": {
-      "title": "Global Field",
-      "type": "Number Theory",
-      "define": "A global field is either a number field or a function field of one variable over a finite field.",
-      "notes": "[Read concept note](./notes/Global_Field.md)"
+    "nt.number-fields": {
+      "title": "Number fields, norm and trace",
+      "define": "Finite rational extensions carry field norms, traces and complex embeddings.",
+      "statement": "A number field is a finite extension K of $\\mathbb Q$. The determinant and trace of multiplication by a define $N_{K/\\mathbb Q}(a)$ and $\\operatorname{Tr}_{K/\\mathbb Q}(a)$.",
+      "type": "Number theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Characteristic zero ensures separability; the degree counts complex embeddings.",
+      "example": "In $\\mathbb Q(\\sqrt d)$, $N(a+b\\sqrt d)=a^2-db^2$.",
+      "caution": "Field norm is multiplicative, not a metric-space norm.",
+      "prerequisites": "**From other subjects**\n\n- [Finite Galois correspondence](./notes/gt.galois.md) — Group theory",
+      "references": "NT: extensions, norms and traces.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Number fields, norm and trace](./notes/nt.number-fields.md)"
     },
-    "Integer_Ring": {
-      "title": "Integer Ring",
-      "type": "Number Theory",
-      "define": "The integer ring is the set of integers with usual addition and multiplication.",
-      "notes": "[Read concept note](./notes/Integer_Ring.md)"
+    "nt.integers": {
+      "title": "Algebraic integers",
+      "define": "Monic integer equations single out the integral arithmetic inside a number field.",
+      "statement": "An element integral over $\\mathbb Z$ satisfies a monic polynomial with integer coefficients. The integers of K form a ring $\\mathcal O_K$, free of rank $[K:\\mathbb Q]$ over $\\mathbb Z$.",
+      "type": "Number theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "K is a number field; a rational algebraic integer is an integer.",
+      "example": "$\\mathcal O_{\\mathbb Q(\\sqrt5)}=\\mathbb Z[(1+\\sqrt5)/2]$.",
+      "caution": "A field generator need not generate its entire ring of integers.",
+      "prerequisites": "**Within this subject**\n\n- [Number fields, norm and trace](./notes/nt.number-fields.md)",
+      "references": "NT: rings of integers.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Algebraic integers](./notes/nt.integers.md)"
     },
-    "L_Function": {
-      "title": "L Function",
-      "type": "Number Theory",
-      "define": "An $L$-function is a complex analytic object that encodes arithmetic data through Euler products, Dirichlet series, and functional equations.",
-      "notes": "[Read concept note](./notes/L_Function.md)"
+    "nt.discriminant": {
+      "title": "Trace pairing and discriminants",
+      "define": "The trace pairing defines an arithmetic invariant of an integral basis.",
+      "statement": "A basis $\\omega_i$ has discriminant $\\det(\\operatorname{Tr}(\\omega_i\\omega_j))$. An integral basis defines the basis-independent field discriminant $d_K$.",
+      "type": "Number theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "A suborder's discriminant is the field discriminant times the square of its index.",
+      "example": "$d_{\\mathbb Q(\\sqrt5)}=5$.",
+      "caution": "Polynomial and field discriminants can differ.",
+      "prerequisites": "**Within this subject**\n\n- [Algebraic integers](./notes/nt.integers.md)",
+      "references": "NT: discriminants.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Trace pairing and discriminants](./notes/nt.discriminant.md)"
     },
-    "Local_Field": {
-      "title": "Local Field",
-      "type": "Number Theory",
-      "define": "A local field is a field complete with respect to a nontrivial discrete valuation and having finite residue field.",
-      "notes": "[Read concept note](./notes/Local_Field.md)"
+    "nt.ideals": {
+      "title": "Dedekind domains and ideal factorization",
+      "define": "The ring of integers of a number field is a Dedekind domain. Every nonzero proper ideal factors uniquely into nonzero prime ideals.",
+      "statement": "The ring of integers of a number field is a Dedekind domain. Every nonzero proper ideal factors uniquely into nonzero prime ideals.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Dedekind here means Noetherian, integrally closed and dimension one.",
+      "example": "$\\mathbb Z[\\sqrt{-5}]$ has unique ideal factorization despite nonunique element factorization.",
+      "caution": "Unique ideal factorization does not imply every ideal is principal.",
+      "proof_idea": "Localize at nonzero primes to obtain discrete valuation rings and recover the ideal exponents.",
+      "prerequisites": "**Within this subject**\n\n- [Algebraic integers](./notes/nt.integers.md)\n\n**From other subjects**\n\n- [Noetherian rings and Hilbert basis theorem](./notes/ag.noetherian.md) — Algebraic geometry",
+      "references": "NT: Dedekind domains.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Dedekind domains and ideal factorization](./notes/nt.ideals.md)"
     },
-    "Mobius_Function": {
-      "title": "Mobius Function",
-      "type": "Number Theory",
-      "define": "The Mobius function is an arithmetic function that records the square-free prime factor structure of an integer.",
-      "notes": "[Read concept note](./notes/Mobius_Function.md)"
+    "nt.class-group": {
+      "title": "Ideal class group",
+      "define": "Ideal classes measure the obstruction to principal ideal factorization.",
+      "statement": "The group of nonzero fractional ideals modulo principal fractional ideals is $\\operatorname{Cl}(K)$. It is trivial exactly when $\\mathcal O_K$ is a PID, equivalently a UFD.",
+      "type": "Number theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Fractional ideals are invertible in a Dedekind domain.",
+      "example": "$\\mathbb Q(\\sqrt{-5})$ has class number two.",
+      "caution": "Class number measures failure of principality, not the number of prime ideals.",
+      "prerequisites": "**Within this subject**\n\n- [Dedekind domains and ideal factorization](./notes/nt.ideals.md)\n\n**From other subjects**\n\n- [Normal subgroups and quotients](./notes/gt.quotients.md) — Group theory",
+      "references": "NT: class groups.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Ideal class group](./notes/nt.class-group.md)"
     },
-    "Modular_Form": {
-      "title": "Modular Form",
-      "type": "Number Theory",
-      "define": "A modular form is a holomorphic function on the upper half-plane satisfying a specific transformation law and growth condition.",
-      "notes": "[Read concept note](./notes/Modular_Form.md)"
+    "nt.minkowski": {
+      "title": "Minkowski's theorem and finite class number",
+      "define": "Large symmetric convex bodies contain lattice points, bounding ideal class representatives.",
+      "statement": "A centrally symmetric convex measurable body in $\\mathbb R^n$ of volume greater than $2^n\\operatorname{covol}(\\Lambda)$ contains a nonzero point of the full lattice $\\Lambda$. This implies finiteness of $\\operatorname{Cl}(K)$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Strict inequality avoids boundary subtleties for nonclosed bodies.",
+      "example": "Real and complex embeddings of ideals produce explicit bounds for ideal class representatives.",
+      "caution": "Convexity and central symmetry are essential to this formulation.",
+      "proof_idea": "Apply a lattice pigeonhole argument to half the body, then bound norms in inverse ideal classes.",
+      "prerequisites": "**Within this subject**\n\n- [Ideal class group](./notes/nt.class-group.md)\n\n**From other subjects**\n\n- [Measure spaces](./notes/ra.measure.md) — Real analysis",
+      "references": "NT: geometry of numbers.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Minkowski's theorem and finite class number](./notes/nt.minkowski.md)"
     },
-    "Natural_Number": {
-      "title": "Natural Number",
-      "type": "Number Theory",
-      "define": "Natural numbers are the discrete numbers used for counting and indexing.",
-      "notes": "[Read concept note](./notes/Natural_Number.md)"
+    "nt.units": {
+      "title": "Dirichlet's unit theorem",
+      "define": "The unit group has a finite torsion part and a rank determined by embeddings.",
+      "statement": "If K has $r_1$ real embeddings and $r_2$ conjugate pairs of complex embeddings, $\\mathcal O_K^\\times\\cong\\mu_K\\times\\mathbb Z^{r_1+r_2-1}$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The finite group of roots of unity is the torsion subgroup.",
+      "example": "$\\mathbb Z[\\sqrt2]^\\times=\\{\\pm(1+\\sqrt2)^m:m\\in\\mathbb Z\\}$.",
+      "caution": "Computing fundamental units is a separate problem from determining their rank.",
+      "proof_idea": "The logarithmic embedding and geometry of numbers yield a full lattice in a hyperplane.",
+      "prerequisites": "**Within this subject**\n\n- [Algebraic integers](./notes/nt.integers.md)\n- [Minkowski's theorem and finite class number](./notes/nt.minkowski.md)\n\n**From other subjects**\n\n- [Finitely generated abelian groups](./notes/gt.abelian-structure.md) — Group theory",
+      "references": "NT: units.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Dirichlet's unit theorem](./notes/nt.units.md)"
     },
-    "Number_Field": {
-      "title": "Number Field",
-      "type": "Number Theory",
-      "define": "A number field is a finite field extension of the rational numbers.",
-      "notes": "[Read concept note](./notes/Number_Field.md)"
+    "nt.padic": {
+      "title": "p-adic numbers and Hensel lifting",
+      "define": "Prime-adic completion supports lifting simple polynomial roots to exact roots.",
+      "statement": "Complete $\\mathbb Q$ for $|x|_p=p^{-v_p(x)}$ to obtain $\\mathbb Q_p$. If $f\\in\\mathbb Z_p[x]$, $f(a)\\equiv0\\pmod p$ and $f'(a)\\not\\equiv0\\pmod p$, f has a unique root congruent to a modulo p in $\\mathbb Z_p$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This is the simple-root form of Hensel's lemma.",
+      "example": "$x^2-2$ has a root in $\\mathbb Z_7$ lifting 3 modulo 7.",
+      "caution": "A multiple root modulo p need not lift by this criterion.",
+      "proof_idea": "Newton iteration improves the p-adic error and converges by completeness.",
+      "prerequisites": "**Within this subject**\n\n- [Euclidean algorithm and unique factorization](./notes/nt.divisibility.md)\n\n**From other subjects**\n\n- [Metric limits and completeness](./notes/ra.metric.md) — Real analysis",
+      "references": "NT: completions and Hensel lemma.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[p-adic numbers and Hensel lifting](./notes/nt.padic.md)"
     },
-    "Prime": {
-      "title": "Prime",
-      "type": "Number Theory",
-      "define": "A prime number is a natural number greater than one whose only positive divisors are one and itself.",
-      "notes": "[Read concept note](./notes/Prime.md)"
+    "nt.ramification": {
+      "title": "Splitting and ramification",
+      "define": "Prime ideals describe splitting, residue degrees and ramification of rational primes.",
+      "statement": "In $\\mathcal O_K$, $p\\mathcal O_K=\\prod_i\\mathfrak p_i^{e_i}$ with residue degrees $f_i$ and $\\sum_i e_if_i=[K:\\mathbb Q]$. A rational prime ramifies exactly when it divides $d_K$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Use the full ring of integers of a number field.",
+      "example": "In $\\mathbb Z[i]$, $2=-i(1+i)^2$.",
+      "caution": "Factoring a defining polynomial can mislead at primes dividing the index of the chosen order.",
+      "proof_idea": "Compare residue-field dimensions and detect ramification through the trace pairing.",
+      "prerequisites": "**Within this subject**\n\n- [Dedekind domains and ideal factorization](./notes/nt.ideals.md)\n- [Trace pairing and discriminants](./notes/nt.discriminant.md)\n- [Finite fields](./notes/nt.finite-fields.md)",
+      "references": "NT: prime decomposition.\n\n- **NT** — J. S. Milne. [Algebraic Number Theory](https://www.jmilne.org/math/CourseNotes/ANT.pdf). Version 3.08, 2020.",
+      "notes": "[Splitting and ramification](./notes/nt.ramification.md)"
     },
-    "Rational_Number_Field": {
-      "title": "Rational Number Field",
-      "type": "Number Theory",
-      "define": "The rational number field consists of ratios of integers with nonzero denominator under ordinary arithmetic.",
-      "notes": "[Read concept note](./notes/Rational_Number_Field.md)"
+    "nt.zeta": {
+      "title": "Riemann zeta function",
+      "define": "The zeta function connects integer summation with an Euler product over primes.",
+      "statement": "For $\\operatorname{Re}s>1$, $\\zeta(s)=\\sum_{n\\ge1}n^{-s}=\\prod_p(1-p^{-s})^{-1}$. It extends meromorphically to the plane with only a simple pole at 1, of residue one.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Absolute convergence of the series and product holds in the stated half-plane.",
+      "example": "The logarithmic derivative encodes prime powers.",
+      "caution": "Continuation does not justify using a divergent Euler product term by term.",
+      "proof_idea": "Unique factorization gives the product; integral representations provide continuation.",
+      "prerequisites": "**Within this subject**\n\n- [Euclidean algorithm and unique factorization](./notes/nt.divisibility.md)\n\n**From other subjects**\n\n- [Analytic continuation and monodromy](./notes/ca.continuation.md) — Complex analysis",
+      "references": "NT2: zeta function.\n\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.",
+      "notes": "[Riemann zeta function](./notes/nt.zeta.md)"
     },
-    "Riemann_Zeta_Function": {
-      "title": "Riemann Zeta Function",
-      "type": "Number Theory",
-      "define": "The Riemann zeta function packages the arithmetic of positive integers into a complex analytic function.",
-      "notes": "[Read concept note](./notes/Riemann_Zeta_Function.md)"
+    "nt.dirichlet-characters": {
+      "title": "Dirichlet characters and L-functions",
+      "define": "Multiplicative characters separate residue classes through their L-functions.",
+      "statement": "A character modulo q is a character of $(\\mathbb Z/q\\mathbb Z)^\\times$, extended by zero on nonunits. For $\\operatorname{Re}s>1$, $L(s,\\chi)=\\sum_{n\\ge1}\\chi(n)n^{-s}$.",
+      "type": "Number theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Distinguish primitive characters from characters induced from smaller moduli.",
+      "example": "Character orthogonality isolates reduced residue classes.",
+      "caution": "The principal character has Euler factors removed at primes dividing q.",
+      "prerequisites": "**Within this subject**\n\n- [Riemann zeta function](./notes/nt.zeta.md)\n- [Chinese remainder theorem](./notes/nt.crt.md)\n\n**From other subjects**\n\n- [Characters and orthogonality](./notes/gt.characters.md) — Group theory",
+      "references": "NT2: Dirichlet characters.\n\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.",
+      "notes": "[Dirichlet characters and L-functions](./notes/nt.dirichlet-characters.md)"
     },
-    "Ring": {
-      "title": "Ring",
-      "type": "Algebra",
-      "define": "A ring is an algebraic structure with addition, subtraction, and multiplication, where multiplication need not be commutative or invertible.",
-      "notes": "[Read concept note](./notes/Ring.md)"
+    "nt.dirichlet": {
+      "title": "Dirichlet's theorem on primes",
+      "define": "Every residue class coprime to its modulus contains infinitely many primes.",
+      "statement": "If $\\gcd(a,q)=1$ and $q\\ge1$, infinitely many primes satisfy $p\\equiv a\\pmod q$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The residue class is coprime to the modulus.",
+      "example": "There are infinitely many primes congruent to 3 modulo 4.",
+      "caution": "Infinitude alone supplies no asymptotic count.",
+      "proof_idea": "Use character orthogonality and nonvanishing of nonprincipal L-functions at one.",
+      "prerequisites": "**Within this subject**\n\n- [Dirichlet characters and L-functions](./notes/nt.dirichlet-characters.md)",
+      "references": "NT2: primes in progressions.\n\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.",
+      "notes": "[Dirichlet's theorem on primes](./notes/nt.dirichlet.md)"
     },
-    "Set": {
-      "title": "Set",
-      "type": "Mathematical Logic and Foundations",
-      "define": "A set is a collection of distinct objects considered as a single mathematical object.",
-      "notes": "[Read concept note](./notes/Set.md)"
+    "nt.pnt": {
+      "title": "Prime number theorem",
+      "define": "The counting function of primes has a logarithmic asymptotic density.",
+      "statement": "If $\\pi(x)$ counts primes at most x, then $\\pi(x)\\sim x/\\log x$ as $x\\to\\infty$.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The logarithm is natural; no error term is claimed here.",
+      "example": "The average spacing of primes near x has scale log x.",
+      "caution": "The theorem does not bound each prime gap by a fixed multiple of log x.",
+      "proof_idea": "An analytic proof combines nonvanishing of zeta on Re s = 1 with a Tauberian theorem.",
+      "prerequisites": "**Within this subject**\n\n- [Riemann zeta function](./notes/nt.zeta.md)\n\n**From other subjects**\n\n- [Residue theorem](./notes/ca.residues.md) — Complex analysis",
+      "references": "NT2: prime number theorem.\n\n- **NT2** — Andrew V. Sutherland. [MIT 18.785: Number Theory I](https://ocw.mit.edu/courses/18-785-number-theory-i-fall-2021/pages/lecture-notes/). Fall 2021 lecture notes.",
+      "notes": "[Prime number theorem](./notes/nt.pnt.md)"
     },
-    "p_Adic_Number": {
-      "title": "p Adic Number",
-      "type": "Number Theory",
-      "define": "The $p$-adic numbers form the basic characteristic-zero local field attached to a prime $p$.",
-      "notes": "[Read concept note](./notes/p_Adic_Number.md)"
+    "nt.elliptic": {
+      "title": "Elliptic curves and rational points",
+      "define": "A pointed smooth projective genus-one curve carries an arithmetic group law.",
+      "statement": "An elliptic curve over K is a smooth projective geometrically integral genus-one curve with a chosen K-rational point. In characteristic different from 2 and 3 it has a model $y^2=x^3+Ax+B$, $4A^3+27B^2\\ne0$.",
+      "type": "Number theory",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The projective point at infinity is the identity in this model.",
+      "example": "Chords and tangents describe the group law.",
+      "caution": "A singular cubic is not an elliptic curve.",
+      "prerequisites": "**From other subjects**\n\n- [Smooth projective curves and genus](./notes/ag.curves.md) — Algebraic geometry\n- [Groups and homomorphisms](./notes/gt.groups.md) — Group theory",
+      "references": "EC: elliptic curves.\n\n- **EC** — J. S. Milne. [Elliptic Curves](https://www.jmilne.org/math/Books/EC2.pdf). Second edition, World Scientific, 2020; author-hosted text.",
+      "notes": "[Elliptic curves and rational points](./notes/nt.elliptic.md)"
     },
-    "Complex_Valued_Function": {
-      "title": "Complex Valued Function",
-      "type": "Analysis",
-      "define": "A complex-valued function assigns a complex number to each point of its domain.",
-      "notes": "[Read concept note](./notes/Complex_Valued_Function.md)"
+    "nt.mordell-weil": {
+      "title": "Mordell–Weil theorem",
+      "define": "Rational points on an elliptic curve over a number field are finitely generated.",
+      "statement": "For an elliptic curve E over a number field K, $E(K)$ is a finitely generated abelian group.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "E is nonsingular and K is a number field.",
+      "example": "$E(K)\\cong E(K)_{\\mathrm{tors}}\\oplus\\mathbb Z^r$ for finite r.",
+      "caution": "Finite generation does not mean finitely many rational points or an easy rank computation.",
+      "proof_idea": "Finite descent classes and height reduction establish finite generation.",
+      "prerequisites": "**Within this subject**\n\n- [Elliptic curves and rational points](./notes/nt.elliptic.md)\n- [Number fields, norm and trace](./notes/nt.number-fields.md)\n\n**From other subjects**\n\n- [Finitely generated abelian groups](./notes/gt.abelian-structure.md) — Group theory",
+      "references": "EC: Mordell-Weil theorem.\n\n- **EC** — J. S. Milne. [Elliptic Curves](https://www.jmilne.org/math/Books/EC2.pdf). Second edition, World Scientific, 2020; author-hosted text.",
+      "notes": "[Mordell–Weil theorem](./notes/nt.mordell-weil.md)"
+    },
+    "nt.local-global": {
+      "title": "Local–global principles and limits",
+      "define": "A nondegenerate quadratic form over a number field has a nonzero zero if and only if it has one over every completion.",
+      "statement": "A nondegenerate quadratic form over a number field has a nonzero zero if and only if it has one over every completion.",
+      "type": "Number theory",
+      "kind": "Theorem",
+      "level": "Advanced gateway",
+      "hypotheses": "The Hasse–Minkowski theorem includes every finite and Archimedean place.",
+      "example": "Projective conics can be tested over completions.",
+      "caution": "Genus-one torsors can have points over every completion but no rational point.",
+      "proof_idea": "Local classification of quadratic forms combines with global reciprocity; the global-to-local direction is immediate.",
+      "prerequisites": "**Within this subject**\n\n- [p-adic numbers and Hensel lifting](./notes/nt.padic.md)\n- [Number fields, norm and trace](./notes/nt.number-fields.md)",
+      "references": "NT3: Hasse-Minkowski theorem; EC: genus-one curves.\n\n- **NT3** — Keith Conrad. [The Local–Global Principle](https://kconrad.math.uconn.edu/blurbs/gradnumthy/localglobal.pdf). Author's expository notes; quadratic forms and failures of local-global principles.\n- **EC** — J. S. Milne. [Elliptic Curves](https://www.jmilne.org/math/Books/EC2.pdf). Second edition, World Scientific, 2020; author-hosted text.",
+      "notes": "[Local–global principles and limits](./notes/nt.local-global.md)"
     }
   },
   "edges": [
     {
-      "id": "math-10",
-      "source": "Automorphic_Form",
-      "target": "Modular_Form",
-      "value": "subtype_of"
+      "id": "subject.number-theory--nt.divisibility",
+      "source": "subject.number-theory",
+      "target": "nt.divisibility",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
     },
     {
-      "id": "math-11",
-      "source": "Complex_Valued_Function",
-      "target": "Automorphic_Form",
-      "value": "subtype_of"
+      "id": "subject.number-theory--nt.number-fields",
+      "source": "subject.number-theory",
+      "target": "nt.number-fields",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
     },
     {
-      "id": "math-41",
-      "source": "Function",
-      "target": "Dirichlet_Character",
-      "value": "subtype_of"
+      "id": "subject.number-theory--nt.elliptic",
+      "source": "subject.number-theory",
+      "target": "nt.elliptic",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
     },
     {
-      "id": "math-42",
-      "source": "Integer_Ring",
-      "target": "Dirichlet_Character",
-      "value": "has_domain"
+      "id": "nt.divisibility--nt.crt",
+      "source": "nt.divisibility",
+      "target": "nt.crt",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Euclidean algorithm and unique factorization supplies selected background for Chinese remainder theorem; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-51",
-      "source": "Field",
-      "target": "Galois_Representation",
-      "value": "over_field"
+      "id": "nt.divisibility--nt.finite-fields",
+      "source": "nt.divisibility",
+      "target": "nt.finite-fields",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Euclidean algorithm and unique factorization supplies selected background for Finite fields; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-52",
-      "source": "Field",
-      "target": "Global_Field",
-      "value": "subtype_of"
+      "id": "nt.finite-fields--nt.reciprocity",
+      "source": "nt.finite-fields",
+      "target": "nt.reciprocity",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Finite fields supplies selected background for Quadratic reciprocity; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-54",
-      "source": "Field",
-      "target": "Local_Field",
-      "value": "subtype_of"
+      "id": "nt.number-fields--nt.integers",
+      "source": "nt.number-fields",
+      "target": "nt.integers",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Number fields, norm and trace supplies selected background for Algebraic integers; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-55",
-      "source": "Field",
-      "target": "Rational_Number_Field",
-      "value": "subtype_of"
+      "id": "nt.integers--nt.discriminant",
+      "source": "nt.integers",
+      "target": "nt.discriminant",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Algebraic integers supplies selected background for Trace pairing and discriminants; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-61",
-      "source": "Function",
-      "target": "Galois_Representation",
-      "value": "subtype_of"
+      "id": "nt.integers--nt.ideals",
+      "source": "nt.integers",
+      "target": "nt.ideals",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Algebraic integers supplies selected background for Dedekind domains and ideal factorization; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-68",
-      "source": "Function",
-      "target": "Complex_Valued_Function",
-      "value": "subtype_of"
+      "id": "nt.ideals--nt.class-group",
+      "source": "nt.ideals",
+      "target": "nt.class-group",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Dedekind domains and ideal factorization supplies selected background for Ideal class group; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-72",
-      "source": "Global_Field",
-      "target": "Number_Field",
-      "value": "subtype_of"
+      "id": "nt.class-group--nt.minkowski",
+      "source": "nt.class-group",
+      "target": "nt.minkowski",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Ideal class group supplies selected background for Minkowski's theorem and finite class number; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-82",
-      "source": "Integer_Ring",
-      "target": "Mobius_Function",
-      "value": "has_domain"
+      "id": "nt.integers--nt.units",
+      "source": "nt.integers",
+      "target": "nt.units",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Algebraic integers supplies selected background for Dirichlet's unit theorem; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-83",
-      "source": "Integer_Ring",
-      "target": "Rational_Number_Field",
-      "value": "fraction_field_of"
+      "id": "nt.minkowski--nt.units",
+      "source": "nt.minkowski",
+      "target": "nt.units",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Minkowski's theorem and finite class number supplies selected background for Dirichlet's unit theorem; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-84",
-      "source": "Integer_Ring",
-      "target": "Prime",
-      "value": "related_to"
+      "id": "nt.divisibility--nt.padic",
+      "source": "nt.divisibility",
+      "target": "nt.padic",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Euclidean algorithm and unique factorization supplies selected background for p-adic numbers and Hensel lifting; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-85",
-      "source": "Natural_Number",
-      "target": "Integer_Ring",
-      "value": "extends_number_system"
+      "id": "nt.ideals--nt.ramification",
+      "source": "nt.ideals",
+      "target": "nt.ramification",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Dedekind domains and ideal factorization supplies selected background for Splitting and ramification; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-86",
-      "source": "Ring",
-      "target": "Integer_Ring",
-      "value": "subtype_of"
+      "id": "nt.discriminant--nt.ramification",
+      "source": "nt.discriminant",
+      "target": "nt.ramification",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Trace pairing and discriminants supplies selected background for Splitting and ramification; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-87",
-      "source": "L_Function",
-      "target": "Riemann_Zeta_Function",
-      "value": "subtype_of"
+      "id": "nt.finite-fields--nt.ramification",
+      "source": "nt.finite-fields",
+      "target": "nt.ramification",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Finite fields supplies selected background for Splitting and ramification; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-88",
-      "source": "Complex_Valued_Function",
-      "target": "L_Function",
-      "value": "subtype_of"
+      "id": "nt.divisibility--nt.zeta",
+      "source": "nt.divisibility",
+      "target": "nt.zeta",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Euclidean algorithm and unique factorization supplies selected background for Riemann zeta function; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-102",
-      "source": "Local_Field",
-      "target": "p_Adic_Number",
-      "value": "subtype_of"
+      "id": "nt.zeta--nt.dirichlet-characters",
+      "source": "nt.zeta",
+      "target": "nt.dirichlet-characters",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Riemann zeta function supplies selected background for Dirichlet characters and L-functions; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-113",
-      "source": "Set",
-      "target": "Natural_Number",
-      "value": "subtype_of"
+      "id": "nt.crt--nt.dirichlet-characters",
+      "source": "nt.crt",
+      "target": "nt.dirichlet-characters",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Chinese remainder theorem supplies selected background for Dirichlet characters and L-functions; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-114",
-      "source": "Rational_Number_Field",
-      "target": "Number_Field",
-      "value": "field_extension_of"
+      "id": "nt.dirichlet-characters--nt.dirichlet",
+      "source": "nt.dirichlet-characters",
+      "target": "nt.dirichlet",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Dirichlet characters and L-functions supplies selected background for Dirichlet's theorem on primes; consult both entries for the scope of the connection."
+      }
     },
     {
-      "id": "math-129",
-      "source": "Rational_Number_Field",
-      "target": "p_Adic_Number",
-      "value": "field_extension_of"
+      "id": "nt.zeta--nt.pnt",
+      "source": "nt.zeta",
+      "target": "nt.pnt",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Riemann zeta function supplies selected background for Prime number theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "nt.elliptic--nt.mordell-weil",
+      "source": "nt.elliptic",
+      "target": "nt.mordell-weil",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Elliptic curves and rational points supplies selected background for Mordell–Weil theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "nt.number-fields--nt.mordell-weil",
+      "source": "nt.number-fields",
+      "target": "nt.mordell-weil",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Number fields, norm and trace supplies selected background for Mordell–Weil theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "nt.padic--nt.local-global",
+      "source": "nt.padic",
+      "target": "nt.local-global",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "p-adic numbers and Hensel lifting supplies selected background for Local–global principles and limits; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "nt.number-fields--nt.local-global",
+      "source": "nt.number-fields",
+      "target": "nt.local-global",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Number fields, norm and trace supplies selected background for Local–global principles and limits; consult both entries for the scope of the connection."
+      }
     }
   ]
 }

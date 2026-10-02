@@ -1,0 +1,605 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "id": "real-analysis",
+  "title": "Real analysis",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "real-analysis",
+    "localConceptCount": 21,
+    "externalPrerequisiteCount": 2,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
+  "nodes": {
+    "subject.real-analysis": {
+      "title": "Real analysis",
+      "define": "Limits, measure, integration, convergence and the function spaces underlying modern analysis.",
+      "type": "Real analysis",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Proof-based calculus, sequences, elementary linear algebra and set operations.",
+      "learning_outcomes": "- Choose the correct convergence theorem before exchanging limits and integrals.\n- Distinguish pointwise, almost-everywhere, uniform and norm convergence.\n- Use measures, densities and weak derivatives as separate mathematical objects.",
+      "study_route": "[Completeness of the real numbers](./notes/ra.completeness.md) → [Metric limits and completeness](./notes/ra.metric.md) → [Measure spaces](./notes/ra.measure.md) → [Carathéodory extension](./notes/ra.outer.md) → [Lebesgue integration](./notes/ra.integral.md) → [Monotone convergence](./notes/ra.mct.md) → [Dominated convergence](./notes/ra.dct.md) → [Tonelli and Fubini](./notes/ra.fubini.md) → [Radon–Nikodym theorem](./notes/ra.rn.md) → [Lp spaces](./notes/ra.lp.md)",
+      "notes": "[Subject guide](./guides/real-analysis.md)",
+      "graph_file": "Open real-analysis.json in the workspace graph list.",
+      "references": "- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999."
+    },
+    "ra.completeness": {
+      "title": "Completeness of the real numbers",
+      "define": "Every nonempty bounded-above real set has a least upper bound.",
+      "statement": "Every nonempty subset of $\\mathbb R$ bounded above has a least upper bound. This order completeness supports the convergence theory of real analysis.",
+      "type": "Real analysis",
+      "kind": "Axiom",
+      "level": "Core",
+      "hypotheses": "Work in the usual ordered field of real numbers.",
+      "example": "The rational numbers fail this property at the cut determined by $x^2<2$.",
+      "caution": "Completeness is not a consequence of the ordered-field axioms alone.",
+      "prerequisites": "**From other subjects**\n\n- [Sets, functions and relations](./notes/sl.sets.md) — Set theory and mathematical logic",
+      "references": "RA2: construction and completeness of the reals.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Completeness of the real numbers](./notes/ra.completeness.md)"
+    },
+    "ra.metric": {
+      "title": "Metric limits and completeness",
+      "define": "A sequence is Cauchy if its tail has arbitrarily small diameter. A metric space is complete when every Cauchy sequence converges within that space.",
+      "statement": "A sequence is Cauchy if its tail has arbitrarily small diameter. A metric space is complete when every Cauchy sequence converges within that space.",
+      "type": "Real analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The metric, not just the topology, specifies Cauchy sequences.",
+      "example": "$\\mathbb Q$ is incomplete in the Euclidean metric; $\\mathbb R$ is complete.",
+      "caution": "Completeness does not imply compactness; bounded sequences in infinite-dimensional spaces need not have convergent subsequences.",
+      "prerequisites": "**Within this subject**\n\n- [Completeness of the real numbers](./notes/ra.completeness.md)",
+      "references": "RA2: metric spaces.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Metric limits and completeness](./notes/ra.metric.md)"
+    },
+    "ra.uniform": {
+      "title": "Uniform convergence",
+      "define": "Uniform convergence controls errors simultaneously at every point of the domain.",
+      "statement": "Uniform convergence means $\\sup_{x\\in X}|f_n(x)-f(x)|\\to0$. A uniform limit of continuous functions is continuous.",
+      "type": "Real analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The same index bound works for every point of the domain.",
+      "example": "$x^n$ on $[0,1]$ converges pointwise but not uniformly.",
+      "caution": "Differentiation cannot generally be interchanged with a uniform limit without additional derivative control.",
+      "prerequisites": "**Within this subject**\n\n- [Metric limits and completeness](./notes/ra.metric.md)",
+      "references": "RA2: sequences of functions.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Uniform convergence](./notes/ra.uniform.md)"
+    },
+    "ra.ascoli": {
+      "title": "Arzelà–Ascoli theorem",
+      "define": "On a compact metric space, a family of real or complex continuous functions is relatively compact in the uniform norm exactly when it is equicontinuous and pointwise bounded.",
+      "statement": "On a compact metric space, a family of real or complex continuous functions is relatively compact in the uniform norm exactly when it is equicontinuous and pointwise bounded.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This statement is for scalar-valued functions on a compact metric domain.",
+      "example": "Uniformly bounded functions with a common Lipschitz constant satisfy the criterion.",
+      "caution": "A bounded subset of a function space is not automatically relatively compact.",
+      "proof_idea": "Approximate functions on finite nets and extract a diagonal subsequence; equicontinuity upgrades pointwise control to uniform control.",
+      "prerequisites": "**Within this subject**\n\n- [Uniform convergence](./notes/ra.uniform.md)\n\n**From other subjects**\n\n- [Compactness and Hausdorff spaces](./notes/tp.compact.md) — Topology",
+      "references": "RA2: equicontinuity and compactness.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Arzelà–Ascoli theorem](./notes/ra.ascoli.md)"
+    },
+    "ra.measure": {
+      "title": "Measure spaces",
+      "define": "Countably additive measures assign sizes to sets in a sigma-algebra.",
+      "statement": "A measure $\\mu:\\Sigma\\to[0,\\infty]$ is countably additive on a sigma-algebra and satisfies $\\mu(\\varnothing)=0$. A measurable function pulls Borel sets back into $\\Sigma$.",
+      "type": "Real analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Countable additivity applies to pairwise disjoint measurable sets.",
+      "example": "Counting measure, Lebesgue measure and probability measures have different total masses.",
+      "caution": "A sigma-algebra is closed under countable unions; arbitrary unions need not be measurable.",
+      "prerequisites": "**From other subjects**\n\n- [Sets, functions and relations](./notes/sl.sets.md) — Set theory and mathematical logic",
+      "references": "RA: lectures 1–3.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Measure spaces](./notes/ra.measure.md)"
+    },
+    "ra.outer": {
+      "title": "Carathéodory extension",
+      "define": "A premeasure on an algebra extends to a measure on the generated sigma-algebra via its induced outer measure. The extension is unique under sigma-finiteness of the premeasure.",
+      "statement": "A premeasure on an algebra extends to a measure on the generated sigma-algebra via its induced outer measure. The extension is unique under sigma-finiteness of the premeasure.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The premeasure is countably additive whenever the disjoint union remains in the algebra.",
+      "example": "Lengths of half-open intervals generate Lebesgue measure after extension and completion.",
+      "caution": "Outer measure alone is only countably subadditive; measurability must be imposed.",
+      "proof_idea": "Declare a set measurable when it splits every outer measure additively; verify countable additivity on these sets.",
+      "prerequisites": "**Within this subject**\n\n- [Measure spaces](./notes/ra.measure.md)",
+      "references": "RA: outer measure and measurable sets.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Carathéodory extension](./notes/ra.outer.md)"
+    },
+    "ra.integral": {
+      "title": "Lebesgue integration",
+      "define": "Lebesgue integration builds integrals from measurable simple functions.",
+      "statement": "For measurable $f\\ge0$, define $\\int f\\,d\\mu$ by suprema of integrals of simple functions below $f$. For signed or complex functions, integrability requires $\\int|f|\\,d\\mu<\\infty$.",
+      "type": "Real analysis",
+      "kind": "Construction",
+      "level": "Core",
+      "hypotheses": "Functions equal almost everywhere have the same integral.",
+      "example": "The indicator of the rationals has Lebesgue integral zero on $[0,1]$ but is not Riemann integrable there.",
+      "caution": "The expression $\\infty-\\infty$ is never an integral value.",
+      "prerequisites": "**Within this subject**\n\n- [Carathéodory extension](./notes/ra.outer.md)",
+      "references": "RA: definition of the Lebesgue integral.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Lebesgue integration](./notes/ra.integral.md)"
+    },
+    "ra.mct": {
+      "title": "Monotone convergence",
+      "define": "Increasing nonnegative functions permit interchange of limits and integrals.",
+      "statement": "If $0\\le f_n\\uparrow f$ almost everywhere, then $\\int f_n\\,d\\mu\\uparrow\\int f\\,d\\mu$, allowing infinity.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The functions are measurable and nonnegative; no finite total measure assumption is needed.",
+      "example": "Increasing simple approximations compute the integral of a nonnegative measurable function.",
+      "caution": "Decreasing sequences require a finite-integral bound for the analogous conclusion.",
+      "proof_idea": "Compare the limiting integrals with every simple function lying below the limit.",
+      "prerequisites": "**Within this subject**\n\n- [Lebesgue integration](./notes/ra.integral.md)",
+      "references": "RA: lecture 4.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Monotone convergence](./notes/ra.mct.md)"
+    },
+    "ra.fatou": {
+      "title": "Fatou's lemma",
+      "define": "Nonnegative limits obey a one-sided inequality for their integrals.",
+      "statement": "For nonnegative measurable $f_n$, $\\int\\liminf_n f_n\\,d\\mu\\le\\liminf_n\\int f_n\\,d\\mu$.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Nonnegativity may be replaced by a common integrable lower bound.",
+      "example": "Indicators of intervals $[n,n+1]$ on $\\mathbb R$ show that strict inequality can occur.",
+      "caution": "Fatou gives an inequality, not permission to exchange integral and limit.",
+      "proof_idea": "Apply monotone convergence to the increasing sequence of tail infima.",
+      "prerequisites": "**Within this subject**\n\n- [Monotone convergence](./notes/ra.mct.md)",
+      "references": "RA: lecture 4.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Fatou's lemma](./notes/ra.fatou.md)"
+    },
+    "ra.dct": {
+      "title": "Dominated convergence",
+      "define": "A common integrable bound upgrades almost-everywhere convergence to convergence in mean.",
+      "statement": "If $f_n\\to f$ almost everywhere and $|f_n|\\le g$ for one $g\\in L^1(\\mu)$, then $f\\in L^1$ and $\\|f_n-f\\|_1\\to0$.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The dominating function is independent of $n$ and integrable on the whole domain.",
+      "example": "$n\\mathbf1_{(0,1/n)}$ has no such domination and its integrals do not approach the integral of its pointwise limit.",
+      "caution": "Pointwise convergence plus bounded integrals alone is insufficient.",
+      "proof_idea": "Apply Fatou to an integrable upper bound minus the absolute error.",
+      "prerequisites": "**Within this subject**\n\n- [Fatou's lemma](./notes/ra.fatou.md)",
+      "references": "RA: lecture 5.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Dominated convergence](./notes/ra.dct.md)"
+    },
+    "ra.fubini": {
+      "title": "Tonelli and Fubini",
+      "define": "On sigma-finite measure spaces, nonnegative measurable functions have equal iterated and product integrals, possibly infinite. For absolutely integrable functions, the iterated integrals agree and sections are integrable almost everywhere.",
+      "statement": "On sigma-finite measure spaces, nonnegative measurable functions have equal iterated and product integrals, possibly infinite. For absolutely integrable functions, the iterated integrals agree and sections are integrable almost everywhere.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Use the product sigma-algebra; completed-measure formulations require the corresponding almost-everywhere interpretation.",
+      "example": "Nonnegative double series may be rearranged freely; absolutely summable signed series also may be rearranged.",
+      "caution": "Conditional convergence does not justify interchanging two integrals.",
+      "proof_idea": "Start with measurable rectangles, extend to simple functions, and then use monotone convergence; handle signed functions by absolute integrability.",
+      "prerequisites": "**Within this subject**\n\n- [Monotone convergence](./notes/ra.mct.md)\n- [Dominated convergence](./notes/ra.dct.md)",
+      "references": "RA: lectures 18–19.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Tonelli and Fubini](./notes/ra.fubini.md)"
+    },
+    "ra.lp": {
+      "title": "Lp spaces",
+      "define": "Lp spaces measure integrability modulo equality almost everywhere.",
+      "statement": "For $1\\le p<\\infty$, $L^p(\\mu)$ consists of measurable functions modulo almost-everywhere equality with norm $(\\int |f|^p\\,d\\mu)^{1/p}$. The $L^\\infty$ norm is essential supremum.",
+      "type": "Real analysis",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "The quotient by null sets makes the norm definite.",
+      "example": "On a finite measure space, $L^q\\subseteq L^p$ when $q\\ge p$.",
+      "caution": "This inclusion need not hold on an infinite measure space; $0<p<1$ does not give a norm by this formula.",
+      "prerequisites": "**Within this subject**\n\n- [Lebesgue integration](./notes/ra.integral.md)",
+      "references": "RA: Lp spaces.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Lp spaces](./notes/ra.lp.md)"
+    },
+    "ra.holder": {
+      "title": "Hölder and Minkowski inequalities",
+      "define": "Conjugate exponents control products, and Minkowski supplies the triangle inequality.",
+      "statement": "For conjugate exponents $p,q\\in[1,\\infty]$, $\\|fg\\|_1\\le\\|f\\|_p\\|g\\|_q$. For $p\\ge1$, $\\|f+g\\|_p\\le\\|f\\|_p+\\|g\\|_p$.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Conjugacy means $1/p+1/q=1$, with $1/\\infty=0$.",
+      "example": "The case $p=q=2$ gives the integral Cauchy–Schwarz inequality.",
+      "caution": "Endpoint cases need essential suprema; strict convexity equality statements depend on the exponent.",
+      "proof_idea": "Use Young's inequality after normalization, then apply Hölder to the expansion controlling the pth power.",
+      "prerequisites": "**Within this subject**\n\n- [Lp spaces](./notes/ra.lp.md)",
+      "references": "RA: Lp inequalities.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Hölder and Minkowski inequalities](./notes/ra.holder.md)"
+    },
+    "ra.rn": {
+      "title": "Radon–Nikodym theorem",
+      "define": "Absolute continuity of sigma-finite measures yields an almost-everywhere density.",
+      "statement": "For sigma-finite positive measures $\\nu\\ll\\mu$ on the same sigma-algebra, there is measurable $h\\ge0$ with $\\nu(A)=\\int_A h\\,d\\mu$, unique $\\mu$-almost everywhere.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Absolute continuity means every mu-null set is nu-null.",
+      "example": "Probability densities are Radon–Nikodym derivatives relative to a chosen reference measure.",
+      "caution": "A point mass has no density with respect to Lebesgue measure.",
+      "proof_idea": "Construct the absolutely continuous component and use maximality to show that the residual measure vanishes.",
+      "prerequisites": "**Within this subject**\n\n- [Lebesgue integration](./notes/ra.integral.md)",
+      "references": "RA: Radon–Nikodym theorem.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Radon–Nikodym theorem](./notes/ra.rn.md)"
+    },
+    "ra.signed": {
+      "title": "Signed measures and decomposition",
+      "define": "Finite signed measures split uniquely into mutually singular positive parts.",
+      "statement": "A finite signed measure has a Hahn decomposition and a unique Jordan decomposition $\\nu=\\nu^+-\\nu^-$ into mutually singular finite positive measures. Its total variation is $|\\nu|=\\nu^++\\nu^-$.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This entry restricts to finite signed measures to avoid ambiguous infinite differences.",
+      "example": "An integrable density splits into its positive and negative parts.",
+      "caution": "The Hahn sets are not unique as sets; the Jordan component measures are unique.",
+      "proof_idea": "Construct positive and negative measurable regions, then restrict the measure to obtain its canonical components.",
+      "prerequisites": "**Within this subject**\n\n- [Measure spaces](./notes/ra.measure.md)\n- [Lebesgue integration](./notes/ra.integral.md)",
+      "references": "RA: signed measures.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Signed measures and decomposition](./notes/ra.signed.md)"
+    },
+    "ra.egorov": {
+      "title": "Egorov and Lusin approximation",
+      "define": "On a finite measure space, almost-everywhere convergence is uniform outside a set of arbitrarily small measure. For a finite-valued measurable function on a finite-measure Lebesgue measurable set, restriction to a suitable compact subset is continuous with arbitrarily small measure loss.",
+      "statement": "On a finite measure space, almost-everywhere convergence is uniform outside a set of arbitrarily small measure. For a finite-valued measurable function on a finite-measure Lebesgue measurable set, restriction to a suitable compact subset is continuous with arbitrarily small measure loss.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The first assertion is Egorov; the second is a Euclidean Lebesgue version of Lusin.",
+      "example": "Approximate a measurable function by continuous behavior after discarding a small exceptional set.",
+      "caution": "Neither result makes the original function globally continuous or the original convergence uniformly valid everywhere.",
+      "proof_idea": "Control a countable family of exceptional sets; for Lusin combine simple-function approximation with regularity.",
+      "prerequisites": "**Within this subject**\n\n- [Measure spaces](./notes/ra.measure.md)\n- [Uniform convergence](./notes/ra.uniform.md)",
+      "references": "RA: Egorov and Lusin theorems.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Egorov and Lusin approximation](./notes/ra.egorov.md)"
+    },
+    "ra.differentiation": {
+      "title": "Lebesgue differentiation theorem",
+      "define": "Local averages recover locally integrable functions almost everywhere.",
+      "statement": "For $f\\in L^1_{\\mathrm{loc}}(\\mathbb R^n)$, averages of $|f(y)-f(x)|$ over balls centered at $x$ tend to zero as the radius tends to zero, for almost every $x$.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Lebesgue measure and Euclidean balls are used here.",
+      "example": "For indicators, almost every point of a measurable set is a density-one point.",
+      "caution": "The conclusion is almost everywhere and cannot be extended to arbitrary metrics and measures without hypotheses.",
+      "proof_idea": "Approximate locally by continuous functions and control exceptional points with a maximal inequality.",
+      "prerequisites": "**Within this subject**\n\n- [Lebesgue integration](./notes/ra.integral.md)",
+      "references": "RA: differentiation of integrals.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Lebesgue differentiation theorem](./notes/ra.differentiation.md)"
+    },
+    "ra.absolute-continuity": {
+      "title": "Absolute continuity and the FTC",
+      "define": "Absolute continuity is exactly reconstruction by an integrable derivative on an interval.",
+      "statement": "On $[a,b]$, a function is absolutely continuous exactly when it has the form $f(x)=f(a)+\\int_a^x g(t)\\,dt$ for some $g\\in L^1$; then $f'=g$ almost everywhere.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The interval is compact and the derivative is interpreted almost everywhere.",
+      "example": "The Cantor function is continuous with derivative zero almost everywhere but is not absolutely continuous.",
+      "caution": "Almost-everywhere differentiability alone does not reconstruct a function from its derivative.",
+      "proof_idea": "Use differentiation of the indefinite integral and the measure induced by an absolutely continuous function.",
+      "prerequisites": "**Within this subject**\n\n- [Lebesgue differentiation theorem](./notes/ra.differentiation.md)",
+      "references": "RA: absolute continuity and differentiation.\n\n- **RA** — Jeff Viaclovsky; notes by Ethan Brown. [MIT 18.125: Measure and Integration](https://ocw.mit.edu/courses/18-125-measure-and-integration-fall-2003/pages/lecture-notes/). Fall 2003 lecture notes.",
+      "notes": "[Absolute continuity and the FTC](./notes/ra.absolute-continuity.md)"
+    },
+    "ra.fourier": {
+      "title": "Plancherel theorem",
+      "define": "The Fourier transform preserves the L2 inner product under the stated normalization.",
+      "statement": "With $\\widehat f(\\xi)=\\int e^{-2\\pi ix\\cdot\\xi}f(x)\\,dx$, the Fourier transform extends uniquely from Schwartz functions to a unitary operator on $L^2(\\mathbb R^n)$.",
+      "type": "Real analysis",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The extension is in the L2 norm; the integral formula need not converge pointwise for every L2 function.",
+      "example": "The Gaussian is mapped to a Gaussian under this convention.",
+      "caution": "L2 inversion is not automatically pointwise inversion.",
+      "proof_idea": "Prove the inner-product identity on a dense class and extend by completion.",
+      "prerequisites": "**Within this subject**\n\n- [Lp spaces](./notes/ra.lp.md)\n- [Dominated convergence](./notes/ra.dct.md)",
+      "references": "RA2: Fourier analysis.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Plancherel theorem](./notes/ra.fourier.md)"
+    },
+    "ra.distributions": {
+      "title": "Distributions and weak derivatives",
+      "define": "Test-function duality extends differentiation beyond ordinary functions.",
+      "statement": "A distribution on an open $U\\subset\\mathbb R^n$ is a continuous linear functional on $C_c^\\infty(U)$ with its test-function topology. Define $\\langle D^\\alpha T,\\phi\\rangle=(-1)^{|\\alpha|}\\langle T,D^\\alpha\\phi\\rangle$.",
+      "type": "Real analysis",
+      "kind": "Definition",
+      "level": "Advanced gateway",
+      "hypotheses": "The test-function topology controls all derivatives on a fixed compact support along convergent sequences.",
+      "example": "The distributional derivative of the Heaviside function is the Dirac mass.",
+      "caution": "A distribution need not be an ordinary function, and arbitrary distributions cannot generally be multiplied.",
+      "prerequisites": "**Within this subject**\n\n- [Lebesgue integration](./notes/ra.integral.md)",
+      "references": "RA2: distributions and weak differentiation.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Distributions and weak derivatives](./notes/ra.distributions.md)"
+    },
+    "ra.sobolev": {
+      "title": "Sobolev spaces",
+      "define": "Sobolev spaces control integrability of a function and its weak derivatives.",
+      "statement": "For integer $k\\ge0$ and $1\\le p\\le\\infty$, $W^{k,p}(U)$ consists of Lp functions whose distributional derivatives of order at most k also lie in Lp.",
+      "type": "Real analysis",
+      "kind": "Definition",
+      "level": "Advanced gateway",
+      "hypotheses": "Representatives are identified almost everywhere; the domain is open.",
+      "example": "$W^{1,2}$ is the natural energy space for many elliptic equations.",
+      "caution": "Boundary traces and compact embeddings require extra domain and exponent assumptions.",
+      "prerequisites": "**Within this subject**\n\n- [Distributions and weak derivatives](./notes/ra.distributions.md)\n- [Lp spaces](./notes/ra.lp.md)",
+      "references": "RA2: Sobolev spaces.\n\n- **RA2** — Gerald B. Folland. [Real Analysis: Modern Techniques and Their Applications](https://www.wiley-vch.de/de/fachgebiete/mathematik-und-statistik/real-analysis-978-0-471-31716-6). Second edition, Wiley, 1999.",
+      "notes": "[Sobolev spaces](./notes/ra.sobolev.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "subject.real-analysis--ra.completeness",
+      "source": "subject.real-analysis",
+      "target": "ra.completeness",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "subject.real-analysis--ra.measure",
+      "source": "subject.real-analysis",
+      "target": "ra.measure",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "ra.completeness--ra.metric",
+      "source": "ra.completeness",
+      "target": "ra.metric",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Completeness of the real numbers supplies selected background for Metric limits and completeness; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.metric--ra.uniform",
+      "source": "ra.metric",
+      "target": "ra.uniform",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Metric limits and completeness supplies selected background for Uniform convergence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.uniform--ra.ascoli",
+      "source": "ra.uniform",
+      "target": "ra.ascoli",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Uniform convergence supplies selected background for Arzelà–Ascoli theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.measure--ra.outer",
+      "source": "ra.measure",
+      "target": "ra.outer",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Measure spaces supplies selected background for Carathéodory extension; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.outer--ra.integral",
+      "source": "ra.outer",
+      "target": "ra.integral",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Carathéodory extension supplies selected background for Lebesgue integration; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.integral--ra.mct",
+      "source": "ra.integral",
+      "target": "ra.mct",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue integration supplies selected background for Monotone convergence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.mct--ra.fatou",
+      "source": "ra.mct",
+      "target": "ra.fatou",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Monotone convergence supplies selected background for Fatou's lemma; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.fatou--ra.dct",
+      "source": "ra.fatou",
+      "target": "ra.dct",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Fatou's lemma supplies selected background for Dominated convergence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.mct--ra.fubini",
+      "source": "ra.mct",
+      "target": "ra.fubini",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Monotone convergence supplies selected background for Tonelli and Fubini; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.dct--ra.fubini",
+      "source": "ra.dct",
+      "target": "ra.fubini",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Dominated convergence supplies selected background for Tonelli and Fubini; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.integral--ra.lp",
+      "source": "ra.integral",
+      "target": "ra.lp",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue integration supplies selected background for Lp spaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.lp--ra.holder",
+      "source": "ra.lp",
+      "target": "ra.holder",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lp spaces supplies selected background for Hölder and Minkowski inequalities; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.integral--ra.rn",
+      "source": "ra.integral",
+      "target": "ra.rn",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue integration supplies selected background for Radon–Nikodym theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.measure--ra.signed",
+      "source": "ra.measure",
+      "target": "ra.signed",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Measure spaces supplies selected background for Signed measures and decomposition; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.integral--ra.signed",
+      "source": "ra.integral",
+      "target": "ra.signed",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue integration supplies selected background for Signed measures and decomposition; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.measure--ra.egorov",
+      "source": "ra.measure",
+      "target": "ra.egorov",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Measure spaces supplies selected background for Egorov and Lusin approximation; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.uniform--ra.egorov",
+      "source": "ra.uniform",
+      "target": "ra.egorov",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Uniform convergence supplies selected background for Egorov and Lusin approximation; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.integral--ra.differentiation",
+      "source": "ra.integral",
+      "target": "ra.differentiation",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue integration supplies selected background for Lebesgue differentiation theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.differentiation--ra.absolute-continuity",
+      "source": "ra.differentiation",
+      "target": "ra.absolute-continuity",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue differentiation theorem supplies selected background for Absolute continuity and the FTC; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.lp--ra.fourier",
+      "source": "ra.lp",
+      "target": "ra.fourier",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lp spaces supplies selected background for Plancherel theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.dct--ra.fourier",
+      "source": "ra.dct",
+      "target": "ra.fourier",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Dominated convergence supplies selected background for Plancherel theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.integral--ra.distributions",
+      "source": "ra.integral",
+      "target": "ra.distributions",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lebesgue integration supplies selected background for Distributions and weak derivatives; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.distributions--ra.sobolev",
+      "source": "ra.distributions",
+      "target": "ra.sobolev",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Distributions and weak derivatives supplies selected background for Sobolev spaces; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "ra.lp--ra.sobolev",
+      "source": "ra.lp",
+      "target": "ra.sobolev",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Lp spaces supplies selected background for Sobolev spaces; consult both entries for the scope of the connection."
+      }
+    }
+  ]
+}

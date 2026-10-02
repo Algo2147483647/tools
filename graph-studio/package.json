@@ -10,9 +10,11 @@
     "build": "tsc --noEmit && vite build",
     "test": "node --loader ts-node/esm --experimental-specifier-resolution=node src/test/core.test.ts",
     "preview": "vite preview",
-    "format": "prettier --write src package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "format:check": "prettier --check src package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "check": "npm run format:check && npm test && npm run build"
+    "format": "prettier --write src scripts/build-mathematics.mjs scripts/data/mathematics package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "format:check": "prettier --check src scripts/build-mathematics.mjs scripts/data/mathematics package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "examples:mathematics": "node scripts/build-mathematics.mjs",
+    "examples:mathematics:check": "node scripts/build-mathematics.mjs --check",
+    "check": "npm run format:check && npm run examples:mathematics:check && npm test && npm run build"
   },
   "dependencies": {
     "@types/dagre": "^0.7.54",

@@ -7,8 +7,9 @@ export const EXAMPLE_WORKSPACES = [
     id: "mathematics",
     title: "Mathematics",
     kind: "Knowledge graph",
-    description: "From sets to geometry, analysis, and probability. Explore connected concepts and their linked notes.",
-    detail: "112 concepts · 8 subjects",
+    description:
+      "Analysis, algebra, probability, foundations, and geometry. Explore scoped theorems, study notes, and references.",
+    detail: "202 concepts · 10 subjects",
     accent: "#5576a9",
   },
   {

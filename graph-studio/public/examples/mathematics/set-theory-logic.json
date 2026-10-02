@@ -1,0 +1,609 @@
+{
+  "format": "graph-studio",
+  "version": 2,
+  "diagram": "dag",
+  "id": "set-theory-logic",
+  "title": "Set theory and mathematical logic",
+  "metadata": {
+    "language": "en",
+    "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+    "edgeSemantics": {
+      "prerequisite": "Selected learning prerequisite: source supplies background for target. Not a formal implication, a complete proof dependency, or a claim of necessity in every approach.",
+      "contains": "Navigation only: a subject points to its entry concepts; the atlas points to subjects.",
+      "bridge": "Navigation only: a connection between fields, not a prerequisite for an entire subject."
+    },
+    "view": "subject",
+    "subject": "set-theory-logic",
+    "localConceptCount": 20,
+    "externalPrerequisiteCount": 0,
+    "boundaryPolicy": "The subject hub is the single entry to local concepts. External prerequisites are grouped in node details and study notes; all-mathematics.json retains their cross-subject edges."
+  },
+  "nodes": {
+    "subject.set-theory-logic": {
+      "title": "Set theory and mathematical logic",
+      "define": "Syntax, semantics, computability and axiomatic set theory, with explicit metatheoretic assumptions.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Subject guide",
+      "scope": "Selected advanced-undergraduate and beginning-graduate core with advanced gateways. Entries give precise scoped statements and proof ideas, not full proofs or exhaustive courses.",
+      "assumed_background": "Proof techniques, elementary sets and functions; elementary arithmetic for coding computations.",
+      "learning_outcomes": "- Distinguish provability, truth in a structure and logical validity.\n- State incompleteness with effective-axiomatization and consistency assumptions.\n- Distinguish internal cardinality, external cardinality and relative consistency.",
+      "study_route": "[Sets, functions and relations](./notes/sl.sets.md) → [First-order syntax and proofs](./notes/sl.syntax.md) → [Structures, satisfaction and elementary maps](./notes/sl.semantics.md) → [Gödel completeness theorem](./notes/sl.completeness.md) → [Compactness theorem](./notes/sl.compactness.md) → [Computability and enumerable theories](./notes/sl.computability.md) → [First incompleteness theorem](./notes/sl.incompleteness-one.md) → [Ordinals and well-orders](./notes/sl.ordinals.md) → [ZF axioms and the cumulative hierarchy](./notes/sl.zf.md) → [Continuum hypothesis and independence](./notes/sl.ch.md)",
+      "notes": "[Subject guide](./guides/set-theory-logic.md)",
+      "graph_file": "Open set-theory-logic.json in the workspace graph list.",
+      "references": "- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.\n- **MODEL** — David Marker. [Model Theory: An Introduction](https://homepages.math.uic.edu/~marker/mt-intro.html). Springer GTM 217, 2002.\n- **SET** — Joel David Hamkins. [How the Continuum Hypothesis Could Have Been Fundamental](https://jdh.hamkins.org/wp-content/uploads/Slides-CH-could-have-been-fundamental-Hamkins-Oslo-June-2024.pdf). Oslo lecture slides, June 2024; independence background.\n- **FORCING** — Joel David Hamkins. [Lectures on Set Theory](https://jdh.hamkins.org/lectures-on-set-theory-beijing-june-2025/). Peking University, June 2025; Lecture 3: Forcing."
+    },
+    "sl.sets": {
+      "title": "Sets, functions and relations",
+      "define": "Sets collect elements; a binary relation is a subset of a Cartesian product. A function is a relation assigning exactly one output to each input in its domain.",
+      "statement": "Sets collect elements; a binary relation is a subset of a Cartesian product. A function is a relation assigning exactly one output to each input in its domain.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Collections too large to be sets are handled as classes in the metatheory or in a class theory.",
+      "example": "An equivalence relation partitions a set; its quotient consists of equivalence classes.",
+      "caution": "Unrestricted comprehension is inconsistent: the Russell collection cannot be a set.",
+      "prerequisites": "Entry point; see the subject guide for assumed background.",
+      "references": "LOGIC: sets, relations and functions.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Sets, functions and relations](./notes/sl.sets.md)"
+    },
+    "sl.syntax": {
+      "title": "First-order syntax and proofs",
+      "define": "A first-order language specifies function, relation and constant symbols with arities. Terms and formulas are finite strings built recursively; formal proofs use fixed effective inference rules.",
+      "statement": "A first-order language specifies function, relation and constant symbols with arities. Terms and formulas are finite strings built recursively; formal proofs use fixed effective inference rules.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Quantifiers range over individuals, not over all subsets or relations.",
+      "example": "In the language of groups, associativity is a first-order sentence.",
+      "caution": "A formula with free variables differs from a sentence; bound-variable renaming must avoid capture.",
+      "prerequisites": "**Within this subject**\n\n- [Sets, functions and relations](./notes/sl.sets.md)",
+      "references": "LOGIC: first-order languages.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[First-order syntax and proofs](./notes/sl.syntax.md)"
+    },
+    "sl.semantics": {
+      "title": "Structures, satisfaction and elementary maps",
+      "define": "Structures interpret syntax; elementary maps preserve all first-order formulas.",
+      "statement": "A structure interprets the symbols on a nonempty domain. Satisfaction $\\mathcal M\\models\\varphi[\\bar a]$ is defined recursively. An elementary embedding preserves every first-order formula with parameters.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Classical first-order semantics and nonempty domains are used.",
+      "example": "The inclusion of one group in another preserves operations but need not be elementary.",
+      "caution": "Truth in one structure is different from validity in all structures.",
+      "prerequisites": "**Within this subject**\n\n- [First-order syntax and proofs](./notes/sl.syntax.md)",
+      "references": "LOGIC: structures and satisfaction.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Structures, satisfaction and elementary maps](./notes/sl.semantics.md)"
+    },
+    "sl.soundness": {
+      "title": "Soundness",
+      "define": "Formal derivability implies semantic consequence for a sound proof calculus.",
+      "statement": "For a standard classical first-order proof calculus, $T\\vdash\\varphi$ implies $T\\models\\varphi$.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Proof rules must be sound for the specified semantics, including the variable restrictions on quantifier rules.",
+      "example": "No false conclusion can follow by these rules from premises true in a structure.",
+      "caution": "Soundness does not assert that T's nonlogical axioms are true in an intended structure.",
+      "proof_idea": "Induct on proof length, checking that each rule preserves truth under assignments.",
+      "prerequisites": "**Within this subject**\n\n- [Structures, satisfaction and elementary maps](./notes/sl.semantics.md)",
+      "references": "LOGIC: soundness.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Soundness](./notes/sl.soundness.md)"
+    },
+    "sl.completeness": {
+      "title": "Gödel completeness theorem",
+      "define": "Every first-order semantic consequence has a finite formal proof.",
+      "statement": "For classical first-order logic, $T\\models\\varphi$ implies $T\\vdash\\varphi$. Equivalently, every syntactically consistent first-order theory has a model.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The ambient metatheory supplies ordinary classical set-theoretic reasoning.",
+      "example": "Semantic impossibility of a first-order configuration yields a finite formal refutation.",
+      "caution": "Completeness of logic does not mean that each particular theory decides every sentence.",
+      "proof_idea": "Add Henkin witnesses, extend to a maximally consistent theory and build its term model.",
+      "prerequisites": "**Within this subject**\n\n- [Soundness](./notes/sl.soundness.md)",
+      "references": "LOGIC: completeness.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Gödel completeness theorem](./notes/sl.completeness.md)"
+    },
+    "sl.compactness": {
+      "title": "Compactness theorem",
+      "define": "A first-order theory has a model if every finite subset has a model.",
+      "statement": "A first-order theory has a model if every finite subset has a model.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This concerns finitary first-order logic, with ordinary classical semantics.",
+      "example": "Adding a constant larger than every standard numeral produces a nonstandard model of arithmetic by compactness.",
+      "caution": "Compactness fails for full second-order semantics.",
+      "proof_idea": "A formal contradiction uses only finitely many axioms; completeness supplies the model.",
+      "prerequisites": "**Within this subject**\n\n- [Gödel completeness theorem](./notes/sl.completeness.md)",
+      "references": "LOGIC: compactness.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Compactness theorem](./notes/sl.compactness.md)"
+    },
+    "sl.lowenheim-skolem": {
+      "title": "Downward Löwenheim–Skolem theorem",
+      "define": "Infinite structures have small elementary substructures containing specified parameters.",
+      "statement": "For an infinite structure M in language L and $A\\subseteq M$, there is an elementary substructure containing A of cardinality at most $\\max(|A|,|L|,\\aleph_0)$.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The theorem is stated in ordinary ZFC metatheory.",
+      "example": "A countable-language theory with an infinite model has a countable model.",
+      "caution": "An externally countable model may internally regard some of its sets as uncountable; its internal bijections are restricted.",
+      "proof_idea": "Close the parameter set under chosen witnesses for existential formulas and apply the Tarski–Vaught criterion.",
+      "prerequisites": "**Within this subject**\n\n- [Structures, satisfaction and elementary maps](./notes/sl.semantics.md)\n- [Axiom of choice, Zorn and well-ordering](./notes/sl.choice.md)",
+      "references": "LOGIC: Lowenheim-Skolem.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Downward Löwenheim–Skolem theorem](./notes/sl.lowenheim-skolem.md)"
+    },
+    "sl.computability": {
+      "title": "Computability and enumerable theories",
+      "define": "A set is decidable if a Turing machine always halts and correctly decides membership. It is computably enumerable if a machine enumerates its members, equivalently semidecides membership.",
+      "statement": "A set is decidable if a Turing machine always halts and correctly decides membership. It is computably enumerable if a machine enumerates its members, equivalently semidecides membership.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Fix an effective coding of finite strings, machines and proofs.",
+      "example": "The theorems of an effectively axiomatized theory are computably enumerable.",
+      "caution": "Enumerable need not mean decidable; failure of a search to halt is not a negative answer.",
+      "prerequisites": "**Within this subject**\n\n- [First-order syntax and proofs](./notes/sl.syntax.md)",
+      "references": "LOGIC: Turing machines and computability.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Computability and enumerable theories](./notes/sl.computability.md)"
+    },
+    "sl.halting": {
+      "title": "Undecidability of halting",
+      "define": "No algorithm decides, for every encoded machine and input, whether that computation eventually halts.",
+      "statement": "No algorithm decides, for every encoded machine and input, whether that computation eventually halts.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The input describes arbitrary computations in a universal effective model.",
+      "example": "The halting set is computably enumerable but not decidable.",
+      "caution": "Undecidability of the general problem does not prevent deciding many particular programs.",
+      "proof_idea": "A hypothetical decider yields a program that halts on its own code exactly when the decider predicts nonhalting.",
+      "prerequisites": "**Within this subject**\n\n- [Computability and enumerable theories](./notes/sl.computability.md)",
+      "references": "LOGIC: halting problem.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Undecidability of halting](./notes/sl.halting.md)"
+    },
+    "sl.incompleteness-one": {
+      "title": "First incompleteness theorem",
+      "define": "Every consistent computably axiomatizable theory extending Robinson arithmetic Q is incomplete: some sentence is neither provable nor refutable in the theory.",
+      "statement": "Every consistent computably axiomatizable theory extending Robinson arithmetic Q is incomplete: some sentence is neither provable nor refutable in the theory.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This is the Gödel–Rosser formulation; consistency, effective axiomatization and sufficient arithmetic are essential.",
+      "example": "If PA is consistent, it does not decide all arithmetic sentences.",
+      "caution": "Complete theories exist, but true arithmetic is not computably axiomatizable; logical completeness is a different statement.",
+      "proof_idea": "Encode syntax arithmetically and diagonalize; Rosser's refinement needs consistency rather than omega-consistency.",
+      "prerequisites": "**Within this subject**\n\n- [Computability and enumerable theories](./notes/sl.computability.md)\n- [Structures, satisfaction and elementary maps](./notes/sl.semantics.md)",
+      "references": "LOGIC: incompleteness.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[First incompleteness theorem](./notes/sl.incompleteness-one.md)"
+    },
+    "sl.incompleteness-two": {
+      "title": "Second incompleteness theorem",
+      "define": "Consistent effective extensions of PA cannot prove their standard consistency sentence.",
+      "statement": "A consistent computably axiomatized extension T of PA cannot prove its standard arithmetical consistency sentence $\\operatorname{Con}(T)$.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "Use the usual arithmetized proof predicate satisfying the derivability conditions.",
+      "example": "A stronger theory may prove the consistency of a weaker one without contradiction.",
+      "caution": "The theorem is sensitive to the consistency formalization and is not a blanket ban on all metamathematical consistency proofs.",
+      "proof_idea": "Formalize the diagonal argument inside arithmetic and show that a proof of consistency would yield the unprovable diagonal sentence.",
+      "prerequisites": "**Within this subject**\n\n- [First incompleteness theorem](./notes/sl.incompleteness-one.md)",
+      "references": "LOGIC: second incompleteness theorem.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Second incompleteness theorem](./notes/sl.incompleteness-two.md)"
+    },
+    "sl.zf": {
+      "title": "ZF axioms and the cumulative hierarchy",
+      "define": "ZF organizes sets by explicit axioms and the cumulative hierarchy.",
+      "statement": "ZF consists of extensionality, empty set, pairing, union, power set, infinity, separation and replacement schemes, and foundation. The hierarchy has $V_0=\\varnothing$, $V_{\\alpha+1}=\\mathcal P(V_\\alpha)$ and unions at limit stages.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "ZF does not include the axiom of choice; the schemes contain infinitely many first-order instances.",
+      "example": "Separation selects a subset of an already given set.",
+      "caution": "The cumulative hierarchy is a proper class, not a set containing all sets.",
+      "prerequisites": "**Within this subject**\n\n- [First-order syntax and proofs](./notes/sl.syntax.md)\n- [Ordinals and well-orders](./notes/sl.ordinals.md)",
+      "references": "LOGIC: axiomatic set theory.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[ZF axioms and the cumulative hierarchy](./notes/sl.zf.md)"
+    },
+    "sl.ordinals": {
+      "title": "Ordinals and well-orders",
+      "define": "An ordinal is a transitive set well-ordered by membership. Each well-ordered set is order-isomorphic to a unique ordinal.",
+      "statement": "An ordinal is a transitive set well-ordered by membership. Each well-ordered set is order-isomorphic to a unique ordinal.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "This uses the standard von Neumann representation.",
+      "example": "$\\omega+1$ and $1+\\omega=\\omega$ show that ordinal addition is not commutative.",
+      "caution": "Order type and cardinal size are different invariants.",
+      "prerequisites": "**Within this subject**\n\n- [Sets, functions and relations](./notes/sl.sets.md)",
+      "references": "LOGIC: ordinals.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Ordinals and well-orders](./notes/sl.ordinals.md)"
+    },
+    "sl.transfinite": {
+      "title": "Transfinite induction and recursion",
+      "define": "For a well-ordered domain, induction from all earlier stages proves a property at every stage. A functional rule assigning a set from each prior segment defines a unique recursively constructed sequence along any ordinal.",
+      "statement": "For a well-ordered domain, induction from all earlier stages proves a property at every stage. A functional rule assigning a set from each prior segment defines a unique recursively constructed sequence along any ordinal.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The recursive rule must be functional; replacement collects the values into sets at set-sized stages.",
+      "example": "The cumulative hierarchy and ordinal arithmetic are defined recursively.",
+      "caution": "At limit stages one must specify the rule; there is no immediate predecessor.",
+      "proof_idea": "A least counterexample proves induction; compatible partial solutions are glued by uniqueness and extended at each stage.",
+      "prerequisites": "**Within this subject**\n\n- [Ordinals and well-orders](./notes/sl.ordinals.md)",
+      "references": "LOGIC: transfinite recursion.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Transfinite induction and recursion](./notes/sl.transfinite.md)"
+    },
+    "sl.cardinals": {
+      "title": "Cardinals and countability",
+      "define": "Two sets have the same cardinality if there is a bijection between them. In ZFC each cardinal has a least ordinal representative, and any two cardinalities are comparable.",
+      "statement": "Two sets have the same cardinality if there is a bijection between them. In ZFC each cardinal has a least ordinal representative, and any two cardinalities are comparable.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Definition",
+      "level": "Core",
+      "hypotheses": "Well-orderability of every set uses choice.",
+      "example": "The integers and rationals are countable; the real numbers are not.",
+      "caution": "An infinite subset can have the same cardinality as its proper superset.",
+      "prerequisites": "**Within this subject**\n\n- [Ordinals and well-orders](./notes/sl.ordinals.md)\n- [Axiom of choice, Zorn and well-ordering](./notes/sl.choice.md)",
+      "references": "LOGIC: cardinality.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Cardinals and countability](./notes/sl.cardinals.md)"
+    },
+    "sl.cantor": {
+      "title": "Cantor's theorem",
+      "define": "No set can be mapped onto its entire power set.",
+      "statement": "For every set A there is no surjection $A\\to\\mathcal P(A)$; thus A has strictly smaller cardinality than its power set.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "The diagonal argument requires no axiom of choice.",
+      "example": "$\\mathcal P(\\mathbb N)$ is uncountable.",
+      "caution": "There is no largest cardinal and no set of all sets.",
+      "proof_idea": "For a proposed surjection f, the set of a not belonging to f(a) differs from every image value.",
+      "prerequisites": "**Within this subject**\n\n- [Sets, functions and relations](./notes/sl.sets.md)",
+      "references": "LOGIC: Cantor theorem.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Cantor's theorem](./notes/sl.cantor.md)"
+    },
+    "sl.choice": {
+      "title": "Axiom of choice, Zorn and well-ordering",
+      "define": "Over ZF, the axiom of choice, the well-ordering theorem and Zorn's lemma are equivalent. Zorn's lemma says that a nonempty partially ordered set in which every chain has an upper bound has a maximal element.",
+      "statement": "Over ZF, the axiom of choice, the well-ordering theorem and Zorn's lemma are equivalent. Zorn's lemma says that a nonempty partially ordered set in which every chain has an upper bound has a maximal element.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "A maximal element need not be a greatest element.",
+      "example": "Zorn's lemma yields a basis for every vector space.",
+      "caution": "Countable and dependent choice are weaker principles and should not be silently identified with full choice.",
+      "proof_idea": "Choice builds maximal chains by transfinite methods; suitable partial choice functions recover choice from Zorn.",
+      "prerequisites": "**Within this subject**\n\n- [Sets, functions and relations](./notes/sl.sets.md)",
+      "references": "LOGIC: axiom of choice.\n\n- **LOGIC** — Open Logic Project contributors. [Open Logic Text](https://builds.openlogicproject.org/open-logic-complete.pdf). Living open textbook; first-order logic, computability and set theory.",
+      "notes": "[Axiom of choice, Zorn and well-ordering](./notes/sl.choice.md)"
+    },
+    "sl.ch": {
+      "title": "Continuum hypothesis and independence",
+      "define": "The continuum hypothesis is independent of ZFC, assuming ZFC is consistent.",
+      "statement": "CH asserts $2^{\\aleph_0}=\\aleph_1$. If ZFC is consistent, both ZFC + CH and ZFC + not-CH are consistent. Consequently ZFC proves neither CH nor its negation under that consistency assumption.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Theorem",
+      "level": "Core",
+      "hypotheses": "This is relative consistency, not a proof that ZFC is consistent.",
+      "example": "The constructible universe supplies CH; forcing supplies models where CH fails.",
+      "caution": "Independence is always relative to a specified axiom system.",
+      "proof_idea": "Gödel's constructible universe gives one direction; Cohen forcing gives the other via a metatheoretic consistency argument.",
+      "prerequisites": "**Within this subject**\n\n- [ZF axioms and the cumulative hierarchy](./notes/sl.zf.md)\n- [Cardinals and countability](./notes/sl.cardinals.md)\n- [Cantor's theorem](./notes/sl.cantor.md)",
+      "references": "SET: continuum hypothesis.\n\n- **SET** — Joel David Hamkins. [How the Continuum Hypothesis Could Have Been Fundamental](https://jdh.hamkins.org/wp-content/uploads/Slides-CH-could-have-been-fundamental-Hamkins-Oslo-June-2024.pdf). Oslo lecture slides, June 2024; independence background.",
+      "notes": "[Continuum hypothesis and independence](./notes/sl.ch.md)"
+    },
+    "sl.forcing": {
+      "title": "Forcing and generic extensions",
+      "define": "Generic extensions modify a model's sets while preserving its ordinals and ZFC.",
+      "statement": "For a countable transitive model M of ZFC and a forcing notion $\\mathbb P\\in M$, an externally chosen M-generic filter yields an extension M[G] satisfying ZFC, with the same ordinals.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Research gateway",
+      "level": "Advanced gateway",
+      "hypotheses": "This introductory semantic setup assumes a countable transitive model; its existence is stronger than merely Con(ZFC). Conditions may be ordered with stronger conditions below weaker ones.",
+      "example": "Cohen forcing adds a new subset of the natural numbers.",
+      "caution": "A generic filter is generally outside M. Full relative-consistency proofs need not assume that a transitive model actually exists.",
+      "prerequisites": "**Within this subject**\n\n- [ZF axioms and the cumulative hierarchy](./notes/sl.zf.md)\n- [Transfinite induction and recursion](./notes/sl.transfinite.md)",
+      "references": "FORCING: Lecture 3, forcing.\n\n- **FORCING** — Joel David Hamkins. [Lectures on Set Theory](https://jdh.hamkins.org/lectures-on-set-theory-beijing-june-2025/). Peking University, June 2025; Lecture 3: Forcing.",
+      "notes": "[Forcing and generic extensions](./notes/sl.forcing.md)"
+    },
+    "sl.types": {
+      "title": "Types and saturation",
+      "define": "A type over parameters is a consistent collection of formulas in fixed free variables. A saturated model realizes types over parameter sets smaller than its saturation cardinal.",
+      "statement": "A type over parameters is a consistent collection of formulas in fixed free variables. A saturated model realizes types over parameter sets smaller than its saturation cardinal.",
+      "type": "Set theory and mathematical logic",
+      "kind": "Research gateway",
+      "level": "Advanced gateway",
+      "hypotheses": "Specify the theory, the parameter set and the saturation cardinal.",
+      "example": "The type saying a number exceeds each standard numeral is realized in a suitable nonstandard model.",
+      "caution": "Compactness can realize a type in an extension without making a given model saturated.",
+      "prerequisites": "**Within this subject**\n\n- [Compactness theorem](./notes/sl.compactness.md)\n- [Downward Löwenheim–Skolem theorem](./notes/sl.lowenheim-skolem.md)",
+      "references": "MODEL: types and saturation.\n\n- **MODEL** — David Marker. [Model Theory: An Introduction](https://homepages.math.uic.edu/~marker/mt-intro.html). Springer GTM 217, 2002.",
+      "notes": "[Types and saturation](./notes/sl.types.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "subject.set-theory-logic--sl.sets",
+      "source": "subject.set-theory-logic",
+      "target": "sl.sets",
+      "value": "contains",
+      "metadata": {
+        "relation": "contains",
+        "rationale": "A starting concept in this subject view; external prerequisites are linked in its details and study note."
+      }
+    },
+    {
+      "id": "sl.sets--sl.syntax",
+      "source": "sl.sets",
+      "target": "sl.syntax",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Sets, functions and relations supplies selected background for First-order syntax and proofs; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.syntax--sl.semantics",
+      "source": "sl.syntax",
+      "target": "sl.semantics",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "First-order syntax and proofs supplies selected background for Structures, satisfaction and elementary maps; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.semantics--sl.soundness",
+      "source": "sl.semantics",
+      "target": "sl.soundness",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Structures, satisfaction and elementary maps supplies selected background for Soundness; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.soundness--sl.completeness",
+      "source": "sl.soundness",
+      "target": "sl.completeness",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Soundness supplies selected background for Gödel completeness theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.completeness--sl.compactness",
+      "source": "sl.completeness",
+      "target": "sl.compactness",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Gödel completeness theorem supplies selected background for Compactness theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.semantics--sl.lowenheim-skolem",
+      "source": "sl.semantics",
+      "target": "sl.lowenheim-skolem",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Structures, satisfaction and elementary maps supplies selected background for Downward Löwenheim–Skolem theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.choice--sl.lowenheim-skolem",
+      "source": "sl.choice",
+      "target": "sl.lowenheim-skolem",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Axiom of choice, Zorn and well-ordering supplies selected background for Downward Löwenheim–Skolem theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.syntax--sl.computability",
+      "source": "sl.syntax",
+      "target": "sl.computability",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "First-order syntax and proofs supplies selected background for Computability and enumerable theories; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.computability--sl.halting",
+      "source": "sl.computability",
+      "target": "sl.halting",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Computability and enumerable theories supplies selected background for Undecidability of halting; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.computability--sl.incompleteness-one",
+      "source": "sl.computability",
+      "target": "sl.incompleteness-one",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Computability and enumerable theories supplies selected background for First incompleteness theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.semantics--sl.incompleteness-one",
+      "source": "sl.semantics",
+      "target": "sl.incompleteness-one",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Structures, satisfaction and elementary maps supplies selected background for First incompleteness theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.incompleteness-one--sl.incompleteness-two",
+      "source": "sl.incompleteness-one",
+      "target": "sl.incompleteness-two",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "First incompleteness theorem supplies selected background for Second incompleteness theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.syntax--sl.zf",
+      "source": "sl.syntax",
+      "target": "sl.zf",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "First-order syntax and proofs supplies selected background for ZF axioms and the cumulative hierarchy; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.ordinals--sl.zf",
+      "source": "sl.ordinals",
+      "target": "sl.zf",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Ordinals and well-orders supplies selected background for ZF axioms and the cumulative hierarchy; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.sets--sl.ordinals",
+      "source": "sl.sets",
+      "target": "sl.ordinals",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Sets, functions and relations supplies selected background for Ordinals and well-orders; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.ordinals--sl.transfinite",
+      "source": "sl.ordinals",
+      "target": "sl.transfinite",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Ordinals and well-orders supplies selected background for Transfinite induction and recursion; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.ordinals--sl.cardinals",
+      "source": "sl.ordinals",
+      "target": "sl.cardinals",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Ordinals and well-orders supplies selected background for Cardinals and countability; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.choice--sl.cardinals",
+      "source": "sl.choice",
+      "target": "sl.cardinals",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Axiom of choice, Zorn and well-ordering supplies selected background for Cardinals and countability; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.sets--sl.cantor",
+      "source": "sl.sets",
+      "target": "sl.cantor",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Sets, functions and relations supplies selected background for Cantor's theorem; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.sets--sl.choice",
+      "source": "sl.sets",
+      "target": "sl.choice",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Sets, functions and relations supplies selected background for Axiom of choice, Zorn and well-ordering; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.zf--sl.ch",
+      "source": "sl.zf",
+      "target": "sl.ch",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "ZF axioms and the cumulative hierarchy supplies selected background for Continuum hypothesis and independence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.cardinals--sl.ch",
+      "source": "sl.cardinals",
+      "target": "sl.ch",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cardinals and countability supplies selected background for Continuum hypothesis and independence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.cantor--sl.ch",
+      "source": "sl.cantor",
+      "target": "sl.ch",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Cantor's theorem supplies selected background for Continuum hypothesis and independence; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.zf--sl.forcing",
+      "source": "sl.zf",
+      "target": "sl.forcing",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "ZF axioms and the cumulative hierarchy supplies selected background for Forcing and generic extensions; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.transfinite--sl.forcing",
+      "source": "sl.transfinite",
+      "target": "sl.forcing",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Transfinite induction and recursion supplies selected background for Forcing and generic extensions; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.compactness--sl.types",
+      "source": "sl.compactness",
+      "target": "sl.types",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Compactness theorem supplies selected background for Types and saturation; consult both entries for the scope of the connection."
+      }
+    },
+    {
+      "id": "sl.lowenheim-skolem--sl.types",
+      "source": "sl.lowenheim-skolem",
+      "target": "sl.types",
+      "value": "prerequisite",
+      "metadata": {
+        "relation": "prerequisite",
+        "rationale": "Downward Löwenheim–Skolem theorem supplies selected background for Types and saturation; consult both entries for the scope of the connection."
+      }
+    }
+  ]
+}
