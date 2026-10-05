@@ -1,120 +1,207 @@
-# VECTOR — Ride Dispatch Simulator
+# VECTOR — Ride Dispatch Simulation Platform
 
-A fully English, interactive ride-hailing dispatch laboratory built around a full-screen synthetic city. Vehicles travel on a connected road graph, passengers generate real requests, six dispatch policies make actual assignments, and the dashboard reports outcomes from the running simulation. It runs locally without a map API key or paid service.
+An English-language urban mobility platform with a **Python/FastAPI simulation backend** and an independent **React/TypeScript frontend**. The city runs on the server even when no browser is connected. REST endpoints control simulations; WebSockets stream authoritative state. There is no browser simulation fallback.
 
-![Live operations](docs/operations.png)
+## Run on Windows
 
-[Algorithm comparison preview](docs/benchmark.png)
+Double-click **[launch.cmd](launch.cmd)**. The launcher prepares separate dependencies, starts the API on port **8000**, starts the UI on port **4186**, and opens the application. Python **3.11+** and Node.js **22+** are required. An available bundled Codex Python runtime is also supported.
 
-## Run locally
-
-Install **Node.js 22 or newer**, with npm available on `PATH`.
-
-On Windows, double-click **`launch.cmd`**. The standalone launcher installs missing project dependencies, starts Vite, and opens [the simulator](http://127.0.0.1:4186/). Keep its terminal open while using the application. Press `Ctrl+C` to stop the server.
-
-From a terminal in this directory:
+- Application: [http://127.0.0.1:4186](http://127.0.0.1:4186/)
+- Interactive API documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- Health: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 
 ```powershell
-npm install
+.\launch.cmd -InstallOnly
+.\launch.cmd -BuildOnly
+.\launch.cmd -NoBrowser
+.\launch.cmd -Preview
+.\launch.cmd -BackendOnly
+.\launch.cmd -FrontendOnly
+```
+
+The launcher starts its backend helper without an additional console window. Backend logs are in `.runtime/`. When the frontend exits, the launcher stops only the backend process it started; an existing backend is reused. Simulation checkpoints remain in `backend/var/`.
+
+## Run each service independently
+
+Backend, from `backend/`:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1
+```
+
+Frontend, in another terminal from `frontend/`:
+
+```powershell
+npm ci
 npm run dev
 ```
 
-The development server uses **http://127.0.0.1:4186/**. Its strict port setting reports an error if that port is already in use.
+On macOS/Linux, use `python3`, `.venv/bin/python`, or `bash scripts/dev.sh` from the project root. The shell helper installs dependencies and runs both services. Keep one application worker: a session has a single authoritative owner. Scaling across API processes requires an external session coordinator and state store.
 
-```powershell
-npm run build    # Type-check and build into dist/
-npm test         # Routing, matching, lifecycle, determinism, and benchmark tests
-npm run preview # Serve an existing production build on port 4186
+Vite proxies `/api`, `/ws`, and `/health` to the backend. `VITE_API_BASE` can point the frontend at a separately hosted API. For cross-origin hosting, configure `VECTOR_ALLOWED_ORIGINS` on the backend with the exact frontend origin. Avoid a trailing `/api` in the API base URL.
+
+## Docker
+
+```sh
+docker compose up --build
 ```
 
-The PowerShell launcher also supports:
+The frontend is built and served by Nginx, which proxies HTTP and WebSocket requests to FastAPI. Both host ports bind to loopback. The `simulation-data` volume stores checkpoints and benchmark records. The Docker configuration is provided for deployment; Docker was not available in the development environment for an end-to-end container run.
 
-```powershell
-.\launch.ps1 -BuildOnly             # Install missing dependencies and build
-.\launch.ps1 -Preview               # Build, serve production files, open browser
-.\launch.ps1 -NoBrowser             # Run development server without opening a tab
-.\launch.ps1 -Preview -NoBrowser    # Build and preview without opening a tab
-.\launch.ps1 -InstallOnly           # Install dependencies and exit
+## Ownership and data flow
+
+```mermaid
+flowchart TB
+  UI[React / Canvas dashboard] -->|REST commands| API[FastAPI API]
+  API --> Runtime[Session runtime · 100 ms scheduler]
+  Runtime --> Engine[Simulation Engine]
+  Engine --> Road[Road network / Routing]
+  Engine --> Supply[Vehicle supply / Movement]
+  Engine --> Demand[Demand generator / Orders]
+  Engine --> Dispatch[Dispatch registry / Plugins]
+  Engine --> Metrics[Metrics engine]
+  Runtime -->|WebSocket snapshots| UI
+  API --> Workers[Isolated benchmark processes]
+  Runtime --> Storage[Atomic JSON checkpoints]
+  Workers --> Storage
 ```
 
-If your PowerShell policy blocks direct script execution, use `launch.cmd` with the same flags. `-BuildOnly`, `-Preview`, and `-InstallOnly` are mutually exclusive. The launcher is independent of any scripts in the parent `tools` directory.
+| Component | Responsibility |
+| --- | --- |
+| Frontend | Map rendering, road-constrained visual interpolation, controls, charts, inspectors, connection state |
+| API | Validated commands, simulation sessions, history queries, exports, benchmark jobs |
+| Session runtime | Server-owned clock, serialized mutation, streaming, checkpoints |
+| Simulation engine | Vehicle/order lifecycles, demand arrival, dispatch scheduling, accumulated results |
+| Routing | Dijkstra routes, physical road distance and travel time, unfinished-edge handling |
+| Dispatch registry | Interchangeable algorithms selected by ID; no algorithm branches in the engine |
+| Benchmark workers | Identical seeded replays outside the API event loop, progress streaming, cancellation |
 
-## Explore the city
+The frontend does **not** generate orders, advance the city clock, update vehicle business state, find routes, match drivers, or compute operational KPIs. District statistics and heatmap weights come from the backend. Canvas interpolation only animates the segments that the server already reports; it does not invent trips or change authoritative state.
 
-The default scenario starts **paused at 08:00**, with **200 drivers**, **30 initial requests**, **10 demand zones**, and **Nearest Driver** dispatch. Press Play to begin. At demand 1×, a Poisson arrival process averages **20 new requests per simulated minute**.
+## Simulation
 
-- Drag the map to pan, scroll to zoom, and use the map reset control to restore the city view.
-- Click a driver, passenger, or district label to inspect it. Hotspot rows focus their districts.
-- Switch between City, Demand, and Supply views; independently toggle drivers, orders, heatmaps, roads, routes, districts, and dispatch lines.
-- Enable algorithm visualization to inspect candidate matches and selected assignments.
-- Adjust fleet size, demand multiplier, algorithm, batch interval, and score weights while running. Existing trips continue when the dispatch algorithm changes.
-- Play, pause, reset, and select 1×/2×/5×/10× playback. **1× playback advances 10 simulated seconds per real second.**
-- Moving the hour slider **restarts the seeded scenario at that hour**. It is a scenario selector, not a rewind control.
+The default session starts paused at **08:00**, with **200 drivers**, **30 initial requests**, **10 demand zones**, and **Nearest Driver**. New requests arrive through a spatially weighted Poisson process averaging **20/min × demand multiplier**.
 
-Keyboard shortcuts work when focus is outside form controls:
+- Driver supply: 50, 100, 200, 500, or 1,000.
+- Initial supply distribution: Uniform, Demand Weighted, or Random Cluster. A change applies to newly added drivers and the next scenario initialization.
+- Morning origins favor residential districts and CBD destinations; evenings reverse the commute; late nights favor entertainment origins; airports sustain demand.
+- Orders progress through waiting, assignment, pickup, service, and completion. Unpicked passengers cancel after ten simulated minutes.
+- Drivers complete existing road segments before taking new routes. Reducing supply retires available drivers immediately and busy drivers after their trip.
+- Idle drivers cruise; optional repositioning moves supply toward district demand.
+- The synthetic city includes arterial, secondary and local roads, diagonal avenues, parks, a river, bridges, and an airport district. Static geometry is served by the backend, without tile services or API keys.
 
-| Key     | Action                           |
-| ------- | -------------------------------- |
-| `Space` | Play or pause                    |
-| `R`     | Reset the current scenario       |
-| `Esc`   | Close the active panel or dialog |
+The scheduler wakes every **100 ms of real time**. `simulationSpeed` (1/2/5/10) multiplies `secondsPerRealSecond` (default **10**). Elapsed real time is measured on the server; changing speed does not change the scheduler interval. Physics integrates bounded simulated-time steps. No frontend timer controls the simulation.
 
-## Dispatch experiments
+Pause freezes the server clock. Reset recreates the seed and settings. Selecting a different city hour restarts that scenario rather than pretending to rewind its history. Closing the browser disconnects visualization; an already-running backend session continues.
 
-| Policy         | Actual matching behavior                                                                                             |
-| -------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Nearest Driver | Process oldest requests, choosing the nearest available driver by road distance.                                     |
-| FIFO           | Pair oldest requests with the longest-idle drivers.                                                                  |
-| Global Greedy  | Repeatedly select the lowest-cost available driver/request pair across the entire matrix.                            |
-| Hungarian      | Solve exact rectangular minimum-cost assignment over the current road-distance matrix.                               |
-| Batch Matching | Wait 3, 5, or 10 simulated seconds, then solve Hungarian assignment for the accumulated requests.                    |
-| Score Based    | Combine normalized pickup distance, rider wait, driver idle time, local supply/demand pressure, and income fairness. |
+## Dispatch algorithms
 
-The Algorithm Lab runs each policy in a Web Worker, replaying the **same seed, initial fleet, future arrivals, origins, and destinations**. It compares pickup ETA, passenger wait, pickup distance, completion rate, utilization, income variance, and cancellation rate. Results can be exported from the lab. The live scenario continues independently.
+| Plugin ID | Policy |
+| --- | --- |
+| `nearest` | Nearest driver by road pickup distance, prioritizing older requests |
+| `fifo` | Oldest requests paired with longest-idle eligible drivers |
+| `greedy` | Repeatedly select the lowest-cost available driver/order pair |
+| `hungarian` | SciPy rectangular optimal assignment; default objective is total pickup ETA |
+| `batch` | Pool requests for 3, 5, or 10 simulated seconds, then optimize matching |
+| `score` | Weighted pickup ETA, rider wait, driver idle time, district scarcity, and income fairness |
 
-The model's default seed is `71429`. Change `SimulationConfig.seed` when constructing or resetting an engine to run another reproducible experiment. The benchmark receives an explicit seed and model settings; every policy within a benchmark receives identical inputs. Demand uses a separate random stream, so assignment decisions cannot alter future passenger requests.
+All policies implement the common `DispatchAlgorithm` interface in `backend/app/dispatch/base.py`. Register a plugin instance in the shared `backend/app/dispatch/plugins.py` bootstrap so both the API and spawned benchmark processes load it. The API algorithm catalog and frontend selector then discover it by ID. Implement batch timing through the plugin's dispatch interval method; the simulation engine requires no policy-specific edit. The [architecture and extension guide](docs/architecture.md) provides model definitions, metric semantics and a complete plugin example.
 
-## What the metrics mean
+## Algorithm Lab
 
-- **Active drivers:** all online drivers, including drivers going to a pickup or carrying a passenger.
-- **Supply / demand:** available Idle/Repositioning drivers versus passengers not yet picked up. S/D is supply divided by demand, using a denominator of at least one.
-- **Orders/min:** actual arrivals during the previous 60 simulated seconds, including the initial 30-request burst at startup.
-- **Pickup ETA / distance:** average predicted pickup duration and road distance at assignment time.
-- **Passenger wait:** average actual wait of picked-up passengers; until the first pickup, the average wait of current unpicked passengers.
-- **Completion / cancellation:** completed or cancelled requests divided by all requests created since reset.
-- **Utilization:** accumulated passenger-carrying driver time divided by total online driver time.
-- **Revenue:** fares from completed trips, in illustrative USD. Income variance is population variance in USD squared across driver records.
+The UI submits a backend benchmark job and receives progress over `/ws/benchmarks/{id}`. Every registered policy starts from the same seed, driver distribution, initial requests, future arrival sequence, and OD pattern. Separate demand and supply random streams keep assignments from changing subsequent requests.
 
-A finite benchmark can finish while trips are still active, so completion and cancellation rates do not necessarily add up to 100%. Metrics are calculated from the simulation; charts do not use fabricated performance results.
+Benchmarks run in separate processes, not Web Workers or the API event loop. They support cancellation, result retrieval, and CSV export with scenario parameters. Comparison metrics include pickup ETA, passenger wait, pickup distance, completion, utilization, income variance, and cancellation. Results include the initial warm-up and trips still active at the horizon.
 
-## Architecture
+## API
 
-The application uses **React, TypeScript, Vite, and Canvas**. The city is generated locally, so no external tiles or geocoding services are required.
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/algorithms` | Registered algorithm metadata |
+| POST / GET | `/api/simulations` | Create or list sessions |
+| GET / DELETE | `/api/simulations/{id}` | Read or delete a session |
+| POST | `/api/simulations/{id}/start` | Start server-side simulation |
+| POST | `/api/simulations/{id}/pause` | Pause |
+| POST | `/api/simulations/{id}/reset` | Reset with optional configuration |
+| PATCH | `/api/simulations/{id}/config` | Change parameters or algorithm |
+| POST | `/api/simulations/{id}/time` | Restart at a different hour |
+| GET | `/api/simulations/{id}/metrics` | Historical metrics |
+| GET | `/api/simulations/{id}/snapshot` | Authoritative snapshot export |
+| POST | `/api/benchmarks` | Create benchmark job |
+| GET / DELETE | `/api/benchmarks/{id}` | Results or job cancellation |
+| GET | `/api/benchmarks/{id}/csv` | CSV export |
+| WS | `/ws/simulation/{id}` | Authoritative clock, drivers, orders, matches, metrics, districts, feed |
+| WS | `/ws/benchmarks/{id}` | Benchmark progress and results |
+
+Example without the frontend:
+
+```powershell
+$session = Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/simulations -ContentType application/json -Body '{"config":{"supply":200,"algorithm":"hungarian"}}'
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/api/simulations/$($session.simulationId)/start"
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/simulations/$($session.simulationId)"
+```
+
+The first simulation WebSocket message is a complete `snapshot`. Within each connection, subsequent `state` frames carry increasing sequence numbers. A fresh connection's initial snapshot establishes the current server baseline, including after checkpoint recovery. Static map geometry is fetched once via REST. Queues retain the latest frame for slow subscribers; clients reconnect with backoff and discard stale frames. Missing records return 404 and invalid commands return 422. There is no high-frequency frontend REST polling.
+
+## Persistence
+
+`VECTOR_DATA_DIR` controls the backend data directory (default `backend/var/`). The server writes atomic checkpoints every five seconds and saves command changes. Engine state, random streams, clocks and aggregate counters are preserved. An abrupt stop can lose progress since the latest checkpoint. Recovered simulations load **paused**. Benchmark records and results also persist. This is a single-node JSON data store, with clear replacement points for Redis/PostgreSQL. The UI's snapshot export is a reporting document containing state, configuration and road geometry; internal checkpoints additionally preserve random-generator state for exact continuation.
+
+## Metrics and units
+
+- Coordinates and legacy edge `length` use world units; one unit is 8 metres. Enriched edge `distance` is kilometres, `speedLimit` is km/h, and `travelTime` is seconds. Synthetic lat/lng coordinates are display references, not a real geographic survey.
+- Clock, durations, ETA, and waiting time are simulated seconds. Rates are percentages from 0 to 100. Fares use illustrative USD.
+- Supply counts available Idle/Repositioning drivers. Open demand counts passengers not yet picked up. S/D divides supply by at least one demand unit.
+- Orders/min counts actual arrivals in the trailing simulated minute, including the initial 30-request burst.
+- Pickup ETA/distance average assignment-time predictions. Passenger wait averages actual request-to-pickup times, with current waits before the first pickup.
+- Completion/cancellation divide their cumulative counts by all created requests. Utilization is passenger-carrying time divided by online driver time. Revenue settles when trips complete.
+- Histories, event feeds and terminal order details have bounded retention; lifetime counters remain cumulative.
+
+## Structure
 
 ```text
-src/
-  App.tsx                  Floating controls, inspectors, timeline, and dialogs
-  types.ts                 Shared model contracts and algorithm catalog
-  components/              Canvas map and reusable UI components
-  engine/
-    city.ts                Connected streets, districts, buildings, parks, river
-    routing.ts             Cached shortest paths and continuous route changes
-    dispatch.ts            Pure assignment policies and rectangular Hungarian solver
-    simulation.ts          Clock, demand, vehicle/order lifecycle, and live metrics
-    benchmark.ts           Deterministic replay across all dispatch policies
-    benchmark.worker.ts    Background benchmark execution
-    README.md              Detailed engine API, units, and model conventions
-tests/                     Meaningful algorithm and simulation regression tests
+frontend/
+  src/components/       Canvas map, dialogs, benchmark charts
+  src/services/         REST and WebSocket transport
+  src/stores/           Authoritative snapshot subscription
+  src/types.ts          Wire contracts and display types
+  tests/                Transport and visual interpolation tests
+  vite.config.ts        Development HTTP / WebSocket proxy
+backend/
+  app/api/              REST endpoints
+  app/core/             Session runtime, persistence, benchmark process management
+  app/simulation/       Independent engine and reproducible benchmarks
+  app/dispatch/         Registry, common interface, six plugins
+  app/routing/          Road graph and Dijkstra routing
+  app/demand/           Spatial and time-dependent demand
+  app/metrics/          KPI computation
+  app/models/           Domain records
+  app/schemas/          Pydantic command validation
+  app/websocket/        Snapshot streaming and latest-frame queues
+  app/data/             Backend-owned synthetic city geometry
+  tests/                Domain, API, WebSocket and persistence tests
+docs/                   Wire contract and platform documentation
+scripts/                Independent backend smoke test and development helper
+docker-compose.yml      Separate frontend and backend containers
 ```
 
-The engine mutates its own state independently of React. The map renders using `requestAnimationFrame`; the dashboard samples state at a lower frequency. Vehicle motion follows road segments, including when a new assignment arrives during an existing movement. Shortest-path caches are shared by simulations using the same city. The benchmark worker keeps comparative experiments off the main UI thread.
+## Validation
 
-For extension points, exact state units, routing behavior, retention limits, and lifecycle details, read the [engine documentation](src/engine/README.md). New policies belong in `dispatch.ts` and the algorithm catalog in `types.ts`; lifecycle mutations remain the engine's responsibility.
+```powershell
+# From project root
+.\backend\.venv\Scripts\python.exe -m pytest backend/tests -q
+npm --prefix frontend test
+npm --prefix frontend run build
+npm --prefix frontend run format:check
 
-## Model assumptions
+# With only the backend running: actual REST + WebSocket + benchmark process proof
+.\backend\.venv\Scripts\python.exe scripts/smoke_backend.py
+```
 
-This is a synthetic research and demonstration environment, not a real-world operational dispatch service. Roads are bidirectional, with class-specific speeds and a commute-hour speed adjustment. Demand locations change with time of day: residential-to-CBD commuting in the morning, the reverse in the evening, nightlife departures at night, and sustained airport demand. Total baseline arrival intensity remains 20/min multiplied by the demand setting.
+The smoke test creates isolated sessions, proves clock progression without a frontend or socket subscriber, checks real-time streaming, pause/reset, session isolation, validation and deterministic background benchmarks, then removes its sessions. It writes a report to `.runtime/smoke-report.json`.
 
-Passengers cancel after ten simulated minutes without pickup. Fares use a transparent illustrative distance/time formula. Available drivers cruise streets; optional rebalancing moves a bounded share toward demand hotspots. When fleet supply decreases, busy drivers finish their trips before going offline.
+See the [validation record](docs/validation.md) for completed checks and the scope of verification.
 
-The model does not include traffic lights, congestion feedback, one-way restrictions, real geographic data, pooled rides, stochastic driver acceptance, or production pricing. Events, history, candidate lines, and terminal order details have bounded retention, while lifetime metrics remain cumulative. The engine supports 1,000 drivers and more than 100 simultaneous requests; rendering performance depends on the browser, device, layers, and playback speed.
+This is a synthetic, extensible research model. It models road motion and time-of-day speed changes, but not traffic signals, endogenous congestion, pooled trips, real driver acceptance, or production pricing. Those can be added to the backend without moving business logic into React.

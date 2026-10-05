@@ -4,3 +4,11 @@ test-results/
 playwright-report/
 *.log
 .runtime-*.json
+.runtime/
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+backend/var/
+.env
+.vite/
