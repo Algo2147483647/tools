@@ -41,14 +41,14 @@ export interface PricePoint {
   currency: string;
   unit?: string;
   source: string;
-  updatedAt: string;
+  updatedAt: string | null;
   dailyChangePercent?: number | null;
 }
 
 export interface FxRatePoint {
   rate: number;
   source: string;
-  updatedAt: string;
+  updatedAt: string | null;
   dailyChangePercent?: number | null;
 }
 
@@ -69,6 +69,7 @@ export interface AssetValuation {
   updatedAt: string | null;
   status: AssetStatus;
   message: string;
+  warning?: string;
 }
 
 export interface ValuationResponse {
@@ -77,6 +78,7 @@ export interface ValuationResponse {
   totalValue: number;
   displayRateFromUsd: number;
   displayUnit: string;
+  displayWarning?: string;
   pricedAssetCount: number;
   failedAssetCount: number;
   generatedAt: string;
@@ -84,7 +86,7 @@ export interface ValuationResponse {
 }
 
 export class ValuationError extends Error {
-  constructor(message: string) {
+  constructor(message: string, public readonly status: 400 | 413 | 502 | 500 = 400) {
     super(message);
     this.name = "ValuationError";
   }

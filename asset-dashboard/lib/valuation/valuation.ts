@@ -1,9 +1,56 @@
-import type { AssetConfig, AssetValuation, FxRatePoint, PortfolioConfig, ValuationResponse } from "./types";
+import type { AssetConfig, AssetValuation, FxRatePoint, PortfolioConfig, PricePoint, ValuationResponse } from "./types";
 import { ValuationError } from "./types";
-import { fetchAlphaVantageQuote, fetchFrankfurterRate, fetchGoldSpotUsd, goldQuantityToTroyOunces } from "./sources";
+import { fetchAlphaVantageQuote, fetchFrankfurterRate, fetchGoldSpotUsd } from "./sources";
+import { goldQuantityToTroyOunces, TROY_OUNCE_GRAMS } from "./units";
+import { createPricingContext, type PricingOptions } from "./request";
+import { validatePortfolioConfig } from "./schema";
 
-type FxCache = Map<string, Promise<FxRatePoint>>;
-const TROY_OUNCE_GRAMS = 31.1034768;
+const MAX_MONEY = Number.MAX_SAFE_INTEGER;
+
+function checkedMoney(value: number): number {
+  if (!Number.isFinite(value) || value < 0 || value > MAX_MONEY) {
+    throw new ValuationError("Calculated value exceeds the supported safe numeric range.");
+  }
+  return value;
+}
+
+function createQuotes(options: PricingOptions) {
+  const context = createPricingContext(options);
+  let gold: Promise<PricePoint> | undefined;
+  const stocks = new Map<string, Promise<PricePoint>>();
+  const fx = new Map<string, Promise<FxRatePoint>>();
+  return {
+    gold: () => gold ??= fetchGoldSpotUsd(context),
+    stock(symbol: string) {
+      const key = symbol.toUpperCase();
+      if (!stocks.has(key)) stocks.set(key, fetchAlphaVantageQuote(key, context));
+      return stocks.get(key)!;
+    },
+    fx(from: string, to = "USD") {
+      const key = `${from}-${to}`;
+      if (!fx.has(key)) {
+        const reverse = fx.get(`${to}-${from}`);
+        const request = reverse ? reverse.then((quote) => ({
+          ...quote, rate: 1 / quote.rate,
+          dailyChangePercent: quote.dailyChangePercent != null && quote.dailyChangePercent > -100
+            ? -quote.dailyChangePercent / (1 + quote.dailyChangePercent / 100) : null
+        })) : fetchFrankfurterRate(from, to, context);
+        fx.set(key, request);
+      }
+      return fx.get(key)!;
+    }
+  };
+}
+
+type Quotes = ReturnType<typeof createQuotes>;
+
+function withQuoteWarning(asset: AssetValuation): AssetValuation {
+  if (asset.status === "failed") return asset;
+  const warning = !asset.updatedAt ? "The provider did not supply a usable quote timestamp."
+    : Date.now() - Date.parse(asset.updatedAt) > 7 * 24 * 60 * 60 * 1000
+      ? "The latest available quote is more than 7 days old." : undefined;
+  return warning ? { ...asset, status: "warning", warning } : asset;
+}
 
 function assetName(asset: AssetConfig): string {
   if (asset.name) {
@@ -41,23 +88,12 @@ function failedAsset(asset: AssetConfig, error: unknown): AssetValuation {
   };
 }
 
-async function getFxRate(cache: FxCache, from: string): Promise<FxRatePoint> {
-  const key = `${from.toUpperCase()}-USD`;
-  const cached = cache.get(key);
-  if (cached) {
-    return cached;
-  }
-  const request = fetchFrankfurterRate(from, "USD");
-  cache.set(key, request);
-  return request;
-}
-
-async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetValuation> {
+async function valueAsset(asset: AssetConfig, quotes: Quotes): Promise<AssetValuation> {
   try {
     if (asset.type === "gold") {
-      const quote = await fetchGoldSpotUsd();
       const troyOunces = goldQuantityToTroyOunces(asset.quantity, asset.unit);
-      const usdValue = troyOunces * quote.price;
+      const quote = await quotes.gold();
+      const usdValue = checkedMoney(troyOunces * quote.price);
       return {
         id: asset.id,
         type: asset.type,
@@ -78,7 +114,7 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
     }
 
     if (asset.type === "cash") {
-      const fx = await getFxRate(fxCache, asset.currency);
+      const fx = await quotes.fx(asset.currency);
       return {
         id: asset.id,
         type: asset.type,
@@ -89,7 +125,7 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
         pricingCurrency: asset.currency,
         priceUnit: "currency unit",
         fxRateToUsd: fx.rate,
-        usdValue: asset.quantity * fx.rate,
+        usdValue: checkedMoney(asset.quantity * fx.rate),
         dailyChangePercent: fx.dailyChangePercent ?? null,
         source: fx.source,
         updatedAt: fx.updatedAt,
@@ -99,7 +135,7 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
     }
 
     if (asset.type === "stock") {
-      const quote = await fetchAlphaVantageQuote(asset.symbol);
+      const quote = await quotes.stock(asset.symbol);
       return {
         id: asset.id,
         type: asset.type,
@@ -110,7 +146,7 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
         pricingCurrency: quote.currency,
         priceUnit: quote.unit,
         fxRateToUsd: 1,
-        usdValue: asset.quantity * quote.price,
+        usdValue: checkedMoney(asset.quantity * quote.price),
         dailyChangePercent: quote.dailyChangePercent ?? null,
         source: quote.source,
         updatedAt: quote.updatedAt,
@@ -119,7 +155,7 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
       };
     }
 
-    const fx = await getFxRate(fxCache, asset.currency);
+    const fx = await quotes.fx(asset.currency);
     return {
       id: asset.id,
       type: asset.type,
@@ -129,7 +165,7 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
       pricingCurrency: asset.currency,
       priceUnit: "manual unit",
       fxRateToUsd: fx.rate,
-      usdValue: asset.quantity * asset.price * fx.rate,
+      usdValue: checkedMoney(asset.quantity * asset.price * fx.rate),
       dailyChangePercent: fx.dailyChangePercent ?? null,
       source: asset.currency === "USD" ? "Manual price" : `Manual price + ${fx.source}`,
       updatedAt: asset.currency === "USD" ? new Date().toISOString() : fx.updatedAt,
@@ -141,15 +177,16 @@ async function valueAsset(asset: AssetConfig, fxCache: FxCache): Promise<AssetVa
   }
 }
 
-function normalizeDisplayBase(base?: string): string {
+export function normalizeDisplayBase(base?: string): string {
   const normalized = (base ?? "USD").trim().toUpperCase();
   if (["GOLD", "XAU", "XAU_GRAM", "GOLD_GRAM"].includes(normalized)) {
     return "GOLD_GRAM";
   }
-  return /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
+  if (!/^[A-Z]{3}$/.test(normalized)) throw new ValuationError("Display currency must be a 3-letter currency code or GOLD.");
+  return normalized;
 }
 
-async function getDisplayRateFromUsd(base: string): Promise<{ rate: number; unit: string; baseCurrency: string }> {
+async function getDisplayRateFromUsd(base: string, quotes: Quotes): Promise<{ rate: number; unit: string; baseCurrency: string }> {
   if (base === "USD") {
     return {
       rate: 1,
@@ -159,7 +196,7 @@ async function getDisplayRateFromUsd(base: string): Promise<{ rate: number; unit
   }
 
   if (base === "GOLD_GRAM") {
-    const quote = await fetchGoldSpotUsd();
+    const quote = await quotes.gold();
     return {
       rate: TROY_OUNCE_GRAMS / quote.price,
       unit: "g gold",
@@ -167,7 +204,7 @@ async function getDisplayRateFromUsd(base: string): Promise<{ rate: number; unit
     };
   }
 
-  const fx = await fetchFrankfurterRate("USD", base);
+  const fx = await quotes.fx("USD", base);
   return {
     rate: fx.rate,
     unit: base,
@@ -175,23 +212,31 @@ async function getDisplayRateFromUsd(base: string): Promise<{ rate: number; unit
   };
 }
 
-export async function valuePortfolio(config: PortfolioConfig, displayBase = "USD"): Promise<ValuationResponse> {
-  if (config.baseCurrency !== "USD") {
-    throw new ValuationError("Valuation base must be USD.");
-  }
-
-  const fxCache: FxCache = new Map();
-  const assets = await Promise.all(config.assets.map((asset) => valueAsset(asset, fxCache)));
-  const totalUsd = assets.reduce((sum, asset) => sum + (asset.usdValue ?? 0), 0);
+export async function valuePortfolio(input: PortfolioConfig, displayBase = "USD", options: PricingOptions = {}): Promise<ValuationResponse> {
+  const config = validatePortfolioConfig(input);
   const base = normalizeDisplayBase(displayBase);
-  const display = await getDisplayRateFromUsd(base);
+  const quotes = createQuotes(options);
+  const assets = (await Promise.all(config.assets.map((asset) => valueAsset(asset, quotes)))).map(withQuoteWarning);
+  const totalUsd = checkedMoney(assets.reduce((sum, asset) => sum + (asset.usdValue ?? 0), 0));
+  let display = { rate: 1, unit: "USD", baseCurrency: "USD" };
+  let displayWarning: string | undefined;
+  let totalValue = totalUsd;
+  try {
+    const converted = await getDisplayRateFromUsd(base, quotes);
+    if (!Number.isFinite(converted.rate) || converted.rate <= 0) throw new ValuationError("Display conversion returned an invalid rate.", 502);
+    totalValue = checkedMoney(totalUsd * converted.rate);
+    display = converted;
+  } catch {
+    displayWarning = `Unable to convert to ${base === "GOLD_GRAM" ? "gold grams" : base}. Values are shown in USD; the portfolio's USD valuation is preserved.`;
+  }
 
   return {
     baseCurrency: display.baseCurrency,
     totalUsd,
-    totalValue: totalUsd * display.rate,
+    totalValue,
     displayRateFromUsd: display.rate,
     displayUnit: display.unit,
+    displayWarning,
     pricedAssetCount: assets.filter((asset) => asset.usdValue !== null).length,
     failedAssetCount: assets.filter((asset) => asset.status === "failed").length,
     generatedAt: new Date().toISOString(),

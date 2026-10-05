@@ -3,12 +3,12 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Current Net Worth Dashboard",
-  description: "USD-base current asset valuation dashboard"
+  title: "Worth · Portfolio overview",
+  description: "A clear view of your cash, gold, stocks, and other assets.",
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: ReactNode;
 }>) {

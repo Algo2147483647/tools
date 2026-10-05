@@ -1,5 +1,9 @@
 import type { AssetConfig, AssetType, PortfolioConfig } from "./types";
 import { ValuationError } from "./types";
+import { goldQuantityToTroyOunces } from "./units";
+
+export const MAX_ASSETS = 100;
+export const MAX_INPUT_VALUE = 1_000_000_000_000;
 
 const assetTypes = new Set<AssetType>(["gold", "cash", "stock", "custom"]);
 const legacyAssetTypeMap: Record<string, AssetType> = {
@@ -23,7 +27,16 @@ function readString(record: Record<string, unknown>, field: string, required = t
   if (typeof value !== "string") {
     throw new ValuationError(`Field "${field}" must be a string.`);
   }
-  return value.trim();
+  const trimmed = value.trim();
+  if (!trimmed) {
+    if (required) throw new ValuationError(`Field "${field}" must not be blank.`);
+    return undefined;
+  }
+  const maxLength = field === "name" ? 120 : field === "id" ? 80 : 32;
+  if (trimmed.length > maxLength || /[\u0000-\u001f\u007f]/.test(trimmed)) {
+    throw new ValuationError(`Field "${field}" must be at most ${maxLength} characters and contain no control characters.`);
+  }
+  return trimmed;
 }
 
 function readNumber(record: Record<string, unknown>, field: string): number {
@@ -33,6 +46,9 @@ function readNumber(record: Record<string, unknown>, field: string): number {
   }
   if (value < 0) {
     throw new ValuationError(`Field "${field}" must be zero or greater.`);
+  }
+  if (value > MAX_INPUT_VALUE) {
+    throw new ValuationError(`Field "${field}" must not exceed ${MAX_INPUT_VALUE}.`);
   }
   return value;
 }
@@ -50,13 +66,16 @@ export function validatePortfolioConfig(value: unknown): PortfolioConfig {
     throw new ValuationError("Portfolio JSON must be an object.");
   }
 
-  const baseCurrency = typeof value.baseCurrency === "string" ? value.baseCurrency.toUpperCase() : "USD";
+  const baseCurrency = value.baseCurrency === undefined ? "USD" : readString(value, "baseCurrency")?.toUpperCase();
   if (baseCurrency !== "USD") {
     throw new ValuationError('Only "USD" is supported as baseCurrency in this dashboard.');
   }
 
   if (!Array.isArray(value.assets)) {
     throw new ValuationError('Portfolio JSON must include an "assets" array.');
+  }
+  if (value.assets.length > MAX_ASSETS) {
+    throw new ValuationError(`A portfolio may contain at most ${MAX_ASSETS} assets.`);
   }
 
   const ids = new Set<string>();
@@ -88,10 +107,12 @@ export function validatePortfolioConfig(value: unknown): PortfolioConfig {
     };
 
     if (type === "gold") {
+      const unit = readString(entry, "unit", false) ?? "gram";
+      goldQuantityToTroyOunces(base.quantity, unit);
       return {
         ...base,
         type,
-        unit: readString(entry, "unit", false) ?? "gram"
+        unit
       };
     }
 

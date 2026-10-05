@@ -1,482 +1,1191 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { FileJson, Loader2, RefreshCcw, Settings2, Upload } from "lucide-react";
-import type { AssetStatus, ValuationResponse } from "@/lib/valuation/types";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
+import {
+  ArrowDownToLine,
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  CircleHelp,
+  Coins,
+  FileJson,
+  Globe2,
+  Landmark,
+  LayoutDashboard,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Search,
+  Settings2,
+  ShieldCheck,
+  SlidersHorizontal,
+  TriangleAlert,
+  TrendingUp,
+  Wallet,
+  X,
+  Boxes,
+} from "lucide-react";
+import { validatePortfolioConfig } from "@/lib/valuation/schema";
+import type {
+  AssetType,
+  AssetValuation,
+  PortfolioConfig,
+} from "@/lib/valuation/types";
+import { formatDate, formatMoney, formatNumber } from "@/lib/client/format";
+import { Dialog } from "./Dialog";
+import { useValuation } from "./useValuation";
 
-const sampleConfigPath = "/sample-config.json";
 const baseOptions = ["USD", "CNY", "HKD", "EUR", "JPY", "CHF", "GBP", "GOLD"];
+const categories = {
+  cash: {
+    label: "Cash & deposits",
+    short: "Cash",
+    icon: Landmark,
+    color: "#3f7e68",
+    light: "#eaf3ee",
+  },
+  gold: {
+    label: "Gold",
+    short: "Gold",
+    icon: Coins,
+    color: "#c99b4b",
+    light: "#faf1de",
+  },
+  stock: {
+    label: "Stocks",
+    short: "Stocks",
+    icon: TrendingUp,
+    color: "#7c87b8",
+    light: "#edf0fa",
+  },
+  custom: {
+    label: "Other",
+    short: "Other",
+    icon: Boxes,
+    color: "#bc8270",
+    light: "#f8eee9",
+  },
+};
+const statuses = { ok: "Valued", warning: "Review", failed: "Unavailable" };
+type LoadedConfig = {
+  config: PortfolioConfig;
+  text: string;
+  name: string;
+  isSample: boolean;
+};
 
-function formatUsd(value: number | null | undefined): string {
-  if (value == null) {
-    return "$0.00";
-  }
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: value >= 100000 ? 0 : 2
-  }).format(value);
-}
-
-function formatBaseValue(value: number | null | undefined, unit = "USD"): string {
-  if (value == null) {
-    return unit === "g gold" ? "0 g gold" : `0 ${unit}`;
-  }
-  if (unit === "USD") {
-    return formatUsd(value);
-  }
-  if (unit === "g gold") {
-    return `${formatNumber(value, 4)} g gold`;
-  }
-  return `${formatNumber(value, value >= 100000 ? 0 : 2)} ${unit}`;
-}
-
-function formatNumber(value: number | null | undefined, digits = 4): string {
-  if (value == null) {
-    return "N/A";
-  }
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: digits
-  }).format(value);
-}
-
-function formatDate(value: string | null | undefined): string {
-  if (!value) {
-    return "N/A";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(date);
-}
-
-function statusDotTone(status: AssetStatus): string {
-  if (status === "ok") {
-    return "status-strip-ok";
-  }
-  if (status === "warning") {
-    return "status-strip-warning";
-  }
-  return "status-strip-failed";
-}
-
-function conversionFactor(asset: ValuationResponse["assets"][number]): number | null {
-  if (asset.usdValue == null || !Number.isFinite(asset.quantity) || asset.quantity === 0) {
-    return null;
-  }
-  return asset.usdValue / asset.quantity;
-}
-
-function displayConversionFactor(asset: ValuationResponse["assets"][number], valuation: ValuationResponse | null): number | null {
-  const usdFactor = conversionFactor(asset);
-  if (usdFactor == null || !valuation) {
-    return null;
-  }
-  return usdFactor * valuation.displayRateFromUsd;
-}
-
-function changeTone(change: number | null | undefined): string {
-  if (change == null || !Number.isFinite(change) || Math.abs(change) < 0.000001) {
-    return "change-neutral";
-  }
-  return change > 0 ? "change-up" : "change-down";
-}
-
-function summarizeConfig(value: unknown) {
-  if (!value || typeof value !== "object") {
-    return {
-      assetCount: 0,
-      baseCurrency: "USD"
-    };
-  }
-
-  const record = value as Record<string, unknown>;
-  if (!Array.isArray(record.assets)) {
-    return {
-      assetCount: 0,
-      baseCurrency: "USD"
-    };
-  }
-
+function categoryStyle(type: AssetType): CSSProperties {
   return {
-    assetCount: record.assets.length,
-    baseCurrency: typeof record.baseCurrency === "string" ? record.baseCurrency.toUpperCase() : "USD"
-  };
+    "--category-color": categories[type].color,
+    "--category-light": categories[type].light,
+  } as CSSProperties;
+}
+function quantityUnit(asset: AssetValuation) {
+  if (asset.type === "stock") return asset.quantity === 1 ? "share" : "shares";
+  if (asset.type === "custom") return asset.quantity === 1 ? "unit" : "units";
+  const unit = asset.unit ?? "";
+  return (
+    (
+      {
+        gram: "g",
+        kilogram: "kg",
+        ounce: "oz t",
+        troy_ounce: "oz t",
+        pound: "lb",
+      } as Record<string, string>
+    )[unit] ?? unit
+  );
 }
 
 export function NetWorthDashboard() {
-  const [jsonInput, setJsonInput] = useState("");
-  const [fileName, setFileName] = useState("sample-config.json");
-  const [valuation, setValuation] = useState<ValuationResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<LoadedConfig | null>(null);
   const [sampleLoading, setSampleLoading] = useState(true);
-  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
-  const [configOpen, setConfigOpen] = useState(false);
+  const [inputError, setInputError] = useState<string | null>(null);
+  const [modal, setModal] = useState<"config" | "help" | null>(null);
+  const [draft, setDraft] = useState("");
+  const [draftError, setDraftError] = useState<string | null>(null);
   const [displayBase, setDisplayBase] = useState("USD");
-  const [customBase, setCustomBase] = useState("");
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const parsed = useMemo(() => {
-    try {
-      if (!jsonInput.trim()) {
-        return {
-          value: null,
-          error: "No JSON configuration loaded."
-        };
-      }
-      return {
-        value: JSON.parse(jsonInput) as unknown,
-        error: null
-      };
-    } catch (error) {
-      return {
-        value: null,
-        error: error instanceof Error ? error.message : "Invalid JSON."
-      };
-    }
-  }, [jsonInput]);
-
-  const configSummary = useMemo(() => summarizeConfig(parsed.value), [parsed.value]);
-  const canRefresh = !parsed.error && !loading;
-
-  async function refreshValuation(configValue?: unknown) {
-    const valueToPrice = configValue ?? parsed.value;
-    if (!valueToPrice || (!configValue && parsed.error)) {
-      return;
-    }
-    setLoading(true);
-    setApiError(null);
-    try {
-      const response = await fetch("/api/valuation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          ...(valueToPrice as Record<string, unknown>),
-          displayBase
-        })
-      });
-      const data = (await response.json()) as ValuationResponse | { error?: string };
-      if (!response.ok) {
-        throw new Error("error" in data && data.error ? data.error : "Valuation request failed.");
-      }
-      setValuation(data as ValuationResponse);
-    } catch (error) {
-      setApiError(error instanceof Error ? error.message : "Valuation request failed.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function loadLocalJson(file: File | undefined) {
-    if (!file) {
-      return;
-    }
-
-    try {
-      const text = await file.text();
-      const value = JSON.parse(text) as unknown;
-      setJsonInput(text);
-      setFileName(file.name);
-      setValuation(null);
-      setApiError(null);
-      void refreshValuation(value);
-    } catch (error) {
-      setApiError(error instanceof Error ? `Invalid JSON file: ${error.message}` : "Invalid JSON file.");
-    } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  }
-
-  async function loadSampleConfig() {
-    setSampleLoading(true);
-    setApiError(null);
-    try {
-      const response = await fetch(sampleConfigPath, {
-        cache: "no-store"
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to load sample JSON: HTTP ${response.status}.`);
-      }
-      const text = await response.text();
-      const value = JSON.parse(text) as unknown;
-      setJsonInput(text);
-      setFileName("sample-config.json");
-      setValuation(null);
-      void refreshValuation(value);
-    } catch (error) {
-      setApiError(error instanceof Error ? error.message : "Failed to load sample JSON.");
-    } finally {
-      setSampleLoading(false);
-    }
-  }
+  const [baseMode, setBaseMode] = useState("USD");
+  const [customBase, setCustomBase] = useState("AUD");
+  const [baseError, setBaseError] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<AssetType | "all">("all");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("value");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const importSequence = useRef(0);
+  const {
+    data: valuation,
+    error,
+    loading,
+    refresh,
+  } = useValuation(loaded?.config ?? null, displayBase);
 
   useEffect(() => {
-    void loadSampleConfig();
-    // Load the local sample JSON once on startup.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const controller = new AbortController();
+    const sequence = importSequence.current;
+    let active = true;
+    const timeout = window.setTimeout(() => controller.abort(), 10_000);
+    async function loadSample() {
+      try {
+        const response = await fetch("/sample-config.json", {
+          signal: controller.signal,
+        });
+        if (!response.ok)
+          throw new Error(
+            "Could not load the sample. Import a local JSON file to continue.",
+          );
+        const text = await response.text();
+        const config = validatePortfolioConfig(JSON.parse(text));
+        if (active && sequence === importSequence.current)
+          setLoaded({
+            config,
+            text,
+            name: "sample-config.json",
+            isSample: true,
+          });
+      } catch (reason) {
+        if (active && sequence === importSequence.current)
+          setInputError(
+            reason instanceof Error && reason.name !== "AbortError"
+              ? reason.message
+              : "The sample request timed out. Import a local JSON file to continue.",
+          );
+      } finally {
+        window.clearTimeout(timeout);
+        if (active) setSampleLoading(false);
+      }
+    }
+    void loadSample();
+    return () => {
+      active = false;
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
   }, []);
 
-  useEffect(() => {
-    if (!parsed.value || parsed.error) {
-      return;
+  function commitConfig(text: string, name: string) {
+    const config = validatePortfolioConfig(JSON.parse(text));
+    importSequence.current++;
+    setLoaded({
+      config,
+      text: JSON.stringify(config, null, 2),
+      name,
+      isSample: false,
+    });
+    setInputError(null);
+    setSelectedId(null);
+    setFilter("all");
+    setSearch("");
+    setModal(null);
+    setSampleLoading(false);
+  }
+  async function loadFile(file?: File) {
+    if (!file) return;
+    const sequence = ++importSequence.current;
+    try {
+      if (file.size > 256 * 1024)
+        throw new Error("The configuration file must be 256 KB or smaller.");
+      const text = await file.text();
+      if (sequence !== importSequence.current) return;
+      commitConfig(text, file.name);
+    } catch (reason) {
+      if (sequence === importSequence.current) {
+        const message =
+          reason instanceof Error
+            ? reason.message
+            : "Could not read the configuration file.";
+        setInputError(message);
+        setDraftError(message);
+      }
+    } finally {
+      if (fileRef.current) fileRef.current.value = "";
     }
-    const timer = window.setTimeout(() => {
-      void refreshValuation();
-    }, 350);
-    return () => window.clearTimeout(timer);
-    // Reprice when the display base changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayBase]);
+  }
+  function openConfig() {
+    setDraft(loaded?.text ?? '{\n  "baseCurrency": "USD",\n  "assets": []\n}');
+    setDraftError(null);
+    setModal("config");
+  }
+  function applyDraft(event: FormEvent) {
+    event.preventDefault();
+    try {
+      if (new TextEncoder().encode(draft).length > 256 * 1024)
+        throw new Error("The configuration must be 256 KB or smaller.");
+      commitConfig(draft, loaded?.name ?? "portfolio.json");
+    } catch (reason) {
+      setDraftError(
+        reason instanceof Error
+          ? reason.message
+          : "The configuration format is invalid.",
+      );
+    }
+  }
+  function downloadConfig() {
+    if (!loaded) return;
+    const url = URL.createObjectURL(
+      new Blob([loaded.text], { type: "application/json" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = loaded.name;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
-  const assets = valuation?.assets ?? [];
-  const hasFailures = (valuation?.failedAssetCount ?? 0) > 0;
-  const selectedAsset = assets.find((asset) => asset.id === selectedAssetId) ?? null;
-  const totalUsd = valuation?.totalUsd ?? 0;
-  const sortedAssets = useMemo(
-    () => [...assets].sort((a, b) => (b.usdValue ?? 0) - (a.usdValue ?? 0)),
-    [assets]
+  const assets = useMemo(() => valuation?.assets ?? [], [valuation]);
+  const selectedAsset = assets.find((asset) => asset.id === selectedId);
+  const displayUnit =
+    valuation?.displayUnit ?? (displayBase === "GOLD" ? "g gold" : displayBase);
+  const rate = valuation?.displayRateFromUsd ?? 1;
+  const failedCount = valuation?.failedAssetCount ?? 0;
+  const warningCount = assets.filter(
+    (asset) => asset.status === "warning",
+  ).length;
+  const needsAttention = failedCount + warningCount;
+  const total =
+    valuation && (valuation.pricedAssetCount > 0 || assets.length === 0)
+      ? valuation.totalValue
+      : null;
+  const unitLabel = displayUnit === "g gold" ? "Gold · g" : displayUnit;
+  const pricedCount = valuation?.pricedAssetCount ?? 0;
+  const assetCount = loaded?.config.assets.length ?? 0;
+  const allocation = useMemo(
+    () =>
+      (Object.entries(categories) as [AssetType, typeof categories.cash][]).map(
+        ([type, meta]) => ({
+          type,
+          ...meta,
+          value: assets
+            .filter((asset) => asset.type === type)
+            .reduce((sum, asset) => sum + (asset.usdValue ?? 0), 0),
+          count: assets.filter((asset) => asset.type === type).length,
+        }),
+      ),
+    [assets],
   );
+  const donutStyle = useMemo(() => {
+    let start = 0;
+    const sum = valuation?.totalUsd ?? 0;
+    if (sum <= 0) return { background: "#eef0ec" };
+    const stops = allocation
+      .filter((item) => item.value > 0)
+      .map((item) => {
+        const end = start + (item.value / sum) * 100;
+        const stop = `${item.color} ${start}% ${end}%`;
+        start = end;
+        return stop;
+      });
+    return { background: `conic-gradient(from -90deg, ${stops.join(", ")})` };
+  }, [allocation, valuation?.totalUsd]);
+  const filteredAssets = useMemo(
+    () =>
+      assets
+        .filter(
+          (asset) =>
+            (filter === "all" || asset.type === filter) &&
+            `${asset.name} ${asset.id} ${asset.symbol ?? ""} ${asset.pricingCurrency ?? ""}`
+              .toLowerCase()
+              .includes(search.trim().toLowerCase()),
+        )
+        .sort((a, b) =>
+          sort === "name"
+            ? a.name.localeCompare(b.name, "en")
+            : sort === "status"
+              ? { failed: 0, warning: 1, ok: 2 }[a.status] -
+                  { failed: 0, warning: 1, ok: 2 }[b.status] ||
+                (b.usdValue ?? -1) - (a.usdValue ?? -1)
+              : (b.usdValue ?? -1) - (a.usdValue ?? -1),
+        ),
+    [assets, filter, search, sort],
+  );
+  const currencyCount = new Set(
+    loaded?.config.assets.map((asset) =>
+      "currency" in asset ? asset.currency : "USD",
+    ),
+  ).size;
 
   return (
-    <main className="app-shell">
-      <header className="topbar-shell">
-        <div className="topbar-brand">
-          <h1>Worth</h1>
+    <div className="dashboard-shell">
+      <a className="skip-link" href="#main-content">
+        Skip to portfolio overview
+      </a>
+      <aside className="sidebar" aria-label="Main navigation">
+        <a className="brand" href="#main-content" aria-label="Worth home">
+          <span className="brand-symbol">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span>
+            worth<span className="brand-period">.</span>
+          </span>
+        </a>
+        <div className="workspace-badge">
+          <span className="workspace-avatar">W</span>
+          <div>
+            <strong>My portfolio</strong>
+            <span>Personal workspace</span>
+          </div>
         </div>
-        <div className="topbar-actions">
-          <label className="base-control">
-            <span>Base</span>
-            <select
-              value={baseOptions.includes(displayBase) ? displayBase : "CUSTOM"}
-              onChange={(event) => {
-                if (event.target.value === "CUSTOM") {
-                  const next = customBase || "AUD";
-                  setCustomBase(next);
-                  setDisplayBase(next);
-                  return;
-                }
-                setDisplayBase(event.target.value);
-              }}
-              aria-label="Display base"
-            >
-              {baseOptions.map((base) => (
-                <option key={base} value={base}>
-                  {base}
-                </option>
-              ))}
-              <option value="CUSTOM">Custom</option>
-            </select>
-            {!baseOptions.includes(displayBase) ? (
-              <input
-                value={customBase}
-                onChange={(event) => {
-                  const next = event.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
-                  setCustomBase(next);
-                  setDisplayBase(next || "USD");
-                }}
-                placeholder="AUD"
-                aria-label="Custom display base"
-              />
-            ) : null}
-          </label>
-          <button type="button" onClick={() => setConfigOpen(true)} className="studio-btn studio-btn-ghost">
-            <Settings2 className="h-4 w-4" aria-hidden="true" />
-            Config
+        <p className="nav-caption">WORKSPACE</p>
+        <nav className="sidebar-nav">
+          <a
+            href="#main-content"
+            className="nav-item active"
+            aria-current="page"
+            aria-label="Overview"
+          >
+            <LayoutDashboard size={18} />
+            <span>Overview</span>
+            <span className="nav-active-dot" />
+          </a>
+          <button
+            type="button"
+            className="nav-item"
+            onClick={openConfig}
+            aria-label="Configuration"
+          >
+            <Settings2 size={18} />
+            <span>Configuration</span>
           </button>
-          <button type="button" onClick={() => void refreshValuation()} disabled={!canRefresh} className="studio-btn studio-btn-primary">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <RefreshCcw className="h-4 w-4" aria-hidden="true" />}
-            Refresh
+          <button
+            type="button"
+            className="nav-item"
+            onClick={() => setModal("help")}
+            aria-label="Guide"
+          >
+            <CircleHelp size={18} />
+            <span>Guide</span>
           </button>
+        </nav>
+        <div className="sidebar-note">
+          <span className="note-decoration">↗</span>
+          <p>
+            Every asset.
+            <br />
+            One clear view.
+          </p>
+          <span>A clearer view of your worth.</span>
         </div>
-      </header>
-
-      <input ref={fileInputRef} type="file" accept="application/json,.json" className="sr-only" onChange={(event) => void loadLocalJson(event.target.files?.[0])} />
-
-      <section className="workspace-shell">
-        <section className="stage-panel">
-          <div className="total-card">
+        <div className="sidebar-footer">
+          <ShieldCheck size={17} />
+          <div>
+            <strong>In your hands</strong>
+            <span>Import and export anytime</span>
+          </div>
+        </div>
+      </aside>
+      <div className="main-shell">
+        <header className="topbar">
+          <div className="breadcrumb">
+            <span>Workspace</span>
+            <ChevronRight size={14} />
+            <strong>Overview</strong>
+          </div>
+          <div className="topbar-right">
+            <span className="environment-dot" />
+            Personal portfolio<span className="profile-avatar">W</span>
+          </div>
+        </header>
+        <main id="main-content" className="main-content">
+          <div className="page-heading">
             <div>
-              <p className="eyebrow">Total Current Asset Value in {valuation?.displayUnit ?? displayBase}</p>
-              <p className="total-value">{loading && !valuation ? "Pricing..." : formatBaseValue(valuation?.totalValue, valuation?.displayUnit ?? displayBase)}</p>
+              <p className="eyebrow">YOUR WEALTH, AT A GLANCE</p>
+              <h1>
+                Portfolio overview<span className="heading-dot">.</span>
+              </h1>
+              <p className="page-description">
+                All your assets. One clear view.
+              </p>
             </div>
-            <div className="summary-chip-grid">
-              <span>VALUED {valuation?.pricedAssetCount ?? 0}</span>
-              <span className={hasFailures ? "text-[#a33838]" : "text-[#24724f]"}>FAILED {valuation?.failedAssetCount ?? 0}</span>
-              <span>{valuation ? formatDate(valuation.generatedAt) : "Waiting for pricing"}</span>
+            <div className="heading-actions">
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => fileRef.current?.click()}
+              >
+                <Plus size={17} />
+                Import assets
+              </button>
+              <button
+                className="button button-primary"
+                type="button"
+                disabled={!loaded || loading}
+                onClick={refresh}
+              >
+                <RefreshCw size={16} className={loading ? "spin" : ""} />
+                {loading ? "Updating" : "Refresh values"}
+              </button>
             </div>
           </div>
-
-          <div className="breakdown-panel">
-            <div className="breakdown-heading">
-              <h2>Asset Breakdown</h2>
-              <span>{assets.length} ITEMS</span>
+          <input
+            type="file"
+            ref={fileRef}
+            accept="application/json,.json"
+            className="sr-only"
+            aria-label="Import assets from a JSON file"
+            onChange={(event) => void loadFile(event.target.files?.[0])}
+          />
+          {loaded?.isSample && (
+            <div className="sample-banner">
+              <span>
+                <FileJson size={15} />
+                <strong>Sample portfolio</strong>
+                <span>
+                  Explore the sample, or import your JSON to get started.
+                </span>
+              </span>
+              <button type="button" onClick={openConfig}>
+                View configuration
+                <ArrowRight size={14} />
+              </button>
             </div>
+          )}
+          {(inputError || error) && (
+            <div className="notice notice-error" role="alert">
+              <TriangleAlert size={18} />
+              <div>
+                <strong>
+                  {inputError ? "Configuration not loaded" : "Update failed"}
+                </strong>
+                <p>
+                  {inputError ?? error}
+                  {valuation && !inputError && valuation.pricedAssetCount > 0
+                    ? " Previously loaded values are still shown."
+                    : ""}
+                </p>
+              </div>
+              <button
+                className="icon-button"
+                type="button"
+                aria-label={
+                  inputError ? "Dismiss configuration error" : "Retry valuation"
+                }
+                onClick={inputError ? () => setInputError(null) : refresh}
+              >
+                {inputError ? <X size={17} /> : <RefreshCw size={17} />}
+              </button>
+            </div>
+          )}
+          {valuation?.displayWarning && (
+            <div className="notice notice-warning" role="status">
+              <TriangleAlert size={18} />
+              <div>
+                <strong>Conversion unavailable; values shown in USD</strong>
+                <p>{valuation.displayWarning}</p>
+              </div>
+            </div>
+          )}
 
-            {assets.length === 0 ? (
-              <div className="empty-state">{loading ? "Fetching latest valuation..." : "Load a JSON file or use the sample configuration."}</div>
-            ) : (
-              <div className="asset-ledger" role="table" aria-label="Asset breakdown">
-                <div className="asset-ledger-head" role="row">
-                  <span>Type</span>
-                  <span>Asset</span>
-                  <span>Share</span>
-                  <span>Quantity</span>
-                  <span>Unit Value</span>
-                  <span>Price</span>
+          <section
+            className="overview-grid"
+            aria-label="Portfolio summary"
+            aria-busy={loading}
+          >
+            <div className="balance-card">
+              <div className="balance-art" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </div>
+              <div className="balance-top">
+                <span className="balance-label">
+                  <Wallet size={17} />
+                  {failedCount
+                    ? "Total available value"
+                    : "Total portfolio value"}
+                </span>
+                <span
+                  className={`balance-status ${failedCount || warningCount ? "is-partial" : ""}`}
+                >
+                  <span />
+                  {loading
+                    ? "Updating"
+                    : !valuation
+                      ? "Awaiting values"
+                      : failedCount
+                        ? "Partial valuation"
+                        : warningCount
+                          ? "Review quotes"
+                          : "Up to date"}
+                </span>
+              </div>
+              <div className="balance-amount" aria-live="polite">
+                {loading && !valuation ? (
+                  <span className="pricing-placeholder">
+                    Fetching values<span className="loading-dots">···</span>
+                  </span>
+                ) : (
+                  formatMoney(total, displayUnit)
+                )}
+              </div>
+              <p className="balance-subtitle">
+                {failedCount
+                  ? `${failedCount} ${failedCount === 1 ? "asset excluded; value unavailable." : "assets excluded; values unavailable."}`
+                  : valuation
+                    ? `${assetCount} ${assetCount === 1 ? "asset" : "assets"} valued in ${displayUnit === "g gold" ? "grams of gold" : displayUnit}`
+                    : "Add your assets for a clear view of your portfolio"}
+              </p>
+              <div className="balance-footer">
+                <div>
+                  <span className="balance-foot-label">Last valuation</span>
+                  <span className="balance-time">
+                    {valuation
+                      ? formatDate(valuation.generatedAt)
+                      : "Awaiting first update"}
+                    {loading && valuation ? " · Refreshing" : ""}
+                  </span>
                 </div>
-                {sortedAssets.map((asset) => (
-                  <button key={asset.id} type="button" className="asset-ledger-row" role="row" onClick={() => setSelectedAssetId(asset.id)}>
-                    <span className={`status-strip ${statusDotTone(asset.status)}`} aria-label={`Status ${asset.status}`} />
-                    <div className="asset-cell asset-status-cell" role="cell">
-                      <span className="type-pill">{asset.type}</span>
-                    </div>
-                    <div className="asset-cell asset-name-cell" role="cell">
-                      <strong>{asset.name}</strong>
-                      <span>{asset.id}</span>
-                    </div>
-                    <div className="asset-cell" role="cell">
-                      <strong>{totalUsd > 0 && asset.usdValue != null ? `${formatNumber((asset.usdValue / totalUsd) * 100, 2)}%` : "N/A"}</strong>
-                    </div>
-                    <div className="asset-cell" role="cell">
-                      <strong>
-                        {formatNumber(asset.quantity)} {asset.unit ?? asset.symbol ?? ""}
-                      </strong>
-                    </div>
-                    <div className="asset-cell" role="cell">
-                      <strong className={changeTone(asset.dailyChangePercent)}>{formatNumber(displayConversionFactor(asset, valuation), 6)}</strong>
-                      <span>per {asset.unit ?? asset.symbol ?? asset.pricingCurrency ?? "unit"}</span>
-                    </div>
-                    <div className="asset-cell asset-usd-cell" role="cell">
-                      <strong>{formatBaseValue(asset.usdValue == null || !valuation ? null : asset.usdValue * valuation.displayRateFromUsd, valuation?.displayUnit ?? displayBase)}</strong>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      </section>
-
-      {selectedAsset ? (
-        <div className="asset-modal" role="dialog" aria-modal="true" aria-labelledby="asset-modal-title" onClick={() => setSelectedAssetId(null)}>
-          <div className="asset-dialog" onClick={(event) => event.stopPropagation()}>
-            <div className="asset-dialog-header">
-              <div>
-                <p className="eyebrow">{selectedAsset.type}</p>
-                <h2 id="asset-modal-title">{selectedAsset.name}</h2>
-                <p>{selectedAsset.id}</p>
-              </div>
-              <button type="button" className="studio-btn studio-btn-ghost" onClick={() => setSelectedAssetId(null)}>
-                Close
-              </button>
-            </div>
-            <dl className="asset-detail-grid">
-              <div>
-                <dt>Status</dt>
-                <dd>{selectedAsset.status}</dd>
-              </div>
-              <div>
-                <dt>Type</dt>
-                <dd>{selectedAsset.type}</dd>
-              </div>
-              <div>
-                <dt>Quantity</dt>
-                <dd>
-                  {formatNumber(selectedAsset.quantity)} {selectedAsset.unit ?? selectedAsset.symbol ?? ""}
-                </dd>
-              </div>
-              <div>
-                <dt>Current Price</dt>
-                <dd>{selectedAsset.price == null ? "N/A" : `${formatNumber(selectedAsset.price, 6)} ${selectedAsset.pricingCurrency ?? ""}`}</dd>
-              </div>
-              <div>
-                <dt>Pricing Currency</dt>
-                <dd>{selectedAsset.pricingCurrency ?? "N/A"}</dd>
-              </div>
-              <div>
-                <dt>Unit Value</dt>
-                <dd>{formatNumber(displayConversionFactor(selectedAsset, valuation), 6)}</dd>
-              </div>
-              <div>
-                <dt>Base Value</dt>
-                <dd>{formatBaseValue(selectedAsset.usdValue == null || !valuation ? null : selectedAsset.usdValue * valuation.displayRateFromUsd, valuation?.displayUnit ?? displayBase)}</dd>
-              </div>
-              <div>
-                <dt>Last Updated</dt>
-                <dd>{formatDate(selectedAsset.updatedAt)}</dd>
-              </div>
-              <div className="detail-wide">
-                <dt>Data Source</dt>
-                <dd>{selectedAsset.source}</dd>
-              </div>
-              <div className="detail-wide">
-                <dt>Status Detail</dt>
-                <dd>{selectedAsset.message}</dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      ) : null}
-
-      {configOpen ? (
-        <div className="asset-modal" role="dialog" aria-modal="true" aria-labelledby="config-modal-title" onClick={() => setConfigOpen(false)}>
-          <div className="asset-dialog config-dialog" onClick={(event) => event.stopPropagation()}>
-            <div className="asset-dialog-header">
-              <div>
-                <p className="eyebrow">Configuration</p>
-                <h2 id="config-modal-title">Asset JSON</h2>
-                <p>Load and validate the active portfolio file.</p>
-              </div>
-              <button type="button" className="studio-btn studio-btn-ghost" onClick={() => setConfigOpen(false)}>
-                Close
-              </button>
-            </div>
-
-            <div className="config-panel-grid">
-              <div className="panel-section">
-                <p className="control-label">Loaded Configuration</p>
-                <div className="file-tile">
-                  <FileJson className="h-5 w-5 text-[#285fdf]" aria-hidden="true" />
-                  <div className="min-w-0">
-                    <p className="m-0 truncate font-semibold text-[#162033]">{fileName}</p>
-                    <p className="m-0 mt-1 text-xs text-[#5f6d82]">
-                      {configSummary.assetCount} assets / {configSummary.baseCurrency} valuation
-                    </p>
+                <div className="base-picker">
+                  <label htmlFor="display-base">Display unit</label>
+                  <div className="select-wrap">
+                    <select
+                      id="display-base"
+                      value={baseMode}
+                      onChange={(event) => {
+                        setBaseMode(event.target.value);
+                        setBaseError(null);
+                        if (event.target.value !== "CUSTOM")
+                          setDisplayBase(event.target.value);
+                      }}
+                    >
+                      {baseOptions.map((base) => (
+                        <option value={base} key={base}>
+                          {base === "GOLD" ? "Gold / g" : base}
+                        </option>
+                      ))}
+                      <option value="CUSTOM">Custom</option>
+                    </select>
+                    <ChevronDown size={13} />
                   </div>
                 </div>
               </div>
-
-              <div className="panel-section">
-                <p className="control-label">Validation</p>
-                {parsed.error ? (
-                  <p className="status-box status-error">{parsed.error}</p>
-                ) : sampleLoading ? (
-                  <p className="status-box status-ok">Loading sample JSON...</p>
-                ) : (
-                  <p className="status-box status-ok">JSON format is valid and ready to price.</p>
-                )}
-                {apiError ? <p className="status-box status-error">{apiError}</p> : null}
+            </div>
+            <div className="allocation-card">
+              <div className="section-card-heading">
+                <div>
+                  <p className="eyebrow">PORTFOLIO MIX</p>
+                  <h2>Asset allocation</h2>
+                </div>
+                <span className="tiny-label">By available value</span>
               </div>
+              <div className="allocation-content">
+                <div
+                  className="donut"
+                  style={donutStyle}
+                  role="img"
+                  aria-label={
+                    valuation?.totalUsd
+                      ? allocation
+                          .filter((item) => item.value > 0)
+                          .map(
+                            (item) =>
+                              `${item.label} ${formatNumber((item.value / valuation.totalUsd) * 100, 1)}%`,
+                          )
+                          .join(", ")
+                      : "No asset allocation available"
+                  }
+                >
+                  <div className="donut-center">
+                    <strong>
+                      {valuation
+                        ? allocation.filter((item) => item.count > 0).length
+                        : "—"}
+                    </strong>
+                    <span>Categories</span>
+                  </div>
+                </div>
+                <div className="allocation-legend">
+                  {allocation.map((item) => (
+                    <button
+                      type="button"
+                      className={`legend-item ${filter === item.type ? "legend-active" : ""}`}
+                      key={item.type}
+                      onClick={() =>
+                        setFilter(filter === item.type ? "all" : item.type)
+                      }
+                      aria-pressed={filter === item.type}
+                    >
+                      <span
+                        className="legend-dot"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span>{item.label}</span>
+                      <strong>
+                        {valuation?.totalUsd
+                          ? `${formatNumber((item.value / valuation.totalUsd) * 100, 1)}%`
+                          : "—"}
+                      </strong>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+          {baseMode === "CUSTOM" && (
+            <form
+              className="custom-base-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (!/^[A-Z]{3}$/.test(customBase)) {
+                  setBaseError(
+                    "Enter a three-letter currency code, such as AUD.",
+                  );
+                  return;
+                }
+                setBaseError(null);
+                setDisplayBase(customBase);
+              }}
+            >
+              <Globe2 size={17} />
+              <label htmlFor="custom-base">Custom currency</label>
+              <input
+                id="custom-base"
+                value={customBase}
+                maxLength={3}
+                placeholder="AUD"
+                autoComplete="off"
+                onChange={(event) =>
+                  setCustomBase(
+                    event.target.value.toUpperCase().replace(/[^A-Z]/g, ""),
+                  )
+                }
+              />
+              <button className="button button-small" type="submit">
+                Apply
+              </button>
+              <span className={baseError ? "text-error" : "muted"}>
+                {baseError ??
+                  `Current results: ${unitLabel}. Apply when ready.`}
+              </span>
+            </form>
+          )}
+          <section className="stats-grid" aria-label="Valuation status">
+            <div className="stat-card">
+              <span className="stat-icon stat-green">
+                <ShieldCheck size={20} />
+              </span>
+              <div>
+                <span className="stat-label">Assets valued</span>
+                <strong>
+                  {valuation ? pricedCount : "—"}
+                  <small> / {assetCount}</small>
+                </strong>
+              </div>
+              <div className="mini-progress" aria-hidden="true">
+                <span
+                  style={{
+                    width: `${assetCount ? (pricedCount / assetCount) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="stat-card">
+              <span className="stat-icon stat-blue">
+                <Globe2 size={20} />
+              </span>
+              <div>
+                <span className="stat-label">Pricing currencies</span>
+                <strong>
+                  {loaded ? currencyCount : "—"}
+                  <small>
+                    {currencyCount === 1 ? " currency" : " currencies"}
+                  </small>
+                </strong>
+              </div>
+              <span className="stat-caption">One view</span>
+            </div>
+            <div className="stat-card">
+              <span
+                className={`stat-icon ${needsAttention ? "stat-amber" : "stat-neutral"}`}
+              >
+                <SlidersHorizontal size={20} />
+              </span>
+              <div>
+                <span className="stat-label">Needs attention</span>
+                <strong>
+                  {valuation ? needsAttention : "—"}
+                  <small>{needsAttention === 1 ? " asset" : " assets"}</small>
+                </strong>
+              </div>
+              <span
+                className={`stat-caption ${needsAttention ? "text-amber" : ""}`}
+              >
+                {!valuation
+                  ? "Awaiting check"
+                  : needsAttention
+                    ? "Review details"
+                    : "All clear"}
+              </span>
+            </div>
+          </section>
 
-              <div className="config-actions">
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="studio-btn studio-btn-primary">
-                  <Upload className="h-4 w-4" aria-hidden="true" />
-                  Load JSON
+          <section className="holdings-card" aria-labelledby="holdings-title">
+            <div className="holdings-heading">
+              <div>
+                <h2 id="holdings-title">
+                  Holdings<span className="count-badge">{assetCount}</span>
+                </h2>
+                <p>Values and status for every asset.</p>
+              </div>
+              <button
+                className="button button-quiet"
+                type="button"
+                disabled={!loaded}
+                onClick={downloadConfig}
+              >
+                <ArrowDownToLine size={16} />
+                Export configuration
+              </button>
+            </div>
+            <div className="table-toolbar">
+              <div
+                className="filter-tabs"
+                role="group"
+                aria-label="Filter by asset category"
+              >
+                <button
+                  type="button"
+                  className={filter === "all" ? "selected" : ""}
+                  onClick={() => setFilter("all")}
+                  aria-pressed={filter === "all"}
+                >
+                  All assets
                 </button>
+                {(
+                  Object.entries(categories) as [
+                    AssetType,
+                    typeof categories.cash,
+                  ][]
+                ).map(([type, meta]) => (
+                  <button
+                    key={type}
+                    type="button"
+                    className={filter === type ? "selected" : ""}
+                    onClick={() => setFilter(type)}
+                    aria-pressed={filter === type}
+                  >
+                    {meta.short}
+                  </button>
+                ))}
+              </div>
+              <label className="search-field">
+                <Search size={16} />
+                <input
+                  aria-label="Search assets"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search name, symbol…"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    aria-label="Clear search"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
+              </label>
+              <select
+                className="sort-select"
+                aria-label="Sort assets"
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+              >
+                <option value="value">By value</option>
+                <option value="name">By name</option>
+                <option value="status">Issues first</option>
+              </select>
+            </div>
+            {assets.length > 0 ? (
+              <div className="table-scroll">
+                <table className="asset-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Asset</th>
+                      <th scope="col">Category</th>
+                      <th scope="col" className="numeric">
+                        Quantity
+                      </th>
+                      <th scope="col" className="share-column">
+                        Allocation
+                      </th>
+                      <th scope="col" className="numeric">
+                        Value <span className="table-unit">/ {unitLabel}</span>
+                      </th>
+                      <th scope="col">
+                        <span className="sr-only">View details</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredAssets.map((asset) => {
+                      const meta = categories[asset.type];
+                      const Icon = meta.icon;
+                      const share =
+                        valuation &&
+                        valuation.totalUsd > 0 &&
+                        asset.usdValue !== null
+                          ? (asset.usdValue / valuation.totalUsd) * 100
+                          : null;
+                      return (
+                        <tr key={asset.id}>
+                          <td>
+                            <button
+                              className="asset-name-button"
+                              type="button"
+                              onClick={() => setSelectedId(asset.id)}
+                            >
+                              <span
+                                className="asset-icon"
+                                style={categoryStyle(asset.type)}
+                              >
+                                <Icon size={20} />
+                              </span>
+                              <span className="asset-name">
+                                <strong>{asset.name}</strong>
+                                <span>{asset.symbol ?? asset.id}</span>
+                              </span>
+                            </button>
+                          </td>
+                          <td>
+                            <span
+                              className="category-pill"
+                              style={categoryStyle(asset.type)}
+                            >
+                              {meta.short}
+                            </span>
+                          </td>
+                          <td className="numeric quantity-cell">
+                            {formatNumber(asset.quantity, 4)}
+                            <span>{quantityUnit(asset)}</span>
+                          </td>
+                          <td className="share-column">
+                            <div className="share-content">
+                              <span>
+                                {share === null
+                                  ? "—"
+                                  : `${formatNumber(share, 1)}%`}
+                              </span>
+                              <div className="share-track">
+                                <span
+                                  style={{
+                                    width: `${share ?? 0}%`,
+                                    backgroundColor: meta.color,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="numeric">
+                            <strong className="asset-value">
+                              {formatMoney(
+                                asset.usdValue === null
+                                  ? null
+                                  : asset.usdValue * rate,
+                                displayUnit,
+                              )}
+                            </strong>
+                            <span
+                              className={`asset-status status-${asset.status}`}
+                            >
+                              <i />
+                              {statuses[asset.status]}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="row-arrow"
+                              onClick={() => setSelectedId(asset.id)}
+                              aria-label={`View details for ${asset.name}`}
+                            >
+                              <ArrowUpRight size={17} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {filteredAssets.length === 0 && (
+                  <div className="empty-state">
+                    <Search size={26} />
+                    <h3>No matching assets</h3>
+                    <p>Try another search or asset category.</p>
+                    <button
+                      className="button button-secondary"
+                      type="button"
+                      onClick={() => {
+                        setFilter("all");
+                        setSearch("");
+                      }}
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="empty-state">
+                {loading || sampleLoading ? (
+                  <Loader2 size={30} className="spin" />
+                ) : (
+                  <Wallet size={32} />
+                )}
+                <h3>
+                  {loading || sampleLoading
+                    ? "Loading your portfolio"
+                    : error
+                      ? "Values unavailable"
+                      : "Start with your first portfolio"}
+                </h3>
+                <p>
+                  {loading || sampleLoading
+                    ? "Fetching quotes and converting to your display unit."
+                    : error
+                      ? "Try again or check your asset configuration."
+                      : "Import a JSON file or add assets in Configuration."}
+                </p>
+                {!loading && !sampleLoading && (
+                  <button
+                    className="button button-secondary"
+                    type="button"
+                    onClick={error ? refresh : openConfig}
+                  >
+                    {error ? "Try again" : "Configure assets"}
+                    <ArrowRight size={15} />
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="table-footer">
+              <span>
+                {assets.length
+                  ? `Showing ${filteredAssets.length} of ${assets.length} ${assets.length === 1 ? "asset" : "assets"}`
+                  : "Cash, gold, stocks, and custom assets"}
+              </span>
+              <span>
+                <span className="footer-dot" />
+                {failedCount
+                  ? "Allocation uses available values only"
+                  : "See asset details for quote times"}
+              </span>
+            </div>
+          </section>
+          <footer className="page-footer">
+            <span>
+              WORTH <span className="footer-separator">/</span> A clearer view
+              of your worth
+            </span>
+            <span>Indicative values · Liabilities excluded</span>
+          </footer>
+        </main>
+      </div>
+      {modal === "config" && (
+        <Dialog
+          title="Portfolio configuration"
+          eyebrow="YOUR PORTFOLIO"
+          wide
+          onClose={() => setModal(null)}
+        >
+          <div className="config-file">
+            <span className="stat-icon stat-green">
+              <FileJson size={22} />
+            </span>
+            <div>
+              <strong>{loaded?.name ?? "New portfolio"}</strong>
+              <p>
+                {assetCount} {assetCount === 1 ? "asset" : "assets"} · USD base
+                valuation
+              </p>
+            </div>
+            <button
+              className="button button-secondary button-small"
+              type="button"
+              onClick={() => fileRef.current?.click()}
+            >
+              Import file
+            </button>
+          </div>
+          <form onSubmit={applyDraft}>
+            <div className="editor-label">
+              <label htmlFor="config-json">JSON configuration</label>
+              <span>Apply changes to the dashboard</span>
+            </div>
+            <textarea
+              id="config-json"
+              className="json-editor"
+              spellCheck={false}
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+            />
+            <p className="editor-hint">
+              Supported types: gold, cash, stock, custom. Each asset needs a
+              unique id. Changes stay in this tab; export before closing.
+            </p>
+            {draftError && (
+              <div className="notice notice-error" role="alert">
+                <TriangleAlert size={17} />
+                <p>{draftError}</p>
+              </div>
+            )}
+            <div className="dialog-actions">
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => setModal(null)}
+              >
+                Cancel
+              </button>
+              <button className="button button-primary" type="submit">
+                <Check size={16} />
+                Apply configuration
+              </button>
+            </div>
+          </form>
+        </Dialog>
+      )}
+      {selectedAsset && (
+        <Dialog
+          title={selectedAsset.name}
+          eyebrow="ASSET DETAILS"
+          onClose={() => setSelectedId(null)}
+        >
+          <div className="detail-balance">
+            <span>Current value · {unitLabel}</span>
+            <strong>
+              {formatMoney(
+                selectedAsset.usdValue === null
+                  ? null
+                  : selectedAsset.usdValue * rate,
+                displayUnit,
+              )}
+            </strong>
+            <span className={`asset-status status-${selectedAsset.status}`}>
+              <i />
+              {statuses[selectedAsset.status]}
+            </span>
+          </div>
+          {selectedAsset.warning && (
+            <div className="notice notice-warning detail-warning">
+              <TriangleAlert size={17} />
+              <p>{selectedAsset.warning}</p>
+            </div>
+          )}
+          <dl className="detail-grid">
+            <div>
+              <dt>Category</dt>
+              <dd>{categories[selectedAsset.type].label}</dd>
+            </div>
+            <div>
+              <dt>Quantity</dt>
+              <dd>
+                {formatNumber(selectedAsset.quantity, 6)}{" "}
+                {quantityUnit(selectedAsset)}
+              </dd>
+            </div>
+            <div>
+              <dt>Original quote</dt>
+              <dd>
+                {formatMoney(
+                  selectedAsset.price,
+                  selectedAsset.pricingCurrency ?? "USD",
+                )}
+                {selectedAsset.priceUnit ? ` / ${selectedAsset.priceUnit}` : ""}
+              </dd>
+            </div>
+            <div>
+              <dt>Exchange rate to USD</dt>
+              <dd>{formatNumber(selectedAsset.fxRateToUsd, 6)}</dd>
+            </div>
+            <div>
+              <dt>Daily change (original currency)</dt>
+              <dd>
+                {selectedAsset.dailyChangePercent == null
+                  ? "No data"
+                  : `${selectedAsset.dailyChangePercent > 0 ? "+" : ""}${formatNumber(selectedAsset.dailyChangePercent)}%`}
+              </dd>
+            </div>
+            <div>
+              <dt>Quote updated</dt>
+              <dd>{formatDate(selectedAsset.updatedAt)}</dd>
+            </div>
+            <div className="detail-full">
+              <dt>Data source</dt>
+              <dd>{selectedAsset.source}</dd>
+            </div>
+            <div className="detail-full">
+              <dt>Valuation details</dt>
+              <dd>{selectedAsset.message}</dd>
+            </div>
+          </dl>
+          <div className="detail-id">
+            ASSET ID <span>{selectedAsset.id}</span>
+          </div>
+        </Dialog>
+      )}
+      {modal === "help" && (
+        <Dialog
+          title="Get to know your portfolio"
+          eyebrow="GETTING STARTED"
+          onClose={() => setModal(null)}
+        >
+          <div className="help-steps">
+            <div>
+              <span>01</span>
+              <div>
+                <h3>Import your assets</h3>
+                <p>
+                  Upload a JSON file or edit it in Configuration. Enter currency
+                  and amount for cash, symbol and shares for stocks, and weight
+                  and unit for gold.
+                </p>
+              </div>
+            </div>
+            <div>
+              <span>02</span>
+              <div>
+                <h3>Get current values</h3>
+                <p>
+                  Select Refresh values to fetch the latest available quotes.
+                  Choose a display currency or view your portfolio in grams of
+                  gold.
+                </p>
+              </div>
+            </div>
+            <div>
+              <span>03</span>
+              <div>
+                <h3>Check data status</h3>
+                <p>
+                  Unavailable values appear as a dash and are excluded from
+                  totals. Asset details include quote sources and timestamps.
+                  Exchange rates and market quotes may be delayed.
+                </p>
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
-    </main>
+          <div className="help-note">
+            <ShieldCheck size={19} />
+            <p>
+              Your configuration stays in this tab. Reloading restores the
+              sample. Use Export configuration to save your changes.
+            </p>
+          </div>
+        </Dialog>
+      )}
+    </div>
   );
 }
