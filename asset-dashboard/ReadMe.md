@@ -1,6 +1,6 @@
 # Asset Dashboard
 
-A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Import a JSON portfolio to value gold, U.S. stocks, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp.
+A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Import a JSON portfolio to value gold, U.S. stocks, supported mutual funds, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp. The interface, validation messages, and documentation are in English.
 
 ## Run locally
 
@@ -37,6 +37,8 @@ npm run dev -- --hostname 127.0.0.1
 
 For production mode, run `npm run build`, then `npm start -- --hostname 127.0.0.1`. Starting through npm does not automatically open the browser.
 
+Development uses `.next-dev`, while production builds use `.next`, so hot reloads do not overwrite a running production preview. Use different ports when running both modes.
+
 ## Market data and optional API keys
 
 Copy the environment template and add keys for the providers you want to use:
@@ -58,7 +60,7 @@ External requests have time limits. Each valuation reuses quotes for the same go
 
 ## Portfolio configuration
 
-Paste or import JSON in the dashboard's configuration dialog. See `sample-config.json` for another example.
+Paste or import JSON in the dashboard's configuration dialog. The startup example is `public/sample-config.json`; `sample-config.json` is also available as an import template. Both include 2,172.16 units of fund `000055`.
 
 ```json
 {
@@ -100,10 +102,27 @@ Paste or import JSON in the dashboard's configuration dialog. See `sample-config
 - `baseCurrency` is always `USD`. Select the display currency separately in the dashboard.
 - Every `id` must be unique. `quantity` and custom `price` must be finite, nonnegative numbers no greater than 1 trillion.
 - A portfolio can contain up to 100 assets.
-- Supported types are `gold`, `cash`, `stock`, and `custom`. Legacy types `fx` and `stock_us` are normalized to `cash` and `stock` respectively.
+- Supported types are `gold`, `cash`, `stock`, `fund`, and `custom`. Legacy types `fx` and `stock_us` are normalized to `cash` and `stock` respectively.
 - Gold supports `gram`, `kilogram`, `ounce` (troy ounce), `pound`, and common abbreviations.
 - Use three-letter currency codes, such as `USD`, `CNY`, or `EUR`.
 - Custom assets use the supplied unit price. Their market price is not fetched automatically.
+
+### Mutual funds and QDII
+
+The `fund` type uses the latest **published unit NAV** from GF Fund Management's public data service. It supports fund codes published by that manager, not every fund provider. NAV dates can lag the current date, especially for QDII funds and holidays; these are not intraday stock quotes. Details show the published NAV to four decimal places, its currency, date, and source.
+
+```json
+{
+  "id": "fund_qdii_000055",
+  "type": "fund",
+  "name": "GF Nasdaq-100 ETF Feeder (QDII) - USD A",
+  "code": "000055",
+  "currency": "USD",
+  "quantity": 2172.16
+}
+```
+
+Fund `000055` is the **USD Class A** share class, as identified by the [fund manager](https://gfwx.gffunds.com.cn/funds/?fundcode=000055). The English name above is a descriptive translation. Its units are valued using USD NAV without an extra CNY conversion. The optional `currency` field must match the provider's share-class currency. Unsupported codes or unavailable NAVs are reported as unavailable, never replaced with invented prices.
 
 ## Valuation API
 

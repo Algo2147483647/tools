@@ -8,7 +8,10 @@ export function useValuation(
   config: PortfolioConfig | null,
   displayBase: string,
 ) {
-  const [data, setData] = useState<ValuationResponse | null>(null);
+  const [snapshot, setSnapshot] = useState<{
+    config: PortfolioConfig;
+    data: ValuationResponse;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [revision, setRevision] = useState(0);
@@ -18,9 +21,9 @@ export function useValuation(
 
   useEffect(() => {
     if (!config) return;
+    const requestConfig = config;
     const request = gate.current.begin();
     if (previousConfig.current !== config) {
-      setData(null);
       previousConfig.current = config;
     }
     setLoading(true);
@@ -51,7 +54,10 @@ export function useValuation(
         if (!response.ok) {
           // A fully failed portfolio still carries per-asset diagnostics.
           if (response.status === 502 && hasValuation && request.isCurrent())
-            setData(result as ValuationResponse);
+            setSnapshot({
+              config: requestConfig,
+              data: result as ValuationResponse,
+            });
           throw new Error(
             result.error || `Valuation failed (HTTP ${response.status}).`,
           );
@@ -61,7 +67,11 @@ export function useValuation(
             "The valuation service returned invalid data. Please try again.",
           );
         }
-        if (request.isCurrent()) setData(result as ValuationResponse);
+        if (request.isCurrent())
+          setSnapshot({
+            config: requestConfig,
+            data: result as ValuationResponse,
+          });
       } catch (reason) {
         if (request.isCurrent())
           setError(
@@ -81,5 +91,12 @@ export function useValuation(
     };
   }, [config, displayBase, revision]);
 
-  return { data, error, loading, refresh };
+  // Do not show the previous portfolio even for the render before the effect runs.
+  const configChanged = previousConfig.current !== config;
+  return {
+    data: snapshot?.config === config ? snapshot.data : null,
+    error: configChanged ? null : error,
+    loading: loading || Boolean(config && configChanged),
+    refresh,
+  };
 }

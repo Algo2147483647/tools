@@ -70,6 +70,14 @@
       "name": "USD Cash 850",
       "currency": "USD",
       "quantity": 8663
+    },
+    {
+      "id": "fund_qdii_000055",
+      "type": "fund",
+      "name": "GF Nasdaq-100 ETF Feeder (QDII) - USD A",
+      "code": "000055",
+      "currency": "USD",
+      "quantity": 2172.16
     }
   ]
 }

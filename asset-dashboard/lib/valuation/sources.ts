@@ -1,4 +1,4 @@
-import type { FxRatePoint, PricePoint } from "./types";
+import type { FundPricePoint, FxRatePoint, PricePoint } from "./types";
 import { ValuationError } from "./types";
 import { createPricingContext, type PricingContext } from "./request";
 export { goldQuantityToTroyOunces } from "./units";
@@ -131,6 +131,32 @@ export async function fetchGoldSpotUsd(context = createPricingContext()): Promis
   return {
     price: positiveQuote(data.price, "Gold-API.com"), currency: "USD", unit: "troy ounce",
     source: "Gold-API.com free XAU/USD quote", updatedAt: quoteTimestamp(data.updatedAt)
+  };
+}
+
+/** Published share-class NAVs from GF Fund Management's own fund-detail API. */
+export async function fetchFundNav(code: string, context = createPricingContext()): Promise<FundPricePoint> {
+  const url = new URL("https://www.gffunds.com.cn/apistore/JsonService");
+  url.searchParams.set("service", "BaseInfo");
+  url.searchParams.set("method", "Fund");
+  url.searchParams.set("op", "queryFundByGFFundcode");
+  url.searchParams.set("fundcode", code);
+  const data = await context.json<{
+    errorno?: string | number;
+    data?: Array<{ FUNDCODE?: string; MONEYTYPE?: string; NAVUNIT?: string | number; NAVDATE?: string; DAYINCREMENTRATE?: string | number }>;
+  }>(url, { headers: { Accept: "application/json" }, next: { revalidate: 300 } });
+  const quote = Array.isArray(data.data) ? data.data.find((item) => item.FUNDCODE === code) : undefined;
+  if (String(data.errorno) !== "20000" || !quote) sourceError(`GF Fund Management returned no published NAV for fund ${code}.`);
+  const rawCurrency = typeof quote.MONEYTYPE === "string" ? quote.MONEYTYPE.trim().toUpperCase() : "";
+  const currency = rawCurrency === "RMB" ? "CNY" : rawCurrency;
+  if (!/^[A-Z]{3}$/.test(currency)) sourceError(`GF Fund Management returned no share-class currency for fund ${code}.`);
+  const navDate = typeof quote.NAVDATE === "string" ? quote.NAVDATE.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3") : "";
+  const updatedAt = /^\d{4}-\d{2}-\d{2}$/.test(navDate) ? quoteTimestamp(navDate) : null;
+  if (!updatedAt || updatedAt.slice(0, 10) !== navDate) sourceError(`GF Fund Management returned an invalid NAV date for fund ${code}.`);
+  return {
+    price: positiveQuote(quote.NAVUNIT, "GF Fund Management NAV"), currency, unit: "NAV per unit",
+    source: "GF Fund Management official published NAV", updatedAt, navDate, referenceNAV: true,
+    dailyChangePercent: percent(quote.DAYINCREMENTRATE)
   };
 }
 

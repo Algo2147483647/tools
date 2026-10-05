@@ -23,6 +23,88 @@ const json = (value: unknown) => Response.json(value);
 const stockQuote = (date = new Date().toISOString()) => ({
   data: { exchange: "NASDAQ", primaryData: { lastSalePrice: "$123.50", lastTradeTimestamp: date, percentageChange: "1.5%" } }
 });
+const fundQuote = (changes: Record<string, unknown> = {}) => ({
+  errorno: "20000",
+  data: [{ FUNDCODE: "000055", MONEYTYPE: "USD", NAVUNIT: "1.2375", NAVDATE: "20260929", DAYINCREMENTRATE: "0.19", ...changes }]
+});
+
+test("validates six-digit fund codes and an optional expected share-class currency", () => {
+  for (const code of ["55", 55, "0000557", "A00055", "../055", ""]) {
+    assert.throws(() => validatePortfolioConfig({ assets: [{ id: "fund", type: "fund", quantity: 1, code }] }));
+  }
+  const result = validatePortfolioConfig({ assets: [{ id: "fund", type: "fund", code: "000055", quantity: 2172.16, currency: " usd " }] });
+  assert.deepEqual(result.assets[0], { id: "fund", type: "fund", name: undefined, code: "000055", quantity: 2172.16, currency: "USD" });
+});
+
+test("values 000055 units using its official USD NAV and preserves the NAV date", async () => {
+  const urls: string[] = [];
+  const result = await valuePortfolio(portfolio({ id: "fund", type: "fund", code: "000055", currency: "USD", quantity: 2172.16 }), "USD", {
+    fetch: async (url) => { urls.push(String(url)); return json(fundQuote()); }
+  });
+  assert.equal(urls.length, 1, "USD share class should not request a CNY exchange rate.");
+  assert.match(urls[0], /gffunds\.com\.cn.*fundcode=000055/);
+  assert.ok(Math.abs(result.totalUsd - 2688.048) < 1e-9);
+  const asset = result.assets[0];
+  assert.equal(asset.pricingCurrency, "USD");
+  assert.equal(asset.price, 1.2375);
+  assert.equal(asset.unit, "units");
+  assert.equal(asset.navDate, "2026-09-29");
+  assert.equal(asset.updatedAt, "2026-09-29T00:00:00.000Z");
+  assert.equal(asset.referenceNAV, true);
+  assert.equal(asset.fundCode, "000055");
+  assert.equal(asset.name, "GF Nasdaq-100 ETF Feeder (QDII) - USD A");
+  assert.match(asset.message, /Reference valuation/);
+});
+
+test("deduplicates published NAV requests for the same fund", async () => {
+  let calls = 0;
+  const result = await valuePortfolio(portfolio(
+    { id: "fund-a", type: "fund", code: "000055", quantity: 100 },
+    { id: "fund-b", type: "fund", code: "000055", quantity: 200 }
+  ), "USD", { fetch: async () => { calls += 1; return json(fundQuote()); } });
+  assert.equal(calls, 1);
+  assert.equal(result.totalUsd, 371.25);
+});
+
+test("converts a RMB fund NAV with the shared CNY exchange rate", async () => {
+  const urls: string[] = [];
+  const result = await valuePortfolio(portfolio(
+    { id: "fund", type: "fund", code: "270042", currency: "CNY", quantity: 10 },
+    { id: "cash", type: "cash", currency: "CNY", quantity: 20 }
+  ), "CNY", { fetch: async (url) => {
+    urls.push(String(url));
+    return json(String(url).includes("gffunds") ? fundQuote({ FUNDCODE: "270042", MONEYTYPE: "RMB", NAVUNIT: "8" }) : { rates: { USD: 0.14 } });
+  } });
+  assert.equal(urls.length, 2, "Fund, cash and display should share the same FX snapshot.");
+  assert.equal(result.assets[0].pricingCurrency, "CNY");
+  assert.ok(Math.abs(result.totalUsd - 14) < 1e-12);
+  assert.ok(Math.abs(result.totalValue - 100) < 1e-12);
+});
+
+test("rejects invalid published NAVs, dates and mismatched provider fund codes", async () => {
+  for (const changes of [{ NAVUNIT: "0" }, { NAVUNIT: "-1" }, { NAVUNIT: "invalid" }, { NAVDATE: "20260230" }, { NAVDATE: "unknown" }, { NAVDATE: undefined }, { FUNDCODE: "270042" }, { MONEYTYPE: "" }]) {
+    const result = await valuePortfolio(portfolio({ id: "fund", type: "fund", code: "000055", quantity: 1 }), "USD", {
+      fetch: async () => json(fundQuote(changes))
+    });
+    assert.equal(result.assets[0].status, "failed", JSON.stringify(changes));
+    assert.equal(result.assets[0].usdValue, null);
+    assert.equal(result.assets[0].fundCode, "000055");
+  }
+});
+
+test("does not silently price a USD fund as CNY or expose provider language in errors", async () => {
+  const wrongCurrency = await valuePortfolio(portfolio({ id: "fund", type: "fund", code: "000055", currency: "CNY", quantity: 1 }), "USD", {
+    fetch: async () => json(fundQuote())
+  });
+  assert.equal(wrongCurrency.assets[0].status, "failed");
+  assert.match(wrongCurrency.assets[0].message, /priced in USD/);
+  const providerError = await valuePortfolio(portfolio({ id: "fund", type: "fund", code: "000055", quantity: 1 }), "USD", {
+    fetch: async () => json({ errorno: "500", errormsg: "基金资料暂不可用" })
+  });
+  assert.equal(providerError.assets[0].status, "failed");
+  assert.match(providerError.assets[0].message, /GF Fund Management returned no published NAV/);
+  assert.doesNotMatch(providerError.assets[0].message, /[\u4e00-\u9fff]/);
+});
 
 test("validates units, whitespace, bounded strings, quantities and asset count before fetching", () => {
   const cash = { id: "cash", type: "cash", currency: "USD", quantity: 1 };

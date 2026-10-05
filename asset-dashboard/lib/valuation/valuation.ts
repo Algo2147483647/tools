@@ -1,6 +1,6 @@
-import type { AssetConfig, AssetValuation, FxRatePoint, PortfolioConfig, PricePoint, ValuationResponse } from "./types";
+import type { AssetConfig, AssetValuation, FundPricePoint, FxRatePoint, PortfolioConfig, PricePoint, ValuationResponse } from "./types";
 import { ValuationError } from "./types";
-import { fetchAlphaVantageQuote, fetchFrankfurterRate, fetchGoldSpotUsd } from "./sources";
+import { fetchAlphaVantageQuote, fetchFrankfurterRate, fetchFundNav, fetchGoldSpotUsd } from "./sources";
 import { goldQuantityToTroyOunces, TROY_OUNCE_GRAMS } from "./units";
 import { createPricingContext, type PricingOptions } from "./request";
 import { validatePortfolioConfig } from "./schema";
@@ -18,6 +18,7 @@ function createQuotes(options: PricingOptions) {
   const context = createPricingContext(options);
   let gold: Promise<PricePoint> | undefined;
   const stocks = new Map<string, Promise<PricePoint>>();
+  const funds = new Map<string, Promise<FundPricePoint>>();
   const fx = new Map<string, Promise<FxRatePoint>>();
   return {
     gold: () => gold ??= fetchGoldSpotUsd(context),
@@ -25,6 +26,10 @@ function createQuotes(options: PricingOptions) {
       const key = symbol.toUpperCase();
       if (!stocks.has(key)) stocks.set(key, fetchAlphaVantageQuote(key, context));
       return stocks.get(key)!;
+    },
+    fund(code: string) {
+      if (!funds.has(code)) funds.set(code, fetchFundNav(code, context));
+      return funds.get(code)!;
     },
     fx(from: string, to = "USD") {
       const key = `${from}-${to}`;
@@ -65,6 +70,9 @@ function assetName(asset: AssetConfig): string {
   if (asset.type === "gold") {
     return "Gold";
   }
+  if (asset.type === "fund") {
+    return asset.code === "000055" ? "GF Nasdaq-100 ETF Feeder (QDII) - USD A" : `Fund ${asset.code}`;
+  }
   return asset.id;
 }
 
@@ -77,6 +85,7 @@ function failedAsset(asset: AssetConfig, error: unknown): AssetValuation {
     quantity: asset.quantity,
     unit: "unit" in asset ? asset.unit : undefined,
     symbol: "symbol" in asset ? asset.symbol : undefined,
+    fundCode: asset.type === "fund" ? asset.code : undefined,
     price: null,
     pricingCurrency: null,
     fxRateToUsd: null,
@@ -152,6 +161,23 @@ async function valueAsset(asset: AssetConfig, quotes: Quotes): Promise<AssetValu
         updatedAt: quote.updatedAt,
         status: "ok",
         message: `${asset.symbol} latest available U.S. market quote.`
+      };
+    }
+
+    if (asset.type === "fund") {
+      const quote = await quotes.fund(asset.code);
+      if (asset.currency && asset.currency !== quote.currency) {
+        throw new ValuationError(`Fund ${asset.code} is priced in ${quote.currency}, but the configured currency is ${asset.currency}.`);
+      }
+      const fx = await quotes.fx(quote.currency);
+      return {
+        id: asset.id, type: asset.type, name: assetName(asset), quantity: asset.quantity,
+        fundCode: asset.code, unit: "units", price: quote.price, pricingCurrency: quote.currency,
+        priceUnit: quote.unit, fxRateToUsd: fx.rate, usdValue: checkedMoney(asset.quantity * quote.price * fx.rate),
+        dailyChangePercent: quote.dailyChangePercent ?? null,
+        source: quote.currency === "USD" ? quote.source : `${quote.source} + ${fx.source}`,
+        updatedAt: quote.updatedAt, navDate: quote.navDate, referenceNAV: true, status: "ok",
+        message: `Published NAV dated ${quote.navDate}. Reference valuation; QDII NAV publication may lag market dates.`
       };
     }
 

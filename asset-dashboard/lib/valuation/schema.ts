@@ -5,7 +5,7 @@ import { goldQuantityToTroyOunces } from "./units";
 export const MAX_ASSETS = 100;
 export const MAX_INPUT_VALUE = 1_000_000_000_000;
 
-const assetTypes = new Set<AssetType>(["gold", "cash", "stock", "custom"]);
+const assetTypes = new Set<AssetType>(["gold", "cash", "stock", "fund", "custom"]);
 const legacyAssetTypeMap: Record<string, AssetType> = {
   fx: "cash",
   stock_us: "stock"
@@ -133,6 +133,19 @@ export function validatePortfolioConfig(value: unknown): PortfolioConfig {
         ...base,
         type,
         symbol
+      };
+    }
+
+    if (type === "fund") {
+      const code = readString(entry, "code");
+      if (!code || !/^\d{6}$/.test(code)) {
+        throw new ValuationError(`Asset "${id}" needs a 6-digit mutual fund code, such as 000055.`);
+      }
+      return {
+        ...base,
+        type,
+        code,
+        currency: entry.currency === undefined ? undefined : readCurrency(entry, "currency")
       };
     }
 

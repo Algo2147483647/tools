@@ -1,7 +1,7 @@
-export type AssetType = "gold" | "cash" | "stock" | "custom";
+export type AssetType = "gold" | "cash" | "stock" | "fund" | "custom";
 export type AssetStatus = "ok" | "warning" | "failed";
 
-export type AssetConfig = GoldAsset | CashAsset | StockAsset | CustomAsset;
+export type AssetConfig = GoldAsset | CashAsset | StockAsset | FundAsset | CustomAsset;
 
 export interface PortfolioConfig {
   baseCurrency: "USD";
@@ -36,6 +36,18 @@ export interface CustomAsset extends AssetBase {
   currency: string;
 }
 
+export interface FundAsset extends AssetBase {
+  type: "fund";
+  code: string;
+  /** Optional assertion; the official provider determines the share class currency. */
+  currency?: string;
+}
+
+export interface FundPricePoint extends PricePoint {
+  navDate: string;
+  referenceNAV: true;
+}
+
 export interface PricePoint {
   price: number;
   currency: string;
@@ -59,6 +71,9 @@ export interface AssetValuation {
   quantity: number;
   unit?: string;
   symbol?: string;
+  fundCode?: string;
+  navDate?: string;
+  referenceNAV?: boolean;
   price: number | null;
   pricingCurrency: string | null;
   priceUnit?: string;

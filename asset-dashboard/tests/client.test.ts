@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createRequestGate } from "../lib/client/requestGate";
-import { formatMoney, formatNumber } from "../lib/client/format";
+import { formatDate, formatMoney, formatNumber } from "../lib/client/format";
 
 test("late results cannot overwrite a newer request even when fetch ignores abort", async () => {
   const gate = createRequestGate();
@@ -24,4 +24,10 @@ test("unknown or invalid valuations never look like zero money", () => {
   }
   assert.equal(formatMoney(0), "$0.00");
   assert.equal(formatMoney(0, "g gold"), "0 g");
+});
+
+test("fund NAV preserves published precision and uses a date without a fabricated time", () => {
+  assert.equal(formatMoney(1.2375, "USD", 4), "$1.2375");
+  assert.equal(formatMoney(2172.16 * 1.2375), "$2,688.05");
+  assert.equal(formatDate("2026-09-29T00:00:00.000Z", true), "Sep 29, 2026");
 });

@@ -793,6 +793,9 @@ h2 {
   padding: 0 25px 17px;
 }
 .filter-tabs {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
   display: flex;
   gap: 3px;
   padding: 3px;

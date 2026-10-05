@@ -74,6 +74,13 @@ const categories = {
     color: "#bc8270",
     light: "#f8eee9",
   },
+  fund: {
+    label: "Funds",
+    short: "Funds",
+    icon: Globe2,
+    color: "#728f9c",
+    light: "#eaf1f5",
+  },
 };
 const statuses = { ok: "Valued", warning: "Review", failed: "Unavailable" };
 type LoadedConfig = {
@@ -91,7 +98,8 @@ function categoryStyle(type: AssetType): CSSProperties {
 }
 function quantityUnit(asset: AssetValuation) {
   if (asset.type === "stock") return asset.quantity === 1 ? "share" : "shares";
-  if (asset.type === "custom") return asset.quantity === 1 ? "unit" : "units";
+  if (asset.type === "custom" || asset.type === "fund")
+    return asset.quantity === 1 ? "unit" : "units";
   const unit = asset.unit ?? "";
   return (
     (
@@ -293,7 +301,7 @@ export function NetWorthDashboard() {
         .filter(
           (asset) =>
             (filter === "all" || asset.type === filter) &&
-            `${asset.name} ${asset.id} ${asset.symbol ?? ""} ${asset.pricingCurrency ?? ""}`
+            `${asset.name} ${asset.id} ${asset.symbol ?? asset.fundCode ?? ""} ${asset.pricingCurrency ?? ""}`
               .toLowerCase()
               .includes(search.trim().toLowerCase()),
         )
@@ -309,9 +317,15 @@ export function NetWorthDashboard() {
     [assets, filter, search, sort],
   );
   const currencyCount = new Set(
-    loaded?.config.assets.map((asset) =>
-      "currency" in asset ? asset.currency : "USD",
-    ),
+    loaded?.config.assets
+      .map((asset) =>
+        "currency" in asset
+          ? asset.currency
+          : asset.type === "fund"
+            ? undefined
+            : "USD",
+      )
+      .filter(Boolean),
   ).size;
 
   return (
@@ -855,7 +869,9 @@ export function NetWorthDashboard() {
                               </span>
                               <span className="asset-name">
                                 <strong>{asset.name}</strong>
-                                <span>{asset.symbol ?? asset.id}</span>
+                                <span>
+                                  {asset.symbol ?? asset.fundCode ?? asset.id}
+                                </span>
                               </span>
                             </button>
                           </td>
@@ -974,7 +990,7 @@ export function NetWorthDashboard() {
               <span>
                 {assets.length
                   ? `Showing ${filteredAssets.length} of ${assets.length} ${assets.length === 1 ? "asset" : "assets"}`
-                  : "Cash, gold, stocks, and custom assets"}
+                  : "Cash, gold, stocks, funds, and more"}
               </span>
               <span>
                 <span className="footer-dot" />
@@ -1032,8 +1048,8 @@ export function NetWorthDashboard() {
               onChange={(event) => setDraft(event.target.value)}
             />
             <p className="editor-hint">
-              Supported types: gold, cash, stock, custom. Each asset needs a
-              unique id. Changes stay in this tab; export before closing.
+              Supported types: gold, cash, stock, fund, custom. Each asset needs
+              a unique id. Changes stay in this tab; export before closing.
             </p>
             {draftError && (
               <div className="notice notice-error" role="alert">
@@ -1097,13 +1113,20 @@ export function NetWorthDashboard() {
               </dd>
             </div>
             <div>
-              <dt>Original quote</dt>
+              <dt>
+                {selectedAsset.type === "fund"
+                  ? "Published NAV per unit"
+                  : "Original quote"}
+              </dt>
               <dd>
                 {formatMoney(
                   selectedAsset.price,
                   selectedAsset.pricingCurrency ?? "USD",
+                  selectedAsset.type === "fund" ? 4 : 2,
                 )}
-                {selectedAsset.priceUnit ? ` / ${selectedAsset.priceUnit}` : ""}
+                {selectedAsset.priceUnit && selectedAsset.type !== "fund"
+                  ? ` / ${selectedAsset.priceUnit}`
+                  : ""}
               </dd>
             </div>
             <div>
@@ -1119,8 +1142,15 @@ export function NetWorthDashboard() {
               </dd>
             </div>
             <div>
-              <dt>Quote updated</dt>
-              <dd>{formatDate(selectedAsset.updatedAt)}</dd>
+              <dt>
+                {selectedAsset.type === "fund" ? "NAV date" : "Quote updated"}
+              </dt>
+              <dd>
+                {formatDate(
+                  selectedAsset.navDate ?? selectedAsset.updatedAt,
+                  selectedAsset.type === "fund",
+                )}
+              </dd>
             </div>
             <div className="detail-full">
               <dt>Data source</dt>
