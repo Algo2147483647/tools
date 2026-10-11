@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>Warehouse Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <div class="warehouse-controls">
+        <label for="warehouse-select">Warehouse</label>
+        <select id="warehouse-select" disabled aria-label="Warehouse"></select>
+        <button id="add-warehouse" class="icon-button" title="New warehouse" aria-label="New warehouse"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div class="topbar-actions">
+        <div id="save-status" role="status" aria-live="polite">Connecting…</div>
+        <div class="history-actions"><button id="undo-edit" class="icon-button" title="Undo (Ctrl+Z)" aria-label="Undo" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12"/></svg></button><button id="redo-edit" class="icon-button" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" aria-label="Redo" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12"/></svg></button></div>
+        <button id="warehouse-settings" class="button secondary" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></svg>Settings</button>
+        <button id="export-json" class="button secondary" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></svg>Export JSON</button>
+      </div>
+    </header>
+    <div id="error-banner" class="error-banner" role="alert" hidden><span id="error-message"></span><div><button id="retry-save">Retry save</button><button id="download-recovery">Export unsaved data</button><button id="reload-state">Reload saved data</button></div></div>
+    <div id="loading" class="loading">Loading inventory…</div>
+    <div id="workspace" hidden>
+      <section class="period-panel" aria-label="Planning interval">
+        <div class="date-fields"><label>Start time<input id="period-start" type="datetime-local" required></label><span class="date-arrow">→</span><label>End time<input id="period-end" type="datetime-local" required></label></div>
+        <div class="period-shortcuts"><strong id="duration-label">7 days</strong><div id="quick-days"><button data-days="1">1d</button><button data-days="7">7d</button><button data-days="14">14d</button><button data-days="30">30d</button></div></div>
+        <p id="period-error" class="field-error" role="alert" hidden></p>
+      </section>
+      <section class="inventory-panel" aria-labelledby="inventory-title">
+        <div class="inventory-toolbar">
+          <div class="inventory-heading"><h1 id="inventory-title">Inventory</h1><span id="result-count" class="count-pill">0</span></div>
+          <div class="filter-controls">
+            <div class="overview-type"><details id="overview" class="overview"><summary><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 15V9m6 6V5m6 10v-3"/></svg>Overview<svg class="icon chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><section class="overview-panel" aria-label="Warehouse overview"><dl><div><dt>Total materials</dt><dd id="stat-total">0</dd></div><div><dt>Time-based materials</dt><dd id="stat-rate">0</dd></div><div><dt>To replenish</dt><dd id="stat-shortage">0</dd></div><div><dt>Fully covered</dt><dd id="stat-ready">0</dd></div></dl><p id="stat-unconfigured" hidden></p></section></details><label class="type-filter">Type<select id="type-filter" aria-label="Filter by type"></select></label></div>
+            <label class="search-field"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input id="search" type="search" placeholder="Search materials" aria-label="Search materials"></label>
+            <label class="shortage-filter"><input id="only-shortage" type="checkbox">Shortfalls only</label>
+            <button id="add-item" class="button primary"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add material</button>
+          </div>
+        </div>
+        <div class="table-scroll"><table><thead><tr><th class="material-col">Material</th><th class="type-col">Type</th><th class="stock-col">Stock / Unit</th><th class="demand-col">Demand rule</th><th class="calculated-col">Required</th><th class="balance-col">Stock balance</th><th class="action-col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="items"></tbody></table></div>
+        <div id="empty-state" class="empty-state" hidden><h2>No materials yet</h2><p>Add your first material.</p><button id="empty-add" class="button primary">＋ Add material</button></div>
+      </section>
+    </div>
+  </main>
+  <dialog id="unit-dialog" aria-labelledby="unit-title"><form id="unit-form"><div class="dialog-header"><h2 id="unit-title">New unit</h2><button type="button" class="icon-button" data-close="unit-dialog" aria-label="Close new unit">×</button></div><label class="form-field">Unit name<input id="new-unit-name" maxlength="30" required></label><div class="dialog-footer"><button type="button" data-close="unit-dialog" class="button secondary">Cancel</button><button type="submit" class="button primary">Apply</button></div></form></dialog>
+  <dialog id="type-dialog" aria-labelledby="type-title"><form id="type-form"><div class="dialog-header"><h2 id="type-title">New type</h2><button type="button" class="icon-button" data-close="type-dialog" aria-label="Close new type">×</button></div><label class="form-field">Type name<input id="new-type-name" maxlength="100" required></label><div class="dialog-footer"><button type="button" data-close="type-dialog" class="button secondary">Cancel</button><button type="submit" class="button primary">Apply</button></div></form></dialog>
+  <dialog id="settings-dialog" aria-labelledby="settings-title"><div class="dialog-header"><h2 id="settings-title">Warehouse settings</h2><button class="icon-button" data-close="settings-dialog" aria-label="Close warehouse settings">×</button></div><label class="form-field">Warehouse name<input id="settings-name" maxlength="150" required></label><label class="form-field">Description<textarea id="settings-description" maxlength="1000" rows="3"></textarea></label><div class="dialog-footer"><button id="delete-warehouse" class="button danger">Delete warehouse</button><button data-close="settings-dialog" class="button primary">Done</button></div></dialog>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Confirm deletion</h2><p id="confirm-message"></p><div class="dialog-footer"><button data-close="confirm-dialog" class="button secondary">Cancel</button><button id="confirm-action" class="button danger">Delete</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

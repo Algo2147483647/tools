@@ -1,0 +1,593 @@
+import { durationHours, requirements, formatNumber, shiftDays, stockVisualization, EditHistory } from './model.js';
+
+const $ = (id) => document.getElementById(id);
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let state;
+let activeWarehouse;
+let activeType = '';
+let query = '';
+let shortageOnly = false;
+let pending = [];
+let saving = false;
+let saveError = null;
+let revision = 0;
+let lastSaved = '';
+let invalidPeriod = false;
+let confirmAction;
+let toastTimer;
+let typeTarget = null;
+let unitTarget = null;
+const warehouse = () => state.warehouses.find((w) => w.id === activeWarehouse);
+const calculationPeriod = () => invalidPeriod ? null : warehouse().period;
+const clone = (value) => JSON.parse(JSON.stringify(value));
+const history = new EditHistory();
+
+function toast(message) {
+  $('toast').textContent = message;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $('toast').hidden = true; }, 2800);
+}
+
+function updateSaveStatus() {
+  const el = $('save-status');
+  el.className = saveError ? 'failed' : pending.length || saving ? 'saving' : '';
+  el.textContent = saveError ? 'Save failed · Unsaved changes' : pending.length || saving ? 'Saving to JSON…' : `Saved to JSON${lastSaved ? ` · ${new Date(lastSaved).toLocaleTimeString('en-US', { hour12: false })}` : ''}`;
+  $('error-banner').hidden = !saveError;
+  if (saveError) $('error-message').textContent = saveError.message;
+  $('retry-save').hidden = !state || saveError?.conflict;
+  $('download-recovery').hidden = !state;
+}
+
+function updateHistoryControls() {
+  $('undo-edit').disabled = !history.canUndo;
+  $('redo-edit').disabled = !history.canRedo;
+}
+
+function changed(context = {}) {
+  history.record(state.warehouses, { warehouseId: activeWarehouse, ...context });
+  updateHistoryControls();
+  queueSave();
+}
+
+function queueSave() {
+  const snapshot = clone(state);
+  // Keep the request already in flight, then only the latest complete state.
+  // A corrected value must not stay blocked behind an older rejected snapshot.
+  if (saving) pending.splice(1, pending.length, snapshot);
+  else pending = [snapshot];
+  updateSaveStatus();
+  void saveNext();
+}
+
+async function saveNext() {
+  if (saving || saveError || !pending.length) return;
+  saving = true;
+  updateSaveStatus();
+  try {
+    while (pending.length) {
+      const snapshot = pending[0];
+      const response = await fetch('/api/state', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...snapshot, revision }),
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        const error = new Error(response.status === 409 ? 'Another window changed the saved data. Export your unsaved changes, then reload before editing again.' : `Save failed: ${body.error || response.statusText}`);
+        error.conflict = response.status === 409;
+        throw error;
+      }
+      revision = body.revision;
+      state.revision = revision;
+      state.updatedAt = body.updatedAt;
+      lastSaved = body.updatedAt;
+      pending.shift();
+    }
+  } catch (error) {
+    saveError = { message: error.message.startsWith('Save failed') || error.conflict ? error.message : 'Cannot connect to the local server. Your changes are still in this page. Restart the server, then retry saving.', conflict: Boolean(error.conflict) };
+  } finally {
+    saving = false;
+    updateSaveStatus();
+  }
+}
+
+async function loadState() {
+  try {
+    const response = await fetch('/api/state', { cache: 'no-store' });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || 'Could not load data');
+    state = body;
+    history.reset(state.warehouses);
+    updateHistoryControls();
+    revision = body.revision;
+    lastSaved = body.updatedAt;
+    if (!state.warehouses.some((w) => w.id === activeWarehouse)) activeWarehouse = state.warehouses[0].id;
+    pending = [];
+    saveError = null;
+    $('loading').hidden = true;
+    $('workspace').hidden = false;
+    $('warehouse-settings').disabled = false;
+    $('export-json').disabled = false;
+    renderWarehouse();
+    updateSaveStatus();
+  } catch (error) {
+    $('loading').textContent = 'Could not load your warehouses. Check that the local server is running, then reload.';
+    saveError = { message: `Could not load data: ${error.message}`, conflict: false };
+    updateSaveStatus();
+  }
+}
+
+function renderWarehouses() {
+  $('warehouse-select').innerHTML = state.warehouses.map((w) => `<option value="${escapeHtml(w.id)}">${escapeHtml(w.name)}</option>`).join('');
+  $('warehouse-select').value = activeWarehouse;
+  $('warehouse-select').disabled = false;
+}
+
+function itemTypeOptions(selected) {
+  const types = [...new Set(warehouse().items.map((item) => item.type))].sort((a, b) => a.localeCompare(b, 'en-US'));
+  return types.map((type) => `<option value="${escapeHtml(type)}" ${selected === type ? 'selected' : ''}>${escapeHtml(type)}</option>`).join('') + '<option value="">+ New type…</option>';
+}
+
+function itemUnitOptions(selected) {
+  const units = [...new Set(['pcs', 'set', 'pair', 'g', 'kg', 'ml', 'L', 'kWh', 'm', 'roll', 'pack', 'box', 'bottle', 'bundle', 'site', ...warehouse().items.map((item) => item.unit), selected])];
+  return units.map((unit) => `<option value="${escapeHtml(unit)}" ${unit === selected ? 'selected' : ''}>${escapeHtml(unit)}</option>`).join('') + '<option value="">+ New unit…</option>';
+}
+
+function renderUnits() {
+  const byId = new Map(warehouse().items.map((item) => [item.id, item]));
+  $('items').querySelectorAll('select[data-field=unit]').forEach((select) => {
+    const item = byId.get(select.closest('tr').dataset.item);
+    if (item) select.innerHTML = itemUnitOptions(item.unit);
+  });
+}
+
+function renderTypes() {
+  const counts = new Map();
+  for (const item of warehouse().items) counts.set(item.type, (counts.get(item.type) || 0) + 1);
+  const types = [...counts.keys()].sort((a, b) => a.localeCompare(b, 'en-US'));
+  if (activeType && !counts.has(activeType)) activeType = '';
+  $('type-filter').innerHTML = `<option value="">All types (${warehouse().items.length})</option>` + types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)} (${counts.get(type)})</option>`).join('');
+  $('type-filter').value = activeType;
+  const byId = new Map(warehouse().items.map((item) => [item.id, item]));
+  $('items').querySelectorAll('select[data-field=type]').forEach((select) => {
+    const item = byId.get(select.closest('tr').dataset.item);
+    if (item) select.innerHTML = itemTypeOptions(item.type);
+  });
+}
+
+function displayPeriod() {
+  const period = warehouse().period;
+  $('period-start').value = period.start;
+  $('period-end').value = period.end;
+  invalidPeriod = false;
+  $('period-error').hidden = true;
+  $('period-start').removeAttribute('aria-invalid');
+  $('period-end').removeAttribute('aria-invalid');
+  updateDuration();
+}
+
+function updateDuration() {
+  const hours = durationHours(calculationPeriod());
+  const days = hours === null ? null : hours / 24;
+  $('duration-label').textContent = hours === null ? 'Invalid period' : hours % 24 === 0 ? `${formatNumber(days)} ${days === 1 ? 'day' : 'days'}` : `${formatNumber(days)} days · ${formatNumber(hours)} ${hours === 1 ? 'hour' : 'hours'}`;
+  $('quick-days').querySelectorAll('button').forEach((b) => b.classList.toggle('active', hours !== null && Number(b.dataset.days) === hours / 24));
+}
+
+function renderStats() {
+  const items = warehouse().items;
+  const computed = items.map((i) => requirements(i, calculationPeriod()));
+  const stat = (id, value) => { $(id).textContent = value; };
+  stat('stat-total', items.length);
+  stat('stat-rate', items.filter((i) => i.mode === 'rate').length);
+  stat('stat-shortage', computed.filter((r) => r.shortage > 0).length);
+  stat('stat-ready', computed.filter((r) => r.required !== null && r.shortage === 0).length);
+  const unconfigured = computed.filter((r) => !r.configured).length;
+  $('stat-unconfigured').hidden = unconfigured === 0;
+  $('stat-unconfigured').textContent = `${unconfigured} ${unconfigured === 1 ? 'item needs' : 'items need'} a usage rate`;
+}
+
+function rowMarkup(item) {
+  const name = escapeHtml(item.name);
+  const field = (key, label, cls, attrs = '') => `<input class="cell-input ${cls}" data-field="${key}" value="${escapeHtml(item[key])}" aria-label="${name} ${label}" ${attrs}>`;
+  return `<tr data-item="${escapeHtml(item.id)}">
+    <td>${field('name', 'name', 'item-name', 'maxlength="150" required')}</td>
+    <td><select class="cell-input type-input" data-field="type" aria-label="${name} type" required>${itemTypeOptions(item.type)}</select></td>
+    <td><div class="stock-fields">${field('stock', 'stock', 'stock-input', 'type="number" min="0" max="1000000000000" step="any" required')}<select class="cell-input unit-input" data-field="unit" aria-label="${name} unit" required>${itemUnitOptions(item.unit)}</select></div></td>
+    <td><div class="rule-controls"><select class="rule-select" data-field="mode" aria-label="${name} requirement mode"><option value="rate" ${item.mode === 'rate' ? 'selected' : ''}>Rate</option><option value="fixed" ${item.mode === 'fixed' ? 'selected' : ''}>Fixed</option></select>${field('amount', 'usage amount', 'amount-input', 'type="number" min="0" max="1000000000000" step="any" required')}<span class="rule-unit">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="rateUnit" aria-label="${name} time unit" ${item.mode === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, label]) => `<option value="${value}" ${item.rateUnit === value ? 'selected' : ''}>${label}</option>`).join('')}</select></div></td>
+    <td class="computed required-cell"></td><td class="balance-cell"></td>
+    <td><button class="icon-button row-delete" data-delete="${escapeHtml(item.id)}" aria-label="Delete ${name}" title="Delete item">×</button></td>
+  </tr>`;
+}
+
+function updateRow(row, item) {
+  const result = requirements(item, calculationPeriod());
+  const labels = { name: 'name', note: 'note', type: 'type', stock: 'stock', unit: 'unit', mode: 'requirement mode', amount: 'usage amount', rateUnit: 'time unit' };
+  row.querySelectorAll('[data-field]').forEach((input) => {
+    input.setAttribute('aria-label', `${item.name} ${labels[input.dataset.field]}`);
+    if (['name', 'note', 'type', 'unit'].includes(input.dataset.field) && input.getAttribute('aria-invalid') !== 'true') input.title = item[input.dataset.field];
+  });
+  row.querySelector('[data-delete]').setAttribute('aria-label', `Delete ${item.name}`);
+  row.querySelector('.rule-unit').textContent = item.unit;
+  row.querySelector('[data-field=rateUnit]').hidden = item.mode === 'fixed';
+  row.querySelector('.required-cell').innerHTML = result.required === null ? `<span class="unconfigured">${invalidPeriod ? 'Invalid period' : 'Set usage rate'}</span>` : `${formatNumber(result.required)}<small>${escapeHtml(item.unit)}</small>`;
+  const visual = stockVisualization(item.stock, result.required);
+  const description = visual ? `Stock: ${formatNumber(item.stock)} ${item.unit}; required: ${formatNumber(result.required)} ${item.unit}; ${visual.balance < 0 ? 'shortfall' : 'surplus'}: ${formatNumber(Math.abs(visual.balance))} ${item.unit}. Green: covered demand; striped red: shortfall; pale green: surplus; black marker: requirement.` : `Stock: ${formatNumber(item.stock)} ${item.unit}; ${invalidPeriod ? 'invalid period' : 'set a usage rate to compare with demand'}.`;
+  const delta = !visual ? '—' : visual.status === 'empty' ? '—' : visual.balance < 0 ? `−${formatNumber(-visual.balance)}` : visual.balance > 0 ? `+${formatNumber(visual.balance)}` : 'Ready';
+  row.querySelector('.balance-cell').innerHTML = `<div class="stock-visual ${visual?.status || 'unknown'}" role="img" tabindex="0" aria-label="${escapeHtml(`${item.name}. ${description}`)}" title="${escapeHtml(description)}"><div class="stock-meter" aria-hidden="true">${visual ? `<span class="stock-covered" style="width:${visual.covered}%"></span><span class="stock-missing" style="width:${visual.missing}%"></span><span class="stock-surplus" style="width:${visual.surplus}%"></span>${visual.status !== 'empty' && result.required > 0 ? `<span class="stock-target" style="left:${visual.target}%"></span>` : ''}` : ''}</div><span class="stock-delta" aria-hidden="true">${delta}</span></div>`;
+  row.querySelector('.required-cell').title = invalidPeriod ? 'Select a valid period to calculate requirements.' : !result.configured ? 'Set a usage rate greater than 0 to calculate requirements.' : item.mode === 'rate' ? `${item.amount} ${item.unit} per ${item.rateUnit} × selected duration; stock covers ${formatNumber(result.coverageHours === null ? null : result.coverageHours / 24)} days` : 'Fixed requirements do not change with the selected period.';
+}
+
+function visibleItems() {
+  const search = query.trim().toLocaleLowerCase('en-US');
+  return warehouse().items.filter((i) => (!activeType || i.type === activeType) && (!search || `${i.name} ${i.type}`.toLocaleLowerCase('en-US').includes(search)) && (!shortageOnly || requirements(i, calculationPeriod()).shortage > 0));
+}
+
+function renderItems(preserveEditing = false) {
+  const matches = visibleItems();
+  const focusedRow = preserveEditing && $('items').contains(document.activeElement) ? document.activeElement.closest('tr') : null;
+  const ids = new Set(matches.map((item) => item.id));
+  if (focusedRow) ids.add(focusedRow.dataset.item);
+  const items = warehouse().items.filter((item) => ids.has(item.id));
+  if (!focusedRow) $('items').innerHTML = items.map(rowMarkup).join('');
+  else {
+    // Reuse existing rows so typing, selection and composition keep their focus.
+    // A row that stops matching stays visible until focus leaves that row.
+    const rows = new Map([...$('items').querySelectorAll('tr')].map((row) => [row.dataset.item, row]));
+    for (const [id, row] of rows) if (!ids.has(id)) row.remove();
+    let nextRow = null;
+    for (const item of [...items].reverse()) {
+      let row = rows.get(item.id);
+      if (!row) {
+        const template = document.createElement('template');
+        template.innerHTML = rowMarkup(item);
+        row = template.content.firstElementChild;
+        $('items').insertBefore(row, nextRow);
+      }
+      nextRow = row;
+    }
+  }
+  const byId = new Map(items.map((item) => [item.id, item]));
+  $('items').querySelectorAll('tr').forEach((row) => updateRow(row, byId.get(row.dataset.item)));
+  const retained = items.length !== matches.length;
+  $('result-count').textContent = `${matches.length} / ${warehouse().items.length}${retained ? ' · Editing row retained' : ''}`;
+  $('inventory-title').textContent = activeType || 'Inventory';
+  $('empty-state').hidden = items.length > 0;
+  const empty = warehouse().items.length === 0;
+  $('empty-state').querySelector('h2').textContent = empty ? 'No items yet' : 'No matching items';
+  $('empty-state').querySelector('p').textContent = empty ? 'Add your first item to start managing this warehouse.' : 'Try another search or type, or turn off the shortages filter.';
+  $('empty-add').hidden = !empty;
+}
+
+function renderWarehouse() {
+  renderWarehouses();
+  renderTypes();
+  displayPeriod();
+  renderStats();
+  renderItems();
+}
+
+function confirm(title, message, action, label = 'Delete') {
+  $('confirm-title').textContent = title;
+  $('confirm-message').textContent = message;
+  $('confirm-action').textContent = label;
+  confirmAction = action;
+  $('confirm-dialog').showModal();
+}
+
+function download() {
+  if (!state) return;
+  const blob = new Blob([`${JSON.stringify(state, null, 2)}\n`], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `warehouse-${new Date().toISOString().slice(0, 10)}${pending.length ? '-unsaved' : ''}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function addItem() {
+  if (!state) return;
+  if (warehouse().items.length >= 5000 || state.warehouses.reduce((sum, w) => sum + w.items.length, 0) >= 20000) {
+    toast('Item limit reached: 5,000 per warehouse and 20,000 in total.');
+    return;
+  }
+  const item = { id: crypto.randomUUID(), name: 'New item', type: activeType || 'Uncategorized', unit: 'pcs', stock: 0, mode: 'fixed', amount: 1, rateUnit: 'day', note: '' };
+  warehouse().items.unshift(item);
+  query = '';
+  $('search').value = '';
+  shortageOnly = false;
+  $('only-shortage').checked = false;
+  changed({ label: 'Add material', itemId: item.id, field: 'name' });
+  renderWarehouses();
+  renderTypes();
+  renderStats();
+  renderItems();
+  const input = $('items').querySelector('[data-field=name]');
+  input.focus();
+  input.select();
+}
+
+function editPeriod(event) {
+  const period = { start: $('period-start').value, end: $('period-end').value };
+  const hours = durationHours(period);
+  invalidPeriod = hours === null || hours > 24 * 366 * 100;
+  $('period-error').hidden = !invalidPeriod;
+  $('period-error').textContent = 'Enter a valid period: the end must follow the start, within 100 years. Calculations are paused and this change has not been saved.';
+  $('period-start').setAttribute('aria-invalid', String(invalidPeriod));
+  $('period-end').setAttribute('aria-invalid', String(invalidPeriod));
+  if (!invalidPeriod && (warehouse().period.start !== period.start || warehouse().period.end !== period.end)) {
+    warehouse().period = period;
+    changed({ label: 'Planning interval', controlId: event?.target?.id, group: event?.target?.id ? `${activeWarehouse}:${event.target.id}` : null });
+  }
+  updateDuration();
+  renderStats();
+  renderItems();
+}
+
+function fillSettings() {
+  $('settings-name').value = warehouse().name;
+  $('settings-description').value = warehouse().description;
+  $('settings-name').removeAttribute('aria-invalid');
+  $('settings-description').removeAttribute('aria-invalid');
+  $('delete-warehouse').disabled = state.warehouses.length <= 1;
+  $('delete-warehouse').title = state.warehouses.length <= 1 ? 'Keep at least one warehouse' : '';
+}
+
+function settings() {
+  fillSettings();
+  $('settings-dialog').showModal();
+}
+
+function discardInvalidDraft() {
+  if ($('period-start').value !== warehouse().period.start || $('period-end').value !== warehouse().period.end) {
+    displayPeriod(); renderStats(); renderItems();
+    return true;
+  }
+  const input = document.activeElement;
+  if (input?.getAttribute('aria-invalid') !== 'true') return false;
+  const item = warehouse().items.find((entry) => entry.id === input.closest('tr')?.dataset.item);
+  if (item && input.dataset.field) input.value = item[input.dataset.field];
+  else if (input.id === 'settings-name') input.value = warehouse().name;
+  else if (input.id === 'settings-description') input.value = warehouse().description;
+  else return false;
+  input.removeAttribute('aria-invalid');
+  return true;
+}
+
+function travelHistory(direction) {
+  if (!state || ['type-dialog', 'unit-dialog', 'confirm-dialog'].some((id) => $(id).open)) return;
+  if (direction === 'undo' && discardInvalidDraft()) { toast('Restored saved value'); return; }
+  const entry = history[direction]();
+  if (!entry) return;
+  const previousWarehouse = activeWarehouse;
+  const settingsOpen = $('settings-dialog').open;
+  state.warehouses = entry.value;
+  const { context } = entry;
+  const hasWarehouse = (id) => state.warehouses.some((w) => w.id === id);
+  activeWarehouse = hasWarehouse(context.warehouseId) ? context.warehouseId : hasWarehouse(context.fallbackWarehouseId) ? context.fallbackWarehouseId : hasWarehouse(activeWarehouse) ? activeWarehouse : state.warehouses[0].id;
+  if (activeWarehouse !== previousWarehouse || (context.itemId && !visibleItems().some((item) => item.id === context.itemId))) {
+    activeType = ''; query = ''; shortageOnly = false;
+    $('search').value = ''; $('only-shortage').checked = false;
+  }
+  renderWarehouse();
+  if (settingsOpen) {
+    if (!hasWarehouse(previousWarehouse)) $('settings-dialog').close();
+    else fillSettings();
+  }
+  const row = [...$('items').querySelectorAll('tr')].find((element) => element.dataset.item === context.itemId);
+  const focus = $('settings-dialog').open ? $(context.controlId) : context.field ? row?.querySelector(`[data-field="${context.field}"]`) : $(context.controlId);
+  if (focus && !focus.hidden) focus.focus({ preventScroll: true });
+  updateHistoryControls();
+  queueSave();
+  toast(`${direction === 'undo' ? 'Undid' : 'Redid'} ${context.label || 'edit'}`);
+}
+
+document.addEventListener('focusin', () => history.breakGroup());
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && $('overview').open) {
+    $('overview').open = false;
+    $('overview').querySelector('summary').focus();
+  }
+  if ((!event.ctrlKey && !event.metaKey) || event.altKey || event.isComposing || !state) return;
+  const key = event.key.toLowerCase();
+  if (key !== 'z' && key !== 'y') return;
+  const target = event.target;
+  const editing = target instanceof Element && target.closest('input, textarea, [contenteditable=true]');
+  if (editing && !editing.dataset.field && !['settings-name', 'settings-description', 'period-start', 'period-end'].includes(editing.id)) return;
+  if (['type-dialog', 'unit-dialog', 'confirm-dialog'].some((id) => $(id).open)) return;
+  event.preventDefault();
+  travelHistory(key === 'y' || event.shiftKey ? 'redo' : 'undo');
+});
+$('undo-edit').addEventListener('click', () => travelHistory('undo'));
+$('redo-edit').addEventListener('click', () => travelHistory('redo'));
+document.addEventListener('click', (event) => {
+  if (!$('overview').contains(event.target)) $('overview').open = false;
+});
+
+$('warehouse-select').addEventListener('change', (event) => {
+  if (!state || event.target.value === activeWarehouse) return;
+  activeWarehouse = event.target.value;
+  activeType = '';
+  query = '';
+  shortageOnly = false;
+  $('search').value = '';
+  $('only-shortage').checked = false;
+  renderWarehouse();
+});
+$('type-filter').addEventListener('change', (event) => {
+  activeType = event.target.value;
+  renderTypes();
+  renderItems();
+});
+$('search').addEventListener('input', (event) => { query = event.target.value; renderItems(); });
+$('only-shortage').addEventListener('change', (event) => { shortageOnly = event.target.checked; renderItems(); });
+$('items').addEventListener('input', (event) => {
+  const input = event.target;
+  const field = input.dataset.field;
+  if (!field || !input.closest('tr')) return;
+  const row = input.closest('tr');
+  const item = warehouse().items.find((i) => i.id === row.dataset.item);
+  if (!item) return;
+  if (event.isComposing) return;
+  if (field === 'unit' && input.value === '') {
+    input.value = item.unit;
+    unitTarget = { warehouseId: activeWarehouse, itemId: item.id };
+    $('new-unit-name').value = '';
+    $('new-unit-name').setCustomValidity('');
+    $('unit-dialog').showModal();
+    $('new-unit-name').focus();
+    return;
+  }
+  if (field === 'type' && input.value === '') {
+    input.value = item.type;
+    typeTarget = { warehouseId: activeWarehouse, itemId: item.id };
+    $('new-type-name').value = '';
+    $('new-type-name').setCustomValidity('');
+    $('type-dialog').showModal();
+    $('new-type-name').focus();
+    return;
+  }
+  const numeric = field === 'stock' || field === 'amount';
+  const value = numeric ? input.valueAsNumber : input.value;
+  const invalid = !input.checkValidity() || (numeric ? !Number.isFinite(value) || value < 0 || value > 1e12 : value.includes('\u0000') || (['name', 'type', 'unit'].includes(field) && !value.trim()));
+  input.setAttribute('aria-invalid', String(invalid));
+  input.title = invalid ? 'Invalid value; not saved. Required fields cannot be blank. Quantities must be between 0 and 1 trillion.' : '';
+  if (invalid || item[field] === value) return;
+  item[field] = value;
+  changed({ label: `Edit ${field}`, itemId: item.id, field, group: input.tagName === 'INPUT' ? `${activeWarehouse}:${item.id}:${field}` : null });
+  renderStats();
+  if (field === 'type') renderTypes();
+  if (field === 'unit') renderUnits();
+  renderItems(true);
+});
+$('items').addEventListener('compositionend', (event) => event.target.dispatchEvent(new Event('input', { bubbles: true })));
+$('items').addEventListener('focusout', (event) => {
+  const field = event.target.dataset.field;
+  const row = event.target.closest('tr');
+  if (field && event.target.getAttribute('aria-invalid') === 'true') {
+    const item = warehouse().items.find((i) => i.id === row?.dataset.item);
+    if (item) event.target.value = item[field];
+    event.target.removeAttribute('aria-invalid');
+    event.target.title = '';
+    toast('Invalid input was not saved. The last valid value has been restored.');
+  }
+  setTimeout(() => {
+    if (row?.isConnected && !row.contains(document.activeElement)) renderItems(true);
+  }, 0);
+});
+$('items').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-delete]');
+  if (!button) return;
+  const w = warehouse();
+  const item = w.items.find((i) => i.id === button.dataset.delete);
+  confirm('Delete item', `Delete “${item.name}” from this warehouse?`, () => {
+    w.items = w.items.filter((i) => i.id !== item.id);
+    changed({ label: 'Delete material', itemId: item.id, field: 'name' }); renderWarehouses(); renderTypes(); renderStats(); renderItems();
+  });
+});
+for (const id of ['period-start', 'period-end']) $(id).addEventListener('change', editPeriod);
+$('quick-days').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-days]');
+  if (!button) return;
+  const end = shiftDays($('period-start').value, Number(button.dataset.days));
+  if (!end) { editPeriod(); return; }
+  $('period-end').value = end;
+  editPeriod();
+});
+$('add-item').addEventListener('click', addItem);
+$('empty-add').addEventListener('click', addItem);
+$('warehouse-settings').addEventListener('click', settings);
+$('add-warehouse').addEventListener('click', () => {
+  if (!state) return;
+  const previousWarehouse = activeWarehouse;
+  if (state.warehouses.length >= 100) { toast('You can create up to 100 warehouses.'); return; }
+  const now = new Date();
+  const start = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T00:00`;
+  const w = { id: crypto.randomUUID(), name: 'New warehouse', description: '', period: { start, end: shiftDays(start, 7) }, items: [] };
+  state.warehouses.push(w);
+  activeWarehouse = w.id; activeType = ''; query = ''; shortageOnly = false;
+  $('search').value = ''; $('only-shortage').checked = false;
+  changed({ label: 'Add warehouse', fallbackWarehouseId: previousWarehouse }); renderWarehouse(); settings();
+  $('settings-name').select();
+});
+for (const [id, field] of [['settings-name', 'name'], ['settings-description', 'description']]) {
+  $(id).addEventListener('input', (event) => {
+    if (event.isComposing) return;
+    const valid = event.target.checkValidity() && !event.target.value.includes('\u0000') && (field !== 'name' || Boolean(event.target.value.trim()));
+    event.target.setAttribute('aria-invalid', String(!valid));
+    if (!valid || warehouse()[field] === event.target.value) return;
+    warehouse()[field] = event.target.value;
+    changed({ label: `Warehouse ${field}`, controlId: id, group: `${activeWarehouse}:${id}` }); renderWarehouses();
+  });
+  $(id).addEventListener('compositionend', (event) => event.target.dispatchEvent(new Event('input', { bubbles: true })));
+}
+$('settings-dialog').addEventListener('close', () => {
+  let restored = false;
+  for (const [id, field] of [['settings-name', 'name'], ['settings-description', 'description']]) {
+    if ($(id).getAttribute('aria-invalid') === 'true') {
+      $(id).value = warehouse()[field];
+      $(id).removeAttribute('aria-invalid');
+      restored = true;
+    }
+  }
+  if (restored) toast('Invalid input was not saved. The last valid value has been restored.');
+});
+$('delete-warehouse').addEventListener('click', () => {
+  if (state.warehouses.length <= 1) return;
+  const w = warehouse();
+  confirm('Delete warehouse', `Delete “${w.name}” and its ${w.items.length} ${w.items.length === 1 ? 'item' : 'items'}? Other warehouses will be kept.`, () => {
+    state.warehouses = state.warehouses.filter((entry) => entry.id !== w.id);
+    activeWarehouse = state.warehouses[0].id;
+    activeType = '';
+    $('settings-dialog').close();
+    changed({ label: 'Delete warehouse', warehouseId: w.id }); renderWarehouse();
+  });
+});
+document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => $(button.dataset.close).close()));
+$('new-type-name').addEventListener('input', () => $('new-type-name').setCustomValidity(''));
+$('type-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const input = $('new-type-name');
+  const type = input.value.trim();
+  input.setCustomValidity(!type || type.includes('\u0000') ? 'Enter a valid type name.' : '');
+  if (!input.reportValidity()) return;
+  const item = state.warehouses.find((w) => w.id === typeTarget?.warehouseId)?.items.find((i) => i.id === typeTarget.itemId);
+  if (item && item.type !== type) { item.type = type; changed({ label: 'Edit type', itemId: item.id, field: 'type' }); }
+  $('type-dialog').close();
+  renderTypes();
+  renderItems();
+});
+$('type-dialog').addEventListener('close', () => { typeTarget = null; });
+$('new-unit-name').addEventListener('input', () => $('new-unit-name').setCustomValidity(''));
+$('unit-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const input = $('new-unit-name');
+  const unit = input.value.trim();
+  input.setCustomValidity(!unit || unit.includes('\u0000') ? 'Enter a valid unit name.' : '');
+  if (!input.reportValidity()) return;
+  const item = state.warehouses.find((w) => w.id === unitTarget?.warehouseId)?.items.find((i) => i.id === unitTarget.itemId);
+  if (item && item.unit !== unit) { item.unit = unit; changed({ label: 'Edit unit', itemId: item.id, field: 'unit' }); }
+  $('unit-dialog').close();
+  renderUnits();
+  renderItems();
+});
+$('unit-dialog').addEventListener('close', () => { unitTarget = null; });
+$('confirm-action').addEventListener('click', () => { $('confirm-dialog').close(); const action = confirmAction; confirmAction = null; action?.(); });
+$('export-json').addEventListener('click', download);
+$('download-recovery').addEventListener('click', download);
+$('retry-save').addEventListener('click', () => {
+  if (!state || saving || saveError?.conflict) return;
+  pending = [clone(state)];
+  saveError = null;
+  updateSaveStatus();
+  void saveNext();
+});
+$('reload-state').addEventListener('click', () => {
+  if (saving) return;
+  if (pending.length) confirm('Reload data', 'Reloading will replace unsaved changes with the saved data. Export your unsaved changes first if you want to keep them.', () => void loadState(), 'Reload');
+  else void loadState();
+});
+window.addEventListener('beforeunload', (event) => {
+  if (pending.length || saving || invalidPeriod || document.querySelector('[aria-invalid=true]')) { event.preventDefault(); event.returnValue = ''; }
+});
+void loadState();

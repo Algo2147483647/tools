@@ -1,0 +1,13 @@
+{
+  "name": "warehouse-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local inventory planning with immediate JSON persistence",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check public/app.js && node --test tests/*.test.mjs"
+  }
+}
