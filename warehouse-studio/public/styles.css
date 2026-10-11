@@ -113,8 +113,11 @@ tbody tr:hover { background: #fafafa; }
 .amount-input::-webkit-inner-spin-button, .amount-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .unit-input { font-size: 13px; color: var(--muted); cursor: pointer; text-align: left; }
 .rule-controls { grid-template-columns: 28px 5.5ch 32px 44px; gap: 3px; justify-content: start; }
-.rule-select { width: 100%; min-width: 0; border: 0; background: transparent; color: #767676; font-size: 11px; padding: 4px 0; text-align: left; }
-.rule-select:hover, .rule-select:focus { color: var(--ink); }
+.rule-mode { position: relative; min-width: 0; }
+.rule-select { display: block; width: 100%; min-width: 0; border: 0; background: transparent; color: transparent; font-size: 13px; padding: 4px 0; text-align: left; }
+.rule-select option { color: var(--ink); background: #fff; }
+.rule-mode-symbol { position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none; color: #767676; font-family: "Cambria Math", "STIX Two Math", serif; font-size: 14px; }
+.rule-mode:hover .rule-mode-symbol, .rule-mode:focus-within .rule-mode-symbol { color: var(--ink); }
 .amount-input { font-size: 13px; }
 .rate-select { width: 100%; min-width: 0; background: transparent; border: 0; padding: 2px 0; font-size: 13px; color: var(--muted); text-align: left; }
 .rule-unit { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 12px; text-align: left; }

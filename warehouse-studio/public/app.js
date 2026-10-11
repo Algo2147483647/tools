@@ -199,7 +199,7 @@ function rowMarkup(item) {
   const rule = (supply) => {
     const [mode, amount, rateUnit] = supply ? ['supplyMode', 'supplyAmount', 'supplyRateUnit'] : ['mode', 'amount', 'rateUnit'];
     const label = supply ? 'supply' : 'demand';
-    return `<div class="rule-controls"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed</option></select>${field(amount, `${label} amount`, 'amount-input', 'type="number" min="0" max="1000000000000" step="any" required')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
+    return `<div class="rule-controls"><span class="rule-mode"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate — quantity per time unit</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed — total quantity</option></select><span class="rule-mode-symbol" aria-hidden="true">${item[mode] === 'fixed' ? 'ℱ' : 'ℛ'}</span></span>${field(amount, `${label} amount`, 'amount-input', 'type="number" min="0" max="1000000000000" step="any" required')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
   };
   return `<tr data-item="${escapeHtml(item.id)}">
     <td>${field('name', 'name', 'item-name', 'maxlength="150" required')}</td>
@@ -221,6 +221,9 @@ function updateRow(row, item) {
   });
   row.querySelector('[data-delete]').setAttribute('aria-label', `Delete ${item.name}`);
   row.querySelectorAll('.rule-unit').forEach((unit) => { unit.textContent = item.unit; unit.title = item.unit; });
+  row.querySelectorAll('.rule-select').forEach((select) => {
+    select.nextElementSibling.textContent = item[select.dataset.field] === 'fixed' ? 'ℱ' : 'ℛ';
+  });
   row.querySelector('[data-field=rateUnit]').hidden = item.mode === 'fixed';
   row.querySelector('[data-field=supplyRateUnit]').hidden = item.supplyMode === 'fixed';
   row.querySelector('.supply-cell').title = result.supplied === null ? 'Select a valid period to calculate planned supply.' : `Planned supply for this interval: ${formatNumber(result.supplied)} ${item.unit}.`;
