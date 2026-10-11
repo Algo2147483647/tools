@@ -85,17 +85,19 @@ p { line-height: 1.6; }
 .search-field input { border: 0; padding: 7px 8px; width: 160px; background: #fff; font-size: 13px; }
 .shortage-filter { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
 .table-scroll { position: relative; overflow-x: auto; }
-table { width: 100%; min-width: 1100px; border-collapse: collapse; table-layout: fixed; text-align: left; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+table { width: 100%; min-width: 1160px; border-collapse: collapse; table-layout: fixed; text-align: left; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
 th { font-size: 13px; font-weight: 400; color: #555; padding: 13px 9px; border-bottom: 1px solid var(--ink); }
 td { padding: 7px 9px; border-bottom: 1px solid #ededed; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 th:first-child, td:first-child { padding-left: 4px; }
 tbody tr:last-child td { border-bottom: 0; }
-.material-col { width: 16%; }
-.type-col { width: 15%; font-style: italic; }
+.number-col { width: 3%; text-align: center; }
+.row-number { text-align: center; font-style: normal; font-size: 12px; color: #bbb; font-variant-numeric: tabular-nums; }
+.material-col { width: 14%; }
+.type-col { width: 13%; font-style: italic; }
 .stock-col { width: 11%; }
 .supply-col, .demand-col { width: 16%; }
-.balance-col { width: 21%; }
-.action-col { width: 5%; }
+.balance-col { width: 20%; }
+.action-col { width: 7%; }
 tbody tr:hover { background: #fafafa; }
 .cell-input { display: block; max-width: 100%; width: 100%; border: 1px solid transparent; border-radius: 2px; background: transparent; padding: 4px; margin-left: -4px; line-height: 1.4; font-size: 14px; }
 .cell-input:hover { border-bottom-color: #bbb; }
@@ -144,6 +146,9 @@ tbody tr:hover { background: #fafafa; }
 .row-delete { color: #aaa; font-size: 18px; }
 .row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
 .row-actions .icon-button { padding: 3px; }
+.row-details { color: #888; }
+.row-details .icon { width: 15px; height: 16px; }
+.row-details:hover { color: var(--ink); }
 .row-drag { cursor: grab; color: #bbb; }
 .row-drag:active { cursor: grabbing; }
 .row-drag .icon { width: 14px; height: 16px; stroke-width: 3; }
@@ -160,6 +165,19 @@ td:last-child { padding-left: 4px; padding-right: 4px; }
 .loading { padding: 80px 20px; text-align: center; color: var(--muted); }
 dialog { border: 1px solid var(--ink); border-radius: 2px; background: #fff; padding: 24px; width: 440px; max-width: calc(100vw - 32px); color: var(--ink); box-shadow: 0 12px 55px #0000001a; }
 dialog::backdrop { background: #00000044; }
+#details-dialog { width: 650px; max-height: calc(100dvh - 48px); overflow-y: auto; }
+#details-dialog .dialog-header { align-items: flex-start; gap: 16px; }
+#details-title { overflow-wrap: anywhere; margin-top: 5px; }
+.detail-number { color: #bbb; font-size: 12px; font-style: normal; }
+.detail-list { margin: 14px 0; font-size: 13px; }
+.detail-list > div { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, 1.6fr); gap: 16px; padding: 5px 0; }
+.detail-list dt { color: var(--muted); }
+.detail-list dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.detail-rules { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+#details-dialog h3 { font-size: 14px; font-weight: 400; font-style: italic; border-bottom: 1px solid var(--line); padding-bottom: 9px; margin: 20px 0 0; }
+.detail-rules .detail-list > div { grid-template-columns: 82px minmax(0, 1fr); gap: 8px; }
+.detail-note { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.65; margin-bottom: 0; }
+@media (max-width: 560px) { .detail-rules { grid-template-columns: 1fr; gap: 0; } }
 .dialog-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .form-field { display: flex; flex-direction: column; gap: 8px; margin: 18px 0; font-size: 13px; }
 .form-field input, .form-field textarea { border: 1px solid #bbb; background: #fff; border-radius: 2px; padding: 10px; resize: vertical; line-height: 1.5; }

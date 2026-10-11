@@ -27,13 +27,25 @@ foreach ($candidate in $warehouseCandidates) {
     } catch { continue }
 }
 if (-not $warehouseNode) { throw 'Node.js 20+ is required. Install Node.js LTS and run again.' }
-if ($InstallOnly) { Write-Host 'Ready. This project has no third-party dependencies.'; exit 0 }
+& $warehouseNode -e "try { require('pdfkit'); } catch { process.exit(1); }"
+if ($LASTEXITCODE -ne 0 -or $InstallOnly) {
+    $warehouseNpm = Get-Command npm.cmd -ErrorAction SilentlyContinue
+    if (-not $warehouseNpm) { throw 'npm is required for the first install. Install Node.js LTS, then run npm ci in this project.' }
+    $warehouseNpmCli = Join-Path (Split-Path $warehouseNpm.Source) 'node_modules/npm/bin/npm-cli.js'
+    if (-not (Test-Path -LiteralPath $warehouseNpmCli)) { throw 'Cannot locate npm. Run npm ci in this project, then launch again.' }
+    & $warehouseNode $warehouseNpmCli ci --ignore-scripts --no-audit --no-fund
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
+if ($InstallOnly) { Write-Host 'Dependencies are ready.'; exit 0 }
 if ($BuildOnly) {
     & $warehouseNode --check server.mjs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $warehouseNode --check public/app.js
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $warehouseNode --test tests/model.test.mjs tests/server.test.mjs tests/history.test.mjs tests/types.test.mjs
+    & $warehouseNode --check pdf.mjs
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    $warehouseTests = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'tests') -Filter '*.test.mjs' | ForEach-Object { $_.FullName })
+    & $warehouseNode --test @warehouseTests
     exit $LASTEXITCODE
 }
 $warehouseArguments = @('server.mjs', '--port', "$Port")

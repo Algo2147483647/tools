@@ -1,8 +1,8 @@
 # Warehouse Studio
 
-A local inventory tool with independent warehouses, type-based classification, time-based demand planning, and immediate JSON persistence. The interface uses a pure white background, serif typography, fine-line icons, and three-rule tables. Warehouse selection, settings, and JSON export are in the top bar. The interface, reference catalog, messages, and documentation are in English.
+A local inventory tool with independent warehouses, type-based classification, time-based demand planning, and immediate JSON persistence. The interface uses a pure white background, serif typography, fine-line icons, and three-rule tables. Warehouse selection, settings, PDF and JSON export are in the top bar. The interface, reference catalog, messages, and documentation are in English.
 
-No third-party dependencies. Requires Node.js 20+ and a modern browser.
+Requires Node.js 20+ and a modern browser. Local PDF export uses PDFKit and bundled Noto Serif fonts; no inventory data is uploaded to an external service.
 
 ## Start
 
@@ -27,12 +27,13 @@ On macOS / Linux, or to start manually:
 
 ```sh
 cd warehouse-studio
+npm ci
 node server.mjs
 node server.mjs --port 4187 --data ./data/personal.json
 node --test tests/*.test.mjs
 ```
 
-No install or build step is required. Open the HTTP URL instead of opening the HTML file directly. Relative data paths resolve against the process working directory; the Windows launcher uses the project directory.
+The Windows launcher installs dependencies on first use. No build step is required. Open the HTTP URL instead of opening the HTML file directly. Relative data paths resolve against the process working directory; the Windows launcher uses the project directory.
 
 ## Plan and edit
 
@@ -40,7 +41,7 @@ No install or build step is required. Open the HTTP URL instead of opening the H
 - **Types:** Use the cascading `Types` dropdowns to select a primary type and then narrower subtypes. Selecting `Medical` includes all its descendants; selecting `Hygiene` narrows this to `Medical / Hygiene`. More levels appear automatically for deeper paths. `All subtypes` returns to the current parent, and changing a parent clears the lower levels. Counts include every material in that branch of the current warehouse. Search and the shortfalls filter combine with the selected branch. Each row retains its full type path; select `+ New type…` to create a path such as `Medical / Hygiene / Dental`. Existing JSON type strings work without migration. Dropdown arrows are hidden; click the text area or use the keyboard to open them.
 - **Units:** Stock, supply, and demand keep separate number and unit positions across all rows: numbers align right and units align left. Choose a standard or existing unit from the Stock / Unit dropdown, or use `+ New unit…`. Changing a unit relabels stock, supply, and demand; it does not convert the numbers. Set the corresponding quantities when changing measurement scales.
 - **Quantity arrows:** Hover over stock, supply, or demand quantities to reveal small up/down buttons on the left, or press `↑` / `↓` while editing a quantity. Each step adds or subtracts one, preserves fractional amounts, and stays between zero and one trillion. Changes calculate and save immediately and support undo/redo.
-- **Single-line rows:** Each material occupies one compact row, with italic type labels. Names, types, stock, units, supply and demand rules, and the combined stock balance stay on one line. Notes remain in JSON for compatibility and are not displayed in the table.
+- **Single-line rows:** Each material occupies one compact row, with italic type labels. Names, types, stock, units, supply and demand rules, and the combined stock balance stay on one line. Notes appear in the material details dialog.
 - **Row order:** Drag the dotted handle beside Delete up or down and drop above or below another row; a line marks the insertion point. The order saves immediately to JSON and supports undo/redo. Focus a handle and use `Alt+↑` / `Alt+↓` to move by one visible row. Sorting within a filtered list keeps hidden materials and their relative order; other warehouses are unaffected.
 - **Undo and redo:** Use `Ctrl+Z` to undo, `Ctrl+Shift+Z` / `Ctrl+Y` to redo, or the top-bar arrow buttons. Command shortcuts also work on macOS. Continuous typing in one field is one edit; leaving and revisiting the field starts a new edit. Material and warehouse additions/deletions, settings, units, types, and planning intervals are included. Undo saves immediately to JSON using the latest server revision. History is local to the current page session, retains up to 100 edits within a memory budget, and clears when data is reloaded. Search and unsubmitted dialog text keep their native text undo.
 - **Overview:** Open `Overview` immediately to the left of Types for total materials, time-based materials, items to replenish, and fully covered items. An item is time-based if either supply or demand uses a rate. Counts refer to the entire selected warehouse and update while editing.
@@ -54,6 +55,8 @@ No install or build step is required. Open the HTTP URL instead of opening the H
 - **Validation:** Invalid quantities and blank required fields are not saved. Leaving an invalid cell restores its previous valid value. An invalid interval pauses demand calculations until corrected.
 - **Search:** Search names and types, or show only shortfalls. Overview counts always describe the entire current warehouse. An edited row that no longer matches a filter stays visible until focus leaves it.
 - **Export:** Download a JSON backup of all warehouses. Normal persistence does not require exporting.
+- **Export PDF:** The top-bar button downloads the current warehouse's filtered materials, in the current order, using the selected interval and latest valid edits. A4 landscape pages include ordinal numbers, repeated table headers, supply/demand rules, stock bars and page numbers. Long names and types wrap without truncation. Empty views export a clearly labeled empty table. Exporting does not change the saved inventory.
+- **Material details:** Click the document icon in the last column to see the full material name, type, unit, notes, stock, planning interval, supply and demand rules, calculations, shortfall, net balance and stock coverage. Close with the cross or Escape. The subtle left ordinal column follows warehouse order; filtered views retain those numbers and reordering updates them immediately.
 
 ## Data and reference catalog
 
@@ -115,6 +118,7 @@ Writes use a temporary file in the same directory, flush it to disk, and atomica
 
 - `server.mjs`: Local HTTP service, validation, atomic JSON persistence, and revision checks.
 - `seed.mjs`: Initial reference catalog.
+- `pdf.mjs`: Paginated local PDF export with embedded fonts.
 - `public/`: Interface, styling, and pure calculation helpers.
 - `tests/`: Seventeen calculation, supply, duration, catalog, and stock-bar cases; five undo/redo cases; three hierarchical type-filter cases; and nine API tests covering fractional days, calendar edges, floating-point shortfalls, history grouping, restoration, parent/descendant matching, branch counts, legacy JSON compatibility, persistence across restart, warehouse isolation, concurrent revisions, invalid inputs, storage errors, and corrupt-file preservation.
 

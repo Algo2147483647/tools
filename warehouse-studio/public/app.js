@@ -112,6 +112,7 @@ async function loadState() {
     $('workspace').hidden = false;
     $('warehouse-settings').disabled = false;
     $('export-json').disabled = false;
+    $('export-pdf').disabled = false;
     renderWarehouse();
     updateSaveStatus();
   } catch (error) {
@@ -204,17 +205,20 @@ function rowMarkup(item) {
     return `<div class="rule-controls"><span class="rule-mode"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate — quantity per time unit</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed — total quantity</option></select><span class="rule-mode-symbol" aria-hidden="true">${item[mode] === 'fixed' ? 'ℱ' : 'ℛ'}</span></span>${quantityField(amount, `${label} amount`, 'amount-input')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
   };
   return `<tr data-item="${escapeHtml(item.id)}">
+    <td class="row-number"></td>
     <td>${field('name', 'name', 'item-name', 'maxlength="150" required')}</td>
     <td><select class="cell-input type-input" data-field="type" aria-label="${name} type" required>${itemTypeOptions(item.type)}</select></td>
     <td><div class="stock-fields">${quantityField('stock', 'stock', 'stock-input')}<select class="cell-input unit-input" data-field="unit" aria-label="${name} unit" required>${itemUnitOptions(item.unit)}</select></div></td>
     <td class="supply-cell">${rule(true)}</td>
     <td>${rule(false)}</td>
     <td class="balance-cell"></td>
-    <td><div class="row-actions"><button class="icon-button row-drag" draggable="true" data-drag="${escapeHtml(item.id)}" aria-label="Reorder ${name}" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown" title="Drag to reorder · Alt+↑ / Alt+↓"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01"/></svg></button><button class="icon-button row-delete" data-delete="${escapeHtml(item.id)}" aria-label="Delete ${name}" title="Delete item">×</button></div></td>
+    <td><div class="row-actions"><button class="icon-button row-details" data-details="${escapeHtml(item.id)}" aria-label="Details for ${name}" title="Material details"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg></button><button class="icon-button row-drag" draggable="true" data-drag="${escapeHtml(item.id)}" aria-label="Reorder ${name}" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown" title="Drag to reorder · Alt+↑ / Alt+↓"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01"/></svg></button><button class="icon-button row-delete" data-delete="${escapeHtml(item.id)}" aria-label="Delete ${name}" title="Delete item">×</button></div></td>
   </tr>`;
 }
 
-function updateRow(row, item) {
+function updateRow(row, item, ordinal) {
+  row.querySelector('.row-number').textContent = String(ordinal);
+  row.querySelector('[data-details]').setAttribute('aria-label', `Details for ${item.name}`);
   const result = requirements(item, calculationPeriod());
   const labels = { name: 'name', note: 'note', type: 'type', stock: 'stock', unit: 'unit', mode: 'demand mode', amount: 'demand amount', rateUnit: 'demand time unit', supplyMode: 'supply mode', supplyAmount: 'supply amount', supplyRateUnit: 'supply time unit' };
   row.querySelectorAll('[data-field]').forEach((input) => {
@@ -307,7 +311,8 @@ function renderItems(preserveEditing = false) {
     }
   }
   const byId = new Map(items.map((item) => [item.id, item]));
-  $('items').querySelectorAll('tr').forEach((row) => updateRow(row, byId.get(row.dataset.item)));
+  const ordinals = new Map(warehouse().items.map((item, index) => [item.id, index + 1]));
+  $('items').querySelectorAll('tr').forEach((row) => updateRow(row, byId.get(row.dataset.item), ordinals.get(row.dataset.item)));
   const retained = items.length !== matches.length;
   $('result-count').textContent = `${matches.length} / ${warehouse().items.length}${retained ? ' · Editing row retained' : ''}`;
   $('inventory-title').textContent = activeType || 'Inventory';
@@ -343,6 +348,61 @@ function download() {
   a.download = `warehouse-${new Date().toISOString().slice(0, 10)}${pending.length ? '-unsaved' : ''}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportPdf() {
+  if (!state) return;
+  const invalid = document.querySelector('[aria-invalid="true"]');
+  if (invalidPeriod || invalid) {
+    toast('Correct the invalid value before exporting.');
+    (invalid || $('duration-days')).focus();
+    return;
+  }
+  const button = $('export-pdf');
+  const label = button.innerHTML;
+  button.disabled = true;
+  button.textContent = 'Exporting…';
+  try {
+    const response = await fetch('/api/export/pdf', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ warehouse: warehouse(), itemIds: visibleItems().map((item) => item.id), filters: { type: activeType, query, shortageOnly } }) });
+    if (!response.ok) {
+      const body = await response.json();
+      throw new Error(body.error || 'Could not export PDF.');
+    }
+    const url = URL.createObjectURL(await response.blob());
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') || '')?.[1] || 'inventory.pdf';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('PDF exported');
+  } catch (error) { toast(error.message === 'Failed to fetch' ? 'Cannot connect to the local server. Please try again.' : error.message); }
+  finally { button.disabled = false; button.innerHTML = label; }
+}
+
+function showDetails(item) {
+  const w = warehouse();
+  const result = requirements(item, calculationPeriod());
+  const quantity = (value) => value === null ? 'Not calculated' : `${formatNumber(value)} ${item.unit}`;
+  const field = (label, value) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
+  const rule = (supply) => {
+    const mode = supply ? item.supplyMode : item.mode;
+    const amount = supply ? item.supplyAmount : item.amount;
+    const timeUnit = supply ? item.supplyRateUnit : item.rateUnit;
+    const total = supply ? result.supplied : result.required;
+    const hours = durationHours(calculationPeriod());
+    const factor = hours === null ? null : hours / ({ hour: 1, day: 24, week: 168 }[timeUnit]);
+    return field('Mode', mode === 'rate' ? 'Rate' : 'Fixed') + field(mode === 'rate' ? 'Rate' : 'Quantity', `${quantity(amount)}${mode === 'rate' ? ` / ${timeUnit}` : ''}`)
+      + (mode === 'rate' ? field('Calculation', total === null ? 'Not calculated' : `${formatNumber(amount)} × ${formatNumber(factor)} = ${quantity(total)}`) : '')
+      + field(supply ? 'Planned supply' : 'Required', quantity(total));
+  };
+  $('details-title').textContent = item.name;
+  $('details-number').textContent = `No. ${w.items.indexOf(item) + 1}`;
+  $('details-content').innerHTML = `<dl class="detail-list">${field('Warehouse', w.name)}${field('Type', item.type)}${field('Unit', item.unit)}${field('Current stock', quantity(item.stock))}${field('Interval', invalidPeriod ? 'Invalid interval' : `${w.period.start.replace('T', ' ')} → ${w.period.end.replace('T', ' ')}`)}${field('Duration', invalidPeriod ? 'Not calculated' : `${formatNumber(durationHours(w.period) / 24)} days`)}</dl>
+    <div class="detail-rules"><section><h3>Supply rule</h3><dl class="detail-list">${rule(true)}</dl></section><section><h3>Demand rule</h3><dl class="detail-list">${rule(false)}</dl></section></div>
+    <h3>Stock balance</h3><dl class="detail-list">${field('Available · stock + supply', quantity(result.available))}${field('Required', quantity(result.required))}${field('Shortfall', quantity(result.shortage))}${field('Net balance', quantity(result.remaining))}${field('Stock coverage', item.mode === 'fixed' ? 'Not applicable to fixed demand' : result.coverageHours === null ? 'Not calculated' : `${formatNumber(result.coverageHours / 24)} days`)}</dl>
+    <h3>Notes</h3><p class="detail-note">${escapeHtml(item.note || 'No notes.')}</p>`;
+  $('details-dialog').showModal();
 }
 
 function addItem() {
@@ -432,7 +492,7 @@ function discardInvalidDraft() {
 }
 
 function travelHistory(direction) {
-  if (!state || ['type-dialog', 'unit-dialog', 'confirm-dialog'].some((id) => $(id).open)) return;
+  if (!state || ['type-dialog', 'unit-dialog', 'confirm-dialog', 'details-dialog'].some((id) => $(id).open)) return;
   if (direction === 'undo' && discardInvalidDraft()) { toast('Restored saved value'); return; }
   const entry = history[direction]();
   if (!entry) return;
@@ -471,7 +531,7 @@ document.addEventListener('keydown', (event) => {
   const target = event.target;
   const editing = target instanceof Element && target.closest('input, textarea, [contenteditable=true]');
   if (editing && !editing.dataset.field && !['settings-name', 'settings-description', 'period-start', 'period-end', 'duration-days'].includes(editing.id)) return;
-  if (['type-dialog', 'unit-dialog', 'confirm-dialog'].some((id) => $(id).open)) return;
+  if (['type-dialog', 'unit-dialog', 'confirm-dialog', 'details-dialog'].some((id) => $(id).open)) return;
   event.preventDefault();
   travelHistory(key === 'y' || event.shiftKey ? 'redo' : 'undo');
 });
@@ -616,6 +676,12 @@ $('items').addEventListener('focusout', (event) => {
   }, 0);
 });
 $('items').addEventListener('click', (event) => {
+  const details = event.target.closest('[data-details]');
+  if (details) {
+    const item = warehouse().items.find((entry) => entry.id === details.dataset.details);
+    if (item) showDetails(item);
+    return;
+  }
   const button = event.target.closest('[data-delete]');
   if (!button) return;
   const w = warehouse();
@@ -716,6 +782,7 @@ $('unit-form').addEventListener('submit', (event) => {
 $('unit-dialog').addEventListener('close', () => { unitTarget = null; });
 $('confirm-action').addEventListener('click', () => { $('confirm-dialog').close(); const action = confirmAction; confirmAction = null; action?.(); });
 $('export-json').addEventListener('click', download);
+$('export-pdf').addEventListener('click', exportPdf);
 $('download-recovery').addEventListener('click', download);
 $('retry-save').addEventListener('click', () => {
   if (!state || saving || saveError?.conflict) return;

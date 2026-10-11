@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { createInitialState } from './seed.mjs';
+import { createInventoryPdf, pdfFilename } from './pdf.mjs';
 
 const APP_DIR = path.dirname(fileURLToPath(import.meta.url));
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -209,7 +210,7 @@ function requireLocalHost(request, server) {
   if (!match || Number(match[2] || 80) !== address?.port) {
     throw new ApiError(403, 'INVALID_HOST', 'Access is only allowed through a local address.');
   }
-  if (request.method === 'PUT') {
+  if (['PUT', 'POST'].includes(request.method)) {
     const origin = request.headers.origin;
     if ((origin !== undefined && origin.toLowerCase() !== `http://${host.toLowerCase()}`) ||
         request.headers['sec-fetch-site'] === 'cross-site') {
@@ -225,6 +226,32 @@ export function createServer({ dataFile = path.join(APP_DIR, 'data', 'inventory.
     try {
       requireLocalHost(request, server);
       const url = new URL(request.url, `http://${request.headers.host}`);
+      if (url.pathname === '/api/export/pdf') {
+        if (request.method !== 'POST') {
+          response.setHeader('Allow', 'POST');
+          throw new ApiError(405, 'METHOD_NOT_ALLOWED', 'Use POST to export a PDF.');
+        }
+        const payload = await readJson(request);
+        record(payload, ['warehouse', 'itemIds', 'filters'], 'PDF export');
+        validateState({ version: 1, revision: 0, updatedAt: new Date().toISOString(), warehouses: [payload.warehouse] });
+        const knownIds = new Set(payload.warehouse.items.map((item) => item.id));
+        if (!Array.isArray(payload.itemIds) || payload.itemIds.some((id) => !knownIds.has(id)) || new Set(payload.itemIds).size !== payload.itemIds.length) invalid('Select unique materials from this warehouse.');
+        record(payload.filters, ['type', 'query', 'shortageOnly'], 'Export filters');
+        string(payload.filters.type, 100, 'Type filter');
+        string(payload.filters.query, 1000, 'Search filter');
+        if (typeof payload.filters.shortageOnly !== 'boolean') invalid('Shortfalls filter must be true or false.');
+        let content;
+        try { content = await createInventoryPdf(payload.warehouse, payload); }
+        catch (error) {
+          onError(error);
+          throw new ApiError(500, 'EXPORT_ERROR', 'Could not generate the PDF. Please try again.');
+        }
+        response.writeHead(200, { 'Content-Type': 'application/pdf', 'Content-Length': content.length,
+          'Content-Disposition': `attachment; filename="${pdfFilename(payload.warehouse)}"`,
+          'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+        response.end(content);
+        return;
+      }
       if (url.pathname === '/api/state') {
         if (request.method === 'GET') {
           const state = await serialized(resolvedDataFile, () => loadState(resolvedDataFile));
