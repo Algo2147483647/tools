@@ -109,10 +109,18 @@ tbody tr:hover { background: #fafafa; }
 .stock-heading-unit::before { content: '/'; position: absolute; left: -4px; transform: translateX(-50%); }
 .stock-fields .cell-input, .rule-controls .cell-input { width: 100%; min-width: 0; margin: 0; padding-left: 0; padding-right: 0; }
 .stock-input, .amount-input { font-size: 16px; line-height: 1.25; text-align: right; appearance: textfield; }
+.quantity-control { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); align-items: baseline; min-width: 0; }
+.stock-fields .quantity-control .cell-input, .rule-controls .quantity-control .cell-input { padding-left: 14px; }
+.quantity-stepper { position: absolute; z-index: 1; left: 1px; top: 50%; transform: translateY(-50%); display: grid; opacity: 0; transition: opacity .12s; }
+.quantity-control:hover .quantity-stepper { opacity: 1; }
+.quantity-step { display: flex; align-items: center; justify-content: center; width: 12px; height: 11px; padding: 0; border: 0; background: transparent; color: #bbb; }
+.quantity-step svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.quantity-step:hover:not(:disabled), .quantity-step:focus-visible { color: #555; }
+.quantity-step:disabled { opacity: .3; }
 .stock-input::-webkit-inner-spin-button, .stock-input::-webkit-outer-spin-button,
 .amount-input::-webkit-inner-spin-button, .amount-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .unit-input { font-size: 13px; color: var(--muted); cursor: pointer; text-align: left; }
-.rule-controls { grid-template-columns: 28px 6ch minmax(0, max-content) 44px; gap: 3px; justify-content: start; }
+.rule-controls { grid-template-columns: 14px calc(6ch + 14px) minmax(0, max-content) 44px; gap: 3px; justify-content: start; }
 .rule-mode { position: relative; min-width: 0; }
 .rule-select { display: block; width: 100%; min-width: 0; border: 0; background: transparent; color: transparent; font-size: 13px; padding: 4px 0; text-align: left; }
 .rule-select option { color: var(--ink); background: #fff; }

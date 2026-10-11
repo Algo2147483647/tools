@@ -1,4 +1,4 @@
-import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization, typeSegments, matchesType, typeFilterState, reorderItems, EditHistory } from './model.js';
+import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization, typeSegments, matchesType, typeFilterState, stepQuantity, reorderItems, EditHistory } from './model.js';
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -197,15 +197,16 @@ function renderStats() {
 function rowMarkup(item) {
   const name = escapeHtml(item.name);
   const field = (key, label, cls, attrs = '') => `<input class="cell-input ${cls}" data-field="${key}" value="${escapeHtml(item[key])}" aria-label="${name} ${label}" ${attrs}>`;
+  const quantityField = (key, label, cls) => `<span class="quantity-control"><span class="quantity-stepper">${[[1, 'Increase', 'm2 6 3-3 3 3'], [-1, 'Decrease', 'm2 3 3 3 3-3']].map(([direction, action, path]) => `<button type="button" class="quantity-step" tabindex="-1" data-quantity-step="${direction}" aria-label="${action} ${name} ${label}" title="${action} by 1"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="${path}"/></svg></button>`).join('')}</span>${field(key, label, cls, 'type="number" min="0" max="1000000000000" step="any" required')}</span>`;
   const rule = (supply) => {
     const [mode, amount, rateUnit] = supply ? ['supplyMode', 'supplyAmount', 'supplyRateUnit'] : ['mode', 'amount', 'rateUnit'];
     const label = supply ? 'supply' : 'demand';
-    return `<div class="rule-controls"><span class="rule-mode"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate — quantity per time unit</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed — total quantity</option></select><span class="rule-mode-symbol" aria-hidden="true">${item[mode] === 'fixed' ? 'ℱ' : 'ℛ'}</span></span>${field(amount, `${label} amount`, 'amount-input', 'type="number" min="0" max="1000000000000" step="any" required')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
+    return `<div class="rule-controls"><span class="rule-mode"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate — quantity per time unit</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed — total quantity</option></select><span class="rule-mode-symbol" aria-hidden="true">${item[mode] === 'fixed' ? 'ℱ' : 'ℛ'}</span></span>${quantityField(amount, `${label} amount`, 'amount-input')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
   };
   return `<tr data-item="${escapeHtml(item.id)}">
     <td>${field('name', 'name', 'item-name', 'maxlength="150" required')}</td>
     <td><select class="cell-input type-input" data-field="type" aria-label="${name} type" required>${itemTypeOptions(item.type)}</select></td>
-    <td><div class="stock-fields">${field('stock', 'stock', 'stock-input', 'type="number" min="0" max="1000000000000" step="any" required')}<select class="cell-input unit-input" data-field="unit" aria-label="${name} unit" required>${itemUnitOptions(item.unit)}</select></div></td>
+    <td><div class="stock-fields">${quantityField('stock', 'stock', 'stock-input')}<select class="cell-input unit-input" data-field="unit" aria-label="${name} unit" required>${itemUnitOptions(item.unit)}</select></div></td>
     <td class="supply-cell">${rule(true)}</td>
     <td>${rule(false)}</td>
     <td class="balance-cell"></td>
@@ -222,6 +223,14 @@ function updateRow(row, item) {
   });
   row.querySelector('[data-delete]').setAttribute('aria-label', `Delete ${item.name}`);
   row.querySelector('[data-drag]').setAttribute('aria-label', `Reorder ${item.name}`);
+  row.querySelectorAll('.quantity-control').forEach((control) => {
+    const input = control.querySelector('input');
+    control.querySelectorAll('[data-quantity-step]').forEach((button) => {
+      const increasing = button.dataset.quantityStep === '1';
+      button.setAttribute('aria-label', `${increasing ? 'Increase' : 'Decrease'} ${input.getAttribute('aria-label')}`);
+      button.disabled = increasing ? item[input.dataset.field] >= 1e12 : item[input.dataset.field] <= 0;
+    });
+  });
   row.querySelectorAll('.rule-unit').forEach((unit) => { unit.textContent = item.unit; unit.title = item.unit; });
   row.querySelectorAll('.rule-select').forEach((select) => {
     select.nextElementSibling.textContent = item[select.dataset.field] === 'fixed' ? 'ℱ' : 'ℛ';
@@ -531,6 +540,23 @@ $('items').addEventListener('input', (event) => {
   renderItems(true);
 });
 $('items').addEventListener('compositionend', (event) => event.target.dispatchEvent(new Event('input', { bubbles: true })));
+function adjustQuantity(input, direction) {
+  if (!input || !input.checkValidity()) return;
+  const next = stepQuantity(input.valueAsNumber, direction);
+  if (next === null || next === input.valueAsNumber) return;
+  input.value = String(next);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+$('items').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-quantity-step]');
+  if (!button) return;
+  adjustQuantity(button.closest('.quantity-control').querySelector('input'), Number(button.dataset.quantityStep));
+});
+$('items').addEventListener('keydown', (event) => {
+  if (!event.target.matches('.quantity-control input') || event.ctrlKey || event.metaKey || event.altKey || event.isComposing || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  event.preventDefault();
+  adjustQuantity(event.target, event.key === 'ArrowUp' ? 1 : -1);
+});
 $('items').addEventListener('dragstart', (event) => {
   const handle = event.target.closest('[data-drag]');
   if (!handle || !event.dataTransfer) return;

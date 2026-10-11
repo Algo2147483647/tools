@@ -145,6 +145,11 @@ export function typeFilterState(items, selected = '') {
   return { selected: node.path, levels };
 }
 
+export function stepQuantity(value, direction) {
+  if (!nonnegativeNumber(value) || value > 1e12 || ![-1, 1].includes(direction)) return null;
+  return roundQuantity(Math.min(1e12, Math.max(0, value + direction)));
+}
+
 export function reorderItems(items, itemId, targetId, placement = 'before') {
   const source = items.findIndex((item) => item.id === itemId);
   const target = items.findIndex((item) => item.id === targetId);
