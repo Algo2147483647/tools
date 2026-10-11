@@ -179,7 +179,7 @@ export function createInitialState() {
   const period = { start: localMidnight(now), end: localMidnight(end) };
   const warehouse = (id, name, catalog) => ({
     id, name, description: '', period: { ...period },
-    items: catalog.map((item, index) => ({ id: `${id}-${index + 1}`, ...item, stock: 0 })),
+    items: catalog.map((item, index) => ({ id: `${id}-${index + 1}`, ...item, stock: 0, supplyMode: 'fixed', supplyAmount: 0, supplyRateUnit: 'day' })),
   });
   return {
     version: 1,

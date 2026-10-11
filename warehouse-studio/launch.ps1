@@ -33,7 +33,7 @@ if ($BuildOnly) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $warehouseNode --check public/app.js
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $warehouseNode --test tests/model.test.mjs tests/server.test.mjs tests/history.test.mjs
+    & $warehouseNode --test tests/model.test.mjs tests/server.test.mjs tests/history.test.mjs tests/types.test.mjs
     exit $LASTEXITCODE
 }
 $warehouseArguments = @('server.mjs', '--port', "$Port")

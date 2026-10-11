@@ -58,9 +58,19 @@ export function requirements(item, period) {
   const required = configured && hours !== null
     ? roundQuantity(fixed ? item.amount : item.amount * (hours / unitHours))
     : null;
-  const remaining = required !== null && stockValid ? roundQuantity(item.stock - required) : null;
+  const legacySupply = item && ['supplyMode', 'supplyAmount', 'supplyRateUnit'].every((key) => item[key] === undefined);
+  const supplyMode = legacySupply ? 'fixed' : item?.supplyMode;
+  const supplyAmount = legacySupply ? 0 : item?.supplyAmount;
+  const supplyUnitHours = HOURS_PER_UNIT[legacySupply ? 'day' : item?.supplyRateUnit];
+  const supplied = hours !== null && nonnegativeNumber(supplyAmount) && (supplyMode === 'fixed' || (supplyMode === 'rate' && supplyUnitHours))
+    ? roundQuantity(supplyMode === 'fixed' ? supplyAmount : supplyAmount * (hours / supplyUnitHours))
+    : null;
+  const available = stockValid && supplied !== null ? roundQuantity(item.stock + supplied) : null;
+  const remaining = required !== null && available !== null ? roundQuantity(available - required) : null;
   return {
     required,
+    supplied,
+    available,
     shortage: remaining === null ? null : Math.max(-remaining, 0),
     remaining,
     coverageHours,
@@ -81,6 +91,58 @@ export function shiftDays(datetime, days) {
   const year = shifted.getUTCFullYear();
   if (!Number.isFinite(year) || year < 1 || year > 9999) return null;
   return shifted.toISOString().slice(0, 16);
+}
+
+export function endAfterDays(datetime, days) {
+  const timestamp = parseDateTime(datetime);
+  if (timestamp === null || !Number.isFinite(days) || days <= 0 || days > 36600) return null;
+  const minutes = Math.round(days * 24 * 60);
+  if (minutes < 1) return null;
+  const end = new Date(timestamp + minutes * 60000);
+  const year = end.getUTCFullYear();
+  if (!Number.isFinite(year) || year < 1 || year > 9999) return null;
+  return end.toISOString().slice(0, 16);
+}
+
+export function typeSegments(type) {
+  const parts = type.split('/').map((part) => part.trim()).filter(Boolean);
+  return parts.length ? parts : [type.trim()];
+}
+
+export function matchesType(type, selected) {
+  if (!selected) return true;
+  const parts = typeSegments(type);
+  return typeSegments(selected).every((part, index) => parts[index] === part);
+}
+
+export function typeFilterState(items, selected = '') {
+  const root = { path: '', count: items.length, children: new Map() };
+  for (const item of items) {
+    let node = root;
+    for (const label of typeSegments(item.type)) {
+      if (!node.children.has(label)) {
+        node.children.set(label, { label, path: node.path ? `${node.path} / ${label}` : label, count: 0, children: new Map() });
+      }
+      node = node.children.get(label);
+      node.count++;
+    }
+  }
+  const selection = selected ? typeSegments(selected) : [];
+  const levels = [];
+  let node = root;
+  let depth = 0;
+  while (node === root || node.children.size) {
+    const child = node.children.get(selection[depth]);
+    levels.push({
+      parent: node.path, count: node.count, value: child?.path || node.path,
+      options: [...node.children.values()].sort((a, b) => a.label.localeCompare(b.label, 'en-US'))
+        .map(({ label, path, count }) => ({ label, path, count })),
+    });
+    if (!child) break;
+    node = child;
+    depth++;
+  }
+  return { selected: node.path, levels };
 }
 
 export function stockVisualization(stock, required) {

@@ -122,6 +122,30 @@ test('simultaneous writers sharing a revision produce one save and one conflict'
   assert.deepEqual(JSON.parse(await readFile(dataFile, 'utf8')), winner);
 });
 
+test('legacy JSON remains readable and supply rules persist independently', async (t) => {
+  const { server, dataFile, publicDir, servers } = await fixture(t);
+  const legacy = (await request(server)).data;
+  for (const warehouse of legacy.warehouses) for (const item of warehouse.items) {
+    delete item.supplyMode; delete item.supplyAmount; delete item.supplyRateUnit;
+  }
+  const originalFile = JSON.stringify(legacy, null, 2);
+  await writeFile(dataFile, originalFile);
+  assert.deepEqual((await request(server)).data, legacy);
+  assert.equal(await readFile(dataFile, 'utf8'), originalFile);
+  const edited = clone(legacy);
+  Object.assign(edited.warehouses[0].items[0], { supplyMode: 'rate', supplyAmount: 1.25, supplyRateUnit: 'week' });
+  const saved = await request(server, 'PUT', '/api/state', edited);
+  assert.equal(saved.status, 200);
+  assert.equal(saved.data.warehouses[0].items[0].supplyAmount, 1.25);
+  assert.equal(saved.data.warehouses[0].items[0].stock, legacy.warehouses[0].items[0].stock);
+  assert.deepEqual(saved.data.warehouses.slice(1), legacy.warehouses.slice(1));
+  assert.deepEqual(JSON.parse(await readFile(dataFile, 'utf8')), saved.data);
+  await close(server);
+  const restarted = await listen({ dataFile, publicDir });
+  servers.push(restarted);
+  assert.deepEqual((await request(restarted)).data, saved.data);
+});
+
 test('invalid edits are rejected without changing persisted data', async (t) => {
   const { server, dataFile } = await fixture(t);
   const first = (await request(server)).data;
@@ -145,6 +169,11 @@ test('invalid edits are rejected without changing persisted data', async (t) => 
     ['unknown property', (state) => { state.unexpected = true; }],
     ['unknown mode', (state) => { state.warehouses[0].items = [{ ...item, mode: 'mystery' }]; }],
     ['unknown rate unit', (state) => { state.warehouses[0].items = [{ ...item, rateUnit: 'month' }]; }],
+    ['partial supply rule', (state) => { state.warehouses[0].items = [{ ...item, supplyAmount: 1 }]; }],
+    ['negative supply', (state) => { state.warehouses[0].items = [{ ...item, supplyMode: 'fixed', supplyAmount: -1, supplyRateUnit: 'day' }]; }],
+    ['unknown supply mode', (state) => { state.warehouses[0].items = [{ ...item, supplyMode: 'mystery', supplyAmount: 1, supplyRateUnit: 'day' }]; }],
+    ['unknown supply period', (state) => { state.warehouses[0].items = [{ ...item, supplyMode: 'rate', supplyAmount: 1, supplyRateUnit: 'month' }]; }],
+    ['nonnumeric supply', (state) => { state.warehouses[0].items = [{ ...item, supplyMode: 'fixed', supplyAmount: '1', supplyRateUnit: 'day' }]; }],
   ];
   for (const [name, mutate] of cases) {
     const edited = clone(first);

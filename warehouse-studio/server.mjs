@@ -90,7 +90,9 @@ export function validateState(state) {
     if (itemCount > 20000) invalid('The total item count cannot exceed 20000.');
     const itemIds = new Set();
     for (const item of warehouse.items) {
-      record(item, ['id', 'name', 'type', 'unit', 'stock', 'mode', 'amount', 'rateUnit', 'note'], 'Material');
+      const supplyKeys = ['supplyMode', 'supplyAmount', 'supplyRateUnit'];
+      const hasSupply = item && supplyKeys.some((key) => Object.prototype.hasOwnProperty.call(item, key));
+      record(item, ['id', 'name', 'type', 'unit', 'stock', 'mode', 'amount', 'rateUnit', 'note', ...(hasSupply ? supplyKeys : [])], 'Material');
       string(item.id, 100, 'Material ID', true);
       string(item.name, 150, 'Material name', true);
       string(item.type, 100, 'Material type', true);
@@ -102,6 +104,11 @@ export function validateState(state) {
       quantity(item.amount, 'Demand amount');
       if (!['rate', 'fixed'].includes(item.mode)) invalid('The demand mode must be rate or fixed.');
       if (!['hour', 'day', 'week'].includes(item.rateUnit)) invalid('The rate unit must be hour, day, or week.');
+      if (hasSupply) {
+        quantity(item.supplyAmount, 'Supply amount');
+        if (!['rate', 'fixed'].includes(item.supplyMode)) invalid('The supply mode must be rate or fixed.');
+        if (!['hour', 'day', 'week'].includes(item.supplyRateUnit)) invalid('The supply rate unit must be hour, day, or week.');
+      }
     }
   }
   return state;

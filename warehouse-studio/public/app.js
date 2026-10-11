@@ -1,4 +1,4 @@
-import { durationHours, requirements, formatNumber, shiftDays, stockVisualization, EditHistory } from './model.js';
+import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization, typeSegments, matchesType, typeFilterState, EditHistory } from './model.js';
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -97,6 +97,9 @@ async function loadState() {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || 'Could not load data');
     state = body;
+    for (const w of state.warehouses) for (const item of w.items) {
+      if (!Object.prototype.hasOwnProperty.call(item, 'supplyMode')) Object.assign(item, { supplyMode: 'fixed', supplyAmount: 0, supplyRateUnit: 'day' });
+    }
     history.reset(state.warehouses);
     updateHistoryControls();
     revision = body.revision;
@@ -142,12 +145,11 @@ function renderUnits() {
 }
 
 function renderTypes() {
-  const counts = new Map();
-  for (const item of warehouse().items) counts.set(item.type, (counts.get(item.type) || 0) + 1);
-  const types = [...counts.keys()].sort((a, b) => a.localeCompare(b, 'en-US'));
-  if (activeType && !counts.has(activeType)) activeType = '';
-  $('type-filter').innerHTML = `<option value="">All types (${warehouse().items.length})</option>` + types.map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)} (${counts.get(type)})</option>`).join('');
-  $('type-filter').value = activeType;
+  const filters = typeFilterState(warehouse().items, activeType);
+  activeType = filters.selected;
+  const focusedLevel = $('type-filters').contains(document.activeElement) ? document.activeElement.dataset.level : null;
+  $('type-filters').innerHTML = filters.levels.map((level, index) => `${index ? '<span class="type-separator" aria-hidden="true">/</span>' : ''}<select ${index === 0 ? 'id="type-filter"' : ''} class="type-level" data-level="${index}" aria-label="${index === 0 ? 'Filter by primary type' : `Filter by type level ${index + 1}`}" title="${escapeHtml(level.value || 'All types')}"><option value="${escapeHtml(level.parent)}">${index ? 'All subtypes' : 'All types'} (${level.count})</option>${level.options.map((option) => `<option value="${escapeHtml(option.path)}" ${option.path === level.value ? 'selected' : ''}>${escapeHtml(option.label)} (${option.count})</option>`).join('')}</select>`).join('');
+  if (focusedLevel !== null) $('type-filters').querySelector(`[data-level="${focusedLevel}"]`)?.focus({ preventScroll: true });
   const byId = new Map(warehouse().items.map((item) => [item.id, item]));
   $('items').querySelectorAll('select[data-field=type]').forEach((select) => {
     const item = byId.get(select.closest('tr').dataset.item);
@@ -163,14 +165,19 @@ function displayPeriod() {
   $('period-error').hidden = true;
   $('period-start').removeAttribute('aria-invalid');
   $('period-end').removeAttribute('aria-invalid');
+  $('duration-days').removeAttribute('aria-invalid');
   updateDuration();
 }
 
-function updateDuration() {
+function updateDuration(preserveInput = false) {
   const hours = durationHours(calculationPeriod());
   const days = hours === null ? null : hours / 24;
-  $('duration-label').textContent = hours === null ? 'Invalid period' : hours % 24 === 0 ? `${formatNumber(days)} ${days === 1 ? 'day' : 'days'}` : `${formatNumber(days)} days · ${formatNumber(hours)} ${hours === 1 ? 'hour' : 'hours'}`;
-  $('quick-days').querySelectorAll('button').forEach((b) => b.classList.toggle('active', hours !== null && Number(b.dataset.days) === hours / 24));
+  if (!preserveInput) $('duration-days').value = days === null ? '' : String(Number(days.toFixed(10)));
+  $('quick-days').querySelectorAll('button').forEach((b) => {
+    const selected = hours !== null && Number(b.dataset.days) === days;
+    b.classList.toggle('active', selected);
+    b.setAttribute('aria-pressed', String(selected));
+  });
 }
 
 function renderStats() {
@@ -178,7 +185,7 @@ function renderStats() {
   const computed = items.map((i) => requirements(i, calculationPeriod()));
   const stat = (id, value) => { $(id).textContent = value; };
   stat('stat-total', items.length);
-  stat('stat-rate', items.filter((i) => i.mode === 'rate').length);
+  stat('stat-rate', items.filter((i) => i.mode === 'rate' || i.supplyMode === 'rate').length);
   stat('stat-shortage', computed.filter((r) => r.shortage > 0).length);
   stat('stat-ready', computed.filter((r) => r.required !== null && r.shortage === 0).length);
   const unconfigured = computed.filter((r) => !r.configured).length;
@@ -189,11 +196,17 @@ function renderStats() {
 function rowMarkup(item) {
   const name = escapeHtml(item.name);
   const field = (key, label, cls, attrs = '') => `<input class="cell-input ${cls}" data-field="${key}" value="${escapeHtml(item[key])}" aria-label="${name} ${label}" ${attrs}>`;
+  const rule = (supply) => {
+    const [mode, amount, rateUnit] = supply ? ['supplyMode', 'supplyAmount', 'supplyRateUnit'] : ['mode', 'amount', 'rateUnit'];
+    const label = supply ? 'supply' : 'demand';
+    return `<div class="rule-controls"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed</option></select>${field(amount, `${label} amount`, 'amount-input', 'type="number" min="0" max="1000000000000" step="any" required')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
+  };
   return `<tr data-item="${escapeHtml(item.id)}">
     <td>${field('name', 'name', 'item-name', 'maxlength="150" required')}</td>
     <td><select class="cell-input type-input" data-field="type" aria-label="${name} type" required>${itemTypeOptions(item.type)}</select></td>
     <td><div class="stock-fields">${field('stock', 'stock', 'stock-input', 'type="number" min="0" max="1000000000000" step="any" required')}<select class="cell-input unit-input" data-field="unit" aria-label="${name} unit" required>${itemUnitOptions(item.unit)}</select></div></td>
-    <td><div class="rule-controls"><select class="rule-select" data-field="mode" aria-label="${name} requirement mode"><option value="rate" ${item.mode === 'rate' ? 'selected' : ''}>Rate</option><option value="fixed" ${item.mode === 'fixed' ? 'selected' : ''}>Fixed</option></select>${field('amount', 'usage amount', 'amount-input', 'type="number" min="0" max="1000000000000" step="any" required')}<span class="rule-unit">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="rateUnit" aria-label="${name} time unit" ${item.mode === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, label]) => `<option value="${value}" ${item.rateUnit === value ? 'selected' : ''}>${label}</option>`).join('')}</select></div></td>
+    <td class="supply-cell">${rule(true)}</td>
+    <td>${rule(false)}</td>
     <td class="computed required-cell"></td><td class="balance-cell"></td>
     <td><button class="icon-button row-delete" data-delete="${escapeHtml(item.id)}" aria-label="Delete ${name}" title="Delete item">×</button></td>
   </tr>`;
@@ -201,17 +214,19 @@ function rowMarkup(item) {
 
 function updateRow(row, item) {
   const result = requirements(item, calculationPeriod());
-  const labels = { name: 'name', note: 'note', type: 'type', stock: 'stock', unit: 'unit', mode: 'requirement mode', amount: 'usage amount', rateUnit: 'time unit' };
+  const labels = { name: 'name', note: 'note', type: 'type', stock: 'stock', unit: 'unit', mode: 'demand mode', amount: 'demand amount', rateUnit: 'demand time unit', supplyMode: 'supply mode', supplyAmount: 'supply amount', supplyRateUnit: 'supply time unit' };
   row.querySelectorAll('[data-field]').forEach((input) => {
     input.setAttribute('aria-label', `${item.name} ${labels[input.dataset.field]}`);
     if (['name', 'note', 'type', 'unit'].includes(input.dataset.field) && input.getAttribute('aria-invalid') !== 'true') input.title = item[input.dataset.field];
   });
   row.querySelector('[data-delete]').setAttribute('aria-label', `Delete ${item.name}`);
-  row.querySelector('.rule-unit').textContent = item.unit;
+  row.querySelectorAll('.rule-unit').forEach((unit) => { unit.textContent = item.unit; unit.title = item.unit; });
   row.querySelector('[data-field=rateUnit]').hidden = item.mode === 'fixed';
+  row.querySelector('[data-field=supplyRateUnit]').hidden = item.supplyMode === 'fixed';
+  row.querySelector('.supply-cell').title = result.supplied === null ? 'Select a valid period to calculate planned supply.' : `Planned supply for this interval: ${formatNumber(result.supplied)} ${item.unit}.`;
   row.querySelector('.required-cell').innerHTML = result.required === null ? `<span class="unconfigured">${invalidPeriod ? 'Invalid period' : 'Set usage rate'}</span>` : `${formatNumber(result.required)}<small>${escapeHtml(item.unit)}</small>`;
-  const visual = stockVisualization(item.stock, result.required);
-  const description = visual ? `Stock: ${formatNumber(item.stock)} ${item.unit}; required: ${formatNumber(result.required)} ${item.unit}; ${visual.balance < 0 ? 'shortfall' : 'surplus'}: ${formatNumber(Math.abs(visual.balance))} ${item.unit}. Green: covered demand; striped red: shortfall; pale green: surplus; black marker: requirement.` : `Stock: ${formatNumber(item.stock)} ${item.unit}; ${invalidPeriod ? 'invalid period' : 'set a usage rate to compare with demand'}.`;
+  const visual = stockVisualization(result.available, result.required);
+  const description = visual ? `Stock: ${formatNumber(item.stock)} ${item.unit}; planned supply: ${formatNumber(result.supplied)} ${item.unit}; available: ${formatNumber(result.available)} ${item.unit}; required: ${formatNumber(result.required)} ${item.unit}; ${visual.balance < 0 ? 'shortfall' : 'surplus'}: ${formatNumber(Math.abs(visual.balance))} ${item.unit}. Green: covered demand; striped red: shortfall; pale green: surplus; black marker: requirement. Balance is projected at the end of the interval.` : `Stock: ${formatNumber(item.stock)} ${item.unit}; ${invalidPeriod ? 'invalid period' : 'set a usage rate to compare with demand'}.`;
   const delta = !visual ? '—' : visual.status === 'empty' ? '—' : visual.balance < 0 ? `−${formatNumber(-visual.balance)}` : visual.balance > 0 ? `+${formatNumber(visual.balance)}` : 'Ready';
   row.querySelector('.balance-cell').innerHTML = `<div class="stock-visual ${visual?.status || 'unknown'}" role="img" tabindex="0" aria-label="${escapeHtml(`${item.name}. ${description}`)}" title="${escapeHtml(description)}"><div class="stock-meter" aria-hidden="true">${visual ? `<span class="stock-covered" style="width:${visual.covered}%"></span><span class="stock-missing" style="width:${visual.missing}%"></span><span class="stock-surplus" style="width:${visual.surplus}%"></span>${visual.status !== 'empty' && result.required > 0 ? `<span class="stock-target" style="left:${visual.target}%"></span>` : ''}` : ''}</div><span class="stock-delta" aria-hidden="true">${delta}</span></div>`;
   row.querySelector('.required-cell').title = invalidPeriod ? 'Select a valid period to calculate requirements.' : !result.configured ? 'Set a usage rate greater than 0 to calculate requirements.' : item.mode === 'rate' ? `${item.amount} ${item.unit} per ${item.rateUnit} × selected duration; stock covers ${formatNumber(result.coverageHours === null ? null : result.coverageHours / 24)} days` : 'Fixed requirements do not change with the selected period.';
@@ -219,7 +234,7 @@ function updateRow(row, item) {
 
 function visibleItems() {
   const search = query.trim().toLocaleLowerCase('en-US');
-  return warehouse().items.filter((i) => (!activeType || i.type === activeType) && (!search || `${i.name} ${i.type}`.toLocaleLowerCase('en-US').includes(search)) && (!shortageOnly || requirements(i, calculationPeriod()).shortage > 0));
+  return warehouse().items.filter((i) => matchesType(i.type, activeType) && (!search || `${i.name} ${i.type}`.toLocaleLowerCase('en-US').includes(search)) && (!shortageOnly || requirements(i, calculationPeriod()).shortage > 0));
 }
 
 function renderItems(preserveEditing = false) {
@@ -291,7 +306,7 @@ function addItem() {
     toast('Item limit reached: 5,000 per warehouse and 20,000 in total.');
     return;
   }
-  const item = { id: crypto.randomUUID(), name: 'New item', type: activeType || 'Uncategorized', unit: 'pcs', stock: 0, mode: 'fixed', amount: 1, rateUnit: 'day', note: '' };
+  const item = { id: crypto.randomUUID(), name: 'New item', type: activeType || 'Uncategorized', unit: 'pcs', stock: 0, mode: 'fixed', amount: 1, rateUnit: 'day', supplyMode: 'fixed', supplyAmount: 0, supplyRateUnit: 'day', note: '' };
   warehouse().items.unshift(item);
   query = '';
   $('search').value = '';
@@ -315,13 +330,30 @@ function editPeriod(event) {
   $('period-error').textContent = 'Enter a valid period: the end must follow the start, within 100 years. Calculations are paused and this change has not been saved.';
   $('period-start').setAttribute('aria-invalid', String(invalidPeriod));
   $('period-end').setAttribute('aria-invalid', String(invalidPeriod));
+  $('duration-days').removeAttribute('aria-invalid');
   if (!invalidPeriod && (warehouse().period.start !== period.start || warehouse().period.end !== period.end)) {
     warehouse().period = period;
     changed({ label: 'Planning interval', controlId: event?.target?.id, group: event?.target?.id ? `${activeWarehouse}:${event.target.id}` : null });
   }
-  updateDuration();
+  updateDuration(event?.target === $('duration-days'));
   renderStats();
   renderItems();
+}
+
+function editDuration(event) {
+  const input = $('duration-days');
+  const end = input.checkValidity() ? endAfterDays($('period-start').value, input.valueAsNumber) : null;
+  if (!end) {
+    invalidPeriod = true;
+    input.setAttribute('aria-invalid', 'true');
+    $('period-error').hidden = false;
+    $('period-error').textContent = 'Enter a valid start time and a positive duration up to 36,600 days (at least one minute).';
+    updateDuration(true);
+    renderStats(); renderItems();
+    return;
+  }
+  $('period-end').value = end;
+  editPeriod(event);
 }
 
 function fillSettings() {
@@ -339,7 +371,7 @@ function settings() {
 }
 
 function discardInvalidDraft() {
-  if ($('period-start').value !== warehouse().period.start || $('period-end').value !== warehouse().period.end) {
+  if ($('duration-days').getAttribute('aria-invalid') === 'true' || $('period-start').value !== warehouse().period.start || $('period-end').value !== warehouse().period.end) {
     displayPeriod(); renderStats(); renderItems();
     return true;
   }
@@ -393,7 +425,7 @@ document.addEventListener('keydown', (event) => {
   if (key !== 'z' && key !== 'y') return;
   const target = event.target;
   const editing = target instanceof Element && target.closest('input, textarea, [contenteditable=true]');
-  if (editing && !editing.dataset.field && !['settings-name', 'settings-description', 'period-start', 'period-end'].includes(editing.id)) return;
+  if (editing && !editing.dataset.field && !['settings-name', 'settings-description', 'period-start', 'period-end', 'duration-days'].includes(editing.id)) return;
   if (['type-dialog', 'unit-dialog', 'confirm-dialog'].some((id) => $(id).open)) return;
   event.preventDefault();
   travelHistory(key === 'y' || event.shiftKey ? 'redo' : 'undo');
@@ -414,7 +446,8 @@ $('warehouse-select').addEventListener('change', (event) => {
   $('only-shortage').checked = false;
   renderWarehouse();
 });
-$('type-filter').addEventListener('change', (event) => {
+$('type-filters').addEventListener('change', (event) => {
+  if (!event.target.matches('select[data-level]')) return;
   activeType = event.target.value;
   renderTypes();
   renderItems();
@@ -447,14 +480,14 @@ $('items').addEventListener('input', (event) => {
     $('new-type-name').focus();
     return;
   }
-  const numeric = field === 'stock' || field === 'amount';
+  const numeric = ['stock', 'amount', 'supplyAmount'].includes(field);
   const value = numeric ? input.valueAsNumber : input.value;
   const invalid = !input.checkValidity() || (numeric ? !Number.isFinite(value) || value < 0 || value > 1e12 : value.includes('\u0000') || (['name', 'type', 'unit'].includes(field) && !value.trim()));
   input.setAttribute('aria-invalid', String(invalid));
   input.title = invalid ? 'Invalid value; not saved. Required fields cannot be blank. Quantities must be between 0 and 1 trillion.' : '';
   if (invalid || item[field] === value) return;
   item[field] = value;
-  changed({ label: `Edit ${field}`, itemId: item.id, field, group: input.tagName === 'INPUT' ? `${activeWarehouse}:${item.id}:${field}` : null });
+  changed({ label: `Edit ${field.replace(/[A-Z]/g, (letter) => ` ${letter.toLowerCase()}`)}`, itemId: item.id, field, group: input.tagName === 'INPUT' ? `${activeWarehouse}:${item.id}:${field}` : null });
   renderStats();
   if (field === 'type') renderTypes();
   if (field === 'unit') renderUnits();
@@ -486,6 +519,8 @@ $('items').addEventListener('click', (event) => {
   });
 });
 for (const id of ['period-start', 'period-end']) $(id).addEventListener('change', editPeriod);
+$('duration-days').addEventListener('input', editDuration);
+$('duration-days').addEventListener('change', () => { if (!invalidPeriod) updateDuration(); });
 $('quick-days').addEventListener('click', (event) => {
   const button = event.target.closest('[data-days]');
   if (!button) return;
@@ -548,8 +583,8 @@ $('new-type-name').addEventListener('input', () => $('new-type-name').setCustomV
 $('type-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const input = $('new-type-name');
-  const type = input.value.trim();
-  input.setCustomValidity(!type || type.includes('\u0000') ? 'Enter a valid type name.' : '');
+  const type = typeSegments(input.value).join(' / ');
+  input.setCustomValidity(input.value.split('/').some((part) => !part.trim()) || type.includes('\u0000') || type.length > 100 ? 'Enter nonempty type levels separated by /, up to 100 characters.' : '');
   if (!input.reportValidity()) return;
   const item = state.warehouses.find((w) => w.id === typeTarget?.warehouseId)?.items.find((i) => i.id === typeTarget.itemId);
   if (item && item.type !== type) { item.type = type; changed({ label: 'Edit type', itemId: item.id, field: 'type' }); }

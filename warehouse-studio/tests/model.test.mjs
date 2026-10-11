@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { durationHours, requirements, formatNumber, shiftDays, stockVisualization } from '../public/model.js';
+import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization } from '../public/model.js';
 import { createInitialState } from '../seed.mjs';
 
 const tests = [];
@@ -16,25 +16,25 @@ test('partial days use exact hours, including minutes', () => {
 test('day, week and hour rates produce equivalent seven-day requirements', () => {
   for (const [amount, rateUnit] of [[2, 'day'], [14, 'week'], [1 / 12, 'hour']]) {
     assert.deepEqual(requirements({ ...water, amount, rateUnit }, period), {
-      required: 14, shortage: 4, remaining: -4, coverageHours: 120, configured: true,
+      required: 14, supplied: 0, available: 10, shortage: 4, remaining: -4, coverageHours: 120, configured: true,
     });
   }
 });
 
 test('fixed items are independent of valid selected duration, including zero demand', () => {
   const item = { stock: 3, mode: 'fixed', amount: 2 };
-  const expected = { required: 2, shortage: 0, remaining: 1, coverageHours: null, configured: true };
+  const expected = { required: 2, supplied: 0, available: 3, shortage: 0, remaining: 1, coverageHours: null, configured: true };
   assert.deepEqual(requirements(item, period), expected);
   assert.deepEqual(requirements(item, { ...period, end: '2026-10-11T10:00' }), expected);
   assert.deepEqual(requirements({ ...item, amount: 0 }, period), {
-    required: 0, shortage: 0, remaining: 3, coverageHours: null, configured: true,
+    required: 0, supplied: 0, available: 3, shortage: 0, remaining: 3, coverageHours: null, configured: true,
   });
 });
 
 test('zero or missing rates are unconfigured, not an invented zero requirement', () => {
   for (const item of [{ ...water, amount: 0 }, { ...water, amount: undefined }, { ...water, rateUnit: 'month' }]) {
     assert.deepEqual(requirements(item, period), {
-      required: null, shortage: null, remaining: null, coverageHours: null, configured: false,
+      required: null, supplied: 0, available: 10, shortage: null, remaining: null, coverageHours: null, configured: false,
     });
   }
 });
@@ -117,6 +117,19 @@ test('day shifting preserves clock time and correctly crosses month, leap and ye
   assert.equal(shiftDays('2026-10-11T09:15', Infinity), null);
 });
 
+test('custom durations accept arbitrary days and round fractional days to the nearest minute', () => {
+  assert.equal(endAfterDays('2026-10-11T09:15', 45), '2026-11-25T09:15');
+  assert.equal(endAfterDays('2026-10-11T09:15', 2.5), '2026-10-13T21:15');
+  assert.equal(endAfterDays('2026-10-11T09:15', 1 / 1440), '2026-10-11T09:16');
+  assert.equal(endAfterDays('2024-02-28T23:30', 1.5), '2024-03-01T11:30');
+  assert.equal(endAfterDays('2026-12-31T23:30', 0.1), '2027-01-01T01:54');
+  assert.equal(endAfterDays('2026-10-11T00:00', 1.234), '2026-10-12T05:37');
+  for (const days of [0, -1, NaN, Infinity, 36601, 0.00001]) assert.equal(endAfterDays('2026-10-11T09:15', days), null);
+  assert.equal(endAfterDays('2026-02-29T00:00', 1), null);
+  assert.equal(endAfterDays('9999-12-31T00:00', 1), null);
+  assert.equal(endAfterDays('0001-01-01T00:00', 36600), '0101-03-18T00:00');
+});
+
 test('reference catalogs calculate immediately and distinguish consumption from reserves', () => {
   const reference = createInitialState();
   const twoWeeks = { ...period, end: '2026-10-25T09:00' };
@@ -154,6 +167,51 @@ test('stock bars distinguish shortage, covered demand, and surplus on the same s
     for (const key of ['covered', 'missing', 'surplus', 'target']) assert.ok(Number.isFinite(bar[key]) && bar[key] >= 0 && bar[key] <= 100);
     assert.ok(Math.abs(bar.covered + bar.missing + bar.surplus - 100) < 1e-10);
   }
+});
+
+test('planned supply covers demand without mutating current stock', () => {
+  const item = { ...water, supplyMode: 'rate', supplyAmount: 1, supplyRateUnit: 'day' };
+  const result = requirements(item, period);
+  assert.equal(result.supplied, 7);
+  assert.equal(result.available, 17);
+  assert.equal(result.required, 14);
+  assert.equal(result.remaining, 3);
+  assert.equal(result.shortage, 0);
+  assert.equal(item.stock, 10);
+  assert.equal(stockVisualization(result.available, result.required).balance, 3);
+  assert.equal(requirements({ ...item, supplyAmount: 0.5 }, period).shortage, 0.5);
+  assert.equal(requirements({ ...item, supplyMode: 'fixed', supplyAmount: 4 }, period).remaining, 0);
+});
+
+test('supply rates use fractional intervals and fixed supply stays constant', () => {
+  const shortPeriod = { start: '2026-10-11T00:00', end: '2026-10-13T12:00' };
+  for (const [supplyAmount, supplyRateUnit] of [[24, 'day'], [1, 'hour'], [168, 'week']]) {
+    const item = { ...water, supplyMode: 'rate', supplyAmount, supplyRateUnit };
+    assert.equal(requirements(item, shortPeriod).supplied, 60);
+    assert.equal(requirements({ ...item, supplyMode: 'fixed' }, shortPeriod).supplied, supplyAmount);
+  }
+  const zero = requirements({ ...water, supplyMode: 'rate', supplyAmount: 0, supplyRateUnit: 'day' }, period);
+  assert.equal(zero.supplied, 0);
+  assert.equal(zero.shortage, 4);
+  assert.equal(requirements({ ...water, stock: 0.1, amount: 0.3, mode: 'fixed', supplyMode: 'fixed', supplyAmount: 0.2, supplyRateUnit: 'day' }, period).remaining, 0);
+});
+
+test('invalid supply and intervals never report a covered inventory', () => {
+  const item = { ...water, supplyMode: 'rate', supplyAmount: 1, supplyRateUnit: 'day' };
+  for (const invalid of [
+    { supplyAmount: -1 }, { supplyAmount: NaN }, { supplyAmount: Infinity }, { supplyAmount: '1' },
+    { supplyMode: 'mystery' }, { supplyRateUnit: 'month' }, { supplyAmount: Number.MAX_VALUE },
+  ]) {
+    const result = requirements({ ...item, ...invalid }, period);
+    assert.equal(result.supplied, null);
+    assert.equal(result.available, null);
+    assert.equal(result.remaining, null);
+    assert.equal(result.shortage, null);
+  }
+  const invalidPeriod = requirements(item, { ...period, end: period.start });
+  assert.equal(invalidPeriod.supplied, null);
+  assert.equal(invalidPeriod.available, null);
+  assert.equal(invalidPeriod.shortage, null);
 });
 
 let failures = 0;
