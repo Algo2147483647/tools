@@ -29,8 +29,8 @@
     <div id="loading" class="loading">Loading inventory…</div>
     <div id="workspace" hidden>
       <section class="period-panel" aria-label="Planning interval">
-        <div class="date-fields"><label>Start time<input id="period-start" type="datetime-local" required></label><span class="date-arrow">→</span><label>End time<input id="period-end" type="datetime-local" required></label></div>
-        <div class="period-shortcuts"><label class="duration-field"><span>Duration</span><input id="duration-days" type="number" min="0" max="36600" step="any" value="7" required aria-label="Duration in days"><span>days</span></label><div id="quick-days"><button data-days="1">1d</button><button data-days="7">7d</button><button data-days="14">14d</button><button data-days="30">30d</button></div></div>
+        <div class="date-fields"><label>Start time<input id="period-start" type="datetime-local" step="1" required></label><span class="date-arrow">→</span><label>End time<input id="period-end" type="datetime-local" step="1" required></label></div>
+        <div class="period-shortcuts"><div class="duration-control"><label class="duration-field"><span>Duration</span><input id="duration-days" type="number" min="0" max="36600" step="any" value="7" required aria-label="Duration in days"></label><select id="duration-unit" aria-label="Duration unit"><option value="second">seconds</option><option value="minute">minutes</option><option value="hour">hours</option><option value="day" selected>days</option><option value="week">weeks</option></select></div><div id="quick-days"><button data-days="1">1d</button><button data-days="7">7d</button><button data-days="14">14d</button><button data-days="30">30d</button></div></div>
         <p id="period-error" class="field-error" role="alert" hidden></p>
       </section>
       <section class="inventory-panel" aria-labelledby="inventory-title">

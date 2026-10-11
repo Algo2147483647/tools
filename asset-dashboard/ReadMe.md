@@ -2,9 +2,13 @@
 
 A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Import a JSON portfolio to value gold, U.S. stocks, supported mutual funds, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp. The interface, validation messages, and documentation are in English.
 
+The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Portfolio configuration and JSON export are in the top toolbar; category filters, search, and sorting sit above the holdings table. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
+
 ## Run locally
 
 Requires **Node.js 22.13 or later**. Node.js 24 LTS is recommended. This project uses **npm** and maintains `package-lock.json` as its dependency lockfile.
+
+The launcher uses the first Node.js on `PATH` that meets the minimum version, skipping older installations such as Anaconda's bundled Node.js. If none qualifies, it checks the standard system and per-user Node.js installation locations, then the current user's Codex runtime cache. It runs npm and the server with that selected runtime; the PATH adjustment applies only while the launcher is running.
 
 ```powershell
 cd D:\xiongzihao\tools\asset-dashboard

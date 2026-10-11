@@ -11,6 +11,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $dashboardExitCode = 1
 $dashboardBrowserHelper = $null
+$dashboardOriginalPath = $env:PATH
 Push-Location -LiteralPath $PSScriptRoot
 
 try {
@@ -19,15 +20,40 @@ try {
         throw 'Choose only one mode: -Dev, -Preview, -BuildOnly or -InstallOnly.'
     }
 
-    $dashboardNode = (Get-Command node.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
-    $dashboardNpm = (Get-Command npm.cmd -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
-    if (-not $dashboardNode -or -not $dashboardNpm) {
-        throw 'Node.js and npm were not found. Install Node.js 22.13+ (24 LTS recommended), then reopen this terminal.'
+    $dashboardNode = $null
+    $dashboardNodeCandidates = @(Get-Command node.exe -All -CommandType Application -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source)
+    # Ordinary terminals do not inherit the extra PATH entries supplied by Codex.
+    $dashboardNodeCandidates += @(
+        "$env:ProgramFiles\nodejs\node.exe"
+        "$env:LOCALAPPDATA\Programs\nodejs\node.exe"
+        "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
+    )
+    foreach ($dashboardCandidate in $dashboardNodeCandidates) {
+        if (-not (Test-Path -LiteralPath $dashboardCandidate -PathType Leaf)) { continue }
+        try {
+            $dashboardNodeVersion = [version]((& $dashboardCandidate --version).TrimStart('v'))
+            if ($LASTEXITCODE -eq 0 -and $dashboardNodeVersion -ge [version]'22.13.0') {
+                $dashboardNode = $dashboardCandidate
+                break
+            }
+        } catch { continue }
     }
-    $dashboardNodeVersion = [version]((& $dashboardNode --version).TrimStart('v'))
-    if ($dashboardNodeVersion -lt [version]'22.13.0') {
-        throw "Node.js $dashboardNodeVersion is too old. This project requires Node.js 22.13+."
+    if (-not $dashboardNode) {
+        throw 'No compatible Node.js was found on PATH or in standard installation locations. Install Node.js 22.13+ and reopen this terminal.'
     }
+    $dashboardNodeDirectory = Split-Path -Parent $dashboardNode
+    $env:PATH = "$dashboardNodeDirectory;$env:PATH"
+
+    # npm.cmd may force its own older node.exe; use the selected Node explicitly.
+    $dashboardNpmCandidates = @(Join-Path $dashboardNodeDirectory 'node_modules/npm/bin/npm-cli.js')
+    foreach ($dashboardNpmCommand in @(Get-Command npm.cmd -All -CommandType Application -ErrorAction SilentlyContinue)) {
+        $dashboardNpmCandidates += Join-Path (Split-Path -Parent $dashboardNpmCommand.Source) 'node_modules/npm/bin/npm-cli.js'
+    }
+    $dashboardNpm = $dashboardNpmCandidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+    if (-not $dashboardNpm) {
+        throw 'npm was not found. Install a Node.js distribution that includes npm and reopen this terminal.'
+    }
+    Write-Host "Using Node.js $dashboardNodeVersion ($dashboardNode)"
 
     $dashboardLock = Join-Path $PSScriptRoot 'package-lock.json'
     $dashboardInstalledLock = Join-Path $PSScriptRoot 'node_modules/.package-lock.json'
@@ -41,12 +67,12 @@ try {
         $dashboardNeedsInstall = (Get-Item -LiteralPath $dashboardLock).LastWriteTimeUtc -gt (Get-Item -LiteralPath $dashboardInstalledLock).LastWriteTimeUtc
     }
     if (-not $dashboardNeedsInstall) {
-        & $dashboardNpm ls --depth=0 --omit=optional --offline *> $null
+        & $dashboardNode $dashboardNpm ls --depth=0 --omit=optional --offline *> $null
         $dashboardNeedsInstall = $LASTEXITCODE -ne 0
     }
     if ($dashboardNeedsInstall) {
         Write-Host 'Installing dependencies from package-lock.json...'
-        & $dashboardNpm ci --no-fund
+        & $dashboardNode $dashboardNpm ci --no-fund
         if ($LASTEXITCODE -ne 0) { throw 'npm ci failed. Check the npm output above.' }
     } else {
         Write-Host 'Dependencies are ready; no installation needed.'
@@ -56,7 +82,7 @@ try {
         $dashboardExitCode = 0
     } else {
         if ($Preview -or $BuildOnly) {
-            & $dashboardNpm run build
+            & $dashboardNode $dashboardNpm run build
             if ($LASTEXITCODE -ne 0) { throw 'The production build failed. Check the output above.' }
         }
         if ($BuildOnly) {
@@ -104,6 +130,7 @@ while ([DateTime]::UtcNow -lt `$deadline) {
         Stop-Process -Id $dashboardBrowserHelper.Id -ErrorAction SilentlyContinue
     }
     Pop-Location
+    $env:PATH = $dashboardOriginalPath
 }
 
 exit $dashboardExitCode

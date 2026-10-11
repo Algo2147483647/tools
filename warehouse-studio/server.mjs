@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { createInitialState } from './seed.mjs';
+import { parseDateTime, HOURS_PER_UNIT } from './public/model.js';
 import { createInventoryPdf, pdfFilename } from './pdf.mjs';
 
 const APP_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -54,11 +55,8 @@ function quantity(value, label) {
 }
 
 function dateTime(value, label) {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) {
-    invalid(`${label} must use the YYYY-MM-DDTHH:mm format.`);
-  }
-  const ms = Date.parse(`${value}:00.000Z`);
-  if (!Number.isFinite(ms) || new Date(ms).toISOString().slice(0, 16) !== value || value.startsWith('0000')) invalid(`${label} is not a valid date and time.`);
+  const ms = parseDateTime(value);
+  if (ms === null) invalid(`${label} must be a valid YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss timestamp.`);
   return ms;
 }
 
@@ -82,7 +80,8 @@ export function validateState(state) {
     string(warehouse.description, 1000, 'Warehouse description');
     if (warehouseIds.has(warehouse.id)) invalid('Warehouse IDs must be unique.');
     warehouseIds.add(warehouse.id);
-    record(warehouse.period, ['start', 'end'], 'Planning interval');
+    record(warehouse.period, ['start', 'end', ...(Object.hasOwn(warehouse.period || {}, 'durationUnit') ? ['durationUnit'] : [])], 'Planning interval');
+    if (warehouse.period.durationUnit !== undefined && (typeof warehouse.period.durationUnit !== 'string' || !Object.hasOwn(HOURS_PER_UNIT, warehouse.period.durationUnit))) invalid('Invalid duration unit.');
     const start = dateTime(warehouse.period.start, 'Start time');
     const end = dateTime(warehouse.period.end, 'End time');
     if (end <= start || end - start > MAX_PERIOD_MS) invalid('The end must follow the start, with an interval no longer than 100 years.');
@@ -104,11 +103,11 @@ export function validateState(state) {
       quantity(item.stock, 'Stock');
       quantity(item.amount, 'Demand amount');
       if (!['rate', 'fixed'].includes(item.mode)) invalid('The demand mode must be rate or fixed.');
-      if (!['hour', 'day', 'week'].includes(item.rateUnit)) invalid('The rate unit must be hour, day, or week.');
+      if (typeof item.rateUnit !== 'string' || !Object.hasOwn(HOURS_PER_UNIT, item.rateUnit)) invalid('The rate unit must be second, minute, hour, day, or week.');
       if (hasSupply) {
         quantity(item.supplyAmount, 'Supply amount');
         if (!['rate', 'fixed'].includes(item.supplyMode)) invalid('The supply mode must be rate or fixed.');
-        if (!['hour', 'day', 'week'].includes(item.supplyRateUnit)) invalid('The supply rate unit must be hour, day, or week.');
+        if (typeof item.supplyRateUnit !== 'string' || !Object.hasOwn(HOURS_PER_UNIT, item.supplyRateUnit)) invalid('The supply rate unit must be second, minute, hour, day, or week.');
       }
     }
   }

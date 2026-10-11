@@ -1,4 +1,4 @@
-import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization, typeSegments, matchesType, typeFilterState, stepQuantity, reorderItems, EditHistory } from './model.js';
+import { HOURS_PER_UNIT, endAfterDuration, durationHours, requirements, formatNumber, shiftDays, stockVisualization, typeSegments, matchesType, typeFilterState, stepQuantity, reorderItems, EditHistory } from './model.js';
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -161,6 +161,7 @@ function renderTypes() {
 
 function displayPeriod() {
   const period = warehouse().period;
+  $('duration-unit').value = period.durationUnit || 'day';
   $('period-start').value = period.start;
   $('period-end').value = period.end;
   invalidPeriod = false;
@@ -174,7 +175,11 @@ function displayPeriod() {
 function updateDuration(preserveInput = false) {
   const hours = durationHours(calculationPeriod());
   const days = hours === null ? null : hours / 24;
-  if (!preserveInput) $('duration-days').value = days === null ? '' : String(Number(days.toFixed(10)));
+  const unit = $('duration-unit').value;
+  const amount = hours === null ? null : hours / HOURS_PER_UNIT[unit];
+  $('duration-days').max = String(36600 * 24 / HOURS_PER_UNIT[unit]);
+  $('duration-days').setAttribute('aria-label', `Duration in ${unit}s`);
+  if (!preserveInput) $('duration-days').value = amount === null ? '' : String(Number(amount.toFixed(10)));
   $('quick-days').querySelectorAll('button').forEach((b) => {
     const selected = hours !== null && Number(b.dataset.days) === days;
     b.classList.toggle('active', selected);
@@ -202,7 +207,7 @@ function rowMarkup(item) {
   const rule = (supply) => {
     const [mode, amount, rateUnit] = supply ? ['supplyMode', 'supplyAmount', 'supplyRateUnit'] : ['mode', 'amount', 'rateUnit'];
     const label = supply ? 'supply' : 'demand';
-    return `<div class="rule-controls"><span class="rule-mode"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate — quantity per time unit</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed — total quantity</option></select><span class="rule-mode-symbol" aria-hidden="true">${item[mode] === 'fixed' ? 'ℱ' : 'ℛ'}</span></span>${quantityField(amount, `${label} amount`, 'amount-input')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
+    return `<div class="rule-controls"><span class="rule-mode"><select class="rule-select" data-field="${mode}" aria-label="${name} ${label} mode"><option value="rate" ${item[mode] === 'rate' ? 'selected' : ''}>Rate — quantity per time unit</option><option value="fixed" ${item[mode] === 'fixed' ? 'selected' : ''}>Fixed — total quantity</option></select><span class="rule-mode-symbol" aria-hidden="true">${item[mode] === 'fixed' ? 'ℱ' : 'ℛ'}</span></span>${quantityField(amount, `${label} amount`, 'amount-input')}<span class="rule-unit" title="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</span><select class="rate-select" data-field="${rateUnit}" aria-label="${name} ${label} time unit" ${item[mode] === 'fixed' ? 'hidden' : ''}>${[['second', '/ sec'], ['minute', '/ min'], ['hour', '/ hour'], ['day', '/ day'], ['week', '/ week']].map(([value, text]) => `<option value="${value}" ${item[rateUnit] === value ? 'selected' : ''}>${text}</option>`).join('')}</select></div>`;
   };
   return `<tr data-item="${escapeHtml(item.id)}">
     <td class="row-number"></td>
@@ -391,14 +396,14 @@ function showDetails(item) {
     const timeUnit = supply ? item.supplyRateUnit : item.rateUnit;
     const total = supply ? result.supplied : result.required;
     const hours = durationHours(calculationPeriod());
-    const factor = hours === null ? null : hours / ({ hour: 1, day: 24, week: 168 }[timeUnit]);
+    const factor = hours === null ? null : hours / HOURS_PER_UNIT[timeUnit];
     return field('Mode', mode === 'rate' ? 'Rate' : 'Fixed') + field(mode === 'rate' ? 'Rate' : 'Quantity', `${quantity(amount)}${mode === 'rate' ? ` / ${timeUnit}` : ''}`)
       + (mode === 'rate' ? field('Calculation', total === null ? 'Not calculated' : `${formatNumber(amount)} × ${formatNumber(factor)} = ${quantity(total)}`) : '')
       + field(supply ? 'Planned supply' : 'Required', quantity(total));
   };
   $('details-title').textContent = item.name;
   $('details-number').textContent = `No. ${w.items.indexOf(item) + 1}`;
-  $('details-content').innerHTML = `<dl class="detail-list">${field('Warehouse', w.name)}${field('Type', item.type)}${field('Unit', item.unit)}${field('Current stock', quantity(item.stock))}${field('Interval', invalidPeriod ? 'Invalid interval' : `${w.period.start.replace('T', ' ')} → ${w.period.end.replace('T', ' ')}`)}${field('Duration', invalidPeriod ? 'Not calculated' : `${formatNumber(durationHours(w.period) / 24)} days`)}</dl>
+  $('details-content').innerHTML = `<dl class="detail-list">${field('Warehouse', w.name)}${field('Type', item.type)}${field('Unit', item.unit)}${field('Current stock', quantity(item.stock))}${field('Interval', invalidPeriod ? 'Invalid interval' : `${w.period.start.replace('T', ' ')} → ${w.period.end.replace('T', ' ')}`)}${field('Duration', invalidPeriod ? 'Not calculated' : `${formatNumber(durationHours(w.period) / HOURS_PER_UNIT[w.period.durationUnit || 'day'])} ${w.period.durationUnit || 'day'}s`)}</dl>
     <div class="detail-rules"><section><h3>Supply rule</h3><dl class="detail-list">${rule(true)}</dl></section><section><h3>Demand rule</h3><dl class="detail-list">${rule(false)}</dl></section></div>
     <h3>Stock balance</h3><dl class="detail-list">${field('Available · stock + supply', quantity(result.available))}${field('Required', quantity(result.required))}${field('Shortfall', quantity(result.shortage))}${field('Net balance', quantity(result.remaining))}${field('Stock coverage', item.mode === 'fixed' ? 'Not applicable to fixed demand' : result.coverageHours === null ? 'Not calculated' : `${formatNumber(result.coverageHours / 24)} days`)}</dl>
     <h3>Notes</h3><p class="detail-note">${escapeHtml(item.note || 'No notes.')}</p>`;
@@ -428,7 +433,7 @@ function addItem() {
 }
 
 function editPeriod(event) {
-  const period = { start: $('period-start').value, end: $('period-end').value };
+  const period = { start: $('period-start').value, end: $('period-end').value, durationUnit: $('duration-unit').value };
   const hours = durationHours(period);
   invalidPeriod = hours === null || hours > 24 * 366 * 100;
   $('period-error').hidden = !invalidPeriod;
@@ -447,12 +452,12 @@ function editPeriod(event) {
 
 function editDuration(event) {
   const input = $('duration-days');
-  const end = input.checkValidity() ? endAfterDays($('period-start').value, input.valueAsNumber) : null;
+  const end = input.checkValidity() ? endAfterDuration($('period-start').value, input.valueAsNumber, $('duration-unit').value) : null;
   if (!end) {
     invalidPeriod = true;
     input.setAttribute('aria-invalid', 'true');
     $('period-error').hidden = false;
-    $('period-error').textContent = 'Enter a valid start time and a positive duration up to 36,600 days (at least one minute).';
+    $('period-error').textContent = 'Enter a valid start time and a positive duration up to 36,600 days (at least one second).';
     updateDuration(true);
     renderStats(); renderItems();
     return;
@@ -692,6 +697,12 @@ $('items').addEventListener('click', (event) => {
   });
 });
 for (const id of ['period-start', 'period-end']) $(id).addEventListener('change', editPeriod);
+$('duration-unit').addEventListener('change', () => {
+  if (invalidPeriod) { $('duration-unit').value = warehouse().period.durationUnit || 'day'; toast('Correct the interval before switching units.'); return; }
+  warehouse().period.durationUnit = $('duration-unit').value;
+  changed({ label: 'Duration unit', controlId: 'duration-unit' });
+  updateDuration();
+});
 $('duration-days').addEventListener('input', editDuration);
 $('duration-days').addEventListener('change', () => { if (!invalidPeriod) updateDuration(); });
 $('quick-days').addEventListener('click', (event) => {

@@ -51,10 +51,13 @@ p { line-height: 1.6; }
 .date-fields input { min-width: 198px; padding: 7px 8px; font-size: 13px; font-variant-numeric: tabular-nums; background: #fff; border: 1px solid #c8c8c8; border-radius: 2px; }
 .date-arrow { color: #999; }
 .period-shortcuts { display: flex; align-items: center; gap: 18px; margin-left: auto; }
+.duration-control { display: flex; align-items: center; gap: 6px; }
 .duration-field { display: flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap; }
 .duration-field > span:first-child { color: #555; }
 #duration-days { width: 76px; padding: 4px 0; border: 0; border-radius: 0; outline: none; background: transparent; font-size: 20px; font-weight: 400; text-align: right; }
 #duration-days:focus { background: var(--soft); }
+#duration-unit { border: 0; background: transparent; padding: 4px 0; font-size: 13px; width: 56px; }
+#duration-days { width: 110px; }
 #duration-days[aria-invalid="true"] { color: var(--accent); }
 .period-shortcuts button { border: 0; border-bottom: 1px solid transparent; background: transparent; font-size: 13px; padding: 4px 7px; color: var(--muted); }
 .period-shortcuts button:hover { background: var(--soft); }

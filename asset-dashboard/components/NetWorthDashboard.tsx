@@ -14,13 +14,11 @@ import {
   ArrowUpRight,
   Check,
   ChevronDown,
-  ChevronRight,
   CircleHelp,
   Coins,
   FileJson,
   Globe2,
   Landmark,
-  LayoutDashboard,
   Loader2,
   Plus,
   RefreshCw,
@@ -50,36 +48,36 @@ const categories = {
     label: "Cash & deposits",
     short: "Cash",
     icon: Landmark,
-    color: "#3f7e68",
-    light: "#eaf3ee",
+    color: "#687e58",
+    light: "#f0f3ed",
   },
   gold: {
     label: "Gold",
     short: "Gold",
     icon: Coins,
-    color: "#c99b4b",
-    light: "#faf1de",
+    color: "#a48b57",
+    light: "#f5f2eb",
   },
   stock: {
     label: "Stocks",
     short: "Stocks",
     icon: TrendingUp,
-    color: "#7c87b8",
-    light: "#edf0fa",
+    color: "#657787",
+    light: "#eff1f3",
   },
   custom: {
     label: "Other",
     short: "Other",
     icon: Boxes,
-    color: "#bc8270",
-    light: "#f8eee9",
+    color: "#a4796d",
+    light: "#f5f0ee",
   },
   fund: {
     label: "Funds",
     short: "Funds",
     icon: Globe2,
-    color: "#728f9c",
-    light: "#eaf1f5",
+    color: "#8a8396",
+    light: "#f2f0f4",
   },
 };
 const statuses = { ok: "Valued", warning: "Review", failed: "Unavailable" };
@@ -284,7 +282,7 @@ export function NetWorthDashboard() {
   const donutStyle = useMemo(() => {
     let start = 0;
     const sum = valuation?.totalUsd ?? 0;
-    if (sum <= 0) return { background: "#eef0ec" };
+    if (sum <= 0) return { background: "#ededed" };
     const stops = allocation
       .filter((item) => item.value > 0)
       .map((item) => {
@@ -333,110 +331,35 @@ export function NetWorthDashboard() {
       <a className="skip-link" href="#main-content">
         Skip to portfolio overview
       </a>
-      <aside className="sidebar" aria-label="Main navigation">
-        <a className="brand" href="#main-content" aria-label="Worth home">
-          <span className="brand-symbol">
-            <span />
-            <span />
-            <span />
-          </span>
-          <span>
-            worth<span className="brand-period">.</span>
-          </span>
-        </a>
-        <div className="workspace-badge">
-          <span className="workspace-avatar">W</span>
-          <div>
-            <strong>My portfolio</strong>
-            <span>Personal workspace</span>
-          </div>
-        </div>
-        <p className="nav-caption">WORKSPACE</p>
-        <nav className="sidebar-nav">
-          <a
-            href="#main-content"
-            className="nav-item active"
-            aria-current="page"
-            aria-label="Overview"
-          >
-            <LayoutDashboard size={18} />
-            <span>Overview</span>
-            <span className="nav-active-dot" />
-          </a>
-          <button
-            type="button"
-            className="nav-item"
-            onClick={openConfig}
-            aria-label="Configuration"
-          >
-            <Settings2 size={18} />
-            <span>Configuration</span>
-          </button>
-          <button
-            type="button"
-            className="nav-item"
-            onClick={() => setModal("help")}
-            aria-label="Guide"
-          >
-            <CircleHelp size={18} />
-            <span>Guide</span>
-          </button>
-        </nav>
-        <div className="sidebar-note">
-          <span className="note-decoration">↗</span>
-          <p>
-            Every asset.
-            <br />
-            One clear view.
-          </p>
-          <span>A clearer view of your worth.</span>
-        </div>
-        <div className="sidebar-footer">
-          <ShieldCheck size={17} />
-          <div>
-            <strong>In your hands</strong>
-            <span>Import and export anytime</span>
-          </div>
-        </div>
-      </aside>
       <div className="main-shell">
         <header className="topbar">
-          <div className="breadcrumb">
-            <span>Workspace</span>
-            <ChevronRight size={14} />
-            <strong>Overview</strong>
+          <div className="portfolio-controls">
+            <span className="workspace-label">Portfolio</span>
+            <button className="portfolio-file" type="button" onClick={openConfig} title="Open portfolio configuration">
+              <FileJson size={16} />
+              <span>{loaded?.name ?? "New portfolio"}</span>
+            </button>
           </div>
-          <div className="topbar-right">
-            <span className="environment-dot" />
-            Personal portfolio<span className="profile-avatar">W</span>
+          <div className="topbar-actions">
+            <button className="icon-button" type="button" onClick={() => setModal("help")} aria-label="Guide" title="Portfolio guide">
+              <CircleHelp size={17} />
+            </button>
+            <button className="button button-secondary" type="button" onClick={openConfig}>
+              <Settings2 size={16} />Configuration
+            </button>
+            <button className="button button-secondary" type="button" disabled={!loaded} onClick={downloadConfig}>
+              <ArrowDownToLine size={16} />Export JSON
+            </button>
           </div>
         </header>
         <main id="main-content" className="main-content">
           <div className="page-heading">
-            <div>
-              <p className="eyebrow">YOUR WEALTH, AT A GLANCE</p>
-              <h1>
-                Portfolio overview<span className="heading-dot">.</span>
-              </h1>
-              <p className="page-description">
-                All your assets. One clear view.
-              </p>
-            </div>
+            <h1>Portfolio overview</h1>
             <div className="heading-actions">
-              <button
-                className="button button-secondary"
-                type="button"
-                onClick={() => fileRef.current?.click()}
-              >
-                <Plus size={17} />
-                Import assets
+              <button className="button button-secondary" type="button" onClick={() => fileRef.current?.click()}>
+                <Plus size={16} />Import assets
               </button>
-              <button
-                className="button button-primary"
-                type="button"
-                disabled={!loaded || loading}
-                onClick={refresh}
-              >
+              <button className="button button-primary" type="button" disabled={!loaded || loading} onClick={refresh}>
                 <RefreshCw size={16} className={loading ? "spin" : ""} />
                 {loading ? "Updating" : "Refresh values"}
               </button>
@@ -507,11 +430,6 @@ export function NetWorthDashboard() {
             aria-busy={loading}
           >
             <div className="balance-card">
-              <div className="balance-art" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </div>
               <div className="balance-top">
                 <span className="balance-label">
                   <Wallet size={17} />
@@ -588,7 +506,6 @@ export function NetWorthDashboard() {
             <div className="allocation-card">
               <div className="section-card-heading">
                 <div>
-                  <p className="eyebrow">PORTFOLIO MIX</p>
                   <h2>Asset allocation</h2>
                 </div>
                 <span className="tiny-label">By available value</span>
@@ -717,7 +634,6 @@ export function NetWorthDashboard() {
                   </small>
                 </strong>
               </div>
-              <span className="stat-caption">One view</span>
             </div>
             <div className="stat-card">
               <span
@@ -750,17 +666,7 @@ export function NetWorthDashboard() {
                 <h2 id="holdings-title">
                   Holdings<span className="count-badge">{assetCount}</span>
                 </h2>
-                <p>Values and status for every asset.</p>
               </div>
-              <button
-                className="button button-quiet"
-                type="button"
-                disabled={!loaded}
-                onClick={downloadConfig}
-              >
-                <ArrowDownToLine size={16} />
-                Export configuration
-              </button>
             </div>
             <div className="table-toolbar">
               <div
@@ -827,6 +733,7 @@ export function NetWorthDashboard() {
                 <table className="asset-table">
                   <thead>
                     <tr>
+                      <th scope="col" className="number-column">No.</th>
                       <th scope="col">Asset</th>
                       <th scope="col">Category</th>
                       <th scope="col" className="numeric">
@@ -844,7 +751,7 @@ export function NetWorthDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAssets.map((asset) => {
+                    {filteredAssets.map((asset, index) => {
                       const meta = categories[asset.type];
                       const Icon = meta.icon;
                       const share =
@@ -855,6 +762,7 @@ export function NetWorthDashboard() {
                           : null;
                       return (
                         <tr key={asset.id}>
+                          <td className="row-number">{index + 1}</td>
                           <td>
                             <button
                               className="asset-name-button"
@@ -1002,8 +910,7 @@ export function NetWorthDashboard() {
           </section>
           <footer className="page-footer">
             <span>
-              WORTH <span className="footer-separator">/</span> A clearer view
-              of your worth
+              Asset Dashboard
             </span>
             <span>Indicative values · Liabilities excluded</span>
           </footer>
@@ -1211,7 +1118,7 @@ export function NetWorthDashboard() {
             <ShieldCheck size={19} />
             <p>
               Your configuration stays in this tab. Reloading restores the
-              sample. Use Export configuration to save your changes.
+              sample. Use Export JSON to save your changes.
             </p>
           </div>
         </Dialog>

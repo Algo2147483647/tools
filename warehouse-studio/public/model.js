@@ -1,4 +1,4 @@
-const HOURS_PER_UNIT = Object.freeze({ hour: 1, day: 24, week: 168 });
+export const HOURS_PER_UNIT = Object.freeze({ second: 1 / 3600, minute: 1 / 60, hour: 1, day: 24, week: 168 });
 const HOUR_MS = 60 * 60 * 1000;
 const numberFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,
@@ -6,20 +6,20 @@ const numberFormatter = new Intl.NumberFormat('en-US', {
 
 // Treat datetime-local values as wall-clock time: calculations do not change
 // with the machine's time zone or daylight-saving transitions.
-function parseDateTime(value) {
+export function parseDateTime(value) {
   if (typeof value !== 'string') return null;
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value);
   if (!match) return null;
-  const [, year, month, day, hour, minute] = match.map(Number);
-  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59) {
+  const [, year, month, day, hour, minute, second = 0] = match.map((part) => part === undefined ? undefined : Number(part));
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 59) {
     return null;
   }
   const date = new Date(0);
   date.setUTCFullYear(year, month - 1, day);
-  date.setUTCHours(hour, minute, 0, 0);
+  date.setUTCHours(hour, minute, second, 0);
   if (
     date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day || date.getUTCHours() !== hour || date.getUTCMinutes() !== minute
+    date.getUTCDate() !== day || date.getUTCHours() !== hour || date.getUTCMinutes() !== minute || date.getUTCSeconds() !== second
   ) return null;
   return date.getTime();
 }
@@ -90,7 +90,7 @@ export function shiftDays(datetime, days) {
   const shifted = new Date(timestamp + days * 24 * HOUR_MS);
   const year = shifted.getUTCFullYear();
   if (!Number.isFinite(year) || year < 1 || year > 9999) return null;
-  return shifted.toISOString().slice(0, 16);
+  return shifted.toISOString().slice(0, datetime.length === 19 ? 19 : 16);
 }
 
 export function endAfterDays(datetime, days) {
@@ -221,4 +221,15 @@ export class EditHistory {
 
   undo() { return this.move(this.past, this.future); }
   redo() { return this.move(this.future, this.past); }
+}
+
+export function endAfterDuration(datetime, amount, unit) {
+  const start = parseDateTime(datetime);
+  const hours = typeof unit === 'string' && Object.hasOwn(HOURS_PER_UNIT, unit) ? HOURS_PER_UNIT[unit] : null;
+  if (start === null || !hours || !Number.isFinite(amount) || amount <= 0) return null;
+  const seconds = Math.round(amount * hours * 3600);
+  if (seconds < 1 || seconds > 36600 * 86400) return null;
+  const end = new Date(start + seconds * 1000);
+  if (end.getUTCFullYear() < 1 || end.getUTCFullYear() > 9999) return null;
+  return end.toISOString().slice(0, 19);
 }

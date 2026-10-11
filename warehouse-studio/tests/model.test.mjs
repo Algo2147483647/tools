@@ -45,7 +45,7 @@ test('empty, reversed, malformed, non-calendar and out-of-range periods are inva
     { ...period, start: '2026-02-29T09:00' }, { ...period, start: '2026-04-31T09:00' },
     { ...period, start: '2026-13-01T09:00' }, { ...period, start: '2026-01-00T09:00' },
     { ...period, start: '2026-10-11T24:00' }, { ...period, start: '2026-10-11T09:60' },
-    { ...period, start: '2026-10-11T09:00:00' }, { ...period, start: '2026-10-11T09:00Z' },
+    { ...period, start: '2026-10-11T09:00:60' }, { ...period, start: '2026-10-11T09:00Z' },
     { ...period, start: '2026-1-11T09:00' }, { ...period, start: '0000-01-01T00:00' },
   ];
   for (const badPeriod of badPeriods) {

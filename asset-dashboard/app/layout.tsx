@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Worth · Portfolio overview",
+  title: "Asset Dashboard · Portfolio overview",
   description: "A clear view of your cash, gold, stocks, and other assets.",
 };
 

@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { durationHours, requirements, formatNumber, stockVisualization } from './public/model.js';
+import { HOURS_PER_UNIT, durationHours, requirements, formatNumber, stockVisualization } from './public/model.js';
 
 const PDFDocument = createRequire(import.meta.url)('pdfkit');
 
@@ -54,7 +54,7 @@ export function createInventoryPdf(warehouse, { itemIds, filters = {} } = {}) {
       text(warehouse.name, margin, 24, width, { size: 12, font: 'Bold' });
       y = 24 + height(warehouse.name, width, 'Bold', 12) + 5;
     }
-    const period = `${date(warehouse.period.start)} to ${date(warehouse.period.end)}  |  ${number(hours / 24)} days  |  ${rows.length} of ${warehouse.items.length} materials`;
+    const period = `${date(warehouse.period.start)} to ${date(warehouse.period.end)}  |  ${number(hours / HOURS_PER_UNIT[warehouse.period.durationUnit || 'day'])} ${warehouse.period.durationUnit || 'day'}s  |  ${rows.length} of ${warehouse.items.length} materials`;
     text(period, margin, y, width, { size: 8.5, color: muted });
     y += height(period, width, 'Regular', 8.5) + 5;
     if (filterText) {
