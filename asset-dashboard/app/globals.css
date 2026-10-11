@@ -41,7 +41,8 @@ p { line-height: 1.6; }
 
 /* The same paper, rules and compact controls as Warehouse Studio. */
 .topbar { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--ink); }
-.portfolio-controls, .topbar-actions, .heading-actions { display: flex; align-items: center; gap: 12px; }
+.portfolio-controls, .topbar-actions { display: flex; align-items: center; gap: 12px; }
+.topbar-actions { flex-wrap: wrap; justify-content: flex-end; }
 .portfolio-controls { min-width: 0; }
 .workspace-label { color: var(--muted); font-size: 13px; }
 .portfolio-file { display: flex; align-items: center; gap: 9px; width: 270px; min-width: 0; padding: 7px 10px; border: 1px solid #bbb; border-radius: 2px; background: #fff; font-size: 15px; text-align: left; }
@@ -56,12 +57,6 @@ p { line-height: 1.6; }
 .button-small { padding: 6px 10px; }
 .icon-button, .row-arrow { display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; border-radius: 2px; padding: 5px; color: var(--muted); }
 .icon-button:hover, .row-arrow:hover { background: var(--soft); color: var(--ink); }
-.page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0 16px; }
-.sample-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 12px; margin-bottom: 4px; background: #fafafa; border: 1px solid var(--line); border-radius: 2px; font-size: 12px; color: var(--muted); }
-.sample-banner > span { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.sample-banner strong { color: #555; font-weight: 400; }
-.sample-banner button { display: inline-flex; align-items: center; gap: 7px; padding: 3px 0; border: 0; background: transparent; color: #555; white-space: nowrap; }
-.sample-banner button:hover { text-decoration: underline; }
 
 .overview-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); border-bottom: 1px solid var(--line); padding: 22px 0; }
 .balance-card { min-width: 0; padding-right: 32px; }
@@ -96,27 +91,28 @@ p { line-height: 1.6; }
 .legend-item.legend-active { border-bottom-color: var(--ink); color: var(--ink); }
 .legend-dot { width: 7px; height: 7px; flex-shrink: 0; }
 .legend-item strong { margin-left: auto; padding-left: 8px; font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
-.stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--line); padding: 16px 0; }
-.stat-card { display: flex; align-items: center; gap: 10px; padding: 0 22px; border-left: 1px solid var(--line); }
-.stat-card:first-child { border: 0; padding-left: 0; }
-.stat-card:last-child { padding-right: 0; }
 .stat-icon { display: inline-flex; align-items: center; color: var(--muted); flex-shrink: 0; }
 .stat-icon svg { width: 17px; height: 17px; }
-.stat-card > div:not(.mini-progress) { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.stat-label { font-size: 13px; color: var(--muted); }
-.stat-card strong { font-size: 20px; font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.stat-card small { font-size: 12px; color: var(--muted); }
-.stat-caption { margin-left: auto; font-size: 12px; color: var(--muted); }
 .stat-amber, .text-amber { color: var(--accent); }
-.mini-progress { width: 48px; height: 5px; background: #ededed; margin-left: auto; }
-.mini-progress span { display: block; height: 100%; background: #687e58; }
 
 /* Flat toolbar and ruled asset table. */
 .holdings-card { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 24px; margin-top: 6px; }
 .holdings-heading { display: flex; align-items: center; padding: 12px 0 14px; }
-.holdings-heading h2 { display: flex; align-items: baseline; gap: 12px; }
+.holdings-heading h1 { display: flex; align-items: baseline; gap: 12px; }
 .count-badge { color: var(--muted); font-size: 12px; }
 .table-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 18px; flex-wrap: wrap; padding: 12px 0 14px; min-width: 0; }
+.overview-menu { position: relative; }
+.overview-menu summary { display: flex; align-items: center; gap: 5px; padding: 7px 0; color: #555; font-size: 13px; cursor: pointer; list-style: none; white-space: nowrap; }
+.overview-menu summary::-webkit-details-marker { display: none; }
+.overview-menu summary:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+.overview-menu[open] summary { color: var(--ink); }
+.overview-panel { position: absolute; top: calc(100% + 7px); left: 0; z-index: 10; width: 264px; max-width: calc(100vw - 40px); padding: 14px 16px; background: #fff; border: 1px solid #bbb; box-shadow: 0 5px 16px #00000010; }
+.overview-panel dl { margin: 0; }
+.overview-panel dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 7px 0; }
+.overview-panel dt { font-size: 13px; color: var(--muted); }
+.overview-panel dd { margin: 0; font-size: 18px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.overview-panel small { font-size: 12px; color: var(--muted); }
+.overview-panel p { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 8px; font-size: 12px; }
 .filter-tabs { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
 .filter-tabs button { padding: 7px 8px; background: transparent; color: var(--muted); border: 0; border-bottom: 1px solid transparent; font-size: 13px; }
 .filter-tabs button:hover { background: var(--soft); }
@@ -210,6 +206,8 @@ p { line-height: 1.6; }
 
 @media (max-width: 1100px) {
   .main-shell { padding-inline: 20px; }
+  .topbar { flex-wrap: wrap; }
+  .topbar-actions { margin-left: auto; }
   .holdings-card { display: block; }
   .holdings-heading { padding-bottom: 0; }
   .table-toolbar { justify-content: flex-start; }
@@ -217,8 +215,6 @@ p { line-height: 1.6; }
   .balance-card { padding-right: 22px; }
   .allocation-card { padding-left: 22px; }
   .allocation-content { gap: 20px; }
-  .stat-card { padding-inline: 16px; }
-  .stat-caption, .mini-progress { display: none; }
   .asset-name strong, .asset-name > span { max-width: 270px; }
 }
 @media (max-width: 760px) {
@@ -231,8 +227,6 @@ p { line-height: 1.6; }
   .allocation-legend { max-width: 360px; }
   .balance-amount { font-size: 42px; }
   .balance-footer { margin-top: 20px; }
-  .stat-card { align-items: flex-start; gap: 7px; }
-  .stat-card > div:not(.mini-progress) { display: grid; gap: 4px; }
   .stat-icon { margin-top: 2px; }
   .table-toolbar { gap: 12px; }
   .filter-tabs { width: 100%; }
@@ -243,13 +237,8 @@ p { line-height: 1.6; }
   .main-shell { padding: 0 16px 24px; }
   .portfolio-controls { width: 100%; }
   .portfolio-file { flex: 1; width: auto; }
-  .topbar-actions { width: 100%; justify-content: flex-end; gap: 8px; }
-  .topbar-actions .icon-button { margin-right: auto; }
-  .page-heading { flex-wrap: wrap; gap: 14px; }
-  .heading-actions { width: 100%; gap: 10px; }
-  .heading-actions .button { flex: 1; }
-  .sample-banner { flex-direction: column; align-items: flex-start; gap: 5px; }
-  .sample-banner > span > span { flex-basis: 100%; }
+  .topbar-actions { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .topbar-actions .button-primary { grid-column: 1 / -1; }
   .balance-footer { align-items: flex-start; flex-direction: column; gap: 16px; }
   .balance-amount { font-size: clamp(28px, 9vw, 40px); }
   .tiny-label { font-size: 11px; }
@@ -257,10 +246,6 @@ p { line-height: 1.6; }
   .allocation-content { gap: 20px; }
   .legend-item { font-size: 12px; gap: 6px; }
   .legend-item strong { padding-left: 0; }
-  .stats-grid { grid-template-columns: 1fr; padding: 4px 0; }
-  .stat-card, .stat-card:first-child, .stat-card:last-child { padding: 10px 0; border: 0; }
-  .stat-card > div:not(.mini-progress) { display: flex; justify-content: space-between; flex: 1; }
-  .stat-card strong { font-size: 18px; }
   .stat-icon { margin-top: 3px; }
   .filter-tabs { gap: 0; justify-content: space-between; }
   .filter-tabs button { padding-inline: 7px; }

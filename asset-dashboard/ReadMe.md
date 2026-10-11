@@ -2,7 +2,9 @@
 
 A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Import a JSON portfolio to value gold, U.S. stocks, supported mutual funds, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp. The interface, validation messages, and documentation are in English.
 
-The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Portfolio configuration and JSON export are in the top toolbar; category filters, search, and sorting sit above the holdings table. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
+The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Import, configuration, JSON/PDF export, and refresh are in the top toolbar. The Overview dropdown above the holdings table contains valuation counts, pricing currencies, and attention status. Category filters, search, and sorting sit alongside it. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
+
+**Export PDF** downloads an A4 landscape report of the currently filtered and sorted assets, using the displayed valuation snapshot without fetching new prices. It includes the portfolio total, shown-assets subtotal, status, quote sources and timestamps, and any retained-value or conversion warnings. Export is available once a valuation has completed, including partial or failed valuations. Unavailable values remain dashes. Reports paginate automatically and embed the bundled Noto Serif fonts; Chinese text uses Windows' installed SimSun font. PDF generation happens on the local server and does not store reports there.
 
 ## Run locally
 

@@ -17,6 +17,7 @@ import {
   CircleHelp,
   Coins,
   FileJson,
+  FileText,
   Globe2,
   Landmark,
   Loader2,
@@ -25,7 +26,7 @@ import {
   Search,
   Settings2,
   ShieldCheck,
-  SlidersHorizontal,
+  ChartNoAxesColumn,
   TriangleAlert,
   TrendingUp,
   Wallet,
@@ -41,6 +42,7 @@ import type {
 import { formatDate, formatMoney, formatNumber } from "@/lib/client/format";
 import { Dialog } from "./Dialog";
 import { useValuation } from "./useValuation";
+import type { PortfolioPdfReport } from "@/lib/report/types";
 
 const baseOptions = ["USD", "CNY", "HKD", "EUR", "JPY", "CHF", "GBP", "GOLD"];
 const categories = {
@@ -48,36 +50,36 @@ const categories = {
     label: "Cash & deposits",
     short: "Cash",
     icon: Landmark,
-    color: "#687e58",
-    light: "#f0f3ed",
+    color: "#4c78a8",
+    light: "#edf3f9",
   },
   gold: {
     label: "Gold",
     short: "Gold",
     icon: Coins,
-    color: "#a48b57",
-    light: "#f5f2eb",
+    color: "#e2b35a",
+    light: "#fcf6e9",
   },
   stock: {
     label: "Stocks",
     short: "Stocks",
     icon: TrendingUp,
-    color: "#657787",
-    light: "#eff1f3",
+    color: "#59a89c",
+    light: "#edf7f4",
   },
   custom: {
     label: "Other",
     short: "Other",
     icon: Boxes,
-    color: "#a4796d",
-    light: "#f5f0ee",
+    color: "#d18383",
+    light: "#fbefef",
   },
   fund: {
     label: "Funds",
     short: "Funds",
     icon: Globe2,
-    color: "#8a8396",
-    light: "#f2f0f4",
+    color: "#9982bc",
+    light: "#f3eff9",
   },
 };
 const statuses = { ok: "Valued", warning: "Review", failed: "Unavailable" };
@@ -85,7 +87,6 @@ type LoadedConfig = {
   config: PortfolioConfig;
   text: string;
   name: string;
-  isSample: boolean;
 };
 
 function categoryStyle(type: AssetType): CSSProperties {
@@ -128,6 +129,9 @@ export function NetWorthDashboard() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("value");
   const fileRef = useRef<HTMLInputElement>(null);
+  const overviewRef = useRef<HTMLDetailsElement>(null);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const importSequence = useRef(0);
   const {
     data: valuation,
@@ -135,6 +139,26 @@ export function NetWorthDashboard() {
     loading,
     refresh,
   } = useValuation(loaded?.config ?? null, displayBase);
+
+  useEffect(() => {
+    function closeOverview(event: PointerEvent | KeyboardEvent) {
+      const menu = overviewRef.current;
+      if (!menu?.open) return;
+      if (event instanceof KeyboardEvent) {
+        if (event.key !== "Escape") return;
+        menu.open = false;
+        menu.querySelector("summary")?.focus();
+      } else if (event.target instanceof Node && !menu.contains(event.target)) {
+        menu.open = false;
+      }
+    }
+    document.addEventListener("pointerdown", closeOverview);
+    document.addEventListener("keydown", closeOverview);
+    return () => {
+      document.removeEventListener("pointerdown", closeOverview);
+      document.removeEventListener("keydown", closeOverview);
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -157,7 +181,6 @@ export function NetWorthDashboard() {
             config,
             text,
             name: "sample-config.json",
-            isSample: true,
           });
       } catch (reason) {
         if (active && sequence === importSequence.current)
@@ -186,7 +209,6 @@ export function NetWorthDashboard() {
       config,
       text: JSON.stringify(config, null, 2),
       name,
-      isSample: false,
     });
     setInputError(null);
     setSelectedId(null);
@@ -326,6 +348,57 @@ export function NetWorthDashboard() {
       .filter(Boolean),
   ).size;
 
+  async function downloadPdf() {
+    if (!valuation || exportingPdf || loading) return;
+    setExportingPdf(true);
+    setExportError(null);
+    try {
+      const available = filteredAssets.filter((asset) => asset.usdValue !== null);
+      const shownTotal = available.length || !filteredAssets.length
+        ? available.reduce((sum, asset) => sum + (asset.usdValue ?? 0), 0) * rate
+        : null;
+      const report: PortfolioPdfReport = {
+        name: loaded?.name ?? "Portfolio",
+        generatedAt: valuation.generatedAt,
+        displayUnit: unitLabel,
+        total: formatMoney(total, displayUnit),
+        shownTotal: formatMoney(shownTotal, displayUnit),
+        scope: `Showing ${filteredAssets.length} of ${assets.length} assets | Category: ${filter === "all" ? "All assets" : categories[filter].label} | Sort: ${sort === "name" ? "By name" : sort === "status" ? "Issues first" : "By value"}${search ? ` | Search: ${search.slice(0, 1000)}` : ""}`,
+        valued: `${pricedCount} / ${assetCount}`,
+        currencies: String(currencyCount),
+        attention: String(needsAttention),
+        notice: [error ? `Refresh failed; previously loaded values are shown. ${error}` : "", valuation.displayWarning ?? "", failedCount ? `${failedCount} unavailable assets are excluded from the portfolio total.` : ""].filter(Boolean).join("\n"),
+        rows: filteredAssets.map((asset) => ({
+          name: asset.name,
+          category: categories[asset.type].short,
+          quantity: `${formatNumber(asset.quantity, 4)} ${quantityUnit(asset)}`,
+          allocation: asset.usdValue !== null && valuation.totalUsd > 0 ? `${formatNumber(asset.usdValue / valuation.totalUsd * 100, 1)}%` : "—",
+          value: formatMoney(asset.usdValue === null ? null : asset.usdValue * rate, displayUnit),
+          status: statuses[asset.status],
+          source: asset.source,
+          quoteDate: asset.navDate ?? asset.updatedAt ?? "Not available",
+          notes: [asset.message, asset.warning].filter(Boolean).join("\n"),
+        })),
+      };
+      const response = await fetch("/api/export-pdf", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(report), signal: AbortSignal.timeout(60_000),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Could not export the PDF.");
+      }
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${(loaded?.name ?? "portfolio").replace(/\.json$/i, "").replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 70) || "portfolio"}-${valuation.generatedAt.slice(0, 10)}.pdf`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (reason) {
+      setExportError(reason instanceof Error ? reason.message : "Could not export the PDF. Please try again.");
+    } finally { setExportingPdf(false); }
+  }
+
   return (
     <div className="dashboard-shell">
       <a className="skip-link" href="#main-content">
@@ -339,10 +412,13 @@ export function NetWorthDashboard() {
               <FileJson size={16} />
               <span>{loaded?.name ?? "New portfolio"}</span>
             </button>
-          </div>
-          <div className="topbar-actions">
             <button className="icon-button" type="button" onClick={() => setModal("help")} aria-label="Guide" title="Portfolio guide">
               <CircleHelp size={17} />
+            </button>
+          </div>
+          <div className="topbar-actions">
+            <button className="button button-secondary" type="button" onClick={() => fileRef.current?.click()}>
+              <Plus size={16} />Import assets
             </button>
             <button className="button button-secondary" type="button" onClick={openConfig}>
               <Settings2 size={16} />Configuration
@@ -350,21 +426,17 @@ export function NetWorthDashboard() {
             <button className="button button-secondary" type="button" disabled={!loaded} onClick={downloadConfig}>
               <ArrowDownToLine size={16} />Export JSON
             </button>
+            <button className="button button-secondary" type="button" disabled={!valuation || loading || exportingPdf} onClick={() => void downloadPdf()}>
+              {exportingPdf ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
+              {exportingPdf ? "Exporting" : "Export PDF"}
+            </button>
+            <button className="button button-primary" type="button" disabled={!loaded || loading} onClick={refresh}>
+              <RefreshCw size={16} className={loading ? "spin" : ""} />
+              {loading ? "Updating" : "Refresh values"}
+            </button>
           </div>
         </header>
         <main id="main-content" className="main-content">
-          <div className="page-heading">
-            <h1>Portfolio overview</h1>
-            <div className="heading-actions">
-              <button className="button button-secondary" type="button" onClick={() => fileRef.current?.click()}>
-                <Plus size={16} />Import assets
-              </button>
-              <button className="button button-primary" type="button" disabled={!loaded || loading} onClick={refresh}>
-                <RefreshCw size={16} className={loading ? "spin" : ""} />
-                {loading ? "Updating" : "Refresh values"}
-              </button>
-            </div>
-          </div>
           <input
             type="file"
             ref={fileRef}
@@ -373,21 +445,6 @@ export function NetWorthDashboard() {
             aria-label="Import assets from a JSON file"
             onChange={(event) => void loadFile(event.target.files?.[0])}
           />
-          {loaded?.isSample && (
-            <div className="sample-banner">
-              <span>
-                <FileJson size={15} />
-                <strong>Sample portfolio</strong>
-                <span>
-                  Explore the sample, or import your JSON to get started.
-                </span>
-              </span>
-              <button type="button" onClick={openConfig}>
-                View configuration
-                <ArrowRight size={14} />
-              </button>
-            </div>
-          )}
           {(inputError || error) && (
             <div className="notice notice-error" role="alert">
               <TriangleAlert size={18} />
@@ -421,6 +478,12 @@ export function NetWorthDashboard() {
                 <strong>Conversion unavailable; values shown in USD</strong>
                 <p>{valuation.displayWarning}</p>
               </div>
+            </div>
+          )}
+          {exportError && (
+            <div className="notice notice-error" role="alert">
+              <TriangleAlert size={18} /><p>{exportError}</p>
+              <button className="icon-button" type="button" aria-label="Dismiss export error" onClick={() => setExportError(null)}><X size={17} /></button>
             </div>
           )}
 
@@ -601,74 +664,26 @@ export function NetWorthDashboard() {
               </span>
             </form>
           )}
-          <section className="stats-grid" aria-label="Valuation status">
-            <div className="stat-card">
-              <span className="stat-icon stat-green">
-                <ShieldCheck size={20} />
-              </span>
-              <div>
-                <span className="stat-label">Assets valued</span>
-                <strong>
-                  {valuation ? pricedCount : "—"}
-                  <small> / {assetCount}</small>
-                </strong>
-              </div>
-              <div className="mini-progress" aria-hidden="true">
-                <span
-                  style={{
-                    width: `${assetCount ? (pricedCount / assetCount) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-            <div className="stat-card">
-              <span className="stat-icon stat-blue">
-                <Globe2 size={20} />
-              </span>
-              <div>
-                <span className="stat-label">Pricing currencies</span>
-                <strong>
-                  {loaded ? currencyCount : "—"}
-                  <small>
-                    {currencyCount === 1 ? " currency" : " currencies"}
-                  </small>
-                </strong>
-              </div>
-            </div>
-            <div className="stat-card">
-              <span
-                className={`stat-icon ${needsAttention ? "stat-amber" : "stat-neutral"}`}
-              >
-                <SlidersHorizontal size={20} />
-              </span>
-              <div>
-                <span className="stat-label">Needs attention</span>
-                <strong>
-                  {valuation ? needsAttention : "—"}
-                  <small>{needsAttention === 1 ? " asset" : " assets"}</small>
-                </strong>
-              </div>
-              <span
-                className={`stat-caption ${needsAttention ? "text-amber" : ""}`}
-              >
-                {!valuation
-                  ? "Awaiting check"
-                  : needsAttention
-                    ? "Review details"
-                    : "All clear"}
-              </span>
-            </div>
-          </section>
-
           <section className="holdings-card" aria-labelledby="holdings-title">
             <div className="holdings-heading">
               <div>
-                <h2 id="holdings-title">
+                <h1 id="holdings-title">
                   Holdings<span className="count-badge">{assetCount}</span>
-                </h2>
+                </h1>
               </div>
             </div>
             <div className="table-toolbar">
+              <details className="overview-menu" ref={overviewRef}>
+                <summary><ChartNoAxesColumn size={16} />Overview<ChevronDown size={12} /></summary>
+                <section className="overview-panel" aria-label="Valuation overview">
+                  <dl>
+                    <div><dt>Assets valued</dt><dd>{valuation ? pricedCount : "—"}<small> / {assetCount}</small></dd></div>
+                    <div><dt>Pricing currencies</dt><dd>{loaded ? currencyCount : "—"}<small>{currencyCount === 1 ? " currency" : " currencies"}</small></dd></div>
+                    <div><dt>Needs attention</dt><dd className={needsAttention ? "text-amber" : ""}>{valuation ? needsAttention : "—"}<small>{needsAttention === 1 ? " asset" : " assets"}</small></dd></div>
+                  </dl>
+                  <p className={needsAttention ? "text-amber" : "muted"}>{!valuation ? "Awaiting check" : needsAttention ? "Review details" : "All clear"}</p>
+                </section>
+              </details>
               <div
                 className="filter-tabs"
                 role="group"
