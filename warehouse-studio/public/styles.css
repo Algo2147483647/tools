@@ -126,8 +126,8 @@ tbody tr:hover { background: #fafafa; }
 .rule-mode { position: relative; min-width: 0; }
 .rule-select { display: block; width: 100%; min-width: 0; border: 0; background: transparent; color: transparent; font-size: 13px; padding: 4px 0; text-align: left; }
 .rule-select option { color: var(--ink); background: #fff; }
-.rule-mode-symbol { position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none; color: #aaa; font-family: "Cambria Math", "STIX Two Math", serif; font-size: 14px; }
-.rule-mode:hover .rule-mode-symbol, .rule-mode:focus-within .rule-mode-symbol { color: #767676; }
+.rule-mode-symbol { position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none; color: #c4c4c4; font-family: "Cambria Math", "STIX Two Math", serif; font-size: 14px; }
+.rule-mode:hover .rule-mode-symbol, .rule-mode:focus-within .rule-mode-symbol { color: #999; }
 .rate-select { width: 100%; min-width: 0; background: transparent; border: 0; padding: 2px 0; font-size: 13px; color: var(--muted); text-align: left; }
 .rule-unit { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 12px; text-align: left; }
 .stock-visual { display: grid; grid-template-columns: minmax(48px, 1fr) 9ch 15ch; align-items: center; gap: 7px; min-height: 24px; font-size: 12px; }
