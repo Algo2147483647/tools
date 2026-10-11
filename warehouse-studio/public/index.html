@@ -42,7 +42,7 @@
             <button id="add-item" class="button primary"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add material</button>
           </div>
         </div>
-        <div class="table-scroll"><table><thead><tr><th class="material-col">Material</th><th class="type-col">Type</th><th class="stock-col">Stock / Unit</th><th class="supply-col">Supply rule</th><th class="demand-col">Demand rule</th><th class="calculated-col">Required</th><th class="balance-col">Stock balance</th><th class="action-col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="items"></tbody></table></div>
+        <div class="table-scroll"><table><thead><tr><th class="material-col">Material</th><th class="type-col">Type</th><th class="stock-col" aria-label="Stock / Unit"><div class="stock-fields stock-heading"><span class="stock-heading-number">Stock</span><span class="stock-heading-unit">Unit</span></div></th><th class="supply-col">Supply rule</th><th class="demand-col">Demand rule</th><th class="balance-col">Stock balance</th><th class="action-col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="items"></tbody></table></div>
         <div id="empty-state" class="empty-state" hidden><h2>No materials yet</h2><p>Add your first material.</p><button id="empty-add" class="button primary">＋ Add material</button></div>
       </section>
     </div>
