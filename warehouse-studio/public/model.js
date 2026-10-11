@@ -145,6 +145,17 @@ export function typeFilterState(items, selected = '') {
   return { selected: node.path, levels };
 }
 
+export function reorderItems(items, itemId, targetId, placement = 'before') {
+  const source = items.findIndex((item) => item.id === itemId);
+  const target = items.findIndex((item) => item.id === targetId);
+  if (source < 0 || target < 0 || source === target || !['before', 'after'].includes(placement)) return items;
+  const next = items.slice();
+  const [item] = next.splice(source, 1);
+  const destination = next.findIndex((entry) => entry.id === targetId);
+  next.splice(destination + (placement === 'after' ? 1 : 0), 0, item);
+  return next.every((entry, index) => entry === items[index]) ? items : next;
+}
+
 export function stockVisualization(stock, required) {
   if (!nonnegativeNumber(stock) || !nonnegativeNumber(required)) return null;
   const scale = Math.max(stock, required);

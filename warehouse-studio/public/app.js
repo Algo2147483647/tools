@@ -1,4 +1,4 @@
-import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization, typeSegments, matchesType, typeFilterState, EditHistory } from './model.js';
+import { durationHours, requirements, formatNumber, shiftDays, endAfterDays, stockVisualization, typeSegments, matchesType, typeFilterState, reorderItems, EditHistory } from './model.js';
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -17,6 +17,7 @@ let confirmAction;
 let toastTimer;
 let typeTarget = null;
 let unitTarget = null;
+let draggedItem = null;
 const warehouse = () => state.warehouses.find((w) => w.id === activeWarehouse);
 const calculationPeriod = () => invalidPeriod ? null : warehouse().period;
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -208,7 +209,7 @@ function rowMarkup(item) {
     <td class="supply-cell">${rule(true)}</td>
     <td>${rule(false)}</td>
     <td class="balance-cell"></td>
-    <td><button class="icon-button row-delete" data-delete="${escapeHtml(item.id)}" aria-label="Delete ${name}" title="Delete item">×</button></td>
+    <td><div class="row-actions"><button class="icon-button row-drag" draggable="true" data-drag="${escapeHtml(item.id)}" aria-label="Reorder ${name}" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown" title="Drag to reorder · Alt+↑ / Alt+↓"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01"/></svg></button><button class="icon-button row-delete" data-delete="${escapeHtml(item.id)}" aria-label="Delete ${name}" title="Delete item">×</button></div></td>
   </tr>`;
 }
 
@@ -220,6 +221,7 @@ function updateRow(row, item) {
     if (['name', 'note', 'type', 'unit'].includes(input.dataset.field) && input.getAttribute('aria-invalid') !== 'true') input.title = item[input.dataset.field];
   });
   row.querySelector('[data-delete]').setAttribute('aria-label', `Delete ${item.name}`);
+  row.querySelector('[data-drag]').setAttribute('aria-label', `Reorder ${item.name}`);
   row.querySelectorAll('.rule-unit').forEach((unit) => { unit.textContent = item.unit; unit.title = item.unit; });
   row.querySelectorAll('.rule-select').forEach((select) => {
     select.nextElementSibling.textContent = item[select.dataset.field] === 'fixed' ? 'ℱ' : 'ℛ';
@@ -239,6 +241,36 @@ function updateRow(row, item) {
 function visibleItems() {
   const search = query.trim().toLocaleLowerCase('en-US');
   return warehouse().items.filter((i) => matchesType(i.type, activeType) && (!search || `${i.name} ${i.type}`.toLocaleLowerCase('en-US').includes(search)) && (!shortageOnly || requirements(i, calculationPeriod()).shortage > 0));
+}
+
+function moveItem(itemId, targetId, placement) {
+  const w = warehouse();
+  const next = reorderItems(w.items, itemId, targetId, placement);
+  if (next === w.items) return;
+  w.items = next;
+  changed({ label: 'Reorder material', itemId, reorder: true });
+  renderItems();
+  const row = [...$('items').rows].find((entry) => entry.dataset.item === itemId);
+  row?.querySelector('[data-drag]').focus({ preventScroll: true });
+  toast('Material order updated');
+}
+
+function clearDropMarkers() {
+  $('items').querySelectorAll('.drop-before, .drop-after').forEach((row) => row.classList.remove('drop-before', 'drop-after'));
+}
+
+function endRowDrag() {
+  draggedItem = null;
+  clearDropMarkers();
+  $('items').querySelector('.dragging')?.classList.remove('dragging');
+}
+
+function rowDropTarget(event) {
+  if (!draggedItem || draggedItem.warehouseId !== activeWarehouse) return null;
+  const row = event.target.closest('tr[data-item]');
+  if (!row || !$('items').contains(row) || row.dataset.item === draggedItem.itemId) return null;
+  const bounds = row.getBoundingClientRect();
+  return { row, placement: event.clientY < bounds.top + bounds.height / 2 ? 'before' : 'after' };
 }
 
 function renderItems(preserveEditing = false) {
@@ -411,7 +443,7 @@ function travelHistory(direction) {
     else fillSettings();
   }
   const row = [...$('items').querySelectorAll('tr')].find((element) => element.dataset.item === context.itemId);
-  const focus = $('settings-dialog').open ? $(context.controlId) : context.field ? row?.querySelector(`[data-field="${context.field}"]`) : $(context.controlId);
+  const focus = $('settings-dialog').open ? $(context.controlId) : context.reorder ? row?.querySelector('[data-drag]') : context.field ? row?.querySelector(`[data-field="${context.field}"]`) : $(context.controlId);
   if (focus && !focus.hidden) focus.focus({ preventScroll: true });
   updateHistoryControls();
   queueSave();
@@ -442,6 +474,7 @@ document.addEventListener('click', (event) => {
 
 $('warehouse-select').addEventListener('change', (event) => {
   if (!state || event.target.value === activeWarehouse) return;
+  endRowDrag();
   activeWarehouse = event.target.value;
   activeType = '';
   query = '';
@@ -498,6 +531,50 @@ $('items').addEventListener('input', (event) => {
   renderItems(true);
 });
 $('items').addEventListener('compositionend', (event) => event.target.dispatchEvent(new Event('input', { bubbles: true })));
+$('items').addEventListener('dragstart', (event) => {
+  const handle = event.target.closest('[data-drag]');
+  if (!handle || !event.dataTransfer) return;
+  draggedItem = { itemId: handle.dataset.drag, warehouseId: activeWarehouse };
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', handle.dataset.drag);
+  handle.closest('tr').classList.add('dragging');
+});
+function showRowDropTarget(event) {
+  const target = rowDropTarget(event);
+  clearDropMarkers();
+  if (!target) {
+    if (draggedItem) { event.preventDefault(); event.dataTransfer.dropEffect = 'none'; }
+    return;
+  }
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  target.row.classList.add(`drop-${target.placement}`);
+}
+$('items').addEventListener('dragenter', showRowDropTarget);
+$('items').addEventListener('dragover', showRowDropTarget);
+$('items').addEventListener('dragleave', (event) => {
+  if (!$('items').contains(event.relatedTarget)) clearDropMarkers();
+});
+$('items').addEventListener('drop', (event) => {
+  if (draggedItem) event.preventDefault();
+  const target = rowDropTarget(event);
+  if (!target) { endRowDrag(); return; }
+  event.preventDefault();
+  const itemId = draggedItem.itemId;
+  endRowDrag();
+  moveItem(itemId, target.row.dataset.item, target.placement);
+});
+document.addEventListener('dragend', endRowDrag);
+$('items').addEventListener('keydown', (event) => {
+  const handle = event.target.closest('[data-drag]');
+  if (!handle || !event.altKey || event.ctrlKey || event.metaKey || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  event.preventDefault();
+  const items = [...$('items').rows];
+  const index = items.findIndex((row) => row.dataset.item === handle.dataset.drag);
+  const before = event.key === 'ArrowUp';
+  const target = items[index + (before ? -1 : 1)];
+  if (target) moveItem(handle.dataset.drag, target.dataset.item, before ? 'before' : 'after');
+});
 $('items').addEventListener('focusout', (event) => {
   const field = event.target.dataset.field;
   const row = event.target.closest('tr');
