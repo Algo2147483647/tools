@@ -23,8 +23,11 @@
 | Form Studio | http://127.0.0.1:4174/（构建后预览） | `-Dev`，5173 |
 | Asset Dashboard | http://127.0.0.1:3000/（开发服务） | 同默认 |
 | Warehouse Studio | http://127.0.0.1:4186/ (local JSON inventory) | Same as default |
+| FlightLab | http://127.0.0.1:4188/ (3D flight simulator) | Same as default |
 
 See [Warehouse Studio](warehouse-studio/README.md) for independent warehouses, type filters, time-based demand planning, and immediate JSON persistence. English interface with LaTeX-inspired styling; Node.js 20+, no third-party dependencies.
+
+See [FlightLab](flightlab/README.md) for gamepad-controlled drone, fixed-wing and spacecraft flight, procedural coastal and orbital environments, time trials and docking. Launch with `.\launch.cmd flightlab` (Node.js 22.12+).
 
 通用选项：`-InstallOnly` 仅准备依赖；`-BuildOnly` 仅构建；`-Preview` 构建后运行；`-NoBrowser` 不自动打开浏览器。Asset Dashboard 的入口地址在终端显示，不自动打开浏览器。
 
