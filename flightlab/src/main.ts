@@ -1,7 +1,8 @@
 import './style.css';
 import * as THREE from 'three';
 import { FlightWorld } from './world';
-import { createFlightState, stepFlight, getTelemetry, setHandlingPreset } from './physics';
+import { createFlightState, getTelemetry, setHandlingPreset,configureVehicle,defaultVehicleConfig,validateVehicleConfig,setControlMode,setArmed,getDynamicsTelemetry,ZERO_INPUT } from './physics';
+import type { ControlMode } from './physics';
 import { FlightInputManager, BUTTON_LABELS } from './input';
 import type { ButtonAction, MenuAction } from './input';
 import { navigateMenu } from './menu-controls';
@@ -9,9 +10,15 @@ import { TrainingSession } from './training';
 import { FlightCameraRig } from './camera-rig';
 import { getDockingGuidance } from './navigation';
 import { FlightAudio } from './audio';
+import { SimulationClient } from './simulation-client';
+import { PHYSICS_DT,applyState,type SimulationPacket,type StateFrame } from './simulation';
+import { Workshop } from './workshop';
+import { FlightRecorder,type FlightRecording } from './recorder';
+import { loadScenario,saveScenario,scenarioSpawn,scenarioGates,targetAt,type Scenario } from './scenario';
+import { SitlClient,makeSitlFrame } from './sitl-client';
 import { crossedGate, formatTime, loadRecord, saveRecord } from './challenges';
 import type { FlightRecord, GhostFrame } from './challenges';
-import type { FlightMode, CameraMode, Weather, InputSettings, InputAction } from './types';
+import type { FlightMode, CameraMode, Weather, InputSettings, InputAction,FlightInput } from './types';
 
 const icons = {
   drone: '<svg viewBox="0 0 50 32" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m12 7 26 18M12 25 38 7"/><rect x="20" y="11" width="10" height="10" rx="3"/><ellipse cx="11" cy="7" rx="8" ry="4"/><ellipse cx="39" cy="7" rx="8" ry="4"/><ellipse cx="11" cy="25" rx="8" ry="4"/><ellipse cx="39" cy="25" rx="8" ry="4"/></svg>',
@@ -80,6 +87,11 @@ el('hud').insertAdjacentHTML('beforeend',`
   <div class="dock-guidance" id="dock-guidance" hidden><div class="eyebrow">DOCKING GUIDANCE</div><div class="dock-cross"><i></i><b></b><span id="dock-offset"></span></div><strong id="approach-status">APPROACH</strong><div class="dock-values"><span>CLOSING <b id="closing-speed">0.0</b> m/s</span><span>DRIFT <b id="lateral-speed">0.0</b> m/s</span><span>ALIGN <b id="alignment-error">0</b>°</span></div><p id="dock-instruction">Center the diamond. Brake before the frame.</p></div>
   <div class="wind-indicator" id="wind-indicator"><span id="wind-arrow">↑</span><span id="wind-text">CALM AIR</span></div><div class="proximity-cue" id="proximity-cue"></div><div class="cockpit-frame" id="cockpit-frame" hidden></div><div class="offscreen-target" id="offscreen-target" hidden><span id="offscreen-arrow">↑</span><small id="offscreen-label"></small></div>
 `);
+el('menu').querySelector('.menu-footer>span')!.outerHTML='<button class="text-button" id="workshop-menu">Flight workshop &nbsp; ↗</button>';
+el('hud').querySelector('.commands')!.insertAdjacentHTML('beforeend','<button id="workshop-hud"><span class="key">L</span>Workshop</button><button data-action="arm"><span class="key">V</span>Arm</button>');
+el('pause-modal').querySelector('#return-menu')!.insertAdjacentHTML('beforebegin','<button class="secondary-button" id="workshop-paused">Flight analysis & workshop</button>');
+el('hud').insertAdjacentHTML('beforeend','<div class="flight-mode-control"><span id="armed-status">ARMED</span><label for="flight-control">CONTROL</label><select id="flight-control"></select></div><div id="live-lab" class="live-lab" hidden><div class="eyebrow">FLIGHT COMPUTER / LIVE</div><div class="live-rates"><span>TARGET</span><b id="live-target"></b><span>MEASURED</span><b id="live-measured"></b></div><div class="motor-bars" id="live-motors"></div><div id="live-physical"></div><div class="stick-view"><i id="stick-left"></i><b id="stick-right"></b><span>INPUT</span></div><small id="live-runtime"></small></div>');
+app.insertAdjacentHTML('beforeend','<div class="replay-controls" id="replay-controls" hidden><button id="replay-toggle">Pause playback</button><input id="replay-seek" type="range" min="0" max="1" step=".01" aria-label="Replay time"/><span id="replay-time"></span><button id="replay-exit">Exit replay</button></div>');
 
 function el<T extends HTMLElement = HTMLElement>(id: string): T { return document.getElementById(id) as T; }
 interface Settings extends InputSettings { volume:number; sound:boolean; weather:Weather; quality:'balanced'|'high'|'low'; showGhost:boolean; handling:'gentle'|'balanced'|'sport';fov:number;cameraSmooth:number;shake:number;dynamicFov:boolean;horizonLock:boolean; }
@@ -101,7 +113,7 @@ const settings = readSettings();
 let mode:FlightMode = 'drone';
 let cameraMode:CameraMode = 'chase';
 let activity = 'free';
-let phase:'menu'|'flying'|'paused'|'crashed'|'complete' = 'menu';
+let phase:'menu'|'flying'|'paused'|'crashed'|'complete'|'replay' = 'menu';
 let modalWasFlying = false;
 let toastUntil = 0;
 let gateIndex = 0;
@@ -114,8 +126,19 @@ let training:TrainingSession|null=null;
 let previousGrounded=false;
 let proximityDistance=80;
 let lastController='';
+let lastInput:FlightInput={...ZERO_INPUT};
+let activeScenario:Scenario|null=null;
+let flightConfig:Record<string,number>={};
+let currentControlMode:ControlMode='angle';
+let externalControl=false;let sitlSequence=0;let sitlTimeUs=0;let pendingSitl:number|null=null;
+let replayTime=0;let replayPlaying=false;
+let customWorld=false;
+const targetVelocity=new THREE.Vector3();
+const sitl=new SitlClient();
+const recorder=new FlightRecorder();
+const replay=new FlightRecorder();
 const audio = new FlightAudio();
-const input = new FlightInputManager(settings, handleAction, () => { if (phase==='flying') {pause(); toast('Controller disconnected. Flight paused.');} });
+const input = new FlightInputManager(settings, handleAction, () => { if (phase==='flying') {simulation.setArmed(false);liveTelemetry.armed=false;pause();toast('Controller disconnected. Flight paused and disarmed.');} });
 const wind = new THREE.Vector3();
 let renderer:THREE.WebGLRenderer;
 try {
@@ -131,6 +154,7 @@ renderer.shadowMap.enabled=false;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const world=new FlightWorld(mode);
 let state=createFlightState(mode,world.spawn(mode));
+let liveTelemetry=getDynamicsTelemetry(state);
 const environment={wind,groundHeight:(x:number,z:number)=>world.groundHeight(x,z),collides:(p:THREE.Vector3,r:number)=>world.collides(p,r)};
 const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,20000);
 const renderPosition=new THREE.Vector3();
@@ -146,9 +170,14 @@ let previousTime=performance.now()/1000;
 let visualTime=0;
 let hudClock=0;
 let frames=0, fpsClock=0, fps=0;
+const simulation=new SimulationClient(acceptSimulation,message=>{if(phase==='flying')pause();toast(message);});
+const customTarget=new THREE.Mesh(new THREE.TorusGeometry(9,.15,8,64),new THREE.MeshBasicMaterial({color:0xd8fb90}));customTarget.visible=false;world.scene.add(customTarget);
+const workshop=new Workshop({mode:()=>mode,state:()=>state,config:()=>loadVehicle(mode),setConfig:c=>{try{localStorage.setItem(`flightlab.airframe.v1.${mode}`,JSON.stringify(c));}catch{toast('Airframe storage is unavailable.');}},scenario:()=>loadScenario(mode),setScenario:s=>saveScenario(s),input,recording:()=>recorder.recording,replay:beginReplay,run:()=>{closeAux('workshop-modal');el<HTMLSelectElement>('activity').value='sandbox';void startFlight();},close:()=>closeAux('workshop-modal'),toast,sitl});
+
+function loadVehicle(vehicleMode:FlightMode):Record<string,number>{try{const value=localStorage.getItem(`flightlab.airframe.v1.${vehicleMode}`);if(value)return validateVehicleConfig(vehicleMode,JSON.parse(value));}catch{}return defaultVehicleConfig(vehicleMode);}
 
 function toast(message:string) { el('toast').textContent=message;el('toast').classList.add('visible');toastUntil=performance.now()+3300; }
-function recordKey(){return `v03.${mode}.${activity}.${settings.weather}.${settings.handling}.${state.assist?'assisted':'manual'}`;}
+function recordKey(){const serialized=JSON.stringify({config:flightConfig,scenario:activeScenario});let hash=0;for(let i=0;i<serialized.length;i++)hash=(Math.imul(hash,31)+serialized.charCodeAt(i))|0;return `v06.${mode}.${activity}.${settings.weather}.${settings.handling}.${hash}.${state.assist?'assisted':'manual'}`;}
 function persistSettings(){try{localStorage.setItem('flightlab.settings.v1',JSON.stringify(settings));}catch{toast('Local storage is unavailable. Settings apply for this session.');}}
 function applySettings(){
   input.updateSettings(settings);audio.setEnabled(settings.sound&&phase==='flying');audio.setVolume(settings.volume);
@@ -166,28 +195,38 @@ function updateModeUI(){
   el('speed-label').textContent=mode==='space'?'REL. SPEED':'AIRSPEED';el('altitude-label').textContent=mode==='space'?'DOCK RANGE':'HEIGHT AGL';
   el('fourth-label').textContent=mode==='space'?'EST. STOP':'THROTTLE';el('fourth-unit').textContent=mode==='space'?'M':'%';
   document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b=>{b.classList.toggle('selected',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode));});
-  const select=el<HTMLSelectElement>('activity');select.innerHTML='<option value="free">Free exploration</option><option value="training">Flight school · Guided lessons</option><option value="race">Gate run · Time trial</option>'+(mode==='space'?'<option value="dock">Precision docking</option>':mode==='plane'?'<option value="departure">Runway departure</option>':'');select.value='free';
+  const select=el<HTMLSelectElement>('activity');select.innerHTML='<option value="free">Free exploration</option><option value="training">Flight school · Guided lessons</option><option value="race">Gate run · Time trial</option><option value="sandbox">Custom experiment · Workshop</option>'+(mode==='space'?'<option value="dock">Precision docking</option>':mode==='plane'?'<option value="departure">Runway departure</option>':'');select.value='free';
+  el<HTMLSelectElement>('flight-control').innerHTML=mode==='drone'?'<option value="angle">Angle</option><option value="acro">Acro</option><option value="altitude">Altitude hold</option><option value="position">Position hold</option>':'<option value="angle">Assisted</option><option value="manual">Manual</option>';
   let trained=false;try{trained=localStorage.getItem(`flightlab.training.v03.${mode}`)==='complete';}catch{}
   el('training-badge').textContent=trained?'✓ COURSE COMPLETE':'~3 MIN / GUIDED';
   updateAssist();updateControls();
 }
-function updateAssist(){el('assist-label').textContent=mode==='drone'?(state.assist?'ANGLE':'ACRO'):state.assist?'ASSIST ON':'ASSIST OFF';}
+function updateAssist(){el('assist-label').textContent=externalControl?'EXTERNAL FC':mode==='drone'?currentControlMode.toUpperCase():state.assist?'ASSIST ON':'MANUAL';el<HTMLSelectElement>('flight-control').value=currentControlMode;}
 function selectMode(next:FlightMode){
   if (next===mode)return;
-  mode=next;world.scene.remove(ghost);world.setMode(mode);world.scene.add(ghost);state=createFlightState(mode,world.spawn(mode));
+  mode=next;world.scene.remove(ghost,customTarget);world.setMode(mode);world.scene.add(ghost,customTarget);customWorld=false;customTarget.visible=false;state=createFlightState(mode,world.spawn(mode));currentControlMode='angle';externalControl=false;
   ghost.visible=false;cameraMode='chase';world.setGateProgress(-1);world.setDockGuidance(false);cameraRig.reset();applySettings();updateModeUI();
 }
 async function startFlight(){
   activity=el<HTMLSelectElement>('activity').value;
-  const spawn=activity==='training'||activity==='departure'?world.trainingSpawn(mode):world.spawn(mode);
-  state=createFlightState(mode,spawn);state.assist=true;setHandlingPreset(state,activity==='training'?'gentle':settings.handling);
+  if(customWorld){world.scene.remove(ghost,customTarget);world.setMode(mode);world.scene.add(ghost,customTarget);customWorld=false;}
+  activeScenario=activity==='sandbox'?loadScenario(mode):null;
+  const spawn=activeScenario?scenarioSpawn(activeScenario):activity==='training'||activity==='departure'?world.trainingSpawn(mode):world.spawn(mode);
+  if(world.collides(spawn.position,mode==='drone'?.6:mode==='plane'?2.5:2)||mode!=='space'&&spawn.position.y<world.groundHeight(spawn.position.x,spawn.position.z)){toast('The start position is inside terrain or a structure. Adjust it in Mission editor.');return;}
+  state=createFlightState(mode,spawn);state.assist=true;flightConfig=activity==='training'?defaultVehicleConfig(mode):loadVehicle(mode);configureVehicle(state,flightConfig);setHandlingPreset(state,activity==='training'?'gentle':settings.handling);
+  currentControlMode='angle';setControlMode(state,currentControlMode);setArmed(state,!activeScenario?.strictArming);liveTelemetry=getDynamicsTelemetry(state);
+  if(activeScenario){world.setCustomGates(scenarioGates(activeScenario));customWorld=true;}
+  externalControl=activity==='sandbox'&&mode==='drone'&&['ready','active'].includes(sitl.status);pendingSitl=null;
+  simulation.initialize({mode,spawn:{p:spawn.position.toArray() as [number,number,number],q:spawn.quaternion.toArray() as StateFrame['q'],v:spawn.velocity.toArray() as [number,number,number],throttle:spawn.throttle},world:world.physicsSnapshot(),config:flightConfig,handling:activity==='training'?'gentle':settings.handling,scenario:activeScenario,controlMode:currentControlMode,armed:liveTelemetry.armed});
+  recorder.begin(mode,flightConfig,activeScenario);
   training=activity==='training'?new TrainingSession(mode,spawn.position,spawn.quaternion,world.dock,environment.groundHeight):null;
   previousGrounded=spawn.position.y-environment.groundHeight(spawn.position.x,spawn.position.z)<3;
   gateIndex=0;dockingHold=0;ghostFrames=[];lastRecordTime=-1;ghostCursor=0;
-  world.setGateProgress(activity==='race'?0:-1);world.setDockGuidance(mode==='space'&&(activity==='dock'||activity==='training'));best=loadRecord(recordKey());
+  world.setGateProgress(activity==='race'||activeScenario?.gates.length?0:-1);world.setDockGuidance(mode==='space'&&(activity==='dock'||activity==='training'));customTarget.visible=!!activeScenario&&mode==='space';best=loadRecord(recordKey());
   phase='flying';accumulator=0;cameraRig.reset();applySettings();
-  el('menu').hidden=true;el('hud').hidden=false;el('pause-modal').hidden=true;el('settings-modal').hidden=true;el('controls-modal').hidden=true;
-  el('top-label').textContent='LIVE FLIGHT / 0.3';el('mission-label').textContent=activity==='training'?'FLIGHT SCHOOL':activity==='race'?'GATE RUN / TIME TRIAL':activity==='dock'?'PRECISION DOCKING':activity==='departure'?'RUNWAY DEPARTURE':'FREE EXPLORATION';
+  el('menu').hidden=true;el('hud').hidden=false;el('pause-modal').hidden=true;el('settings-modal').hidden=true;el('controls-modal').hidden=true;workshop.element.hidden=true;el('replay-controls').hidden=true;
+  el('top-label').textContent='LIVE FLIGHT / 0.6';el('mission-label').textContent=activeScenario?(externalControl?'EXTERNAL FLIGHT CONTROLLER':activeScenario.name):activity==='training'?'FLIGHT SCHOOL':activity==='race'?'GATE RUN / TIME TRIAL':activity==='dock'?'PRECISION DOCKING':activity==='departure'?'RUNWAY DEPARTURE':'FREE EXPLORATION';
+  el('live-lab').hidden=activity!=='sandbox';
   el('mission-progress').hidden=activity==='free'||activity==='departure';el('flight-hint').hidden=false;el('lesson-card').hidden=!training;updateAssist();input.setContext('flight');
   (document.activeElement as HTMLElement)?.blur();
   try{await audio.start();audio.setEnabled(settings.sound&&phase==='flying');audio.setVolume(settings.volume);}catch{/* Audio is optional. */}

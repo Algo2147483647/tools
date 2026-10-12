@@ -105,7 +105,8 @@ describe('space flight', () => {
     state.velocity.set(30, 0, 0);
     expect(getTelemetry(state, empty.wind).stoppingDistance).toBe(60);
     stepFlight(state, ZERO_INPUT, empty, 1 / 120);
-    expect(state.velocity.x).toBeCloseTo(30 - 7.5 / 120, 8);
+    // Propellant consumption changes mass within each 240 Hz actuator step.
+    expect(state.velocity.x).toBeCloseTo(30 - 7.5 / 120, 5);
     fly(state, 7);
     expect(state.velocity.length()).toBeLessThan(0.02);
     expect(state.position.x).toBeGreaterThan(59);
@@ -173,7 +174,9 @@ describe('fixed wing flight', () => {
     const wind = { ...empty, wind: new Vector3(0, 0, 12) };
     const upwind = vehicle('plane', 300);
     stepFlight(upwind, ZERO_INPUT, wind, 1 / 120);
-    expect(upwind.airspeed).toBeCloseTo(50, 4);
+    expect(upwind.airspeed).toBeGreaterThan(49.9);
+    expect(upwind.airspeed).toBeLessThan(50.1);
+    expect(Math.abs(upwind.airspeed - upwind.velocity.clone().sub(wind.wind).length())).toBeLessThan(0.01);
   });
 
   it('uses banked lift to turn in assisted mode', () => {

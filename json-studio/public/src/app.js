@@ -882,7 +882,12 @@ source.addEventListener('pointerdown', () => {
   lastTyping = 0;
 });
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') $('more-tools').open = false;
+  if (event.key === 'Escape' && $('more-tools').open) {
+    if ($('more-tools').contains(document.activeElement)) {
+      $('more-tools').querySelector('summary').focus();
+    }
+    $('more-tools').open = false;
+  }
   if (event.isComposing || !(event.metaKey || event.ctrlKey) || event.altKey) return;
   if (event.key === 'Enter') {
     event.preventDefault();
@@ -1105,8 +1110,8 @@ function job(kind, payload, callback, statusId) {
 }
 function setMode(next) {
   mode = next;
+  $('more-tools').open = false;
   document.querySelector('.panes').hidden = mode !== 'workspace';
-  document.querySelector('.toolbar').hidden = mode !== 'workspace';
   $('mode-caption').hidden = mode === 'workspace';
   if (mode === 'path' || mode === 'schema') refreshContext(mode);
   for (const name of ['diff', 'path', 'schema']) $(name + '-mode').hidden = mode !== name;

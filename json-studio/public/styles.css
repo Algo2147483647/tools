@@ -146,23 +146,6 @@ h1 {
   border-top: 2px solid var(--ink);
   border-bottom: 2px solid var(--ink);
 }
-.toolbar {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-}
-.tool-group {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 3px;
-}
-.tool-group + .tool-group {
-  border-left: 1px solid var(--line);
-  padding-left: 11px;
-}
 .tool {
   background: transparent;
   border: 1px solid transparent;
@@ -176,13 +159,6 @@ h1 {
 .tool:hover:not(:disabled) {
   background: var(--soft);
 }
-.tool .glyph {
-  font: 12px var(--mono);
-  color: #888;
-  margin-right: 2px;
-  min-width: 13px;
-  text-align: center;
-}
 .tool.main-tool {
   background: var(--ink);
   color: #fff;
@@ -191,16 +167,6 @@ h1 {
 }
 .tool.main-tool:hover:not(:disabled) {
   background: #454545;
-}
-.tool.main-tool .glyph {
-  color: #ccc;
-}
-.toolbar-end {
-  margin-left: auto;
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 12px;
 }
 .indent-label {
   display: flex;
@@ -857,17 +823,8 @@ kbd {
   .topbar > .actions .icon {
     display: none;
   }
-  .toolbar {
-    gap: 8px;
-  }
-  .tool-group + .tool-group {
-    padding-left: 7px;
-  }
   .tool {
     padding: 6px 7px;
-  }
-  .toolbar-end {
-    gap: 8px;
   }
 }
 @media (min-width: 761px) and (max-width: 1150px) {
@@ -879,20 +836,10 @@ kbd {
   .topbar > .actions {
     margin-left: auto;
   }
-  .toolbar {
-    order: 3;
-    flex-basis: 100%;
-  }
 }
 @media (max-width: 1100px) {
   .shell {
     padding: 0 22px;
-  }
-  .toolbar {
-    gap: 12px;
-  }
-  .tool-group + .tool-group {
-    padding-left: 11px;
   }
   .tool {
     padding-left: 7px;
@@ -933,19 +880,6 @@ kbd {
   }
   .topbar .button .icon {
     display: none;
-  }
-  .toolbar {
-    order: 3;
-    flex-basis: 100%;
-    flex-wrap: wrap;
-    gap: 8px 10px;
-  }
-  .toolbar-end {
-    margin-left: 0;
-  }
-  .tool-group + .tool-group {
-    border-left: 0;
-    padding-left: 0;
   }
   .panes {
     grid-template-columns: minmax(0, 1fr);
@@ -1384,9 +1318,6 @@ dialog textarea {
   h1 {
     font-size: 20px;
   }
-  .tool .glyph {
-    margin-right: 0;
-  }
 }
 /* Compact navigation and consistent, adjustable code metrics. */
 :root {
@@ -1502,6 +1433,76 @@ dialog textarea {
 }
 .input-pane {
   border-right: 0;
+}
+.input-header {
+  position: relative;
+  height: auto;
+  min-height: 58px;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.input-header:has(.input-menu[open]) {
+  z-index: 12;
+}
+.input-heading-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.input-heading-group .pane-heading {
+  align-items: center;
+}
+.input-history {
+  gap: 0;
+}
+.input-menu {
+  position: static;
+}
+.input-menu > summary {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 5px 8px;
+  color: var(--ink);
+  margin-left: 4px;
+}
+.input-menu[open] > summary,
+.input-menu > summary:hover {
+  background: var(--soft);
+  border-color: #aaa;
+}
+.input-dropdown {
+  top: calc(100% - 2px);
+  left: 12px;
+  right: auto;
+  width: 300px;
+  min-width: 0;
+  max-width: calc(100% - 24px);
+  max-height: min(520px, 65dvh);
+  overflow: auto;
+  white-space: normal;
+}
+.input-dropdown .input-menu-section + .input-menu-section {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.menu-label {
+  display: block;
+  padding: 6px 11px;
+  color: var(--muted);
+  font: 11px var(--serif);
+  letter-spacing: 0.04em;
+}
+.input-dropdown .indent-label {
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding: 10px 11px;
+}
+.input-header > .pane-tools {
+  flex-wrap: wrap;
+  flex-shrink: 1;
 }
 .editor,
 .output {
@@ -1876,18 +1877,11 @@ dialog textarea {
     padding: 10px 0;
     gap: 8px 16px;
   }
-  .toolbar {
-    order: 3;
-    flex-basis: 100%;
-  }
   .topbar > .actions {
     margin-left: auto;
   }
   .display-settings {
     margin-left: 0;
-  }
-  .topbar:has(.toolbar[hidden]) {
-    flex-wrap: nowrap;
   }
 }
 @media (max-width: 760px) {

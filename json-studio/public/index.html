@@ -49,83 +49,6 @@
           <span class="brand-mark" aria-hidden="true">{ }</span>
           <h1>JSON Studio</h1>
         </div>
-        <div class="toolbar" role="toolbar" aria-label="JSON transformations">
-          <div class="tool-group">
-            <button class="tool main-tool" data-action="format" title="Format (⌘ / Ctrl + Enter)">
-              <span class="glyph">{ }</span>Format</button
-            ><button class="tool" data-action="compact" title="Remove unnecessary whitespace">
-              <span class="glyph">↔</span>Minify
-            </button>
-          </div>
-          <div class="tool-group">
-            <button
-              class="tool"
-              data-action="escape"
-              title="Encode the input as a JSON string, including surrounding quotes"
-            >
-              <span class="glyph">\</span>Escape</button
-            ><button
-              class="tool"
-              data-action="unescape"
-              title="Decode one JSON string layer; surrounding quotes are optional"
-            >
-              <span class="glyph">\̸</span>Unescape
-            </button>
-          </div>
-          <div class="tool-group">
-            <button
-              class="tool"
-              data-action="sort"
-              title="Sort object keys recursively, preserving array order"
-            >
-              <span class="glyph">↓</span>Sort keys
-            </button>
-            <details class="more" id="more-tools">
-              <summary>
-                More<svg class="icon"><use href="#i-down" /></svg>
-              </summary>
-              <div class="dropdown">
-                <button data-action="reverse">
-                  Reverse arrays<small
-                    >Reverse the root array or its direct array fields</small
-                  ></button
-                ><button data-action="unicode">
-                  Escape Unicode<small>Convert non-ASCII characters to \uXXXX</small></button
-                ><button data-action="unicode-decode">
-                  Decode Unicode<small>Decode Unicode escapes in JSON strings</small>
-                </button>
-              </div>
-            </details>
-          </div>
-          <div class="toolbar-end">
-            <label class="indent-label"
-              >Indent<select id="indent" aria-label="Indentation">
-                <option value="2">2 spaces</option>
-                <option value="4">4 spaces</option>
-                <option value="tab">Tab</option>
-              </select></label
-            >
-            <div class="actions">
-              <button
-                id="undo"
-                class="icon-button"
-                title="Undo (⌘ / Ctrl + Z)"
-                aria-label="Undo"
-                disabled
-              >
-                <svg class="icon"><use href="#i-undo" /></svg></button
-              ><button
-                id="redo"
-                class="icon-button"
-                title="Redo (⌘ / Ctrl + Shift + Z)"
-                aria-label="Redo"
-                disabled
-              >
-                <svg class="icon"><use href="#i-redo" /></svg>
-              </button>
-            </div>
-          </div>
-        </div>
         <span id="mode-caption" class="context-caption" hidden
           >Explore and edit the active document</span
         >
@@ -360,10 +283,77 @@
         </section>
         <div class="panes split-layout" id="workspace-panes">
           <section class="pane input-pane split-left" aria-labelledby="input-heading">
-            <header class="pane-header">
-              <div class="pane-heading">
-                <span class="section-number">01</span>
-                <h2 id="input-heading">Input</h2>
+            <header class="pane-header input-header">
+              <div class="input-heading-group">
+                <div class="pane-heading">
+                  <span class="section-number">01</span>
+                  <h2 id="input-heading">Input</h2>
+                  <details class="more input-menu" id="more-tools">
+                    <summary aria-label="Input tools">
+                      Tools<svg class="icon"><use href="#i-down" /></svg>
+                    </summary>
+                    <div class="dropdown input-dropdown">
+                      <div class="input-menu-section">
+                        <span class="menu-label">Transform</span>
+                        <button data-action="compact">
+                          Minify<small>Remove unnecessary whitespace</small>
+                        </button>
+                        <button data-action="sort">
+                          Sort keys<small>Sort object keys recursively</small>
+                        </button>
+                        <button data-action="reverse">
+                          Reverse arrays<small
+                            >Reverse the root array or its direct array fields</small
+                          >
+                        </button>
+                      </div>
+                      <div class="input-menu-section">
+                        <span class="menu-label">Encode &amp; decode</span>
+                        <button data-action="escape">
+                          Escape<small>Encode the input as a JSON string</small>
+                        </button>
+                        <button data-action="unescape">
+                          Unescape<small>Decode one JSON string layer</small>
+                        </button>
+                        <button data-action="unicode">Escape Unicode</button>
+                        <button data-action="unicode-decode">Decode Unicode</button>
+                      </div>
+                      <label class="indent-label"
+                        >Indentation<select id="indent" aria-label="Indentation">
+                          <option value="2">2 spaces</option>
+                          <option value="4">4 spaces</option>
+                          <option value="tab">Tab</option>
+                        </select></label
+                      >
+                    </div>
+                  </details>
+                </div>
+                <button
+                  class="tool main-tool"
+                  data-action="format"
+                  title="Format (⌘ / Ctrl + Enter)"
+                >
+                  Format
+                </button>
+                <div class="actions input-history">
+                  <button
+                    id="undo"
+                    class="icon-button"
+                    title="Undo (⌘ / Ctrl + Z)"
+                    aria-label="Undo"
+                    disabled
+                  >
+                    <svg class="icon"><use href="#i-undo" /></svg></button
+                  ><button
+                    id="redo"
+                    class="icon-button"
+                    title="Redo (⌘ / Ctrl + Shift + Z)"
+                    aria-label="Redo"
+                    disabled
+                  >
+                    <svg class="icon"><use href="#i-redo" /></svg>
+                  </button>
+                </div>
               </div>
               <div class="pane-tools">
                 <button

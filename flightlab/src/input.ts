@@ -75,6 +75,7 @@ export class FlightInputManager {
   private rumbleUntil = 0;
   private disposed = false;
   private lastInput: FlightInput = emptyInput();
+  private previousAbsoluteThrottle: number | null = null;
 
   constructor(settings: InputSettings, private readonly onAction: (action: InputAction) => void, private readonly onDisconnect: () => void) {
     this.settings = { ...settings };
@@ -99,7 +100,10 @@ export class FlightInputManager {
           if (candidate.layout === 'southpaw') profile.layout = 'southpaw';
           const range = candidate.range;
           const center = this.calibrations[id] ?? [0, 0, 0, 0];
-          if (range && validAxes(range.min, 1) && validAxes(range.max, 1) && range.min.length === range.max.length && range.min.every((value, i) => value <= range.max[i]) && center.every((offset, i) => offset - range.min[i] >= 0.4 && range.max[i] - offset >= 0.4)) {
+          const configuredAxes = new Set([...Object.values(profile.axes.channels), ...Object.values(profile.axes.spaceRotation)]
+            .filter(binding => binding.source === 'axis').map(binding => binding.axis));
+          if (range && validAxes(range.min, 1) && validAxes(range.max, 1) && range.min.length === range.max.length && range.min.every((value, i) => value <= range.max[i]) &&
+              [...configuredAxes].filter(i => i < range.min.length).every(i => (center[i] ?? 0) - range.min[i] >= 0.4 && range.max[i] - (center[i] ?? 0) >= 0.4)) {
             profile.range = { min: [...range.min], max: [...range.max] };
           }
           this.profiles[id] = profile;
@@ -127,6 +131,7 @@ export class FlightInputManager {
     this.saveProfiles();
   }
   getBindings(): Record<ButtonAction, number> { return { ...this.profile().bindings }; }
+  getReservedButtons(): number[] { return [...reservedButtons(this.profile().axes)].sort((a, b) => a - b); }
   setBinding(action: ButtonAction, index: number): void {
     if (!Object.prototype.hasOwnProperty.call(DEFAULT_BINDINGS, action) || !Number.isInteger(index) || index < 0 || index >= 64 || reservedButtons(this.profile().axes).has(index)) return;
     const bindings = this.profile().bindings;
@@ -156,6 +161,7 @@ export class FlightInputManager {
     this.profile().layout = axes.preset === 'southpaw' ? 'southpaw' : 'standard';
     this.resolveButtonConflicts();
     this.requireNeutral = true;
+    this.previousAbsoluteThrottle = null;
     this.keys.clear();
     this.saveProfiles();
     return true;
@@ -233,6 +239,7 @@ export class FlightInputManager {
       const changed = next?.id !== this.pad?.id || next?.index !== this.pad?.index;
       if (changed) this.lastButtons = [];
       this.pad = next;
+      if (changed) this.previousAbsoluteThrottle = null;
       if (changed && next && this.profile().axes.throttleMode === 'absolute') this.requireNeutral = true;
       return next;
     } catch { if (this.pad) this.disconnect(); return null; }
@@ -263,9 +270,12 @@ export class FlightInputManager {
   }
   private padNeutral(pad: Gamepad, mode: FlightMode): boolean {
     if (!this.usablePad(pad)) return true;
-    if (pad.buttons.some(button => button.pressed || finite(button.value) > 0.2)) return false;
     const profile = this.profile().axes;
     const absolute = mode !== 'space' && profile.throttleMode === 'absolute' && profile.channels.throttle.source !== 'none';
+    const idleButton = absolute && profile.channels.throttle.source === 'buttons'
+      ? (profile.channels.throttle.inverted ? profile.channels.throttle.positiveButton : profile.channels.throttle.negativeButton) : -1;
+    const usedButtons = new Set([...reservedButtons(profile), ...Object.values(this.profile().bindings)]);
+    if (pad.buttons.some((button, index) => index !== idleButton && (pad.mapping === 'standard' || usedButtons.has(index)) && (button.pressed || finite(button.value) > 0.2))) return false;
     // A non-centering RC throttle must be at idle; all other mapped axes must center.
     if (absolute && this.bindingValue(pad, profile.channels.throttle, false) > -0.8) return false;
     const throttleAxis = absolute && profile.channels.throttle.source === 'axis' ? profile.channels.throttle.axis : -1;
@@ -369,7 +379,12 @@ export class FlightInputManager {
         const pitch = this.bindingValue(pad, rotation.pitch), roll = this.bindingValue(pad, rotation.roll), yaw = this.bindingValue(pad, rotation.yaw);
         const throttle = this.bindingValue(pad, axes.channels.throttle);
         const moveX = this.bindingValue(pad, axes.channels.moveX), moveY = this.bindingValue(pad, axes.channels.moveY), moveZ = this.bindingValue(pad, axes.channels.moveZ);
-        if ([pitch, roll, yaw, throttle, moveX, moveY, moveZ].some(value => Math.abs(value) > 0.02) || buttons.some(Boolean)) this.device = 'gamepad';
+        const absoluteValue = (this.bindingValue(pad, axes.channels.throttle, false) + 1) / 2;
+        const throttleMoved = this.previousAbsoluteThrottle !== null && Math.abs(absoluteValue - this.previousAbsoluteThrottle) > 0.02;
+        this.previousAbsoluteThrottle = absoluteValue;
+        const commands = mode === 'space' ? [pitch, roll, yaw, moveX, moveY, moveZ]
+          : [pitch, roll, yaw, axes.throttleMode === 'incremental' ? throttle : 0];
+        if (commands.some(value => Math.abs(value) > 0.02) || buttons.some(Boolean) || (mode !== 'space' && axes.throttleMode === 'absolute' && throttleMoved)) this.device = 'gamepad';
         result.pitch = clamp(result.pitch + pitch, -1, 1);
         result.roll = clamp(result.roll + roll, -1, 1);
         result.yaw = clamp(result.yaw + yaw, -1, 1);
@@ -381,7 +396,7 @@ export class FlightInputManager {
           if (axes.throttleMode === 'absolute' && axes.channels.throttle.source !== 'none' && result.throttleDelta === 0) {
             // Absolute collective is affine: stick bottom/center/top = 0/.5/1.
             // Centered deadzones and attitude rate curves must not create an idle jump.
-            result.throttle = (this.bindingValue(pad, axes.channels.throttle, false) + 1) / 2;
+            result.throttle = absoluteValue;
           } else if (axes.throttleMode === 'incremental') result.throttleDelta = clamp(result.throttleDelta + throttle, -1, 1);
         }
       }
