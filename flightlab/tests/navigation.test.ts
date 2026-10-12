@@ -70,4 +70,37 @@ describe('target-frame docking guidance', () => {
     setHandlingPreset(state, 'sport');
     expect(getDockingGuidance(state, dock).stoppingDistance).toBeLessThan(gentle);
   });
+
+  it('captures a co-moving vessel using relative speed instead of absolute world speed', () => {
+    const state=vessel(),velocity=new Vector3(18,-3,12);
+    state.position.copy(dock.position).add(new Vector3(0,0,3));state.velocity.copy(velocity);
+    const guidance=getDockingGuidance(state,{...dock,velocity});
+    expect(guidance.closingSpeed).toBe(0);
+    expect(guidance.lateralSpeed).toBe(0);
+    expect(guidance.stoppingDistance).toBe(0);
+    expect(guidance.safeApproach).toBe(true);
+  });
+
+  it('is invariant when vessel and target receive the same world velocity', () => {
+    const state=vessel(),velocity=new Vector3(2,1,-3);
+    state.velocity.set(2.5,1.2,-8);
+    const before=getDockingGuidance(state,{...dock,velocity});
+    const boost=new Vector3(-35,14,42);
+    state.velocity.add(boost);velocity.add(boost);
+    const after=getDockingGuidance(state,{...dock,velocity});
+    expect(after.closingSpeed).toBeCloseTo(before.closingSpeed,12);
+    expect(after.lateralSpeed).toBeCloseTo(before.lateralSpeed,12);
+    expect(after.stoppingDistance).toBeCloseTo(before.stoppingDistance,12);
+    expect(after.safeApproach).toBe(before.safeApproach);
+  });
+
+  it('warns when a moving target creates excessive closure or sideways drift', () => {
+    const state=vessel();state.position.z=-80;state.velocity.set(0,0,0);
+    const closing=getDockingGuidance(state,{...dock,velocity:new Vector3(0,0,20)});
+    expect(closing.closingSpeed).toBe(20);
+    expect(closing.safeApproach).toBe(false);
+    const drifting=getDockingGuidance(state,{...dock,velocity:new Vector3(3,0,0)});
+    expect(drifting.lateralSpeed).toBe(3);
+    expect(drifting.safeApproach).toBe(false);
+  });
 });

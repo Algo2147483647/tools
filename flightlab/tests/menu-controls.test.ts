@@ -3,18 +3,19 @@ import { navigateMenu } from '../src/menu-controls';
 
 // The navigation algorithm uses the same small DOM surface across real controls.
 // These fixtures provide geometry and event recording without a browser dependency.
-function menuFixture(specifications: Array<{ tag?: string; x?: number; y: number; disabled?: boolean; hidden?: boolean; type?: string; value?: string; options?: Array<{ disabled: boolean }> }>) {
+function menuFixture(specifications: Array<{ tag?: string; x?: number; y: number; disabled?: boolean; hidden?: boolean; type?: string; value?: string; options?: Array<{ disabled: boolean }>; details?: {open:boolean}; readOnly?: boolean }>) {
   const ownerDocument: { activeElement: unknown } = { activeElement: null };
   const controls = specifications.map(specification => {
     const control = {
       tagName: specification.tag ?? 'BUTTON', disabled: !!specification.disabled,
       type: specification.type ?? '', value: specification.value ?? '0.5', min: '0', max: '1', step: '0.1', checked: false,
+      readOnly: !!specification.readOnly, dataset: {} as Record<string,string>,
       selectedIndex: 0, options: specification.options ?? [],
       getAttribute: () => null,
-      closest: () => specification.hidden ? {} : null,
+      closest: (selector:string) => selector==='details:not([open])' ? specification.details&&!specification.details.open?specification.details:null : specification.hidden ? {} : null,
       getBoundingClientRect: () => ({ left: specification.x ?? 0, top: specification.y, width: 100, height: 20 }),
       focus: vi.fn(() => { ownerDocument.activeElement = control; }),
-      scrollIntoView: vi.fn(), click: vi.fn(), dispatchEvent: vi.fn(),
+      scrollIntoView: vi.fn(), click: vi.fn(()=>{if(control.tagName==='SUMMARY'&&specification.details)specification.details.open=!specification.details.open;}), dispatchEvent: vi.fn(),
     };
     return control;
   });
@@ -85,5 +86,43 @@ describe('menu focus and activation', () => {
     expect(controls[0].checked).toBe(false);
     navigateMenu(root, 'back', onBack);
     expect(onBack).toHaveBeenCalledOnce();
+  });
+
+  it('opens axis summaries with Confirm and excludes their fields while collapsed', () => {
+    const details={open:false};
+    const {root,controls,ownerDocument}=menuFixture([
+      {tag:'SUMMARY',y:0,details},{tag:'INPUT',type:'number',y:30,details},{y:60},
+    ]);
+    navigateMenu(root,'confirm',()=>{});
+    expect(ownerDocument.activeElement).toBe(controls[0]);
+    navigateMenu(root,'down',()=>{});
+    expect(ownerDocument.activeElement).toBe(controls[2]);
+    navigateMenu(root,'up',()=>{});
+    expect(ownerDocument.activeElement).toBe(controls[0]);
+    navigateMenu(root,'confirm',()=>{});
+    expect(details.open).toBe(true);
+    navigateMenu(root,'down',()=>{});
+    expect(ownerDocument.activeElement).toBe(controls[1]);
+    navigateMenu(root,'up',()=>{});navigateMenu(root,'confirm',()=>{});
+    expect(details.open).toBe(false);
+    navigateMenu(root,'down',()=>{});
+    expect(ownerDocument.activeElement).toBe(controls[2]);
+  });
+
+  it('uses the intended controller step while accepting finer stored physical values', () => {
+    const {root,controls}=menuFixture([{tag:'INPUT',type:'number',y:0,value:'5.886'}]);
+    const field=controls[0];field.min='1';field.max='30';field.step='0.001';field.dataset.step='0.01';
+    navigateMenu(root,'confirm',()=>{});navigateMenu(root,'right',()=>{});
+    expect(field.value).toBe('5.896');
+    navigateMenu(root,'left',()=>{});
+    expect(field.value).toBe('5.886');
+  });
+
+  it('navigates away from readonly numeric fields without changing their values', () => {
+    const {root,controls,ownerDocument}=menuFixture([{tag:'INPUT',type:'number',y:0,readOnly:true},{x:120,y:0}]);
+    navigateMenu(root,'confirm',()=>{});navigateMenu(root,'right',()=>{});
+    expect(controls[0].value).toBe('0.5');
+    expect(controls[0].dispatchEvent).not.toHaveBeenCalled();
+    expect(ownerDocument.activeElement).toBe(controls[1]);
   });
 });

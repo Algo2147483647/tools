@@ -51,6 +51,13 @@ function editableFocused(): boolean {
   const element = document.activeElement as HTMLElement | null;
   return !!element && (element.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(element.tagName));
 }
+function textEditingFocused(): boolean {
+  if (typeof document === 'undefined') return false;
+  const element = document.activeElement as HTMLInputElement | null;
+  if (!element) return false;
+  return element.isContentEditable || element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT'
+    && ['text', 'number', 'email', 'url', 'search', 'tel', 'password'].includes(element.type || 'text'));
+}
 const emptyInput = (): FlightInput => ({
   pitch: 0, roll: 0, yaw: 0, throttleDelta: 0, moveX: 0, moveY: 0, moveZ: 0, brake: false, boost: false,
 });
@@ -197,6 +204,9 @@ export class FlightInputManager {
   private handleKeyDown = (event: KeyboardEvent): void => {
     this.heldKeys.add(event.code);
     if (this.context === 'menu') {
+      // Preserve spaces, caret movement and native number editing in workshop fields.
+      // Escape remains the consistent exit shortcut; gamepad navigation is independent.
+      if (event.code !== 'Escape' && textEditingFocused()) return;
       const action = menuKeys[event.code];
       if (action) {
         event.preventDefault();

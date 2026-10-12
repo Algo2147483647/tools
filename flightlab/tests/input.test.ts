@@ -322,6 +322,57 @@ describe('controller profiles and calibration', () => {
 });
 
 describe('controller menu navigation', () => {
+  it.each([
+    ['INPUT', 'text', false], ['INPUT', 'number', false], ['INPUT', 'email', false],
+    ['INPUT', 'url', false], ['INPUT', 'search', false], ['TEXTAREA', '', false], ['DIV', '', true],
+  ] as const)('preserves native editing in %s %s fields while Escape still exits', (tagName, type, isContentEditable) => {
+    const listeners = new Map<string, (event: unknown) => void>();
+    vi.stubGlobal('window', {
+      addEventListener: (event: string, listener: (event: unknown) => void) => listeners.set(event, listener),
+      removeEventListener: (event: string) => listeners.delete(event),
+    });
+    vi.stubGlobal('document', {
+      activeElement: { tagName, type, isContentEditable }, hidden: false,
+      addEventListener: () => {}, removeEventListener: () => {},
+    });
+    const menu = vi.fn(), action = vi.fn(), input = new FlightInputManager(settings, action, () => {});
+    input.setMenuHandler(menu); input.setContext('menu'); input.poll('drone');
+    for (const code of ['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'KeyR']) {
+      const event = { code, repeat: false, preventDefault: vi.fn() };
+      listeners.get('keydown')!(event);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      listeners.get('keyup')!({ code });
+    }
+    expect(menu).not.toHaveBeenCalled();
+    expect(action).not.toHaveBeenCalled();
+    const escape = { code: 'Escape', repeat: false, preventDefault: vi.fn() };
+    listeners.get('keydown')!(escape);
+    expect(escape.preventDefault).toHaveBeenCalledOnce();
+    expect(menu).toHaveBeenCalledExactlyOnceWith('back');
+    input.dispose();
+  });
+
+  it('keeps keyboard activation on buttons and gamepad navigation while a text field is focused', () => {
+    const listeners = new Map<string, (event: unknown) => void>();
+    vi.stubGlobal('window', {
+      addEventListener: (event: string, listener: (event: unknown) => void) => listeners.set(event, listener),
+      removeEventListener: (event: string) => listeners.delete(event),
+    });
+    const documentStub = { activeElement: { tagName: 'BUTTON', type: '', isContentEditable: false }, hidden: false, addEventListener: () => {}, removeEventListener: () => {} };
+    vi.stubGlobal('document', documentStub);
+    const pad = standardPad(); vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const menu = vi.fn(), input = new FlightInputManager(settings, () => {}, () => {});
+    input.setMenuHandler(menu); input.setContext('menu'); input.poll('drone');
+    const space = { code: 'Space', repeat: false, preventDefault: vi.fn() };
+    listeners.get('keydown')!(space); listeners.get('keyup')!({ code: 'Space' });
+    expect(space.preventDefault).toHaveBeenCalledOnce();
+    expect(menu).toHaveBeenCalledExactlyOnceWith('confirm');
+    documentStub.activeElement = { tagName: 'INPUT', type: 'text', isContentEditable: false };
+    Object.assign(pad.buttons[13], { pressed: true }); input.poll('drone');
+    expect(menu).toHaveBeenLastCalledWith('down');
+    input.dispose();
+  });
+
   it('suppresses flight and emits menu directions with a delayed repeat', () => {
     let now = 0;
     vi.stubGlobal('performance', { now: () => now });

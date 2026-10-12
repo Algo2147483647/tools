@@ -36,12 +36,13 @@ function runtime(state: FlightState): Dynamics {
     model = {
       config, preset: 'balanced', controlMode: state.mode === 'drone' ? 'angle' : 'manual', armed: true,
       pid: new RateController(), sensors: new SensorSuite(state.quaternion), targetRates: new Vector3(),
-      outputs: state.mode === 'drone' ? [state.throttle, state.throttle, state.throttle, state.throttle] : [],
+      outputs: state.mode === 'drone' ? Array(4).fill(Math.sqrt(state.throttle)) : [],
       motors: Array(4).fill(Math.sqrt(state.throttle)), surfaces: new Vector3(),
       force: new Vector3(), torque: new Vector3(), acceleration: new Vector3(),
       fuel: config.fuel ?? 0, damage: 0, fault: 'none', faultStrength: 0,
       altitudeTarget: state.position.y, positionTarget: state.position.clone(), external: null, contactSpeed: 0,
     };
+    model.sensors.position.copy(state.position); model.sensors.velocity.copy(state.velocity);
     dynamics.set(state, model);
   }
   return model;
@@ -66,15 +67,19 @@ export function setControlMode(state: FlightState, mode: ControlMode): void {
   model.pid.reset(); state.assist = mode !== 'acro' && mode !== 'manual';
 }
 export function setArmed(state: FlightState, armed: boolean): void {
-  const model = runtime(state); model.armed = Boolean(armed);
-  if (!model.armed) { model.external = null; model.pid.reset(); }
+  const model = runtime(state); model.armed = Boolean(armed) && !state.crashed;
+  if (!model.armed) {
+    model.external = null; model.pid.reset();
+    // A newly spawned disarmed vehicle has no stored rotor energy from an earlier flight.
+    if (state.flightTime === 0) { model.motors.fill(0); model.outputs = model.outputs.map(() => 0); }
+  }
 }
 export function setFault(state: FlightState, fault: FaultType, strength = 1): void {
   const model = runtime(state);
   model.fault = ['none', 'motor', 'sensor', 'wind'].includes(fault) ? fault : 'none';
   model.faultStrength = Number.isFinite(strength) ? MathUtils.clamp(strength, 0, 1) : 1;
 }
-/** Normalized rotor thrust requests: front-left, front-right, rear-right, rear-left. */
+/** Normalized electrical motor commands (target rotor speed): front-left, front-right, rear-right, rear-left. */
 export function setExternalActuators(state: FlightState, outputs: number[] | null): void {
   runtime(state).external = state.mode === 'drone' && Array.isArray(outputs) && outputs.length === 4 && outputs.every(Number.isFinite)
     ? outputs.map(value => MathUtils.clamp(value, 0, 1)) : null;
@@ -103,8 +108,25 @@ export function getDynamicsTelemetry(state: FlightState) {
     force: model.force.toArray(), torque: model.torque.toArray(), acceleration: model.acceleration.toArray(),
     saturation: model.pid.saturated, fault: model.fault, contactSpeed: model.contactSpeed,
     sensors: { gyro: model.sensors.gyro.toArray(), accel: model.sensors.accel.toArray(), quaternion: model.sensors.orientation.toArray(),
-      position: state.position.toArray(), velocity: state.velocity.toArray() },
+      position: model.sensors.position.toArray(), velocity: model.sensors.velocity.toArray() },
   };
+}
+
+/** Mirror authoritative Worker metrics for render-side instruments. This is not a simulation checkpoint. */
+export function syncDynamicsTelemetry(state: FlightState, metrics: ReturnType<typeof getDynamicsTelemetry>): void {
+  const model = runtime(state);
+  model.armed = metrics.armed; model.controlMode = metrics.controlMode; model.fuel = metrics.fuel; model.damage = metrics.damage;
+  model.fault = metrics.fault; model.contactSpeed = metrics.contactSpeed;
+  model.targetRates.fromArray(metrics.targetRates); model.sensors.gyro.fromArray(metrics.measuredRates);
+  model.sensors.orientation.fromArray(metrics.sensors.quaternion); model.sensors.accel.fromArray(metrics.sensors.accel);
+  model.sensors.position.fromArray(metrics.sensors.position); model.sensors.velocity.fromArray(metrics.sensors.velocity);
+  model.force.fromArray(metrics.force); model.torque.fromArray(metrics.torque); model.acceleration.fromArray(metrics.acceleration);
+  model.outputs = [...metrics.commands];
+  if (state.mode === 'drone') model.motors = metrics.outputs.map(value => Math.sqrt(Math.max(0, value)));
+  else model.outputs = [...metrics.outputs];
+  model.pid.p.fromArray(metrics.pid.p); model.pid.i.fromArray(metrics.pid.i); model.pid.d.fromArray(metrics.pid.d);
+  model.pid.saturated = metrics.saturation;
+  model.external = metrics.externalControl && state.mode === 'drone' ? [...metrics.commands] : null;
 }
 
 /** Conservative powered braking estimate, including the assist's low-speed taper. */
@@ -112,7 +134,7 @@ export function estimateStoppingDistance(state: FlightState, speed = state.veloc
   const velocity = Math.max(0, speed), model = runtime(state);
   if (state.mode === 'space' && (!model.armed || model.fuel <= 0)) return velocity > 0.05 ? Infinity : 0;
   const acceleration = state.mode === 'space'
-    ? Math.min(model.config.rcsForce / massOf(state, model), HANDLING[model.preset].spaceAcceleration) : 5;
+    ? model.config.rcsForce / massOf(state, model) * Math.min(1, HANDLING[model.preset].spaceAcceleration / 7.5) : 5;
   const taper = acceleration / 1.8;
   return (velocity > taper ? (velocity * velocity - taper * taper) / (2 * acceleration) : 0)
     + Math.max(0, Math.min(velocity, taper) - 0.05) / 1.8 + velocity * 0.2;
@@ -146,6 +168,29 @@ function applyAt(model: Dynamics, force: Vector3, point: Vector3): void {
   model.torque.add(point.clone().sub(new Vector3(model.config.comX, model.config.comY, model.config.comZ)).cross(force));
 }
 
+/** Solve the actual four-rotor allocation matrix, including customized rotor geometry and COM. */
+function allocateRotors(positions: Vector3[], spins: number[], reaction: number, collective: number, torque: Vector3): number[] {
+  const matrix = [positions.map(() => 1), positions.map(point => -point.z), spins.map(spin => spin * reaction), positions.map(point => point.x)];
+  const rhs = [collective, torque.x, torque.y, torque.z];
+  for (let column = 0; column < 4; column++) {
+    let pivot = column;
+    for (let row = column + 1; row < 4; row++) if (Math.abs(matrix[row][column]) > Math.abs(matrix[pivot][column])) pivot = row;
+    if (Math.abs(matrix[pivot][column]) < 1e-7) return positions.map(() => collective / 4);
+    [matrix[column], matrix[pivot]] = [matrix[pivot], matrix[column]];
+    [rhs[column], rhs[pivot]] = [rhs[pivot], rhs[column]];
+    const scale = matrix[column][column];
+    for (let j = column; j < 4; j++) matrix[column][j] /= scale;
+    rhs[column] /= scale;
+    for (let row = 0; row < 4; row++) {
+      if (row === column) continue;
+      const factor = matrix[row][column];
+      for (let j = column; j < 4; j++) matrix[row][j] -= factor * matrix[column][j];
+      rhs[row] -= factor * rhs[column];
+    }
+  }
+  return rhs;
+}
+
 function droneForces(state: FlightState, input: FlightInput, model: Dynamics, wind: Vector3, gravity: number, dt: number): void {
   const config = model.config, profile = HANDLING[model.preset], mode = effectiveMode(state, model);
   const mass = massOf(state, model), arm = config.armLength / Math.SQRT2;
@@ -156,7 +201,7 @@ function droneForces(state: FlightState, input: FlightInput, model: Dynamics, wi
   if (mode === 'position') {
     const commanded = new Vector3(axis(input.roll) * 9, 0, axis(input.pitch) * 9).applyAxisAngle(UP, yaw);
     model.positionTarget.addScaledVector(commanded, dt);
-    const local = model.positionTarget.clone().sub(state.position).multiplyScalar(1.1).addScaledVector(state.velocity, -1.8).applyAxisAngle(UP, -yaw);
+    const local = model.positionTarget.clone().sub(model.sensors.position).multiplyScalar(1.1).addScaledVector(model.sensors.velocity, -1.8).applyAxisAngle(UP, -yaw);
     pitch = Math.atan2(MathUtils.clamp(local.z, -5.5, 5.5), Math.max(1, gravity));
     roll = -Math.atan2(MathUtils.clamp(local.x, -5.5, 5.5), Math.max(1, gravity));
   } else if (state.assist && input.brake) {
@@ -176,24 +221,25 @@ function droneForces(state: FlightState, input: FlightInput, model: Dynamics, wi
   const up = UP.clone().applyQuaternion(state.quaternion);
   if (altitudeHold) {
     model.altitudeTarget += (state.throttle - 0.5) * 8 * dt;
-    const acceleration = MathUtils.clamp((model.altitudeTarget - state.position.y) * 2.3 - state.velocity.y * 2.2, -5, 7);
+    const acceleration = MathUtils.clamp((model.altitudeTarget - model.sensors.position.y) * 2.3 - model.sensors.velocity.y * 2.2, -5, 7);
     collective = mass * (gravity + acceleration) / Math.max(0.35, up.y);
   } else if (state.assist && input.brake) collective /= Math.max(0.4, up.y);
   collective = MathUtils.clamp(collective, 0, config.maxRotorThrust * 4);
   const limits = new Vector3(config.maxRotorThrust * arm * 2, config.maxRotorThrust * config.reactionTorque * 2, config.maxRotorThrust * arm * 2);
   const desiredTorque = model.pid.update(model.targetRates, model.sensors.gyro, config, limits, dt);
   const positions = [new Vector3(-arm, 0, -arm), new Vector3(arm, 0, -arm), new Vector3(arm, 0, arm), new Vector3(-arm, 0, arm)];
+  positions.forEach((position, index) => { position.x += config[`motor${index}X`]; position.z += config[`motor${index}Z`]; });
+  const relativePositions = positions.map(position => position.clone().sub(new Vector3(config.comX, config.comY, config.comZ)));
   const spins = [1, -1, 1, -1];
-  const demand = positions.map((position, i) => collective / 4 + desiredTorque.x * (-position.z / arm) / (4 * arm)
-    + desiredTorque.z * (position.x / arm) / (4 * arm) + desiredTorque.y * spins[i] / (4 * config.reactionTorque));
+  const demand = allocateRotors(relativePositions, spins, config.reactionTorque, collective, desiredTorque);
   const allocated = new Vector3();
-  model.outputs = demand.map((value, i) => model.armed ? model.external?.[i] ?? MathUtils.clamp(value / config.maxRotorThrust, 0, 1) : 0);
+  model.outputs = demand.map((value, i) => model.armed ? model.external?.[i] ?? Math.sqrt(MathUtils.clamp(value / config.maxRotorThrust, 0, 1)) : 0);
   for (let i = 0; i < 4; i++) {
-    const commandedForce = model.outputs[i] * config.maxRotorThrust;
-    allocated.x += -positions[i].z * commandedForce; allocated.z += positions[i].x * commandedForce;
+    const commandedForce = model.outputs[i] ** 2 * config.maxRotorThrust;
+    allocated.x += -relativePositions[i].z * commandedForce; allocated.z += relativePositions[i].x * commandedForce;
     allocated.y += spins[i] * config.reactionTorque * commandedForce;
     const health = model.fault === 'motor' && i === 0 ? 1 - model.faultStrength : 1;
-    const targetRpm = Math.sqrt(model.outputs[i]) * Math.sqrt(health) * Math.max(0, 1 - model.damage * 0.3);
+    const targetRpm = model.outputs[i] * Math.sqrt(health) * Math.max(0, 1 - model.damage * 0.3);
     model.motors[i] += (targetRpm - model.motors[i]) * (1 - Math.exp(-dt / config.motorTimeConstant));
     const force = model.motors[i] ** 2 * config.maxRotorThrust;
     applyAt(model, new Vector3(0, force, 0), positions[i]); model.torque.y += force * config.reactionTorque * spins[i];
@@ -256,7 +302,7 @@ function planeForces(state: FlightState, input: FlightInput, model: Dynamics, wi
 function spaceForces(state: FlightState, input: FlightInput, model: Dynamics, dt: number): void {
   const config = model.config, profile = HANDLING[model.preset], mass = massOf(state, model);
   const translation = new Vector3(axis(input.moveX), axis(input.moveY), -axis(input.moveZ)).clampLength(0, 1);
-  const maxAcceleration = Math.min(config.rcsForce / mass, profile.spaceAcceleration) * (input.boost ? 2.4 : 1);
+  const maxAcceleration = config.rcsForce / mass * Math.min(1, profile.spaceAcceleration / 7.5) * (input.boost ? 2.4 : 1);
   const force = translation.clone();
   if (input.brake || state.assist) {
     const target = input.brake ? new Vector3() : translation.clone().applyQuaternion(state.quaternion)
@@ -290,9 +336,10 @@ function spaceForces(state: FlightState, input: FlightInput, model: Dynamics, dt
   }
   for (let axisIndex = 0; axisIndex < 3; axisIndex++) {
     const armAxis = (axisIndex + 1) % 3, forceAxis = (axisIndex + 2) % 3;
+    const arm = config.rcsArm + [config.rcsPitchOffset, config.rcsYawOffset, config.rcsRollOffset][axisIndex];
     for (const sign of [1, -1]) for (const side of [1, -1]) {
-      const position = new Vector3().setComponent(armAxis, config.rcsArm * side), direction = new Vector3().setComponent(forceAxis, sign * side);
-      fire(direction, position, Math.max(0, torque.getComponent(axisIndex) * sign) / (2 * config.rcsArm), maxTorque / (2 * config.rcsArm), index++);
+      const position = new Vector3().setComponent(armAxis, arm * side), direction = new Vector3().setComponent(forceAxis, sign * side);
+      fire(direction, position, Math.max(0, torque.getComponent(axisIndex) * sign) / (2 * arm), maxTorque / (2 * config.rcsArm), index++);
     }
   }
   const requiredFuel = propellantForce * dt / (config.specificImpulse * GRAVITY);
@@ -390,7 +437,7 @@ export function stepFlight(state: FlightState, input: FlightInput, environment: 
     if (state.mode !== 'space') state.throttle = typeof input.throttle === 'number' && Number.isFinite(input.throttle)
       ? MathUtils.clamp(input.throttle, 0, 1) : MathUtils.clamp(state.throttle + axis(input.throttleDelta) * 0.4 * substep, 0, 1);
     model.sensors.update(state.angularVelocity, state.quaternion, model.acceleration, gravity, model.config, state.flightTime, substep,
-      model.fault === 'sensor' ? model.faultStrength : 0);
+      model.fault === 'sensor' ? model.faultStrength : 0, state.position, state.velocity);
     model.force.set(0, 0, 0); model.torque.set(0, 0, 0);
     const wind = environment.wind.clone();
     if (model.fault === 'wind') wind.add(new Vector3(Math.sin(state.flightTime * 1.7) * 12, Math.sin(state.flightTime * 0.7) * 3,

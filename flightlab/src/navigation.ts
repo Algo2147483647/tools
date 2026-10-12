@@ -7,6 +7,7 @@ export interface DockingTarget {
   /** Desired vessel orientation; the approach corridor extends along local +Z. */
   quaternion: Quaternion;
   radius: number;
+  velocity?: Vector3;
 }
 export interface DockingGuidance {
   distance: number;
@@ -22,20 +23,21 @@ export interface DockingGuidance {
   behind: boolean;
 }
 
-/** Local, stationary docking guidance. No target is silently selected by the flight model. */
+/** Target-relative docking guidance, including moving ports. No target is silently selected by the flight model. */
 export function getDockingGuidance(state: FlightState, dock: DockingTarget): DockingGuidance {
   const inverse = dock.quaternion.clone().invert();
   const offset = state.position.clone().sub(dock.position);
   const distance = offset.length();
   const localOffset = offset.clone().applyQuaternion(inverse);
-  const localVelocity = state.velocity.clone().applyQuaternion(inverse);
-  const closingSpeed = distance > 1e-6 ? -state.velocity.dot(offset) / distance : 0;
+  const relativeVelocity=state.velocity.clone().sub(dock.velocity??new Vector3());
+  const localVelocity = relativeVelocity.clone().applyQuaternion(inverse);
+  const closingSpeed = distance > 1e-6 ? -relativeVelocity.dot(offset) / distance || 0 : 0;
   const lateralSpeed = Math.hypot(localVelocity.x, localVelocity.y);
   const alignmentDegrees = MathUtils.radToDeg(state.quaternion.angleTo(dock.quaternion));
-  const stoppingDistance = estimateStoppingDistance(state);
+  const stoppingDistance = estimateStoppingDistance(state,relativeVelocity.length());
   const behind = localOffset.z < -0.001;
   const centered = Math.hypot(localOffset.x, localOffset.y) < dock.radius * 0.65;
-  const slowCapture = distance < dock.radius && state.velocity.length() < 1.4;
+  const slowCapture = distance < dock.radius && relativeVelocity.length() < 1.4;
   const safeApproach = !behind && centered && alignmentDegrees < 15 && lateralSpeed < 1.4
     && closingSpeed >= -0.5 && (slowCapture || stoppingDistance < Math.max(0, localOffset.z - dock.radius));
   return {

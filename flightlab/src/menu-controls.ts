@@ -1,9 +1,10 @@
 import type { MenuAction } from './input';
 
-type MenuControl = HTMLButtonElement | HTMLInputElement | HTMLSelectElement;
+type MenuControl = (HTMLButtonElement | HTMLInputElement | HTMLSelectElement | HTMLElement) & {disabled?:boolean};
 
 function visibleEnabled(element: MenuControl): boolean {
   if (element.disabled || element.getAttribute('aria-disabled') === 'true' || element.closest('[hidden], [inert], [aria-hidden="true"], fieldset:disabled')) return false;
+  if(element.closest('details:not([open])')&&element.tagName!=='SUMMARY')return false;
   if (element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'hidden') return false;
   const bounds = element.getBoundingClientRect();
   if (bounds.width <= 0 || bounds.height <= 0) return false;
@@ -32,10 +33,12 @@ function adjust(element: MenuControl, direction: -1 | 1): boolean {
   }
   if (element.tagName !== 'INPUT') return false;
   const input = element as HTMLInputElement;
-  if (input.type === 'range' || input.type === 'number') {
+  if ((input.type === 'range' || input.type === 'number') && !input.readOnly) {
     const min = input.min === '' ? (input.type === 'range' ? 0 : -Infinity) : Number(input.min);
     const max = input.max === '' ? (input.type === 'range' ? 100 : Infinity) : Number(input.max);
-    const step = input.step === '' || input.step === 'any' ? (Number.isFinite(max - min) ? (max - min) / 100 || 1 : 1) : Number(input.step);
+    const preferredStep = Number(input.dataset?.step);
+    const step = Number.isFinite(preferredStep) && preferredStep > 0 ? preferredStep
+      : input.step === '' || input.step === 'any' ? (Number.isFinite(max - min) ? (max - min) / 100 || 1 : 1) : Number(input.step);
     const current = Number(input.value) || 0;
     const value = Math.max(min, Math.min(max, Number((current + direction * step).toFixed(8))));
     if (Number.isFinite(value) && value !== current) { input.value = String(value); changed(input); }
@@ -56,7 +59,7 @@ function adjust(element: MenuControl, direction: -1 | 1): boolean {
  */
 export function navigateMenu(root: HTMLElement, action: MenuAction, onBack: () => void): void {
   if (action === 'back') { onBack(); return; }
-  const controls = Array.from(root.querySelectorAll<MenuControl>('button, select, input')).filter(visibleEnabled);
+  const controls = Array.from(root.querySelectorAll<MenuControl>('button, select, input, textarea, summary')).filter(visibleEnabled);
   if (!controls.length) return;
   const active = root.ownerDocument.activeElement as MenuControl | null;
   const currentIndex = controls.findIndex(element => element === active);
@@ -68,7 +71,7 @@ export function navigateMenu(root: HTMLElement, action: MenuAction, onBack: () =
       const enabled = Array.from(select.options).map((option, index) => ({ option, index })).filter(({ option }) => !option.disabled && !(option.parentElement?.tagName === 'OPTGROUP' && (option.parentElement as HTMLOptGroupElement).disabled));
       const next = enabled.find(({ index }) => index > select.selectedIndex) ?? enabled[0];
       if (next && next.index !== select.selectedIndex) { select.selectedIndex = next.index; changed(select); }
-    } else if (current.tagName === 'BUTTON' || (current.tagName === 'INPUT' && ['checkbox', 'radio', 'button', 'submit', 'reset'].includes((current as HTMLInputElement).type))) current.click();
+    } else if (current.tagName === 'BUTTON' || current.tagName==='SUMMARY' || (current.tagName === 'INPUT' && ['checkbox', 'radio', 'button', 'submit', 'reset'].includes((current as HTMLInputElement).type))) current.click();
     else focus(current);
     return;
   }

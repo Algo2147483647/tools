@@ -21,7 +21,7 @@ if ($npmCommand) { $npmPaths += (Join-Path (Split-Path $npmCommand.Source) 'node
 $npmCli = $npmPaths | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
 Push-Location $PSScriptRoot
 try {
-    if (-not (Test-Path -LiteralPath 'node_modules\vite\bin\vite.js')) {
+    if (-not (Test-Path -LiteralPath 'node_modules\vite\bin\vite.js') -or -not (Test-Path -LiteralPath 'node_modules\ws\package.json')) {
         Write-Host 'Preparing FlightLab dependencies...'
         if ($npmCli) {
             $installCommand = if (Test-Path -LiteralPath 'package-lock.json') { 'ci' } else { 'install' }

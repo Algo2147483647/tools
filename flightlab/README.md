@@ -1,8 +1,8 @@
-# FlightLab 0.3
+# FlightLab 0.6
 
-A local, English-language 3D flight playground for keyboard and standard gamepads. Explore a coastal harbor, fly a fixed-wing aircraft over a mountain airfield, or maneuver a six-degree-of-freedom spacecraft around an orbital shipyard.
+An English-language browser flight playground and flight-control laboratory. Fly a quadrotor through a coastal harbor, take a fixed-wing aircraft off from a mountain airfield, or maneuver a spacecraft around an orbital shipyard. Use the keyboard, a standard gamepad, or an explicitly configured USB RC transmitter.
 
-This release combines the v0.2 controller profiles, handling and lessons with the v0.3 harbor route, spatial guidance, flight feedback and camera comfort settings.
+This release combines the v0.4 controller and rigid-body work, v0.5 fixed-wing/RCS/contact models, and v0.6 configurable experiments and replay analysis. Flight school, the harbor circuit, docking guidance, procedural audio and camera comfort controls remain available.
 
 ## Start on Windows
 
@@ -12,9 +12,9 @@ Double-click **`launch.cmd`**, or run:
 .\launch.cmd
 ```
 
-Open **http://127.0.0.1:4188/**. Keep the launcher window open while playing. Press Ctrl+C to stop the server.
+Open **http://127.0.0.1:4188/**. Keep the launcher window open while playing; Ctrl+C stops the server.
 
-The launcher looks for Node.js 22.12+ and can use an existing Codex-bundled Node runtime when an older system Node is installed. The first launch installs dependencies; later launches reuse them. It does not change your global Node installation.
+The launcher selects Node.js 22.12 or newer, including an existing Codex-bundled runtime when the system Node is older. It installs missing dependencies without changing the global Node installation.
 
 ```powershell
 .\launch.cmd -NoBrowser
@@ -23,33 +23,74 @@ The launcher looks for Node.js 22.12+ and can use an existing Codex-bundled Node
 .\launch.cmd -Preview
 ```
 
-For a conventional Node.js installation:
+With a suitable Node.js installation on PATH:
 
 ```sh
 npm ci
 npm run dev
 npm test
+npm run test:sitl
 npm run build
 npm run preview
 ```
 
-Use a recent desktop Chrome or Edge browser with WebGL 2 and hardware acceleration enabled. The server binds to localhost. Gamepad input needs localhost or HTTPS. This project has no account, backend, telemetry service, or remote runtime assets.
+Use a recent desktop Chrome or Edge with WebGL 2 and hardware acceleration. Gamepad access requires localhost or HTTPS. Ordinary flight is entirely local: no account, cloud service, remote textures, or firmware installation is required. The optional firmware bridge is a separate local process described in [README-SITL.md](README-SITL.md).
 
-## Flight modes
+## Release scope
 
-| Mode | Environment | Model |
+| Area | Implemented behavior |
+| --- | --- |
+| v0.4: control core | Torque-driven rigid-body rotation; four independent rotor responses; attitude/rate feedback, PID and motor mixing; simulated IMU; configurable control inputs; arm/disarm |
+| v0.5: vehicle dynamics | Fixed-wing surfaces and servos; aerodynamic moments and trim; 24 spacecraft jets; propellant and mass change; friction, restitution and damage |
+| v0.6: experimentation | Airframe/control editor; wind, gravity, gates, moving docking target and scheduled faults; 240 Hz simulation worker; rate/actuator telemetry; recording, replay and JSON exchange |
+| External firmware | Local Betaflight/PX4 protocol bridge, browser transport and setup scripts; real firmware execution remains an integration acceptance task |
+
+The models are configurable approximations. A feedback loop and force/torque integration make behavior physically interpretable, but do not establish fidelity to a particular aircraft without flight measurements. The project does not claim measured airframe identification or real-world pilot training validity.
+
+## Fly and experiment
+
+Choose a vehicle and activity, then **Let's fly**. Free exploration starts the drone near a hover and the airplane airborne. **Flight school** provides maneuver-based lessons; **Runway departure** starts the airplane on the ground. **Gate run** and **Precision docking** retain their authored routes and targets.
+
+Open **Flight workshop** from the selection screen, or press **L** during flight. Its sections are:
+
+1. **Airframe & control:** Mass, principal-axis inertia, center of mass, propulsion, control gains, sensors and contact parameters. Quadrotors add independent motor X/Z offsets. Fixed-wing fields add wing geometry, aerodynamic coefficients, servo response and elevator trim. Spacecraft fields add propellant, thrust, torque, specific impulse, RCS arm length and pitch/yaw/roll jet-arm offsets.
+2. **Input setup:** Channel sources, button pairs, response curves, throttle behavior and RC presets for the connected device.
+3. **Mission editor:** Starting position, velocity, heading and throttle; wind, gust amplitude, wind seed and uniform gravity; up to 64 route gates; and a scheduled actuator, sensor or wind fault. Space experiments can move the docking target laterally with adjustable amplitude and period.
+4. **Flight analysis:** Target versus measured angular rates, error statistics and recorded flight; replay, export or import a recording.
+5. **External flight controller:** Optional local Betaflight/PX4 connection for quadrotor experiments.
+
+**Save airframe** applies configuration to subsequent flights. **Save mission** stores the scenario; **Run experiment** launches it. Export/import an experiment to retain both vehicle settings and its scenario. Input profiles and flight recordings have separate import/export controls.
+
+Custom experiments start disarmed by default. Lower throttle, then press **V / Back / Share** to arm. Ordinary activities start ready to fly. The HUD reports armed state and control mode. Custom experiments also show target/measured rates, actuator output, physical state and input.
+
+Suggested first experiments:
+
+- Increase quadrotor mass while keeping maximum rotor thrust constant. Level steady hover needs collective approximately `mass × gravity / total maximum thrust`.
+- Change rate proportional gain or motor response time, then compare target/measured curves after the same short stick movement.
+- Disable fixed-wing assistance and adjust elevator trim. Compare pitch response at different airspeeds.
+- Disable spacecraft assistance, apply a short rotational command, then release it. Observe continued rotation; use Brake for active stabilization. Set propellant to zero to compare an unpowered coast.
+
+Settings can produce an underpowered or unstable aircraft. **Factory values** and **Reset mission** restore a reference setup for the selected mode.
+
+## Dynamics and flight-control modes
+
+| Vehicle | Physics and actuators | Control |
 | --- | --- | --- |
-| FPV Drone | Coastal Flight Park | Thrust, gravity, aerodynamic drag, Angle and Acro attitude control |
-| Fixed Wing | Highland Airfield | Lift, drag, angle-of-attack stall, airspeed-dependent steering and assisted trim |
-| Spacecraft | Orbital Shipyard | Independent translation and rotation, bounded thruster acceleration and optional translation braking |
+| Quadrotor | Editable four-rotor geometry, per-rotor thrust/reaction torque, motor speed response, center-of-mass offsets, drag and inertia | Angle, Acro, Altitude hold, Position hold |
+| Fixed wing | Lift/drag, angle-of-attack stall, sideslip, damping/stability moments, elevator/aileron/rudder authority, servo lag and trim | Assisted or Manual |
+| Spacecraft | Six-degree-of-freedom rigid body, 24 RCS jets in force/torque pairs, propellant consumption, changing mass and inertia | Assisted or Manual; active Brake |
 
-In free flight, the drone begins near a level hover at 50% throttle and the plane begins airborne at cruising speed. Fixed-wing **Runway departure** and **Flight school** start on the runway. The spacecraft begins near the shipyard and uses relative station velocity.
+**Angle** converts stick pitch/roll into attitude targets. **Acro** produces body-rate targets; releasing the stick commands zero rate rather than a level attitude. The inner PID produces torque demand, mixed into bounded motor commands. Conditional integration and allocation feedback limit windup when actuators saturate.
 
-**Flight Assist:** Drone Angle mode self-levels; its assisted brake compensates for moderate tilt. Acro mode keeps its attitude when rotational input is released. Fixed-wing assistance provides banking, attitude stabilization and trim. Spacecraft assistance controls translation velocity and brakes released axes. With space assistance disabled, linear momentum persists; rotational stabilization remains enabled.
+**Altitude hold** and **Position hold** capture targets when selected. Throttle center is 50%; moving away from center requests climb/descent. Position mode moves a horizontal target from stick input. These helpers use position/velocity observations with configurable noise and sensor delay; this observation model is not a full GNSS/barometer estimator.
 
-**Gentle**, **Balanced** and **Sport** change vehicle handling authority and response. These settings are separate from stick sensitivity and response curve. Flight school uses Gentle handling, assistance and calm air; other activities use the selected preset.
+The IMU supplies gyro and accelerometer samples with adjustable noise, bias, delay and filtering. Position and velocity observations have separate noise settings and share the sensor delay. Orientation is propagated from measured rates, with accelerometer correction when specific force is consistent with a low-acceleration gravity reference. Ideal sensors are the default; noisy observations feed the hold controllers.
 
-These are deliberately simplified, playable flight models rather than engineering-grade vehicle simulation. There is no orbital gravity, real flight-controller firmware, multiplayer, or seamless planet landing.
+Fixed-wing manual input commands surfaces. Dynamic pressure sets aerodynamic authority, so control becomes less effective at low speed. Assistance uses the same actuators. Lift/stall curves and coefficients are analytic approximations, not a JSBSim airframe model or wind-tunnel dataset.
+
+Spacecraft Manual mode retains linear and angular momentum after controls are released. Brake requests powered linear/angular stabilization; Assisted mode tracks translational velocity and body-rate targets. Thruster impulses consume propellant; zero fuel prevents powered correction. Center-of-mass offsets couple forces and moments. Scenario gravity is uniform downward acceleration, not orbital gravity.
+
+Contacts sweep vehicle spheres against authored terrain and simplified obstacles. Moderate impacts can bounce, slide and accumulate damage; severe impacts end the flight. This is not a deformable-airframe or multi-wheel landing-gear solver. Quadrotor motor X/Z offsets change physical lever arms and the allocation matrix. Spacecraft jet-arm offsets change the pitch/yaw/roll pairs. Topology remains four rotors, one fixed-wing model and 24 paired jets: custom motor counts, arbitrary nozzle orientations and imported airframes are outside this editor.
 
 ## Controls
 
@@ -64,130 +105,161 @@ These are deliberately simplified, playable flight models rather than engineerin
 | Spacecraft strafe | A / D | Left stick X |
 | Spacecraft up / down | X / Z | Left stick Y |
 | Spacecraft roll | Q / E | LB / RB |
-| Brake | Space | A |
+| Brake | Space | A / Cross |
 | Boost | Shift | Left stick click |
-| Flight assistance | F | B |
-| Chase / first-person camera | C | X |
-| Restart | R | Y |
-| Pause / resume | Escape | Start |
+| Flight assistance | F | B / Circle |
+| Chase / first-person camera | C | X / Square |
+| Restart | R | Y / Triangle |
+| Arm / disarm | V | Back / Share |
+| Pause / resume | Escape | Start / Options |
+| Flight workshop | L | Workshop menu button |
 
-Pulling the right stick down, or pressing Down Arrow, raises the nose. Pitch can be inverted in Settings. Drone and plane throttle stays where you leave it. Boost provides extra thrust; its largest effect is on spacecraft.
+Pull pitch back or press Down Arrow to raise the nose. Pitch can be inverted. Incremental throttle holds its setting when centered; absolute throttle maps its calibrated axis directly to 0–100%. W/S supplies an incremental keyboard command while held.
 
-Connect a controller and press any button to let the browser detect it. Open **Flight settings** to adjust deadzone, sensitivity, response curve and **Standard / Southpaw** stick layout. Southpaw swaps the two flight sticks; spacecraft triggers and shoulder buttons retain their translation and roll functions.
+**Gentle**, **Balanced** and **Sport** set command authority separately from physical parameters and input curves. Lessons use the reference airframe, Gentle handling, assistance and calm air. Challenge settings are restricted during a run; free flight and experiments permit more control changes.
 
-Brake, Assist, Camera, Restart, Boost and Pause can be remapped among standard buttons other than LB/RB/LT/RT, which are reserved for spacecraft roll and translation. Assigning an already-used action button swaps the two bindings. **Reset bindings** restores defaults. Bindings and stick layout are saved for the detected controller. Menu controls stay fixed so flight remapping cannot make settings inaccessible.
+### Controller profiles
 
-Standard browser gamepad mapping is required; non-standard devices keep keyboard fallback. Rumble is optional and depends on the browser and controller.
+Connect the controller and press a button so the browser exposes it. **Flight settings** controls general deadzone, sensitivity, expo, vibration and action bindings. **Workshop → Input setup** offers:
 
-The simulation pauses when the active controller disconnects, the tab is hidden, or the browser loses focus.
+- Axis, positive/negative button pair, or disabled source for each channel.
+- Zero-based axis index 0–31 or button indices 0–63, with inversion.
+- Independent deadzone, expo, normalized output scale and center response. `−1` in the deadzone/expo editor inherits Flight settings.
+- Separate spacecraft rotation bindings and independent translation channels.
+- Incremental or absolute collective. Absolute throttle deliberately uses an affine full-range mapping instead of the centered attitude response curve.
 
-### Controller menus and calibration
+**RC Mode 1** uses left Y pitch and right Y throttle. **RC Mode 2** uses left Y throttle and right Y pitch. Both use left X yaw and right X roll, assuming left X/Y report as axes 0/1 and right X/Y as 2/3. Adapters can report another order; inspect and remap channels for the actual device. Standard and Southpaw presets use incremental throttle; RC presets use absolute throttle and explicitly opt into non-standard USB mapping.
 
-Use **D-pad / Left stick** to navigate, **A / Cross** to activate, **B / Circle** to go back and **Start / Options** for pause/resume. **Up / Down** moves between settings; **Left / Right** changes select values, sliders and checkboxes. A also cycles select values without opening a native dropdown. Keyboard arrows, Enter/Space and Escape provide the same menu navigation.
+Unknown USB controllers stay inactive until enabled or assigned an RC preset. Generic USB devices use keyboard menus because their buttons lack universal menu semantics. Keyboard flight remains available. Profiles, calibration and action bindings are saved per detected controller ID; connect the intended device before configuring it.
 
-Release the sticks, triggers and buttons when entering or leaving a menu. The input manager waits for neutral controls so the button used to launch a flight cannot also apply its flight action. Holding a menu direction repeats after a short delay.
+Action buttons cannot also serve a configured channel's button pair. Conflicting action assignments swap; changing channel assignments relocates conflicting actions. Standard menu buttons remain fixed.
 
-Calibration is per controller:
+### Menus and calibration
 
-1. Release both sticks and choose **Set stick center**. Readings too far from center are rejected.
-2. Choose **Calibrate full travel**. Move both sticks through full circles, reaching all directions.
-3. Finish calibration. Every axis needs adequate positive and negative travel. An incomplete sweep stays open so you can continue.
-4. Use **Reset calibration** to restore the default range and center.
+Standard menus use **D-pad / Left stick** to navigate, **A / Cross** to activate, **B / Circle** to go back and **Start / Options** to pause/resume. Keyboard arrows, Enter/Space and Escape provide the same navigation. Left/Right adjusts a focused setting; A cycles select values.
 
-During a full-travel sweep, stick motion does not move menu focus; use the D-pad to navigate. Each axis's independent positive and negative range is normalized before applying the deadzone and response curve. Setting the center again clears the old range calibration.
+After a menu transition or mapping change, release controls before flying. Absolute throttle must be at idle, not center, to clear the input gate.
 
-## Activities
+1. Center all mapped axes, including RC throttle, then choose **Set stick center**. Large off-center readings are rejected.
+2. Choose **Calibrate full travel** and sweep every used axis to both ends, including configured additional axes.
+3. Finish the sweep. Incomplete travel keeps calibration open so you can continue.
+4. Return absolute throttle to idle before leaving settings. **Reset calibration** restores the uncalibrated range.
 
-- **Free exploration:** Fly freely and switch assistance at any time. Race rings are hidden.
-- **Flight school:** Maneuver-based lessons for each vehicle, with live progress and input hints. Drone lessons cover lift-off, hover, yaw, acceleration and braking. Fixed-wing lessons cover takeoff, banking, cruise and descent preparation. Spacecraft lessons cover translation, braking, alignment and docking. Completion is saved per vehicle; the suggested three-minute duration is only an estimate.
-- **Gate run:** Pass numbered gates in sequence and in the indicated direction. The next gate is highlighted. Personal bests and ghost trajectories are stored locally, separately by vehicle, weather, handling and assistance configuration.
-- **Runway departure:** Fixed wing only. Start on the runway and practice takeoff into free flight.
-- **Precision docking:** Spacecraft only. Approach the illuminated docking target, match its orientation, slow below 1.4 m/s, and remain within its capture radius for two seconds.
+Unused RC sliders do not need to center. During the sweep, stick motion does not navigate menus; use D-pad or keyboard. Closing settings cancels only the unfinished sweep and preserves saved calibration.
 
-Relevant handling, assistance and weather settings are locked during lessons and challenges. Choose weather and handling before launching. A crash or water contact ends the flight; press R or choose Restart for an immediate new attempt.
+Controller disconnection, a hidden tab or lost browser focus pauses flight. Physical USB/Bluetooth controllers and haptics still require device-specific verification; software fixtures cannot establish hardware compatibility.
 
-The HUD shows airspeed (or relative speed in space), terrain clearance, vertical speed, throttle, heading and mission status. The spacecraft's **EST. STOP** estimate accounts for the selected handling preset, low-speed braking taper and a 0.2-second reaction margin. A circular velocity marker separates travel direction from where the nose points.
+## Activities and visual perception
 
-An attitude display shows pitch and roll, while wind and nearby-structure feedback provide additional spatial references. Docking guidance adds closing speed, lateral drift, alignment error and offset in the target's local frame. A corridor and UP marking establish the approach orientation. Braking estimates are guidance, not collision guarantees; the station is stationary and moving orbital rendezvous is outside this version.
+- **Free exploration:** Practice throughout the selected environment.
+- **Flight school:** Live progress for takeoff/hover/turn/brake, fixed-wing takeoff/bank/cruise/approach, or spacecraft translation/braking/alignment/docking.
+- **Gate run:** Directional crossings, timing and local personal-best ghosts. The 15-gate harbor route passes through a warehouse, under a bridge, around cliffs and across the bay.
+- **Runway departure:** Fixed-wing ground start.
+- **Precision docking:** Match orientation, slow below 1.4 m/s and stay inside the capture radius for two seconds.
+- **Custom experiment:** Stored mission, optional route or moving target, configured airframe and scheduled fault.
 
-## Environment and presentation
+The HUD combines airspeed/relative speed, terrain clearance, vertical speed, heading, throttle, attitude and mission state. Dock guidance adds target-local offsets, closing speed, lateral drift, alignment and estimated braking distance. The estimate depends on available thrust, assistance and fuel and cannot guarantee collision avoidance. Moving experiment targets follow authored motion, not independent orbits.
 
-- Procedural sky, ocean waves, coastal haze and three atmosphere presets.
-- Harbor buildings, cranes, bridge, lighthouse, runway, forests and distant ridgelines.
-- A 15-gate harbor circuit through an open warehouse, along the quay, below the bridge, past the lighthouse and cliffs, across the bay and back toward the landing pad. Near-ground markings and structures provide scale and speed cues.
-- Runway approach references, windsocks and foliage responding to the same supplied wind used by the physics.
-- Orbital station ring, solar arrays, docking structure, nearby debris, stars and a shaded planet with an atmosphere rim.
-- Numbered station bays, optional docking corridor, surface scale markings and a maintenance tug.
-- Distinct vehicle models, animated propellers, procedural engine and wind audio, event cues and optional controller vibration.
-- Chase and first-person cameras, with 60–105° field of view, adjustable smoothing and vibration, optional speed-based FOV expansion and FPV horizon stabilization. **Apply comfort camera** provides a quieter starting point. Chase-camera obstruction checks pull the view closer near structures.
-- Synthesized engine, wind, stall, proximity and thruster feedback, plus event cues and optional vibration. Render quality adjusts resolution and shadows for the target GPU.
-- All visual geometry and audio are generated locally. No downloaded textures or media are required.
+Warehouse corridors, runway markings, cranes, bridge supports, lighthouse, trees, windsocks, station bays and docking lights give near-field scale cues. Ocean, haze, stars, planet shading and synthesized engine/wind/thruster audio provide depth and motion feedback. Geometry and audio are generated locally.
 
-Audio starts only after a user gesture. Settings, calibration, lesson completion and best flights use browser local storage; clearing site data removes them. A storage restriction does not prevent flying. No server-side sync is implemented.
+Chase/first-person cameras offer 60–105° FOV, smoothing, shake, speed-based FOV and FPV horizon stabilization. **Apply comfort camera** gives a quieter starting point. Quality settings adjust resolution/shadows; obstruction checks pull the chase camera closer to scenery. Audio begins after a user gesture.
 
-## Project structure
+## Recording and analysis
+
+Every new flight starts a fresh in-memory recording. Regular samples run at up to 30 Hz, retaining at most 18,000 frames, approximately ten minutes of continuous flight. A terminal crash is captured immediately even between regular samples. At capacity, that event replaces only the final sample; the recording's beginning is retained. Other full-buffer samples are ignored. Paused wall-clock time is not flight time.
+
+Snapshots retain pose, velocities, controls, state and telemetry: requested/actual actuators, PID terms, measured/target rates, sensors, mass, fuel and damage. They also retain vehicle configuration and the custom scenario, including its wind seed when present.
+
+**Workshop → Flight analysis** shows pitch/roll/yaw tracking, duration, distance, top speed, sample count and rate errors. RMS/peak error uses the magnitude of the three-axis target-minus-measured rate vector in rad/s. Distance is sampled trajectory length, not an exact continuous path integral.
+
+External-firmware recordings display measured rates without a target curve or tracking-error metrics: the bridge does not transmit the firmware's rate targets or PID terms. The raw recording's target/PID fields are built-in-model diagnostics, not firmware telemetry. Their values must not be interpreted as measurements of the external controller.
+
+Replay interpolates position and quaternion orientation, selecting the nearest frame's input and telemetry. It restores recorded poses; it does not rerun the controller. Export JSON before another flight or page reload to retain the recording. Import validation rejects malformed values, unsupported versions, nonfinite numbers and oversized arrays.
+
+Vehicle settings, scenarios, controller profiles, lesson completion and best-flight ghosts use browser local storage. Full recordings remain in memory until exported. Clearing site data removes preferences; no cloud synchronization is provided.
+
+## Optional firmware connection
+
+```powershell
+.\bridge\start.ps1 -Diagnose
+.\bridge\start.ps1
+```
+
+With Node on PATH:
+
+```sh
+npm run diagnose:sitl
+npm run sitl
+npm run test:sitl
+```
+
+The local bridge listens at `ws://127.0.0.1:4190/sitl`, supporting pinned Betaflight 4.5.2 or PX4 v1.16 simulation protocols. Quadrotor external control waits for each matching actuator response before advancing physics. Failure halts that path instead of substituting built-in control.
+
+Read [README-SITL.md](README-SITL.md) for exact revisions, toolchains, ports, coordinate/motor order, arming and timeouts. A connected bridge or successful mock transport test does not establish stable firmware flight. Real Betaflight/PX4 builds and flight behavior have not been verified on this host. Launchers do not install an OS, compiler or firmware.
+
+## Architecture
+
+```text
+Input → control-mode targets → PID / actuator commands
+  ↑                                    ↓
+UI and telemetry ← sensors ← rigid body ← forces and torques
+```
+
+Units are meters and seconds, with Y-up and local −Z-forward. Angular velocities are body XYZ in rad/s; X is pitch, Y yaw and Z roll, with UI signs converted at the control boundary. Physics uses fixed 1/240-second steps. A Web Worker normally owns integration; a main-thread fallback uses the same runner if worker construction is unavailable.
+
+The renderer receives snapshots while input, cameras, HUD and sound run on the main thread. One worker batch is outstanding at a time; restart generations reject obsolete replies. Large elapsed gaps are capped, so severe stalls can slow simulated time rather than producing an unbounded catch-up loop.
+
+Rotation advances world angular momentum and recovers body rates from the rotated principal-axis inertia. Actuator forces act relative to center of mass. Static scenery uses instancing and simplified collision shapes; render geometry is not a general collision mesh.
 
 ```text
 src/
-  main.ts          Application, fixed-step loop, cameras, HUD and activity flow
-  physics.ts       Independent flight models, collision sweeps and telemetry
-  input.ts         Keyboard, gamepad polling, calibration and haptics
-  menu-controls.ts Scoped menu navigation and direct settings adjustment
-  training.ts      Maneuver-based lessons for all three flight modes
-  camera-rig.ts    First-person/chase cameras and comfort settings
-  navigation.ts    Dock-local approach and braking guidance
-  world.ts         Procedural environments, visual models and collision queries
-  audio.ts         Web Audio synthesis and flight feedback
-  challenges.ts    Directional gate crossing and validated local flight records
-  types.ts         Shared flight contracts
-  style.css        Responsive English interface
-tests/
-  physics.test.ts  Flight behavior and collision regression tests
-  input.test.ts    Input normalization, mapping and disconnect tests
-  menu-controls.test.ts  Focus navigation and settings adjustment tests
-  training.test.ts Lesson progress and maneuver completion tests
-  navigation.test.ts Docking approach and braking guidance tests
-  audio.test.ts    Audio lifecycle and feedback tests
-  camera-rig.test.ts Camera obstruction, smoothing and comfort tests
-  challenges.test.ts  Gate intersection and timing tests
-  world.test.ts    Collision-free spawns, reachable routes and docking clearance
+  main.ts                 Application, activities, HUD and integration
+  workshop.ts             Airframe, input, mission and analysis UI
+  physics.ts              Forces, torques, rigid body and contacts
+  controller.ts           Rate PID and simulated IMU/orientation estimate
+  vehicle-config.ts       Bounded physical parameters per vehicle
+  simulation.ts           Shared fixed-step runner and snapshots
+  simulation.worker.ts    Worker message boundary
+  simulation-client.ts    Worker lifecycle and fallback
+  environment.ts          Serializable collision environment
+  scenario.ts             Missions, seeded wind, gates and moving targets
+  recorder.ts             Recording, interpolation, imports and statistics
+  input.ts                Keyboard/gamepad polling, calibration and haptics
+  axis-profile.ts         Channel mappings and RC presets
+  sitl-client.ts          External-controller transport and coordinates
+  world.ts                Procedural scenery and vehicles
+  training.ts             Maneuver-based lessons
+  navigation.ts           Dock guidance and braking estimates
+  camera-rig.ts           Cameras, obstruction and comfort
+  menu-controls.ts        Scoped menu navigation
+  challenges.ts           Gates and best-flight ghosts
+  audio.ts                Synthesized flight feedback
+bridge/
+  server.mjs              Local WebSocket / UDP / TCP bridge
+  protocol.mjs            Betaflight and MAVLink codecs
+  diagnose.mjs            Read-only toolchain inventory
+  setup-*.sh              Pinned firmware setup/build helpers
+  mock-firmware.mjs       Explicit protocol fixture, not real firmware
+tests/                    Simulation and interface tests
 ```
 
-## Simulation design
+## Verification and limits
 
-The controller manager retains its existing polling, settings, calibration, haptics and lifecycle APIs. New methods are `getBindings()`, `setBinding(action, index)`, `resetBindings()`, `setContext('flight' | 'menu')`, `setMenuHandler(callback)`, `beginRangeCalibration()`, `finishRangeCalibration()`, `cancelRangeCalibration()` and `resetCalibration()`. Cancellation discards only an unfinished sweep and preserves the saved center and range. The `stickLayout` property is readable/writable; `rangeCalibrating` reports an active range sweep.
+`npm test` covers input, recording, scenarios, numerical dynamics, environments, navigation, cameras, audio, lessons and the browser protocol client. `npm run test:sitl` covers bridge codecs and localhost transport fixtures. `npm run build` checks TypeScript and builds `dist/`. Passing these checks does not prove agreement with aircraft measurements.
 
-`ButtonAction` is `brake | assist | camera | reset | boost | pause`; `BUTTON_LABELS` names standard browser button indices. `MenuAction` is `up | down | left | right | confirm | back`. `navigateMenu(root, action, onBack)` navigates only visible enabled controls in the supplied menu/modal scope.
+The October 12, 2026 acceptance run passed 203 application tests, 12 bridge tests, TypeScript and the production build. Browser checks covered all three vehicles, airframe/mission saving, RC presets and custom mappings, arm/disarm, control modes, moving-target guidance, recording/replay, and the production Worker. The live localhost MOCK fixture verified actuator exchange, paused-flight reconnection and timeout/disarm behavior; the bridge suite also exercised 20 consecutive reconnects. No browser console errors appeared during the final production checks. The temporary bridge and MOCK processes were stopped afterward.
 
-Coordinates use metres, seconds, Y-up and local -Z-forward. A 120 Hz accumulator advances the flight model independently of rendering, with pose interpolation for display. Large frame gaps are capped rather than attempting an unbounded catch-up loop. This intentionally slows simulated time during severe stalls; it avoids a large physics jump.
-
-Input produces normalized actions. Vehicle-specific controllers produce angular-rate targets and acceleration. The simulation applies swept sphere collision sampling against environment obstacles and terrain, then publishes flight state. Cameras, HUD, sound and challenges consume that state.
-
-Static repeated geometry uses instancing. Draw distance, pixel ratio and optional shadows are tuned for a browser prototype. High-speed gate tests intersect the full movement segment, so passing a ring between ticks is still counted. Best-flight ghosts store sampled states instead of assuming input-only replay is deterministic.
-
-The current worlds are authored finite local spaces; planetary streaming and a general-purpose rigid-body solver are outside this version. Obstacle collision uses simplified shapes, and distant mountains use approximate terrain envelopes.
-
-## Verification
-
-`npm test` runs automated tests for hover, attitude control, handling presets, space momentum/braking, aerodynamic behavior, collision sweeps, gamepad profiles and calibration, menu transitions, lessons, docking guidance, gate intersections and world routes. `npm run build` checks TypeScript and creates a production build in `dist/`.
-
-Release verification: 95 tests pass, including complete drone, fixed-wing and spacecraft lessons driven through the real physics and authored scene collisions. TypeScript and the production build pass. Browser checks cover all three modes, lesson and docking HUDs, runway departure, camera switching, menu navigation, remapping conflict swaps, settings persistence, comfort controls, focus containment and keyboard retry. Desktop and narrow layouts were inspected; observed frame rate in the local preview was approximately 53–57 FPS, not a target-device benchmark.
-
-Physical controllers and vibration have not been tested with hardware for this release. Manual checks should include the actual target controller over USB/Bluetooth, sound output and sustained performance on the target GPU. Automated gamepad fixtures verify software behavior but cannot certify physical-device behavior.
+Physical controllers, vibration, real firmware and sustained target-GPU performance require manual verification. Current model limits include simplified noisy position/velocity observations, analytic aerodynamic coefficients, simplified contacts, bounded actuator-geometry editing, finite authored worlds and uniform gravity. There is no orbital propagation, terrain streaming, structural deformation or multiplayer.
 
 ## Troubleshooting
 
-- **Old system Node:** Run `launch.cmd`; it can select a newer bundled runtime. Otherwise install Node.js 22.12+.
-- **Port already in use:** Close the previous FlightLab server, or run `npm run dev -- --port 4189`.
-- **Controller not visible:** Focus the page and press a controller button. Check Settings. Unsupported mappings use keyboard fallback.
-- **Controls idle after leaving a menu:** Release all sticks, triggers and buttons once, then resume input.
-- **Incomplete calibration:** Sweep both sticks in full circles; all four axes need travel in both directions.
-- **No audio:** Launch or resume a flight, enable Flight audio and check the volume slider.
-- **Low frame rate:** Choose Performance quality, close graphics-heavy tabs and enable browser hardware acceleration.
-- **Package download interrupted:** Retry the launcher. If your network needs a proxy, configure it for your shell before installing; FlightLab does not alter system proxy settings.
-
-## Technical references
-
-- [Three.js WebGLRenderer](https://threejs.org/docs/pages/WebGLRenderer.html)
-- [MDN Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API)
-- [MDN Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+- **Old Node:** Use `launch.cmd`, or install Node.js 22.12+.
+- **Port 4188 is busy:** Close the previous server or use `npm run dev -- --port 4189` for ordinary flight. The optional bridge allows the documented 4188 origin by default.
+- **Controller is missing:** Focus the page and press a button. Explicitly configure and enable non-standard USB adapters in Input setup.
+- **Controls remain idle:** Release mapped controls and lower absolute throttle. Reversed mapping can make the other endpoint idle; correct inversion in Input setup.
+- **Calibration is incomplete:** Sweep every used axis both ways. Center and range calibration are separate steps.
+- **Experiment will not lift off:** Check armed state, thrust, mass, throttle mode and scheduled faults. Restore factory values for a baseline.
+- **No audio:** Launch/resume with a user gesture, enable Flight audio and check volume.
+- **Low frame rate:** Choose Performance quality, close graphics-heavy tabs and enable hardware acceleration. Live telemetry identifies the simulation backend.
+- **Firmware waits or fails:** Follow [README-SITL.md](README-SITL.md); check prerequisites, firmware settings and same-namespace loopback networking. The bridge alone cannot produce firmware actuator responses.
+- **Interrupted dependency download:** Retry the launcher. Configure required proxies in your shell; FlightLab does not alter system proxy settings.
