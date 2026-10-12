@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { FlightMode, FlightState, Gate, SpawnPoint, Weather } from './types';
+import type { WorldPhysics } from './environment';
 
 const UP = new THREE.Vector3(0, 1, 0);
 const FRONT = new THREE.Vector3(0, 0, 1);
@@ -877,6 +878,21 @@ export class FlightWorld {
 
   setDockGuidance(visible: boolean): void {
     if (this.dockGuidance) this.dockGuidance.visible = visible;
+  }
+
+  physicsSnapshot():WorldPhysics {
+    return {mode:this.mode,solids:this.solids.map(s=>({min:s.box.min.toArray() as [number,number,number],max:s.box.max.toArray() as [number,number,number]})),hills:this.hills.map(h=>({...h})),pad:{position:this.landingPad.position.toArray() as [number,number,number],radius:this.landingPad.radius}};
+  }
+
+  setCustomGates(gates:Gate[]):void {
+    for(const visual of this.gateVisuals){this.scene.remove(visual.group);visual.group.traverse(object=>{const mesh=object as THREE.Mesh;mesh.geometry?.dispose();});visual.material.dispose();}
+    this.gates=[];this.gateVisuals=[];this.routeLabels=[];
+    for(let i=0;i<gates.length;i++){
+      const gate=gates[i];this.gates.push({position:gate.position.clone(),normal:gate.normal.clone().normalize(),radius:gate.radius});this.routeLabels.push(`Custom gate ${i+1}`);
+      const material=new THREE.MeshStandardMaterial({color:0xd8fb90,emissive:0x719c42,emissiveIntensity:1.2});
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(gate.radius,.18,8,48),material);const group=new THREE.Group();group.add(ring);group.position.copy(gate.position);group.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),gate.normal.clone().normalize());this.scene.add(group);this.gateVisuals.push({group,ring,material});
+    }
+    this.setGateProgress(gates.length?0:-1);
   }
 
   update(dt: number, time: number, state: FlightState, wind?: THREE.Vector3): void {

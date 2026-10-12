@@ -12,6 +12,7 @@
 .\launch.cmd form-studio
 .\launch.cmd asset-dashboard
 .\launch.cmd warehouse-studio
+.\launch.cmd json-studio
 ```
 
 也可以继续双击各项目里的 `launch.cmd`，或者从其他目录用绝对路径运行。
@@ -24,6 +25,9 @@
 | Asset Dashboard | http://127.0.0.1:3000/（开发服务） | 同默认 |
 | Warehouse Studio | http://127.0.0.1:4186/ (local JSON inventory) | Same as default |
 | FlightLab | http://127.0.0.1:4188/ (3D flight simulator) | Same as default |
+| JSON Studio | http://127.0.0.1:4189/（本地 JSON 工作台） | 同默认 |
+
+[JSON Studio](json-studio/README.md) 支持 JSON 编辑、格式化、树/表格视图、结构比较、JSONPath 和 Schema 校验。Node.js 20+，无运行时第三方依赖，处理内容仅保存在当前浏览器页面内存中。
 
 See [Warehouse Studio](warehouse-studio/README.md) for independent warehouses, type filters, time-based demand planning, and immediate JSON persistence. English interface with LaTeX-inspired styling; Node.js 20+, no third-party dependencies.
 

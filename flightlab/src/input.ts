@@ -1,10 +1,14 @@
 import type { FlightInput, FlightMode, InputAction, InputSettings } from './types';
+import { AXIS_FIELDS, createAxisProfile, validateAxisProfile } from './axis-profile';
+import type { AxisBinding, AxisField, AxisPreset, AxisProfile } from './axis-profile';
+export { createAxisProfile, validateAxisProfile } from './axis-profile';
+export type { AxisBinding, AxisChannel, AxisField, AxisPreset, AxisProfile } from './axis-profile';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const finite = (value: number, fallback = 0) => Number.isFinite(value) ? value : fallback;
 const CALIBRATION_KEY = 'flightlab.controller-calibration.v1';
 const PROFILES_KEY = 'flightlab.controller-profiles.v2';
-export type ButtonAction = 'brake' | 'assist' | 'camera' | 'reset' | 'boost' | 'pause';
+export type ButtonAction = 'brake' | 'assist' | 'camera' | 'reset' | 'boost' | 'pause' | 'arm';
 export type MenuAction = 'up' | 'down' | 'left' | 'right' | 'confirm' | 'back';
 export type StickLayout = 'standard' | 'southpaw';
 export const BUTTON_LABELS: readonly string[] = [
@@ -12,12 +16,15 @@ export const BUTTON_LABELS: readonly string[] = [
   'LT / L2', 'RT / R2', 'Back / Share', 'Start / Options', 'Left Stick', 'Right Stick',
   'D-pad Up', 'D-pad Down', 'D-pad Left', 'D-pad Right', 'Home',
 ];
-const DEFAULT_BINDINGS: Record<ButtonAction, number> = { brake: 0, assist: 1, camera: 2, reset: 3, boost: 10, pause: 9 };
-const RESERVED_BUTTONS = new Set([4, 5, 6, 7]); // Spacecraft roll and translation axes.
+const DEFAULT_BINDINGS: Record<ButtonAction, number> = { brake: 0, assist: 1, camera: 2, reset: 3, boost: 10, pause: 9, arm: 8 };
 interface AxisRange { min: number[]; max: number[]; }
-interface ControllerProfile { bindings: Record<ButtonAction, number>; layout: StickLayout; range?: AxisRange; }
+interface ControllerProfile { bindings: Record<ButtonAction, number>; layout: StickLayout; axes: AxisProfile; range?: AxisRange; }
 interface RangeSession extends AxisRange { id: string; }
-const freshProfile = (): ControllerProfile => ({ bindings: { ...DEFAULT_BINDINGS }, layout: 'standard' });
+const freshProfile = (): ControllerProfile => ({ bindings: { ...DEFAULT_BINDINGS }, layout: 'standard', axes: createAxisProfile() });
+function reservedButtons(profile: AxisProfile): Set<number> {
+  return new Set([...Object.values(profile.channels), ...Object.values(profile.spaceRotation)]
+    .filter(binding => binding.source === 'buttons').flatMap(binding => [binding.negativeButton, binding.positiveButton]));
+}
 
 /** Rescale a centered axis after its deadzone, then blend a linear and cubic curve. */
 export function processAxis(value: number, settings: InputSettings, offset = 0): number {
@@ -31,7 +38,7 @@ export function processAxis(value: number, settings: InputSettings, offset = 0):
   return Math.sign(centered) * clamp(((1 - expo) * magnitude + expo * magnitude ** 3) * sensitivity, 0, 1);
 }
 
-const keyActions: Record<string, InputAction> = { Escape: 'pause', KeyR: 'reset', KeyC: 'camera', KeyF: 'assist' };
+const keyActions: Record<string, InputAction> = { Escape: 'pause', KeyR: 'reset', KeyC: 'camera', KeyF: 'assist', KeyV: 'arm' };
 const menuKeys: Record<string, MenuAction> = {
   ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', Enter: 'confirm', Space: 'confirm', Escape: 'back',
 };
@@ -48,7 +55,7 @@ const emptyInput = (): FlightInput => ({
   pitch: 0, roll: 0, yaw: 0, throttleDelta: 0, moveX: 0, moveY: 0, moveZ: 0, brake: false, boost: false,
 });
 const validAxes = (value: unknown, limit: number): value is number[] =>
-  Array.isArray(value) && value.length >= 4 && value.length <= 32 && value.every(axis => typeof axis === 'number' && Number.isFinite(axis) && Math.abs(axis) <= limit);
+  Array.isArray(value) && value.length >= 1 && value.length <= 32 && value.every(axis => typeof axis === 'number' && Number.isFinite(axis) && Math.abs(axis) <= limit);
 
 export class FlightInputManager {
   private settings: InputSettings;
@@ -67,13 +74,14 @@ export class FlightInputManager {
   private nextRepeat = 0;
   private rumbleUntil = 0;
   private disposed = false;
+  private lastInput: FlightInput = emptyInput();
 
   constructor(settings: InputSettings, private readonly onAction: (action: InputAction) => void, private readonly onDisconnect: () => void) {
     this.settings = { ...settings };
     try {
       const stored: unknown = JSON.parse(localStorage.getItem(CALIBRATION_KEY) || '{}');
       if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
-        for (const [id, axes] of Object.entries(stored)) if (validAxes(axes, 0.35)) this.calibrations[id] = axes.slice(0, 4);
+        for (const [id, axes] of Object.entries(stored)) if (validAxes(axes, 0.35)) this.calibrations[id] = [...axes];
       }
       const profiles: unknown = JSON.parse(localStorage.getItem(PROFILES_KEY) || '{}');
       if (profiles && typeof profiles === 'object' && !Array.isArray(profiles)) {
@@ -81,16 +89,18 @@ export class FlightInputManager {
           if (!raw || typeof raw !== 'object') continue;
           const profile = freshProfile();
           const candidate = raw as Partial<ControllerProfile>;
-          const bindings = candidate.bindings;
-          if (bindings && Object.keys(DEFAULT_BINDINGS).every(action => Number.isInteger(bindings[action as ButtonAction]) && bindings[action as ButtonAction] >= 0 && bindings[action as ButtonAction] < BUTTON_LABELS.length && !RESERVED_BUTTONS.has(bindings[action as ButtonAction]))
+          profile.axes = validateAxisProfile(candidate.axes) ?? createAxisProfile(candidate.layout === 'southpaw' ? 'southpaw' : 'gamepad');
+          const bindings = candidate.bindings ? { ...DEFAULT_BINDINGS, ...candidate.bindings } : undefined;
+          const reserved = reservedButtons(profile.axes);
+          if (bindings && Object.keys(DEFAULT_BINDINGS).every(action => Number.isInteger(bindings[action as ButtonAction]) && bindings[action as ButtonAction] >= 0 && bindings[action as ButtonAction] < 64 && !reserved.has(bindings[action as ButtonAction]))
             && new Set(Object.keys(DEFAULT_BINDINGS).map(action => bindings[action as ButtonAction])).size === Object.keys(DEFAULT_BINDINGS).length) {
             for (const action of Object.keys(DEFAULT_BINDINGS) as ButtonAction[]) profile.bindings[action] = bindings[action];
           }
           if (candidate.layout === 'southpaw') profile.layout = 'southpaw';
           const range = candidate.range;
           const center = this.calibrations[id] ?? [0, 0, 0, 0];
-          if (range && validAxes(range.min, 1) && validAxes(range.max, 1) && center.every((offset, i) => offset - range.min[i] >= 0.4 && range.max[i] - offset >= 0.4)) {
-            profile.range = { min: range.min.slice(0, 4), max: range.max.slice(0, 4) };
+          if (range && validAxes(range.min, 1) && validAxes(range.max, 1) && range.min.length === range.max.length && range.min.every((value, i) => value <= range.max[i]) && center.every((offset, i) => offset - range.min[i] >= 0.4 && range.max[i] - offset >= 0.4)) {
+            profile.range = { min: [...range.min], max: [...range.max] };
           }
           this.profiles[id] = profile;
         }
@@ -118,7 +128,7 @@ export class FlightInputManager {
   }
   getBindings(): Record<ButtonAction, number> { return { ...this.profile().bindings }; }
   setBinding(action: ButtonAction, index: number): void {
-    if (!Object.prototype.hasOwnProperty.call(DEFAULT_BINDINGS, action) || !Number.isInteger(index) || index < 0 || index >= BUTTON_LABELS.length || RESERVED_BUTTONS.has(index)) return;
+    if (!Object.prototype.hasOwnProperty.call(DEFAULT_BINDINGS, action) || !Number.isInteger(index) || index < 0 || index >= 64 || reservedButtons(this.profile().axes).has(index)) return;
     const bindings = this.profile().bindings;
     const old = bindings[action];
     const conflict = (Object.keys(DEFAULT_BINDINGS) as ButtonAction[]).find(other => other !== action && bindings[other] === index);
@@ -126,11 +136,46 @@ export class FlightInputManager {
     bindings[action] = index;
     this.saveProfiles();
   }
-  resetBindings(): void { this.profile().bindings = { ...DEFAULT_BINDINGS }; this.saveProfiles(); }
+  resetBindings(): void { this.profile().bindings = { ...DEFAULT_BINDINGS }; this.resolveButtonConflicts(); this.saveProfiles(); }
+  private resolveButtonConflicts(): void {
+    const unavailable = reservedButtons(this.profile().axes);
+    const bindings = this.profile().bindings;
+    for (const action of Object.keys(DEFAULT_BINDINGS) as ButtonAction[]) {
+      if (unavailable.has(bindings[action])) {
+        const replacement = Array.from({ length: 64 }, (_, index) => index).find(index => !unavailable.has(index) && !Object.values(bindings).includes(index));
+        if (replacement !== undefined) bindings[action] = replacement;
+      }
+      unavailable.add(bindings[action]);
+    }
+  }
+  getAxisProfile(): AxisProfile { return validateAxisProfile(this.profile().axes)!; }
+  setAxisProfile(value: unknown): boolean {
+    const axes = validateAxisProfile(value);
+    if (!axes) return false;
+    this.profile().axes = axes;
+    this.profile().layout = axes.preset === 'southpaw' ? 'southpaw' : 'standard';
+    this.resolveButtonConflicts();
+    this.requireNeutral = true;
+    this.keys.clear();
+    this.saveProfiles();
+    return true;
+  }
+  applyAxisPreset(preset: AxisPreset): void {
+    if (['gamepad', 'mode1', 'mode2', 'southpaw'].includes(preset)) this.setAxisProfile(createAxisProfile(preset));
+  }
+  getAxisFields(): AxisField[] { return AXIS_FIELDS.map(field => ({ ...field })); }
+  exportAxisProfile(): string { return JSON.stringify(this.getAxisProfile(), null, 2); }
+  importAxisProfile(text: string): boolean {
+    if (text.length > 32768) return false;
+    try { return this.setAxisProfile(JSON.parse(text)); } catch { return false; }
+  }
+  getLastInput(): FlightInput { return { ...this.lastInput }; }
   get stickLayout(): StickLayout { return this.profile().layout; }
   set stickLayout(layout: StickLayout) {
     if (layout !== 'standard' && layout !== 'southpaw') return;
     this.profile().layout = layout;
+    this.profile().axes = createAxisProfile(layout === 'southpaw' ? 'southpaw' : 'gamepad');
+    this.resolveButtonConflicts();
     this.saveProfiles();
   }
   setMenuHandler(callback: (action: MenuAction) => void): void { this.menuHandler = callback; }
@@ -185,10 +230,46 @@ export class FlightInputManager {
       const previous = this.pad;
       const next = pads.find(pad => pad.index === previous?.index) ?? pads.find(pad => pad.mapping === 'standard') ?? pads[0] ?? null;
       if (previous && !pads.some(pad => pad.index === previous.index && pad.id === previous.id)) this.disconnect();
-      if (next?.id !== this.pad?.id || next?.index !== this.pad?.index) this.lastButtons = [];
+      const changed = next?.id !== this.pad?.id || next?.index !== this.pad?.index;
+      if (changed) this.lastButtons = [];
       this.pad = next;
+      if (changed && next && this.profile().axes.throttleMode === 'absolute') this.requireNeutral = true;
       return next;
     } catch { if (this.pad) this.disconnect(); return null; }
+  }
+  private usablePad(pad: Gamepad): boolean { return pad.mapping === 'standard' || this.profile().axes.allowNonStandard; }
+  private usedAxes(pad: Gamepad): number[] {
+    const configured = [...Object.values(this.profile().axes.channels), ...Object.values(this.profile().axes.spaceRotation)]
+      .filter(binding => binding.source === 'axis').map(binding => binding.axis);
+    return [...new Set([...(pad.mapping === 'standard' ? [0, 1, 2, 3] : []), ...configured])].filter(index => index < pad.axes.length);
+  }
+  private bindingValue(pad: Gamepad, binding: AxisBinding, curve = true): number {
+    if (binding.source === 'none') return 0;
+    const buttonValue = (index: number): number => {
+      const button = pad.buttons[index];
+      return clamp(finite(button?.value ?? 0) || Number(button?.pressed ?? false), 0, 1);
+    };
+    let raw = binding.source === 'axis' ? this.normalizedAxis(pad, binding.axis)
+      : buttonValue(binding.positiveButton) - buttonValue(binding.negativeButton);
+    if (binding.inverted) raw = -raw;
+    if (!curve) return clamp(raw, -1, 1);
+    const shaped = processAxis(raw, {
+      ...this.settings, deadzone: binding.deadzone ?? (binding.source === 'buttons' ? 0 : this.settings.deadzone),
+      expo: binding.expo ?? (binding.source === 'buttons' ? 0 : this.settings.expo),
+      sensitivity: binding.source === 'buttons' ? 1 : this.settings.sensitivity,
+    });
+    const magnitude = Math.abs(shaped);
+    return Math.sign(shaped) * clamp((binding.center * magnitude + (1 - binding.center) * magnitude ** 2) * binding.rate, 0, 1);
+  }
+  private padNeutral(pad: Gamepad, mode: FlightMode): boolean {
+    if (!this.usablePad(pad)) return true;
+    if (pad.buttons.some(button => button.pressed || finite(button.value) > 0.2)) return false;
+    const profile = this.profile().axes;
+    const absolute = mode !== 'space' && profile.throttleMode === 'absolute' && profile.channels.throttle.source !== 'none';
+    // A non-centering RC throttle must be at idle; all other mapped axes must center.
+    if (absolute && this.bindingValue(pad, profile.channels.throttle, false) > -0.8) return false;
+    const throttleAxis = absolute && profile.channels.throttle.source === 'axis' ? profile.channels.throttle.axis : -1;
+    return this.usedAxes(pad).every(index => index === throttleAxis || Math.abs(this.normalizedAxis(pad, index)) < 0.25);
   }
   private normalizedAxis(pad: Gamepad, index: number): number {
     const raw = pad.axes[index] ?? 0;
@@ -202,7 +283,7 @@ export class FlightInputManager {
   }
   private captureRange(pad: Gamepad): void {
     if (this.rangeSession?.id !== pad.id) return;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < this.rangeSession.min.length; i++) {
       const value = pad.axes[i];
       if (!Number.isFinite(value)) continue;
       this.rangeSession.min[i] = Math.min(this.rangeSession.min[i], clamp(value, -1, 1));
@@ -216,7 +297,10 @@ export class FlightInputManager {
     if (edge(1)) { this.menuHandler('back'); return; }
     if (edge(0)) { this.menuHandler('confirm'); return; }
     // A range sweep must not move focus away from its Finish button.
-    const x = this.rangeSession ? 0 : this.normalizedAxis(pad, 0), y = this.rangeSession ? 0 : this.normalizedAxis(pad, 1);
+    const axes = this.profile().axes;
+    const throttleAxis = axes.throttleMode === 'absolute' && axes.channels.throttle.source === 'axis' ? axes.channels.throttle.axis : -1;
+    const x = this.rangeSession || throttleAxis === 0 ? 0 : this.normalizedAxis(pad, 0);
+    const y = this.rangeSession || throttleAxis === 1 ? 0 : this.normalizedAxis(pad, 1);
     const direction: MenuAction | null = buttons[12] ? 'up' : buttons[13] ? 'down' : buttons[14] ? 'left' : buttons[15] ? 'right'
       : Math.max(Math.abs(x), Math.abs(y)) < 0.5 ? null : Math.abs(x) > Math.abs(y) ? (x > 0 ? 'right' : 'left') : (y > 0 ? 'down' : 'up');
     const now = performance.now();
@@ -228,6 +312,10 @@ export class FlightInputManager {
   }
 
   poll(mode: FlightMode): FlightInput {
+    this.lastInput = this.pollInput(mode);
+    return { ...this.lastInput };
+  }
+  private pollInput(mode: FlightMode): FlightInput {
     const result = emptyInput();
     if (this.disposed) return result;
     const pad = this.readGamepad();
@@ -236,9 +324,9 @@ export class FlightInputManager {
     const buttons = pad?.buttons.map(button => !!button.pressed) ?? [];
     const previous = this.lastButtons;
     this.lastButtons = buttons;
-    if (pad?.mapping === 'standard') this.captureRange(pad);
+    if (pad && this.usablePad(pad)) this.captureRange(pad);
     if (this.requireNeutral) {
-      const neutral = (!pad || pad.mapping !== 'standard' || (!buttons.some(Boolean) && !pad.buttons.some(button => finite(button.value) > 0.2) && pad.axes.slice(0, 4).every((_, i) => Math.abs(this.normalizedAxis(pad, i)) < 0.25))) && this.heldKeys.size === 0;
+      const neutral = (!pad || this.padNeutral(pad, mode)) && this.heldKeys.size === 0;
       if (neutral) this.requireNeutral = false;
       this.keys.clear();
       return result;
@@ -263,33 +351,38 @@ export class FlightInputManager {
         result.yaw = key('ArrowRight') - key('ArrowLeft'); result.roll = key('KeyE') - key('KeyQ');
       } else { result.yaw = key('KeyD') - key('KeyA'); result.throttleDelta = key('KeyW') - key('KeyS'); }
     }
-    if (pad?.mapping === 'standard') {
+    if (pad && this.usablePad(pad)) {
       const bindings = this.profile().bindings;
       const pressed = (index: number) => !!buttons[index];
-      const trigger = (index: number) => clamp(finite(pad.buttons[index]?.value ?? 0), 0, 1);
       if (!hidden && buttons[bindings.pause] && !previous[bindings.pause]) {
         this.device = 'gamepad'; this.onAction('pause');
         if (this.context !== 'flight' || this.requireNeutral) return emptyInput();
       }
       if (!suppressed) {
-        for (const action of ['assist', 'camera', 'reset'] as const) {
+        for (const action of ['assist', 'camera', 'reset', 'arm'] as const) {
           const index = bindings[action];
           if (buttons[index] && !previous[index]) this.onAction(action);
           if (this.context !== 'flight' || this.requireNeutral) return emptyInput();
         }
-        const axis = (index: number) => processAxis(this.normalizedAxis(pad, index), this.settings);
-        const southpaw = this.profile().layout === 'southpaw';
-        const lx = axis(southpaw ? 2 : 0), ly = axis(southpaw ? 3 : 1), rx = axis(southpaw ? 0 : 2), ry = axis(southpaw ? 1 : 3);
-        if ([lx, ly, rx, ry].some(value => Math.abs(value) > 0.02) || buttons.some(Boolean) || trigger(6) > 0.1 || trigger(7) > 0.1) this.device = 'gamepad';
-        result.pitch = clamp(result.pitch + ry, -1, 1);
+        const axes = this.profile().axes;
+        const rotation = mode === 'space' ? axes.spaceRotation : axes.channels;
+        const pitch = this.bindingValue(pad, rotation.pitch), roll = this.bindingValue(pad, rotation.roll), yaw = this.bindingValue(pad, rotation.yaw);
+        const throttle = this.bindingValue(pad, axes.channels.throttle);
+        const moveX = this.bindingValue(pad, axes.channels.moveX), moveY = this.bindingValue(pad, axes.channels.moveY), moveZ = this.bindingValue(pad, axes.channels.moveZ);
+        if ([pitch, roll, yaw, throttle, moveX, moveY, moveZ].some(value => Math.abs(value) > 0.02) || buttons.some(Boolean)) this.device = 'gamepad';
+        result.pitch = clamp(result.pitch + pitch, -1, 1);
+        result.roll = clamp(result.roll + roll, -1, 1);
+        result.yaw = clamp(result.yaw + yaw, -1, 1);
         result.brake ||= pressed(bindings.brake); result.boost ||= pressed(bindings.boost);
         if (mode === 'space') {
-          result.moveX = clamp(result.moveX + lx, -1, 1); result.moveY = clamp(result.moveY - ly, -1, 1);
-          result.moveZ = clamp(result.moveZ + trigger(7) - trigger(6), -1, 1); result.yaw = clamp(result.yaw + rx, -1, 1);
-          result.roll = clamp(result.roll + Number(pressed(5)) - Number(pressed(4)), -1, 1);
+          result.moveX = clamp(result.moveX + moveX, -1, 1); result.moveY = clamp(result.moveY + moveY, -1, 1);
+          result.moveZ = clamp(result.moveZ + moveZ, -1, 1);
         } else {
-          result.yaw = clamp(result.yaw + lx, -1, 1); result.roll = clamp(result.roll + rx, -1, 1);
-          result.throttleDelta = clamp(result.throttleDelta - ly, -1, 1);
+          if (axes.throttleMode === 'absolute' && axes.channels.throttle.source !== 'none' && result.throttleDelta === 0) {
+            // Absolute collective is affine: stick bottom/center/top = 0/.5/1.
+            // Centered deadzones and attitude rate curves must not create an idle jump.
+            result.throttle = (this.bindingValue(pad, axes.channels.throttle, false) + 1) / 2;
+          } else if (axes.throttleMode === 'incremental') result.throttleDelta = clamp(result.throttleDelta + throttle, -1, 1);
         }
       }
     }
@@ -301,8 +394,11 @@ export class FlightInputManager {
   /** Call only with both sticks released. Reject off-center readings rather than hiding them. */
   calibrate(): boolean {
     const pad = this.readGamepad();
-    if (!pad || pad.mapping !== 'standard' || !validAxes(Array.from(pad.axes).slice(0, 4), 0.35)) return false;
-    this.calibrations[pad.id] = Array.from(pad.axes).slice(0, 4);
+    if (!pad || !this.usablePad(pad) || !this.usedAxes(pad).length ||
+        !this.usedAxes(pad).every(index => Number.isFinite(pad.axes[index]) && Math.abs(pad.axes[index]) <= 0.35)) return false;
+    // Unmapped slider/switch axes can legitimately rest at an endpoint.
+    const used = new Set(this.usedAxes(pad));
+    this.calibrations[pad.id] = Array.from(pad.axes).slice(0, 32).map((value, index) => used.has(index) ? value : 0);
     delete this.profile().range;
     this.rangeSession = null;
     this.saveCalibration();
@@ -310,8 +406,8 @@ export class FlightInputManager {
   }
   beginRangeCalibration(): boolean {
     const pad = this.readGamepad();
-    if (!pad || pad.mapping !== 'standard' || !validAxes(Array.from(pad.axes).slice(0, 4), 1)) return false;
-    const axes = Array.from(pad.axes).slice(0, 4);
+    if (!pad || !this.usablePad(pad) || !validAxes(Array.from(pad.axes).slice(0, 32), 1)) return false;
+    const axes = Array.from(pad.axes).slice(0, 32);
     this.rangeSession = { id: pad.id, min: [...axes], max: [...axes] };
     return true;
   }
@@ -321,7 +417,7 @@ export class FlightInputManager {
     this.captureRange(pad);
     const center = this.calibrations[pad.id] ?? [0, 0, 0, 0];
     const { min, max } = this.rangeSession;
-    if (!center.every((offset, i) => offset - min[i] >= 0.4 && max[i] - offset >= 0.4)) return false;
+    if (!this.usedAxes(pad).every(i => (center[i] ?? 0) - min[i] >= 0.4 && max[i] - (center[i] ?? 0) >= 0.4)) return false;
     this.profile().range = { min: [...min], max: [...max] };
     this.rangeSession = null;
     this.saveProfiles();
@@ -351,7 +447,7 @@ export class FlightInputManager {
       void actuator.playEffect('dual-rumble', { startDelay: 0, duration: milliseconds, weakMagnitude: intensity, strongMagnitude: intensity * 0.7 }).catch(() => {});
     } catch { /* Some devices expose an actuator without supporting dual-rumble. */ }
   }
-  get controllerName(): string { return !this.pad ? 'Keyboard' : this.pad.mapping === 'standard' ? this.pad.id : `${this.pad.id} — unsupported mapping; use keyboard`; }
+  get controllerName(): string { return !this.pad ? 'Keyboard' : this.pad.mapping === 'standard' ? this.pad.id : this.profile().axes.allowNonStandard ? `${this.pad.id} — custom USB profile (keyboard menus)` : `${this.pad.id} — unsupported mapping; use keyboard`; }
   get connected(): boolean { return this.pad !== null; }
   get rawAxes(): number[] { return this.pad ? Array.from(this.pad.axes).map(axis => finite(axis)) : []; }
   get activeDevice(): 'keyboard' | 'gamepad' { return this.device; }

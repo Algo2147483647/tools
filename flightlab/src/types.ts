@@ -35,8 +35,10 @@ export interface FlightState {
 export interface SpawnPoint { position: Vector3; quaternion: Quaternion; velocity: Vector3; throttle: number; }
 export interface FlightEnvironment {
   wind: Vector3;
+  gravity?: number;
   groundHeight: (x: number, z: number) => number;
   collides: (position: Vector3, radius: number) => boolean;
+  contactNormal?: (position: Vector3, radius: number) => Vector3 | null;
 }
 export interface Gate { position: Vector3; normal: Vector3; radius: number; }
 export interface InputSettings {
@@ -46,4 +48,4 @@ export interface InputSettings {
   invertPitch: boolean;
   vibration: boolean;
 }
-export type InputAction = 'pause' | 'reset' | 'camera' | 'assist';
+export type InputAction = 'pause' | 'reset' | 'camera' | 'assist' | 'arm';

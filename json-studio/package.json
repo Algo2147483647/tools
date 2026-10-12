@@ -1,0 +1,25 @@
+{
+  "name": "json-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local JSON editing, inspection, comparison and validation workspace",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node server.mjs --dist",
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "check": "node scripts/check.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.7"
+  }
+}
