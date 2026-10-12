@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Euler, Quaternion, Vector3 } from 'three';
-import { createFlightState, getTelemetry, stepFlight, ZERO_INPUT } from '../src/physics';
+import { createFlightState, estimateStoppingDistance, getHandlingPreset, getTelemetry, setHandlingPreset, stepFlight, ZERO_INPUT } from '../src/physics';
 import type { FlightEnvironment, FlightInput, FlightMode, FlightState } from '../src/types';
 
 const empty: FlightEnvironment = {
@@ -55,6 +55,37 @@ describe('drone controls', () => {
     fly(state, 0.1, { throttle: 0.3, throttleDelta: 1 });
     expect(state.throttle).toBe(0.3);
   });
+
+  it('brakes by tilting against motion with bounded acceleration', () => {
+    const state = vehicle('drone', 100);
+    state.velocity.set(8, 0, -10);
+    const before = state.velocity.clone();
+    stepFlight(state, { ...ZERO_INPUT, brake: true }, empty, 1 / 120);
+    expect(state.velocity.distanceTo(before)).toBeLessThan(0.2);
+    fly(state, 5, { brake: true });
+    expect(Math.hypot(state.velocity.x, state.velocity.z)).toBeLessThan(0.4);
+    expect(state.position.y).toBeGreaterThan(99);
+    const unpowered = vehicle('drone', 100);
+    fly(unpowered, 1, { brake: true, throttle: 0 });
+    expect(unpowered.velocity.y).toBeLessThan(-8);
+  });
+
+  it('applies handling profiles without resetting position, attitude, or throttle', () => {
+    const gentle = vehicle('drone', 500);
+    const sport = vehicle('drone', 500);
+    setHandlingPreset(gentle, 'gentle');
+    setHandlingPreset(sport, 'sport');
+    fly(gentle, 1, { roll: 0.8 });
+    fly(sport, 1, { roll: 0.8 });
+    expect(getTelemetry(sport, empty.wind).roll).toBeGreaterThan(getTelemetry(gentle, empty.wind).roll + 12);
+    const position = sport.position.clone();
+    const attitude = sport.quaternion.clone();
+    setHandlingPreset(sport, 'gentle');
+    expect(getHandlingPreset(sport)).toBe('gentle');
+    expect(sport.position.equals(position)).toBe(true);
+    expect(sport.quaternion.equals(attitude)).toBe(true);
+    expect(sport.throttle).toBe(0.5);
+  });
 });
 
 describe('space flight', () => {
@@ -89,6 +120,32 @@ describe('space flight', () => {
     expect(state.position.y).toBeGreaterThan(50);
     expect(state.position.z).toBeLessThan(-1);
     expect(getTelemetry(state, empty.wind).roll).toBeGreaterThan(10);
+  });
+
+  it('offers low-speed assisted docking precision while retaining full-stick authority', () => {
+    const precise = vehicle('space');
+    fly(precise, 4, { moveX: 0.1 });
+    expect(precise.velocity.x).toBeGreaterThan(0.5);
+    expect(precise.velocity.x).toBeLessThan(0.7);
+    expect(precise.velocity.y).toBe(0);
+    const full = vehicle('space');
+    fly(full, 8, { moveZ: 1 });
+    expect(-full.velocity.z).toBeGreaterThan(29.9);
+    const before = precise.velocity.clone();
+    precise.assist = false;
+    fly(precise, 5);
+    expect(precise.velocity.equals(before)).toBe(true);
+  });
+
+  it('provides a conservative stop estimate including the low-speed braking taper', () => {
+    for (const speed of [0.5, 3, 15, 30]) {
+      const state = vehicle('space');
+      state.velocity.set(speed, 0, 0);
+      const estimate = estimateStoppingDistance(state);
+      fly(state, 12, { brake: true });
+      expect(state.position.x).toBeLessThan(estimate);
+      expect(state.velocity.length()).toBeLessThan(0.01);
+    }
   });
 });
 
@@ -125,6 +182,50 @@ describe('fixed wing flight', () => {
     expect(state.position.x).toBeGreaterThan(10);
     expect(getTelemetry(state, empty.wind).heading).toBeGreaterThan(10);
     expect(state.position.y).toBeGreaterThan(470);
+  });
+
+  it('maintains opposite sustained turns for opposite bank commands', () => {
+    const right = vehicle('plane', 1000);
+    const left = vehicle('plane', 1000);
+    fly(right, 12, { roll: 0.5, throttle: 0.55 });
+    fly(left, 12, { roll: -0.5, throttle: 0.55 });
+    expect(right.position.x).toBeGreaterThan(90);
+    expect(left.position.x).toBeLessThan(-90);
+    expect(right.position.x).toBeCloseTo(-left.position.x, 5);
+    expect(right.velocity.x).toBeGreaterThan(10);
+    expect(left.velocity.x).toBeLessThan(-10);
+    expect(right.crashed || left.crashed).toBe(false);
+  });
+
+  it('accelerates down the runway, rotates, and climbs under its own lift', () => {
+    const state = vehicle('plane', 2.5);
+    state.velocity.set(0, 0, 0);
+    state.throttle = 0;
+    fly(state, 1, { throttle: 1, pitch: 0.25 });
+    expect(state.crashed).toBe(false);
+    expect(state.grounded).toBe(true);
+    expect(state.position.y).toBe(2.5);
+    expect(state.velocity.z).toBeLessThan(-5);
+    fly(state, 8, { throttle: 1, pitch: 0.25 });
+    expect(state.crashed).toBe(false);
+    expect(state.grounded).toBe(false);
+    expect(state.position.y).toBeGreaterThan(12);
+    expect(state.position.z).toBeLessThan(-150);
+  });
+
+  it('accepts a shallow touchdown and uses wheel braking to reduce runway speed', () => {
+    const rolling = vehicle('plane', 2.6);
+    rolling.assist = false;
+    rolling.velocity.set(0, -1, -18);
+    rolling.throttle = 0;
+    fly(rolling, 0.15);
+    expect(rolling.crashed).toBe(false);
+    expect(rolling.grounded).toBe(true);
+    const speed = rolling.velocity.length();
+    fly(rolling, 2, { brake: true });
+    expect(rolling.crashed).toBe(false);
+    expect(rolling.velocity.length()).toBeLessThan(speed * 0.25);
+    expect(rolling.position.y).toBe(2.5);
   });
 });
 
@@ -176,5 +277,27 @@ describe('integration and contact', () => {
     expect(state.previousPosition.toArray()).toEqual([0, 10, 0]);
     expect(spawn.position.toArray()).toEqual([0, 10, 0]);
     expect(state.position.x).toBeCloseTo(1 / 60, 8);
+  });
+
+  it('keeps each flight model finite through five minutes of changing controls', () => {
+    const openSky = { ...empty, groundHeight: () => -Infinity };
+    for (const mode of ['drone', 'plane', 'space'] as const) {
+      const state = vehicle(mode, 10000);
+      for (let frame = 0; frame < 300 * 30; frame++) {
+        const time = frame / 30;
+        stepFlight(state, {
+          ...ZERO_INPUT,
+          roll: Math.sin(time * 0.17) * 0.35,
+          pitch: Math.sin(time * 0.12) * 0.15,
+          yaw: Math.sin(time * 0.09) * 0.15,
+          throttle: mode === 'drone' ? 0.55 : 0.55,
+          moveX: Math.sin(time * 0.1), moveZ: Math.cos(time * 0.08),
+        }, openSky, 1 / 30);
+      }
+      expect([...state.position.toArray(), ...state.velocity.toArray(), ...state.quaternion.toArray(), state.airspeed].every(Number.isFinite)).toBe(true);
+      expect(state.quaternion.length()).toBeCloseTo(1, 8);
+      expect(state.flightTime).toBeCloseTo(300, 6);
+      expect(state.crashed).toBe(false);
+    }
   });
 });

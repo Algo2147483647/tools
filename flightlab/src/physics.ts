@@ -9,6 +9,39 @@ const UP = new Vector3(0, 1, 0);
 const FORWARD = new Vector3(0, 0, -1);
 const RADIUS: Record<FlightMode, number> = { drone: 0.6, plane: 2.5, space: 2 };
 
+export type HandlingPreset = 'gentle' | 'balanced' | 'sport';
+interface HandlingProfile {
+  droneAngle: number; droneBank: number; pitchRate: number; rollRate: number;
+  yawRate: number; response: number; planeBank: number; planeRate: number;
+  spaceAcceleration: number; spaceSpeed: number; spaceRate: number;
+}
+const HANDLING: Record<HandlingPreset, HandlingProfile> = {
+  gentle: { droneAngle: 32, droneBank: 36, pitchRate: 2.3, rollRate: 2.8, yawRate: 1.65, response: 12, planeBank: 42, planeRate: 0.8, spaceAcceleration: 5.5, spaceSpeed: 20, spaceRate: 0.7 },
+  balanced: { droneAngle: 45, droneBank: 48, pitchRate: 3.5, rollRate: 4.5, yawRate: 2.4, response: 14, planeBank: 62, planeRate: 1, spaceAcceleration: 7.5, spaceSpeed: 30, spaceRate: 1 },
+  sport: { droneAngle: 56, droneBank: 60, pitchRate: 4.5, rollRate: 5.5, yawRate: 3, response: 18, planeBank: 72, planeRate: 1.2, spaceAcceleration: 10.5, spaceSpeed: 42, spaceRate: 1.3 },
+};
+const handlingPresets = new WeakMap<FlightState, HandlingPreset>();
+
+/** Profiles affect control authority; state is retained when changing profile in flight. */
+export function setHandlingPreset(state: FlightState, preset: HandlingPreset): void {
+  handlingPresets.set(state, preset in HANDLING ? preset : 'balanced');
+}
+export function getHandlingPreset(state: FlightState): HandlingPreset {
+  return handlingPresets.get(state) ?? 'balanced';
+}
+
+/** Includes the assist's exponential low-speed taper and a 0.2 second reaction margin. */
+export function estimateStoppingDistance(state: FlightState, speed = state.velocity.length()): number {
+  const velocity = Math.max(0, speed);
+  const acceleration = state.mode === 'space' ? HANDLING[getHandlingPreset(state)].spaceAcceleration : 5;
+  const taperRate = 1.8;
+  const cutoff = 0.05;
+  const taperStart = acceleration / taperRate;
+  const constantDistance = velocity > taperStart ? (velocity * velocity - taperStart * taperStart) / (2 * acceleration) : 0;
+  const taperDistance = Math.max(0, Math.min(velocity, taperStart) - cutoff) / taperRate;
+  return constantDistance + taperDistance + velocity * 0.2;
+}
+
 export const ZERO_INPUT: FlightInput = {
   pitch: 0, roll: 0, yaw: 0, throttleDelta: 0,
   moveX: 0, moveY: 0, moveZ: 0, brake: false, boost: false,
@@ -55,8 +88,9 @@ function rotate(state: FlightState, targetRate: Vector3, response: number, dt: n
 }
 
 function droneAcceleration(state: FlightState, input: FlightInput, wind: Vector3, dt: number): Vector3 {
-  let pitchTarget = axis(input.pitch) * 45 * RAD;
-  let rollTarget = -axis(input.roll) * 48 * RAD;
+  const profile = HANDLING[getHandlingPreset(state)];
+  let pitchTarget = axis(input.pitch) * profile.droneAngle * RAD;
+  let rollTarget = -axis(input.roll) * profile.droneBank * RAD;
   if (state.assist && input.brake) {
     const yaw = new Euler().setFromQuaternion(state.quaternion, 'YXZ').y;
     const localVelocity = state.velocity.clone().applyAxisAngle(UP, -yaw);
@@ -65,21 +99,28 @@ function droneAcceleration(state: FlightState, input: FlightInput, wind: Vector3
   }
   const rates = state.assist
     ? attitudeRate(state, pitchTarget, rollTarget)
-    : new Vector3(axis(input.pitch) * 3.5, 0, -axis(input.roll) * 4.5);
-  rates.y = -axis(input.yaw) * 2.4;
-  rotate(state, rates, 14, dt);
+    : new Vector3(axis(input.pitch) * profile.pitchRate, 0, -axis(input.roll) * profile.rollRate);
+  rates.y += -axis(input.yaw) * profile.yawRate;
+  rotate(state, rates, profile.response, dt);
 
   const relativeVelocity = state.velocity.clone().sub(wind);
   state.airspeed = relativeVelocity.length();
   state.stall = 0;
-  const acceleration = UP.clone().applyQuaternion(state.quaternion)
-    .multiplyScalar(state.throttle * GRAVITY * 2 * (input.boost ? 1.22 : 1));
+  const thrustDirection = UP.clone().applyQuaternion(state.quaternion);
+  const maxThrust = GRAVITY * 2 * (input.boost ? 1.22 : 1);
+  // Brake assist tilts against horizontal velocity and compensates for tilted thrust.
+  // It still respects motor authority and cannot arrest a fall at zero throttle.
+  const thrust = state.assist && input.brake
+    ? Math.min(maxThrust, state.throttle * maxThrust / Math.max(0.4, thrustDirection.y))
+    : state.throttle * maxThrust;
+  const acceleration = thrustDirection.multiplyScalar(thrust);
   acceleration.y -= GRAVITY;
   acceleration.addScaledVector(relativeVelocity, -(0.11 + state.airspeed * 0.009));
   return acceleration;
 }
 
 function planeAcceleration(state: FlightState, input: FlightInput, wind: Vector3, dt: number): Vector3 {
+  const profile = HANDLING[getHandlingPreset(state)];
   const airVelocity = state.velocity.clone().sub(wind);
   const speed = airVelocity.length();
   const attitude = new Euler().setFromQuaternion(state.quaternion, 'YXZ');
@@ -87,11 +128,16 @@ function planeAcceleration(state: FlightState, input: FlightInput, wind: Vector3
   const authority = MathUtils.clamp(speed / 27, 0.08, 1.2);
 
   if (state.assist) {
-    const bank = -axis(input.roll) * 62 * RAD;
+    const bank = state.grounded ? 0 : -axis(input.roll) * profile.planeBank * RAD;
     const desiredClimb = axis(input.pitch) * 17;
     const liftForLevel = GRAVITY / Math.max(8, 0.02 * speed * speed * Math.cos(bank));
     const trimAlpha = MathUtils.clamp((liftForLevel - 0.34) / 4.5, -0.08, 0.16);
-    const desiredPitch = Math.asin(MathUtils.clamp(desiredClimb / Math.max(speed, 22), -0.7, 0.7)) + trimAlpha;
+    let desiredPitch = Math.asin(MathUtils.clamp(desiredClimb / Math.max(speed, 22), -0.7, 0.7)) + trimAlpha;
+    if (state.grounded) {
+      // Rotation builds with airspeed, keeping the wheels planted while taxiing.
+      const rotationAuthority = MathUtils.smoothstep(speed, 12, 26);
+      desiredPitch = MathUtils.clamp(desiredPitch, -3 * RAD, 12 * RAD) * rotationAuthority;
+    }
     rates = attitudeRate(state, desiredPitch, bank).multiplyScalar(0.55);
     // Tilted lift curves the flight path. Match heading to that turn without eliminating sideslip.
     const turnRate = GRAVITY * Math.tan(MathUtils.clamp(attitude.z, -1.1, 1.1)) / Math.max(speed, 18);
@@ -102,7 +148,11 @@ function planeAcceleration(state: FlightState, input: FlightInput, wind: Vector3
   } else {
     rates = new Vector3(axis(input.pitch) * 0.95, -axis(input.yaw) * 0.7, -axis(input.roll) * 1.7);
   }
-  rates.multiplyScalar(authority);
+  rates.multiplyScalar(authority * profile.planeRate);
+  if (state.grounded) {
+    rates.z *= 0.1;
+    rates.y += -axis(input.yaw) * MathUtils.clamp(speed / 12, 0, 1) * 0.3;
+  }
   rotate(state, rates, 4.5, dt);
 
   const localAir = airVelocity.clone().applyQuaternion(state.quaternion.clone().invert());
@@ -129,12 +179,16 @@ function planeAcceleration(state: FlightState, input: FlightInput, wind: Vector3
 }
 
 function spaceAcceleration(state: FlightState, input: FlightInput, dt: number): Vector3 {
-  rotate(state, new Vector3(axis(input.pitch) * 1.15, -axis(input.yaw) * 1.15, -axis(input.roll) * 1.6), 8, dt);
+  const profile = HANDLING[getHandlingPreset(state)];
+  rotate(state, new Vector3(axis(input.pitch) * 1.15, -axis(input.yaw) * 1.15, -axis(input.roll) * 1.6).multiplyScalar(profile.spaceRate), 8, dt);
   const translation = new Vector3(axis(input.moveX), axis(input.moveY), -axis(input.moveZ)).clampLength(0, 1);
-  const maxAcceleration = input.boost ? 18 : 7.5;
+  const maxAcceleration = profile.spaceAcceleration * (input.boost ? 2.4 : 1);
   const acceleration = translation.clone().applyQuaternion(state.quaternion);
   if (input.brake || state.assist) {
-    const targetVelocity = input.brake ? new Vector3() : acceleration.multiplyScalar(input.boost ? 72 : 30);
+    // Small stick deflections command precise docking speeds without reducing full thrust.
+    const magnitude = translation.length();
+    const precisionCurve = 0.2 + 0.8 * magnitude * magnitude;
+    const targetVelocity = input.brake ? new Vector3() : acceleration.multiplyScalar(profile.spaceSpeed * (input.boost ? 2.4 : 1) * precisionCurve);
     // Limit acceleration, rather than clipping velocity, so stopping distance stays meaningful.
     acceleration.copy(targetVelocity).sub(state.velocity).multiplyScalar(1.8).clampLength(0, maxAcceleration);
   } else {
@@ -165,7 +219,7 @@ function safeLanding(state: FlightState, closingSpeed: number): boolean {
 }
 
 /** Sample a swept sphere at intervals smaller than its radius to catch thin obstacles. */
-function moveWithCollisions(state: FlightState, environment: FlightEnvironment, dt: number): void {
+function moveWithCollisions(state: FlightState, input: FlightInput, environment: FlightEnvironment, dt: number): void {
   const radius = RADIUS[state.mode];
   const origin = state.position.clone();
   const destination = origin.clone().addScaledVector(state.velocity, dt);
@@ -206,7 +260,7 @@ function moveWithCollisions(state: FlightState, environment: FlightEnvironment, 
   if (contact) {
     state.position.y = Math.max(state.position.y, contactFloor, environment.groundHeight(state.position.x, state.position.z) + radius);
     state.velocity.y = Math.max(0, state.velocity.y);
-    const groundDamping = Math.exp(-(state.mode === 'plane' ? 0.32 : 5) * dt);
+    const groundDamping = Math.exp(-(state.mode === 'plane' ? (input.brake ? 0.9 : 0.035) : 5) * dt);
     state.velocity.x *= groundDamping;
     state.velocity.z *= groundDamping;
   }
@@ -232,7 +286,7 @@ export function stepFlight(state: FlightState, input: FlightInput, environment: 
         ? planeAcceleration(state, input, environment.wind, substep)
         : spaceAcceleration(state, input, substep);
     state.velocity.addScaledVector(acceleration, substep);
-    moveWithCollisions(state, environment, substep);
+    moveWithCollisions(state, input, environment, substep);
     state.flightTime += substep;
   }
 }

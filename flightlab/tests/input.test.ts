@@ -202,3 +202,195 @@ describe('gamepad safety and mode mapping', () => {
     input.dispose();
   });
 });
+
+describe('controller profiles and calibration', () => {
+  it('swaps conflicting bindings, rejects invalid values, and returns an isolated copy', () => {
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    input.setBinding('brake', 2);
+    expect(input.getBindings()).toMatchObject({ brake: 2, camera: 0 });
+    input.setBinding('assist', -1);
+    input.setBinding('reset', 4.5);
+    input.setBinding('boost', 100);
+    for (const reserved of [4, 5, 6, 7]) input.setBinding('assist', reserved);
+    expect(input.getBindings()).toMatchObject({ assist: 1, reset: 3, boost: 10 });
+    const copy = input.getBindings();
+    copy.brake = 8;
+    expect(input.getBindings().brake).toBe(2);
+    input.resetBindings();
+    expect(input.getBindings()).toMatchObject({ brake: 0, camera: 2 });
+  });
+
+  it('persists validated per-device bindings and southpaw layout', () => {
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (key: string) => storage.get(key), setItem: (key: string, value: string) => storage.set(key, value) });
+    const pad = standardPad([0.55, 0, 0, -0.55]);
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const first = new FlightInputManager(settings, () => {}, () => {});
+    first.poll('drone');
+    first.setBinding('brake', 2);
+    first.stickLayout = 'southpaw';
+    first.dispose();
+    const second = new FlightInputManager(settings, () => {}, () => {});
+    const flight = second.poll('drone');
+    expect(second.getBindings().brake).toBe(2);
+    expect(second.stickLayout).toBe('southpaw');
+    expect(flight.roll).toBeCloseTo(0.5);
+    expect(flight.throttleDelta).toBeCloseTo(0.5);
+    expect(flight.yaw).toBe(0);
+    const another = { ...pad, id: 'Another controller' };
+    vi.stubGlobal('navigator', { getGamepads: () => [another] });
+    second.poll('drone');
+    expect(second.getBindings().brake).toBe(0);
+    expect(second.stickLayout).toBe('standard');
+  });
+
+  it('rejects corrupt stored profiles and tolerates failed writes', () => {
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => key.includes('profiles') ? JSON.stringify({ default: { bindings: { brake: 0, assist: 0, reset: 3, boost: 10, camera: 2, pause: 9 }, layout: 'invalid', range: { min: [0, 0, 0, 0], max: [1, 1, 1, 1] } } }) : '{}',
+      setItem: () => { throw new Error('Storage blocked'); },
+    });
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    expect(input.getBindings()).toMatchObject({ brake: 0, assist: 1 });
+    expect(input.stickLayout).toBe('standard');
+    expect(() => input.setBinding('brake', 2)).not.toThrow();
+    expect(input.getBindings().brake).toBe(2);
+  });
+
+  it('discards saved profiles that assign fixed spacecraft buttons to another action', () => {
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => key.includes('profiles') ? JSON.stringify({ default: { bindings: { brake: 6, assist: 1, reset: 3, boost: 10, camera: 2, pause: 9 } } }) : '{}',
+    });
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    expect(input.getBindings().brake).toBe(0);
+  });
+
+  it('captures both ends of all four axes and scales asymmetrical travel around calibrated centers', () => {
+    const axes = [0.1, 0.1, 0.1, 0.1];
+    const pad = standardPad(axes);
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    expect(input.calibrate()).toBe(true);
+    expect(input.beginRangeCalibration()).toBe(true);
+    axes.fill(-0.6); input.poll('drone');
+    axes.fill(0.8); input.poll('drone');
+    expect(input.finishRangeCalibration()).toBe(true);
+    expect(input.rangeCalibrating).toBe(false);
+    expect(input.poll('drone')).toMatchObject({ pitch: 1, roll: 1, yaw: 1, throttleDelta: -1 });
+    axes.fill(-0.6);
+    expect(input.poll('drone')).toMatchObject({ pitch: -1, roll: -1, yaw: -1, throttleDelta: 1 });
+    axes.fill(0.1);
+    expect(input.poll('drone').roll).toBe(0);
+    axes.fill(0.485);
+    expect(input.poll('drone').roll).toBeCloseTo(0.5);
+    input.resetCalibration();
+    expect(input.poll('drone').roll).toBeCloseTo((0.485 - 0.1) / 0.9);
+  });
+
+  it('keeps incomplete sweeps open and does not change the applied calibration', () => {
+    const axes = [0, 0, 0, 0];
+    const pad = standardPad(axes);
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    input.beginRangeCalibration();
+    axes.fill(0.8); input.poll('drone');
+    axes[0] = -0.8; input.poll('drone');
+    expect(input.finishRangeCalibration()).toBe(false);
+    expect(input.rangeCalibrating).toBe(true);
+    expect(input.poll('drone').roll).toBeCloseTo(0.7 / 0.9);
+    axes.fill(-0.8); input.poll('drone');
+    expect(input.finishRangeCalibration()).toBe(true);
+    expect(input.poll('drone').roll).toBe(-1);
+  });
+
+  it('cancels an unfinished sweep without losing the saved center or range', () => {
+    const axes = [0.1, 0.1, 0.1, 0.1];
+    const pad = standardPad(axes);
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    input.calibrate(); input.beginRangeCalibration();
+    axes.fill(-0.6); input.poll('drone'); axes.fill(0.8); input.poll('drone');
+    expect(input.finishRangeCalibration()).toBe(true);
+    input.beginRangeCalibration();
+    axes.fill(-1); input.poll('drone'); axes.fill(1); input.poll('drone');
+    input.cancelRangeCalibration();
+    expect(input.rangeCalibrating).toBe(false);
+    expect(input.finishRangeCalibration()).toBe(false);
+    axes.fill(0.1); expect(input.poll('drone').roll).toBe(0);
+    axes.fill(0.8); expect(input.poll('drone').roll).toBe(1);
+    axes.fill(-0.6); expect(input.poll('drone').roll).toBe(-1);
+  });
+});
+
+describe('controller menu navigation', () => {
+  it('suppresses flight and emits menu directions with a delayed repeat', () => {
+    let now = 0;
+    vi.stubGlobal('performance', { now: () => now });
+    const axes = [0, 0, 0, 0];
+    const pad = standardPad(axes);
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const action = vi.fn(), menu = vi.fn();
+    const input = new FlightInputManager(settings, action, () => {});
+    input.setMenuHandler(menu);
+    input.setContext('menu'); input.poll('space');
+    axes[1] = 0.8;
+    expect(input.poll('space').moveY).toBe(0);
+    expect(menu).toHaveBeenCalledExactlyOnceWith('down');
+    now = 419; input.poll('space'); expect(menu).toHaveBeenCalledTimes(1);
+    now = 420; input.poll('space'); expect(menu).toHaveBeenCalledTimes(2);
+    now = 559; input.poll('space'); expect(menu).toHaveBeenCalledTimes(2);
+    now = 560; input.poll('space'); expect(menu).toHaveBeenCalledTimes(3);
+    Object.assign(pad.buttons[2], { pressed: true }); input.poll('space');
+    expect(action).not.toHaveBeenCalled();
+    axes[1] = 0;
+    Object.assign(pad.buttons[0], { pressed: true }); input.poll('space');
+    expect(menu).toHaveBeenLastCalledWith('confirm');
+    Object.assign(pad.buttons[1], { pressed: true }); input.poll('space');
+    expect(menu).toHaveBeenLastCalledWith('back');
+    Object.assign(pad.buttons[9], { pressed: true }); input.poll('space');
+    expect(action).toHaveBeenCalledExactlyOnceWith('pause');
+  });
+
+  it('requires release before flight after confirming a launch', () => {
+    const pad = standardPad();
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    input.setMenuHandler(action => { if (action === 'confirm') input.setContext('flight'); });
+    input.setContext('menu'); input.poll('drone');
+    Object.assign(pad.buttons[0], { pressed: true });
+    expect(input.poll('drone').brake).toBe(false);
+    expect(input.poll('drone').brake).toBe(false);
+    Object.assign(pad.buttons[0], { pressed: false }); input.poll('drone');
+    Object.assign(pad.buttons[0], { pressed: true });
+    expect(input.poll('drone').brake).toBe(true);
+  });
+
+  it('does not let stick range calibration move menu focus', () => {
+    const axes = [0, 0, 0, 0];
+    const pad = standardPad(axes);
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const menu = vi.fn();
+    const input = new FlightInputManager(settings, () => {}, () => {});
+    input.setMenuHandler(menu); input.setContext('menu'); input.poll('drone');
+    input.beginRangeCalibration();
+    axes.fill(-0.8); input.poll('drone'); axes.fill(0.8); input.poll('drone');
+    expect(menu).not.toHaveBeenCalled();
+    Object.assign(pad.buttons[13], { pressed: true }); input.poll('drone');
+    expect(menu).toHaveBeenCalledExactlyOnceWith('down');
+    expect(input.finishRangeCalibration()).toBe(true);
+  });
+
+  it('uses remapped flight actions while retaining fixed menu buttons', () => {
+    const pad = standardPad();
+    vi.stubGlobal('navigator', { getGamepads: () => [pad] });
+    const action = vi.fn(), menu = vi.fn();
+    const input = new FlightInputManager(settings, action, () => {});
+    input.poll('drone'); input.setBinding('camera', 1);
+    Object.assign(pad.buttons[1], { pressed: true }); input.poll('drone');
+    expect(action).toHaveBeenCalledExactlyOnceWith('camera');
+    Object.assign(pad.buttons[1], { pressed: false }); input.poll('drone');
+    input.setContext('menu'); input.setMenuHandler(menu); input.poll('drone');
+    Object.assign(pad.buttons[1], { pressed: true }); input.poll('drone');
+    expect(menu).toHaveBeenCalledExactlyOnceWith('back');
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+});

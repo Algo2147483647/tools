@@ -2,6 +2,13 @@ import type { FlightState } from './types';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+export interface AudioFeedback {
+  /** Surface proximity from 0 (clear) to 1 (very close). */
+  proximity: number;
+  /** Ambient wind speed in metres per second; ignored in vacuum. */
+  wind: number;
+}
+
 /** Procedural audio: no network assets, and no AudioContext until a user gesture. */
 export class FlightAudio {
   private context: AudioContext | null = null;
@@ -20,6 +27,13 @@ export class FlightAudio {
   private previousVelocity: [number, number, number] | null = null;
   private previousAngular: [number, number, number] | null = null;
   private previousMode: FlightState['mode'] | null = null;
+  private previousFlightTime = -1;
+  private previousProximity = 0;
+  private previousThruster = 0;
+  private nextWhoosh = 0;
+  private nextStallAlert = 0;
+  private nextThrusterPulse = 0;
+  private noiseBuffer: AudioBuffer | null = null;
 
   async start(): Promise<void> {
     if (this.disposed || typeof window === 'undefined') return;
@@ -62,6 +76,7 @@ export class FlightAudio {
         this.engine.start();
 
         const noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+        this.noiseBuffer = noiseBuffer;
         const data = noiseBuffer.getChannelData(0);
         let softened = 0;
         for (let i = 0; i < data.length; i++) {
@@ -98,7 +113,7 @@ export class FlightAudio {
     if (this.context && this.master) this.master.gain.setTargetAtTime(this.enabled ? this.volume : 0, this.context.currentTime, 0.05);
   }
 
-  update(state: FlightState, dt: number): void {
+  update(state: FlightState, dt: number, feedback?: AudioFeedback): void {
     if (!this.context || this.disposed) return;
     const time = this.context.currentTime;
     const target = (parameter: AudioParam | undefined, value: number, smooth = 0.09) => {
@@ -109,7 +124,8 @@ export class FlightAudio {
     const alive = state.crashed ? 0 : 1;
     const isSpace = state.mode === 'space';
     const isDrone = state.mode === 'drone';
-    const validDelta = dt > 0.0001 && dt < 0.15 && this.previousMode === state.mode;
+    const validDelta = dt > 0.0001 && dt < 0.15 && this.previousMode === state.mode
+      && state.flightTime >= this.previousFlightTime && state.flightTime - this.previousFlightTime < 0.25;
     let acceleration = 0;
     let angularAcceleration = 0;
     if (validDelta && this.previousVelocity && this.previousAngular) {
@@ -127,32 +143,76 @@ export class FlightAudio {
     this.previousVelocity = [state.velocity.x, state.velocity.y, state.velocity.z];
     this.previousAngular = [state.angularVelocity.x, state.angularVelocity.y, state.angularVelocity.z];
     this.previousMode = state.mode;
+    this.previousFlightTime = state.flightTime;
     const thruster = clamp(acceleration / 12 + angularAcceleration / 18, 0, 1);
+    const proximity = clamp(Number.isFinite(feedback?.proximity) ? feedback!.proximity : 0, 0, 1);
+    const ambientWind = Math.max(0, Number.isFinite(feedback?.wind) ? feedback!.wind : 0);
+    const approach = validDelta ? Math.max(0, (proximity - this.previousProximity) / dt) : 0;
+    const airborneStall = state.mode === 'plane' && !state.grounded ? clamp(state.stall, 0, 1) : 0;
+    const buffet = airborneStall * (0.6 + Math.sin(time * 47) * 0.25 + Math.sin(time * 29) * 0.15);
+
+    // A whoosh needs an actual fast approach to nearby geometry, not just high speed.
+    if (alive && !isSpace && validDelta && speed > 10 && proximity >= 0.48
+      && approach > 0.35 && this.previousProximity < 0.48 && time >= this.nextWhoosh) {
+      this.noisePulse(clamp(speed / 60, 0.15, 0.7), 0.24, 1600 + speed * 28);
+      this.nextWhoosh = time + 0.7;
+    }
+    if (alive && airborneStall > 0.65 && speed > 8 && time >= this.nextStallAlert) {
+      this.cue('stall');
+      this.nextStallAlert = time + 1.4;
+    }
+    if (alive && isSpace && validDelta && thruster - this.previousThruster > 0.25 && time >= this.nextThrusterPulse) {
+      this.noisePulse(thruster * 0.14, 0.13, 650, 'lowpass');
+      this.nextThrusterPulse = time + 0.25;
+    }
+    this.previousProximity = proximity;
+    this.previousThruster = thruster;
 
     target(this.rotor?.frequency, (isDrone ? 110 : 52) + throttle * (isDrone ? 260 : 110));
     target(this.rotorHarmonic?.frequency, (isDrone ? 221 : 105) + throttle * (isDrone ? 522 : 220));
     target(this.motorGain?.gain, isSpace ? 0 : alive * (0.035 + throttle * 0.11));
     target(this.engine?.frequency, isSpace ? 38 + thruster * 42 : 38 + throttle * 50);
     target(this.engineGain?.gain, alive * (isSpace ? thruster * 0.15 : 0.025 + throttle * 0.055));
-    target(this.windGain?.gain, alive * (isSpace ? thruster * 0.15 : Math.min(speed / 80, 1) * 0.28 + state.stall * 0.08));
+    target(this.windGain?.gain, alive * (isSpace ? thruster * 0.15 : Math.min((speed + ambientWind * 0.3) / 80, 1) * 0.28 + buffet * 0.13));
     target(this.windFilter?.frequency, isSpace ? 420 + thruster * 850 : 700 + Math.min(speed, 100) * 40);
   }
 
-  cue(kind: 'gate' | 'crash' | 'complete' | 'click'): void {
+  private noisePulse(volume: number, duration: number, frequency: number, type: BiquadFilterType = 'bandpass'): void {
+    if (!this.context || !this.master || !this.noiseBuffer || !this.enabled || this.disposed || this.context.state !== 'running') return;
+    const context = this.context;
+    const start = context.currentTime;
+    const source = context.createBufferSource();
+    const filter = context.createBiquadFilter();
+    const envelope = context.createGain();
+    source.buffer = this.noiseBuffer;
+    filter.type = type;
+    filter.frequency.setValueAtTime(frequency, start);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(100, frequency * 0.38), start + duration);
+    filter.Q.value = 0.7;
+    envelope.gain.setValueAtTime(0, start);
+    envelope.gain.linearRampToValueAtTime(volume, start + Math.min(0.05, duration / 3));
+    envelope.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    source.connect(filter).connect(envelope).connect(this.master);
+    source.start(start);
+    source.stop(start + duration + 0.02);
+    source.onended = () => { source.disconnect(); filter.disconnect(); envelope.disconnect(); };
+  }
+
+  cue(kind: 'gate' | 'crash' | 'complete' | 'click' | 'land' | 'stall'): void {
     if (!this.context || !this.master || !this.enabled || this.disposed || this.context.state !== 'running') return;
     const context = this.context;
     const notes = kind === 'complete' ? [523.25, 659.25, 783.99, 1046.5]
-      : kind === 'gate' ? [660, 880] : kind === 'crash' ? [95] : [400];
+      : kind === 'gate' ? [660, 880] : kind === 'crash' ? [95] : kind === 'land' ? [72] : kind === 'stall' ? [430, 430] : [400];
     notes.forEach((frequency, index) => {
       const start = context.currentTime + index * 0.1;
-      const duration = kind === 'crash' ? 0.55 : kind === 'click' ? 0.06 : 0.18;
+      const duration = kind === 'crash' ? 0.55 : kind === 'click' ? 0.06 : kind === 'stall' ? 0.075 : 0.18;
       const oscillator = context.createOscillator();
       const envelope = context.createGain();
-      oscillator.type = kind === 'crash' ? 'triangle' : 'sine';
+      oscillator.type = kind === 'crash' || kind === 'land' ? 'triangle' : 'sine';
       oscillator.frequency.setValueAtTime(frequency, start);
-      if (kind === 'crash') oscillator.frequency.exponentialRampToValueAtTime(28, start + duration);
+      if (kind === 'crash' || kind === 'land') oscillator.frequency.exponentialRampToValueAtTime(28, start + duration);
       envelope.gain.setValueAtTime(0, start);
-      envelope.gain.linearRampToValueAtTime(kind === 'crash' ? 0.35 : 0.15, start + 0.008);
+      envelope.gain.linearRampToValueAtTime(kind === 'crash' ? 0.35 : kind === 'land' ? 0.1 : kind === 'stall' ? 0.07 : 0.15, start + 0.008);
       envelope.gain.exponentialRampToValueAtTime(0.001, start + duration);
       oscillator.connect(envelope).connect(this.master!);
       oscillator.start(start);
@@ -169,5 +229,6 @@ export class FlightAudio {
     this.wind?.stop();
     if (this.context && this.context.state !== 'closed') void this.context.close().catch(() => {});
     this.context = null;
+    this.noiseBuffer = null;
   }
 }

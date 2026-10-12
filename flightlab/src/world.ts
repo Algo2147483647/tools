@@ -7,12 +7,15 @@ const FRONT = new THREE.Vector3(0, 0, 1);
 interface Solid { box: THREE.Box3 }
 interface GateVisual { group: THREE.Group; ring: THREE.Mesh; material: THREE.MeshStandardMaterial }
 interface Hill { x: number; z: number; rx: number; rz: number; height: number }
+interface WindCue { pivot: THREE.Group; cloth: THREE.Object3D; phase: number }
 
 /** Authored, asset-free flight environments. Distances are in metres. */
 export class FlightWorld {
   scene = new THREE.Scene();
   vehicle = new THREE.Group();
   gates: Gate[] = [];
+  routeLabels: string[] = [];
+  landingPad = { position: new THREE.Vector3(0, 0.25, 120), radius: 8 };
   dock = { position: new THREE.Vector3(0, 8, -470), quaternion: new THREE.Quaternion(), radius: 9 };
   private mode: FlightMode;
   private weather: Weather = 'clear';
@@ -26,6 +29,11 @@ export class FlightWorld {
   private sun = new THREE.DirectionalLight();
   private ambient = new THREE.HemisphereLight();
   private stationRotor?: THREE.Group;
+  private dockGuidance?: THREE.Group;
+  private serviceTug?: THREE.Group;
+  private windCues: WindCue[] = [];
+  private foliage: THREE.Group[] = [];
+  private readonly windDirection = new THREE.Vector3();
   private activeGate = 0;
   private materials = new Map<string, THREE.MeshStandardMaterial>();
   private geometries = new Map<string, THREE.BufferGeometry>();
@@ -43,6 +51,9 @@ export class FlightWorld {
     this.solids = [];
     this.hills = [];
     this.gates = [];
+    this.routeLabels = [];
+    this.windCues = [];
+    this.foliage = [];
     this.gateVisuals = [];
     this.propellers = [];
     this.materials.clear();
@@ -51,6 +62,8 @@ export class FlightWorld {
     this.waterMaterial = undefined;
     this.skyMaterial = undefined;
     this.stationRotor = undefined;
+    this.dockGuidance = undefined;
+    this.serviceTug = undefined;
     this.engineMaterial = undefined;
     this.activeGate = 0;
     this.ambient = new THREE.HemisphereLight(0xc6e9ff, 0x34464a, 2.1);
@@ -65,7 +78,10 @@ export class FlightWorld {
     this.sun.shadow.camera.near = 1;
     this.sun.shadow.camera.far = 1700;
     this.sun.shadow.bias = -0.00035;
-    this.sun.shadow.normalBias = 0.2;
+    this.sun.shadow.normalBias = 0.07;
+    const shadowRange = mode === 'plane' ? 180 : 105;
+    this.sun.shadow.camera.left = this.sun.shadow.camera.bottom = -shadowRange;
+    this.sun.shadow.camera.right = this.sun.shadow.camera.top = shadowRange;
     this.scene.add(this.ambient, this.sun, this.sun.target);
     if (mode === 'space') this.buildSpace();
     else this.buildCoast();
@@ -82,6 +98,13 @@ export class FlightWorld {
     if (mode === 'space') return { position: new THREE.Vector3(0, 8, 150), quaternion: new THREE.Quaternion(), velocity: new THREE.Vector3(0, 0, -3), throttle: 0 };
     if (mode === 'plane') return { position: new THREE.Vector3(-80, 95, 450), quaternion: new THREE.Quaternion(), velocity: new THREE.Vector3(0, 0, -38), throttle: 0.4 };
     return { position: new THREE.Vector3(0, 9, 120), quaternion: new THREE.Quaternion(), velocity: new THREE.Vector3(), throttle: 0.5 };
+  }
+
+  /** Calm, unobstructed starts for lessons; free-flight spawns stay airborne. */
+  trainingSpawn(mode: FlightMode = this.mode): SpawnPoint {
+    if (mode === 'space') return { position: this.dock.position.clone().add(new THREE.Vector3(0, 0, 150)), quaternion: new THREE.Quaternion(), velocity: new THREE.Vector3(), throttle: 0 };
+    if (mode === 'plane') return { position: new THREE.Vector3(-75, this.groundHeight(-75, 330) + 2.5, 330), quaternion: new THREE.Quaternion(), velocity: new THREE.Vector3(), throttle: 0 };
+    return { position: this.landingPad.position.clone().add(new THREE.Vector3(0, 0.65, 0)), quaternion: new THREE.Quaternion(), velocity: new THREE.Vector3(), throttle: 0 };
   }
 
   private mat(color: number, metalness = 0, roughness = 0.8, emissive = 0): THREE.MeshStandardMaterial {
@@ -254,6 +277,7 @@ export class FlightWorld {
     this.buildLighthouse();
     this.buildLandscape();
     this.buildBridge();
+    this.buildFlightReferences();
 
     // Landing pad at spawn, with inset cross and a readable ring from altitude.
     this.cylinder(0, 0.13, 120, 9, 0.2, 0x293e43);
@@ -266,8 +290,10 @@ export class FlightWorld {
     this.box(0, 0.25, 120, 4, 0.04, 0.5, 0xe8e4cb);
 
     if (this.mode === 'drone') {
-      this.route([[0, 11, 65], [0, 13, -10], [15, 18, -95], [62, 15, -170], [108, 12, -255], [20, 17, -330], [-45, 20, -390], [-110, 20, -300]], 7);
+      this.routeLabels = ['Harbor departure', 'Warehouse cut', 'Warehouse exit', 'Quayside run', 'Harbor bend', 'Bridge approach', 'Under the bridge', 'Lighthouse turn', 'Cliffside', 'Open bay', 'Bay sweep', 'Homeward leg', 'Harbor return', 'Final turn', 'Landing approach'];
+      this.route([[0, 10, 72], [0, 10, 6], [0, 10, -46], [8, 14, -170], [8, 14, -345], [50, 14, -455], [50, 14, -500], [95, 18, -565], [113, 20, -670], [190, 15, -710], [265, 13, -420], [230, 12, -120], [130, 13, 120], [0, 8, 160], [0, 7, 125]], 6);
     } else {
+      this.routeLabels = ['Departure', 'Harbor overflight', 'Coastal climb', 'Outer headland', 'Bay crossing', 'Downwind', 'Airfield return'];
       this.route([[-80, 95, 120], [-50, 110, -350], [60, 150, -950], [520, 165, -1500], [1050, 130, -800], [800, 105, 100], [250, 100, 550]], 36);
     }
   }
@@ -347,6 +373,25 @@ export class FlightWorld {
     this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0x698087, 0.25), doorSeams, this.scene, false);
     this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0xcab27c, 0.2), loadingTrim);
 
+    // An actual open-ended warehouse: collision follows side walls and roof,
+    // leaving a 19 m wide, 20 m high flight corridor along the road.
+    for (const side of [-1, 1]) {
+      this.detailSurface(this.box(side * 10.5, 10, 6, 2, 20, 74, 0x567378, this.scene, true), 'metal', 4);
+      for (const z of [-30, -6, 18, 42]) this.box(side * 9.4, 10, z, 0.45, 20, 0.7, 0xd5b77b);
+    }
+    this.detailSurface(this.box(0, 21, 6, 24, 2, 77, 0x354d58, this.scene, true), 'metal', 5);
+    const aisleLights: THREE.Matrix4[] = [], aisleLines: THREE.Matrix4[] = [];
+    for (let z = -25; z <= 37; z += 10) {
+      aisleLights.push(this.transform(-6.5, 19.85, z, 0.22, 0.12, 3));
+      aisleLights.push(this.transform(6.5, 19.85, z, 0.22, 0.12, 3));
+      aisleLines.push(this.transform(-7, 0.17, z, 0.25, 0.02, 5));
+      aisleLines.push(this.transform(7, 0.17, z, 0.25, 0.02, 5));
+    }
+    this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0xffdfae, 0, 0.5, 0xffb967), aisleLights, this.scene, false);
+    this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0xe7c978), aisleLines, this.scene, false);
+    const warehouseLabel = this.makeLabel('HANGAR 04', '#fff0c9', 'rgba(15,37,44,0.95)');
+    warehouseLabel.position.set(0, 24.8, 44.7); warehouseLabel.scale.set(20, 7, 1); this.scene.add(warehouseLabel);
+
     const containers: THREE.Matrix4[][] = [[], [], []];
     for (let i = 0; i < 30; i++) {
       const x = -125 - (i % 4) * 8;
@@ -421,6 +466,60 @@ export class FlightWorld {
     this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0xaebaa2), rails);
     for (const x of [-125, -55, 20, 85]) this.box(x, 13, z, 5, 27, 10, 0x657e7c, this.scene, true);
     this.solids.push({ box: new THREE.Box3(new THREE.Vector3(-132, 27.35, z - 6.5), new THREE.Vector3(88, 30.65, z + 6.5)) });
+  }
+
+  private buildFlightReferences(): void {
+    const cube = this.geom('box', () => new THREE.BoxGeometry(1, 1, 1));
+    const runwayLights: THREE.Matrix4[] = [], approachLights: THREE.Matrix4[] = [];
+    for (let z = -850; z <= 450; z += 40) for (const side of [-1, 1]) {
+      runwayLights.push(this.transform(-75 + side * 12.8, 0.3, z, 0.4, 0.3, 0.65));
+    }
+    // Threshold and approach lights remain below the wheels and outside the runway.
+    for (let z = 500; z <= 740; z += 40) {
+      for (const side of [-1, 1]) approachLights.push(this.transform(-75 + side * 15, 0.35, z, 0.65, 0.35, 1.2));
+    }
+    this.instances(cube, this.mat(0xd5e4bf, 0, 0.5, 0x527d63), runwayLights, this.scene, false);
+    this.instances(cube, this.mat(0xffe3a1, 0, 0.5, 0xb78b46), approachLights, this.scene, false);
+    const airfield = this.makeLabel('RUNWAY 36', '#e8f0d6', 'rgba(28,52,49,0.9)');
+    airfield.position.set(-102, 3.5, 390); airfield.scale.set(17, 5, 1); this.scene.add(airfield);
+
+    // The headland is a deliberate close-range wall on the lighthouse-to-bay leg.
+    // Instancing gives strong vertical striations and parallax at modest draw cost.
+    const cliffs: THREE.Matrix4[] = [], cliffCaps: THREE.Matrix4[] = [];
+    for (let i = 0; i < 14; i++) {
+      const x = 68 + Math.sin(i * 0.8) * 4, z = -631 - i * 9;
+      const height = 12 + Math.sin(i * 0.57) * 4;
+      cliffs.push(this.transform(x, height / 2 - 3, z, 24, height, 11));
+      cliffCaps.push(this.transform(x - 1, height - 2.85, z, 22, 0.35, 10));
+      this.solids.push({ box: new THREE.Box3(new THREE.Vector3(x - 12, -3, z - 5.5), new THREE.Vector3(x + 12, height - 3, z + 5.5)) });
+    }
+    this.instances(cube, this.mat(0x667870), cliffs);
+    this.instances(cube, this.mat(0x879776), cliffCaps);
+    const edgeMarks: THREE.Matrix4[] = [];
+    for (let z = -450; z <= 240; z += 12) edgeMarks.push(this.transform(75.2, 0.95, z, 0.7, 0.5, 2.5));
+    this.instances(cube, this.mat(0xd8c48e), edgeMarks, this.scene, false);
+
+    // Wind cues consume the exact wind vector passed to the flight model.
+    // No animation implies air movement when the weather model reports calm.
+    for (const [x, z] of [[25, 145], [-54, 295], [69, -200], [55, -570]]) {
+      this.cylinder(x, 3.5, z, 0.1, 7, 0xabb7a5, this.scene, 6);
+      const pivot = new THREE.Group(); pivot.position.set(x, 6.8, z); this.scene.add(pivot);
+      const cloth = new THREE.Group();
+      for (let i = 0; i < 4; i++) {
+        const segment = new THREE.Mesh(this.geom(`sock-${i}`, () => new THREE.CylinderGeometry(0.5 - i * 0.08, 0.42 - i * 0.08, 0.72, 8, 1, true)), this.mat(i % 2 ? 0xe9dfc0 : 0xce794c));
+        segment.rotation.z = Math.PI / 2; segment.position.x = 0.36 + i * 0.68; cloth.add(segment);
+      }
+      pivot.add(cloth);
+      this.windCues.push({ pivot, cloth, phase: x * 0.03 });
+    }
+    for (let i = 0; i < 12; i++) {
+      const x = -194 - (i % 3) * 13, z = 90 - Math.floor(i / 3) * 68;
+      const crown = new THREE.Group(); crown.position.set(x, 4, z); this.scene.add(crown);
+      this.cylinder(x, 2, z, 0.25, 4, 0x655e4a, this.scene, 6);
+      const leaves = new THREE.Mesh(this.geom('near-tree', () => new THREE.ConeGeometry(2.6, 8, 7)), this.mat(0x3c7562));
+      leaves.position.y = 2; leaves.castShadow = true; crown.add(leaves); this.foliage.push(crown);
+      this.solids.push({ box: new THREE.Box3(new THREE.Vector3(x - 0.35, 0, z - 0.35), new THREE.Vector3(x + 0.35, 10, z + 0.35)) });
+    }
   }
 
   private buildLandscape(): void {
@@ -509,13 +608,14 @@ export class FlightWorld {
   }
 
   private makeLabel(text: string, color: string, background: string): THREE.Sprite {
+    if (typeof document === 'undefined') return new THREE.Sprite();
     const canvas = document.createElement('canvas');
     canvas.width = 256; canvas.height = 128;
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = background;
     ctx.beginPath(); ctx.roundRect(12, 12, 232, 104, 18); ctx.fill();
     ctx.fillStyle = color;
-    ctx.font = 'bold 78px monospace';
+    ctx.font = `bold ${Math.min(78, Math.floor(340 / Math.max(1, text.length)))}px monospace`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(text, 128, 70);
     const texture = new THREE.CanvasTexture(canvas);
@@ -586,6 +686,7 @@ export class FlightWorld {
       debris.push(this.transform(x, (random() - 0.5) * 700, -1600 + random() * 2300, size, size * (0.5 + random()), size * 0.8, random() * 6));
     }
     this.instances(this.geom('asteroid', () => new THREE.IcosahedronGeometry(1, 0)), this.mat(0x627782, 0.1, 0.95), debris, this.scene, false);
+    this.routeLabels = ['Departure lane', 'Station acquisition', 'Offset translation', 'Velocity matching', 'Final alignment', 'Dock approach'];
     this.route([[0, 8, 70], [0, 8, -30], [30, 15, -135], [0, 8, -250], [0, 8, -350], [0, 8, -425]], 13);
   }
 
@@ -610,6 +711,8 @@ export class FlightWorld {
       const window = this.box(x, y, 8.7, 9, 12, 0.25, 0x77dce5, this.stationRotor);
       window.material = this.mat(0x76cad0, 0.2, 0.35, 0x1f879e);
       window.rotation.z = -a;
+      const bay = this.makeLabel(`B${String(i + 1).padStart(2, '0')}`, '#dbebde', 'rgba(15,30,42,0.95)');
+      bay.position.set(x, y, 10); bay.scale.set(12, 6, 1); this.stationRotor.add(bay);
       if (i % 3 === 0) {
         this.beam(new THREE.Vector3(Math.sin(a) * 22, Math.cos(a) * 22, -20), new THREE.Vector3(x, y, 0), 2.5, 0x647c89, this.stationRotor);
       }
@@ -643,11 +746,37 @@ export class FlightWorld {
     label.position.copy(this.dock.position).add(new THREE.Vector3(0, 18, 0));
     label.scale.set(18, 9, 1);
     this.scene.add(label);
-    for (const side of [-1, 1]) {
-      const lights: THREE.Matrix4[] = [];
-      for (let i = 0; i < 8; i++) lights.push(this.transform(side * 17, 8, -480 + i * 10, 0.5, 0.5, 2));
-      this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0x86dce0, 0.1, 0.4, 0x24a9c7), lights, this.scene, false);
+    this.dockGuidance = new THREE.Group(); this.dockGuidance.name = 'Dock guidance';
+    this.dockGuidance.visible = false; this.scene.add(this.dockGuidance);
+    const laneLights: THREE.Matrix4[] = [], ticks: THREE.Matrix4[] = [];
+    for (let i = 0; i < 14; i++) {
+      const z = this.dock.position.z + 10 + i * 10;
+      for (const side of [-1, 1]) {
+        laneLights.push(this.transform(side * 14, 8, z, 0.3, 0.3, 2));
+        ticks.push(this.transform(side * 14, -6, z, 3, 0.22, 0.3));
+      }
+      if (i % 5 === 4) {
+        const distance = this.makeLabel(`${(i + 1) * 10} m`, '#9ce7e4', 'rgba(4,20,35,0.8)');
+        distance.position.set(21, 0, z); distance.scale.set(10, 5, 1); this.dockGuidance.add(distance);
+      }
     }
+    this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0x86dce0, 0.1, 0.4, 0x24a9c7), laneLights, this.dockGuidance, false);
+    this.instances(this.geom('box', () => new THREE.BoxGeometry(1, 1, 1)), this.mat(0x58878b, 0.3, 0.5, 0x153336), ticks, this.dockGuidance, false);
+    // An asymmetric roll reference makes the correct target orientation unambiguous.
+    const orientationFrame = new THREE.Group(); orientationFrame.position.copy(this.dock.position).add(new THREE.Vector3(0, 0, 0.6));
+    this.dockGuidance.add(orientationFrame);
+    for (const side of [-1, 1]) this.box(side * 7.5, 0, 0, 2.3, 0.25, 0.3, 0x8fe1d9, orientationFrame);
+    this.box(0, 8.1, 0, 0.5, 3.6, 0.4, 0xffc276, orientationFrame);
+    this.box(0, -8.1, 0, 3.5, 0.3, 0.4, 0x83d3d0, orientationFrame);
+    const upLabel = this.makeLabel('UP', '#ffd99b', 'rgba(4,20,35,0.8)');
+    upLabel.position.set(0, 13, 0); upLabel.scale.set(5, 2.5, 1); orientationFrame.add(upLabel);
+
+    // A maintenance tug follows a slow, bounded route outside the approach volume.
+    this.serviceTug = new THREE.Group(); this.serviceTug.name = 'Station maintenance tug';
+    this.box(0, 0, 0, 5, 3, 8, 0xb9a476, this.serviceTug, false, 0.5);
+    this.box(0, 1.8, -1, 3, 1, 3, 0x24445a, this.serviceTug);
+    for (const side of [-1, 1]) this.box(side * 3.6, 0, 1, 1.8, 1.8, 5, 0x416579, this.serviceTug);
+    this.serviceTug.position.set(175, 35, -550); this.scene.add(this.serviceTug);
     this.solids.push({ box: new THREE.Box3(new THREE.Vector3(-20, -12, -650), new THREE.Vector3(20, 28, -510)) });
   }
 
@@ -746,7 +875,11 @@ export class FlightWorld {
     });
   }
 
-  update(dt: number, time: number, state: FlightState): void {
+  setDockGuidance(visible: boolean): void {
+    if (this.dockGuidance) this.dockGuidance.visible = visible;
+  }
+
+  update(dt: number, time: number, state: FlightState, wind?: THREE.Vector3): void {
     this.vehicle.position.copy(state.position);
     this.vehicle.quaternion.copy(state.quaternion);
     for (const propeller of this.propellers) {
@@ -755,11 +888,29 @@ export class FlightWorld {
     }
     if (this.waterMaterial) this.waterMaterial.uniforms.time.value = time;
     if (this.stationRotor) this.stationRotor.rotation.z = time * 0.006;
+    if (this.serviceTug) {
+      this.serviceTug.position.set(175 + Math.sin(time * 0.04) * 23, 35 + Math.sin(time * 0.025) * 14, -550 + Math.cos(time * 0.04) * 25);
+      this.serviceTug.rotation.y = -time * 0.04;
+    }
     if (this.engineMaterial) this.engineMaterial.opacity = 0.4 + Math.min(state.airspeed / 40, 0.5) + Math.sin(time * 31) * 0.08;
     if (this.mode !== 'space') {
-      this.sun.position.copy(state.position).add(new THREE.Vector3(-420, this.weather === 'dusk' ? 75 : 230, -850));
+      this.sun.position.set(state.position.x - 420, state.position.y + (this.weather === 'dusk' ? 75 : 230), state.position.z - 850);
       this.sun.target.position.copy(state.position);
       this.sun.target.updateMatrixWorld();
+      if (wind) this.windDirection.copy(wind); else this.windDirection.set(0, 0, 0);
+      this.windDirection.y = 0;
+      const strength = Math.min(1, this.windDirection.length() / 8);
+      const heading = Math.atan2(-this.windDirection.z, this.windDirection.x);
+      for (const cue of this.windCues) {
+        cue.pivot.rotation.y = heading;
+        cue.cloth.rotation.z = -(1 - strength) * 1.35;
+        cue.cloth.rotation.y = Math.sin(time * (3 + strength * 2) + cue.phase) * 0.1 * strength;
+      }
+      for (let i = 0; i < this.foliage.length; i++) {
+        const sway = (0.65 + Math.sin(time * 1.7 + i * 1.8) * 0.35) * 0.009;
+        this.foliage[i].rotation.z = -this.windDirection.x * sway;
+        this.foliage[i].rotation.x = this.windDirection.z * sway;
+      }
     }
     const active = this.gateVisuals[this.activeGate];
     if (active) active.material.emissiveIntensity = 1.6 + Math.sin(time * 2.5) * 0.3;
@@ -769,6 +920,7 @@ export class FlightWorld {
     if (this.mode === 'space') return -Infinity;
     let ground = x >= -1400 && x <= 70 && z >= -2200 && z <= 800 ? 0 : -3;
     if (x > 70 && x <= 147.5 && (Math.abs(z + 68) < 11 || Math.abs(z + 423) < 11)) ground = 0.3;
+    if (Math.hypot(x - this.landingPad.position.x, z - this.landingPad.position.z) <= this.landingPad.radius) ground = this.landingPad.position.y;
     // Ellipsoidal collision envelopes approximate the distant faceted ridgelines.
     for (const hill of this.hills) {
       const d = ((x - hill.x) / hill.rx) ** 2 + ((z - hill.z) / hill.rz) ** 2;
@@ -779,6 +931,24 @@ export class FlightWorld {
 
   isWater(x: number, z: number): boolean {
     return this.mode !== 'space' && this.groundHeight(x, z) <= -2.99;
+  }
+
+  /** Metres to the nearest collision surface, clamped to the requested horizon. */
+  proximity(position: THREE.Vector3, maxDistance = 80): number {
+    let distance = Math.max(0, Number.isFinite(maxDistance) ? maxDistance : 80);
+    if (this.mode !== 'space') distance = Math.min(distance, Math.max(0, position.y - this.groundHeight(position.x, position.z)));
+    else {
+      const radial = Math.hypot(position.x, position.y - 8);
+      distance = Math.min(distance, Math.max(0, Math.hypot(radial - 112, position.z + 550) - 6.2));
+      for (const side of [-1, 1]) {
+        const dx = Math.max(57.5 - position.x * side, 0, position.x * side - 273.5);
+        const dy = Math.max(0, Math.abs(position.y - 8) - 71);
+        const dz = Math.max(0, Math.abs(position.z + 660) - 1.5);
+        distance = Math.min(distance, Math.hypot(dx, dy, dz));
+      }
+    }
+    for (const solid of this.solids) distance = Math.min(distance, solid.box.distanceToPoint(position));
+    return distance;
   }
 
   collides(position: THREE.Vector3, radius: number): boolean {
@@ -810,11 +980,17 @@ export class FlightWorld {
         for (const value of Object.values(material)) if (value instanceof THREE.Texture) textures.add(value);
       }
     });
+    this.geometries.forEach(geometry => geometries.add(geometry));
+    this.materials.forEach(material => materials.add(material));
+    this.surfaceTextures.forEach(texture => textures.add(texture));
     geometries.forEach(geometry => geometry.dispose());
     materials.forEach(material => material.dispose());
     textures.forEach(texture => texture.dispose());
-    this.materials?.forEach(material => material.dispose());
     this.sun?.shadow.map?.dispose();
+    this.geometries.clear(); this.materials.clear(); this.surfaceTextures.clear();
     this.scene.clear();
+    this.vehicle.clear();
+    this.windCues = []; this.foliage = []; this.propellers = []; this.gateVisuals = [];
+    this.dockGuidance = undefined; this.serviceTug = undefined; this.stationRotor = undefined;
   }
 }
