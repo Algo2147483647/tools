@@ -16,6 +16,7 @@ import { workspaceSuite } from "./workspace.test";
 import { timelineSuite } from "./timeline.test";
 import { timelineRenderingSuite } from "./timelineRendering.test";
 import { spaceHistorySuite } from "./spaceHistory.test";
+import { nodeRelationsSuite } from "./nodeRelations.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -36,6 +37,7 @@ async function main() {
     timelineSuite,
     timelineRenderingSuite,
     spaceHistorySuite,
+    nodeRelationsSuite,
   ]);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);

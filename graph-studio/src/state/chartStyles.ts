@@ -33,5 +33,6 @@ export function createChartStyles(): ChartStyles {
 }
 
 export function sanitizeTimelineChartStyle(value: unknown): ChartStyle {
-  return sanitizeChartStyle(value ?? { appearance: { display: { showEdgeLabels: false } } });
+  const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Partial<ChartStyle>) : {};
+  return sanitizeChartStyle({ ...input, showNodeDetail: input.showNodeDetail === true });
 }

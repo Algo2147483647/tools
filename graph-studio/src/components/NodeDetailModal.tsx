@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import { getRelationKeys } from "../graph/relations";
 import { getTimelineEditError } from "../graph/timelineEditing";
-import type { DagNode, NodeKey } from "../graph/types";
+import type { DagNode, NodeKey, NormalizedDag } from "../graph/types";
 import NodeFieldEditor, {
   type EditableField,
   type FieldDisplayMode,
@@ -16,11 +16,20 @@ import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./nodeDetailRa
 import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 import NodeTimeEditor from "./NodeTimeEditor";
 import NodeJsonView from "./NodeJsonView";
+import NodeRelationsPanel from "./NodeRelationsPanel";
+
+const NODE_DETAIL_TABS = [
+  { id: "fields", label: "Node Fields" },
+  { id: "raw", label: "Raw JSON" },
+  { id: "edges", label: "Edges" },
+] as const;
+type NodeDetailTab = (typeof NODE_DETAIL_TABS)[number]["id"];
 
 interface NodeDetailModalProps {
   open: boolean;
   nodeKey: NodeKey | null;
   node: DagNode | null;
+  graph: NormalizedDag | null;
   timeline?: boolean;
   timelineReferenceTime?: number;
   initialFocus?: "fields" | "raw";
@@ -35,6 +44,7 @@ export default function NodeDetailModal({
   open,
   nodeKey,
   node,
+  graph,
   timeline = false,
   timelineReferenceTime,
   initialFocus = "fields",
@@ -51,7 +61,7 @@ export default function NodeDetailModal({
   const [fieldDisplayModes, setFieldDisplayModes] = useState<Record<string, FieldDisplayMode>>({});
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
-  const [activeTab, setActiveTab] = useState<"fields" | "raw">(initialFocus);
+  const [activeTab, setActiveTab] = useState<NodeDetailTab>(initialFocus);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -158,7 +168,7 @@ export default function NodeDetailModal({
         </div>
         <div className="node-detail-body">
           <div className="node-detail-tabs" role="tablist" aria-label="Node content">
-            {(["fields", "raw"] as const).map((tab) => (
+            {NODE_DETAIL_TABS.map(({ id: tab, label }, index) => (
               <button
                 key={tab}
                 id={`node-detail-tab-${tab}`}
@@ -170,22 +180,24 @@ export default function NodeDetailModal({
                 tabIndex={activeTab === tab ? 0 : -1}
                 onClick={() => setActiveTab(tab)}
                 onKeyDown={(event) => {
-                  let nextTab: "fields" | "raw";
+                  let nextIndex: number;
                   if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                    nextTab = tab === "fields" ? "raw" : "fields";
+                    const step = event.key === "ArrowRight" ? 1 : -1;
+                    nextIndex = (index + step + NODE_DETAIL_TABS.length) % NODE_DETAIL_TABS.length;
                   } else if (event.key === "Home") {
-                    nextTab = "fields";
+                    nextIndex = 0;
                   } else if (event.key === "End") {
-                    nextTab = "raw";
+                    nextIndex = NODE_DETAIL_TABS.length - 1;
                   } else {
                     return;
                   }
                   event.preventDefault();
+                  const nextTab = NODE_DETAIL_TABS[nextIndex].id;
                   setActiveTab(nextTab);
                   document.getElementById(`node-detail-tab-${nextTab}`)?.focus();
                 }}
               >
-                {tab === "fields" ? "Node Fields" : "Raw JSON"}
+                {label}
               </button>
             ))}
           </div>
@@ -264,6 +276,16 @@ export default function NodeDetailModal({
             hidden={activeTab !== "raw"}
           >
             <NodeJsonView value={rawJsonValue} editable={isEditing} onChange={handleRawJsonChange} />
+          </section>
+          <section
+            id="node-detail-panel-edges"
+            className="node-detail-tab-panel"
+            role="tabpanel"
+            aria-labelledby="node-detail-tab-edges"
+            tabIndex={0}
+            hidden={activeTab !== "edges"}
+          >
+            <NodeRelationsPanel graph={graph} nodeKey={currentNodeKey} />
           </section>
         </div>
       </div>

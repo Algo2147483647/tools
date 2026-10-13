@@ -135,11 +135,12 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
   defineTest("timeline preferences survive reload and appearance undo stays isolated", () => {
     const preferences = getInitialGraphPagePreferences();
     assert.equal(preferences.chartStyles.timeline.appearance.display.showEdgeLabels, false);
+    assert.equal(preferences.chartStyles.timeline.showNodeDetail, false);
     preferences.chartType = "timeline";
     preferences.chartStyles.timeline.appearance = sanitizeGraphAppearance({
       cssVars: { "--dag-text-strong": "#234567" },
     });
-    preferences.chartStyles.timeline.showNodeDetail = false;
+    preferences.chartStyles.timeline.showNodeDetail = true;
     const parsed = parseGraphPagePreferences(JSON.stringify(preferences));
     assert.deepEqual(parsed!.chartStyles!.timeline, preferences.chartStyles.timeline);
     assert.equal(parsed!.chartType, "timeline");
@@ -155,6 +156,9 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     assert.deepEqual(history.timeline.appearance, defaults.timeline.appearance);
     const migrated = parseGraphPagePreferences('{"chartStyles":{"node-link":{}}}');
     assert.equal(migrated!.chartStyles!.timeline.appearance.display.showEdgeLabels, false);
+    assert.equal(migrated!.chartStyles!.timeline.showNodeDetail, false);
+    const partial = parseGraphPagePreferences('{"chartStyles":{"timeline":{}}}');
+    assert.equal(partial!.chartStyles!.timeline.showNodeDetail, false);
   }),
   defineTest("unrelated edits preserve malformed imported time while date edits must fix it", () => {
     const time = { start: "not-a-date", end: null };

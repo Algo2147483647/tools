@@ -284,6 +284,7 @@ export default function StudioView({
       />
       <NodeDetailModal
         open={Boolean(detailNodeKey)}
+        graph={state.dag}
         nodeKey={detailNodeKey}
         node={detailNodeKey && state.dag ? state.dag.nodes[detailNodeKey] || null : null}
         timeline={state.chartType === "timeline"}

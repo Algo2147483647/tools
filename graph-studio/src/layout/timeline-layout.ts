@@ -31,7 +31,7 @@ export function buildTimelineStage(input: {
   now?: number;
   timeRange?: { start?: number; end?: number };
 }): StageData | null {
-  const { dag, appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = true } = input;
+  const { dag, appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = false } = input;
   if (!Object.keys(dag.nodes).length) return null;
   if (
     input.timeRange !== undefined &&

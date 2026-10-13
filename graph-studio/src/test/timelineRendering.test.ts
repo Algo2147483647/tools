@@ -9,6 +9,30 @@ import { getVisibleTimeTicks } from "../rendering/TimelineBackdrop";
 import { defineSuite, defineTest } from "./harness";
 
 export const timelineRenderingSuite = defineSuite("Timeline rendering", [
+  defineTest("details are hidden by default and can be enabled", () => {
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { a: { title: "Event", define: "Event details", time: { at: "2001-01-01" } } },
+      edges: [],
+    });
+    const compact = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const expanded = buildTimelineStage({ dag, selection: { type: "full" }, showNodeDetail: true })!;
+    assert.deepEqual(compact.nodes[0].detailLines, []);
+    assert.ok(expanded.nodes[0].detailLines.length > 0);
+    const render = (node: (typeof compact.nodes)[number]) =>
+      renderToStaticMarkup(
+        createElement(TimelineNode, {
+          node,
+          isActive: false,
+          onClick: () => {},
+          onContextMenu: () => {},
+          onFocusChange: () => {},
+        }),
+      );
+    assert.doesNotMatch(render(compact.nodes[0]), /class="timeline-node__detail"/);
+    assert.match(render(expanded.nodes[0]), /class="timeline-node__detail"/);
+  }),
   defineTest("duration is one accessible event with exact endpoint positions", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",
