@@ -236,8 +236,14 @@ export default function StudioView({
         onAppearanceCssVarChange={appearanceHistory.handleAppearanceCssVarChange}
         onAppearanceCssChange={appearanceHistory.handleAppearanceCssChange}
         onAppearanceDisplayChange={appearanceHistory.handleAppearanceDisplayChange}
-        onAppearancePresetChange={appearanceHistory.handleAppearancePresetChange}
-        onAppearanceReset={appearanceHistory.handleAppearanceReset}
+        onAppearancePresetChange={(presetId) => {
+          appearanceHistory.handleAppearancePresetChange(presetId);
+          if (presetId === "default" && !session.hideNodeBorders) session.toggleNodeBorders();
+        }}
+        onAppearanceReset={() => {
+          appearanceHistory.handleAppearanceReset();
+          if (!session.hideNodeBorders) session.toggleNodeBorders();
+        }}
         onAppearanceExport={appearanceHistory.handleAppearanceExport}
         onAppearanceImportClick={appearanceHistory.handleAppearanceImportClick}
         onAppearanceImportChange={appearanceHistory.handleAppearanceImportChange}

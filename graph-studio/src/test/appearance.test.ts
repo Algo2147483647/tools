@@ -23,14 +23,15 @@ export const appearanceSuite = defineSuite("appearance", [
     assert.equal(appearance.layout.minNodeWidth, 260);
     assert.equal(appearance.layout.maxNodeWidth, 260);
     assert.equal(appearance.layout.stageMinWidth, 4000);
-    assert.equal(appearance.display.showEdgeLabels, true);
+    assert.equal(appearance.display.showEdgeLabels, false);
     assert.equal(appearance.css, DEFAULT_GRAPH_APPEARANCE.css);
   }),
 
   defineTest("sanitizeGraphAppearance preserves edge label display preference", () => {
+    assert.equal(sanitizeGraphAppearance({ display: { showEdgeLabels: true } }).display.showEdgeLabels, true);
     assert.equal(sanitizeGraphAppearance({ display: { showEdgeLabels: false } }).display.showEdgeLabels, false);
     assert.equal(sanitizeGraphAppearance({ display: { showEdgeLabels: "false" } }).display.showEdgeLabels, false);
-    assert.equal(sanitizeGraphAppearance({ display: {} }).display.showEdgeLabels, true);
+    assert.equal(sanitizeGraphAppearance({ display: {} }).display.showEdgeLabels, false);
   }),
 
   defineTest("sanitizeGraphAppearance only accepts dag css vars and removes imports", () => {

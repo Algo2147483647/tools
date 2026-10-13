@@ -521,14 +521,7 @@ function NodeFieldPreview({
       />
     );
   }
-  if (field.name === "key") {
-    return (
-      <p className="node-detail-text">
-        <code className="node-detail-key">{value}</code>
-      </p>
-    );
-  }
-  if (field.editorKind === "plainText" || field.editorKind === "multilineText") {
+  if (field.name === "key" || field.editorKind === "plainText" || field.editorKind === "multilineText") {
     return <p className="node-detail-text">{value}</p>;
   }
   return <pre className="node-detail-pre">{value}</pre>;

@@ -18,7 +18,7 @@ export function sanitizeChartStyle(value: unknown): ChartStyle {
   return {
     appearance: sanitizeGraphAppearance(input.appearance),
     showNodeDetail: typeof input.showNodeDetail === "boolean" ? input.showNodeDetail : true,
-    hideNodeBorders: typeof input.hideNodeBorders === "boolean" ? input.hideNodeBorders : false,
+    hideNodeBorders: typeof input.hideNodeBorders === "boolean" ? input.hideNodeBorders : true,
     alignNodeWidthsToMax: typeof input.alignNodeWidthsToMax === "boolean" ? input.alignNodeWidthsToMax : false,
   };
 }

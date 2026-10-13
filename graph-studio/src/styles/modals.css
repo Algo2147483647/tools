@@ -749,16 +749,6 @@
   overflow-wrap: anywhere;
 }
 
-.node-detail-key {
-  padding: 3px 7px;
-  border: 1px solid var(--node-rule);
-  border-radius: 3px;
-  background: var(--node-soft);
-  font: 13px/1.7 var(--node-mono);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-
 .node-detail-display-toggle {
   flex: 0 0 auto;
   display: inline-grid;

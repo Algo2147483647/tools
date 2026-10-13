@@ -263,7 +263,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     stageMinHeight: 600,
   },
   display: {
-    showEdgeLabels: true,
+    showEdgeLabels: false,
     nodeShadow: true,
     shadowBlur: 8,
     shadowOffset: 3,
@@ -281,7 +281,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
     "--dag-title-font-family": '"Georgia", serif',
     "--dag-title-font-size": "15px",
-    "--dag-title-font-style": "italic",
+    "--dag-title-font-style": "normal",
     "--dag-title-font-weight": "400",
   },
   css: DEFAULT_GRAPH_CSS,
