@@ -2,6 +2,7 @@ import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normal
 import { serializeDag } from "./serialize";
 import { applyHierarchyCommand, pruneEmptyGroups, type HierarchyCommand } from "./hierarchy";
 import { collectDescendantKeys } from "./traversal";
+import { getTimelineEditError, getTimelineReferenceTime } from "./timelineEditing";
 import { type GraphEdge, type NodeKey, type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
 
 export type GraphCommand =
@@ -30,6 +31,7 @@ export interface CommandResult {
 
 export function applyGraphCommand(source: NormalizedDag, command: GraphCommand): CommandResult {
   const document = serializeDag(source);
+  const timelineReferenceTime = getTimelineReferenceTime(document);
   if (
     command.type === "groupCreate" ||
     command.type === "groupMove" ||
@@ -119,6 +121,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
           : command.type === "addNodeFromFields"
             ? command.fields
             : { define: "", type: "" };
+      if (command.type === "addNodeFromFields") validateEventFields(undefined, fields, timelineReferenceTime);
       putNode(command.key, fields);
       if (command.parentKey) setEdge(command.parentKey, command.key, defaultRelationValue);
       result.message = `Added node ${command.key}.`;
@@ -126,6 +129,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     }
     case "updateNodeFields": {
       const key = command.nextKey ?? command.key;
+      validateEventFields(nodes[command.key], command.fields, timelineReferenceTime);
       rename(command.key, key);
       putNode(key, command.fields);
       result.message = `Saved node ${key}.`;
@@ -182,6 +186,15 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
   }
   const dag = normalizeDagInput(document);
   return { ...result, dag, changedKeys: Object.keys(dag.nodes) };
+}
+
+function validateEventFields(
+  previous: Record<string, unknown> | undefined,
+  fields: Record<string, unknown>,
+  referenceTime?: number,
+) {
+  const error = getTimelineEditError(previous, fields, referenceTime);
+  if (error) throw new Error(error);
 }
 
 export function newEdgeId(edges: GraphEdge[]): string {

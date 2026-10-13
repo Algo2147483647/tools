@@ -113,7 +113,25 @@ export async function loadRecentLocations(): Promise<RecentLocation[]> {
 }
 export async function rememberLocation(
   input: Omit<RecentLocation, "id" | "openedAt" | "canReopen"> & { id?: string },
+  knownLocations?: RecentLocation[],
 ): Promise<{ items: RecentLocation[]; id: string }> {
+  // Bundled examples have stable IDs and no native handles to persist or compare.
+  // Opening them must not wait for IndexedDB (which can be blocked in another tab).
+  if (input.exampleId && !input.handle) {
+    const next: RecentLocation = {
+      ...input,
+      id: input.id || `example:${input.exampleId}`,
+      openedAt: Date.now(),
+      canReopen: true,
+    };
+    const current = readRecentMetadata().map((item) => {
+      const known = knownLocations?.find((location) => location.id === item.id);
+      return known?.handle ? { ...item, handle: known.handle, canReopen: true } : item;
+    });
+    const items = rankRecentLocations(current, next);
+    saveMetadata(items);
+    return { items, id: next.id };
+  }
   const current = await loadRecentLocations();
   let id = input.id;
   if (!id && input.handle) {

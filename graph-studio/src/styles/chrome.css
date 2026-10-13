@@ -1,5 +1,76 @@
 /* Application toolbar, shared controls and overlays. Component rules include responsive variants and surface fallbacks. */
 
+.timeline-range-filter {
+  position: relative;
+}
+.timeline-range-filter > summary {
+  list-style: none;
+}
+.timeline-range-filter > summary::-webkit-details-marker {
+  display: none;
+}
+.timeline-range-filter > summary.is-active {
+  color: var(--studio-accent);
+  background: #e8f0fd;
+}
+.timeline-range-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(320px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--studio-border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 35px #182e4e26;
+  color: var(--studio-ink);
+}
+.timeline-range-popover > strong {
+  font-size: 14px;
+}
+.timeline-range-popover p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5b6b80;
+  margin: 8px 0 12px;
+  white-space: normal;
+}
+.timeline-range-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.timeline-range-dates label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+.timeline-range-dates input {
+  min-width: 0;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid var(--studio-border);
+  border-radius: 6px;
+  background: white;
+  color: var(--studio-ink);
+  font: inherit;
+}
+.timeline-range-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.timeline-range-popover .timeline-range-error {
+  color: #ba2d36;
+}
+@media (max-width: 760px) {
+  .timeline-range-popover {
+    position: fixed;
+    top: var(--toolbar-bottom, 90px);
+    right: 16px;
+  }
+}
+
 .topbar {
   z-index: 5;
   flex: 0 0 auto;

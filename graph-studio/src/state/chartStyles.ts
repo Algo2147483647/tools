@@ -28,5 +28,10 @@ export function createChartStyles(): ChartStyles {
     "node-link": sanitizeChartStyle(null),
     sankey: sanitizeChartStyle(null),
     compound: sanitizeChartStyle(null),
+    timeline: sanitizeTimelineChartStyle(null),
   };
+}
+
+export function sanitizeTimelineChartStyle(value: unknown): ChartStyle {
+  return sanitizeChartStyle(value ?? { appearance: { display: { showEdgeLabels: false } } });
 }

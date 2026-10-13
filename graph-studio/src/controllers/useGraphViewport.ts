@@ -3,6 +3,8 @@ import { getNodeTitle } from "../graph/accessors";
 import type { GraphAppearance } from "../graph/appearance";
 import { getFullGraphSelection, getParentLevelSelection, sanitizeNodeLabel } from "../graph/selectors";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
+import { getTimelineTrackOptions, projectGraphByTimelineTrack } from "../graph/timelineView";
+import type { TimelineTimeRange } from "../graph/timelineRange";
 import { getGraphLayoutLabel, getGraphRenderMode, type CompoundView } from "../graph/types";
 import { useGraphPan } from "../hooks/useGraphPan";
 import { useGraphZoom } from "../hooks/useGraphZoom";
@@ -11,6 +13,7 @@ import { useCompoundView } from "../hooks/useCompoundView";
 import { useCompoundStage } from "../hooks/useCompoundStage";
 import { type StageAppearance, getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
+import { buildTimelineStage } from "../layout/timeline-layout";
 import { downloadSvg } from "../rendering/export-svg";
 import type { DocumentSessionController } from "./useDocumentSession";
 
@@ -23,6 +26,9 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   );
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
+  const [selectedTrack, setSelectedTrack] = useState("");
+  const [timelineRange, setTimelineRange] = useState<TimelineTimeRange | null>(null);
+  const activeTimelineRange = state.chartType === "timeline" ? timelineRange : null;
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const topbarRef = useRef<HTMLElement>(null);
@@ -37,6 +43,14 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   );
   const typeOptions = useMemo(() => (state.dag ? getGraphTypeOptions(state.dag) : []), [state.dag]);
   const activeType = typeOptions.includes(selectedType) ? selectedType : "";
+  const trackOptions = useMemo(() => (state.dag ? getTimelineTrackOptions(state.dag) : []), [state.dag]);
+  const activeTrack = state.chartType === "timeline" && trackOptions.includes(selectedTrack) ? selectedTrack : "";
+  useEffect(() => {
+    setSelectedTrack("");
+    setTimelineRange(null);
+    setSelectedType("");
+    setFocusedKey(null);
+  }, [state.document.generation]);
   useEffect(() => {
     if (selectedType && !typeOptions.includes(selectedType)) {
       setSelectedType("");
@@ -44,8 +58,10 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   }, [selectedType, typeOptions]);
   const displayDag = useMemo(
     () =>
-      state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, activeType, state.chartType) : null,
-    [activeType, state.dag, state.chartType],
+      state.dag && state.chartType !== "compound"
+        ? projectGraphByTimelineTrack(projectGraphByType(state.dag, activeType, state.chartType), activeTrack)
+        : null,
+    [activeType, activeTrack, state.dag, state.chartType],
   );
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
   const geometryJson = JSON.stringify(getStageAppearance(appearance));
@@ -53,15 +69,23 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   const flatStage = useMemo(
     () =>
       displayDag
-        ? buildStageData({
-            dag: displayDag,
-            colorSourceDag: state.dag ?? undefined,
-            selection: activeType ? { type: "full" } : state.selection,
-            layoutMode: renderMode,
-            appearance: geometryAppearance,
-            showNodeDetail,
-            alignNodeWidthsToMax,
-          })
+        ? state.chartType === "timeline"
+          ? buildTimelineStage({
+              dag: displayDag,
+              selection: { type: "full" },
+              appearance: geometryAppearance,
+              showNodeDetail,
+              timeRange: activeTimelineRange ?? undefined,
+            })
+          : buildStageData({
+              dag: displayDag,
+              colorSourceDag: state.dag ?? undefined,
+              selection: activeType ? { type: "full" } : state.selection,
+              layoutMode: renderMode,
+              appearance: geometryAppearance,
+              showNodeDetail,
+              alignNodeWidthsToMax,
+            })
         : null,
     [
       activeType,
@@ -72,6 +96,8 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       showNodeDetail,
       renderMode,
       state.selection,
+      state.chartType,
+      activeTimelineRange,
     ],
   );
   const compoundInput = useMemo(
@@ -92,7 +118,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   const stage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
   const parentSelection = useMemo(
     () =>
-      state.chartType !== "compound" && !activeType && state.dag && stage
+      state.chartType !== "compound" && state.chartType !== "timeline" && !activeType && state.dag && stage
         ? getParentLevelSelection(state.dag, stage.topLevelKeys)
         : null,
     [activeType, stage, state.dag, state.chartType],
@@ -106,8 +132,12 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
         : "No nodes match this view.";
     }
     if (!state.dag || !stage) {
+      if (state.chartType === "timeline" && state.dag)
+        return "No events match these filters. Choose Show all events to restore the timeline.";
       return state.ui.status;
     }
+    if (state.chartType === "timeline")
+      return `Timeline · UTC. ${stage.nodes.length} events and ${stage.edges.length} relationships.${activeTrack ? ` Track: ${activeTrack}.` : ""} ${stage.warnings.join(" ")}`;
     const focusNode = stage.dag[stage.root];
     const focusTitle = focusNode ? getNodeTitle(focusNode) : "";
     const focusLabel = focusNode?.synthetic
@@ -124,6 +154,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
   }, [
     activeType,
+    activeTrack,
     stage,
     state.dag,
     state.layout.mode,
@@ -144,7 +175,14 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     svgRef,
     topbarRef,
     stage,
-    viewKey: JSON.stringify([state.document.generation, state.chartType, compound.view.focusGroupId, activeType]),
+    viewKey: JSON.stringify([
+      state.document.generation,
+      state.chartType,
+      compound.view.focusGroupId,
+      activeType,
+      activeTrack,
+      activeTimelineRange,
+    ]),
     scale: state.zoom.scale,
     minScale: state.zoom.minScale,
     maxScale: state.zoom.maxScale,
@@ -164,7 +202,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
 
   function handleNodeClick(nodeKey: string) {
     clearPendingNodeClick();
-    if (state.chartType === "compound") {
+    if (state.chartType === "compound" || state.chartType === "timeline") {
       setFocusedKey(nodeKey);
       return;
     }
@@ -275,6 +313,8 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   }
   function back() {
     if (state.chartType === "compound") compound.back();
+    else if (activeTimelineRange) setTimelineRange(null);
+    else if (activeTrack) setSelectedTrack("");
     else if (activeType) changeType("");
     else dispatch({ type: "navigateBack" });
   }
@@ -288,6 +328,8 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   }
   function showAll() {
     changeType("");
+    setSelectedTrack("");
+    setTimelineRange(null);
     if (state.chartType === "compound") {
       enterGroup(null);
       return;
@@ -329,13 +371,28 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     focusedKey,
     setFocusedKey,
     typeOptions,
+    trackOptions,
+    activeTrack,
+    activeTimelineRange,
+    changeTimelineRange: (range: TimelineTimeRange | null) => {
+      setFocusedKey(null);
+      setTimelineRange(range);
+    },
+    changeTrack: (track: string) => {
+      setFocusedKey(null);
+      setSelectedTrack(track);
+    },
     activeType,
     changeType,
     back,
     up,
     showAll,
     zoom,
-    canBack: state.chartType === "compound" ? compound.canBack : Boolean(activeType) || state.history.length > 0,
+    canBack:
+      state.chartType === "compound"
+        ? compound.canBack
+        : Boolean(activeType || activeTrack || activeTimelineRange) ||
+          (state.chartType !== "timeline" && state.history.length > 0),
     canUp: state.chartType === "compound" ? Boolean(compound.view.focusGroupId) : Boolean(parentSelection),
     zoomPercent: Number((state.zoom.scale * 100).toFixed(state.zoom.scale < 0.1 ? 1 : 0)),
     canZoomOut: Boolean(stage) && state.zoom.scale > state.zoom.minScale + 0.001,

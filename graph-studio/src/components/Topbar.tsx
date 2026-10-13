@@ -1,5 +1,7 @@
 import type { RefObject } from "react";
 import type { WorkspaceControls } from "../hooks/useGraphImport";
+import type { TimelineTimeRange } from "../graph/timelineRange";
+import TimelineRangeFilter from "./TimelineRangeFilter";
 import {
   ArrowLeftIcon,
   ArrowUpIcon,
@@ -23,6 +25,15 @@ interface TopbarProps {
   typeOptions: string[];
   selectedType: string;
   onTypeChange: (type: string) => void;
+  timeline?: {
+    tracks: string[];
+    selectedTrack: string;
+    onTrackChange: (track: string) => void;
+    range: TimelineTimeRange | null;
+    onRangeChange: (range: TimelineTimeRange | null) => void;
+    canLocate: boolean;
+    onLocate: () => void;
+  };
   canBack: boolean;
   canUp: boolean;
   canUndo: boolean;
@@ -51,6 +62,7 @@ export default function Topbar({
   typeOptions,
   selectedType,
   onTypeChange,
+  timeline,
   canBack,
   canUp,
   canUndo,
@@ -97,12 +109,51 @@ export default function Topbar({
                 ))}
               </select>
             </label>
+            {timeline && (
+              <>
+                <label className="topbar-group type-filter-control">
+                  <span>Track</span>
+                  <select
+                    aria-label="Filter timeline by track"
+                    value={timeline.selectedTrack}
+                    onChange={(event) => timeline.onTrackChange(event.currentTarget.value)}
+                  >
+                    <option value="">All tracks</option>
+                    {timeline.tracks.map((track) => (
+                      <option key={track} value={track}>
+                        {track}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <TimelineRangeFilter range={timeline.range} onChange={timeline.onRangeChange} />
+                <IconButton
+                  id="timeline-locate-btn"
+                  label="Locate selected event"
+                  disabled={!timeline.canLocate}
+                  onClick={timeline.onLocate}
+                  icon={
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="topbar-icon-svg"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    >
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                      <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+                    </svg>
+                  }
+                />
+              </>
+            )}
             <div className="topbar-group nav-controls" aria-label="Graph navigation controls">
               <IconButton id="back-btn" label="Back" disabled={!canBack} onClick={onBack} icon={<ArrowLeftIcon />} />
               <IconButton id="up-btn" label="Up" disabled={!canUp} onClick={onUp} icon={<ArrowUpIcon />} />
               <IconButton
                 id="all-btn"
-                label="Show all roots"
+                label={timeline ? "Show all events" : "Show all roots"}
                 disabled={!hasGraph}
                 onClick={onAll}
                 icon={<GraphRootsIcon />}

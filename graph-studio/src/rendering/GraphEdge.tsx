@@ -1,5 +1,6 @@
 import { memo } from "react";
 import type { StageEdge } from "../layout/types";
+import { timelineMarkerId } from "./timelineStyles";
 
 interface GraphEdgeProps {
   edge: StageEdge;
@@ -16,9 +17,18 @@ const GraphEdge = memo(function GraphEdge({ edge, showLabel }: GraphEdgeProps) {
       data-label={edge.label}
       data-active="false"
       data-feedback={edge.flow?.feedback || undefined}
+      data-timeline-kind={edge.timeline?.kind}
+      data-backward={edge.timeline?.backward || undefined}
     >
       <title>{edge.description || `${edge.source} → ${edge.target}: ${edge.label}`}</title>
-      {edge.flow ? (
+      {edge.timeline ? (
+        <path
+          className="dag-edge__timeline"
+          d={edge.path}
+          stroke={edge.timeline.color}
+          markerEnd={`url(#${timelineMarkerId(edge.timeline.color)})`}
+        />
+      ) : edge.flow ? (
         <path className="dag-edge__flow" d={edge.path} stroke={edge.flow.color} strokeWidth={edge.flow.width} />
       ) : (
         <path className="dag-edge__path" d={edge.path} markerEnd="url(#arrowhead)" />

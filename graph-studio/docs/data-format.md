@@ -47,6 +47,8 @@ The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime
 
 For independent containment H and the `compound` chart type, see [Nested node-link](compound.md). Its hierarchy describes membership; the document's `edges` continue to describe only G relationships.
 
+For time-based display, set `metadata.timeline.version` to `1`, give nodes a `time` object (`at`, or `start` and `end`) and an optional `track`. This remains a v3 ordinary graph; `diagram` does not gain a new value. Missing or invalid times remain inspectable in the timeline's unplaced region. See [Timeline](timeline.md) for date precision, timezone, relation anchors, editing, and snapshot conventions.
+
 ## Sankey diagrams
 
 Set `"diagram": "sankey"` at document level. Every edge must have a finite, nonnegative numeric `value`. Missing values, numeric strings, booleans and `null` are rejected. See the [energy example](../public/sankey-example.json), or open an example workspace on the homepage.

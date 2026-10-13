@@ -6,7 +6,7 @@ import { serializeDag } from "../graph/serialize";
 import { buildStageData } from "../layout/stage-layout";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
-import { discoverWorkspace, readGraphFile } from "../workspace/discovery";
+import { discoverWorkspace, readGraphFile, readWorkspaceFile } from "../workspace/discovery";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
 import { resolveWorkspacePath } from "../workspace/paths";
 import { defineSuite, defineTest } from "./harness";
@@ -49,7 +49,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       );
       for (const entry of folder.files.values()) {
         assert.equal(entry.handle, null);
-        const text = await entry.file!.text();
+        const text = await (await readWorkspaceFile(entry)).text();
         assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
         // Resolve every generated Markdown link, including the graph's note fields.
         for (const match of text.matchAll(/\]\((\.{1,2}\/[\w/.-]+)\)/g)) {
@@ -239,7 +239,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     await assert.rejects(loadExampleWorkspace("energy", "/graph-studio/", unavailable), /Could not load/);
     assert.equal(requested, "/graph-studio/examples/energy/graph-studio.workspace.json");
   }),
-  defineTest("invalid asset paths and missing workspace files fail without opening a partial example", async () => {
+  defineTest("unsafe paths and missing graphs reject opening; unavailable notes fail only when opened", async () => {
     const manifest = JSON.parse(await readFile("public/examples/energy/graph-studio.workspace.json", "utf8"));
     for (const asset of [
       "../outside.md",
@@ -259,12 +259,73 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     }
     const missing = (async (url: string) =>
       url.endsWith("README.md") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
-    await assert.rejects(loadExampleWorkspace("energy", "/", missing), /Energy flows\/README.md/);
+    const folder = await loadExampleWorkspace("energy", "/", missing);
+    assert.equal((await discoverWorkspace(folder)).activePath, "energy.json");
+    await assert.rejects(readWorkspaceFile(folder.files.get("README.md")!), /Energy flows\/README.md/);
     const fallback = (async (url: string) =>
       url.endsWith("README.md")
         ? new Response("<!doctype html>", { headers: { "Content-Type": "text/html" } })
         : localFetch(url)) as typeof fetch;
-    await assert.rejects(loadExampleWorkspace("energy", "/", fallback), /Energy flows\/README.md/);
+    const fallbackFolder = await loadExampleWorkspace("energy", "/", fallback);
+    await assert.rejects(readWorkspaceFile(fallbackFolder.files.get("README.md")!), /Energy flows\/README.md/);
+    const missingGraph = (async (url: string) =>
+      url.endsWith("energy.json") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
+    await assert.rejects(loadExampleWorkspace("energy", "/", missingGraph), /Energy flows\/energy.json/);
+  }),
+  defineTest("large examples open without downloading notes and share only immutable cached files", async () => {
+    const requested: string[] = [];
+    const fetcher = (async (url: string) => {
+      requested.push(url);
+      return localFetch(url);
+    }) as typeof fetch;
+    const first = await loadExampleWorkspace("mathematics", "/", fetcher);
+    const workspace = await discoverWorkspace(first);
+    assert.equal(requested.length, 1 + workspace.graphs.length);
+    assert.ok(requested.every((url) => url.endsWith(".json")));
+    assert.equal(first.files.size, 228, "The full workspace inventory stays available");
+    const note = first.files.get("README.md")!;
+    const [a, b] = await Promise.all([readWorkspaceFile(note), readWorkspaceFile(note)]);
+    assert.equal(a, b);
+    assert.equal(requested.filter((url) => url.endsWith("README.md")).length, 1);
+    assert.match(await a.text(), /Mathematics/);
+    const count = requested.length;
+    const second = await loadExampleWorkspace("mathematics", "/", fetcher);
+    assert.equal(requested.length, count, "Reopening must not repeat network requests");
+    assert.notEqual(first.files, second.files);
+    assert.notEqual(first.files.get("mathematics.json"), second.files.get("mathematics.json"));
+  }),
+  defineTest("refresh replaces cached downloads while failed note requests remain retryable", async () => {
+    let revision = "First";
+    let failNote = true;
+    const fetcher = (async (url: string) => {
+      if (url.endsWith("README.md") && failNote) return new Response("Missing", { status: 404 });
+      const response = await localFetch(url);
+      if (!url.endsWith("energy.json")) return response;
+      const graph = await response.json();
+      return new Response(JSON.stringify({ ...graph, title: revision }));
+    }) as typeof fetch;
+    const first = await loadExampleWorkspace("energy", "/", fetcher);
+    await assert.rejects(readWorkspaceFile(first.files.get("README.md")!));
+    failNote = false;
+    assert.ok((await readWorkspaceFile(first.files.get("README.md")!)).size > 0);
+    revision = "Second";
+    const refreshed = await loadExampleWorkspace("energy", "/", fetcher, { reload: true });
+    assert.equal((await readGraphFile(first.files.get("energy.json")!)).title, "First");
+    assert.equal((await readGraphFile(refreshed.files.get("energy.json")!)).title, "Second");
+  }),
+  defineTest("stalled example requests time out, abort and can be retried", async () => {
+    let stalled = true;
+    let signal: AbortSignal | null = null;
+    const fetcher = (async (url: string, options?: RequestInit) => {
+      signal = options?.signal ?? null;
+      if (stalled) return new Promise<Response>(() => {});
+      return localFetch(url);
+    }) as typeof fetch;
+    await assert.rejects(loadExampleWorkspace("energy", "/", fetcher, { timeoutMs: 10 }), /timed out/);
+    assert.equal((signal as AbortSignal | null)?.aborted, true);
+    stalled = false;
+    const folder = await loadExampleWorkspace("energy", "/", fetcher);
+    assert.equal((await discoverWorkspace(folder)).activePath, "energy.json");
   }),
   defineTest("switching from a Sankey example to mathematics restores a layered layout", async () => {
     const dag = await exampleGraph("mathematics", "mathematics.json");

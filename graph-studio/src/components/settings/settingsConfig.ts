@@ -20,10 +20,10 @@ export const SETTINGS_CHAPTERS: Array<{
   {
     key: "chart",
     label: "Chart type",
-    description: "Node-link, nested subgraphs or Sankey",
+    description: "Node-link, nested subgraphs, Sankey or timeline",
     icon: "graph",
     keywords:
-      "diagram visualization display node link network sankey flow numeric value nested compound subgraph hierarchy group",
+      "diagram visualization display node link network sankey flow numeric value nested compound subgraph hierarchy group timeline time date event track duration branch",
   },
   {
     key: "layout",
@@ -31,7 +31,7 @@ export const SETTINGS_CHAPTERS: Array<{
     description: "Arrangement & spacing",
     icon: "layout",
     keywords:
-      "node link sankey flow width spacing engine algorithm level bfs sugiyama dagre layered layer node line height width tuning",
+      "node link sankey flow timeline time date event track duration branch width spacing engine algorithm level bfs sugiyama dagre layered layer node line height width tuning",
   },
   {
     key: "appearance",

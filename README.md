@@ -7,6 +7,7 @@
 在仓库目录运行：
 
 ```powershell
+.\launch.cmd graph-studio
 .\launch.cmd svg-studio
 .\launch.cmd service-flow-editor
 .\launch.cmd form-studio
@@ -17,8 +18,11 @@
 
 也可以继续双击各项目里的 `launch.cmd`，或者从其他目录用绝对路径运行。
 
+Graph Studio 使用项目内的 `scripts/node-runtime.ps1`，可双击 `graph-studio/start.bat`，不依赖外层共享脚本。
+
 | 项目 | 默认入口 | 开发模式 |
 | --- | --- | --- |
+| Graph Studio | http://127.0.0.1:5173/（开发服务，端口占用时自动递增） | 同默认 |
 | SVG Studio | http://127.0.0.1:4173/（开发服务） | 同默认 |
 | Service Flow Editor | http://127.0.0.1:4319/（构建后启动） | `-Dev`，4320 |
 | Form Studio | http://127.0.0.1:4174/（构建后预览） | `-Dev`，5173 |

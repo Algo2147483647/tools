@@ -1,6 +1,6 @@
 # Graph Studio
 
-Graph Studio is a browser-based graph viewer and lightweight JSON editor for directed graphs and Sankey diagrams.
+Graph Studio is a browser-based graph viewer and lightweight JSON editor for directed graphs, nested graphs, Sankey diagrams, and event timelines.
 
 It is built for fast graph inspection and editing in the browser:
 
@@ -8,6 +8,7 @@ It is built for fast graph inspection and editing in the browser:
 - validate versioned graph documents and resolve multi-file conflicts before importing
 - navigate by root, subtree, or parent level
 - explore and edit arbitrarily nested subgraphs with the independent Nested node-link chart type ([guide](docs/compound.md))
+- explore events on a true UTC time axis, with Git-style branching, duration bars, track filtering, and editable event times ([guide](docs/timeline.md))
 - edit nodes and relationships directly in the UI
 - batch graph edits from a text console in `Edit` mode
 - undo and redo graph mutations without losing navigation history
@@ -19,7 +20,7 @@ It is built for fast graph inspection and editing in the browser:
 
 ### One-click startup (Windows / macOS)
 
-- **Windows:** double-click `start.bat`, or run it from any directory. It uses the shared [`../scripts/node-runtime.ps1`](../scripts/node-runtime.ps1) to find Node.js 22.12+ and npm or pnpm, including an existing Codex runtime. If none is available, install Node.js LTS (including npm) from https://nodejs.org/. Keep this project alongside the repository's `scripts` directory.
+- **Windows:** double-click `start.bat`, or run it from any directory. The project's own [`scripts/node-runtime.ps1`](scripts/node-runtime.ps1) finds Node.js 22.12+ and npm or pnpm, including an existing Codex runtime. It skips older Node installations on PATH. If none is available, install Node.js LTS (including npm) from https://nodejs.org/. No external shared launcher files are required.
 - **macOS:** install Node.js LTS (including npm), run `chmod +x start.command` once in the project directory, then double-click `start.command`. You can also run `bash start.command` in Terminal.
 
 The scripts switch to the project directory, install dependencies, and open the app in your browser. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
@@ -32,7 +33,10 @@ Windows startup options:
 .\start.bat -InstallOnly  # Prepare dependencies without starting the server
 .\start.bat -BuildOnly    # Check TypeScript and build the app
 .\start.bat -NoBrowser    # Start without opening a browser
+.\start.bat -Preview      # Build and serve the production app
 ```
+
+From the repository root, `.\launch.cmd graph-studio` uses the same launcher (and accepts the same options). The development server ignores `dist` so a concurrent production build does not interrupt file watching on Windows.
 
 ### Manual startup
 
@@ -50,11 +54,13 @@ npm run build
 npm test
 ```
 
-The app starts on a welcome page. Open a graph file, open a folder as a workspace, reopen a recent location, or explore one of three independent example workspaces:
+The app starts on a welcome page. Open a graph file, open a folder as a workspace, reopen a recent location, or explore an independent example workspace:
 
 - **Mathematics:** 112 concepts, eight subject views, and linked English notes adapted from `math/studio`.
 - **Factorio production:** two demand-driven Space Age 2.0.65 Sankey plans: one complete launch-ready rocket per second, or all 12 science packs simultaneously at one of each per second. Both trace production back to raw resources.
 - **Energy flows:** a compact, balanced Sankey example with eight nodes and nine flows.
+- **Commerce operations:** nested groups and relationships across order fulfillment and returns.
+- **World space history:** one complete timeline with 298 sourced events and phases and 408 relationships, including Apollo 11's branching flights. Filter by theme, track or time range within the same graph.
 
 Examples open fresh editable copies and can be reopened from Recents without folder permissions. The canvas fills the window, with the `math/studio` glass toolbar and workspace panels floating above it. Fit uses the area visible beside the panels; panning can move the graph beneath them.
 
@@ -68,7 +74,7 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
 - initialize a blank canvas with one starter node
 - focus a node, move back through focus history, or move up to parent levels
 - work with multiple roots as a forest
-- switch chart type between `Node-link` and `Sankey`, each with its own saved appearance
+- switch chart type between `Node-link`, `Nested node-link`, `Sankey`, and `Timeline`, each with its own saved appearance
 - arrange Node-link charts with `BFS`, `Sugiyama` or `Dagre`; Sankey uses automatic flow layout
 - configure node shadows in Appearance settings, with live preview and SVG export
 - visualize numeric flows using the optional v3 `diagram: "sankey"` protocol ([example](public/sankey-example.json))

@@ -10,7 +10,7 @@ import {
 import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
 import { chartAppearanceHistoryReducer, createChartAppearanceHistory } from "../state/appearanceHistory";
-import type { ChartStyles } from "../state/chartStyles";
+import { sanitizeTimelineChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
 
 export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
@@ -21,6 +21,7 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
       "node-link": histories["node-link"].appearance,
       sankey: histories.sankey.appearance,
       compound: histories.compound.appearance,
+      timeline: histories.timeline.appearance,
     }),
     [histories],
   );
@@ -94,7 +95,10 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
   }
 
   function handleAppearanceReset() {
-    commitAppearance(DEFAULT_GRAPH_APPEARANCE, "Reset graph appearance.");
+    commitAppearance(
+      chartType === "timeline" ? sanitizeTimelineChartStyle(null).appearance : DEFAULT_GRAPH_APPEARANCE,
+      "Reset graph appearance.",
+    );
   }
 
   function handleAppearanceExport() {

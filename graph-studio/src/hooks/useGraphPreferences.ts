@@ -27,6 +27,7 @@ export function useGraphPreferences({
         "node-link": { ...displayByChart["node-link"], appearance: appearanceByChart["node-link"] },
         sankey: { ...displayByChart.sankey, appearance: appearanceByChart.sankey },
         compound: { ...displayByChart.compound, appearance: appearanceByChart.compound },
+        timeline: { ...displayByChart.timeline, appearance: appearanceByChart.timeline },
       },
       consoleSidebarOpen: state.ui.consoleSidebarOpen,
       consoleSidebarWidth: state.ui.consoleSidebarWidth,

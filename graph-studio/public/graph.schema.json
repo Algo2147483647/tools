@@ -31,7 +31,20 @@
       "type": "string"
     },
     "metadata": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "timeline": {
+          "type": "object",
+          "description": "An optional view hint. Timeline preserves the v3 graph and its original edges.",
+          "required": ["version"],
+          "properties": {
+            "version": { "const": 1 },
+            "timeZone": { "const": "UTC" },
+            "asOf": { "$ref": "#/$defs/timelineDate" }
+          },
+          "additionalProperties": true
+        }
+      }
     },
     "nodes": {
       "type": "object",
@@ -137,6 +150,13 @@
         },
         "type": {
           "type": "string"
+        },
+        "time": {
+          "$ref": "#/$defs/timelineTime"
+        },
+        "track": {
+          "type": "string",
+          "description": "Optional timeline track. Overlapping events may use adjacent subtracks."
         }
       },
       "additionalProperties": true
@@ -168,9 +188,47 @@
           ]
         },
         "metadata": {
-          "type": "object"
+          "type": "object",
+          "properties": {
+            "timeline": {
+              "type": "object",
+              "properties": {
+                "kind": { "enum": ["sequence", "dependency", "reference", "rendezvous", "part-of"], "default": "reference" },
+                "sourceAnchor": { "enum": ["start", "end"] },
+                "targetAnchor": { "enum": ["start", "end"] }
+              },
+              "additionalProperties": true
+            }
+          }
         }
       }
+    },
+    "timelineDate": {
+      "type": "string",
+      "description": "A valid calendar date, or ISO date-time with explicit Z or numeric offset. Runtime editing also validates real calendar days and end >= start.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(?:T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?(?:Z|[+-]\\d{2}:\\d{2}))?$"
+    },
+    "timelineTime": {
+      "type": "object",
+      "description": "Instant or interval. Explicit null end means ongoing. Missing time is allowed; malformed imported times are shown in the undated area for correction.",
+      "oneOf": [
+        {
+          "required": ["at"],
+          "properties": {
+            "at": { "$ref": "#/$defs/timelineDate" },
+            "start": false,
+            "end": false
+          }
+        },
+        {
+          "required": ["start", "end"],
+          "properties": {
+            "at": false,
+            "start": { "$ref": "#/$defs/timelineDate" },
+            "end": { "anyOf": [{ "$ref": "#/$defs/timelineDate" }, { "type": "null" }] }
+          }
+        }
+      ]
     }
   }
 }

@@ -1,6 +1,7 @@
 import { type CSSProperties, type KeyboardEvent, memo } from "react";
 import { formatFlow } from "../graph/sankey";
 import type { StageNode } from "../layout/types";
+import TimelineNode from "./TimelineNode";
 
 const DETAIL_LINE_HEIGHT = 10;
 const AFFORDANCE_HORIZONTAL_PADDING = 8;
@@ -25,6 +26,17 @@ const GraphNode = memo(function GraphNode({
   onContextMenu,
   onFocusChange,
 }: GraphNodeProps) {
+  if (node.timeline)
+    return (
+      <TimelineNode
+        node={node}
+        isActive={isActive}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onContextMenu={onContextMenu}
+        onFocusChange={onFocusChange}
+      />
+    );
   const hasDetail = node.detailLines.length > 0;
   const style = node.colorTokens
     ? ({

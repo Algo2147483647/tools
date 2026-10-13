@@ -1,9 +1,17 @@
 import assert from "node:assert/strict";
 import { sanitizeGraphAppearance } from "../graph/appearance";
+import { applyGraphCommand } from "../graph/commands";
 import { normalizeDagInput } from "../graph/normalize";
+import { serializeDag } from "../graph/serialize";
+import { getInitialSelection } from "../graph/selectors";
+import { getTimelineTrackOptions, isTimelineDocument, projectGraphByTimelineTrack } from "../graph/timelineView";
+import { getTimelineEditError, getTimelineReferenceTime } from "../graph/timelineEditing";
+import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timelineRange";
 import { projectGraphByType } from "../graph/typeFilter";
 import { getGraphRenderMode } from "../graph/types";
+import { getNodeLocatePoint } from "../hooks/useGraphZoom";
 import { buildStageData } from "../layout/stage-layout";
+import { buildTimelineStage } from "../layout/timeline-layout";
 import { chartAppearanceHistoryReducer, createChartAppearanceHistory } from "../state/appearanceHistory";
 import { createChartStyles } from "../state/chartStyles";
 import { graphReducer } from "../state/graphReducer";
@@ -26,6 +34,221 @@ const graph = (value: number | string = 10) =>
   });
 
 export const chartTypesSuite = defineSuite("chart types and independent styles", [
+  defineTest("timeline hints open every event without changing v3 diagram semantics", () => {
+    const source = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      diagram: "dag",
+      metadata: { timeline: { version: 1, timeZone: "UTC" } },
+      nodes: { A: { time: { at: "1969-07-16" } }, B: {} },
+      edges: [{ id: "ab", source: "A", target: "B" }],
+    });
+    assert.equal(isTimelineDocument(source), true);
+    assert.deepEqual(getInitialSelection(source), { type: "full" });
+    const loaded = graphReducer(initialGraphAppState, {
+      type: "graphLoaded",
+      documentId: "timeline",
+      dag: source,
+      fileName: "timeline.json",
+      selection: { type: "node", key: "A" },
+      status: "Loaded",
+    });
+    assert.equal(loaded.chartType, "timeline");
+    assert.deepEqual(loaded.selection, { type: "full" });
+    assert.equal(loaded.dag, source);
+    assert.equal(serializeDag(source).diagram, "dag");
+    assert.deepEqual(serializeDag(source).metadata, { timeline: { version: 1, timeZone: "UTC" } });
+    assert.equal(isTimelineDocument({ metadata: { timeline: { version: 2 } } }), false);
+  }),
+  defineTest("timeline accepts ordinary undated graphs and preserves other view state", () => {
+    const original = {
+      ...initialGraphAppState,
+      dag: graph("related"),
+      selection: { type: "node" as const, key: "A" },
+      layout: { mode: "dagre" as const },
+    };
+    const timeline = graphReducer(original, { type: "chartTypeChanged", chartType: "timeline" });
+    assert.equal(timeline.chartType, "timeline");
+    assert.equal(getGraphRenderMode(timeline.chartType, timeline.layout.mode), "timeline");
+    assert.equal(timeline.dag, original.dag);
+    assert.equal(timeline.selection, original.selection);
+    assert.equal(timeline.editHistory, original.editHistory);
+    const returned = graphReducer(timeline, { type: "chartTypeChanged", chartType: "node-link" });
+    assert.equal(returned.layout.mode, "dagre");
+    assert.equal(returned.dag, original.dag);
+  }),
+  defineTest("timeline type and track filters never bridge hidden historical events", () => {
+    const source = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: {
+        A: { track: " Mission ", type: "show" },
+        B: { track: "Other", type: "hide" },
+        C: { track: "Mission", type: "show" },
+        constructor: { track: "Other", type: "hide" },
+      },
+      edges: [
+        { id: "ab", source: "A", target: "B" },
+        { id: "bc", source: "B", target: "C" },
+        { id: "cc", source: "C", target: "constructor" },
+      ],
+    });
+    const snapshot = serializeDag(source);
+    assert.deepEqual(getTimelineTrackOptions(source), ["Mission", "Other"]);
+    const byType = projectGraphByType(source, "show", "timeline");
+    const byTrack = projectGraphByTimelineTrack(source, "Mission");
+    for (const view of [byType, byTrack]) {
+      assert.deepEqual(Object.keys(view.nodes), ["A", "C"]);
+      assert.equal(view.edges.length, 0);
+    }
+    assert.deepEqual(serializeDag(source), snapshot);
+    assert.equal(projectGraphByTimelineTrack(source, ""), source);
+  }),
+  defineTest("timeline time edits validate before committing and undo with their track", () => {
+    const source = graph();
+    const before = { ...initialGraphAppState, dag: source, selection: { type: "full" as const } };
+    for (const time of [
+      { at: "2024-02-30" },
+      { at: "2024-01-01T12:00:00" },
+      { start: "2024-02-02", end: "2024-02-01" },
+      { at: "2024-01-01", start: "2024-01-01", end: null },
+    ]) {
+      assert.throws(() => applyGraphCommand(source, { type: "updateNodeFields", key: "A", fields: { time } }));
+    }
+    assert.equal(source.nodes.A.time, undefined);
+    const time = { start: "1969-07-16T13:32:00Z", end: "1969-07-24T16:50:35Z" };
+    const result = applyGraphCommand(source, {
+      type: "updateNodeFields",
+      key: "A",
+      fields: { time, track: "Mission" },
+    });
+    const changed = graphReducer(before, prepareGraphTransaction(before, [result], "Set event time")!);
+    assert.deepEqual(changed.dag!.nodes.A.time, time);
+    assert.equal(changed.source.dirty, true);
+    const undone = graphReducer(changed, { type: "undoRequested" });
+    assert.equal(undone.dag, source);
+    const redone = graphReducer(undone, { type: "redoRequested" });
+    assert.deepEqual(redone.dag!.nodes.A.time, time);
+    assert.equal(redone.dag!.nodes.A.track, "Mission");
+    assert.deepEqual(normalizeDagInput(serializeDag(redone.dag!)).nodes.A.time, time);
+  }),
+  defineTest("timeline preferences survive reload and appearance undo stays isolated", () => {
+    const preferences = getInitialGraphPagePreferences();
+    assert.equal(preferences.chartStyles.timeline.appearance.display.showEdgeLabels, false);
+    preferences.chartType = "timeline";
+    preferences.chartStyles.timeline.appearance = sanitizeGraphAppearance({
+      cssVars: { "--dag-text-strong": "#234567" },
+    });
+    preferences.chartStyles.timeline.showNodeDetail = false;
+    const parsed = parseGraphPagePreferences(JSON.stringify(preferences));
+    assert.deepEqual(parsed!.chartStyles!.timeline, preferences.chartStyles.timeline);
+    assert.equal(parsed!.chartType, "timeline");
+    const defaults = createChartStyles();
+    let history = createChartAppearanceHistory(defaults);
+    const original = history["node-link"];
+    history = chartAppearanceHistoryReducer(history, {
+      chartType: "timeline",
+      action: { type: "commit", appearance: preferences.chartStyles.timeline.appearance, label: "Timeline color" },
+    });
+    history = chartAppearanceHistoryReducer(history, { chartType: "timeline", action: { type: "undo" } });
+    assert.equal(history["node-link"], original);
+    assert.deepEqual(history.timeline.appearance, defaults.timeline.appearance);
+    const migrated = parseGraphPagePreferences('{"chartStyles":{"node-link":{}}}');
+    assert.equal(migrated!.chartStyles!.timeline.appearance.display.showEdgeLabels, false);
+  }),
+  defineTest("unrelated edits preserve malformed imported time while date edits must fix it", () => {
+    const time = { start: "not-a-date", end: null };
+    const source = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { A: { title: "Old", time } },
+      edges: [],
+    });
+    assert.equal(getTimelineEditError(source.nodes.A, { title: "New", time }), null);
+    const updated = applyGraphCommand(source, {
+      type: "updateNodeFields",
+      key: "A",
+      fields: { title: "New", time, track: "Imported" },
+    }).dag;
+    assert.deepEqual(updated.nodes.A.time, time);
+    assert.equal(updated.nodes.A.title, "New");
+    assert.ok(getTimelineEditError(updated.nodes.A, { time: { start: "still-bad", end: null } }));
+    assert.equal(getTimelineEditError(updated.nodes.A, { time: { start: "1969-07-16", end: null } }), null);
+  }),
+  defineTest("Locate targets displaced event labels rather than their unchanged time anchors", () => {
+    const source = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { A: { time: { at: "1969-07-16" } }, B: { time: { at: "1969-07-16" } } },
+      edges: [],
+    });
+    const stage = buildTimelineStage({ dag: source, selection: { type: "full" } })!;
+    const second = stage.nodeMap.B;
+    assert.ok(second.timeline!.labelY > second.y);
+    assert.deepEqual(getNodeLocatePoint(second), {
+      x: second.timeline!.labelX + second.width / 2,
+      y: second.timeline!.labelY,
+    });
+    const plain = buildStageData({ dag: source, selection: { type: "full" }, layoutMode: "sugiyama" })!.nodeMap.A;
+    assert.deepEqual(getNodeLocatePoint(plain), { x: plain.x, y: plain.y });
+  }),
+  defineTest("date range controls use inclusive UTC days and reject invalid drafts", () => {
+    assert.deepEqual(parseTimelineRangeInput("", ""), { ok: true, range: null });
+    const range = parseTimelineRangeInput("1969-07-20", "1969-07-20");
+    assert.ok(range.ok && range.range);
+    if (!range.ok || !range.range) throw new Error("Expected bounded range");
+    assert.equal(range.range.start, Date.parse("1969-07-20T00:00:00Z"));
+    assert.equal(range.range.end, Date.parse("1969-07-20T23:59:59.999Z"));
+    assert.deepEqual(timelineRangeDates(range.range), { from: "1969-07-20", to: "1969-07-20" });
+    assert.equal(parseTimelineRangeInput("1969-07-21", "1969-07-20").ok, false);
+    assert.equal(parseTimelineRangeInput("2024-02-30", "").ok, false);
+    assert.equal(parseTimelineRangeInput("1969-07-20T12:00:00Z", "").ok, false);
+    const source = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: {
+        A: { time: { at: "1969-07-20T23:59:59Z" } },
+        B: { time: { at: "1969-07-21T00:00:00Z" } },
+        C: { time: { start: "1969-07-19", end: "1969-07-21" } },
+      },
+      edges: [],
+    });
+    const before = serializeDag(source);
+    const stage = buildTimelineStage({ dag: source, selection: { type: "full" }, timeRange: range.range })!;
+    assert.deepEqual(stage.nodes.map((node) => node.key).sort(), ["A", "C"]);
+    assert.equal(stage.nodeMap.C.timeline!.clippedStart, true);
+    assert.equal(stage.nodeMap.C.timeline!.clippedEnd, true);
+    assert.deepEqual(serializeDag(source), before);
+  }),
+  defineTest("ongoing edits use the document snapshot time consistently with rendering", () => {
+    const source = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      metadata: { timeline: { version: 1, asOf: "2025-01-01" } },
+      nodes: { A: {} },
+      edges: [],
+    });
+    const reference = getTimelineReferenceTime(source);
+    assert.equal(reference, Date.parse("2025-01-01"));
+    assert.ok(getTimelineEditError(source.nodes.A, { time: { start: "2025-01-02", end: null } }, reference));
+    assert.throws(
+      () =>
+        applyGraphCommand(source, {
+          type: "updateNodeFields",
+          key: "A",
+          fields: { time: { start: "2025-01-02", end: null } },
+        }),
+      /future/,
+    );
+    const result = applyGraphCommand(source, {
+      type: "updateNodeFields",
+      key: "A",
+      fields: { time: { start: "2024-01-01", end: null } },
+    });
+    const stage = buildTimelineStage({ dag: result.dag, selection: { type: "full" } })!;
+    assert.equal(stage.nodeMap.A.timeline!.end, reference);
+    assert.equal(stage.nodeMap.A.timeline!.ongoing, true);
+  }),
   defineTest("filtering an ordinary numeric graph in Sankey view never invents flows", () => {
     const source = normalizeDagInput({
       format: "graph-studio",

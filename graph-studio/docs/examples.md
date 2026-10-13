@@ -1,6 +1,6 @@
 # Example workspaces
 
-Below Recent workspaces, the homepage includes four separate English workspaces. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
+Below Recent workspaces, the homepage includes five separate English workspaces. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
 
 | Workspace           | Contents                                                                                                                                |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -8,10 +8,19 @@ Below Recent workspaces, the homepage includes four separate English workspaces.
 | Mathematics         | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography          |
 | Factorio production | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes |
 | Energy flows        | 8 nodes, 9 flows; GWh values with conserved intermediate flows                                                                          |
+| World space history | One timeline containing all 298 events and completed phases and 408 relationships, with eight themes and Apollo 11's vehicle branches |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
 The [Commerce operations guide](compound.md) covers the nested node-link example. Regenerate its graphs with `npm run examples:commerce`; its reproducibility check runs in `npm run check`.
+
+## World space history
+
+The [Timeline guide](timeline.md) explains the date-aware chart type. The space history workspace covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion are included in the same graph.
+
+The single **space-history.json** opens directly with every node and relationship. Use Type, Track and Time range to inspect a theme or period, and Show all events to restore the entire history. Edges explicitly distinguish within-mission chronology, interval membership, documented rendezvous and contextual references. Chronology does not assert technical causation. The corpus is a historical snapshot through 2025, not a live mission-status feed. Intervals describe named, completed phases; spacecraft that continued operating are not given invented mission-end dates.
+
+Edit `scripts/data/space-history/catalog.mjs` and run `npm run examples:space-history`. The builder validates the corpus and produces all graph documents and notes. `npm run examples:space-history:check` verifies reproducibility and runs with `npm run check`. Source links, precision conventions and scope are recorded in the example's README and node details.
 
 ## Factorio data and interpretation
 
@@ -77,4 +86,6 @@ public/examples/
     README.md
 ```
 
-Each folder can also be selected with **Open workspace**. The homepage fetches its manifest, the graph paths in `graphs`, and the relative note paths in `metadata.assets`. Requests are bounded to six at a time. Every file must load successfully before the new workspace replaces the current one. There is no separate example bundle format; individual graph documents use Graph Studio v3.
+Each folder can also be selected with **Open workspace**. The homepage fetches its manifest and graph documents, with up to six requests in flight. It lists all relative paths from `metadata.assets` immediately, but downloads a linked note only when opened. Missing notes report an error in their preview without blocking the graph. Required graph files must load before the workspace is replaced.
+
+Downloads are cached for the current browser session; reopening creates independent editable graphs without fetching the same files again. **Refresh workspace files** reloads the source files while preserving edits to the open document. Failed requests can be retried, and stalled requests time out after 15 seconds. Recording an example in Recent projects uses its stable example ID and does not wait for the browser's file-handle database. There is no separate example bundle format; individual graph documents use Graph Studio v3.

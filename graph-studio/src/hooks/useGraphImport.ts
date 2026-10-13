@@ -203,7 +203,7 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
     if (folder.exampleId) {
       void run(async () => {
         const found = await discoverWorkspace(
-          await loadExampleWorkspace(folder.exampleId!, import.meta.env.BASE_URL),
+          await loadExampleWorkspace(folder.exampleId!, import.meta.env.BASE_URL, fetch, { reload: true }),
           folder.activePath || undefined,
         );
         setWorkspace({ ...found, activePath: folder.activePath, recentId: folder.recentId });

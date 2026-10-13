@@ -20,6 +20,7 @@ export function useDocumentSession() {
     "node-link": displayOptions(preferences.chartStyles["node-link"]),
     sankey: displayOptions(preferences.chartStyles.sankey),
     compound: displayOptions(preferences.chartStyles.compound),
+    timeline: displayOptions(preferences.chartStyles.timeline),
   }));
   const { showNodeDetail, hideNodeBorders, alignNodeWidthsToMax } = displayByChart[state.chartType];
   function toggleDisplay(key: keyof ChartDisplayOptions) {

@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { type RecentLocation, rankRecentLocations, readRecentMetadata } from "../adapters/recentImport";
+import {
+  type RecentLocation,
+  rankRecentLocations,
+  readRecentMetadata,
+  rememberLocation,
+} from "../adapters/recentImport";
 import { resolveRelativeFile } from "../adapters/relativeLinks";
 import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../adapters/workspaceAccess";
 import {
@@ -299,6 +304,60 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     assert.equal(ranked[0].id, "4");
     assert.equal(ranked[0].lastGraph, "new.json");
     assert.equal(ranked.filter((r) => r.id === "4").length, 1);
+  }),
+  defineTest("recording an example never waits for IndexedDB and preserves known local handles", async () => {
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+    const databaseDescriptor = Object.getOwnPropertyDescriptor(globalThis, "indexedDB");
+    const handle = {} as FileSystemFileHandle;
+    const known = { ...recent("local-file", 1), handle, canReopen: true };
+    let metadata = JSON.stringify([{ ...known, handle: undefined }]);
+    let databaseCalls = 0;
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        localStorage: {
+          getItem: () => metadata,
+          setItem: (_key: string, value: string) => {
+            metadata = value;
+          },
+        },
+      },
+    });
+    Object.defineProperty(globalThis, "indexedDB", {
+      configurable: true,
+      value: {
+        open: () => {
+          databaseCalls++;
+          return {};
+        }, // A database blocked indefinitely by another tab.
+      },
+    });
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const result = await Promise.race([
+        rememberLocation(
+          { kind: "workspace", name: "Energy", location: "Energy", exampleId: "energy", lastGraph: "energy.json" },
+          [known],
+        ),
+        new Promise<never>((_, reject) => {
+          deadline = setTimeout(() => reject(new Error("Example opening waited for the database")), 250);
+        }),
+      ]);
+      assert.equal(databaseCalls, 0);
+      assert.equal(result.id, "example:energy");
+      assert.equal(result.items[0].canReopen, true);
+      assert.equal(result.items[1].handle, handle);
+      assert.equal(JSON.parse(metadata)[0].lastGraph, "energy.json");
+    } finally {
+      clearTimeout(deadline);
+      for (const [key, descriptor] of [
+        ["window", windowDescriptor],
+        ["indexedDB", databaseDescriptor],
+      ] as const) {
+        if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+        else Reflect.deleteProperty(globalThis, key);
+      }
+    }
   }),
   defineTest("recent metadata tolerates unavailable or corrupt storage without trusting handles", () => {
     assert.deepEqual(readRecentMetadata({ getItem: () => "{", setItem: () => {} }), []);

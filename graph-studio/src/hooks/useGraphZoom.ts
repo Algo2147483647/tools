@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import type { StageData } from "../layout/types";
+import type { StageData, StageNode } from "../layout/types";
 
 // Complete production networks can be much wider/taller than a small diagram.
 const MIN_ZOOM_FLOOR = 0.001;
@@ -92,7 +92,7 @@ export function useGraphZoom({
       }
       const currentZoom = zoomStateRef.current;
       const fitScale = getFitZoomScale(container, topbarRef.current, stage);
-      const keepCompoundScale = preserveCenter && stage.layoutMode === "compound";
+      const keepCompoundScale = preserveCenter && (stage.layoutMode === "compound" || stage.layoutMode === "timeline");
       const nextMinScale = keepCompoundScale ? Math.min(fitScale, currentZoom.scale) : fitScale;
       const nextScale =
         !keepCompoundScale && Math.abs(currentZoom.scale - currentZoom.minScale) < 0.001
@@ -106,8 +106,16 @@ export function useGraphZoom({
   useLayoutEffect(() => {
     const previous = previousStageRef.current;
     const preserve =
-      stage?.layoutMode === "compound" && previous.stage?.layoutMode === "compound" && previous.viewKey === viewKey;
+      (stage?.layoutMode === "compound" || stage?.layoutMode === "timeline") &&
+      previous.stage?.layoutMode === stage.layoutMode &&
+      previous.viewKey === viewKey;
     refresh(preserve);
+    if (!preserve && stage?.layoutMode === "timeline" && containerRef.current) {
+      const fit = getFitZoomScale(containerRef.current, topbarRef.current, stage);
+      apply(Math.max(fit, 0.85), false, fit);
+      containerRef.current.scrollLeft = 0;
+      containerRef.current.scrollTop = 0;
+    }
     const anchor = layoutAnchorRef.current;
     if (preserve && anchor && stage && svgRef.current && containerRef.current) {
       const point = getItemOrigin(stage, anchor.id);
@@ -179,6 +187,25 @@ export function useGraphZoom({
           apply(fitScale, false, fitScale);
         }
       },
+      locateNode: (id: string) => {
+        const container = containerRef.current;
+        const svg = svgRef.current;
+        const node = stage?.nodeMap[id];
+        if (!container || !svg || !stage || !node) return;
+        const current = zoomStateRef.current;
+        apply(Math.max(current.scale, 1), false, current.minScale);
+        const metrics = getViewportMetrics(container, topbarRef.current);
+        const appliedScale = getAppliedZoomScale(svg, current.scale);
+        const point = getNodeLocatePoint(node);
+        container.scrollLeft = Math.max(
+          point.x * appliedScale + Number(svg.dataset.marginLeft || 0) - metrics.safeLeft - metrics.availableWidth / 2,
+          0,
+        );
+        container.scrollTop = Math.max(
+          point.y * appliedScale + Number(svg.dataset.marginTop || 0) - metrics.safeTop - metrics.availableHeight / 2,
+          0,
+        );
+      },
       captureLayoutAnchor: (id: string) => {
         const point = stage && getItemOrigin(stage, id);
         const rect = svgRef.current?.getBoundingClientRect();
@@ -200,6 +227,12 @@ export function useGraphZoom({
     }),
     [apply, minScale, refresh, zoomBy, stage, containerRef, svgRef, topbarRef],
   );
+}
+
+export function getNodeLocatePoint(node: StageNode): { x: number; y: number } {
+  return node.timeline
+    ? { x: node.timeline.labelX + node.width / 2, y: node.timeline.labelY }
+    : { x: node.x, y: node.y };
 }
 
 function getItemOrigin(stage: StageData, id: string) {

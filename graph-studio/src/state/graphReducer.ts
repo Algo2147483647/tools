@@ -1,5 +1,6 @@
 import { getSankeyError } from "../graph/sankey";
 import { areSelectionsEqual } from "../graph/selectors";
+import { isTimelineDocument } from "../graph/timelineView";
 import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";
 import type { GraphAction } from "./graphActions";
 import { type GraphAppState, createInitialGraphState } from "./initialState";
@@ -40,14 +41,20 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
               dirty: isNew,
             }
           : initial.source,
-        selection: loaded ? (action.dag.hierarchy ? { type: "full" } : action.selection) : null,
+        selection: loaded
+          ? action.dag.hierarchy || isTimelineDocument(action.dag)
+            ? { type: "full" }
+            : action.selection
+          : null,
         editHistory: { ...initial.editHistory, savedRevision: isNew ? -1 : 0 },
         chartType: loaded
-          ? action.dag.hierarchy
-            ? "compound"
-            : action.dag.diagram === "sankey"
-              ? "sankey"
-              : "node-link"
+          ? isTimelineDocument(action.dag)
+            ? "timeline"
+            : action.dag.hierarchy
+              ? "compound"
+              : action.dag.diagram === "sankey"
+                ? "sankey"
+                : "node-link"
           : state.chartType,
         layout: state.layout,
         ui: {

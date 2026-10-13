@@ -87,6 +87,49 @@ function ExampleArt({ kind, color }: { kind: string; color: string }) {
             </g>
           ))}
         </>
+      ) : kind === "space-history" ? (
+        <>
+          <g stroke={color} strokeWidth="1" opacity=".2">
+            <path d="M25 27H296M25 65H296M25 103H296" />
+          </g>
+          <g stroke={color} strokeWidth="2.5" strokeLinecap="round">
+            <path d="M92 15V118M92 42C92 53 169 47 169 65V100M169 88C169 103 92 94 92 110" />
+            <path d="M239 24V109" stroke="#8c9b81" />
+          </g>
+          <path d="M169 65V83" stroke={color} strokeWidth="9" strokeLinecap="round" opacity=".7" />
+          <path d="M239 43V81" stroke="#8c9b81" strokeWidth="9" strokeLinecap="round" opacity=".7" />
+          {[
+            [92, 27],
+            [92, 42],
+            [92, 110],
+            [169, 65],
+            [169, 88],
+            [239, 24],
+            [239, 103],
+          ].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="4" fill="white" stroke={x === 239 ? "#8c9b81" : color} strokeWidth="2" />
+          ))}
+          <g fill={color} fontSize="9" fontFamily="sans-serif" opacity=".75">
+            <text x="27" y="25">
+              1957
+            </text>
+            <text x="27" y="63">
+              1969
+            </text>
+            <text x="27" y="101">
+              2025
+            </text>
+            <text x="106" y="25">
+              Earth
+            </text>
+            <text x="181" y="68">
+              Moon
+            </text>
+            <text x="251" y="45">
+              Beyond
+            </text>
+          </g>
+        </>
       ) : (
         <>
           <g strokeLinecap="butt" opacity=".25">

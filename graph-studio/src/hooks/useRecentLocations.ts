@@ -12,7 +12,16 @@ export function useRecentLocations() {
     let active = true;
     const initialRevision = revision.current;
     void loadRecentLocations().then((items) => {
-      if (active && revision.current === initialRevision) setRecents(items);
+      if (!active) return;
+      setRecents((current) => {
+        if (revision.current === initialRevision) return items;
+        // An example may open before the handle database finishes loading. Hydrate
+        // surviving locations without restoring removed entries or stale metadata.
+        return current.map((item) => {
+          const handle = items.find((stored) => stored.id === item.id)?.handle;
+          return handle ? { ...item, handle, canReopen: true } : item;
+        });
+      });
     });
     return () => {
       active = false;
@@ -20,7 +29,7 @@ export function useRecentLocations() {
   }, []);
   async function remember(input: Parameters<typeof rememberLocation>[0]) {
     const request = ++revision.current;
-    const { items, id } = await rememberLocation(input);
+    const { items, id } = await rememberLocation(input, recents);
     if (request === revision.current) setRecents(items);
     return id;
   }

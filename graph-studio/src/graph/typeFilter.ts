@@ -27,8 +27,8 @@ export function projectGraphByType(
   delete doc.hierarchy; // Type filtering is a G-only projection; H remains on the source document.
   doc.nodes = Object.fromEntries(Object.entries(doc.nodes).filter(([key]) => visible.has(key)));
   doc.edges = doc.edges.filter((edge) => visible.has(edge.source) && visible.has(edge.target));
-  // Hidden flows cannot be safely reconstructed from totals. Keep only measured direct flows.
-  if (source.diagram === "sankey" || chartType === "sankey") return normalizeDagInput(doc);
+  // Filtering cannot imply new measured flows or new historical relationships.
+  if (source.diagram === "sankey" || chartType === "sankey" || chartType === "timeline") return normalizeDagInput(doc);
   const outgoing = new Map<string, string[]>();
   source.edges.forEach((edge) => outgoing.set(edge.source, [...(outgoing.get(edge.source) || []), edge.target]));
   for (const sourceKey of visible) {

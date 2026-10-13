@@ -1,5 +1,5 @@
 import { type GraphAppearance, appearanceToStageStyle, GRAPH_EFFECTS_CSS } from "../../graph/appearance";
-import type { GraphChartType } from "../../graph/types";
+import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
 
 export default function AppearancePreview({
   appearance,
@@ -18,18 +18,48 @@ export default function AppearancePreview({
     <section className="settings-preview-card">
       <div>
         <span className="eyebrow">LIVE PREVIEW</span>
-        <small>{sankey ? "Sankey" : "Node-link"} appearance</small>
+        <small>{getGraphChartLabel(chartType)} appearance</small>
       </div>
       <svg
         viewBox="0 0 600 145"
         className="settings-graph-preview"
         style={appearanceToStageStyle(appearance)}
         role="img"
-        aria-label={`${sankey ? "Sankey" : "Node-link"} appearance preview`}
+        aria-label={`${getGraphChartLabel(chartType)} appearance preview`}
       >
         <style>{`${appearance.css}\n${GRAPH_EFFECTS_CSS}`}</style>
         <g className="dag-graph" data-borderless={hideNodeBorders ? "true" : "false"}>
-          {sankey ? (
+          {chartType === "timeline" ? (
+            <>
+              <path
+                d="M96 20V125M96 32C96 60 334 35 334 65V98C334 124 96 93 96 125"
+                fill="none"
+                stroke="var(--dag-edge)"
+                strokeWidth="2"
+              />
+              {[
+                { x: 96, y: 25, title: "Launch", detail: "July 16 · 13:32 UTC" },
+                { x: 334, y: 66, title: "Lunar mission", detail: "July 20–21 · duration" },
+                { x: 96, y: 121, title: "Reunited", detail: "July 21 · 21:35 UTC" },
+              ].map((event) => (
+                <g key={event.title} className="dag-node">
+                  {event.x === 334 ? (
+                    <rect className="dag-node__shape" x={event.x - 6} y={event.y} width="12" height="31" rx="6" />
+                  ) : (
+                    <circle className="dag-node__shape" cx={event.x} cy={event.y} r="6" />
+                  )}
+                  <text className="dag-node__title" x={event.x + 20} y={event.y + 4}>
+                    {event.title}
+                  </text>
+                  {showNodeDetail && (
+                    <text x={event.x + 20} y={event.y + 20} fill="var(--dag-text-soft)" fontSize="11">
+                      {event.detail}
+                    </text>
+                  )}
+                </g>
+              ))}
+            </>
+          ) : sankey ? (
             <>
               <g className="dag-edge">
                 <path

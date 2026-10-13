@@ -604,6 +604,19 @@
   gap: 12px;
 }
 
+.node-time-editor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.node-time-editor label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-strong);
+  font-size: 13px;
+}
+
 .node-detail-field {
   display: grid;
   gap: 10px;

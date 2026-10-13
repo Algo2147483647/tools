@@ -2,6 +2,7 @@ export interface WorkspaceFile {
   path: string;
   handle: FileSystemFileHandle | null;
   file?: File;
+  loadFile?: () => Promise<File>;
 }
 export interface WorkspaceFolder {
   exampleId?: string;

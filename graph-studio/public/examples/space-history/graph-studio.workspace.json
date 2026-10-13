@@ -1,0 +1,29 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "World space history",
+  "graphs": [
+    "space-history.json"
+  ],
+  "defaultGraph": "space-history.json",
+  "metadata": {
+    "language": "en",
+    "snapshotAsOf": "2025-12-31",
+    "nodeCount": 298,
+    "edgeCount": 408,
+    "themeCount": 8,
+    "missionPhaseCount": 75,
+    "assets": [
+      "README.md",
+      "SOURCES.md",
+      "notes/crewed-lunar.md",
+      "notes/deep-space.md",
+      "notes/early-spaceflight.md",
+      "notes/launch-commercial.md",
+      "notes/mars.md",
+      "notes/observatories.md",
+      "notes/robotic-moon.md",
+      "notes/space-stations.md"
+    ]
+  }
+}

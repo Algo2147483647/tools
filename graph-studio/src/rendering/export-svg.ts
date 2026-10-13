@@ -27,6 +27,7 @@ function buildExportSvg(sourceSvg: SVGSVGElement): SVGSVGElement {
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
   clone.setAttribute("version", "1.1");
+  clone.setAttribute("data-export", "true");
   clone.removeAttribute("style");
   clone.removeAttribute("data-zoom-scale");
   clone.removeAttribute("data-margin-left");

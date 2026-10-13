@@ -54,15 +54,21 @@ export type GraphSelection =
 
 export type GraphMode = "edit";
 
-export type GraphChartType = "node-link" | "sankey" | "compound";
+export type GraphChartType = "node-link" | "sankey" | "compound" | "timeline";
 
 export type GraphLayoutMode = "level" | "sugiyama" | "dagre";
 
 /** Internal rendering pipeline; Sankey is a chart type, not a node-link layout. */
-export type GraphRenderMode = GraphLayoutMode | "sankey" | "compound";
+export type GraphRenderMode = GraphLayoutMode | "sankey" | "compound" | "timeline";
 
 export function getGraphChartLabel(type: GraphChartType): string {
-  return type === "sankey" ? "Sankey" : type === "compound" ? "Nested node-link" : "Node-link";
+  return type === "timeline"
+    ? "Timeline"
+    : type === "sankey"
+      ? "Sankey"
+      : type === "compound"
+        ? "Nested node-link"
+        : "Node-link";
 }
 
 export function getGraphRenderMode(type: GraphChartType, layout: GraphLayoutMode): GraphRenderMode {
@@ -71,6 +77,8 @@ export function getGraphRenderMode(type: GraphChartType, layout: GraphLayoutMode
 
 export function getGraphLayoutLabel(mode: GraphRenderMode): string {
   switch (mode) {
+    case "timeline":
+      return "Timeline · UTC";
     case "compound":
       return "Nested node-link · ELK";
     case "sankey":

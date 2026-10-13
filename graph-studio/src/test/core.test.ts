@@ -13,6 +13,9 @@ import { mathematicsSuite } from "./mathematics.test";
 import { sankeySuite } from "./sankey.test";
 import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
+import { timelineSuite } from "./timeline.test";
+import { timelineRenderingSuite } from "./timelineRendering.test";
+import { spaceHistorySuite } from "./spaceHistory.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -30,6 +33,9 @@ async function main() {
     sankeySuite,
     examplesSuite,
     mathematicsSuite,
+    timelineSuite,
+    timelineRenderingSuite,
+    spaceHistorySuite,
   ]);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);

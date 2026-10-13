@@ -8,6 +8,7 @@ This directory contains the main user and developer documentation for DAG Studio
 - [Usage Guide](usage.md): how to navigate, edit, and save graphs in the UI
 - [Data Format Guide](data-format.md): how graph JSON is shaped, mapped, and preserved
 - [Nested node-link](compound.md): independent G/H protocol, subgraph editing, folding, containment layout and the commerce workspace
+- [Timeline](timeline.md): UTC time coordinates, event intervals, branch tracks, time editing, and the space history workspace
 - [Graph Console DSL](graph-console-dsl.md): command reference for batch edits in the console sidebar
 - [Graph Appearance System](graph-appearance.md): CSS-first graph UI configuration, presets, import, export, reset, and AI-driven style edits
 - [Development Guide](development.md): scripts, source layout, and implementation notes

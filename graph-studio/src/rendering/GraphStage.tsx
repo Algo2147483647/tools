@@ -6,6 +6,7 @@ import GraphDefs from "./GraphDefs";
 import GraphEdge from "./GraphEdge";
 import GraphNode from "./GraphNode";
 import { GroupHeader, GroupControls } from "./GraphGroup";
+import TimelineBackdrop, { TimelineRuler } from "./TimelineBackdrop";
 
 const EMPTY_CONNECTED_KEYS = new Set<string>();
 const DENSE_STAGE_NODE_THRESHOLD = 220;
@@ -247,12 +248,21 @@ export default function GraphStage({
       width={stage.stageWidth}
       height={stage.stageHeight}
       style={stageStyle}
-      role={stage.layoutMode === "compound" ? "group" : "img"}
-      aria-label={`${stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
+      role={stage.layoutMode === "compound" || stage.layoutMode === "timeline" ? "group" : "img"}
+      aria-label={`${stage.layoutMode === "timeline" ? "Timeline" : stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
       onContextMenu={onBackgroundContextMenu}
     >
-      <GraphDefs appearanceCss={appearance.css} />
-      {stage.layoutMode !== "sankey" && stage.layoutMode !== "compound" && <GraphBackdrop stage={stage} />}
+      <GraphDefs
+        appearanceCss={appearance.css}
+        timelineColors={Array.from(
+          new Set(stage.edges.flatMap((edge) => (edge.timeline ? [edge.timeline.color] : []))),
+        )}
+      />
+      {stage.timeline ? (
+        <TimelineBackdrop stage={stage} />
+      ) : (
+        stage.layoutMode !== "sankey" && stage.layoutMode !== "compound" && <GraphBackdrop stage={stage} />
+      )}
       <g className="dag-group-backgrounds">
         {stage.groups?.map((group) => (
           <rect
@@ -304,6 +314,7 @@ export default function GraphStage({
             />
           ))}
       </g>
+      {stage.timeline && <TimelineRuler stage={stage} svgRef={svgRef} />}
     </svg>
   );
 
