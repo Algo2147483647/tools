@@ -746,28 +746,6 @@
   word-break: break-word;
 }
 
-.node-detail-link-text {
-  display: block;
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.node-detail-link-text--preview {
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(248, 250, 253, 0.82);
-}
-
-.node-detail-link {
-  color: var(--accent-strong);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 .node-detail-markdown {
   color: var(--text-muted);
   font-size: 13px;

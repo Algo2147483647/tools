@@ -12,7 +12,7 @@ import type { NodeKey } from "../graph/types";
 import { parseRelationInput } from "./RelationEditorModal";
 
 type FieldEditorKind = "plainText" | "multilineText" | "json" | "relation";
-export type FieldDisplayMode = "markdown" | "link" | "text";
+export type FieldDisplayMode = "markdown" | "text";
 
 export interface EditableField {
   name: string;
@@ -70,13 +70,6 @@ export default function NodeFieldEditor({
           relativeLinkRoot={relativeLinkRoot}
           onOpenRelativeLink={onOpenRelativeLink}
           onRelativeLinkError={onRelativeLinkError}
-        />
-      ) : displayMode === "link" && supportsDisplayMode(field) ? (
-        <LinkValue
-          value={value}
-          previewSurface
-          relativeLinkRoot={relativeLinkRoot}
-          onOpenRelativeLink={onOpenRelativeLink}
         />
       ) : null}
       {getEditorHint(field) ? <p className="node-detail-editor-hint">{getEditorHint(field)}</p> : null}
@@ -231,95 +224,6 @@ function RelativeMarkdownImage({
   }
 
   return <img src={resolvedSrc} alt={alt} {...props} onError={() => setUnavailable(true)} />;
-}
-
-export function LinkValue({
-  value,
-  previewSurface = false,
-  relativeLinkRoot = null,
-  onOpenRelativeLink,
-}: {
-  value: string;
-  previewSurface?: boolean;
-  relativeLinkRoot?: RelativeLinkRoot | null;
-  onOpenRelativeLink?: (url: string) => void;
-}) {
-  const text = String(value || "");
-  const url = text.trim();
-  if (!value.trim()) {
-    return <p className="node-detail-empty">(empty string)</p>;
-  }
-  if (!hasDisplayLink(text)) {
-    return <p className="node-detail-text">{value}</p>;
-  }
-
-  return (
-    <div className={`node-detail-link-text${previewSurface ? " node-detail-link-text--preview" : ""}`}>
-      <DisplayLink label={url} url={url} relativeLinkRoot={relativeLinkRoot} onOpenRelativeLink={onOpenRelativeLink} />
-    </div>
-  );
-}
-
-function DisplayLink({
-  label,
-  url,
-  relativeLinkRoot,
-  onOpenRelativeLink,
-}: {
-  label: string;
-  url: string;
-  relativeLinkRoot: RelativeLinkRoot | null;
-  onOpenRelativeLink?: (url: string) => void;
-}) {
-  if (isRelativeLink(url)) {
-    const resolved = resolveRelativePath(url);
-    return (
-      <a
-        className="node-detail-link"
-        href={url}
-        title={
-          resolved.ok
-            ? `Resolves to: ${relativeLinkRoot?.name || "(open a workspace)"}/${resolved.path}`
-            : resolved.message
-        }
-        onClick={(event) => {
-          event.preventDefault();
-          onOpenRelativeLink?.(url);
-        }}
-      >
-        {label}
-      </a>
-    );
-  }
-
-  return (
-    <a className="node-detail-link" href={url} target="_blank" rel="noreferrer">
-      {label}
-    </a>
-  );
-}
-
-export function hasDisplayLink(value: string): boolean {
-  const text = String(value || "").trim();
-  return Boolean(text) && !/\s/.test(text) && !/[{}\\]/.test(text) && isDisplayLinkUrl(text);
-}
-
-function isDisplayLinkUrl(value: string): boolean {
-  const trimmed = String(value || "").trim();
-  if (!trimmed || trimmed.startsWith("#")) {
-    return false;
-  }
-  if (/^https?:\/\//i.test(trimmed) || /^\/\//.test(trimmed) || trimmed.startsWith("/")) {
-    return true;
-  }
-  return isLikelyRelativeLink(trimmed);
-}
-
-function isLikelyRelativeLink(value: string): boolean {
-  return (
-    isRelativeLink(value) &&
-    (/^\.{1,2}\//.test(value) || value.includes("/") || /\.[A-Za-z0-9]{2,8}(?:[?#].*)?$/.test(value))
-  );
 }
 
 export function buildEditableFields(nodeKey: NodeKey, node: Record<string, unknown>): EditableField[] {

@@ -6,11 +6,9 @@ import type { DagNode, NodeKey } from "../graph/types";
 import NodeFieldEditor, {
   type EditableField,
   type FieldDisplayMode,
-  LinkValue,
   MarkdownValue,
   buildEditableFields,
   formatEditorValue,
-  hasDisplayLink,
   parseNodeFieldValue,
   supportsDisplayMode,
 } from "./NodeFieldEditor";
@@ -362,7 +360,6 @@ function FieldDisplayModeToggle({
 }) {
   const modes: Array<{ mode: FieldDisplayMode; label: string }> = [
     { mode: "markdown", label: "Markdown" },
-    { mode: "link", label: "Link" },
     { mode: "text", label: "Text" },
   ];
 
@@ -484,16 +481,6 @@ function NodeFieldPreview({
       />
     );
   }
-  if (displayMode === "link" && supportsDisplayMode(field)) {
-    return (
-      <LinkValue
-        value={value}
-        previewSurface
-        relativeLinkRoot={relativeLinkRoot}
-        onOpenRelativeLink={onOpenRelativeLink}
-      />
-    );
-  }
   if (field.name === "key" || field.editorKind === "plainText" || field.editorKind === "multilineText") {
     return <p className="node-detail-text">{value}</p>;
   }
@@ -502,11 +489,6 @@ function NodeFieldPreview({
 
 function buildDefaultFieldDisplayModes(fields: EditableField[]): Record<string, FieldDisplayMode> {
   return Object.fromEntries(
-    fields
-      .filter((field) => supportsDisplayMode(field))
-      .map((field) => {
-        const value = formatEditorValue(field);
-        return [field.name, hasDisplayLink(value) ? "link" : "markdown"];
-      }),
+    fields.filter((field) => supportsDisplayMode(field)).map((field) => [field.name, "markdown"]),
   );
 }

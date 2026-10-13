@@ -17,6 +17,8 @@ On Windows, `start.bat` prepares dependencies and opens the app. Successful inst
 
 The app opens in Edit mode. Graph edits, the console, undo, redo and saving are available directly.
 
+String fields in node details support **Markdown** and **Text** display, with Markdown as the default. Markdown links use normal Markdown syntax; bare file paths are not automatically treated as links. Text displays the original string without parsing.
+
 ## Controls
 
 The Settings button opens a searchable dialog with five sections:
