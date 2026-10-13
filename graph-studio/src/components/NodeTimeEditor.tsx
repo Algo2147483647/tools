@@ -19,7 +19,7 @@ export default function NodeTimeEditor({ time, track, readOnly, referenceTime, o
 
   return (
     <section className="node-detail-section">
-      <h4>Event time & track</h4>
+      <h2 className="node-detail-section-title">Event time & track</h2>
       {readOnly ? (
         <>
           <p className="node-detail-text">{parsed.label}</p>

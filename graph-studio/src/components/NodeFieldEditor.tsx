@@ -45,7 +45,7 @@ export default function NodeFieldEditor({
   if (field.name === "key") {
     return (
       <input
-        className="node-detail-editor node-detail-editor--input"
+        className="node-detail-editor node-detail-editor--input node-detail-editor--key"
         type="text"
         spellCheck={false}
         value={value}
@@ -110,6 +110,11 @@ export function MarkdownValue({
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}
         components={{
+          table: ({ children, node: _node, ...props }) => (
+            <div className="node-detail-table-wrap">
+              <table {...props}>{children}</table>
+            </div>
+          ),
           a: ({ href, children, ...props }) => {
             const url = String(href || "");
             if (!url || isExternalUrl(url) || !isRelativeLink(url)) {

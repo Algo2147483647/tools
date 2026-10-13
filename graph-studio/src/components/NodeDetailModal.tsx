@@ -15,6 +15,7 @@ import NodeFieldEditor, {
 import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./nodeDetailRawJson";
 import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 import NodeTimeEditor from "./NodeTimeEditor";
+import NodeJsonView from "./NodeJsonView";
 
 interface NodeDetailModalProps {
   open: boolean;
@@ -49,7 +50,8 @@ export default function NodeDetailModal({
   const [lastEdited, setLastEdited] = useState<"fields" | "raw">("fields");
   const [fieldDisplayModes, setFieldDisplayModes] = useState<Record<string, FieldDisplayMode>>({});
   const [isEditing, setIsEditing] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(true);
+  const [activeTab, setActiveTab] = useState<"fields" | "raw">(initialFocus);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -67,9 +69,15 @@ export default function NodeDetailModal({
 
   useEffect(() => {
     if (open) {
-      setIsFullscreen(false);
+      setIsFullscreen(true);
     }
   }, [nodeKey, open]);
+
+  useEffect(() => {
+    if (open) {
+      setActiveTab(initialFocus);
+    }
+  }, [initialFocus, nodeKey, open]);
 
   useEffect(() => {
     if (!open || !isEditing || initialFocus !== "raw") {
@@ -87,6 +95,7 @@ export default function NodeDetailModal({
 
   const currentNodeKey = nodeKey;
   const draftKey = String(values.key || currentNodeKey).trim() || currentNodeKey;
+  const draftTitle = typeof node.title === "string" ? values.title?.trim() : "";
   const showTimeEditor = timeline || fields.some((field) => field.name === "time");
 
   return (
@@ -97,11 +106,9 @@ export default function NodeDetailModal({
     >
       <div className="node-detail-page" role="dialog" aria-modal="true" aria-labelledby="node-detail-title">
         <div className="node-detail-header">
-          <div className="node-detail-header-main">
-            <div>
-              <h3 id="node-detail-title">{draftKey}</h3>
-            </div>
-          </div>
+          <h1 id="node-detail-title" className="node-detail-title" title={draftTitle || draftKey}>
+            {draftTitle || draftKey}
+          </h1>
           <div className="node-detail-actions">
             {isEditing ? (
               <button
@@ -150,17 +157,60 @@ export default function NodeDetailModal({
           </div>
         </div>
         <div className="node-detail-body">
-          {showTimeEditor && (
-            <NodeTimeEditor
-              time={getDraftValue("time")}
-              track={getDraftValue("track")}
-              readOnly={!isEditing}
-              referenceTime={timelineReferenceTime}
-              onChange={handleTimelineChange}
-            />
-          )}
-          <section className="node-detail-section">
-            <h4>Node Fields</h4>
+          <div className="node-detail-tabs" role="tablist" aria-label="Node content">
+            {(["fields", "raw"] as const).map((tab) => (
+              <button
+                key={tab}
+                id={`node-detail-tab-${tab}`}
+                className="node-detail-tab"
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                aria-controls={`node-detail-panel-${tab}`}
+                tabIndex={activeTab === tab ? 0 : -1}
+                onClick={() => setActiveTab(tab)}
+                onKeyDown={(event) => {
+                  let nextTab: "fields" | "raw";
+                  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                    nextTab = tab === "fields" ? "raw" : "fields";
+                  } else if (event.key === "Home") {
+                    nextTab = "fields";
+                  } else if (event.key === "End") {
+                    nextTab = "raw";
+                  } else {
+                    return;
+                  }
+                  event.preventDefault();
+                  setActiveTab(nextTab);
+                  document.getElementById(`node-detail-tab-${nextTab}`)?.focus();
+                }}
+              >
+                {tab === "fields" ? "Node Fields" : "Raw JSON"}
+              </button>
+            ))}
+          </div>
+          {error ? (
+            <p className="node-detail-error" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <section
+            id="node-detail-panel-fields"
+            className="node-detail-tab-panel"
+            role="tabpanel"
+            aria-labelledby="node-detail-tab-fields"
+            tabIndex={0}
+            hidden={activeTab !== "fields"}
+          >
+            {showTimeEditor && (
+              <NodeTimeEditor
+                time={getDraftValue("time")}
+                track={getDraftValue("track")}
+                readOnly={!isEditing}
+                referenceTime={timelineReferenceTime}
+                onChange={handleTimelineChange}
+              />
+            )}
             <div id="node-detail-fields" className="node-detail-fields">
               {fields.length ? (
                 fields
@@ -168,7 +218,7 @@ export default function NodeDetailModal({
                   .map((field) => (
                     <article key={field.name} className="node-detail-field">
                       <div className="node-detail-field__header">
-                        <p className="node-detail-field__label">{field.displayName}</p>
+                        <h3 className="node-detail-field__label">{field.displayName}</h3>
                         {supportsDisplayMode(field) ? (
                           <FieldDisplayModeToggle
                             mode={fieldDisplayModes[field.name] || "text"}
@@ -201,27 +251,17 @@ export default function NodeDetailModal({
               ) : (
                 <p className="node-detail-empty">No fields are available for this node.</p>
               )}
-              {error ? <p className="node-detail-error">{error}</p> : null}
             </div>
           </section>
-          <section className="node-detail-section">
-            <h4>Raw JSON</h4>
-            {isEditing ? (
-              <div className="node-detail-editor-wrap">
-                <textarea
-                  id="node-detail-json"
-                  className="node-detail-editor node-detail-editor--textarea node-detail-editor--json"
-                  rows={16}
-                  spellCheck={false}
-                  value={rawJsonValue}
-                  onChange={(event) => handleRawJsonChange(event.currentTarget.value)}
-                />
-              </div>
-            ) : (
-              <pre id="node-detail-json-preview" className="node-detail-json">
-                {rawJsonValue}
-              </pre>
-            )}
+          <section
+            id="node-detail-panel-raw"
+            className="node-detail-tab-panel"
+            role="tabpanel"
+            aria-labelledby="node-detail-tab-raw"
+            tabIndex={0}
+            hidden={activeTab !== "raw"}
+          >
+            <NodeJsonView value={rawJsonValue} editable={isEditing} onChange={handleRawJsonChange} />
           </section>
         </div>
       </div>
@@ -481,7 +521,14 @@ function NodeFieldPreview({
       />
     );
   }
-  if (field.name === "key" || field.editorKind === "plainText" || field.editorKind === "multilineText") {
+  if (field.name === "key") {
+    return (
+      <p className="node-detail-text">
+        <code className="node-detail-key">{value}</code>
+      </p>
+    );
+  }
+  if (field.editorKind === "plainText" || field.editorKind === "multilineText") {
     return <p className="node-detail-text">{value}</p>;
   }
   return <pre className="node-detail-pre">{value}</pre>;
