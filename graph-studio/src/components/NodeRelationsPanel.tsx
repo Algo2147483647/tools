@@ -34,34 +34,41 @@ export default function NodeRelationsPanel({ graph, nodeKey }: { graph: Normaliz
                     <th scope="col">{nodeLabel}</th>
                     <th scope="col">Value</th>
                     <th scope="col">Edge ID</th>
+                    <th scope="col">Metadata</th>
                   </tr>
                 </thead>
                 <tbody>
                   {edges.map((edge) => {
                     const relatedKey = direction === "incoming" ? edge.source : edge.target;
-                    const relatedTitle = getNodeTitle(graph?.nodes[relatedKey] ?? {});
+                    const relatedTitle = getNodeTitle(graph?.nodes[relatedKey] ?? {}) || "Untitled node";
+                    const value = edge.value === undefined ? "Not set" : formatRelationValue(edge.value);
+                    const metadata =
+                      edge.metadata && Object.keys(edge.metadata).length > 0
+                        ? JSON.stringify(edge.metadata, null, 2)
+                        : null;
                     return (
                       <tr key={edge.id}>
-                        <td>
-                          {relatedTitle && relatedTitle !== relatedKey && (
-                            <span className="node-relations-node-title">{relatedTitle}</span>
-                          )}
-                          <code className="node-relations-node-key">{relatedKey}</code>
+                        <td title={relatedTitle}>
+                          <span className="node-relations-node-title">{relatedTitle}</span>
                         </td>
-                        <td>
+                        <td title={value}>
                           {edge.value === undefined ? (
                             <span className="node-detail-empty">Not set</span>
                           ) : (
-                            <code>{formatRelationValue(edge.value)}</code>
+                            <code>{value}</code>
                           )}
                         </td>
-                        <td>
+                        <td title={edge.id}>
                           <code>{edge.id}</code>
-                          {edge.metadata && Object.keys(edge.metadata).length > 0 && (
+                        </td>
+                        <td>
+                          {metadata ? (
                             <details className="node-relations-metadata">
                               <summary>Metadata</summary>
-                              <pre className="node-detail-pre">{JSON.stringify(edge.metadata, null, 2)}</pre>
+                              <pre className="node-detail-pre">{metadata}</pre>
                             </details>
+                          ) : (
+                            <span className="node-detail-empty">—</span>
                           )}
                         </td>
                       </tr>

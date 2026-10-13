@@ -722,7 +722,7 @@
 
 .node-relations-table {
   width: 100%;
-  min-width: 540px;
+  min-width: 720px;
   table-layout: fixed;
   border-collapse: collapse;
   border-top: 2px solid var(--node-ink);
@@ -734,8 +734,10 @@
 .node-relations-table th,
 .node-relations-table td {
   padding: 14px 16px;
-  vertical-align: top;
-  overflow-wrap: anywhere;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .node-relations-table th {
@@ -750,11 +752,15 @@
 }
 
 .node-relations-table th:first-child {
-  width: 40%;
+  width: 30%;
 }
 
 .node-relations-table th:nth-child(2) {
-  width: 22%;
+  width: 15%;
+}
+
+.node-relations-table th:nth-child(3) {
+  width: 30%;
 }
 
 .node-relations-table tbody tr:last-child td {
@@ -763,21 +769,11 @@
 
 .node-relations-table code {
   font: 13px/1.6 var(--node-mono);
-  white-space: pre-wrap;
+  white-space: nowrap;
 }
 
 .node-relations-node-title {
-  display: block;
-  margin-bottom: 4px;
   font-size: 16px;
-}
-
-.node-relations-node-key {
-  color: var(--node-muted);
-}
-
-.node-relations-metadata {
-  margin-top: 10px;
 }
 
 .node-relations-metadata summary {
