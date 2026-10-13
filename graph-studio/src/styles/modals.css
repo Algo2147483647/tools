@@ -745,8 +745,15 @@
 .node-detail-field__label {
   margin: 0;
   color: #555;
-  font: 600 13px/1.6 var(--node-mono);
+  font: 600 15px/1.6 var(--node-mono);
   overflow-wrap: anywhere;
+}
+
+.node-detail-field__value {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-inline-start: 24px;
 }
 
 .node-detail-display-toggle {
@@ -1392,6 +1399,10 @@
 
   .node-detail-title {
     font-size: 20px;
+  }
+
+  .node-detail-field__value {
+    padding-inline-start: 16px;
   }
 
   .node-detail-page .node-detail-text,

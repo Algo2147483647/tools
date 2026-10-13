@@ -226,26 +226,28 @@ export default function NodeDetailModal({
                           />
                         ) : null}
                       </div>
-                      {isEditing ? (
-                        <NodeFieldEditor
-                          field={field}
-                          value={values[field.name] ?? ""}
-                          displayMode={fieldDisplayModes[field.name] || "text"}
-                          relativeLinkRoot={relativeLinkRoot}
-                          onOpenRelativeLink={onOpenRelativeLink}
-                          onRelativeLinkError={onRelativeLinkError}
-                          onChange={(value) => handleFieldChange(field.name, value)}
-                        />
-                      ) : (
-                        <NodeFieldPreview
-                          field={field}
-                          value={values[field.name] ?? ""}
-                          displayMode={fieldDisplayModes[field.name] || "text"}
-                          relativeLinkRoot={relativeLinkRoot}
-                          onOpenRelativeLink={onOpenRelativeLink}
-                          onRelativeLinkError={onRelativeLinkError}
-                        />
-                      )}
+                      <div className="node-detail-field__value">
+                        {isEditing ? (
+                          <NodeFieldEditor
+                            field={field}
+                            value={values[field.name] ?? ""}
+                            displayMode={fieldDisplayModes[field.name] || "text"}
+                            relativeLinkRoot={relativeLinkRoot}
+                            onOpenRelativeLink={onOpenRelativeLink}
+                            onRelativeLinkError={onRelativeLinkError}
+                            onChange={(value) => handleFieldChange(field.name, value)}
+                          />
+                        ) : (
+                          <NodeFieldPreview
+                            field={field}
+                            value={values[field.name] ?? ""}
+                            displayMode={fieldDisplayModes[field.name] || "text"}
+                            relativeLinkRoot={relativeLinkRoot}
+                            onOpenRelativeLink={onOpenRelativeLink}
+                            onRelativeLinkError={onRelativeLinkError}
+                          />
+                        )}
+                      </div>
                     </article>
                   ))
               ) : (
