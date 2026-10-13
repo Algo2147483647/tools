@@ -133,11 +133,16 @@ export default function AppearancePreview({
                 <g key={node.label} className="dag-node" transform={`translate(${node.x} 39)`}>
                   <rect className="dag-node__shape" width="185" height="70" rx="12" />
                   <circle className="dag-node__pin" cx="20" cy="29" r="5" fill="var(--dag-text-strong)" />
-                  <text className="dag-node__title" x="36" y="34">
+                  <text className="dag-node__title" x={appearance.display.showNodeDots ? 36 : 16} y="34">
                     {node.label}
                   </text>
                   {showNodeDetail && (
-                    <text x="36" y="52" fill="var(--dag-text-soft)" fontSize="11">
+                    <text
+                      x={appearance.display.showNodeDots ? 36 : 16}
+                      y="52"
+                      fill="var(--dag-text-soft)"
+                      fontSize="11"
+                    >
                       {node.detail}
                     </text>
                   )}

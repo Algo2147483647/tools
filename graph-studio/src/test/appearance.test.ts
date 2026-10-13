@@ -6,6 +6,18 @@ import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 
 export const appearanceSuite = defineSuite("appearance", [
+  defineTest("node dots default to visible and a hidden preference survives reload", () => {
+    assert.equal(sanitizeGraphAppearance({ display: {} }).display.showNodeDots, true);
+    const appearance = sanitizeGraphAppearance({ display: { showNodeDots: false } });
+    const parsed = parseGraphPagePreferences(JSON.stringify({ chartStyles: { "node-link": { appearance } } }));
+    const restored = parsed!.chartStyles!["node-link"].appearance;
+    assert.equal(restored.display.showNodeDots, false);
+    assert.equal((appearanceToStageStyle(restored) as Record<string, unknown>)["--dag-node-pin-display"], "none");
+    assert.equal(
+      (appearanceToStageStyle(DEFAULT_GRAPH_APPEARANCE) as Record<string, unknown>)["--dag-node-pin-display"],
+      "inline",
+    );
+  }),
   defineTest("sanitizeGraphAppearance fills defaults and clamps layout values", () => {
     const appearance = sanitizeGraphAppearance({
       layout: {

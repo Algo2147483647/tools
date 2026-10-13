@@ -1382,6 +1382,25 @@
   border-radius: 0;
 }
 
+.file-preview-dialog[data-preview-kind="markdown"] {
+  --text-strong: #000;
+  --text-muted: #000;
+  --text-soft: #000;
+  color: #000;
+  background: #fff;
+}
+
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown,
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown *,
+.file-preview-dialog[data-preview-kind="markdown"] .file-preview-header button {
+  color: #000;
+}
+
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown,
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown :is(pre, code, th) {
+  background: #fff;
+}
+
 .file-preview-header {
   display: flex;
   align-items: flex-start;

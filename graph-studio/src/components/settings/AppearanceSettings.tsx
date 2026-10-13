@@ -475,9 +475,17 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           </div>
         </section>
       )}
-      {matches("appearance visibility view details descriptions borders width labels edges") && (
+      {matches("appearance visibility view details descriptions borders width labels edges dots pins markers") && (
         <section className="settings-section">
           <h3>Visible details</h3>
+          {(p.chartType === "node-link" || p.chartType === "compound") && (
+            <Toggle
+              label="Node dots"
+              description="Show the dot before each node title."
+              checked={p.appearance.display.showNodeDots}
+              onChange={() => p.onAppearanceDisplayChange("showNodeDots", !p.appearance.display.showNodeDots)}
+            />
+          )}
           {!isSankey && (
             <Toggle
               label="Node descriptions"

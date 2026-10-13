@@ -9,6 +9,7 @@ export interface GraphAppearance {
 }
 
 interface GraphDisplayAppearance {
+  showNodeDots: boolean;
   showEdgeLabels: boolean;
   nodeShadow: boolean;
   shadowBlur: number;
@@ -20,6 +21,8 @@ interface GraphDisplayAppearance {
 
 // Keep core rendering rules outside saved custom CSS so older preferences gain new features.
 export const GRAPH_EFFECTS_CSS = `
+.dag-graph .dag-node__pin, .dag-graph .dag-node__pin-core { display: var(--dag-node-pin-display, inline) !important; }
+.dag-graph .dag-node__content { transform: translateX(var(--dag-node-content-shift, 0px)); }
 .dag-graph .dag-node__shape { filter: var(--dag-node-shadow) !important; }
 .dag-graph .dag-node:hover .dag-node__shape,
 .dag-graph .dag-node[data-hovered="true"] .dag-node__shape,
@@ -263,6 +266,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     stageMinHeight: 600,
   },
   display: {
+    showNodeDots: true,
     showEdgeLabels: false,
     nodeShadow: true,
     shadowBlur: 8,
@@ -320,6 +324,7 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
       stageMinHeight: clampNumeric(layoutInput.stageMinHeight, defaultLayout.stageMinHeight, 240, 3000),
     },
     display: {
+      showNodeDots: typeof displayInput.showNodeDots === "boolean" ? displayInput.showNodeDots : true,
       showEdgeLabels:
         displayInput.showEdgeLabels === undefined
           ? DEFAULT_GRAPH_APPEARANCE.display.showEdgeLabels
@@ -344,6 +349,8 @@ export function appearanceToStageStyle(appearance: GraphAppearance): CSSProperti
       : `drop-shadow(0 1px 1px rgba(24, 39, 64, ${shadowOpacity / 200})) drop-shadow(0 ${shadowOffset * (active ? 1.5 : 1)}px ${shadowBlur * (active ? 1.25 : 1)}px rgba(24, 39, 64, ${shadowOpacity / 100}))`;
   return {
     ...appearance.cssVars,
+    "--dag-node-pin-display": appearance.display.showNodeDots ? "inline" : "none",
+    "--dag-node-content-shift": appearance.display.showNodeDots ? "0px" : "-32px",
     "--dag-node-shadow": shadow(false),
     "--dag-node-shadow-active": shadow(true),
     "--dag-sankey-opacity": sankeyLinkOpacity / 100,

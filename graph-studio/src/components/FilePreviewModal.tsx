@@ -63,7 +63,13 @@ export default function FilePreviewModal({
 
   return (
     <div className={`file-preview-modal is-visible${isFullscreen ? " is-fullscreen" : ""}`} role="presentation">
-      <section className="file-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="file-preview-title">
+      <section
+        className="file-preview-dialog"
+        data-preview-kind={activePreview.previewKind}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="file-preview-title"
+      >
         <div className="file-preview-header">
           <div>
             <h3 id="file-preview-title">{activePreview.path}</h3>
