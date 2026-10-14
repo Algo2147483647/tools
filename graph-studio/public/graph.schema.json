@@ -36,11 +36,19 @@
         "timeline": {
           "type": "object",
           "description": "An optional view hint. Timeline preserves the v3 graph and its original edges.",
-          "required": ["version"],
+          "required": [
+            "version"
+          ],
           "properties": {
-            "version": { "const": 1 },
-            "timeZone": { "const": "UTC" },
-            "asOf": { "$ref": "#/$defs/timelineDate" }
+            "version": {
+              "const": 1
+            },
+            "timeZone": {
+              "const": "UTC"
+            },
+            "asOf": {
+              "$ref": "#/$defs/timelineDate"
+            }
           },
           "additionalProperties": true
         }
@@ -193,9 +201,36 @@
             "timeline": {
               "type": "object",
               "properties": {
-                "kind": { "enum": ["sequence", "dependency", "reference", "rendezvous", "part-of"], "default": "reference" },
-                "sourceAnchor": { "enum": ["start", "end"] },
-                "targetAnchor": { "enum": ["start", "end"] }
+                "kind": {
+                  "enum": [
+                    "sequence",
+                    "dependency",
+                    "reference",
+                    "rendezvous",
+                    "part-of"
+                  ],
+                  "default": "reference"
+                },
+                "sourceAnchor": {
+                  "enum": [
+                    "start",
+                    "end"
+                  ]
+                },
+                "targetAnchor": {
+                  "enum": [
+                    "start",
+                    "end"
+                  ]
+                },
+                "sourceTime": {
+                  "$ref": "#/$defs/timelineDate",
+                  "description": "Explicit time within the source interval, overriding sourceAnchor."
+                },
+                "targetTime": {
+                  "$ref": "#/$defs/timelineDate",
+                  "description": "Explicit time within the target interval, overriding targetAnchor."
+                }
               },
               "additionalProperties": true
             }
@@ -205,27 +240,45 @@
     },
     "timelineDate": {
       "type": "string",
-      "description": "A valid calendar date, or ISO date-time with explicit Z or numeric offset. Runtime editing also validates real calendar days and end >= start.",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}(?:T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?(?:Z|[+-]\\d{2}:\\d{2}))?$"
+      "description": "ISO year, year-month, calendar date or date-time with explicit timezone. BCE uses astronomical signed six-digit years: 221 BCE is -000220. Original precision is retained.",
+      "pattern": "^(?!-000000)(?:[+-]\\d{6}|\\d{4})(?:-\\d{2}(?:-\\d{2}(?:T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,9})?)?(?:Z|[+-]\\d{2}:\\d{2}))?)?)?$"
     },
     "timelineTime": {
       "type": "object",
       "description": "Instant or interval. Explicit null end means ongoing. Missing time is allowed; malformed imported times are shown in the undated area for correction.",
       "oneOf": [
         {
-          "required": ["at"],
+          "required": [
+            "at"
+          ],
           "properties": {
-            "at": { "$ref": "#/$defs/timelineDate" },
+            "at": {
+              "$ref": "#/$defs/timelineDate"
+            },
             "start": false,
             "end": false
           }
         },
         {
-          "required": ["start", "end"],
+          "required": [
+            "start",
+            "end"
+          ],
           "properties": {
             "at": false,
-            "start": { "$ref": "#/$defs/timelineDate" },
-            "end": { "anyOf": [{ "$ref": "#/$defs/timelineDate" }, { "type": "null" }] }
+            "start": {
+              "$ref": "#/$defs/timelineDate"
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/timelineDate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
           }
         }
       ]

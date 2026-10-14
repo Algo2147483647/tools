@@ -13,7 +13,8 @@ import { useCompoundView } from "../hooks/useCompoundView";
 import { useCompoundStage } from "../hooks/useCompoundStage";
 import { type StageAppearance, getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
-import { buildTimelineStage } from "../layout/timeline-layout";
+import { useTimelineStage } from "../hooks/useTimelineStage";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
 import { downloadSvg } from "../rendering/export-svg";
 import type { DocumentSessionController } from "./useDocumentSession";
 
@@ -66,17 +67,20 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
   const geometryJson = JSON.stringify(getStageAppearance(appearance));
   const geometryAppearance = useMemo(() => JSON.parse(geometryJson) as StageAppearance, [geometryJson]);
+  const timelineView = useTimelineStage({
+    dag: state.chartType === "timeline" ? state.dag : null,
+    visibleDag: displayDag,
+    generation: state.document.generation,
+    settings: state.timelineSettings,
+    appearance: geometryAppearance,
+    showNodeDetail,
+    range: activeTimelineRange,
+  });
   const flatStage = useMemo(
     () =>
       displayDag
         ? state.chartType === "timeline"
-          ? buildTimelineStage({
-              dag: displayDag,
-              selection: { type: "full" },
-              appearance: geometryAppearance,
-              showNodeDetail,
-              timeRange: activeTimelineRange ?? undefined,
-            })
+          ? timelineView.stage
           : buildStageData({
               dag: displayDag,
               colorSourceDag: state.dag ?? undefined,
@@ -98,6 +102,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       state.selection,
       state.chartType,
       activeTimelineRange,
+      timelineView.stage,
     ],
   );
   const compoundInput = useMemo(
@@ -179,9 +184,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
       state.document.generation,
       state.chartType,
       compound.view.focusGroupId,
-      activeType,
-      activeTrack,
-      activeTimelineRange,
+      ...(state.chartType === "timeline" ? [] : [activeType, activeTrack, activeTimelineRange]),
     ]),
     scale: state.zoom.scale,
     minScale: state.zoom.minScale,
@@ -330,6 +333,7 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     changeType("");
     setSelectedTrack("");
     setTimelineRange(null);
+    timelineView.reset();
     if (state.chartType === "compound") {
       enterGroup(null);
       return;
@@ -359,6 +363,15 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     compound.setView(view);
   }
   return {
+    timelineSettings: state.timelineSettings,
+    changeTimelineSettings: (patch: Partial<TimelineViewSettings>) =>
+      dispatch({ type: "timelineSettingsChanged", patch }),
+    readaptTimeline: timelineView.readapt,
+    pinTimelineNode:
+      state.chartType === "timeline" && state.timelineSettings.layout === "flow"
+        ? (key: string, x: number) =>
+            dispatch({ type: "timelineSettingsChanged", patch: { pins: { ...state.timelineSettings.pins, [key]: x } } })
+        : undefined,
     compound: { ...compound, setView: changeCompoundView },
     compoundLayout,
     enterGroup,

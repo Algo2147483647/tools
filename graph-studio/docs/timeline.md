@@ -4,10 +4,10 @@ Timeline is a fourth chart type, alongside Node-link, Sankey, and Nested node-li
 
 ## Reading the timeline
 
-- Time runs downward on one linear UTC axis. Equal time intervals occupy equal distances, including long empty periods. Zooming preserves this relationship.
+- Time runs downward on one shared UTC axis. **Settings → Layout** independently selects the arrangement (Tracks or Relation flow) and axis (Fixed interval or Adaptive).
 - A point represents an instant; a thick rounded bar represents a duration. An ongoing bar has an open endpoint. Labels may move to avoid overlaps, with a leader back to the exact time anchor.
 - Branches and merges come from actual graph edges. Sharing a track or occurring one after another does not create a relationship.
-- A named track groups related events; overlapping events can occupy adjacent subtracks. Nodes without a track receive automatic lanes.
+- Tracks group events in columns with compact subchannels. Relation flow arranges events by their connections; type and track never constrain horizontal position. Type colors identify categories without background regions. Drag a flow node horizontally, or use Alt + Left/Right, to pin it without changing its date. Layout can clear pins.
 - Events without a usable time remain in an **Undated** area. Invalid imported dates produce warnings instead of silently disappearing.
 - References and containment relationships are visually distinct from sequence, dependency, and rendezvous edges. Backward relationships keep their original direction.
 
@@ -59,7 +59,7 @@ For a historical snapshot, optional `metadata.timeline.asOf` accepts a date or e
 
 `time` accepts either `{ "at": "…" }` or `{ "start": "…", "end": "…" }`. Set `end` to `null` explicitly for an ongoing interval. A missing `time` is allowed. End must not precede start, and an ongoing interval cannot begin in the future.
 
-Date-only strings use `YYYY-MM-DD` and retain day precision. Date-time strings require an explicit `Z` or numeric offset (`+08:00`); local clock times without an offset are rejected. Calendar validation rejects impossible dates rather than rolling them into the next month. Node details retain the entered date or offset while the axis displays UTC.
+Strings can use `YYYY`, `YYYY-MM` or `YYYY-MM-DD` and retain their original precision. BCE uses signed six-digit ISO astronomical years: 221 BCE is `-000220`, 1 BCE is `0000`. Display labels use historical BCE notation without a year zero. Date-time strings require an explicit `Z` or numeric offset (`+08:00`); local clock times without an offset are rejected. Calendar validation rejects impossible dates. Node details retain the entered date or offset while the axis displays UTC. Time-range inputs also accept years and months; To includes the entire supplied period.
 
 Optional edge `metadata.timeline` properties:
 
@@ -77,4 +77,21 @@ The node editor includes **Event time & track** in Timeline and for nodes that a
 
 The JSON schema documents valid event-time data. Opening a document remains tolerant of malformed time fields so they can be inspected and corrected in the undated area. Editing a time through graph commands validates newly supplied dates; unrelated edits do not remove imported evidence.
 
-The first version uses a real linear axis with time-range, track, and type filters. It does not fold empty time or drag events to reschedule them. Dense histories can be explored through the supplied topic documents, filters, and zooming.
+## Layout and axis
+
+In **Settings → Layout**, choose the arrangement independently of the time axis:
+
+- **Tracks**: named columns with compact subchannels for overlaps.
+- **Relation flow**: free horizontal branches and joins. Categories do not attract nodes or own columns. A crossing is not a merge: only a shared graph node creates a join. Real edge directions and IDs are retained, including backward relationships.
+- **Fixed interval**: equal elapsed durations have equal distances. Set a positive integer interval with seconds, minutes, hours, days, weeks, months or years, or select Auto. Calendar months and years follow UTC boundaries; zoom may omit labels at whole multiples of the configured base interval.
+- **Adaptive**: expand dense event dates and duration endpoints, compress sparse periods, and smooth local scale changes. All branches use the same strictly increasing, reversible mapping. Duration bars alone do not add density throughout their lifetimes. Screen lengths are not proportional to real durations. The live ruler, grid and SVG export use the same mapping.
+
+Ordinary filters retain node positions and the axis. Time range clipping preserves stored dates. **Fit visible events** rebuilds from visible events; **Show all events** restores the full layout. **Lock time axis** retains its mapping across content edits; newly exposed dates extend its existing end segments. Layout/axis choices are browser preferences; document `metadata.timeline.view` supplies initial defaults, e.g. `{ "layout": "flow", "axis": "adaptive", "compactness": 0.5 }`. Pins are local view state and do not carry into other documents. Existing documents default to Tracks and a linear axis; legacy draft `cluster` settings migrate to Relation flow.
+
+## Relationships inside a period
+
+An edge can set `metadata.timeline.sourceTime` or `targetTime` to a supported ISO time within the corresponding event interval. This overrides that endpoint's start/end anchor and creates a port on its bar. For example, a Sui-period edge to a 589 event uses `sourceTime: "0589"`, so it attaches at 589 rather than at the dynasty's beginning. These anchors contribute to adaptive density. An out-of-range anchor produces a warning and falls back to its declared start/end anchor. Edge metadata is preserved on import/save and can be edited in graph JSON.
+
+## Chinese history example
+
+Open **中国历史：分流与交汇** in the example gallery. Its 192 events and periods and 248 named relationships span 770 BCE–1949 CE, with year precision, source links, 61 polity categories, six topic guides, and explicit joins. It defaults to Relation flow with an adaptive axis. Edit `scripts/data/china-history/catalog.mjs` and `expansion.mjs`, then run `npm run examples:china-history`; use `npm run examples:china-history:check` to verify reproducibility.

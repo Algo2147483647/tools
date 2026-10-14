@@ -1,9 +1,10 @@
-import type { CSSProperties, KeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
+import { useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import type { StageNode } from "../layout/types";
 
 interface TimelineNodeProps {
   node: StageNode;
   isActive: boolean;
+  onPin?: (key: string, x: number) => void;
   onClick: (key: string) => void;
   onDoubleClick?: (key: string) => void;
   onContextMenu: (event: ReactMouseEvent<SVGGElement>, key: string) => void;
@@ -13,11 +14,14 @@ interface TimelineNodeProps {
 export default function TimelineNode({
   node,
   isActive,
+  onPin,
   onClick,
   onDoubleClick,
   onContextMenu,
   onFocusChange,
 }: TimelineNodeProps) {
+  const drag = useRef<{ clientX: number; scale: number; delta: number } | null>(null);
+  const dragged = useRef(false);
   const time = node.timeline!;
   const { startY, endY, labelX, labelY, anchorY } = time;
   const range = time.kind === "range";
@@ -25,6 +29,11 @@ export default function TimelineNode({
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
   const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
+    if (onPin && event.altKey && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+      event.preventDefault();
+      onPin(node.key, Math.max(214, node.x + (event.key === "ArrowLeft" ? -16 : 16)));
+      return;
+    }
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (event.key === "Enter" && onDoubleClick) onDoubleClick(node.key);
@@ -59,7 +68,39 @@ export default function TimelineNode({
       tabIndex={0}
       role="button"
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}. Select event; press Enter or double-click for details.`}
-      onClick={() => onClick(node.key)}
+      onPointerDown={(event) => {
+        if (!onPin || event.button !== 0) return;
+        const scale = event.currentTarget.ownerSVGElement?.getScreenCTM()?.a || 1;
+        drag.current = { clientX: event.clientX, scale, delta: 0 };
+        dragged.current = false;
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }}
+      onPointerMove={(event) => {
+        if (!drag.current) return;
+        drag.current.delta = Math.max(214 - node.x, (event.clientX - drag.current.clientX) / drag.current.scale);
+        if (Math.abs(event.clientX - drag.current.clientX) > 4) dragged.current = true;
+        if (dragged.current) {
+          event.preventDefault();
+          event.currentTarget.setAttribute("transform", `translate(${drag.current.delta},0)`);
+        }
+      }}
+      onPointerUp={(event) => {
+        const delta = drag.current?.delta ?? 0;
+        drag.current = null;
+        event.currentTarget.removeAttribute("transform");
+        if (event.currentTarget.hasPointerCapture(event.pointerId))
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        if (dragged.current) onPin?.(node.key, node.x + delta);
+      }}
+      onPointerCancel={(event) => {
+        drag.current = null;
+        dragged.current = false;
+        event.currentTarget.removeAttribute("transform");
+      }}
+      onClick={() => {
+        if (!dragged.current) onClick(node.key);
+        dragged.current = false;
+      }}
       onDoubleClick={() => onDoubleClick?.(node.key)}
       onContextMenu={(event) => onContextMenu(event, node.key)}
       onFocus={() => onFocusChange(node.key)}
@@ -122,6 +163,9 @@ export default function TimelineNode({
       ) : (
         <path className="timeline-node__unknown" d={`M${node.x},${startY - 7} l7,7 -7,7 -7,-7 z`} />
       )}
+      {time.ports?.map((port) => (
+        <circle key={port.time} className="timeline-node__point" cx={node.x} cy={port.y} r={4} aria-hidden="true" />
+      ))}
       <rect
         className="timeline-node__label-bg"
         x={labelX - 6}

@@ -5,6 +5,7 @@ import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";
 import type { GraphAction } from "./graphActions";
 import { type GraphAppState, createInitialGraphState } from "./initialState";
 import { clampConsoleSidebarWidth } from "./preferences";
+import { getDocumentTimelineSettings, sanitizeTimelineSettings } from "../graph/timelineSettings";
 
 const EDIT_HISTORY_LIMIT = 100;
 
@@ -20,6 +21,8 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
 
 function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
+    case "timelineSettingsChanged":
+      return { ...state, timelineSettings: sanitizeTimelineSettings({ ...state.timelineSettings, ...action.patch }) };
     case "graphClosed":
     case "graphLoaded":
     case "canvasInitialized": {
@@ -28,6 +31,12 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       const isNew = action.type === "canvasInitialized";
       return {
         ...initial,
+        timelineSettings: sanitizeTimelineSettings({
+          ...state.timelineSettings,
+          pins: {},
+          locked: false,
+          ...(loaded ? getDocumentTimelineSettings(action.dag.metadata) : {}),
+        }),
         dag: loaded ? action.dag : null,
         document: {
           id: loaded ? action.documentId : "",

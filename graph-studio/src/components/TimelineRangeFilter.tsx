@@ -70,14 +70,15 @@ export default function TimelineRangeFilter({
         }}
       >
         <strong>Time range</strong>
-        <p>UTC dates, including the entire To day.</p>
+        <p>UTC years, months or dates. To includes the full period. For 221 BCE, enter -000220.</p>
         <div className="timeline-range-dates">
           <label>
             From
             <input
               aria-label="Timeline from date"
               name="from"
-              type="date"
+              type="text"
+              placeholder="YYYY / YYYY-MM / YYYY-MM-DD"
               value={draft.from}
               onChange={(event) => {
                 setDraft({ ...draft, from: event.currentTarget.value });
@@ -90,7 +91,8 @@ export default function TimelineRangeFilter({
             <input
               aria-label="Timeline to date"
               name="to"
-              type="date"
+              type="text"
+              placeholder="YYYY / YYYY-MM / YYYY-MM-DD"
               value={draft.to}
               onChange={(event) => {
                 setDraft({ ...draft, to: event.currentTarget.value });

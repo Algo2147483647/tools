@@ -20,6 +20,7 @@ export function useGraphPreferences({
 }) {
   useEffect(() => {
     saveGraphPagePreferences({
+      timelineSettings: { ...state.timelineSettings, pins: {}, locked: false },
       mode: state.mode,
       chartType: state.chartType,
       layoutMode: state.layout.mode,
@@ -38,6 +39,7 @@ export function useGraphPreferences({
     appearanceByChart,
     displayByChart,
     state.chartType,
+    state.timelineSettings,
     state.layout.mode,
     state.mode,
     state.ui.consoleSidebarOpen,

@@ -100,8 +100,8 @@ export default function NodeTimeEditor({ time, track, readOnly, referenceTime, o
             )}
           </div>
           <p className="node-detail-editor-hint">
-            Use YYYY-MM-DD for day precision, or an ISO date-time with Z or an explicit offset such as +08:00. The axis
-            displays UTC. Ongoing events extend to{" "}
+            Use YYYY, YYYY-MM or YYYY-MM-DD to retain precision; ISO date-times require Z or an offset such as +08:00.
+            BCE uses astronomical years (221 BCE = -000220). The axis displays UTC. Ongoing events extend to{" "}
             {referenceTime === undefined
               ? "the current time"
               : `the saved reference time, ${new Date(referenceTime).toISOString()}`}

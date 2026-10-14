@@ -1,0 +1,26 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "中国历史",
+  "graphs": [
+    "china-history.json"
+  ],
+  "defaultGraph": "china-history.json",
+  "metadata": {
+    "language": "zh-CN",
+    "nodeCount": 192,
+    "edgeCount": 248,
+    "themeCount": 6,
+    "polityCount": 61,
+    "assets": [
+      "README.md",
+      "SOURCES.md",
+      "notes/conflict.md",
+      "notes/diplomacy.md",
+      "notes/economy.md",
+      "notes/ideas.md",
+      "notes/polity.md",
+      "notes/technology.md"
+    ]
+  }
+}

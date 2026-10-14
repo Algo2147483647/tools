@@ -1,3 +1,4 @@
+import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import { type GraphAppearancePresetId, GRAPH_APPEARANCE_PRESETS } from "../../graph/appearanceCommands";
@@ -14,6 +15,7 @@ interface AppearanceSettingsProps {
   chartType: GraphChartType;
   sankeyUnavailableReason: string | null;
   onChartTypeChange: (type: GraphChartType) => void;
+  timelineControls?: TimelineControlsProps;
   layoutMode: GraphLayoutMode;
   appearance: GraphAppearance;
   showNodeDetail: boolean;
@@ -202,20 +204,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             </p>
           </section>
         )}
-        {isTimeline && (
-          <section className="settings-section">
-            <h3>Real time axis</h3>
-            <p>
-              Time runs from top to bottom in UTC. Equal durations use equal distances; branches share the same clock.
-              Points are instant events and thick bars are duration events.
-            </p>
-            <p>
-              Set an event’s time and optional track in its node editor. Undated or invalid events remain in a separate
-              area. Use Time range, Track and Type in the toolbar to filter; click an event to highlight its
-              relationships, or double-click to edit it.
-            </p>
-          </section>
-        )}
+        {isTimeline && p.timelineControls && <TimelineControls {...p.timelineControls} />}
         {isSankey && matches("layout sankey flow automatic width") && (
           <section className="settings-section">
             <h3>Automatic flow layout</h3>

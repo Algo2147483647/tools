@@ -1,0 +1,258 @@
+(node:12888) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Compound hierarchy, projection and layout
+  PASS context menus stay within the viewport and flyouts flip or fall back to one panel
+  PASS rounded routes preserve endpoints and clamp bends on short and repeated segments
+  PASS context menus distinguish G connections, H membership and external summaries
+  PASS adding a group member is one atomic undoable edit and adds no G relationship
+  PASS v3 preserves independent G and H and rejects v2
+  PASS invalid references, cycles, empty groups and node/group collisions are rejected
+  PASS deep hierarchies validate and index without recursive stack overflow
+  PASS nested folding preserves original edges and uses the outermost collapsed ancestor
+  PASS drill-down retains isolated members and incoming/outgoing external boundaries
+  PASS type filtering retains ancestor containers without synthesizing paths
+  PASS grouping, moving and dissolving only modify H and reject cycles atomically
+  PASS node rename/delete repair H and undo restores complete hierarchy
+  PASS ordinary node-link ignores H and keeps disconnected cyclic components
+  PASS compound and ordinary chart switching preserves the same document
+  PASS merging documents preserves and remaps incoming hierarchy
+(node:12888) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  PASS ELK routes cross-boundary and reverse edges for expanded, folded and focused views
+  PASS hierarchy import conflicts require explicit parent choices and remap renamed groups
+  PASS special object-key IDs remain ordinary members and stale focus falls back safely
+  PASS commerce workspace demonstrates nested groups and complete relationship provenance
+
+ai harness
+  PASS detects requests that should continue a previous plan
+  PASS parses AI JSON responses wrapped in a markdown fence
+  PASS reports invalid AI JSON with command quoting guidance
+  PASS creates an active plan with a pending command batch from proposed changes
+  PASS validates command batches before execution and reports risk
+  PASS validates appearance command batches and reports CSS/layout diffs
+  PASS parses persisted harness state with active plan and pending batch
+  PASS builds stable per-graph persistence keys
+
+Document lifecycle and architecture regressions
+  PASS initial states and preference defaults do not share mutable state
+  PASS same-named documents have separate identities and every opening a new generation
+  PASS a delayed save marks only its snapshot saved and preserves subsequent edits
+  PASS switching before permission resolves prevents a stale file write
+  PASS save completion and failure after switching cannot change the new document
+  PASS overlapping saves are serialized and permission denial leaves dirty state intact
+  PASS undo then edit uses a new revision and preserves a saved snapshot outside history
+  PASS workspace preparation reads an entire candidate before changing application state
+  PASS AI plans cannot be applied to a different document or reopened revision
+  PASS every AI transport propagates cancellation without making an external request
+  PASS geometry inputs exclude presentation changes but include spacing and Sankey bar width
+
+appearance
+  PASS node dots default to visible and a hidden preference survives reload
+  PASS sanitizeGraphAppearance fills defaults and clamps layout values
+  PASS sanitizeGraphAppearance preserves edge label display preference
+  PASS sanitizeGraphAppearance only accepts dag css vars and removes imports
+  PASS default root and active node fills follow the configured node fill
+  PASS legacy translucent cards become white and shadow changes do not recolor them
+  PASS latest preferences parse appearance directly
+  PASS buildStageData uses appearance layout minimum stage size
+
+chart types and independent styles
+  PASS timeline hints open every event without changing v3 diagram semantics
+  PASS timeline accepts ordinary undated graphs and preserves other view state
+  PASS timeline type and track filters never bridge hidden historical events
+  PASS timeline time edits validate before committing and undo with their track
+  PASS timeline preferences survive reload and appearance undo stays isolated
+  PASS unrelated edits preserve malformed imported time while date edits must fix it
+  PASS Locate targets displaced event labels rather than their unchanged time anchors
+  PASS date range controls use inclusive UTC days and reject invalid drafts
+  PASS ongoing edits use the document snapshot time consistently with rendering
+  PASS filtering an ordinary numeric graph in Sankey view never invents flows
+  PASS switching chart type preserves data, selection, edits and node-link layout
+  PASS text relationships cannot be silently converted into Sankey flows
+  PASS an edit that invalidates a numeric view returns to node-link with a reason
+  PASS legacy shared preferences migrate into two independent profiles
+  PASS reload preserves both styles and the remembered node-link layout
+  PASS appearance commits, resets, undo and redo affect only their chart type
+
+v3 document and graph
+  PASS shared traversal preserves depth-first order and handles cycles, duplicate and missing roots
+  PASS bundled sample uses the native protocol and preserves its edges
+  PASS relation form values round-trip scalars without changing strings to booleans or numbers
+  PASS stage uses edge IDs and synthetic roots cannot replace real nodes
+  PASS document metadata and arbitrary node/edge metadata round-trip without adjacency fields
+  PASS old and unknown document formats are rejected
+  PASS invalid node fields, missing endpoints and duplicate edge identities are rejected
+  PASS special object keys survive serialization and edge indexes
+  PASS node edits preserve incident edges and metadata
+  PASS relation editing changes one edge and derives both indexes, preserving edge identity
+  PASS rename and delete update authoritative edge endpoints
+  PASS cloning and empty documents keep a consistent graph model
+  PASS type projection bridges hidden paths and layouts use derived indexes
+  PASS selectors still navigate and repair node selections
+  PASS raw node editor uses explicit id/data envelope and does not guess wrappers
+
+conflict-aware v3 import
+  PASS analysis reports both values without mutating input or implicitly resolving
+  PASS keep only discards incoming node fields after an explicit choice
+  PASS rename preserves both nodes and rewrites incoming edge references
+  PASS merge preserves complementary fields and asks again for scalar conflicts
+  PASS nested metadata merges and array unions preserve values and source headers
+  PASS edge ID conflicts require a decision and can rename distinct endpoint pairs
+  PASS parallel endpoint payload conflicts require explicit choices
+  PASS reserved or colliding rename targets and unknown formats block import
+  PASS three-way imports require resolving each later collision
+
+console
+  PASS parser accepts comments, quoted strings, and create-missing edges
+  PASS parser and executor accept clear inside multiline batches
+  PASS keys lists all node keys without mutating the graph
+  PASS read-only graph analysis commands inspect data without mutations
+  PASS appearance commands update layout variables and CSS without graph mutations
+  PASS style-css show prints current appearance CSS
+  PASS executor applies batch mutations and tracks ui effects
+  PASS executor returns line-aware errors when context is missing
+  PASS parser requires slash-prefixed commands
+
+native field roles
+  PASS v3 keeps fixed field roles and ignores obsolete mapping preferences
+
+state
+  PASS graphLoaded preserves workspace preferences while resetting document state
+  PASS graphCommandsCommitted advances undo history and dirty tracking
+  PASS savedAsCopy keeps the current document dirty because the source file was not overwritten
+  PASS consoleSidebarWidthChanged preserves unrestricted widths
+  PASS repairHistoryAfterCommand remaps renamed selections and removes deleted ones
+
+Workspace opening and local paths
+  PASS manifest round-trips legal metadata without accepting unknown fields
+  PASS manifest paths reject escapes, absolute paths, aliases and URL suffixes
+  PASS workspace manifest restricts graph discovery and preserves asset access
+  PASS bad manifest or a missing declared file rejects workspace opening
+  PASS automatic discovery ignores unrelated JSON and surfaces invalid graph documents
+  PASS startup choice is recent, explicit default, root graph.json, then sole graph
+  PASS invalid explicit default does not silently open a different graph
+  PASS empty folders and unrelated project folders can open without a graph
+  PASS manifest export keeps invalid graph entries and metadata but drops stale default
+  PASS graph file reads use fresh handles and preserve document metadata
+  PASS discovery is bounded and manifests avoid scanning unrelated JSON
+  PASS folder enumeration skips generated and hidden directories without reading assets
+  PASS fallback folder selection strips exactly one root and rejects duplicates
+  PASS recent handle access uses an existing grant or explicitly requests one
+  PASS links resolve relative to each source file, including URL-encoded names
+  PASS relative files require an open workspace and cannot escape its file inventory
+  PASS recent list updates existing records and keeps at most twenty locations
+  PASS recording an example never waits for IndexedDB and preserves known local handles
+  PASS recent metadata tolerates unavailable or corrupt storage without trusting handles
+
+Sankey and shadow settings
+  PASS protocol round-trip preserves semantics and metadata
+  PASS flow widths share one scale and fill balanced nodes exactly
+  PASS single nodes, zero flows, tiny values and imbalanced flows remain finite
+  PASS invalid ordinary graphs fall back visibly without changing data
+  PASS mixed tiny flows, long links, multiple roots and focused leaves keep finite geometry
+  PASS editing, filtering and merges preserve flow semantics
+  PASS Sankey loading and preferences select the flow engine
+  PASS circular flows preserve direction, port totals, scale and saved data
+  PASS full view retains disconnected cycles alongside ordinary roots
+  PASS return-only graphs and multiple catalysts keep finite geometry without synthetic nodes
+  PASS shadow settings clamp, migrate and persist through appearance JSON
+
+Bundled example workspaces
+  PASS all example graphs load, serialize, and have no missing files and retain their documented language
+  PASS Factorio replaces the atlas with two target plans and restores obsolete recent paths
+  PASS Factorio rates balance every shared material and account for each recipe input and output
+  PASS complete Factorio target chains render all branches and catalyst/coolant returns
+  PASS example opens are independent copies and recent entries reopen without folder permission
+  PASS unknown or unavailable examples fail cleanly and respect the deployment base
+  PASS unsafe paths and missing graphs reject opening; unavailable notes fail only when opened
+  PASS large examples open without downloading notes and share only immutable cached files
+  PASS refresh replaces cached downloads while failed note requests remain retryable
+  PASS stalled example requests time out, abort and can be retried
+  PASS switching from a Sankey example to mathematics restores a layered layout
+
+Mathematics curriculum
+  PASS ten subject views share one corpus and retain all internal prerequisite edges
+  PASS external prerequisites stay linked in details and notes and connected in the complete atlas
+  PASS theorems retain assumptions, examples, proof ideas and linked study notes
+  PASS each graph opens at a single root and both layouts retain every node and edge
+  PASS obsolete Mathematics recent paths reopen the new overview
+
+Timeline axes and historical precision
+  PASS historical and coarse dates retain their precision without inventing month or day labels
+  PASS calendar validation rejects malformed and unrepresentable historical timestamps
+  PASS year and month range limits include the complete requested period and round-trip BCE dates
+  PASS linear mapping preserves true elapsed time and extrapolates reversibly
+  PASS adaptive mapping expands dense periods while retaining nonzero chronological distances
+  PASS coincident timestamps stay coincident; density is deterministic and includes endpoint demand
+  PASS day-scale clusters remain readable within a millennial axis without equalizing centuries
+  PASS point extents are finite and invalid geometry is rejected
+  PASS widening a locked date window preserves all internal pixel distances and visible geometry
+  PASS fixed month ticks follow leap-year calendars and their true elapsed spacing
+  PASS arbitrary calendar intervals survive zoom thinning and BCE ticks use historical labels
+  PASS adaptive ruler follows the exact shared map and allocates finer ticks near dense events
+  PASS very fine fixed intervals across centuries are bounded without changing their base alignment
+
+Timeline relation flow
+  PASS cross-category branches converge at one node and keep simultaneous anchors aligned
+  PASS dense events avoid label, marker and duration collisions without changing dates
+  PASS types and tracks never constrain relation flow positions
+  PASS input order does not change node positions, colors or routes
+  PASS horizontal pins retain exact time anchors and unpinned nodes avoid them
+  PASS metadata can select the new layout while absent settings preserve existing tracks
+  PASS a retained map and full axis source preserve mapping through visibility changes
+  PASS undated and invalid-only flow views have finite geometry without an artificial time
+
+Timeline view integration
+  PASS clipped overlapping periods move only their labels without colliding
+  PASS interior time anchors join a period at the actual event date in both axis modes
+  PASS time range clipping preserves the shared clock and original period data
+  PASS category projection preserves positions and time map and never invents links
+  PASS exports keep a minimal English ruler without category tracks or explanations
+  PASS custom calendar interval reaches static SVG ticks without converting event dates
+  PASS timeline preferences round trip and reject invalid option values
+
+中国历史时间线示例
+  PASS the Chinese corpus retains BCE/year precision, qualified periods and source attribution
+  PASS branches and cross-category joins preserve one event and its actual timestamp
+  PASS the gallery opens the Chinese timeline and exposes its source and theme notes
+
+Timeline time semantics and layout
+  PASS calendar dates and explicit offsets parse without local-time ambiguity
+  PASS missing, malformed, zero-length and ongoing intervals remain distinct
+  PASS equal timestamps and interval endpoints share an exact linear axis
+  PASS cycles keep real direction and metadata anchors without synthetic edges
+  PASS declared branches preserve continuity and merge back into the main channel
+  PASS same-time and subpixel connections do not turn back into spurious loops
+  PASS long forward and backward edges bypass skipped markers without reversing time
+  PASS duration endpoint connections stay horizontal when their timestamps coincide
+  PASS input order does not change lanes, colors, routes or label positions
+  PASS track order starts with earliest dated history, with stable ties and undated tracks last
+  PASS full, forest and focused selections include disconnected cycles correctly
+  PASS invalid-only, single-event and zero-length ranges have finite visible geometry
+  PASS long overlapping programs use compact channels instead of label-width columns
+  PASS snapshot date controls ongoing events and sizing respects appearance
+  PASS time windows include boundary events and intersecting intervals without fabricating edges
+  PASS one-sided windows preserve explicit limits and clip ongoing events
+  PASS empty, invalid and point time windows never produce invalid geometry
+
+Timeline rendering
+  PASS details are hidden by default and can be enabled
+  PASS duration is one accessible event with exact endpoint positions
+  PASS backward relations keep their direction marker and declared kind
+  PASS ruler adapts detail to zoom and aligns years to the calendar
+
+World space history timeline
+  PASS Luna milestone connectors stay local in both the complete and filtered timeline
+  PASS one default graph contains the complete dated and sourced historical corpus
+  PASS Apollo 11 contains simultaneous vehicle branches that join at the actual docking event
+  PASS UTC-sensitive dates and completed-phase boundaries remain explicit
+  PASS the gallery lists the complete workspace including on-demand explanatory notes
+
+Node relations
+  PASS separates incoming and outgoing edges and excludes unrelated edges
+  PASS preserves scalar relationship values and metadata
+  PASS shows both empty states for isolated nodes
+
+Summary: 207 passed, 0 failed

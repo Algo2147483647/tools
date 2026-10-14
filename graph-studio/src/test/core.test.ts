@@ -1,3 +1,7 @@
+import { timelineAxisSuite } from "./timelineAxis.test";
+import { timelineClusterSuite } from "./timelineCluster.test";
+import { timelineViewSuite } from "./timelineView.test";
+import { chinaHistorySuite } from "./chinaHistory.test";
 import { compoundSuite } from "./compound.test";
 import { aiHarnessSuite } from "./aiHarness.test";
 import { documentSessionSuite } from "./documentSession.test";
@@ -34,6 +38,10 @@ async function main() {
     sankeySuite,
     examplesSuite,
     mathematicsSuite,
+    timelineAxisSuite,
+    timelineClusterSuite,
+    timelineViewSuite,
+    chinaHistorySuite,
     timelineSuite,
     timelineRenderingSuite,
     spaceHistorySuite,

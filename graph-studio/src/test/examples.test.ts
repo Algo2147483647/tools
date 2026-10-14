@@ -35,34 +35,40 @@ const localFetch = (async (url: string) => {
 }) as typeof fetch;
 
 export const examplesSuite = defineSuite("Bundled example workspaces", [
-  defineTest("all example graphs load, serialize, and have no missing or non-English files", async () => {
-    for (const example of EXAMPLE_WORKSPACES) {
-      const folder = await loadExampleWorkspace(example.id, "/studio/", localFetch);
-      const workspace = await discoverWorkspace(folder);
-      assert.ok(workspace.activePath);
-      assert.equal(workspace.exampleId, example.id);
-      assert.equal(workspace.handle, null);
-      assert.deepEqual(
-        [...folder.files.keys()].sort(),
-        (await listFiles(`public/examples/${example.id}`)).sort(),
-        "The homepage must load the actual workspace files",
-      );
-      for (const entry of folder.files.values()) {
-        assert.equal(entry.handle, null);
-        const text = await (await readWorkspaceFile(entry)).text();
-        assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
-        // Resolve every generated Markdown link, including the graph's note fields.
-        for (const match of text.matchAll(/\]\((\.{1,2}\/[\w/.-]+)\)/g)) {
-          assert.ok(folder.files.has(resolveWorkspacePath(match[1], entry.path)), `${entry.path}: missing ${match[1]}`);
+  defineTest(
+    "all example graphs load, serialize, and have no missing files and retain their documented language",
+    async () => {
+      for (const example of EXAMPLE_WORKSPACES) {
+        const folder = await loadExampleWorkspace(example.id, "/studio/", localFetch);
+        const workspace = await discoverWorkspace(folder);
+        assert.ok(workspace.activePath);
+        assert.equal(workspace.exampleId, example.id);
+        assert.equal(workspace.handle, null);
+        assert.deepEqual(
+          [...folder.files.keys()].sort(),
+          (await listFiles(`public/examples/${example.id}`)).sort(),
+          "The homepage must load the actual workspace files",
+        );
+        for (const entry of folder.files.values()) {
+          assert.equal(entry.handle, null);
+          const text = await (await readWorkspaceFile(entry)).text();
+          if (example.id !== "china-history") assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
+          // Resolve every generated Markdown link, including the graph's note fields.
+          for (const match of text.matchAll(/\]\((\.{1,2}\/[\w/.-]+)\)/g)) {
+            assert.ok(
+              folder.files.has(resolveWorkspacePath(match[1], entry.path)),
+              `${entry.path}: missing ${match[1]}`,
+            );
+          }
+        }
+        for (const entry of workspace.graphs) {
+          assert.equal(entry.error, undefined, `${example.id}/${entry.path}: ${entry.error}`);
+          const dag = await readGraphFile(folder.files.get(entry.path)!);
+          assert.deepEqual(normalizeDagInput(serializeDag(dag)), dag);
         }
       }
-      for (const entry of workspace.graphs) {
-        assert.equal(entry.error, undefined, `${example.id}/${entry.path}: ${entry.error}`);
-        const dag = await readGraphFile(folder.files.get(entry.path)!);
-        assert.deepEqual(normalizeDagInput(serializeDag(dag)), dag);
-      }
-    }
-  }),
+    },
+  ),
   defineTest("Factorio replaces the atlas with two target plans and restores obsolete recent paths", async () => {
     const folder = await loadExampleWorkspace("factorio", "/", localFetch);
     for (const previous of ["all-products.json", "start-here.json", "science.json"]) {

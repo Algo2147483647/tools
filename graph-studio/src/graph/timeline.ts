@@ -1,4 +1,4 @@
-export type TimelinePrecision = "date" | "datetime";
+export type TimelinePrecision = "year" | "month" | "date" | "datetime";
 export type TimelineRelationKind = "sequence" | "dependency" | "reference" | "rendezvous" | "part-of";
 
 export interface DatedTimelineTime {
@@ -23,14 +23,15 @@ export type ParsedTimelineTime = DatedTimelineTime | UndatedTimelineTime;
 /** Dates mean a UTC calendar day; clock times must explicitly identify their offset. */
 export function parseTimelineDate(value: unknown): { timestamp: number; precision: TimelinePrecision } | null {
   if (typeof value !== "string") return null;
-  const match = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:\d{2}))?$/.exec(
-    value,
-  );
-  if (!match) return null;
+  const match =
+    /^([+-]\d{6}|\d{4})(?:-(\d{2})(?:-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:\d{2}))?)?)?$/.exec(
+      value,
+    );
+  if (!match || value.startsWith("-000000")) return null;
   const [, yearText, monthText, dayText, hourText, minuteText, secondText, fractionText, offsetText] = match;
   const year = Number(yearText);
-  const month = Number(monthText);
-  const day = Number(dayText);
+  const month = Number(monthText ?? 1);
+  const day = Number(dayText ?? 1);
   const hour = Number(hourText || 0);
   const minute = Number(minuteText || 0);
   const second = Number(secondText || 0);
@@ -49,9 +50,11 @@ export function parseTimelineDate(value: unknown): { timestamp: number; precisio
   const date = new Date(0);
   date.setUTCFullYear(year, month - 1, day);
   date.setUTCHours(hour, minute, second, Number((fractionText || "").padEnd(3, "0").slice(0, 3)));
+  const timestamp = date.getTime() - offsetMinutes * 60_000;
+  if (!Number.isFinite(timestamp) || Math.abs(timestamp) > 8.64e15) return null;
   return {
-    timestamp: date.getTime() - offsetMinutes * 60_000,
-    precision: hourText === undefined ? "date" : "datetime",
+    timestamp,
+    precision: !monthText ? "year" : !dayText ? "month" : hourText === undefined ? "date" : "datetime",
   };
 }
 
@@ -71,7 +74,8 @@ export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimel
     if (Object.prototype.hasOwnProperty.call(time, "start") || Object.prototype.hasOwnProperty.call(time, "end"))
       return invalid("Use either at or start/end, never both.");
     const parsed = parseTimelineDate(time.at);
-    if (!parsed) return invalid("at must be a valid YYYY-MM-DD date or ISO date-time with an explicit timezone.");
+    if (!parsed)
+      return invalid("at must be a valid year, YYYY-MM, YYYY-MM-DD or ISO date-time with an explicit timezone.");
     return {
       status: "dated",
       kind: "instant",
@@ -83,7 +87,8 @@ export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimel
     };
   }
   const start = parseTimelineDate(time.start);
-  if (!start) return invalid("start must be a valid YYYY-MM-DD date or ISO date-time with an explicit timezone.");
+  if (!start)
+    return invalid("start must be a valid year, YYYY-MM, YYYY-MM-DD or ISO date-time with an explicit timezone.");
   const ongoing = time.end === null;
   const end = ongoing ? { timestamp: now, precision: start.precision } : parseTimelineDate(time.end);
   if (!end || !Number.isFinite(end.timestamp))
@@ -98,7 +103,12 @@ export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimel
     start: start.timestamp,
     end: end.timestamp,
     ongoing,
-    precision: start.precision === "datetime" || end.precision === "datetime" ? "datetime" : "date",
+    precision: (["year", "month", "date", "datetime"] as const)[
+      Math.max(
+        ["year", "month", "date", "datetime"].indexOf(start.precision),
+        ["year", "month", "date", "datetime"].indexOf(end.precision),
+      )
+    ],
     label: `${formatInputDate(time.start as string)} → ${ongoing ? "ongoing" : formatInputDate(time.end as string)}`,
   };
 }
@@ -117,6 +127,8 @@ export function getTimelineRelation(metadata?: Record<string, unknown>): {
   kind: TimelineRelationKind;
   sourceAnchor: "start" | "end";
   targetAnchor: "start" | "end";
+  sourceTime?: number;
+  targetTime?: number;
 } {
   const value = metadata?.timeline;
   const timeline =
@@ -135,9 +147,32 @@ export function getTimelineRelation(metadata?: Record<string, unknown>): {
           ? "end"
           : "start",
     targetAnchor: timeline.targetAnchor === "end" ? "end" : "start",
+    ...(parseTimelineDate(timeline.sourceTime)
+      ? { sourceTime: parseTimelineDate(timeline.sourceTime)!.timestamp }
+      : {}),
+    ...(parseTimelineDate(timeline.targetTime)
+      ? { targetTime: parseTimelineDate(timeline.targetTime)!.timestamp }
+      : {}),
   };
 }
 
 function formatInputDate(value: string): string {
+  const parsed = parseTimelineDate(value);
+  if (parsed && new Date(parsed.timestamp).getUTCFullYear() <= 0 && parsed.precision !== "datetime")
+    return formatTimelineDate(parsed.timestamp, parsed.precision);
   return value.replace("T", " ").replace(/Z$/, " UTC");
+}
+
+export function formatTimelineYear(year: number): string {
+  return year <= 0 ? `${1 - year} BCE` : String(year).padStart(4, "0");
+}
+
+export function formatTimelineDate(time: number, precision: TimelinePrecision = "date"): string {
+  const date = new Date(time);
+  const year = formatTimelineYear(date.getUTCFullYear());
+  if (precision === "year") return year;
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  if (precision === "month") return `${year}-${month}`;
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}${precision === "datetime" ? ` ${date.toISOString().split("T")[1].replace("Z", " UTC")}` : ""}`;
 }

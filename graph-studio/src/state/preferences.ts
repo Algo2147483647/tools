@@ -2,10 +2,12 @@ import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { AiProvider, AiSettings } from "../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
 import { type ChartStyles, createChartStyles, sanitizeChartStyle, sanitizeTimelineChartStyle } from "./chartStyles";
+import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
 
 export interface GraphPagePreferences {
+  timelineSettings: TimelineViewSettings;
   mode: GraphMode;
   chartType: GraphChartType;
   layoutMode: GraphLayoutMode;
@@ -33,6 +35,7 @@ interface StorageLike {
 
 export function getInitialGraphPagePreferences(): GraphPagePreferences {
   return {
+    timelineSettings: sanitizeTimelineSettings(null),
     mode: "edit",
     chartType: "node-link",
     layoutMode: "sugiyama",
@@ -78,6 +81,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   }
 
   let parsed: {
+    timelineSettings?: unknown;
     mode?: unknown;
     chartType?: unknown;
     chartStyles?: unknown;
@@ -101,6 +105,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   }
 
   const next: Partial<GraphPagePreferences> = {};
+  if (parsed.timelineSettings) next.timelineSettings = sanitizeTimelineSettings(parsed.timelineSettings);
   if (parsed.mode === "edit") {
     next.mode = parsed.mode;
   }

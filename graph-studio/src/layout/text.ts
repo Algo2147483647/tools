@@ -99,7 +99,7 @@ export function wrapDetailText(text: string, maxLineWidth: number, maxLines: num
   return lines.slice(0, maxLines);
 }
 
-function estimateTextWidth(text: string, fontSize: number): number {
+export function estimateTextWidth(text: string, fontSize: number): number {
   return Array.from(String(text || "")).reduce(
     (width, character) => width + getCharacterEmWidth(character) * fontSize,
     0,

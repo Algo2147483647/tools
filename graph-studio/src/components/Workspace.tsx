@@ -23,6 +23,7 @@ interface WorkspaceProps {
   onInitializeCanvas: () => void;
   focusedKey: string | null;
   hideNodeBorders: boolean;
+  onTimelineNodePin?: (key: string, x: number) => void;
   onNodeClick: (key: string) => void;
   onNodeDoubleClick: (key: string) => void;
   onNodeContextMenu: (event: React.MouseEvent<SVGGElement>, key: string) => void;
@@ -47,6 +48,7 @@ export default function Workspace({
   onInitializeCanvas,
   focusedKey,
   hideNodeBorders,
+  onTimelineNodePin,
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
@@ -112,6 +114,7 @@ export default function Workspace({
                 hideNodeBorders={hideNodeBorders}
                 appearance={appearance}
                 svgRef={svgRef}
+                onTimelineNodePin={onTimelineNodePin}
                 onNodeClick={onNodeClick}
                 onNodeDoubleClick={onNodeDoubleClick}
                 onNodeContextMenu={onNodeContextMenu}

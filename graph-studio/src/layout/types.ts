@@ -1,5 +1,8 @@
 import type { DagNode, GraphRenderMode, GraphSelection, NodeKey, RelationValue } from "../graph/types";
 import type { TimelinePrecision, TimelineRelationKind } from "../graph/timeline";
+import type { TimelineAxisMap } from "./timeline-axis";
+import type { TimelineTickInterval } from "./timeline-ticks";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
 
 /** All y coordinates are absolute stage coordinates. Labels may move; time anchors never do. */
 export interface StageTimelineNode {
@@ -22,9 +25,12 @@ export interface StageTimelineNode {
   label: string;
   color: string;
   warning?: string;
+  ports?: { time: number; y: number }[];
 }
 
 export interface StageTimelineEdge {
+  sourceTime?: number;
+  targetTime?: number;
   kind: TimelineRelationKind;
   backward: boolean;
   sourceAnchor: "start" | "end";
@@ -33,6 +39,9 @@ export interface StageTimelineEdge {
 }
 
 export interface StageTimelineData {
+  layout?: TimelineViewSettings["layout"];
+  axisMap?: TimelineAxisMap;
+  tickInterval?: TimelineTickInterval;
   timeZone: "UTC";
   filtered?: boolean;
   axisX: number;

@@ -1,8 +1,10 @@
 import type { GraphChartType, GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { EditTransaction } from "./initialState";
 import type { GraphContextTarget } from "./contextMenu";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
 
 export type GraphAction =
+  | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }
   | { type: "graphClosed"; status: string }
   | {
       type: "graphLoaded";

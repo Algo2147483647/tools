@@ -204,6 +204,7 @@ export default function StudioView({
           onInitializeCanvas={session.initializeCanvas}
           focusedKey={viewport.focusedKey}
           hideNodeBorders={session.hideNodeBorders}
+          onTimelineNodePin={viewport.pinTimelineNode}
           onNodeClick={viewport.handleNodeClick}
           onNodeDoubleClick={viewport.handleNodeDoubleClick}
           onNodeContextMenu={viewport.handleNodeContextMenu}
@@ -219,6 +220,11 @@ export default function StudioView({
         chartType={state.chartType}
         sankeyUnavailableReason={sankeyUnavailableReason}
         onChartTypeChange={session.changeChartType}
+        timelineControls={{
+          settings: viewport.timelineSettings,
+          onChange: viewport.changeTimelineSettings,
+          onReadapt: viewport.readaptTimeline,
+        }}
         layoutMode={state.layout.mode}
         appearance={appearance}
         showNodeDetail={session.showNodeDetail}

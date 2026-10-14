@@ -1,7 +1,8 @@
 import { useLayoutEffect, useState, type RefObject } from "react";
 import type { StageData } from "../layout/types";
 
-const DAY = 86_400_000;
+import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline-ticks";
+export { getVisibleTimeTicks } from "../layout/timeline-ticks";
 
 export default function TimelineBackdrop({ stage }: { stage: StageData }) {
   const timeline = stage.timeline!;
@@ -10,7 +11,7 @@ export default function TimelineBackdrop({ stage }: { stage: StageData }) {
       {timeline.ticks.map((tick) => (
         <line
           key={tick.time}
-          className="timeline-grid"
+          className="timeline-grid timeline-export-static"
           x1={timeline.axisX}
           x2={stage.stageWidth - 20}
           y1={tick.y}
@@ -114,17 +115,29 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
   }, [stage, svgRef, timeline.axisX]);
   const { scale, x, top, bottom } = viewport;
   const originY = timeline.originY;
-  const ticks = getVisibleTimeTicks(
-    timeline.start,
-    timeline.end,
-    timeline.pixelsPerMillisecond,
-    originY,
-    top + 36 / scale,
-    bottom,
-    scale,
-  );
+  const ticks = timeline.axisMap
+    ? getTimelineAxisTicks(timeline.axisMap, top + 36 / scale, bottom, scale, timeline.tickInterval)
+    : getVisibleTimeTicks(
+        timeline.start,
+        timeline.end,
+        timeline.pixelsPerMillisecond,
+        originY,
+        top + 36 / scale,
+        bottom,
+        scale,
+      );
   return (
     <g className="timeline-floating" pointerEvents="none" aria-hidden="true">
+      {ticks.map((tick) => (
+        <line
+          key={`grid:${tick.time}`}
+          className="timeline-grid"
+          x1={Math.max(x, timeline.axisX)}
+          x2={stage.stageWidth - 20}
+          y1={tick.y}
+          y2={tick.y}
+        />
+      ))}
       <rect
         className="timeline-ruler-bg"
         x={x - 100 / scale}
@@ -167,91 +180,4 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
       ))}
     </g>
   );
-}
-
-export function getVisibleTimeTicks(
-  start: number | null,
-  end: number | null,
-  pixelsPerMs: number,
-  originY: number,
-  top: number,
-  bottom: number,
-  scale: number,
-): { time: number; y: number; label: string }[] {
-  if (start === null || end === null || pixelsPerMs <= 0 || scale <= 0 || bottom <= top) return [];
-  const minimumStep = 72 / (pixelsPerMs * scale);
-  const steps = [
-    1000,
-    5000,
-    15000,
-    30000,
-    60000,
-    300000,
-    900000,
-    1800000,
-    3600000,
-    10800000,
-    21600000,
-    43200000,
-    DAY,
-    2 * DAY,
-    7 * DAY,
-    14 * DAY,
-    30 * DAY,
-    90 * DAY,
-    180 * DAY,
-    365.25 * DAY,
-    2 * 365.25 * DAY,
-    5 * 365.25 * DAY,
-    10 * 365.25 * DAY,
-    20 * 365.25 * DAY,
-    50 * 365.25 * DAY,
-    100 * 365.25 * DAY,
-  ];
-  const step = steps.find((value) => value >= minimumStep) ?? minimumStep;
-  const first = Math.max(start, start + (top - originY) / pixelsPerMs);
-  const last = Math.min(end, start + (bottom - originY) / pixelsPerMs);
-  const result: { time: number; y: number; label: string }[] = [];
-  // Calendar-aligned month/year ticks avoid drift across leap years.
-  const months =
-    step >= 30 * DAY
-      ? step >= 365 * DAY
-        ? Math.max(1, Math.round(step / (365.25 * DAY))) * 12
-        : Math.round(step / (30 * DAY))
-      : 0;
-  let time: number;
-  if (months) {
-    const date = new Date(first);
-    const month = date.getUTCFullYear() * 12 + date.getUTCMonth();
-    const aligned = Math.floor(month / months) * months;
-    time = calendarMonthStart(Math.floor(aligned / 12), aligned % 12);
-  } else time = Math.ceil(first / step) * step;
-  for (let count = 0; time <= last && count < 250; count++) {
-    const iso = new Date(time).toISOString();
-    if (time >= first)
-      result.push({
-        time,
-        y: originY + (time - start) * pixelsPerMs,
-        label:
-          step >= 365 * DAY
-            ? iso.slice(0, 4)
-            : step >= 30 * DAY
-              ? iso.slice(0, 7)
-              : step >= DAY
-                ? iso.slice(0, 10)
-                : `${iso.slice(5, 10)} ${iso.slice(11, step < 60000 ? 19 : 16)}`,
-      });
-    if (months) {
-      const date = new Date(time);
-      time = calendarMonthStart(date.getUTCFullYear(), date.getUTCMonth() + months);
-    } else time += step;
-  }
-  return result;
-}
-
-function calendarMonthStart(year: number, month: number): number {
-  const date = new Date(0);
-  date.setUTCFullYear(year, month, 1);
-  date.setUTCHours(0, 0, 0, 0);
-  return date.getTime();
 }

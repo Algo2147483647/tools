@@ -10,15 +10,17 @@
     "build": "tsc --noEmit && vite build",
     "test": "node --loader ts-node/esm --experimental-specifier-resolution=node src/test/core.test.ts",
     "preview": "vite preview",
-    "format": "prettier --write src scripts/build-mathematics.mjs scripts/build-commerce.mjs scripts/build-space-history.mjs scripts/data/mathematics scripts/data/space-history package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "format:check": "prettier --check src scripts/build-mathematics.mjs scripts/build-commerce.mjs scripts/build-space-history.mjs scripts/data/mathematics scripts/data/space-history package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "format": "prettier --write src scripts/build-mathematics.mjs scripts/build-commerce.mjs scripts/build-space-history.mjs scripts/data/mathematics scripts/data/space-history package.json tsconfig.json vite.config.ts .prettierrc.json scripts/build-china-history.mjs scripts/data/china-history",
+    "format:check": "prettier --check src scripts/build-mathematics.mjs scripts/build-commerce.mjs scripts/build-space-history.mjs scripts/data/mathematics scripts/data/space-history package.json tsconfig.json vite.config.ts .prettierrc.json scripts/build-china-history.mjs scripts/data/china-history",
     "examples:mathematics": "node scripts/build-mathematics.mjs",
     "examples:mathematics:check": "node scripts/build-mathematics.mjs --check",
     "examples:commerce": "node scripts/build-commerce.mjs",
     "examples:commerce:check": "node scripts/build-commerce.mjs --check",
     "examples:space-history": "node scripts/build-space-history.mjs",
     "examples:space-history:check": "node scripts/build-space-history.mjs --check",
-    "check": "npm run format:check && npm run examples:mathematics:check && npm run examples:commerce:check && npm run examples:space-history:check && npm test && npm run build"
+    "check": "npm run format:check && npm run examples:mathematics:check && npm run examples:commerce:check && npm run examples:space-history:check && npm run examples:china-history:check && npm test && npm run build",
+    "examples:china-history": "node scripts/build-china-history.mjs",
+    "examples:china-history:check": "node scripts/build-china-history.mjs --check"
   },
   "dependencies": {
     "@types/dagre": "^0.7.54",

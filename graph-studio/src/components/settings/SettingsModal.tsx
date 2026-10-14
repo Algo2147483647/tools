@@ -1,3 +1,4 @@
+import type { TimelineControlsProps } from "../TimelineControls";
 import { type ChangeEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { AiSettings } from "../../ai/types";
@@ -18,6 +19,7 @@ interface SettingsModalProps {
   chartType: GraphChartType;
   sankeyUnavailableReason: string | null;
   onChartTypeChange: (type: GraphChartType) => void;
+  timelineControls?: TimelineControlsProps;
   layoutMode: GraphLayoutMode;
   appearance: GraphAppearance;
   showNodeDetail: boolean;
@@ -59,6 +61,7 @@ export default function SettingsModal({
   sankeyUnavailableReason,
   onChartTypeChange,
   layoutMode,
+  timelineControls,
   appearance,
   showNodeDetail,
   hideNodeBorders,
@@ -280,6 +283,7 @@ export default function SettingsModal({
                 onAppearanceCssDraftChange={setAppearanceCssDraft}
                 onCssVarDraftsChange={setCssVarDrafts}
                 onTitleSizeDraftChange={setTitleSizeDraft}
+                timelineControls={timelineControls}
                 onLayoutModeChange={onLayoutModeChange}
                 onLayoutAppearanceChange={onLayoutAppearanceChange}
                 onAppearanceCssVarChange={onAppearanceCssVarChange}

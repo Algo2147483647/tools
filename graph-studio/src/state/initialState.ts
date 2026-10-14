@@ -8,6 +8,7 @@ import type {
 } from "../graph/types";
 import { type GraphPagePreferences, getInitialGraphPagePreferences } from "./preferences";
 import type { GraphContextMenu } from "./contextMenu";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
 
 export interface EditTransaction {
   label: string;
@@ -22,6 +23,7 @@ export interface EditTransaction {
 }
 
 export interface GraphAppState {
+  timelineSettings: TimelineViewSettings;
   dag: NormalizedDag | null;
   document: { id: string; generation: number; savedDag: NormalizedDag | null };
   nextRevision: number;
@@ -64,6 +66,7 @@ export function createInitialGraphState(
   savedPreferences: GraphPagePreferences = getInitialGraphPagePreferences(),
 ): GraphAppState {
   return {
+    timelineSettings: savedPreferences.timelineSettings,
     dag: null,
     document: { id: "", generation: 0, savedDag: null },
     nextRevision: 1,

@@ -12,6 +12,7 @@ const AFFORDANCE_TEXT_AVERAGE_WIDTH = 5.2;
 interface GraphNodeProps {
   node: StageNode;
   isActive: boolean;
+  onTimelineNodePin?: (key: string, x: number) => void;
   onClick: (key: string) => void;
   onDoubleClick?: (key: string) => void;
   onContextMenu: (event: React.MouseEvent<SVGGElement>, key: string) => void;
@@ -21,6 +22,7 @@ interface GraphNodeProps {
 const GraphNode = memo(function GraphNode({
   node,
   isActive,
+  onTimelineNodePin,
   onClick,
   onDoubleClick,
   onContextMenu,
@@ -31,6 +33,7 @@ const GraphNode = memo(function GraphNode({
       <TimelineNode
         node={node}
         isActive={isActive}
+        onPin={onTimelineNodePin}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         onContextMenu={onContextMenu}

@@ -21,6 +21,7 @@ interface GraphStageProps {
   hideNodeBorders: boolean;
   appearance: GraphAppearance;
   svgRef: React.RefObject<SVGSVGElement>;
+  onTimelineNodePin?: (key: string, x: number) => void;
   onNodeClick: (key: string) => void;
   onNodeDoubleClick: (key: string) => void;
   onNodeContextMenu: (event: React.MouseEvent<SVGGElement>, key: string) => void;
@@ -34,6 +35,7 @@ export default function GraphStage({
   hideNodeBorders,
   appearance,
   svgRef,
+  onTimelineNodePin,
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
@@ -288,6 +290,7 @@ export default function GraphStage({
             key={node.key}
             node={node}
             isActive={node.key === stage.root}
+            onTimelineNodePin={onTimelineNodePin}
             onClick={onNodeClick}
             onDoubleClick={onNodeDoubleClick}
             onContextMenu={onNodeContextMenu}
