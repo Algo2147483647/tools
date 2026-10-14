@@ -31,6 +31,47 @@
     }
   },
   "nodes": {
+    "roc-period": {
+      "title": "中华民国（政权存续）",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "时期",
+      "define": "1912年成立，1949年中央政府迁台后延续至今。国民党主导或执政阶段：1925年广州国民政府成立至2000年首次总统政党轮替，以及2008—2016年马英九任期；1912—1925年并非国民党连续执政。政权存续不等于同一政党持续执政，也不表示实际管辖范围始终不变。",
+      "dateLabel": "1912年01月01日—今",
+      "time": { "start": "1912-01-01", "end": null },
+      "precision": "起点精确到公历日；开放终点表示持续至今，不把1949年或政党轮替作为政权终止。",
+      "sources": [
+        "https://www.president.gov.tw/Page/49",
+        "https://ahonline.drnh.gov.tw/docs/zong/001.pdf",
+        "https://www.president.gov.tw/qrcode/16c",
+        "https://www.president.gov.tw/Page/88",
+        "https://www.president.gov.tw/Page/5"
+      ],
+      "references": "[总统府：中华民国成立](https://www.president.gov.tw/Page/49) · [国史馆：国民政府档案沿革](https://ahonline.drnh.gov.tw/docs/zong/001.pdf) · [总统府：历任总统与政府迁台、政党轮替](https://www.president.gov.tw/qrcode/16c) · [总统府：马英九任期](https://www.president.gov.tw/Page/88) · [总统府：现任总统](https://www.president.gov.tw/Page/5)",
+      "notes": "[政权存续与国民党执政阶段](./notes/polity.md#现代政权存续与执政阶段) · [史料与编选约定](./SOURCES.md)"
+    },
+    "prc-period": {
+      "title": "中华人民共和国（中共执政）",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "时期",
+      "define": "1949年10月1日中央人民政府成立后延续至今，中国共产党持续执政。此条从中华人民共和国成立起算，不把此前的中华苏维埃共和国及革命根据地政权等同于中华人民共和国的存续时期。",
+      "dateLabel": "1949年10月01日—今",
+      "time": { "start": "1949-10-01", "end": null },
+      "precision": "起点精确到公历日；开放终点表示持续至今。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=",
+        "https://www.gov.cn/zhuanti/zggcddescqgdbdh/index.htm"
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=) · [中国政府网：中国共产党第二十次全国代表大会](https://www.gov.cn/zhuanti/zggcddescqgdbdh/index.htm)",
+      "notes": "[现代政权存续与执政阶段](./notes/polity.md#现代政权存续与执政阶段) · [史料与编选约定](./SOURCES.md)"
+    },
     "eastern-zhou": {
       "title": "东周",
       "type": "东周",
@@ -3644,7 +3685,7 @@
       "topic": "政权与时期",
       "theme": "polity",
       "kind": "事件",
-      "define": "共和政体建立；本图只记录成立节点，不以1949年虚构其终止时间。",
+      "define": "共和政体建立；另以政权存续时段线展示其延续，不以1949年虚构其终止时间。",
       "dateLabel": "1912年01月01日",
       "time": {
         "at": "1912-01-01"
@@ -7065,6 +7106,41 @@
     }
   },
   "edges": [
+    {
+      "id": "part-of:roc-period:republic",
+      "source": "roc-period",
+      "target": "republic",
+      "value": "政权存续起点：中华民国成立",
+      "metadata": { "timeline": { "kind": "part-of", "sourceTime": "1912-01-01" } }
+    },
+    {
+      "id": "part-of:roc-period:roc-relocation",
+      "source": "roc-period",
+      "target": "roc-relocation",
+      "value": "中央政府迁台，政权存续未在1949年终止",
+      "metadata": { "timeline": { "kind": "part-of", "sourceTime": "1949-12-07" } }
+    },
+    {
+      "id": "part-of:roc-period:first-party-transfer",
+      "source": "roc-period",
+      "target": "first-party-transfer",
+      "value": "国民党执政阶段结束，政权存续与政党轮替分别记录",
+      "metadata": { "timeline": { "kind": "part-of", "sourceTime": "2000-05-20" } }
+    },
+    {
+      "id": "part-of:prc-period:prc",
+      "source": "prc-period",
+      "target": "prc",
+      "value": "政权存续起点：中华人民共和国成立",
+      "metadata": { "timeline": { "kind": "part-of", "sourceTime": "1949-10-01" } }
+    },
+    {
+      "id": "part-of:prc-period:fifteenth-plan",
+      "source": "prc-period",
+      "target": "fifteenth-plan",
+      "value": "政权存续期内的规划批准事件，不代表存续终点",
+      "metadata": { "timeline": { "kind": "part-of", "sourceTime": "2026-03-12" } }
+    },
     {
       "id": "part-of:eastern-zhou:confucius",
       "source": "eastern-zhou",

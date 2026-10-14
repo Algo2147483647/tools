@@ -17,8 +17,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 339);
-    assert.equal(dag.edges.length, 436);
+    assert.equal(Object.keys(dag.nodes).length, 341);
+    assert.equal(dag.edges.length, 441);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
@@ -60,7 +60,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
         assert.equal(new URL(url).protocol, "https:");
         assert.ok(String(node.references).includes(url));
       }
-      for (const value of Object.values(node.time as Record<string, string>)) {
+      for (const value of Object.values(node.time as Record<string, string | null>)) {
+        if (value === null) continue;
         const parsed = parseTimelineDate(value)!;
         assert.ok(parsed);
         assert.equal(parsed.precision, value.length === 10 ? "date" : "year");
@@ -73,8 +74,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 339);
-    assert.equal(stage.edges.length, 436);
+    assert.equal(stage.nodes.length, 341);
+    assert.equal(stage.edges.length, 441);
     assert.equal(stage.warnings.length, 0);
     assert.ok(
       stage.nodes.every((node) => node.y === timelineTimeToY(stage.timeline!.axisMap!, node.timeline!.start!)),
@@ -110,10 +111,10 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 339);
+    assert.equal(workspace.graphs[0].nodeCount, 341);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^339/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^341/);
   }),
   defineTest("modern history includes sourced political and social events through the declared cutoff", async () => {
     const graph = await read("china-history.json");
@@ -148,9 +149,29 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.match(graph.nodes["xinjiang-report2022"].define, /可能/);
     assert.match(graph.nodes["great-famine"].define, /估算|估计/);
     const cutoff = parseTimelineDate(graph.metadata.asOf)!.timestamp;
-    for (const node of Object.values(graph.nodes) as { time: Record<string, string> }[]) {
-      for (const value of Object.values(node.time)) assert.ok(parseTimelineDate(value)!.timestamp <= cutoff);
+    for (const node of Object.values(graph.nodes) as { time: Record<string, string | null> }[]) {
+      for (const value of Object.values(node.time)) {
+        if (value !== null) assert.ok(parseTimelineDate(value)!.timestamp <= cutoff);
+      }
     }
     assert.equal(graph.nodes["fifteenth-plan"].time.at, "2026-03-12");
+  }),
+  defineTest("modern polity ranges remain ongoing across relocation and party transitions", async () => {
+    const graph = await read("china-history.json");
+    const dag = normalizeDagInput(graph);
+    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    for (const [id, start, event] of [
+      ["roc-period", "1912-01-01", "republic"],
+      ["prc-period", "1949-10-01", "prc"],
+    ]) {
+      assert.deepEqual(graph.nodes[id].time, { start, end: null });
+      const time = stage.nodeMap[id].timeline!;
+      assert.equal(time.kind, "range");
+      assert.equal(time.ongoing, true);
+      assert.equal(time.startY, stage.nodeMap[event].timeline!.startY);
+      assert.ok(time.endY > stage.nodeMap["first-party-transfer"].timeline!.startY);
+    }
+    assert.match(graph.nodes["roc-period"].define, /1925.*2000.*2008.*2016/);
+    assert.ok(dag.edges.some((edge) => edge.source === "roc-period" && edge.target === "roc-relocation"));
   }),
 ]);
