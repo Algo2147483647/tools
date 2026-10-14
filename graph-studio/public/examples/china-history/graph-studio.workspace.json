@@ -8,8 +8,8 @@
   "defaultGraph": "china-history.json",
   "metadata": {
     "language": "zh-CN",
-    "nodeCount": 192,
-    "edgeCount": 248,
+    "nodeCount": 278,
+    "edgeCount": 352,
     "themeCount": 6,
     "polityCount": 61,
     "assets": [

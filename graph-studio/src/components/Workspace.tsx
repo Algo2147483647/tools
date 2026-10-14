@@ -109,12 +109,14 @@ export default function Workspace({
                 event.defaultPrevented ||
                 (event.target instanceof Element &&
                   event.target.closest(".dag-node, .dag-group-controls, button, a, input, select, textarea"))
-              ) return;
+              )
+                return;
               const active = document.activeElement;
               if (
                 (active instanceof HTMLElement || active instanceof SVGElement) &&
                 event.currentTarget.contains(active)
-              ) active.blur();
+              )
+                active.blur();
               onFocusChange(null);
             }}
           >

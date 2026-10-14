@@ -1,5 +1,5 @@
 import { timelineAxisSuite } from "./timelineAxis.test";
-import { timelineClusterSuite } from "./timelineCluster.test";
+import { timelineFlowSuite } from "./timelineFlow.test";
 import { timelineViewSuite } from "./timelineView.test";
 import { chinaHistorySuite } from "./chinaHistory.test";
 import { compoundSuite } from "./compound.test";
@@ -39,7 +39,7 @@ async function main() {
     examplesSuite,
     mathematicsSuite,
     timelineAxisSuite,
-    timelineClusterSuite,
+    timelineFlowSuite,
     timelineViewSuite,
     chinaHistorySuite,
     timelineSuite,

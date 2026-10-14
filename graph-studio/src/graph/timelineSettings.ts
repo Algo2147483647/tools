@@ -11,17 +11,6 @@ export interface TimelineViewSettings {
   pins: Record<string, number>;
 }
 
-export const DEFAULT_TIMELINE_SETTINGS: TimelineViewSettings = {
-  layout: "tracks",
-  axis: "linear",
-  tickStep: 10,
-  tickUnit: "auto",
-  nodeGap: 24,
-  compactness: 0.5,
-  locked: false,
-  pins: {},
-};
-
 export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
   const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
   const unit = input.tickUnit;

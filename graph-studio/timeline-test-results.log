@@ -1,4 +1,4 @@
-(node:12888) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+(node:26516) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
 --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
 (Use `node --trace-warnings ...` to show where the warning was created)
 
@@ -18,7 +18,7 @@ Compound hierarchy, projection and layout
   PASS ordinary node-link ignores H and keeps disconnected cyclic components
   PASS compound and ordinary chart switching preserves the same document
   PASS merging documents preserves and remaps incoming hierarchy
-(node:12888) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(node:26516) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
   PASS ELK routes cross-boundary and reverse edges for expanded, folded and focused views
   PASS hierarchy import conflicts require explicit parent choices and remap renamed groups
@@ -217,6 +217,7 @@ Timeline view integration
   PASS the Chinese corpus retains BCE/year precision, qualified periods and source attribution
   PASS branches and cross-category joins preserve one event and its actual timestamp
   PASS the gallery opens the Chinese timeline and exposes its source and theme notes
+  PASS modern history includes sourced political and social events through the declared cutoff
 
 Timeline time semantics and layout
   PASS calendar dates and explicit offsets parse without local-time ambiguity
@@ -255,4 +256,4 @@ Node relations
   PASS preserves scalar relationship values and metadata
   PASS shows both empty states for isolated nodes
 
-Summary: 207 passed, 0 failed
+Summary: 208 passed, 0 failed

@@ -14,6 +14,14 @@
 
 所选博物馆年表中个别正文存在与其表格不一致的日期，编选不机械照抄：秦统一用多源一致的前221年；西晋265年是建国，不写成当年灭吴；安史之乱只取755年爆发，不沿用将整个战争写至759年的简略条目。
 
+## 现代史的史料立场与不确定性
+
+现代史同时采用法律与政策原文、政府历史决议、解密档案、学术研究、联合国文件及人权组织的调查。政府材料可核对政策日期和官方立场，但不自动作为社会后果的唯一解释；调查报告的事实、归责与法律评价应分别阅读。
+
+大饥荒采用1958—1962年的跨地区范围，核心高峰为1959—1961年；超额死亡估算因人口基数、时间范围和方法而不同。六四明确记录军队开枪、平民伤亡及后续镇压，不把未经独立核验的某一死亡数字写成定论，也不把全部死难地点说成广场内部。新疆条目区分拘禁政策、联合国评估与中国政府回应；“可能构成危害人类罪”保留评估原有的条件性，不冒充法院判决。香港节点区分立法事实、政府理由与人权机构批评。生育政策、族群冲突及政治运动均不以政府标签替代具体行为分析。
+
+2026年规划仅记批准日期；规划目标不等于实现结果。每个节点保留独立来源，关系边注明先后或具体联系，避免把时间邻接写成因果。
+
 ## 关系解释
 
 - **part-of**：某一事件或活动位于所选时期之内；不是严格意义的组织隶属关系。
@@ -85,3 +93,38 @@
 - **bencao**：[湖北省文旅厅：《本草纲目》编写与出版](https://wlt.hubei.gov.cn/bmdt/mtjj/202208/t20220824_4277457.shtml)
 - **shoushi**：[中国科学院：《授时历》的编成与行用](https://lssf01.cas.cn/lssf/xwhd/cmsm/201004/t20100420_4508659.html)
 - **huangchao**：[黄巢：广明元年十二月与公历纪年](https://zh.wikipedia.org/wiki/黄巢)
+- **prcChronology**：[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)
+- **resolution1981**：[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html)
+- **famineResearch**：[Chris Bramall：Agency and Famine in China's Sichuan Province, 1958–1962（学术研究）](https://www.cambridge.org/core/journals/china-quarterly/article/abs/agency-and-famine-in-chinas-sichuan-province-19581962/F39E361A42764CBB9F94071C2CB822E0)
+- **faminePolitics**：[学术研究：无为县粮食、地方政治与大饥荒，1958—1961](https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/grain-local-politics-and-the-making-of-maos-famine-in-wuwei-19581961/27018CFBB5CCDBA71F527FB54EA125DC)
+- **columbiaModern**：[哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm)
+- **tibet1959**：[美联社：1959年3月10日西藏起义史事](https://apnews.com/article/4e6e61ca261027b79801f6038e86aa15)
+- **un2758**：[联合国大会第2758（XXVI）号决议原文](https://digitallibrary.un.org/record/192054)
+- **nixon**：[美国国务院历史办公室：1972年中美接近及档案](https://history.state.gov/milestones/1969-1976/rapprochement-china)
+- **usChina**：[美国国务院历史办公室：中国外交承认与建交记录](https://history.state.gov/countries/china)
+- **juneFourth**：[乔治华盛顿大学国家安全档案馆：六四事件解密档案专题](https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified)
+- **falunGong**：[人权观察：1999年7月22日法轮功禁令与拘押（当时报告）](https://www.hrw.org/legacy/press/1999/jul/china2207.htm)
+- **wtoChina**：[世界贸易组织：中国入世文件与日期](https://www.wto.org/english/thewto_e/acc_e/a1_chine_e.htm)
+- **sars**：[世界卫生组织：SARS疫情史](https://www.who.int/health-topics/severe-acute-respiratory-syndrome)
+- **tibet2008**：[人权观察：2008—2010年藏区安全部队侵权调查（访谈及官方资料）](https://www.hrw.org/news/2010/07/21/china-witnesses-lift-veil-abuses-security-forces-tibet)
+- **urumqi**：[人权观察：2009年乌鲁木齐事件后强迫失踪调查](https://www.hrw.org/report/2009/10/20/we-are-afraid-even-look-them/enforced-disappearances-wake-xinjiangs-protests)
+- **liuXiaobo**：[诺贝尔奖委员会：刘晓波生平与2010年和平奖](https://www.nobelprize.org/prizes/peace/2010/xiaobo/facts/)
+- **lawyers709**：[联合国特别程序：2015年律师拘押问题致中国政府函 CHN 6/2015](https://spcommreports.ohchr.org/TmSearch/SearchCode?code=CHN%206%2F2015)
+- **xinjiangAssessment**：[联合国人权高专办：新疆人权关切评估，2022年8月31日](https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf)
+- **xinjiangResponse**：[中国政府对联合国新疆评估的回应（报告附件）](https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/ANNEX_A.pdf)
+- **constitution2018**：[2018年宪法修正案原文（新华社受权发布）](https://www.xinhuanet.com/politics/2018-03/11/c_1122521235.htm)
+- **hongKongReview**：[联合国人权事务委员会：香港2022年审议结论 CCPR/C/CHN-HKG/CO/4](https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4)
+- **covidTimeline**：[世界卫生组织：2019—2020年新冠疫情应对时间线](https://www.who.int/news/item/29-06-2020-COVIDtimeline)
+- **poverty**：[世界银行与国务院发展研究中心：四十年减贫研究，2022](https://www.worldbank.org/en/news/press-release/2022/04/01/lifting-800-million-people-out-of-poverty-new-report-looks-at-lessons-from-chinas-experience)
+- **whitePaper**：[国际特赦组织：2022年11月抗议及拘押风险（当时记录）](https://amnesty.ca/human-rights-news/china-government-must-not-detain-peaceful-protesters-as-unprecedented-demonstrations-break-out-across-the-country/)
+- **newTen**：[国务院联防联控机制：2022年12月7日政策发布会](https://www.gov.cn/xinwen/gwylflkjz217/jianjie.htm)
+- **president2023**：[2023年3月10日国家主席选举记录](https://www.gov.cn/zhuanti/2023-03/10/content_5745796.htm)
+- **article23**：[香港政府：2024年《维护国家安全条例》签署与生效日期](https://www.info.gov.hk/gia/general/202403/22/P2024032200642p.htm)
+- **change6**：[国家航天局：嫦娥六号月球背面采样返回](https://www.cnsa.gov.cn/n6758823/n6758844/n10518102/n10518147/c10565180/content.html)
+- **geneva2025**：[中美日内瓦经贸会谈联合声明，2025年5月12日](https://wap.miit.gov.cn/xwfb/szyw/art/2025/art_febfc3a64c154613b0ca2805c4fe6ef3.html)
+- **plan2026**：[十四届全国人大四次会议关于十五五规划纲要的决议，2026年3月12日](https://www.cqrd.gov.cn/web/article/1481955850634850304/web/content_1481955850634850304.html)
+- **quakeAccountability**：[人权观察：汶川地震后校舍与信息公开问题](https://www.hrw.org/news/2009/05/06/china-end-quake-zone-abuses)
+- **liWenliang**：[国家监委：李文亮事件调查通报，2020年3月19日](https://www.xinhuanet.com/politics/2020-03/19/c_1125737457.htm)
+- **shanghai2022**：[新华社：上海2022年6月1日起恢复生产生活秩序的安排](https://www.xinhuanet.com/local/2022-05/31/c_1128699790.htm)
+- **party2022**：[新华社：二十届一中全会及新一届中央领导成员](https://www.xinhuanet.com/politics/cpc20/2022-10/23/c_1129076161.htm)
+- **retirement2024**：[全国人大常委会：渐进式延迟法定退休年龄决定](https://www.hmo.gov.cn/2026/08/21/ARTI6kpLUW6qilBUClmQ6bio260821.shtml)

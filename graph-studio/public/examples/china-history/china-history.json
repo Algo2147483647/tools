@@ -6,7 +6,8 @@
   "title": "中国历史：分流与交汇",
   "metadata": {
     "language": "zh-CN",
-    "historicalScope": "公元前770年—1949年；专题选编",
+    "historicalScope": "公元前770年—2026-10-14；专题选编",
+    "asOf": "2026-10-14",
     "timeline": {
       "version": 1,
       "timeZone": "UTC",
@@ -4083,6 +4084,1751 @@
       ],
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "suppress-counterrevolutionaries": {
+      "title": "镇压反革命运动（主要阶段）",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "时期",
+      "define": "国家开展大规模逮捕、审判和处决，以巩固新政权。对象认定、地方执行及数量统计均需具体考察，不能把政治标签直接当作个体罪责。",
+      "dateLabel": "1950年—1953年",
+      "time": {
+        "start": "1950",
+        "end": "1953"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/topic_index.htm",
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm) · [中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sino-soviet-treaty": {
+      "title": "中苏友好同盟互助条约",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中苏缔结同盟条约，构成新中国初期的安全与援助框架；其后两国关系转向分裂。",
+      "dateLabel": "1950年02月14日",
+      "time": {
+        "at": "1950-02-14"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "marriage-law": {
+      "title": "婚姻法公布",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "婚姻法确立婚姻自由、一夫一妻和男女权利平等原则；法律实施与地方社会习俗发生冲突。",
+      "dateLabel": "1950年05月01日",
+      "time": {
+        "at": "1950-05-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "land-reform-law": {
+      "title": "土地改革法公布",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "土地改革重新分配地主土地并重塑乡村权力关系。运动也伴随阶级划分、公开斗争、处决及其他暴力，不能仅作土地分配制度理解。",
+      "dateLabel": "1950年06月30日",
+      "time": {
+        "at": "1950-06-30"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=",
+        "https://afe.easia.columbia.edu/tps/topic_index.htm"
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=) · [哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "korean-war-entry": {
+      "title": "中国人民志愿军入朝",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中国人民志愿军进入朝鲜，随后与联合国军作战。中国参战改变战局，并使中美军事对抗与冷战格局进一步固化。",
+      "dateLabel": "1950年10月19日",
+      "time": {
+        "at": "1950-10-19"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "tibet-agreement": {
+      "title": "西藏十七条协议签订",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中央政府与西藏地方政府代表签署协议。其签署条件、自治承诺及履行在此后的中藏关系中持续存在争议。",
+      "dateLabel": "1951年05月23日",
+      "time": {
+        "at": "1951-05-23"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=",
+        "https://apnews.com/article/4e6e61ca261027b79801f6038e86aa15"
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=) · [美联社：1959年3月10日西藏起义史事](https://apnews.com/article/4e6e61ca261027b79801f6038e86aa15)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "first-five-year-plan": {
+      "title": "第一个五年计划",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "时期",
+      "define": "国家以重工业投资和苏联援助项目推动工业化，计划配置资源的体制逐步形成；农业与消费的资源分配由此受到影响。",
+      "dateLabel": "1953年—1957年",
+      "time": {
+        "start": "1953",
+        "end": "1957"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "korean-armistice": {
+      "title": "朝鲜停战协定签署",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "停战协定结束大规模战斗，并未缔结永久和平条约；战争对中国国防、财政与国际处境产生长期影响。",
+      "dateLabel": "1953年07月27日",
+      "time": {
+        "at": "1953-07-27"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "constitution1954": {
+      "title": "1954年宪法通过",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "第一届全国人大通过中华人民共和国第一部宪法，确立国家机构和人民代表大会制度的基本框架。",
+      "dateLabel": "1954年09月20日",
+      "time": {
+        "at": "1954-09-20"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "bandung": {
+      "title": "万隆会议",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中国代表团参加亚非会议，推动与亚非新独立国家交往，和平共处原则进入更广泛的外交实践。",
+      "dateLabel": "1955年",
+      "time": {
+        "at": "1955"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hundred-flowers": {
+      "title": "双百方针与整风前期",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "当局提出百花齐放、百家争鸣，随后鼓励对党政工作提出意见；公开批评空间很快在反右运动中收缩。",
+      "dateLabel": "1956年",
+      "time": {
+        "at": "1956"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/topic_index.htm",
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm) · [中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "socialist-transformation": {
+      "title": "社会主义改造基本完成",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "农业合作化、手工业合作化与资本主义工商业改造改变所有制结构；推进速度及其社会成本在历史研究中受到讨论。",
+      "dateLabel": "1956年",
+      "time": {
+        "at": "1956"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "anti-rightist": {
+      "title": "反右运动开始",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "整风中的批评转化为政治追究，大批知识分子和干部被划为右派，遭受劳动改造、职业剥夺和长期歧视；后来绝大多数获得改正。",
+      "dateLabel": "1957年",
+      "time": {
+        "at": "1957"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html",
+        "https://afe.easia.columbia.edu/tps/topic_index.htm"
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html) · [哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "great-famine": {
+      "title": "大饥荒（跨地区分期）",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "时期",
+      "define": "饥荒核心高峰在1959—1961年，不同地区起止有别。政策性征购、集体化失序、信息压制与地方暴力造成严重超额死亡；人口学与档案研究对总量估计存在分歧，本图不将某一估算当作确定死亡数。",
+      "dateLabel": "1958年—1962年",
+      "time": {
+        "start": "1958",
+        "end": "1962"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.cambridge.org/core/journals/china-quarterly/article/abs/agency-and-famine-in-chinas-sichuan-province-19581962/F39E361A42764CBB9F94071C2CB822E0",
+        "https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/grain-local-politics-and-the-making-of-maos-famine-in-wuwei-19581961/27018CFBB5CCDBA71F527FB54EA125DC",
+        "https://yndx.gov.cn/html/210507/14467.html"
+      ],
+      "references": "[Chris Bramall：Agency and Famine in China's Sichuan Province, 1958–1962（学术研究）](https://www.cambridge.org/core/journals/china-quarterly/article/abs/agency-and-famine-in-chinas-sichuan-province-19581962/F39E361A42764CBB9F94071C2CB822E0) · [学术研究：无为县粮食、地方政治与大饥荒，1958—1961](https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/grain-local-politics-and-the-making-of-maos-famine-in-wuwei-19581961/27018CFBB5CCDBA71F527FB54EA125DC) · [1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "great-leap": {
+      "title": "大跃进与人民公社化",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "高指标、全民炼钢和急速公社化重组生产生活。浮夸产量、征购压力与纠错机制失灵共同加剧随后饥荒，不能将其归结为单纯自然灾害。",
+      "dateLabel": "1958年",
+      "time": {
+        "at": "1958"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html",
+        "https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/grain-local-politics-and-the-making-of-maos-famine-in-wuwei-19581961/27018CFBB5CCDBA71F527FB54EA125DC"
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html) · [学术研究：无为县粮食、地方政治与大饥荒，1958—1961](https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/grain-local-politics-and-the-making-of-maos-famine-in-wuwei-19581961/27018CFBB5CCDBA71F527FB54EA125DC)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hukou1958": {
+      "title": "户口登记条例颁布",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "全国性户籍管理制度进一步成形，城乡迁移受到制度约束，并与粮食供应、就业和公共福利资格相联系。",
+      "dateLabel": "1958年01月09日",
+      "time": {
+        "at": "1958-01-09"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "lushan": {
+      "title": "庐山会议与批判彭德怀",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "彭德怀批评大跃进问题后遭政治批判。会议压制政策纠错意见，并推动反右倾运动。",
+      "dateLabel": "1959年",
+      "time": {
+        "at": "1959"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html"
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "tibet-uprising": {
+      "title": "拉萨起义、镇压与达赖喇嘛出走",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "拉萨反对中国统治的起义爆发，随后被解放军镇压；达赖喇嘛离开西藏并流亡印度。中国政府将其称为平叛；事件改变西藏政治与宗教制度。",
+      "dateLabel": "1959年03月10日",
+      "time": {
+        "at": "1959-03-10"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://apnews.com/article/4e6e61ca261027b79801f6038e86aa15",
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[美联社：1959年3月10日西藏起义史事](https://apnews.com/article/4e6e61ca261027b79801f6038e86aa15) · [中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "soviet-experts-withdraw": {
+      "title": "苏联撤走在华专家",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "苏联撤回在华专家，中苏意识形态与战略分歧公开化；两国同盟随后进一步破裂。",
+      "dateLabel": "1960年",
+      "time": {
+        "at": "1960"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "seven-thousand": {
+      "title": "七千人大会",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "扩大中央工作会议总结经济困难并讨论责任，反映大跃进后政策调整与党内分歧。",
+      "dateLabel": "1962年",
+      "time": {
+        "at": "1962"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html"
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sino-indian-war": {
+      "title": "中印边境战争",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中印边境争端升级为战争，中国军队取得军事优势后宣布停火；边界问题并未因此解决。",
+      "dateLabel": "1962年",
+      "time": {
+        "at": "1962"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "first-nuclear-test": {
+      "title": "首次原子弹试验",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "中国首次核试验成功，改变国防技术能力及战略地位，同时进入核扩散与军备竞争的国际议题。",
+      "dateLabel": "1964年10月16日",
+      "time": {
+        "at": "1964-10-16"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "cultural-revolution": {
+      "title": "文化大革命",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "时期",
+      "define": "毛泽东发动的政治运动引发大规模政治迫害、群众派性武斗、屠杀及文教破坏。1981年中共决议否定文革并认定毛泽东负有主要责任；各地暴力、参与者与伤亡仍须分别研究。",
+      "dateLabel": "1966年—1976年",
+      "time": {
+        "start": "1966",
+        "end": "1976"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html",
+        "https://afe.easia.columbia.edu/tps/topic_index.htm"
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html) · [哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sent-down-youth": {
+      "title": "知识青年上山下乡扩大",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "大规模城市青年被动员或安排到农村、边疆劳动，教育、就业与家庭生活受到深刻影响；个体经验与具体安置条件各不相同。",
+      "dateLabel": "1968年",
+      "time": {
+        "at": "1968"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/topic_index.htm",
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm) · [中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sino-soviet-border": {
+      "title": "中苏边境武装冲突",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "珍宝岛等地发生中苏武装冲突，反映同盟破裂后的安全危机，并影响中国此后的战略调整。",
+      "dateLabel": "1969年",
+      "time": {
+        "at": "1969"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "dong-fang-hong": {
+      "title": "东方红一号发射",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "中国成功发射第一颗人造地球卫星，建立独立卫星发射能力。",
+      "dateLabel": "1970年04月24日",
+      "time": {
+        "at": "1970-04-24"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "lin-biao": {
+      "title": "林彪事件",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "林彪乘机离境后在蒙古坠机死亡，触发高层政治与军队人事震荡；相关决策过程及部分细节仍有史料争议。",
+      "dateLabel": "1971年09月13日",
+      "time": {
+        "at": "1971-09-13"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html",
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html) · [中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "un-representation": {
+      "title": "联合国中国代表权更替",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "联大第2758号决议恢复中华人民共和国在联合国的权利，承认其政府代表为中国唯一合法代表，并排除蒋介石的代表。这里记录代表权决定，不将其扩写为对所有台海法律争议的裁判。",
+      "dateLabel": "1971年10月25日",
+      "time": {
+        "at": "1971-10-25"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://digitallibrary.un.org/record/192054"
+      ],
+      "references": "[联合国大会第2758（XXVI）号决议原文](https://digitallibrary.un.org/record/192054)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "nixon-visit": {
+      "title": "尼克松访华与上海公报",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "美国总统尼克松访华；行程结束时发表上海公报。中美开始战略接近，但尚未正式建交。",
+      "dateLabel": "1972年02月21日",
+      "time": {
+        "at": "1972-02-21"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/milestones/1969-1976/rapprochement-china"
+      ],
+      "references": "[美国国务院历史办公室：1972年中美接近及档案](https://history.state.gov/milestones/1969-1976/rapprochement-china)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "tangshan-earthquake": {
+      "title": "唐山大地震",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "唐山发生灾难性地震，造成巨大人员与城市损失；救灾、重建和灾害信息成为理解国家与社会的重要切面。",
+      "dateLabel": "1976年07月28日",
+      "time": {
+        "at": "1976-07-28"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "mao-death": {
+      "title": "毛泽东逝世",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "毛泽东逝世，结束其个人领导时期；党内权力重组与政治路线转向在此后继续展开。",
+      "dateLabel": "1976年09月09日",
+      "time": {
+        "at": "1976-09-09"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "gang-four-arrest": {
+      "title": "四人帮被捕",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "江青、张春桥、王洪文、姚文元被捕，成为文化大革命结束的关键政治节点。",
+      "dateLabel": "1976年10月06日",
+      "time": {
+        "at": "1976-10-06"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html",
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html) · [中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "gaokao-restored": {
+      "title": "恢复高考",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "高等学校恢复以统一考试为核心的招生制度，改变文革时期的选拔方式，重建许多青年继续教育的通道。",
+      "dateLabel": "1977年",
+      "time": {
+        "at": "1977"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "democracy-wall": {
+      "title": "西单民主墙运动",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "北京等地出现大字报、民间刊物与民主诉求；随后部分活动者被拘捕，显示改革初期表达空间及其边界。",
+      "dateLabel": "1978年",
+      "time": {
+        "at": "1978"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/topic_index.htm"
+      ],
+      "references": "[哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "third-plenum1978": {
+      "title": "十一届三中全会",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "会议推动工作重心转向经济建设，成为改革开放的重要制度节点。农村改革、地方试验和市场机制扩展随后逐步推进。",
+      "dateLabel": "1978年12月18日",
+      "time": {
+        "at": "1978-12-18"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "us-normalization": {
+      "title": "中美正式建交",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中华人民共和国与美国建立正式外交关系；美国终止与中华民国的正式外交关系，非官方关系则继续存在。",
+      "dateLabel": "1979年01月01日",
+      "time": {
+        "at": "1979-01-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/countries/china"
+      ],
+      "references": "[美国国务院历史办公室：中国外交承认与建交记录](https://history.state.gov/countries/china)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sino-vietnamese-war": {
+      "title": "中越战争",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中国军队进入越南北部，双方发生大规模交战；中方撤军后边境冲突延续多年，战争造成双方军民伤亡。",
+      "dateLabel": "1979年02月17日",
+      "time": {
+        "at": "1979-02-17"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "one-child-policy": {
+      "title": "独生子女政策强化",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "中央公开信倡导一对夫妇只生育一个孩子；政策具有地区与群体例外。实施中的强制节育及处罚侵犯部分家庭的生育权，并影响人口结构。",
+      "dateLabel": "1980年",
+      "time": {
+        "at": "1980"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=",
+        "https://afe.easia.columbia.edu/tps/topic_index.htm"
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=) · [哥伦比亚大学：现代中国教学资料与一手文献索引](https://afe.easia.columbia.edu/tps/topic_index.htm)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "special-economic-zones": {
+      "title": "首批经济特区设立",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "深圳、珠海、汕头、厦门成为首批经济特区，探索投资、贸易和企业管理制度的变化。",
+      "dateLabel": "1980年",
+      "time": {
+        "at": "1980"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "historical-resolution1981": {
+      "title": "第二个历史决议通过",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "中共决议否定文化大革命，评价建国后的重大错误，同时维持对毛泽东历史地位的总体肯定；这是官方评价框架，并非学术研究的终点。",
+      "dateLabel": "1981年06月27日",
+      "time": {
+        "at": "1981-06-27"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://yndx.gov.cn/html/210507/14467.html"
+      ],
+      "references": "[1981年《关于建国以来党的若干历史问题的决议》（官方历史评价）](https://yndx.gov.cn/html/210507/14467.html)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "constitution1982": {
+      "title": "1982年宪法通过",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "新宪法重建国家机构与公民权利的规范框架；其后历次修宪持续改变部分制度安排。",
+      "dateLabel": "1982年12月04日",
+      "time": {
+        "at": "1982-12-04"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sino-british-declaration": {
+      "title": "中英联合声明签署",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中英就香港前途达成联合声明，规定1997年主权移交及香港特别行政区的制度安排。",
+      "dateLabel": "1984年12月19日",
+      "time": {
+        "at": "1984-12-19"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "protests1989": {
+      "title": "1989年学生与市民抗议",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "时期",
+      "define": "胡耀邦逝世后，悼念发展为要求反腐、对话及政治改革的全国性抗议，北京学生与市民广泛参与；诉求、组织及参与群体并不单一。",
+      "dateLabel": "1989年04月15日—1989年06月04日",
+      "time": {
+        "start": "1989-04-15",
+        "end": "1989-06-04"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified"
+      ],
+      "references": "[乔治华盛顿大学国家安全档案馆：六四事件解密档案专题](https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "martial-law1989": {
+      "title": "北京宣布戒严",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "国务院在北京市部分地区实行戒严，军队进城受到市民阻拦；政治对话失败后，局势走向军事镇压。",
+      "dateLabel": "1989年05月20日",
+      "time": {
+        "at": "1989-05-20"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified"
+      ],
+      "references": "[乔治华盛顿大学国家安全档案馆：六四事件解密档案专题](https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "june-fourth": {
+      "title": "六四：军队镇压与平民伤亡",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "6月3日晚至4日，军队在北京街道及天安门周边以实弹等武力推进，造成大量平民死亡和受伤，并清除广场抗议。事后发生逮捕与政治整肃；确切死亡总数仍未获得可独立核验的完整统计。",
+      "dateLabel": "1989年06月04日",
+      "time": {
+        "at": "1989-06-04"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified"
+      ],
+      "references": "[乔治华盛顿大学国家安全档案馆：六四事件解密档案专题](https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "southern-tour": {
+      "title": "邓小平南方谈话",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "邓小平南方谈话推动市场取向改革加速；同年中共十四大确立建立社会主义市场经济体制的目标。",
+      "dateLabel": "1992年",
+      "time": {
+        "at": "1992"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "tax-sharing": {
+      "title": "分税制改革实施",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "中央与地方财政收入划分重新调整，改变政府间财政关系，并影响地方财政与发展激励。",
+      "dateLabel": "1994年",
+      "time": {
+        "at": "1994"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hong-kong-handover": {
+      "title": "香港主权移交",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "英国结束对香港的殖民管治，中华人民共和国恢复对香港行使主权，香港特别行政区成立。",
+      "dateLabel": "1997年07月01日",
+      "time": {
+        "at": "1997-07-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "falun-gong-ban": {
+      "title": "取缔法轮功与镇压开始",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "政府取缔法轮功组织，开展全国性拘押与限制活动。人权组织记录大规模迫害；宗教及信仰自由争议不因官方定性而消失。",
+      "dateLabel": "1999年07月22日",
+      "time": {
+        "at": "1999-07-22"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.hrw.org/legacy/press/1999/jul/china2207.htm"
+      ],
+      "references": "[人权观察：1999年7月22日法轮功禁令与拘押（当时报告）](https://www.hrw.org/legacy/press/1999/jul/china2207.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "macao-handover": {
+      "title": "澳门主权移交",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "葡萄牙结束对澳门的管治，中华人民共和国恢复对澳门行使主权，澳门特别行政区成立。",
+      "dateLabel": "1999年12月20日",
+      "time": {
+        "at": "1999-12-20"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "wto-accession": {
+      "title": "中国加入世界贸易组织",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "中国成为世界贸易组织成员，承诺关税、市场准入和规则改革，进一步融入全球贸易分工。",
+      "dateLabel": "2001年12月11日",
+      "time": {
+        "at": "2001-12-11"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.wto.org/english/thewto_e/acc_e/a1_chine_e.htm"
+      ],
+      "references": "[世界贸易组织：中国入世文件与日期](https://www.wto.org/english/thewto_e/acc_e/a1_chine_e.htm)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sars-outbreak": {
+      "title": "SARS疫情主要阶段",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "时期",
+      "define": "SARS自2002年末在广东出现，2003年跨境传播并引发公共卫生危机；病例披露、院内感染与国际信息协作成为核心问题。",
+      "dateLabel": "2002年—2003年",
+      "time": {
+        "start": "2002",
+        "end": "2003"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.who.int/health-topics/severe-acute-respiratory-syndrome"
+      ],
+      "references": "[世界卫生组织：SARS疫情史](https://www.who.int/health-topics/severe-acute-respiratory-syndrome)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "shenzhou-five": {
+      "title": "神舟五号载人飞行",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "杨利伟搭乘神舟五号进入太空，中国首次完成自主载人航天飞行。",
+      "dateLabel": "2003年10月15日",
+      "time": {
+        "at": "2003-10-15"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "agricultural-tax-end": {
+      "title": "农业税废止",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "农业税条例废止，改变农村税费负担和国家与农民之间的财政关系。",
+      "dateLabel": "2006年01月01日",
+      "time": {
+        "at": "2006-01-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "charter08": {
+      "title": "《零八宪章》发表",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "刘晓波等人参与提出民主、法治与公民权利改革主张。刘晓波被拘押，次年被以煽动颠覆国家政权罪判处十一年徒刑。",
+      "dateLabel": "2008年",
+      "time": {
+        "at": "2008"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.nobelprize.org/prizes/peace/2010/xiaobo/facts/"
+      ],
+      "references": "[诺贝尔奖委员会：刘晓波生平与2010年和平奖](https://www.nobelprize.org/prizes/peace/2010/xiaobo/facts/)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "tibet-protests2008": {
+      "title": "藏区抗议、骚乱与镇压",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "3月拉萨及其他藏区出现抗议，部分地点发生针对平民的暴力与骚乱。安全部队随后大规模镇压和拘押；人权观察调查记录过度武力、失踪与不公正审判。",
+      "dateLabel": "2008年",
+      "time": {
+        "at": "2008"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.hrw.org/news/2010/07/21/china-witnesses-lift-veil-abuses-security-forces-tibet"
+      ],
+      "references": "[人权观察：2008—2010年藏区安全部队侵权调查（访谈及官方资料）](https://www.hrw.org/news/2010/07/21/china-witnesses-lift-veil-abuses-security-forces-tibet)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "sichuan-earthquake": {
+      "title": "汶川大地震",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "四川发生大地震，造成广泛人员伤亡与建筑损毁。救援和重建之外，校舍质量与信息公开也引发社会追问。",
+      "dateLabel": "2008年05月12日",
+      "time": {
+        "at": "2008-05-12"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=",
+        "https://www.hrw.org/news/2009/05/06/china-end-quake-zone-abuses"
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=) · [人权观察：汶川地震后校舍与信息公开问题](https://www.hrw.org/news/2009/05/06/china-end-quake-zone-abuses)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "beijing-olympics": {
+      "title": "北京奥运会开幕",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "北京举办夏季奥运会，成为国家形象、城市建设与全球媒体关注汇集的事件。",
+      "dateLabel": "2008年08月08日",
+      "time": {
+        "at": "2008-08-08"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "urumqi2009": {
+      "title": "乌鲁木齐七五事件及后续拘押",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "乌鲁木齐抗议升级为严重族群暴力，造成包括汉族、维吾尔族在内的平民伤亡。随后大规模搜捕、通讯限制及被拘押者失踪引发人权调查。",
+      "dateLabel": "2009年07月05日",
+      "time": {
+        "at": "2009-07-05"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.hrw.org/report/2009/10/20/we-are-afraid-even-look-them/enforced-disappearances-wake-xinjiangs-protests"
+      ],
+      "references": "[人权观察：2009年乌鲁木齐事件后强迫失踪调查](https://www.hrw.org/report/2009/10/20/we-are-afraid-even-look-them/enforced-disappearances-wake-xinjiangs-protests)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "liu-nobel": {
+      "title": "刘晓波获诺贝尔和平奖",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "诺贝尔委员会将和平奖授予仍在狱中的刘晓波，表彰其非暴力人权倡议；他无法亲自领奖。",
+      "dateLabel": "2010年10月08日",
+      "time": {
+        "at": "2010-10-08"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.nobelprize.org/prizes/peace/2010/xiaobo/facts/"
+      ],
+      "references": "[诺贝尔奖委员会：刘晓波生平与2010年和平奖](https://www.nobelprize.org/prizes/peace/2010/xiaobo/facts/)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "xi-general-secretary": {
+      "title": "习近平当选中共中央总书记",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "中共十八届一中全会选举习近平为总书记，随后展开大规模反腐行动与党政体制调整。",
+      "dateLabel": "2012年11月15日",
+      "time": {
+        "at": "2012-11-15"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "belt-road": {
+      "title": "丝绸之路经济带与海上丝路倡议",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中国提出后来合称一带一路的合作倡议，推动跨国基础设施、融资和经贸网络，也引发债务与治理讨论。",
+      "dateLabel": "2013年",
+      "time": {
+        "at": "2013"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "reeducation-abolished": {
+      "title": "劳动教养制度废止",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "全国人大常委会废止劳动教养法律规定。该行政拘禁制度长期因缺乏司法保障受到批评；废止不等于所有行政限制人身自由问题均已解决。",
+      "dateLabel": "2013年12月28日",
+      "time": {
+        "at": "2013-12-28"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hong-kong-umbrella": {
+      "title": "香港雨伞运动",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "围绕行政长官选举制度的争议引发大规模占领与公民抗命；参与者要求更开放的候选人与普选安排。",
+      "dateLabel": "2014年",
+      "time": {
+        "at": "2014"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4"
+      ],
+      "references": "[联合国人权事务委员会：香港2022年审议结论 CCPR/C/CHN-HKG/CO/4](https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "two-child-policy": {
+      "title": "全面二孩政策决定",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "中共十八届五中全会决定全面实施一对夫妇可生育两个孩子政策，次年开始实施，标志长期生育限制逐步调整。",
+      "dateLabel": "2015年",
+      "time": {
+        "at": "2015"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "lawyers709": {
+      "title": "709律师大抓捕",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "多地维权律师、法律工作者及活动人士被拘押、传唤或失联。联合国特别程序就逮捕、律师执业与人权保障向中国政府提出关切。",
+      "dateLabel": "2015年07月09日",
+      "time": {
+        "at": "2015-07-09"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://spcommreports.ohchr.org/TmSearch/SearchCode?code=CHN%206%2F2015"
+      ],
+      "references": "[联合国特别程序：2015年律师拘押问题致中国政府函 CHN 6/2015](https://spcommreports.ohchr.org/TmSearch/SearchCode?code=CHN%206%2F2015)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "xinjiang-detention": {
+      "title": "新疆大规模拘禁体系扩张",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "新疆以反恐和去极端化名义扩大针对维吾尔族等穆斯林群体的拘禁与再教育体系。联合国2022年评估认定存在严重人权侵犯；中国政府称有关设施为职业教育培训中心并否认侵权指控。",
+      "dateLabel": "2017年",
+      "time": {
+        "at": "2017"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf",
+        "https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/ANNEX_A.pdf"
+      ],
+      "references": "[联合国人权高专办：新疆人权关切评估，2022年8月31日](https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf) · [中国政府对联合国新疆评估的回应（报告附件）](https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/ANNEX_A.pdf)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "trade-war2018": {
+      "title": "中美加征关税与贸易战",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "美国与中国相继对对方商品加征关税，争端涉及贸易失衡、产业政策、技术转让和全球供应链。",
+      "dateLabel": "2018年",
+      "time": {
+        "at": "2018"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=",
+        "https://wap.miit.gov.cn/xwfb/szyw/art/2025/art_febfc3a64c154613b0ca2805c4fe6ef3.html"
+      ],
+      "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=) · [中美日内瓦经贸会谈联合声明，2025年5月12日](https://wap.miit.gov.cn/xwfb/szyw/art/2025/art_febfc3a64c154613b0ca2805c4fe6ef3.html)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "term-limits-removed": {
+      "title": "修宪取消国家主席连续任职上限",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "宪法修正案删除国家主席、副主席连续任职不得超过两届的限制，并设立监察委员会等制度。总书记和中央军委主席此前本无同样的宪法任期限制。",
+      "dateLabel": "2018年03月11日",
+      "time": {
+        "at": "2018-03-11"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.xinhuanet.com/politics/2018-03/11/c_1122521235.htm"
+      ],
+      "references": "[2018年宪法修正案原文（新华社受权发布）](https://www.xinhuanet.com/politics/2018-03/11/c_1122521235.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hong-kong-protests2019": {
+      "title": "香港反修例抗议",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "反对逃犯条例修订的游行扩展为持续抗议；出现警民冲突、大规模拘捕与部分示威者暴力。联合国人权事务委员会其后要求调查警察过度使用武力等指控。",
+      "dateLabel": "2019年",
+      "time": {
+        "at": "2019"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4"
+      ],
+      "references": "[联合国人权事务委员会：香港2022年审议结论 CCPR/C/CHN-HKG/CO/4](https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "covid-reported": {
+      "title": "武汉不明原因肺炎公开通报",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "武汉卫健委公开通报肺炎病例，世界卫生组织中国办事处获悉相关信息。此为公开报告节点，不等同于病毒首次传播日期。",
+      "dateLabel": "2019年12月31日",
+      "time": {
+        "at": "2019-12-31"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.who.int/news/item/29-06-2020-COVIDtimeline"
+      ],
+      "references": "[世界卫生组织：2019—2020年新冠疫情应对时间线](https://www.who.int/news/item/29-06-2020-COVIDtimeline)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "wuhan-lockdown": {
+      "title": "武汉封城",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "武汉暂停离汉交通并实施大规模限制措施；此后各地发展核酸检测、隔离和封控体系，对社会生活产生深远影响。",
+      "dateLabel": "2020年01月23日",
+      "time": {
+        "at": "2020-01-23"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.who.int/news/item/29-06-2020-COVIDtimeline"
+      ],
+      "references": "[世界卫生组织：2019—2020年新冠疫情应对时间线](https://www.who.int/news/item/29-06-2020-COVIDtimeline)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "li-wenliang-death": {
+      "title": "李文亮逝世与疫情预警争议",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "曾因向同事提示疫情而遭警方训诫的医生李文亮感染新冠后去世，引发广泛悼念与信息公开讨论。3月官方调查认定训诫不当，警方撤销训诫并道歉。",
+      "dateLabel": "2020年02月07日",
+      "time": {
+        "at": "2020-02-07"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.xinhuanet.com/politics/2020-03/19/c_1125737457.htm"
+      ],
+      "references": "[国家监委：李文亮事件调查通报，2020年3月19日](https://www.xinhuanet.com/politics/2020-03/19/c_1125737457.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hong-kong-nsl": {
+      "title": "香港国安法生效",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "全国人大常委会制定香港国安法并在港实施，重塑国家安全执法与政治活动空间。中国和香港政府强调安全与秩序；联合国人权事务委员会对法律的宽泛适用及权利限制提出批评。",
+      "dateLabel": "2020年06月30日",
+      "time": {
+        "at": "2020-06-30"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4"
+      ],
+      "references": "[联合国人权事务委员会：香港2022年审议结论 CCPR/C/CHN-HKG/CO/4](https://docs.un.org/en/CCPR/C/CHN-HKG/CO/4)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "poverty-announcement": {
+      "title": "宣布完成现行标准下脱贫目标",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "中国政府宣布现行农村贫困标准下脱贫目标完成。长期经济增长显著减少极端贫困，但不能把这一特定标准等同于消除相对贫困、不平等或全部生活困难。",
+      "dateLabel": "2021年02月25日",
+      "time": {
+        "at": "2021-02-25"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.worldbank.org/en/news/press-release/2022/04/01/lifting-800-million-people-out-of-poverty-new-report-looks-at-lessons-from-chinas-experience"
+      ],
+      "references": "[世界银行与国务院发展研究中心：四十年减贫研究，2022](https://www.worldbank.org/en/news/press-release/2022/04/01/lifting-800-million-people-out-of-poverty-new-report-looks-at-lessons-from-chinas-experience)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "shanghai-reopening": {
+      "title": "上海结束全市性封控阶段",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "上海在持续大范围封控后宣布恢复正常生产生活秩序；部分风险地区仍受限制。这一节点不表示所有居民同时解除封控，也不表示全国防疫政策当时已结束。",
+      "dateLabel": "2022年06月01日",
+      "time": {
+        "at": "2022-06-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.xinhuanet.com/local/2022-05/31/c_1128699790.htm"
+      ],
+      "references": "[新华社：上海2022年6月1日起恢复生产生活秩序的安排](https://www.xinhuanet.com/local/2022-05/31/c_1128699790.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "xinjiang-report2022": {
+      "title": "联合国发布新疆人权评估",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "联合国人权高专办认定新疆存在严重人权侵犯，并认为任意和歧视性拘禁等行为可能构成国际罪行，尤其是危害人类罪。这是机构评估而非法院判决；中国政府拒绝其结论。",
+      "dateLabel": "2022年08月31日",
+      "time": {
+        "at": "2022-08-31"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf",
+        "https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/ANNEX_A.pdf"
+      ],
+      "references": "[联合国人权高专办：新疆人权关切评估，2022年8月31日](https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/22-08-31-final-assesment.pdf) · [中国政府对联合国新疆评估的回应（报告附件）](https://www.ohchr.org/sites/default/files/documents/countries/2022-08-31/ANNEX_A.pdf)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "xi-third-party-term": {
+      "title": "习近平第三次当选中共中央总书记",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "二十届一中全会再次选举习近平为总书记，形成第三届总书记任期；此党内职务与次年国家主席选举应分别记录。",
+      "dateLabel": "2022年10月23日",
+      "time": {
+        "at": "2022-10-23"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.xinhuanet.com/politics/cpc20/2022-10/23/c_1129076161.htm"
+      ],
+      "references": "[新华社：二十届一中全会及新一届中央领导成员](https://www.xinhuanet.com/politics/cpc20/2022-10/23/c_1129076161.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "white-paper-protests": {
+      "title": "白纸运动与反封控抗议",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "乌鲁木齐火灾后，多城居民和学生以白纸等方式抗议封控及审查，部分诉求涉及政治自由；当局拘留和追查参与者。日期取这一轮抗议开始扩散的节点，各地集会并非同日发生。",
+      "dateLabel": "2022年11月25日",
+      "time": {
+        "at": "2022-11-25"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://amnesty.ca/human-rights-news/china-government-must-not-detain-peaceful-protesters-as-unprecedented-demonstrations-break-out-across-the-country/"
+      ],
+      "references": "[国际特赦组织：2022年11月抗议及拘押风险（当时记录）](https://amnesty.ca/human-rights-news/china-government-must-not-detain-peaceful-protesters-as-unprecedented-demonstrations-break-out-across-the-country/)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "zero-covid-exit": {
+      "title": "新十条与防疫政策转向",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "新十条大幅放宽检测、隔离和跨地区流动限制，标志此前严格防疫政策迅速转向。政策时间与抗议相邻，并不足以证明抗议是唯一原因。",
+      "dateLabel": "2022年12月07日",
+      "time": {
+        "at": "2022-12-07"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/xinwen/gwylflkjz217/jianjie.htm"
+      ],
+      "references": "[国务院联防联控机制：2022年12月7日政策发布会](https://www.gov.cn/xinwen/gwylflkjz217/jianjie.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "xi-third-president-term": {
+      "title": "习近平开始第三届国家主席任期",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "全国人大再次选举习近平为国家主席，开启第三届任期；这一结果发生在2018年宪法任期限制取消之后。",
+      "dateLabel": "2023年03月10日",
+      "time": {
+        "at": "2023-03-10"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.gov.cn/zhuanti/2023-03/10/content_5745796.htm",
+        "https://www.xinhuanet.com/politics/2018-03/11/c_1122521235.htm"
+      ],
+      "references": "[2023年3月10日国家主席选举记录](https://www.gov.cn/zhuanti/2023-03/10/content_5745796.htm) · [2018年宪法修正案原文（新华社受权发布）](https://www.xinhuanet.com/politics/2018-03/11/c_1122521235.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hong-kong-article23": {
+      "title": "香港《维护国家安全条例》生效",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "香港依据基本法第二十三条制定的条例生效，补充本地国家安全罪名和执法安排，进一步改变政治与公共表达的法律环境。",
+      "dateLabel": "2024年03月23日",
+      "time": {
+        "at": "2024-03-23"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.info.gov.hk/gia/general/202403/22/P2024032200642p.htm"
+      ],
+      "references": "[香港政府：2024年《维护国家安全条例》签署与生效日期](https://www.info.gov.hk/gia/general/202403/22/P2024032200642p.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "change-six-return": {
+      "title": "嫦娥六号月背样品返回",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "嫦娥六号返回器携月球背面样品着陆，完成世界首次月球背面采样返回。",
+      "dateLabel": "2024年06月25日",
+      "time": {
+        "at": "2024-06-25"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.cnsa.gov.cn/n6758823/n6758844/n10518102/n10518147/c10565180/content.html"
+      ],
+      "references": "[国家航天局：嫦娥六号月球背面采样返回](https://www.cnsa.gov.cn/n6758823/n6758844/n10518102/n10518147/c10565180/content.html)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "retirement-reform": {
+      "title": "渐进式延迟退休决定通过",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "全国人大常委会通过渐进式延迟法定退休年龄决定，自2025年起实施。改革回应人口老龄化与劳动力变化，也改变劳动者退休预期。",
+      "dateLabel": "2024年09月13日",
+      "time": {
+        "at": "2024-09-13"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.hmo.gov.cn/2026/08/21/ARTI6kpLUW6qilBUClmQ6bio260821.shtml"
+      ],
+      "references": "[全国人大常委会：渐进式延迟法定退休年龄决定](https://www.hmo.gov.cn/2026/08/21/ARTI6kpLUW6qilBUClmQ6bio260821.shtml)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "geneva-trade2025": {
+      "title": "中美日内瓦关税阶段性安排",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "中美发表联合声明，调整并阶段性暂停部分加征关税。声明包含90天安排，不能视为永久解决贸易争端，也不代表本图核对日仍适用全部原税率。",
+      "dateLabel": "2025年05月12日",
+      "time": {
+        "at": "2025-05-12"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://wap.miit.gov.cn/xwfb/szyw/art/2025/art_febfc3a64c154613b0ca2805c4fe6ef3.html"
+      ],
+      "references": "[中美日内瓦经贸会谈联合声明，2025年5月12日](https://wap.miit.gov.cn/xwfb/szyw/art/2025/art_febfc3a64c154613b0ca2805c4fe6ef3.html)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "fifteenth-plan": {
+      "title": "十五五规划纲要获批准",
+      "type": "中华人民共和国",
+      "track": "中华人民共和国",
+      "polity": "中华人民共和国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "十四届全国人大四次会议批准2026—2030年规划纲要。这里记录批准这一已发生事件，规划中的未来目标不当作已实现的历史结果。",
+      "dateLabel": "2026年03月12日",
+      "time": {
+        "at": "2026-03-12"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.cqrd.gov.cn/web/article/1481955850634850304/web/content_1481955850634850304.html"
+      ],
+      "references": "[十四届全国人大四次会议关于十五五规划纲要的决议，2026年3月12日](https://www.cqrd.gov.cn/web/article/1481955850634850304/web/content_1481955850634850304.html)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     }
   },
   "edges": [
@@ -6475,6 +8221,1361 @@
       "metadata": {
         "timeline": {
           "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:sino-soviet-treaty",
+      "source": "prc",
+      "target": "sino-soviet-treaty",
+      "value": "建国初期的同盟外交",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:marriage-law",
+      "source": "prc",
+      "target": "marriage-law",
+      "value": "新政权的婚姻立法",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:suppress-counterrevolutionaries",
+      "source": "prc",
+      "target": "suppress-counterrevolutionaries",
+      "value": "巩固政权的政治运动",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:hundred-flowers",
+      "source": "prc",
+      "target": "hundred-flowers",
+      "value": "文化政策与政治表达",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:constitution1954",
+      "source": "prc",
+      "target": "constitution1954",
+      "value": "国家机构的宪制安排",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:first-nuclear-test",
+      "source": "prc",
+      "target": "first-nuclear-test",
+      "value": "国防科技建设的后续节点",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:great-leap:great-famine",
+      "source": "great-leap",
+      "target": "great-famine",
+      "value": "政策激进化与饥荒背景；非单一因素解释",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:anti-rightist:great-leap",
+      "source": "anti-rightist",
+      "target": "great-leap",
+      "value": "批评空间收缩构成政策环境",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:great-famine:lushan",
+      "source": "great-famine",
+      "target": "lushan",
+      "value": "饥荒期间的政策批评与政治追究",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1959"
+        }
+      }
+    },
+    {
+      "id": "reference:cultural-revolution:gang-four-arrest",
+      "source": "cultural-revolution",
+      "target": "gang-four-arrest",
+      "value": "文革结束的关键政治节点",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:cultural-revolution:historical-resolution1981",
+      "source": "cultural-revolution",
+      "target": "historical-resolution1981",
+      "value": "官方重新评价文革",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:protests1989:martial-law1989",
+      "source": "protests1989",
+      "target": "martial-law1989",
+      "value": "抗议期间的戒严决定",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1989-05-20"
+        }
+      }
+    },
+    {
+      "id": "reference:martial-law1989:june-fourth",
+      "source": "martial-law1989",
+      "target": "june-fourth",
+      "value": "从戒严走向军队镇压",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:protests1989:june-fourth",
+      "source": "protests1989",
+      "target": "june-fourth",
+      "value": "军事镇压终结北京公开抗议",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1989-06-04"
+        }
+      }
+    },
+    {
+      "id": "reference:june-fourth:charter08",
+      "source": "june-fourth",
+      "target": "charter08",
+      "value": "刘晓波参与的不同阶段公民运动",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:sino-british-declaration:hong-kong-handover",
+      "source": "sino-british-declaration",
+      "target": "hong-kong-handover",
+      "value": "声明约定的主权移交",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:hong-kong-handover:hong-kong-umbrella",
+      "source": "hong-kong-handover",
+      "target": "hong-kong-umbrella",
+      "value": "特别行政区制度下的选举争议",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:hong-kong-protests2019:hong-kong-nsl",
+      "source": "hong-kong-protests2019",
+      "target": "hong-kong-nsl",
+      "value": "抗议之后的国家安全立法",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:hong-kong-nsl:hong-kong-article23",
+      "source": "hong-kong-nsl",
+      "target": "hong-kong-article23",
+      "value": "全国法律之后的本地立法",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:xinjiang-detention:xinjiang-report2022",
+      "source": "xinjiang-detention",
+      "target": "xinjiang-report2022",
+      "value": "联合国对相关政策的人权评估",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:constitution1982:term-limits-removed",
+      "source": "constitution1982",
+      "target": "term-limits-removed",
+      "value": "宪制框架的后续修订",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:term-limits-removed:xi-third-president-term",
+      "source": "term-limits-removed",
+      "target": "xi-third-president-term",
+      "value": "取消任期上限之后的第三届任期",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:covid-reported:wuhan-lockdown",
+      "source": "covid-reported",
+      "target": "wuhan-lockdown",
+      "value": "疫情披露之后的交通与社会管制",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:wuhan-lockdown:white-paper-protests",
+      "source": "wuhan-lockdown",
+      "target": "white-paper-protests",
+      "value": "长期防疫限制成为抗议背景",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:white-paper-protests:zero-covid-exit",
+      "source": "white-paper-protests",
+      "target": "zero-covid-exit",
+      "value": "同年政策转向；不推定唯一因果",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:constitution1954:lushan",
+      "source": "constitution1954",
+      "target": "lushan",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:lushan:seven-thousand",
+      "source": "lushan",
+      "target": "seven-thousand",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:seven-thousand:lin-biao",
+      "source": "seven-thousand",
+      "target": "lin-biao",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:lin-biao:mao-death",
+      "source": "lin-biao",
+      "target": "mao-death",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:mao-death:gang-four-arrest",
+      "source": "mao-death",
+      "target": "gang-four-arrest",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:gang-four-arrest:historical-resolution1981",
+      "source": "gang-four-arrest",
+      "target": "historical-resolution1981",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:historical-resolution1981:constitution1982",
+      "source": "historical-resolution1981",
+      "target": "constitution1982",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:constitution1982:martial-law1989",
+      "source": "constitution1982",
+      "target": "martial-law1989",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:martial-law1989:xi-general-secretary",
+      "source": "martial-law1989",
+      "target": "xi-general-secretary",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:xi-general-secretary:reeducation-abolished",
+      "source": "xi-general-secretary",
+      "target": "reeducation-abolished",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:reeducation-abolished:term-limits-removed",
+      "source": "reeducation-abolished",
+      "target": "term-limits-removed",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:term-limits-removed:wuhan-lockdown",
+      "source": "term-limits-removed",
+      "target": "wuhan-lockdown",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:wuhan-lockdown:hong-kong-nsl",
+      "source": "wuhan-lockdown",
+      "target": "hong-kong-nsl",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hong-kong-nsl:shanghai-reopening",
+      "source": "hong-kong-nsl",
+      "target": "shanghai-reopening",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:shanghai-reopening:xi-third-party-term",
+      "source": "shanghai-reopening",
+      "target": "xi-third-party-term",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:xi-third-party-term:zero-covid-exit",
+      "source": "xi-third-party-term",
+      "target": "zero-covid-exit",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:zero-covid-exit:xi-third-president-term",
+      "source": "zero-covid-exit",
+      "target": "xi-third-president-term",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:xi-third-president-term:hong-kong-article23",
+      "source": "xi-third-president-term",
+      "target": "hong-kong-article23",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hundred-flowers:sent-down-youth",
+      "source": "hundred-flowers",
+      "target": "sent-down-youth",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sent-down-youth:gaokao-restored",
+      "source": "sent-down-youth",
+      "target": "gaokao-restored",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:gaokao-restored:democracy-wall",
+      "source": "gaokao-restored",
+      "target": "democracy-wall",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:democracy-wall:protests1989",
+      "source": "democracy-wall",
+      "target": "protests1989",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:protests1989:charter08",
+      "source": "protests1989",
+      "target": "charter08",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:charter08:beijing-olympics",
+      "source": "charter08",
+      "target": "beijing-olympics",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:beijing-olympics:liu-nobel",
+      "source": "beijing-olympics",
+      "target": "liu-nobel",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:liu-nobel:hong-kong-umbrella",
+      "source": "liu-nobel",
+      "target": "hong-kong-umbrella",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hong-kong-umbrella:hong-kong-protests2019",
+      "source": "hong-kong-umbrella",
+      "target": "hong-kong-protests2019",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hong-kong-protests2019:li-wenliang-death",
+      "source": "hong-kong-protests2019",
+      "target": "li-wenliang-death",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:li-wenliang-death:white-paper-protests",
+      "source": "li-wenliang-death",
+      "target": "white-paper-protests",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:first-nuclear-test:dong-fang-hong",
+      "source": "first-nuclear-test",
+      "target": "dong-fang-hong",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:dong-fang-hong:shenzhou-five",
+      "source": "dong-fang-hong",
+      "target": "shenzhou-five",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:shenzhou-five:covid-reported",
+      "source": "shenzhou-five",
+      "target": "covid-reported",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:covid-reported:change-six-return",
+      "source": "covid-reported",
+      "target": "change-six-return",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:marriage-law:land-reform-law",
+      "source": "marriage-law",
+      "target": "land-reform-law",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:land-reform-law:first-five-year-plan",
+      "source": "land-reform-law",
+      "target": "first-five-year-plan",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:first-five-year-plan:socialist-transformation",
+      "source": "first-five-year-plan",
+      "target": "socialist-transformation",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:socialist-transformation:great-leap",
+      "source": "socialist-transformation",
+      "target": "great-leap",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:great-leap:hukou1958",
+      "source": "great-leap",
+      "target": "hukou1958",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hukou1958:third-plenum1978",
+      "source": "hukou1958",
+      "target": "third-plenum1978",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:third-plenum1978:special-economic-zones",
+      "source": "third-plenum1978",
+      "target": "special-economic-zones",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:special-economic-zones:one-child-policy",
+      "source": "special-economic-zones",
+      "target": "one-child-policy",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:one-child-policy:southern-tour",
+      "source": "one-child-policy",
+      "target": "southern-tour",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:southern-tour:tax-sharing",
+      "source": "southern-tour",
+      "target": "tax-sharing",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:tax-sharing:wto-accession",
+      "source": "tax-sharing",
+      "target": "wto-accession",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:wto-accession:agricultural-tax-end",
+      "source": "wto-accession",
+      "target": "agricultural-tax-end",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:agricultural-tax-end:two-child-policy",
+      "source": "agricultural-tax-end",
+      "target": "two-child-policy",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:two-child-policy:trade-war2018",
+      "source": "two-child-policy",
+      "target": "trade-war2018",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:trade-war2018:poverty-announcement",
+      "source": "trade-war2018",
+      "target": "poverty-announcement",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:poverty-announcement:retirement-reform",
+      "source": "poverty-announcement",
+      "target": "retirement-reform",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:retirement-reform:geneva-trade2025",
+      "source": "retirement-reform",
+      "target": "geneva-trade2025",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:geneva-trade2025:fifteenth-plan",
+      "source": "geneva-trade2025",
+      "target": "fifteenth-plan",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sino-soviet-treaty:tibet-agreement",
+      "source": "sino-soviet-treaty",
+      "target": "tibet-agreement",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:tibet-agreement:korean-armistice",
+      "source": "tibet-agreement",
+      "target": "korean-armistice",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:korean-armistice:bandung",
+      "source": "korean-armistice",
+      "target": "bandung",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:bandung:soviet-experts-withdraw",
+      "source": "bandung",
+      "target": "soviet-experts-withdraw",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:soviet-experts-withdraw:un-representation",
+      "source": "soviet-experts-withdraw",
+      "target": "un-representation",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:un-representation:nixon-visit",
+      "source": "un-representation",
+      "target": "nixon-visit",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:nixon-visit:us-normalization",
+      "source": "nixon-visit",
+      "target": "us-normalization",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:us-normalization:sino-british-declaration",
+      "source": "us-normalization",
+      "target": "sino-british-declaration",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hong-kong-handover:macao-handover",
+      "source": "hong-kong-handover",
+      "target": "macao-handover",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:macao-handover:belt-road",
+      "source": "macao-handover",
+      "target": "belt-road",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:belt-road:xinjiang-report2022",
+      "source": "belt-road",
+      "target": "xinjiang-report2022",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:suppress-counterrevolutionaries:korean-war-entry",
+      "source": "suppress-counterrevolutionaries",
+      "target": "korean-war-entry",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:korean-war-entry:anti-rightist",
+      "source": "korean-war-entry",
+      "target": "anti-rightist",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:anti-rightist:great-famine",
+      "source": "anti-rightist",
+      "target": "great-famine",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:great-famine:tibet-uprising",
+      "source": "great-famine",
+      "target": "tibet-uprising",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:tibet-uprising:sino-indian-war",
+      "source": "tibet-uprising",
+      "target": "sino-indian-war",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sino-indian-war:cultural-revolution",
+      "source": "sino-indian-war",
+      "target": "cultural-revolution",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:cultural-revolution:sino-soviet-border",
+      "source": "cultural-revolution",
+      "target": "sino-soviet-border",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sino-soviet-border:tangshan-earthquake",
+      "source": "sino-soviet-border",
+      "target": "tangshan-earthquake",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:tangshan-earthquake:sino-vietnamese-war",
+      "source": "tangshan-earthquake",
+      "target": "sino-vietnamese-war",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sino-vietnamese-war:june-fourth",
+      "source": "sino-vietnamese-war",
+      "target": "june-fourth",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:june-fourth:falun-gong-ban",
+      "source": "june-fourth",
+      "target": "falun-gong-ban",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:falun-gong-ban:sars-outbreak",
+      "source": "falun-gong-ban",
+      "target": "sars-outbreak",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sars-outbreak:tibet-protests2008",
+      "source": "sars-outbreak",
+      "target": "tibet-protests2008",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:tibet-protests2008:sichuan-earthquake",
+      "source": "tibet-protests2008",
+      "target": "sichuan-earthquake",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:sichuan-earthquake:urumqi2009",
+      "source": "sichuan-earthquake",
+      "target": "urumqi2009",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:urumqi2009:lawyers709",
+      "source": "urumqi2009",
+      "target": "lawyers709",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:lawyers709:xinjiang-detention",
+      "source": "lawyers709",
+      "target": "xinjiang-detention",
+      "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
           "sourceAnchor": "start",
           "targetAnchor": "start"
         }

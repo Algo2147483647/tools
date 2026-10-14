@@ -17,8 +17,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 192);
-    assert.equal(dag.edges.length, 248);
+    assert.equal(Object.keys(dag.nodes).length, 278);
+    assert.equal(dag.edges.length, 352);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
@@ -73,8 +73,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 192);
-    assert.equal(stage.edges.length, 248);
+    assert.equal(stage.nodes.length, 278);
+    assert.equal(stage.edges.length, 352);
     assert.equal(stage.warnings.length, 0);
     assert.ok(stage.stageWidth < 1800, "the expanded relation flow remains compact");
     assert.ok(stage.edges.every((edge) => !/NaN|Infinity/.test(edge.path)));
@@ -107,9 +107,47 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 192);
+    assert.equal(workspace.graphs[0].nodeCount, 278);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^192/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^278/);
+  }),
+  defineTest("modern history includes sourced political and social events through the declared cutoff", async () => {
+    const graph = await read("china-history.json");
+    assert.equal(graph.metadata.asOf, "2026-10-14");
+    for (const id of [
+      "anti-rightist",
+      "great-leap",
+      "great-famine",
+      "cultural-revolution",
+      "june-fourth",
+      "falun-gong-ban",
+      "lawyers709",
+      "xinjiang-detention",
+      "xinjiang-report2022",
+      "hong-kong-protests2019",
+      "hong-kong-nsl",
+      "white-paper-protests",
+      "term-limits-removed",
+      "third-plenum1978",
+      "wto-accession",
+      "covid-reported",
+      "change-six-return",
+      "fifteenth-plan",
+    ]) {
+      const node = graph.nodes[id];
+      assert.ok(node, `${id}: required modern coverage`);
+      assert.equal(node.type, "中华人民共和国");
+      assert.ok(node.sources.length && node.references && node.define);
+    }
+    assert.deepEqual(graph.nodes["june-fourth"].time, { at: "1989-06-04" });
+    assert.deepEqual(graph.nodes["white-paper-protests"].time, { at: "2022-11-25" });
+    assert.match(graph.nodes["xinjiang-report2022"].define, /可能/);
+    assert.match(graph.nodes["great-famine"].define, /估算|估计/);
+    const cutoff = parseTimelineDate(graph.metadata.asOf)!.timestamp;
+    for (const node of Object.values(graph.nodes) as { time: Record<string, string> }[]) {
+      for (const value of Object.values(node.time)) assert.ok(parseTimelineDate(value)!.timestamp <= cutoff);
+    }
+    assert.equal(graph.nodes["fifteenth-plan"].time.at, "2026-03-12");
   }),
 ]);

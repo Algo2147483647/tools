@@ -65,10 +65,12 @@ export function arrangeTimelineFlow(input: {
       const pin = Math.max(minimumX, pins[node.key]);
       // Prefer a short leader over another full label-width column.
       // The marker stays on the clock while dense labels can use adjacent rows.
-      const placement = [0, 48, 96].map(offset => {
-        const x = closestFreeX(node, desired, minimumX, placed, gap / 4, offset);
-        return { x, offset, cost: Math.abs(x - desired) + offset * 1.25 };
-      }).sort((a,b) => a.cost - b.cost || a.offset - b.offset || a.x - b.x)[0];
+      const placement = [0, 48, 96]
+        .map((offset) => {
+          const x = closestFreeX(node, desired, minimumX, placed, gap / 4, offset);
+          return { x, offset, cost: Math.abs(x - desired) + offset * 1.25 };
+        })
+        .sort((a, b) => a.cost - b.cost || a.offset - b.offset || a.x - b.x)[0];
       node.x = isPinned(node) ? pin : placement.x;
       node.timeline!.labelX = node.x + 22;
       node.timeline!.labelY = node.y + 3 + (isPinned(node) ? 0 : placement.offset);
@@ -115,10 +117,22 @@ function labelBox(node: StageNode): Box {
 function intersects(a: Box, b: Box): boolean {
   return a.left < b.right + 7 && a.right + 7 > b.left && a.top < b.bottom + 7 && a.bottom + 7 > b.top;
 }
-function closestFreeX(node: StageNode, desired: number, minimum: number, occupied: Box[], clearance: number, labelOffset: number): number {
+function closestFreeX(
+  node: StageNode,
+  desired: number,
+  minimum: number,
+  occupied: Box[],
+  clearance: number,
+  labelOffset: number,
+): number {
   const footprints = [
     { left: -10, right: 10, top: node.y - 10, bottom: node.timeline!.endY + 10 },
-    { left: 16, right: node.width + 28, top: node.y + labelOffset - 16, bottom: node.y + labelOffset + (node.detailLines.length ? 42 : 27) },
+    {
+      left: 16,
+      right: node.width + 28,
+      top: node.y + labelOffset - 16,
+      bottom: node.y + labelOffset + (node.detailLines.length ? 42 : 27),
+    },
   ];
   const forbidden: [number, number][] = [];
   for (const footprint of footprints) {
