@@ -75,7 +75,37 @@ const annual = "通行公元纪年；仅精确到年，不补造月日。";
 
 // These are reading points, not continuous durations. Keep the original evidence
 // windows in entries; their earlier bound positions the point without inventing a date.
+export const westernZhouPointMarkers = new Set([
+  "post-conquest",
+  "zhou-regency",
+  "zhou-eastern-campaign",
+  "chengzhou-build",
+  "hezun-record",
+  "zhou-enfeoffment",
+  "qi-western-origins",
+  "lu-western-origins",
+  "jin-western-origins",
+  "yan-liulihe",
+  "wei-kangshu",
+  "song-weizi",
+  "chu-xiongyi",
+  "zhou-eastern-settlements",
+  "dayu-ding",
+  "zhou-lineage",
+  "zhou-land-labor",
+  "king-zhao-south",
+  "king-mu-politics",
+  "zhou-armies",
+  "zhou-appointments",
+  "zhou-ritual-change",
+  "qin-feizi",
+  "zhou-li-crisis",
+  "xuan-wars",
+  "zheng-east-planning",
+]);
+
 export const pointMarkers = new Set([
+  ...westernZhouPointMarkers,
   "erlitou-grid",
   "erlitou-palaces",
   "erlitou-bronze",

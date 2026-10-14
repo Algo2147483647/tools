@@ -51,7 +51,7 @@
 
 战争与政治竞争之外，人们还在讨论怎样判断善恶、怎样选择统治者、怎样生活。孔子与孟子围绕德、礼和仁政提出问题；墨家讨论兼爱、非攻、尚贤等议题；《老子》文本涉及道、无为及治理；荀子重视学习、礼与制度。这些思想既可能回应竞争，也可能批判竞争本身，不能把所有学术都解释成君主争天下的工具。参见[《孟子荀卿列传》](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj074.html)、[墨家研究导论](https://plato.stanford.edu/archives/spr2020/entries/mohism/)与[《老子》研究导论](https://plato.stanford.edu/archives/fall2024/entries/laozi/)。
 
-稷下与《吕氏春秋》显示政治赞助和学术汇集的不同方式：齐君招徕各家论学，吕不韦组织宾客编纂著作。不能因此把稷下当作具备现代学籍、统一课程和确切建校年的大学，也不能把多人、分期积累的先秦典籍都固定为某位作者在某一年完成。图中的墨家、《老子》和稷下用约略范围表示这一点。参见[《田敬仲完世家》](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj046.html)与[《吕不韦列传》](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj085.html)。
+稷下与《吕氏春秋》显示政治赞助和学术汇集的不同方式：齐君招徕各家论学，吕不韦组织宾客编纂著作。不能因此把稷下当作具备现代学籍、统一课程和确切建校年的大学，也不能把多人、分期积累的先秦典籍都固定为某位作者在某一年完成。图中的墨家、《老子》、稷下和孟子活动改用约年定位点，原范围保留在详情；点取窗口较早端，不表示在该年完成。吴起变法同样保留原活动范围。孔子生平与勾践时期分别以原生年、即位年定位，原生卒或在位范围仍可查阅。周朝、各诸侯国与春秋战国分期继续使用时期线。参见[《田敬仲完世家》](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj046.html)与[《吕不韦列传》](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj085.html)。
 
 曾侯乙编钟让礼乐、铸造、声学知识与区域政治进入同一视野。其约前433年的墓葬背景属于古代历史时间，1978年属于现代考古发现时间，两者不能混写。本图用实物的古代年代定位，并没有声称该年发明了编钟。参见[曾侯乙编钟馆藏展览说明](https://www.nmns.edu.tw/ch/exhibitions/special-exhibitions/Exhibition-000016/)。
 

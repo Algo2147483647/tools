@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { convergences, events, links, participants, periods, revisions, sources } from "./data/china-history/early.mjs";
+import {
+  convergences,
+  events,
+  links,
+  participants,
+  periods,
+  pointMarkers,
+  revisions,
+  sources,
+} from "./data/china-history/early.mjs";
 import { expandPreZhou } from "./expand-pre-zhou-history.mjs";
 import { expandHanThree } from "./expand-han-three-history.mjs";
 
@@ -12,6 +21,17 @@ const root = new URL("public/examples/china-history/", project);
 const check = process.argv.includes("--check");
 const read = (name) => readFile(new URL(name, root), "utf8");
 const graph = JSON.parse(await read("china-history.json"));
+// Rehydrate source spans before rebuilding; visual point conversion is applied
+// after relations are generated, so repeated runs preserve membership and dates.
+for (const id of pointMarkers) {
+  const item = graph.nodes[id];
+  if (item?.historicalRange) {
+    item.time = { ...item.historicalRange };
+    item.precision = item.rangePrecision;
+    delete item.historicalRange;
+    delete item.rangePrecision;
+  }
+}
 const manifest = JSON.parse(await read("graph-studio.workspace.json"));
 const preZhou = expandPreZhou(graph);
 const topics = {
@@ -133,6 +153,32 @@ edge("jixia", "xunzi-lanling", "荀子由齐地论学转向楚地活动", "refer
 
 // Keep the existing corpus's edge order stable; the new supplement follows it.
 const hanThree = expandHanThree(graph);
+for (const id of pointMarkers) {
+  const item = graph.nodes[id];
+  assert.ok(item?.time.start && item.time.end, `Missing original span: ${id}`);
+  item.historicalRange = { ...item.time };
+  item.rangePrecision = item.precision;
+  item.time = { at: item.historicalRange.start };
+  const yearLabel = `前${1 - Number(item.time.at)}年`;
+  const knownStart = id === "confucius" || id === "yue-goujian";
+  item.kind = knownStart ? "起年定位点" : "约年定位点";
+  item.precision = knownStart
+    ? `以原范围的起年${yearLabel}定位，对应本图采用的${id === "confucius" ? "孔子生年" : "勾践即位年"}；生平或在位经历并非都发生于这一年。原年代说明：${item.rangePrecision}`
+    : `图上以约${yearLabel}作定位点，取原年代窗口的较早端便于阅读，不表示全部活动确在该年发生或文本在该年完成。原年代说明：${item.rangePrecision}`;
+}
+for (const item of graph.edges) {
+  const relation = item.metadata?.timeline;
+  if (!relation) continue;
+  if (pointMarkers.has(item.source)) {
+    relation.sourceAnchor = "start";
+    delete relation.sourceTime;
+    if (relation.kind === "part-of") relation.kind = "reference";
+  }
+  if (pointMarkers.has(item.target)) {
+    relation.targetAnchor = "start";
+    delete relation.targetTime;
+  }
+}
 graph.edges = [
   ...graph.edges.filter((item) => !item.id.startsWith("pre-zhou:") && !item.id.startsWith("han-three:")),
   ...graph.edges.filter((item) => item.id.startsWith("pre-zhou:")),
@@ -180,13 +226,13 @@ manifest.metadata.assets = [
     "notes/han-three-sources.md",
   ]),
 ].sort();
-const ordered = [...managed, ...Object.keys(revisions)].sort(
+const ordered = [...new Set([...managed, ...Object.keys(revisions), ...pointMarkers])].sort(
   (a, b) => Number(startOf(a)) - Number(startOf(b)) || a.localeCompare(b, "en"),
 );
 const catalog = [
   "# 春秋到汉初：条目与史料",
   "",
-  "本目录对应主图新增及修订的条目，按起始年份排列。先读[叙事导读](./early-china.md)，再按标题在主图搜索。时期条的起点不等于建国年；约略范围不是精确生卒或成书日期。",
+  "本目录对应主图新增及修订的条目，按起始年份排列。先读[叙事导读](./early-china.md)，再按标题在主图搜索。孔子、勾践与五项思想或改革专题改用点显示，详情仍保留原范围；点只作生年、即位年或约年定位，不把多年活动说成一年完成。政权时期条的起点不等于建国年。",
   "",
   ...ordered.flatMap((id) => {
     const item = graph.nodes[id];
@@ -258,7 +304,7 @@ for (const theme of Object.keys(topics)) {
   if (!content.includes(prePointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${prePointer}\n`);
   const hanPointer = "[汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)";
   if (!content.includes(hanPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${hanPointer}\n`);
-  for (const id of [...Object.keys(revisions), ...Object.keys(hanThree.revisions)]) {
+  for (const id of [...new Set([...Object.keys(revisions), ...pointMarkers, ...Object.keys(hanThree.revisions)])]) {
     const item = graph.nodes[id];
     if (item.theme !== theme) continue;
     const heading = `## ${item.title}`;

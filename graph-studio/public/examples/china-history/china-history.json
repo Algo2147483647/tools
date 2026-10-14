@@ -190,19 +190,23 @@
       "polity": "鲁国",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期",
+      "kind": "起年定位点",
       "define": "生平区间用于定位其思想活动；不把整个儒学传统限定在这段时间。",
       "dateLabel": "公元前551年—公元前479年",
       "time": {
-        "start": "-000550",
-        "end": "-000478"
+        "at": "-000550"
       },
-      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "precision": "以原范围的起年前551年定位，对应本图采用的孔子生年；生平或在位经历并非都发生于这一年。原年代说明：年；未补造具体月日。时期边界采用说明中标明的分期。",
       "sources": [
         "https://afe.easia.columbia.edu/timelines/china_timeline.htm"
       ],
       "references": "[哥伦比亚大学：中华历史年表](https://afe.easia.columbia.edu/timelines/china_timeline.htm)",
-      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000550",
+        "end": "-000478"
+      },
+      "rangePrecision": "年；未补造具体月日。时期边界采用说明中标明的分期。"
     },
     "warring-states": {
       "title": "战国时期（常用分期）",
@@ -7397,19 +7401,23 @@
       "polity": "越国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期",
+      "kind": "起年定位点",
       "define": "仅表示勾践在位的常用纪年，不是越国全部存续时间；前473年灭吴后越仍继续存在。",
       "dateLabel": "公元前496年—公元前465年",
       "time": {
-        "start": "-000495",
-        "end": "-000464"
+        "at": "-000495"
       },
-      "precision": "年；未补造月日。同年不同事件的先后由文字说明，时间轴年刻度不表达月日顺序。",
+      "precision": "以原范围的起年前496年定位，对应本图采用的勾践即位年；生平或在位经历并非都发生于这一年。原年代说明：年；未补造月日。同年不同事件的先后由文字说明，时间轴年刻度不表达月日顺序。",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj041.html"
       ],
       "references": "[《史记·越王勾践世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj041.html)",
-      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [政权与时期](./notes/polity.md) · [史料约定](./SOURCES.md)"
+      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [政权与时期](./notes/polity.md) · [史料约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000495",
+        "end": "-000464"
+      },
+      "rangePrecision": "年；未补造月日。同年不同事件的先后由文字说明，时间轴年刻度不表达月日顺序。"
     },
     "han-state": {
       "title": "韩国（列为诸侯以后）",
@@ -8157,19 +8165,23 @@
       "polity": "东周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期",
+      "kind": "约年定位点",
       "define": "墨家围绕兼爱、非攻、尚贤、节用等议题形成论辩与实践传统。《墨子》各篇出于不同时期，后期还涉及名辩和守城；范围表示文本与学派活动，非墨子个人寿命。",
       "dateLabel": "公元前450年—公元前250年",
       "time": {
-        "start": "-000449",
-        "end": "-000249"
+        "at": "-000449"
       },
-      "precision": "约公元前5世纪中叶至前3世纪中叶；仅作学派及文本积累的定位范围。",
+      "precision": "图上以约前450年作定位点，取原年代窗口的较早端便于阅读，不表示全部活动确在该年发生或文本在该年完成。原年代说明：约公元前5世纪中叶至前3世纪中叶；仅作学派及文本积累的定位范围。",
       "sources": [
         "https://plato.stanford.edu/archives/spr2020/entries/mohism/"
       ],
       "references": "[斯坦福哲学百科：墨家](https://plato.stanford.edu/archives/spr2020/entries/mohism/)",
-      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)"
+      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000449",
+        "end": "-000249"
+      },
+      "rangePrecision": "约公元前5世纪中叶至前3世纪中叶；仅作学派及文本积累的定位范围。"
     },
     "li-kui-reforms": {
       "title": "魏文侯时期的李悝改革（约年）",
@@ -8199,19 +8211,23 @@
       "polity": "楚国",
       "topic": "经济与制度",
       "theme": "economy",
-      "kind": "时期",
+      "kind": "约年定位点",
       "define": "吴起在楚悼王支持下整顿官吏、削减贵族冗费以加强军事。悼王去世后吴起被杀，体现改革触及既得利益与君主庇护的重要性。",
       "dateLabel": "公元前386年—公元前381年",
       "time": {
-        "start": "-000385",
-        "end": "-000380"
+        "at": "-000385"
       },
-      "precision": "通常以前386年前后至前381年定位；到楚及任职细节有不同考订。",
+      "precision": "图上以约前386年作定位点，取原年代窗口的较早端便于阅读，不表示全部活动确在该年发生或文本在该年完成。原年代说明：通常以前386年前后至前381年定位；到楚及任职细节有不同考订。",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj065.html"
       ],
       "references": "[《史记·孙子吴起列传》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj065.html)",
-      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [经济与制度](./notes/economy.md) · [史料约定](./SOURCES.md)"
+      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [经济与制度](./notes/economy.md) · [史料约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000385",
+        "end": "-000380"
+      },
+      "rangePrecision": "通常以前386年前后至前381年定位；到楚及任职细节有不同考订。"
     },
     "tian-recognized": {
       "title": "周王承认田和为齐侯",
@@ -8673,20 +8689,24 @@
       "polity": "齐国",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期",
+      "kind": "约年定位点",
       "define": "田齐君主招徕学者，稷下成为诸家议政与论学的场所，孟子、荀子等与齐地学术有关。此范围只是战国中后期的阅读窗口，不是可精确考定的建校及停办年。",
       "dateLabel": "公元前350年—公元前250年",
       "time": {
-        "start": "-000349",
-        "end": "-000249"
+        "at": "-000349"
       },
-      "precision": "约前4世纪中叶至前3世纪中叶；非现代学校的连续校史。",
+      "precision": "图上以约前350年作定位点，取原年代窗口的较早端便于阅读，不表示全部活动确在该年发生或文本在该年完成。原年代说明：约前4世纪中叶至前3世纪中叶；非现代学校的连续校史。",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj046.html",
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj074.html"
       ],
       "references": "[《史记·田敬仲完世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj046.html) · [《史记·孟子荀卿列传》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj074.html)",
-      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)"
+      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000349",
+        "end": "-000249"
+      },
+      "rangePrecision": "约前4世纪中叶至前3世纪中叶；非现代学校的连续校史。"
     },
     "mengzi": {
       "title": "孟子游说与仁政论（约略范围）",
@@ -8695,19 +8715,23 @@
       "polity": "东周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期",
+      "kind": "约年定位点",
       "define": "孟子游说梁、齐等国，在战争与富国议题中主张仁政、重民与道德修养。选取游说活动的大致时段，不将《孟子》全书成书钉死在某年。",
       "dateLabel": "公元前320年—公元前300年",
       "time": {
-        "start": "-000319",
-        "end": "-000299"
+        "at": "-000319"
       },
-      "precision": "约前320—前300年为晚期游说活动定位；不表示确定生卒年。",
+      "precision": "图上以约前320年作定位点，取原年代窗口的较早端便于阅读，不表示全部活动确在该年发生或文本在该年完成。原年代说明：约前320—前300年为晚期游说活动定位；不表示确定生卒年。",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj074.html"
       ],
       "references": "[《史记·孟子荀卿列传》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj074.html)",
-      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)"
+      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000319",
+        "end": "-000299"
+      },
+      "rangePrecision": "约前320—前300年为晚期游说活动定位；不表示确定生卒年。"
     },
     "laozi-text": {
       "title": "《老子》文本形成（约略范围）",
@@ -8716,19 +8740,23 @@
       "polity": "东周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期",
+      "kind": "约年定位点",
       "define": "传世文本与出土抄本显示《老子》有复杂形成过程，涉及道、无为和政治秩序等问题。此条表示学说与文本逐渐汇集的约略时段，不为老子个人编造生卒年。",
       "dateLabel": "公元前450年—公元前250年",
       "time": {
-        "start": "-000449",
-        "end": "-000249"
+        "at": "-000449"
       },
-      "precision": "约前5世纪后半至前3世纪中叶；成书与作者问题有不同研究意见。",
+      "precision": "图上以约前450年作定位点，取原年代窗口的较早端便于阅读，不表示全部活动确在该年发生或文本在该年完成。原年代说明：约前5世纪后半至前3世纪中叶；成书与作者问题有不同研究意见。",
       "sources": [
         "https://plato.stanford.edu/archives/fall2024/entries/laozi/"
       ],
       "references": "[斯坦福哲学百科：《老子》的成书与出土文本](https://plato.stanford.edu/archives/fall2024/entries/laozi/)",
-      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)"
+      "notes": "[春秋到汉初导读](./notes/early-china.md) · [分期条目与史料](./notes/early-catalog.md) · [思想与文化](./notes/ideas.md) · [史料约定](./SOURCES.md)",
+      "historicalRange": {
+        "start": "-000449",
+        "end": "-000249"
+      },
+      "rangePrecision": "约前5世纪后半至前3世纪中叶；成书与作者问题有不同研究意见。"
     },
     "xunzi-lanling": {
       "title": "荀子任兰陵令（约年）",
@@ -10854,14 +10882,17 @@
       "polity": "西周",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "传世记载称武王保留武庚并派宗室监临殷地，显示征服后仍须借助原有组织。所谓三监的人员与分工有不同解释，不能把这段过渡视作已经完成的统一行政建制。",
       "dateLabel": "约公元前1046—前1043年",
       "time": {
+        "at": "-001045"
+      },
+      "historicalRange": {
         "start": "-001045",
         "end": "-001042"
       },
-      "precision": "采用通行纪年方案；公元前841年以前的绝对年代仍有争议，不补造月日。",
+      "precision": "图上以约前1046年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：采用通行纪年方案；公元前841年以前的绝对年代仍有争议，不补造月日。",
       "evidence": "后出传世记载",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html",
@@ -10877,14 +10908,17 @@
       "polity": "西周",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "武王死后、成王年幼，周公在政局中居于核心位置。摄政、还政的叙事包含后世对君臣关系的解释；本图以政治过渡为主题，不把传统七年逐年安排视作无争议年表。",
       "dateLabel": "约公元前1043—前1035年",
       "time": {
+        "at": "-001042"
+      },
+      "historicalRange": {
         "start": "-001042",
         "end": "-001034"
       },
-      "precision": "约前1043—前1035年为周初过渡窗口；武王卒年、摄政年数及换算存在分歧。",
+      "precision": "图上以约前1043年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前1043—前1035年为周初过渡窗口；武王卒年、摄政年数及换算存在分歧。",
       "evidence": "传世政治叙事",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj033.html",
@@ -10900,14 +10934,17 @@
       "polity": "西周",
       "topic": "战争与变局",
       "theme": "conflict",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "武庚及部分周宗室的反抗，与东方政治群体的行动交织。周公东征后，周人重新安排东方封国与人口；这是一系列战事和重组，不是一场即可概括的决战。",
       "dateLabel": "约公元前1042—前1040年",
       "time": {
+        "at": "-001041"
+      },
+      "historicalRange": {
         "start": "-001041",
         "end": "-001039"
       },
-      "precision": "采用通行纪年方案；公元前841年以前的绝对年代仍有争议，不补造月日。",
+      "precision": "图上以约前1042年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：采用通行纪年方案；公元前841年以前的绝对年代仍有争议，不补造月日。",
       "evidence": "多种文献叙事",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj033.html",
@@ -10924,14 +10961,17 @@
       "polity": "西周",
       "topic": "科技与工程",
       "theme": "technology",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "洛邑、成周的营建强化周人对东方的控制，并涉及殷遗民等人口的迁置。与关中中心并行的东方据点，使王室能够组织驻军、朝会和地区管理。",
       "dateLabel": "约公元前1040—前1020年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-001019"
       },
-      "precision": "约前11世纪后段的营建与使用窗口，不指定无争议的单一奠基年。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前11世纪后段的营建与使用窗口，不指定无争议的单一奠基年。",
       "evidence": "传世记载与何尊铭文",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html",
@@ -10947,14 +10987,17 @@
       "polity": "西周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "何尊铭文涉及成王居成周，并追述武王的政治愿景。铭文中的“中国”须放在当时的中心地域观念中理解，不能直接等同于现代国家边界或现代民族概念。",
       "dateLabel": "约公元前1040—前1020年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-001019"
       },
-      "precision": "据成王时期器物定位；成王五年的绝对公元换算有分歧，故显示时代窗口。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：据成王时期器物定位；成王五年的绝对公元换算有分歧，故显示时代窗口。",
       "evidence": "同时代青铜铭文",
       "sources": [
         "https://www.edb.gov.hk/attachment/tc/curriculum-development/kla/pshe/references-and-resources/chinese-history/ancient_artifacts/Chapter2.pdf"
@@ -10969,14 +11012,17 @@
       "polity": "西周",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "周初通过封授宗室、功臣及安排旧有群体来形成地区网络。分封并非一次会议完成，各地人与土地的组合也不同；封国具有自己的组织，并非后世郡县的同名替代物。",
       "dateLabel": "约公元前1046—前1000年",
       "time": {
+        "at": "-001045"
+      },
+      "historicalRange": {
         "start": "-001045",
         "end": "-000999"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1046年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "传世记载与封授铭文",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html",
@@ -10992,14 +11038,17 @@
       "polity": "齐国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "《齐太公世家》把吕尚受封与周初平定东方相联系。齐的建立、经营及其后发展是不同过程；本节点补足既有春秋齐国线的前史，不把后世强盛倒推为初封即有的实力。",
       "dateLabel": "约公元前1046—前1000年",
       "time": {
+        "at": "-001045"
+      },
+      "historicalRange": {
         "start": "-001045",
         "end": "-000999"
       },
-      "precision": "周初的约略定位；不虚构太公到国的确定公元年份。",
+      "precision": "图上以约前1046年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：周初的约略定位；不虚构太公到国的确定公元年份。",
       "evidence": "传世封国史",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj032.html"
@@ -11014,14 +11063,17 @@
       "polity": "鲁国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "周公留在王室政治中心，伯禽在鲁的活动成为鲁国起源叙事的核心。它说明王室与东方封国的分工，也为后来鲁国礼制、史官传统提供背景，不能把后世全部礼制都归于一次创制。",
       "dateLabel": "约公元前1040—前1000年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000999"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "传世封国史",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj033.html"
@@ -11036,14 +11088,17 @@
       "polity": "晋国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "《晋世家》将叔虞受封于唐、后继者改号晋相联系，提供晋国政治身份的起源叙事。剪桐封弟的故事不作为封授仪式实录；初封地与迁移过程也应同后来的晋国中心区别。",
       "dateLabel": "约公元前1040—前1000年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000999"
       },
-      "precision": "周初约略定位，不指定剪桐故事或改号晋的确切年份。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：周初约略定位，不指定剪桐故事或改号晋的确切年份。",
       "evidence": "传世封国史",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj039.html"
@@ -11058,14 +11113,17 @@
       "polity": "燕国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "琉璃河城址、墓葬及克罍、克盉等铭文，为燕国早期历史提供实物材料。墓葬中不同习俗并存，提示迁入群体与地方社会的复杂关系，不能把一类葬俗简单等同一种血缘身份。",
       "dateLabel": "约公元前1040—前900年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000899"
       },
-      "precision": "取西周早中期的讨论窗口，不代表琉璃河全部遗存起讫。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：取西周早中期的讨论窗口，不代表琉璃河全部遗存起讫。",
       "evidence": "城址、墓葬与封授铭文",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj034.html",
@@ -11081,14 +11139,17 @@
       "polity": "卫国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "《卫康叔世家》将康叔受封与周初平乱后的殷地治理联系起来。周人通过宗室封授重组被征服地区，同时面对原有居民和政治传统；卫的历史不只是一个封号的授予。",
       "dateLabel": "约公元前1040—前1000年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000999"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "传世封国史",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj037.html"
@@ -11103,14 +11164,17 @@
       "polity": "宋国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "周初秩序中，微子封宋的记载体现对商王室后裔及其祭祀的特殊安排。宋由此获得区别于姬姓诸侯的政治身份；这不表示商王朝继续作为原有政权统治宋地。",
       "dateLabel": "约公元前1040—前1000年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000999"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "传世封国史",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj038.html"
@@ -11125,14 +11189,17 @@
       "polity": "楚国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "《楚世家》以熊绎受封于成王时、居丹阳等叙事说明楚的早期地位。楚与周的联系及其南方发展需要分别观察；丹阳具体位置和封授细节有争议，不据此画定一片确切封疆。",
       "dateLabel": "约公元前1040—前1000年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000999"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "传世封国史",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj040.html"
@@ -11147,14 +11214,17 @@
       "polity": "西周",
       "topic": "交流与外交",
       "theme": "diplomacy",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "宜侯器铭文涉及迁封及土地、人口配置，为观察东方治理提供较具体的材料。铭文地名的定位有争议，因此保留东国网络这一层次，不将有争议地点钉死在现代地图上。",
       "dateLabel": "约公元前1040—前950年",
       "time": {
+        "at": "-001039"
+      },
+      "historicalRange": {
         "start": "-001039",
         "end": "-000949"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1040年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "青铜铭文与历史地理考证",
       "sources": [
         "https://www.chnmuseum.cn/yj/xscg/xslw/201812/t20181224_36687.shtml"
@@ -11192,14 +11262,17 @@
       "polity": "西周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "大盂鼎铭文以先王与殷商兴亡为训诫背景，记录周王对盂的命令和赏赐。它让政治记忆、人员支配与王臣关系落到具体材料上；铭文同时具有颂扬和告诫目的。",
       "dateLabel": "约公元前1020—前996年",
       "time": {
+        "at": "-001019"
+      },
+      "historicalRange": {
         "start": "-001019",
         "end": "-000995"
       },
-      "precision": "康王时期的约年窗口；器记二十三年，其绝对换算依王年方案而定。",
+      "precision": "图上以约前1020年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：康王时期的约年窗口；器记二十三年，其绝对换算依王年方案而定。",
       "evidence": "康王时期青铜铭文",
       "sources": [
         "https://www.chnmuseum.cn/portals/0/web/zt/202106dayuding/"
@@ -11214,14 +11287,17 @@
       "polity": "西周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "宗庙、祖先称谓及作器者谱系，显示家族关系参与权力和身份的传递。所谓宗法制应结合具体铭文和墓葬阅读，不能把后世礼书的整套等级规范原封不动套回所有西周地区。",
       "dateLabel": "约公元前1046—前771年",
       "time": {
+        "at": "-001045"
+      },
+      "historicalRange": {
         "start": "-001045",
         "end": "-000770"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1046年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "铭文与礼器组合",
       "sources": [
         "https://www.chnmuseum.cn/yj/xscg/xslw/201812/t20181224_36456.shtml",
@@ -11237,14 +11313,17 @@
       "polity": "西周",
       "topic": "经济与制度",
       "theme": "economy",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "赏赐田地、人员和职事使王臣获得资源，也承担义务。铭文可见具体分配行为，尚不足以证明各地都按同一种井字格耕作；农业组织与所有权问题须分开讨论。",
       "dateLabel": "约公元前1046—前771年",
       "time": {
+        "at": "-001045"
+      },
+      "historicalRange": {
         "start": "-001045",
         "end": "-000770"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1046年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "青铜铭文中的赏赐",
       "sources": [
         "https://www.chnmuseum.cn/portals/0/web/zt/202106dayuding/",
@@ -11260,14 +11339,17 @@
       "polity": "西周",
       "topic": "战争与变局",
       "theme": "conflict",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "昭王南征及其死亡是西周扩展中的重要挫折。传世叙述对细节并不一致；本图保留南方战争与王权损失的主题，不把沉舟方式、地点和责任解释当作定论。",
       "dateLabel": "约公元前1000—前950年",
       "time": {
+        "at": "-000999"
+      },
+      "historicalRange": {
         "start": "-000999",
         "end": "-000949"
       },
-      "precision": "约前10世纪前半叶的定位；未把有争议的南征年换算成确定单年。",
+      "precision": "图上以约前1000年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前10世纪前半叶的定位；未把有争议的南征年换算成确定单年。",
       "evidence": "文献记载及其分歧",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html",
@@ -11283,14 +11365,17 @@
       "polity": "西周",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "传世文献记述穆王巡行和对外行动，也留下关于王权、刑罚的政治论述。不同篇章有不同成书背景；神异旅行故事不能直接用于绘制穆王真实行程。",
       "dateLabel": "约公元前980—前920年",
       "time": {
+        "at": "-000979"
+      },
+      "historicalRange": {
         "start": "-000979",
         "end": "-000919"
       },
-      "precision": "约前10世纪的活动窗口，不是精确在位起讫；各家王年方案不同。",
+      "precision": "图上以约前980年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前10世纪的活动窗口，不是精确在位起讫；各家王年方案不同。",
       "evidence": "后出传世叙事",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html"
@@ -11305,14 +11390,17 @@
       "polity": "西周",
       "topic": "战争与变局",
       "theme": "conflict",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "南宫柳鼎等铭文保存与军队、牧人、场人有关的任职信息。它们使西周军制研究超出战役故事，但不同名号的组织规模和隶属关系仍需考证，不按后世军队编制直接换算。",
       "dateLabel": "约公元前1000—前850年",
       "time": {
+        "at": "-000999"
+      },
+      "historicalRange": {
         "start": "-000999",
         "end": "-000849"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前1000年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "军事相关青铜铭文",
       "sources": [
         "https://www.chnmuseum.cn/portals/0/web/zt/202109lhwf/home/"
@@ -11327,14 +11415,17 @@
       "polity": "西周",
       "topic": "经济与制度",
       "theme": "economy",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "颂器铭文所见入朝、宣读王命、受赐与作器等环节，显示任职既有行政内容，也有公开仪式。单器所记的程序是一个具体案例，不能自动视作几百年间从未改变的统一流程。",
       "dateLabel": "约公元前900—前771年",
       "time": {
+        "at": "-000899"
+      },
+      "historicalRange": {
         "start": "-000899",
         "end": "-000770"
       },
-      "precision": "约前9—前8世纪的晚西周定位；不是颂本人任职起讫。",
+      "precision": "图上以约前900年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前9—前8世纪的晚西周定位；不是颂本人任职起讫。",
       "evidence": "册命青铜铭文",
       "sources": [
         "https://www.chnmuseum.cn/yj/xscg/xslw/201812/t20181224_36456.shtml"
@@ -11349,14 +11440,17 @@
       "polity": "西周",
       "topic": "思想与文化",
       "theme": "ideas",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "青铜器形制、纹饰和成组使用方式在西周中晚期发生变化。礼制可从这些变化中研究；后世所谓天子、诸侯各用几鼎的规则，不能不经验证便用于判断每一座墓的身份。",
       "dateLabel": "约公元前950—前800年",
       "time": {
+        "at": "-000949"
+      },
+      "historicalRange": {
         "start": "-000949",
         "end": "-000799"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前950年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "青铜器类型与组合",
       "sources": [
         "https://www.chnmuseum.cn/portals/0/web/zt/202109lhwf/home/"
@@ -11371,14 +11465,17 @@
       "polity": "秦国",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "《秦本纪》将非子养马、受封与秦人早期发展联系起来。这为理解后来秦在西方的立足提供前史，但传世谱系和早期封地对应仍应审慎；不能把这时的秦与战国强秦等量齐观。",
       "dateLabel": "约公元前900—前850年",
       "time": {
+        "at": "-000899"
+      },
+      "historicalRange": {
         "start": "-000899",
         "end": "-000849"
       },
-      "precision": "约前9世纪的定位；不把常见的前897年当作无争议确年。",
+      "precision": "图上以约前900年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前9世纪的定位；不把常见的前897年当作无争议确年。",
       "evidence": "传世秦人起源记载",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj005.html"
@@ -11393,14 +11490,17 @@
       "polity": "西周",
       "topic": "政权与时期",
       "theme": "polity",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "传世记载把厉王时期的冲突与聚敛、压制批评联系起来。这些带有劝诫目的的叙述，可用于讨论王权与都城群体的紧张关系，不宜简化成只由一个人的性格造成。",
       "dateLabel": "约公元前860—前842年",
       "time": {
+        "at": "-000859"
+      },
+      "historicalRange": {
         "start": "-000859",
         "end": "-000841"
       },
-      "precision": "约前9世纪中叶至前842年的背景窗口，不作为厉王完整在位范围。",
+      "precision": "图上以约前860年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约前9世纪中叶至前842年的背景窗口，不作为厉王完整在位范围。",
       "evidence": "传世政治叙事",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html",
@@ -11484,14 +11584,17 @@
       "polity": "西周",
       "topic": "战争与变局",
       "theme": "conflict",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "虢季子白盘记录与玁狁交战及王的赏赐，连接战场、军功和贵族权力。铭文战果是作器者一方的记功叙述；本图不将数字当作经过独立统计的战争总损失。",
       "dateLabel": "约公元前827—前782年",
       "time": {
+        "at": "-000826"
+      },
+      "historicalRange": {
         "start": "-000826",
         "end": "-000781"
       },
-      "precision": "采用宣王时期的常见归属；器记十二年的具体王世对应有不同考证，不单立确切战役年。",
+      "precision": "图上以约前827年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：采用宣王时期的常见归属；器记十二年的具体王世对应有不同考证，不单立确切战役年。",
       "evidence": "战争与赏赐青铜铭文",
       "sources": [
         "https://www.chnmuseum.cn/zp/zpml/csp/202008/t20200826_247376.shtml"
@@ -11527,14 +11630,17 @@
       "polity": "郑国",
       "topic": "交流与外交",
       "theme": "diplomacy",
-      "kind": "时期或年代范围",
+      "kind": "约年定位点",
       "define": "郑桓公在王室任职，传世记载又谈到向东方安排人口与财产。此后郑国的发展与西周危机、平王政权的重建相交织；东迁是过程，不宜把筹划、迁民和建立新中心合并为同一天。",
       "dateLabel": "约公元前781—前771年",
       "time": {
+        "at": "-000780"
+      },
+      "historicalRange": {
         "start": "-000780",
         "end": "-000770"
       },
-      "precision": "约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
+      "precision": "图上以约前781年作定位点，取原年代窗口的较早端便于阅读，不表示此项活动确在该年发生或始创。原年代说明：约略时代窗口，用于定位本项活动；不表示活动恰在两端年份开始、结束，也不是人物生卒年。",
       "evidence": "传世与出土文献对读",
       "sources": [
         "https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj042.html",
@@ -21738,8 +21844,7 @@
         "timeline": {
           "kind": "rendezvous",
           "sourceAnchor": "start",
-          "targetAnchor": "start",
-          "sourceTime": "-000472"
+          "targetAnchor": "start"
         }
       }
     },
@@ -23362,8 +23467,7 @@
         "timeline": {
           "kind": "reference",
           "sourceAnchor": "start",
-          "targetAnchor": "start",
-          "sourceTime": "-000254"
+          "targetAnchor": "start"
         }
       }
     },

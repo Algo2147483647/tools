@@ -71,6 +71,17 @@ export const sources = {
   chronology: ["哥伦比亚大学：中国历史年表", "https://afe.easia.columbia.edu/timelines/china_timeline.htm"],
 };
 
+// Keep original spans in the details; these topics need only one visual marker.
+export const pointMarkers = new Set([
+  "confucius",
+  "yue-goujian",
+  "mohist-texts",
+  "wuqi-chu",
+  "jixia",
+  "mengzi",
+  "laozi-text",
+]);
+
 // id, title, polity, start BCE, end BCE, explanation, source keys.
 export const periods = [
   [
