@@ -104,6 +104,19 @@ export default function Workspace({
             aria-live="polite"
             onScroll={onScroll}
             onContextMenu={onBackgroundContextMenu}
+            onClick={(event) => {
+              if (
+                event.defaultPrevented ||
+                (event.target instanceof Element &&
+                  event.target.closest(".dag-node, .dag-group-controls, button, a, input, select, textarea"))
+              ) return;
+              const active = document.activeElement;
+              if (
+                (active instanceof HTMLElement || active instanceof SVGElement) &&
+                event.currentTarget.contains(active)
+              ) active.blur();
+              onFocusChange(null);
+            }}
           >
             {stage ? (
               <GraphStage

@@ -8,7 +8,7 @@ interface UseGraphPanInput {
 }
 
 export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: UseGraphPanInput): void {
-  const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
+  const panState = useRef({ active: false, moved: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -17,6 +17,7 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
     }
 
     function handleMouseDown(event: MouseEvent) {
+      panState.current.moved = false;
       if (
         event.button !== 0 ||
         (event.target instanceof Element && event.target.closest(".dag-node, .dag-group-controls"))
@@ -25,6 +26,7 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
       }
       panState.current = {
         active: true,
+        moved: false,
         startX: event.clientX,
         startY: event.clientY,
         scrollLeft: container!.scrollLeft,
@@ -41,6 +43,7 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
       event.preventDefault();
       const deltaX = event.clientX - panState.current.startX;
       const deltaY = event.clientY - panState.current.startY;
+      if (Math.hypot(deltaX, deltaY) > 3) panState.current.moved = true;
       container!.scrollLeft = panState.current.scrollLeft - deltaX;
       container!.scrollTop = panState.current.scrollTop - deltaY;
     }
@@ -54,13 +57,22 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
       onPanEnd?.();
     }
 
+    function suppressDragClick(event: MouseEvent) {
+      if (!panState.current.moved) return;
+      panState.current.moved = false;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     container.addEventListener("mousedown", handleMouseDown);
+    container.addEventListener("click", suppressDragClick, true);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", stopPan);
     window.addEventListener("blur", stopPan);
 
     return () => {
       container.removeEventListener("mousedown", handleMouseDown);
+      container.removeEventListener("click", suppressDragClick, true);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", stopPan);
       window.removeEventListener("blur", stopPan);

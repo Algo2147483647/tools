@@ -17,18 +17,21 @@ import {
   removedConnections,
   additionalConnections,
 } from "./data/china-history/expansion.mjs";
+import { modernRecords, modernConnections, modernSources, modernAsOf } from "./data/china-history/modern.mjs";
 
-const sources = { ...baseSources, ...additionalSources };
+const sources = { ...baseSources, ...additionalSources, ...modernSources };
 const assignments = Object.fromEntries(
   Object.entries(legacyPolities).flatMap(([polity, ids]) => ids.map((id) => [id, polity])),
 );
 const records = [
   ...baseRecords.map((record) => ({ ...record, ...amendments[record.id], polity: assignments[record.id] })),
   ...additionalRecords,
+  ...modernRecords,
 ];
 const connections = [
   ...baseConnections.filter(([a, b]) => !removedConnections.some(([x, y]) => x === a && y === b)),
   ...additionalConnections,
+  ...modernConnections,
 ];
 
 const directory = resolve(dirname(fileURLToPath(import.meta.url)), "../public/examples/china-history");
@@ -75,7 +78,7 @@ for (const record of records) {
   assert.ok(themes[record.theme], `Unknown theme: ${record.theme}`);
   assert.ok(record.refs.length > 0 && record.summary.length > 12, `${record.id}: missing context or citations`);
   const time = record.at ? { at: iso(record.at) } : { start: iso(record.start), end: iso(record.end) };
-  for (const value of Object.values(time)) assert.ok(stamp(value) <= stamp("1949-12-31"));
+  for (const value of Object.values(time)) assert.ok(stamp(value) <= stamp(modernAsOf), `${record.id}: future event`);
   if (!time.at) assert.ok(stamp(time.start) < stamp(time.end), `${record.id}: invalid interval`);
   nodes[record.id] = {
     title: record.title,
@@ -91,7 +94,7 @@ for (const record of records) {
     time,
     precision:
       record.precision ??
-      (typeof record.at === "string"
+      (Object.values(time).every((value) => value.length === 10)
         ? "公历日；不表示事件发生于午夜。"
         : "年；未补造具体月日。时期边界采用说明中标明的分期。"),
     sources: record.refs.map((key) => sources[key][1]),
@@ -185,7 +188,8 @@ json("china-history.json", {
   title: "中国历史：分流与交汇",
   metadata: {
     language: "zh-CN",
-    historicalScope: "公元前770年—1949年；专题选编",
+    historicalScope: `公元前770年—${modernAsOf}；专题选编`,
+    asOf: modernAsOf,
     timeline: { version: 1, timeZone: "UTC", view },
     description: "政权、文化、科技、制度、外交和战争共同构成一张时间关系图。类别只用颜色标识，不是固定轨道。",
     edgeSemantics: semantics,
