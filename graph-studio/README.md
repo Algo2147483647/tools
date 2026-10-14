@@ -58,7 +58,6 @@ The app starts on a welcome page. Open a graph file, open a folder as a workspac
 
 - **Mathematics:** 112 concepts, eight subject views, and linked English notes adapted from `math/studio`.
 - **Factorio production:** two demand-driven Space Age 2.0.65 Sankey plans: one complete launch-ready rocket per second, or all 12 science packs simultaneously at one of each per second. Both trace production back to raw resources.
-- **Energy flows:** a compact, balanced Sankey example with eight nodes and nine flows.
 - **Commerce operations:** nested groups and relationships across order fulfillment and returns.
 - **World space history:** one complete timeline with 298 sourced events and phases and 408 relationships, including Apollo 11's branching flights. Filter by theme, track or time range within the same graph.
 

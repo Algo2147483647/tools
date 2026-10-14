@@ -75,9 +75,9 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       const workspace = await discoverWorkspace(folder, previous);
       assert.deepEqual(
         workspace.graphs.map((g) => g.path),
-        ["rocket-1-per-second.json", "science-1-per-second.json"],
+        ["science-1-per-second.json", "rocket-1-per-second.json"],
       );
-      assert.equal(workspace.activePath, "rocket-1-per-second.json");
+      assert.equal(workspace.activePath, "science-1-per-second.json");
     }
     const rocket = await exampleGraph("factorio", "rocket-1-per-second.json");
     assert.deepEqual(rocket.metadata!.targetsPerSecond, { "item:launch-ready-rocket": 1 });
@@ -128,7 +128,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
   defineTest("Factorio rates balance every shared material and account for each recipe input and output", async () => {
     const close = (a: number, b: number, message: string) =>
       assert.ok(Math.abs(a - b) < 1e-8 * Math.max(1, Math.abs(a), Math.abs(b)), `${message}: ${a} != ${b}`);
-    for (const file of ["rocket-1-per-second.json", "science-1-per-second.json"]) {
+    for (const file of ["science-1-per-second.json", "rocket-1-per-second.json"]) {
       const dag = await exampleGraph("factorio", file);
       assert.ok(dag.edges.every((e) => typeof e.value === "number" && Number.isFinite(e.value) && e.value > 0));
       for (const [key, node] of Object.entries(dag.nodes)) {
@@ -178,7 +178,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     }
   }),
   defineTest("complete Factorio target chains render all branches and catalyst/coolant returns", async () => {
-    for (const file of ["rocket-1-per-second.json", "science-1-per-second.json"]) {
+    for (const file of ["science-1-per-second.json", "rocket-1-per-second.json"]) {
       const dag = await exampleGraph("factorio", file);
       const stage = buildStageData({ dag, selection: { type: "full" } })!;
       assert.equal(stage.nodes.length, Object.keys(dag.nodes).length);
@@ -209,31 +209,31 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     assert.ok(science.nodes["recipe:nutrients-from-bioflux"]);
   }),
   defineTest("example opens are independent copies and recent entries reopen without folder permission", async () => {
-    const first = await loadExampleWorkspace("energy", "/", localFetch);
-    const second = await loadExampleWorkspace("energy", "/", localFetch);
-    const a = await readGraphFile(first.files.get("energy.json")!);
-    const b = await readGraphFile(second.files.get("energy.json")!);
-    a.nodes.solar.title = "Edited";
-    assert.equal(b.nodes.solar.title, "Solar");
+    const first = await loadExampleWorkspace("factorio", "/", localFetch);
+    const second = await loadExampleWorkspace("factorio", "/", localFetch);
+    const a = await readGraphFile(first.files.get("science-1-per-second.json")!);
+    const b = await readGraphFile(second.files.get("science-1-per-second.json")!);
+    a.nodes["material:fluid:water"].title = "Edited";
+    assert.equal(b.nodes["material:fluid:water"].title, "Water");
     first.files.clear();
     assert.ok(second.files.size > 0);
     const recents = readRecentMetadata({
       getItem: () =>
         JSON.stringify([
           {
-            id: "example:energy",
+            id: "example:factorio",
             kind: "workspace",
-            name: "Energy flows",
-            location: "Energy flows",
+            name: "Factorio production",
+            location: "Factorio production",
             openedAt: 123,
-            exampleId: "energy",
-            lastGraph: "energy.json",
+            exampleId: "factorio",
+            lastGraph: "science-1-per-second.json",
           },
         ]),
       setItem: () => {},
     });
     assert.equal(recents[0].canReopen, true);
-    assert.equal(recents[0].exampleId, "energy");
+    assert.equal(recents[0].exampleId, "factorio");
   }),
   defineTest("unknown or unavailable examples fail cleanly and respect the deployment base", async () => {
     await assert.rejects(loadExampleWorkspace("../escape", "/", localFetch), /Unknown/);
@@ -242,11 +242,11 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       requested = url;
       return new Response("Unavailable", { status: 503 });
     }) as typeof fetch;
-    await assert.rejects(loadExampleWorkspace("energy", "/graph-studio/", unavailable), /Could not load/);
-    assert.equal(requested, "/graph-studio/examples/energy/graph-studio.workspace.json");
+    await assert.rejects(loadExampleWorkspace("factorio", "/graph-studio/", unavailable), /Could not load/);
+    assert.equal(requested, "/graph-studio/examples/factorio/graph-studio.workspace.json");
   }),
   defineTest("unsafe paths and missing graphs reject opening; unavailable notes fail only when opened", async () => {
-    const manifest = JSON.parse(await readFile("public/examples/energy/graph-studio.workspace.json", "utf8"));
+    const manifest = JSON.parse(await readFile("public/examples/factorio/graph-studio.workspace.json", "utf8"));
     for (const asset of [
       "../outside.md",
       "/outside.md",
@@ -260,23 +260,23 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
         requests++;
         return new Response(JSON.stringify(invalid));
       }) as typeof fetch;
-      await assert.rejects(loadExampleWorkspace("energy", "/", fetcher));
+      await assert.rejects(loadExampleWorkspace("factorio", "/", fetcher));
       assert.equal(requests, 1, "Reject before requesting any file outside the manifest");
     }
     const missing = (async (url: string) =>
       url.endsWith("README.md") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
-    const folder = await loadExampleWorkspace("energy", "/", missing);
-    assert.equal((await discoverWorkspace(folder)).activePath, "energy.json");
-    await assert.rejects(readWorkspaceFile(folder.files.get("README.md")!), /Energy flows\/README.md/);
+    const folder = await loadExampleWorkspace("factorio", "/", missing);
+    assert.equal((await discoverWorkspace(folder)).activePath, "science-1-per-second.json");
+    await assert.rejects(readWorkspaceFile(folder.files.get("README.md")!), /Factorio production\/README.md/);
     const fallback = (async (url: string) =>
       url.endsWith("README.md")
         ? new Response("<!doctype html>", { headers: { "Content-Type": "text/html" } })
         : localFetch(url)) as typeof fetch;
-    const fallbackFolder = await loadExampleWorkspace("energy", "/", fallback);
-    await assert.rejects(readWorkspaceFile(fallbackFolder.files.get("README.md")!), /Energy flows\/README.md/);
+    const fallbackFolder = await loadExampleWorkspace("factorio", "/", fallback);
+    await assert.rejects(readWorkspaceFile(fallbackFolder.files.get("README.md")!), /Factorio production\/README.md/);
     const missingGraph = (async (url: string) =>
-      url.endsWith("energy.json") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
-    await assert.rejects(loadExampleWorkspace("energy", "/", missingGraph), /Energy flows\/energy.json/);
+      url.endsWith("science-1-per-second.json") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
+    await assert.rejects(loadExampleWorkspace("factorio", "/", missingGraph), /Factorio production\/science-1-per-second.json/);
   }),
   defineTest("large examples open without downloading notes and share only immutable cached files", async () => {
     const requested: string[] = [];
@@ -306,18 +306,18 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     const fetcher = (async (url: string) => {
       if (url.endsWith("README.md") && failNote) return new Response("Missing", { status: 404 });
       const response = await localFetch(url);
-      if (!url.endsWith("energy.json")) return response;
+      if (!url.endsWith("science-1-per-second.json")) return response;
       const graph = await response.json();
       return new Response(JSON.stringify({ ...graph, title: revision }));
     }) as typeof fetch;
-    const first = await loadExampleWorkspace("energy", "/", fetcher);
+    const first = await loadExampleWorkspace("factorio", "/", fetcher);
     await assert.rejects(readWorkspaceFile(first.files.get("README.md")!));
     failNote = false;
     assert.ok((await readWorkspaceFile(first.files.get("README.md")!)).size > 0);
     revision = "Second";
-    const refreshed = await loadExampleWorkspace("energy", "/", fetcher, { reload: true });
-    assert.equal((await readGraphFile(first.files.get("energy.json")!)).title, "First");
-    assert.equal((await readGraphFile(refreshed.files.get("energy.json")!)).title, "Second");
+    const refreshed = await loadExampleWorkspace("factorio", "/", fetcher, { reload: true });
+    assert.equal((await readGraphFile(first.files.get("science-1-per-second.json")!)).title, "First");
+    assert.equal((await readGraphFile(refreshed.files.get("science-1-per-second.json")!)).title, "Second");
   }),
   defineTest("stalled example requests time out, abort and can be retried", async () => {
     let stalled = true;
@@ -327,11 +327,11 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       if (stalled) return new Promise<Response>(() => {});
       return localFetch(url);
     }) as typeof fetch;
-    await assert.rejects(loadExampleWorkspace("energy", "/", fetcher, { timeoutMs: 10 }), /timed out/);
+    await assert.rejects(loadExampleWorkspace("factorio", "/", fetcher, { timeoutMs: 10 }), /timed out/);
     assert.equal((signal as AbortSignal | null)?.aborted, true);
     stalled = false;
-    const folder = await loadExampleWorkspace("energy", "/", fetcher);
-    assert.equal((await discoverWorkspace(folder)).activePath, "energy.json");
+    const folder = await loadExampleWorkspace("factorio", "/", fetcher);
+    assert.equal((await discoverWorkspace(folder)).activePath, "science-1-per-second.json");
   }),
   defineTest("switching from a Sankey example to mathematics restores a layered layout", async () => {
     const dag = await exampleGraph("mathematics", "mathematics.json");

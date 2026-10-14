@@ -7,7 +7,6 @@ Below Recent workspaces, the homepage includes five separate English workspaces.
 | Commerce operations | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes |
 | Mathematics         | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography          |
 | Factorio production | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes |
-| Energy flows        | 8 nodes, 9 flows; GWh values with conserved intermediate flows                                                                          |
 | World space history | One timeline containing all 298 events and completed phases and 408 relationships, with eight themes and Apollo 11's vehicle branches |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
@@ -53,7 +52,7 @@ npm run check
 
 Edit the subject modules, curriculum and references in `scripts/data/mathematics/`, then regenerate with `scripts/build-mathematics.mjs`. No neighboring repository or external content download is required. The builder validates IDs, dependencies, acyclicity, bibliography fields, local links and KaTeX expressions before writing. It refuses to silently delete unrecognized files. `npm run examples:mathematics:check` verifies byte-for-byte reproducibility without writing; this check is included in `npm run check`.
 
-Factorio and energy are maintained as checked-in workspace files. Their loader, serialization, balance and layout checks run with `npm test`. Changing Factorio versions requires revisiting the documented production assumptions and these tests.
+Factorio examples are maintained as checked-in workspace files. Their loader, serialization, balance and layout checks run with `npm test`. Changing Factorio versions requires revisiting the documented production assumptions and these tests.
 
 The generated files are ordinary, directly editable workspace folders:
 
@@ -77,12 +76,8 @@ public/examples/
       ...
   factorio/
     graph-studio.workspace.json
-    rocket-1-per-second.json
     science-1-per-second.json
-    README.md
-  energy/
-    graph-studio.workspace.json
-    energy.json
+    rocket-1-per-second.json
     README.md
 ```
 

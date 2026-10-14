@@ -3,10 +3,10 @@
   "version": 1,
   "name": "Factorio production",
   "graphs": [
-    "rocket-1-per-second.json",
-    "science-1-per-second.json"
+    "science-1-per-second.json",
+    "rocket-1-per-second.json"
   ],
-  "defaultGraph": "rocket-1-per-second.json",
+  "defaultGraph": "science-1-per-second.json",
   "metadata": {
     "version": "2.0.65",
     "quantityBasis": "Per-second target-driven material balances",

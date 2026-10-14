@@ -336,7 +336,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     try {
       const result = await Promise.race([
         rememberLocation(
-          { kind: "workspace", name: "Energy", location: "Energy", exampleId: "energy", lastGraph: "energy.json" },
+          { kind: "workspace", name: "Energy", location: "Energy", exampleId: "factorio", lastGraph: "science-1-per-second.json" },
           [known],
         ),
         new Promise<never>((_, reject) => {
@@ -344,10 +344,10 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
         }),
       ]);
       assert.equal(databaseCalls, 0);
-      assert.equal(result.id, "example:energy");
+      assert.equal(result.id, "example:factorio");
       assert.equal(result.items[0].canReopen, true);
       assert.equal(result.items[1].handle, handle);
-      assert.equal(JSON.parse(metadata)[0].lastGraph, "energy.json");
+      assert.equal(JSON.parse(metadata)[0].lastGraph, "science-1-per-second.json");
     } finally {
       clearTimeout(deadline);
       for (const [key, descriptor] of [

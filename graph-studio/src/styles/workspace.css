@@ -632,10 +632,13 @@
   border-bottom: 1px solid #e4eaf2;
 }
 .example-card--factorio .example-art {
-  background: #f6f3ed;
+  background: #f0f5f3;
 }
-.example-card--energy .example-art {
-  background: #eff6f3;
+.example-card--china-history .example-art {
+  background: #f8f3eb;
+}
+.example-card--space-history .example-art {
+  background: #eef1f8;
 }
 .example-card-body {
   display: flex;
