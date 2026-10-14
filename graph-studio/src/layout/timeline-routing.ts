@@ -167,3 +167,29 @@ class RouteQueue {
     return first;
   }
 }
+
+export function roundedTimelinePath(points: { x: number; y: number }[]): string {
+  points = points.filter(
+    (point, index) => !index || point.x !== points[index - 1].x || point.y !== points[index - 1].y,
+  );
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let index = 1; index < points.length - 1; index++) {
+    const previous = points[index - 1],
+      point = points[index],
+      next = points[index + 1];
+    const before = Math.hypot(point.x - previous.x, point.y - previous.y);
+    const after = Math.hypot(next.x - point.x, next.y - point.y);
+    if (!before || !after) {
+      path += ` L ${point.x} ${point.y}`;
+      continue;
+    }
+    const radius = Math.min(12, before / 2, after / 2);
+    const ax = point.x + ((previous.x - point.x) * radius) / before,
+      ay = point.y + ((previous.y - point.y) * radius) / before;
+    const bx = point.x + ((next.x - point.x) * radius) / after,
+      by = point.y + ((next.y - point.y) * radius) / after;
+    path += ` L ${ax} ${ay} Q ${point.x} ${point.y} ${bx} ${by}`;
+  }
+  const last = points[points.length - 1];
+  return `${path} L ${last.x} ${last.y}`;
+}

@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import type { StageNode } from "../layout/types";
+import { roundedTimelinePath } from "../layout/timeline-routing";
 
 interface TimelineNodeProps {
   layer?: "marker" | "label" | "all";
@@ -30,6 +31,14 @@ export default function TimelineNode({
   const barHeight = Math.max(2, endY - startY);
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
   const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
+  const labelEdgeX = labelX >= node.x ? labelX - 7 : labelX + node.width + 7;
+  const elbowX = node.x + (labelEdgeX - node.x) / 2;
+  const leader = roundedTimelinePath([
+    { x: node.x, y: anchorY },
+    { x: elbowX, y: anchorY },
+    { x: elbowX, y: labelY - 3 },
+    { x: labelEdgeX, y: labelY - 3 },
+  ]);
   function preview(element: SVGGElement, delta?: number) {
     element.ownerSVGElement?.querySelectorAll<SVGGElement>(".timeline-node").forEach((part) => {
       if (part.dataset.key !== node.key) return;
@@ -130,74 +139,77 @@ export default function TimelineNode({
           .filter(Boolean)
           .join("\n")}
       </title>
-      {layer !== "label" && <><path
-        className="timeline-node__leader"
-        d={`M${node.x},${anchorY} H${labelX - 4}`}
-      />
-      <rect
-        className="timeline-node__hit"
-        x={node.x - 12}
-        y={startY - 10}
-        width={24}
-        height={range ? barHeight + 20 : 24}
-        rx={8}
-      />
-      {range ? (
+      {layer !== "label" && (
+        <>
+          <path className="timeline-node__leader" d={leader} />
+          <rect
+            className="timeline-node__hit"
+            x={node.x - 12}
+            y={startY - 10}
+            width={24}
+            height={range ? barHeight + 20 : 24}
+            rx={8}
+          />
+          {range ? (
+            <>
+              <rect
+                className="timeline-node__duration"
+                x={node.x - 6}
+                y={startY}
+                width={12}
+                height={barHeight}
+                rx={Math.min(6, barHeight / 2)}
+              />
+              {time.clippedStart ? (
+                <path
+                  className="timeline-node__open"
+                  d={`M${node.x - 6},${startY + 6} L${node.x},${startY} L${node.x + 6},${startY + 6}`}
+                />
+              ) : (
+                <circle className="timeline-node__point" cx={node.x} cy={startY} r={4} />
+              )}
+              {time.ongoing || time.clippedEnd ? (
+                <path
+                  className="timeline-node__open"
+                  d={`M${node.x - 6},${endY - 6} L${node.x},${endY} L${node.x + 6},${endY - 6}`}
+                />
+              ) : (
+                <line className="timeline-node__cap" x1={node.x - 7} x2={node.x + 7} y1={endY} y2={endY} />
+              )}
+            </>
+          ) : time.status === "dated" ? (
+            <circle className="timeline-node__point" cx={node.x} cy={startY} r={6} />
+          ) : (
+            <path className="timeline-node__unknown" d={`M${node.x},${startY - 7} l7,7 -7,7 -7,-7 z`} />
+          )}
+          {time.ports?.map((port) => (
+            <circle key={port.time} className="timeline-node__point" cx={node.x} cy={port.y} r={4} aria-hidden="true" />
+          ))}
+        </>
+      )}
+      {layer !== "marker" && (
         <>
           <rect
-            className="timeline-node__duration"
-            x={node.x - 6}
-            y={startY}
-            width={12}
-            height={barHeight}
-            rx={Math.min(6, barHeight / 2)}
+            className="timeline-node__label-bg"
+            x={labelX - 6}
+            y={labelY - 16}
+            width={node.width + 12}
+            height={node.detailLines.length ? 55 : 40}
+            rx={7}
           />
-          {time.clippedStart ? (
-            <path
-              className="timeline-node__open"
-              d={`M${node.x - 6},${startY + 6} L${node.x},${startY} L${node.x + 6},${startY + 6}`}
-            />
-          ) : (
-            <circle className="timeline-node__point" cx={node.x} cy={startY} r={4} />
-          )}
-          {time.ongoing || time.clippedEnd ? (
-            <path
-              className="timeline-node__open"
-              d={`M${node.x - 6},${endY - 6} L${node.x},${endY} L${node.x + 6},${endY - 6}`}
-            />
-          ) : (
-            <line className="timeline-node__cap" x1={node.x - 7} x2={node.x + 7} y1={endY} y2={endY} />
+          <text className="timeline-node__title" x={labelX} y={labelY}>
+            {node.displayTitle}
+          </text>
+          <text className="timeline-node__date" x={labelX} y={labelY + 17}>
+            {dateLabel}
+          </text>
+          {node.detailLines.length > 0 && (
+            <text className="timeline-node__detail" x={labelX} y={labelY + 32}>
+              {node.detailLines[0]}
+            </text>
           )}
         </>
-      ) : time.status === "dated" ? (
-        <circle className="timeline-node__point" cx={node.x} cy={startY} r={6} />
-      ) : (
-        <path className="timeline-node__unknown" d={`M${node.x},${startY - 7} l7,7 -7,7 -7,-7 z`} />
       )}
-      {time.ports?.map((port) => (
-        <circle key={port.time} className="timeline-node__point" cx={node.x} cy={port.y} r={4} aria-hidden="true" />
-      ))}
-      </>}
-      {layer !== "marker" && <><rect
-        className="timeline-node__label-bg"
-        x={labelX - 6}
-        y={labelY - 16}
-        width={node.width + 12}
-        height={node.detailLines.length ? 55 : 40}
-        rx={7}
-      />
-      <text className="timeline-node__title" x={labelX} y={labelY}>
-        {node.displayTitle}
-      </text>
-      <text className="timeline-node__date" x={labelX} y={labelY + 17}>
-        {dateLabel}
-      </text>
-      {node.detailLines.length > 0 && (
-        <text className="timeline-node__detail" x={labelX} y={labelY + 32}>
-          {node.detailLines[0]}
-        </text>
-      )}
-      </>}
     </g>
   );
 }

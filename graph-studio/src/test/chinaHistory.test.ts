@@ -17,19 +17,19 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 278);
-    assert.equal(dag.edges.length, 352);
+    assert.equal(Object.keys(dag.nodes).length, 339);
+    assert.equal(dag.edges.length, 436);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
-    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 61);
+    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 65);
     assert.equal(graph.nodes["bi-sheng"].type, "北宋");
     assert.equal(graph.nodes["bi-sheng"].theme, "technology");
     assert.equal(graph.nodes["feishui"].type, "东晋");
     assert.deepEqual(graph.nodes["feishui"].participants, ["东晋", "前秦"]);
     assert.equal(graph.nodes["qing"].time.start, "1636");
     assert.equal(graph.nodes["huang-chao"].time.at, "0881");
-    assert.equal(manifest.metadata.polityCount, 61);
+    assert.equal(manifest.metadata.polityCount, 65);
     for (const id of [
       "cao-wei",
       "shu-han",
@@ -73,10 +73,13 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 278);
-    assert.equal(stage.edges.length, 352);
+    assert.equal(stage.nodes.length, 339);
+    assert.equal(stage.edges.length, 436);
     assert.equal(stage.warnings.length, 0);
-    assert.ok(stage.nodes.every((node) => node.timeline!.labelY === node.y + 3), "labels preserve time rows");
+    assert.ok(
+      stage.nodes.every((node) => node.y === timelineTimeToY(stage.timeline!.axisMap!, node.timeline!.start!)),
+      "markers preserve time rows independently of text",
+    );
     assert.ok(stage.edges.every((edge) => !/NaN|Infinity/.test(edge.path)));
     assert.ok(stage.nodes.every((node) => node.timeline!.status === "dated"));
     for (const target of ["eastern-wei", "western-wei"]) {
@@ -107,10 +110,10 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 278);
+    assert.equal(workspace.graphs[0].nodeCount, 339);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^278/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^339/);
   }),
   defineTest("modern history includes sourced political and social events through the declared cutoff", async () => {
     const graph = await read("china-history.json");

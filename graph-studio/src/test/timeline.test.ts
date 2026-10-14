@@ -9,7 +9,7 @@ import {
   validateTimelineTime,
 } from "../graph/timeline";
 import type { GraphSelection } from "../graph/types";
-import { buildTimelineStage } from "../layout/timeline-layout";
+import { buildTimelineStage, routeTimelineEdge } from "../layout/timeline-layout";
 import { defineSuite, defineTest } from "./harness";
 
 const now = Date.parse("2026-10-14T00:00:00Z");
@@ -61,6 +61,27 @@ const stageFor = (doc: unknown, selection: GraphSelection = { type: "full" }) =>
   buildTimelineStage({ dag: normalizeDagInput(doc), selection, now })!;
 
 export const timelineSuite = defineSuite("Timeline time semantics and layout", [
+  defineTest("routing ignores label geometry and uses orthogonal segments", () => {
+    const dag = normalizeDagInput(document());
+    for (const layout of ["flow", "tracks"] as const) {
+      const stage = buildTimelineStage({ dag, selection: { type: "full" }, timelineSettings: { layout }, now })!;
+      const route = () =>
+        dag.edges.map((edge, index) =>
+          routeTimelineEdge(edge, index, stage.nodeMap, stage.timeline!.tracks, stage.timeline!.axisMap),
+        );
+      const before = route();
+      for (const node of stage.nodes) {
+        node.timeline!.labelX -= 500;
+        node.timeline!.labelY += 500;
+        node.width += 1000;
+      }
+      assert.deepEqual(route(), before);
+      for (const edge of before) {
+        const points = edge.points!;
+        assert.ok(points.slice(1).every((p, i) => p.x === points[i].x || p.y === points[i].y));
+      }
+    }
+  }),
   defineTest("calendar dates and explicit offsets parse without local-time ambiguity", () => {
     assert.deepEqual(parseTimelineDate("2000-02-29"), {
       timestamp: Date.parse("2000-02-29T00:00:00Z"),
@@ -269,7 +290,6 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
         .filter((node) => node.timeline!.track === track.id)
         .map((node) => ({ x: node.timeline!.labelX, y: node.timeline!.labelY, width: node.width, timeY: node.y }));
       for (const [index, a] of labels.entries()) {
-        assert.equal(a.y, a.timeY + 3);
         for (const b of labels.slice(index + 1))
           assert.ok(Math.abs(a.y - b.y) >= 40 || a.x + a.width + 12 <= b.x || b.x + b.width + 12 <= a.x);
       }
@@ -344,7 +364,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
       if (time?.at === "broken") assert.match(stage.warnings[0], /valid/);
     }
   }),
-  defineTest("simultaneous programs expand horizontally and keep their labels on one time row", () => {
+  defineTest("simultaneous programs keep exact anchors while labels share width and adapt vertically", () => {
     const nodes = Object.fromEntries(
       Array.from({ length: 100 }, (_, index) => [
         `program-${index}`,
@@ -353,10 +373,11 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     );
     const stage = stageFor({ format: "graph-studio", version: 3, nodes, edges: [] });
     assert.equal(new Set(stage.nodes.map((node) => node.x)).size, 100);
-    assert.equal(new Set(stage.nodes.map((node) => node.timeline!.labelY)).size, 1);
-    const labels = stage.nodes.slice().sort((a, b) => a.timeline!.labelX - b.timeline!.labelX);
+    assert.equal(new Set(stage.nodes.map((node) => node.timeline!.labelX)).size, 1);
+    const labels = stage.nodes.slice().sort((a, b) => a.timeline!.labelY - b.timeline!.labelY);
     for (let i = 1; i < labels.length; i++)
-      assert.ok(labels[i].timeline!.labelX > labels[i - 1].timeline!.labelX + labels[i - 1].width);
+      assert.ok(labels[i].timeline!.labelY >= labels[i - 1].timeline!.labelY + 40);
+    assert.ok(stage.stageWidth < 6000, "duration channels do not each reserve a text column");
     assert.ok(stage.stageHeight < 11_000);
     assert.equal(new Set(stage.nodes.map((node) => node.y)).size, 1);
   }),
@@ -374,7 +395,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
       appearance: { ...DEFAULT_GRAPH_APPEARANCE, layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, maxNodeWidth: 400 } },
     })!;
     assert.equal(stage.nodeMap.a.timeline!.end, Date.parse("2025-01-01T00:00:00Z"));
-    assert.equal(stage.nodeMap.a.width, 400);
+    assert.ok(stage.nodeMap.a.width > 0 && stage.nodeMap.a.width <= 400);
     assert.equal(stage.timeline!.timeZone, "UTC");
   }),
   defineTest("time windows include boundary events and intersecting intervals without fabricating edges", () => {

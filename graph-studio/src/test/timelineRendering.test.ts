@@ -5,10 +5,41 @@ import { normalizeDagInput } from "../graph/normalize";
 import { buildTimelineStage } from "../layout/timeline-layout";
 import TimelineNode from "../rendering/TimelineNode";
 import GraphEdge from "../rendering/GraphEdge";
+import GraphStage from "../rendering/GraphStage";
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getVisibleTimeTicks } from "../rendering/TimelineBackdrop";
 import { defineSuite, defineTest } from "./harness";
 
 export const timelineRenderingSuite = defineSuite("Timeline rendering", [
+  defineTest("labels render above markers and edges with translucent backgrounds and one accessible control", () => {
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { a: { title: "Event", time: { at: "2001" } } },
+      edges: [],
+    });
+    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const noop = () => {};
+    const html = renderToStaticMarkup(
+      createElement(GraphStage, {
+        stage,
+        focusedKey: null,
+        hideNodeBorders: false,
+        appearance: DEFAULT_GRAPH_APPEARANCE,
+        svgRef: { current: null },
+        onNodeClick: noop,
+        onNodeDoubleClick: noop,
+        onNodeContextMenu: noop,
+        onBackgroundContextMenu: noop,
+        onFocusChange: noop,
+      }),
+    );
+    assert.ok(html.indexOf('class="timeline-label-layer"') > html.indexOf('class="dag-node-layer"'));
+    assert.ok(html.indexOf('class="dag-node-layer"') > html.indexOf('class="dag-edge-layer"'));
+    assert.equal((html.match(/role="button"/g) || []).length, 1);
+    assert.equal((html.match(/class="timeline-node__title"/g) || []).length, 1);
+    assert.match(html, /fill-opacity: .65/);
+  }),
   defineTest("details are hidden by default and can be enabled", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",

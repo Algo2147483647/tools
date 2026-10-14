@@ -1,7 +1,11 @@
 import { getTimelineRelation } from "../graph/timeline";
 import type { GraphEdge } from "../graph/types";
 import type { StageNode } from "./types";
-import { findFreeTimelineLabelX } from "./timeline-labels";
+import {
+  findFreeTimelineLabelPosition,
+  timelineLabelBox as labelBox,
+  timelineMarkerBox as markerBox,
+} from "./timeline-labels";
 
 type Box = { left: number; right: number; top: number; bottom: number };
 type Neighbour = { key: string; offset: number; weight: number };
@@ -19,7 +23,7 @@ export function arrangeTimelineFlow(input: {
   if (!nodes.length) return { width: minimumX, bottom: 0 };
   const sorted = nodes.slice().sort((a, b) => a.y - b.y || compareKeys(a.key, b.key));
   const byKey = new Map(sorted.map((node) => [node.key, node]));
-  const slot = Math.max(...nodes.map((node) => node.width)) + gap;
+  const slot = 80 + gap;
   const center = minimumX + slot * 0.5;
   const neighbours = new Map<string, Neighbour[]>(nodes.map((node) => [node.key, []]));
   const branches = new Map<string, GraphEdge[]>();
@@ -67,11 +71,7 @@ export function arrangeTimelineFlow(input: {
       node.x = isPinned(node) ? pin : closestFreeX(node, desired, minimumX, placed, gap);
       node.timeline!.labelX = node.x + 22;
       node.timeline!.labelY = node.y + 3;
-      if (isPinned(node)) {
-        // Pins fix markers; labels can move horizontally, never off their time row.
-        node.timeline!.labelX = findFreeTimelineLabelX(node, [...placed, markerBox(node)], minimumX);
-      }
-      placed.push(markerBox(node), labelBox(node));
+      placed.push(markerBox(node));
     }
   }
   if (!nodes.some(isPinned)) {
@@ -80,6 +80,14 @@ export function arrangeTimelineFlow(input: {
       node.x -= shift;
       node.timeline!.labelX -= shift;
     });
+  }
+  // Text is packed after marker placement, so neither its size nor its position moves a time anchor.
+  const occupied = nodes.map(markerBox);
+  for (const node of sorted) {
+    const position = findFreeTimelineLabelPosition(node, occupied, minimumX);
+    node.timeline!.labelX = position.x;
+    node.timeline!.labelY = position.y;
+    occupied.push(labelBox(node));
   }
   // Stable order values describe horizontal order, not category membership.
   nodes
@@ -95,34 +103,8 @@ export function arrangeTimelineFlow(input: {
   };
 }
 
-function markerBox(node: StageNode): Box {
-  return { left: node.x - 10, right: node.x + 10, top: node.y - 10, bottom: node.timeline!.endY + 10 };
-}
-function labelBox(node: StageNode): Box {
-  const time = node.timeline!;
-  return {
-    left: time.labelX - 6,
-    right: time.labelX + node.width + 6,
-    top: time.labelY - 16,
-    bottom: time.labelY + (node.detailLines.length ? 39 : 24),
-  };
-}
-function closestFreeX(
-  node: StageNode,
-  desired: number,
-  minimum: number,
-  occupied: Box[],
-  clearance: number,
-): number {
-  const footprints = [
-    { left: -10, right: 10, top: node.y - 10, bottom: node.timeline!.endY + 10 },
-    {
-      left: 16,
-      right: node.width + 28,
-      top: node.y - 13,
-      bottom: node.y + (node.detailLines.length ? 42 : 27),
-    },
-  ];
+function closestFreeX(node: StageNode, desired: number, minimum: number, occupied: Box[], clearance: number): number {
+  const footprints = [{ left: -10, right: 10, top: node.y - 10, bottom: node.timeline!.endY + 10 }];
   const forbidden: [number, number][] = [];
   for (const footprint of footprints) {
     for (const box of occupied) {

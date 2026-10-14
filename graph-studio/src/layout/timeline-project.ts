@@ -2,7 +2,7 @@ import type { StageData } from "./types";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import { timelineTimeToY } from "./timeline-axis";
 import { routeTimelineEdge } from "./timeline-layout";
-import { findFreeTimelineLabelX } from "./timeline-labels";
+import { findFreeTimelineLabelPosition, timelineLabelBox as labelBox, timelineMarkerBox } from "./timeline-labels";
 
 /** Hide categories without changing the positions, clock or routes of surviving events. */
 export function projectTimelineStage(
@@ -92,15 +92,8 @@ export function projectTimelineStage(
  * Keep their markers and all unaffected labels fixed; relocate only clipped labels.
  */
 function placeClippedLabels(nodes: StageData["nodes"]) {
-  type Box = { left: number; right: number; top: number; bottom: number };
-  const labelBox = (node: StageData["nodes"][number]): Box => ({
-    left: node.timeline!.labelX - 6,
-    right: node.timeline!.labelX + node.width + 6,
-    top: node.timeline!.labelY - 16,
-    bottom: node.timeline!.labelY + (node.detailLines.length ? 39 : 24),
-  });
-  const occupied: Box[] = nodes.flatMap((node) => [
-    { left: node.x - 10, right: node.x + 10, top: node.y - 10, bottom: node.timeline!.endY + 10 },
+  const occupied = nodes.flatMap((node) => [
+    timelineMarkerBox(node),
     ...(!node.timeline!.clippedStart ? [labelBox(node)] : []),
   ]);
   const clipped = nodes
@@ -108,7 +101,9 @@ function placeClippedLabels(nodes: StageData["nodes"]) {
     .sort((a, b) => a.x - b.x || a.key.localeCompare(b.key));
   for (const node of clipped) {
     const time = node.timeline!;
-    time.labelX = findFreeTimelineLabelX(node, occupied);
+    const position = findFreeTimelineLabelPosition(node, occupied);
+    time.labelX = position.x;
+    time.labelY = position.y;
     occupied.push(labelBox(node));
   }
 }

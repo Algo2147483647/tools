@@ -326,19 +326,23 @@ export default function GraphStage({
             />
           ))}
       </g>
-      {stage.timeline && <g className="timeline-label-layer">
-        {stage.nodes.map((node) => <TimelineNode
-          key={node.key}
-          layer="label"
-          node={node}
-          isActive={node.key === stage.root}
-          onPin={onTimelineNodePin}
-          onClick={onNodeClick}
-          onDoubleClick={onNodeDoubleClick}
-          onContextMenu={onNodeContextMenu}
-          onFocusChange={onFocusChange}
-        />)}
-      </g>}
+      {stage.timeline && (
+        <g className="timeline-label-layer">
+          {stage.nodes.map((node) => (
+            <TimelineNode
+              key={node.key}
+              layer="label"
+              node={node}
+              isActive={node.key === stage.root}
+              onPin={onTimelineNodePin}
+              onClick={onNodeClick}
+              onDoubleClick={onNodeDoubleClick}
+              onContextMenu={onNodeContextMenu}
+              onFocusChange={onFocusChange}
+            />
+          ))}
+        </g>
+      )}
       {stage.timeline && <TimelineRuler stage={stage} svgRef={svgRef} />}
     </svg>
   );

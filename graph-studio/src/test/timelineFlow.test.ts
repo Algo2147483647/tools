@@ -89,7 +89,6 @@ export const timelineFlowSuite = defineSuite("Timeline relation flow", [
     const stage = stageFor({ format: "graph-studio", version: 3, nodes, edges: [] });
     for (const [index, first] of stage.nodes.entries()) {
       assert.equal(first.y, timelineTimeToY(stage.timeline!.axisMap!, first.timeline!.start!));
-      assert.equal(first.timeline!.labelY, first.y + 3, "labels stay on their event's time row");
       for (const second of stage.nodes.slice(index + 1)) {
         assert.equal(overlaps(label(first), label(second)), false, `${first.key}/${second.key}: labels`);
         assert.equal(overlaps(marker(first), marker(second)), false, `${first.key}/${second.key}: markers`);
@@ -97,6 +96,10 @@ export const timelineFlowSuite = defineSuite("Timeline relation flow", [
         assert.equal(overlaps(marker(first), label(second)), false, `${first.key}/${second.key}: bar/label`);
       }
     }
+    assert.ok(
+      stage.nodes.some((node) => Math.abs(node.timeline!.labelY - node.y - 3) > 1),
+      "text can adapt independently",
+    );
   }),
   defineTest("types and tracks never constrain relation flow positions", () => {
     const original = example();

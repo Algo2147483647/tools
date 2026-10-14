@@ -5,7 +5,7 @@ import { collectDescendantKeys } from "../graph/traversal";
 import type { GraphEdge, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { StageAppearance } from "./appearance";
 import { resolveStageSelection } from "./selection";
-import { estimateTextWidth, getNodeVisual, truncateTitleToWidth, wrapDetailText } from "./text";
+import { estimateTextWidth, getNodeVisual, wrapDetailText } from "./text";
 import type { StageData, StageEdge, StageNode, StageRoutePoint, StageTimelineData } from "./types";
 import {
   getDocumentTimelineSettings,
@@ -15,7 +15,8 @@ import {
 import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, type TimelineAxisMap } from "./timeline-axis";
 import { getTimelineAxisTicks } from "./timeline-ticks";
 import { arrangeTimelineFlow } from "./timeline-flow";
-import { routeAroundTimelineObstacles } from "./timeline-routing";
+import { routeAroundTimelineObstacles, roundedTimelinePath } from "./timeline-routing";
+import { packTimelineTrackLabels, timelineLabelBox } from "./timeline-labels";
 
 const DAY = 86_400_000;
 const MARKER_CLEARANCE = 16;
@@ -234,7 +235,7 @@ export function buildTimelineStage(input: {
       // Do not create empty channels just because a preferred branch channel has a high index.
       lane = Math.min(lane, occupiedUntil.length);
       event.lane = lane;
-      occupiedUntil[lane] = Math.max(event.endY + MARKER_CLEARANCE, event.startY + labelStep);
+      occupiedUntil[lane] = event.endY + MARKER_CLEARANCE;
       assigned.add(event.key);
     }
     channelCounts.set(track, Math.max(1, occupiedUntil.length));
@@ -245,18 +246,29 @@ export function buildTimelineStage(input: {
   let trackX = Math.max(axisX + 54, theme.stagePaddingX + 120);
   let lastLabelBottom = axisMap ? axisMap.originY + axisMap.height : top;
   const topLevel = new Set(selection.topLevelKeys);
+  const labelColumns = new Map<string, number>();
   for (const track of tracks) {
-    const channelStep = labelWidth + 44 + settings.nodeGap;
+    const channelStep = 20 + settings.nodeGap;
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
-    const width = channelsWidth + labelWidth + 44;
     const color = trackColor(track);
-    stageTracks.push({ id: track, label: track, x: trackX, width, color });
-    const events = dated.filter((entry) => entry.track === track).sort(compareEntries);
+    const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
+    const labelX = trackX + channelsWidth + 32;
+    labelColumns.set(track, labelX);
     for (const event of events) {
       const labelY = event.startY + 3;
       const x = trackX + event.lane * channelStep + 10;
-      lastLabelBottom = Math.max(lastLabelBottom, labelY + labelStep);
-      nodeMap[event.key] = createNode(event, x, x + 22, labelY, color);
+      nodeMap[event.key] = createNode(event, x, labelX, labelY, color);
+    }
+    const trackNodes = events.map((entry) => nodeMap[entry.key]);
+    const width = Math.max(
+      channelsWidth + Math.max(...trackNodes.map((node) => node.width)) + 44,
+      estimateTextWidth(track, 12) + 20,
+    );
+    stageTracks.push({ id: track, label: track, x: trackX, width, color });
+    if (!flow) {
+      const datedNodes = trackNodes.filter((node) => node.timeline!.status === "dated");
+      packTimelineTrackLabels(datedNodes, top + 3);
+      for (const node of datedNodes) lastLabelBottom = Math.max(lastLabelBottom, timelineLabelBox(node).bottom);
     }
     trackX += width + TRACK_GAP;
   }
@@ -284,7 +296,7 @@ export function buildTimelineStage(input: {
           nodeMap[event.key] = createNode(
             event,
             track.x + 10,
-            track.x + 32,
+            labelColumns.get(track.id)!,
             event.startY + 3,
             track.color,
           );
@@ -376,10 +388,9 @@ export function buildTimelineStage(input: {
   function createNode(entry: TimelineEntry, x: number, labelX: number, labelY: number, color: string): StageNode {
     const visual = getNodeVisual(entry.key, dag.nodes[entry.key], theme.minNodeWidth, labelWidth, showNodeDetail);
     const time = entry.time;
-    const contentWidth =
-      flow && !showNodeDetail
-        ? Math.min(labelWidth, Math.max(110, estimateTextWidth(visual.title, 13) + 16, time.label.length * 6.1 + 12))
-        : labelWidth;
+    const contentWidth = !showNodeDetail
+      ? Math.min(labelWidth, Math.max(110, estimateTextWidth(visual.title, 13) + 16, time.label.length * 6.1 + 12))
+      : labelWidth;
     let displayTitle = visual.title;
     while (displayTitle.length > 1 && estimateTextWidth(displayTitle, 13) > contentWidth - 6)
       displayTitle = displayTitle.slice(0, -1);
@@ -390,7 +401,7 @@ export function buildTimelineStage(input: {
       layer: tracks.indexOf(entry.track),
       order: entry.lane,
       title: visual.title,
-      displayTitle: flow ? displayTitle : truncateTitleToWidth(visual.title, labelWidth + 58),
+      displayTitle,
       detail: visual.detail,
       detailLines: showNodeDetail && visual.detail ? wrapDetailText(visual.detail, labelWidth, 1) : [],
       typeLabel: getNodeType(dag.nodes[entry.key]) || undefined,
@@ -500,7 +511,7 @@ function routeEdge(
     }),
     Math.max(180, (leftTrack?.x ?? Math.min(source.x, target.x)) - channel),
   );
-  const path = roundedRoute(points);
+  const path = roundedTimelinePath(points);
   const middle = points[Math.floor(points.length / 2)];
   return {
     id: edge.id,
@@ -520,12 +531,7 @@ function routeEdge(
 type RoutePoint = { x: number; y: number };
 type RouteObstacle = { left: number; right: number; top: number; bottom: number };
 
-function timelineRoute(
-  from: RoutePoint,
-  to: RoutePoint,
-  obstacles: RouteObstacle[],
-  corridorX: number,
-): RoutePoint[] {
+function timelineRoute(from: RoutePoint, to: RoutePoint, obstacles: RouteObstacle[], corridorX: number): RoutePoint[] {
   if (from.x === to.x && from.y === to.y) return [from, to];
   const minY = Math.min(from.y, to.y),
     maxY = Math.max(from.y, to.y);
@@ -593,32 +599,6 @@ function segmentHitsObstacle(a: RoutePoint, b: RoutePoint, obstacle: RouteObstac
     }
   }
   return true;
-}
-
-function roundedRoute(points: { x: number; y: number }[]): string {
-  points = points.filter(
-    (point, index) => !index || point.x !== points[index - 1].x || point.y !== points[index - 1].y,
-  );
-  let path = `M ${points[0].x} ${points[0].y}`;
-  for (let index = 1; index < points.length - 1; index++) {
-    const previous = points[index - 1],
-      point = points[index],
-      next = points[index + 1];
-    const before = Math.hypot(point.x - previous.x, point.y - previous.y);
-    const after = Math.hypot(next.x - point.x, next.y - point.y);
-    if (!before || !after) {
-      path += ` L ${point.x} ${point.y}`;
-      continue;
-    }
-    const radius = Math.min(12, before / 2, after / 2);
-    const ax = point.x + ((previous.x - point.x) * radius) / before,
-      ay = point.y + ((previous.y - point.y) * radius) / before;
-    const bx = point.x + ((next.x - point.x) * radius) / after,
-      by = point.y + ((next.y - point.y) * radius) / after;
-    path += ` L ${ax} ${ay} Q ${point.x} ${point.y} ${bx} ${by}`;
-  }
-  const last = points[points.length - 1];
-  return `${path} L ${last.x} ${last.y}`;
 }
 
 function compareKeys(a: string, b: string): number {

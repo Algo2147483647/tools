@@ -81,12 +81,14 @@ The JSON schema documents valid event-time data. Opening a document remains tole
 
 In **Settings → Layout**, choose the arrangement independently of the time axis:
 
-- **Tracks**: named columns with compact subchannels for overlaps.
+- **Tracks**: named columns with compact subchannels for overlapping markers and durations. Labels share a text column and move vertically to avoid collisions; duration bars do not reserve a full text column each.
 - **Relation flow**: free horizontal branches and joins. Categories do not attract nodes or own columns. A crossing is not a merge: only a shared graph node creates a join. Real edge directions and IDs are retained, including backward relationships.
 - **Fixed interval**: equal elapsed durations have equal distances. Set a positive integer interval with seconds, minutes, hours, days, weeks, months or years, or select Auto. Calendar months and years follow UTC boundaries; zoom may omit labels at whole multiples of the configured base interval.
 - **Adaptive**: expand dense event dates and duration endpoints, compress sparse periods, and smooth local scale changes. All branches use the same strictly increasing, reversible mapping. Duration bars alone do not add density throughout their lifetimes. Screen lengths are not proportional to real durations. The live ruler, grid and SVG export use the same mapping.
 
 Ordinary filters retain node positions and the axis. Time range clipping preserves stored dates. **Fit visible events** rebuilds from visible events; **Show all events** restores the full layout. **Lock time axis** retains its mapping across content edits; newly exposed dates extend its existing end segments. Layout/axis choices are browser preferences; document `metadata.timeline.view` supplies initial defaults, e.g. `{ "layout": "flow", "axis": "adaptive", "compactness": 0.5 }`. Pins are local view state and do not carry into other documents. Existing documents default to Tracks and a linear axis; legacy draft `cluster` settings migrate to Relation flow.
+
+In both layouts, simultaneous event markers and duration endpoints stay on the exact same time coordinate. Text is positioned independently and may move above or below its event, with rounded orthogonal leaders connecting it to the anchor. Labels sit above relationship lines with translucent backgrounds; relationship routing ignores labels.
 
 ## Relationships inside a period
 
@@ -94,4 +96,4 @@ An edge can set `metadata.timeline.sourceTime` or `targetTime` to a supported IS
 
 ## Chinese history example
 
-Open **中国历史：分流与交汇** in the example gallery. Its 278 events and periods and 352 named relationships span 770 BCE–2026 CE, with source links, 61 polity categories, six topic guides, and explicit joins. The modern selection includes political campaigns, human rights, economic reform, public health, science, and diplomacy; disputed findings retain source attribution. Sources were checked through October 14, 2026. It defaults to Relation flow with an adaptive axis. Edit `scripts/data/china-history/catalog.mjs`, `expansion.mjs`, and `modern.mjs`, then run `npm run examples:china-history`; use `npm run examples:china-history:check` to verify reproducibility.
+Open **中国历史：分流与交汇** in the example gallery. Its 339 events and periods and 436 named relationships span 770 BCE–2026 CE, with source links, 65 polity categories, six topic guides, and explicit joins. The modern selection includes political campaigns, human rights, economic reform, public health, science, and diplomacy; disputed findings retain source attribution. Sources were checked through October 14, 2026. It defaults to Relation flow with an adaptive axis. The example documents and source notes are in `public/examples/china-history/`.
