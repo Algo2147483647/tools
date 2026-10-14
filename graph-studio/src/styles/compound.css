@@ -104,7 +104,7 @@
   color: var(--studio-muted);
 }
 .dag-group-background {
-  fill: var(--dag-group-fill, #fafbfd);
+  fill: var(--dag-group-fill, #fffdf5);
   fill-opacity: 1;
   stroke: var(--dag-node-border, #b0bdce);
   stroke-width: 1.3;

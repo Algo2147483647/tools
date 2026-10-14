@@ -14,13 +14,13 @@ const DENSE_STAGE_NODE_THRESHOLD = 220;
 const DENSE_STAGE_EDGE_THRESHOLD = 440;
 const DENSE_STAGE_AREA_THRESHOLD = 20_000_000;
 
-// Muted surface ramps inspired by Radix's background/component color steps.
+// Clear, near-white pastels without gray-blue or purple undertones.
 // Cap the ramp so deeply nested containers never become visually dominant.
 const GROUP_BACKGROUND_PALETTES = [
-  ["#fafbfd", "#f6f8fb", "#f1f5f9", "#edf2f7"], // Mist blue
-  ["#fafbfa", "#f6f8f6", "#f1f6f2", "#edf2ef"], // Sage
-  ["#fcfbf9", "#f9f7f3", "#f6f2ed", "#f2efe8"], // Warm sand
-  ["#fbfafc", "#f8f6fa", "#f4f1f7", "#f1edf4"], // Dusty lavender
+  ["#fffdf5", "#fffbea", "#fff7df", "#fff4d5"], // Cream yellow
+  ["#f5fdf9", "#edfdf5", "#e5fbf0", "#dcf8e9"], // Fresh mint
+  ["#fff9f5", "#fff3eb", "#ffede1", "#ffe7d8"], // Light apricot
+  ["#f5fcff", "#edf9ff", "#e4f6ff", "#daf2ff"], // Clear sky blue
 ] as const;
 
 function groupBackgroundFill(familyIndex: number, depth: number): string {
