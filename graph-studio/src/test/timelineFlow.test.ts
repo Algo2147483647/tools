@@ -54,6 +54,124 @@ function overlaps(a: ReturnType<typeof label>, b: ReturnType<typeof label>) {
 }
 
 export const timelineFlowSuite = defineSuite("Timeline relation flow", [
+  defineTest("a continuous chain stays aligned around duration obstacles and late manual pins", () => {
+    const document = {
+      format: "graph-studio",
+      version: 3,
+      nodes: {
+        a: { time: { at: "2000" } },
+        b: { time: { at: "2010" } },
+        c: { time: { at: "2020" } },
+        obstacle: { time: { start: "2005", end: "2015" } },
+      },
+      edges: [
+        ["a", "b"],
+        ["b", "c"],
+      ].map(([source, target]) => ({
+        id: source + target,
+        source,
+        target,
+        metadata: { timeline: { kind: "sequence" } },
+      })),
+    };
+    for (const layout of ["flow", "tracks"] as const)
+      for (const axis of ["linear", "adaptive"] as const) {
+        const stage = stageFor(document, { layout, axis });
+        assert.equal(stage.nodeMap.a.x, stage.nodeMap.b.x);
+        assert.equal(stage.nodeMap.b.x, stage.nodeMap.c.x);
+        assert.notEqual(stage.nodeMap.obstacle.x, stage.nodeMap.b.x);
+      }
+    const pinned = stageFor(document, { pins: { c: 600 } });
+    for (const key of ["a", "b", "c"]) assert.equal(pinned.nodeMap[key].x, 600);
+    assert.equal(overlaps(marker(pinned.nodeMap.b), marker(pinned.nodeMap.obstacle)), false);
+    const separatePins = stageFor(document, { pins: { a: 500, c: 900 } });
+    assert.equal(separatePins.nodeMap.a.x, 500);
+    assert.equal(separatePins.nodeMap.c.x, 900);
+  }),
+  defineTest("nonconcurrent meetings beside a period reuse a channel instead of fanning out", () => {
+    for (const kind of ["rendezvous", "reference", "part-of"]) {
+      const document = {
+        format: "graph-studio",
+        version: 3,
+        nodes: {
+          period: { time: { start: "1900", end: "2000" } },
+          a: { time: { at: "1910" } },
+          b: { time: { at: "1930" } },
+          c: { time: { at: "1950" } },
+          d: { time: { at: "1970" } },
+        },
+        edges: ["a", "b", "c", "d"].map((target) => ({
+          id: target,
+          source: "period",
+          target,
+          metadata: { timeline: { kind } },
+        })),
+      };
+      for (const layout of ["flow", "tracks"] as const) {
+        const stage = stageFor(document, { layout });
+        assert.equal(new Set(["a", "b", "c", "d"].map((key) => stage.nodeMap[key].x)).size, 1);
+        assert.notEqual(stage.nodeMap.a.x, stage.nodeMap.period.x);
+      }
+    }
+  }),
+  defineTest("interleaved branches reserve their lifetime, merge into the trunk and release their channel", () => {
+    const nodes = Object.fromEntries(
+      ["a", "b", "c", "d", "e", "f", "g", "h"].map((key, index) => [key, { time: { at: String(2000 + index * 10) } }]),
+    );
+    const edges = [
+      ["a", "b"],
+      ["a", "c"],
+      ["b", "d"],
+      ["c", "e"],
+      ["d", "f"],
+      ["e", "f"],
+      ["f", "g"],
+      ["f", "h"],
+    ].map(([source, target]) => ({
+      id: source + target,
+      source,
+      target,
+      metadata: { timeline: { kind: "sequence" } },
+    }));
+    // The second split is simultaneous; it must separate without moving either timestamp.
+    nodes.h.time.at = nodes.g.time.at;
+    for (const layout of ["flow", "tracks"] as const)
+      for (const spread of [0.5, 1, 3]) {
+        const stage = stageFor(
+          { format: "graph-studio", version: 3, nodes, edges },
+          { layout, horizontalSpread: spread },
+        );
+        for (const key of ["b", "d", "f", "g"]) assert.equal(stage.nodeMap[key].x, stage.nodeMap.a.x);
+        assert.equal(stage.nodeMap.c.x, stage.nodeMap.e.x);
+        assert.notEqual(stage.nodeMap.c.x, stage.nodeMap.a.x);
+        assert.equal(stage.nodeMap.h.x, stage.nodeMap.c.x, "ended branch channel is reused");
+        assert.equal(stage.nodeMap.h.y, stage.nodeMap.g.y);
+      }
+  }),
+  defineTest("titles and detail visibility never move timeline markers", () => {
+    const document = example();
+    const baseline = stageFor(document);
+    const dag = normalizeDagInput({
+      ...document,
+      nodes: Object.fromEntries(
+        Object.entries(document.nodes).map(([key, node]) => [
+          key,
+          { ...node, title: "A much longer event title for independent text layout", define: "Detail ".repeat(30) },
+        ]),
+      ),
+    });
+    const expanded = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      showNodeDetail: true,
+      timelineSettings: { layout: "flow" },
+      timelineAxis: baseline.timeline!.axisMap,
+    })!;
+    assert.deepEqual(
+      baseline.nodes.map((node) => [node.key, node.x, node.y]),
+      expanded.nodes.map((node) => [node.key, node.x, node.y]),
+    );
+  }),
   defineTest("cross-category branches converge at one node and keep simultaneous anchors aligned", () => {
     const stage = stageFor(example());
     assert.equal(stage.timeline!.layout, "flow");

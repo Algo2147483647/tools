@@ -15,11 +15,11 @@ import {
 import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, type TimelineAxisMap } from "./timeline-axis";
 import { getTimelineAxisTicks } from "./timeline-ticks";
 import { arrangeTimelineFlow } from "./timeline-flow";
+import { assignTimelineChannels } from "./timeline-channels";
 import { routeAroundTimelineObstacles, roundedTimelinePath } from "./timeline-routing";
 import { packTimelineTrackLabels, timelineLabelBox } from "./timeline-labels";
 
 const DAY = 86_400_000;
-const MARKER_CLEARANCE = 16;
 const TRACK_GAP = 44;
 
 interface TimelineEntry {
@@ -200,45 +200,19 @@ export function buildTimelineStage(input: {
       entry.endY = yAt(Math.min(entry.time.end, rangeEnd ?? Infinity));
     }
   });
-  const entryMap = new Map(entries.map((entry) => [entry.key, entry]));
-  const incoming = new Map<string, GraphEdge[]>();
-  const outgoing = new Map<string, GraphEdge[]>();
-  sourceEdges.forEach((edge) => {
-    if (["reference", "part-of"].includes(getTimelineRelation(edge.metadata).kind)) return;
-    incoming.set(edge.target, [...(incoming.get(edge.target) || []), edge]);
-    outgoing.set(edge.source, [...(outgoing.get(edge.source) || []), edge]);
-  });
-  outgoing.forEach((edges) => edges.sort((a, b) => compareEntries(entryMap.get(a.target)!, entryMap.get(b.target)!)));
   const channelCounts = new Map<string, number>();
-  for (const track of tracks) {
-    const events = dated.filter((entry) => entry.track === track).sort(compareEntries);
-    const occupiedUntil: number[] = [];
-    const assigned = new Set<string>();
-    for (const event of events) {
-      const parents = (incoming.get(event.key) || [])
-        .map((edge) => entryMap.get(edge.source)!)
-        .filter((parent) => parent.track === track && assigned.has(parent.key))
-        .sort((a, b) => b.startY - a.startY || compareKeys(a.key, b.key));
-      // At a merge, return to the earliest established channel rather than following the latest branch.
-      const parent =
-        parents.length > 1 ? parents.slice().sort((a, b) => a.lane - b.lane || b.startY - a.startY)[0] : parents[0];
-      const primaryChild = parent ? outgoing.get(parent.key)?.[0]?.target === event.key : true;
-      const preferred = parent ? parent.lane + (primaryChild ? 0 : 1) : 0;
-      const available = occupiedUntil
-        .map((until, index) => ({ until, index }))
-        .filter(({ until }) => until <= event.startY)
-        .sort((a, b) => Math.abs(a.index - preferred) - Math.abs(b.index - preferred) || a.index - b.index);
-      let lane =
-        occupiedUntil[preferred] === undefined || occupiedUntil[preferred] <= event.startY
-          ? preferred
-          : (available[0]?.index ?? occupiedUntil.length);
-      // Do not create empty channels just because a preferred branch channel has a high index.
-      lane = Math.min(lane, occupiedUntil.length);
-      event.lane = lane;
-      occupiedUntil[lane] = event.endY + MARKER_CLEARANCE;
-      assigned.add(event.key);
+  if (!flow) {
+    for (const track of tracks) {
+      const events = dated.filter((entry) => entry.track === track);
+      const positions = assignTimelineChannels({
+        events: events.map((entry) => ({ key: entry.key, start: entry.startY, end: entry.endY })),
+        edges: sourceEdges,
+        minimum: 0,
+        step: 1,
+      });
+      for (const event of events) event.lane = positions.get(event.key)!;
+      channelCounts.set(track, Math.max(0, ...positions.values()) + 1);
     }
-    channelCounts.set(track, Math.max(1, occupiedUntil.length));
   }
   const nodeMap: Record<NodeKey, StageNode> = Object.create(null);
   const stageTracks: StageTimelineData["tracks"] = [];
