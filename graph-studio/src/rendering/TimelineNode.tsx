@@ -2,6 +2,7 @@ import { useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as Reac
 import type { StageNode } from "../layout/types";
 
 interface TimelineNodeProps {
+  layer?: "marker" | "label" | "all";
   node: StageNode;
   isActive: boolean;
   onPin?: (key: string, x: number) => void;
@@ -12,6 +13,7 @@ interface TimelineNodeProps {
 }
 
 export default function TimelineNode({
+  layer = "all",
   node,
   isActive,
   onPin,
@@ -28,6 +30,13 @@ export default function TimelineNode({
   const barHeight = Math.max(2, endY - startY);
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
   const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
+  function preview(element: SVGGElement, delta?: number) {
+    element.ownerSVGElement?.querySelectorAll<SVGGElement>(".timeline-node").forEach((part) => {
+      if (part.dataset.key !== node.key) return;
+      if (delta === undefined) part.removeAttribute("transform");
+      else part.setAttribute("transform", `translate(${delta},0)`);
+    });
+  }
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (onPin && event.altKey && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
       event.preventDefault();
@@ -54,6 +63,7 @@ export default function TimelineNode({
     <g
       className="dag-node timeline-node"
       data-key={node.key}
+      data-timeline-layer={layer}
       data-type={node.typeLabel || ""}
       data-selected={isActive ? "true" : "false"}
       data-focused="false"
@@ -65,8 +75,9 @@ export default function TimelineNode({
       data-clipped-start={time.clippedStart || undefined}
       data-clipped-end={time.clippedEnd || undefined}
       style={{ "--dag-timeline-color": time.color } as CSSProperties}
-      tabIndex={0}
-      role="button"
+      tabIndex={layer === "marker" ? -1 : 0}
+      role={layer === "marker" ? undefined : "button"}
+      aria-hidden={layer === "marker" || undefined}
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}. Select event; press Enter or double-click for details.`}
       onPointerDown={(event) => {
         if (!onPin || event.button !== 0) return;
@@ -81,13 +92,13 @@ export default function TimelineNode({
         if (Math.abs(event.clientX - drag.current.clientX) > 4) dragged.current = true;
         if (dragged.current) {
           event.preventDefault();
-          event.currentTarget.setAttribute("transform", `translate(${drag.current.delta},0)`);
+          preview(event.currentTarget, drag.current.delta);
         }
       }}
       onPointerUp={(event) => {
         const delta = drag.current?.delta ?? 0;
         drag.current = null;
-        event.currentTarget.removeAttribute("transform");
+        preview(event.currentTarget);
         if (event.currentTarget.hasPointerCapture(event.pointerId))
           event.currentTarget.releasePointerCapture(event.pointerId);
         if (dragged.current) onPin?.(node.key, node.x + delta);
@@ -95,7 +106,7 @@ export default function TimelineNode({
       onPointerCancel={(event) => {
         drag.current = null;
         dragged.current = false;
-        event.currentTarget.removeAttribute("transform");
+        preview(event.currentTarget);
       }}
       onClick={() => {
         if (!dragged.current) onClick(node.key);
@@ -119,9 +130,9 @@ export default function TimelineNode({
           .filter(Boolean)
           .join("\n")}
       </title>
-      <path
+      {layer !== "label" && <><path
         className="timeline-node__leader"
-        d={`M${node.x},${anchorY} L${labelX - 12},${labelY - 4} L${labelX - 4},${labelY - 4}`}
+        d={`M${node.x},${anchorY} H${labelX - 4}`}
       />
       <rect
         className="timeline-node__hit"
@@ -166,7 +177,8 @@ export default function TimelineNode({
       {time.ports?.map((port) => (
         <circle key={port.time} className="timeline-node__point" cx={node.x} cy={port.y} r={4} aria-hidden="true" />
       ))}
-      <rect
+      </>}
+      {layer !== "marker" && <><rect
         className="timeline-node__label-bg"
         x={labelX - 6}
         y={labelY - 16}
@@ -185,6 +197,7 @@ export default function TimelineNode({
           {node.detailLines[0]}
         </text>
       )}
+      </>}
     </g>
   );
 }

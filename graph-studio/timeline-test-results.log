@@ -1,4 +1,4 @@
-(node:26516) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+(node:9352) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
 --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
 (Use `node --trace-warnings ...` to show where the warning was created)
 
@@ -18,7 +18,7 @@ Compound hierarchy, projection and layout
   PASS ordinary node-link ignores H and keeps disconnected cyclic components
   PASS compound and ordinary chart switching preserves the same document
   PASS merging documents preserves and remaps incoming hierarchy
-(node:26516) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(node:9352) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
   PASS ELK routes cross-boundary and reverse edges for expanded, folded and focused views
   PASS hierarchy import conflicts require explicit parent choices and remap renamed groups
@@ -232,7 +232,7 @@ Timeline time semantics and layout
   PASS track order starts with earliest dated history, with stable ties and undated tracks last
   PASS full, forest and focused selections include disconnected cycles correctly
   PASS invalid-only, single-event and zero-length ranges have finite visible geometry
-  PASS long overlapping programs use compact channels instead of label-width columns
+  PASS simultaneous programs expand horizontally and keep their labels on one time row
   PASS snapshot date controls ongoing events and sizing respects appearance
   PASS time windows include boundary events and intersecting intervals without fabricating edges
   PASS one-sided windows preserve explicit limits and clip ongoing events

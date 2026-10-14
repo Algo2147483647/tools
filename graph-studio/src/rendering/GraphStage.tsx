@@ -7,6 +7,7 @@ import GraphEdge from "./GraphEdge";
 import GraphNode from "./GraphNode";
 import { GroupHeader, GroupControls } from "./GraphGroup";
 import TimelineBackdrop, { TimelineRuler } from "./TimelineBackdrop";
+import TimelineNode from "./TimelineNode";
 
 const EMPTY_CONNECTED_KEYS = new Set<string>();
 const DENSE_STAGE_NODE_THRESHOLD = 220;
@@ -47,11 +48,11 @@ export default function GraphStage({
   const hoveredKeyRef = useRef<string | null>(null);
   const focusedKeyRef = useRef<string | null>(focusedKey);
   const appliedInteractiveKeyRef = useRef<string | null>(null);
-  const nodeElementsByKeyRef = useRef(new Map<string, SVGGElement>());
+  const nodeElementsByKeyRef = useRef(new Map<string, SVGGElement[]>());
   const edgeElementsByNodeKeyRef = useRef(new Map<string, SVGGElement[]>());
   const connectedNodeElementsRef = useRef(new Set<SVGGElement>());
   const activeEdgeElementsRef = useRef(new Set<SVGGElement>());
-  const currentNodeElementRef = useRef<SVGGElement | null>(null);
+  const currentNodeElementRef = useRef<SVGGElement[]>([]);
   const isDenseStage =
     stage.nodes.length >= DENSE_STAGE_NODE_THRESHOLD ||
     stage.edges.length >= DENSE_STAGE_EDGE_THRESHOLD ||
@@ -66,11 +67,11 @@ export default function GraphStage({
 
     svgElement.dataset.hasInteractiveNode = "false";
 
-    if (currentNodeElementRef.current) {
-      currentNodeElementRef.current.dataset.hovered = "false";
-      currentNodeElementRef.current.dataset.focused = "false";
-      currentNodeElementRef.current = null;
-    }
+    currentNodeElementRef.current.forEach((element) => {
+      element.dataset.hovered = "false";
+      element.dataset.focused = "false";
+    });
+    currentNodeElementRef.current = [];
 
     connectedNodeElementsRef.current.forEach((nodeElement) => {
       nodeElement.dataset.connected = "false";
@@ -94,10 +95,10 @@ export default function GraphStage({
       if (previousKey === nextKey) {
         if (nextKey) {
           const currentNodeElement = nodeElementsByKeyRef.current.get(nextKey);
-          if (currentNodeElement) {
-            currentNodeElement.dataset.hovered = hoveredKeyRef.current === nextKey ? "true" : "false";
-            currentNodeElement.dataset.focused = focusedKeyRef.current === nextKey ? "true" : "false";
-          }
+          currentNodeElement?.forEach((element) => {
+            element.dataset.hovered = hoveredKeyRef.current === nextKey ? "true" : "false";
+            element.dataset.focused = focusedKeyRef.current === nextKey ? "true" : "false";
+          });
         }
         return;
       }
@@ -125,13 +126,17 @@ export default function GraphStage({
         svgElement.dataset.hasInteractiveNode = "true";
       }
 
-      if (currentNodeElementRef.current && currentNodeElementRef.current !== nextNodeElement) {
-        currentNodeElementRef.current.dataset.hovered = "false";
-        currentNodeElementRef.current.dataset.focused = "false";
+      if (currentNodeElementRef.current !== nextNodeElement) {
+        currentNodeElementRef.current.forEach((element) => {
+          element.dataset.hovered = "false";
+          element.dataset.focused = "false";
+        });
       }
 
-      nextNodeElement.dataset.hovered = hoveredKeyRef.current === nextKey ? "true" : "false";
-      nextNodeElement.dataset.focused = focusedKeyRef.current === nextKey ? "true" : "false";
+      nextNodeElement.forEach((element) => {
+        element.dataset.hovered = hoveredKeyRef.current === nextKey ? "true" : "false";
+        element.dataset.focused = focusedKeyRef.current === nextKey ? "true" : "false";
+      });
       currentNodeElementRef.current = nextNodeElement;
 
       previousConnectedKeys.forEach((connectedKey) => {
@@ -142,8 +147,10 @@ export default function GraphStage({
         if (!connectedNodeElement) {
           return;
         }
-        connectedNodeElement.dataset.connected = "false";
-        connectedNodeElementsRef.current.delete(connectedNodeElement);
+        connectedNodeElement.forEach((element) => {
+          element.dataset.connected = "false";
+          connectedNodeElementsRef.current.delete(element);
+        });
       });
 
       nextConnectedKeys.forEach((connectedKey) => {
@@ -151,8 +158,10 @@ export default function GraphStage({
         if (!connectedNodeElement) {
           return;
         }
-        connectedNodeElement.dataset.connected = "true";
-        connectedNodeElementsRef.current.add(connectedNodeElement);
+        connectedNodeElement.forEach((element) => {
+          element.dataset.connected = "true";
+          connectedNodeElementsRef.current.add(element);
+        });
       });
 
       previousEdgeElements.forEach((edgeElement) => {
@@ -317,6 +326,19 @@ export default function GraphStage({
             />
           ))}
       </g>
+      {stage.timeline && <g className="timeline-label-layer">
+        {stage.nodes.map((node) => <TimelineNode
+          key={node.key}
+          layer="label"
+          node={node}
+          isActive={node.key === stage.root}
+          onPin={onTimelineNodePin}
+          onClick={onNodeClick}
+          onDoubleClick={onNodeDoubleClick}
+          onContextMenu={onNodeContextMenu}
+          onFocusChange={onFocusChange}
+        />)}
+      </g>}
       {stage.timeline && <TimelineRuler stage={stage} svgRef={svgRef} />}
     </svg>
   );
@@ -334,12 +356,12 @@ function resolveNodeKey(target: EventTarget | null): string | null {
   return target.closest<SVGGElement>(".dag-node[data-key]")?.dataset.key || null;
 }
 
-function collectNodeElements(svgElement: SVGSVGElement): Map<string, SVGGElement> {
-  const nodeElementsByKey = new Map<string, SVGGElement>();
+function collectNodeElements(svgElement: SVGSVGElement): Map<string, SVGGElement[]> {
+  const nodeElementsByKey = new Map<string, SVGGElement[]>();
   svgElement.querySelectorAll<SVGGElement>(".dag-node[data-key]").forEach((nodeElement) => {
     const nodeKey = nodeElement.dataset.key;
     if (nodeKey) {
-      nodeElementsByKey.set(nodeKey, nodeElement);
+      nodeElementsByKey.set(nodeKey, [...(nodeElementsByKey.get(nodeKey) ?? []), nodeElement]);
     }
   });
   return nodeElementsByKey;

@@ -2,6 +2,7 @@ import type { StageData } from "./types";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import { timelineTimeToY } from "./timeline-axis";
 import { routeTimelineEdge } from "./timeline-layout";
+import { findFreeTimelineLabelX } from "./timeline-labels";
 
 /** Hide categories without changing the positions, clock or routes of surviving events. */
 export function projectTimelineStage(
@@ -28,7 +29,7 @@ export function projectTimelineStage(
       time.anchorY = time.startY;
       time.clippedStart = time.start! < (range.start ?? -Infinity) || undefined;
       time.clippedEnd = time.end! > (range.end ?? Infinity) || undefined;
-      if (time.clippedStart) time.labelY = Math.max(time.startY + 3, time.labelY);
+      if (time.clippedStart) time.labelY = time.startY + 3;
       time.ports = time.ports?.filter((port) => port.y >= time.startY && port.y <= time.endY);
       return { ...node, y: time.startY, height: Math.max(36, time.endY - time.startY), timeline: time };
     });
@@ -107,24 +108,7 @@ function placeClippedLabels(nodes: StageData["nodes"]) {
     .sort((a, b) => a.x - b.x || a.key.localeCompare(b.key));
   for (const node of clipped) {
     const time = node.timeline!;
-    const desiredX = time.labelX,
-      desiredY = time.labelY;
-    let best = { x: desiredX, y: desiredY, cost: Infinity };
-    for (let row = 0; row <= clipped.length; row++) {
-      const y = desiredY + row * 48;
-      if (row * 96 >= best.cost) break;
-      const height = node.detailLines.length ? 39 : 24;
-      const intervals = occupied
-        .filter((box) => y - 16 < box.bottom + 7 && y + height + 7 > box.top)
-        .map((box) => [box.left - node.width - 13, box.right + 13] as const);
-      const x = [desiredX, ...intervals.flatMap(([left, right]) => [left, right])]
-        .filter((value) => value >= 180 && !intervals.some(([left, right]) => value > left && value < right))
-        .sort((a, b) => Math.abs(a - desiredX) - Math.abs(b - desiredX) || a - b)[0];
-      const cost = Math.abs(x - desiredX) + row * 96;
-      if (cost < best.cost) best = { x, y, cost };
-    }
-    time.labelX = best.x;
-    time.labelY = best.y;
+    time.labelX = findFreeTimelineLabelX(node, occupied);
     occupied.push(labelBox(node));
   }
 }

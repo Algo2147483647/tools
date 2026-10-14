@@ -723,7 +723,7 @@ export const additionalRecords = [
     "国民政府在南京成立；当时仍有武汉等政治中心并存。",
     ["modernEvents"],
   ),
-  e("中华民国", "nanchang", "南昌起义", 1927, "conflict", "中共领导的武装起义，成为此后革命军事力量发展的节点。", [
+  e("中华民国", "nanchang", "南昌起义", "1927-08-01", "conflict", "中共领导的武装起义，成为此后革命军事力量发展的节点。", [
     "modernTable",
   ]),
   e(

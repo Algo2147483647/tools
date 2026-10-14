@@ -3677,6 +3677,87 @@
       "references": "[辛亥革命博物院：共和之基](https://1911museum.cn/view_59.html)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "yuan-provisional-president": {
+      "title": "袁世凯就任临时大总统",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "袁世凯在北京就任临时大总统，共和政治中心由南京转向北京；南北妥协并未解决军权与议会权力的冲突。",
+      "dateLabel": "1912年03月10日",
+      "time": {
+        "at": "1912-03-10"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://1911museum.cn/list_30.html"
+      ],
+      "references": "[辛亥革命博物院：辛亥革命及民初年表](https://1911museum.cn/list_30.html)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "second-revolution": {
+      "title": "二次革命",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "南方部分省份起兵反袁，军事行动失败；随后国民党受压制、国会活动被破坏，民初议会政治进一步衰退。",
+      "dateLabel": "1913年",
+      "time": {
+        "at": "1913"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://1911museum.cn/list_30.html"
+      ],
+      "references": "[辛亥革命博物院：辛亥革命及民初年表](https://1911museum.cn/list_30.html)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "song-assassination": {
+      "title": "宋教仁遇刺",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "宋教仁在上海火车站遇刺，22日去世，激化国民党与袁世凯政府的矛盾。对具体指使链条的研究存在争论，遇刺事实不等于所有责任细节均已确证。",
+      "dateLabel": "1913年03月20日",
+      "time": {
+        "at": "1913-03-20"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.1911museum.cn/view_397.html"
+      ],
+      "references": "[辛亥革命博物院：宋教仁（生平与遇刺日期）](https://www.1911museum.cn/view_397.html)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "first-parliament": {
+      "title": "民国首届国会开幕",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "首届国会在北京开幕，国民党在选举中成为最大党派。议会政治很快受到总统权力扩张与军事冲突的冲击。",
+      "dateLabel": "1913年04月08日",
+      "time": {
+        "at": "1913-04-08"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://1911museum.cn/list_30.html",
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[辛亥革命博物院：辛亥革命及民初年表](https://1911museum.cn/list_30.html) · [哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "national-protection": {
       "title": "护国战争",
       "type": "中华民国",
@@ -3719,6 +3800,167 @@
       "references": "[哥伦比亚大学：1900—1950年的中国](https://afe.easia.columbia.edu/tps/1900_cn.htm) · [中国历史年表：近代部分（纪年对照）](https://zh.wikipedia.org/wiki/中国历史年表)",
       "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "yuan-monarchy": {
+      "title": "袁世凯接受帝位",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "袁世凯推动由共和转为帝制，激起政治与军事反对；帝制计划在次年取消，未能建立稳定统治。",
+      "dateLabel": "1915年",
+      "time": {
+        "at": "1915"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://1911museum.cn/list_30.html",
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[辛亥革命博物院：辛亥革命及民初年表](https://1911museum.cn/list_30.html) · [哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "demands-twenty-one": {
+      "title": "日本提出二十一条要求",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "日本向袁世凯政府提出扩大在华权益的要求。经交涉与最后通牒，中国接受部分要求；第五号多项要求未被正式纳入最终条约，不宜写成全部原案照单接受。",
+      "dateLabel": "1915年01月18日",
+      "time": {
+        "at": "1915-01-18"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/historicaldocuments/frus1915/d154"
+      ],
+      "references": "[美国外交档案：1915年中日交涉与二十一条文件](https://history.state.gov/historicaldocuments/frus1915/d154)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "yuan-death": {
+      "title": "袁世凯去世与北洋分裂",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "袁世凯去世后，黎元洪继任总统，北洋军事集团的分裂加剧。中央名义权力与地方军事控制日益分离。",
+      "dateLabel": "1916年06月06日",
+      "time": {
+        "at": "1916-06-06"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "cai-pku": {
+      "title": "蔡元培出任北京大学校长",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "蔡元培推动学术自由和兼容并包，延揽不同学派教师，北大成为新文化运动与新式学术发展的重要空间。",
+      "dateLabel": "1917年",
+      "time": {
+        "at": "1917"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://news.pku.edu.cn/info/3021/860211.htm"
+      ],
+      "references": "[北京大学：蔡元培任校长与新文化运动](https://news.pku.edu.cn/info/3021/860211.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "constitutional-protection": {
+      "title": "广州护法军政府成立",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "孙中山等人在广州组织护法军政府，主张恢复临时约法和国会。南北政治中心并存，护法阵营内部也存在军事利益冲突。",
+      "dateLabel": "1917年",
+      "time": {
+        "at": "1917"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "zhang-xun-restoration": {
+      "title": "张勋复辟",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "张勋在北京拥溥仪复辟，帝制在短时间内被段祺瑞军事行动终结；事件反映共和制度仍面对严重危机。",
+      "dateLabel": "1917年",
+      "time": {
+        "at": "1917"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "china-enters-ww1": {
+      "title": "中国对德奥宣战",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "北京政府参加协约国阵营。赴欧华工承担大量战地后勤劳动，中国希望借参战改善国际地位与条约权益。",
+      "dateLabel": "1917年08月14日",
+      "time": {
+        "at": "1917-08-14"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/"
+      ],
+      "references": "[英国国家档案馆：一战、山东问题与五四运动史料](https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "diary-madman": {
+      "title": "《狂人日记》发表",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "鲁迅在《新青年》发表白话小说《狂人日记》，以文学形式批判旧礼教，成为新文学发展的重要节点；此处保留年精度。",
+      "dateLabel": "1918年",
+      "time": {
+        "at": "1918"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://news.pku.edu.cn/wsbnztwz/tsws/9.htm"
+      ],
+      "references": "[北京大学档案资料：1918年《狂人日记》与五四时期出版](https://news.pku.edu.cn/wsbnztwz/tsws/9.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "may-fourth": {
       "title": "五四运动",
       "type": "中华民国",
@@ -3738,6 +3980,46 @@
       ],
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "paris-refusal": {
+      "title": "中国代表拒签凡尔赛和约",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "巴黎和会将德国在山东的权益转交日本，引发国内反对。中国代表未在凡尔赛和约上签字；五四运动与外交交涉相互影响。",
+      "dateLabel": "1919年06月28日",
+      "time": {
+        "at": "1919-06-28"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/"
+      ],
+      "references": "[英国国家档案馆：一战、山东问题与五四运动史料](https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "zhili-anhui-war": {
+      "title": "直皖战争",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "北洋直系与皖系交战，皖系失败，北京政权的军事支撑重新组合；战争并不意味着地方割据结束。",
+      "dateLabel": "1920年",
+      "time": {
+        "at": "1920"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "ccp": {
       "title": "中国共产党成立",
@@ -3759,6 +4041,47 @@
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "washington-conference": {
+      "title": "华盛顿会议与山东交涉",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "九国公约重申中国主权及门户开放原则，中日另订山东问题条约。国际安排改善部分权益，但不等于全面终结不平等条约体系。",
+      "dateLabel": "1922年",
+      "time": {
+        "at": "1922"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://history.state.gov/milestones/1921-1936/mukden-incident",
+        "https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/"
+      ],
+      "references": "[美国国务院历史办公室：九一八事变、满洲国与不承认政策](https://history.state.gov/milestones/1921-1936/mukden-incident) · [英国国家档案馆：一战、山东问题与五四运动史料](https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "beijing-coup1924": {
+      "title": "北京政变",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "冯玉祥在第二次直奉战争期间发动北京政变，曹锟被推翻，溥仪随后被逐出紫禁城；北京权力结构再次重组。",
+      "dateLabel": "1924年",
+      "time": {
+        "at": "1924"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "kmt-reorganization": {
       "title": "国民党一大与国共合作",
       "type": "中华民国",
@@ -3778,6 +4101,46 @@
       ],
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "whampoa": {
+      "title": "黄埔军校开学",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "陆军军官学校在广州黄埔开学，成为国民革命军军事人才与政治组织的重要来源；校内国共合作与后来的分裂相互关联。",
+      "dateLabel": "1924年",
+      "time": {
+        "at": "1924"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "may-thirtieth": {
+      "title": "五卅运动",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "上海公共租界警察向示威者开枪后，抗议扩展为罢工、罢市与反帝运动，工人、学生和商人以不同方式参与。",
+      "dateLabel": "1925年05月30日",
+      "time": {
+        "at": "1925-05-30"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "northern-expedition": {
       "title": "北伐战争（主要阶段）",
@@ -3800,24 +4163,44 @@
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
-    "nanchang": {
-      "title": "南昌起义",
+    "march-eighteenth": {
+      "title": "三一八惨案",
       "type": "中华民国",
       "track": "中华民国",
       "polity": "中华民国",
       "topic": "战争与变局",
       "theme": "conflict",
       "kind": "事件",
-      "define": "中共领导的武装起义，成为此后革命军事力量发展的节点。",
+      "define": "北京群众集会反对列强干涉，向执政府请愿时遭卫队开枪，造成死伤；国家暴力与公共抗议成为舆论争论的中心。",
+      "dateLabel": "1926年03月18日",
+      "time": {
+        "at": "1926-03-18"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "autumn-harvest": {
+      "title": "秋收起义与转向井冈山",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中共发动湘赣边界秋收起义，进攻城市受挫后部分力量转向井冈山，农村根据地战略逐步形成。",
       "dateLabel": "1927年",
       "time": {
         "at": "1927"
       },
       "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
       "sources": [
-        "https://zh.wikipedia.org/wiki/中国历史年表"
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
       ],
-      "references": "[中国历史年表：近代部分（纪年对照）](https://zh.wikipedia.org/wiki/中国历史年表)",
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "nanjing-government": {
@@ -3838,6 +4221,147 @@
         "https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm"
       ],
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "shanghai-purge": {
+      "title": "四一二清党与上海镇压",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "蒋介石阵营借军队与帮会力量镇压上海共产党人、工会和左翼人士，并开展清党。大量人员被杀害、拘押或失踪，第一次国共合作由此加速破裂。",
+      "dateLabel": "1927年04月12日",
+      "time": {
+        "at": "1927-04-12"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://cpc.people.com.cn/BIG5/64162/64165/78561/79759/5555211.html",
+        "https://history.state.gov/historicaldocuments/frus1927v02/papers"
+      ],
+      "references": "[中国共产党新闻网：四一二事件（官方叙述，核对日期与政治行动）](https://cpc.people.com.cn/BIG5/64162/64165/78561/79759/5555211.html) · [美国外交档案：1927年中国政治与军事变局](https://history.state.gov/historicaldocuments/frus1927v02/papers)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "wuhan-split": {
+      "title": "武汉分共",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "武汉国民党中央转向排斥共产党，与此前南京清党共同标志第一次国共合作的破裂；随后政治迫害与武装冲突扩大。",
+      "dateLabel": "1927年07月15日",
+      "time": {
+        "at": "1927-07-15"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/historicaldocuments/frus1927v02/papers"
+      ],
+      "references": "[美国外交档案：1927年中国政治与军事变局](https://history.state.gov/historicaldocuments/frus1927v02/papers)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "nanchang": {
+      "title": "南昌起义",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中共领导的武装起义，成为此后革命军事力量发展的节点。",
+      "dateLabel": "1927年08月01日",
+      "time": {
+        "at": "1927-08-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://zh.wikipedia.org/wiki/中国历史年表"
+      ],
+      "references": "[中国历史年表：近代部分（纪年对照）](https://zh.wikipedia.org/wiki/中国历史年表)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "academia-sinica": {
+      "title": "中央研究院成立",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "科技与工程",
+      "theme": "technology",
+      "kind": "事件",
+      "define": "中央研究院举行首次院务会议，建立国家级科研组织。自然科学、人文与社会科学研究在民国制度建设中获得新的组织基础。",
+      "dateLabel": "1928年06月09日",
+      "time": {
+        "at": "1928-06-09"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://anniversary.sinica.edu.tw/history/"
+      ],
+      "references": "[中央研究院：院史年表](https://anniversary.sinica.edu.tw/history/)",
+      "notes": "[科技与工程导读](./notes/technology.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "northeast-flag": {
+      "title": "东北易帜",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "张学良宣布东北服从南京国民政府，完成形式上的全国统一；地方军事力量和财政控制并未立即一体化。",
+      "dateLabel": "1928年12月29日",
+      "time": {
+        "at": "1928-12-29"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "central-plains-war": {
+      "title": "中原大战",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "蒋介石与阎锡山、冯玉祥等军事集团交战，造成重大军民损失，显示南京政府建立后地方军事竞争仍然持续。",
+      "dateLabel": "1930年",
+      "time": {
+        "at": "1930"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "chinese-soviet": {
+      "title": "中华苏维埃共和国临时中央政府成立",
+      "type": "中华苏维埃共和国",
+      "track": "中华苏维埃共和国",
+      "polity": "中华苏维埃共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "中共在瑞金建立苏维埃政权，推进土地革命与国家机构试验，同南京国民政府形成军事对抗。此节点归入该根据地政权，不按全国名义归属混同。",
+      "dateLabel": "1931年",
+      "time": {
+        "at": "1931"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
       "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "mukden": {
@@ -3861,6 +4385,66 @@
       "references": "[哥伦比亚大学：1900—1950年的中国](https://afe.easia.columbia.edu/tps/1900_cn.htm) · [中国历史年表：近代部分（纪年对照）](https://zh.wikipedia.org/wiki/中国历史年表)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "manchukuo-established": {
+      "title": "日本扶植满洲国成立",
+      "type": "满洲国",
+      "track": "满洲国",
+      "polity": "满洲国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "日本占领东北后扶植满洲国，溥仪担任执政、后称帝；名义国家机构处于日本军方主导之下，不能视为中国政府自愿分权。",
+      "dateLabel": "1932年",
+      "time": {
+        "at": "1932"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://history.state.gov/milestones/1921-1936/mukden-incident"
+      ],
+      "references": "[美国国务院历史办公室：九一八事变、满洲国与不承认政策](https://history.state.gov/milestones/1921-1936/mukden-incident)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "shanghai1932": {
+      "title": "一二八淞沪抗战",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "日军进攻上海，中国军队抵抗，战事波及城市居民与工商业；其后签订停战协定。",
+      "dateLabel": "1932年01月28日",
+      "time": {
+        "at": "1932-01-28"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/milestones/1921-1936/mukden-incident"
+      ],
+      "references": "[美国国务院历史办公室：九一八事变、满洲国与不承认政策](https://history.state.gov/milestones/1921-1936/mukden-incident)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "currency-silver": {
+      "title": "废两改元",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "南京政府废除银两计价，改以银元为货币单位，减少多种银两标准并存造成的结算障碍；法币改革在两年后另行实施。",
+      "dateLabel": "1933年04月06日",
+      "time": {
+        "at": "1933-04-06"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.boc.cn/aboutboc/ab7/200809/t20080926_6917.html"
+      ],
+      "references": "[中国银行行史：废两改元与1935年法币改革](https://www.boc.cn/aboutboc/ab7/200809/t20080926_6917.html)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "long-march": {
       "title": "红军长征（各路主力阶段）",
       "type": "中华民国",
@@ -3881,6 +4465,66 @@
       ],
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "zunyi": {
+      "title": "遵义会议",
+      "type": "中华苏维埃共和国",
+      "track": "中华苏维埃共和国",
+      "polity": "中华苏维埃共和国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "中央红军长征途中召开遵义会议，调整军事与领导安排，毛泽东在中央领导中的影响上升；其权威并非在一次会议中完成全部确立。",
+      "dateLabel": "1935年",
+      "time": {
+        "at": "1935"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "fabi-reform": {
+      "title": "法币改革实施",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "政府宣布指定银行纸币为法币，停止以银元进行公私支付，并集中白银。统一货币与政府信用的重要性上升，战时及战后通胀则改变其效果。",
+      "dateLabel": "1935年11月04日",
+      "time": {
+        "at": "1935-11-04"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.boc.cn/aboutboc/ab7/200809/t20080926_6917.html"
+      ],
+      "references": "[中国银行行史：废两改元与1935年法币改革](https://www.boc.cn/aboutboc/ab7/200809/t20080926_6917.html)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "december-ninth": {
+      "title": "一二九学生运动",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "北平学生反对华北自治与日本侵略，要求抗日救亡，抗议传播到其他城市并影响青年政治动员。",
+      "dateLabel": "1935年12月09日",
+      "time": {
+        "at": "1935-12-09"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "xian-incident": {
       "title": "西安事变",
@@ -3963,6 +4607,289 @@
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "shanghai1937": {
+      "title": "淞沪会战开始",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中日军队在上海及周边展开大规模战斗，中国军队最终撤退；战事造成严重军民伤亡，并加速工业与学校内迁。",
+      "dateLabel": "1937年08月13日",
+      "time": {
+        "at": "1937-08-13"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm",
+        "https://physics.nankai.edu.cn/lsyg/list.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm) · [南开大学：西南联大迁校、开课与复校史](https://physics.nankai.edu.cn/lsyg/list.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "nanjing-massacre": {
+      "title": "南京陷落与日军大屠杀",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "日军攻占南京后大规模杀害平民与已放下武器的军人，并实施强奸、抢掠和纵火。目击者日记、照片及战后审判构成重要证据；伤亡估算的分歧不否定屠杀事实。",
+      "dateLabel": "1937年12月13日",
+      "time": {
+        "at": "1937-12-13"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://web.library.yale.edu/divinity/digital-collections/nanking-massacre"
+      ],
+      "references": "[耶鲁大学图书馆：南京大屠杀目击者文件与照片档案](https://web.library.yale.edu/divinity/digital-collections/nanking-massacre)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "taierzhuang": {
+      "title": "台儿庄战役",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "中国军队在徐州会战期间取得台儿庄战役胜利，提升抗战士气；局部胜利不等于整个战区战事已经结束。",
+      "dateLabel": "1938年",
+      "time": {
+        "at": "1938"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "wuhan-battle": {
+      "title": "武汉会战与战时格局转变",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "日军攻占武汉，中国军政机构继续向内地转移，战争逐步进入长期消耗阶段；占领城市不等于控制全部乡村。",
+      "dateLabel": "1938年",
+      "time": {
+        "at": "1938"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "yellow-river-breach": {
+      "title": "国民政府决黄河堤与黄泛灾难",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "国民政府军队为阻滞日军推进而在河南决开黄河堤防，造成大范围洪灾、死亡与人口流离。军事目的不能掩盖平民遭受的长期灾难与决策责任。",
+      "dateLabel": "1938年",
+      "time": {
+        "at": "1938"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.cambridge.org/core/books/ecology-of-war-in-china/3FDA387C0D9694EFA8DCF0F6A4CDCAB9"
+      ],
+      "references": "[Micah Muscolino：《The Ecology of War in China》（战争、黄河与河南社会）](https://www.cambridge.org/core/books/ecology-of-war-in-china/3FDA387C0D9694EFA8DCF0F6A4CDCAB9)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "southwest-university": {
+      "title": "西南联大在昆明开课",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "北大、清华、南开南迁组成的西南联大开课，在战时艰难条件下维持教学与研究，延续人才培养和学术网络。",
+      "dateLabel": "1938年05月04日",
+      "time": {
+        "at": "1938-05-04"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://physics.nankai.edu.cn/lsyg/list.htm"
+      ],
+      "references": "[南开大学：西南联大迁校、开课与复校史](https://physics.nankai.edu.cn/lsyg/list.htm)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "hundred-regiments": {
+      "title": "百团大战",
+      "type": "中共抗日根据地",
+      "track": "中共抗日根据地",
+      "polity": "中共抗日根据地",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "八路军在华北发动以交通破袭和据点攻击为重点的战役，显示中共敌后军事力量；随后日军扫荡使根据地承受重大压力。",
+      "dateLabel": "1940年",
+      "time": {
+        "at": "1940"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "wang-collaboration": {
+      "title": "汪精卫南京政权成立",
+      "type": "汪精卫政权",
+      "track": "汪精卫政权",
+      "polity": "汪精卫政权",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "汪精卫在日军占领下的南京建立合作政权，自称国民政府，与重庆国民政府相对立。其组织与军事资源受到日本控制和限制。",
+      "dateLabel": "1940年03月30日",
+      "time": {
+        "at": "1940-03-30"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/historicaldocuments/frus1940v04/d349"
+      ],
+      "references": "[美国驻华使馆电报：1940年3月30日汪精卫政权就职](https://history.state.gov/historicaldocuments/frus1940v04/d349)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "new-fourth-army-incident": {
+      "title": "皖南事变",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "新四军皖南部队与国民党军发生严重武装冲突，遭到重大损失。国共对行军命令、责任与事件性质的解释不同，合作中的军事对立进一步加深。",
+      "dateLabel": "1941年",
+      "time": {
+        "at": "1941"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "henan-famine1942": {
+      "title": "河南大饥荒",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "时期",
+      "define": "干旱、蝗灾、战争破坏、征粮及救济不足交织，造成大规模饥饿、死亡与迁徙。不同政治力量控制区的经验有差异，死亡估算亦取决于资料与口径。",
+      "dateLabel": "1942年—1943年",
+      "time": {
+        "start": "1942",
+        "end": "1943"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/quantitative-description-of-the-henan-famine-of-1942/36663986B38CE1D33C0A0638BA2653CA",
+        "https://www.cambridge.org/core/books/ecology-of-war-in-china/3FDA387C0D9694EFA8DCF0F6A4CDCAB9"
+      ],
+      "references": "[学术研究：A Quantitative Description of the Henan Famine of 1942](https://www.cambridge.org/core/journals/modern-asian-studies/article/abs/quantitative-description-of-the-henan-famine-of-1942/36663986B38CE1D33C0A0638BA2653CA) · [Micah Muscolino：《The Ecology of War in China》（战争、黄河与河南社会）](https://www.cambridge.org/core/books/ecology-of-war-in-china/3FDA387C0D9694EFA8DCF0F6A4CDCAB9)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "yanan-rectification": {
+      "title": "延安整风开始",
+      "type": "中共抗日根据地",
+      "track": "中共抗日根据地",
+      "polity": "中共抗日根据地",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "中共开展整风、干部审查及思想改造，毛泽东的领导权威加强。运动包含强制自我批评、逼供和肃反，不能只作为一般学习活动描述。",
+      "dateLabel": "1942年",
+      "time": {
+        "at": "1942"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://www.cuhk.edu.hk/ics/rcccc/publish/pub_contemp_main_redsun.html"
+      ],
+      "references": "[高华：《红太阳是怎样升起的》研究介绍（香港中文大学）](https://www.cuhk.edu.hk/ics/rcccc/publish/pub_contemp_main_redsun.html)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "cairo-conference": {
+      "title": "开罗会议",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "蒋介石、罗斯福与丘吉尔在开罗讨论对日战争与战后安排。相关宣言表达盟国政策，具体战后落实仍须结合后续文件与实际行动考察。",
+      "dateLabel": "1943年",
+      "time": {
+        "at": "1943"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://history.state.gov/historicaldocuments/frus1943CairoTehran/d259"
+      ],
+      "references": "[美国外交档案：开罗会议中蒋介石与罗斯福会谈记录](https://history.state.gov/historicaldocuments/frus1943CairoTehran/d259)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "extraterritoriality-end": {
+      "title": "中美、中英废除治外法权新约",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "交流与外交",
+      "theme": "diplomacy",
+      "kind": "事件",
+      "define": "中国分别同美国、英国签订新约，取消治外法权及相关特权。这是条约体系变化的重要节点，并不意味着所有殖民地和领土争议同时解决。",
+      "dateLabel": "1943年01月11日",
+      "time": {
+        "at": "1943-01-11"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://history.state.gov/historicaldocuments/frus1943China"
+      ],
+      "references": "[美国外交档案：1943年中国与废除治外法权条约](https://history.state.gov/historicaldocuments/frus1943China)",
+      "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "ichigo": {
+      "title": "日军一号作战与豫湘桂战役",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "日军发动大规模进攻，国民党军在河南、湖南、广西遭受严重挫败，交通线与空军基地丧失；战争末期军政能力问题进一步暴露。",
+      "dateLabel": "1944年",
+      "time": {
+        "at": "1944"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "chongqing-talks": {
       "title": "重庆谈判与双十协定",
       "type": "中华民国",
@@ -4003,6 +4930,26 @@
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "taiwan-reception1945": {
+      "title": "国民政府在台湾受降并接收行政",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "国民政府在台北接受日军投降并接收台湾行政。此处记录实际管治变化，不将一场受降仪式等同于解决全部战后国际法争议。",
+      "dateLabel": "1945年10月25日",
+      "time": {
+        "at": "1945-10-25"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "civil-war": {
       "title": "国共内战（全面战争阶段）",
       "type": "中华民国",
@@ -4024,6 +4971,128 @@
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "political-consultative1946": {
+      "title": "1946年政治协商会议",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "国民党、共产党和其他党派及社会代表在重庆协商和平建国，形成若干协议，但政权与军队整编分歧未获持久解决。",
+      "dateLabel": "1946年",
+      "time": {
+        "at": "1946"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "roc-constitution-adopted": {
+      "title": "中华民国宪法通过",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "制宪国民大会通过宪法，次年12月25日施行。中共等未参加制宪，制度设计与内战、党国权力之间存在张力。",
+      "dateLabel": "1946年12月25日",
+      "time": {
+        "at": "1946-12-25"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11",
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11) · [哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "february28": {
+      "title": "台湾二二八事件与军事镇压",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "事件",
+      "define": "查缉私烟冲突及卫兵向请愿群众开枪引发全台抗争，随后国民政府增援军队实施镇压与清乡。平民、地方精英和不同群体遭到杀害、拘捕或失踪。",
+      "dateLabel": "1947年02月28日",
+      "time": {
+        "at": "1947-02-28"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/TopicExploration/Event/Detail/65"
+      ],
+      "references": "[国家人权记忆库：二二八事件](https://memory.nhrm.gov.tw/TopicExploration/Event/Detail/65)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "temporary-provisions": {
+      "title": "动员戡乱时期临时条款制定",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "临时条款以战争紧急状态为由扩大总统权力，削弱宪法常态限制；迁台后长期沿用，成为威权体制的重要法律基础。",
+      "dateLabel": "1948年",
+      "time": {
+        "at": "1948"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "three-campaigns": {
+      "title": "辽沈、淮海、平津三大战役",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "战争与变局",
+      "theme": "conflict",
+      "kind": "时期",
+      "define": "解放军在东北、华东和华北取得决定性军事优势，国民党主力损失严重。战争动员、围困和人口迁移同时深刻影响平民生活。",
+      "dateLabel": "1948年—1949年",
+      "time": {
+        "start": "1948",
+        "end": "1949"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://afe.easia.columbia.edu/tps/1900_cn.htm"
+      ],
+      "references": "[哥伦比亚大学：20世纪中国史与民国时期文献导读](https://afe.easia.columbia.edu/tps/1900_cn.htm)",
+      "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "gold-yuan-reform": {
+      "title": "金圆券改革与信用崩溃",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "国民政府以金圆券替代法币，并限期收兑民间金银外币。发行失控和恶性通胀迅速破坏币值，居民储蓄与政府信用受到严重打击。",
+      "dateLabel": "1948年08月19日",
+      "time": {
+        "at": "1948-08-19"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.archives.gov.tw/tw/arctw/69-2018.html"
+      ],
+      "references": "[档案管理局：金圆券发行与流通（含原始档案）](https://www.archives.gov.tw/tw/arctw/69-2018.html)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "yangtze": {
       "title": "渡江战役与南京易手",
       "type": "中华民国",
@@ -4043,6 +5112,27 @@
       ],
       "references": "[中国历史年表：近代部分（纪年对照）](https://zh.wikipedia.org/wiki/中国历史年表)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "taiwan-martial-law": {
+      "title": "台湾戒严令生效",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "台湾开始实施长期戒严，军法审判、情治监控及对言论结社的限制形成威权统治的重要机制；白色恐怖并不限于这一法律起点之后。",
+      "dateLabel": "1949年05月20日",
+      "time": {
+        "at": "1949-05-20"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11",
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/83?MenuNode=14"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11) · [国家人权记忆库：白色恐怖的范围与分期](https://memory.nhrm.gov.tw/NormalNode/Detail/83?MenuNode=14)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "cppcc": {
       "title": "政协第一届全体会议",
@@ -4073,7 +5163,7 @@
       "topic": "政权与时期",
       "theme": "polity",
       "kind": "事件",
-      "define": "中华人民共和国宣告成立，作为本选编的末端事件。",
+      "define": "中华人民共和国宣告成立，成为大陆政治制度与国际关系转变的重要节点；中华民国政府随后迁台。",
       "dateLabel": "1949年10月01日",
       "time": {
         "at": "1949-10-01"
@@ -4083,6 +5173,27 @@
         "https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm"
       ],
       "references": "[哥伦比亚大学：1900—1950年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1900-1950.htm)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "roc-relocation": {
+      "title": "中华民国政府迁台",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "行政院决定迁至台北，国民党政军机构与大量军民迁往台湾。中华人民共和国已在大陆成立，海峡两岸形成分治；这里不将迁台写成中华民国终止。",
+      "dateLabel": "1949年12月07日",
+      "time": {
+        "at": "1949-12-07"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11",
+        "https://www.president.gov.tw/qrcode/16c"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11) · [总统府：历任总统与制度变迁简介（官方叙述）](https://www.president.gov.tw/qrcode/16c)",
       "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "suppress-counterrevolutionaries": {
@@ -4228,6 +5339,26 @@
         "https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent="
       ],
       "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
+      "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "taiwan-land-reform": {
+      "title": "台湾实施耕者有其田",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "经济与制度",
+      "theme": "economy",
+      "kind": "事件",
+      "define": "政府征购部分地主土地转售佃农，并以土地债券和公营事业股票等补偿，改变农村产权结构及经济发展条件。",
+      "dateLabel": "1953年",
+      "time": {
+        "at": "1953"
+      },
+      "precision": "年；未补造具体月日。时期边界采用说明中标明的分期。",
+      "sources": [
+        "https://tcmb.culture.tw/zh-tw/detail?id=702725&indexCode=Culture_Media"
+      ],
+      "references": "[国家文化记忆库：1953年耕者有其田与土地改革](https://tcmb.culture.tw/zh-tw/detail?id=702725&indexCode=Culture_Media)",
       "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "korean-armistice": {
@@ -4842,6 +5973,26 @@
       "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "formosa1979": {
+      "title": "美丽岛事件",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "思想与文化",
+      "theme": "ideas",
+      "kind": "事件",
+      "define": "高雄国际人权日集会与军警发生冲突，反对运动人士随后遭拘捕及军法审判；事件推动党外运动与后续民主化。",
+      "dateLabel": "1979年12月10日",
+      "time": {
+        "at": "1979-12-10"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/TopicExploration/LocationSpace/Detail/137?viewType=index"
+      ],
+      "references": "[国家人权记忆库：1979年美丽岛事件](https://memory.nhrm.gov.tw/TopicExploration/LocationSpace/Detail/137?viewType=index)",
+      "notes": "[思想与文化导读](./notes/ideas.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "one-child-policy": {
       "title": "独生子女政策强化",
       "type": "中华人民共和国",
@@ -4943,6 +6094,27 @@
       "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
       "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "martial-law-lifted": {
+      "title": "台湾解除戒严",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "台湾解除自1949年实行的戒严，政治开放加快；其他非常法制与政治压制并未在同一天全部消失。",
+      "dateLabel": "1987年07月15日",
+      "time": {
+        "at": "1987-07-15"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11",
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/83?MenuNode=14"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11) · [国家人权记忆库：白色恐怖的范围与分期](https://memory.nhrm.gov.tw/NormalNode/Detail/83?MenuNode=14)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "protests1989": {
       "title": "1989年学生与市民抗议",
       "type": "中华人民共和国",
@@ -5004,6 +6176,27 @@
       "references": "[乔治华盛顿大学国家安全档案馆：六四事件解密档案专题](https://nsarchive.gwu.edu/news/china/2019-06-04/tiananmen-massacre-30th-anniversary-china-declassified)",
       "notes": "[战争与变局导读](./notes/conflict.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
+    "temporary-provisions-end": {
+      "title": "终止动员戡乱时期",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "动员戡乱时期终止，临时条款废止，随后国会全面改选与修宪推进，长期非常体制逐步退出。",
+      "dateLabel": "1991年05月01日",
+      "time": {
+        "at": "1991-05-01"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11",
+        "https://www.president.gov.tw/qrcode/16c"
+      ],
+      "references": "[国家人权记忆库：战后台湾威权统治与民主化年表](https://memory.nhrm.gov.tw/NormalNode/Detail/167?MenuNode=11) · [总统府：历任总统与制度变迁简介（官方叙述）](https://www.president.gov.tw/qrcode/16c)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
     "southern-tour": {
       "title": "邓小平南方谈话",
       "type": "中华人民共和国",
@@ -5043,6 +6236,26 @@
       ],
       "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
       "notes": "[经济与制度导读](./notes/economy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "direct-president-election": {
+      "title": "台湾首次总统、副总统直接选举",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "选民首次以直接投票选出中华民国总统、副总统，李登辉、连战当选；选举发生于台海导弹危机背景下。",
+      "dateLabel": "1996年03月23日",
+      "time": {
+        "at": "1996-03-23"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.president.gov.tw/News/40029"
+      ],
+      "references": "[总统府：1996年首次总统直选的历史记录](https://www.president.gov.tw/News/40029)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "hong-kong-handover": {
       "title": "香港主权移交",
@@ -5103,6 +6316,26 @@
       ],
       "references": "[中央党史和文献研究院：中华人民共和国大事记（核对事件与政策日期）](https://www.gov.cn/xinwen/2019-09/27/content_5434223.htm?allContent=)",
       "notes": "[交流与外交导读](./notes/diplomacy.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
+    },
+    "first-party-transfer": {
+      "title": "台湾首次总统政党轮替",
+      "type": "中华民国",
+      "track": "中华民国",
+      "polity": "中华民国",
+      "topic": "政权与时期",
+      "theme": "polity",
+      "kind": "事件",
+      "define": "陈水扁就任总统，民进党执政，结束国民党对总统职位的长期控制；这是政党轮替，并非新国家成立事件。",
+      "dateLabel": "2000年05月20日",
+      "time": {
+        "at": "2000-05-20"
+      },
+      "precision": "公历日；不表示事件发生于午夜。",
+      "sources": [
+        "https://www.president.gov.tw/qrcode/16c"
+      ],
+      "references": "[总统府：历任总统与制度变迁简介（官方叙述）](https://www.president.gov.tw/qrcode/16c)",
+      "notes": "[政权与时期导读](./notes/polity.md) · [读图说明](./README.md) · [史料与编选约定](./SOURCES.md)"
     },
     "wto-accession": {
       "title": "中国加入世界贸易组织",
@@ -9573,6 +10806,1105 @@
       "source": "lawyers709",
       "target": "xinjiang-detention",
       "value": "同一专题的后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:republic:yuan-provisional-president",
+      "source": "republic",
+      "target": "yuan-provisional-president",
+      "value": "共和国临时总统的权力交接",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:republic:song-assassination",
+      "source": "republic",
+      "target": "song-assassination",
+      "value": "民初议会政治遭遇暴力",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:republic:demands-twenty-one",
+      "source": "republic",
+      "target": "demands-twenty-one",
+      "value": "民初对外主权危机",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:new-youth:cai-pku",
+      "source": "new-youth",
+      "target": "cai-pku",
+      "value": "新文化阵地与大学改革",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:cai-pku:diary-madman",
+      "source": "cai-pku",
+      "target": "diary-madman",
+      "value": "新文化时期的教育与文学交汇",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:demands-twenty-one:may-fourth",
+      "source": "demands-twenty-one",
+      "target": "may-fourth",
+      "value": "日本在华权益争议的前史",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:may-fourth:paris-refusal",
+      "source": "may-fourth",
+      "target": "paris-refusal",
+      "value": "国内动员与巴黎交涉",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:yuan-monarchy:national-protection",
+      "source": "yuan-monarchy",
+      "target": "national-protection",
+      "value": "帝制计划激起护国反对",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:kmt-reorganization:whampoa",
+      "source": "kmt-reorganization",
+      "target": "whampoa",
+      "value": "合作背景下的军事教育",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:northern-expedition:shanghai-purge",
+      "source": "northern-expedition",
+      "target": "shanghai-purge",
+      "value": "北伐期间合作破裂",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1927-04-12"
+        }
+      }
+    },
+    {
+      "id": "reference:shanghai-purge:nanchang",
+      "source": "shanghai-purge",
+      "target": "nanchang",
+      "value": "清党后的武装反抗背景",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:nanchang:chinese-soviet",
+      "source": "nanchang",
+      "target": "chinese-soviet",
+      "value": "武装革命与根据地政权的发展",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:mukden:manchukuo-established",
+      "source": "mukden",
+      "target": "manchukuo-established",
+      "value": "日本占领与扶植政权",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:long-march:zunyi",
+      "source": "long-march",
+      "target": "zunyi",
+      "value": "长征期间的领导调整",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1935"
+        }
+      }
+    },
+    {
+      "id": "reference:marco-polo:shanghai1937",
+      "source": "marco-polo",
+      "target": "shanghai1937",
+      "value": "全面战争扩展至上海",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:shanghai1937:nanjing-massacre",
+      "source": "shanghai1937",
+      "target": "nanjing-massacre",
+      "value": "上海撤退后南京陷落",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:resistance:southwest-university",
+      "source": "resistance",
+      "target": "southwest-university",
+      "value": "抗战期间学校内迁",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1938-05-04"
+        }
+      }
+    },
+    {
+      "id": "reference:resistance:yellow-river-breach",
+      "source": "resistance",
+      "target": "yellow-river-breach",
+      "value": "抗战决策造成的平民灾难",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1938"
+        }
+      }
+    },
+    {
+      "id": "reference:resistance:wang-collaboration",
+      "source": "resistance",
+      "target": "wang-collaboration",
+      "value": "日占区合作政权的形成",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1940-03-30"
+        }
+      }
+    },
+    {
+      "id": "reference:yellow-river-breach:henan-famine1942",
+      "source": "yellow-river-breach",
+      "target": "henan-famine1942",
+      "value": "黄泛破坏构成后来饥荒的背景之一",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:second-united-front:hundred-regiments",
+      "source": "second-united-front",
+      "target": "hundred-regiments",
+      "value": "合作框架下的敌后战场",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:second-united-front:new-fourth-army-incident",
+      "source": "second-united-front",
+      "target": "new-fourth-army-incident",
+      "value": "合作内部的军事冲突",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:chongqing-talks:political-consultative1946",
+      "source": "chongqing-talks",
+      "target": "political-consultative1946",
+      "value": "国共谈判后的多党协商",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:civil-war:three-campaigns",
+      "source": "civil-war",
+      "target": "three-campaigns",
+      "value": "全面内战中的决定性战役",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1948"
+        }
+      }
+    },
+    {
+      "id": "reference:three-campaigns:yangtze",
+      "source": "three-campaigns",
+      "target": "yangtze",
+      "value": "战场优势与渡江进军",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start",
+          "sourceTime": "1949"
+        }
+      }
+    },
+    {
+      "id": "reference:yangtze:roc-relocation",
+      "source": "yangtze",
+      "target": "roc-relocation",
+      "value": "大陆战局变化与政府迁台",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:prc:roc-relocation",
+      "source": "prc",
+      "target": "roc-relocation",
+      "value": "大陆建国与两岸分治并存",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:roc-relocation:un-representation",
+      "source": "roc-relocation",
+      "target": "un-representation",
+      "value": "此后联合国中国代表权更替",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:taiwan-martial-law:formosa1979",
+      "source": "taiwan-martial-law",
+      "target": "formosa1979",
+      "value": "戒严体制下的反对运动",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:formosa1979:martial-law-lifted",
+      "source": "formosa1979",
+      "target": "martial-law-lifted",
+      "value": "民主化运动的重要前史",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "reference:temporary-provisions:temporary-provisions-end",
+      "source": "temporary-provisions",
+      "target": "temporary-provisions-end",
+      "value": "非常条款的建立与废止",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:yuan-provisional-president:first-parliament",
+      "source": "yuan-provisional-president",
+      "target": "first-parliament",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:first-parliament:yuan-monarchy",
+      "source": "first-parliament",
+      "target": "yuan-monarchy",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:yuan-monarchy:yuan-death",
+      "source": "yuan-monarchy",
+      "target": "yuan-death",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:yuan-death:zhang-xun-restoration",
+      "source": "yuan-death",
+      "target": "zhang-xun-restoration",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:zhang-xun-restoration:constitutional-protection",
+      "source": "zhang-xun-restoration",
+      "target": "constitutional-protection",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:constitutional-protection:beijing-coup1924",
+      "source": "constitutional-protection",
+      "target": "beijing-coup1924",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:beijing-coup1924:wuhan-split",
+      "source": "beijing-coup1924",
+      "target": "wuhan-split",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:wuhan-split:northeast-flag",
+      "source": "wuhan-split",
+      "target": "northeast-flag",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:northeast-flag:chinese-soviet",
+      "source": "northeast-flag",
+      "target": "chinese-soviet",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:chinese-soviet:manchukuo-established",
+      "source": "chinese-soviet",
+      "target": "manchukuo-established",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:manchukuo-established:zunyi",
+      "source": "manchukuo-established",
+      "target": "zunyi",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:zunyi:wang-collaboration",
+      "source": "zunyi",
+      "target": "wang-collaboration",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:wang-collaboration:taiwan-reception1945",
+      "source": "wang-collaboration",
+      "target": "taiwan-reception1945",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:taiwan-reception1945:political-consultative1946",
+      "source": "taiwan-reception1945",
+      "target": "political-consultative1946",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:political-consultative1946:roc-constitution-adopted",
+      "source": "political-consultative1946",
+      "target": "roc-constitution-adopted",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:roc-constitution-adopted:temporary-provisions",
+      "source": "roc-constitution-adopted",
+      "target": "temporary-provisions",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:temporary-provisions:taiwan-martial-law",
+      "source": "temporary-provisions",
+      "target": "taiwan-martial-law",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:taiwan-martial-law:roc-relocation",
+      "source": "taiwan-martial-law",
+      "target": "roc-relocation",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:roc-relocation:martial-law-lifted",
+      "source": "roc-relocation",
+      "target": "martial-law-lifted",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:martial-law-lifted:temporary-provisions-end",
+      "source": "martial-law-lifted",
+      "target": "temporary-provisions-end",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:temporary-provisions-end:direct-president-election",
+      "source": "temporary-provisions-end",
+      "target": "direct-president-election",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:direct-president-election:first-party-transfer",
+      "source": "direct-president-election",
+      "target": "first-party-transfer",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:diary-madman:may-thirtieth",
+      "source": "diary-madman",
+      "target": "may-thirtieth",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:may-thirtieth:december-ninth",
+      "source": "may-thirtieth",
+      "target": "december-ninth",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:december-ninth:southwest-university",
+      "source": "december-ninth",
+      "target": "southwest-university",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:southwest-university:yanan-rectification",
+      "source": "southwest-university",
+      "target": "yanan-rectification",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:yanan-rectification:formosa1979",
+      "source": "yanan-rectification",
+      "target": "formosa1979",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:whampoa:academia-sinica",
+      "source": "whampoa",
+      "target": "academia-sinica",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:currency-silver:fabi-reform",
+      "source": "currency-silver",
+      "target": "fabi-reform",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:fabi-reform:gold-yuan-reform",
+      "source": "fabi-reform",
+      "target": "gold-yuan-reform",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:gold-yuan-reform:taiwan-land-reform",
+      "source": "gold-yuan-reform",
+      "target": "taiwan-land-reform",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:demands-twenty-one:china-enters-ww1",
+      "source": "demands-twenty-one",
+      "target": "china-enters-ww1",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:china-enters-ww1:paris-refusal",
+      "source": "china-enters-ww1",
+      "target": "paris-refusal",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:paris-refusal:washington-conference",
+      "source": "paris-refusal",
+      "target": "washington-conference",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:washington-conference:cairo-conference",
+      "source": "washington-conference",
+      "target": "cairo-conference",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:cairo-conference:extraterritoriality-end",
+      "source": "cairo-conference",
+      "target": "extraterritoriality-end",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:second-revolution:song-assassination",
+      "source": "second-revolution",
+      "target": "song-assassination",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:song-assassination:zhili-anhui-war",
+      "source": "song-assassination",
+      "target": "zhili-anhui-war",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:zhili-anhui-war:march-eighteenth",
+      "source": "zhili-anhui-war",
+      "target": "march-eighteenth",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:march-eighteenth:autumn-harvest",
+      "source": "march-eighteenth",
+      "target": "autumn-harvest",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:autumn-harvest:shanghai-purge",
+      "source": "autumn-harvest",
+      "target": "shanghai-purge",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:shanghai-purge:central-plains-war",
+      "source": "shanghai-purge",
+      "target": "central-plains-war",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:central-plains-war:shanghai1932",
+      "source": "central-plains-war",
+      "target": "shanghai1932",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:shanghai1932:shanghai1937",
+      "source": "shanghai1932",
+      "target": "shanghai1937",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:nanjing-massacre:taierzhuang",
+      "source": "nanjing-massacre",
+      "target": "taierzhuang",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:taierzhuang:yellow-river-breach",
+      "source": "taierzhuang",
+      "target": "yellow-river-breach",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:yellow-river-breach:wuhan-battle",
+      "source": "yellow-river-breach",
+      "target": "wuhan-battle",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:wuhan-battle:hundred-regiments",
+      "source": "wuhan-battle",
+      "target": "hundred-regiments",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:hundred-regiments:new-fourth-army-incident",
+      "source": "hundred-regiments",
+      "target": "new-fourth-army-incident",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:new-fourth-army-incident:henan-famine1942",
+      "source": "new-fourth-army-incident",
+      "target": "henan-famine1942",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:henan-famine1942:ichigo",
+      "source": "henan-famine1942",
+      "target": "ichigo",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:ichigo:february28",
+      "source": "ichigo",
+      "target": "february28",
+      "value": "民国专题后续选录；先后不表示因果",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "sequence:february28:three-campaigns",
+      "source": "february28",
+      "target": "three-campaigns",
+      "value": "民国专题后续选录；先后不表示因果",
       "metadata": {
         "timeline": {
           "kind": "sequence",

@@ -1,6 +1,7 @@
 import { getTimelineRelation } from "../graph/timeline";
 import type { GraphEdge } from "../graph/types";
 import type { StageNode } from "./types";
+import { findFreeTimelineLabelX } from "./timeline-labels";
 
 type Box = { left: number; right: number; top: number; bottom: number };
 type Neighbour = { key: string; offset: number; weight: number };
@@ -63,20 +64,12 @@ export function arrangeTimelineFlow(input: {
       }
       const desired = Math.max(minimumX, total / weight);
       const pin = Math.max(minimumX, pins[node.key]);
-      // Prefer a short leader over another full label-width column.
-      // The marker stays on the clock while dense labels can use adjacent rows.
-      const placement = [0, 48, 96]
-        .map((offset) => {
-          const x = closestFreeX(node, desired, minimumX, placed, gap / 4, offset);
-          return { x, offset, cost: Math.abs(x - desired) + offset * 1.25 };
-        })
-        .sort((a, b) => a.cost - b.cost || a.offset - b.offset || a.x - b.x)[0];
-      node.x = isPinned(node) ? pin : placement.x;
+      node.x = isPinned(node) ? pin : closestFreeX(node, desired, minimumX, placed, gap);
       node.timeline!.labelX = node.x + 22;
-      node.timeline!.labelY = node.y + 3 + (isPinned(node) ? 0 : placement.offset);
+      node.timeline!.labelY = node.y + 3;
       if (isPinned(node)) {
-        // A pin fixes the marker, while its label can still avoid earlier pins.
-        while (placed.some((box) => intersects(labelBox(node), box))) node.timeline!.labelY += 48;
+        // Pins fix markers; labels can move horizontally, never off their time row.
+        node.timeline!.labelX = findFreeTimelineLabelX(node, [...placed, markerBox(node)], minimumX);
       }
       placed.push(markerBox(node), labelBox(node));
     }
@@ -114,24 +107,20 @@ function labelBox(node: StageNode): Box {
     bottom: time.labelY + (node.detailLines.length ? 39 : 24),
   };
 }
-function intersects(a: Box, b: Box): boolean {
-  return a.left < b.right + 7 && a.right + 7 > b.left && a.top < b.bottom + 7 && a.bottom + 7 > b.top;
-}
 function closestFreeX(
   node: StageNode,
   desired: number,
   minimum: number,
   occupied: Box[],
   clearance: number,
-  labelOffset: number,
 ): number {
   const footprints = [
     { left: -10, right: 10, top: node.y - 10, bottom: node.timeline!.endY + 10 },
     {
       left: 16,
       right: node.width + 28,
-      top: node.y + labelOffset - 16,
-      bottom: node.y + labelOffset + (node.detailLines.length ? 42 : 27),
+      top: node.y - 13,
+      bottom: node.y + (node.detailLines.length ? 42 : 27),
     },
   ];
   const forbidden: [number, number][] = [];

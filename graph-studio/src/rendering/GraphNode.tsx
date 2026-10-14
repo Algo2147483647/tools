@@ -31,6 +31,7 @@ const GraphNode = memo(function GraphNode({
   if (node.timeline)
     return (
       <TimelineNode
+        layer="marker"
         node={node}
         isActive={isActive}
         onPin={onTimelineNodePin}

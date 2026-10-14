@@ -126,6 +126,54 @@
 
 [哥伦比亚大学：1750—1919年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1750-1919.htm) · [中国历史年表：近代部分（纪年对照）](https://zh.wikipedia.org/wiki/中国历史年表)
 
+## 日本提出二十一条要求
+
+**1915年01月18日 · 中华民国**
+
+日本向袁世凯政府提出扩大在华权益的要求。经交涉与最后通牒，中国接受部分要求；第五号多项要求未被正式纳入最终条约，不宜写成全部原案照单接受。
+
+[美国外交档案：1915年中日交涉与二十一条文件](https://history.state.gov/historicaldocuments/frus1915/d154)
+
+## 中国对德奥宣战
+
+**1917年08月14日 · 中华民国**
+
+北京政府参加协约国阵营。赴欧华工承担大量战地后勤劳动，中国希望借参战改善国际地位与条约权益。
+
+[英国国家档案馆：一战、山东问题与五四运动史料](https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/)
+
+## 中国代表拒签凡尔赛和约
+
+**1919年06月28日 · 中华民国**
+
+巴黎和会将德国在山东的权益转交日本，引发国内反对。中国代表未在凡尔赛和约上签字；五四运动与外交交涉相互影响。
+
+[英国国家档案馆：一战、山东问题与五四运动史料](https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/)
+
+## 华盛顿会议与山东交涉
+
+**1922年 · 中华民国**
+
+九国公约重申中国主权及门户开放原则，中日另订山东问题条约。国际安排改善部分权益，但不等于全面终结不平等条约体系。
+
+[美国国务院历史办公室：九一八事变、满洲国与不承认政策](https://history.state.gov/milestones/1921-1936/mukden-incident) · [英国国家档案馆：一战、山东问题与五四运动史料](https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/)
+
+## 开罗会议
+
+**1943年 · 中华民国**
+
+蒋介石、罗斯福与丘吉尔在开罗讨论对日战争与战后安排。相关宣言表达盟国政策，具体战后落实仍须结合后续文件与实际行动考察。
+
+[美国外交档案：开罗会议中蒋介石与罗斯福会谈记录](https://history.state.gov/historicaldocuments/frus1943CairoTehran/d259)
+
+## 中美、中英废除治外法权新约
+
+**1943年01月11日 · 中华民国**
+
+中国分别同美国、英国签订新约，取消治外法权及相关特权。这是条约体系变化的重要节点，并不意味着所有殖民地和领土争议同时解决。
+
+[美国外交档案：1943年中国与废除治外法权条约](https://history.state.gov/historicaldocuments/frus1943China)
+
 ## 重庆谈判与双十协定
 
 **1945年 · 中华民国**

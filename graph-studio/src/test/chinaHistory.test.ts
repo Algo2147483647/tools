@@ -76,7 +76,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(stage.nodes.length, 278);
     assert.equal(stage.edges.length, 352);
     assert.equal(stage.warnings.length, 0);
-    assert.ok(stage.stageWidth < 1800, "the expanded relation flow remains compact");
+    assert.ok(stage.nodes.every((node) => node.timeline!.labelY === node.y + 3), "labels preserve time rows");
     assert.ok(stage.edges.every((edge) => !/NaN|Infinity/.test(edge.path)));
     assert.ok(stage.nodes.every((node) => node.timeline!.status === "dated"));
     for (const target of ["eastern-wei", "western-wei"]) {

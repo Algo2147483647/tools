@@ -18,8 +18,9 @@ import {
   additionalConnections,
 } from "./data/china-history/expansion.mjs";
 import { modernRecords, modernConnections, modernSources, modernAsOf } from "./data/china-history/modern.mjs";
+import { republicRecords, republicConnections, republicSources } from "./data/china-history/republic.mjs";
 
-const sources = { ...baseSources, ...additionalSources, ...modernSources };
+const sources = { ...baseSources, ...additionalSources, ...modernSources, ...republicSources };
 const assignments = Object.fromEntries(
   Object.entries(legacyPolities).flatMap(([polity, ids]) => ids.map((id) => [id, polity])),
 );
@@ -27,11 +28,13 @@ const records = [
   ...baseRecords.map((record) => ({ ...record, ...amendments[record.id], polity: assignments[record.id] })),
   ...additionalRecords,
   ...modernRecords,
+  ...republicRecords,
 ];
 const connections = [
   ...baseConnections.filter(([a, b]) => !removedConnections.some(([x, y]) => x === a && y === b)),
   ...additionalConnections,
   ...modernConnections,
+  ...republicConnections,
 ];
 
 const directory = resolve(dirname(fileURLToPath(import.meta.url)), "../public/examples/china-history");

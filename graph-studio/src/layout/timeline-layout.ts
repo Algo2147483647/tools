@@ -15,11 +15,9 @@ import {
 import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, type TimelineAxisMap } from "./timeline-axis";
 import { getTimelineAxisTicks } from "./timeline-ticks";
 import { arrangeTimelineFlow } from "./timeline-flow";
-import { packTimelineLabels } from "./timeline-labels";
 import { routeAroundTimelineObstacles } from "./timeline-routing";
 
 const DAY = 86_400_000;
-const CHANNEL_GAP = 18;
 const MARKER_CLEARANCE = 16;
 const TRACK_GAP = 44;
 
@@ -236,7 +234,7 @@ export function buildTimelineStage(input: {
       // Do not create empty channels just because a preferred branch channel has a high index.
       lane = Math.min(lane, occupiedUntil.length);
       event.lane = lane;
-      occupiedUntil[lane] = Math.max(event.endY, event.startY) + MARKER_CLEARANCE;
+      occupiedUntil[lane] = Math.max(event.endY + MARKER_CLEARANCE, event.startY + labelStep);
       assigned.add(event.key);
     }
     channelCounts.set(track, Math.max(1, occupiedUntil.length));
@@ -248,21 +246,17 @@ export function buildTimelineStage(input: {
   let lastLabelBottom = axisMap ? axisMap.originY + axisMap.height : top;
   const topLevel = new Set(selection.topLevelKeys);
   for (const track of tracks) {
-    const channelsWidth = ((channelCounts.get(track) || 1) - 1) * CHANNEL_GAP;
+    const channelStep = labelWidth + 44 + settings.nodeGap;
+    const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
     const width = channelsWidth + labelWidth + 44;
     const color = trackColor(track);
     stageTracks.push({ id: track, label: track, x: trackX, width, color });
-    const labelX = trackX + channelsWidth + 32;
     const events = dated.filter((entry) => entry.track === track).sort(compareEntries);
-    const labels = packTimelineLabels(
-      events.map((entry) => entry.startY + 3),
-      labelStep,
-      top,
-    );
-    for (const [index, event] of events.entries()) {
-      const labelY = labels[index];
+    for (const event of events) {
+      const labelY = event.startY + 3;
+      const x = trackX + event.lane * channelStep + 10;
       lastLabelBottom = Math.max(lastLabelBottom, labelY + labelStep);
-      nodeMap[event.key] = createNode(event, trackX + event.lane * CHANNEL_GAP + 10, labelX, labelY, color);
+      nodeMap[event.key] = createNode(event, x, x + 22, labelY, color);
     }
     trackX += width + TRACK_GAP;
   }
@@ -290,7 +284,7 @@ export function buildTimelineStage(input: {
           nodeMap[event.key] = createNode(
             event,
             track.x + 10,
-            track.x + (channelCounts.get(track.id)! - 1) * CHANNEL_GAP + 32,
+            track.x + 32,
             event.startY + 3,
             track.color,
           );
@@ -502,16 +496,9 @@ function routeEdge(
           boxes.push({ left: node.x - 8, right: node.x + 8, top: cuts[i], bottom: cuts[i + 1] });
         }
       }
-      boxes.push({
-        left: time.labelX - 9,
-        right: time.labelX + node.width + 9,
-        top: time.labelY - 19,
-        bottom: time.labelY + (node.detailLines.length ? 42 : 27),
-      });
       return boxes;
     }),
     Math.max(180, (leftTrack?.x ?? Math.min(source.x, target.x)) - channel),
-    tracks.length === 0,
   );
   const path = roundedRoute(points);
   const middle = points[Math.floor(points.length / 2)];
@@ -538,7 +525,6 @@ function timelineRoute(
   to: RoutePoint,
   obstacles: RouteObstacle[],
   corridorX: number,
-  freeFlow = false,
 ): RoutePoint[] {
   if (from.x === to.x && from.y === to.y) return [from, to];
   const minY = Math.min(from.y, to.y),
@@ -547,7 +533,7 @@ function timelineRoute(
     maxX = Math.max(from.x, to.x);
   const close = maxY - minY < 24;
   const candidates: RoutePoint[][] = [];
-  if (freeFlow || from.x === to.x || close) candidates.push([from, to]);
+  if (from.x === to.x || from.y === to.y) candidates.push([from, to]);
   if (from.x !== to.x) {
     const middleY = (from.y + to.y) / 2;
     const bend = Math.min(18, (maxY - minY) / 2);
@@ -589,7 +575,7 @@ function timelineRoute(
 }
 
 function segmentHitsObstacle(a: RoutePoint, b: RoutePoint, obstacle: RouteObstacle): boolean {
-  // Clip the segment against both rectangle axes, also handling subpixel diagonal edges.
+  // Clip each orthogonal segment against the obstacle bounds.
   let enter = 0,
     leave = 1;
   for (const [start, delta, low, high] of [

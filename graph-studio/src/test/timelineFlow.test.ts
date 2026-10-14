@@ -89,6 +89,7 @@ export const timelineFlowSuite = defineSuite("Timeline relation flow", [
     const stage = stageFor({ format: "graph-studio", version: 3, nodes, edges: [] });
     for (const [index, first] of stage.nodes.entries()) {
       assert.equal(first.y, timelineTimeToY(stage.timeline!.axisMap!, first.timeline!.start!));
+      assert.equal(first.timeline!.labelY, first.y + 3, "labels stay on their event's time row");
       for (const second of stage.nodes.slice(index + 1)) {
         assert.equal(overlaps(label(first), label(second)), false, `${first.key}/${second.key}: labels`);
         assert.equal(overlaps(marker(first), marker(second)), false, `${first.key}/${second.key}: markers`);

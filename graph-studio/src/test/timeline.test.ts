@@ -194,8 +194,9 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     });
     assert.ok(stage.nodeMap.arrival.y - stage.nodeMap.launch.y < 1);
     for (const edge of stage.edges.filter((edge) => edge.id !== "skip-phase")) {
-      assert.equal(edge.points!.length, 2, `${edge.id}: adjacent markers connect directly`);
-      assert.doesNotMatch(edge.path, /Q/, `${edge.id}: no forced corner on a short connection`);
+      const points = edge.points!;
+      assert.ok(points.slice(1).every((point, i) => point.x === points[i].x || point.y === points[i].y));
+      if (edge.id === "same-time") assert.equal(points.length, 2, "same-time markers connect horizontally");
     }
     assert.equal(stage.edges.find((edge) => edge.id === "short-backward")!.timeline!.backward, true);
     const bridge = stage.edges.find((edge) => edge.id === "skip-phase")!;
@@ -266,9 +267,12 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     for (const track of first.timeline!.tracks) {
       const labels = first.nodes
         .filter((node) => node.timeline!.track === track.id)
-        .map((node) => node.timeline!.labelY)
-        .sort((a, b) => a - b);
-      for (let index = 1; index < labels.length; index++) assert.ok(labels[index] - labels[index - 1] >= 44);
+        .map((node) => ({ x: node.timeline!.labelX, y: node.timeline!.labelY, width: node.width, timeY: node.y }));
+      for (const [index, a] of labels.entries()) {
+        assert.equal(a.y, a.timeY + 3);
+        for (const b of labels.slice(index + 1))
+          assert.ok(Math.abs(a.y - b.y) >= 40 || a.x + a.width + 12 <= b.x || b.x + b.width + 12 <= a.x);
+      }
     }
   }),
   defineTest("track order starts with earliest dated history, with stable ties and undated tracks last", () => {
@@ -340,7 +344,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
       if (time?.at === "broken") assert.match(stage.warnings[0], /valid/);
     }
   }),
-  defineTest("long overlapping programs use compact channels instead of label-width columns", () => {
+  defineTest("simultaneous programs expand horizontally and keep their labels on one time row", () => {
     const nodes = Object.fromEntries(
       Array.from({ length: 100 }, (_, index) => [
         `program-${index}`,
@@ -349,7 +353,10 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     );
     const stage = stageFor({ format: "graph-studio", version: 3, nodes, edges: [] });
     assert.equal(new Set(stage.nodes.map((node) => node.x)).size, 100);
-    assert.ok(stage.stageWidth < 2600);
+    assert.equal(new Set(stage.nodes.map((node) => node.timeline!.labelY)).size, 1);
+    const labels = stage.nodes.slice().sort((a, b) => a.timeline!.labelX - b.timeline!.labelX);
+    for (let i = 1; i < labels.length; i++)
+      assert.ok(labels[i].timeline!.labelX > labels[i - 1].timeline!.labelX + labels[i - 1].width);
     assert.ok(stage.stageHeight < 11_000);
     assert.equal(new Set(stage.nodes.map((node) => node.y)).size, 1);
   }),
