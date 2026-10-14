@@ -14,6 +14,20 @@ const DENSE_STAGE_NODE_THRESHOLD = 220;
 const DENSE_STAGE_EDGE_THRESHOLD = 440;
 const DENSE_STAGE_AREA_THRESHOLD = 20_000_000;
 
+// Muted surface ramps inspired by Radix's background/component color steps.
+// Cap the ramp so deeply nested containers never become visually dominant.
+const GROUP_BACKGROUND_PALETTES = [
+  ["#f6f8fb", "#eef2f7", "#e6edf4", "#dfe7f0"], // Mist blue
+  ["#f5f8f6", "#eef3ef", "#e6eee8", "#dfe8e2"], // Sage
+  ["#faf8f4", "#f4f0e9", "#eee8df", "#e8e1d6"], // Warm sand
+  ["#f8f6fa", "#f2eef6", "#ebe5f0", "#e5deeb"], // Dusty lavender
+] as const;
+
+function groupBackgroundFill(familyIndex: number, depth: number): string {
+  const palette = GROUP_BACKGROUND_PALETTES[familyIndex % GROUP_BACKGROUND_PALETTES.length];
+  return palette[Math.min(palette.length - 1, Math.max(0, depth))];
+}
+
 interface GraphStageProps {
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
@@ -279,7 +293,13 @@ export default function GraphStage({
           <rect
             key={group.id}
             data-group-id={group.id}
+            data-depth={group.depth}
             className="dag-group-background"
+            style={
+              {
+                "--dag-group-fill": groupBackgroundFill(group.colorFamilyIndex, group.depth),
+              } as CSSProperties
+            }
             x={group.x}
             y={group.y}
             width={group.width}

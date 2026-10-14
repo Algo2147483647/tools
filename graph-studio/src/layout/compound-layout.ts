@@ -19,6 +19,14 @@ export async function buildCompoundStage(
 ): Promise<StageData> {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
+  const groupParents = new Map(Object.entries(dag.hierarchy?.parentById ?? {}));
+  // Use all original roots, including collapsed/hidden ones, to keep colors stable.
+  const colorFamilies = new Map(
+    Object.keys(dag.hierarchy?.groups ?? {})
+      .filter((id) => !groupParents.has(id))
+      .sort()
+      .map((id, index) => [id, index]),
+  );
   const theme = appearance.layout;
   const root: ElkNode = {
     id: "scene-root",
@@ -100,8 +108,14 @@ export async function buildCompoundStage(
     const width = node.width ?? visual.width,
       height = node.height ?? theme.nodeHeight;
     if (node.children) {
+      // Use the original root ancestor so drilling into a group preserves its color family.
+      let colorFamilyId = id;
+      while (groupParents.has(colorFamilyId)) {
+        colorFamilyId = groupParents.get(colorFamilyId)!;
+      }
       groups.push({
         id,
+        colorFamilyIndex: colorFamilies.get(colorFamilyId) ?? 0,
         title: item.title,
         depth: item.depth,
         leafCount: item.leafCount,

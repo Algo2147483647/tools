@@ -178,6 +178,7 @@ export interface StageData {
 
 export interface StageGroup {
   id: string;
+  colorFamilyIndex: number;
   title: string;
   depth: number;
   leafCount: number;
