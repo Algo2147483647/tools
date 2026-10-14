@@ -4,10 +4,12 @@ Two independent, demand-driven Space Age 2.0.65 plans replace the old recipe atl
 
 ## Targets
 
-- **Rocket:** 1 complete launch-ready vehicle per second (60 per minute). A vehicle needs 50 rocket parts: the plan therefore supplies 50 parts/s, requiring 50 processing units/s, 50 low density structures/s and 50 rocket fuel/s before tracing their inputs further upstream. This is not the rocket ammunition item. Payloads and launch animation cadence are outside this material target.
 - **All science packs:** all 12 types simultaneously, each at 1 pack/s (60 per minute): automation, logistic, military, chemical, production, utility, space, metallurgic, electromagnetic, agricultural, cryogenic and promethium. Space science uses the Space Age orbital recipe, not a satellite launch.
+- **Rocket:** 1 complete launch-ready vehicle per second (60 per minute). A vehicle needs 50 rocket parts: the plan therefore supplies 50 parts/s, requiring 50 processing units/s, 50 low density structures/s and 50 rocket fuel/s before tracing their inputs further upstream. This is not the rocket ammunition item. Payloads and launch animation cadence are outside this material target.
 
 Read from the target sinks on the right back towards raw resources. Every band is a per-second rate, not a per-craft quantity. Shared intermediates aggregate all downstream demand. Recipe details give crafts/s, input/output coefficients, fuel consumption and continuous machine equivalents. The two diagrams are separate factories; their demands are not added together.
+
+The workspace opens **All science packs** first. Colors follow material families across supplies, shared materials and recipes: blue-gray metals, copper, teal electronics, lavender petrochemicals, sage biology and aqua fluids. Science packs keep twelve distinct accent colors through their final production steps. Color is a visual guide; band widths and quantities retain their original calculated values.
 
 ## Calculation basis
 

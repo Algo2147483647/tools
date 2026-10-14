@@ -276,7 +276,10 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     await assert.rejects(readWorkspaceFile(fallbackFolder.files.get("README.md")!), /Factorio production\/README.md/);
     const missingGraph = (async (url: string) =>
       url.endsWith("science-1-per-second.json") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
-    await assert.rejects(loadExampleWorkspace("factorio", "/", missingGraph), /Factorio production\/science-1-per-second.json/);
+    await assert.rejects(
+      loadExampleWorkspace("factorio", "/", missingGraph),
+      /Factorio production\/science-1-per-second.json/,
+    );
   }),
   defineTest("large examples open without downloading notes and share only immutable cached files", async () => {
     const requested: string[] = [];

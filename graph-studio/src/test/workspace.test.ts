@@ -336,7 +336,13 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     try {
       const result = await Promise.race([
         rememberLocation(
-          { kind: "workspace", name: "Energy", location: "Energy", exampleId: "factorio", lastGraph: "science-1-per-second.json" },
+          {
+            kind: "workspace",
+            name: "Factorio production",
+            location: "Factorio production",
+            exampleId: "factorio",
+            lastGraph: "science-1-per-second.json",
+          },
           [known],
         ),
         new Promise<never>((_, reject) => {

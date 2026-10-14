@@ -191,7 +191,7 @@
     "material:fluid:crude-oil": {
       "title": "Crude oil",
       "type": "Fluid",
-      "color": "#699fae",
+      "color": "#8a819d",
       "define": "8760.68 per second through this shared material.",
       "materialId": "fluid:crude-oil",
       "balancePerSecond": {
@@ -206,7 +206,7 @@
     "supply:fluid:crude-oil": {
       "title": "Crude oil supply",
       "type": "Raw resource",
-      "color": "#8393ae",
+      "color": "#8a819d",
       "define": "8760.68/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:crude-oil",
       "ratePerSecond": 8760.68376068376
@@ -214,7 +214,7 @@
     "material:fluid:heavy-oil": {
       "title": "Heavy oil",
       "type": "Fluid",
-      "color": "#699fae",
+      "color": "#8a819d",
       "define": "2190.17 per second through this shared material.",
       "materialId": "fluid:heavy-oil",
       "balancePerSecond": {
@@ -229,7 +229,7 @@
     "material:fluid:light-oil": {
       "title": "Light oil",
       "type": "Fluid",
-      "color": "#699fae",
+      "color": "#8a819d",
       "define": "5584.94 per second through this shared material.",
       "materialId": "fluid:light-oil",
       "balancePerSecond": {
@@ -244,7 +244,7 @@
     "material:fluid:petroleum-gas": {
       "title": "Petroleum gas",
       "type": "Fluid",
-      "color": "#699fae",
+      "color": "#8a819d",
       "define": "4875 per second through this shared material.",
       "materialId": "fluid:petroleum-gas",
       "balancePerSecond": {
@@ -259,7 +259,7 @@
     "material:fluid:sulfuric-acid": {
       "title": "Sulfuric acid",
       "type": "Fluid",
-      "color": "#699fae",
+      "color": "#ad9e73",
       "define": "250 per second through this shared material.",
       "materialId": "fluid:sulfuric-acid",
       "balancePerSecond": {
@@ -274,7 +274,7 @@
     "material:fluid:water": {
       "title": "Water",
       "type": "Fluid",
-      "color": "#699fae",
+      "color": "#6eabb4",
       "define": "6982.91 per second through this shared material.",
       "materialId": "fluid:water",
       "balancePerSecond": {
@@ -289,7 +289,7 @@
     "supply:fluid:water": {
       "title": "Water supply",
       "type": "Raw resource",
-      "color": "#8393ae",
+      "color": "#6eabb4",
       "define": "6982.91/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:water",
       "ratePerSecond": 6982.9059829059825
@@ -297,7 +297,7 @@
     "material:item:advanced-circuit": {
       "title": "Advanced circuit",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bb7478",
       "define": "100 per second through this shared material.",
       "materialId": "item:advanced-circuit",
       "balancePerSecond": {
@@ -312,7 +312,7 @@
     "material:item:coal": {
       "title": "Coal",
       "type": "Material",
-      "color": "#799778",
+      "color": "#8a819d",
       "define": "225 per second through this shared material.",
       "materialId": "item:coal",
       "balancePerSecond": {
@@ -327,7 +327,7 @@
     "supply:item:coal": {
       "title": "Coal supply",
       "type": "Raw resource",
-      "color": "#8393ae",
+      "color": "#8a819d",
       "define": "225/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:coal",
       "ratePerSecond": 225.0
@@ -335,7 +335,7 @@
     "material:item:copper-cable": {
       "title": "Copper cable",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd805c",
       "define": "4000 per second through this shared material.",
       "materialId": "item:copper-cable",
       "balancePerSecond": {
@@ -350,7 +350,7 @@
     "material:item:copper-ore": {
       "title": "Copper ore",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd805c",
       "define": "3000 per second through this shared material.",
       "materialId": "item:copper-ore",
       "balancePerSecond": {
@@ -365,7 +365,7 @@
     "supply:item:copper-ore": {
       "title": "Copper ore supply",
       "type": "Raw resource",
-      "color": "#8393ae",
+      "color": "#bd805c",
       "define": "3000/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:copper-ore",
       "ratePerSecond": 3000.0
@@ -373,7 +373,7 @@
     "material:item:copper-plate": {
       "title": "Copper plate",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd805c",
       "define": "3000 per second through this shared material.",
       "materialId": "item:copper-plate",
       "balancePerSecond": {
@@ -388,7 +388,7 @@
     "material:item:electronic-circuit": {
       "title": "Electronic circuit",
       "type": "Material",
-      "color": "#799778",
+      "color": "#6c9c90",
       "define": "1200 per second through this shared material.",
       "materialId": "item:electronic-circuit",
       "balancePerSecond": {
@@ -403,7 +403,7 @@
     "material:item:iron-ore": {
       "title": "Iron ore",
       "type": "Material",
-      "color": "#799778",
+      "color": "#748f9e",
       "define": "1705 per second through this shared material.",
       "materialId": "item:iron-ore",
       "balancePerSecond": {
@@ -418,7 +418,7 @@
     "supply:item:iron-ore": {
       "title": "Iron ore supply",
       "type": "Raw resource",
-      "color": "#8393ae",
+      "color": "#748f9e",
       "define": "1705/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:iron-ore",
       "ratePerSecond": 1705.0
@@ -426,7 +426,7 @@
     "material:item:iron-plate": {
       "title": "Iron plate",
       "type": "Material",
-      "color": "#799778",
+      "color": "#748f9e",
       "define": "1705 per second through this shared material.",
       "materialId": "item:iron-plate",
       "balancePerSecond": {
@@ -441,7 +441,7 @@
     "material:item:launch-ready-rocket": {
       "title": "Launch ready rocket",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd9264",
       "define": "1 per second through this shared material.",
       "materialId": "item:launch-ready-rocket",
       "balancePerSecond": {
@@ -456,7 +456,7 @@
     "material:item:low-density-structure": {
       "title": "Low density structure",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd9264",
       "define": "50 per second through this shared material.",
       "materialId": "item:low-density-structure",
       "balancePerSecond": {
@@ -471,7 +471,7 @@
     "material:item:plastic-bar": {
       "title": "Plastic bar",
       "type": "Material",
-      "color": "#799778",
+      "color": "#8a819d",
       "define": "450 per second through this shared material.",
       "materialId": "item:plastic-bar",
       "balancePerSecond": {
@@ -486,7 +486,7 @@
     "material:item:processing-unit": {
       "title": "Processing unit",
       "type": "Material",
-      "color": "#799778",
+      "color": "#738cb2",
       "define": "50 per second through this shared material.",
       "materialId": "item:processing-unit",
       "balancePerSecond": {
@@ -501,7 +501,7 @@
     "material:item:rocket-fuel": {
       "title": "Rocket fuel",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd9264",
       "define": "50 per second through this shared material.",
       "materialId": "item:rocket-fuel",
       "balancePerSecond": {
@@ -516,7 +516,7 @@
     "material:item:rocket-part": {
       "title": "Rocket part",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd9264",
       "define": "50 per second through this shared material.",
       "materialId": "item:rocket-part",
       "balancePerSecond": {
@@ -531,7 +531,7 @@
     "material:item:solid-fuel": {
       "title": "Solid fuel",
       "type": "Material",
-      "color": "#799778",
+      "color": "#bd9264",
       "define": "500 per second through this shared material.",
       "materialId": "item:solid-fuel",
       "balancePerSecond": {
@@ -546,7 +546,7 @@
     "material:item:steel-plate": {
       "title": "Steel plate",
       "type": "Material",
-      "color": "#799778",
+      "color": "#748f9e",
       "define": "100 per second through this shared material.",
       "materialId": "item:steel-plate",
       "balancePerSecond": {
@@ -561,7 +561,7 @@
     "material:item:sulfur": {
       "title": "Sulfur",
       "type": "Material",
-      "color": "#799778",
+      "color": "#ad9e73",
       "define": "25 per second through this shared material.",
       "materialId": "item:sulfur",
       "balancePerSecond": {
@@ -576,7 +576,7 @@
     "recipe:advanced-circuit": {
       "title": "Advanced circuit",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bb7478",
       "define": "100 crafts/s · Assembling machine 3",
       "recipe": "advanced-circuit",
       "craftsPerSecond": 100.0,
@@ -599,7 +599,7 @@
     "recipe:advanced-oil-processing": {
       "title": "Advanced oil processing",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#8a819d",
       "define": "87.6068 crafts/s · Oil refinery",
       "recipe": "advanced-oil-processing",
       "craftsPerSecond": 87.6068376068376,
@@ -623,7 +623,7 @@
     "recipe:complete-rocket": {
       "title": "Complete launch vehicle",
       "type": "Assembly",
-      "color": "#a68458",
+      "color": "#bd9264",
       "define": "50 rocket parts per launch-ready vehicle; completion accounting, not an extra crafting recipe.",
       "recipe": "complete-rocket",
       "craftsPerSecond": 1.0,
@@ -644,7 +644,7 @@
     "recipe:copper-cable": {
       "title": "Copper cable",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bd805c",
       "define": "2000 crafts/s · Assembling machine 3",
       "recipe": "copper-cable",
       "craftsPerSecond": 2000.0,
@@ -665,7 +665,7 @@
     "recipe:copper-plate": {
       "title": "Copper plate",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bd805c",
       "define": "3000 crafts/s · Electric furnace",
       "recipe": "copper-plate",
       "craftsPerSecond": 3000.0,
@@ -686,7 +686,7 @@
     "recipe:electronic-circuit": {
       "title": "Electronic circuit",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#6c9c90",
       "define": "1200 crafts/s · Assembling machine 3",
       "recipe": "electronic-circuit",
       "craftsPerSecond": 1200.0,
@@ -708,7 +708,7 @@
     "recipe:heavy-oil-cracking": {
       "title": "Heavy oil cracking",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#8a819d",
       "define": "54.7543 crafts/s · Chemical plant",
       "recipe": "heavy-oil-cracking",
       "craftsPerSecond": 54.754273504273506,
@@ -730,7 +730,7 @@
     "recipe:iron-plate": {
       "title": "Iron plate",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#748f9e",
       "define": "1705 crafts/s · Electric furnace",
       "recipe": "iron-plate",
       "craftsPerSecond": 1705.0,
@@ -751,7 +751,7 @@
     "recipe:light-oil-cracking": {
       "title": "Light oil cracking",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#8a819d",
       "define": "2.8312 crafts/s · Chemical plant",
       "recipe": "light-oil-cracking",
       "craftsPerSecond": 2.8311965811965814,
@@ -773,7 +773,7 @@
     "recipe:low-density-structure": {
       "title": "Low density structure",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bd9264",
       "define": "50 crafts/s · Assembling machine 3",
       "recipe": "low-density-structure",
       "craftsPerSecond": 50.0,
@@ -796,7 +796,7 @@
     "recipe:plastic-bar": {
       "title": "Plastic bar",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#8a819d",
       "define": "225 crafts/s · Chemical plant",
       "recipe": "plastic-bar",
       "craftsPerSecond": 225.0,
@@ -818,7 +818,7 @@
     "recipe:processing-unit": {
       "title": "Processing unit",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#738cb2",
       "define": "50 crafts/s · Assembling machine 3",
       "recipe": "processing-unit",
       "craftsPerSecond": 50.0,
@@ -841,7 +841,7 @@
     "recipe:rocket-fuel": {
       "title": "Rocket fuel",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bd9264",
       "define": "50 crafts/s · Assembling machine 3",
       "recipe": "rocket-fuel",
       "craftsPerSecond": 50.0,
@@ -863,7 +863,7 @@
     "recipe:rocket-part": {
       "title": "Rocket part",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bd9264",
       "define": "50 crafts/s · Rocket silo",
       "recipe": "rocket-part",
       "craftsPerSecond": 50.0,
@@ -886,7 +886,7 @@
     "recipe:solid-fuel-from-light-oil": {
       "title": "Solid fuel from light oil",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#bd9264",
       "define": "500 crafts/s · Chemical plant",
       "recipe": "solid-fuel-from-light-oil",
       "craftsPerSecond": 500.0,
@@ -907,7 +907,7 @@
     "recipe:steel-plate": {
       "title": "Steel plate",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#748f9e",
       "define": "100 crafts/s · Electric furnace",
       "recipe": "steel-plate",
       "craftsPerSecond": 100.0,
@@ -928,7 +928,7 @@
     "recipe:sulfur": {
       "title": "Sulfur",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#ad9e73",
       "define": "12.5 crafts/s · Chemical plant",
       "recipe": "sulfur",
       "craftsPerSecond": 12.5,
@@ -950,7 +950,7 @@
     "recipe:sulfuric-acid": {
       "title": "Sulfuric acid",
       "type": "Recipe",
-      "color": "#a68458",
+      "color": "#ad9e73",
       "define": "5 crafts/s · Chemical plant",
       "recipe": "sulfuric-acid",
       "craftsPerSecond": 5.0,
@@ -973,7 +973,7 @@
     "target:item:launch-ready-rocket": {
       "title": "Launch-ready rocket · 1/s",
       "type": "Target",
-      "color": "#c17a49",
+      "color": "#bd9264",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:launch-ready-rocket",
       "ratePerSecond": 1.0
