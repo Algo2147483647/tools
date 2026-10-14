@@ -9,7 +9,7 @@ Two independent, demand-driven Space Age 2.0.65 plans replace the old recipe atl
 
 Read from the target sinks on the right back towards raw resources. Every band is a per-second rate, not a per-craft quantity. Shared intermediates aggregate all downstream demand. Recipe details give crafts/s, input/output coefficients, fuel consumption and continuous machine equivalents. The two diagrams are separate factories; their demands are not added together.
 
-The workspace opens **All science packs** first. Colors follow material families across supplies, shared materials and recipes: blue-gray metals, copper, teal electronics, lavender petrochemicals, sage biology and aqua fluids. Science packs keep twelve distinct accent colors through their final production steps. Color is a visual guide; band widths and quantities retain their original calculated values.
+The workspace opens **All science packs** first. Colors follow material families across supplies, shared materials and recipes: blue metals, orange copper, emerald electronics, violet petrochemicals, green biology and cyan fluids. Science packs keep twelve distinct accent colors through their final production steps. Color is a visual guide; band widths and quantities retain their original calculated values.
 
 ## Calculation basis
 

@@ -164,16 +164,16 @@ function ExampleArt({ kind, color }: { kind: (typeof EXAMPLE_WORKSPACES)[number]
         </>
       ) : (
         <>
-          <g fill="none" strokeWidth="13" opacity=".24">
-            <path d="M40 30C72 30 80 51 112 51" stroke="#bd805c" />
-            <path d="M40 66H112" stroke="#8581a5" />
-            <path d="M40 102C72 102 80 81 112 81" stroke="#79a18a" />
+          <g fill="none" strokeWidth="13" opacity=".35">
+            <path d="M40 30C72 30 80 51 112 51" stroke="#d5854c" />
+            <path d="M40 66H112" stroke="#9074bb" />
+            <path d="M40 102C72 102 80 81 112 81" stroke="#7bad62" />
           </g>
           {(
             [
-              [30, "Ore", "#bd805c"],
-              [66, "Oil", "#8581a5"],
-              [102, "Bio", "#79a18a"],
+              [30, "Ore", "#d5854c"],
+              [66, "Oil", "#9074bb"],
+              [102, "Bio", "#7bad62"],
             ] as const
           ).map(([y, label, tint]) => (
             <g key={label}>
@@ -183,26 +183,26 @@ function ExampleArt({ kind, color }: { kind: (typeof EXAMPLE_WORKSPACES)[number]
               </text>
             </g>
           ))}
-          <rect x="111" y="35" width="15" height="62" rx="4" fill="#688c87" />
-          <text x="118" y="116" fill="#688c87" fontSize="9" textAnchor="middle">
+          <rect x="111" y="35" width="15" height="62" rx="4" fill="#3e948a" />
+          <text x="118" y="116" fill="#3e948a" fontSize="9" textAnchor="middle">
             Production
           </text>
           <text x="237" y="18" fill="#647b77" fontSize="9" textAnchor="middle" letterSpacing="1.5">
             12 SCIENCE PACKS
           </text>
           {[
-            "#ca6666",
-            "#79a478",
-            "#77828e",
-            "#65a8bc",
-            "#a381be",
-            "#c1a354",
-            "#a6b5c5",
-            "#cc8954",
-            "#b985b2",
-            "#9aa85f",
-            "#6e8cbe",
-            "#796b8c",
+            "#dc6064",
+            "#60ae6e",
+            "#66768c",
+            "#44aec8",
+            "#a476ce",
+            "#d4ac41",
+            "#9ab2cd",
+            "#df8a42",
+            "#d078b0",
+            "#9cb34c",
+            "#5c8ed3",
+            "#8366a4",
           ].map((tint, i) => {
             const x = 178 + (i % 6) * 23,
               y = i < 6 ? 36 : 83;
@@ -217,7 +217,7 @@ function ExampleArt({ kind, color }: { kind: (typeof EXAMPLE_WORKSPACES)[number]
                 <path
                   d={`M${x - 3} ${y}V${y + 7}L${x - 7} ${y + 16}Q${x - 9} ${y + 21} ${x - 4} ${y + 21}H${x + 4}Q${x + 9} ${y + 21} ${x + 7} ${y + 16}L${x + 3} ${y + 7}V${y}Z`}
                   fill={tint}
-                  fillOpacity=".8"
+                  fillOpacity=".87"
                   stroke={tint}
                   strokeWidth="1"
                 />

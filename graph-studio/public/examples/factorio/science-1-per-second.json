@@ -692,7 +692,7 @@
     "material:fluid:ammonia": {
       "title": "Ammonia",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "15.3333 per second through this shared material.",
       "materialId": "fluid:ammonia",
       "balancePerSecond": {
@@ -707,7 +707,7 @@
     "material:fluid:ammoniacal-solution": {
       "title": "Ammoniacal solution",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "15.3333 per second through this shared material.",
       "materialId": "fluid:ammoniacal-solution",
       "balancePerSecond": {
@@ -722,7 +722,7 @@
     "supply:fluid:ammoniacal-solution": {
       "title": "Ammoniacal solution supply",
       "type": "Raw resource",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "15.3333/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:ammoniacal-solution",
       "ratePerSecond": 15.333333333333334
@@ -730,7 +730,7 @@
     "material:fluid:crude-oil": {
       "title": "Crude oil",
       "type": "Fluid",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "79.3066 per second through this shared material.",
       "materialId": "fluid:crude-oil",
       "balancePerSecond": {
@@ -745,7 +745,7 @@
     "supply:fluid:crude-oil": {
       "title": "Crude oil supply",
       "type": "Raw resource",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "79.3066/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:crude-oil",
       "ratePerSecond": 79.30661601772712
@@ -753,7 +753,7 @@
     "material:fluid:electrolyte": {
       "title": "Electrolyte",
       "type": "Fluid",
-      "color": "#7f9b95",
+      "color": "#54a89c",
       "define": "21.1111 per second through this shared material.",
       "materialId": "fluid:electrolyte",
       "balancePerSecond": {
@@ -768,7 +768,7 @@
     "material:fluid:fluorine": {
       "title": "Fluorine",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "3.33333 per second through this shared material.",
       "materialId": "fluid:fluorine",
       "balancePerSecond": {
@@ -783,7 +783,7 @@
     "supply:fluid:fluorine": {
       "title": "Fluorine supply",
       "type": "Raw resource",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "3.33333/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:fluorine",
       "ratePerSecond": 3.3333333333333335
@@ -791,7 +791,7 @@
     "material:fluid:fluoroketone-cold": {
       "title": "Fluoroketone cold",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "6.66667 per second through this shared material.",
       "materialId": "fluid:fluoroketone-cold",
       "balancePerSecond": {
@@ -806,7 +806,7 @@
     "material:fluid:fluoroketone-hot": {
       "title": "Fluoroketone hot",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "6.66667 per second through this shared material.",
       "materialId": "fluid:fluoroketone-hot",
       "balancePerSecond": {
@@ -821,7 +821,7 @@
     "material:fluid:heavy-oil": {
       "title": "Heavy oil",
       "type": "Fluid",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "19.8267 per second through this shared material.",
       "materialId": "fluid:heavy-oil",
       "balancePerSecond": {
@@ -836,7 +836,7 @@
     "material:fluid:holmium-solution": {
       "title": "Holmium solution",
       "type": "Fluid",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "59.6889 per second through this shared material.",
       "materialId": "fluid:holmium-solution",
       "balancePerSecond": {
@@ -851,7 +851,7 @@
     "material:fluid:light-oil": {
       "title": "Light oil",
       "type": "Fluid",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "36.2524 per second through this shared material.",
       "materialId": "fluid:light-oil",
       "balancePerSecond": {
@@ -866,7 +866,7 @@
     "material:fluid:lithium-brine": {
       "title": "Lithium brine",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "12 per second through this shared material.",
       "materialId": "fluid:lithium-brine",
       "balancePerSecond": {
@@ -881,7 +881,7 @@
     "supply:fluid:lithium-brine": {
       "title": "Lithium brine supply",
       "type": "Raw resource",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "12/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:lithium-brine",
       "ratePerSecond": 12.0
@@ -889,7 +889,7 @@
     "material:fluid:lubricant": {
       "title": "Lubricant",
       "type": "Fluid",
-      "color": "#7f9b95",
+      "color": "#54a89c",
       "define": "5 per second through this shared material.",
       "materialId": "fluid:lubricant",
       "balancePerSecond": {
@@ -904,7 +904,7 @@
     "material:fluid:molten-copper": {
       "title": "Molten copper",
       "type": "Fluid",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "133.333 per second through this shared material.",
       "materialId": "fluid:molten-copper",
       "balancePerSecond": {
@@ -919,7 +919,7 @@
     "material:fluid:molten-iron": {
       "title": "Molten iron",
       "type": "Fluid",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "8.88889 per second through this shared material.",
       "materialId": "fluid:molten-iron",
       "balancePerSecond": {
@@ -934,7 +934,7 @@
     "material:fluid:petroleum-gas": {
       "title": "Petroleum gas",
       "type": "Fluid",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "66.7252 per second through this shared material.",
       "materialId": "fluid:petroleum-gas",
       "balancePerSecond": {
@@ -949,7 +949,7 @@
     "material:fluid:sulfuric-acid": {
       "title": "Sulfuric acid",
       "type": "Fluid",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "20.6667 per second through this shared material.",
       "materialId": "fluid:sulfuric-acid",
       "balancePerSecond": {
@@ -964,7 +964,7 @@
     "material:fluid:water": {
       "title": "Water",
       "type": "Fluid",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "187.346 per second through this shared material.",
       "materialId": "fluid:water",
       "balancePerSecond": {
@@ -979,7 +979,7 @@
     "supply:fluid:water": {
       "title": "Water supply",
       "type": "Raw resource",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "187.346/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "fluid:water",
       "ratePerSecond": 187.34645140867363
@@ -987,7 +987,7 @@
     "material:item:accumulator": {
       "title": "Accumulator",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.666667 per second through this shared material.",
       "materialId": "item:accumulator",
       "balancePerSecond": {
@@ -1002,7 +1002,7 @@
     "material:item:advanced-circuit": {
       "title": "Advanced circuit",
       "type": "Material",
-      "color": "#bb7478",
+      "color": "#d26c74",
       "define": "4.83333 per second through this shared material.",
       "materialId": "item:advanced-circuit",
       "balancePerSecond": {
@@ -1017,7 +1017,7 @@
     "material:item:agricultural-science-pack": {
       "title": "Agricultural science pack",
       "type": "Material",
-      "color": "#9aa85f",
+      "color": "#9cb34c",
       "define": "1 per second through this shared material.",
       "materialId": "item:agricultural-science-pack",
       "balancePerSecond": {
@@ -1032,7 +1032,7 @@
     "material:item:automation-science-pack": {
       "title": "Automation science pack",
       "type": "Material",
-      "color": "#ca6666",
+      "color": "#dc6064",
       "define": "1 per second through this shared material.",
       "materialId": "item:automation-science-pack",
       "balancePerSecond": {
@@ -1047,7 +1047,7 @@
     "material:item:battery": {
       "title": "Battery",
       "type": "Material",
-      "color": "#6c9c90",
+      "color": "#42a490",
       "define": "4.77511 per second through this shared material.",
       "materialId": "item:battery",
       "balancePerSecond": {
@@ -1062,7 +1062,7 @@
     "surplus:item:battery": {
       "title": "Battery surplus",
       "type": "Surplus",
-      "color": "#6c9c90",
+      "color": "#42a490",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:battery",
       "ratePerSecond": 0.33066666666666666
@@ -1070,7 +1070,7 @@
     "material:item:bioflux": {
       "title": "Bioflux",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "1.93596 per second through this shared material.",
       "materialId": "item:bioflux",
       "balancePerSecond": {
@@ -1085,7 +1085,7 @@
     "material:item:biter-egg": {
       "title": "Biter egg",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "1 per second through this shared material.",
       "materialId": "item:biter-egg",
       "balancePerSecond": {
@@ -1100,7 +1100,7 @@
     "material:item:calcite": {
       "title": "Calcite",
       "type": "Material",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "0.18963 per second through this shared material.",
       "materialId": "item:calcite",
       "balancePerSecond": {
@@ -1115,7 +1115,7 @@
     "supply:item:calcite": {
       "title": "Calcite supply",
       "type": "Raw resource",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "0.18963/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:calcite",
       "ratePerSecond": 0.18962962962962962
@@ -1123,7 +1123,7 @@
     "material:item:carbon": {
       "title": "Carbon",
       "type": "Material",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "2.31111 per second through this shared material.",
       "materialId": "item:carbon",
       "balancePerSecond": {
@@ -1138,7 +1138,7 @@
     "material:item:carbon-fiber": {
       "title": "Carbon fiber",
       "type": "Material",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.0666667 per second through this shared material.",
       "materialId": "item:carbon-fiber",
       "balancePerSecond": {
@@ -1153,7 +1153,7 @@
     "material:item:carbonic-asteroid-chunk": {
       "title": "Carbonic asteroid chunk",
       "type": "Material",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.231111 per second through this shared material.",
       "materialId": "item:carbonic-asteroid-chunk",
       "balancePerSecond": {
@@ -1168,7 +1168,7 @@
     "supply:item:carbonic-asteroid-chunk": {
       "title": "Carbonic asteroid chunk supply",
       "type": "Raw resource",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.184889/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:carbonic-asteroid-chunk",
       "ratePerSecond": 0.18488888888888888
@@ -1176,7 +1176,7 @@
     "material:item:chemical-science-pack": {
       "title": "Chemical science pack",
       "type": "Material",
-      "color": "#65a8bc",
+      "color": "#44aec8",
       "define": "1 per second through this shared material.",
       "materialId": "item:chemical-science-pack",
       "balancePerSecond": {
@@ -1191,7 +1191,7 @@
     "material:item:coal": {
       "title": "Coal",
       "type": "Material",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "6.41126 per second through this shared material.",
       "materialId": "item:coal",
       "balancePerSecond": {
@@ -1206,7 +1206,7 @@
     "supply:item:coal": {
       "title": "Coal supply",
       "type": "Raw resource",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "6.41126/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:coal",
       "ratePerSecond": 6.41125925925926
@@ -1214,7 +1214,7 @@
     "material:item:concrete": {
       "title": "Concrete",
       "type": "Material",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "7.16267 per second through this shared material.",
       "materialId": "item:concrete",
       "balancePerSecond": {
@@ -1229,7 +1229,7 @@
     "surplus:item:concrete": {
       "title": "Concrete surplus",
       "type": "Surplus",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:concrete",
       "ratePerSecond": 7.1626666666666665
@@ -1237,7 +1237,7 @@
     "material:item:copper-cable": {
       "title": "Copper cable",
       "type": "Material",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "30.8533 per second through this shared material.",
       "materialId": "item:copper-cable",
       "balancePerSecond": {
@@ -1252,7 +1252,7 @@
     "material:item:copper-ore": {
       "title": "Copper ore",
       "type": "Material",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "24.3434 per second through this shared material.",
       "materialId": "item:copper-ore",
       "balancePerSecond": {
@@ -1267,7 +1267,7 @@
     "supply:item:copper-ore": {
       "title": "Copper ore supply",
       "type": "Raw resource",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "24.3434/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:copper-ore",
       "ratePerSecond": 24.34340740740741
@@ -1275,7 +1275,7 @@
     "material:item:copper-plate": {
       "title": "Copper plate",
       "type": "Material",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "15.4545 per second through this shared material.",
       "materialId": "item:copper-plate",
       "balancePerSecond": {
@@ -1290,7 +1290,7 @@
     "material:item:cryogenic-science-pack": {
       "title": "Cryogenic science pack",
       "type": "Material",
-      "color": "#6e8cbe",
+      "color": "#5c8ed3",
       "define": "1 per second through this shared material.",
       "materialId": "item:cryogenic-science-pack",
       "balancePerSecond": {
@@ -1305,7 +1305,7 @@
     "material:item:electric-engine-unit": {
       "title": "Electric engine unit",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 per second through this shared material.",
       "materialId": "item:electric-engine-unit",
       "balancePerSecond": {
@@ -1320,7 +1320,7 @@
     "material:item:electric-furnace": {
       "title": "Electric furnace",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 per second through this shared material.",
       "materialId": "item:electric-furnace",
       "balancePerSecond": {
@@ -1335,7 +1335,7 @@
     "material:item:electromagnetic-science-pack": {
       "title": "Electromagnetic science pack",
       "type": "Material",
-      "color": "#b985b2",
+      "color": "#d078b0",
       "define": "1 per second through this shared material.",
       "materialId": "item:electromagnetic-science-pack",
       "balancePerSecond": {
@@ -1350,7 +1350,7 @@
     "material:item:electronic-circuit": {
       "title": "Electronic circuit",
       "type": "Material",
-      "color": "#6c9c90",
+      "color": "#42a490",
       "define": "8.61511 per second through this shared material.",
       "materialId": "item:electronic-circuit",
       "balancePerSecond": {
@@ -1365,7 +1365,7 @@
     "material:item:engine-unit": {
       "title": "Engine unit",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "1.33333 per second through this shared material.",
       "materialId": "item:engine-unit",
       "balancePerSecond": {
@@ -1380,7 +1380,7 @@
     "material:item:firearm-magazine": {
       "title": "Firearm magazine",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.5 per second through this shared material.",
       "materialId": "item:firearm-magazine",
       "balancePerSecond": {
@@ -1395,7 +1395,7 @@
     "material:item:flying-robot-frame": {
       "title": "Flying robot frame",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 per second through this shared material.",
       "materialId": "item:flying-robot-frame",
       "balancePerSecond": {
@@ -1410,7 +1410,7 @@
     "material:item:grenade": {
       "title": "Grenade",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.5 per second through this shared material.",
       "materialId": "item:grenade",
       "balancePerSecond": {
@@ -1425,7 +1425,7 @@
     "material:item:holmium-ore": {
       "title": "Holmium ore",
       "type": "Material",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "1.19378 per second through this shared material.",
       "materialId": "item:holmium-ore",
       "balancePerSecond": {
@@ -1440,7 +1440,7 @@
     "material:item:holmium-plate": {
       "title": "Holmium plate",
       "type": "Material",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "1.44741 per second through this shared material.",
       "materialId": "item:holmium-plate",
       "balancePerSecond": {
@@ -1455,7 +1455,7 @@
     "material:item:ice": {
       "title": "Ice",
       "type": "Material",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "7.50222 per second through this shared material.",
       "materialId": "item:ice",
       "balancePerSecond": {
@@ -1470,7 +1470,7 @@
     "surplus:item:ice": {
       "title": "Ice surplus",
       "type": "Surplus",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:ice",
       "ratePerSecond": 4.302222222222222
@@ -1478,7 +1478,7 @@
     "material:item:inserter": {
       "title": "Inserter",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "1 per second through this shared material.",
       "materialId": "item:inserter",
       "balancePerSecond": {
@@ -1493,7 +1493,7 @@
     "material:item:iron-gear-wheel": {
       "title": "Iron gear wheel",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "23.8756 per second through this shared material.",
       "materialId": "item:iron-gear-wheel",
       "balancePerSecond": {
@@ -1508,7 +1508,7 @@
     "surplus:item:iron-gear-wheel": {
       "title": "Iron gear wheel surplus",
       "type": "Surplus",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:iron-gear-wheel",
       "ratePerSecond": 20.04222222222222
@@ -1516,7 +1516,7 @@
     "material:item:iron-ore": {
       "title": "Iron ore",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "49.8955 per second through this shared material.",
       "materialId": "item:iron-ore",
       "balancePerSecond": {
@@ -1531,7 +1531,7 @@
     "supply:item:iron-ore": {
       "title": "Iron ore supply",
       "type": "Raw resource",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "49.8955/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:iron-ore",
       "ratePerSecond": 49.89548148148148
@@ -1539,7 +1539,7 @@
     "material:item:iron-plate": {
       "title": "Iron plate",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "49.3029 per second through this shared material.",
       "materialId": "item:iron-plate",
       "balancePerSecond": {
@@ -1554,7 +1554,7 @@
     "material:item:iron-stick": {
       "title": "Iron stick",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "5 per second through this shared material.",
       "materialId": "item:iron-stick",
       "balancePerSecond": {
@@ -1569,7 +1569,7 @@
     "material:item:jelly": {
       "title": "Jelly",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "3.87193 per second through this shared material.",
       "materialId": "item:jelly",
       "balancePerSecond": {
@@ -1584,7 +1584,7 @@
     "material:item:jellynut": {
       "title": "Jellynut",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.967982 per second through this shared material.",
       "materialId": "item:jellynut",
       "balancePerSecond": {
@@ -1599,7 +1599,7 @@
     "supply:item:jellynut": {
       "title": "Jellynut supply",
       "type": "Raw resource",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.967982/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:jellynut",
       "ratePerSecond": 0.9679821470519145
@@ -1607,7 +1607,7 @@
     "material:item:jellynut-seed": {
       "title": "Jellynut seed",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.0193596 per second through this shared material.",
       "materialId": "item:jellynut-seed",
       "balancePerSecond": {
@@ -1622,7 +1622,7 @@
     "surplus:item:jellynut-seed": {
       "title": "Jellynut seed surplus",
       "type": "Surplus",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:jellynut-seed",
       "ratePerSecond": 0.01935964294103829
@@ -1630,7 +1630,7 @@
     "material:item:lithium": {
       "title": "Lithium",
       "type": "Material",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "1.2 per second through this shared material.",
       "materialId": "item:lithium",
       "balancePerSecond": {
@@ -1645,7 +1645,7 @@
     "material:item:lithium-plate": {
       "title": "Lithium plate",
       "type": "Material",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "1.13333 per second through this shared material.",
       "materialId": "item:lithium-plate",
       "balancePerSecond": {
@@ -1660,7 +1660,7 @@
     "material:item:logistic-science-pack": {
       "title": "Logistic science pack",
       "type": "Material",
-      "color": "#79a478",
+      "color": "#60ae6e",
       "define": "1 per second through this shared material.",
       "materialId": "item:logistic-science-pack",
       "balancePerSecond": {
@@ -1675,7 +1675,7 @@
     "material:item:low-density-structure": {
       "title": "Low density structure",
       "type": "Material",
-      "color": "#bd9264",
+      "color": "#d59f4c",
       "define": "1.19378 per second through this shared material.",
       "materialId": "item:low-density-structure",
       "balancePerSecond": {
@@ -1690,7 +1690,7 @@
     "surplus:item:low-density-structure": {
       "title": "Low density structure surplus",
       "type": "Surplus",
-      "color": "#bd9264",
+      "color": "#d59f4c",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:low-density-structure",
       "ratePerSecond": 0.19377777777777777
@@ -1698,7 +1698,7 @@
     "material:item:metallurgic-science-pack": {
       "title": "Metallurgic science pack",
       "type": "Material",
-      "color": "#cc8954",
+      "color": "#df8a42",
       "define": "1 per second through this shared material.",
       "materialId": "item:metallurgic-science-pack",
       "balancePerSecond": {
@@ -1713,7 +1713,7 @@
     "material:item:military-science-pack": {
       "title": "Military science pack",
       "type": "Material",
-      "color": "#77828e",
+      "color": "#66768c",
       "define": "1 per second through this shared material.",
       "materialId": "item:military-science-pack",
       "balancePerSecond": {
@@ -1728,7 +1728,7 @@
     "material:item:nutrients": {
       "title": "Nutrients",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "14.8316 per second through this shared material.",
       "materialId": "item:nutrients",
       "balancePerSecond": {
@@ -1743,7 +1743,7 @@
     "material:item:pentapod-egg": {
       "title": "Pentapod egg",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "1.11111 per second through this shared material.",
       "materialId": "item:pentapod-egg",
       "balancePerSecond": {
@@ -1758,7 +1758,7 @@
     "material:item:piercing-rounds-magazine": {
       "title": "Piercing rounds magazine",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.5 per second through this shared material.",
       "materialId": "item:piercing-rounds-magazine",
       "balancePerSecond": {
@@ -1773,7 +1773,7 @@
     "material:item:pipe": {
       "title": "Pipe",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "2.66667 per second through this shared material.",
       "materialId": "item:pipe",
       "balancePerSecond": {
@@ -1788,7 +1788,7 @@
     "material:item:plastic-bar": {
       "title": "Plastic bar",
       "type": "Material",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "2.82252 per second through this shared material.",
       "materialId": "item:plastic-bar",
       "balancePerSecond": {
@@ -1803,7 +1803,7 @@
     "material:item:processing-unit": {
       "title": "Processing unit",
       "type": "Material",
-      "color": "#738cb2",
+      "color": "#6386d0",
       "define": "2.38756 per second through this shared material.",
       "materialId": "item:processing-unit",
       "balancePerSecond": {
@@ -1818,7 +1818,7 @@
     "surplus:item:processing-unit": {
       "title": "Processing unit surplus",
       "type": "Surplus",
-      "color": "#738cb2",
+      "color": "#6386d0",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:processing-unit",
       "ratePerSecond": 1.6542222222222223
@@ -1826,7 +1826,7 @@
     "material:item:production-science-pack": {
       "title": "Production science pack",
       "type": "Material",
-      "color": "#a381be",
+      "color": "#a476ce",
       "define": "1 per second through this shared material.",
       "materialId": "item:production-science-pack",
       "balancePerSecond": {
@@ -1841,7 +1841,7 @@
     "material:item:productivity-module": {
       "title": "Productivity module",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 per second through this shared material.",
       "materialId": "item:productivity-module",
       "balancePerSecond": {
@@ -1856,7 +1856,7 @@
     "material:item:promethium-asteroid-chunk": {
       "title": "Promethium asteroid chunk",
       "type": "Material",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "2.5 per second through this shared material.",
       "materialId": "item:promethium-asteroid-chunk",
       "balancePerSecond": {
@@ -1871,7 +1871,7 @@
     "supply:item:promethium-asteroid-chunk": {
       "title": "Promethium asteroid chunk supply",
       "type": "Raw resource",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "2.5/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:promethium-asteroid-chunk",
       "ratePerSecond": 2.5
@@ -1879,7 +1879,7 @@
     "material:item:promethium-science-pack": {
       "title": "Promethium science pack",
       "type": "Material",
-      "color": "#796b8c",
+      "color": "#8366a4",
       "define": "1 per second through this shared material.",
       "materialId": "item:promethium-science-pack",
       "balancePerSecond": {
@@ -1894,7 +1894,7 @@
     "material:item:quantum-processor": {
       "title": "Quantum processor",
       "type": "Material",
-      "color": "#738cb2",
+      "color": "#6386d0",
       "define": "0.1 per second through this shared material.",
       "materialId": "item:quantum-processor",
       "balancePerSecond": {
@@ -1909,7 +1909,7 @@
     "material:item:rail": {
       "title": "Rail",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "10 per second through this shared material.",
       "materialId": "item:rail",
       "balancePerSecond": {
@@ -1924,7 +1924,7 @@
     "material:item:scrap": {
       "title": "Scrap",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "119.378 per second through this shared material.",
       "materialId": "item:scrap",
       "balancePerSecond": {
@@ -1939,7 +1939,7 @@
     "supply:item:scrap": {
       "title": "Scrap supply",
       "type": "Raw resource",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "119.378/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:scrap",
       "ratePerSecond": 119.37777777777778
@@ -1947,7 +1947,7 @@
     "material:item:solid-fuel": {
       "title": "Solid fuel",
       "type": "Material",
-      "color": "#bd9264",
+      "color": "#d59f4c",
       "define": "8.35644 per second through this shared material.",
       "materialId": "item:solid-fuel",
       "balancePerSecond": {
@@ -1962,7 +1962,7 @@
     "surplus:item:solid-fuel": {
       "title": "Solid fuel surplus",
       "type": "Surplus",
-      "color": "#bd9264",
+      "color": "#d59f4c",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:solid-fuel",
       "ratePerSecond": 8.289777777777777
@@ -1970,7 +1970,7 @@
     "material:item:space-science-pack": {
       "title": "Space science pack",
       "type": "Material",
-      "color": "#a6b5c5",
+      "color": "#9ab2cd",
       "define": "1 per second through this shared material.",
       "materialId": "item:space-science-pack",
       "balancePerSecond": {
@@ -1985,7 +1985,7 @@
     "material:item:steel-plate": {
       "title": "Steel plate",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "10.25 per second through this shared material.",
       "materialId": "item:steel-plate",
       "balancePerSecond": {
@@ -2000,7 +2000,7 @@
     "material:item:stone": {
       "title": "Stone",
       "type": "Material",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "23.671 per second through this shared material.",
       "materialId": "item:stone",
       "balancePerSecond": {
@@ -2015,7 +2015,7 @@
     "supply:item:stone": {
       "title": "Stone supply",
       "type": "Raw resource",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "18.8959/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:stone",
       "ratePerSecond": 18.89585185185185
@@ -2023,7 +2023,7 @@
     "material:item:stone-brick": {
       "title": "Stone brick",
       "type": "Material",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "8.33333 per second through this shared material.",
       "materialId": "item:stone-brick",
       "balancePerSecond": {
@@ -2038,7 +2038,7 @@
     "material:item:stone-wall": {
       "title": "Stone wall",
       "type": "Material",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "1 per second through this shared material.",
       "materialId": "item:stone-wall",
       "balancePerSecond": {
@@ -2053,7 +2053,7 @@
     "material:item:sulfur": {
       "title": "Sulfur",
       "type": "Material",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "2.56667 per second through this shared material.",
       "materialId": "item:sulfur",
       "balancePerSecond": {
@@ -2068,7 +2068,7 @@
     "material:item:supercapacitor": {
       "title": "Supercapacitor",
       "type": "Material",
-      "color": "#6c9c90",
+      "color": "#42a490",
       "define": "0.666667 per second through this shared material.",
       "materialId": "item:supercapacitor",
       "balancePerSecond": {
@@ -2083,7 +2083,7 @@
     "material:item:superconductor": {
       "title": "Superconductor",
       "type": "Material",
-      "color": "#738cb2",
+      "color": "#6386d0",
       "define": "0.955556 per second through this shared material.",
       "materialId": "item:superconductor",
       "balancePerSecond": {
@@ -2098,7 +2098,7 @@
     "material:item:transport-belt": {
       "title": "Transport belt",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "1 per second through this shared material.",
       "materialId": "item:transport-belt",
       "balancePerSecond": {
@@ -2113,7 +2113,7 @@
     "material:item:tungsten-carbide": {
       "title": "Tungsten carbide",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "2.06667 per second through this shared material.",
       "materialId": "item:tungsten-carbide",
       "balancePerSecond": {
@@ -2128,7 +2128,7 @@
     "material:item:tungsten-ore": {
       "title": "Tungsten ore",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "7.68889 per second through this shared material.",
       "materialId": "item:tungsten-ore",
       "balancePerSecond": {
@@ -2143,7 +2143,7 @@
     "supply:item:tungsten-ore": {
       "title": "Tungsten ore supply",
       "type": "Raw resource",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "7.68889/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:tungsten-ore",
       "ratePerSecond": 7.688888888888889
@@ -2151,7 +2151,7 @@
     "material:item:tungsten-plate": {
       "title": "Tungsten plate",
       "type": "Material",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "1.33333 per second through this shared material.",
       "materialId": "item:tungsten-plate",
       "balancePerSecond": {
@@ -2166,7 +2166,7 @@
     "material:item:utility-science-pack": {
       "title": "Utility science pack",
       "type": "Material",
-      "color": "#c1a354",
+      "color": "#d4ac41",
       "define": "1 per second through this shared material.",
       "materialId": "item:utility-science-pack",
       "balancePerSecond": {
@@ -2181,7 +2181,7 @@
     "material:item:yumako": {
       "title": "Yumako",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "2.64218 per second through this shared material.",
       "materialId": "item:yumako",
       "balancePerSecond": {
@@ -2196,7 +2196,7 @@
     "supply:item:yumako": {
       "title": "Yumako supply",
       "type": "Raw resource",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "2.64218/s from mining, pumping, harvesting or asteroid collection.",
       "materialId": "item:yumako",
       "ratePerSecond": 2.6421775898520083
@@ -2204,7 +2204,7 @@
     "material:item:yumako-mash": {
       "title": "Yumako mash",
       "type": "Material",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "5.28436 per second through this shared material.",
       "materialId": "item:yumako-mash",
       "balancePerSecond": {
@@ -2219,7 +2219,7 @@
     "material:item:yumako-seed": {
       "title": "Yumako seed",
       "type": "Material",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.0528436 per second through this shared material.",
       "materialId": "item:yumako-seed",
       "balancePerSecond": {
@@ -2234,7 +2234,7 @@
     "surplus:item:yumako-seed": {
       "title": "Yumako seed surplus",
       "type": "Surplus",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "Store or dispose of unused coproducts; not an additional requested output.",
       "materialId": "item:yumako-seed",
       "ratePerSecond": 0.05284355179704017
@@ -2242,7 +2242,7 @@
     "recipe:accumulator": {
       "title": "Accumulator",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.666667 crafts/s · Assembling machine 3",
       "recipe": "accumulator",
       "craftsPerSecond": 0.6666666666666666,
@@ -2264,7 +2264,7 @@
     "recipe:advanced-circuit": {
       "title": "Advanced circuit",
       "type": "Recipe",
-      "color": "#bb7478",
+      "color": "#d26c74",
       "define": "1.252 crafts/s · Assembling machine 3",
       "recipe": "advanced-circuit",
       "craftsPerSecond": 1.252,
@@ -2287,7 +2287,7 @@
     "recipe:advanced-oil-processing": {
       "title": "Advanced oil processing",
       "type": "Recipe",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.793066 crafts/s · Oil refinery",
       "recipe": "advanced-oil-processing",
       "craftsPerSecond": 0.7930661601772713,
@@ -2311,7 +2311,7 @@
     "recipe:agricultural-science-pack": {
       "title": "Agricultural science pack",
       "type": "Recipe",
-      "color": "#9aa85f",
+      "color": "#9cb34c",
       "define": "0.666667 crafts/s · Biochamber",
       "recipe": "agricultural-science-pack",
       "craftsPerSecond": 0.6666666666666666,
@@ -2342,7 +2342,7 @@
     "recipe:ammoniacal-solution-separation": {
       "title": "Ammoniacal solution separation",
       "type": "Recipe",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "0.306667 crafts/s · Chemical plant",
       "recipe": "ammoniacal-solution-separation",
       "craftsPerSecond": 0.30666666666666664,
@@ -2364,7 +2364,7 @@
     "recipe:automation-science-pack": {
       "title": "Automation science pack",
       "type": "Recipe",
-      "color": "#ca6666",
+      "color": "#dc6064",
       "define": "1 crafts/s · Assembling machine 3",
       "recipe": "automation-science-pack",
       "craftsPerSecond": 1.0,
@@ -2386,7 +2386,7 @@
     "recipe:bioflux": {
       "title": "Bioflux",
       "type": "Recipe",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.322661 crafts/s · Biochamber",
       "recipe": "bioflux",
       "craftsPerSecond": 0.3226607156839715,
@@ -2411,7 +2411,7 @@
     "recipe:biter-egg": {
       "title": "Biter egg",
       "type": "Recipe",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.2 crafts/s · Captive biter spawner",
       "recipe": "biter-egg",
       "craftsPerSecond": 0.2,
@@ -2434,7 +2434,7 @@
     "recipe:carbon-fiber": {
       "title": "Carbon fiber",
       "type": "Recipe",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.0444444 crafts/s · Biochamber",
       "recipe": "carbon-fiber",
       "craftsPerSecond": 0.044444444444444446,
@@ -2459,7 +2459,7 @@
     "recipe:carbonic-asteroid-crushing": {
       "title": "Carbonic asteroid crushing",
       "type": "Recipe",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.231111 crafts/s · Crusher",
       "recipe": "carbonic-asteroid-crushing",
       "craftsPerSecond": 0.2311111111111111,
@@ -2481,7 +2481,7 @@
     "recipe:chemical-science-pack": {
       "title": "Chemical science pack",
       "type": "Recipe",
-      "color": "#65a8bc",
+      "color": "#44aec8",
       "define": "0.5 crafts/s · Assembling machine 3",
       "recipe": "chemical-science-pack",
       "craftsPerSecond": 0.5,
@@ -2504,7 +2504,7 @@
     "recipe:copper-cable": {
       "title": "Copper cable",
       "type": "Recipe",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "13.636 crafts/s · Assembling machine 3",
       "recipe": "copper-cable",
       "craftsPerSecond": 13.636,
@@ -2525,7 +2525,7 @@
     "recipe:copper-plate": {
       "title": "Copper plate",
       "type": "Recipe",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "15.4545 crafts/s · Electric furnace",
       "recipe": "copper-plate",
       "craftsPerSecond": 15.454518518518519,
@@ -2546,7 +2546,7 @@
     "recipe:cryogenic-science-pack": {
       "title": "Cryogenic science pack",
       "type": "Recipe",
-      "color": "#6e8cbe",
+      "color": "#5c8ed3",
       "define": "1 crafts/s · Cryogenic plant",
       "recipe": "cryogenic-science-pack",
       "craftsPerSecond": 1.0,
@@ -2576,7 +2576,7 @@
     "recipe:electric-engine-unit": {
       "title": "Electric engine unit",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 crafts/s · Assembling machine 3",
       "recipe": "electric-engine-unit",
       "craftsPerSecond": 0.3333333333333333,
@@ -2599,7 +2599,7 @@
     "recipe:electric-furnace": {
       "title": "Electric furnace",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 crafts/s · Assembling machine 3",
       "recipe": "electric-furnace",
       "craftsPerSecond": 0.3333333333333333,
@@ -2622,7 +2622,7 @@
     "recipe:electrolyte": {
       "title": "Electrolyte",
       "type": "Recipe",
-      "color": "#7f9b95",
+      "color": "#54a89c",
       "define": "1.40741 crafts/s · Electromagnetic plant",
       "recipe": "electrolyte",
       "craftsPerSecond": 1.4074074074074074,
@@ -2645,7 +2645,7 @@
     "recipe:electromagnetic-science-pack": {
       "title": "Electromagnetic science pack",
       "type": "Recipe",
-      "color": "#b985b2",
+      "color": "#d078b0",
       "define": "0.666667 crafts/s · Electromagnetic plant",
       "recipe": "electromagnetic-science-pack",
       "craftsPerSecond": 0.6666666666666666,
@@ -2675,7 +2675,7 @@
     "recipe:electronic-circuit": {
       "title": "Electronic circuit",
       "type": "Recipe",
-      "color": "#6c9c90",
+      "color": "#42a490",
       "define": "8.61511 crafts/s · Assembling machine 3",
       "recipe": "electronic-circuit",
       "craftsPerSecond": 8.61511111111111,
@@ -2697,7 +2697,7 @@
     "recipe:engine-unit": {
       "title": "Engine unit",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "1.33333 crafts/s · Assembling machine 3",
       "recipe": "engine-unit",
       "craftsPerSecond": 1.3333333333333333,
@@ -2720,7 +2720,7 @@
     "recipe:firearm-magazine": {
       "title": "Firearm magazine",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.5 crafts/s · Assembling machine 3",
       "recipe": "firearm-magazine",
       "craftsPerSecond": 0.5,
@@ -2741,7 +2741,7 @@
     "recipe:fluoroketone": {
       "title": "Fluoroketone",
       "type": "Recipe",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "0.0666667 crafts/s · Cryogenic plant",
       "recipe": "fluoroketone",
       "craftsPerSecond": 0.06666666666666667,
@@ -2765,7 +2765,7 @@
     "recipe:fluoroketone-cooling": {
       "title": "Fluoroketone cooling",
       "type": "Recipe",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "0.666667 crafts/s · Cryogenic plant",
       "recipe": "fluoroketone-cooling",
       "craftsPerSecond": 0.6666666666666666,
@@ -2786,7 +2786,7 @@
     "recipe:flying-robot-frame": {
       "title": "Flying robot frame",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 crafts/s · Assembling machine 3",
       "recipe": "flying-robot-frame",
       "craftsPerSecond": 0.3333333333333333,
@@ -2810,7 +2810,7 @@
     "recipe:grenade": {
       "title": "Grenade",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.5 crafts/s · Assembling machine 3",
       "recipe": "grenade",
       "craftsPerSecond": 0.5,
@@ -2832,7 +2832,7 @@
     "recipe:heavy-oil-cracking": {
       "title": "Heavy oil cracking",
       "type": "Recipe",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "0.0188145 crafts/s · Chemical plant",
       "recipe": "heavy-oil-cracking",
       "craftsPerSecond": 0.018814498258942703,
@@ -2854,7 +2854,7 @@
     "recipe:holmium-plate": {
       "title": "Holmium plate",
       "type": "Recipe",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "1.44741 crafts/s · Assembling machine 3",
       "recipe": "holmium-plate",
       "craftsPerSecond": 1.4474074074074075,
@@ -2875,7 +2875,7 @@
     "recipe:holmium-solution": {
       "title": "Holmium solution",
       "type": "Recipe",
-      "color": "#9285ab",
+      "color": "#9d77be",
       "define": "0.596889 crafts/s · Chemical plant",
       "recipe": "holmium-solution",
       "craftsPerSecond": 0.5968888888888889,
@@ -2898,7 +2898,7 @@
     "recipe:inserter": {
       "title": "Inserter",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "1 crafts/s · Assembling machine 3",
       "recipe": "inserter",
       "craftsPerSecond": 1.0,
@@ -2921,7 +2921,7 @@
     "recipe:iron-plate": {
       "title": "Iron plate",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "49.3029 crafts/s · Electric furnace",
       "recipe": "iron-plate",
       "craftsPerSecond": 49.30288888888889,
@@ -2942,7 +2942,7 @@
     "recipe:iron-stick": {
       "title": "Iron stick",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "2.5 crafts/s · Assembling machine 3",
       "recipe": "iron-stick",
       "craftsPerSecond": 2.5,
@@ -2963,7 +2963,7 @@
     "recipe:jellynut-processing": {
       "title": "Jellynut processing",
       "type": "Recipe",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.967982 crafts/s · Assembling machine 3",
       "recipe": "jellynut-processing",
       "craftsPerSecond": 0.9679821470519145,
@@ -2985,7 +2985,7 @@
     "recipe:light-oil-cracking": {
       "title": "Light oil cracking",
       "type": "Recipe",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "1.15533 crafts/s · Chemical plant",
       "recipe": "light-oil-cracking",
       "craftsPerSecond": 1.1553273187717632,
@@ -3007,7 +3007,7 @@
     "recipe:lithium": {
       "title": "Lithium",
       "type": "Recipe",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "0.24 crafts/s · Chemical plant",
       "recipe": "lithium",
       "craftsPerSecond": 0.24,
@@ -3030,7 +3030,7 @@
     "recipe:lithium-plate": {
       "title": "Lithium plate",
       "type": "Recipe",
-      "color": "#6eabb4",
+      "color": "#48b0c0",
       "define": "1.13333 crafts/s · Electric furnace",
       "recipe": "lithium-plate",
       "craftsPerSecond": 1.1333333333333333,
@@ -3051,7 +3051,7 @@
     "recipe:logistic-science-pack": {
       "title": "Logistic science pack",
       "type": "Recipe",
-      "color": "#79a478",
+      "color": "#60ae6e",
       "define": "1 crafts/s · Assembling machine 3",
       "recipe": "logistic-science-pack",
       "craftsPerSecond": 1.0,
@@ -3073,7 +3073,7 @@
     "recipe:lubricant": {
       "title": "Lubricant",
       "type": "Recipe",
-      "color": "#7f9b95",
+      "color": "#54a89c",
       "define": "0.5 crafts/s · Chemical plant",
       "recipe": "lubricant",
       "craftsPerSecond": 0.5,
@@ -3094,7 +3094,7 @@
     "recipe:metallurgic-science-pack": {
       "title": "Metallurgic science pack",
       "type": "Recipe",
-      "color": "#cc8954",
+      "color": "#df8a42",
       "define": "0.666667 crafts/s · Foundry",
       "recipe": "metallurgic-science-pack",
       "craftsPerSecond": 0.6666666666666666,
@@ -3123,7 +3123,7 @@
     "recipe:military-science-pack": {
       "title": "Military science pack",
       "type": "Recipe",
-      "color": "#77828e",
+      "color": "#66768c",
       "define": "0.5 crafts/s · Assembling machine 3",
       "recipe": "military-science-pack",
       "craftsPerSecond": 0.5,
@@ -3146,7 +3146,7 @@
     "recipe:molten-copper": {
       "title": "Molten copper",
       "type": "Recipe",
-      "color": "#bd805c",
+      "color": "#d5854c",
       "define": "0.177778 crafts/s · Foundry",
       "recipe": "molten-copper",
       "craftsPerSecond": 0.17777777777777778,
@@ -3168,7 +3168,7 @@
     "recipe:molten-iron": {
       "title": "Molten iron",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "0.0118519 crafts/s · Foundry",
       "recipe": "molten-iron",
       "craftsPerSecond": 0.011851851851851851,
@@ -3190,7 +3190,7 @@
     "recipe:nutrients-from-bioflux": {
       "title": "Nutrients from bioflux",
       "type": "Recipe",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.247193 crafts/s · Biochamber",
       "recipe": "nutrients-from-bioflux",
       "craftsPerSecond": 0.2471928588207658,
@@ -3214,7 +3214,7 @@
     "recipe:pentapod-egg": {
       "title": "Pentapod egg",
       "type": "Recipe",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "0.444444 crafts/s · Biochamber",
       "recipe": "pentapod-egg",
       "craftsPerSecond": 0.4444444444444444,
@@ -3245,7 +3245,7 @@
     "recipe:piercing-rounds-magazine": {
       "title": "Piercing rounds magazine",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.25 crafts/s · Assembling machine 3",
       "recipe": "piercing-rounds-magazine",
       "craftsPerSecond": 0.25,
@@ -3268,7 +3268,7 @@
     "recipe:pipe": {
       "title": "Pipe",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "2.66667 crafts/s · Assembling machine 3",
       "recipe": "pipe",
       "craftsPerSecond": 2.6666666666666665,
@@ -3289,7 +3289,7 @@
     "recipe:plastic-bar": {
       "title": "Plastic bar",
       "type": "Recipe",
-      "color": "#8a819d",
+      "color": "#9074bb",
       "define": "1.41126 crafts/s · Chemical plant",
       "recipe": "plastic-bar",
       "craftsPerSecond": 1.4112592592592592,
@@ -3311,7 +3311,7 @@
     "recipe:production-science-pack": {
       "title": "Production science pack",
       "type": "Recipe",
-      "color": "#a381be",
+      "color": "#a476ce",
       "define": "0.333333 crafts/s · Assembling machine 3",
       "recipe": "production-science-pack",
       "craftsPerSecond": 0.3333333333333333,
@@ -3334,7 +3334,7 @@
     "recipe:productivity-module": {
       "title": "Productivity module",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.333333 crafts/s · Assembling machine 3",
       "recipe": "productivity-module",
       "craftsPerSecond": 0.3333333333333333,
@@ -3356,7 +3356,7 @@
     "recipe:promethium-science-pack": {
       "title": "Promethium science pack",
       "type": "Recipe",
-      "color": "#796b8c",
+      "color": "#8366a4",
       "define": "0.1 crafts/s · Cryogenic plant",
       "recipe": "promethium-science-pack",
       "craftsPerSecond": 0.1,
@@ -3385,7 +3385,7 @@
     "recipe:quantum-processor": {
       "title": "Quantum processor",
       "type": "Recipe",
-      "color": "#738cb2",
+      "color": "#6386d0",
       "define": "0.0666667 crafts/s · Electromagnetic plant",
       "recipe": "quantum-processor",
       "craftsPerSecond": 0.06666666666666667,
@@ -3417,7 +3417,7 @@
     "recipe:rail": {
       "title": "Rail",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "5 crafts/s · Assembling machine 3",
       "recipe": "rail",
       "craftsPerSecond": 5.0,
@@ -3440,7 +3440,7 @@
     "recipe:scrap-recycling": {
       "title": "Scrap recycling",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "119.378 crafts/s · Recycler",
       "recipe": "scrap-recycling",
       "craftsPerSecond": 119.37777777777778,
@@ -3472,7 +3472,7 @@
     "recipe:space-science-pack": {
       "title": "Space science pack",
       "type": "Recipe",
-      "color": "#a6b5c5",
+      "color": "#9ab2cd",
       "define": "0.2 crafts/s · Assembling machine 3",
       "recipe": "space-science-pack",
       "craftsPerSecond": 0.2,
@@ -3501,7 +3501,7 @@
     "recipe:steel-plate": {
       "title": "Steel plate",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "5.47489 crafts/s · Electric furnace",
       "recipe": "steel-plate",
       "craftsPerSecond": 5.474888888888889,
@@ -3522,7 +3522,7 @@
     "recipe:stone-brick": {
       "title": "Stone brick",
       "type": "Recipe",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "8.33333 crafts/s · Electric furnace",
       "recipe": "stone-brick",
       "craftsPerSecond": 8.333333333333334,
@@ -3543,7 +3543,7 @@
     "recipe:stone-wall": {
       "title": "Stone wall",
       "type": "Recipe",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "1 crafts/s · Assembling machine 3",
       "recipe": "stone-wall",
       "craftsPerSecond": 1.0,
@@ -3564,7 +3564,7 @@
     "recipe:sulfur": {
       "title": "Sulfur",
       "type": "Recipe",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "1.28333 crafts/s · Chemical plant",
       "recipe": "sulfur",
       "craftsPerSecond": 1.2833333333333334,
@@ -3586,7 +3586,7 @@
     "recipe:sulfuric-acid": {
       "title": "Sulfuric acid",
       "type": "Recipe",
-      "color": "#ad9e73",
+      "color": "#bba056",
       "define": "0.413333 crafts/s · Chemical plant",
       "recipe": "sulfuric-acid",
       "craftsPerSecond": 0.41333333333333333,
@@ -3609,7 +3609,7 @@
     "recipe:supercapacitor": {
       "title": "Supercapacitor",
       "type": "Recipe",
-      "color": "#6c9c90",
+      "color": "#42a490",
       "define": "0.444444 crafts/s · Electromagnetic plant",
       "recipe": "supercapacitor",
       "craftsPerSecond": 0.4444444444444444,
@@ -3634,7 +3634,7 @@
     "recipe:superconductor": {
       "title": "Superconductor",
       "type": "Recipe",
-      "color": "#738cb2",
+      "color": "#6386d0",
       "define": "0.318519 crafts/s · Electromagnetic plant",
       "recipe": "superconductor",
       "craftsPerSecond": 0.31851851851851853,
@@ -3658,7 +3658,7 @@
     "recipe:transport-belt": {
       "title": "Transport belt",
       "type": "Recipe",
-      "color": "#879ba8",
+      "color": "#6c9cb6",
       "define": "0.5 crafts/s · Assembling machine 3",
       "recipe": "transport-belt",
       "craftsPerSecond": 0.5,
@@ -3680,7 +3680,7 @@
     "recipe:tungsten-carbide": {
       "title": "Tungsten carbide",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "2.06667 crafts/s · Assembling machine 3",
       "recipe": "tungsten-carbide",
       "craftsPerSecond": 2.066666666666667,
@@ -3703,7 +3703,7 @@
     "recipe:tungsten-plate": {
       "title": "Tungsten plate",
       "type": "Recipe",
-      "color": "#748f9e",
+      "color": "#5a8fb4",
       "define": "0.888889 crafts/s · Foundry",
       "recipe": "tungsten-plate",
       "craftsPerSecond": 0.8888888888888888,
@@ -3725,7 +3725,7 @@
     "recipe:utility-science-pack": {
       "title": "Utility science pack",
       "type": "Recipe",
-      "color": "#c1a354",
+      "color": "#d4ac41",
       "define": "0.333333 crafts/s · Assembling machine 3",
       "recipe": "utility-science-pack",
       "craftsPerSecond": 0.3333333333333333,
@@ -3748,7 +3748,7 @@
     "recipe:yumako-processing": {
       "title": "Yumako processing",
       "type": "Recipe",
-      "color": "#85a37a",
+      "color": "#7bad62",
       "define": "2.64218 crafts/s · Assembling machine 3",
       "recipe": "yumako-processing",
       "craftsPerSecond": 2.6421775898520083,
@@ -3770,7 +3770,7 @@
     "target:item:automation-science-pack": {
       "title": "Automation science pack · 1/s",
       "type": "Target",
-      "color": "#ca6666",
+      "color": "#dc6064",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:automation-science-pack",
       "ratePerSecond": 1.0
@@ -3778,7 +3778,7 @@
     "target:item:logistic-science-pack": {
       "title": "Logistic science pack · 1/s",
       "type": "Target",
-      "color": "#79a478",
+      "color": "#60ae6e",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:logistic-science-pack",
       "ratePerSecond": 1.0
@@ -3786,7 +3786,7 @@
     "target:item:military-science-pack": {
       "title": "Military science pack · 1/s",
       "type": "Target",
-      "color": "#77828e",
+      "color": "#66768c",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:military-science-pack",
       "ratePerSecond": 1.0
@@ -3794,7 +3794,7 @@
     "target:item:chemical-science-pack": {
       "title": "Chemical science pack · 1/s",
       "type": "Target",
-      "color": "#65a8bc",
+      "color": "#44aec8",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:chemical-science-pack",
       "ratePerSecond": 1.0
@@ -3802,7 +3802,7 @@
     "target:item:production-science-pack": {
       "title": "Production science pack · 1/s",
       "type": "Target",
-      "color": "#a381be",
+      "color": "#a476ce",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:production-science-pack",
       "ratePerSecond": 1.0
@@ -3810,7 +3810,7 @@
     "target:item:utility-science-pack": {
       "title": "Utility science pack · 1/s",
       "type": "Target",
-      "color": "#c1a354",
+      "color": "#d4ac41",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:utility-science-pack",
       "ratePerSecond": 1.0
@@ -3818,7 +3818,7 @@
     "target:item:space-science-pack": {
       "title": "Space science pack · 1/s",
       "type": "Target",
-      "color": "#a6b5c5",
+      "color": "#9ab2cd",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:space-science-pack",
       "ratePerSecond": 1.0
@@ -3826,7 +3826,7 @@
     "target:item:metallurgic-science-pack": {
       "title": "Metallurgic science pack · 1/s",
       "type": "Target",
-      "color": "#cc8954",
+      "color": "#df8a42",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:metallurgic-science-pack",
       "ratePerSecond": 1.0
@@ -3834,7 +3834,7 @@
     "target:item:electromagnetic-science-pack": {
       "title": "Electromagnetic science pack · 1/s",
       "type": "Target",
-      "color": "#b985b2",
+      "color": "#d078b0",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:electromagnetic-science-pack",
       "ratePerSecond": 1.0
@@ -3842,7 +3842,7 @@
     "target:item:agricultural-science-pack": {
       "title": "Agricultural science pack · 1/s",
       "type": "Target",
-      "color": "#9aa85f",
+      "color": "#9cb34c",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:agricultural-science-pack",
       "ratePerSecond": 1.0
@@ -3850,7 +3850,7 @@
     "target:item:cryogenic-science-pack": {
       "title": "Cryogenic science pack · 1/s",
       "type": "Target",
-      "color": "#6e8cbe",
+      "color": "#5c8ed3",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:cryogenic-science-pack",
       "ratePerSecond": 1.0
@@ -3858,7 +3858,7 @@
     "target:item:promethium-science-pack": {
       "title": "Promethium science pack · 1/s",
       "type": "Target",
-      "color": "#796b8c",
+      "color": "#8366a4",
       "define": "Final requested output · 60 per minute.",
       "materialId": "item:promethium-science-pack",
       "ratePerSecond": 1.0

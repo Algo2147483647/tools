@@ -45,7 +45,7 @@ export const EXAMPLE_WORKSPACES = [
     description:
       "Trace all 12 science packs at 1 each/s back to raw resources, or explore a complete launch-ready rocket production plan.",
     detail: "2 production targets · Space Age 2.0.65",
-    accent: "#688c87",
+    accent: "#3e948a",
   },
 ] as const;
 
