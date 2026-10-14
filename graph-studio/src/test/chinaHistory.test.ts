@@ -17,19 +17,19 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 341);
-    assert.equal(dag.edges.length, 441);
+    assert.equal(Object.keys(dag.nodes).length, 465);
+    assert.equal(dag.edges.length, 657);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
-    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 65);
+    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 79);
     assert.equal(graph.nodes["bi-sheng"].type, "北宋");
     assert.equal(graph.nodes["bi-sheng"].theme, "technology");
     assert.equal(graph.nodes["feishui"].type, "东晋");
     assert.deepEqual(graph.nodes["feishui"].participants, ["东晋", "前秦"]);
     assert.equal(graph.nodes["qing"].time.start, "1636");
     assert.equal(graph.nodes["huang-chao"].time.at, "0881");
-    assert.equal(manifest.metadata.polityCount, 65);
+    assert.equal(manifest.metadata.polityCount, 79);
     for (const id of [
       "cao-wei",
       "shu-han",
@@ -74,8 +74,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 341);
-    assert.equal(stage.edges.length, 441);
+    assert.equal(stage.nodes.length, 465);
+    assert.equal(stage.edges.length, 657);
     assert.equal(stage.warnings.length, 0);
     assert.ok(
       stage.nodes.every((node) => node.y === timelineTimeToY(stage.timeline!.axisMap!, node.timeline!.start!)),
@@ -111,10 +111,51 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 341);
+    assert.equal(workspace.graphs[0].nodeCount, 465);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^341/);
+    assert.ok(folder.files.has("notes/early-china.md"));
+    assert.ok(folder.files.has("notes/early-catalog.md"));
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^465/);
+  }),
+  defineTest("early history distinguishes staged transitions and preserves later namesakes", async () => {
+    const graph = await read("china-history.json");
+    const dag = normalizeDagInput(graph);
+    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    assert.equal(graph.metadata.supplements.earlyChina.addedNodes, 124);
+    for (const [id, date] of [
+      ["jinyang", "-000452"],
+      ["three-jin", "-000402"],
+      ["jin-state-end", "-000375"],
+      ["conquer-zhao", "-000227"],
+      ["conquer-yan", "-000221"],
+      ["xiang-partition", "-000205"],
+      ["han-emperor", "-000201"],
+      ["jing-accession", "-000156"],
+      ["jing-tax", "-000155"],
+      ["wu-accession", "-000140"],
+    ])
+      assert.equal(graph.nodes[id].time.at, date, id);
+    assert.equal(graph.nodes["jin-end"].time.at, "1234", "金朝覆亡不能与春秋晋国共用标识");
+    assert.equal(graph.nodes["jin-state-end"].type, "晋国");
+    assert.equal(graph.nodes["jin-end"].type, "金");
+    assert.match(graph.nodes["mohist-texts"].precision, /约/);
+    assert.match(graph.nodes["laozi-text"].define, /不为老子个人编造生卒年/);
+    assert.match(graph.nodes["ziying-surrender"].precision, /207.*206/);
+    assert.match(graph.nodes["jing-restrict-kings"].define, /仍有诸侯国/);
+    for (const [source, target] of [
+      ["wu-state", "yue-conquers-wu"],
+      ["han-state", "conquer-han"],
+      ["zhao-state", "conquer-zhao"],
+      ["tian-qi", "conquer-qi"],
+    ]) {
+      const edge = dag.edges.find((item) => item.source === source && item.target === target)!;
+      assert.equal((edge.metadata!.timeline as { kind: string }).kind, "rendezvous");
+      assert.equal(stage.nodeMap[source].timeline!.endY, stage.nodeMap[target].timeline!.startY);
+    }
+    assert.equal(stage.nodes.filter((item) => item.key === "gaixia").length, 1);
+    assert.ok(dag.edges.some((item) => item.source === "weishui" && item.target === "gaixia"));
+    assert.ok(dag.edges.some((item) => item.source === "honggou" && item.target === "gaixia"));
   }),
   defineTest("modern history includes sourced political and social events through the declared cutoff", async () => {
     const graph = await read("china-history.json");

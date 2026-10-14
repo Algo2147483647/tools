@@ -1,5 +1,7 @@
 # 经济与制度
 
+[春秋到汉初专题](./early-china.md) · [新增条目与史料](./early-catalog.md)
+
 纸币、财政改革和教育制度变迁。关系边仅表达标注的制度背景。
 
 [读图说明](../README.md) · [史料与编选约定](../SOURCES.md)
@@ -8,9 +10,9 @@
 
 **公元前356年 · 秦国**
 
-秦孝公时推进军功、户籍与农业等改革；之后仍有进一步变法。
+秦孝公任用商鞅，通常以前356年定位首轮改革，涉及军功、户籍、连坐与耕战激励；前350年再推进县制、迁都等措施。变法强化动员，也增加国家对民户的约束。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·秦本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj005.html) · [《史记·商君列传》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj068.html)
 
 ## 秦推行统一度量衡与文字
 

@@ -1,5 +1,7 @@
 # 政权与时期
 
+[春秋到汉初专题](./early-china.md) · [新增条目与史料](./early-catalog.md)
+
 ## 现代政权存续与执政阶段
 
 **中华民国：1912年1月1日—今。** 1949年中央政府迁台，实际管辖范围发生重大变化，政权延续并未因此终止。时段线记录政权存续，与执政党的任期分别表述。
@@ -62,9 +64,9 @@
 
 **公元前403年 · 东周**
 
-三家分晋经历长期过程；此年记录周王对三家诸侯地位的承认。
+周威烈王承认韩、赵、魏为诸侯。前453年三家已瓜分智氏之地；晋君余地直到前376年才被瓜分，因此三家分晋应读作长期过程。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·周本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj004.html) · [《史记·晋世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj039.html) · [《史记·赵世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj043.html)
 
 ## 秦朝
 
@@ -86,17 +88,17 @@
 
 **公元前206年—公元前202年 · 西楚**
 
-项羽分封诸王后自号西楚霸王，与刘邦争夺天下。
+项羽于前206年分封诸王，自号西楚霸王，都彭城；前202年败亡。与春秋战国楚国及秦末怀王政权相区别。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·项羽本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj007.html)
 
 ## 刘邦称帝
 
 **公元前202年 · 西汉**
 
-楚汉战争后刘邦称帝；与前206年受封汉王的时间区分。
+项羽败亡后，刘邦在诸侯推尊下称帝，随后以关中为都城所在。前206年受封汉王、前202年称帝与长安建设属于不同节点。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·高祖本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj008.html)
 
 ## 新
 

@@ -1,5 +1,7 @@
 # 战争与变局
 
+[春秋到汉初专题](./early-china.md) · [新增条目与史料](./early-catalog.md)
+
 战争、政权转折与革命事件；用明确节点承载汇合，不把线条交叉视为合并。
 
 [读图说明](../README.md) · [史料与编选约定](../SOURCES.md)
@@ -8,9 +10,9 @@
 
 **公元前260年 · 秦国**
 
-秦赵之间的重要战役，赵军遭受重大损失，改变战国力量格局。
+秦赵因上党归属等问题交战，前260年赵军主力被围后投降并遭大规模杀戮。史籍四十余万的数字不能当作现代精确统计；前257年邯郸获救说明赵并未随即灭亡。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·白起王翦列传》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj073.html) · [《史记·赵世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj043.html)
 
 ## 秦灭韩
 
@@ -18,7 +20,7 @@
 
 韩国被秦吞并，是秦最终征服六国过程中的一个节点。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《史记·秦始皇本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj006.html) · [《史记·韩世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj045.html)
 
 ## 秦取邯郸，赵王被俘
 
@@ -26,7 +28,7 @@
 
 赵都邯郸失守；赵氏在代地的残余政权继续到前222年。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《史记·秦始皇本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj006.html) · [《史记·赵世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj043.html)
 
 ## 秦灭魏
 
@@ -34,15 +36,15 @@
 
 秦军攻破大梁，魏国灭亡；与前后各国覆亡分别记录。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《史记·秦始皇本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj006.html) · [《史记·魏世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj044.html)
 
 ## 秦灭楚
 
 **公元前223年 · 秦国**
 
-秦军征服楚国，南方大规模战事进入新的阶段。
+王翦等率秦军击败楚军，楚王负刍被俘，采用前223年作为楚国主要政权覆亡节点；楚地后续抵抗及江南征服仍有过程。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《史记·秦始皇本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj006.html) · [《史记·白起王翦列传》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj073.html)
 
 ## 秦灭燕及代
 
@@ -50,7 +52,7 @@
 
 秦继续征服燕及赵氏代地政权，随后进攻齐国。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《史记·秦始皇本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj006.html) · [《史记·赵世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj043.html) · [《史记·燕召公世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj034.html)
 
 ## 秦统一六国
 
@@ -64,25 +66,25 @@
 
 **公元前209年 · 秦朝**
 
-秦末大泽乡起事，随后多地反秦力量相继兴起。
+陈胜、吴广在大泽乡发动反秦起事，陈胜随后建张楚政权。《史记》以失期当斩说明动机；出土秦律提醒我们，徭役、戍役及实际执行不能混为同一条法律。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·陈涉世家》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj048.html) · [《史记·秦始皇本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj006.html) · [王彦辉：秦汉时期的更与徭（《中国社会科学》2022年第2期）](https://www.cssn.cn/dkzgxp/zgxp_zgshkx/2022nd2q/202208/t20220822_5474682.shtml)
 
 ## 楚汉战争
 
 **公元前206年—公元前202年 · 西汉**
 
-刘邦与项羽等力量长期争战，终以项羽败亡告一阶段。
+项羽分封以后，刘邦、项羽及多路诸侯争夺天下，经历彭城、荥阳成皋相持、韩信北方诸战、鸿沟议和及垓下决战。前202年项羽败亡后汉仍需处理诸侯与边疆问题。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《史记·项羽本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj007.html) · [《史记·高祖本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj008.html)
 
 ## 七国之乱
 
 **公元前154年 · 西汉**
 
-部分同姓诸侯王起兵，平定后诸侯势力进一步受限制。
+吴、楚等七国因中央削藩起兵，景帝诛晁错未能止战，周亚夫等平乱。诸侯国没有全部消失，前145年等后续措施继续削减诸侯王治国与任官权。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《史记·孝景本纪》（南京博物院电子本）](https://www.njmuseum.org.cn/files/wshl/rbbook/gb/25/shiji/sj011.html) · [《汉书·景帝纪》（维基文库）](https://zh.wikisource.org/wiki/漢書/卷005)
 
 ## 昆阳之战
 
