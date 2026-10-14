@@ -8,6 +8,7 @@ export interface TimelineControlsProps {
 }
 
 export default function TimelineControls({ settings, onChange, onReadapt }: TimelineControlsProps) {
+  const horizontalSpread = settings.horizontalSpread ?? 1;
   const [step, setStep] = useState(String(settings.tickStep));
   useEffect(() => setStep(String(settings.tickStep)), [settings.tickStep]);
   function commitStep() {
@@ -68,31 +69,29 @@ export default function TimelineControls({ settings, onChange, onReadapt }: Time
             </button>
           ))}
         </div>
-        {settings.layout === "flow" && (
-          <div className="settings-slider-grid">
-            <label className="display-slider">
-              <span>
-                Node spacing<output>{settings.nodeGap}px</output>
-              </span>
-              <input
-                type="range"
-                aria-label="Timeline node spacing"
-                min="16"
-                max="160"
-                step="2"
-                value={settings.nodeGap}
-                onChange={(event) => onChange({ nodeGap: Number(event.target.value) })}
-              />
-            </label>
-            {Object.keys(settings.pins).length > 0 && (
-              <div className="settings-inline-actions">
-                <button type="button" className="studio-button" onClick={() => onChange({ pins: {} })}>
-                  Clear pinned positions ({Object.keys(settings.pins).length})
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="settings-slider-grid">
+          <label className="display-slider">
+            <span>
+              Horizontal spread<output>{Math.round(horizontalSpread * 100)}%</output>
+            </span>
+            <input
+              type="range"
+              aria-label="Timeline horizontal spread"
+              min="50"
+              max="300"
+              step="10"
+              value={Math.round(horizontalSpread * 100)}
+              onChange={(event) => onChange({ horizontalSpread: Number(event.target.value) / 100 })}
+            />
+          </label>
+          {settings.layout === "flow" && Object.keys(settings.pins).length > 0 && (
+            <div className="settings-inline-actions">
+              <button type="button" className="studio-button" onClick={() => onChange({ pins: {} })}>
+                Clear pinned positions ({Object.keys(settings.pins).length})
+              </button>
+            </div>
+          )}
+        </div>
       </section>
       <section className="settings-section">
         <h3>Time axis</h3>

@@ -88,7 +88,7 @@ In **Settings → Layout**, choose the arrangement independently of the time axi
 
 Ordinary filters retain node positions and the axis. Time range clipping preserves stored dates. **Fit visible events** rebuilds from visible events; **Show all events** restores the full layout. **Lock time axis** retains its mapping across content edits; newly exposed dates extend its existing end segments. Layout/axis choices are browser preferences; document `metadata.timeline.view` supplies initial defaults, e.g. `{ "layout": "flow", "axis": "adaptive", "compactness": 0.5 }`. Pins are local view state and do not carry into other documents. Existing documents default to Tracks and a linear axis; legacy draft `cluster` settings migrate to Relation flow.
 
-In both layouts, simultaneous event markers and duration endpoints stay on the exact same time coordinate. Text is positioned independently and may move above or below its event, with rounded orthogonal leaders connecting it to the anchor. Labels sit above relationship lines with translucent backgrounds; relationship routing ignores labels.
+In both layouts, simultaneous event markers and duration endpoints stay on the exact same time coordinate. Text is positioned independently and may move above or below its event, with straight leaders connecting it to the anchor. Leaders render beneath relationship lines and markers. Labels sit above rounded orthogonal relationship lines with translucent backgrounds; relationship routing ignores labels. **Horizontal spread** adjusts event spacing in either layout from 50% to 300%, while preserving time coordinates and pinned marker positions. Text retains enough room to remain readable at the narrower settings.
 
 ## Relationships inside a period
 

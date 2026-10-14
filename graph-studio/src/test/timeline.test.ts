@@ -61,6 +61,45 @@ const stageFor = (doc: unknown, selection: GraphSelection = { type: "full" }) =>
   buildTimelineStage({ dag: normalizeDagInput(doc), selection, now })!;
 
 export const timelineSuite = defineSuite("Timeline time semantics and layout", [
+  defineTest("horizontal spread changes both arrangements without moving any time coordinate", () => {
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: {
+        a: { title: "First simultaneous event", track: "A", time: { at: "2000" } },
+        b: { title: "Second simultaneous event", track: "A", time: { at: "2000" } },
+        c: { title: "Third simultaneous event", track: "B", time: { at: "2000" } },
+        d: { title: "Later event", track: "A", time: { at: "2001" } },
+      },
+      edges: [{ id: "ad", source: "a", target: "d" }],
+    });
+    for (const layout of ["tracks", "flow"] as const)
+      for (const axis of ["linear", "adaptive"] as const) {
+        const build = (horizontalSpread: number) =>
+          buildTimelineStage({
+            dag,
+            selection: { type: "full" },
+            timelineSettings: { layout, axis, horizontalSpread },
+          })!;
+        const narrow = build(0.5),
+          wide = build(3);
+        const span = (stage: typeof narrow) =>
+          Math.max(...stage.nodes.map((n) => n.x)) - Math.min(...stage.nodes.map((n) => n.x));
+        assert.ok(span(wide) > span(narrow));
+        assert.deepEqual(
+          narrow.nodes.map((n) => [n.key, n.y]),
+          wide.nodes.map((n) => [n.key, n.y]),
+        );
+        for (const stage of [narrow, wide]) {
+          assert.equal(stage.nodeMap.a.y, stage.nodeMap.b.y);
+          assert.equal(stage.nodeMap.a.y, stage.nodeMap.c.y);
+          const boxes = stage.nodes.map((n) => ({ x: n.timeline!.labelX, y: n.timeline!.labelY, w: n.width }));
+          for (const [i, a] of boxes.entries())
+            for (const b of boxes.slice(i + 1))
+              assert.ok(Math.abs(a.y - b.y) >= 40 || a.x + a.w + 12 <= b.x || b.x + b.w + 12 <= a.x);
+        }
+      }
+  }),
   defineTest("routing ignores label geometry and uses orthogonal segments", () => {
     const dag = normalizeDagInput(document());
     for (const layout of ["flow", "tracks"] as const) {

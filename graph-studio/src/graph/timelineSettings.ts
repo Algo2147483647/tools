@@ -6,6 +6,7 @@ export interface TimelineViewSettings {
   tickStep: number;
   tickUnit: TimelineTickUnit;
   nodeGap: number;
+  horizontalSpread: number;
   compactness: number;
   locked: boolean;
   pins: Record<string, number>;
@@ -29,6 +30,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
       ? (unit as TimelineTickUnit)
       : "auto",
     nodeGap: finite(input.nodeGap, 24, 16, 160),
+    horizontalSpread: finite(input.horizontalSpread, 1, 0.5, 3),
     compactness: finite(input.compactness, 0.5, 0, 1),
     locked: input.locked === true,
     pins,

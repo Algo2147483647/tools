@@ -179,6 +179,7 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
       tickStep: 17,
       tickUnit: "year",
       compactness: 0.8,
+      horizontalSpread: 2.4,
     });
     assert.deepEqual(parseGraphPagePreferences(JSON.stringify(prefs))!.timelineSettings, prefs.timelineSettings);
     const invalid = sanitizeTimelineSettings({
@@ -186,11 +187,14 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
       axis: "bad",
       tickStep: NaN,
       compactness: -10,
+      horizontalSpread: -2,
       pins: { a: Infinity, b: 200 },
     });
     assert.equal(invalid.layout, "tracks");
     assert.equal(invalid.axis, "linear");
     assert.equal(invalid.compactness, 0);
+    assert.equal(invalid.horizontalSpread, 0.5);
+    assert.equal(sanitizeTimelineSettings({ horizontalSpread: Infinity }).horizontalSpread, 1);
     assert.deepEqual(invalid.pins, { b: 200 });
   }),
 ]);

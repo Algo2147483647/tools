@@ -36,9 +36,11 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
     );
     assert.ok(html.indexOf('class="timeline-label-layer"') > html.indexOf('class="dag-node-layer"'));
     assert.ok(html.indexOf('class="dag-node-layer"') > html.indexOf('class="dag-edge-layer"'));
+    assert.ok(html.indexOf('class="dag-edge-layer"') > html.indexOf('class="timeline-leader-layer"'));
     assert.equal((html.match(/role="button"/g) || []).length, 1);
     assert.equal((html.match(/class="timeline-node__title"/g) || []).length, 1);
     assert.match(html, /fill-opacity: .65/);
+    assert.match(html, /class="timeline-node__leader" d="M [\d. -]+ L [\d. -]+"/);
   }),
   defineTest("details are hidden by default and can be enabled", () => {
     const dag = normalizeDagInput({

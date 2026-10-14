@@ -17,13 +17,15 @@ export function arrangeTimelineFlow(input: {
   edges: GraphEdge[];
   minimumX: number;
   gap: number;
+  spread: number;
   pins: Record<string, number>;
 }): { width: number; bottom: number } {
-  const { nodes, edges, minimumX, gap, pins } = input;
+  const { nodes, edges, minimumX, gap, spread, pins } = input;
   if (!nodes.length) return { width: minimumX, bottom: 0 };
   const sorted = nodes.slice().sort((a, b) => a.y - b.y || compareKeys(a.key, b.key));
   const byKey = new Map(sorted.map((node) => [node.key, node]));
-  const slot = 80 + gap;
+  const slot = (80 + gap) * spread;
+  const clearance = Math.max(4, (20 + gap) * spread - 20);
   const center = minimumX + slot * 0.5;
   const neighbours = new Map<string, Neighbour[]>(nodes.map((node) => [node.key, []]));
   const branches = new Map<string, GraphEdge[]>();
@@ -39,7 +41,7 @@ export function arrangeTimelineFlow(input: {
     const siblings = branches.get(edge.source) || [];
     const index = siblings.findIndex((item) => item.id === edge.id);
     // Sibling offsets keep distinct paths readable until the declared merge node.
-    const offset = index < 0 ? 0 : (index - (siblings.length - 1) / 2) * Math.min(slot, 160 + gap);
+    const offset = index < 0 ? 0 : (index - (siblings.length - 1) / 2) * slot;
     const weight = kind === "reference" || kind === "part-of" ? 0.35 : 3;
     neighbours.get(edge.target)!.push({ key: edge.source, offset, weight });
     neighbours.get(edge.source)!.push({ key: edge.target, offset: -offset, weight });
@@ -68,7 +70,7 @@ export function arrangeTimelineFlow(input: {
       }
       const desired = Math.max(minimumX, total / weight);
       const pin = Math.max(minimumX, pins[node.key]);
-      node.x = isPinned(node) ? pin : closestFreeX(node, desired, minimumX, placed, gap);
+      node.x = isPinned(node) ? pin : closestFreeX(node, desired, minimumX, placed, clearance);
       node.timeline!.labelX = node.x + 22;
       node.timeline!.labelY = node.y + 3;
       placed.push(markerBox(node));
@@ -98,7 +100,7 @@ export function arrangeTimelineFlow(input: {
       node.timeline!.lane = index;
     });
   return {
-    width: Math.max(...nodes.map((node) => labelBox(node).right)) + 48,
+    width: Math.max(...nodes.map((node) => Math.max(markerBox(node).right, labelBox(node).right))) + 48,
     bottom: Math.max(...nodes.map((node) => Math.max(markerBox(node).bottom, labelBox(node).bottom))),
   };
 }

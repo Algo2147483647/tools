@@ -248,7 +248,7 @@ export function buildTimelineStage(input: {
   const topLevel = new Set(selection.topLevelKeys);
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
-    const channelStep = 20 + settings.nodeGap;
+    const channelStep = Math.max(24, (20 + settings.nodeGap) * settings.horizontalSpread);
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
     const color = trackColor(track);
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
@@ -260,8 +260,9 @@ export function buildTimelineStage(input: {
       nodeMap[event.key] = createNode(event, x, labelX, labelY, color);
     }
     const trackNodes = events.map((entry) => nodeMap[entry.key]);
+    const textWidth = Math.max(...trackNodes.map((node) => node.width)) + 44;
     const width = Math.max(
-      channelsWidth + Math.max(...trackNodes.map((node) => node.width)) + 44,
+      channelsWidth + textWidth * Math.max(1, settings.horizontalSpread),
       estimateTextWidth(track, 12) + 20,
     );
     stageTracks.push({ id: track, label: track, x: trackX, width, color });
@@ -270,7 +271,7 @@ export function buildTimelineStage(input: {
       packTimelineTrackLabels(datedNodes, top + 3);
       for (const node of datedNodes) lastLabelBottom = Math.max(lastLabelBottom, timelineLabelBox(node).bottom);
     }
-    trackX += width + TRACK_GAP;
+    trackX += width + TRACK_GAP * settings.horizontalSpread;
   }
   let flowWidth = 0;
   if (flow) {
@@ -279,6 +280,7 @@ export function buildTimelineStage(input: {
       edges: sourceEdges.filter((edge) => nodeMap[edge.source] && nodeMap[edge.target]),
       minimumX: axisX + 54,
       gap: settings.nodeGap,
+      spread: settings.horizontalSpread,
       pins: settings.pins,
     });
     flowWidth = arranged.width;
@@ -323,13 +325,14 @@ export function buildTimelineStage(input: {
       ),
       minimumX: axisX + 54,
       gap: settings.nodeGap,
+      spread: settings.horizontalSpread,
       pins: settings.pins,
     });
     flowWidth = Math.max(flowWidth, arranged.width);
     lastLabelBottom = Math.max(lastLabelBottom, arranged.bottom);
   }
   if (flow) stageTracks.length = 0;
-  let stageWidth = Math.max(600, flow ? flowWidth : trackX - TRACK_GAP + 64);
+  let stageWidth = Math.max(600, flow ? flowWidth : trackX - TRACK_GAP * settings.horizontalSpread + 64);
   let stageHeight = Math.max(360, lastLabelBottom + 80);
   const nodes = entries
     .slice()

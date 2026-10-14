@@ -288,6 +288,21 @@ export default function GraphStage({
           />
         ))}
       </g>
+      {stage.timeline && (
+        <g className="timeline-leader-layer" aria-hidden="true" pointerEvents="none">
+          {stage.nodes.map((node) => (
+            <TimelineNode
+              key={node.key}
+              layer="leader"
+              node={node}
+              isActive={node.key === stage.root}
+              onClick={onNodeClick}
+              onContextMenu={onNodeContextMenu}
+              onFocusChange={onFocusChange}
+            />
+          ))}
+        </g>
+      )}
       <g className="dag-edge-layer">
         {stage.edges.map((edge) => (
           <GraphEdge key={edge.id} edge={edge} showLabel={appearance.display.showEdgeLabels} />

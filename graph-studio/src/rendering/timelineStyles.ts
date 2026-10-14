@@ -20,7 +20,7 @@ export const TIMELINE_CSS = `
 .timeline-node__point { fill: var(--dag-timeline-color); stroke: var(--dag-node-fill); stroke-width: 1.5; }
 .timeline-node__cap, .timeline-node__open { fill: none; stroke: var(--dag-timeline-color); stroke-width: 2; }
 .timeline-node__unknown { fill: var(--dag-node-fill); stroke: var(--dag-text-soft); stroke-width: 1.5; }
-.timeline-node__leader { fill: none; stroke: var(--dag-timeline-color); stroke-width: .8; opacity: .45; pointer-events: none; }
+.timeline-node__leader { fill: none; stroke: #a6abb3; stroke-width: .7; opacity: .22; pointer-events: none; }
 .timeline-node__label-bg { fill: var(--dag-node-fill); fill-opacity: .65; stroke: transparent; stroke-width: 1; }
 .timeline-node__title { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: 600; pointer-events: none; }
 .timeline-node__date { fill: var(--dag-text-soft); font: 10px "IBM Plex Mono", Consolas, monospace; pointer-events: none; }

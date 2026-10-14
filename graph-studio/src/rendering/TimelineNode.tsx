@@ -1,9 +1,8 @@
 import { useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import type { StageNode } from "../layout/types";
-import { roundedTimelinePath } from "../layout/timeline-routing";
 
 interface TimelineNodeProps {
-  layer?: "marker" | "label" | "all";
+  layer?: "leader" | "marker" | "label" | "all";
   node: StageNode;
   isActive: boolean;
   onPin?: (key: string, x: number) => void;
@@ -31,14 +30,9 @@ export default function TimelineNode({
   const barHeight = Math.max(2, endY - startY);
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
   const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
-  const labelEdgeX = labelX >= node.x ? labelX - 7 : labelX + node.width + 7;
-  const elbowX = node.x + (labelEdgeX - node.x) / 2;
-  const leader = roundedTimelinePath([
-    { x: node.x, y: anchorY },
-    { x: elbowX, y: anchorY },
-    { x: elbowX, y: labelY - 3 },
-    { x: labelEdgeX, y: labelY - 3 },
-  ]);
+  const labelEdgeX = Math.max(labelX - 7, Math.min(node.x, labelX + node.width + 7));
+  const labelEdgeY = Math.max(labelY - 17, Math.min(anchorY, labelY + (node.detailLines.length ? 40 : 25)));
+  const leader = `M ${node.x} ${anchorY} L ${labelEdgeX} ${labelEdgeY}`;
   function preview(element: SVGGElement, delta?: number) {
     element.ownerSVGElement?.querySelectorAll<SVGGElement>(".timeline-node").forEach((part) => {
       if (part.dataset.key !== node.key) return;
@@ -84,9 +78,9 @@ export default function TimelineNode({
       data-clipped-start={time.clippedStart || undefined}
       data-clipped-end={time.clippedEnd || undefined}
       style={{ "--dag-timeline-color": time.color } as CSSProperties}
-      tabIndex={layer === "marker" ? -1 : 0}
-      role={layer === "marker" ? undefined : "button"}
-      aria-hidden={layer === "marker" || undefined}
+      tabIndex={layer === "leader" ? undefined : layer === "marker" ? -1 : 0}
+      role={layer === "marker" || layer === "leader" ? undefined : "button"}
+      aria-hidden={layer === "marker" || layer === "leader" || undefined}
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}. Select event; press Enter or double-click for details.`}
       onPointerDown={(event) => {
         if (!onPin || event.button !== 0) return;
@@ -139,9 +133,9 @@ export default function TimelineNode({
           .filter(Boolean)
           .join("\n")}
       </title>
-      {layer !== "label" && (
+      {(layer === "leader" || layer === "all") && <path className="timeline-node__leader" d={leader} />}
+      {(layer === "marker" || layer === "all") && (
         <>
-          <path className="timeline-node__leader" d={leader} />
           <rect
             className="timeline-node__hit"
             x={node.x - 12}
@@ -187,7 +181,7 @@ export default function TimelineNode({
           ))}
         </>
       )}
-      {layer !== "marker" && (
+      {(layer === "label" || layer === "all") && (
         <>
           <rect
             className="timeline-node__label-bg"
