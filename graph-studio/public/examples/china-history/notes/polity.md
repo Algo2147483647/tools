@@ -1,5 +1,7 @@
 # 政权与时期
 
+[晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)
+
 [汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
 
 [二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)
@@ -180,9 +182,9 @@
 
 **317年—420年 · 东晋**
 
-以建康为中心的南方政权，与北方诸政权并存。
+以建康为中心延续晋室，时期条从317年司马睿称晋王起算，318年称帝另列。与北方诸国并存，南迁群体、江南士族与掌兵将领共同参与政治，420年为刘宋取代。
 
-[大都会艺术博物馆：公元1—500年的中国](https://www.metmuseum.org/toah/ht/05/eac.html)
+[《晉書·元帝明帝纪》](https://zh.wikisource.org/wiki/晉書/卷006) · [《晉書·安帝恭帝纪》](https://zh.wikisource.org/wiki/晉書/卷010)
 
 ## 前秦
 
@@ -204,9 +206,9 @@
 
 **386年—534年 · 北魏**
 
-北方政权；534年前后分裂为东、西两支。
+386年拓跋珪立国，398年以平城为都并称帝，439年灭北凉后形成北方主要统一政权。534年东魏形成，关西到535年另立西魏；该时期不表示北方从386年起始终统一。
 
-[大都会艺术博物馆：公元1—500年的中国](https://www.metmuseum.org/toah/ht/05/eac.html) · [大都会艺术博物馆：公元500—1000年的中国](https://www.metmuseum.org/toah/ht/06/eac.html)
+[《魏書·太祖纪》](https://zh.wikisource.org/wiki/魏書/卷2) · [《魏書·世祖纪下》](https://zh.wikisource.org/wiki/魏書/卷4下) · [《魏書·孝静纪》](https://zh.wikisource.org/wiki/魏書/卷12)
 
 ## 刘宋
 

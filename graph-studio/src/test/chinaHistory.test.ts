@@ -17,19 +17,19 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 674);
-    assert.equal(dag.edges.length, 1068);
+    assert.equal(Object.keys(dag.nodes).length, 828);
+    assert.equal(dag.edges.length, 1380);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
-    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 87);
+    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 103);
     assert.equal(graph.nodes["bi-sheng"].type, "北宋");
     assert.equal(graph.nodes["bi-sheng"].theme, "technology");
     assert.equal(graph.nodes["feishui"].type, "东晋");
     assert.deepEqual(graph.nodes["feishui"].participants, ["东晋", "前秦"]);
     assert.equal(graph.nodes["qing"].time.start, "1636");
     assert.equal(graph.nodes["huang-chao"].time.at, "0881");
-    assert.equal(manifest.metadata.polityCount, 87);
+    assert.equal(manifest.metadata.polityCount, 103);
     for (const id of [
       "cao-wei",
       "shu-han",
@@ -74,8 +74,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 674);
-    assert.equal(stage.edges.length, 1068);
+    assert.equal(stage.nodes.length, 828);
+    assert.equal(stage.edges.length, 1380);
     assert.equal(stage.warnings.length, 0);
     assert.ok(
       stage.nodes.every((node) => node.y === timelineTimeToY(stage.timeline!.axisMap!, node.timeline!.start!)),
@@ -111,7 +111,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 674);
+    assert.equal(workspace.graphs[0].nodeCount, 828);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
     assert.ok(folder.files.has("notes/early-china.md"));
@@ -119,7 +119,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.ok(folder.files.has("notes/pre-zhou.md"));
     assert.ok(folder.files.has("notes/pre-zhou-catalog.md"));
     assert.ok(folder.files.has("notes/pre-zhou-sources.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^674/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^828/);
     assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /c\. 1750 BCE/);
   }),
   defineTest("pre-Zhou archaeology remains qualified and joins the existing Eastern Zhou chronology", async () => {
@@ -258,6 +258,69 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
       const target = graph.nodes[edge.target].time;
       const from = anchor.sourceTime || (anchor.sourceAnchor === "end" ? source.end : source.at || source.start);
       assert.ok(Number(from) <= Number(target.at || target.start), edge.id);
+    }
+    assert.equal(graph.metadata.asOf, "2026-10-14");
+  }),
+  defineTest("Jin–Sui points preserve parallel states, qualified dates and period-end joins", async () => {
+    const graph = await read("china-history.json");
+    const catalog = await readFile(root + "notes/jin-sui-catalog.md", "utf8");
+    const ids = [...catalog.matchAll(/图中标识：`([^`]+)`/g)].map((match) => match[1]);
+    const revised = new Set([
+      "eight-princes",
+      "yongjia",
+      "eastern-jin",
+      "feishui",
+      "kumarajiva",
+      "northern-wei",
+      "luoyang",
+      "zhou-conquers-qi",
+      "sui-unification",
+      "grand-canal",
+    ]);
+    assert.equal(new Set(ids).size, 164);
+    assert.equal(graph.metadata.supplements.jinSui.addedNodes, 154);
+    assert.equal(graph.metadata.supplements.jinSui.revisedNodes, revised.size);
+    const added = ids.filter((id) => !revised.has(id));
+    assert.equal(added.length, 154);
+    for (const id of added) {
+      assert.deepEqual(Object.keys(graph.nodes[id].time), ["at"], `${id}: no new period bar`);
+      assert.ok(graph.nodes[id].sources.length && graph.nodes[id].references && graph.nodes[id].precision);
+    }
+    for (const [id, at] of [
+      ["jin-changan316", "0316"],
+      ["simarui-king317", "0317"],
+      ["simarui-emperor318", "0318"],
+      ["wei-split534", "0534"],
+      ["westwei535", "0535"],
+      ["suchuo-laws544", "0544"],
+      ["zhou-conquers-qi", "0577"],
+      ["sui-founded581", "0581"],
+      ["sui-liang587", "0587"],
+      ["sui-unification", "0589"],
+      ["sui-tongji605", "0605"],
+      ["sui-yongji608", "0608"],
+      ["sui-jiangnan610", "0610"],
+      ["tang-founded618", "0618"],
+    ])
+      assert.equal(graph.nodes[id].time.at, at, id);
+    assert.equal(graph.nodes["westernliang555"].type, "后梁（江陵）");
+    assert.ok(added.some((id) => graph.nodes[id].type === "胡夏"));
+    assert.match(graph.nodes["qimin540"].precision, /约540.*533—544.*不认定/);
+    assert.match(graph.nodes["mogao366"].precision, /传统|传说/);
+    assert.deepEqual(graph.nodes["eastern-jin"].time, { start: "0317", end: "0420" });
+    assert.deepEqual(graph.nodes["grand-canal"].time, { start: "0605", end: "0610" });
+    const dag = normalizeDagInput(graph);
+    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const edges = dag.edges.filter((edge) => edge.id.startsWith("jin-sui:"));
+    assert.equal(edges.length, 312);
+    for (const edge of edges) {
+      const anchor = edge.metadata!.timeline as { sourceAnchor: string; sourceTime?: string };
+      const source = graph.nodes[edge.source].time;
+      const target = graph.nodes[edge.target].time;
+      const from = anchor.sourceTime || (anchor.sourceAnchor === "end" ? source.end : source.at || source.start);
+      assert.ok(Number(from) <= Number(target.at || target.start), edge.id);
+      if (anchor.sourceAnchor === "end")
+        assert.equal(stage.nodeMap[edge.source].timeline!.endY, stage.nodeMap[edge.target].timeline!.startY);
     }
     assert.equal(graph.metadata.asOf, "2026-10-14");
   }),

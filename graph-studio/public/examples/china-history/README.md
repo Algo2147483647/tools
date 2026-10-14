@@ -1,6 +1,6 @@
 # 中国历史：分流与交汇
 
-一张中文时间关系图，包含 **674 个事件、时期及年代范围**、**1068 条关系**，从约公元前1750年的二里头考古材料延伸至2026年（现代事件核对截止2026-10-14；古代专题补充核对日期2026-10-15）。
+一张中文时间关系图，包含 **828 个事件、时期及年代范围**、**1380 条关系**，从约公元前1750年的二里头考古材料延伸至2026年（现代事件核对截止2026-10-14；古代专题补充核对日期2026-10-15）。
 
 默认使用 **Relation flow + Adaptive**。横向位置让关系更容易阅读；类别按事件所属政权组织，跨政权关系可以自由连接。纵向保持时间先后和同时性。
 
@@ -25,6 +25,9 @@
 
 ## 专题导读
 
+- [晋到南北朝隋：分立中的重组与统一](./notes/jin-sui.md) — 新增154个点事件，修订10个原有条目，细化西晋、东晋与十六国、南北朝到隋末，接到618年建唐。
+- [晋到南北朝隋条目目录](./notes/jin-sui-catalog.md) · [来源与纪年](./notes/jin-sui-sources.md) — 分开记录称王、称帝、改国号、失都与覆亡；制度、求法、历法和运河建设分别列点。
+
 - [汉武帝到三国：扩张、重建与分立](./notes/han-three.md) — 新增143个点事件、修订12个原有事件，细化武帝财政与战争、昭宣、新朝、东汉治理、汉末群雄和魏蜀吴后期，接到280年晋灭吴。
 - [汉武帝到三国条目目录](./notes/han-three-catalog.md) · [来源与纪年](./notes/han-three-sources.md) — 分开记载出使与归还、称帝与统一、战争开始与政权覆亡；保留原有时期条，不新增长线段。
 - [二里头、商与西周：都邑、国家与治理](./notes/pre-zhou.md) — 从二里头的考古材料起，补足早商都邑、晚商社会、商周之际、西周制度与诸侯前史，连接幽王败亡和周平王东迁。不编写石器时代总览或夏朝世系。
@@ -40,6 +43,6 @@
 
 ## 维护本次补充
 
-三段补充的数据分别集中在 **scripts/data/china-history/pre-zhou.mjs**、**early.mjs** 和 **han-three.mjs**。在项目目录运行 **npm run examples:china-history** 合并补充，再用 **npm run examples:china-history:check** 检查数据、统计、来源及条目目录。共用入口为 **scripts/expand-early-china-history.mjs**，它调用 **scripts/expand-pre-zhou-history.mjs** 和 **scripts/expand-han-three-history.mjs**。叙事导读 **notes/pre-zhou.md**、**notes/early-china.md** 与 **notes/han-three.md** 单独维护。脚本离线运行，网页来源不是运行时依赖。
+四段补充的数据分别集中在 **scripts/data/china-history/pre-zhou.mjs**、**early.mjs**、**han-three.mjs** 和 **jin-sui.mjs**。在项目目录运行 **npm run examples:china-history** 合并补充，再用 **npm run examples:china-history:check** 检查数据、统计、来源及条目目录。共用入口为 **scripts/expand-early-china-history.mjs**，它调用 **scripts/expand-pre-zhou-history.mjs** 、**scripts/expand-han-three-history.mjs** 和 **scripts/expand-jin-sui-history.mjs**。叙事导读 **notes/pre-zhou.md**、**notes/early-china.md**、**notes/han-three.md** 与 **notes/jin-sui.md** 单独维护。脚本离线运行，网页来源不是运行时依赖。
 
 当前检出的项目不含旧说明所列的全量生成脚本及 catalog / expansion / modern 源文件，因此主图中其他时期仍以现有 JSON 为准。本脚本只维护这次补充，不声称能够从零重建整部历史数据。现代事件的资料截止仍为2026-10-14。

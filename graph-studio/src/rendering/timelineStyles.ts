@@ -20,7 +20,7 @@ export const TIMELINE_CSS = `
 .timeline-node__point { fill: var(--dag-timeline-color); stroke: var(--dag-node-fill); stroke-width: 1.5; }
 .timeline-node__cap, .timeline-node__open { fill: none; stroke: var(--dag-timeline-color); stroke-width: 2; }
 .timeline-node__unknown { fill: var(--dag-node-fill); stroke: var(--dag-text-soft); stroke-width: 1.5; }
-.timeline-node__leader { fill: none; stroke: #a6abb3; stroke-width: .7; opacity: .22; pointer-events: none; }
+.timeline-node__leader { fill: none; stroke: #a6abb3; stroke-width: .7; opacity: .32; pointer-events: none; }
 .timeline-node[data-focused="true"] .timeline-node__leader,
 .timeline-node[data-hovered="true"] .timeline-node__leader { stroke: #000; stroke-width: 1; stroke-dasharray: 0 2.2; stroke-linecap: round; opacity: 1; }
 .timeline-node__label-bg { fill: var(--dag-node-fill); fill-opacity: .65; stroke: transparent; stroke-width: 1; }

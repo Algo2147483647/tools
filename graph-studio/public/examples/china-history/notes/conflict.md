@@ -1,5 +1,7 @@
 # 战争与变局
 
+[晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)
+
 [汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
 
 [二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)
@@ -158,41 +160,41 @@
 
 **291年—306年 · 西晋**
 
-晋宗室权力斗争引发多轮战争，严重削弱中央控制。
+291至306年的常用概括，涵盖宫廷政变、宗室争权与后期多轮战争，并非八位王同时持续作战十五年。各次废立、战役另用点事件展开；兵役、饥荒和地方动员加速了晋廷控制的崩解。
 
-[中华女子学院：魏晋隋唐史名词解释](https://www.cwu.edu.cn/fyzx/info/1781/7461.htm)
+[《晉書·惠帝纪》](https://zh.wikisource.org/wiki/晉書/卷004)
 
 ## 永嘉之乱：洛阳陷落
 
 **311年 · 西晋**
 
-汉赵军攻陷洛阳，晋怀帝被俘；西晋仍延续至长安失守。
+刘氏汉政权军队攻陷洛阳，晋怀帝被俘，居民遭杀掠，政治中心与社会秩序受到重创。此后长安另立愍帝，西晋到316年才结束；人口南迁也不是311年一次完成。
 
-[北京服装学院图书馆：《一张大事年表》目录](https://libopac.bift.edu.cn/bookInfo_01h0222718.html)
+[《晉書·怀帝愍帝纪》](https://zh.wikisource.org/wiki/晉書/卷005) · [《晉書·刘曜载记》](https://zh.wikisource.org/wiki/晉書/卷103)
 
 ## 淝水之战
 
 **383年 · 东晋**
 
-东晋军队击败前秦南征军队，南北格局继续分立。
+谢玄等指挥晋军击败前秦南征军。战役保存东晋局面，并加剧前秦内部离心，但前秦没有在383年立即灭亡；后燕、后秦等政权的形成分别列点。
 
-[香港教育局：淝水之战](https://www.edb.gov.hk/attachment/sc/curriculum-development/kla/pshe/references-and-resources/chinese-history/war3_sc.pdf)
+[《晉書·简文帝孝武帝纪》](https://zh.wikisource.org/wiki/晉書/卷009) · [《晉書·苻坚载记下》](https://zh.wikisource.org/wiki/晉書/卷114)
 
 ## 北周灭北齐
 
 **577年 · 北周**
 
-北周征服北齐，北方两大政权的对峙结束。
+北周攻取北齐主要政治中心，齐帝被俘，北方两大政权的对峙结束。陈与江陵后梁仍存在，577年的北方整合与589年的隋灭陈分开记录。
 
-[大都会艺术博物馆：公元500—1000年的中国](https://www.metmuseum.org/toah/ht/06/eac.html)
+[《周書·武帝纪下》](https://zh.wikisource.org/wiki/周書/卷06)
 
 ## 隋灭陈，结束南北长期分立
 
 **589年 · 隋**
 
-陈朝终结，隋完成统一；用一个事件承接北方和南方政权分支。
+隋军攻入建康，陈后主被俘，陈朝结束，南北长期分立告一阶段。统一由588年多路出兵发展而来，江南随后仍有反抗与治理重组。
 
-[大都会艺术博物馆：公元500—1000年的中国](https://www.metmuseum.org/toah/ht/06/eac.html)
+[《隋書·高祖纪下》](https://zh.wikisource.org/wiki/隋書/卷02) · [《陳書·后主纪》](https://zh.wikisource.org/wiki/陳書/卷6)
 
 ## 玄武门之变
 

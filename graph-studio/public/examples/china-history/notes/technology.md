@@ -1,5 +1,7 @@
 # 科技与工程
 
+[晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)
+
 [汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
 
 [二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)
@@ -32,9 +34,9 @@
 
 **605年—610年 · 隋**
 
-通济渠、永济渠和江南河等工程陆续开通；不将此前已有水道归为同期新建。
+605至610年通济渠、永济渠、江南河等工程陆续展开，各次工程另有点事件。隋改造并利用既有河网，水运促进交通和国家调运，也带来沉重劳役；不是全部线路都在同一年从零新建。
 
-[学术研究：Money, Markets, and Merchants（隋代运河图）](https://yohey.w.waseda.jp/wp-content/uploads/2024/04/shizhao202211.pdf) · [联合国教科文组织：大运河](https://whc.unesco.org/en/list/1443/)
+[《隋書·炀帝纪上》](https://zh.wikisource.org/wiki/隋書/卷03)
 
 ## 毕昇活字印刷（记载年代范围）
 

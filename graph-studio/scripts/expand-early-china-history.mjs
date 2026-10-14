@@ -13,6 +13,7 @@ import {
 } from "./data/china-history/early.mjs";
 import { expandPreZhou } from "./expand-pre-zhou-history.mjs";
 import { expandHanThree } from "./expand-han-three-history.mjs";
+import { expandJinSui } from "./expand-jin-sui-history.mjs";
 
 // The checked-in graph is authoritative for the other periods. This supplement is
 // deliberately incremental: the original all-history generator is absent here.
@@ -153,6 +154,7 @@ edge("jixia", "xunzi-lanling", "荀子由齐地论学转向楚地活动", "refer
 
 // Keep the existing corpus's edge order stable; the new supplement follows it.
 const hanThree = expandHanThree(graph);
+const jinSui = expandJinSui(graph);
 for (const id of pointMarkers) {
   const item = graph.nodes[id];
   assert.ok(item?.time.start && item.time.end, `Missing original span: ${id}`);
@@ -180,9 +182,12 @@ for (const item of graph.edges) {
   }
 }
 graph.edges = [
-  ...graph.edges.filter((item) => !item.id.startsWith("pre-zhou:") && !item.id.startsWith("han-three:")),
+  ...graph.edges.filter(
+    (item) => !item.id.startsWith("pre-zhou:") && !item.id.startsWith("han-three:") && !item.id.startsWith("jin-sui:"),
+  ),
   ...graph.edges.filter((item) => item.id.startsWith("pre-zhou:")),
   ...graph.edges.filter((item) => item.id.startsWith("han-three:")),
+  ...graph.edges.filter((item) => item.id.startsWith("jin-sui:")),
 ];
 
 // Validate graph integrity before any output is written.
@@ -224,6 +229,9 @@ manifest.metadata.assets = [
     "notes/han-three.md",
     "notes/han-three-catalog.md",
     "notes/han-three-sources.md",
+    "notes/jin-sui.md",
+    "notes/jin-sui-catalog.md",
+    "notes/jin-sui-sources.md",
   ]),
 ].sort();
 const ordered = [...new Set([...managed, ...Object.keys(revisions), ...pointMarkers])].sort(
@@ -290,6 +298,8 @@ const outputs = [
   [new URL("notes/pre-zhou-sources.md", root), preZhou.sourceDoc],
   [new URL("notes/han-three-catalog.md", root), hanThree.catalog],
   [new URL("notes/han-three-sources.md", root), hanThree.sourceDoc],
+  [new URL("notes/jin-sui-catalog.md", root), jinSui.catalog],
+  [new URL("notes/jin-sui-sources.md", root), jinSui.sourceDoc],
   [new URL("SOURCES.md", root), sourceDoc],
   [new URL("README.md", root), readme],
   [galleryUrl, gallery],
@@ -304,7 +314,16 @@ for (const theme of Object.keys(topics)) {
   if (!content.includes(prePointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${prePointer}\n`);
   const hanPointer = "[汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)";
   if (!content.includes(hanPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${hanPointer}\n`);
-  for (const id of [...new Set([...Object.keys(revisions), ...pointMarkers, ...Object.keys(hanThree.revisions)])]) {
+  const jinPointer = "[晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)";
+  if (!content.includes(jinPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${jinPointer}\n`);
+  for (const id of [
+    ...new Set([
+      ...Object.keys(revisions),
+      ...pointMarkers,
+      ...Object.keys(hanThree.revisions),
+      ...Object.keys(jinSui.revisions),
+    ]),
+  ]) {
     const item = graph.nodes[id];
     if (item.theme !== theme) continue;
     const heading = `## ${item.title}`;
@@ -325,5 +344,5 @@ for (const [url, content] of outputs) {
   else await writeFile(url, content, "utf8");
 }
 console.log(
-  `${check ? "Checked" : "Updated"}: ${nodeCount} nodes, ${edgeCount} edges; ${preZhou.managed.size} pre-Zhou, ${managed.size} Spring–Han, ${hanThree.managed.size} Han–Three Kingdoms additions.`,
+  `${check ? "Checked" : "Updated"}: ${nodeCount} nodes, ${edgeCount} edges; ${preZhou.managed.size} pre-Zhou, ${managed.size} Spring–Han, ${hanThree.managed.size} Han–Three Kingdoms, ${jinSui.managed.size} Jin–Sui additions.`,
 );

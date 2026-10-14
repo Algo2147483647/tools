@@ -1,5 +1,7 @@
 # 经济与制度
 
+[晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)
+
 [汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
 
 [二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)
@@ -30,9 +32,9 @@
 
 **494年 · 北魏**
 
-孝文帝迁都洛阳，与制度及文化改革相联系。
+北魏孝文帝在493年筹划之后迁都洛阳，本图以494年迁都节点衔接。语言、服制、姓氏和门第调整随后分步推进，不把所有改革压成同年一次完成。
 
-[大都会艺术博物馆：公元1—500年的中国](https://www.metmuseum.org/toah/ht/05/eac.html)
+[《魏書·高祖纪下》](https://zh.wikisource.org/wiki/魏書/卷7下)
 
 ## 两税法推行
 

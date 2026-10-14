@@ -8,10 +8,10 @@
   "defaultGraph": "china-history.json",
   "metadata": {
     "language": "zh-CN",
-    "nodeCount": 674,
-    "edgeCount": 1068,
+    "nodeCount": 828,
+    "edgeCount": 1380,
     "themeCount": 6,
-    "polityCount": 87,
+    "polityCount": 103,
     "assets": [
       "README.md",
       "SOURCES.md",
@@ -24,6 +24,9 @@
       "notes/han-three-sources.md",
       "notes/han-three.md",
       "notes/ideas.md",
+      "notes/jin-sui-catalog.md",
+      "notes/jin-sui-sources.md",
+      "notes/jin-sui.md",
       "notes/polity.md",
       "notes/pre-zhou-catalog.md",
       "notes/pre-zhou-sources.md",
