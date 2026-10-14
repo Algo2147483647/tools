@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { convergences, events, links, participants, periods, revisions, sources } from "./data/china-history/early.mjs";
+import { expandPreZhou } from "./expand-pre-zhou-history.mjs";
+import { expandHanThree } from "./expand-han-three-history.mjs";
 
 // The checked-in graph is authoritative for the other periods. This supplement is
 // deliberately incremental: the original all-history generator is absent here.
@@ -11,6 +13,7 @@ const check = process.argv.includes("--check");
 const read = (name) => readFile(new URL(name, root), "utf8");
 const graph = JSON.parse(await read("china-history.json"));
 const manifest = JSON.parse(await read("graph-studio.workspace.json"));
+const preZhou = expandPreZhou(graph);
 const topics = {
   polity: "政权与时期",
   conflict: "战争与变局",
@@ -128,6 +131,14 @@ for (const id of ["mohist-texts", "laozi-text"]) {
 edge("confucius", "mengzi", "思想联系：孟子继承并发展儒家议题，非同一时代人物");
 edge("jixia", "xunzi-lanling", "荀子由齐地论学转向楚地活动", "reference", "start", year(255));
 
+// Keep the existing corpus's edge order stable; the new supplement follows it.
+const hanThree = expandHanThree(graph);
+graph.edges = [
+  ...graph.edges.filter((item) => !item.id.startsWith("pre-zhou:") && !item.id.startsWith("han-three:")),
+  ...graph.edges.filter((item) => item.id.startsWith("pre-zhou:")),
+  ...graph.edges.filter((item) => item.id.startsWith("han-three:")),
+];
+
 // Validate graph integrity before any output is written.
 const ids = new Set();
 const adjacency = new Map(Object.keys(graph.nodes).map((id) => [id, []]));
@@ -157,7 +168,17 @@ Object.assign(manifest.metadata, {
   polityCount: new Set(Object.values(graph.nodes).map((item) => item.type)).size,
 });
 manifest.metadata.assets = [
-  ...new Set([...manifest.metadata.assets, "notes/early-china.md", "notes/early-catalog.md"]),
+  ...new Set([
+    ...manifest.metadata.assets,
+    "notes/early-china.md",
+    "notes/early-catalog.md",
+    "notes/pre-zhou.md",
+    "notes/pre-zhou-catalog.md",
+    "notes/pre-zhou-sources.md",
+    "notes/han-three.md",
+    "notes/han-three-catalog.md",
+    "notes/han-three-sources.md",
+  ]),
 ].sort();
 const ordered = [...managed, ...Object.keys(revisions)].sort(
   (a, b) => Number(startOf(a)) - Number(startOf(b)) || a.localeCompare(b, "en"),
@@ -201,23 +222,43 @@ const readme = (await read("README.md")).replace(
 );
 const galleryUrl = new URL("src/workspace/examples.ts", project);
 const gallery = (await readFile(galleryUrl, "utf8")).replace(
-  /\d+ events & periods · \d+ relationships · 770 BCE–2026/,
-  `${nodeCount} events & periods · ${edgeCount} relationships · 770 BCE–2026`,
+  /\d+ events & periods · \d+ relationships · (?:c\. )?\d+ BCE–2026/,
+  `${nodeCount} events & periods · ${edgeCount} relationships · c. 1750 BCE–2026`,
 );
+const timelineDocUrl = new URL("docs/timeline.md", project);
+const timelineDoc = (await readFile(timelineDocUrl, "utf8"))
+  .replace(
+    /Its \d+ events and periods and \d+ named relationships span (?:c\. )?\d+ BCE–2026 CE/,
+    `Its ${nodeCount} events and periods and ${edgeCount} named relationships span c. 1750 BCE–2026 CE`,
+  )
+  .replace(/\d+ polity categories/, `${manifest.metadata.polityCount} polity or archaeological-site categories`)
+  .replace(
+    /\d+ polity or archaeological-site categories/,
+    `${manifest.metadata.polityCount} polity or archaeological-site categories`,
+  );
 const outputs = [
   [new URL("china-history.json", root), JSON.stringify(graph, null, 2) + "\n"],
   [new URL("graph-studio.workspace.json", root), JSON.stringify(manifest, null, 2) + "\n"],
   [new URL("notes/early-catalog.md", root), catalog],
+  [new URL("notes/pre-zhou-catalog.md", root), preZhou.catalog],
+  [new URL("notes/pre-zhou-sources.md", root), preZhou.sourceDoc],
+  [new URL("notes/han-three-catalog.md", root), hanThree.catalog],
+  [new URL("notes/han-three-sources.md", root), hanThree.sourceDoc],
   [new URL("SOURCES.md", root), sourceDoc],
   [new URL("README.md", root), readme],
   [galleryUrl, gallery],
+  [timelineDocUrl, timelineDoc],
 ];
 for (const theme of Object.keys(topics)) {
   const name = `notes/${theme}.md`;
   let content = await read(name);
   const pointer = "[春秋到汉初专题](./early-china.md) · [新增条目与史料](./early-catalog.md)";
   if (!content.includes(pointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${pointer}\n`);
-  for (const id of Object.keys(revisions)) {
+  const prePointer = "[二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)";
+  if (!content.includes(prePointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${prePointer}\n`);
+  const hanPointer = "[汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)";
+  if (!content.includes(hanPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${hanPointer}\n`);
+  for (const id of [...Object.keys(revisions), ...Object.keys(hanThree.revisions)]) {
     const item = graph.nodes[id];
     if (item.theme !== theme) continue;
     const heading = `## ${item.title}`;
@@ -238,5 +279,5 @@ for (const [url, content] of outputs) {
   else await writeFile(url, content, "utf8");
 }
 console.log(
-  `${check ? "Checked" : "Updated"}: ${nodeCount} nodes, ${edgeCount} edges; ${managed.size} early-history additions.`,
+  `${check ? "Checked" : "Updated"}: ${nodeCount} nodes, ${edgeCount} edges; ${preZhou.managed.size} pre-Zhou, ${managed.size} Spring–Han, ${hanThree.managed.size} Han–Three Kingdoms additions.`,
 );

@@ -17,19 +17,19 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 465);
-    assert.equal(dag.edges.length, 657);
+    assert.equal(Object.keys(dag.nodes).length, 674);
+    assert.equal(dag.edges.length, 1068);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
-    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 79);
+    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 87);
     assert.equal(graph.nodes["bi-sheng"].type, "北宋");
     assert.equal(graph.nodes["bi-sheng"].theme, "technology");
     assert.equal(graph.nodes["feishui"].type, "东晋");
     assert.deepEqual(graph.nodes["feishui"].participants, ["东晋", "前秦"]);
     assert.equal(graph.nodes["qing"].time.start, "1636");
     assert.equal(graph.nodes["huang-chao"].time.at, "0881");
-    assert.equal(manifest.metadata.polityCount, 79);
+    assert.equal(manifest.metadata.polityCount, 87);
     for (const id of [
       "cao-wei",
       "shu-han",
@@ -74,8 +74,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 465);
-    assert.equal(stage.edges.length, 657);
+    assert.equal(stage.nodes.length, 674);
+    assert.equal(stage.edges.length, 1068);
     assert.equal(stage.warnings.length, 0);
     assert.ok(
       stage.nodes.every((node) => node.y === timelineTimeToY(stage.timeline!.axisMap!, node.timeline!.start!)),
@@ -111,12 +111,60 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 465);
+    assert.equal(workspace.graphs[0].nodeCount, 674);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
     assert.ok(folder.files.has("notes/early-china.md"));
     assert.ok(folder.files.has("notes/early-catalog.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^465/);
+    assert.ok(folder.files.has("notes/pre-zhou.md"));
+    assert.ok(folder.files.has("notes/pre-zhou-catalog.md"));
+    assert.ok(folder.files.has("notes/pre-zhou-sources.md"));
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^674/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /c\. 1750 BCE/);
+  }),
+  defineTest("pre-Zhou archaeology remains qualified and joins the existing Eastern Zhou chronology", async () => {
+    const graph = await read("china-history.json");
+    assert.equal(graph.metadata.supplements.preZhou.addedNodes, 66);
+    assert.equal(graph.nodes.erlitou.type, "二里头遗址");
+    assert.deepEqual(graph.nodes.erlitou.time, { start: "-001749", end: "-001519" });
+    assert.match(graph.nodes.erlitou.precision, /方案/);
+    assert.match(graph.nodes.erlitou.define, /不将其认定/);
+    assert.equal(graph.nodes["wei-kangshu"].type, "卫国");
+    assert.equal(graph.nodes["wei-state"].type, "魏国");
+    assert.equal(graph.nodes["zhou-revolt841"].time.at, "-000840");
+    assert.equal(graph.nodes["western-zhou-fall"].time.at, "-000770");
+    assert.equal(graph.nodes["zhou-east"].time.at, "-000769");
+    assert.match(graph.nodes.gonghe.define, /周召.*共伯和/);
+    assert.match(graph.nodes["jinsha-ritual"].precision, /771不是遗址终止年/);
+    assert.match(graph.nodes["muye"].precision, /争议/);
+    assert.ok(
+      !Object.values(graph.nodes).some((node: any) => ["夏", "夏朝", "旧石器时代", "新石器时代"].includes(node.type)),
+    );
+    const dag = normalizeDagInput(graph);
+    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    for (const [source, target] of [
+      ["shang-period", "muye"],
+      ["western-zhou", "western-zhou-fall"],
+    ]) {
+      const edge = dag.edges.find((item) => item.source === source && item.target === target)!;
+      assert.equal((edge.metadata!.timeline as { kind: string }).kind, "rendezvous");
+      assert.equal(stage.nodeMap[source].timeline!.endY, stage.nodeMap[target].timeline!.startY);
+    }
+    assert.ok(dag.edges.some((edge) => edge.source === "western-zhou-fall" && edge.target === "zhou-east"));
+    assert.ok(!dag.edges.some((edge) => edge.source === "wei-kangshu" && edge.target === "wei-state"));
+    for (const edge of graph.edges.filter((edge: any) => edge.id.startsWith("pre-zhou:"))) {
+      const source = graph.nodes[edge.source];
+      const target = graph.nodes[edge.target];
+      const relation = edge.metadata.timeline;
+      const from =
+        relation.sourceTime ||
+        (relation.sourceAnchor === "end" ? source.time.end : source.time.at || source.time.start);
+      const to = target.time.at || target.time.start;
+      assert.ok(Number(from) <= Number(to), edge.id);
+      if (relation.kind === "part-of") {
+        assert.ok(Number(source.time.start) <= Number(from) && Number(from) <= Number(source.time.end));
+      }
+    }
   }),
   defineTest("early history distinguishes staged transitions and preserves later namesakes", async () => {
     const graph = await read("china-history.json");
@@ -156,6 +204,62 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(stage.nodes.filter((item) => item.key === "gaixia").length, 1);
     assert.ok(dag.edges.some((item) => item.source === "weishui" && item.target === "gaixia"));
     assert.ok(dag.edges.some((item) => item.source === "honggou" && item.target === "gaixia"));
+  }),
+  defineTest("Han–Three Kingdoms points preserve BCE conversion and separate accession from unification", async () => {
+    const graph = await read("china-history.json");
+    const catalog = await readFile(root + "notes/han-three-catalog.md", "utf8");
+    const supplement = graph.metadata.supplements.hanThreeKingdoms;
+    assert.equal(supplement.addedNodes, 143);
+    assert.equal(supplement.revisedNodes, 12);
+    const ids = [...catalog.matchAll(/图中标识：`([^`]+)`/g)].map((match) => match[1]);
+    assert.equal(new Set(ids).size, 155);
+    for (const id of ids) {
+      assert.deepEqual(Object.keys(graph.nodes[id].time), ["at"], `${id}: point, not another long range`);
+      assert.ok(graph.nodes[id].sources.length && graph.nodes[id].references);
+    }
+    for (const [id, at] of [
+      ["mobei-campaign", "-000118"],
+      ["mang-returns", "0000"],
+      ["mang-regency", "0006"],
+      ["mang-emperor", "0009"],
+      ["guangwu-accession", "0025"],
+      ["han-reunification", "0036"],
+      ["red-cliffs", "0208"],
+      ["caopi-emperor", "0220"],
+      ["liubei-emperor", "0221"],
+      ["sunquan-wei-king", "0221"],
+      ["wu-huangwu", "0222"],
+      ["wu-emperor", "0229"],
+      ["shu-conquest", "0263"],
+      ["jin-emperor265", "0265"],
+      ["jin-wu-campaign279", "0279"],
+      ["jin-unification", "0280"],
+    ])
+      assert.equal(graph.nodes[id].time.at, at, id);
+    assert.equal(graph.nodes["sunquan-wei-king"].type, "孙权集团");
+    assert.equal(graph.nodes["eastern-wu"].time.start, "0222");
+    assert.equal(graph.nodes["eastern-wu"].time.end, "0280");
+    const dag = normalizeDagInput(graph);
+    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    for (const [source, target] of [
+      ["western-han", "mang-emperor"],
+      ["xin", "xin-fall"],
+      ["gengshi", "gengshi-fall"],
+      ["eastern-han", "caopi-emperor"],
+      ["cao-wei", "jin-emperor265"],
+    ]) {
+      const edge = dag.edges.find((item) => item.source === source && item.target === target)!;
+      assert.equal((edge.metadata!.timeline as { sourceAnchor: string }).sourceAnchor, "end");
+      assert.equal(stage.nodeMap[source].timeline!.endY, stage.nodeMap[target].timeline!.startY);
+    }
+    for (const edge of graph.edges.filter((item: { id: string }) => item.id.startsWith("han-three:"))) {
+      const anchor = edge.metadata.timeline;
+      const source = graph.nodes[edge.source].time;
+      const target = graph.nodes[edge.target].time;
+      const from = anchor.sourceTime || (anchor.sourceAnchor === "end" ? source.end : source.at || source.start);
+      assert.ok(Number(from) <= Number(target.at || target.start), edge.id);
+    }
+    assert.equal(graph.metadata.asOf, "2026-10-14");
   }),
   defineTest("modern history includes sourced political and social events through the declared cutoff", async () => {
     const graph = await read("china-history.json");

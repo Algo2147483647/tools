@@ -8,10 +8,10 @@
   "defaultGraph": "china-history.json",
   "metadata": {
     "language": "zh-CN",
-    "nodeCount": 465,
-    "edgeCount": 657,
+    "nodeCount": 674,
+    "edgeCount": 1068,
     "themeCount": 6,
-    "polityCount": 79,
+    "polityCount": 87,
     "assets": [
       "README.md",
       "SOURCES.md",
@@ -20,8 +20,14 @@
       "notes/early-catalog.md",
       "notes/early-china.md",
       "notes/economy.md",
+      "notes/han-three-catalog.md",
+      "notes/han-three-sources.md",
+      "notes/han-three.md",
       "notes/ideas.md",
       "notes/polity.md",
+      "notes/pre-zhou-catalog.md",
+      "notes/pre-zhou-sources.md",
+      "notes/pre-zhou.md",
       "notes/technology.md"
     ]
   }

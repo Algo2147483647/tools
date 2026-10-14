@@ -1,5 +1,9 @@
 # 科技与工程
 
+[汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
+
+[二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)
+
 [春秋到汉初专题](./early-china.md) · [新增条目与史料](./early-catalog.md)
 
 造纸、运河、印刷与宫殿建筑；技术采用往往是长期过程。
@@ -20,9 +24,9 @@
 
 **105年 · 东汉**
 
-以105年记述的改进为节点；纸的出现早于蔡伦，不称其为唯一发明者。
+《宦者列传》在元兴元年记蔡伦奏上所造之纸。造纸早已有实践，此点是工艺改进和推广的记载，不能称蔡伦在105年第一次发明纸，或说竹木简随即退出使用。
 
-[中国科学技术馆：蔡伦像](https://www.cdstm.cn/museum/zphc/zgsgzzdjy/art/2020/art_6211a1fae373495aaf472d8f078a6457.html) · [大都会艺术博物馆：公元1—500年的中国](https://www.metmuseum.org/toah/ht/05/eac.html)
+[《後漢書·宦者列传》](https://zh.wikisource.org/wiki/後漢書/卷78)
 
 ## 隋代运河主要工程
 

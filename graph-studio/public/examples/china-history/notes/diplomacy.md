@@ -1,5 +1,9 @@
 # 交流与外交
 
+[汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
+
+[二里头、商与西周专题](./pre-zhou.md) · [条目与史料](./pre-zhou-catalog.md)
+
 [春秋到汉初专题](./early-china.md) · [新增条目与史料](./early-catalog.md)
 
 使节、远航及条约。交流包含多方参与，不简化为单一路径的传播。
@@ -10,17 +14,17 @@
 
 **公元前138年 · 西汉**
 
-奉命西行；这是汉与中亚交流史的一个节点，并非丝路贸易的唯一源头。
+张骞奉命联络大月氏，出使过程中被匈奴扣留，后来抵达中亚再返汉。其使命没有按最初目标建立共同攻匈奴联盟，却增进汉廷对西方的认识；前138年是启程节点，不是全程完成年。
 
-[联合国教科文组织：丝绸之路的开辟](https://es.unesco.org/silkroad/sites/default/files/knowledge-bank-article/the%20opening%20of%20the%20silk%20route.pdf)
+[《漢書·张骞李广利传》](https://zh.wikisource.org/wiki/漢書/卷061)
 
 ## 昭君出塞
 
 **公元前33年 · 西汉**
 
-王昭君与呼韩邪单于的婚姻，是汉匈关系中的外交事件。
+呼韩邪单于来朝，王昭君与其成婚。这是在匈奴内部竞争、呼韩邪与汉长期交涉背景下的外交安排，不是单靠一次婚姻就使所有边境战争永久停止。
 
-[秦汉三国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/秦汉三国历史年表)
+[《漢書·元帝纪》](https://zh.wikisource.org/wiki/漢書/卷009) · [《漢書·匈奴传下》](https://zh.wikisource.org/wiki/漢書/卷094下)
 
 ## 小野妹子出使隋朝
 
