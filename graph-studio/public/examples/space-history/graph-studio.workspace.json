@@ -1,7 +1,7 @@
 {
   "format": "graph-studio-workspace",
   "version": 1,
-  "name": "World space history",
+  "name": "History of Technology",
   "graphs": [
     "space-history.json"
   ],

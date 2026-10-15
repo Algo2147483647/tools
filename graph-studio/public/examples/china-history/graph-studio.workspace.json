@@ -1,17 +1,18 @@
 {
   "format": "graph-studio-workspace",
   "version": 1,
-  "name": "中国历史",
+  "name": "Human History",
   "graphs": [
-    "china-history.json"
+    "china-history.json",
+    "europe/europe-history.json"
   ],
   "defaultGraph": "china-history.json",
   "metadata": {
     "language": "zh-CN",
-    "nodeCount": 1273,
-    "edgeCount": 2322,
-    "themeCount": 6,
-    "polityCount": 109,
+    "nodeCount": 1871,
+    "edgeCount": 2995,
+    "themeCount": 8,
+    "polityCount": 190,
     "assets": [
       "README.md",
       "SOURCES.md",
@@ -37,7 +38,34 @@
       "notes/technology.md",
       "notes/yuan-qing-catalog.md",
       "notes/yuan-qing-sources.md",
-      "notes/yuan-qing.md"
-    ]
+      "notes/yuan-qing.md",
+      "europe/NAMES.md",
+      "europe/README.md",
+      "europe/SOURCES.md",
+      "europe/notes/ancient-catalog.md",
+      "europe/notes/ancient.md",
+      "europe/notes/contemporary-catalog.md",
+      "europe/notes/contemporary.md",
+      "europe/notes/early-modern.md",
+      "europe/notes/earlyModern-catalog.md",
+      "europe/notes/medieval-catalog.md",
+      "europe/notes/medieval.md",
+      "europe/notes/nineteenth-catalog.md",
+      "europe/notes/nineteenth.md",
+      "europe/notes/twentieth-catalog.md",
+      "europe/notes/twentieth.md"
+    ],
+    "graphStats": {
+      "china-history.json": {
+        "nodeCount": 1273,
+        "edgeCount": 2322,
+        "polityCount": 109
+      },
+      "europe/europe-history.json": {
+        "nodeCount": 598,
+        "edgeCount": 673,
+        "polityCount": 81
+      }
+    }
   }
 }

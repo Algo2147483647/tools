@@ -20,8 +20,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(Object.keys(dag.nodes).length, 1273);
     assert.equal(dag.edges.length, 2322);
     assert.equal(manifest.metadata.language, "zh-CN");
-    assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
-    assert.equal(manifest.metadata.edgeCount, dag.edges.length);
+    assert.equal(manifest.metadata.graphStats["china-history.json"].nodeCount, Object.keys(dag.nodes).length);
+    assert.equal(manifest.metadata.graphStats["china-history.json"].edgeCount, dag.edges.length);
     assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 109);
     assert.equal(graph.nodes["bi-sheng"].type, "北宋");
     assert.equal(graph.nodes["bi-sheng"].theme, "technology");
@@ -29,7 +29,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.deepEqual(graph.nodes["feishui"].participants, ["东晋", "前秦"]);
     assert.equal(graph.nodes["qing"].time.start, "1636");
     assert.equal(graph.nodes["huang-chao"].time.at, "0881");
-    assert.equal(manifest.metadata.polityCount, 109);
+    assert.equal(manifest.metadata.graphStats["china-history.json"].polityCount, 109);
     for (const id of [
       "cao-wei",
       "shu-han",
@@ -109,7 +109,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const folder = await loadExampleWorkspace("china-history", "/", fetcher);
     const workspace = await discoverWorkspace(folder);
     assert.equal(workspace.activePath, "china-history.json");
-    assert.equal(workspace.graphs.length, 1);
+    assert.equal(workspace.graphs.length, 2);
     assert.equal(workspace.graphs[0].error, undefined);
     assert.equal(workspace.graphs[0].nodeCount, 1273);
     assert.ok(folder.files.has("SOURCES.md"));
@@ -119,8 +119,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.ok(folder.files.has("notes/pre-zhou.md"));
     assert.ok(folder.files.has("notes/pre-zhou-catalog.md"));
     assert.ok(folder.files.has("notes/pre-zhou-sources.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^1273/);
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /c\. 1750 BCE/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^2 timelines/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /c\. 1900 BCE/);
   }),
   defineTest("pre-Zhou archaeology remains qualified and joins the existing Eastern Zhou chronology", async () => {
     const graph = await read("china-history.json");

@@ -1,0 +1,52 @@
+(node:28944) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Bundled example workspaces
+(node:28944) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  PASS history workspaces merge without breaking old European recent entries or note paths
+  PASS all example graphs load, serialize, and have no missing files and retain their documented language
+  PASS Factorio replaces the atlas with two target plans and restores obsolete recent paths
+  PASS Factorio rates balance every shared material and account for each recipe input and output
+  PASS complete Factorio target chains render all branches and catalyst/coolant returns
+  PASS example opens are independent copies and recent entries reopen without folder permission
+  PASS unknown or unavailable examples fail cleanly and respect the deployment base
+  PASS unsafe paths and missing graphs reject opening; unavailable notes fail only when opened
+  PASS large examples open without downloading notes and share only immutable cached files
+  PASS refresh replaces cached downloads while failed note requests remain retryable
+  PASS stalled example requests time out, abort and can be retried
+  PASS switching from a Sankey example to mathematics restores a layered layout
+
+Local workspace recent storage failures
+  PASS unavailable duplicate workspace entries show one recent project with the latest graph
+  PASS reconnecting a workspace hides its old unavailable rows without merging two live folders
+  PASS removing a grouped recent project removes all its rows and no other project
+  PASS consecutive creations keep the latest metadata and persist handles in order
+  PASS a blocked database does not trap local workspace opening and keeps its live handle
+  PASS a silent database open times out and closes a connection that arrives later
+  PASS a stalled handle transaction is aborted and closes its database
+  PASS database version changes release the connection for other tabs
+  PASS unresponsive old directory handles cannot trap a new workspace opening
+
+Workspace opening and local paths
+  PASS manifest round-trips legal metadata without accepting unknown fields
+  PASS manifest paths reject escapes, absolute paths, aliases and URL suffixes
+  PASS workspace manifest restricts graph discovery and preserves asset access
+  PASS bad manifest or a missing declared file rejects workspace opening
+  PASS automatic discovery ignores unrelated JSON and surfaces invalid graph documents
+  PASS startup choice is recent, explicit default, root graph.json, then sole graph
+  PASS invalid explicit default does not silently open a different graph
+  PASS empty folders and unrelated project folders can open without a graph
+  PASS manifest export keeps invalid graph entries and metadata but drops stale default
+  PASS graph file reads use fresh handles and preserve document metadata
+  PASS discovery is bounded and manifests avoid scanning unrelated JSON
+  PASS folder enumeration skips generated and hidden directories without reading assets
+  PASS fallback folder selection strips exactly one root and rejects duplicates
+  PASS recent handle access uses an existing grant or explicitly requests one
+  PASS links resolve relative to each source file, including URL-encoded names
+  PASS relative files require an open workspace and cannot escape its file inventory
+  PASS recent list updates existing records and keeps at most twenty locations
+  PASS recording an example never waits for IndexedDB and preserves known local handles
+  PASS recent metadata tolerates unavailable or corrupt storage without trusting handles
+{ passed: 40, failed: 0 }

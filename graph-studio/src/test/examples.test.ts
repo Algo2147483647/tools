@@ -9,6 +9,7 @@ import { initialGraphAppState } from "../state/initialState";
 import { discoverWorkspace, readGraphFile, readWorkspaceFile } from "../workspace/discovery";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
 import { resolveWorkspacePath } from "../workspace/paths";
+import { parseRecentMetadata } from "../workspace/locations";
 import { defineSuite, defineTest } from "./harness";
 
 async function exampleGraph(id: string, path: string) {
@@ -35,6 +36,65 @@ const localFetch = (async (url: string) => {
 }) as typeof fetch;
 
 export const examplesSuite = defineSuite("Bundled example workspaces", [
+  defineTest("history workspaces merge without breaking old European recent entries or note paths", async () => {
+    const folder = await loadExampleWorkspace("china-history", "/", localFetch);
+    const workspace = await discoverWorkspace(folder);
+    assert.equal(workspace.name, "Human History");
+    assert.deepEqual(
+      workspace.graphs.map((graph) => graph.path),
+      ["china-history.json", "europe/europe-history.json"],
+    );
+    assert.equal(workspace.activePath, "china-history.json");
+    assert.equal(workspace.manifest!.metadata!.nodeCount, 1871);
+    assert.equal(workspace.manifest!.metadata!.edgeCount, 2995);
+    assert.ok(folder.files.has("europe/notes/ancient.md"));
+    const legacy = await discoverWorkspace(
+      await loadExampleWorkspace("europe-history", "/", localFetch),
+      "europe-history.json",
+    );
+    assert.equal(legacy.name, "Human History");
+    assert.equal(legacy.exampleId, "china-history");
+    assert.equal(legacy.activePath, "europe/europe-history.json");
+    const recents = parseRecentMetadata(
+      JSON.stringify([
+        {
+          id: "example:europe-history",
+          exampleId: "europe-history",
+          kind: "workspace",
+          name: "欧洲历史",
+          location: "Example workspace",
+          lastGraph: "europe-history.json",
+          openedAt: 3,
+        },
+        {
+          id: "example:china-history",
+          exampleId: "china-history",
+          kind: "workspace",
+          name: "中国历史",
+          location: "Example workspace",
+          lastGraph: "china-history.json",
+          openedAt: 2,
+        },
+        {
+          id: "example:space-history",
+          exampleId: "space-history",
+          kind: "workspace",
+          name: "World space history",
+          location: "Example workspace",
+          lastGraph: "space-history.json",
+          openedAt: 1,
+        },
+      ]),
+    );
+    assert.equal(recents.length, 2);
+    assert.equal(recents[0].name, "Human History");
+    assert.equal(recents[0].id, "example:china-history");
+    assert.equal(recents[0].lastGraph, "europe/europe-history.json");
+    assert.equal(recents[1].name, "History of Technology");
+    const technology = await discoverWorkspace(await loadExampleWorkspace("space-history", "/", localFetch));
+    assert.equal(technology.name, "History of Technology");
+    assert.equal(technology.activePath, "space-history.json");
+  }),
   defineTest(
     "all example graphs load, serialize, and have no missing files and retain their documented language",
     async () => {

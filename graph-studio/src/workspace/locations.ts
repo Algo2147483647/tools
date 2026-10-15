@@ -1,4 +1,4 @@
-import { isExampleId } from "./examples";
+import { EXAMPLE_WORKSPACES, isExampleId } from "./examples";
 
 export interface RecentLocation {
   exampleId?: string;
@@ -28,17 +28,31 @@ export function parseRecentMetadata(value: string | null): RecentLocation[] {
           typeof item.location === "string" &&
           Number.isFinite(item.openedAt),
       )
-      .map(({ id, kind, name, location, openedAt, lastGraph, exampleId }) => ({
-        id,
-        kind,
-        name,
-        location,
-        openedAt,
-        lastGraph: typeof lastGraph === "string" ? lastGraph : undefined,
-        exampleId: isExampleId(exampleId) ? exampleId : undefined,
-        canReopen: isExampleId(exampleId),
-      }))
+      .map(({ id, kind, name, location, openedAt, lastGraph, exampleId }) => {
+        const legacyEurope = exampleId === "europe-history";
+        const canonicalId = legacyEurope ? "china-history" : exampleId;
+        const example = EXAMPLE_WORKSPACES.find((entry) => entry.id === canonicalId);
+        const renamedHistory = canonicalId === "china-history" || canonicalId === "space-history";
+        return {
+          id: legacyEurope ? "example:china-history" : id,
+          kind,
+          name: renamedHistory ? (example?.title ?? name) : name,
+          location,
+          openedAt,
+          lastGraph: legacyEurope
+            ? "europe/europe-history.json"
+            : typeof lastGraph === "string"
+              ? lastGraph
+              : undefined,
+          exampleId: isExampleId(canonicalId) ? canonicalId : undefined,
+          canReopen: isExampleId(canonicalId),
+        };
+      })
       .sort((a, b) => b.openedAt - a.openedAt)
+      .filter(
+        (item, index, all) =>
+          item.exampleId !== "china-history" || all.findIndex((other) => other.exampleId === item.exampleId) === index,
+      )
       .slice(0, RECENT_LIMIT);
   } catch {
     return [];

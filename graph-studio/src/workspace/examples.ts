@@ -5,19 +5,11 @@ import type { WorkspaceFile, WorkspaceFolder } from "./types";
 export const EXAMPLE_WORKSPACES = [
   {
     id: "china-history",
-    title: "中国历史：分流与交汇",
+    title: "Human History",
     kind: "Timeline",
-    description: "从先秦到当代，观察政权分合、制度变迁、政治运动、社会生活与国际关系。每个历史节点附有来源。",
-    detail: "1273 events & periods · 2322 relationships · c. 1750 BCE–2026",
+    description: "中国历史与欧洲历史两张独立画布，观察政权分合、制度、文化与社会变迁，附导读和来源。",
+    detail: "2 timelines · 1871 events & periods · 2995 relationships · c. 1900 BCE–2026",
     accent: "#a36c43",
-  },
-  {
-    id: "europe-history",
-    title: "欧洲历史：分流与交汇",
-    kind: "Timeline",
-    description: "从爱琴海青铜时代到当代，沿多地区线路阅读欧洲历史。中文说明、原语言专名，附分期导读与来源。",
-    detail: "585 events · 13 periods · 673 relationships · c. 1900 BCE–2026",
-    accent: "#657d91",
   },
   {
     id: "commerce",
@@ -39,7 +31,7 @@ export const EXAMPLE_WORKSPACES = [
   },
   {
     id: "space-history",
-    title: "World space history",
+    title: "History of Technology",
     kind: "Timeline",
     description:
       "Follow satellites, lunar landings, space stations and deep-space missions. Zoom from decades of exploration to Eagle and Columbia's rendezvous.",
@@ -58,7 +50,7 @@ export const EXAMPLE_WORKSPACES = [
 ] as const;
 
 export function isExampleId(id: unknown): id is string {
-  return EXAMPLE_WORKSPACES.some((example) => example.id === id);
+  return id === "europe-history" || EXAMPLE_WORKSPACES.some((example) => example.id === id);
 }
 
 // File objects are immutable. Share downloads, never editable graph documents or file maps.
@@ -71,6 +63,8 @@ export async function loadExampleWorkspace(
   fetcher: typeof fetch = fetch,
   options: { reload?: boolean; timeoutMs?: number } = {},
 ): Promise<WorkspaceFolder> {
+  const legacyEurope = id === "europe-history";
+  if (legacyEurope) id = "china-history";
   const example = EXAMPLE_WORKSPACES.find((entry) => entry.id === id);
   if (!example) throw new Error("Unknown example workspace.");
   const root = `${baseUrl}examples/${id}/`;
@@ -113,10 +107,14 @@ export async function loadExampleWorkspace(
     cache.set(path, request);
     return request;
   }
-  const manifestFile = await read(WORKSPACE_MANIFEST);
+  let manifestFile = await read(WORKSPACE_MANIFEST);
   let manifest: ReturnType<typeof parseWorkspaceManifest>;
   try {
     manifest = parseWorkspaceManifest(JSON.parse(await manifestFile.text()));
+    if (legacyEurope) {
+      manifest = { ...manifest, defaultGraph: "europe/europe-history.json" };
+      manifestFile = new File([JSON.stringify(manifest)], WORKSPACE_MANIFEST, { type: "application/json" });
+    }
   } catch (error) {
     cache.delete(WORKSPACE_MANIFEST);
     throw error;

@@ -1,15 +1,14 @@
 # Example workspaces
 
-Below Recent workspaces, the homepage includes six separate workspaces, including Chinese-language Chinese and European history timelines. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
+Below Recent workspaces, the homepage includes five separate workspaces, including Human History with Chinese and European history timelines. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
 
-| Workspace            | Contents                                                                                                                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 中国历史：分流与交汇 | 1273 events and periods, 2322 relationships; Chinese guides and sources, from early archaeological evidence to the present                       |
-| 欧洲历史：分流与交汇 | 585 point events, 13 periods, 673 relationships; original-language names, Chinese explanations, six guides and source catalogs, c. 1900 BCE–2026 |
-| Commerce operations  | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes            |
-| Mathematics          | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography                   |
-| Factorio production  | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes          |
-| World space history  | One timeline containing all 298 events and completed phases and 408 relationships, with eight themes and Apollo 11's vehicle branches            |
+| Workspace             | Contents                                                                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human History         | Two timelines: Chinese history (1273 nodes, 2322 relationships) and European history (598 nodes, 673 relationships), with guides and sources |
+| Commerce operations   | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes        |
+| Mathematics           | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography               |
+| Factorio production   | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes      |
+| History of Technology | One timeline containing all 298 events and completed phases and 408 relationships, with eight themes and Apollo 11's vehicle branches        |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
@@ -17,15 +16,15 @@ The [Commerce operations guide](compound.md) covers the nested node-link example
 
 ## European history
 
-The independent `europe-history` workspace starts with Aegean Bronze Age evidence and reaches Bulgaria's euro adoption in January 2026. It includes parallel regional routes, political and social changes, religion, science, colonialism, wars and international institutions. The 598-node canvas uses 585 points and only 13 qualified period bars. Chronology and contextual bridges are labelled separately; cross-region joins never imply voluntary union or a single inevitable cause.
+The European history canvas in **Human History** starts with Aegean Bronze Age evidence and reaches Bulgaria's euro adoption in January 2026. It includes parallel regional routes, political and social changes, religion, science, colonialism, wars and international institutions. The 598-node canvas uses 585 points and only 13 qualified period bars. Chronology and contextual bridges are labelled separately; cross-region joins never imply voluntary union or a single inevitable cause.
 
 Chinese prose accompanies original-language proper names, preserving Greek, Cyrillic, Arabic-script Ottoman names and European diacritics. The names guide distinguishes normalized historical spelling, multilingual states, later historiographical terms and archaeological cultures without deciphered self-designations. Every node includes sources and precision notes; the bibliography distinguishes primary institutional sources from secondary overview articles. Contemporary entries are dated snapshots, not predictions or a live status feed.
 
-Edit `scripts/data/europe-history/`, run `npm run examples:europe-history`, and verify with `npm run examples:europe-history:check`. Six handwritten guides under `public/examples/europe-history/notes/` are preserved by generation; catalogs, names, bibliography and graph files are generated. The example and European history suites verify loading, local links, serialization, date semantics, distinct institutional stages and the complete timeline layout.
+Edit `scripts/data/europe-history/`, run `npm run examples:europe-history`, and verify with `npm run examples:europe-history:check`. Six handwritten guides under `public/examples/china-history/europe/notes/` are preserved by generation; catalogs, names, bibliography and graph files are generated. The example and European history suites verify loading, local links, serialization, date semantics, distinct institutional stages and the complete timeline layout.
 
-## World space history
+## History of Technology
 
-The [Timeline guide](timeline.md) explains the date-aware chart type. The space history workspace covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion are included in the same graph.
+The [Timeline guide](timeline.md) explains the date-aware chart type. The History of Technology workspace currently contains a space history canvas covering 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion are included in the same graph.
 
 The single **space-history.json** opens directly with every node and relationship. Use Type, Track and Time range to inspect a theme or period, and Show all events to restore the entire history. Edges explicitly distinguish within-mission chronology, interval membership, documented rendezvous and contextual references. Chronology does not assert technical causation. The corpus is a historical snapshot through 2025, not a live mission-status feed. Intervals describe named, completed phases; spacecraft that continued operating are not given invented mission-end dates.
 

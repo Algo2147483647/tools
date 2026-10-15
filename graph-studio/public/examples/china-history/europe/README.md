@@ -25,4 +25,4 @@
 
 每个节点都有来源链接、中文解释、纪年限定及相关导读。博物馆、档案、条约文本和官方机构资源用于关键核验；其余大量节点以注明性质的二手综述提供进一步阅读入口，不声称全部来自一手史料。见 [来源索引与方法](./SOURCES.md)。
 
-数据源位于项目 scripts/data/europe-history/，生成器为 scripts/build-europe-history.mjs。修改后执行 npm run examples:europe-history，再执行 npm run examples:europe-history:check。导读为独立维护文件，生成器不会覆盖。此画布与中国历史使用不同文件和工作区，打开示例后编辑的是副本。
+数据源位于项目 scripts/data/europe-history/，生成器为 scripts/build-europe-history.mjs。修改后执行 npm run examples:europe-history，再执行 npm run examples:europe-history:check。导读为独立维护文件，生成器不会覆盖。此画布与中国历史同属 Human History 工作区，分别保存在独立图文件中，打开示例后编辑的是副本。

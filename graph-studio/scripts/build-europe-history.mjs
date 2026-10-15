@@ -10,7 +10,8 @@ import { contemporary } from "./data/europe-history/contemporary.mjs";
 import { polities, themes, sections, source, isoYear } from "./data/europe-history/shared.mjs";
 import { periods, bridges } from "./data/europe-history/relations.mjs";
 
-const root = fileURLToPath(new URL("../public/examples/europe-history/", import.meta.url));
+const rootUrl = new URL("../public/examples/china-history/europe/", import.meta.url);
+const root = fileURLToPath(rootUrl);
 const check = process.argv.includes("--check");
 const corpus = { ancient, medieval, earlyModern, nineteenth, twentieth, contemporary };
 const asOf = "2026-10-16";
@@ -215,24 +216,39 @@ const assets = [
   ...guidePaths,
   ...Object.keys(sections).map((key) => `notes/${key}-catalog.md`),
 ].sort();
-files.set(
-  "graph-studio.workspace.json",
-  json({
-    format: "graph-studio-workspace",
-    version: 1,
-    name: "欧洲历史",
-    graphs: ["europe-history.json"],
-    defaultGraph: "europe-history.json",
-    metadata: {
-      language: "zh-CN",
-      nodeCount: count,
-      edgeCount: edges.length,
-      polityCount,
-      themeCount: Object.keys(themes).length,
-      assets,
-    },
-  }),
-);
+const workspace = JSON.parse(await readFile(new URL("../graph-studio.workspace.json", rootUrl), "utf8"));
+workspace.name = "Human History";
+workspace.graphs = [...new Set([...workspace.graphs, "europe/europe-history.json"])];
+const graphStats = {};
+const categories = new Set(),
+  allThemes = new Set();
+for (const path of workspace.graphs) {
+  const document =
+    path === "europe/europe-history.json" ? graph : JSON.parse(await readFile(new URL(`../${path}`, rootUrl), "utf8"));
+  const entries = Object.values(document.nodes);
+  graphStats[path] = {
+    nodeCount: entries.length,
+    edgeCount: document.edges.length,
+    polityCount: new Set(entries.map((n) => n.type)).size,
+  };
+  entries.forEach((n) => {
+    categories.add(n.type);
+    allThemes.add(n.theme);
+  });
+}
+workspace.metadata = {
+  ...workspace.metadata,
+  nodeCount: Object.values(graphStats).reduce((sum, value) => sum + value.nodeCount, 0),
+  edgeCount: Object.values(graphStats).reduce((sum, value) => sum + value.edgeCount, 0),
+  polityCount: categories.size,
+  themeCount: allThemes.size,
+  graphStats,
+  assets: [
+    ...workspace.metadata.assets.filter((path) => !path.startsWith("europe/")),
+    ...assets.map((path) => `europe/${path}`),
+  ],
+};
+files.set("../graph-studio.workspace.json", json(workspace));
 files.set(
   "README.md",
   `# 欧洲历史：分流与交汇\n\n独立时间画布，覆盖约公元前1900年的爱琴海宫殿到2026年 България 采用 euro。共 **${events.length} 个点事件、${periods.length} 条时期线、${edges.length} 条关系**，${polityCount} 个政权／地区／主题类别。编选记录截至 ${asOf}；最新收录事件为2026年1月1日，并非逐日更新的新闻或现势地图。\n\n打开 [欧洲历史画布](./europe-history.json)。说明使用中文，人名、政权、机构和主要事件中的专名保留原语言字形；对照见 [NAMES](./NAMES.md)。\n\n## 阅读方式\n\n先按时间范围缩小到一个阶段，再选择 Type／Track 中的地区或政权。颜色表示分类，不是固定的一条国家轨道。希腊诸邦、Roma、Ῥωμανία、西欧、中东欧、北欧、巴尔干和欧洲整合线路并行；殖民活动包含被征服者、奴役、抵抗与独立的视角。\n\n点的年份表示事件坐标，非默认1月1日；约年和传统纪年会在 precision 中说明。大多数国家的成立、制度变革、战争、条约和灭亡均用点表达，只有13个必要的制度／战争时期保留线段。每条边有含义说明：普通先后不等于因果，交汇也不等于和平合并。图中年份跨度很大，adaptive 轴可压缩空白；需要比较真实时长时切换线性时间轴。\n\n## 分期导读\n\n${Object.entries(
@@ -244,7 +260,7 @@ files.set(
     )
     .join(
       "\n",
-    )}\n\n这些分期为阅读服务，界线可以重叠。1444年 Lagos 奴隶交易放在海洋扩张篇，1455年印刷节点也与改革篇相连。欧洲边界及身份随时代变化；希腊、罗马和现代国家之间没有一条必然、排他的文明继承线。\n\n## 可追溯性与维护\n\n每个节点都有来源链接、中文解释、纪年限定及相关导读。博物馆、档案、条约文本和官方机构资源用于关键核验；其余大量节点以注明性质的二手综述提供进一步阅读入口，不声称全部来自一手史料。见 [来源索引与方法](./SOURCES.md)。\n\n数据源位于项目 scripts/data/europe-history/，生成器为 scripts/build-europe-history.mjs。修改后执行 npm run examples:europe-history，再执行 npm run examples:europe-history:check。导读为独立维护文件，生成器不会覆盖。此画布与中国历史使用不同文件和工作区，打开示例后编辑的是副本。\n`,
+    )}\n\n这些分期为阅读服务，界线可以重叠。1444年 Lagos 奴隶交易放在海洋扩张篇，1455年印刷节点也与改革篇相连。欧洲边界及身份随时代变化；希腊、罗马和现代国家之间没有一条必然、排他的文明继承线。\n\n## 可追溯性与维护\n\n每个节点都有来源链接、中文解释、纪年限定及相关导读。博物馆、档案、条约文本和官方机构资源用于关键核验；其余大量节点以注明性质的二手综述提供进一步阅读入口，不声称全部来自一手史料。见 [来源索引与方法](./SOURCES.md)。\n\n数据源位于项目 scripts/data/europe-history/，生成器为 scripts/build-europe-history.mjs。修改后执行 npm run examples:europe-history，再执行 npm run examples:europe-history:check。导读为独立维护文件，生成器不会覆盖。此画布与中国历史同属 Human History 工作区，分别保存在独立图文件中，打开示例后编辑的是副本。\n`,
 );
 files.set(
   "NAMES.md",
@@ -284,7 +300,7 @@ for (const [relative, content] of files) {
       stale = true;
     }
   } else {
-    await mkdir(new URL(".", new URL(relative, new URL("../public/examples/europe-history/", import.meta.url))), {
+    await mkdir(new URL(".", new URL(relative, rootUrl)), {
       recursive: true,
     });
     await writeFile(path, content, "utf8");

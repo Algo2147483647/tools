@@ -1,4 +1,6 @@
-# World space history
+# History of Technology
+
+This workspace currently contains the World space history timeline.
 
 Explore **298 nodes** and **408 relationships** together in **one complete timeline**, spanning eight themes. The historical snapshot ends on **2025-12-31**.
 

@@ -8,22 +8,24 @@ import { timelineTimeToY } from "../layout/timeline-axis";
 import { EXAMPLE_WORKSPACES } from "../workspace/examples";
 import { defineSuite, defineTest } from "./harness";
 
-const root = "public/examples/europe-history/";
+const root = "public/examples/china-history/europe/";
 const read = async (path: string) => JSON.parse(await readFile(root + path, "utf8"));
 
 export const europeHistorySuite = defineSuite("欧洲历史独立时间画布", [
   defineTest("the corpus preserves original scripts, qualified dates, sources and point-first coverage", async () => {
     const graph = await read("europe-history.json");
-    const manifest = await read("graph-studio.workspace.json");
+    const manifest = await read("../graph-studio.workspace.json");
+    const stats = manifest.metadata.graphStats["europe/europe-history.json"];
     const dag = normalizeDagInput(graph);
     assert.equal(graph.id, "europe-history");
     assert.equal(Object.keys(dag.nodes).length, 598);
     assert.equal(dag.edges.length, 673);
-    assert.equal(manifest.metadata.nodeCount, 598);
-    assert.equal(manifest.metadata.edgeCount, 673);
-    assert.equal(manifest.metadata.polityCount, 81);
-    assert.deepEqual(manifest.graphs, ["europe-history.json"]);
-    assert.ok(EXAMPLE_WORKSPACES.some((example) => example.id === "europe-history"));
+    assert.equal(stats.nodeCount, 598);
+    assert.equal(stats.edgeCount, 673);
+    assert.equal(stats.polityCount, 81);
+    assert.deepEqual(manifest.graphs, ["china-history.json", "europe/europe-history.json"]);
+    assert.equal(manifest.name, "Human History");
+    assert.ok(EXAMPLE_WORKSPACES.some((example) => example.title === "Human History"));
     assert.equal(Object.values(graph.nodes).filter((node: any) => node.time.at).length, 585);
     assert.equal(Object.values(graph.nodes).filter((node: any) => node.time.end).length, 13);
     assert.deepEqual(graph.nodes["knossos-palace"].time, { at: "-001899" });
