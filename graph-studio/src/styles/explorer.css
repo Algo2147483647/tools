@@ -37,6 +37,9 @@
     inset 0 1px 3px #273b5910,
     0 1px 0 #ffffffb3;
 }
+.explorer-search:focus-within {
+  border-color: #668cdb70;
+}
 .explorer-search input {
   width: 100%;
 }

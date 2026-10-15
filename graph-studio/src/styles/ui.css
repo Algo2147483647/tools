@@ -42,6 +42,9 @@
 .inline-input::placeholder {
   color: #93a0b2;
 }
+.inline-input:focus-visible {
+  outline: none;
+}
 .inline-name-form {
   display: flex;
   align-items: center;

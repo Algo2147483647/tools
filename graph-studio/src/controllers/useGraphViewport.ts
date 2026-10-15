@@ -98,8 +98,13 @@ export function useGraphViewport(
     topbarRef,
     stage,
     status,
+    changeType: (type: string) => {
+      interactions.clearPendingNodeClick();
+      navigation.changeType(type);
+    },
     up: () => navigation.up(parentSelection),
     showAll: () => {
+      interactions.clearPendingNodeClick();
       navigation.showAll();
       timelineView.reset();
     },

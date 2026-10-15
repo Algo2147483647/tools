@@ -46,4 +46,4 @@ ELK Layered lays out nested containers with cross-boundary, orthogonal edge rout
 
 Open **Commerce operations** from the home page. Its fictional order-to-delivery architecture has 32 nodes, 45 directed relationships and 14 groups. It includes checkout, payment risk and settlement, warehouse and delivery, after-sales, platform services and external partners. The workspace also includes independent order and return journeys, plus linked operating notes. Try Commerce → Payments → Settlement, then follow refund requests to the external payment provider.
 
-Run `npm run examples:commerce` after editing `scripts/build-commerce.mjs`. `npm run examples:commerce:check` checks reproducibility and is included in `npm run check`.
+Edit the checked-in files under `public/examples/commerce/`. Run `npm run check` to validate hierarchy structure, relationships, workspace loading and layout behavior.

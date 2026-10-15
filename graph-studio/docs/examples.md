@@ -11,7 +11,7 @@ Below Recent workspaces, the homepage includes five separate English workspaces.
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
-The [Commerce operations guide](compound.md) covers the nested node-link example. Regenerate its graphs with `npm run examples:commerce`; its reproducibility check runs in `npm run check`.
+The [Commerce operations guide](compound.md) covers the nested node-link example. Its checked-in graphs are validated by the compound and example regression suites in `npm run check`.
 
 ## World space history
 
@@ -19,7 +19,7 @@ The [Timeline guide](timeline.md) explains the date-aware chart type. The space 
 
 The single **space-history.json** opens directly with every node and relationship. Use Type, Track and Time range to inspect a theme or period, and Show all events to restore the entire history. Edges explicitly distinguish within-mission chronology, interval membership, documented rendezvous and contextual references. Chronology does not assert technical causation. The corpus is a historical snapshot through 2025, not a live mission-status feed. Intervals describe named, completed phases; spacecraft that continued operating are not given invented mission-end dates.
 
-Edit `scripts/data/space-history/catalog.mjs` and run `npm run examples:space-history`. The builder validates the corpus and produces all graph documents and notes. `npm run examples:space-history:check` verifies reproducibility and runs with `npm run check`. Source links, precision conventions and scope are recorded in the example's README and node details.
+Edit the workspace files under `public/examples/space-history/`. The example and space-history regression suites validate the corpus when running `npm run check`. Source links, precision conventions and scope are recorded in the example's README and node details.
 
 ## Factorio data and interpretation
 
@@ -50,37 +50,4 @@ npm run examples:mathematics
 npm run check
 ```
 
-Edit the subject modules, curriculum and references in `scripts/data/mathematics/`, then regenerate with `scripts/build-mathematics.mjs`. No neighboring repository or external content download is required. The builder validates IDs, dependencies, acyclicity, bibliography fields, local links and KaTeX expressions before writing. It refuses to silently delete unrecognized files. `npm run examples:mathematics:check` verifies byte-for-byte reproducibility without writing; this check is included in `npm run check`.
-
-Factorio examples are maintained as checked-in workspace files. Their loader, serialization, balance and layout checks run with `npm test`. Changing Factorio versions requires revisiting the documented production assumptions and these tests.
-
-The generated files are ordinary, directly editable workspace folders:
-
-```text
-public/examples/
-  mathematics/
-    graph-studio.workspace.json
-    mathematics.json
-    all-mathematics.json
-    complex-analysis.json
-    algebraic-geometry.json
-    ...
-    README.md
-    BIBLIOGRAPHY.md
-    STUDY-PATHWAYS.md
-    guides/
-      complex-analysis.md
-      ...
-    notes/
-      sl.sets.md
-      ...
-  factorio/
-    graph-studio.workspace.json
-    science-1-per-second.json
-    rocket-1-per-second.json
-    README.md
-```
-
-Each folder can also be selected with **Open workspace**. The homepage fetches its manifest and graph documents, with up to six requests in flight. It lists all relative paths from `metadata.assets` immediately, but downloads a linked note only when opened. Missing notes report an error in their preview without blocking the graph. Required graph files must load before the workspace is replaced.
-
-Downloads are cached for the current browser session; reopening creates independent editable graphs without fetching the same files again. **Refresh workspace files** reloads the source files while preserving edits to the open document. Failed requests can be retried, and stalled requests time out after 15 seconds. Recording an example in Recent projects uses its stable example ID and does not wait for the browser's file-handle database. There is no separate example bundle format; individual graph documents use Graph Studio v3.
+Edit the checked-in workspace files under `public/examples/mathematics/`. Run `npm run check` to validate manifests, v3 documents, references, subject coverage and layout behavior. The earlier generator scripts are no longer part of this repository; the check command validates the maintained example files directly.

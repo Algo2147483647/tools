@@ -3,11 +3,12 @@ export const polities = {
   aegean: ["Αἰγαῖον（考古区域）", "爱琴海青铜时代", "古希腊语地理名；非未释读的青铜时代自称"],
   athens: ["Ἀθῆναι", "雅典", "古希腊语"], sparta: ["Σπάρτη", "斯巴达", "古希腊语"],
   hellas: ["Ἑλλάς", "希腊诸邦", "古希腊语；文化地域，不是统一政权"],
-  macedon: ["Μακεδονία", "马其顿", "古希腊语"], hellenistic: ["Ἑλληνιστικὰ βασίλεια（史学分类）", "希腊化诸王国", "希腊语描述性分类；非共同国号"],
+  macedon: ["Μακεδονία", "马其顿", "古希腊语"], hellenistic: ["希腊化诸王国（分类）", "希腊化诸王国", "中文阅读分类，具体王国和人物采用原语言名称；非共同国号"],
   rome: ["Roma", "罗马王政传统与早期城市", "拉丁语"], republic: ["Res publica Romana", "罗马共和国", "拉丁语惯用形式"],
   empire: ["Imperium Romanum", "罗马帝国", "拉丁语"], westRome: ["Imperium Romanum（西部朝廷）", "西罗马朝廷", "拉丁语；并非另立民族国家"],
   byz: ["Ῥωμανία", "东罗马／拜占庭", "中世纪希腊语；延续罗马认同，拜占庭为后世史学称呼"],
   goth: ["Regnum Gothorum", "哥特诸王权", "拉丁语史料用语；不同支系并非一国"],
+  vandals: ["Regnum Vandalorum et Alanorum", "汪达尔与阿兰王国", "拉丁语史料称谓"],
   franks: ["Regnum Francorum", "法兰克王国", "拉丁语"],
   westFranks: ["Francia occidentalis", "西法兰克", "拉丁语分区称呼"],
   eastFranks: ["Francia orientalis", "东法兰克", "拉丁语分区称呼"],
@@ -70,8 +71,8 @@ export const polities = {
   turkiye: ["Türkiye Cumhuriyeti", "土耳其共和国", "土耳其语"],
   europe: ["Europa（跨地区）", "欧洲跨地区事件", "拉丁语区域名；不表示统一政权"],
   eu: ["Union européenne / Europäische Union", "欧洲联盟", "法语／德语示例；各官方语言名称同等有效"],
-  atlantic: ["Atlanticus（跨区域）", "大西洋及殖民联系", "拉丁语描述性类别；非国家"],
-  knowledge: ["Res publica litteraria", "跨地区知识与文化交流", "拉丁语惯用概念；阅读分类而非实际国家"],
+  atlantic: ["大西洋与殖民联系（主题）", "大西洋及殖民联系", "中文阅读分类；具体人物和政权使用原名"],
+  knowledge: ["知识与文化（跨地区）", "跨地区知识与文化交流", "中文阅读分类，而非实际国家"],
 };
 
 export const themes = { polity: "政权与制度", conflict: "战争与暴力", diplomacy: "外交与整合", economy: "经济与社会", religion: "宗教与思想", culture: "文化与知识", technology: "科学与技术" };
@@ -85,6 +86,14 @@ export const sections = {
 };
 
 export const specialSources = {
+  galileo: ["Museo Galileo：Galileo Galilei 生平年表", "https://www.museogalileo.it/it/galileo/vita.html"],
+  augsburgConfession: ["Musée protestant：La confession d’Augsbourg", "https://museeprotestant.org/notice/la-confession-daugsbourg-1530/"],
+  abolition: ["UK Parliament：奴隶贸易及奴隶制立法", "https://heritagecollections.parliament.uk/stories/the-transatlantic-slave-trade/"],
+  declaration1789: ["Archives nationales：1789年政治文件", "https://www.archives-nationales.culture.gouv.fr/ateliers-pedagogiques/1789-construire-un-nouvel-ordre-politique"],
+  thingvellir: ["UNESCO：Þingvellir National Park", "https://whc.unesco.org/en/list/1152"],
+  habsburg: ["Schönbrunn Group：Die Welt der Habsburger", "https://www.habsburger.net/en"],
+  kalmar: ["Lex：Kalmarunionen", "https://lex.dk/Kalmarunionen"],
+  lublin: ["Archiwum Główne Akt Dawnych：Unia Lubelska 文书", "https://agad.gov.pl/Unia%20Lubelska/uni_lub.html"],
   metMyc: ["The Metropolitan Museum of Art：Mycenaean Civilization", "https://www.metmuseum.org/essays/mycenaean-civilization"],
   metGreek: ["The Metropolitan Museum of Art：Greek Art 教育资源", "https://resources.metmuseum.org/resources/metpublications/pdf/Greek_Art_From_Prehistoric_to_Classical.pdf"],
   metRoman: ["The Metropolitan Museum of Art：Roman Art 教育资源", "https://resources.metmuseum.org/resources/metpublications/pdf/Roman_Art_A_Resource_for_Educators.pdf"],
@@ -103,7 +112,7 @@ export const specialSources = {
 export const source = (key) => {
   if (specialSources[key]) return specialSources[key];
   if (key.startsWith("w:")) {
-    const page = key.slice(2);
+    const page = decodeURIComponent(key.slice(2));
     return [`Wikipedia：${page.replaceAll("_", " ")}（二手综述，附参考文献）`, `https://en.wikipedia.org/wiki/${encodeURIComponent(page)}`];
   }
   if (/^dhm:\d{4}$/.test(key)) return [`Deutsches Historisches Museum：Chronik ${key.slice(4)}`, `https://www.dhm.de/lemo/jahreschronik/${key.slice(4)}`];
