@@ -5,7 +5,6 @@ export default function ExampleGallery({ onOpen, busy }: { onOpen: (id: string) 
     <section className="example-gallery" aria-labelledby="example-title">
       <div className="welcome-section-heading">
         <h2 id="example-title">Explore a workspace</h2>
-        <span>A few places to begin</span>
       </div>
       <div className="example-grid">
         {EXAMPLE_WORKSPACES.map((example) => (

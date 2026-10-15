@@ -305,14 +305,16 @@
   font-size: 12px;
 }
 .explorer-heading {
-  padding: 18px 16px 10px;
+  padding: 18px 13px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   font-size: 10px;
 }
-.explorer-heading > div {
+.explorer-actions {
   display: flex;
+  flex-shrink: 0;
 }
 .explorer-heading button {
   display: flex;
@@ -324,9 +326,12 @@
 }
 .explorer-workspace {
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
-  gap: 9px;
-  padding: 8px 17px 16px;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: normal;
   color: var(--studio-ink);
 }
 .explorer-workspace strong {
@@ -641,9 +646,6 @@
 }
 .explorer-heading button:hover {
   background: #ffffffa6;
-}
-.explorer-workspace {
-  padding-bottom: 18px;
 }
 .explorer-search {
   background: #ffffff7a;

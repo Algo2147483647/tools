@@ -29,8 +29,11 @@ export default function WorkspaceExplorer({
   return (
     <aside className="workspace-explorer" aria-label="Workspace explorer">
       <div className="explorer-heading">
-        <span>EXPLORER</span>
-        <div>
+        <div className="explorer-workspace">
+          <WorkspaceIcon name="folder" size={18} />
+          <strong title={workspace.name}>{workspace.name}</strong>
+        </div>
+        <div className="explorer-actions">
           <button
             title="Create graph file"
             aria-label="Create graph file"
@@ -52,10 +55,6 @@ export default function WorkspaceExplorer({
             <WorkspaceIcon name="panel" size={16} />
           </button>
         </div>
-      </div>
-      <div className="explorer-workspace">
-        <WorkspaceIcon name="folder" />
-        <strong title={workspace.name}>{workspace.name}</strong>
       </div>
       <label className="explorer-search">
         <WorkspaceIcon name="search" size={15} />
