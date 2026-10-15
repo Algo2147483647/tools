@@ -12,13 +12,13 @@
       "id": "gold_paper_001",
       "type": "gold",
       "name": "Paper Gold",
-      "quantity": 6,
+      "quantity": 8,
       "unit": "gram"
     },
     {
       "id": "cash_cny_001",
       "type": "cash",
-      "name": "CNY Regular savings",
+      "name": "CNY Fixed-term savings 1.2%",
       "currency": "CNY",
       "quantity": 500000
     },
@@ -30,46 +30,18 @@
       "quantity": 164209
     },
     {
-      "id": "cash_hkd_001",
-      "type": "cash",
-      "name": "HKD Regular savings (CMB)",
-      "currency": "HKD",
-      "quantity": 1000
-    },
-    {
       "id": "cash_hkd_002",
       "type": "cash",
-      "name": "HKD Cash (HSBC)",
+      "name": "HKD Fixed-term savings (HSBC) 2.4%",
       "currency": "HKD",
       "quantity": 12500
     },
     {
-      "id": "cash_eur_001",
-      "type": "cash",
-      "name": "EUR Cash",
-      "currency": "EUR",
-      "quantity": 200
-    },
-    {
-      "id": "cash_chf_001",
-      "type": "cash",
-      "name": "CHF Cash",
-      "currency": "CHF",
-      "quantity": 2250
-    },
-    {
-      "id": "cash_jpy_001",
-      "type": "cash",
-      "name": "JPY Cash",
-      "currency": "JPY",
-      "quantity": 100000
-    },
-    {
       "id": "cash_usd_001",
       "type": "cash",
-      "name": "USD Cash 850",
+      "name": "USD Fixed-term savings 3.5%",
       "currency": "USD",
-      "quantity": 8663
+      "quantity": 11347.27
     },
     {
       "id": "fund_qdii_000055",

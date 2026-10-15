@@ -1,5 +1,9 @@
 # 思想与文化
 
+[元明清专题](./yuan-qing.md) · [条目与史料](./yuan-qing-catalog.md)
+
+[隋唐到南宋末专题](./tang-song.md) · [条目与史料](./tang-song-catalog.md)
+
 [晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)
 
 [汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
@@ -124,9 +128,9 @@
 
 **1773年 · 清**
 
-以诏开四库全书馆的年份为节点；整理古籍同时伴随官方筛选与禁毁。
+乾隆命设馆编纂《四库全书》，搜集、校勘和抄录文献，同时开展禁毁、删改。1773年是工程启动节点，不能把全部成书和七阁抄本完成都归于当年。
 
-[故宫博物院：《四库全书》](https://www.dpm.org.cn/lemmas/241812.html)
+[《清史稿》卷14](https://zh.wikisource.org/wiki/清史稿/卷14) · [故宫博物院：《四库全书》](https://www.dpm.org.cn/lemmas/241812.html) · [故宫博物院：《抽毁书目》](https://www.dpm.org.cn/lemmas/244438.html)
 
 ## 京师同文馆设立
 

@@ -1,5 +1,9 @@
 # 经济与制度
 
+[元明清专题](./yuan-qing.md) · [条目与史料](./yuan-qing-catalog.md)
+
+[隋唐到南宋末专题](./tang-song.md) · [条目与史料](./tang-song-catalog.md)
+
 [晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)
 
 [汉武帝到三国专题](./han-three.md) · [条目与史料](./han-three-catalog.md)
@@ -40,9 +44,9 @@
 
 **780年 · 唐**
 
-唐廷以资产和土地等为依据重整赋税，改变租庸调框架。
+杨炎推动以夏、秋两次征收为主要安排的两税法，调整战乱后田产、户口与财政关系。名义归并税目不等于所有额外征敛从此消失，各地执行也有差异。
 
-[隋唐五代十国历史年表（纪年交叉核对）](https://zh.wikipedia.org/wiki/隋唐五代十国历史年表)
+[《舊唐書·德宗纪上》](https://zh.wikisource.org/wiki/舊唐書/卷12) · [《舊唐書·食货志上》](https://zh.wikisource.org/wiki/舊唐書/卷48)
 
 ## 北宋发行官交子
 
@@ -56,25 +60,25 @@
 
 **1069年 · 北宋**
 
-以1069年青苗法奏议定位财政改革；不将所有新法视作同时颁行。
+神宗任用王安石后陆续推进新法，1069年青苗等措施用于调整信贷、财政与地方治理。保甲、免役、市易等另按推行阶段列点，目标、执行和社会影响分别说明。
 
-[哥伦比亚大学：王安石青苗法奏议（1069年）](https://www.columbia.edu/itc/eacp/japanworks/main_pop/ps/ps_china-wang-anshi-crop-loans.htm)
+[《宋史·神宗纪一》](https://zh.wikisource.org/wiki/宋史/卷014) · [《宋史·神宗纪二》](https://zh.wikisource.org/wiki/宋史/卷015)
 
 ## 戊戌变法
 
 **1898年 · 清**
 
-清末制度改革尝试；以年份定位，不将其视为所有近代改革的唯一源头。
+光绪帝在1898年推进一系列行政、教育和经济改革，康有为等参与推动，百日后遭政变中断。改革诏令、实际执行和政变处置分开阅读，京师大学堂等部分措施保留。
 
-[哥伦比亚大学：1750—1919年东亚历史要点](https://afe.easia.columbia.edu/main_pop/kpct/kp_1750-1919.htm) · [哥伦比亚大学：晚清改革与革命](https://afe.easia.columbia.edu/special/china_1750_reform.htm)
+[《清史稿》卷24](https://zh.wikisource.org/wiki/清史稿/卷24)
 
 ## 清廷宣布停止科举
 
 **1905年 · 清**
 
-停科举上谕改变传统考试取士制度，与新式教育的发展相联系。
+清廷下令自下一年起停止乡试、会试等科举考试，推动学堂和新的选官办法。1905年诏令并不意味着学校体系已经覆盖全国，也不等于读书人原有身份与文化立即消失。
 
-[广州市人民政府：贡院记忆与1905年停科举上谕](https://www.gz.gov.cn/zlgz/whgz/content/post_8393826.html)
+[《清史稿》卷24](https://zh.wikisource.org/wiki/清史稿/卷24) · [《清史稿》卷108](https://zh.wikisource.org/wiki/清史稿/卷108)
 
 ## 《中华民国临时约法》公布
 

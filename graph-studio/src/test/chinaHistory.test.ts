@@ -17,19 +17,19 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const graph = await read("china-history.json");
     const manifest = await read("graph-studio.workspace.json");
     const dag = normalizeDagInput(graph);
-    assert.equal(Object.keys(dag.nodes).length, 828);
-    assert.equal(dag.edges.length, 1380);
+    assert.equal(Object.keys(dag.nodes).length, 1273);
+    assert.equal(dag.edges.length, 2322);
     assert.equal(manifest.metadata.language, "zh-CN");
     assert.equal(manifest.metadata.nodeCount, Object.keys(dag.nodes).length);
     assert.equal(manifest.metadata.edgeCount, dag.edges.length);
-    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 103);
+    assert.equal(new Set(Object.values(dag.nodes).map((node) => node.type)).size, 109);
     assert.equal(graph.nodes["bi-sheng"].type, "北宋");
     assert.equal(graph.nodes["bi-sheng"].theme, "technology");
     assert.equal(graph.nodes["feishui"].type, "东晋");
     assert.deepEqual(graph.nodes["feishui"].participants, ["东晋", "前秦"]);
     assert.equal(graph.nodes["qing"].time.start, "1636");
     assert.equal(graph.nodes["huang-chao"].time.at, "0881");
-    assert.equal(manifest.metadata.polityCount, 103);
+    assert.equal(manifest.metadata.polityCount, 109);
     for (const id of [
       "cao-wei",
       "shu-han",
@@ -74,8 +74,8 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
-    assert.equal(stage.nodes.length, 828);
-    assert.equal(stage.edges.length, 1380);
+    assert.equal(stage.nodes.length, 1273);
+    assert.equal(stage.edges.length, 2322);
     assert.equal(stage.warnings.length, 0);
     assert.ok(
       stage.nodes.every((node) => node.y === timelineTimeToY(stage.timeline!.axisMap!, node.timeline!.start!)),
@@ -111,7 +111,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(workspace.activePath, "china-history.json");
     assert.equal(workspace.graphs.length, 1);
     assert.equal(workspace.graphs[0].error, undefined);
-    assert.equal(workspace.graphs[0].nodeCount, 828);
+    assert.equal(workspace.graphs[0].nodeCount, 1273);
     assert.ok(folder.files.has("SOURCES.md"));
     assert.ok(folder.files.has("notes/technology.md"));
     assert.ok(folder.files.has("notes/early-china.md"));
@@ -119,7 +119,7 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.ok(folder.files.has("notes/pre-zhou.md"));
     assert.ok(folder.files.has("notes/pre-zhou-catalog.md"));
     assert.ok(folder.files.has("notes/pre-zhou-sources.md"));
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^828/);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /^1273/);
     assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "china-history")!.detail, /c\. 1750 BCE/);
   }),
   defineTest("pre-Zhou archaeology remains qualified and joins the existing Eastern Zhou chronology", async () => {
@@ -324,6 +324,131 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     }
     assert.equal(graph.metadata.asOf, "2026-10-14");
   }),
+  defineTest(
+    "Tang–Song expansion keeps point events, calendar qualifications and separate conquest stages",
+    async () => {
+      const graph = await read("china-history.json");
+      const catalog = await readFile(root + "notes/tang-song-catalog.md", "utf8");
+      const ids = [...catalog.matchAll(/图中标识：`([^`]+)`/g)].map((match) => match[1]);
+      const added = ids.filter((id) => id.startsWith("ts-"));
+      assert.equal(new Set(ids).size, 222);
+      assert.equal(added.length, 209);
+      assert.equal(graph.metadata.supplements.tangSong.addedNodes, added.length);
+      assert.equal(graph.metadata.supplements.tangSong.revisedNodes, 13);
+      for (const id of added) {
+        const node = graph.nodes[id];
+        assert.deepEqual(Object.keys(node.time), ["at"], `${id}: no new period bar`);
+        assert.ok(node.sources.length && node.references && node.precision, id);
+        assert.match(node.notes, /tang-song\.md/);
+      }
+      for (const [id, at] of [
+        ["ts-wuzhou690", "0690"],
+        ["ts-wu902", "0902"],
+        ["ts-wu919", "0919"],
+        ["ts-wudi927", "0927"],
+        ["ts-liaofall1125", "1125"],
+        ["ts-qinzong1125", "1126"],
+        ["ts-kaifeng1126", "1126"],
+        ["ts-gaozong1127", "1127"],
+        ["ts-yue1142", "1142"],
+        ["ts-xiangfan1268", "1268"],
+        ["ts-xiangfan1273", "1273"],
+        ["ts-linan1276", "1276"],
+        ["ts-duanzong1276", "1276"],
+        ["ts-wentian1278", "1278"],
+        ["song-end", "1279"],
+      ])
+        assert.equal(graph.nodes[id].time.at, at, id);
+      assert.match(graph.nodes["ts-qinzong1125"].precision, /宣和七年十二月/);
+      assert.match(graph.nodes["ts-kaifeng1126"].precision, /1127/);
+      assert.match(graph.nodes["ts-jiaozhi1076"].precision, /1077/);
+      assert.equal(graph.nodes["ts-susong1088"].kind, "约年定位点");
+      assert.match(graph.nodes["ts-susong1088"].precision, /不认定为确切完工年/);
+      assert.deepEqual(graph.nodes.tang.time, { start: "0618", end: "0907" });
+      assert.deepEqual(graph.nodes["southern-song"].time, { start: "1127", end: "1279" });
+      const dag = normalizeDagInput(graph);
+      const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+      const edges = dag.edges.filter((edge) => edge.id.startsWith("tang-song:"));
+      assert.equal(edges.length, 462);
+      for (const edge of edges) {
+        const anchor = edge.metadata!.timeline as { sourceAnchor: string; sourceTime?: string };
+        const source = graph.nodes[edge.source].time;
+        const target = graph.nodes[edge.target].time;
+        const from = anchor.sourceTime || (anchor.sourceAnchor === "end" ? source.end : source.at || source.start);
+        assert.ok(Number(from) <= Number(target.at || target.start), edge.id);
+        if (anchor.sourceAnchor === "end")
+          assert.equal(stage.nodeMap[edge.source].timeline!.endY, stage.nodeMap[edge.target].timeline!.startY);
+      }
+      assert.equal(graph.metadata.asOf, "2026-10-14");
+    },
+  ),
+  defineTest(
+    "Yuan–Qing expansion separates dated milestones and preserves the inherited period boundaries",
+    async () => {
+      const graph = await read("china-history.json");
+      const catalog = await readFile(root + "notes/yuan-qing-catalog.md", "utf8");
+      const added = Object.keys(graph.nodes).filter((id) => id.startsWith("yq-"));
+      assert.equal(added.length, 236);
+      assert.equal(catalog.match(/^## /gm)!.length, 249);
+      assert.equal(graph.metadata.supplements.yuanQing.addedNodes, 236);
+      assert.equal(graph.metadata.supplements.yuanQing.revisedNodes, 13);
+      for (const id of added) {
+        const node = graph.nodes[id];
+        assert.deepEqual(Object.keys(node.time), ["at"], `${id}: no new period bar`);
+        assert.ok(node.sources.length && node.references && node.precision, id);
+        assert.match(node.notes, /yuan-qing\.md/);
+      }
+      for (const [id, at] of [
+        ["yq-ming1368", "1368"],
+        ["yq-dadu1368", "1368"],
+        ["yq-jin1616", "1616"],
+        ["yq-qing1636", "1636"],
+        ["yq-hongguang1644", "1644"],
+        ["yq-taiwan1661", "1661"],
+        ["yq-yongli1662", "1662"],
+        ["zheng-takes-taiwan", "1662"],
+        ["zheng-surrender", "1683"],
+        ["yq-sea1684", "1684"],
+        ["yq-schools1904", "1904"],
+        ["wuchang", "1911-10-10"],
+        ["abdication", "1912-02-12"],
+      ])
+        assert.equal(graph.nodes[id].time.at, at, id);
+      assert.match(graph.nodes["yq-nongshu1313"].precision, /序.*1300/);
+      assert.match(graph.nodes["yq-schools1904"].define, /公历1904/);
+      assert.match(graph.nodes["yq-junji1729"].precision, /后续演变/);
+      assert.match(graph.nodes["yq-dzungar1757"].define, /大规模杀戮/);
+      assert.equal(graph.nodes["yq-famine1877"].kind, "约年定位点");
+      assert.equal(graph.nodes["yq-map1718"].kind, "约年定位点");
+      for (const [id, start, end] of [
+        ["yuan", "1271", "1368"],
+        ["ming", "1368", "1644"],
+        ["later-jin-qing", "1616", "1636"],
+        ["qing", "1636", "1912"],
+        ["southern-ming", "1644", "1662"],
+        ["zheng-taiwan", "1661", "1683"],
+      ])
+        assert.deepEqual(graph.nodes[id].time, { start, end }, id);
+      const edges = graph.edges.filter((edge: { id: string }) => edge.id.startsWith("yuan-qing:"));
+      assert.equal(edges.length, 480);
+      for (const edge of edges) {
+        const anchor = edge.metadata.timeline;
+        const source = graph.nodes[edge.source].time;
+        const target = graph.nodes[edge.target].time;
+        const from = anchor.sourceTime || (anchor.sourceAnchor === "end" ? source.end : source.at || source.start);
+        const to = target.at || target.start;
+        assert.ok(parseTimelineDate(from)!.timestamp <= parseTimelineDate(to)!.timestamp, edge.id);
+        if (anchor.sourceAnchor === "end") assert.equal(from, to, edge.id);
+      }
+      assert.ok(
+        !edges.some(
+          (edge: { source: string; target: string }) =>
+            edge.source === "later-jin-qing" && edge.target === "yq-nurhaci1583",
+        ),
+      );
+      assert.equal(graph.metadata.asOf, "2026-10-14");
+    },
+  ),
   defineTest("modern history includes sourced political and social events through the declared cutoff", async () => {
     const graph = await read("china-history.json");
     assert.equal(graph.metadata.asOf, "2026-10-14");

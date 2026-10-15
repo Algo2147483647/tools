@@ -8,7 +8,7 @@ export const EXAMPLE_WORKSPACES = [
     title: "中国历史：分流与交汇",
     kind: "Timeline",
     description: "从先秦到当代，观察政权分合、制度变迁、政治运动、社会生活与国际关系。每个历史节点附有来源。",
-    detail: "828 events & periods · 1380 relationships · c. 1750 BCE–2026",
+    detail: "1273 events & periods · 2322 relationships · c. 1750 BCE–2026",
     accent: "#a36c43",
   },
   {

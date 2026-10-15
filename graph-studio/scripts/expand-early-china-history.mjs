@@ -14,6 +14,8 @@ import {
 import { expandPreZhou } from "./expand-pre-zhou-history.mjs";
 import { expandHanThree } from "./expand-han-three-history.mjs";
 import { expandJinSui } from "./expand-jin-sui-history.mjs";
+import { expandTangSong } from "./expand-tang-song-history.mjs";
+import { expandYuanQing } from "./expand-yuan-qing-history.mjs";
 
 // The checked-in graph is authoritative for the other periods. This supplement is
 // deliberately incremental: the original all-history generator is absent here.
@@ -155,6 +157,8 @@ edge("jixia", "xunzi-lanling", "荀子由齐地论学转向楚地活动", "refer
 // Keep the existing corpus's edge order stable; the new supplement follows it.
 const hanThree = expandHanThree(graph);
 const jinSui = expandJinSui(graph);
+const tangSong = expandTangSong(graph);
+const yuanQing = expandYuanQing(graph);
 for (const id of pointMarkers) {
   const item = graph.nodes[id];
   assert.ok(item?.time.start && item.time.end, `Missing original span: ${id}`);
@@ -183,11 +187,18 @@ for (const item of graph.edges) {
 }
 graph.edges = [
   ...graph.edges.filter(
-    (item) => !item.id.startsWith("pre-zhou:") && !item.id.startsWith("han-three:") && !item.id.startsWith("jin-sui:"),
+    (item) =>
+      !item.id.startsWith("pre-zhou:") &&
+      !item.id.startsWith("han-three:") &&
+      !item.id.startsWith("jin-sui:") &&
+      !item.id.startsWith("tang-song:") &&
+      !item.id.startsWith("yuan-qing:"),
   ),
   ...graph.edges.filter((item) => item.id.startsWith("pre-zhou:")),
   ...graph.edges.filter((item) => item.id.startsWith("han-three:")),
   ...graph.edges.filter((item) => item.id.startsWith("jin-sui:")),
+  ...graph.edges.filter((item) => item.id.startsWith("tang-song:")),
+  ...graph.edges.filter((item) => item.id.startsWith("yuan-qing:")),
 ];
 
 // Validate graph integrity before any output is written.
@@ -232,6 +243,12 @@ manifest.metadata.assets = [
     "notes/jin-sui.md",
     "notes/jin-sui-catalog.md",
     "notes/jin-sui-sources.md",
+    "notes/tang-song.md",
+    "notes/tang-song-catalog.md",
+    "notes/tang-song-sources.md",
+    "notes/yuan-qing.md",
+    "notes/yuan-qing-catalog.md",
+    "notes/yuan-qing-sources.md",
   ]),
 ].sort();
 const ordered = [...new Set([...managed, ...Object.keys(revisions), ...pointMarkers])].sort(
@@ -300,6 +317,10 @@ const outputs = [
   [new URL("notes/han-three-sources.md", root), hanThree.sourceDoc],
   [new URL("notes/jin-sui-catalog.md", root), jinSui.catalog],
   [new URL("notes/jin-sui-sources.md", root), jinSui.sourceDoc],
+  [new URL("notes/tang-song-catalog.md", root), tangSong.catalog],
+  [new URL("notes/tang-song-sources.md", root), tangSong.sourceDoc],
+  [new URL("notes/yuan-qing-catalog.md", root), yuanQing.catalog],
+  [new URL("notes/yuan-qing-sources.md", root), yuanQing.sourceDoc],
   [new URL("SOURCES.md", root), sourceDoc],
   [new URL("README.md", root), readme],
   [galleryUrl, gallery],
@@ -316,12 +337,18 @@ for (const theme of Object.keys(topics)) {
   if (!content.includes(hanPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${hanPointer}\n`);
   const jinPointer = "[晋到南北朝隋专题](./jin-sui.md) · [条目与史料](./jin-sui-catalog.md)";
   if (!content.includes(jinPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${jinPointer}\n`);
+  const tangPointer = "[隋唐到南宋末专题](./tang-song.md) · [条目与史料](./tang-song-catalog.md)";
+  if (!content.includes(tangPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${tangPointer}\n`);
+  const yuanPointer = "[元明清专题](./yuan-qing.md) · [条目与史料](./yuan-qing-catalog.md)";
+  if (!content.includes(yuanPointer)) content = content.replace(/^(# [^\r\n]+\r?\n)/, `$1\n${yuanPointer}\n`);
   for (const id of [
     ...new Set([
       ...Object.keys(revisions),
       ...pointMarkers,
       ...Object.keys(hanThree.revisions),
       ...Object.keys(jinSui.revisions),
+      ...Object.keys(tangSong.revisions),
+      ...Object.keys(yuanQing.revisions),
     ]),
   ]) {
     const item = graph.nodes[id];
@@ -344,5 +371,5 @@ for (const [url, content] of outputs) {
   else await writeFile(url, content, "utf8");
 }
 console.log(
-  `${check ? "Checked" : "Updated"}: ${nodeCount} nodes, ${edgeCount} edges; ${preZhou.managed.size} pre-Zhou, ${managed.size} Spring–Han, ${hanThree.managed.size} Han–Three Kingdoms, ${jinSui.managed.size} Jin–Sui additions.`,
+  `${check ? "Checked" : "Updated"}: ${nodeCount} nodes, ${edgeCount} edges; ${preZhou.managed.size} pre-Zhou, ${managed.size} Spring–Han, ${hanThree.managed.size} Han–Three Kingdoms, ${jinSui.managed.size} Jin–Sui, ${tangSong.managed.size} Tang–Song, ${yuanQing.managed.size} Yuan–Qing additions.`,
 );

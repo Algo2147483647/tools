@@ -8,10 +8,10 @@
   "defaultGraph": "china-history.json",
   "metadata": {
     "language": "zh-CN",
-    "nodeCount": 828,
-    "edgeCount": 1380,
+    "nodeCount": 1273,
+    "edgeCount": 2322,
     "themeCount": 6,
-    "polityCount": 103,
+    "polityCount": 109,
     "assets": [
       "README.md",
       "SOURCES.md",
@@ -31,7 +31,13 @@
       "notes/pre-zhou-catalog.md",
       "notes/pre-zhou-sources.md",
       "notes/pre-zhou.md",
-      "notes/technology.md"
+      "notes/tang-song-catalog.md",
+      "notes/tang-song-sources.md",
+      "notes/tang-song.md",
+      "notes/technology.md",
+      "notes/yuan-qing-catalog.md",
+      "notes/yuan-qing-sources.md",
+      "notes/yuan-qing.md"
     ]
   }
 }
