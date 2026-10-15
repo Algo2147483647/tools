@@ -1,3 +1,4 @@
+import Icon from "./ui/Icon";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import { getRelationKeys } from "../graph/relations";
@@ -13,7 +14,6 @@ import NodeFieldEditor, {
   supportsDisplayMode,
 } from "./NodeFieldEditor";
 import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./nodeDetailRawJson";
-import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 import NodeTimeEditor from "./NodeTimeEditor";
 import NodeJsonView from "./NodeJsonView";
 import NodeRelationsPanel from "./NodeRelationsPanel";
@@ -129,7 +129,7 @@ export default function NodeDetailModal({
                 aria-label="Save"
                 onClick={handleSave}
               >
-                <SaveIcon />
+                <Icon name="save" className="modal-icon-close-svg" />
               </button>
             ) : (
               <button
@@ -152,7 +152,7 @@ export default function NodeDetailModal({
               aria-pressed={isFullscreen ? "true" : "false"}
               onClick={() => setIsFullscreen((current) => !current)}
             >
-              <FullscreenIcon active={isFullscreen} />
+              <Icon name={isFullscreen ? "collapse" : "expand"} className="modal-icon-close-svg" />
             </button>
             <button
               id="node-detail-close"
@@ -162,7 +162,7 @@ export default function NodeDetailModal({
               aria-label="Close"
               onClick={onClose}
             >
-              <CloseIcon />
+              <Icon name="close" className="modal-icon-close-svg" />
             </button>
           </div>
         </div>
@@ -493,25 +493,6 @@ function EditIcon() {
     >
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
-  );
-}
-
-function SaveIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="modal-icon-close-svg"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
-      <path d="M17 21v-8H7v8" />
-      <path d="M7 3v5h8" />
     </svg>
   );
 }

@@ -1,7 +1,7 @@
+import Icon from "../ui/Icon";
 import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
 import ExampleGallery from "./ExampleGallery";
 import RecentProjects from "./RecentProjects";
-import WorkspaceIcon from "./WorkspaceIcon";
 
 export default function WelcomeScreen({
   files,
@@ -21,7 +21,7 @@ export default function WelcomeScreen({
             <h2 id="welcome-open-title">Open</h2>
           </div>
           <button className="welcome-action primary" disabled={files.busy} onClick={files.openWorkspace}>
-            <WorkspaceIcon name="folder" size={25} />
+            <Icon name="folder" size={25} />
             <span>
               <strong>Open workspace</strong>
               <small>Choose a folder of graphs and notes</small>
@@ -29,7 +29,7 @@ export default function WelcomeScreen({
             <span aria-hidden="true">↗</span>
           </button>
           <button className="welcome-action" disabled={files.busy} onClick={files.openFile}>
-            <WorkspaceIcon name="file" size={25} />
+            <Icon name="file" size={25} />
             <span>
               <strong>Open graph file</strong>
               <small>Work with one Graph Studio JSON file</small>

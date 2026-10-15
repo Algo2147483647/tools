@@ -1,6 +1,6 @@
+import Icon from "../ui/Icon";
 import { AI_PROVIDER_ENTRIES, AI_PROVIDER_PRESETS } from "../../ai/providerPresets";
 import type { AiExecutionMode, AiProvider, AiSettings } from "../../ai/types";
-import { ChevronDownIcon } from "../topbar/TopbarIcons";
 import ProviderIcon from "./ProviderIcon";
 import { clampFloatInput, clampNumberInput } from "./settingsUtils";
 
@@ -59,7 +59,7 @@ export default function AiSettingsPanel({
               <ProviderIcon provider={aiSettings.provider} />
               <span>{selectedProvider.label}</span>
               <span className="provider-select-chevron" aria-hidden="true">
-                <ChevronDownIcon />
+                <Icon name="chevron" className="topbar-icon-svg" />
               </span>
             </button>
             {providerMenuOpen ? (

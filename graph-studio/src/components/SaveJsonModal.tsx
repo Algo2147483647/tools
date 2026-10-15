@@ -1,5 +1,5 @@
+import Icon from "./ui/Icon";
 import { ensureJsonExtension } from "../adapters/download";
-import { CloseIcon } from "./ui/ModalIcons";
 
 interface SaveJsonModalProps {
   open: boolean;
@@ -52,7 +52,7 @@ export default function SaveJsonModal({
             aria-label="Close"
             onClick={onClose}
           >
-            <CloseIcon />
+            <Icon name="close" className="modal-icon-close-svg" />
           </button>
         </div>
         <section className="save-json-review" aria-label="JSON changes review">

@@ -1,174 +1,26 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getNodeTitle } from "../graph/accessors";
+import { type Dispatch, useCallback, useRef } from "react";
 import type { GraphAppearance } from "../graph/appearance";
-import { getFullGraphSelection, getParentLevelSelection, sanitizeNodeLabel } from "../graph/selectors";
-import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
-import { getTimelineTrackOptions, projectGraphByTimelineTrack } from "../graph/timelineView";
-import type { TimelineTimeRange } from "../graph/timelineRange";
-import { getGraphLayoutLabel, getGraphRenderMode, type CompoundView } from "../graph/types";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
+import type { GraphAppState } from "../state/initialState";
+import type { GraphAction } from "../state/graphActions";
 import { useGraphPan } from "../hooks/useGraphPan";
 import { useGraphZoom } from "../hooks/useGraphZoom";
 import { useResizeObserver } from "../hooks/useResizeObserver";
-import { useCompoundView } from "../hooks/useCompoundView";
-import { useCompoundStage } from "../hooks/useCompoundStage";
-import { type StageAppearance, getStageAppearance } from "../layout/appearance";
-import { buildStageData } from "../layout/stage-layout";
-import { useTimelineStage } from "../hooks/useTimelineStage";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
-import { downloadSvg } from "../rendering/export-svg";
-import type { DocumentSessionController } from "./useDocumentSession";
-
-export function useGraphViewport(session: DocumentSessionController, appearance: GraphAppearance) {
-  const { state, dispatch, showNodeDetail, alignNodeWidthsToMax } = session;
-  const compound = useCompoundView(
-    state.document.id,
-    state.dag?.hierarchy?.id,
-    Object.keys(state.dag?.hierarchy?.groups ?? {}),
-  );
-  const [focusedKey, setFocusedKey] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedTrack, setSelectedTrack] = useState("");
-  const [timelineRange, setTimelineRange] = useState<TimelineTimeRange | null>(null);
-  const activeTimelineRange = state.chartType === "timeline" ? timelineRange : null;
+import { useGraphLayout } from "./useGraphLayout";
+import { useGraphNavigation } from "./useGraphNavigation";
+import { useGraphInteractions } from "./useGraphInteractions";
+interface ViewportInput {
+  state: GraphAppState; dispatch: Dispatch<GraphAction>;
+  showNodeDetail: boolean; alignNodeWidthsToMax: boolean;
+  closeContextMenu(): void; openNodeDetail(key: string): void;
+}
+export function useGraphViewport({ state, dispatch, showNodeDetail, alignNodeWidthsToMax, closeContextMenu, openNodeDetail }: ViewportInput, appearance: GraphAppearance) {
+  const navigation = useGraphNavigation(state, dispatch, (key) => zoom.captureLayoutAnchor(key));
+  const { compound, activeType, activeTrack, activeTimelineRange } = navigation;
+  const { stage, status, parentSelection, timelineView, compoundLayout } = useGraphLayout({ state, appearance, compound, activeType, activeTrack, activeTimelineRange, showNodeDetail, alignNodeWidthsToMax });
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const topbarRef = useRef<HTMLElement>(null);
-  const pendingNodeClickTimeoutRef = useRef<number | null>(null);
-  const resizeCleanupRef = useRef<(() => void) | null>(null);
-  useEffect(
-    () => () => {
-      clearPendingNodeClick();
-      resizeCleanupRef.current?.();
-    },
-    [],
-  );
-  const typeOptions = useMemo(() => (state.dag ? getGraphTypeOptions(state.dag) : []), [state.dag]);
-  const activeType = typeOptions.includes(selectedType) ? selectedType : "";
-  const trackOptions = useMemo(() => (state.dag ? getTimelineTrackOptions(state.dag) : []), [state.dag]);
-  const activeTrack = state.chartType === "timeline" && trackOptions.includes(selectedTrack) ? selectedTrack : "";
-  useEffect(() => {
-    setSelectedTrack("");
-    setTimelineRange(null);
-    setSelectedType("");
-    setFocusedKey(null);
-  }, [state.document.generation]);
-  useEffect(() => {
-    if (selectedType && !typeOptions.includes(selectedType)) {
-      setSelectedType("");
-    }
-  }, [selectedType, typeOptions]);
-  const displayDag = useMemo(
-    () =>
-      state.dag && state.chartType !== "compound"
-        ? projectGraphByTimelineTrack(projectGraphByType(state.dag, activeType, state.chartType), activeTrack)
-        : null,
-    [activeType, activeTrack, state.dag, state.chartType],
-  );
-  const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
-  const geometryJson = JSON.stringify(getStageAppearance(appearance));
-  const geometryAppearance = useMemo(() => JSON.parse(geometryJson) as StageAppearance, [geometryJson]);
-  const timelineView = useTimelineStage({
-    dag: state.chartType === "timeline" ? state.dag : null,
-    visibleDag: displayDag,
-    generation: state.document.generation,
-    settings: state.timelineSettings,
-    appearance: geometryAppearance,
-    showNodeDetail,
-    range: activeTimelineRange,
-  });
-  const flatStage = useMemo(
-    () =>
-      displayDag
-        ? state.chartType === "timeline"
-          ? timelineView.stage
-          : buildStageData({
-              dag: displayDag,
-              colorSourceDag: state.dag ?? undefined,
-              selection: activeType ? { type: "full" } : state.selection,
-              layoutMode: renderMode,
-              appearance: geometryAppearance,
-              showNodeDetail,
-              alignNodeWidthsToMax,
-            })
-        : null,
-    [
-      activeType,
-      alignNodeWidthsToMax,
-      geometryAppearance,
-      displayDag,
-      state.dag,
-      showNodeDetail,
-      renderMode,
-      state.selection,
-      state.chartType,
-      activeTimelineRange,
-      timelineView.stage,
-    ],
-  );
-  const compoundInput = useMemo(
-    () =>
-      state.chartType === "compound" && state.dag
-        ? {
-            dag: state.dag,
-            view: compound.view,
-            selectedType: activeType,
-            appearance: geometryAppearance,
-            showNodeDetail,
-            alignNodeWidthsToMax,
-          }
-        : null,
-    [state.chartType, state.dag, compound.view, activeType, geometryAppearance, showNodeDetail, alignNodeWidthsToMax],
-  );
-  const compoundLayout = useCompoundStage(compoundInput);
-  const stage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
-  const parentSelection = useMemo(
-    () =>
-      state.chartType !== "compound" && state.chartType !== "timeline" && !activeType && state.dag && stage
-        ? getParentLevelSelection(state.dag, stage.topLevelKeys)
-        : null,
-    [activeType, stage, state.dag, state.chartType],
-  );
-  const status = useMemo(() => {
-    if (state.chartType === "compound") {
-      if (compoundLayout.loading) return "Arranging subgraphs…";
-      if (compoundLayout.error) return `Nested layout failed: ${compoundLayout.error}`;
-      return stage
-        ? `${stage.nodes.length} visible nodes and summaries · ${stage.groups?.length ?? 0} expanded groups · ${stage.edges.length} visible relationships`
-        : "No nodes match this view.";
-    }
-    if (!state.dag || !stage) {
-      if (state.chartType === "timeline" && state.dag)
-        return "No events match these filters. Choose Show all events to restore the timeline.";
-      return state.ui.status;
-    }
-    if (state.chartType === "timeline")
-      return `Timeline · UTC. ${stage.nodes.length} events and ${stage.edges.length} relationships.${activeTrack ? ` Track: ${activeTrack}.` : ""} ${stage.warnings.join(" ")}`;
-    const focusNode = stage.dag[stage.root];
-    const focusTitle = focusNode ? getNodeTitle(focusNode) : "";
-    const focusLabel = focusNode?.synthetic
-      ? focusTitle || "Selected roots"
-      : sanitizeNodeLabel(focusTitle || stage.root);
-    const layoutLabel = getGraphLayoutLabel(stage.layoutMode);
-    const warningText = stage.warnings.length ? ` ${stage.warnings[0]}` : "";
-    return state.ui.status &&
-      !state.ui.status.includes("loaded from") &&
-      !state.ui.status.startsWith("Mode:") &&
-      !state.ui.status.startsWith("Layout:") &&
-      !state.ui.status.startsWith("Chart type:")
-      ? state.ui.status
-      : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
-  }, [
-    activeType,
-    activeTrack,
-    stage,
-    state.dag,
-    state.layout.mode,
-    state.ui.status,
-    state.chartType,
-    compoundLayout.loading,
-    compoundLayout.error,
-  ]);
-
   const handleZoomChange = useCallback(
     (scale: number, minScale?: number) => {
       dispatch({ type: "zoomChanged", scale, minScale });
@@ -201,167 +53,10 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     zoom.refresh(true);
   }, [zoom]);
   useResizeObserver(topbarRef, handleChromeResize);
-  useGraphPan({ containerRef, enabled: Boolean(stage), onPanStart: session.closeContextMenu });
+  useGraphPan({ containerRef, enabled: Boolean(stage), onPanStart: closeContextMenu });
 
-  function handleNodeClick(nodeKey: string) {
-    clearPendingNodeClick();
-    if (state.chartType === "compound" || state.chartType === "timeline") {
-      setFocusedKey(nodeKey);
-      return;
-    }
-    if (activeType) {
-      setFocusedKey(nodeKey);
-      return;
-    }
-    pendingNodeClickTimeoutRef.current = window.setTimeout(() => {
-      pendingNodeClickTimeoutRef.current = null;
-      if (!state.selection || state.selection.type !== "node" || state.selection.key !== nodeKey) {
-        dispatch({ type: "selectionChanged", selection: { type: "node", key: nodeKey }, pushHistory: true });
-      }
-    }, 240);
-  }
 
-  function handleNodeDoubleClick(nodeKey: string) {
-    clearPendingNodeClick();
-    if (
-      state.chartType === "compound" &&
-      Object.prototype.hasOwnProperty.call(state.dag?.hierarchy?.groups ?? {}, nodeKey)
-    ) {
-      enterGroup(nodeKey);
-      return;
-    }
-    if (!stage?.nodeMap[nodeKey]) {
-      return;
-    }
-    session.openNodeDetail(nodeKey);
-  }
-
-  function clearPendingNodeClick() {
-    if (pendingNodeClickTimeoutRef.current === null) {
-      return;
-    }
-    window.clearTimeout(pendingNodeClickTimeoutRef.current);
-    pendingNodeClickTimeoutRef.current = null;
-  }
-
-  function handleNodeContextMenu(event: React.MouseEvent<Element>, nodeKey: string) {
-    event.preventDefault();
-    event.stopPropagation();
-    const group =
-      state.chartType === "compound" &&
-      Object.prototype.hasOwnProperty.call(state.dag?.hierarchy?.groups ?? {}, nodeKey);
-    dispatch({
-      type: "contextMenuOpened",
-      x: event.clientX,
-      y: event.clientY,
-      target: { kind: group ? "group" : "node", id: nodeKey },
-    });
-  }
-
-  function handleBackgroundContextMenu(event: React.MouseEvent<Element>) {
-    if (!state.dag || (event.target instanceof Element && event.target.closest(".dag-node"))) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    const groupId =
-      state.chartType === "compound" && event.target instanceof Element
-        ? event.target.closest<SVGElement>("[data-group-id]")?.dataset.groupId
-        : undefined;
-    dispatch({
-      type: "contextMenuOpened",
-      x: event.clientX,
-      y: event.clientY,
-      target: groupId
-        ? { kind: "group", id: groupId }
-        : { kind: "canvas", parentId: state.chartType === "compound" ? compound.view.focusGroupId : null },
-    });
-  }
-
-  const handleConsoleSidebarResizeStart = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      resizeCleanupRef.current?.();
-      const startX = event.clientX;
-      const startWidth = state.ui.consoleSidebarWidth;
-      const move = (next: PointerEvent) =>
-        dispatch({ type: "consoleSidebarWidthChanged", width: startWidth + next.clientX - startX });
-      const stop = () => {
-        window.removeEventListener("pointermove", move);
-        window.removeEventListener("pointerup", stop);
-        window.removeEventListener("pointercancel", stop);
-        window.removeEventListener("blur", stop);
-        resizeCleanupRef.current = null;
-      };
-      resizeCleanupRef.current = stop;
-      window.addEventListener("pointermove", move);
-      window.addEventListener("pointerup", stop);
-      window.addEventListener("pointercancel", stop);
-      window.addEventListener("blur", stop);
-    },
-    [dispatch, state.ui.consoleSidebarWidth],
-  );
-  function handleExportSvg() {
-    if (!svgRef.current) {
-      dispatch({ type: "statusChanged", status: "Render a DAG first, then export the SVG." });
-      return;
-    }
-    downloadSvg(svgRef.current);
-    dispatch({ type: "statusChanged", status: "Exported current view as dag-graph.svg." });
-  }
-
-  function changeType(type: string) {
-    clearPendingNodeClick();
-    setFocusedKey(null);
-    setSelectedType(type);
-  }
-  function back() {
-    if (state.chartType === "compound") compound.back();
-    else if (activeTimelineRange) setTimelineRange(null);
-    else if (activeTrack) setSelectedTrack("");
-    else if (activeType) changeType("");
-    else dispatch({ type: "navigateBack" });
-  }
-  function up() {
-    if (state.chartType === "compound") {
-      const id = compound.view.focusGroupId;
-      enterGroup(id ? (state.dag?.hierarchy?.parentById[id] ?? null) : null);
-      return;
-    }
-    if (parentSelection) dispatch({ type: "selectionChanged", selection: parentSelection, pushHistory: true });
-  }
-  function showAll() {
-    changeType("");
-    setSelectedTrack("");
-    setTimelineRange(null);
-    timelineView.reset();
-    if (state.chartType === "compound") {
-      enterGroup(null);
-      return;
-    }
-    dispatch({ type: "selectionChanged", selection: getFullGraphSelection(), pushHistory: true });
-  }
-  function enterGroup(id: string | null) {
-    setFocusedKey(null);
-    compound.setView({ ...compound.view, focusGroupId: id });
-  }
-  function toggleGroup(id: string) {
-    changeCompoundView({
-      ...compound.view,
-      collapsedGroupIds: compound.view.collapsedGroupIds.includes(id)
-        ? compound.view.collapsedGroupIds.filter((key) => key !== id)
-        : [...compound.view.collapsedGroupIds, id],
-    });
-  }
-  function changeCompoundView(view: CompoundView) {
-    setFocusedKey(null);
-    if (view.focusGroupId === compound.view.focusGroupId) {
-      const before = new Set(compound.view.collapsedGroupIds);
-      const after = new Set(view.collapsedGroupIds);
-      const changed = [...new Set([...before, ...after])].filter((id) => before.has(id) !== after.has(id));
-      if (changed.length === 1) zoom.captureLayoutAnchor(changed[0]);
-    }
-    compound.setView(view);
-  }
+  const interactions = useGraphInteractions({ state, dispatch, activeType, stage, openNodeDetail, setFocusedKey: navigation.setFocusedKey, enterGroup: navigation.enterGroup, focusGroupId: compound.view.focusGroupId });
   return {
     timelineSettings: state.timelineSettings,
     changeTimelineSettings: (patch: Partial<TimelineViewSettings>) =>
@@ -372,34 +67,10 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
         ? (key: string, x: number) =>
             dispatch({ type: "timelineSettingsChanged", patch: { pins: { ...state.timelineSettings.pins, [key]: x } } })
         : undefined,
-    compound: { ...compound, setView: changeCompoundView },
-    compoundLayout,
-    enterGroup,
-    toggleGroup,
-    containerRef,
-    svgRef,
-    topbarRef,
-    stage,
-    status,
-    focusedKey,
-    setFocusedKey,
-    typeOptions,
-    trackOptions,
-    activeTrack,
-    activeTimelineRange,
-    changeTimelineRange: (range: TimelineTimeRange | null) => {
-      setFocusedKey(null);
-      setTimelineRange(range);
-    },
-    changeTrack: (track: string) => {
-      setFocusedKey(null);
-      setSelectedTrack(track);
-    },
-    activeType,
-    changeType,
-    back,
-    up,
-    showAll,
+    ...navigation, ...interactions,
+    compoundLayout, containerRef, svgRef, topbarRef, stage, status,
+    up: () => navigation.up(parentSelection),
+    showAll: () => { navigation.showAll(); timelineView.reset(); },
     zoom,
     canBack:
       state.chartType === "compound"
@@ -410,13 +81,6 @@ export function useGraphViewport(session: DocumentSessionController, appearance:
     zoomPercent: Number((state.zoom.scale * 100).toFixed(state.zoom.scale < 0.1 ? 1 : 0)),
     canZoomOut: Boolean(stage) && state.zoom.scale > state.zoom.minScale + 0.001,
     canZoomIn: Boolean(stage) && state.zoom.scale < state.zoom.maxScale - 0.001,
-    handleNodeClick,
-    handleNodeDoubleClick,
-    handleNodeContextMenu,
-    handleBackgroundContextMenu,
-    handleConsoleSidebarResizeStart,
-    handleExportSvg,
   };
 }
-
 export type GraphViewportController = ReturnType<typeof useGraphViewport>;

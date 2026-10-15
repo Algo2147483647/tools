@@ -1,6 +1,6 @@
+import Icon from "../ui/Icon";
 import type { RecentLocation } from "../../workspace/locations";
 import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
-import WorkspaceIcon from "../workspace/WorkspaceIcon";
 
 export default function GeneralSettings({
   files,
@@ -39,7 +39,7 @@ export default function GeneralSettings({
               files.openFile();
             }}
           >
-            <WorkspaceIcon name="file" />
+            <Icon name="file" />
             <span>
               <strong>Open graph file</strong>
               <small>One JSON document</small>
@@ -52,7 +52,7 @@ export default function GeneralSettings({
               files.openWorkspace();
             }}
           >
-            <WorkspaceIcon name="folder" />
+            <Icon name="folder" />
             <span>
               <strong>Open workspace</strong>
               <small>Graphs and linked files</small>
@@ -151,7 +151,7 @@ export default function GeneralSettings({
                   files.openRecent(item);
                 }}
               >
-                <WorkspaceIcon name={item.kind === "workspace" ? "folder" : "file"} size={18} />
+                <Icon name={item.kind === "workspace" ? "folder" : "file"} size={18} />
                 <span>
                   <strong>{item.name}</strong>
                   <small>{item.location}</small>
@@ -163,7 +163,7 @@ export default function GeneralSettings({
                 title="Remove from recent"
                 onClick={() => void files.removeRecent(item.id)}
               >
-                <WorkspaceIcon name="close" size={15} />
+                <Icon name="close" size={15} />
               </button>
             </li>
           ))}

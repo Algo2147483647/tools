@@ -1,8 +1,8 @@
+import Icon from "./ui/Icon";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import type { FilePreviewState } from "../hooks/useRelativeFilePreview";
 import { MarkdownValue } from "./NodeFieldEditor";
-import { CloseIcon, FullscreenIcon } from "./ui/ModalIcons";
 
 interface FilePreviewModalProps {
   preview: FilePreviewState | null;
@@ -84,7 +84,7 @@ export default function FilePreviewModal({
               aria-pressed={isFullscreen ? "true" : "false"}
               onClick={() => setIsFullscreen((current) => !current)}
             >
-              <FullscreenIcon active={isFullscreen} />
+              <Icon name={isFullscreen ? "collapse" : "expand"} className="modal-icon-close-svg" />
             </button>
             <button
               className="ghost-btn modal-icon-close-btn"
@@ -93,7 +93,7 @@ export default function FilePreviewModal({
               aria-label="Close preview"
               onClick={onClose}
             >
-              <CloseIcon />
+              <Icon name="close" className="modal-icon-close-svg" />
             </button>
           </div>
         </div>

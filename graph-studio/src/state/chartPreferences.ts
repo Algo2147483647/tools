@@ -1,6 +1,6 @@
 import type { GraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
-import type { ChartStyles } from "./chartStyles";
+import type { ChartStyle, ChartStyles } from "./chartStyles";
 
 interface AppearanceTransaction {
   label: string;
@@ -8,49 +8,51 @@ interface AppearanceTransaction {
   after: GraphAppearance;
 }
 
-interface AppearanceHistory {
-  appearance: GraphAppearance;
+interface AppearanceHistory extends ChartStyle {
   undoStack: AppearanceTransaction[];
   redoStack: AppearanceTransaction[];
 }
 
 type AppearanceHistoryAction =
-  { type: "commit"; appearance: GraphAppearance; label: string } | { type: "undo" } | { type: "redo" };
+  { type: "commit"; appearance: GraphAppearance; label: string } | { type: "undo" } | { type: "redo" } | { type: "toggleDisplay"; key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax" };
 
-function createAppearanceHistory(appearance: GraphAppearance): AppearanceHistory {
-  return { appearance, undoStack: [], redoStack: [] };
+function createAppearanceHistory(style: ChartStyle): AppearanceHistory {
+  return { ...style, undoStack: [], redoStack: [] };
 }
 
-type ChartAppearanceHistory = Record<GraphChartType, AppearanceHistory>;
+type ChartPreferencesState = Record<GraphChartType, AppearanceHistory>;
 
-export function createChartAppearanceHistory(styles: ChartStyles): ChartAppearanceHistory {
+export function createChartPreferences(styles: ChartStyles): ChartPreferencesState {
   return {
-    "node-link": createAppearanceHistory(styles["node-link"].appearance),
-    sankey: createAppearanceHistory(styles.sankey.appearance),
-    compound: createAppearanceHistory(styles.compound.appearance),
-    timeline: createAppearanceHistory(styles.timeline.appearance),
+    "node-link": createAppearanceHistory(styles["node-link"]),
+    sankey: createAppearanceHistory(styles.sankey),
+    compound: createAppearanceHistory(styles.compound),
+    timeline: createAppearanceHistory(styles.timeline),
   };
 }
 
-export function chartAppearanceHistoryReducer(
-  state: ChartAppearanceHistory,
+export function chartPreferencesReducer(
+  state: ChartPreferencesState,
   input: { chartType: GraphChartType; action: AppearanceHistoryAction },
-): ChartAppearanceHistory {
+): ChartPreferencesState {
   const history = appearanceHistoryReducer(state[input.chartType], input.action);
   return history === state[input.chartType] ? state : { ...state, [input.chartType]: history };
 }
 
 function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHistoryAction): AppearanceHistory {
   switch (action.type) {
+    case "toggleDisplay":
+      return { ...state, [action.key]: !state[action.key] };
     case "commit": {
       if (JSON.stringify(state.appearance) === JSON.stringify(action.appearance)) return state;
       const transaction = { label: action.label, before: state.appearance, after: action.appearance };
-      return { appearance: action.appearance, undoStack: [...state.undoStack, transaction].slice(-100), redoStack: [] };
+      return { ...state, appearance: action.appearance, undoStack: [...state.undoStack, transaction].slice(-100), redoStack: [] };
     }
     case "undo": {
       const transaction = state.undoStack.at(-1);
       return transaction
         ? {
+            ...state,
             appearance: transaction.before,
             undoStack: state.undoStack.slice(0, -1),
             redoStack: [...state.redoStack, transaction],
@@ -61,6 +63,7 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
       const transaction = state.redoStack.at(-1);
       return transaction
         ? {
+            ...state,
             appearance: transaction.after,
             undoStack: [...state.undoStack, transaction].slice(-100),
             redoStack: state.redoStack.slice(0, -1),

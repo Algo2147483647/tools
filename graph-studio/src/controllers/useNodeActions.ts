@@ -6,14 +6,16 @@ import type { GraphContextTarget } from "../state/contextMenu";
 import type { GraphCommand } from "../graph/commands";
 import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeDetailRawJson";
 import type { NodeKey, RelationValue } from "../graph/types";
-import type { DocumentSessionController } from "./useDocumentSession";
+import type { Dispatch } from "react";
+import type { GraphAppState } from "../state/initialState";
+import type { GraphAction } from "../state/graphActions";
 import type { GraphTransactionsController } from "./useGraphTransactions";
 import type { GraphViewportController } from "./useGraphViewport";
 
 export function useNodeActions(
-  session: DocumentSessionController,
-  transactions: GraphTransactionsController,
-  viewport: GraphViewportController,
+  session: { state: GraphAppState; dispatch: Dispatch<GraphAction>; openNodeDetail(key: string): void; closeModals(): void },
+  transactions: Pick<GraphTransactionsController, "commitCommand" | "commitCommands">,
+  viewport: Pick<GraphViewportController, "enterGroup" | "toggleGroup" | "compound">,
 ) {
   const { state, dispatch } = session;
   const { commitCommand, commitCommands } = transactions;

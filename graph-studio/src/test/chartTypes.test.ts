@@ -12,7 +12,7 @@ import { getGraphRenderMode } from "../graph/types";
 import { getNodeLocatePoint } from "../hooks/useGraphZoom";
 import { buildStageData } from "../layout/stage-layout";
 import { buildTimelineStage } from "../layout/timeline-layout";
-import { chartAppearanceHistoryReducer, createChartAppearanceHistory } from "../state/appearanceHistory";
+import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 import { createChartStyles } from "../state/chartStyles";
 import { graphReducer } from "../state/graphReducer";
 import { prepareGraphTransaction } from "../state/graphTransactions";
@@ -145,13 +145,13 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     assert.deepEqual(parsed!.chartStyles!.timeline, preferences.chartStyles.timeline);
     assert.equal(parsed!.chartType, "timeline");
     const defaults = createChartStyles();
-    let history = createChartAppearanceHistory(defaults);
+    let history = createChartPreferences(defaults);
     const original = history["node-link"];
-    history = chartAppearanceHistoryReducer(history, {
+    history = chartPreferencesReducer(history, {
       chartType: "timeline",
       action: { type: "commit", appearance: preferences.chartStyles.timeline.appearance, label: "Timeline color" },
     });
-    history = chartAppearanceHistoryReducer(history, { chartType: "timeline", action: { type: "undo" } });
+    history = chartPreferencesReducer(history, { chartType: "timeline", action: { type: "undo" } });
     assert.equal(history["node-link"], original);
     assert.deepEqual(history.timeline.appearance, defaults.timeline.appearance);
     const migrated = parseGraphPagePreferences('{"chartStyles":{"node-link":{}}}');
@@ -361,24 +361,24 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
   }),
   defineTest("appearance commits, resets, undo and redo affect only their chart type", () => {
     const styles = createChartStyles();
-    let state = createChartAppearanceHistory(styles);
+    let state = createChartPreferences(styles);
     const nodeLink = sanitizeGraphAppearance({ cssVars: { "--dag-text-strong": "#123456" } });
     const sankey = sanitizeGraphAppearance({ display: { sankeyLinkOpacity: 80 } });
-    state = chartAppearanceHistoryReducer(state, {
+    state = chartPreferencesReducer(state, {
       chartType: "node-link",
       action: { type: "commit", appearance: nodeLink, label: "Node-link color" },
     });
     const savedNodeLinkHistory = state["node-link"];
-    state = chartAppearanceHistoryReducer(state, {
+    state = chartPreferencesReducer(state, {
       chartType: "sankey",
       action: { type: "commit", appearance: sankey, label: "Flow opacity" },
     });
-    state = chartAppearanceHistoryReducer(state, { chartType: "sankey", action: { type: "undo" } });
+    state = chartPreferencesReducer(state, { chartType: "sankey", action: { type: "undo" } });
     assert.deepEqual(state.sankey.appearance, styles.sankey.appearance);
     assert.equal(state["node-link"], savedNodeLinkHistory);
-    state = chartAppearanceHistoryReducer(state, { chartType: "sankey", action: { type: "redo" } });
+    state = chartPreferencesReducer(state, { chartType: "sankey", action: { type: "redo" } });
     assert.equal(state.sankey.appearance, sankey);
-    state = chartAppearanceHistoryReducer(state, {
+    state = chartPreferencesReducer(state, {
       chartType: "sankey",
       action: { type: "commit", appearance: styles.sankey.appearance, label: "Reset" },
     });

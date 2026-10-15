@@ -1,10 +1,9 @@
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { useOutsideDismiss } from "../hooks/useOutsideDismiss";
-import type { DocumentSessionController } from "./useDocumentSession";
 import type { GraphTransactionsController } from "./useGraphTransactions";
 
-export function useStudioShortcuts(session: DocumentSessionController, transactions: GraphTransactionsController) {
-  useOutsideDismiss(Boolean(session.state.ui.contextMenu), session.closeContextMenu);
+export function useStudioShortcuts(session: { contextMenuOpen: boolean; closeContextMenu(): void; closeModals(): void; requestSave(): void }, transactions: Pick<GraphTransactionsController, "undo" | "redo">) {
+  useOutsideDismiss(session.contextMenuOpen, session.closeContextMenu);
   useKeyboardShortcuts({
     onEscape: () => {
       session.closeContextMenu();

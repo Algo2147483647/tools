@@ -9,22 +9,15 @@ import {
 } from "../graph/appearance";
 import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
-import { chartAppearanceHistoryReducer, createChartAppearanceHistory } from "../state/appearanceHistory";
+import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 import { sanitizeTimelineChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
 
-export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
-  const [histories, updateHistories] = useReducer(chartAppearanceHistoryReducer, styles, createChartAppearanceHistory);
+export function useChartPreferences(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
+  const [histories, updateHistories] = useReducer(chartPreferencesReducer, styles, createChartPreferences);
   const history = histories[chartType];
-  const appearanceByChart = useMemo(
-    () => ({
-      "node-link": histories["node-link"].appearance,
-      sankey: histories.sankey.appearance,
-      compound: histories.compound.appearance,
-      timeline: histories.timeline.appearance,
-    }),
-    [histories],
-  );
+  const chartStyles = useMemo(() => Object.fromEntries(Object.entries(histories).map(([type, { undoStack: _undo, redoStack: _redo, ...style }]) => [type, style])) as ChartStyles, [histories]);
+  const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") => updateHistories({ chartType, action: { type: "toggleDisplay", key } });
   const { appearance } = history;
   const commitAppearance = useCallback(
     (nextAppearance: GraphAppearance, label: string) => {
@@ -152,7 +145,13 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
 
   return {
     appearance,
-    appearanceByChart,
+    chartStyles,
+    showNodeDetail: history.showNodeDetail,
+    hideNodeBorders: history.hideNodeBorders,
+    alignNodeWidthsToMax: history.alignNodeWidthsToMax,
+    toggleNodeDetail: () => toggleDisplay("showNodeDetail"),
+    toggleNodeBorders: () => toggleDisplay("hideNodeBorders"),
+    toggleNodeWidthAlign: () => toggleDisplay("alignNodeWidthsToMax"),
     commitAppearance,
     undo,
     redo,
@@ -170,4 +169,4 @@ export function useAppearanceHistory(styles: ChartStyles, chartType: GraphChartT
   };
 }
 
-export type AppearanceHistoryController = ReturnType<typeof useAppearanceHistory>;
+export type ChartPreferencesController = ReturnType<typeof useChartPreferences>;

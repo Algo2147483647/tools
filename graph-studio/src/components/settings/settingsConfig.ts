@@ -1,3 +1,4 @@
+import type { IconName } from "../ui/Icon";
 import type { GraphLayoutAppearance } from "../../graph/appearance";
 
 export type SettingsChapter = "general" | "chart" | "appearance" | "layout" | "ai";
@@ -6,7 +7,7 @@ export const SETTINGS_CHAPTERS: Array<{
   key: SettingsChapter;
   label: string;
   description: string;
-  icon: string;
+  icon: IconName;
   keywords: string;
 }> = [
   {

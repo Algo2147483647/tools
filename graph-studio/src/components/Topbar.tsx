@@ -1,22 +1,10 @@
+import Icon from "./ui/Icon";
 import type { RefObject } from "react";
 import type { WorkspaceControls } from "../controllers/useWorkspaceController";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import TimelineRangeFilter from "./TimelineRangeFilter";
-import {
-  ArrowLeftIcon,
-  ArrowUpIcon,
-  FitIcon,
-  GraphRootsIcon,
-  MinusIcon,
-  PlusIcon,
-  RedoIcon,
-  SaveIcon,
-  SlidersIcon,
-  UndoIcon,
-} from "./topbar/TopbarIcons";
 import IconButton from "./ui/IconButton";
 import ZoomInput from "./ui/ZoomInput";
-import WorkspaceIcon from "./workspace/WorkspaceIcon";
 
 interface TopbarProps {
   topbarRef: RefObject<HTMLElement>;
@@ -149,14 +137,14 @@ export default function Topbar({
               </>
             )}
             <div className="topbar-group nav-controls" aria-label="Graph navigation controls">
-              <IconButton id="back-btn" label="Back" disabled={!canBack} onClick={onBack} icon={<ArrowLeftIcon />} />
-              <IconButton id="up-btn" label="Up" disabled={!canUp} onClick={onUp} icon={<ArrowUpIcon />} />
+              <IconButton id="back-btn" label="Back" disabled={!canBack} onClick={onBack} icon={<Icon name="arrow-left" className="topbar-icon-svg" />} />
+              <IconButton id="up-btn" label="Up" disabled={!canUp} onClick={onUp} icon={<Icon name="arrow-up" className="topbar-icon-svg" />} />
               <IconButton
                 id="all-btn"
                 label={timeline ? "Show all events" : "Show all roots"}
                 disabled={!hasGraph}
                 onClick={onAll}
-                icon={<GraphRootsIcon />}
+                icon={<Icon name="roots" className="topbar-icon-svg" />}
               />
             </div>
             <div className="topbar-group zoom-controls" aria-label="Graph zoom controls">
@@ -165,14 +153,14 @@ export default function Topbar({
                 label="Zoom out"
                 disabled={!canZoomOut}
                 onClick={onZoomOut}
-                icon={<MinusIcon />}
+                icon={<Icon name="minus" className="topbar-icon-svg" />}
               />
               <IconButton
                 id="zoom-in-btn"
                 label="Zoom in"
                 disabled={!canZoomIn}
                 onClick={onZoomIn}
-                icon={<PlusIcon />}
+                icon={<Icon name="plus" className="topbar-icon-svg" />}
               />
               <ZoomInput value={zoomPercent} disabled={!hasGraph} onCommit={onZoomPercentCommit} />
               <IconButton
@@ -180,7 +168,7 @@ export default function Topbar({
                 label="Fit graph to viewport"
                 disabled={!hasGraph}
                 onClick={onZoomFit}
-                icon={<FitIcon />}
+                icon={<Icon name="fit" className="topbar-icon-svg" />}
               />
             </div>
           </>
@@ -194,19 +182,19 @@ export default function Topbar({
               aria-pressed={files.explorerOpen}
               onClick={() => files.setExplorerOpen((value) => !value)}
             >
-              <WorkspaceIcon name="panel" />
+              <Icon name="panel" />
             </button>
           )}
           {!files.homeVisible && (
             <>
-              <IconButton id="undo-btn" label="Undo" disabled={!canUndo} onClick={onUndo} icon={<UndoIcon />} />
-              <IconButton id="redo-btn" label="Redo" disabled={!canRedo} onClick={onRedo} icon={<RedoIcon />} />
+              <IconButton id="undo-btn" label="Undo" disabled={!canUndo} onClick={onUndo} icon={<Icon name="undo" className="topbar-icon-svg" />} />
+              <IconButton id="redo-btn" label="Redo" disabled={!canRedo} onClick={onRedo} icon={<Icon name="redo" className="topbar-icon-svg" />} />
               <IconButton
                 id="save-json-btn"
                 label="Save JSON"
                 disabled={!hasGraph}
                 onClick={onSaveJson}
-                icon={<SaveIcon />}
+                icon={<Icon name="save" className="topbar-icon-svg" />}
                 className="ghost-btn topbar-icon-btn topbar-save-btn"
               />
             </>
@@ -215,7 +203,7 @@ export default function Topbar({
             <IconButton
               id="settings-btn"
               label="Settings"
-              icon={<SlidersIcon />}
+              icon={<Icon name="sliders" className="topbar-icon-svg" />}
               ariaExpanded={settingsOpen}
               ariaControls="settings-modal"
               onClick={onSettingsToggle}

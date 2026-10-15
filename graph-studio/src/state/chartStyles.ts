@@ -7,7 +7,7 @@ export interface ChartDisplayOptions {
   alignNodeWidthsToMax: boolean;
 }
 
-interface ChartStyle extends ChartDisplayOptions {
+export interface ChartStyle extends ChartDisplayOptions {
   appearance: GraphAppearance;
 }
 

@@ -1,9 +1,9 @@
+import Icon from "./ui/Icon";
 import { useState } from "react";
 import type { GraphAppearance } from "../graph/appearance";
 import type { StageData } from "../layout/types";
 import GraphStage from "../rendering/GraphStage";
 import EmptyState from "./EmptyState";
-import { CloseIcon } from "./ui/ModalIcons";
 
 interface WorkspaceProps {
   compoundTools?: React.ReactNode;
@@ -156,7 +156,7 @@ function StageWarning({ message }: { message: string }) {
         title="Dismiss layout warning"
         onClick={() => setDismissed(true)}
       >
-        <CloseIcon />
+        <Icon name="close" className="modal-icon-close-svg" />
       </button>
     </div>
   );

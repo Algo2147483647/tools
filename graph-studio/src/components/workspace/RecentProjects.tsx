@@ -1,6 +1,6 @@
+import Icon from "../ui/Icon";
 import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
 import { recentProjects, type RecentProject } from "../../workspace/recentProjects";
-import WorkspaceIcon from "./WorkspaceIcon";
 
 function groupRecentProjects(recents: RecentProject[]) {
   const today = new Date();
@@ -35,7 +35,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
     <section className="welcome-recents" aria-labelledby="recent-projects-title">
       <div className="welcome-section-heading">
         <h1 id="recent-projects-title">
-          <WorkspaceIcon name="recent" size={18} />
+          <Icon name="recent" size={18} />
           Recent projects
         </h1>
         {count > 0 && (
@@ -62,7 +62,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
                     <li key={item.id}>
                       <button className="recent-open" disabled={files.busy} onClick={() => files.openRecent(item)}>
                         <span className="recent-icon">
-                          <WorkspaceIcon name={item.kind === "workspace" ? "folder" : "file"} size={18} />
+                          <Icon name={item.kind === "workspace" ? "folder" : "file"} size={18} />
                         </span>
                         <span className="recent-description">
                           <strong title={item.name}>{item.name}</strong>
@@ -91,7 +91,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
                         aria-label={`Remove ${item.name} from recent projects`}
                         onClick={() => void files.removeRecent(recordIds)}
                       >
-                        <WorkspaceIcon name="close" size={15} />
+                        <Icon name="close" size={15} />
                       </button>
                     </li>
                   );
@@ -102,7 +102,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
         </div>
       ) : (
         <div className="recent-empty">
-          <WorkspaceIcon name="recent" size={28} />
+          <Icon name="recent" size={28} />
           <div>
             <strong>No recent projects yet</strong>
             <p>Opened workspaces and graph files will appear here.</p>

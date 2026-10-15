@@ -1,3 +1,4 @@
+import Icon from "../ui/Icon";
 import type { TimelineControlsProps } from "../TimelineControls";
 import { type ChangeEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -6,8 +7,6 @@ import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appeara
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
-import { CloseIcon } from "../topbar/TopbarIcons";
-import WorkspaceIcon from "../workspace/WorkspaceIcon";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
 import AppearanceSettings from "./AppearanceSettings";
 import GeneralSettings from "./GeneralSettings";
@@ -196,13 +195,13 @@ export default function SettingsModal({
             onClick={onClose}
           >
             <span className="topbar-icon" aria-hidden="true">
-              <CloseIcon />
+              <Icon name="close" className="topbar-icon-svg" />
             </span>
           </button>
         </div>
 
         <label className="settings-search">
-          <WorkspaceIcon name="search" size={18} />
+          <Icon name="search" size={18} />
           <input
             ref={searchRef}
             aria-label="Search settings"
@@ -227,7 +226,7 @@ export default function SettingsModal({
                 aria-pressed={shownChapter === chapter.key}
                 onClick={() => setActiveChapter(chapter.key)}
               >
-                <WorkspaceIcon name={chapter.icon} />
+                <Icon name={chapter.icon} />
                 <span>
                   <strong>{chapter.label}</strong>
                   <small>{chapter.description}</small>
@@ -239,7 +238,7 @@ export default function SettingsModal({
           <div className="settings-page" key={shownChapter || "empty"}>
             {!shownChapter && (
               <div className="settings-no-results">
-                <WorkspaceIcon name="search" size={30} />
+                <Icon name="search" size={30} />
                 <h3>No matching settings</h3>
                 <p>Try “colors”, “spacing”, “workspace” or “AI”.</p>
               </div>
