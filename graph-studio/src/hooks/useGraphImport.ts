@@ -22,6 +22,8 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
   const [explorerOpen, setExplorerOpen] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
+  const pendingFileRecent = useRef<RecentLocation>();
+  const pendingFolderRecent = useRef<RecentLocation>();
   const lock = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -100,9 +102,10 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
           : "No graph documents found. Add a Graph Studio v3 JSON file to this folder.",
       });
   }
-  function selectFile() {
+  function selectFile(recent?: RecentLocation) {
     if (lock.current) return;
     if (!window.showOpenFilePicker) {
+      pendingFileRecent.current = recent;
       fileInputRef.current?.click();
       return;
     }
@@ -111,18 +114,23 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
         multiple: false,
         types: [{ description: "Graph Studio graph", accept: { "application/json": [".json"] } }],
       });
-      if (handles[0]) await loadFile({ path: handles[0].name, handle: handles[0] }, undefined);
+      if (handles[0])
+        await loadFile(
+          { path: handles[0].name, handle: handles[0] },
+          recent?.location === handles[0].name ? recent.id : undefined,
+        );
     });
   }
-  function selectWorkspace() {
+  function selectWorkspace(recent?: RecentLocation) {
     if (lock.current) return;
     if (!window.showDirectoryPicker) {
+      pendingFolderRecent.current = recent;
       folderInputRef.current?.click();
       return;
     }
     void run(async () => {
       const handle = await window.showDirectoryPicker!({ mode: "read", id: "graph-studio-workspace" });
-      await loadFolder(await readWorkspaceDirectory(handle), undefined);
+      await loadFolder(await readWorkspaceDirectory(handle), recent?.location === handle.name ? recent : undefined);
     });
   }
   function openFile() {
@@ -135,17 +143,27 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
     void run(async () => loadFolder(await loadExampleWorkspace(id, import.meta.env.BASE_URL), recent));
   }
   async function onFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const recent = pendingFileRecent.current;
+    pendingFileRecent.current = undefined;
     const files = Array.from(event.currentTarget.files || []);
     event.currentTarget.value = "";
-    if (files[0]) await run(() => loadFile({ path: files[0].name, file: files[0], handle: null }, undefined));
+    if (files[0])
+      await run(() =>
+        loadFile(
+          { path: files[0].name, file: files[0], handle: null },
+          recent?.location === files[0].name ? recent.id : undefined,
+        ),
+      );
   }
   async function onFolderChange(event: ChangeEvent<HTMLInputElement>) {
+    const recent = pendingFolderRecent.current;
+    pendingFolderRecent.current = undefined;
     const files = Array.from(event.currentTarget.files || []);
     event.currentTarget.value = "";
     if (files.length)
       await run(async () => {
         const folder = workspaceFromFiles(files);
-        await loadFolder(folder, undefined);
+        await loadFolder(folder, recent?.location === folder.name ? recent : undefined);
       });
   }
   async function handleDroppedFiles(files: FileList | File[]) {
@@ -162,8 +180,8 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
     }
     if (!item.handle) {
       setNotice(`Select "${item.location}" again to restore access.`);
-      if (item.kind === "workspace") selectWorkspace();
-      else selectFile();
+      if (item.kind === "workspace") selectWorkspace(item);
+      else selectFile(item);
       return;
     }
     void run(async () => {
@@ -276,7 +294,7 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
   function exportWorkspaceManifest() {
     if (workspace) downloadJsonFile(JSON.stringify(createWorkspaceManifest(workspace), null, 2), WORKSPACE_MANIFEST);
   }
-  async function removeRecent(id: string) {
+  async function removeRecent(id: string | string[]) {
     await run(() => remove(id));
   }
   return {

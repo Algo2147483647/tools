@@ -227,10 +227,11 @@ export async function rememberLocation(
   });
   return { items: result, id: next.id };
 }
-export async function forgetRecentLocation(id: string): Promise<RecentLocation[]> {
-  const current = (await loadRecentLocations()).filter((item) => item.id !== id);
+export async function forgetRecentLocation(id: string | string[]): Promise<RecentLocation[]> {
+  const ids = new Set(typeof id === "string" ? [id] : id);
+  const current = (await loadRecentLocations()).filter((item) => !ids.has(item.id));
   await queueWrite(async () => {
-    await storeRequest("readwrite", (store) => store.delete(id)).catch(() => {});
+    await Promise.all([...ids].map((key) => storeRequest("readwrite", (store) => store.delete(key)).catch(() => {})));
   });
   saveMetadata(current);
   return current;

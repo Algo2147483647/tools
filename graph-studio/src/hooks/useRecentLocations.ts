@@ -33,7 +33,7 @@ export function useRecentLocations() {
     if (request === revision.current) setRecents(items);
     return id;
   }
-  async function remove(id: string) {
+  async function remove(id: string | string[]) {
     const request = ++revision.current;
     const items = await forgetRecentLocation(id);
     if (request === revision.current) setRecents(items);

@@ -119,6 +119,10 @@
   font-size: 11px;
   color: var(--studio-muted);
 }
+.welcome-section-heading h1 > svg {
+  flex-shrink: 0;
+  color: #7f8da3;
+}
 .recent-empty {
   border: 1px dashed #d9e1ec;
   background: #fafbfd;

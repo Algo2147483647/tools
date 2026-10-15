@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
-import { loadRecentLocations, rememberLocation } from "../adapters/recentImport";
+import {
+  forgetRecentLocation,
+  loadRecentLocations,
+  rememberLocation,
+  type RecentLocation,
+} from "../adapters/recentImport";
+import { recentProjects } from "../workspace/recentProjects";
 import { defineSuite, defineTest } from "./harness";
 
 async function withStorage(open: () => unknown, test: (metadata: () => string) => Promise<void>) {
@@ -35,6 +41,50 @@ const handle = { name: "tmp" } as FileSystemDirectoryHandle;
 const location = { kind: "workspace" as const, name: "tmp", location: "tmp", handle, lastGraph: "A.json" };
 
 export const recentStorageSuite = defineSuite("Local workspace recent storage failures", [
+  defineTest("unavailable duplicate workspace entries show one recent project with the latest graph", () => {
+    const entries: RecentLocation[] = [
+      { ...location, handle: undefined, id: "old", openedAt: 1, canReopen: false, lastGraph: "B.json" },
+      { ...location, handle: undefined, id: "new", openedAt: 2, canReopen: false, lastGraph: undefined },
+      { ...location, handle: undefined, id: "other", location: "other", openedAt: 3, canReopen: false },
+    ];
+    const grouped = recentProjects(entries);
+    assert.equal(grouped.length, 2);
+    assert.equal(grouped[1].location.id, "new");
+    assert.equal(grouped[1].location.lastGraph, "B.json");
+    assert.deepEqual(grouped[1].recordIds, ["new", "old"]);
+    assert.equal(entries[1].lastGraph, undefined);
+  }),
+  defineTest("reconnecting a workspace hides its old unavailable rows without merging two live folders", () => {
+    const current: RecentLocation = { ...location, id: "current", openedAt: 3, canReopen: true };
+    const old = { ...current, handle: undefined, id: "old", openedAt: 1, canReopen: false };
+    assert.deepEqual(recentProjects([old, current])[0].recordIds, ["current", "old"]);
+    const another = { ...current, id: "another", handle: {} as FileSystemDirectoryHandle };
+    assert.equal(recentProjects([old, current, another]).length, 3);
+    assert.equal(recentProjects([old, { ...old, id: "file", kind: "file" }]).length, 2);
+  }),
+  defineTest("removing a grouped recent project removes all its rows and no other project", async () => {
+    await withStorage(
+      () => {
+        const request = {} as IDBOpenDBRequest;
+        queueMicrotask(() => request.onblocked?.call(request, {} as IDBVersionChangeEvent));
+        return request;
+      },
+      async (metadata) => {
+        const first = await rememberLocation({ ...location, id: "old" }, []);
+        const second = await rememberLocation({ ...location, id: "new" }, first.items);
+        await rememberLocation({ ...location, id: "other", location: "other" }, second.items);
+        const remaining = await forgetRecentLocation(["old", "new"]);
+        assert.deepEqual(
+          remaining.map((item) => item.id),
+          ["other"],
+        );
+        assert.deepEqual(
+          JSON.parse(metadata()).map((item: RecentLocation) => item.id),
+          ["other"],
+        );
+      },
+    );
+  }),
   defineTest("consecutive creations keep the latest metadata and persist handles in order", async () => {
     const writes: string[] = [];
     const finish: Array<() => void> = [];

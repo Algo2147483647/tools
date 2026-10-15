@@ -2,7 +2,7 @@ export default function WorkspaceIcon({ name = "graph", size = 20 }: { name?: st
   const paths: Record<string, string> = {
     folder: "M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z",
     file: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8L14 2ZM14 2v6h6M8 13h8M8 17h5",
-    recent: "M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2",
+    recent: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8M3 3v5h5M12 7v5l3 2",
     home: "m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7",
     search: "M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z",
     graph: "M5 5h4v4H5zM15 15h4v4h-4zM15 3h4v4h-4zM9 7h3V5h3M7 9v8h8",
