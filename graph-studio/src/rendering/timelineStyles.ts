@@ -24,7 +24,7 @@ export const TIMELINE_CSS = `
 .timeline-node[data-focused="true"] .timeline-node__leader,
 .timeline-node[data-hovered="true"] .timeline-node__leader { stroke: #000; stroke-width: 1; stroke-dasharray: 0 2.2; stroke-linecap: round; opacity: 1; }
 .timeline-node__label-bg { fill: var(--dag-node-fill); fill-opacity: .65; stroke: transparent; stroke-width: 1; }
-.timeline-node__title { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: 600; pointer-events: none; }
+.timeline-node__title { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: var(--dag-title-font-weight, 400); pointer-events: none; }
 .timeline-node__date { fill: var(--dag-text-soft); font: 10px "IBM Plex Mono", Consolas, monospace; pointer-events: none; }
 .timeline-node__detail { fill: var(--dag-text-soft); font: 10px "IBM Plex Sans", "Segoe UI", sans-serif; pointer-events: none; }
 .timeline-node[data-selected="true"] .timeline-node__label-bg,
