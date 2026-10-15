@@ -17,6 +17,8 @@ import { mathematicsSuite } from "./mathematics.test";
 import { sankeySuite } from "./sankey.test";
 import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
+import { workspaceCreationSuite } from "./workspaceCreation.test";
+import { recentStorageSuite } from "./recentStorage.test";
 import { timelineSuite } from "./timeline.test";
 import { timelineRenderingSuite } from "./timelineRendering.test";
 import { spaceHistorySuite } from "./spaceHistory.test";
@@ -35,6 +37,8 @@ async function main() {
     fieldRolesSuite,
     stateSuite,
     workspaceSuite,
+    workspaceCreationSuite,
+    recentStorageSuite,
     sankeySuite,
     examplesSuite,
     mathematicsSuite,

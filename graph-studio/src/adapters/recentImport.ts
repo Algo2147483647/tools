@@ -15,6 +15,14 @@ const DB_NAME = "graph-studio-open-recent";
 const STORE = "locations";
 const STORAGE_KEY = "graph-studio:recent-locations";
 const LIMIT = 20;
+const STORAGE_TIMEOUT_MS = 1000;
+let pendingWrites: Promise<void> = Promise.resolve();
+
+function queueWrite(operation: () => Promise<void>): Promise<void> {
+  const next = pendingWrites.then(operation);
+  pendingWrites = next.catch(() => {});
+  return pendingWrites;
+}
 interface StorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
@@ -75,9 +83,29 @@ async function database(): Promise<IDBDatabase> {
       return;
     }
     const request = indexedDB.open(DB_NAME, 1);
-    request.onupgradeneeded = () => request.result.createObjectStore(STORE, { keyPath: "id" });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    let settled = false;
+    const fail = (error: unknown) => {
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    };
+    const timer = setTimeout(() => fail(new Error("Recent location storage timed out.")), STORAGE_TIMEOUT_MS);
+    request.onblocked = () => fail(new Error("Recent location storage is blocked by another tab."));
+    request.onupgradeneeded = () => {
+      if (settled) request.transaction?.abort();
+      else request.result.createObjectStore(STORE, { keyPath: "id" });
+    };
+    request.onsuccess = () => {
+      if (settled) {
+        request.result.close();
+        return;
+      }
+      settled = true;
+      clearTimeout(timer);
+      request.result.onversionchange = () => request.result.close();
+      resolve(request.result);
+    };
+    request.onerror = () => fail(request.error);
   });
 }
 async function storeRequest<T>(
@@ -89,10 +117,25 @@ async function storeRequest<T>(
     return await new Promise<T>((resolve, reject) => {
       const transaction = db.transaction(STORE, mode);
       const request = operation(transaction.objectStore(STORE));
-      transaction.oncomplete = () => resolve(request.result);
-      transaction.onabort = () => reject(transaction.error || new Error("Recent location storage was aborted."));
-      transaction.onerror = () => reject(transaction.error);
-      request.onerror = () => reject(request.error);
+      const fail = (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      };
+      const timer = setTimeout(() => {
+        fail(new Error("Recent location storage timed out."));
+        try {
+          transaction.abort();
+        } catch {
+          /* The transaction may already have finished. */
+        }
+      }, STORAGE_TIMEOUT_MS);
+      transaction.oncomplete = () => {
+        clearTimeout(timer);
+        resolve(request.result);
+      };
+      transaction.onabort = () => fail(transaction.error || new Error("Recent location storage was aborted."));
+      transaction.onerror = () => fail(transaction.error);
+      request.onerror = () => fail(request.error);
     });
   } finally {
     db.close();
@@ -132,20 +175,32 @@ export async function rememberLocation(
     saveMetadata(items);
     return { items, id: next.id };
   }
-  const current = await loadRecentLocations();
+  // The hook already holds hydrated locations. Do not read IndexedDB again in
+  // the critical path for opening a local file or folder.
+  const current = knownLocations || (await loadRecentLocations());
   let id = input.id;
   if (!id && input.handle) {
     const handle = input.handle as FileSystemHandle;
-    for (const item of current) {
-      if (item.kind !== input.kind || !item.handle || !handle.isSameEntry) continue;
-      try {
-        if (await handle.isSameEntry(item.handle as FileSystemHandle)) {
-          id = item.id;
-          break;
-        }
-      } catch {
-        /* A removed location is kept as an unavailable recent item. */
-      }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const matches = await Promise.race([
+        Promise.all(
+          current.map(async (item) => {
+            if (item.kind !== input.kind || !item.handle || !handle.isSameEntry) return undefined;
+            try {
+              return (await handle.isSameEntry(item.handle as FileSystemHandle)) ? item.id : undefined;
+            } catch {
+              return undefined;
+            }
+          }),
+        ),
+        new Promise<undefined[]>((resolve) => {
+          timer = setTimeout(() => resolve([]), STORAGE_TIMEOUT_MS);
+        }),
+      ]);
+      id = matches.find((match) => match !== undefined);
+    } finally {
+      clearTimeout(timer);
     }
   }
   const next: RecentLocation = {
@@ -154,22 +209,29 @@ export async function rememberLocation(
     openedAt: Date.now(),
     canReopen: Boolean(input.handle || input.exampleId),
   };
-  try {
-    await storeRequest("readwrite", (store) => store.put(next));
-  } catch {
-    next.canReopen = Boolean(input.exampleId);
-    delete next.handle;
-  }
   const result = rankRecentLocations(current, next);
   saveMetadata(result);
   const retained = new Set(result.map((item) => item.id));
-  for (const item of current)
-    if (!retained.has(item.id)) await storeRequest("readwrite", (store) => store.delete(item.id)).catch(() => {});
+  await queueWrite(async () => {
+    try {
+      await storeRequest("readwrite", (store) => store.put(next));
+    } catch {
+      // Keep the live handle usable in this session even if persistence failed.
+      // readRecentMetadata drops handles and requires reconnection after reload.
+    }
+    await Promise.all(
+      current
+        .filter((item) => !retained.has(item.id))
+        .map((item) => storeRequest("readwrite", (store) => store.delete(item.id)).catch(() => {})),
+    );
+  });
   return { items: result, id: next.id };
 }
 export async function forgetRecentLocation(id: string): Promise<RecentLocation[]> {
   const current = (await loadRecentLocations()).filter((item) => item.id !== id);
-  await storeRequest("readwrite", (store) => store.delete(id)).catch(() => {});
+  await queueWrite(async () => {
+    await storeRequest("readwrite", (store) => store.delete(id)).catch(() => {});
+  });
   saveMetadata(current);
   return current;
 }

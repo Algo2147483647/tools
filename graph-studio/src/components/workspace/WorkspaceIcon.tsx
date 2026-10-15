@@ -11,6 +11,7 @@ export default function WorkspaceIcon({ name = "graph", size = 20 }: { name?: st
       "M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-4 2 2 0 0 1 1-4h3a3 3 0 0 0 3-3 9 9 0 0 0-9-7ZM7 10h.01M10 6h.01M15 6h.01",
     ai: "m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6L12 3Z",
     close: "M6 6l12 12M18 6 6 18",
+    check: "m5 12 4 4L19 6",
     panel: "M3 3h18v18H3zM9 3v18",
     refresh: "M20 7a9 9 0 0 0-15-2L3 8M3 3v5h5M4 17a9 9 0 0 0 15 2l2-3M21 21v-5h-5",
   };

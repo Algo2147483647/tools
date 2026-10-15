@@ -9,6 +9,7 @@ import type { GraphAppState } from "../state/initialState";
 import { createWorkspaceManifest, discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
 import { loadExampleWorkspace } from "../workspace/examples";
 import { documentIdentity, prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
+import { createWorkspaceGraph } from "../workspace/creation";
 import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 import { useRecentLocations } from "./useRecentLocations";
 
@@ -197,6 +198,39 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
       setWorkspace({ ...folder, activePath: path, recentId });
     });
   }
+  async function createGraph(input: string): Promise<boolean> {
+    if (!workspace || lock.current || !mayReplace()) return false;
+    const folder = workspace;
+    const previousDag = stateRef.current.dag;
+    let created = false;
+    await run(async () => {
+      const result = await createWorkspaceGraph(folder, input);
+      created = true;
+      setExplorerOpen(true);
+      setHomeVisible(false);
+      if (stateRef.current.dag !== previousDag && !mayReplace()) {
+        setWorkspace({ ...result.workspace, activePath: folder.activePath });
+        setNotice(`Created ${result.entry.path}. Select it in the explorer when ready.`);
+        return;
+      }
+      const recentId = folder.recentId || crypto.randomUUID();
+      setWorkspace({ ...result.workspace, recentId });
+      commit(result.dag, result.entry, recentId);
+      // The file is already written and open. Recent-history persistence must
+      // not hold the import lock or keep the creation form disabled.
+      void remember({
+        id: recentId,
+        kind: "workspace",
+        name: folder.name,
+        location: folder.rootName,
+        handle: folder.handle || undefined,
+        lastGraph: result.entry.path,
+      }).catch(() => {
+        /* Recent history is optional; the created graph remains available. */
+      });
+    });
+    return created;
+  }
   function refreshWorkspace() {
     if (!workspace) return;
     const folder = workspace;
@@ -264,6 +298,7 @@ export function useGraphImport({ dispatch, state }: { dispatch: Dispatch<GraphAc
     openRecent,
     removeRecent,
     openWorkspaceGraph,
+    createGraph,
     refreshWorkspace,
     closeWorkspace,
     prepareNewDocument,

@@ -38,11 +38,13 @@ interface FileSystemDirectoryHandle {
   entries?: () => AsyncIterableIterator<[string, FileSystemFileHandle | FileSystemDirectoryHandle]>;
   getDirectoryHandle?: (name: string, options?: { create?: boolean }) => Promise<FileSystemDirectoryHandle>;
   getFileHandle?: (name: string, options?: { create?: boolean }) => Promise<FileSystemFileHandle>;
+  removeEntry?: (name: string) => Promise<void>;
   queryPermission?: (options?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
   requestPermission?: (options?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
 }
 
 interface FileSystemWritableFileStream {
+  abort?: () => Promise<void>;
   write: (data: string | Blob | ArrayBuffer | ArrayBufferView) => Promise<void>;
   close: () => Promise<void>;
 }

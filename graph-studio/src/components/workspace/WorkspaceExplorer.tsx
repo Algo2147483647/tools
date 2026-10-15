@@ -1,17 +1,23 @@
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import type { WorkspaceControls } from "../../hooks/useGraphImport";
+import { PlusIcon } from "../topbar/TopbarIcons";
 import WorkspaceIcon from "./WorkspaceIcon";
 export default function WorkspaceExplorer({
   files,
   onOpenAsset,
   dirty,
+  children,
 }: {
   files: WorkspaceControls;
   onOpenAsset: (path: string) => void;
   dirty: boolean;
+  children?: ReactNode;
 }) {
   const [query, setQuery] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [fileName, setFileName] = useState("");
   const workspace = files.workspace!;
+  const canCreate = Boolean(workspace.handle?.getFileHandle && workspace.handle?.removeEntry);
   const graphs = workspace.graphs.filter((graph) =>
     `${graph.path} ${graph.title}`.toLowerCase().includes(query.toLowerCase()),
   );
@@ -25,6 +31,15 @@ export default function WorkspaceExplorer({
       <div className="explorer-heading">
         <span>EXPLORER</span>
         <div>
+          <button
+            title="Create graph file"
+            aria-label="Create graph file"
+            disabled={files.busy}
+            aria-expanded={creating}
+            onClick={() => setCreating((value) => !value)}
+          >
+            <PlusIcon />
+          </button>
           <button
             title="Refresh workspace files"
             aria-label="Refresh workspace files"
@@ -55,6 +70,60 @@ export default function WorkspaceExplorer({
         <h3>
           Graphs <span>{workspace.graphs.length}</span>
         </h3>
+        {creating &&
+          (canCreate ? (
+            <form
+              className="explorer-create"
+              aria-label="Create graph file"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (await files.createGraph(fileName)) {
+                  setCreating(false);
+                  setFileName("");
+                  setQuery("");
+                }
+              }}
+            >
+              <WorkspaceIcon name="graph" size={17} />
+              <input
+                id="new-graph-file-name"
+                aria-label="New graph file"
+                autoFocus
+                placeholder="New graph.json"
+                value={fileName}
+                disabled={files.busy}
+                onChange={(event) => setFileName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") setCreating(false);
+                }}
+              />
+              <button
+                type="submit"
+                className="explorer-create-confirm"
+                title="Create"
+                aria-label="Create"
+                disabled={files.busy || !fileName.trim()}
+              >
+                <WorkspaceIcon name="check" size={15} />
+              </button>
+              <button
+                type="button"
+                title="Cancel"
+                aria-label="Cancel"
+                disabled={files.busy}
+                onClick={() => setCreating(false)}
+              >
+                <WorkspaceIcon name="close" size={14} />
+              </button>
+            </form>
+          ) : (
+            <div className="explorer-create-unavailable">
+              <p>Open a local workspace to create files.</p>
+              <button className="studio-button" disabled={files.busy} onClick={files.openWorkspace}>
+                Open workspace
+              </button>
+            </div>
+          ))}
         {graphs.map((graph) => (
           <button
             key={graph.path}
@@ -91,6 +160,7 @@ export default function WorkspaceExplorer({
           ))}
           {matchingAssets.length > 200 && <p className="explorer-empty">Refine your search to see more files.</p>}
         </details>
+        {children}
       </div>
       <footer>
         <span className="workspace-detection-dot" />

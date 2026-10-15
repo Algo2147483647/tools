@@ -42,6 +42,11 @@ export async function writeJsonToHandle(fileHandle: FileSystemFileHandle, conten
     throw new Error("File overwrite is not supported in this browser.");
   }
   const writable = await fileHandle.createWritable();
-  await writable.write(content);
-  await writable.close();
+  try {
+    await writable.write(content);
+    await writable.close();
+  } catch (error) {
+    await writable.abort?.().catch(() => undefined);
+    throw error;
+  }
 }

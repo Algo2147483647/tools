@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
 import type { AppearanceHistoryController } from "../controllers/useAppearanceHistory";
@@ -44,9 +44,6 @@ export default function StudioView({
   nodeActions,
 }: StudioViewProps) {
   const { state, files, filePreview, relativeLinkRoot } = session;
-  useEffect(() => {
-    if (state.chartType === "compound") files.setExplorerOpen(false);
-  }, [state.chartType, state.document.generation]);
   const { appearance } = appearanceHistory;
   const relationEditor = state.ui.relationEditor;
   const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
@@ -55,6 +52,19 @@ export default function StudioView({
     () => (state.dag ? getSankeyError(state.dag.nodes, state.dag.edges) : null),
     [state.dag],
   );
+  const compoundPanel =
+    state.chartType === "compound" && state.dag ? (
+      <CompoundPanel
+        key={state.document.generation}
+        dag={state.dag}
+        view={viewport.compound.view}
+        onViewChange={viewport.compound.setView}
+        onCommand={transactions.commitCommand}
+        onSelect={viewport.setFocusedKey}
+        onOpenNode={session.openNodeDetail}
+        onMemberContextMenu={viewport.handleNodeContextMenu}
+      />
+    ) : null;
 
   return (
     <div className="app-shell" onDragOver={session.handleAppDragOver} onDrop={session.handleAppDrop}>
@@ -130,29 +140,19 @@ export default function StudioView({
         <WelcomeScreen files={files} onNew={session.initializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
-          compoundTools={
-            state.chartType === "compound" && state.dag && !files.explorerOpen ? (
-              <CompoundPanel
-                key={state.document.generation}
-                dag={state.dag}
-                view={viewport.compound.view}
-                onViewChange={viewport.compound.setView}
-                onCommand={transactions.commitCommand}
-                onSelect={viewport.setFocusedKey}
-                onOpenNode={session.openNodeDetail}
-                onMemberContextMenu={viewport.handleNodeContextMenu}
-              />
-            ) : undefined
-          }
+          compoundTools={!files.workspace || !files.explorerOpen ? compoundPanel : undefined}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}
           explorer={
             files.workspace && files.explorerOpen ? (
               <WorkspaceExplorer
+                key={files.workspace.recentId}
                 files={files}
                 dirty={state.source.dirty}
                 onOpenAsset={(path) => void session.handleOpenRelativeLink(path, "")}
-              />
+              >
+                {compoundPanel}
+              </WorkspaceExplorer>
             ) : null
           }
           emptyContent={
