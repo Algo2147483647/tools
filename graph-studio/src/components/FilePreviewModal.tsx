@@ -1,7 +1,7 @@
 import Icon from "./ui/Icon";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
-import type { FilePreviewState } from "../hooks/useRelativeFilePreview";
+import type { FilePreviewState } from "../controllers/useFilePreview";
 import { MarkdownValue } from "./NodeFieldEditor";
 
 interface FilePreviewModalProps {

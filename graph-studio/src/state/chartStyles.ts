@@ -14,7 +14,12 @@ export interface ChartStyle extends ChartDisplayOptions {
 export type ChartStyles = Record<GraphChartType, ChartStyle>;
 
 export function mapChartTypes<T>(create: (type: GraphChartType) => T): Record<GraphChartType, T> {
-  return { "node-link": create("node-link"), sankey: create("sankey"), compound: create("compound"), timeline: create("timeline") };
+  return {
+    "node-link": create("node-link"),
+    sankey: create("sankey"),
+    compound: create("compound"),
+    timeline: create("timeline"),
+  };
 }
 
 export function sanitizeChartStyle(value: unknown): ChartStyle {
@@ -28,7 +33,7 @@ export function sanitizeChartStyle(value: unknown): ChartStyle {
 }
 
 export function createChartStyles(): ChartStyles {
-  return mapChartTypes((type) => type === "timeline" ? sanitizeTimelineChartStyle(null) : sanitizeChartStyle(null));
+  return mapChartTypes((type) => (type === "timeline" ? sanitizeTimelineChartStyle(null) : sanitizeChartStyle(null)));
 }
 
 export function sanitizeTimelineChartStyle(value: unknown): ChartStyle {

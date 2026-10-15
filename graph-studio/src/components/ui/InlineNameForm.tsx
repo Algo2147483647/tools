@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import Icon from "./Icon";
 import IconButton from "./IconButton";
 
 export default function InlineNameForm({
   label,
+  inputLabel,
+  icon,
   placeholder,
   busy,
   onSubmit,
   onCancel,
 }: {
   label: string;
+  inputLabel: string;
+  icon: ReactNode;
   placeholder: string;
   busy: boolean;
   onSubmit(value: string): Promise<boolean>;
@@ -25,10 +29,10 @@ export default function InlineNameForm({
         if (!busy && value.trim() && (await onSubmit(value))) onCancel();
       }}
     >
-      <Icon name="graph" size={17} />
+      {icon}
       <input
         className="inline-input"
-        aria-label="New graph file"
+        aria-label={inputLabel}
         autoFocus
         placeholder={placeholder}
         value={value}

@@ -15,7 +15,13 @@ import type { WorkspaceSession, WorkspaceFile, WorkspaceFolder } from "../worksp
 import { useRecentLocations } from "./useRecentLocations";
 import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
 
-export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch<GraphAction>; state: GraphAppState }): WorkspaceControls {
+export function useWorkspaceController({
+  dispatch,
+  state,
+}: {
+  dispatch: Dispatch<GraphAction>;
+  state: GraphAppState;
+}): WorkspaceControls {
   const [workspace, setWorkspace] = useState<WorkspaceSession | null>(null);
   const { recents, remember, remove, identify } = useRecentLocations();
   const [homeVisible, setHomeVisible] = useState(true);
@@ -345,5 +351,3 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
     openExample,
   };
 }
-
-

@@ -4,7 +4,7 @@ import { canOverwrite, requestWritablePermission, writeJsonToHandle } from "../a
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
 import { createDocumentSaver } from "../state/saveDocument";
-export function useGraphSave({
+export function useDocumentSave({
   state,
   currentJsonContent,
   dispatch,

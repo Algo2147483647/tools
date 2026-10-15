@@ -2,7 +2,7 @@ import { useCallback, useMemo, useReducer } from "react";
 import { createInitialCanvasDag, INITIAL_CANVAS_FILE_NAME } from "../graph/initialCanvas";
 import { createGraphDocument } from "../graph/normalize";
 import { getInitialSelection } from "../graph/selectors";
-import { useGraphSave } from "../hooks/useGraphSave";
+import { useDocumentSave } from "../controllers/useDocumentSave";
 import { serializeDagToJson } from "../state/documentSerialization";
 import { graphReducer } from "../state/graphReducer";
 import { createInitialGraphState } from "../state/initialState";
@@ -16,7 +16,7 @@ export function useDocumentSession(preferences: GraphPagePreferences) {
     () => serializeDagToJson(state.document.savedDag || createGraphDocument()),
     [state.document.savedDag],
   );
-  const save = useGraphSave({ state, currentJsonContent, dispatch });
+  const save = useDocumentSave({ state, currentJsonContent, dispatch });
   const requestSave = useCallback(() => {
     dispatch(
       state.dag

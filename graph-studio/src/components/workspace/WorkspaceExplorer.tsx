@@ -75,6 +75,8 @@ export default function WorkspaceExplorer({
           (canCreate ? (
             <InlineNameForm
               label="Create graph file"
+              inputLabel="New graph file"
+              icon={<Icon name="graph" size={17} />}
               placeholder="New graph.json"
               busy={files.busy}
               onCancel={() => setCreating(false)}

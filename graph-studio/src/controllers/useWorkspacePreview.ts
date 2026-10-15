@@ -1,5 +1,5 @@
 import { type Dispatch, useMemo } from "react";
-import { useRelativeFilePreview } from "../hooks/useRelativeFilePreview";
+import { useFilePreview } from "../controllers/useFilePreview";
 import type { GraphAction } from "../state/graphActions";
 import type { WorkspaceControls } from "./workspaceControls";
 
@@ -20,7 +20,7 @@ export function useWorkspacePreview(
         : null,
     [workspace?.name, workspace?.handle, workspace?.files, workspace?.activePath],
   );
-  const preview = useRelativeFilePreview(dispatch, relativeRoot);
+  const preview = useFilePreview(dispatch, relativeRoot);
   const hasFiles = (event: React.DragEvent) => Array.from(event.dataTransfer.types || []).includes("Files");
   return {
     ...preview,

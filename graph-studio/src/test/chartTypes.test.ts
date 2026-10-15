@@ -36,9 +36,15 @@ const graph = (value: number | string = 10) =>
 export const chartTypesSuite = defineSuite("chart types and independent styles", [
   defineTest("display preferences survive appearance undo and persist without history stacks", () => {
     let state = createChartPreferences(createChartStyles());
-    state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "toggleDisplay", key: "showNodeDetail" } });
+    state = chartPreferencesReducer(state, {
+      chartType: "node-link",
+      action: { type: "toggleDisplay", key: "showNodeDetail" },
+    });
     const appearance = sanitizeGraphAppearance({ cssVars: { "--dag-text-strong": "#123456" } });
-    state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "commit", appearance, label: "Color" } });
+    state = chartPreferencesReducer(state, {
+      chartType: "node-link",
+      action: { type: "commit", appearance, label: "Color" },
+    });
     state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "undo" } });
     assert.equal(state["node-link"].showNodeDetail, false);
     assert.equal(state.sankey.showNodeDetail, true);
