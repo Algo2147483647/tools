@@ -30,6 +30,9 @@ export interface GraphWorkspace extends WorkspaceFolder {
   manifest: WorkspaceManifest | null;
   graphs: WorkspaceGraph[];
   activePath: string | null;
-  locationId?: string;
   notices: string[];
+}
+
+export interface WorkspaceSession extends GraphWorkspace {
+  locationId: string;
 }

@@ -10,12 +10,12 @@ import { createWorkspaceManifest, discoverWorkspace, readGraphFile, WORKSPACE_MA
 import { loadExampleWorkspace } from "../workspace/examples";
 import { documentIdentity, prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
 import { createWorkspaceGraph } from "../workspace/creation";
-import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
+import type { WorkspaceSession, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 import { useRecentLocations } from "./useRecentLocations";
 import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
 
 export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch<GraphAction>; state: GraphAppState }) {
-  const [workspace, setWorkspace] = useState<GraphWorkspace | null>(null);
+  const [workspace, setWorkspace] = useState<WorkspaceSession | null>(null);
   const { recents, remember, remove, identify } = useRecentLocations();
   const [homeVisible, setHomeVisible] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -192,12 +192,12 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
     void run((context) => openPreparedDocument(context,
       () => prepareWorkspaceGraph(folder, path), mayReplace,
       ({ entry, dag }) => {
-        commit(dag, entry, folder.locationId!);
+        commit(dag, entry, folder.locationId);
         setWorkspace({ ...folder, activePath: path });
       }, () => rememberWorkspace(folder, path)));
   }
-  function rememberWorkspace(folder: GraphWorkspace, path: string) {
-    remember({ id: folder.locationId!, kind: "workspace", name: folder.name, location: folder.rootName,
+  function rememberWorkspace(folder: WorkspaceSession, path: string) {
+    remember({ id: folder.locationId, kind: "workspace", name: folder.name, location: folder.rootName,
       handle: folder.handle || undefined, lastGraph: path, exampleId: folder.exampleId });
   }
 
@@ -213,12 +213,12 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
       setExplorerOpen(true);
       setHomeVisible(false);
       if (stateRef.current.dag !== previousDag && !mayReplace()) {
-        setWorkspace({ ...result.workspace, activePath: folder.activePath });
+        setWorkspace({ ...result.workspace, locationId: folder.locationId, activePath: folder.activePath });
         setNotice(`Created ${result.entry.path}. Select it in the explorer when ready.`);
         return;
       }
-      setWorkspace(result.workspace);
-      commit(result.dag, result.entry, folder.locationId!);
+      setWorkspace({ ...result.workspace, locationId: folder.locationId });
+      commit(result.dag, result.entry, folder.locationId);
       rememberWorkspace(folder, result.entry.path);
     });
     return created;

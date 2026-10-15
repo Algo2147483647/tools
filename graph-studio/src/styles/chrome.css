@@ -70,37 +70,8 @@
     right: 16px;
   }
 }
-
-.topbar {
-  z-index: 5;
-  flex: 0 0 auto;
-  border-bottom: 1px solid var(--studio-border);
-  backdrop-filter: none;
-}
-.topbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.brand-home {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 0;
-  background: none;
-  color: var(--studio-ink);
-  font: inherit;
-  cursor: pointer;
-  white-space: nowrap;
-}
 .brand-home svg {
   color: var(--studio-accent);
-}
-.brand-home strong {
-  font-size: 17px;
-}
-.topbar-group {
-  border-left: 1px solid var(--studio-border);
 }
 .topbar .topbar-icon-btn,
 .studio-icon-button {
@@ -122,35 +93,6 @@
   background: #eff3fa;
   color: var(--studio-accent);
 }
-.topbar button:disabled {
-  opacity: 0.32;
-  cursor: default;
-}
-.topbar select {
-  border: 1px solid var(--studio-border);
-  color: var(--studio-ink);
-  padding: 5px;
-}
-.workspace-sidebar-shell {
-  border-right: 1px solid var(--studio-border);
-}
-.source-notice {
-  position: fixed;
-  z-index: 160;
-  right: 24px;
-  max-width: min(560px, calc(100vw - 40px));
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  border: 1px solid #ead6ac;
-  background: #fffaf0;
-  color: #694914;
-  padding: 14px 18px;
-  font-size: 13px;
-  line-height: 1.6;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px #192f4f15;
-}
 .source-notice.is-busy {
   border-color: #cfdbf7;
   background: #f3f7ff;
@@ -163,41 +105,6 @@
   cursor: pointer;
   color: inherit;
 }
-.studio-button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 14px;
-  min-height: 36px;
-  background: #fff;
-  color: var(--studio-ink);
-  border: 1px solid #d8e0eb;
-  border-radius: 7px;
-  font:
-    600 12px/1.4 "Segoe UI",
-    sans-serif;
-  cursor: pointer;
-  text-decoration: none;
-}
-.studio-button:hover {
-  background: #f4f7fc;
-  border-color: #b9cbe9;
-}
-.studio-button.primary {
-  background: var(--studio-accent);
-  color: #fff;
-  border-color: var(--studio-accent);
-}
-.studio-button[aria-pressed="true"] {
-  color: var(--studio-accent);
-  background: #edf3ff;
-  border-color: #bdd0f5;
-}
-.studio-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
 .subtle-danger {
   color: #a43c3c !important;
 }
@@ -207,14 +114,6 @@
     sans-serif;
   letter-spacing: 1.4px;
   color: var(--studio-muted);
-}
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-summary:focus-visible {
-  outline: 2px solid #4779da;
-  outline-offset: 3px;
 }
 .workspace-detection-dot {
   display: inline-block;
@@ -287,6 +186,9 @@ summary:focus-visible {
     radial-gradient(ellipse at 95% 0, #ece6f5a6, transparent 45%), #f4f6f9;
 }
 .topbar {
+  z-index: 5;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--studio-border);
   position: absolute;
   inset: 8px 8px auto;
   margin: 0;
@@ -303,14 +205,27 @@ summary:focus-visible {
   -webkit-backdrop-filter: blur(16px) saturate(135%);
 }
 .topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   flex: 0 0 auto;
   min-width: 132px;
   overflow: visible;
 }
 .brand-home {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: none;
+  color: var(--studio-ink);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
   padding: 4px 2px;
 }
 .brand-home strong {
+  font-size: 17px;
   font:
     600 26px/0.96 "Cormorant Garamond",
     Georgia,
@@ -328,6 +243,7 @@ summary:focus-visible {
   width: clamp(154px, 16vw, 220px);
 }
 .topbar-group {
+  border-left: 1px solid var(--studio-border);
   width: auto;
   flex-shrink: 0;
   gap: 3px;
@@ -358,10 +274,15 @@ summary:focus-visible {
   box-shadow: 0 2px 6px #2737550f;
 }
 .topbar button:disabled {
+  opacity: 0.32;
+  cursor: default;
   box-shadow: none;
   background: transparent;
 }
 .topbar select {
+  border: 1px solid var(--studio-border);
+  color: var(--studio-ink);
+  padding: 5px;
   background: #ffffff69;
   border-color: #c0cbde55;
   border-radius: 8px;
@@ -394,6 +315,7 @@ summary:focus-visible {
   width: 0;
 }
 .workspace-sidebar-shell {
+  border-right: 1px solid var(--studio-border);
   position: relative;
   border: 1px solid var(--glass-edge);
   border-radius: 14px;
@@ -401,8 +323,6 @@ summary:focus-visible {
   box-shadow: var(--glass-shadow);
   backdrop-filter: blur(32px) saturate(145%);
   -webkit-backdrop-filter: blur(32px) saturate(145%);
-}
-.workspace-sidebar-shell {
   padding: 0;
   height: 100%;
   overflow: hidden;
@@ -476,6 +396,21 @@ summary:focus-visible {
   outline-offset: 2px;
 }
 .source-notice {
+  position: fixed;
+  z-index: 160;
+  right: 24px;
+  max-width: min(560px, calc(100vw - 40px));
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  border: 1px solid #ead6ac;
+  background: #fffaf0;
+  color: #694914;
+  padding: 14px 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px #192f4f15;
   top: calc(var(--toolbar-bottom) + 8px);
 }
 @supports not (backdrop-filter: blur(1px)) {

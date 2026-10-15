@@ -1,13 +1,12 @@
 import { getSankeyError } from "../graph/sankey";
 import { areSelectionsEqual } from "../graph/selectors";
-import { isTimelineDocument } from "../graph/timelineView";
 import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";
 import type { GraphAction } from "./graphActions";
-import { type GraphAppState, createInitialGraphState } from "./initialState";
+import type { GraphAppState } from "./initialState";
 import { clampConsoleSidebarWidth } from "./preferences";
-import { getDocumentTimelineSettings, sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 
-const EDIT_HISTORY_LIMIT = 100;
+import { replaceDocument, traverseEditHistory, pushEditTransaction } from "./documentTransitions";
 
 export function graphReducer(state: GraphAppState, action: GraphAction): GraphAppState {
   const next = reduceGraphState(state, action);
@@ -25,55 +24,8 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       return { ...state, timelineSettings: sanitizeTimelineSettings({ ...state.timelineSettings, ...action.patch }) };
     case "graphClosed":
     case "graphLoaded":
-    case "canvasInitialized": {
-      const initial = createInitialGraphState();
-      const loaded = action.type !== "graphClosed";
-      const isNew = action.type === "canvasInitialized";
-      return {
-        ...initial,
-        timelineSettings: sanitizeTimelineSettings({
-          ...state.timelineSettings,
-          pins: {},
-          locked: false,
-          ...(loaded ? getDocumentTimelineSettings(action.dag.metadata) : {}),
-        }),
-        dag: loaded ? action.dag : null,
-        document: {
-          id: loaded ? action.documentId : "",
-          generation: state.document.generation + 1,
-          savedDag: action.type === "graphLoaded" ? action.dag : null,
-        },
-        source: loaded
-          ? {
-              fileName: action.fileName,
-              fileHandle: action.type === "graphLoaded" ? action.fileHandle || null : null,
-              dirty: isNew,
-            }
-          : initial.source,
-        selection: loaded
-          ? action.dag.hierarchy || isTimelineDocument(action.dag)
-            ? { type: "full" }
-            : action.selection
-          : null,
-        editHistory: { ...initial.editHistory, savedRevision: isNew ? -1 : 0 },
-        chartType: loaded
-          ? isTimelineDocument(action.dag)
-            ? "timeline"
-            : action.dag.hierarchy
-              ? "compound"
-              : action.dag.diagram === "sankey"
-                ? "sankey"
-                : "node-link"
-          : state.chartType,
-        layout: state.layout,
-        ui: {
-          ...initial.ui,
-          consoleSidebarOpen: state.ui.consoleSidebarOpen,
-          consoleSidebarWidth: state.ui.consoleSidebarWidth,
-          status: action.status,
-        },
-      };
-    }
+    case "canvasInitialized":
+      return replaceDocument(state, action);
     case "selectionChanged": {
       const shouldPush =
         action.pushHistory && state.selection && !areSelectionsEqual(state.selection, action.selection);
@@ -122,72 +74,8 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         },
       };
     }
-    case "undoRequested": {
-      const transaction = state.editHistory.undoStack[state.editHistory.undoStack.length - 1];
-      if (!transaction) {
-        return state;
-      }
-
-      const undoStack = state.editHistory.undoStack.slice(0, -1);
-      const redoStack = [...state.editHistory.redoStack, transaction];
-      const revision = transaction.revisionBefore;
-      const savedRevision = state.editHistory.savedRevision;
-
-      return {
-        ...state,
-        dag: transaction.beforeDag,
-        source: { ...state.source, dirty: revision !== savedRevision },
-        selection: transaction.beforeSelection,
-        history: transaction.beforeNavigationHistory,
-        editHistory: {
-          ...state.editHistory,
-          undoStack,
-          redoStack,
-          revision,
-        },
-        ui: {
-          ...state.ui,
-          contextMenu: null,
-          relationEditor: null,
-          nodeDetail: null,
-          saveDialogOpen: false,
-          status: `Undid: ${transaction.label}`,
-        },
-      };
-    }
-    case "redoRequested": {
-      const transaction = state.editHistory.redoStack[state.editHistory.redoStack.length - 1];
-      if (!transaction) {
-        return state;
-      }
-
-      const redoStack = state.editHistory.redoStack.slice(0, -1);
-      const undoStack = pushEditTransaction(state.editHistory.undoStack, transaction);
-      const revision = transaction.revisionAfter;
-      const savedRevision = state.editHistory.savedRevision;
-
-      return {
-        ...state,
-        dag: transaction.afterDag,
-        source: { ...state.source, dirty: revision !== savedRevision },
-        selection: transaction.afterSelection,
-        history: transaction.afterNavigationHistory,
-        editHistory: {
-          ...state.editHistory,
-          undoStack,
-          redoStack,
-          revision,
-        },
-        ui: {
-          ...state.ui,
-          contextMenu: null,
-          relationEditor: null,
-          nodeDetail: null,
-          saveDialogOpen: false,
-          status: `Redid: ${transaction.label}`,
-        },
-      };
-    }
+    case "undoRequested": return traverseEditHistory(state, "undo");
+    case "redoRequested": return traverseEditHistory(state, "redo");
     case "layoutModeChanged":
       if (state.chartType !== "node-link") return state;
       return {
@@ -266,14 +154,6 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
     case "statusChanged":
       return { ...state, ui: { ...state.ui, status: action.status } };
   }
-}
-
-function pushEditTransaction(
-  stack: GraphAppState["editHistory"]["undoStack"],
-  transaction: GraphAppState["editHistory"]["undoStack"][number],
-) {
-  const next = [...stack, transaction];
-  return next.length > EDIT_HISTORY_LIMIT ? next.slice(next.length - EDIT_HISTORY_LIMIT) : next;
 }
 
 function applyBatchUiEffects(

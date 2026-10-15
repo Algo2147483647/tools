@@ -6,8 +6,10 @@
 @import "./console.css";
 @import "./modals.css";
 
+@import "./ui.css";
 @import "./chrome.css";
-@import "./workspace.css";
+@import "./welcome.css";
+@import "./explorer.css";
 @import "./settings.css";
 @import "./compound.css";
 @import "./context-menu.css";

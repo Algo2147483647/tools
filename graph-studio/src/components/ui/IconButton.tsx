@@ -1,39 +1,34 @@
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-interface IconButtonProps {
-  id: string;
+interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label: string;
   icon: ReactNode;
-  disabled?: boolean;
-  onClick: () => void;
   ariaControls?: string;
   ariaExpanded?: boolean;
-  className?: string;
+  variant?: "toolbar" | "quiet";
 }
 
 export default function IconButton({
-  id,
   label,
   icon,
-  disabled,
-  onClick,
   ariaControls,
   ariaExpanded,
-  className = "ghost-btn topbar-icon-btn",
+  variant = "toolbar",
+  className = "",
+  type = "button",
+  ...props
 }: IconButtonProps) {
   return (
     <button
-      id={id}
-      className={className}
-      type="button"
+      {...props}
+      className={`icon-button ${variant === "toolbar" ? "ghost-btn topbar-icon-btn" : "icon-button--quiet"} ${className}`}
+      type={type}
       title={label}
       aria-label={label}
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
-      disabled={disabled}
-      onClick={onClick}
     >
-      <span className="topbar-icon" aria-hidden="true">
+      <span className={variant === "toolbar" ? "topbar-icon" : "icon-button-content"} aria-hidden="true">
         {icon}
       </span>
     </button>
