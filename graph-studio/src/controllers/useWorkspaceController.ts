@@ -1,3 +1,4 @@
+import type { WorkspaceControls } from "./workspaceControls";
 import { type ChangeEvent, type Dispatch, useEffect, useRef, useState } from "react";
 import { downloadJsonFile } from "../adapters/download";
 import { type RecentLocation } from "../workspace/locations";
@@ -14,7 +15,7 @@ import type { WorkspaceSession, WorkspaceFile, WorkspaceFolder } from "../worksp
 import { useRecentLocations } from "./useRecentLocations";
 import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
 
-export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch<GraphAction>; state: GraphAppState }) {
+export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch<GraphAction>; state: GraphAppState }): WorkspaceControls {
   const [workspace, setWorkspace] = useState<WorkspaceSession | null>(null);
   const { recents, remember, remove, identify } = useRecentLocations();
   const [homeVisible, setHomeVisible] = useState(true);
@@ -36,14 +37,16 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
       )
     );
   }
-  const [operations] = useState(() => createWorkspaceOperations({
-    busy: setBusy,
-    generation: () => stateRef.current.document.generation,
-    notice: (message) => {
-      setNotice(message);
-      if (message) dispatch({ type: "statusChanged", status: message });
-    },
-  }));
+  const [operations] = useState(() =>
+    createWorkspaceOperations({
+      busy: setBusy,
+      generation: () => stateRef.current.document.generation,
+      notice: (message) => {
+        setNotice(message);
+        if (message) dispatch({ type: "statusChanged", status: message });
+      },
+    }),
+  );
   useEffect(() => () => operations.invalidate(), [operations]);
   const run = operations.run;
   function commit(dag: ReturnType<typeof normalizeDagInput>, entry: WorkspaceFile, locationId: string) {
@@ -59,35 +62,61 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
     setHomeVisible(false);
   }
   async function loadFile(entry: WorkspaceFile, recentId: string | undefined, context: OperationContext) {
-    await openPreparedDocument(context, async () => {
-      const dag = await readGraphFile(entry);
-      const input = { id: recentId, kind: "file" as const, name: entry.path, location: entry.path, handle: entry.handle || undefined };
-      const id = await identify(input);
-      return { dag, input: { ...input, id } };
-    }, mayReplace, ({ dag, input }) => {
-      setWorkspace(null);
-      commit(dag, entry, input.id);
-    }, ({ input }) => remember(input));
+    await openPreparedDocument(
+      context,
+      async () => {
+        const dag = await readGraphFile(entry);
+        const input = {
+          id: recentId,
+          kind: "file" as const,
+          name: entry.path,
+          location: entry.path,
+          handle: entry.handle || undefined,
+        };
+        const id = await identify(input);
+        return { dag, input: { ...input, id } };
+      },
+      mayReplace,
+      ({ dag, input }) => {
+        setWorkspace(null);
+        commit(dag, entry, input.id);
+      },
+      ({ input }) => remember(input),
+    );
   }
   async function loadFolder(folder: WorkspaceFolder, recent: RecentLocation | undefined, context: OperationContext) {
-    await openPreparedDocument(context, async () => {
-      const prepared = await prepareWorkspace(folder, recent?.lastGraph);
-      const input = {
-        id: recent?.id, kind: "workspace" as const, name: prepared.workspace.name,
-        location: folder.handle?.name || folder.name, handle: folder.handle || undefined,
-        lastGraph: prepared.workspace.activePath || undefined, exampleId: folder.exampleId,
-      };
-      const id = await identify(input);
-      return { ...prepared, input: { ...input, id } };
-    }, mayReplace, ({ workspace: found, entry, dag, input }) => {
-      setWorkspace({ ...found, locationId: input.id });
-      setExplorerOpen(true);
-      setHomeVisible(false);
-      if (dag && entry) commit(dag, entry, input.id);
-      else dispatch({ type: "graphClosed", status: found.graphs.length
-        ? "Choose a graph from the workspace."
-        : "No graph documents found. Add a Graph Studio v3 JSON file to this folder." });
-    }, ({ input }) => remember(input));
+    await openPreparedDocument(
+      context,
+      async () => {
+        const prepared = await prepareWorkspace(folder, recent?.lastGraph);
+        const input = {
+          id: recent?.id,
+          kind: "workspace" as const,
+          name: prepared.workspace.name,
+          location: folder.handle?.name || folder.name,
+          handle: folder.handle || undefined,
+          lastGraph: prepared.workspace.activePath || undefined,
+          exampleId: folder.exampleId,
+        };
+        const id = await identify(input);
+        return { ...prepared, input: { ...input, id } };
+      },
+      mayReplace,
+      ({ workspace: found, entry, dag, input }) => {
+        setWorkspace({ ...found, locationId: input.id });
+        setExplorerOpen(true);
+        setHomeVisible(false);
+        if (dag && entry) commit(dag, entry, input.id);
+        else
+          dispatch({
+            type: "graphClosed",
+            status: found.graphs.length
+              ? "Choose a graph from the workspace."
+              : "No graph documents found. Add a Graph Studio v3 JSON file to this folder.",
+          });
+      },
+      ({ input }) => remember(input),
+    );
   }
   function selectFile(recent?: RecentLocation) {
     if (operations.isBusy()) return;
@@ -118,7 +147,11 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
     }
     void run(async (context) => {
       const handle = await window.showDirectoryPicker!({ mode: "read", id: "graph-studio-workspace" });
-      await loadFolder(await readWorkspaceDirectory(handle), recent?.location === handle.name ? recent : undefined, context);
+      await loadFolder(
+        await readWorkspaceDirectory(handle),
+        recent?.location === handle.name ? recent : undefined,
+        context,
+      );
     });
   }
   function openFile() {
@@ -189,16 +222,29 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
       return;
     }
     const folder = workspace;
-    void run((context) => openPreparedDocument(context,
-      () => prepareWorkspaceGraph(folder, path), mayReplace,
-      ({ entry, dag }) => {
-        commit(dag, entry, folder.locationId);
-        setWorkspace({ ...folder, activePath: path });
-      }, () => rememberWorkspace(folder, path)));
+    void run((context) =>
+      openPreparedDocument(
+        context,
+        () => prepareWorkspaceGraph(folder, path),
+        mayReplace,
+        ({ entry, dag }) => {
+          commit(dag, entry, folder.locationId);
+          setWorkspace({ ...folder, activePath: path });
+        },
+        () => rememberWorkspace(folder, path),
+      ),
+    );
   }
   function rememberWorkspace(folder: WorkspaceSession, path: string) {
-    remember({ id: folder.locationId, kind: "workspace", name: folder.name, location: folder.rootName,
-      handle: folder.handle || undefined, lastGraph: path, exampleId: folder.exampleId });
+    remember({
+      id: folder.locationId,
+      kind: "workspace",
+      name: folder.name,
+      location: folder.rootName,
+      handle: folder.handle || undefined,
+      lastGraph: path,
+      exampleId: folder.exampleId,
+    });
   }
 
   async function createGraph(input: string): Promise<boolean> {
@@ -300,4 +346,4 @@ export function useWorkspaceController({ dispatch, state }: { dispatch: Dispatch
   };
 }
 
-export type WorkspaceControls = ReturnType<typeof useWorkspaceController>;
+

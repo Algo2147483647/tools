@@ -283,33 +283,6 @@
   opacity: 0.5;
   cursor: wait;
 }
- {
-  align-items: center;
-  gap: 5px;
-  margin: 2px 0 7px;
-  box-shadow:
-    inset 0 1px 0 #fff,
-    0 3px 9px #36578208;
-  border-color: #668cdb70;
-  flex-shrink: 0;
-  margin-right: 3px;
-  width: 0;
-  min-width: 0;
-  outline: none;
-  font:
-    12px/1.5 "Segoe UI",
-    sans-serif;
-  display: grid;
-  place-items: center;
-  flex: 0 0 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  border-radius: 7px;
-  cursor: pointer;
-  background: #ffffffc9;
-  color: var(--studio-accent);
-}
 .welcome-screen {
   flex: 1;
   min-height: 0;

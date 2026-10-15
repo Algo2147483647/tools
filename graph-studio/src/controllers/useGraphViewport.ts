@@ -10,14 +10,29 @@ import { useGraphLayout } from "./useGraphLayout";
 import { useGraphNavigation } from "./useGraphNavigation";
 import { useGraphInteractions } from "./useGraphInteractions";
 interface ViewportInput {
-  state: GraphAppState; dispatch: Dispatch<GraphAction>;
-  showNodeDetail: boolean; alignNodeWidthsToMax: boolean;
-  closeContextMenu(): void; openNodeDetail(key: string): void;
+  state: GraphAppState;
+  dispatch: Dispatch<GraphAction>;
+  showNodeDetail: boolean;
+  alignNodeWidthsToMax: boolean;
+  closeContextMenu(): void;
+  openNodeDetail(key: string): void;
 }
-export function useGraphViewport({ state, dispatch, showNodeDetail, alignNodeWidthsToMax, closeContextMenu, openNodeDetail }: ViewportInput, appearance: GraphAppearance) {
+export function useGraphViewport(
+  { state, dispatch, showNodeDetail, alignNodeWidthsToMax, closeContextMenu, openNodeDetail }: ViewportInput,
+  appearance: GraphAppearance,
+) {
   const navigation = useGraphNavigation(state, dispatch, (key) => zoom.captureLayoutAnchor(key));
   const { compound, activeType, activeTrack, activeTimelineRange } = navigation;
-  const { stage, status, parentSelection, timelineView, compoundLayout } = useGraphLayout({ state, appearance, compound, activeType, activeTrack, activeTimelineRange, showNodeDetail, alignNodeWidthsToMax });
+  const { stage, status, parentSelection, timelineView, compoundLayout } = useGraphLayout({
+    state,
+    appearance,
+    compound,
+    activeType,
+    activeTrack,
+    activeTimelineRange,
+    showNodeDetail,
+    alignNodeWidthsToMax,
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const topbarRef = useRef<HTMLElement>(null);
@@ -55,8 +70,16 @@ export function useGraphViewport({ state, dispatch, showNodeDetail, alignNodeWid
   useResizeObserver(topbarRef, handleChromeResize);
   useGraphPan({ containerRef, enabled: Boolean(stage), onPanStart: closeContextMenu });
 
-
-  const interactions = useGraphInteractions({ state, dispatch, activeType, stage, openNodeDetail, setFocusedKey: navigation.setFocusedKey, enterGroup: navigation.enterGroup, focusGroupId: compound.view.focusGroupId });
+  const interactions = useGraphInteractions({
+    state,
+    dispatch,
+    activeType,
+    stage,
+    openNodeDetail,
+    setFocusedKey: navigation.setFocusedKey,
+    enterGroup: navigation.enterGroup,
+    focusGroupId: compound.view.focusGroupId,
+  });
   return {
     timelineSettings: state.timelineSettings,
     changeTimelineSettings: (patch: Partial<TimelineViewSettings>) =>
@@ -67,10 +90,19 @@ export function useGraphViewport({ state, dispatch, showNodeDetail, alignNodeWid
         ? (key: string, x: number) =>
             dispatch({ type: "timelineSettingsChanged", patch: { pins: { ...state.timelineSettings.pins, [key]: x } } })
         : undefined,
-    ...navigation, ...interactions,
-    compoundLayout, containerRef, svgRef, topbarRef, stage, status,
+    ...navigation,
+    ...interactions,
+    compoundLayout,
+    containerRef,
+    svgRef,
+    topbarRef,
+    stage,
+    status,
     up: () => navigation.up(parentSelection),
-    showAll: () => { navigation.showAll(); timelineView.reset(); },
+    showAll: () => {
+      navigation.showAll();
+      timelineView.reset();
+    },
     zoom,
     canBack:
       state.chartType === "compound"

@@ -1,6 +1,6 @@
 import type { GraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
-import type { ChartStyle, ChartStyles } from "./chartStyles";
+import { mapChartTypes, type ChartStyle, type ChartStyles } from "./chartStyles";
 
 interface AppearanceTransaction {
   label: string;
@@ -14,7 +14,10 @@ interface AppearanceHistory extends ChartStyle {
 }
 
 type AppearanceHistoryAction =
-  { type: "commit"; appearance: GraphAppearance; label: string } | { type: "undo" } | { type: "redo" } | { type: "toggleDisplay"; key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax" };
+  | { type: "commit"; appearance: GraphAppearance; label: string }
+  | { type: "undo" }
+  | { type: "redo" }
+  | { type: "toggleDisplay"; key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax" };
 
 function createAppearanceHistory(style: ChartStyle): AppearanceHistory {
   return { ...style, undoStack: [], redoStack: [] };
@@ -23,12 +26,14 @@ function createAppearanceHistory(style: ChartStyle): AppearanceHistory {
 type ChartPreferencesState = Record<GraphChartType, AppearanceHistory>;
 
 export function createChartPreferences(styles: ChartStyles): ChartPreferencesState {
-  return {
-    "node-link": createAppearanceHistory(styles["node-link"]),
-    sankey: createAppearanceHistory(styles.sankey),
-    compound: createAppearanceHistory(styles.compound),
-    timeline: createAppearanceHistory(styles.timeline),
-  };
+  return mapChartTypes((type) => createAppearanceHistory(styles[type]));
+}
+
+export function getChartStyles(state: ChartPreferencesState): ChartStyles {
+  return mapChartTypes((type) => {
+    const { undoStack: _undo, redoStack: _redo, ...style } = state[type];
+    return style;
+  });
 }
 
 export function chartPreferencesReducer(
@@ -46,7 +51,12 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
     case "commit": {
       if (JSON.stringify(state.appearance) === JSON.stringify(action.appearance)) return state;
       const transaction = { label: action.label, before: state.appearance, after: action.appearance };
-      return { ...state, appearance: action.appearance, undoStack: [...state.undoStack, transaction].slice(-100), redoStack: [] };
+      return {
+        ...state,
+        appearance: action.appearance,
+        undoStack: [...state.undoStack, transaction].slice(-100),
+        redoStack: [],
+      };
     }
     case "undo": {
       const transaction = state.undoStack.at(-1);

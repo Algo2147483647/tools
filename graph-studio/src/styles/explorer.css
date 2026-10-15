@@ -23,13 +23,61 @@
   flex-shrink: 0;
   color: #5b78ab;
 }
+.explorer-search {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0 13px 16px;
+  padding: 7px 9px;
+  color: #93a0b2;
+  background: #ffffff7a;
+  border: 1px solid #b6c1d438;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 3px #273b5910,
+    0 1px 0 #ffffffb3;
+}
 .explorer-search input {
   width: 100%;
+}
+.explorer-file {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 9px;
+  padding: 9px;
+  border: 1px solid transparent;
+  background: none;
+  color: #597089;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-bottom: 3px;
 }
 .explorer-files {
   overflow: auto;
   flex: 1;
   padding: 0 8px 18px;
+}
+.explorer-heading {
+  padding: 18px 13px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  padding-top: 20px;
+  color: #788397;
+  letter-spacing: 0.9px;
+}
+.explorer-heading button {
+  display: flex;
+  border: 0;
+  padding: 4px;
+  background: none;
+  color: #69798e;
+  cursor: pointer;
+  border-radius: 6px;
 }
 .explorer-heading button[aria-expanded="true"] {
   color: var(--studio-accent);
@@ -43,6 +91,23 @@
 .explorer-heading button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+.workspace-explorer {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--studio-border);
+  overflow: hidden;
+  font-size: 12px;
+  position: relative;
+  border: 1px solid var(--glass-edge);
+  border-radius: 14px;
+  background: linear-gradient(150deg, #ffffffe0, #f3f6fba6);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(32px) saturate(145%);
+  -webkit-backdrop-filter: blur(32px) saturate(145%);
+  width: 242px;
+  flex: 0 1 242px;
+  min-width: 180px;
 }
 .workspace-explorer .compound-panel {
   width: 100%;
@@ -122,6 +187,14 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.workspace-explorer footer {
+  padding: 16px;
+  border-top: 1px solid var(--studio-border);
+  color: #6d7c91;
+  font-size: 10px;
+  background: #ffffff26;
+  border-color: #a5b1c426;
+}
 .workspace-explorer footer small {
   display: block;
   margin-top: 7px;
@@ -178,73 +251,8 @@
 .workspace-overview-cards span {
   font-size: 11px;
 }
-.workspace-explorer {
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--studio-border);
-  overflow: hidden;
-  font-size: 12px;
-  position: relative;
-  border: 1px solid var(--glass-edge);
-  border-radius: 14px;
-  background: linear-gradient(150deg, #ffffffe0, #f3f6fba6);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(32px) saturate(145%);
-  -webkit-backdrop-filter: blur(32px) saturate(145%);
-  width: 242px;
-  flex: 0 1 242px;
-  min-width: 180px;
-}
-.explorer-heading {
-  padding: 18px 13px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  padding-top: 20px;
-  color: #788397;
-  letter-spacing: 0.9px;
-}
-.explorer-heading button {
-  display: flex;
-  border: 0;
-  padding: 4px;
-  background: none;
-  color: #69798e;
-  cursor: pointer;
-  border-radius: 6px;
-}
 .explorer-heading button:hover {
   background: #ffffffa6;
-}
-.explorer-search {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin: 0 13px 16px;
-  padding: 7px 9px;
-  color: #93a0b2;
-  background: #ffffff7a;
-  border: 1px solid #b6c1d438;
-  border-radius: 10px;
-  box-shadow:
-    inset 0 1px 3px #273b5910,
-    0 1px 0 #ffffffb3;
-}
-.explorer-file {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  text-align: left;
-  gap: 9px;
-  padding: 9px;
-  border: 1px solid transparent;
-  background: none;
-  color: #597089;
-  cursor: pointer;
-  border-radius: 10px;
-  margin-bottom: 3px;
 }
 .explorer-file:hover {
   background: #ffffff8c;
@@ -256,14 +264,6 @@
   box-shadow:
     inset 0 1px 0 #fff,
     0 3px 9px #36578210;
-}
-.workspace-explorer footer {
-  padding: 16px;
-  border-top: 1px solid var(--studio-border);
-  color: #6d7c91;
-  font-size: 10px;
-  background: #ffffff26;
-  border-color: #a5b1c426;
 }
 @media (max-width: 700px) {
   .workspace-explorer {

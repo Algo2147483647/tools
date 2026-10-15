@@ -1,11 +1,47 @@
 /* Shared icon buttons, text inputs, inline forms and standard buttons. */
-.studio-icon { flex-shrink: 0; vertical-align: middle; }
-.icon-button-content { display: inline-flex; align-items: center; justify-content: center; }
-.icon-button--quiet { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 4px; border: 0; border-radius: 6px; background: transparent; color: var(--studio-muted); cursor: pointer; }
-.icon-button--quiet:hover:not(:disabled) { background: #ffffffa6; color: var(--studio-accent); }
-.icon-button--quiet:disabled { opacity: .5; cursor: default; }
-.inline-input { min-width: 0; border: 0; outline: none; background: transparent; color: var(--studio-ink); font: 12px/1.5 "Segoe UI", sans-serif; }
-.inline-input::placeholder { color: #93a0b2; }
+.studio-icon {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.icon-button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-button--quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--studio-muted);
+  cursor: pointer;
+}
+.icon-button--quiet:hover:not(:disabled) {
+  background: #ffffffa6;
+  color: var(--studio-accent);
+}
+.icon-button--quiet:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.inline-input {
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--studio-ink);
+  font:
+    12px/1.5 "Segoe UI",
+    sans-serif;
+}
+.inline-input::placeholder {
+  color: #93a0b2;
+}
 .inline-name-form {
   display: flex;
   align-items: center;
@@ -32,31 +68,13 @@
   width: 0;
   padding: 4px 0;
 }
-.inline-name-form input::placeholder {
-  color: #93a0b2;
-}
 .inline-name-form button {
-  display: grid;
-  place-items: center;
   flex: 0 0 24px;
-  height: 24px;
   padding: 0;
-  border: 0;
   border-radius: 7px;
-  background: transparent;
-  color: var(--studio-muted);
-  cursor: pointer;
-}
-.inline-name-form button:hover:not(:disabled) {
-  background: #ffffffc9;
-  color: var(--studio-accent);
 }
 .inline-name-form .inline-name-confirm {
   color: var(--studio-accent);
-}
-.inline-name-form button:disabled {
-  opacity: 0.5;
-  cursor: default;
 }
 .studio-button {
   display: inline-flex;

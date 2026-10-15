@@ -1,6 +1,6 @@
 import Icon from "../ui/Icon";
 import type { RecentLocation } from "../../workspace/locations";
-import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
+import type { WorkspaceControls } from "../../controllers/workspaceControls";
 
 export default function GeneralSettings({
   files,

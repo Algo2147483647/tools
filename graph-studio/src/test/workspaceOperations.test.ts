@@ -7,34 +7,70 @@ import { defineSuite, defineTest } from "./harness";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => { resolve = done; });
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
   return { promise, resolve };
 }
-const location: RecentLocation = { id: "folder", kind: "workspace", name: "tmp", location: "tmp", openedAt: 1, canReopen: true,
-  handle: { name: "tmp", isSameEntry: async () => true } as unknown as FileSystemDirectoryHandle };
+const location: RecentLocation = {
+  id: "folder",
+  kind: "workspace",
+  name: "tmp",
+  location: "tmp",
+  openedAt: 1,
+  canReopen: true,
+  handle: { name: "tmp", isSameEntry: async () => true } as unknown as FileSystemDirectoryHandle,
+};
 
 export const workspaceOperationsSuite = defineSuite("Workspace operation lifecycle", [
-  defineTest("opening releases busy state before optional persistence and consecutive creations retain both records", async () => {
-    const pending = deferred<void>();
-    let busy = false;
-    const store = createRecentLocationsStore({ readMetadata: () => [], writeMetadata: () => {},
-      readIdentities: async () => [], writeIdentity: () => pending.promise });
-    const operations = createWorkspaceOperations({ busy: (value) => { busy = value; }, notice: () => {}, generation: () => 0 });
-    const opened: string[] = [];
-    for (const id of ["B", "C"]) {
-      await operations.run((context) => openPreparedDocument(context, async () => id, () => true,
-        (name) => { opened.push(name); }, (name) => store.remember({ ...location, id: name })));
-      assert.equal(busy, false);
-      assert.equal(operations.isBusy(), false);
-    }
-    assert.deepEqual(opened, ["B", "C"]);
-    assert.equal(store.getSnapshot().length, 2);
-    pending.resolve();
-  }),
+  defineTest(
+    "opening releases busy state before optional persistence and consecutive creations retain both records",
+    async () => {
+      const pending = deferred<void>();
+      let busy = false;
+      const store = createRecentLocationsStore({
+        readMetadata: () => [],
+        writeMetadata: () => {},
+        readIdentities: async () => [],
+        writeIdentity: () => pending.promise,
+      });
+      const operations = createWorkspaceOperations({
+        busy: (value) => {
+          busy = value;
+        },
+        notice: () => {},
+        generation: () => 0,
+      });
+      const opened: string[] = [];
+      for (const id of ["B", "C"]) {
+        await operations.run((context) =>
+          openPreparedDocument(
+            context,
+            async () => id,
+            () => true,
+            (name) => {
+              opened.push(name);
+            },
+            (name) => store.remember({ ...location, id: name }),
+          ),
+        );
+        assert.equal(busy, false);
+        assert.equal(operations.isBusy(), false);
+      }
+      assert.deepEqual(opened, ["B", "C"]);
+      assert.equal(store.getSnapshot().length, 2);
+      pending.resolve();
+    },
+  ),
   defineTest("cancelled replacement never commits or records the candidate", async () => {
     const events: string[] = [];
-    const result = await openPreparedDocument({ isCurrent: () => true }, async () => "A", () => false,
-      () => events.push("commit"), () => events.push("remember"));
+    const result = await openPreparedDocument(
+      { isCurrent: () => true },
+      async () => "A",
+      () => false,
+      () => events.push("commit"),
+      () => events.push("remember"),
+    );
     assert.equal(result, false);
     assert.deepEqual(events, []);
   }),
@@ -43,9 +79,23 @@ export const workspaceOperationsSuite = defineSuite("Workspace operation lifecyc
     let generation = 1;
     let commits = 0;
     const operations = createWorkspaceOperations({ busy: () => {}, notice: () => {}, generation: () => generation });
-    const first = operations.run((context) => openPreparedDocument(context, () => prepared.promise, () => true,
-      () => { commits++; }, () => {}));
-    assert.equal(await operations.run(async () => { commits++; }), undefined);
+    const first = operations.run((context) =>
+      openPreparedDocument(
+        context,
+        () => prepared.promise,
+        () => true,
+        () => {
+          commits++;
+        },
+        () => {},
+      ),
+    );
+    assert.equal(
+      await operations.run(async () => {
+        commits++;
+      }),
+      undefined,
+    );
     generation++;
     prepared.resolve("old");
     await first;
@@ -54,17 +104,33 @@ export const workspaceOperationsSuite = defineSuite("Workspace operation lifecyc
   }),
   defineTest("picker cancellation and errors both unlock the next operation", async () => {
     const notices: string[] = [];
-    const operations = createWorkspaceOperations({ busy: () => {}, notice: (value) => notices.push(value), generation: () => 0 });
-    await operations.run(async () => { throw new DOMException("cancelled", "AbortError"); });
-    await operations.run(async () => { throw new Error("write failed"); });
+    const operations = createWorkspaceOperations({
+      busy: () => {},
+      notice: (value) => notices.push(value),
+      generation: () => 0,
+    });
+    await operations.run(async () => {
+      throw new DOMException("cancelled", "AbortError");
+    });
+    await operations.run(async () => {
+      throw new Error("write failed");
+    });
     assert.deepEqual(notices, ["", "", "write failed"]);
     assert.equal(await operations.run(async () => "ready"), "ready");
   }),
   defineTest("removal preserves identity across hydration and a simulated reload", async () => {
     let metadata: RecentLocation[] = [location];
     const persisted = new Map([[location.id, location]]);
-    const ports = { readMetadata: () => metadata, writeMetadata: (items: RecentLocation[]) => { metadata = items; },
-      readIdentities: async () => [...persisted.values()], writeIdentity: async (item: RecentLocation) => { persisted.set(item.id, item); } };
+    const ports = {
+      readMetadata: () => metadata,
+      writeMetadata: (items: RecentLocation[]) => {
+        metadata = items;
+      },
+      readIdentities: async () => [...persisted.values()],
+      writeIdentity: async (item: RecentLocation) => {
+        persisted.set(item.id, item);
+      },
+    };
     const store = createRecentLocationsStore(ports);
     const hydrating = store.hydrate();
     store.remove(location.id);
@@ -79,6 +145,9 @@ export const workspaceOperationsSuite = defineSuite("Workspace operation lifecyc
     const handle = { name: "tmp", isSameEntry: async () => false } as unknown as FileSystemDirectoryHandle;
     assert.notEqual(await resolveLocationIdentity({ ...location, handle }, [location]), location.id);
     assert.notEqual(await resolveLocationIdentity({ ...location, id: undefined, handle }, [location]), location.id);
-    assert.equal(await resolveLocationIdentity({ ...location, handle }, [{ ...location, handle: undefined }]), location.id);
+    assert.equal(
+      await resolveLocationIdentity({ ...location, handle }, [{ ...location, handle: undefined }]),
+      location.id,
+    );
   }),
 ]);

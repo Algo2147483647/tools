@@ -9,15 +9,16 @@ import {
 } from "../graph/appearance";
 import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
-import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
+import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { sanitizeTimelineChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
 
 export function useChartPreferences(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
   const [histories, updateHistories] = useReducer(chartPreferencesReducer, styles, createChartPreferences);
   const history = histories[chartType];
-  const chartStyles = useMemo(() => Object.fromEntries(Object.entries(histories).map(([type, { undoStack: _undo, redoStack: _redo, ...style }]) => [type, style])) as ChartStyles, [histories]);
-  const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") => updateHistories({ chartType, action: { type: "toggleDisplay", key } });
+  const chartStyles = useMemo(() => getChartStyles(histories), [histories]);
+  const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") =>
+    updateHistories({ chartType, action: { type: "toggleDisplay", key } });
   const { appearance } = history;
   const commitAppearance = useCallback(
     (nextAppearance: GraphAppearance, label: string) => {

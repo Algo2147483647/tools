@@ -18,22 +18,37 @@ export function parseRecentMetadata(value: string | null): RecentLocation[] {
   try {
     const items: unknown = JSON.parse(value || "[]");
     if (!Array.isArray(items)) return [];
-    return items.filter((item) => item && typeof item.id === "string" &&
-      ["file", "workspace"].includes(item.kind) && typeof item.name === "string" &&
-      typeof item.location === "string" && Number.isFinite(item.openedAt))
+    return items
+      .filter(
+        (item) =>
+          item &&
+          typeof item.id === "string" &&
+          ["file", "workspace"].includes(item.kind) &&
+          typeof item.name === "string" &&
+          typeof item.location === "string" &&
+          Number.isFinite(item.openedAt),
+      )
       .map(({ id, kind, name, location, openedAt, lastGraph, exampleId }) => ({
-        id, kind, name, location, openedAt,
+        id,
+        kind,
+        name,
+        location,
+        openedAt,
         lastGraph: typeof lastGraph === "string" ? lastGraph : undefined,
         exampleId: isExampleId(exampleId) ? exampleId : undefined,
         canReopen: isExampleId(exampleId),
       }))
-      .sort((a, b) => b.openedAt - a.openedAt).slice(0, RECENT_LIMIT);
-  } catch { return []; }
+      .sort((a, b) => b.openedAt - a.openedAt)
+      .slice(0, RECENT_LIMIT);
+  } catch {
+    return [];
+  }
 }
 
 export function rankRecentLocations(items: RecentLocation[], incoming: RecentLocation): RecentLocation[] {
   return [incoming, ...items.filter((item) => item.id !== incoming.id)]
-    .sort((a, b) => b.openedAt - a.openedAt).slice(0, RECENT_LIMIT);
+    .sort((a, b) => b.openedAt - a.openedAt)
+    .slice(0, RECENT_LIMIT);
 }
 
 export function hydrateRecentLocations(items: RecentLocation[], identities: RecentLocation[]): RecentLocation[] {

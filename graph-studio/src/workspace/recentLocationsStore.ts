@@ -17,15 +17,22 @@ export function createRecentLocationsStore(ports: RecentLocationPorts) {
   let hydration: Promise<void> | undefined;
   const publish = () => listeners.forEach((listener) => listener());
   function hydrate() {
-    return hydration ??= ports.readIdentities().then((stored) => {
-      for (const item of stored) if (!identities.get(item.id)?.handle) identities.set(item.id, item);
-      // Read the current list, so delayed hydration cannot resurrect removals.
-      items = hydrateRecentLocations(items, [...identities.values()]);
-      publish();
-    }).catch(() => {});
+    return (hydration ??= ports
+      .readIdentities()
+      .then((stored) => {
+        for (const item of stored) if (!identities.get(item.id)?.handle) identities.set(item.id, item);
+        // Read the current list, so delayed hydration cannot resurrect removals.
+        items = hydrateRecentLocations(items, [...identities.values()]);
+        publish();
+      })
+      .catch(() => {}));
   }
   function remember(input: LocationInput & { id: string }) {
-    const next: RecentLocation = { ...input, openedAt: Date.now(), canReopen: Boolean(input.handle || input.exampleId) };
+    const next: RecentLocation = {
+      ...input,
+      openedAt: Date.now(),
+      canReopen: Boolean(input.handle || input.exampleId),
+    };
     identities.set(next.id, next);
     items = rankRecentLocations(items, next);
     ports.writeMetadata(items);
@@ -34,7 +41,12 @@ export function createRecentLocationsStore(ports: RecentLocationPorts) {
   }
   return {
     getSnapshot: () => items,
-    subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    subscribe(listener: () => void) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
     hydrate,
     async identify(input: LocationInput) {
       if (input.handle) await hydrate();

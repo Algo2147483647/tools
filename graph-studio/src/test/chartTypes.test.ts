@@ -12,7 +12,7 @@ import { getGraphRenderMode } from "../graph/types";
 import { getNodeLocatePoint } from "../hooks/useGraphZoom";
 import { buildStageData } from "../layout/stage-layout";
 import { buildTimelineStage } from "../layout/timeline-layout";
-import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
+import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { createChartStyles } from "../state/chartStyles";
 import { graphReducer } from "../state/graphReducer";
 import { prepareGraphTransaction } from "../state/graphTransactions";
@@ -34,6 +34,21 @@ const graph = (value: number | string = 10) =>
   });
 
 export const chartTypesSuite = defineSuite("chart types and independent styles", [
+  defineTest("display preferences survive appearance undo and persist without history stacks", () => {
+    let state = createChartPreferences(createChartStyles());
+    state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "toggleDisplay", key: "showNodeDetail" } });
+    const appearance = sanitizeGraphAppearance({ cssVars: { "--dag-text-strong": "#123456" } });
+    state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "commit", appearance, label: "Color" } });
+    state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "undo" } });
+    assert.equal(state["node-link"].showNodeDetail, false);
+    assert.equal(state.sankey.showNodeDetail, true);
+    state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "redo" } });
+    const persisted = getChartStyles(state);
+    assert.equal(persisted["node-link"].showNodeDetail, false);
+    assert.equal("undoStack" in persisted["node-link"], false);
+    assert.equal("redoStack" in persisted["node-link"], false);
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: persisted }))?.chartStyles, persisted);
+  }),
   defineTest("timeline hints open every event without changing v3 diagram semantics", () => {
     const source = normalizeDagInput({
       format: "graph-studio",

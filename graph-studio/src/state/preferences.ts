@@ -1,7 +1,7 @@
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { AiProvider, AiSettings } from "../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
-import { type ChartStyles, createChartStyles, sanitizeChartStyle, sanitizeTimelineChartStyle } from "./chartStyles";
+import { type ChartStyles, mapChartTypes, createChartStyles, sanitizeChartStyle, sanitizeTimelineChartStyle } from "./chartStyles";
 import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
@@ -125,12 +125,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   // Preserve the formerly shared style for both types on first migration.
   if (parsed.chartStyles && typeof parsed.chartStyles === "object" && !Array.isArray(parsed.chartStyles)) {
     const styles = parsed.chartStyles as Record<string, unknown>;
-    next.chartStyles = {
-      "node-link": sanitizeChartStyle(styles["node-link"]),
-      sankey: sanitizeChartStyle(styles.sankey),
-      compound: sanitizeChartStyle(styles.compound),
-      timeline: sanitizeTimelineChartStyle(styles.timeline),
-    };
+    next.chartStyles = mapChartTypes((type) => type === "timeline" ? sanitizeTimelineChartStyle(styles[type]) : sanitizeChartStyle(styles[type]));
   } else if (
     parsed.appearance ||
     [parsed.showNodeDetail, parsed.hideNodeBorders, parsed.alignNodeWidthsToMax].some(

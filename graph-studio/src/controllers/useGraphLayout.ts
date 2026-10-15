@@ -12,11 +12,25 @@ import { type StageAppearance, getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
 import type { GraphAppState } from "../state/initialState";
 interface LayoutInput {
-  state: GraphAppState; appearance: GraphAppearance; compound: { view: CompoundView };
-  activeType: string; activeTrack: string; activeTimelineRange: TimelineTimeRange | null;
-  showNodeDetail: boolean; alignNodeWidthsToMax: boolean;
+  state: GraphAppState;
+  appearance: GraphAppearance;
+  compound: { view: CompoundView };
+  activeType: string;
+  activeTrack: string;
+  activeTimelineRange: TimelineTimeRange | null;
+  showNodeDetail: boolean;
+  alignNodeWidthsToMax: boolean;
 }
-export function useGraphLayout({ state, appearance, compound, activeType, activeTrack, activeTimelineRange, showNodeDetail, alignNodeWidthsToMax }: LayoutInput) {
+export function useGraphLayout({
+  state,
+  appearance,
+  compound,
+  activeType,
+  activeTrack,
+  activeTimelineRange,
+  showNodeDetail,
+  alignNodeWidthsToMax,
+}: LayoutInput) {
   const displayDag = useMemo(
     () =>
       state.dag && state.chartType !== "compound"
@@ -128,7 +142,6 @@ export function useGraphLayout({ state, appearance, compound, activeType, active
     compoundLayout.loading,
     compoundLayout.error,
   ]);
-
 
   return { stage, status, parentSelection, timelineView, compoundLayout };
 }

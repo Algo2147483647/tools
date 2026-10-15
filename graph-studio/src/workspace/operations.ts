@@ -14,7 +14,9 @@ export function createWorkspaceOperations(ports: WorkspaceOperationPorts) {
   let epoch = 0;
   return {
     isBusy: () => locked,
-    invalidate() { epoch++; },
+    invalidate() {
+      epoch++;
+    },
     async run<T>(action: (context: OperationContext) => Promise<T>): Promise<T | undefined> {
       if (locked) return undefined;
       locked = true;
@@ -23,8 +25,9 @@ export function createWorkspaceOperations(ports: WorkspaceOperationPorts) {
       const isCurrent = () => token === epoch && generation === ports.generation();
       ports.busy(true);
       ports.notice("");
-      try { return await action({ isCurrent }); }
-      catch (error) {
+      try {
+        return await action({ isCurrent });
+      } catch (error) {
         if (isCurrent() && !(error instanceof Error && error.name === "AbortError"))
           ports.notice(error instanceof Error ? error.message : String(error));
       } finally {

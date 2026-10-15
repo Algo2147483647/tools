@@ -13,7 +13,12 @@ import type { GraphTransactionsController } from "./useGraphTransactions";
 import type { GraphViewportController } from "./useGraphViewport";
 
 export function useNodeActions(
-  session: { state: GraphAppState; dispatch: Dispatch<GraphAction>; openNodeDetail(key: string): void; closeModals(): void },
+  session: {
+    state: GraphAppState;
+    dispatch: Dispatch<GraphAction>;
+    openNodeDetail(key: string): void;
+    closeModals(): void;
+  },
   transactions: Pick<GraphTransactionsController, "commitCommand" | "commitCommands">,
   viewport: Pick<GraphViewportController, "enterGroup" | "toggleGroup" | "compound">,
 ) {

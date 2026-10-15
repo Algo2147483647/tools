@@ -1,12 +1,19 @@
 import assert from "node:assert/strict";
-import { browserRecentLocations, readRecentMetadata, readLocationIdentities, writeLocationIdentity } from "../adapters/recentStorage";
+import {
+  browserRecentLocations,
+  readRecentMetadata,
+  readLocationIdentities,
+  writeLocationIdentity,
+} from "../adapters/recentStorage";
 import { hydrateRecentLocations, type LocationInput, type RecentLocation } from "../workspace/locations";
 import { createRecentLocationsStore } from "../workspace/recentLocationsStore";
 async function rememberLocation(input: LocationInput, known: RecentLocation[]) {
   let persisted = Promise.resolve();
-  const store = createRecentLocationsStore({ ...browserRecentLocations,
-    readMetadata: () => known, readIdentities: async () => [],
-    writeIdentity: (item) => persisted = writeLocationIdentity(item),
+  const store = createRecentLocationsStore({
+    ...browserRecentLocations,
+    readMetadata: () => known,
+    readIdentities: async () => [],
+    writeIdentity: (item) => (persisted = writeLocationIdentity(item)),
   });
   const id = input.id || (await store.identify(input));
   store.remember({ ...input, id });
@@ -274,4 +281,3 @@ export const recentStorageSuite = defineSuite("Local workspace recent storage fa
     );
   }),
 ]);
-

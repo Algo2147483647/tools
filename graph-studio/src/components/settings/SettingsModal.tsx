@@ -6,7 +6,7 @@ import type { AiSettings } from "../../ai/types";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
-import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
+import type { WorkspaceControls } from "../../controllers/workspaceControls";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
 import AppearanceSettings from "./AppearanceSettings";
 import GeneralSettings from "./GeneralSettings";

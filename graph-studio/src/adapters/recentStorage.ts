@@ -6,16 +6,30 @@ const STORE = "locations";
 const STORAGE_KEY = "graph-studio:recent-locations";
 const STORAGE_TIMEOUT_MS = 1000;
 let pendingWrites: Promise<void> = Promise.resolve();
-interface StorageLike { getItem(key: string): string | null; setItem(key: string, value: string): void; }
+interface StorageLike {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+}
 function browserStorage(): StorageLike | null {
-  try { return typeof window === "undefined" ? null : window.localStorage; } catch { return null; }
+  try {
+    return typeof window === "undefined" ? null : window.localStorage;
+  } catch {
+    return null;
+  }
 }
 export function readRecentMetadata(storage: StorageLike | null = browserStorage()): RecentLocation[] {
-  try { return parseRecentMetadata(storage?.getItem(STORAGE_KEY) ?? null); } catch { return []; }
+  try {
+    return parseRecentMetadata(storage?.getItem(STORAGE_KEY) ?? null);
+  } catch {
+    return [];
+  }
 }
 export function writeRecentMetadata(items: RecentLocation[]) {
-  try { browserStorage()?.setItem(STORAGE_KEY, JSON.stringify(items.map(({ handle: _handle, ...item }) => item))); }
-  catch { /* Recent history is optional. */ }
+  try {
+    browserStorage()?.setItem(STORAGE_KEY, JSON.stringify(items.map(({ handle: _handle, ...item }) => item)));
+  } catch {
+    /* Recent history is optional. */
+  }
 }
 async function database(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -84,11 +98,19 @@ async function storeRequest<T>(
 }
 
 export async function readLocationIdentities(): Promise<RecentLocation[]> {
-  try { return await storeRequest("readonly", (store) => store.getAll()); } catch { return []; }
+  try {
+    return await storeRequest("readonly", (store) => store.getAll());
+  } catch {
+    return [];
+  }
 }
 export function writeLocationIdentity(item: RecentLocation): Promise<void> {
   pendingWrites = pendingWrites.then(async () => {
-    try { await storeRequest("readwrite", (store) => store.put(item)); } catch { /* Keep the live identity. */ }
+    try {
+      await storeRequest("readwrite", (store) => store.put(item));
+    } catch {
+      /* Keep the live identity. */
+    }
   });
   return pendingWrites;
 }

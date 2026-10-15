@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
 import type { PreferencesController } from "../controllers/usePreferencesController";
-import type { WorkspaceControls } from "../controllers/useWorkspaceController";
+import type { WorkspaceControls } from "../controllers/workspaceControls";
 import type { StudioUiController } from "../controllers/useStudioUi";
 import { useWorkspacePreview } from "../controllers/useWorkspacePreview";
 import { useSidebarResize } from "../hooks/useSidebarResize";
@@ -44,7 +44,10 @@ interface StudioViewProps {
 
 export default function StudioView({
   session,
-  preferences, ui, files, onInitializeCanvas,
+  preferences,
+  ui,
+  files,
+  onInitializeCanvas,
   transactions,
   consoleController,
   ai,
@@ -56,9 +59,14 @@ export default function StudioView({
   const { filePreview, relativeLinkRoot } = preview;
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
-  const resizeSidebar = useSidebarResize(state.ui.consoleSidebarWidth, (width) => dispatch({ type: "consoleSidebarWidthChanged", width }));
+  const resizeSidebar = useSidebarResize(state.ui.consoleSidebarWidth, (width) =>
+    dispatch({ type: "consoleSidebarWidthChanged", width }),
+  );
   function exportSvg() {
-    if (!viewport.svgRef.current) { dispatch({ type: "statusChanged", status: "Render a DAG first, then export the SVG." }); return; }
+    if (!viewport.svgRef.current) {
+      dispatch({ type: "statusChanged", status: "Render a DAG first, then export the SVG." });
+      return;
+    }
     downloadSvg(viewport.svgRef.current);
     dispatch({ type: "statusChanged", status: "Exported current view as dag-graph.svg." });
   }

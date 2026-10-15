@@ -1,5 +1,5 @@
 import Icon from "../ui/Icon";
-import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
+import type { WorkspaceControls } from "../../controllers/workspaceControls";
 import ExampleGallery from "./ExampleGallery";
 import RecentProjects from "./RecentProjects";
 

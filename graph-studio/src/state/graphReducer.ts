@@ -74,8 +74,10 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         },
       };
     }
-    case "undoRequested": return traverseEditHistory(state, "undo");
-    case "redoRequested": return traverseEditHistory(state, "redo");
+    case "undoRequested":
+      return traverseEditHistory(state, "undo");
+    case "redoRequested":
+      return traverseEditHistory(state, "redo");
     case "layoutModeChanged":
       if (state.chartType !== "node-link") return state;
       return {

@@ -22,15 +22,54 @@ export default function App() {
   const { charts } = preferences;
   const { appearance } = charts;
   const transactions = useGraphTransactions({ state, dispatch, appearanceHistory: charts });
-  const consoleController = useConsoleController({ state, appearance, transactions,
-    commitAppearance: charts.commitAppearance, openNodeDetail: ui.openNodeDetail });
+  const consoleController = useConsoleController({
+    state,
+    appearance,
+    transactions,
+    commitAppearance: charts.commitAppearance,
+    openNodeDetail: ui.openNodeDetail,
+  });
   const ai = useAiController({ state, dispatch, appearance, settings: preferences.aiSettings, consoleController });
-  const viewport = useGraphViewport({ state, dispatch, showNodeDetail: charts.showNodeDetail,
-    alignNodeWidthsToMax: charts.alignNodeWidthsToMax, closeContextMenu: ui.closeContextMenu, openNodeDetail: ui.openNodeDetail }, appearance);
-  const nodeActions = useNodeActions({ state, dispatch, openNodeDetail: ui.openNodeDetail, closeModals: ui.closeModals }, transactions, viewport);
-  useStudioShortcuts({ contextMenuOpen: Boolean(state.ui.contextMenu), closeContextMenu: ui.closeContextMenu,
-    closeModals: ui.closeModals, requestSave: session.requestSave }, transactions);
-  function initializeCanvas() { if (files.prepareNewDocument()) session.initializeCanvas(); }
-  return <StudioView session={session} files={files} ui={ui} preferences={preferences} onInitializeCanvas={initializeCanvas}
-    transactions={transactions} consoleController={consoleController} ai={ai} viewport={viewport} nodeActions={nodeActions} />;
+  const viewport = useGraphViewport(
+    {
+      state,
+      dispatch,
+      showNodeDetail: charts.showNodeDetail,
+      alignNodeWidthsToMax: charts.alignNodeWidthsToMax,
+      closeContextMenu: ui.closeContextMenu,
+      openNodeDetail: ui.openNodeDetail,
+    },
+    appearance,
+  );
+  const nodeActions = useNodeActions(
+    { state, dispatch, openNodeDetail: ui.openNodeDetail, closeModals: ui.closeModals },
+    transactions,
+    viewport,
+  );
+  useStudioShortcuts(
+    {
+      contextMenuOpen: Boolean(state.ui.contextMenu),
+      closeContextMenu: ui.closeContextMenu,
+      closeModals: ui.closeModals,
+      requestSave: session.requestSave,
+    },
+    transactions,
+  );
+  function initializeCanvas() {
+    if (files.prepareNewDocument()) session.initializeCanvas();
+  }
+  return (
+    <StudioView
+      session={session}
+      files={files}
+      ui={ui}
+      preferences={preferences}
+      onInitializeCanvas={initializeCanvas}
+      transactions={transactions}
+      consoleController={consoleController}
+      ai={ai}
+      viewport={viewport}
+      nodeActions={nodeActions}
+    />
+  );
 }

@@ -1,6 +1,6 @@
 import Icon from "./ui/Icon";
 import type { RefObject } from "react";
-import type { WorkspaceControls } from "../controllers/useWorkspaceController";
+import type { WorkspaceControls } from "../controllers/workspaceControls";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import TimelineRangeFilter from "./TimelineRangeFilter";
 import IconButton from "./ui/IconButton";
@@ -137,8 +137,20 @@ export default function Topbar({
               </>
             )}
             <div className="topbar-group nav-controls" aria-label="Graph navigation controls">
-              <IconButton id="back-btn" label="Back" disabled={!canBack} onClick={onBack} icon={<Icon name="arrow-left" className="topbar-icon-svg" />} />
-              <IconButton id="up-btn" label="Up" disabled={!canUp} onClick={onUp} icon={<Icon name="arrow-up" className="topbar-icon-svg" />} />
+              <IconButton
+                id="back-btn"
+                label="Back"
+                disabled={!canBack}
+                onClick={onBack}
+                icon={<Icon name="arrow-left" className="topbar-icon-svg" />}
+              />
+              <IconButton
+                id="up-btn"
+                label="Up"
+                disabled={!canUp}
+                onClick={onUp}
+                icon={<Icon name="arrow-up" className="topbar-icon-svg" />}
+              />
               <IconButton
                 id="all-btn"
                 label={timeline ? "Show all events" : "Show all roots"}
@@ -187,8 +199,20 @@ export default function Topbar({
           )}
           {!files.homeVisible && (
             <>
-              <IconButton id="undo-btn" label="Undo" disabled={!canUndo} onClick={onUndo} icon={<Icon name="undo" className="topbar-icon-svg" />} />
-              <IconButton id="redo-btn" label="Redo" disabled={!canRedo} onClick={onRedo} icon={<Icon name="redo" className="topbar-icon-svg" />} />
+              <IconButton
+                id="undo-btn"
+                label="Undo"
+                disabled={!canUndo}
+                onClick={onUndo}
+                icon={<Icon name="undo" className="topbar-icon-svg" />}
+              />
+              <IconButton
+                id="redo-btn"
+                label="Redo"
+                disabled={!canRedo}
+                onClick={onRedo}
+                icon={<Icon name="redo" className="topbar-icon-svg" />}
+              />
               <IconButton
                 id="save-json-btn"
                 label="Save JSON"

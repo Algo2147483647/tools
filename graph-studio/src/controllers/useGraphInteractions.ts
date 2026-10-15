@@ -3,11 +3,25 @@ import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
 import type { StageData } from "../layout/types";
 interface InteractionInput {
-  state: GraphAppState; dispatch: Dispatch<GraphAction>; activeType: string; stage: StageData | null;
-  setFocusedKey(key: string): void; openNodeDetail(key: string): void; enterGroup(id: string | null): void;
+  state: GraphAppState;
+  dispatch: Dispatch<GraphAction>;
+  activeType: string;
+  stage: StageData | null;
+  setFocusedKey(key: string): void;
+  openNodeDetail(key: string): void;
+  enterGroup(id: string | null): void;
   focusGroupId: string | null;
 }
-export function useGraphInteractions({ state, dispatch, activeType, stage, setFocusedKey, openNodeDetail, enterGroup, focusGroupId }: InteractionInput) {
+export function useGraphInteractions({
+  state,
+  dispatch,
+  activeType,
+  stage,
+  setFocusedKey,
+  openNodeDetail,
+  enterGroup,
+  focusGroupId,
+}: InteractionInput) {
   const pendingNodeClickTimeoutRef = useRef<number | null>(null);
   useEffect(() => clearPendingNodeClick, [state.document.generation, state.chartType, activeType]);
   function handleNodeClick(nodeKey: string) {
@@ -85,6 +99,11 @@ export function useGraphInteractions({ state, dispatch, activeType, stage, setFo
     });
   }
 
-
-  return { handleNodeClick, handleNodeDoubleClick, handleNodeContextMenu, handleBackgroundContextMenu, clearPendingNodeClick };
+  return {
+    handleNodeClick,
+    handleNodeDoubleClick,
+    handleNodeContextMenu,
+    handleBackgroundContextMenu,
+    clearPendingNodeClick,
+  };
 }

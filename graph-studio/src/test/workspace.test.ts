@@ -334,7 +334,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
       const result = await Promise.race([
         (async () => {
           const store = createRecentLocationsStore({ ...browserRecentLocations, readMetadata: () => [known] });
-          const input =           {
+          const input = {
             kind: "workspace" as const,
             name: "Factorio production",
             location: "Factorio production",

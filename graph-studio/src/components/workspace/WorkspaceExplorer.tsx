@@ -2,7 +2,7 @@ import IconButton from "../ui/IconButton";
 import InlineNameForm from "../ui/InlineNameForm";
 import Icon from "../ui/Icon";
 import { type ReactNode, useMemo, useState } from "react";
-import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
+import type { WorkspaceControls } from "../../controllers/workspaceControls";
 export default function WorkspaceExplorer({
   files,
   onOpenAsset,
@@ -34,11 +34,27 @@ export default function WorkspaceExplorer({
           <strong title={workspace.name}>{workspace.name}</strong>
         </div>
         <div className="explorer-actions">
-          <IconButton variant="quiet" label="Create graph file" disabled={files.busy} ariaExpanded={creating}
-            onClick={() => setCreating((value) => !value)} icon={<Icon name="plus" size={16} />} />
-          <IconButton variant="quiet" label="Refresh workspace files" disabled={files.busy}
-            onClick={files.refreshWorkspace} icon={<Icon name="refresh" size={16} />} />
-          <IconButton variant="quiet" label="Hide explorer" onClick={() => files.setExplorerOpen(false)} icon={<Icon name="panel" size={16} />} />
+          <IconButton
+            variant="quiet"
+            label="Create graph file"
+            disabled={files.busy}
+            ariaExpanded={creating}
+            onClick={() => setCreating((value) => !value)}
+            icon={<Icon name="plus" size={16} />}
+          />
+          <IconButton
+            variant="quiet"
+            label="Refresh workspace files"
+            disabled={files.busy}
+            onClick={files.refreshWorkspace}
+            icon={<Icon name="refresh" size={16} />}
+          />
+          <IconButton
+            variant="quiet"
+            label="Hide explorer"
+            onClick={() => files.setExplorerOpen(false)}
+            icon={<Icon name="panel" size={16} />}
+          />
         </div>
       </div>
       <label className="explorer-search">
@@ -57,12 +73,17 @@ export default function WorkspaceExplorer({
         </h3>
         {creating &&
           (canCreate ? (
-            <InlineNameForm label="Create graph file" placeholder="New graph.json" busy={files.busy}
-              onCancel={() => setCreating(false)} onSubmit={async (name) => {
+            <InlineNameForm
+              label="Create graph file"
+              placeholder="New graph.json"
+              busy={files.busy}
+              onCancel={() => setCreating(false)}
+              onSubmit={async (name) => {
                 const created = await files.createGraph(name);
                 if (created) setQuery("");
                 return created;
-              }} />
+              }}
+            />
           ) : (
             <div className="explorer-create-unavailable">
               <p>Open a local workspace to create files.</p>

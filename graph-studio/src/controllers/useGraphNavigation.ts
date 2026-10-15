@@ -7,8 +7,16 @@ import type { CompoundView, GraphSelection } from "../graph/types";
 import { useCompoundView } from "../hooks/useCompoundView";
 import type { GraphAppState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";
-export function useGraphNavigation(state: GraphAppState, dispatch: Dispatch<GraphAction>, captureLayoutAnchor: (key: string) => void) {
-  const compound = useCompoundView(state.document.id, state.dag?.hierarchy?.id, Object.keys(state.dag?.hierarchy?.groups ?? {}));
+export function useGraphNavigation(
+  state: GraphAppState,
+  dispatch: Dispatch<GraphAction>,
+  captureLayoutAnchor: (key: string) => void,
+) {
+  const compound = useCompoundView(
+    state.document.id,
+    state.dag?.hierarchy?.id,
+    Object.keys(state.dag?.hierarchy?.groups ?? {}),
+  );
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const [selectedTrack, setSelectedTrack] = useState("");
@@ -83,9 +91,28 @@ export function useGraphNavigation(state: GraphAppState, dispatch: Dispatch<Grap
     compound.setView(view);
   }
 
-  return { focusedKey, setFocusedKey, typeOptions, trackOptions, activeType, activeTrack, activeTimelineRange,
-    compound: { ...compound, setView: changeCompoundView }, enterGroup, toggleGroup, changeType, back, up, showAll,
-    changeTimelineRange: (range: TimelineTimeRange | null) => { setFocusedKey(null); setTimelineRange(range); },
-    changeTrack: (track: string) => { setFocusedKey(null); setSelectedTrack(track); },
+  return {
+    focusedKey,
+    setFocusedKey,
+    typeOptions,
+    trackOptions,
+    activeType,
+    activeTrack,
+    activeTimelineRange,
+    compound: { ...compound, setView: changeCompoundView },
+    enterGroup,
+    toggleGroup,
+    changeType,
+    back,
+    up,
+    showAll,
+    changeTimelineRange: (range: TimelineTimeRange | null) => {
+      setFocusedKey(null);
+      setTimelineRange(range);
+    },
+    changeTrack: (track: string) => {
+      setFocusedKey(null);
+      setSelectedTrack(track);
+    },
   };
 }
