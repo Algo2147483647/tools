@@ -96,6 +96,10 @@ In both layouts, simultaneous event markers and duration endpoints stay on the e
 
 An edge can set `metadata.timeline.sourceTime` or `targetTime` to a supported ISO time within the corresponding event interval. This overrides that endpoint's start/end anchor and creates a port on its bar. For example, a Sui-period edge to a 589 event uses `sourceTime: "0589"`, so it attaches at 589 rather than at the dynasty's beginning. These anchors contribute to adaptive density. An out-of-range anchor produces a warning and falls back to its declared start/end anchor. Edge metadata is preserved on import/save and can be edited in graph JSON.
 
+## European history example
+
+The separate **欧洲历史：分流与交汇** workspace follows the same point-first approach: 585 events, 13 qualified periods, 673 relationships and 81 categories, from the Aegean Bronze Age to 2026. Chinese explanations retain original-language proper names, including Greek and Cyrillic scripts. Six period guides, a name concordance, detailed catalogs and a source index accompany the canvas. Period endpoints join dated events, while staged changes such as the 1989 border opening / 1990 German unification and treaty signature / entry into force remain distinct. See [Example workspaces](examples.md) for its reproducible generation commands.
+
 ## Chinese history example
 
 The pre-Eastern-Zhou supplement starts with Erlitou archaeology and continues through Shang and Western Zhou to the existing eastward-migration node. It separates archaeological sites from polity categories, labels approximate dates and evidence types, and includes regional centers and the Western Zhou background of later states. Its narrative, catalog and source notes are `notes/pre-zhou.md`, `notes/pre-zhou-catalog.md` and `notes/pre-zhou-sources.md`. Stone Age surveys and a Xia royal chronology are outside this selection.

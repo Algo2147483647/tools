@@ -85,13 +85,23 @@ export function useGraphLayout({
         ? {
             dag: state.dag,
             view: compound.view,
+            showEdgeLabels: appearance.display.showEdgeLabels,
             selectedType: activeType,
             appearance: geometryAppearance,
             showNodeDetail,
             alignNodeWidthsToMax,
           }
         : null,
-    [state.chartType, state.dag, compound.view, activeType, geometryAppearance, showNodeDetail, alignNodeWidthsToMax],
+    [
+      state.chartType,
+      state.dag,
+      compound.view,
+      activeType,
+      geometryAppearance,
+      showNodeDetail,
+      alignNodeWidthsToMax,
+      appearance.display.showEdgeLabels,
+    ],
   );
   const compoundLayout = useCompoundStage(compoundInput);
   const stage = state.chartType === "compound" ? compoundLayout.stage : flatStage;

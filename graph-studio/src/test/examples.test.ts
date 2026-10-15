@@ -52,7 +52,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
         for (const entry of folder.files.values()) {
           assert.equal(entry.handle, null);
           const text = await (await readWorkspaceFile(entry)).text();
-          if (example.id !== "china-history") assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
+          if (!["china-history", "europe-history"].includes(example.id)) assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
           // Resolve every generated Markdown link, including the graph's note fields.
           for (const match of text.matchAll(/\]\((\.{1,2}\/[\w/.-]+)\)/g)) {
             assert.ok(

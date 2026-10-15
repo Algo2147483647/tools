@@ -1,0 +1,678 @@
+# 来源与编选方法
+
+返回 [读图说明](./README.md)。此图为有来源的历史选编，编选日期 2026-10-16，并非穷尽事件、逐条同行评审或全部一手史料的数据库。
+
+## 证据层次
+
+条约、法律文本及档案机构资料适合确认文件和制度阶段；博物馆、大学与专门研究机构提供研究综述；Wikipedia 条目明确标为二手综述，用作通史节点的公开参考入口和进一步追索文献的目录。各节点保留实际引用链接。关键年代、特殊原名和当代制度节点做过有针对性的查核；没有把所有外链逐页全文复核的工作伪称完成。
+
+考古约年、传统纪年与有文献的事件年份分开。Olympia 的前776年、Roma 前753年及共和制前509年均需读限定；Θήρα 火山喷发年代有争议。BC 日期由历史纪年转为 ISO 天文年份，例如前27年写作 -000026，前1年对应0000；页面 dateLabel 保留历史说法，不存在历史纪年公元0年。俄国1917年的二月／十月革命名称保留旧历传统，正文注明公历月份；所有点按年呈现，未提供日月不自动断言1月1日。
+
+476年不是东部帝国结束，1204—1261年不绘成首都连续在原政权手中的一条线。欧盟、Council of Europe、NATO、Schengen 与欧元区分别处理。对征服、殖民奴役、种族灭绝和侵略，说明行为及证据，不把暴力写成中性的自愿“融合”。仍在演变的冲突仅记录已发生节点，不预设终点或最终和约。
+
+## 逐项来源索引
+
+以下共 662 个不同入口。节点编号与六篇目录一一对应；多节点共引综合资料并不表示一个网页详述全部问题。
+
+- [Wikipedia：Minoan civilization（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Minoan_civilization) — `knossos-palace`
+- [The Metropolitan Museum of Art：Greek Art 教育资源](https://resources.metmuseum.org/resources/metpublications/pdf/Greek_Art_From_Prehistoric_to_Classical.pdf) — `knossos-palace`
+- [The Metropolitan Museum of Art：Mycenaean Civilization](https://www.metmuseum.org/essays/mycenaean-civilization) — `mycenae-graves`、`linear-b`、`palace-collapse`
+- [Wikipedia：Minoan eruption（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Minoan_eruption) — `thera`
+- [Wikipedia：Linear B（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Linear_B) — `linear-b`
+- [Wikipedia：Late Bronze Age collapse（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Late_Bronze_Age_collapse) — `palace-collapse`
+- [Wikipedia：History of the Greek alphabet（二手综述，附参考文献）](https://en.wikipedia.org/wiki/History_of_the_Greek_alphabet) — `alphabet`
+- [Wikipedia：Ancient Olympic Games（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ancient_Olympic_Games) — `olympia`
+- [Wikipedia：Founding of Rome（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Founding_of_Rome) — `rome-tradition`
+- [Wikipedia：Greek colonisation（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Greek_colonisation) — `colonies`
+- [Wikipedia：Draco (lawgiver)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Draco_(lawgiver)) — `draco`
+- [Wikipedia：Solon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Solon) — `solon`
+- [Wikipedia：Peisistratos（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peisistratos) — `peisistratos`
+- [Wikipedia：Roman Republic（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Roman_Republic) — `republic-tradition`、`period-republic`
+- [The Metropolitan Museum of Art：Roman Art 教育资源](https://resources.metmuseum.org/resources/metpublications/pdf/Roman_Art_A_Resource_for_Educators.pdf) — `republic-tradition`、`augustus`
+- [Wikipedia：Cleisthenes（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Cleisthenes) — `kleisthenes`
+- [Wikipedia：Ionian Revolt（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ionian_Revolt) — `ionian`
+- [Wikipedia：First secessio plebis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_secessio_plebis) — `plebs`
+- [Wikipedia：Battle of Marathon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Marathon) — `marathon`
+- [Wikipedia：Battle of Thermopylae（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Thermopylae) — `salamis`
+- [Wikipedia：Battle of Salamis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Salamis) — `salamis`
+- [Wikipedia：Battle of Plataea（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Plataea) — `plataea`
+- [Wikipedia：Battle of Mycale（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Mycale) — `plataea`
+- [Wikipedia：Delian League（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Delian_League) — `delian`
+- [Wikipedia：Twelve Tables（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Twelve_Tables) — `twelve-tables`
+- [Wikipedia：Parthenon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Parthenon) — `parthenon`
+- [Wikipedia：Peloponnesian War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peloponnesian_War) — `peloponnesian`
+- [Wikipedia：Plague of Athens（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Plague_of_Athens) — `athens-plague`
+- [Wikipedia：Sicilian Expedition（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sicilian_Expedition) — `sicily`
+- [Wikipedia：Thirty Tyrants（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Thirty_Tyrants) — `athens-surrender`
+- [Wikipedia：Trial of Socrates（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Trial_of_Socrates) — `socrates`
+- [Wikipedia：Platonic Academy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Platonic_Academy) — `academy`
+- [Wikipedia：Battle of the Allia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_the_Allia) — `gauls-rome`
+- [Wikipedia：Battle of Leuctra（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Leuctra) — `leuctra`
+- [Wikipedia：Philip II of Macedon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Philip_II_of_Macedon) — `philip`
+- [Wikipedia：Battle of Chaeronea (338 BC)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Chaeronea_(338_BC)) — `chaeronea`
+- [Wikipedia：Wars of Alexander the Great（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Wars_of_Alexander_the_Great) — `alexander`
+- [Wikipedia：Battle of Gaugamela（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Gaugamela) — `gaugamela`
+- [Wikipedia：Wars of the Diadochi（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Wars_of_the_Diadochi) — `alexander-death`
+- [Wikipedia：Euclid's Elements（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Euclid's_Elements) — `euclid`
+- [Wikipedia：Battle of Ipsus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Ipsus) — `ipsus`
+- [Wikipedia：Lex Hortensia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Lex_Hortensia) — `hortensia`
+- [Wikipedia：Pyrrhic War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Pyrrhic_War) — `pyrrhus`
+- [Wikipedia：First Punic War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Punic_War) — `punic1`、`sicily-province`
+- [Wikipedia：Sicilia (Roman province)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sicilia_(Roman_province)) — `sicily-province`
+- [Wikipedia：Second Punic War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Punic_War) — `hannibal`
+- [Wikipedia：Battle of Cannae（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Cannae) — `cannae`
+- [Wikipedia：Battle of Zama（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Zama) — `zama`
+- [Wikipedia：Battle of Pydna（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Pydna) — `pydna`
+- [Wikipedia：Third Punic War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Third_Punic_War) — `carthage-corinth`
+- [Wikipedia：Battle of Corinth (146 BC)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Corinth_(146_BC)) — `carthage-corinth`
+- [Wikipedia：Tiberius Gracchus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Tiberius_Gracchus) — `tiberius`
+- [Wikipedia：Gaius Gracchus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gaius_Gracchus) — `gaius`
+- [Wikipedia：Social War (91–87 BC)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Social_War_(91%E2%80%9387_BC)) — `social-war`
+- [Wikipedia：Sulla（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sulla) — `sulla`
+- [Wikipedia：Third Servile War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Third_Servile_War) — `spartacus`
+- [Wikipedia：Gallic Wars（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gallic_Wars) — `caesar-gaul`
+- [Wikipedia：Caesar's civil war（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Caesar's_civil_war) — `rubicon`
+- [Wikipedia：Assassination of Julius Caesar（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Assassination_of_Julius_Caesar) — `caesar-killed`
+- [Wikipedia：Battle of Actium（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Actium) — `actium`
+- [Wikipedia：Augustus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Augustus) — `augustus`
+- [Wikipedia：Battle of the Teutoburg Forest（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_the_Teutoburg_Forest) — `teutoburg`
+- [Wikipedia：Tiberius（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Tiberius) — `tiberius-emperor`
+- [Wikipedia：Crucifixion of Jesus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Crucifixion_of_Jesus) — `jesus`
+- [Wikipedia：Roman conquest of Britain（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Roman_conquest_of_Britain) — `claudius-britain`
+- [Wikipedia：Boudica（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Boudica) — `boudica`
+- [Wikipedia：Siege of Jerusalem (70 CE)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Jerusalem_(70_CE)) — `jerusalem70`
+- [Wikipedia：Eruption of Mount Vesuvius in 79 AD（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Eruption_of_Mount_Vesuvius_in_79_AD) — `vesuvius`
+- [Wikipedia：Trajan's Dacian Wars（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Trajan's_Dacian_Wars) — `dacia`
+- [Wikipedia：Hadrian's Wall（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hadrian's_Wall) — `hadrian-wall`
+- [Wikipedia：Antonine Plague（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Antonine_Plague) — `antonine-plague`
+- [Wikipedia：Constitutio Antoniniana（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Constitutio_Antoniniana) — `constitutio`
+- [Wikipedia：Crisis of the Third Century（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Crisis_of_the_Third_Century) — `third-century`
+- [Wikipedia：Diocletian（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Diocletian) — `diocletian`
+- [Wikipedia：Tetrarchy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Tetrarchy) — `tetrarchy`
+- [Wikipedia：Diocletianic Persecution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Diocletianic_Persecution) — `persecution`
+- [Wikipedia：Battle of the Milvian Bridge（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_the_Milvian_Bridge) — `milvian`
+- [Wikipedia：Edict of Milan（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Edict_of_Milan) — `milan`
+- [Wikipedia：First Council of Nicaea（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Council_of_Nicaea) — `nicaea`
+- [Wikipedia：Constantinople（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Constantinople) — `constantinople330`
+- [The Metropolitan Museum of Art：Byzantium](https://www.metmuseum.org/essays/byzantium-ca-330-1453) — `constantinople330`、`constantinople1204`、`constantinople1453`、`period-byz1`、`period-byz2`
+- [Wikipedia：Battle of Adrianople（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Adrianople) — `adrianople`
+- [Wikipedia：Edict of Thessalonica（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Edict_of_Thessalonica) — `thessalonica`
+- [Wikipedia：Theodosius I（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Theodosius_I) — `division395`
+- [Wikipedia：Sack of Rome (410)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sack_of_Rome_(410)) — `rome410`
+- [Wikipedia：Vandal Kingdom（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Vandal_Kingdom) — `vandal-africa`
+- [Wikipedia：Council of Chalcedon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Council_of_Chalcedon) — `chalcedon`
+- [Wikipedia：Battle of the Catalaunian Plains（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_the_Catalaunian_Plains) — `catalaunian`
+- [Wikipedia：Sack of Rome (455)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sack_of_Rome_(455)) — `rome455`
+- [Wikipedia：Fall of the Western Roman Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Fall_of_the_Western_Roman_Empire) — `west476`、`period-west`
+- [Wikipedia：Clovis I（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Clovis_I) — `clovis`
+- [Wikipedia：Theodoric the Great（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Theodoric_the_Great) — `theodoric`
+- [Wikipedia：Baptism of Clovis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Baptism_of_Clovis) — `clovis-baptism`
+- [Wikipedia：Battle of Vouillé（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Vouill%C3%A9) — `vouille`
+- [Wikipedia：Monte Cassino（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Monte_Cassino) — `benedict`
+- [Wikipedia：Rule of Saint Benedict（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Rule_of_Saint_Benedict) — `benedict`
+- [Wikipedia：Corpus Juris Civilis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Corpus_Juris_Civilis) — `justinian-code`
+- [Wikipedia：Nika riots（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Nika_riots) — `nika`
+- [Wikipedia：Vandalic War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Vandalic_War) — `vandal-conquest`
+- [Wikipedia：Hagia Sophia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hagia_Sophia) — `hagia-sophia`
+- [Wikipedia：Plague of Justinian（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Plague_of_Justinian) — `justinian-plague`
+- [Wikipedia：Gothic War (535–554)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gothic_War_(535%E2%80%93554)) — `gothic-war-end`
+- [Wikipedia：Kingdom of the Lombards（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Kingdom_of_the_Lombards) — `lombards`
+- [Wikipedia：Pope Gregory I（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Pope_Gregory_I) — `gregory`
+- [Wikipedia：Gregorian mission（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gregorian_mission) — `augustine-mission`
+- [Wikipedia：Heraclius（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Heraclius) — `heraclius`
+- [Wikipedia：Battle of Nineveh (627)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Nineveh_(627)) — `nineveh`
+- [Wikipedia：Battle of the Yarmuk（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_the_Yarmuk) — `yarmuk`
+- [Wikipedia：Synod of Whitby（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Synod_of_Whitby) — `whitby`
+- [Wikipedia：First Bulgarian Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Bulgarian_Empire) — `bulgaria681`
+- [Wikipedia：Umayyad conquest of Hispania（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Umayyad_conquest_of_Hispania) — `iberia711`
+- [Wikipedia：Siege of Constantinople (717–718)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Constantinople_(717%E2%80%93718)) — `constantinople717`
+- [Wikipedia：Battle of Tours（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Tours) — `tours`
+- [Wikipedia：Pepin the Short（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Pepin_the_Short) — `pepin`
+- [Wikipedia：Emirate of Córdoba（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Emirate_of_C%C3%B3rdoba) — `cordoba-emirate`
+- [Wikipedia：Saxon Wars（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Saxon_Wars) — `saxon-war`
+- [Wikipedia：Charlemagne（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Charlemagne) — `lombard774`、`charlemagne800`
+- [Wikipedia：Viking Age（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Viking_Age) — `lindisfarne`
+- [The Metropolitan Museum of Art：Carolingian Art](https://www.metmuseum.org/essays/carolingian-art) — `charlemagne800`
+- [Wikipedia：Oaths of Strasbourg（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Oaths_of_Strasbourg) — `strasbourg842`
+- [Wikipedia：Treaty of Verdun（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Verdun) — `verdun843`
+- [Wikipedia：Triumph of Orthodoxy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Triumph_of_Orthodoxy) — `icons843`
+- [Wikipedia：Saints Cyril and Methodius（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Saints_Cyril_and_Methodius) — `cyril-methodius`
+- [Wikipedia：Christianization of Bulgaria（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Christianization_of_Bulgaria) — `boris-baptism`
+- [Wikipedia：Battle of Edington（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Edington) — `alfred`
+- [Wikipedia：Oleg of Novgorod（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Oleg_of_Novgorod) — `kyiv882`
+- [Wikipedia：Cluny Abbey（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Cluny_Abbey) — `cluny910`
+- [Wikipedia：Treaty of Saint-Clair-sur-Epte（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Saint-Clair-sur-Epte) — `normandy911`
+- [Wikipedia：Caliphate of Córdoba（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Caliphate_of_C%C3%B3rdoba) — `cordoba929`
+- [Wikipedia：Althing（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Althing) — `althing930`
+- [UNESCO：Þingvellir National Park](https://whc.unesco.org/en/list/1152) — `althing930`
+- [Wikipedia：Æthelstan（二手综述，附参考文献）](https://en.wikipedia.org/wiki/%C3%86thelstan) — `athelstan`
+- [Wikipedia：Battle of Lechfeld（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Lechfeld) — `lechfeld955`
+- [The Metropolitan Museum of Art：Ottonian Art](https://www.metmuseum.org/essays/ottonian-art) — `lechfeld955`、`otto962`
+- [Wikipedia：Otto I, Holy Roman Emperor（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Otto_I%2C_Holy_Roman_Emperor) — `otto962`
+- [Wikipedia：Jelling stones（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Jelling_stones) — `jelling`
+- [Wikipedia：Christianization of Poland（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Christianization_of_Poland) — `mieszko966`
+- [Wikipedia：Hugh Capet（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hugh_Capet) — `hugh987`
+- [Wikipedia：Christianization of Kievan Rus'（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Christianization_of_Kievan_Rus') — `volodymyr988`
+- [Wikipedia：Stephen I of Hungary（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Stephen_I_of_Hungary) — `istvan1000`
+- [Wikipedia：L'Anse aux Meadows（二手综述，附参考文献）](https://en.wikipedia.org/wiki/L'Anse_aux_Meadows) — `vinland`
+- [Wikipedia：Cnut（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Cnut) — `canute1016`
+- [Wikipedia：Byzantine conquest of Bulgaria（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Byzantine_conquest_of_Bulgaria) — `bulgaria1018`
+- [Wikipedia：Taifa（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Taifa) — `taifas1031`
+- [Wikipedia：East–West Schism（二手综述，附参考文献）](https://en.wikipedia.org/wiki/East%E2%80%93West_Schism) — `schism1054`
+- [Wikipedia：Norman Conquest（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Norman_Conquest) — `hastings1066`
+- [Wikipedia：Battle of Manzikert（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Manzikert) — `manzikert1071`
+- [Wikipedia：Road to Canossa（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Road_to_Canossa) — `canossa1077`
+- [Wikipedia：Siege of Toledo (1085)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Toledo_(1085)) — `toledo1085`
+- [Wikipedia：Domesday Book（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Domesday_Book) — `domesday1086`
+- [Wikipedia：University of Bologna（二手综述，附参考文献）](https://en.wikipedia.org/wiki/University_of_Bologna) — `bologna1088`
+- [Wikipedia：Council of Clermont（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Council_of_Clermont) — `clermont1095`
+- [The Metropolitan Museum of Art：The Crusades](https://www.metmuseum.org/essays/the-crusades-1095-1291) — `clermont1095`、`jerusalem1099`、`hattin1187`、`acre1291`
+- [Wikipedia：Rhineland massacres（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Rhineland_massacres) — `rhineland1096`
+- [Wikipedia：Siege of Jerusalem (1099)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Jerusalem_(1099)) — `jerusalem1099`
+- [Wikipedia：Concordat of Worms（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Concordat_of_Worms) — `worms1122`
+- [Wikipedia：Roger II of Sicily（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Roger_II_of_Sicily) — `sicily1130`
+- [Wikipedia：Treaty of Zamora（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Zamora) — `portugal1143`
+- [Wikipedia：Siege of Lisbon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Lisbon) — `lisbon1147`
+- [Wikipedia：Lübeck（二手综述，附参考文献）](https://en.wikipedia.org/wiki/L%C3%BCbeck) — `lubeck1159`
+- [Wikipedia：Hanseatic League（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hanseatic_League) — `lubeck1159`
+- [Wikipedia：Thomas Becket（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Thomas_Becket) — `beckett1170`
+- [Wikipedia：Battle of Legnano（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Legnano) — `legnano1176`
+- [Wikipedia：Manifestis Probatum（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Manifestis_Probatum) — `portugal1179`
+- [Wikipedia：Uprising of Asen and Peter（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Uprising_of_Asen_and_Peter) — `bulgaria1185`
+- [Wikipedia：Battle of Hattin（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Hattin) — `hattin1187`
+- [Wikipedia：Fourth Crusade（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Fourth_Crusade) — `constantinople1204`
+- [Wikipedia：Albigensian Crusade（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Albigensian_Crusade) — `albigensian1209`
+- [Wikipedia：Battle of Las Navas de Tolosa（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Las_Navas_de_Tolosa) — `las-navas1212`
+- [Wikipedia：Battle of Bouvines（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Bouvines) — `bouvines1214`
+- [The National Archives：Magna Carta](https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-time-period/medieval/magna-carta/) — `magna1215`
+- [Wikipedia：Magna Carta（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Magna_Carta) — `magna1215`
+- [Wikipedia：Fourth Council of the Lateran（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Fourth_Council_of_the_Lateran) — `lateran1215`
+- [Wikipedia：Stefan the First-Crowned（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Stefan_the_First-Crowned) — `serbia1217`
+- [Wikipedia：Golden Bull of 1222（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Golden_Bull_of_1222) — `goldenbull1222`
+- [Wikipedia：Prussian Crusade（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Prussian_Crusade) — `teutonic1230`
+- [Wikipedia：Siege of Kiev (1240)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Kiev_(1240)) — `kyiv1240`
+- [Wikipedia：Battle of Mohi（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Mohi) — `mohi1241`
+- [Wikipedia：Battle of Legnica（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Legnica) — `mohi1241`
+- [Wikipedia：Siege of Seville（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Seville) — `seville1248`
+- [Wikipedia：Mindaugas（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Mindaugas) — `mindaugas1253`
+- [Wikipedia：Reconquest of Constantinople（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Reconquest_of_Constantinople) — `constantinople1261`
+- [Wikipedia：Simon de Montfort's Parliament（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Simon_de_Montfort's_Parliament) — `montfort1265`
+- [Wikipedia：Battle on the Marchfeld（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_on_the_Marchfeld) — `marchfeld1278`
+- [Schönbrunn Group：Die Welt der Habsburger](https://www.habsburger.net/en) — `marchfeld1278`、`austria1804`、`period-ah`
+- [Wikipedia：Sicilian Vespers（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sicilian_Vespers) — `vespers1282`
+- [Wikipedia：Siege of Acre (1291)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Acre_(1291)) — `acre1291`
+- [Wikipedia：Federal Charter of 1291（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Federal_Charter_of_1291) — `swiss1291`
+- [Wikipedia：Battle of Bapheus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Bapheus) — `osman1302`
+- [Wikipedia：Avignon Papacy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Avignon_Papacy) — `avignon1309`
+- [Wikipedia：Battle of Bannockburn（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Bannockburn) — `bannockburn1314`
+- [Wikipedia：Great Famine of 1315–1317（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Famine_of_1315%E2%80%931317) — `famine1315`
+- [Wikipedia：Hundred Years' War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hundred_Years'_War) — `hundred1337`
+- [Wikipedia：Stefan Dušan（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Stefan_Du%C5%A1an) — `dusan1346`
+- [Wikipedia：Black Death（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Black_Death) — `blackdeath1347`
+- [Wikipedia：Charles University（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Charles_University) — `prague1348`
+- [Wikipedia：Golden Bull of 1356（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Golden_Bull_of_1356) — `golden1356`
+- [Wikipedia：Jacquerie（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Jacquerie) — `jacquerie1358`
+- [Wikipedia：Battle of Kulikovo（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Kulikovo) — `kulikovo1380`
+- [Wikipedia：Peasants' Revolt（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peasants'_Revolt) — `peasants1381`
+- [Wikipedia：Union of Krewo（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Union_of_Krewo) — `krewo1385`
+- [Wikipedia：Battle of Kosovo（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Kosovo) — `kosovo1389`
+- [Wikipedia：Kalmar Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Kalmar_Union) — `kalmar1397`
+- [Lex：Kalmarunionen](https://lex.dk/Kalmarunionen) — `kalmar1397`
+- [Wikipedia：Battle of Grunwald（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Grunwald) — `grunwald1410`
+- [Wikipedia：Council of Constance（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Council_of_Constance) — `constance1414`
+- [Wikipedia：Jan Hus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Jan_Hus) — `hus1415`
+- [Wikipedia：Hussite Wars（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hussite_Wars) — `hussite1419`
+- [Wikipedia：Joan of Arc（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Joan_of_Arc) — `jeanne1429`
+- [Wikipedia：Cosimo de' Medici（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Cosimo_de'_Medici) — `cosimo1434`
+- [Wikipedia：Council of Florence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Council_of_Florence) — `var1439`
+- [Wikipedia：Battle of Varna（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Varna) — `var1444`
+- [Wikipedia：Fall of Constantinople（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Fall_of_Constantinople) — `constantinople1453`
+- [Wikipedia：Battle of Castillon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Castillon) — `castillon1453`
+- [Wikipedia：Gutenberg Bible（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gutenberg_Bible) — `gutenberg1455`
+- [Wikipedia：Atlantic slave trade（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Atlantic_slave_trade) — `lagos1444`
+- [Wikipedia：Spanish Inquisition（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_Inquisition) — `inquisition1478`
+- [Wikipedia：Great Stand on the Ugra River（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Stand_on_the_Ugra_River) — `ugra1480`
+- [Wikipedia：Battle of Bosworth Field（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Bosworth_Field) — `bosworth1485`
+- [Wikipedia：Bartolomeu Dias（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Bartolomeu_Dias) — `dias1488`
+- [Wikipedia：Granada War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Granada_War) — `granada1492`
+- [Wikipedia：Alhambra Decree（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Alhambra_Decree) — `expulsion1492`
+- [Wikipedia：Voyages of Christopher Columbus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Voyages_of_Christopher_Columbus) — `columbus1492`
+- [Wikipedia：Treaty of Tordesillas（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Tordesillas) — `tordesillas1494`
+- [Wikipedia：Italian Wars（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Italian_Wars) — `italian1494`
+- [Wikipedia：Vasco da Gama（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Vasco_da_Gama) — `gama1498`
+- [Wikipedia：Utopia (book)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Utopia_(book)) — `more1516`
+- [Wikipedia：Novum Instrumentum omne（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Novum_Instrumentum_omne) — `erasmus1516`
+- [Wikipedia：Ninety-five Theses（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ninety-five_Theses) — `luther1517`
+- [Wikipedia：Charles V, Holy Roman Emperor（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Charles_V%2C_Holy_Roman_Emperor) — `charles1519`
+- [Wikipedia：Magellan expedition（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Magellan_expedition) — `magellan1519`
+- [Wikipedia：Diet of Worms（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Diet_of_Worms) — `worms1521`
+- [Wikipedia：Gustav I of Sweden（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gustav_I_of_Sweden) — `gustav1523`
+- [Wikipedia：German Peasants' War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/German_Peasants'_War) — `peasants1525`
+- [Wikipedia：Battle of Pavia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Pavia) — `pavia1525`
+- [Wikipedia：Prussian Homage（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Prussian_Homage) — `prussia1525`
+- [Wikipedia：Battle of Mohács（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Moh%C3%A1cs) — `mohacs1526`
+- [Wikipedia：Sack of Rome (1527)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sack_of_Rome_(1527)) — `rome1527`
+- [Wikipedia：Siege of Vienna (1529)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Siege_of_Vienna_(1529)) — `vienna1529`
+- [Wikipedia：Augsburg Confession（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Augsburg_Confession) — `augsburg1530`
+- [Musée protestant：La confession d’Augsbourg](https://museeprotestant.org/notice/la-confession-daugsbourg-1530/) — `augsburg1530`
+- [Wikipedia：Acts of Supremacy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Acts_of_Supremacy) — `supremacy1534`
+- [Wikipedia：Institutes of the Christian Religion（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Institutes_of_the_Christian_Religion) — `calvin1536`
+- [Wikipedia：Society of Jesus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Society_of_Jesus) — `jesuits1540`
+- [Wikipedia：Ottoman Hungary（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ottoman_Hungary) — `buda1541`
+- [Wikipedia：De revolutionibus orbium coelestium（二手综述，附参考文献）](https://en.wikipedia.org/wiki/De_revolutionibus_orbium_coelestium) — `copernicus1543`
+- [Wikipedia：De Humani Corporis Fabrica（二手综述，附参考文献）](https://en.wikipedia.org/wiki/De_Humani_Corporis_Fabrica) — `vesalius1543`
+- [Wikipedia：Council of Trent（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Council_of_Trent) — `trent1545`
+- [Wikipedia：Ivan the Terrible（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ivan_the_Terrible) — `ivan1547`
+- [Wikipedia：Peace of Augsburg（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peace_of_Augsburg) — `augsburg1555`
+- [Wikipedia：Elizabeth I（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Elizabeth_I) — `elizabeth1558`
+- [Wikipedia：Elizabethan Religious Settlement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Elizabethan_Religious_Settlement) — `elizabeth1558`
+- [Wikipedia：French Wars of Religion（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_Wars_of_Religion) — `religionwars1562`
+- [Wikipedia：Oprichnina（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Oprichnina) — `oprichnina1565`
+- [Wikipedia：Dutch Revolt（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dutch_Revolt) — `dutch1568`
+- [Archiwum Główne Akt Dawnych：Unia Lubelska 文书](https://agad.gov.pl/Unia%20Lubelska/uni_lub.html) — `lublin1569`、`period-commonwealth`
+- [Wikipedia：Union of Lublin（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Union_of_Lublin) — `lublin1569`
+- [Wikipedia：Battle of Lepanto（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Lepanto) — `lepanto1571`
+- [Wikipedia：St. Bartholomew's Day massacre（二手综述，附参考文献）](https://en.wikipedia.org/wiki/St._Bartholomew's_Day_massacre) — `bartholomew1572`
+- [Wikipedia：Warsaw Confederation（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Warsaw_Confederation) — `warsaw1573`
+- [Wikipedia：Union of Utrecht（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Union_of_Utrecht) — `utrecht1579`
+- [Wikipedia：Act of Abjuration（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Act_of_Abjuration) — `abjuration1581`
+- [Wikipedia：Gregorian calendar（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gregorian_calendar) — `calendar1582`
+- [Wikipedia：Spanish Armada（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_Armada) — `armada1588`
+- [Wikipedia：Edict of Nantes（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Edict_of_Nantes) — `nantes1598`
+- [Wikipedia：East India Company（二手综述，附参考文献）](https://en.wikipedia.org/wiki/East_India_Company) — `eic1600`
+- [Wikipedia：Dutch East India Company（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dutch_East_India_Company) — `voc1602`
+- [Wikipedia：Union of the Crowns（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Union_of_the_Crowns) — `crowns1603`
+- [Wikipedia：Don Quixote（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Don_Quixote) — `quijote1605`
+- [Museo Galileo：Galileo Galilei 生平年表](https://www.museogalileo.it/it/galileo/vita.html) — `galileo1610`、`galileo1633`
+- [Wikipedia：Sidereus Nuncius（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sidereus_Nuncius) — `galileo1610`
+- [Wikipedia：Michael of Russia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Michael_of_Russia) — `romanov1613`
+- [Wikipedia：Defenestrations of Prague（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Defenestrations_of_Prague) — `prague1618`
+- [Wikipedia：Thirty Years' War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Thirty_Years'_War) — `prague1618`、`period-thirty`
+- [Wikipedia：Battle of White Mountain（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_White_Mountain) — `white1620`
+- [Wikipedia：Petition of Right（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Petition_of_Right) — `petition1628`
+- [Wikipedia：Swedish intervention in the Thirty Years' War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Swedish_intervention_in_the_Thirty_Years'_War) — `swedish1630`
+- [Wikipedia：Galileo affair（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Galileo_affair) — `galileo1633`
+- [Wikipedia：Franco-Spanish War (1635–1659)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Franco-Spanish_War_(1635%E2%80%931659)) — `france1635`
+- [Wikipedia：Portuguese Restoration War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Portuguese_Restoration_War) — `portugal1640`
+- [Wikipedia：Reapers' War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Reapers'_War) — `catalonia1640`
+- [National Army Museum：British Civil Wars](https://www.nam.ac.uk/explore/british-civil-wars) — `civil1642`、`charles1649`
+- [Wikipedia：English Civil War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/English_Civil_War) — `civil1642`
+- [Wikipedia：Peace of Westphalia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peace_of_Westphalia) — `westphalia1648`
+- [Wikipedia：Fronde（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Fronde) — `fronde1648`
+- [Wikipedia：Khmelnytsky Uprising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Khmelnytsky_Uprising) — `khmelnytsky1648`
+- [Wikipedia：Execution of Charles I（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Execution_of_Charles_I) — `charles1649`
+- [Wikipedia：Sobornoye Ulozheniye（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sobornoye_Ulozheniye) — `ulozhenie1649`
+- [Wikipedia：The Protectorate（二手综述，附参考文献）](https://en.wikipedia.org/wiki/The_Protectorate) — `protector1653`
+- [Wikipedia：Pereiaslav Agreement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Pereiaslav_Agreement) — `pereiaslav1654`
+- [Wikipedia：Deluge (history)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Deluge_(history)) — `deluge1655`
+- [Wikipedia：Treaty of the Pyrenees（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_the_Pyrenees) — `pyrenees1659`
+- [Wikipedia：Stuart Restoration（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Stuart_Restoration) — `restoration1660`
+- [Wikipedia：King's Law（二手综述，附参考文献）](https://en.wikipedia.org/wiki/King's_Law) — `danish1660`
+- [Château de Versailles：Louis XIV](https://www.chateauversailles.fr/decouvrir/histoire/grands-personnages/louis-xiv) — `louis1661`、`fontainebleau1685`
+- [Wikipedia：Royal Society（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Royal_Society) — `royalsociety1662`
+- [Wikipedia：Truce of Andrusovo（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Truce_of_Andrusovo) — `andrusovo1667`
+- [Wikipedia：Rampjaar（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Rampjaar) — `rampjaar1672`
+- [Wikipedia：Habeas Corpus Act 1679（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Habeas_Corpus_Act_1679) — `habeas1679`
+- [Wikipedia：Battle of Vienna（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Vienna) — `vienna1683`
+- [Wikipedia：Edict of Fontainebleau（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Edict_of_Fontainebleau) — `fontainebleau1685`
+- [Wikipedia：Philosophiæ Naturalis Principia Mathematica（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica) — `newton1687`
+- [Wikipedia：Glorious Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Glorious_Revolution) — `revolution1688`
+- [UK Parliament：Bill of Rights 1689](https://commonslibrary.parliament.uk/research-briefings/sn00293/) — `rights1689`
+- [Wikipedia：Bank of England（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Bank_of_England) — `bank1694`
+- [Wikipedia：Treaty of Karlowitz（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Karlowitz) — `karlowitz1699`
+- [Wikipedia：Great Northern War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Northern_War) — `northern1700`
+- [Wikipedia：Frederick I of Prussia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Frederick_I_of_Prussia) — `prussia1701`
+- [Wikipedia：War of the Spanish Succession（二手综述，附参考文献）](https://en.wikipedia.org/wiki/War_of_the_Spanish_Succession) — `succession1701`
+- [Wikipedia：History of Saint Petersburg（二手综述，附参考文献）](https://en.wikipedia.org/wiki/History_of_Saint_Petersburg) — `petersburg1703`
+- [UK Parliament：The Articles, constitution and trade](https://www.parliament.uk/about/living-heritage/evolutionofparliament/legislativescrutiny/act-of-union-1707/overview/the-articles-constitution-and-trade/) — `union1707`
+- [Wikipedia：Battle of Poltava（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Poltava) — `poltava1709`
+- [Wikipedia：Peace of Utrecht（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peace_of_Utrecht) — `utrecht1713`
+- [Wikipedia：Treaty of Nystad（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Nystad) — `nystad1721`
+- [Wikipedia：Russian Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Russian_Empire) — `nystad1721`
+- [Wikipedia：War of the Austrian Succession（二手综述，附参考文献）](https://en.wikipedia.org/wiki/War_of_the_Austrian_Succession) — `austrian1740`
+- [Wikipedia：Encyclopédie（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Encyclop%C3%A9die) — `encyclopedie1751`
+- [Wikipedia：1755 Lisbon earthquake（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1755_Lisbon_earthquake) — `lisbon1755`
+- [Wikipedia：Seven Years' War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Seven_Years'_War) — `seven1756`
+- [Wikipedia：Catherine the Great（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Catherine_the_Great) — `catherine1762`
+- [Wikipedia：Treaty of Paris (1763)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Paris_(1763)) — `paris1763`
+- [Wikipedia：Treaty of Hubertusburg（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Hubertusburg) — `paris1763`
+- [Wikipedia：Watt steam engine（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Watt_steam_engine) — `watt1769`
+- [Wikipedia：First Partition of Poland（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Partition_of_Poland) — `partition1772`
+- [Wikipedia：Pugachev's Rebellion（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Pugachev's_Rebellion) — `pugachev1773`
+- [Wikipedia：The Wealth of Nations（二手综述，附参考文献）](https://en.wikipedia.org/wiki/The_Wealth_of_Nations) — `smith1776`
+- [Wikipedia：United States Declaration of Independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/United_States_Declaration_of_Independence) — `america1776`
+- [Wikipedia：Patent of Toleration（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Patent_of_Toleration) — `joseph1781`
+- [Wikipedia：Serfdom Patent (1781)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Serfdom_Patent_(1781)) — `joseph1781`
+- [Wikipedia：Annexation of the Crimean Khanate by the Russian Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Annexation_of_the_Crimean_Khanate_by_the_Russian_Empire) — `crimea1783`
+- [Wikipedia：Estates General of 1789（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Estates_General_of_1789) — `estates1789`
+- [Wikipedia：Storming of the Bastille（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Storming_of_the_Bastille) — `bastille1789`
+- [Archives nationales：1789年政治文件](https://www.archives-nationales.culture.gouv.fr/ateliers-pedagogiques/1789-construire-un-nouvel-ordre-politique) — `rights1789`
+- [Wikipedia：Declaration of the Rights of Man and of the Citizen（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Declaration_of_the_Rights_of_Man_and_of_the_Citizen) — `rights1789`
+- [Wikipedia：Women's March on Versailles（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Women's_March_on_Versailles) — `women1789`
+- [Wikipedia：French Constitution of 1791（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_Constitution_of_1791) — `constitution1791`
+- [Wikipedia：Constitution of 3 May 1791（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Constitution_of_3_May_1791) — `poland1791`
+- [Wikipedia：Haitian Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Haitian_Revolution) — `haiti1791`
+- [Wikipedia：Declaration of the Rights of Woman and of the Female Citizen（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Declaration_of_the_Rights_of_Woman_and_of_the_Female_Citizen) — `olympe1791`
+- [Wikipedia：Proclamation of the abolition of the monarchy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Proclamation_of_the_abolition_of_the_monarchy) — `republic1792`
+- [Wikipedia：A Vindication of the Rights of Woman（二手综述，附参考文献）](https://en.wikipedia.org/wiki/A_Vindication_of_the_Rights_of_Woman) — `wollstonecraft1792`
+- [Wikipedia：Execution of Louis XVI（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Execution_of_Louis_XVI) — `louis1793`
+- [Wikipedia：Reign of Terror（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Reign_of_Terror) — `terror1793`
+- [Wikipedia：Kościuszko Uprising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ko%C5%9Bciuszko_Uprising) — `kosciuszko1794`
+- [Wikipedia：Thermidorian Reaction（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Thermidorian_Reaction) — `thermidor1794`
+- [Wikipedia：Third Partition of Poland（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Third_Partition_of_Poland) — `partition1795`
+- [Wikipedia：French Directory（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_Directory) — `directory1795`
+- [Wikipedia：Edward Jenner（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Edward_Jenner) — `jenner1796`
+- [Wikipedia：Irish Rebellion of 1798（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Irish_Rebellion_of_1798) — `ireland1798`
+- [Wikipedia：Coup of 18 Brumaire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Coup_of_18_Brumaire) — `brumaire1799`
+- [Wikipedia：Acts of Union 1800（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Acts_of_Union_1800) — `union1801`
+- [Wikipedia：Haitian Declaration of Independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Haitian_Declaration_of_Independence) — `haiti1804`
+- [Wikipedia：Napoleonic Code（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Napoleonic_Code) — `code1804`
+- [Wikipedia：First French Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_French_Empire) — `empire1804`
+- [Wikipedia：Austrian Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Austrian_Empire) — `austria1804`
+- [Wikipedia：Battle of Austerlitz（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Austerlitz) — `austerlitz1805`
+- [Wikipedia：Battle of Trafalgar（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Trafalgar) — `austerlitz1805`
+- [Wikipedia：Dissolution of the Holy Roman Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dissolution_of_the_Holy_Roman_Empire) — `hre1806`
+- [Wikipedia：Continental System（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Continental_System) — `blockade1806`
+- [UK Parliament：奴隶贸易及奴隶制立法](https://heritagecollections.parliament.uk/stories/the-transatlantic-slave-trade/) — `abolition1807`、`slavery1833`
+- [Wikipedia：Slave Trade Act 1807（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Slave_Trade_Act_1807) — `abolition1807`
+- [Wikipedia：Peninsular War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peninsular_War) — `peninsula1808`
+- [Wikipedia：Spanish Constitution of 1812（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_Constitution_of_1812) — `cadiz1812`
+- [Wikipedia：French invasion of Russia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_invasion_of_Russia) — `russia1812`
+- [Wikipedia：Battle of Leipzig（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Leipzig) — `leipzig1813`
+- [Wikipedia：Constitution of Norway（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Constitution_of_Norway) — `eidsvoll1814`
+- [Wikipedia：Congress of Vienna（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Congress_of_Vienna) — `vienna1815`
+- [Wikipedia：Battle of Waterloo（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Waterloo) — `waterloo1815`
+- [Wikipedia：Peterloo Massacre（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Peterloo_Massacre) — `peterloo1819`
+- [Wikipedia：Greek War of Independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Greek_War_of_Independence) — `greek1821`
+- [Wikipedia：Decembrist revolt（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Decembrist_revolt) — `decembrists1825`
+- [Wikipedia：Stockton and Darlington Railway（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Stockton_and_Darlington_Railway) — `railway1825`
+- [Wikipedia：Battle of Navarino（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Navarino) — `navarino1827`
+- [Wikipedia：July Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/July_Revolution) — `july1830`
+- [Wikipedia：Belgian Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Belgian_Revolution) — `belgium1830`
+- [Wikipedia：November Uprising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/November_Uprising) — `poland1830`
+- [Wikipedia：French conquest of Algeria（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_conquest_of_Algeria) — `algeria1830`
+- [Wikipedia：Reform Act 1832（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Reform_Act_1832) — `reform1832`
+- [Wikipedia：Slavery Abolition Act 1833（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Slavery_Abolition_Act_1833) — `slavery1833`
+- [Wikipedia：Factory Acts（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Factory_Acts) — `factory1833`
+- [Wikipedia：Zollverein（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Zollverein) — `zollverein1834`
+- [Wikipedia：Chartism（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Chartism) — `chartism1838`
+- [Wikipedia：Tanzimat（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Tanzimat) — `tanzimat1839`
+- [Wikipedia：Great Famine (Ireland)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Famine_(Ireland)) — `famine1845`
+- [Wikipedia：French Revolution of 1848（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_Revolution_of_1848) — `1848-france`
+- [Wikipedia：Revolutions of 1848 in the Austrian Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Revolutions_of_1848_in_the_Austrian_Empire) — `1848-vienna`
+- [Wikipedia：Frankfurt Parliament（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Frankfurt_Parliament) — `1848-frankfurt`
+- [Wikipedia：Hungarian Revolution of 1848（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hungarian_Revolution_of_1848) — `1848-hungary`
+- [Wikipedia：The Communist Manifesto（二手综述，附参考文献）](https://en.wikipedia.org/wiki/The_Communist_Manifesto) — `manifesto1848`
+- [Wikipedia：Swiss Federal Constitution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Swiss_Federal_Constitution) — `swiss1848`
+- [Wikipedia：1851 French coup d'état（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1851_French_coup_d'%C3%A9tat) — `coup1851`
+- [Wikipedia：Crimean War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Crimean_War) — `crimean1853`
+- [Wikipedia：Treaty of Paris (1856)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Paris_(1856)) — `paris1856`
+- [Wikipedia：On the Origin of Species（二手综述，附参考文献）](https://en.wikipedia.org/wiki/On_the_Origin_of_Species) — `darwin1859`
+- [Wikipedia：United Principalities of Moldavia and Wallachia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/United_Principalities_of_Moldavia_and_Wallachia) — `romania1859`
+- [Wikipedia：Expedition of the Thousand（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Expedition_of_the_Thousand) — `garibaldi1860`
+- [Wikipedia：Proclamation of the Kingdom of Italy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Proclamation_of_the_Kingdom_of_Italy) — `italy1861`
+- [Wikipedia：Emancipation reform of 1861（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Emancipation_reform_of_1861) — `emancipation1861`
+- [Wikipedia：January Uprising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/January_Uprising) — `january1863`
+- [Wikipedia：First Geneva Convention（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Geneva_Convention) — `geneva1864`
+- [Wikipedia：Austro-Prussian War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Austro-Prussian_War) — `austroprussia1866`
+- [Wikipedia：Austro-Hungarian Compromise of 1867（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Austro-Hungarian_Compromise_of_1867) — `ausgleich1867`
+- [Wikipedia：Suez Canal（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Suez_Canal) — `suez1869`
+- [Wikipedia：Capture of Rome（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Capture_of_Rome) — `rome1870`
+- [Wikipedia：Battle of Sedan（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Sedan) — `sedan1870`
+- [Wikipedia：Unification of Germany（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Unification_of_Germany) — `germany1871`
+- [Wikipedia：Paris Commune（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Paris_Commune) — `commune1871`
+- [Wikipedia：Kulturkampf（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Kulturkampf) — `kulturkampf1871`
+- [Wikipedia：League of the Three Emperors（二手综述，附参考文献）](https://en.wikipedia.org/wiki/League_of_the_Three_Emperors) — `threeemperors1873`
+- [Wikipedia：Congress of Berlin（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Congress_of_Berlin) — `berlin1878`
+- [Wikipedia：Health Insurance Bill of 1883（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Health_Insurance_Bill_of_1883) — `social1883`
+- [Wikipedia：Berlin Conference（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Berlin_Conference) — `berlin1884`
+- [Wikipedia：Congo Free State（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Congo_Free_State) — `congo1885`
+- [Wikipedia：Louis Pasteur（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Louis_Pasteur) — `pasteur1885`
+- [Wikipedia：Dreyfus affair（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dreyfus_affair) — `dreyfus1894`
+- [Wikipedia：Hamidian massacres（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hamidian_massacres) — `armenian1894`
+- [Wikipedia：Marie Curie（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Marie_Curie) — `radioactivity1898`
+- [Wikipedia：Second Boer War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Boer_War) — `southafrica1899`
+- [Wikipedia：Women's Social and Political Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Women's_Social_and_Political_Union) — `suffragettes1903`
+- [Wikipedia：Entente Cordiale（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Entente_Cordiale) — `entente1904`
+- [Wikipedia：Herero and Nama genocide（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Herero_and_Nama_genocide) — `herero1904`
+- [Wikipedia：1905 Russian Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1905_Russian_Revolution) — `russia1905`
+- [Deutsches Historisches Museum：Chronik 1905](https://www.dhm.de/lemo/jahreschronik/1905) — `russia1905`
+- [Wikipedia：Dissolution of the union between Norway and Sweden（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dissolution_of_the_union_between_Norway_and_Sweden) — `norway1905`
+- [Wikipedia：Annus mirabilis papers（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Annus_mirabilis_papers) — `einstein1905`
+- [Wikipedia：1906 Finnish parliamentary reform（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1906_Finnish_parliamentary_reform) — `finland1906`
+- [Wikipedia：Anglo-Russian Convention（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Anglo-Russian_Convention) — `entente1907`
+- [Wikipedia：Young Turk Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Young_Turk_Revolution) — `youngturk1908`
+- [Wikipedia：Bosnian Crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Bosnian_Crisis) — `bosnia1908`
+- [Wikipedia：5 October 1910 revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/5_October_1910_revolution) — `portugal1910`
+- [Wikipedia：First Balkan War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Balkan_War) — `balkan1912`
+- [Wikipedia：Second Balkan War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Balkan_War) — `balkan1913`
+- [Wikipedia：Treaty of Bucharest (1913)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Bucharest_(1913)) — `balkan1913`
+- [Wikipedia：Assassination of Archduke Franz Ferdinand（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Assassination_of_Archduke_Franz_Ferdinand) — `sarajevo1914`
+- [Deutsches Historisches Museum：Chronik 1914](https://www.dhm.de/lemo/jahreschronik/1914) — `sarajevo1914`、`war1914`
+- [Wikipedia：July Crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/July_Crisis) — `war1914`
+- [Wikipedia：First Battle of the Marne（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Battle_of_the_Marne) — `marne1914`
+- [Wikipedia：Battle of Tannenberg（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Tannenberg) — `tannenberg1914`
+- [Wikipedia：Armenian genocide（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Armenian_genocide) — `armenian1915`
+- [United States Holocaust Memorial Museum：Armenian Genocide](https://www.ushmm.org/genocide/armenia) — `armenian1915`
+- [Wikipedia：Gallipoli campaign（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Gallipoli_campaign) — `gallipoli1915`
+- [Wikipedia：Battle of Verdun（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Verdun) — `verdun1916`
+- [Wikipedia：Battle of the Somme（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_the_Somme) — `verdun1916`
+- [Wikipedia：Easter Rising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Easter_Rising) — `easter1916`
+- [Wikipedia：February Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/February_Revolution) — `february1917`
+- [Deutsches Historisches Museum：Chronik 1917](https://www.dhm.de/lemo/jahreschronik/1917) — `february1917`、`october1917`
+- [Wikipedia：October Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/October_Revolution) — `october1917`
+- [Wikipedia：Finnish Declaration of Independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Finnish_Declaration_of_Independence) — `finland1917`
+- [Wikipedia：Treaty of Brest-Litovsk（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Brest-Litovsk) — `brest1918`
+- [Deutsches Historisches Museum：Chronik 1918](https://www.dhm.de/lemo/jahreschronik/1918) — `brest1918`、`germany1918`、`women1918`
+- [Wikipedia：Finnish Civil War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Finnish_Civil_War) — `finnish1918`
+- [Wikipedia：Spanish flu（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_flu) — `influenza1918`
+- [CDC：1918年流感历史年表](https://archive.cdc.gov/www_cdc_gov/flu/pandemic-resources/1918-commemoration/pandemic-timeline-1918.htm) — `influenza1918`
+- [Wikipedia：German Revolution of 1918–1919（二手综述，附参考文献）](https://en.wikipedia.org/wiki/German_Revolution_of_1918%E2%80%931919) — `germany1918`
+- [Wikipedia：Armistice of 11 November 1918（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Armistice_of_11_November_1918) — `armistice1918`
+- [Wikipedia：Dissolution of Austria-Hungary（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dissolution_of_Austria-Hungary) — `states1918`
+- [Wikipedia：Second Polish Republic（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Polish_Republic) — `states1918`
+- [Wikipedia：Creation of Yugoslavia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Creation_of_Yugoslavia) — `southslav1918`
+- [Wikipedia：Representation of the People Act 1918（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Representation_of_the_People_Act_1918) — `women1918`
+- [Wikipedia：Treaty of Versailles（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Versailles) — `versailles1919`
+- [Deutsches Historisches Museum：Chronik 1919](https://www.dhm.de/lemo/jahreschronik/1919) — `versailles1919`、`weimar1919`
+- [Wikipedia：Weimar Constitution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Weimar_Constitution) — `weimar1919`
+- [Wikipedia：Irish War of Independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Irish_War_of_Independence) — `ireland1919`
+- [Wikipedia：League of Nations（二手综述，附参考文献）](https://en.wikipedia.org/wiki/League_of_Nations) — `league1920`
+- [Wikipedia：Treaty of Trianon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Trianon) — `trianon1920`
+- [Wikipedia：Battle of Warsaw (1920)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Warsaw_(1920)) — `warsaw1920`
+- [Wikipedia：New Economic Policy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/New_Economic_Policy) — `nep1921`
+- [Wikipedia：Kronstadt rebellion（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Kronstadt_rebellion) — `nep1921`
+- [Wikipedia：Anglo-Irish Treaty（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Anglo-Irish_Treaty) — `ireland1921`
+- [Wikipedia：March on Rome（二手综述，附参考文献）](https://en.wikipedia.org/wiki/March_on_Rome) — `mussolini1922`
+- [Wikipedia：Creation of the Soviet Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Creation_of_the_Soviet_Union) — `ussr1922`
+- [Wikipedia：Irish Civil War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Irish_Civil_War) — `irishcivil1922`
+- [Wikipedia：Treaty of Lausanne（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Lausanne) — `lausanne1923`
+- [Wikipedia：Population exchange between Greece and Turkey（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Population_exchange_between_Greece_and_Turkey) — `lausanne1923`
+- [Wikipedia：Proclamation of the Republic of Turkey（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Proclamation_of_the_Republic_of_Turkey) — `turkey1923`
+- [Deutsches Historisches Museum：Chronik 1923](https://www.dhm.de/lemo/jahreschronik/1923) — `ruhr1923`
+- [Wikipedia：Occupation of the Ruhr（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Occupation_of_the_Ruhr) — `ruhr1923`
+- [Wikipedia：Locarno Treaties（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Locarno_Treaties) — `locarno1925`
+- [Wikipedia：28 May 1926 coup d'état（二手综述，附参考文献）](https://en.wikipedia.org/wiki/28_May_1926_coup_d'%C3%A9tat) — `portugal1926`
+- [Wikipedia：First five-year plan (Soviet Union)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_five-year_plan_(Soviet_Union)) — `plan1928`
+- [Wikipedia：Great Depression in Europe（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Depression_in_Europe) — `crash1929`
+- [Deutsches Historisches Museum：Chronik 1929](https://www.dhm.de/lemo/jahreschronik/1929) — `crash1929`
+- [Wikipedia：Second Spanish Republic（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Spanish_Republic) — `spain1931`
+- [Wikipedia：Holodomor（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Holodomor) — `famine1932`
+- [Wikipedia：Soviet famine of 1930–1933（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Soviet_famine_of_1930%E2%80%931933) — `famine1932`
+- [USHMM：1933—1938年迫害年表](https://encyclopedia.ushmm.org/content/en/timeline-group/holocaust/1933-1938) — `hitler1933`、`nuremberg1935`
+- [Deutsches Historisches Museum：Chronik 1933](https://www.dhm.de/lemo/jahreschronik/1933) — `hitler1933`
+- [Wikipedia：Nuremberg Laws（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Nuremberg_Laws) — `nuremberg1935`
+- [Wikipedia：Second Italo-Ethiopian War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Italo-Ethiopian_War) — `ethiopia1935`
+- [Wikipedia：Spanish Civil War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_Civil_War) — `spain1936`
+- [Wikipedia：Popular Front (France)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Popular_Front_(France)) — `popular1936`
+- [Wikipedia：Great Purge（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Purge) — `purge1937`
+- [Wikipedia：Anschluss（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Anschluss) — `anschluss1938`
+- [USHMM：Holocaust 与第二次世界大战关键日期](https://encyclopedia.ushmm.org/content/en/article/the-holocaust-and-world-war-ii-key-dates) — `anschluss1938`、`pogrom1938`、`poland1939`、`barbarossa1941`、`babi1941`、`wannsee1942`、`warsawghetto1943`、`auschwitz1945`、`period-ww2`
+- [Wikipedia：Munich Agreement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Munich_Agreement) — `munich1938`
+- [Deutsches Historisches Museum：Chronik 1938](https://www.dhm.de/lemo/jahreschronik/1938) — `munich1938`
+- [Wikipedia：Kristallnacht（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Kristallnacht) — `pogrom1938`
+- [Wikipedia：Molotov–Ribbentrop Pact（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Molotov%E2%80%93Ribbentrop_Pact) — `pact1939`
+- [Deutsches Historisches Museum：Chronik 1939](https://www.dhm.de/lemo/jahreschronik/1939) — `pact1939`
+- [Wikipedia：Invasion of Poland（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Invasion_of_Poland) — `poland1939`
+- [Wikipedia：Winter War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Winter_War) — `winter1939`
+- [Wikipedia：Katyn massacre（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Katyn_massacre) — `katyn1940`
+- [Wikipedia：Battle of France（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_France) — `france1940`
+- [Wikipedia：Vichy France（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Vichy_France) — `vichy1940`
+- [Wikipedia：Soviet occupation of the Baltic states (1940)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Soviet_occupation_of_the_Baltic_states_(1940)) — `baltic1940`
+- [Wikipedia：Battle of Britain（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Britain) — `britain1940`
+- [Wikipedia：The Blitz（二手综述，附参考文献）](https://en.wikipedia.org/wiki/The_Blitz) — `britain1940`
+- [Wikipedia：Operation Barbarossa（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Operation_Barbarossa) — `barbarossa1941`
+- [Wikipedia：Babi Yar（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Babi_Yar) — `babi1941`
+- [Wikipedia：Wannsee Conference（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Wannsee_Conference) — `wannsee1942`
+- [Wikipedia：Battle of Stalingrad（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Battle_of_Stalingrad) — `stalingrad1943`
+- [Wikipedia：Warsaw Ghetto Uprising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Warsaw_Ghetto_Uprising) — `warsawghetto1943`
+- [Wikipedia：Armistice of Cassibile（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Armistice_of_Cassibile) — `italy1943`
+- [Wikipedia：Italian Civil War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Italian_Civil_War) — `italy1943`
+- [Wikipedia：Normandy landings（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Normandy_landings) — `normandy1944`
+- [Wikipedia：Warsaw Uprising（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Warsaw_Uprising) — `warsaw1944`
+- [Wikipedia：Yalta Conference（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Yalta_Conference) — `yalta1945`
+- [Wikipedia：Liberation of Auschwitz concentration camp（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Liberation_of_Auschwitz_concentration_camp) — `auschwitz1945`
+- [Wikipedia：German Instrument of Surrender（二手综述，附参考文献）](https://en.wikipedia.org/wiki/German_Instrument_of_Surrender) — `victory1945`
+- [Wikipedia：Potsdam Conference（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Potsdam_Conference) — `potsdam1945`
+- [Wikipedia：Nuremberg trials（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Nuremberg_trials) — `nuremberg1945`
+- [Wikipedia：Women's suffrage in France（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Women's_suffrage_in_France) — `womenfrance1945`
+- [Wikipedia：1946 Italian institutional referendum（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1946_Italian_institutional_referendum) — `italy1946`
+- [Wikipedia：Greek Civil War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Greek_Civil_War) — `greece1946`
+- [Wikipedia：Marshall Plan（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Marshall_Plan) — `marshall1947`
+- [Wikipedia：Partition of India（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Partition_of_India) — `india1947`
+- [Wikipedia：1948 Czechoslovak coup d'état（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1948_Czechoslovak_coup_d'%C3%A9tat) — `prague1948`
+- [Wikipedia：Berlin Blockade（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Berlin_Blockade) — `berlin1948`
+- [Wikipedia：Tito–Stalin split（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Tito%E2%80%93Stalin_split) — `tito1948`
+- [Wikipedia：History of the National Health Service（二手综述，附参考文献）](https://en.wikipedia.org/wiki/History_of_the_National_Health_Service) — `nhs1948`
+- [NATO：North Atlantic Treaty](https://www.nato.int/en/about-us/organization/founding-treaty) — `nato1949`
+- [Wikipedia：North Atlantic Treaty（二手综述，附参考文献）](https://en.wikipedia.org/wiki/North_Atlantic_Treaty) — `nato1949`
+- [Deutsches Historisches Museum：Chronik 1949](https://www.dhm.de/lemo/jahreschronik/1949) — `frg1949`、`gdr1949`
+- [Wikipedia：Basic Law for the Federal Republic of Germany（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Basic_Law_for_the_Federal_Republic_of_Germany) — `frg1949`
+- [Wikipedia：East Germany（二手综述，附参考文献）](https://en.wikipedia.org/wiki/East_Germany) — `gdr1949`、`period-gdr`
+- [Wikipedia：Council of Europe（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Council_of_Europe) — `coe1949`
+- [Council of Europe：成立与创始者](https://www.coe.int/en/web/about-us/founding-fathers) — `coe1949`
+- [Union européenne：历史与条约节点](https://european-union.europa.eu/principles-countries-history/history-eu_en) — `schuman1950`、`ecsc1951`、`rome1957`、`enlargement1973`、`ep1979`、`iberia1986`、`maastricht1992`、`eu1993`、`eu1995`、`euro1999`、`euro2002`、`enlarge2004`、`balkan-eu2007`、`lisbon2007`、`lisbon2009`、`croatia2013`、`recovery2020`、`candidate2022`
+- [Wikipedia：Schuman Declaration（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Schuman_Declaration) — `schuman1950`
+- [Wikipedia：Treaty of Paris (1951)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Paris_(1951)) — `ecsc1951`
+- [Wikipedia：Death and state funeral of Joseph Stalin（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Death_and_state_funeral_of_Joseph_Stalin) — `stalin1953`
+- [Deutsches Historisches Museum：Chronik 1953](https://www.dhm.de/lemo/jahreschronik/1953) — `gdr1953`
+- [Wikipedia：East German uprising of 1953（二手综述，附参考文献）](https://en.wikipedia.org/wiki/East_German_uprising_of_1953) — `gdr1953`
+- [Wikipedia：Discovery of the structure of DNA（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Discovery_of_the_structure_of_DNA) — `dna1953`
+- [Wikipedia：Algerian War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Algerian_War) — `algeria1954`
+- [NATO 档案：Warsaw Pact](https://www.nato.int/cps/en/natohq/declassified_138294.htm) — `warsaw1955`
+- [Wikipedia：Warsaw Pact（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Warsaw_Pact) — `warsaw1955`
+- [Wikipedia：Austrian State Treaty（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Austrian_State_Treaty) — `austria1955`
+- [Wikipedia：Declaration of Neutrality（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Declaration_of_Neutrality) — `austria1955`
+- [Wikipedia：On the Cult of Personality and Its Consequences（二手综述，附参考文献）](https://en.wikipedia.org/wiki/On_the_Cult_of_Personality_and_Its_Consequences) — `secret1956`
+- [Wikipedia：Hungarian Revolution of 1956（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Hungarian_Revolution_of_1956) — `hungary1956`
+- [Wikipedia：Suez Crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Suez_Crisis) — `suez1956`
+- [Wikipedia：Treaty of Rome（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Rome) — `rome1957`
+- [Wikipedia：Sputnik 1（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Sputnik_1) — `sputnik1957`
+- [Wikipedia：French Fifth Republic（二手综述，附参考文献）](https://en.wikipedia.org/wiki/French_Fifth_Republic) — `fifth1958`
+- [Deutsches Historisches Museum：Chronik 1961](https://www.dhm.de/lemo/jahreschronik/1961) — `wall1961`
+- [Wikipedia：Berlin Wall（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Berlin_Wall) — `wall1961`
+- [Wikipedia：Vostok 1（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Vostok_1) — `gagarin1961`
+- [Wikipedia：Évian Accords（二手综述，附参考文献）](https://en.wikipedia.org/wiki/%C3%89vian_Accords) — `algeria1962`
+- [Wikipedia：Second Vatican Council（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Vatican_Council) — `vatican1962`
+- [Wikipedia：Cuban Missile Crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Cuban_Missile_Crisis) — `cuba1962`
+- [Wikipedia：Élysée Treaty（二手综述，附参考文献）](https://en.wikipedia.org/wiki/%C3%89lys%C3%A9e_Treaty) — `elysee1963`
+- [Wikipedia：Greek junta（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Greek_junta) — `greek1967`
+- [Wikipedia：Prague Spring（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Prague_Spring) — `prague1968`
+- [Wikipedia：May 68（二手综述，附参考文献）](https://en.wikipedia.org/wiki/May_68) — `may1968`
+- [Wikipedia：Ostpolitik（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Ostpolitik) — `ostpolitik1970`
+- [Deutsches Historisches Museum：Chronik 1970](https://www.dhm.de/lemo/jahreschronik/1970) — `ostpolitik1970`
+- [Wikipedia：Women's suffrage in Switzerland（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Women's_suffrage_in_Switzerland) — `swisswomen1971`
+- [Wikipedia：Bloody Sunday (1972)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Bloody_Sunday_(1972)) — `bloody1972`
+- [Wikipedia：1973 enlargement of the European Communities（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1973_enlargement_of_the_European_Communities) — `enlargement1973`
+- [Wikipedia：1973 oil crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1973_oil_crisis) — `oil1973`
+- [Wikipedia：Carnation Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Carnation_Revolution) — `portugal1974`
+- [Wikipedia：Turkish invasion of Cyprus（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Turkish_invasion_of_Cyprus) — `cyprus1974`
+- [Wikipedia：Metapolitefsi（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Metapolitefsi) — `greece1974`
+- [Wikipedia：Helsinki Accords（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Helsinki_Accords) — `helsinki1975`
+- [OSCE：Helsinki Final Act 原文](https://www.osce.org/helsinki-final-act) — `helsinki1975`、`paris1990`
+- [Wikipedia：Spanish transition to democracy（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_transition_to_democracy) — `franco1975`
+- [Wikipedia：Charter 77（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Charter_77) — `charter1977`
+- [Wikipedia：Spanish Constitution of 1978（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Spanish_Constitution_of_1978) — `spain1978`
+- [Wikipedia：1979 European Parliament election（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1979_European_Parliament_election) — `ep1979`
+- [Wikipedia：Premiership of Margaret Thatcher（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Premiership_of_Margaret_Thatcher) — `thatcher1979`
+- [Wikipedia：Solidarity (Polish trade union)（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Solidarity_(Polish_trade_union)) — `solidarity1980`
+- [Wikipedia：Martial law in Poland（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Martial_law_in_Poland) — `martial1981`
+- [Wikipedia：Schengen Agreement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Schengen_Agreement) — `schengen1985`
+- [EUR-Lex：Schengen Agreement 文本](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:42000A0922(01)) — `schengen1985`、`schengen1995`
+- [Wikipedia：Perestroika（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Perestroika) — `gorbachev1985`
+- [Wikipedia：Chernobyl disaster（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Chernobyl_disaster) — `chernobyl1986`
+- [IAEA：Чорнобиль 事故背景文件](https://www.iaea.org/sites/default/files/21/04/iaea-background-document-chornobyl.pdf) — `chernobyl1986`
+- [Wikipedia：1986 enlargement of the European Communities（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1986_enlargement_of_the_European_Communities) — `iberia1986`
+- [Wikipedia：Intermediate-Range Nuclear Forces Treaty（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Intermediate-Range_Nuclear_Forces_Treaty) — `inf1987`、`inf2019`
+- [Wikipedia：Polish Round Table Agreement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Polish_Round_Table_Agreement) — `roundtable1989`
+- [Wikipedia：1989 Polish parliamentary election（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1989_Polish_parliamentary_election) — `roundtable1989`
+- [Wikipedia：Baltic Way（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Baltic_Way) — `balticway1989`
+- [Wikipedia：End of communism in Hungary（二手综述，附参考文献）](https://en.wikipedia.org/wiki/End_of_communism_in_Hungary) — `hungary1989`
+- [Deutsches Historisches Museum：Chronik 1989](https://www.dhm.de/lemo/jahreschronik/1989) — `wall1989`
+- [Wikipedia：Fall of the Berlin Wall（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Fall_of_the_Berlin_Wall) — `wall1989`
+- [Wikipedia：Velvet Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Velvet_Revolution) — `velvet1989`
+- [Wikipedia：Romanian Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Romanian_Revolution) — `romania1989`
+- [Wikipedia：Act of the Re-Establishment of the State of Lithuania（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Act_of_the_Re-Establishment_of_the_State_of_Lithuania) — `lithuania1990`
+- [Deutsches Historisches Museum：Chronik 1990](https://www.dhm.de/lemo/jahreschronik/1990) — `germanunity1990`
+- [Wikipedia：German reunification（二手综述，附参考文献）](https://en.wikipedia.org/wiki/German_reunification) — `germanunity1990`
+- [Wikipedia：Paris Charter（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Paris_Charter) — `paris1990`
+- [Wikipedia：Breakup of Yugoslavia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Breakup_of_Yugoslavia) — `yugoslavia1991`
+- [Wikipedia：Croatian War of Independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Croatian_War_of_Independence) — `yugoslavia1991`
+- [Wikipedia：Restoration of independence of Estonia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Restoration_of_independence_of_Estonia) — `baltic1991`
+- [Wikipedia：On the Restoration of Independence of the Republic of Latvia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/On_the_Restoration_of_Independence_of_the_Republic_of_Latvia) — `baltic1991`
+- [Wikipedia：Declaration of Independence of Ukraine（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Declaration_of_Independence_of_Ukraine) — `ukraine1991`
+- [Wikipedia：1991 Ukrainian independence referendum（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1991_Ukrainian_independence_referendum) — `ukraine1991`
+- [Wikipedia：Dissolution of the Soviet Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dissolution_of_the_Soviet_Union) — `ussrend1991`
+- [Wikipedia：Maastricht Treaty（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Maastricht_Treaty) — `maastricht1992`、`eu1993`
+- [Wikipedia：Bosnian War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Bosnian_War) — `bosnia1992`
+- [International Court of Justice：Bosnia and Herzegovina v. Serbia and Montenegro](https://www.icj-cij.org/case/91) — `bosnia1992`、`srebrenica1995`
+- [Wikipedia：Dissolution of Czechoslovakia（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dissolution_of_Czechoslovakia) — `czechslovak1993`
+- [Wikipedia：1993 Russian constitutional crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1993_Russian_constitutional_crisis) — `russia1993`
+- [Wikipedia：First Chechen War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/First_Chechen_War) — `chechnya1994`
+- [Wikipedia：1995 enlargement of the European Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1995_enlargement_of_the_European_Union) — `eu1995`
+- [Wikipedia：Schengen Area（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Schengen_Area) — `schengen1995`
+- [Wikipedia：Srebrenica massacre（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Srebrenica_massacre) — `srebrenica1995`
+- [Wikipedia：Dayton Agreement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Dayton_Agreement) — `dayton1995`
+- [UK Government：The Belfast Agreement 原文](https://www.gov.uk/government/publications/the-belfast-agreement) — `belfast1998`
+- [Wikipedia：Good Friday Agreement（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Good_Friday_Agreement) — `belfast1998`
+- [Wikipedia：History of the euro（二手综述，附参考文献）](https://en.wikipedia.org/wiki/History_of_the_euro) — `euro1999`、`euro2002`
+- [Wikipedia：1999 enlargement of NATO（二手综述，附参考文献）](https://en.wikipedia.org/wiki/1999_enlargement_of_NATO) — `nato1999`
+- [Wikipedia：Kosovo War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Kosovo_War) — `kosovo1999`
+- [Wikipedia：United Nations Security Council Resolution 1244（二手综述，附参考文献）](https://en.wikipedia.org/wiki/United_Nations_Security_Council_Resolution_1244) — `kosovo1999`
+- [Wikipedia：Second Chechen War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Second_Chechen_War) — `chechnya1999`
+- [Wikipedia：2004 enlargement of the European Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2004_enlargement_of_the_European_Union) — `enlarge2004`
+- [Wikipedia：Orange Revolution（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Orange_Revolution) — `orange2004`
+- [Wikipedia：2007 enlargement of the European Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2007_enlargement_of_the_European_Union) — `balkan-eu2007`
+- [Wikipedia：Treaty of Lisbon（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Treaty_of_Lisbon) — `lisbon2007`、`lisbon2009`
+- [Wikipedia：2008 Kosovo declaration of independence（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2008_Kosovo_declaration_of_independence) — `kosovo2008`
+- [Wikipedia：Russo-Georgian War（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Russo-Georgian_War) — `georgia2008`
+- [Wikipedia：Great Recession in Europe（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Great_Recession_in_Europe) — `crisis2008`
+- [Wikipedia：2008–2011 Icelandic financial crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2008%E2%80%932011_Icelandic_financial_crisis) — `crisis2008`
+- [Wikipedia：European debt crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/European_debt_crisis) — `eurocrisis2010`
+- [Wikipedia：Greek government-debt crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Greek_government-debt_crisis) — `eurocrisis2010`
+- [Wikipedia：2013 enlargement of the European Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2013_enlargement_of_the_European_Union) — `croatia2013`
+- [Wikipedia：Revolution of Dignity（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Revolution_of_Dignity) — `maidan2014`
+- [Wikipedia：Annexation of Crimea by the Russian Federation（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Annexation_of_Crimea_by_the_Russian_Federation) — `crimea2014`
+- [Wikipedia：United Nations General Assembly Resolution 68/262（二手综述，附参考文献）](https://en.wikipedia.org/wiki/United_Nations_General_Assembly_Resolution_68%2F262) — `crimea2014`
+- [Wikipedia：War in Donbas（二手综述，附参考文献）](https://en.wikipedia.org/wiki/War_in_Donbas) — `donbas2014`
+- [Wikipedia：2015 European migrant crisis（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2015_European_migrant_crisis) — `refugees2015`
+- [Wikipedia：November 2015 Paris attacks（二手综述，附参考文献）](https://en.wikipedia.org/wiki/November_2015_Paris_attacks) — `paris2015`
+- [Council of the EU：退出协定及过渡期](https://www.consilium.europa.eu/en/press/press-releases/2020/01/30/brexit-council-adopts-decision-to-conclude-the-withdrawal-agreement/) — `brexit2016`、`brexit2020`
+- [Wikipedia：2016 United Kingdom European Union membership referendum（二手综述，附参考文献）](https://en.wikipedia.org/wiki/2016_United_Kingdom_European_Union_membership_referendum) — `brexit2016`
+- [Wikipedia：COVID-19 pandemic in Europe（二手综述，附参考文献）](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Europe) — `covid2020`
+- [Wikipedia：Next Generation EU（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Next_Generation_EU) — `recovery2020`
+- [United Nations General Assembly：A/RES/ES-11/1](https://digitallibrary.un.org/record/3965290/files/A_RES_ES-11_1-EN.pdf) — `invasion2022`
+- [Wikipedia：Russian invasion of Ukraine（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Russian_invasion_of_Ukraine) — `invasion2022`
+- [Wikipedia：Accession of Ukraine to the European Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Accession_of_Ukraine_to_the_European_Union) — `candidate2022`
+- [NATO：Suomi / Finland 于2023年4月4日入盟](https://www.nato.int/cps/en/natohq/news_213448.htm?selectedLocale=en) — `finland2023`
+- [Sveriges regering：与 NATO 的历史关系](https://government.se/government-policy/sweden-in-nato/history-of-sweden-and-nato/) — `sweden2024`
+- [Council of the EU：取消 България 与 România 内部陆路边检](https://www.consilium.europa.eu/en/press/press-releases/2024/12/12/schengen-council-decides-to-lift-land-border-controls-with-bulgaria-and-romania/pdf/) — `schengen2025`
+- [European Central Bank：Bulgaria introduces the euro，2026-01-01](https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.pr260101~c830245e42.en.html) — `bulgaria2026`
+- [Wikipedia：Roman Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Roman_Empire) — `period-empire`
+- [Wikipedia：Byzantine Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Byzantine_Empire) — `period-byz1`、`period-byz2`
+- [Wikipedia：Holy Roman Empire（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Holy_Roman_Empire) — `period-hre`
+- [Wikipedia：Polish–Lithuanian Commonwealth（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Polish%E2%80%93Lithuanian_Commonwealth) — `period-commonwealth`
+- [Wikipedia：Austria-Hungary（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Austria-Hungary) — `period-ah`
+- [Wikipedia：World War I（二手综述，附参考文献）](https://en.wikipedia.org/wiki/World_War_I) — `period-ww1`
+- [Wikipedia：Soviet Union（二手综述，附参考文献）](https://en.wikipedia.org/wiki/Soviet_Union) — `period-ussr`
+- [Wikipedia：World War II（二手综述，附参考文献）](https://en.wikipedia.org/wiki/World_War_II) — `period-ww2`

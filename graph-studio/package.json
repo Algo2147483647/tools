@@ -5,6 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "examples:europe-history": "node scripts/build-europe-history.mjs",
+    "examples:europe-history:check": "node scripts/build-europe-history.mjs --check",
     "start": "vite",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -12,7 +14,7 @@
     "preview": "vite preview",
     "format": "prettier --write src browser-tests package.json tsconfig.json vite.config.ts .prettierrc.json",
     "format:check": "prettier --check src browser-tests package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "check": "npm run format:check && npm test && npm run build"
+    "check": "npm run format:check && npm run examples:europe-history:check && npm test && npm run build"
   },
   "dependencies": {
     "@types/dagre": "^0.7.54",

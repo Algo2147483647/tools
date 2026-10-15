@@ -12,6 +12,14 @@ export const EXAMPLE_WORKSPACES = [
     accent: "#a36c43",
   },
   {
+    id: "europe-history",
+    title: "欧洲历史：分流与交汇",
+    kind: "Timeline",
+    description: "从爱琴海青铜时代到当代，沿多地区线路阅读欧洲历史。中文说明、原语言专名，附分期导读与来源。",
+    detail: "585 events · 13 periods · 673 relationships · c. 1900 BCE–2026",
+    accent: "#657d91",
+  },
+  {
     id: "commerce",
     title: "Commerce operations",
     kind: "Nested node-link",

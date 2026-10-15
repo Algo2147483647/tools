@@ -1,10 +1,11 @@
-import type { ElkNode, ELK, ElkPoint } from "elkjs/lib/elk-api";
+import type { ELK } from "elkjs/lib/elk-api";
 import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, NormalizedDag } from "../graph/types";
 import type { StageAppearance } from "./appearance";
 import { getNodeVisual, truncateTitleToWidth, wrapDetailText } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
 import { roundedPolylinePath } from "./rounded-path";
+import { layoutCompoundHierarchy } from "./compound-hierarchy-layout";
 
 export async function buildCompoundStage(
   input: {
@@ -14,6 +15,7 @@ export async function buildCompoundStage(
     appearance: StageAppearance;
     showNodeDetail: boolean;
     alignNodeWidthsToMax: boolean;
+    showEdgeLabels?: boolean;
   },
   elk: Pick<ELK, "layout">,
 ): Promise<StageData> {
@@ -28,25 +30,6 @@ export async function buildCompoundStage(
       .map((id, index) => [id, index]),
   );
   const theme = appearance.layout;
-  const root: ElkNode = {
-    id: "scene-root",
-    children: [],
-    edges: [],
-    layoutOptions: {
-      "elk.algorithm": "layered",
-      "elk.direction": "RIGHT",
-      "elk.hierarchyHandling": "INCLUDE_CHILDREN",
-      "elk.edgeRouting": "ORTHOGONAL",
-      "elk.padding": "[top=36,left=36,bottom=36,right=36]",
-      "elk.spacing.nodeNode": String(theme.rowGap),
-      "elk.layered.spacing.nodeNodeBetweenLayers": String(theme.columnGap),
-      "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
-      "elk.randomSeed": "1",
-    },
-  };
-  const sceneIds = new Map(projection.items.map((item, i) => [item.id, `item-${i}`]));
-  const sourceIds = new Map([...sceneIds].map(([key, value]) => [value, key]));
-  const elkItems = new Map<string, ElkNode>();
   const visuals = new Map<string, { title: string; detail: string; width: number }>();
   for (const item of projection.items) {
     const detail = `${item.leafCount} nodes · ${item.internalEdgeIds.length} internal relationships`;
@@ -66,48 +49,22 @@ export async function buildCompoundStage(
             alignNodeWidthsToMax,
           );
     visuals.set(item.id, visual);
-    elkItems.set(item.id, {
-      id: sceneIds.get(item.id)!,
-      width: visual.width,
-      height: theme.nodeHeight,
-      ...(item.kind === "group" && !item.collapsed
-        ? {
-            children: [],
-            layoutOptions: {
-              "elk.padding": "[top=58,left=24,bottom=24,right=24]",
-              "elk.nodeSize.constraints": "MINIMUM_SIZE",
-              "elk.nodeSize.minimum": `(${Math.max(260, visual.width)},120)`,
-            },
-          }
-        : {}),
-    });
   }
-  for (const item of projection.items)
-    (item.parentId ? elkItems.get(item.parentId)! : root).children!.push(elkItems.get(item.id)!);
-  root.edges = projection.edges.map((edge, i) => ({
-    id: `edge-${i}`,
-    sources: [sceneIds.get(edge.source)!],
-    targets: [sceneIds.get(edge.target)!],
-    labels: edge.label ? [{ text: edge.label, width: edge.label.length * 7 + 12, height: 18 }] : [],
-  }));
-  const result = await elk.layout(root);
+  const result = await layoutCompoundHierarchy(
+    projection,
+    new Map([...visuals].map(([id, visual]) => [id, { width: visual.width, height: theme.nodeHeight }])),
+    theme,
+    input.showEdgeLabels ?? false,
+    elk,
+  );
   const nodes: StageNode[] = [];
   const groups: StageGroup[] = [];
   const nodeMap: StageData["nodeMap"] = Object.create(null);
-  const positions = new Map<string, { x: number; y: number }>([[root.id, { x: 0, y: 0 }]]);
-  const itemMap = new Map(projection.items.map((item) => [item.id, item]));
-  const stack = (result.children ?? []).map((node) => ({ node, x: 0, y: 0 }));
-  while (stack.length) {
-    const { node, x, y } = stack.pop()!;
-    const left = x + (node.x ?? 0),
-      top = y + (node.y ?? 0);
-    positions.set(node.id, { x: left, y: top });
-    const id = sourceIds.get(node.id)!;
-    const item = itemMap.get(id)!;
+  for (const item of projection.items) {
+    const id = item.id;
+    const { x: left, y: top, width, height } = result.boxes.get(id)!;
     const visual = visuals.get(id)!;
-    const width = node.width ?? visual.width,
-      height = node.height ?? theme.nodeHeight;
-    if (node.children) {
+    if (item.kind === "group" && !item.collapsed) {
       // Use the original root ancestor so drilling into a group preserves its color family.
       let colorFamilyId = id;
       while (groupParents.has(colorFamilyId)) {
@@ -124,7 +81,6 @@ export async function buildCompoundStage(
         width,
         height,
       });
-      node.children.forEach((child) => stack.push({ node: child, x: left, y: top }));
     } else {
       const stageNode: StageNode = {
         key: id,
@@ -149,17 +105,8 @@ export async function buildCompoundStage(
   }
   const edges: StageData["edges"] = [];
   const originalEdges = new Map(dag.edges.map((edge) => [edge.id, edge]));
-  for (const edge of result.edges ?? []) {
-    const original = projection.edges[Number(edge.id.slice(5))];
-    const offset = positions.get(edge.container ?? root.id) ?? { x: 0, y: 0 };
-    const shift = (point: ElkPoint) => ({ x: point.x + offset.x, y: point.y + offset.y });
-    const sections = (edge.sections ?? []).map((section) =>
-      [section.startPoint, ...(section.bendPoints ?? []), section.endPoint].map(shift),
-    );
-    const points = sections.flat();
-    if (!points.length) throw new Error(`No route for ${original.source} → ${original.target}.`);
-    const middle = points[Math.floor(points.length / 2)];
-    const label = edge.labels?.[0];
+  for (const original of projection.edges) {
+    const route = result.routes.get(original.id)!;
     edges.push({
       ...original,
       weight: undefined,
@@ -169,11 +116,9 @@ export async function buildCompoundStage(
           return `${id}: ${source.source} → ${source.target}${source.value === undefined ? "" : ` (${source.value})`}`;
         })
         .join("\n"),
-      path: sections.map((section) => roundedPolylinePath(section)).join(" "),
-      labelPosition:
-        label && label.x !== undefined && label.y !== undefined
-          ? { x: label.x + offset.x + (label.width ?? 0) / 2, y: label.y + offset.y + 10 }
-          : { x: middle.x, y: middle.y - 10 },
+      points: route.points.map((point, order) => ({ ...point, layer: 0, order })),
+      path: roundedPolylinePath(route.points),
+      labelPosition: route.labelPosition,
     });
   }
   const connectedKeysByNode = new Map<string, Set<string>>(nodes.map((node) => [node.key, new Set<string>()]));

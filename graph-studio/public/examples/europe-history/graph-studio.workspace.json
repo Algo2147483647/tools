@@ -1,0 +1,33 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "欧洲历史",
+  "graphs": [
+    "europe-history.json"
+  ],
+  "defaultGraph": "europe-history.json",
+  "metadata": {
+    "language": "zh-CN",
+    "nodeCount": 598,
+    "edgeCount": 673,
+    "polityCount": 81,
+    "themeCount": 7,
+    "assets": [
+      "NAMES.md",
+      "README.md",
+      "SOURCES.md",
+      "notes/ancient-catalog.md",
+      "notes/ancient.md",
+      "notes/contemporary-catalog.md",
+      "notes/contemporary.md",
+      "notes/early-modern.md",
+      "notes/earlyModern-catalog.md",
+      "notes/medieval-catalog.md",
+      "notes/medieval.md",
+      "notes/nineteenth-catalog.md",
+      "notes/nineteenth.md",
+      "notes/twentieth-catalog.md",
+      "notes/twentieth.md"
+    ]
+  }
+}

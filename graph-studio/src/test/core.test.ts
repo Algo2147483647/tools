@@ -2,7 +2,9 @@ import { timelineAxisSuite } from "./timelineAxis.test";
 import { timelineFlowSuite } from "./timelineFlow.test";
 import { timelineViewSuite } from "./timelineView.test";
 import { chinaHistorySuite } from "./chinaHistory.test";
+import { europeHistorySuite } from "./europeHistory.test";
 import { compoundSuite } from "./compound.test";
+import { compoundLayoutSuite } from "./compoundLayout.test";
 import { aiHarnessSuite } from "./aiHarness.test";
 import { documentSessionSuite } from "./documentSession.test";
 import { appearanceSuite } from "./appearance.test";
@@ -28,6 +30,7 @@ import { nodeRelationsSuite } from "./nodeRelations.test";
 async function main() {
   const { passed, failed } = await runSuites([
     compoundSuite,
+    compoundLayoutSuite,
     aiHarnessSuite,
     documentSessionSuite,
     appearanceSuite,
@@ -48,6 +51,7 @@ async function main() {
     timelineFlowSuite,
     timelineViewSuite,
     chinaHistorySuite,
+    europeHistorySuite,
     timelineSuite,
     timelineRenderingSuite,
     spaceHistorySuite,

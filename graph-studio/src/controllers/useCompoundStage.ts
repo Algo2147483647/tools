@@ -18,6 +18,7 @@ export function useCompoundStage(input: Input | null) {
       input.appearance,
       input.showNodeDetail,
       input.alignNodeWidthsToMax,
+      input.showEdgeLabels,
     ]);
     const cached = cache.get(input.dag)?.get(key);
     if (cached) {
