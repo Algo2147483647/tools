@@ -3,7 +3,7 @@ import { createInitialCanvasDag, INITIAL_CANVAS_FILE_NAME } from "../graph/initi
 import { createGraphDocument } from "../graph/normalize";
 import { getInitialSelection } from "../graph/selectors";
 import type { GraphChartType, GraphLayoutMode, NodeKey } from "../graph/types";
-import { useGraphImport } from "../hooks/useGraphImport";
+import { useWorkspaceController } from "../controllers/useWorkspaceController";
 import { useGraphSave } from "../hooks/useGraphSave";
 import { useRelativeFilePreview } from "../hooks/useRelativeFilePreview";
 import type { ChartDisplayOptions } from "../state/chartStyles";
@@ -31,7 +31,7 @@ export function useDocumentSession() {
   }
   const [aiSettings, setAiSettings] = useState(preferences.aiSettings);
   const [nodeDetailInitialFocus, setNodeDetailInitialFocus] = useState<"fields" | "raw">("fields");
-  const files = useGraphImport({ dispatch, state });
+  const files = useWorkspaceController({ dispatch, state });
   const relativeRoot = useMemo(
     () =>
       files.workspace

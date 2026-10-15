@@ -1,5 +1,5 @@
-import type { RecentLocation } from "../../adapters/recentImport";
-import type { WorkspaceControls } from "../../hooks/useGraphImport";
+import type { RecentLocation } from "../../workspace/locations";
+import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
 import WorkspaceIcon from "../workspace/WorkspaceIcon";
 
 export default function GeneralSettings({

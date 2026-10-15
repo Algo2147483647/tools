@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { readRecentMetadata } from "../adapters/recentImport";
+import { readRecentMetadata } from "../adapters/recentStorage";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { buildStageData } from "../layout/stage-layout";

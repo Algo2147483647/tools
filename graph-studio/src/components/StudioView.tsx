@@ -146,7 +146,7 @@ export default function StudioView({
           explorer={
             files.workspace && files.explorerOpen ? (
               <WorkspaceExplorer
-                key={files.workspace.recentId}
+                key={files.workspace.locationId}
                 files={files}
                 dirty={state.source.dirty}
                 onOpenAsset={(path) => void session.handleOpenRelativeLink(path, "")}

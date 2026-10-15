@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
-import {
-  type RecentLocation,
-  rankRecentLocations,
-  readRecentMetadata,
-  rememberLocation,
-} from "../adapters/recentImport";
+import { readRecentMetadata, browserRecentLocations } from "../adapters/recentStorage";
+import { rankRecentLocations, type RecentLocation } from "../workspace/locations";
+import { createRecentLocationsStore } from "../workspace/recentLocationsStore";
 import { resolveRelativeFile } from "../adapters/relativeLinks";
 import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../adapters/workspaceAccess";
 import {
@@ -335,16 +332,19 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     let deadline: ReturnType<typeof setTimeout> | undefined;
     try {
       const result = await Promise.race([
-        rememberLocation(
-          {
-            kind: "workspace",
+        (async () => {
+          const store = createRecentLocationsStore({ ...browserRecentLocations, readMetadata: () => [known] });
+          const input =           {
+            kind: "workspace" as const,
             name: "Factorio production",
             location: "Factorio production",
             exampleId: "factorio",
             lastGraph: "science-1-per-second.json",
-          },
-          [known],
-        ),
+          };
+          const id = await store.identify(input);
+          store.remember({ ...input, id });
+          return { id, items: store.getSnapshot() };
+        })(),
         new Promise<never>((_, reject) => {
           deadline = setTimeout(() => reject(new Error("Example opening waited for the database")), 250);
         }),

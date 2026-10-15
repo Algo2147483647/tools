@@ -1,10 +1,26 @@
 import assert from "node:assert/strict";
-import {
-  forgetRecentLocation,
-  loadRecentLocations,
-  rememberLocation,
-  type RecentLocation,
-} from "../adapters/recentImport";
+import { browserRecentLocations, readRecentMetadata, readLocationIdentities, writeLocationIdentity } from "../adapters/recentStorage";
+import { hydrateRecentLocations, type LocationInput, type RecentLocation } from "../workspace/locations";
+import { createRecentLocationsStore } from "../workspace/recentLocationsStore";
+async function rememberLocation(input: LocationInput, known: RecentLocation[]) {
+  let persisted = Promise.resolve();
+  const store = createRecentLocationsStore({ ...browserRecentLocations,
+    readMetadata: () => known, readIdentities: async () => [],
+    writeIdentity: (item) => persisted = writeLocationIdentity(item),
+  });
+  const id = input.id || (await store.identify(input));
+  store.remember({ ...input, id });
+  await persisted;
+  return { id, items: store.getSnapshot() };
+}
+async function forgetRecentLocation(ids: string[]) {
+  const store = createRecentLocationsStore(browserRecentLocations);
+  store.remove(ids);
+  return store.getSnapshot();
+}
+async function loadRecentLocations() {
+  return hydrateRecentLocations(readRecentMetadata(), await readLocationIdentities());
+}
 import { recentProjects } from "../workspace/recentProjects";
 import { defineSuite, defineTest } from "./harness";
 
@@ -258,3 +274,4 @@ export const recentStorageSuite = defineSuite("Local workspace recent storage fa
     );
   }),
 ]);
+

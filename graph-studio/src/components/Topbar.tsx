@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import type { WorkspaceControls } from "../hooks/useGraphImport";
+import type { WorkspaceControls } from "../controllers/useWorkspaceController";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import TimelineRangeFilter from "./TimelineRangeFilter";
 import {

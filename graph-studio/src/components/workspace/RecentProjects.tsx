@@ -1,4 +1,4 @@
-import type { WorkspaceControls } from "../../hooks/useGraphImport";
+import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
 import { recentProjects, type RecentProject } from "../../workspace/recentProjects";
 import WorkspaceIcon from "./WorkspaceIcon";
 

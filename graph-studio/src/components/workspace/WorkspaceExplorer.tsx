@@ -1,5 +1,5 @@
 import { type ReactNode, useMemo, useState } from "react";
-import type { WorkspaceControls } from "../../hooks/useGraphImport";
+import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
 import { PlusIcon } from "../topbar/TopbarIcons";
 import WorkspaceIcon from "./WorkspaceIcon";
 export default function WorkspaceExplorer({

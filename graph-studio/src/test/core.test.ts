@@ -18,6 +18,7 @@ import { sankeySuite } from "./sankey.test";
 import { stateSuite } from "./state.test";
 import { workspaceSuite } from "./workspace.test";
 import { workspaceCreationSuite } from "./workspaceCreation.test";
+import { workspaceOperationsSuite } from "./workspaceOperations.test";
 import { recentStorageSuite } from "./recentStorage.test";
 import { timelineSuite } from "./timeline.test";
 import { timelineRenderingSuite } from "./timelineRendering.test";
@@ -38,6 +39,7 @@ async function main() {
     stateSuite,
     workspaceSuite,
     workspaceCreationSuite,
+    workspaceOperationsSuite,
     recentStorageSuite,
     sankeySuite,
     examplesSuite,

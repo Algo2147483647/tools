@@ -1,4 +1,4 @@
-import type { WorkspaceControls } from "../../hooks/useGraphImport";
+import type { WorkspaceControls } from "../../controllers/useWorkspaceController";
 import WorkspaceIcon from "./WorkspaceIcon";
 export default function WorkspaceOverview({ files }: { files: WorkspaceControls }) {
   const workspace = files.workspace!;
