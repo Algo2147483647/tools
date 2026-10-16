@@ -7,14 +7,16 @@
   "scripts": {
     "examples:europe-history": "node scripts/build-europe-history.mjs",
     "examples:europe-history:check": "node scripts/build-europe-history.mjs --check",
+    "examples:science-history": "node scripts/build-science-history.mjs",
+    "examples:science-history:check": "node scripts/build-science-history.mjs --check",
     "start": "vite",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "test": "node --loader ts-node/esm --experimental-specifier-resolution=node src/test/core.test.ts",
     "preview": "vite preview",
-    "format": "prettier --write src browser-tests package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "format:check": "prettier --check src browser-tests package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "check": "npm run format:check && npm run examples:europe-history:check && npm test && npm run build"
+    "format": "prettier --write src package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "format:check": "prettier --check src package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "check": "npm run format:check && npm run examples:europe-history:check && npm run examples:science-history:check && npm test && npm run build"
   },
   "dependencies": {
     "@types/dagre": "^0.7.54",

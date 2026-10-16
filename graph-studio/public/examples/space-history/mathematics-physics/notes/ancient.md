@@ -1,0 +1,17 @@
+# Ancient mathematics and medieval transmission
+
+[Overview](../README.md) · [Event catalog and sources](./ancient-catalog.md) · [Personal names](../NAMES.md)
+
+The first points represent surviving evidence, not the birth of human calculation. Old Babylonian tablets and Egyptian papyri preserve the work of scribes, teachers and administrators. Procedures for shares, areas, volumes and unknown quantities were embedded in particular systems of notation and training. Writing a tablet problem as a modern equation can help a reader understand it, but it can also hide the actual method used. The dates attached to these records are approximate manuscript or archaeological dates.
+
+Greek mathematics added influential forms of deductive organization. Εὐκλείδης assembled a large inherited body of geometry into a systematic presentation; Ἀρχιμήδης connected geometrical proof with equilibrium, floating bodies and numerical bounds. These achievements are related but distinct. A proof about an idealized lever, a calculation of a circle ratio and a physical measurement make different kinds of claims. The geometry of Ἀπολλώνιος later became useful in orbital theory, although that application was not its original defining purpose.
+
+Astronomy was a recurrent meeting place of mathematics and physical observation. Chords and sine tables, angular measurements, geometrical models and numerical algorithms supported predictions of celestial positions. Different traditions could share a computational problem while disagreeing about the physical arrangement of the heavens. Follow the astronomy track alongside algebra and analysis rather than assuming that all mathematical change began in one discipline.
+
+The Nine Chapters is a layered compilation. 劉徽's dated commentary is a separate event because explanation, criticism and geometrical justification changed the mathematical record. The later Chinese algebraic works of 秦九韶, 李冶 and 朱世傑 deserve their own nodes, rather than being compressed into an undifferentiated national period. The original derivation of the exceptional circle-ratio bounds attributed to 祖沖之 is lost; a later reconstruction is not the same kind of evidence as a surviving proof.
+
+Indian mathematical astronomy and Arabic-language scholarship developed new results as well as transmitting older ones. The arithmetic rules of ब्रह्मगुप्त, algebraic organization of محمد بن موسى الخوارزمي, cubic geometry of عمر خیام and optics of الحسن بن الهيثم address different intellectual problems. Translation created new communities of readers and was itself a historical event. It should not be drawn as an automatic transfer of a complete, unchanged body of knowledge.
+
+The Kerala series tradition presents another dating problem. Later expositions are crucial evidence for work attributed to മാധവൻ. The point for ജ്യേഷ്ഠദേവൻ therefore marks an explanatory text, while the earlier point marks an approximate period of activity. Similarity to later European formulas is a useful comparison; it does not establish a route of transmission without documentary evidence. The graph explicitly labels comparisons of independent traditions.
+
+Suggested route: `old-babylonian` → `euclid` → `archimedes-circle` → `liu-hui` → `khwarizmi-algebra` → `latin-translations` → `madhava` → `jyesthadeva`. These are reading stops across several traditions, not a claim that each author learned directly from the preceding one. The catalog supplies the source and dating qualification for every stop.

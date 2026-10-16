@@ -112,7 +112,17 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
         for (const entry of folder.files.values()) {
           assert.equal(entry.handle, null);
           const text = await (await readWorkspaceFile(entry)).text();
-          if (!["china-history", "europe-history"].includes(example.id)) assert.doesNotMatch(text, /[\u4e00-\u9fff]/);
+          if (!["china-history", "europe-history"].includes(example.id)) {
+            // Native personal names are an intentional exception in the English science history.
+            let prose = text;
+            if (example.id === "space-history" && entry.path.startsWith("mathematics-physics/")) {
+              const science = JSON.parse(
+                await readFile("public/examples/space-history/mathematics-physics/mathematics-physics.json", "utf8"),
+              );
+              for (const name of science.metadata.nativeNameForms) prose = prose.split(name).join("");
+            }
+            assert.doesNotMatch(prose, /[\u4e00-\u9fff]/);
+          }
           // Resolve every generated Markdown link, including the graph's note fields.
           for (const match of text.matchAll(/\]\((\.{1,2}\/[\w/.-]+)\)/g)) {
             assert.ok(

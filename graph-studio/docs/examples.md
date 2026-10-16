@@ -8,7 +8,7 @@ Below Recent workspaces, the homepage includes five separate workspaces, includi
 | Commerce operations   | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes        |
 | Mathematics           | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography               |
 | Factorio production   | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes      |
-| History of Technology | One timeline containing all 298 events and completed phases and 408 relationships, with eight themes and Apollo 11's vehicle branches        |
+| History of Technology | Two timelines: space history (298 nodes, 408 relationships) and combined mathematics–physics history (250 point events, 317 relationships) |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
@@ -24,11 +24,13 @@ Edit `scripts/data/europe-history/`, run `npm run examples:europe-history`, and 
 
 ## History of Technology
 
-The [Timeline guide](timeline.md) explains the date-aware chart type. The History of Technology workspace currently contains a space history canvas covering 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion are included in the same graph.
+The [Timeline guide](timeline.md) explains the date-aware chart type. History of Technology contains two separate canvases. The original space-history canvas covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion remain in the space-history graph.
 
-The single **space-history.json** opens directly with every node and relationship. Use Type, Track and Time range to inspect a theme or period, and Show all events to restore the entire history. Edges explicitly distinguish within-mission chronology, interval membership, documented rendezvous and contextual references. Chronology does not assert technical causation. The corpus is a historical snapshot through 2025, not a live mission-status feed. Intervals describe named, completed phases; spacecraft that continued operating are not given invented mission-end dates.
+The default **space-history.json** opens with the complete space corpus. Use the workspace graph list to switch to **mathematics-physics/mathematics-physics.json**, which combines mathematical and physical history in one canvas. Its 250 points span approximately 1850 BCE–2024 across 11 subjects, with 104 explicit connections among its 317 edges. English prose accompanies original-language personal names and separate lookup aliases. Five period guides, event catalogs, a names guide and a source index explain the selection. No long era bars are used in the new canvas.
 
-Edit the workspace files under `public/examples/space-history/`. The example and space-history regression suites validate the corpus when running `npm run check`. Source links, precision conventions and scope are recorded in the example's README and node details.
+Use Type, Track and Time range to inspect a subject or period, and Show all events to restore the complete canvas. Chronology is not causality. The science canvas distinguishes approximate manuscript dates, lectures, publications, proposals, experiments and later verification. Its adaptive axis compresses quiet gaps; switch to a linear axis to compare elapsed durations. The space canvas retains its original completed-phase intervals and finer mission dates.
+
+Edit `scripts/data/science-history/`, run `npm run examples:science-history`, and verify with `npm run examples:science-history:check`. The generator updates only the new graph, its generated reference files and the shared manifest; it preserves the space-history graph and five handwritten period guides. The example, space-history and science-history regression suites validate loading, local links, naming, chronology, cross-disciplinary junctions and timeline layout as part of `npm run check`.
 
 ## Factorio data and interpretation
 

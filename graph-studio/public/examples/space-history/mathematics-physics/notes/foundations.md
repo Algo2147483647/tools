@@ -1,0 +1,17 @@
+# Relativity, quantum theory and mathematical foundations
+
+[Overview](../README.md) · [Event catalog and sources](./foundations-catalog.md) · [Personal names](../NAMES.md)
+
+Around 1900, the boundaries between an accepted theory, a useful approximation and a new mathematical proposal became especially visible. Max Planck's energy elements did not already constitute the later quantum mechanics. Albert Einstein's light-quantum proposal added a stronger physical claim, and scattering experiments supplied further evidence. Atomic spectra, nuclear models, exclusion and matter waves then posed problems that neither classical trajectories nor an unchanged classical wave picture could solve alone.
+
+The 1925–1926 events are deliberately separated. Matrix mechanics, wave mechanics and the probabilistic interpretation of amplitudes were different contributions. An existing algebraic tool became physically significant when transition quantities were recognized as matrices. Function spaces and operators later supplied a common mathematical framework. Follow the incoming links to `von-neumann-quantum` to see how analysis, algebra and physical formulations converge.
+
+Relativity follows another connected route. Special relativity changed the relation between inertial frames, while spacetime geometry made its invariant structure clearer. General relativity then made the metric itself dynamical. The 1919 eclipse observations were an early test with substantial measurement difficulties; later evidence strengthened the theory. Mathematical solutions, cosmological interpretation and observations of galaxy velocities are represented separately because they answer different questions.
+
+Emmy Noether's invariance theorems are a central junction. They arose in a setting where variational methods, gravitation and conservation were being reconsidered. The link from analytical mechanics is therefore substantive: the theorem depends on the structure of an action and its transformations. Its mathematical assumptions matter more than a loose statement that symmetry always produces conservation. The catalog points to an archival account and the relevant event context.
+
+Probability also acquired a more rigorous language. Measure theory, the axioms of Андрей Колмогоров and the stochastic integration of 伊藤清 made random processes mathematically tractable. These achievements support physical models but do not decide which random process fits a real experiment. Axiomatizing probability and verifying molecular fluctuations are complementary forms of work, not substitutes for each other.
+
+Foundational limits should be read precisely. Kurt Gödel's theorems concern sufficiently expressive formal systems under explicit hypotheses. Alonzo Church and Alan Turing clarified effective computation and undecidable problems. Neither result says that ordinary reasoning is impossible or that every mathematical question is beyond computation. The graph links the developments while preserving the difference between formal proof, computation and the interpretive thesis about effective procedures.
+
+Nuclear history requires equally careful attribution. The 1938 chemical findings of Otto Hahn and Fritz Straßmann are separate from the 1939 interpretation by Lise Meitner and Otto Robert Frisch. The 1945 point records the militarization of this research and its catastrophic human consequences. The chronology includes the institutions, instruments and choices that made scientific knowledge consequential; it is not a technical guide to weapon construction.

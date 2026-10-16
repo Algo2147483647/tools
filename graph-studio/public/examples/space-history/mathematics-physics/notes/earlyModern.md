@@ -1,0 +1,17 @@
+# Calculation, experiment and analytical mechanics
+
+[Overview](../README.md) · [Event catalog and sources](./earlyModern-catalog.md) · [Personal names](../NAMES.md)
+
+Symbolic algebra, instruments and mathematical models changed together during this period. Cubic and quartic solutions made algebra more ambitious, while troublesome intermediate expressions encouraged systematic work with complex quantities. François Viète's symbolic methods and René Descartes's connection between equations and curves made general relations easier to state. These changes were cumulative: they did not instantly replace older notations or methods of practical calculation.
+
+Astronomy illustrates how theory and evidence constrained one another. The heliocentric system published by Mikołaj Kopernik retained circular constructions. Johannes Kepler's ellipses and quantitative orbital relations were later developments based on demanding comparisons with observations. Galileo Galilei's telescopic discoveries changed what could be observed, but a telescope image did not by itself establish a complete dynamical theory. Separate nodes preserve those different stages.
+
+The mechanics route follows idealized motion into a broader mathematical framework. Galileo Galilei's studies of acceleration and projectiles, the early calculus investigations of Isaac Newton and Gottfried Wilhelm Leibniz, and the gravitational synthesis of 1687 belong together without being interchangeable. The fluxions node dates private work; the differential-calculus node dates publication. That distinction avoids turning a complicated dispute over priority and communication into one supposedly decisive year.
+
+Calculus also made whole curves into objects of optimization. The fastest-descent problem and the later calculus of variations connect the analysis track to mechanics. Joseph-Louis Lagrange's analytical mechanics organized constrained systems through a general method rather than treating each machine or trajectory separately. The shared mathematical structure later became important to field theory and symmetry principles.
+
+In optics, refraction, interference and the speed of light were separate questions. A successful geometrical construction could remain useful after its proposed physical medium was abandoned. The graph therefore connects earlier wave reasoning to later interference while keeping the experiments and interpretive shifts distinct. In thermal physics, instruments and controlled comparisons helped turn pressure, volume and temperature into quantitative relationships, even before a mature concept of energy existed.
+
+Probability developed through correspondence, teaching and publication as well as famous theorems. Finite games provided tractable models, but a statement about limiting frequencies was a different achievement. The posthumous publication of Jakob Bernoulli's work must not be confused with when every argument was first written. Likewise, the essay of Thomas Bayes arrived through Richard Price's communication and editing. Both entries identify publication as the milestone.
+
+Use the cross-links from `bernoulli-brachistochrone` to `lagrange-variation` and from `lagrange-variation` to `lagrange-mechanics` for a compact mathematics–physics journey. Another route joins `kepler-orbits`, `kepler-harmonic`, `galileo-motion` and `newton-principia` at the gravitational synthesis. Multiple incoming relationships make the combination of observation, mathematical method and physical formulation visible.

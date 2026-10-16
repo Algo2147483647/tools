@@ -34,8 +34,8 @@ export const EXAMPLE_WORKSPACES = [
     title: "History of Technology",
     kind: "Timeline",
     description:
-      "Follow satellites, lunar landings, space stations and deep-space missions. Zoom from decades of exploration to Eagle and Columbia's rendezvous.",
-    detail: "298 events & phases · One timeline · 1957–2025",
+      "Explore spaceflight in one canvas and the intertwined histories of mathematics and physics in another. Follow discoveries, proofs, experiments and their connections.",
+    detail: "2 timelines · 548 events & phases · 725 relationships · c. 1850 BCE–2025",
     accent: "#6675a8",
   },
   {

@@ -1,0 +1,242 @@
+# Sources and historical method
+
+[Canvas guide](./README.md) · [Names](./NAMES.md)
+
+Compiled on 16 October 2026; the latest included research event is a 2024 publication. The selection is not a claim to have cataloged every development through the compilation date.
+
+## Evidence and limitations
+
+MacTutor at the University of St Andrews supplies scholarly historical biographies and topic studies. These are secondary accounts, not original ancient texts. Original papers are linked through DOI or arXiv where practical; CERN, LIGO, NIST, the Institute for Advanced Study, the American Institute of Physics, the American Physical Society, the Clay Mathematics Institute and Nobel scientific summaries provide research records, archival interpretation or institutional context. A prize page is supporting background: its award year must not replace the discovery or publication year.
+
+Each event points to specific further reading. Source labels distinguish an original paper from a retrospective account. Links were checked for existence and targeted historical details were investigated; availability does not mean that every assertion in a long source has been independently re-edited. Publisher access controls can block automated retrieval without invalidating a DOI. The graph and its guides remain available offline after loading the workspace; external research links require internet access.
+
+Ancient dates often identify an approximate manuscript, compilation or working period. Later testimony about lost works is explicitly marked. Similar methods in two traditions do not demonstrate direct transmission. The history includes anonymous scribal labor, translation, teaching, instruments and collaboration as well as named authors. Selection is necessarily uneven because surviving records and the available literature are uneven.
+
+All points use year precision. The precision field separates manuscripts, lectures, publications, announcements and experiments. Particular examples include a geometry lecture in 1854 versus its 1868 publication; the 1938 fission findings versus their 1939 interpretation; a 1964 theoretical mechanism versus a 2012 particle observation; and the 2015 gravitational-wave signal versus the 2016 announcement. Proposals, conjectures and mathematical models are not labeled experimental confirmations. The classical singularity theorems do not supply a quantum account of singularities.
+
+Ordinary subject edges indicate editorial reading order. Explicit cross-links state whether they describe use of a mathematical method, an experimental test, a transmission, a later reformulation or merely a comparison. Source support comes from the linked endpoint accounts; a comparison is not asserted to be a documented personal influence. The graph contains no invented continuous era bars and no implied temporal precision finer than the event evidence.
+
+## Source index
+
+220 distinct references, indexed by stable event IDs. The five event catalogs repeat the relevant source links alongside each account.
+
+- [MacTutor historical topic](https://mathshistory.st-andrews.ac.uk/HistTopics/Egyptian_papyri/) — `moscow-papyrus`, `rhind-papyrus`
+- [MacTutor historical topic](https://mathshistory.st-andrews.ac.uk/HistTopics/Babylonian_mathematics/) — `old-babylonian`
+- [MacTutor historical topic](https://mathshistory.st-andrews.ac.uk/HistTopics/Babylonian_Pythagoras/) — `plimpton`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Thales/) — `thales`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Pythagoras/) — `pythagorean`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hippocrates/) — `hippocrates`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Eudoxus/) — `eudoxus`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Aristotle/) — `aristotle`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Euclid/) — `euclid`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Archimedes/) — `archimedes-statics`, `archimedes-circle`, `archimedes-buoyancy`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Eratosthenes/) — `eratosthenes`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Apollonius/) — `apollonius`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hipparchus/) — `hipparchus`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Liu_Hui/) — `nine-chapters`, `liu-hui`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Ptolemy/) — `ptolemy`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Diophantus/) — `diophantus`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Pappus/) — `pappus`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Zu_Chongzhi/) — `zu-pi`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Aryabhata_I/) — `aryabhata`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Brahmagupta/) — `brahmagupta`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Al-Khwarizmi/) — `khwarizmi-algebra`, `khwarizmi-numerals`, `latin-translations`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Thabit/) — `thabit`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Al-Battani/) — `al-battani`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Al-Haytham/) — `ibn-haytham`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Khayyam/) — `khayyam`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bhaskara_II/) — `bhaskara`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Fibonacci/) — `fibonacci`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Qin_Jiushao/) — `qin`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Li_Zhi/) — `li-ye`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Zhu_Shijie/) — `zhu`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Oresme/) — `oresme`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Madhava/) — `madhava`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Al-Kashi/) — `kashi`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Nilakantha/) — `nilakantha`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Jyesthadeva/) — `jyesthadeva`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Copernicus/) — `copernicus`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Cardan/) — `cardano`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bombelli/) — `bombelli`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Viete/) — `viete`
+- [Science History Institute: early magnetism](https://www.sciencehistory.org/stories/magazine/laws-of-attraction/) — `gilbert`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Kepler/) — `kepler-orbits`, `kepler-harmonic`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Galileo/) — `galileo-telescope`, `galileo-dialogue`, `galileo-motion`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Napier/) — `napier`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Snell/) — `snell`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Harriot/) — `harriot`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Cavalieri/) — `cavalieri`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Descartes/) — `descartes`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Fermat/) — `fermat-margin`, `pascal-fermat`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Torricelli/) — `torricelli`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Pascal/) — `pascal-fermat`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Huygens/) — `huygens-probability`, `huygens-light`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Boyle/) — `boyle`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hooke/) — `hooke-cells`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Newton/) — `newton-fluxions`, `newton-light`, `newton-principia`
+- [MacTutor: early theories and measurements of light](https://mathshistory.st-andrews.ac.uk/HistTopics/Light_1/) — `roemer`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Seki/) — `seki`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Leibniz/) — `leibniz-calculus`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bernoulli_Johann/) — `bernoulli-brachistochrone`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bernoulli_Jacob/) — `bernoulli-large`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Taylor/) — `taylor`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Euler/) — `euler-graphs`, `euler-mechanics`, `euler-analysis`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bernoulli_Daniel/) — `bernoulli-gases`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/DAlembert/) — `dalembert`, `dalembert-wave`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Lagrange/) — `lagrange-variation`, `lagrange-mechanics`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bayes/) — `bayes`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Coulomb/) — `coulomb`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Gauss/) — `gauss-algebra`, `gauss-number`, `gauss-orbits`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Young_Thomas/) — `young-interference`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Fourier/) — `fourier-memoir`, `fourier-book`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Legendre/) — `gauss-orbits`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Laplace/) — `laplace-probability`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Fresnel/) — `fresnel`
+- [NASA educational history of electromagnetism](https://pwg.gsfc.nasa.gov/earthmag/oersted.htm) — `oersted`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Ampere/) — `ampere`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Cauchy/) — `cauchy-analysis`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Abel/) — `abel-quintic`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Carnot_Sadi/) — `carnot`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Ohm/) — `ohm`
+- [Original report of microscopic particle motion (1828)](https://doi.org/10.1080/14786442808674769) — `brownian`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Green/) — `green`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Lobachevsky/) — `lobachevsky`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Dirichlet/) — `dirichlet-series`, `dirichlet-primes`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Galois/) — `galois`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Faraday/) — `faraday-induction`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bolyai/) — `bolyai`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Weber/) — `gauss-weber`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hamilton/) — `hamilton-mechanics`, `hamilton-quaternions`
+- [APS historical account of work and heat](https://www.aps.org/apsnews/2015/06/joule-mechanical-equivalent-heat) — `joule`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Grassmann/) — `grassmann`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Le_Verrier/) — `neptune`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Adams/) — `neptune`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Helmholtz/) — `helmholtz-energy`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Boole/) — `boole`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Thomson/) — `kelvin-scale`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Clausius/) — `clausius-thermo`, `clausius-entropy`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Riemann/) — `riemann-complex`, `riemann-geometry`, `riemann-zeta`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Stokes/) — `stokes`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Cayley/) — `cayley-matrices`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Maxwell/) — `maxwell-distribution`, `maxwell-field`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Boltzmann/) — `boltzmann-h`, `boltzmann-entropy`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Dedekind/) — `dedekind-real`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Cantor/) — `cantor-uncountable`, `cantor-diagonal`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Gibbs/) — `gibbs-equilibrium`, `gibbs-statistical`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Frege/) — `frege`
+- [Nobel educational history of the ether experiment](https://educationalgames.nobelprize.org/educational/physics/relativity/history-1.html) — `michelson-morley`
+- [MacTutor: electromagnetic and quantum theories of light](https://mathshistory.st-andrews.ac.uk/HistTopics/Light_2/) — `hertz-waves`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Peano/) — `peano`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Poincare/) — `poincare-chaos`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hilbert/) — `noether-rings-precursor`, `hilbert-problems`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1901/rontgen/facts/) — `rontgen`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1903/becquerel/facts/) — `becquerel`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hadamard/) — `prime-number-theorem`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Vallee_Poussin/) — `prime-number-theorem`
+- [AIP history of the electron](https://history.aip.org/exhibits/electron/) — `electron`
+- [AIP archival exhibition on radioactivity](https://history.aip.org/exhibits/curie/) — `curies`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Planck/) — `planck`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Russell/) — `russell`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Lebesgue/) — `lebesgue`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Fredholm/) — `fredholm`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Einstein/) — `einstein-light`
+- [Original 1905 paper on Brownian motion](https://doi.org/10.1002/andp.19053220806) — `einstein-brownian`
+- [AIP historical exhibition on relativity](https://history.aip.org/exhibits/einstein/index_text.htm) — `einstein-relativity`, `einstein-mass-energy`, `general-relativity`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Markov/) — `markov`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Minkowski/) — `minkowski`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Zermelo/) — `zermelo`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1926/perrin/facts/) — `perrin`
+- [Original 1911 scattering and atomic-structure paper](https://doi.org/10.1080/14786440508637080) — `rutherford-nucleus`
+- [AIP discovery history: superconductivity](https://history.aip.org/exhibits/mod/superconductivity/superconductivity.pdf) — `superconductivity`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bohr_Niels/) — `bohr`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Ramanujan/) — `ramanujan`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Schwarzschild/) — `schwarzschild`
+- [IAS archive: symmetry and conservation](https://www.ias.edu/news/2023/honoring-legacy-emmy-noether) — `noether-symmetry`
+- [Original eclipse-expedition report](https://doi.org/10.1098/rsta.1920.0009) — `eclipse`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Noether_Emmy/) — `noether-rings`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Banach/) — `banach`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Friedmann/) — `friedmann`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1943/stern/facts/) — `stern-gerlach`
+- [Original 1923 scattering paper](https://doi.org/10.1103/PhysRev.21.483) — `compton`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Bose/) — `bose`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Broglie/) — `de-broglie`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Pauli/) — `pauli`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Heisenberg/) — `matrix-mechanics`, `uncertainty`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Born/) — `matrix-mechanics`, `born-rule`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Schrodinger/) — `schrodinger`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Fermi/) — `fermi-dirac`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Dirac/) — `fermi-dirac`, `dirac-electron`
+- [Nobel research summary on electron diffraction](https://www.nobelprize.org/prizes/physics/1937/summary/) — `matter-diffraction`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Lemaitre/) — `lemaitre`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1930/raman/facts/) — `raman`
+- [Original galaxy distance-velocity paper](https://doi.org/10.1073/pnas.15.3.168) — `hub-related`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Godel/) — `godel`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Von_Neumann/) — `von-neumann-quantum`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1935/chadwick/facts/) — `neutron`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1936/anderson/facts/) — `positron`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Kolmogorov/) — `kolmogorov`
+- [Original 1935 completeness paper](https://doi.org/10.1103/PhysRev.47.777) — `epr`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1949/yukawa/facts/) — `yukawa`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Church/) — `church-turing`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Turing/) — `church-turing`
+- [AIP oral-history exhibition: nuclear discovery](https://history.aip.org/exhibits/mod/) — `fission-observation`, `fission-explanation`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Ito/) — `ito`
+- [US Department of Energy: wartime history and consequences](https://www.energy.gov/management/articles/manhattan-project) — `manhattan-impact`
+- [Nobel research summary: quantum electrodynamics](https://www.nobelprize.org/prizes/physics/1965/summary/) — `qed`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Shannon/) — `shannon`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Schwartz/) — `distribution`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Nash/) — `game-theory`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1957/yang/facts/) — `yang-mills`
+- [Original non-Abelian gauge-theory paper](https://doi.org/10.1103/PhysRev.96.191) — `yang-mills`
+- [Original paper questioning parity conservation](https://doi.org/10.1103/PhysRev.104.254) — `parity-proposal`
+- [Original experimental parity-violation paper](https://doi.org/10.1103/PhysRev.105.1413) — `parity-test`
+- [Original theory of superconductivity](https://doi.org/10.1103/PhysRev.108.1175) — `bcs`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Grothendieck/) — `grothendieck`
+- [AIP archival history of the first lasers](https://history.aip.org/exhibits/laser/) — `laser`
+- [Original deterministic nonperiodic flow paper](https://journals.ametsoc.org/doi/abs/10.1175/1520-0469%281963%29020%3C0130%3Adnf%3E2.0.CO%3B2) — `lorenz`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Atiyah/) — `atiyah-singer`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Singer/) — `atiyah-singer`
+- [CERN historical account of the quark proposals](https://cds.cern.ch/record/1998511) — `quarks`
+- [CERN: theoretical mechanism and particle discovery](https://home.web.cern.ch/science/physics/higgs-boson/how/) — `symmetry-breaking`, `higgs-observation`
+- [Nobel scientific background on entanglement tests](https://www.nobelprize.org/uploads/2022/10/popular-physicsprize2022.pdf) — `bell`, `aspect`, `bell-loopholes`
+- [Original singularity-theorem paper](https://doi.org/10.1103/PhysRevLett.14.57) — `singularity`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1978/wilson/facts/) — `cmb`
+- [Nobel research summary on electroweak unification](https://www.nobelprize.org/prizes/physics/1979/summary/) — `electroweak`
+- [Original report of a rapidly pulsating radio source](https://doi.org/10.1038/217709a0) — `pulsars`
+- [Nobel research summary on electroweak renormalization](https://www.nobelprize.org/prizes/physics/1999/summary/) — `standard-renormalization`
+- [Nobel biographical research summary](https://www.nobelprize.org/prizes/physics/1982/wilson/facts/) — `renormalization-group`
+- [APS research collection: topological phases](https://physics.aps.org/topological-phases) — `bkt`, `quantum-hall`
+- [Nobel research summary on asymptotic freedom](https://www.nobelprize.org/prizes/physics/2004/summary/) — `qcd`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Hawking/) — `hawking`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Appel/) — `four-color`
+- [Original public-key cryptosystem paper](https://doi.org/10.1145/359340.359342) — `rsa`
+- [Original paper on simulating physics with computers](https://doi.org/10.1007/BF02650179) — `feynman-simulation`
+- [Original quantized Hall-conductance paper](https://doi.org/10.1103/PhysRevLett.49.405) — `tknn`
+- [Nobel research summary on fractional quantum Hall physics](https://www.nobelprize.org/prizes/physics/1998/summary/) — `fractional-hall`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Donaldson/) — `donaldson`
+- [Original anomaly-cancellation paper](https://doi.org/10.1016/0370-2693(84)91565-X) — `string-anomalies`
+- [NIST account of laser cooling and trapping](https://www.nist.gov/news-events/news/1997/10/nist-physicist-william-phillips-wins-1997-nobel-prize-physics) — `laser-cooling`
+- [Nobel research summary on oxide superconductors](https://www.nobelprize.org/prizes/physics/1987/summary/) — `high-tc`
+- [Original quantum-field theory and knot-invariant paper](https://doi.org/10.1007/BF01217730) — `jones-witten`
+- [Original mirror-symmetry calculation](https://doi.org/10.1016/0550-3213(91)90292-6) — `mirror-symmetry`
+- [Original extended quantum-algorithm paper](https://arxiv.org/abs/quant-ph/9508027) — `shor`
+- [MacTutor biographical study](https://mathshistory.st-andrews.ac.uk/Biographies/Wiles/) — `wiles`
+- [Nobel scientific background on dilute-gas condensation](https://www.nobelprize.org/uploads/2018/06/advanced-physicsprize2001.pdf) — `bec`
+- [Nobel scientific account of accelerating expansion](https://www.nobelprize.org/prizes/physics/2011/summary/) — `acceleration`
+- [Original atmospheric-neutrino oscillation paper](https://arxiv.org/abs/hep-ex/9807003) — `neutrino-oscillation`
+- [Clay Mathematics Institute: proof and verification history](https://www.claymath.org/millennium/poincare-conjecture/) — `perelman`
+- [Original atomically thin carbon-film paper](https://doi.org/10.1126/science.1102896) — `graphene`
+- [Original arithmetic-progressions preprint](https://arxiv.org/abs/math/0404188) — `green-tao`
+- [Researcher's account of the formally checked proof](https://www.microsoft.com/en-us/research/wp-content/uploads/2012/10/4colproof.pdf) — `formal-four-color`
+- [Original bounded-prime-gaps paper](https://doi.org/10.4007/annals.2014.179.3.7) — `zhang-gaps`
+- [Project leader's retrospective on formal verification](https://arxiv.org/abs/2402.08032) — `flyspeck`
+- [Original separated-spin Bell-test paper](https://arxiv.org/abs/1508.05949) — `bell-loopholes`
+- [LIGO: detection date and account](https://www.ligo.caltech.edu/detection) — `gw-detection`
+- [Original gravitational-wave discovery paper](https://arxiv.org/abs/1602.03837) — `gw-announcement`
+- [Original eight-dimensional sphere-packing proof](https://arxiv.org/abs/1603.04246) — `sphere-eight`
+- [Original twenty-four-dimensional sphere-packing proof](https://arxiv.org/abs/1603.06518) — `sphere-twentyfour`
+- [Original multimessenger observation paper](https://arxiv.org/abs/1710.05833) — `multimessenger`
+- [Original M87 imaging results: first paper](https://doi.org/10.3847/2041-8213/ab0ec7) — `black-hole-image`
+- [NIST: revised International System of Units](https://www.nist.gov/si-redefinition) — `si-redefinition`
+- [Original aperiodic monotile preprint](https://arxiv.org/abs/2303.10798) — `einstein-tile`
+- [ATLAS research record: top-quark entanglement](https://cds.cern.ch/record/2880054) — `top-entanglement`

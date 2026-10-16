@@ -44,11 +44,11 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
     const full = await read("space-history.json");
     const manifest = await read("graph-studio.workspace.json");
     assert.equal(manifest.defaultGraph, "space-history.json");
-    assert.deepEqual(manifest.graphs, ["space-history.json"]);
-    assert.equal(manifest.metadata.themeCount, 8);
+    assert.deepEqual(manifest.graphs, ["space-history.json", "mathematics-physics/mathematics-physics.json"]);
+    assert.equal(manifest.metadata.graphStats["space-history.json"].themeCount, 8);
     assert.equal(manifest.metadata.snapshotAsOf, "2025-12-31");
     assert.equal(Object.keys(full.nodes).length, 298);
-    assert.equal(full.edges.length, manifest.metadata.edgeCount);
+    assert.equal(full.edges.length, manifest.metadata.graphStats["space-history.json"].edgeCount);
     assert.ok(full.edges.length >= 300 && full.edges.length <= 450);
     const agencies = new Set<string>();
     let intervals = 0;
@@ -89,7 +89,7 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
       full.edges.map((edge: { source: string; target: string }) => `${edge.source}\u0000${edge.target}`),
     );
     assert.equal(endpointPairs.size, full.edges.length, "no repeated directed pair across relationship kinds");
-    for (const path of manifest.graphs) {
+    for (const path of ["space-history.json"]) {
       const graph = await read(path);
       assert.equal(normalizeDagInput(graph).diagram, "dag");
       assert.deepEqual(graph.metadata.timeline, { version: 1, timeZone: "UTC" });
@@ -106,7 +106,7 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
         assert.ok(graph.metadata.edgeSemantics[edge.metadata.timeline.kind]);
       }
     }
-    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "space-history")!.detail, /^298 /);
+    assert.match(EXAMPLE_WORKSPACES.find((example) => example.id === "space-history")!.detail, /^2 timelines/);
   }),
   defineTest("Apollo 11 contains simultaneous vehicle branches that join at the actual docking event", async () => {
     const { nodes, edges } = await read("space-history.json");
@@ -157,7 +157,7 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
     const folder = await loadExampleWorkspace("space-history", "/", fetcher);
     const workspace = await discoverWorkspace(folder);
     assert.equal(workspace.activePath, "space-history.json");
-    assert.equal(workspace.graphs.length, 1);
+    assert.equal(workspace.graphs.length, 2);
     assert.equal(workspace.graphs[0].nodeCount, 298);
     assert.equal(workspace.graphs[0].edgeCount, 408);
     for (const oldPath of ["all-space-history.json", "apollo-11.json", "mars.json"]) {

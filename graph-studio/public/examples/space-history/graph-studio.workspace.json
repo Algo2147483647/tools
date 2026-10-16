@@ -3,15 +3,16 @@
   "version": 1,
   "name": "History of Technology",
   "graphs": [
-    "space-history.json"
+    "space-history.json",
+    "mathematics-physics/mathematics-physics.json"
   ],
   "defaultGraph": "space-history.json",
   "metadata": {
     "language": "en",
     "snapshotAsOf": "2025-12-31",
-    "nodeCount": 298,
-    "edgeCount": 408,
-    "themeCount": 8,
+    "nodeCount": 548,
+    "edgeCount": 725,
+    "themeCount": 19,
     "missionPhaseCount": 75,
     "assets": [
       "README.md",
@@ -23,7 +24,36 @@
       "notes/mars.md",
       "notes/observatories.md",
       "notes/robotic-moon.md",
-      "notes/space-stations.md"
-    ]
+      "notes/space-stations.md",
+      "mathematics-physics/NAMES.md",
+      "mathematics-physics/README.md",
+      "mathematics-physics/SOURCES.md",
+      "mathematics-physics/notes/ancient-catalog.md",
+      "mathematics-physics/notes/ancient.md",
+      "mathematics-physics/notes/contemporary-catalog.md",
+      "mathematics-physics/notes/contemporary.md",
+      "mathematics-physics/notes/earlyModern-catalog.md",
+      "mathematics-physics/notes/earlyModern.md",
+      "mathematics-physics/notes/foundations-catalog.md",
+      "mathematics-physics/notes/foundations.md",
+      "mathematics-physics/notes/nineteenth-catalog.md",
+      "mathematics-physics/notes/nineteenth.md"
+    ],
+    "graphStats": {
+      "space-history.json": {
+        "nodeCount": 298,
+        "edgeCount": 408,
+        "themeCount": 8,
+        "snapshotAsOf": "2025-12-31",
+        "missionPhaseCount": 75
+      },
+      "mathematics-physics/mathematics-physics.json": {
+        "nodeCount": 250,
+        "edgeCount": 317,
+        "themeCount": 11,
+        "pointEventCount": 250,
+        "latestIncludedYear": 2024
+      }
+    }
   }
 }

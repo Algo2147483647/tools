@@ -1,8 +1,15 @@
 # History of Technology
 
-This workspace currently contains the World space history timeline.
+This workspace contains two independent canvases:
 
-Explore **298 nodes** and **408 relationships** together in **one complete timeline**, spanning eight themes. The historical snapshot ends on **2025-12-31**.
+- [World space history](./space-history.json) — 298 events and completed mission phases, 408 relationships, 1957–2025.
+- [History of Mathematics and Physics](./mathematics-physics/mathematics-physics.json) — one combined mathematics–physics canvas with 250 point events and 317 relationships, c. 1850 BCE–2024. [Reading guide, names and sources](./mathematics-physics/README.md).
+
+Select a canvas from the workspace graph list. Mathematics and physics share the new canvas, while space history remains a separate graph. Personal names in the new canvas retain original-language forms; all other exposition is in English.
+
+## World space history
+
+Explore **298 nodes** and **408 relationships** in the space-history timeline, spanning eight themes. Its historical snapshot ends on **2025-12-31**.
 
 **space-history.json** opens with the entire corpus. Use **Type**, **Track** and **Time range** to focus within this one graph, then **Show all events** to restore the full history. To inspect Apollo 11, select the crewed lunar theme and July 16–24, 1969; Eagle and Columbia retain their parallel activity and later docking.
 
@@ -28,6 +35,6 @@ Explore **298 nodes** and **408 relationships** together in **one complete timel
 
 [Sources and date conventions](./SOURCES.md)
 
-## Reproducible corpus
+## Maintaining the workspace
 
-The source catalog is **scripts/data/space-history/catalog.mjs**. Rebuild with **node scripts/build-space-history.mjs**, or verify committed outputs without writing with **node scripts/build-space-history.mjs --check**. The build is offline and deterministic; live websites are reference material, not runtime dependencies. Every event and relationship is emitted once in the single timeline graph.
+The space-history corpus is maintained in space-history.json and its linked notes. The mathematics–physics source corpus and generator are documented in its [reading guide](./mathematics-physics/README.md). The generator updates workspace totals while preserving the separate space-history file. Historical and workspace regression tests check both canvases.

@@ -25,6 +25,7 @@ import { recentStorageSuite } from "./recentStorage.test";
 import { timelineSuite } from "./timeline.test";
 import { timelineRenderingSuite } from "./timelineRendering.test";
 import { spaceHistorySuite } from "./spaceHistory.test";
+import { scienceHistorySuite } from "./scienceHistory.test";
 import { nodeRelationsSuite } from "./nodeRelations.test";
 
 async function main() {
@@ -55,6 +56,7 @@ async function main() {
     timelineSuite,
     timelineRenderingSuite,
     spaceHistorySuite,
+    scienceHistorySuite,
     nodeRelationsSuite,
   ]);
 
