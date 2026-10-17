@@ -209,6 +209,60 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.ok(inner.items.some((item) => item.id === "d" && item.external));
     assert.ok(!inner.items.some((item) => item.id === "c"));
   }),
+  defineTest("folded and external summaries merge mixed relationships by directed visible endpoints", () => {
+    const doc = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { a: {}, b: {}, c: {}, x: {}, y: {}, z: {} },
+      edges: [
+        { id: "request", source: "a", target: "x", value: "request" },
+        { id: "event", source: "a", target: "y", value: "event" },
+        { id: "amount", source: "b", target: "y", value: 10 },
+        { id: "flag", source: "a", target: "z", value: true },
+        { id: "unlabelled", source: "c", target: "x" },
+        { id: "response", source: "x", target: "a", value: "response" },
+        { id: "internal", source: "a", target: "b", value: "handover" },
+      ],
+      hierarchy: {
+        id: "H",
+        groups: { left: { title: "Left" }, right: { title: "Right" } },
+        parentById: { a: "left", b: "left", c: "left", x: "right", y: "right", z: "right" },
+      },
+    });
+    const before = JSON.stringify(doc);
+    const folded = projectCompoundGraph(doc, view(["left", "right"]));
+    assert.equal(folded.edges.length, 2);
+    const forward = folded.edges.find((edge) => edge.source === "left")!;
+    assert.equal(forward.target, "right");
+    assert.equal(forward.label, "5 relationships");
+    assert.deepEqual(forward.originalEdgeIds, ["request", "event", "amount", "flag", "unlabelled"]);
+    assert.deepEqual(folded.edges.find((edge) => edge.source === "right")!.originalEdgeIds, ["response"]);
+    assert.deepEqual(folded.items.find((item) => item.id === "left")!.internalEdgeIds, ["internal"]);
+
+    // One collapsed endpoint is enough; distinct visible leaves stay separate.
+    const partial = projectCompoundGraph(doc, view(["left"]));
+    assert.deepEqual(partial.edges.find((edge) => edge.source === "left" && edge.target === "x")!.originalEdgeIds, [
+      "request",
+      "unlabelled",
+    ]);
+    assert.deepEqual(partial.edges.find((edge) => edge.target === "y")!.originalEdgeIds, ["event", "amount"]);
+    assert.deepEqual(partial.edges.find((edge) => edge.target === "z")!.originalEdgeIds, ["flag"]);
+
+    // The outside group is a summary even without an explicit collapse preference.
+    const focused = projectCompoundGraph(doc, view([], "left"));
+    assert.ok(focused.items.find((item) => item.id === "right")!.external);
+    assert.deepEqual(focused.edges.find((edge) => edge.source === "a")!.originalEdgeIds, ["request", "event", "flag"]);
+    assert.equal(focused.edges.filter((edge) => edge.source === "a" && edge.target === "right").length, 1);
+
+    const expanded = projectCompoundGraph(doc, view());
+    assert.equal(expanded.edges.length, doc.edges.length);
+    assert.ok(expanded.edges.every((edge) => edge.originalEdgeIds.length === 1));
+    assert.deepEqual(
+      expanded.edges.flatMap((edge) => edge.originalEdgeIds).sort(),
+      doc.edges.map((edge) => edge.id).sort(),
+    );
+    assert.equal(JSON.stringify(doc), before);
+  }),
   defineTest("type filtering retains ancestor containers without synthesizing paths", () => {
     const p = projectCompoundGraph(compoundFixture(), view(), "service");
     assert.deepEqual(p.items.map((item) => item.id).sort(), ["a", "b", "c", "d"]);
@@ -355,6 +409,18 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.ok(Math.max(...indexHierarchy(doc).depth.values()) >= 3);
     const stage = await layout(doc, view(Object.keys(doc.hierarchy!.groups)));
     assert.ok(stage.nodes.length < Object.keys(doc.nodes).length);
+    assert.equal(
+      new Set(stage.edges.map((edge) => JSON.stringify([edge.source, edge.target]))).size,
+      stage.edges.length,
+    );
+    const platformEdges = stage.edges.filter((edge) => edge.source === "commerce" && edge.target === "platform");
+    assert.equal(platformEdges.length, 1);
+    assert.equal(platformEdges[0].label, "5 relationships");
+    const platformOriginals = doc.edges.filter((edge) => platformEdges[0].originalEdgeIds!.includes(edge.id));
+    assert.equal(platformOriginals.length, 5);
+    for (const edge of platformOriginals) {
+      assert.ok(platformEdges[0].description!.includes(`${edge.id}: ${edge.source} → ${edge.target} (${edge.value})`));
+    }
     const p = projectCompoundGraph(doc, view(Object.keys(doc.hierarchy!.groups)));
     const ids = [
       ...p.edges.flatMap((edge) => edge.originalEdgeIds),

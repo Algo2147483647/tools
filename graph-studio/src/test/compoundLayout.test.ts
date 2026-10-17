@@ -243,6 +243,113 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     const again = await layoutFixture(dag);
     assert.deepEqual(again, stage, "repeat layouts are deterministic");
   }),
+  defineTest("sliding ports align offset boxes and keep opposite directions in separate lanes", () => {
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { a: {}, b: {} },
+      edges: [
+        { id: "ab", source: "a", target: "b" },
+        { id: "ba", source: "b", target: "a" },
+      ],
+    });
+    const projection = projectCompoundGraph(dag, { collapsedGroupIds: [], focusGroupId: null });
+    for (const gap of [32, 280])
+      for (let turn = 0; turn < 4; turn++) {
+        const rotate = (original: { x: number; y: number }) => {
+          let point = original;
+          for (let i = 0; i < turn; i++) point = { x: 1000 - point.y, y: point.x };
+          return point;
+        };
+        const rect = (x: number, y: number): Rect => {
+          const a = rotate({ x, y }),
+            b = rotate({ x: x + 120, y: y + 120 });
+          return {
+            x: Math.min(a.x, b.x),
+            y: Math.min(a.y, b.y),
+            width: Math.abs(a.x - b.x),
+            height: Math.abs(a.y - b.y),
+          };
+        };
+        const original = [
+          { x: 160, y: 220 },
+          { x: 160, y: 500 },
+          { x: 280 + gap, y: 500 },
+          { x: 280 + gap, y: 240 },
+        ].map(rotate);
+        const boxes = new Map([
+          ["a", rect(100, 100)],
+          ["b", rect(220 + gap, 120)],
+        ]);
+        const routes = new Map(
+          projection.edges.map((edge) => [
+            edge.id,
+            {
+              points: edge.source === "a" ? original : [...original].reverse(),
+              labelPosition: { x: 0, y: 0 },
+            },
+          ]),
+        );
+        const routed = shortenCompoundRoutes(
+          projection,
+          boxes,
+          routes,
+          { x: 0, y: 0, width: 1000, height: 1000 },
+          false,
+        );
+        const forward = routed.get(projection.edges[0].id)!.points;
+        const reverse = routed.get(projection.edges[1].id)!.points;
+        assert.equal(forward.length, 2, "offset box centers should still allow a straight connection");
+        assert.equal(reverse.length, 2, "the opposite direction should use a second straight lane");
+        assert.ok(Math.hypot(forward[0].x - reverse[1].x, forward[0].y - reverse[1].y) >= 16 - epsilon);
+        assert.ok(Math.hypot(forward[1].x - reverse[0].x, forward[1].y - reverse[0].y) >= 16 - epsilon);
+        assert.deepEqual(
+          shortenCompoundRoutes(
+            { ...projection, edges: [...projection.edges].reverse() },
+            boxes,
+            routes,
+            { x: 0, y: 0, width: 1000, height: 1000 },
+            false,
+          ),
+          routed,
+          "edge input order must not change the lanes",
+        );
+      }
+  }),
+  defineTest("collapsed commerce feedback avoids the side gutter, tiny hooks and group controls", async () => {
+    const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
+    const view = { collapsedGroupIds: Object.keys(dag.hierarchy!.groups), focusGroupId: null };
+    const stage = await layoutFixture(dag, view, true);
+    assertCompoundGeometry(dag, stage, view);
+    const feedback = stage.edges.find((edge) => edge.source === "partners" && edge.target === "commerce")!;
+    const points = feedback.points!;
+    const source = stage.nodeMap.partners,
+      target = stage.nodeMap.commerce;
+    assert.equal(points[0].y, source.y + source.height / 2, "leave through the bottom facing Commerce");
+    assert.equal(points[points.length - 1].y, target.y - target.height / 2);
+    assert.ok(points[points.length - 1].x <= target.x + target.width / 2 - 72 + epsilon, "avoid the group controls");
+    assert.ok(points.length <= 4, "feedback should need no more than two bends");
+    for (let i = 1; i < points.length; i++)
+      assert.ok(
+        Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y) >= 20 - epsilon,
+        "do not add tiny endpoint hooks",
+      );
+    for (const edge of stage.edges) {
+      const width = Math.max(edge.label.length * 7 + 10, 18);
+      const label = {
+        x: edge.labelPosition.x - width / 2 - 2,
+        y: edge.labelPosition.y - 12,
+        width: width + 4,
+        height: 20,
+      };
+      for (const other of stage.edges.filter((candidate) => candidate.id !== edge.id))
+        for (let i = 1; i < other.points!.length; i++)
+          assert.ok(
+            !crossesInterior(other.points![i - 1], other.points![i], label),
+            "labels must not cover another route",
+          );
+    }
+  }),
   defineTest(
     "acyclic leaf graphs may contract to cyclic container graphs without reversing actual arrows",
     async () => {

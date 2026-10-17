@@ -101,8 +101,8 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
       items.get(source)!.internalEdgeIds.push(edge.id);
       continue;
     }
-    const relation = typeof edge.value === "number" ? "numeric" : JSON.stringify([typeof edge.value, edge.value]);
-    const key = JSON.stringify([source, target, relation]);
+    // Summarize each visible direction once; retain all relationship values through their original IDs.
+    const key = JSON.stringify([source, target]);
     const aggregate = aggregates.get(key) ?? { source, target, edges: [] };
     aggregate.edges.push(edge);
     aggregates.set(key, aggregate);
