@@ -18,6 +18,6 @@ export function parseCssPixelValue(value: string | undefined, fallback: number):
   if (!value) {
     return fallback;
   }
-  const parsed = parseInt(value, 10);
+  const parsed = parseFloat(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 }

@@ -17,10 +17,10 @@ export default function ColorSetting({
     [draft, setDraft] = useState(value),
     [error, setError] = useState("");
   const parsed = parseColorValue(value);
-  const [alpha, setAlpha] = useState(String(Math.round((parsed?.alpha ?? 1) * 100)));
+  const [alpha, setAlpha] = useState(String((parsed?.alpha ?? 1) * 100));
   useEffect(() => {
     setDraft(value);
-    setAlpha(String(Math.round((parseColorValue(value)?.alpha ?? 1) * 100)));
+    setAlpha(String((parseColorValue(value)?.alpha ?? 1) * 100));
     setError("");
   }, [value]);
   const commit = () => {
@@ -74,18 +74,17 @@ export default function ColorSetting({
           <input
             type="number"
             aria-label={`${label} opacity`}
-            min={0}
-            max={100}
+            step="any"
             value={alpha}
             onChange={(event) => setAlpha(event.target.value)}
             onBlur={() => {
               if (!alpha.trim() || !Number.isFinite(Number(alpha))) {
-                setAlpha(String(Math.round((parsed?.alpha ?? 1) * 100)));
+                setAlpha(String((parsed?.alpha ?? 1) * 100));
                 return;
               }
-              const bounded = Math.min(100, Math.max(0, Number(alpha)));
-              setAlpha(String(bounded));
-              onChange(formatColorValue({ hex: parsed?.hex ?? "#000000", alpha: bounded / 100 }));
+              const next = Number(alpha);
+              setAlpha(String(next));
+              onChange(formatColorValue({ hex: parsed?.hex ?? "#000000", alpha: next / 100 }));
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.currentTarget.blur();

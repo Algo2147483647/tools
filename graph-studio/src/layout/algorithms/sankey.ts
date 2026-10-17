@@ -59,7 +59,7 @@ export function buildSankeyStage(
   const layerOf = (key: string) => (producers.has(key) ? rank.get(key)! : lastLayer);
   const columns = new Map<number, string[]>();
   activeKeys.forEach((key) => columns.set(layerOf(key), [...(columns.get(layerOf(key)) ?? []), key]));
-  const padding = Math.max(18, theme.rowGap);
+  const padding = theme.rowGap;
   const innerHeight = Math.max(
     theme.stageMinHeight - 2 * theme.stagePaddingY,
     Math.max(1, ...[...columns.values()].map((column) => column.length)) * (Math.max(48, theme.nodeHeight) + padding),

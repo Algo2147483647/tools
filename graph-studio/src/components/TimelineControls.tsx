@@ -22,7 +22,7 @@ export default function TimelineControls({
   useEffect(() => setStep(String(settings.tickStep)), [settings.tickStep]);
   function commitStep() {
     const value = Number(step);
-    if (Number.isInteger(value) && value >= 1 && value <= 1_000_000) onChange({ tickStep: value });
+    if (step.trim() && Number.isFinite(value)) onChange({ tickStep: value });
     else setStep(String(settings.tickStep));
   }
   return (
@@ -82,11 +82,11 @@ export default function TimelineControls({
           <div className="settings-slider-grid">
             <NumericSetting
               label="Timeline horizontal spread"
-              min={50}
+              min={0}
               max={300}
               step={10}
               unit="%"
-              value={Math.round(horizontalSpread * 100)}
+              value={horizontalSpread * 100}
               defaultValue={100}
               onChange={(value) => onChange({ horizontalSpread: value / 100 })}
             />
@@ -143,9 +143,7 @@ export default function TimelineControls({
                   className="settings-select-input"
                   aria-label="Timeline tick interval"
                   type="number"
-                  min="1"
-                  max="1000000"
-                  step="1"
+                  step="any"
                   value={step}
                   disabled={settings.tickUnit === "auto"}
                   onChange={(event) => setStep(event.target.value)}
@@ -190,7 +188,7 @@ export default function TimelineControls({
                 max={100}
                 step={5}
                 unit="%"
-                value={Math.round(settings.compactness * 100)}
+                value={settings.compactness * 100}
                 defaultValue={50}
                 disabled={settings.locked}
                 onChange={(value) => onChange({ compactness: value / 100 })}

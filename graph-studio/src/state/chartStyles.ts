@@ -44,7 +44,7 @@ export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
     return {
       appearance: sanitizeGraphAppearance({
         ...DEFAULT_GRAPH_APPEARANCE,
-        layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, nodeHeight: 48, maxNodeWidth: 240 },
+        layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, columnGap: 24, rowGap: 24, nodeHeight: 48, maxNodeWidth: 240 },
         display: {
           ...DEFAULT_GRAPH_APPEARANCE.display,
           nodeCornerRadius: 16,

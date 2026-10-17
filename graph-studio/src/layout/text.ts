@@ -78,6 +78,7 @@ export function fitMeasuredText(text: string, width: number, font: TextFont): st
 
 let measurementContext: CanvasRenderingContext2D | null | undefined;
 export function measureText(text: string, font: TextFont): number {
+  if (font.size <= 0) return 0;
   if (measurementContext === undefined && typeof document !== "undefined")
     measurementContext = document.createElement("canvas").getContext("2d");
   if (measurementContext) {

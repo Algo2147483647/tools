@@ -169,7 +169,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                 label="Flow node width"
                 value={p.appearance.display.sankeyNodeWidth}
                 defaultValue={defaults.display.sankeyNodeWidth}
-                min={8}
+                min={0}
                 max={48}
                 unit="px"
                 onChange={(value) => p.onAppearanceDisplayChange("sankeyNodeWidth", value)}
@@ -209,7 +209,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
     ["shadowBlur", 0, 32, "px"],
     ["shadowOffset", 0, 16, "px"],
     ["shadowOpacity", 0, 40, "%"],
-    ["sankeyLinkOpacity", 5, 90, "%"],
+    ["sankeyLinkOpacity", 0, 90, "%"],
   ] as const;
   const toggle = (id: "showNodeDots" | "nodeShadow" | "showGroupStats" | "showGroupBorders" | "showEdgeLabels") => (
     <Toggle
@@ -350,7 +350,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             label="Title size"
             value={p.titleFontSize}
             defaultValue={parseInt(defaults.cssVars["--dag-title-font-size"], 10)}
-            min={10}
+            min={0}
             max={28}
             onChange={(value) => p.onAppearanceCssVarChange("--dag-title-font-size", `${value}px`)}
           />

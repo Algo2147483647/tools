@@ -158,7 +158,7 @@ export function buildTimelineStage(input: {
     start -= DAY / 2;
     end += DAY / 2;
   }
-  const labelWidth = Math.max(140, Math.min(480, theme.maxNodeWidth));
+  const labelWidth = Math.max(0, theme.maxNodeWidth);
   const labelStep = Math.max(showNodeDetail ? 60 : 44, theme.nodeHeight * 0.58 + theme.rowGap * 0.2);
   const trackCounts = new Map<string, number>();
   for (const node of Object.values(input.axisSource?.nodes ?? dag.nodes)) {
@@ -223,7 +223,7 @@ export function buildTimelineStage(input: {
   const topLevel = new Set(selection.topLevelKeys);
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
-    const channelStep = Math.max(24, (55.2 + settings.nodeGap) * settings.horizontalSpread);
+    const channelStep = (55.2 + settings.nodeGap) * settings.horizontalSpread;
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
     const color = trackColor(track);
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);

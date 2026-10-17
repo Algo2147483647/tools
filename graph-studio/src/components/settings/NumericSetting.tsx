@@ -45,10 +45,9 @@ export default function NumericSetting({
       setDraft(String(value));
       return;
     }
-    const bounded = Math.max(min, Math.min(max, Number(raw)));
-    const rounded = Number(bounded.toFixed(4));
-    setDraft(String(rounded));
-    onChange(rounded);
+    const next = Number(raw);
+    setDraft(String(next));
+    onChange(next);
   };
   return (
     <div className="numeric-setting" data-modified={changed} aria-disabled={disabled || undefined}>
@@ -67,16 +66,14 @@ export default function NumericSetting({
           max={max}
           step={step}
           disabled={disabled}
-          value={value}
+          value={Math.max(min, Math.min(max, value))}
           onChange={(event) => commit(event.currentTarget.value)}
         />
         <label className="numeric-setting-value">
           <input
             type="number"
             aria-label={`${label} value`}
-            min={min}
-            max={max}
-            step={step}
+            step="any"
             disabled={disabled}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}

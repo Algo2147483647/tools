@@ -9,8 +9,9 @@ export interface TextFont {
 
 export function getTitleFont(appearance: Pick<GraphAppearance, "cssVars">): TextFont {
   const vars = { ...DEFAULT_GRAPH_APPEARANCE.cssVars, ...appearance.cssVars };
+  const size = parseFloat(vars["--dag-title-font-size"]);
   return {
-    size: Math.max(1, parseFloat(vars["--dag-title-font-size"]) || 15),
+    size: Number.isFinite(size) ? Math.max(0, size) : 15,
     family: vars["--dag-title-font-family"],
     weight: vars["--dag-title-font-weight"],
     style: vars["--dag-title-font-style"],

@@ -19,7 +19,7 @@ export default function LayoutSliderControl({
       {...definition}
       value={value}
       defaultValue={defaultValue ?? DEFAULT_GRAPH_APPEARANCE.layout[key]}
-      onChange={(value) => onChange(Math.round(value))}
+      onChange={onChange}
     />
   );
 }

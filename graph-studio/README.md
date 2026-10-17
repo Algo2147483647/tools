@@ -16,6 +16,8 @@ It is built for fast graph inspection and editing in the browser:
 - export the current canvas as a standalone interactive HTML file with read-only node details
 
 ![Graph Studio screenshot](./docs/assets/screenshot.png)
+![Graph Studio screenshot](./docs/assets/img.png)
+![Graph Studio screenshot](./docs/assets/img_1.png)
 
 ## Quick Start
 

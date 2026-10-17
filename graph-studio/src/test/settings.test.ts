@@ -1,4 +1,11 @@
 import assert from "node:assert/strict";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import NumericSetting from "../components/settings/NumericSetting";
+import { LAYOUT_CONTROLS } from "../components/settings/settingsConfig";
+import { sanitizeGraphAppearance } from "../graph/appearance";
+import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { parseGraphPagePreferences } from "../state/preferences";
 import { defineSuite, defineTest } from "./harness";
 import { getSettingsCatalog, matchesSetting } from "../components/settings/settingsCatalog";
 import { parseColorValue, formatColorValue } from "../components/settings/colorValue";
@@ -11,6 +18,51 @@ import { getSankeyError } from "../graph/sankey";
 import { parseNodeTimeline } from "../graph/timeline";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("sliders start at zero while numeric inputs retain values outside their range", () => {
+    for (const control of LAYOUT_CONTROLS) {
+      assert.equal(control.min, 0);
+      for (const value of [-12.3456789, 0, 10000.125]) {
+        const html = renderToStaticMarkup(
+          createElement(NumericSetting, {
+            label: control.label,
+            value,
+            defaultValue: 24,
+            min: control.min,
+            max: control.max,
+            onChange: () => {},
+          }),
+        );
+        const numberInput = html.match(/<input[^>]*type="number"[^>]*>/)![0];
+        assert.doesNotMatch(numberInput, /\s(?:min|max)=/);
+        assert.ok(numberInput.includes(`value="${value}"`));
+        assert.match(numberInput, /step="any"/);
+        assert.match(html, /type="range" min="0"/);
+      }
+    }
+  }),
+  defineTest("finite numeric settings survive sanitizing and preference reload without rounding or bounds", () => {
+    for (const value of [-12.3456789, 0, 10000.125]) {
+      const appearance = sanitizeGraphAppearance({
+        layout: { columnGap: value, rowGap: value, nodeHeight: value, maxNodeWidth: value },
+        display: { nodeCornerRadius: value, shadowOpacity: value, sankeyNodeWidth: value },
+      });
+      const restored = parseGraphPagePreferences(JSON.stringify({ chartStyles: { compound: { appearance } } }))!
+        .chartStyles!.compound.appearance;
+      assert.deepEqual(restored, appearance);
+      assert.equal(restored.layout.columnGap, value);
+      assert.equal(restored.layout.rowGap, value);
+      assert.equal(restored.layout.nodeHeight, value);
+      assert.equal(restored.layout.maxNodeWidth, value);
+      assert.equal(restored.display.nodeCornerRadius, value);
+      assert.equal(restored.display.shadowOpacity, value);
+      assert.equal(restored.display.sankeyNodeWidth, value);
+      const timeline = sanitizeTimelineSettings({ horizontalSpread: value, compactness: value, tickStep: value });
+      assert.equal(timeline.horizontalSpread, value);
+      assert.equal(timeline.compactness, value);
+      assert.equal(timeline.tickStep, value);
+      assert.equal(parseColorValue(formatColorValue({ hex: "#123456", alpha: value }))!.alpha, value);
+    }
+  }),
   defineTest("chart schema examples import successfully and satisfy type-specific data requirements", () => {
     for (const profile of Object.values(CHART_SCHEMAS)) {
       const graph = normalizeDagInput(JSON.parse(JSON.stringify(profile.example)));
@@ -43,8 +95,7 @@ export const settingsSuite = defineSuite("Settings controls", [
     assert.equal(parseColorValue("#00000080")!.alpha, 128 / 255);
     assert.deepEqual(parseColorValue("rgba(91, 109, 142, 0.17)"), { hex: "#5b6d8e", alpha: 0.17 });
     assert.equal(formatColorValue({ hex: "#5b6d8e", alpha: 0.17 }), "rgba(91, 109, 142, 0.17)");
-    for (const value of ["", "#xxffff", "rgb(256,0,0)", "rgba(1,2,3,1.1)", "url(example)"])
-      assert.equal(parseColorValue(value), null);
+    for (const value of ["", "#xxffff", "rgb(256,0,0)", "url(example)"]) assert.equal(parseColorValue(value), null);
   }),
   defineTest("section resets preserve other sections and custom CSS", () => {
     const original = {

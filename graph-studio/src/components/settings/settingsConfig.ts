@@ -56,11 +56,11 @@ export interface LayoutControlDefinition {
 }
 
 export const LAYOUT_CONTROLS: LayoutControlDefinition[] = [
-  { key: "columnGap", label: "Layer spacing", min: 48, max: 260, step: 2, unit: "px" },
-  { key: "rowGap", label: "Node spacing", min: 4, max: 140, step: 2, unit: "px" },
-  { key: "edgeLaneGap", label: "Line spacing", min: 4, max: 96, step: 2, unit: "px" },
-  { key: "nodeHeight", label: "Node height", min: 44, max: 160, step: 2, unit: "px" },
-  { key: "maxNodeWidth", label: "Node max width", min: 188, max: 480, step: 4, unit: "px" },
+  { key: "columnGap", label: "Layer spacing", min: 0, max: 260, step: 2, unit: "px" },
+  { key: "rowGap", label: "Node spacing", min: 0, max: 140, step: 2, unit: "px" },
+  { key: "edgeLaneGap", label: "Line spacing", min: 0, max: 96, step: 2, unit: "px" },
+  { key: "nodeHeight", label: "Node height", min: 0, max: 160, step: 2, unit: "px" },
+  { key: "maxNodeWidth", label: "Node max width", min: 0, max: 480, step: 4, unit: "px" },
 ];
 
 export function getLayoutControls(chart: GraphChartType): LayoutControlDefinition[] {

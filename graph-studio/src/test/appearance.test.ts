@@ -14,10 +14,10 @@ export const appearanceSuite = defineSuite("appearance", [
     const stage = buildStageData({ dag: createSampleDag(), selection: { type: "node", key: "A" } })!;
     const noop = () => {};
     for (const [input, saved] of [
-      [-10, 0],
+      [-10, -10],
       [0, 0],
       [16, 16],
-      [999, 80],
+      [999, 999],
       [NaN, 24],
     ]) {
       const appearance = sanitizeGraphAppearance({ display: { nodeCornerRadius: input } });
@@ -44,7 +44,7 @@ export const appearanceSuite = defineSuite("appearance", [
       ];
       assert.equal(cards.length, stage.nodes.length);
       for (const [, width, height, rx, ry] of cards) {
-        assert.equal(Number(rx), Math.min(saved, Number(width) / 2, Number(height) / 2));
+        assert.equal(Number(rx), Math.max(0, Math.min(saved, Number(width) / 2, Number(height) / 2)));
         assert.equal(rx, ry);
       }
     }
@@ -70,7 +70,7 @@ export const appearanceSuite = defineSuite("appearance", [
       "inline",
     );
   }),
-  defineTest("sanitizeGraphAppearance fills defaults and clamps layout values", () => {
+  defineTest("sanitizeGraphAppearance fills defaults and preserves finite layout values", () => {
     const appearance = sanitizeGraphAppearance({
       layout: {
         columnGap: -1,
@@ -82,11 +82,11 @@ export const appearanceSuite = defineSuite("appearance", [
     });
 
     assert.equal(appearance.version, 1);
-    assert.equal(appearance.layout.columnGap, 48);
-    assert.equal(appearance.layout.rowGap, 140);
-    assert.equal(appearance.layout.minNodeWidth, 260);
-    assert.equal(appearance.layout.maxNodeWidth, 260);
-    assert.equal(appearance.layout.stageMinWidth, 4000);
+    assert.equal(appearance.layout.columnGap, -1);
+    assert.equal(appearance.layout.rowGap, 999);
+    assert.equal(appearance.layout.minNodeWidth, 999);
+    assert.equal(appearance.layout.maxNodeWidth, 10);
+    assert.equal(appearance.layout.stageMinWidth, 10_000);
     assert.equal(appearance.display.showEdgeLabels, false);
     assert.equal(appearance.css, DEFAULT_GRAPH_APPEARANCE.css);
   }),

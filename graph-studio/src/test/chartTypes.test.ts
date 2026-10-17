@@ -373,7 +373,7 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
       '{"chartStyles":{"node-link":null,"sankey":{"appearance":{"display":{"sankeyLinkOpacity":999}}}}}',
     )!;
     assert.equal(invalid.chartStyles!["node-link"].showNodeDetail, false);
-    assert.equal(invalid.chartStyles!.sankey.appearance.display.sankeyLinkOpacity, 90);
+    assert.equal(invalid.chartStyles!.sankey.appearance.display.sankeyLinkOpacity, 999);
   }),
   defineTest("appearance commits, resets, undo and redo affect only their chart type", () => {
     const styles = createChartStyles();

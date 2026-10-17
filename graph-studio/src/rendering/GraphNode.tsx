@@ -49,7 +49,7 @@ const GraphNode = memo(function GraphNode({
       />
     );
   const hasDetail = node.detailLines.length > 0 && (node.kind !== "group" || showGroupStats);
-  const cornerRadius = Math.min(nodeCornerRadius, node.width / 2, node.height / 2);
+  const cornerRadius = Math.max(0, Math.min(nodeCornerRadius, node.width / 2, node.height / 2));
   const style = node.colorTokens
     ? ({
         "--dag-node-glow": node.colorTokens.glow,
