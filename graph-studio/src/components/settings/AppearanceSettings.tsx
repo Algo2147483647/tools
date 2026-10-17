@@ -327,6 +327,21 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           </div>
         </section>
       )}
+      {(p.chartType === "node-link" || p.chartType === "compound") &&
+        matches("appearance node shape corner radius rounded corners") && (
+          <section className="settings-section">
+            <h3>Node shape</h3>
+            <p>Adjust node cards and collapsed groups. Radius is capped at half the card's smaller dimension.</p>
+            <DisplaySlider
+              label="Corner radius"
+              value={p.appearance.display.nodeCornerRadius}
+              min={0}
+              max={80}
+              unit="px"
+              onChange={(value) => p.onAppearanceDisplayChange("nodeCornerRadius", value)}
+            />
+          </section>
+        )}
       {matches("appearance shadow shadows elevation blur offset opacity depth") && (
         <section className="settings-section">
           <h3>Node shadows</h3>
@@ -464,7 +479,9 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           </div>
         </section>
       )}
-      {matches("appearance visibility view details descriptions borders width labels edges dots pins markers") && (
+      {matches(
+        "appearance visibility view details descriptions borders width labels edges dots pins markers group subgraph statistics counts",
+      ) && (
         <section className="settings-section">
           <h3>Visible details</h3>
           {(p.chartType === "node-link" || p.chartType === "compound") && (
@@ -489,6 +506,14 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             checked={!p.hideNodeBorders}
             onChange={p.onNodeBordersToggle}
           />
+          {p.chartType === "compound" && (
+            <Toggle
+              label="Group statistics"
+              description="Show node and internal edge counts in subgraphs."
+              checked={p.appearance.display.showGroupStats}
+              onChange={() => p.onAppearanceDisplayChange("showGroupStats", !p.appearance.display.showGroupStats)}
+            />
+          )}
           {!isSankey && !isTimeline && (
             <Toggle
               label="Equal node widths"

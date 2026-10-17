@@ -87,6 +87,7 @@ Display flags control graph visibility choices that are not layout geometry or r
 | Key | Meaning |
 | --- | --- |
 | `showEdgeLabels` | Whether relation-value edge labels are rendered |
+| `nodeCornerRadius` | Card corner radius, 0–80 px (default 24), capped at half the card's smaller dimension |
 | `nodeShadow` | Enable the two-layer node shadow (default `true`) |
 | `shadowBlur` | Diffuse shadow softness, 0–32 px (default 8) |
 | `shadowOffset` | Vertical shadow distance, 0–16 px (default 3) |
@@ -95,6 +96,8 @@ Display flags control graph visibility choices that are not layout geometry or r
 | `sankeyLinkOpacity` | Flow-band opacity, 5–90 percent (default 32) |
 
 Use **Settings → Appearance → Node shadows** for live shadow controls, and **Settings → Layout → Sankey flows** for flow styling. All values persist in browser preferences and appearance JSON. Older appearance configurations receive defaults for new fields. Shadow controls take precedence over custom CSS filters; dense graphs omit shadows for performance. Exported SVG retains the rendered styles and flow geometry.
+
+**Settings → Appearance → Node shape → Corner radius** controls ordinary node cards and collapsed subgraph cards. Zero produces square corners. The value is saved independently for Node-link and Nested node-link and is included in appearance import/export and rendered SVG. Changing it does not re-layout the graph or move edge endpoints. Expanded container frames, Sankey bars and timeline markers have separate shapes.
 
 Ordinary node cards use an opaque pure-white fill (`#ffffff`) by default, so the shadow beneath a node cannot tint its surface. Saved configurations using the old translucent default are migrated to white. Shadow softness, distance and opacity adjust only the projection; node color remains a separate setting.
 

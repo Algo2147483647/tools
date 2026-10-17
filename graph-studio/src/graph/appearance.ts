@@ -11,6 +11,8 @@ export interface GraphAppearance {
 interface GraphDisplayAppearance {
   showNodeDots: boolean;
   showEdgeLabels: boolean;
+  showGroupStats: boolean;
+  nodeCornerRadius: number;
   nodeShadow: boolean;
   shadowBlur: number;
   shadowOffset: number;
@@ -268,6 +270,8 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
   display: {
     showNodeDots: true,
     showEdgeLabels: false,
+    showGroupStats: true,
+    nodeCornerRadius: 24,
     nodeShadow: true,
     shadowBlur: 8,
     shadowOffset: 3,
@@ -330,6 +334,8 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
           ? DEFAULT_GRAPH_APPEARANCE.display.showEdgeLabels
           : displayInput.showEdgeLabels === true,
       nodeShadow: typeof displayInput.nodeShadow === "boolean" ? displayInput.nodeShadow : true,
+      showGroupStats: typeof displayInput.showGroupStats === "boolean" ? displayInput.showGroupStats : true,
+      nodeCornerRadius: clampNumeric(displayInput.nodeCornerRadius, 24, 0, 80),
       shadowBlur: clampNumeric(displayInput.shadowBlur, 8, 0, 32),
       shadowOffset: clampNumeric(displayInput.shadowOffset, 3, 0, 16),
       shadowOpacity: clampNumeric(displayInput.shadowOpacity, 12, 0, 40),

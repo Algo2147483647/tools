@@ -12,6 +12,8 @@ const AFFORDANCE_TEXT_AVERAGE_WIDTH = 5.2;
 interface GraphNodeProps {
   node: StageNode;
   isActive: boolean;
+  showGroupStats?: boolean;
+  nodeCornerRadius?: number;
   onTimelineNodePin?: (key: string, x: number) => void;
   onClick: (key: string) => void;
   onDoubleClick?: (key: string) => void;
@@ -22,6 +24,8 @@ interface GraphNodeProps {
 const GraphNode = memo(function GraphNode({
   node,
   isActive,
+  showGroupStats = true,
+  nodeCornerRadius = 24,
   onTimelineNodePin,
   onClick,
   onDoubleClick,
@@ -41,7 +45,8 @@ const GraphNode = memo(function GraphNode({
         onFocusChange={onFocusChange}
       />
     );
-  const hasDetail = node.detailLines.length > 0;
+  const hasDetail = node.detailLines.length > 0 && (node.kind !== "group" || showGroupStats);
+  const cornerRadius = Math.min(nodeCornerRadius, node.width / 2, node.height / 2);
   const style = node.colorTokens
     ? ({
         "--dag-node-glow": node.colorTokens.glow,
@@ -158,7 +163,13 @@ const GraphNode = memo(function GraphNode({
         </>
       ) : (
         <>
-          <rect className="dag-node__shape" width={node.width} height={node.height} rx={24} ry={24} />
+          <rect
+            className="dag-node__shape"
+            width={node.width}
+            height={node.height}
+            rx={cornerRadius}
+            ry={cornerRadius}
+          />
           <circle className="dag-node__pin" cx={26} cy={node.height / 2} r={7} />
           <circle className="dag-node__pin-core" cx={26} cy={node.height / 2} r={2.25} />
           <text
@@ -211,6 +222,8 @@ function areEqualGraphNodeProps(previous: GraphNodeProps, next: GraphNodeProps):
   return (
     previous.node === next.node &&
     previous.isActive === next.isActive &&
+    previous.showGroupStats === next.showGroupStats &&
+    previous.nodeCornerRadius === next.nodeCornerRadius &&
     previous.onClick === next.onClick &&
     previous.onDoubleClick === next.onDoubleClick &&
     previous.onContextMenu === next.onContextMenu &&

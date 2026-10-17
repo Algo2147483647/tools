@@ -52,10 +52,12 @@ export function GroupControls({
 
 export function GroupHeader({
   group,
+  showStats = true,
   onToggle,
   onEnter,
 }: {
   group: StageGroup;
+  showStats?: boolean;
   onToggle?: (id: string) => void;
   onEnter?: (id: string) => void;
 }) {
@@ -81,9 +83,11 @@ export function GroupHeader({
       <text x={group.x + 16} y={group.y + 26} className="dag-group-title">
         {truncateTitleToWidth(group.title, group.width - 55)}
       </text>
-      <text x={group.x + 16} y={group.y + 44} className="dag-group-count">
-        {group.leafCount} nodes
-      </text>
+      {showStats && (
+        <text x={group.x + 16} y={group.y + 44} className="dag-group-count">
+          {group.leafCount} node{group.leafCount === 1 ? "" : "s"}
+        </text>
+      )}
       <GroupControls
         id={group.id}
         x={group.x + group.width - 70}

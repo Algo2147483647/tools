@@ -40,7 +40,7 @@ export const SETTINGS_CHAPTERS: Array<{
     description: "Style for each chart type",
     icon: "palette",
     keywords:
-      "node link sankey flow bands colors typography shadow shadows elevation blur offset opacity depth preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges custom css advanced stylesheet configuration import export reset",
+      "node shape corner radius rounded corners link sankey flow bands colors typography shadow shadows elevation blur offset opacity depth preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges group subgraph statistics counts custom css advanced stylesheet configuration import export reset",
   },
   {
     key: "ai",

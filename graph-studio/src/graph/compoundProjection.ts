@@ -112,7 +112,7 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
     source: bucket.source,
     target: bucket.target,
     originalEdgeIds: bucket.edges.map((edge) => edge.id),
-    label: bucket.edges.length > 1 ? `${bucket.edges.length} relationships` : String(bucket.edges[0].value ?? ""),
+    label: bucket.edges.length > 1 ? `${bucket.edges.length} edges` : String(bucket.edges[0].value ?? ""),
   }));
   return { items: [...items.values()].sort((a, b) => a.depth - b.depth), edges, representative, focusGroupId: focus };
 }

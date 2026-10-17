@@ -31,7 +31,7 @@ const overlaps = (a: CompoundBox, b: CompoundBox) =>
   a.y < b.y + b.height - EPSILON &&
   b.y < a.y + a.height - EPSILON;
 
-/** Final routing is independent of the direction chosen for node placement. All four sides are eligible. */
+/** Final routes attach only to the four side midpoints, independently of placement direction. */
 export function shortenCompoundRoutes(
   projection: CompoundProjection,
   boxes: Map<string, CompoundBox>,
@@ -54,10 +54,6 @@ export function shortenCompoundRoutes(
   const edges = [...projection.edges].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const attachments = new Map<string, ElkPoint[]>();
   const labelBoxes = new Map<string, CompoundBox>();
-  if (showLabels)
-    for (const edge of edges) {
-      if (edge.label) labelBoxes.set(edge.id, labelBox(edge.label, routes.get(edge.id)!.labelPosition));
-    }
   const result = new Map<string, CompoundRoute>();
   for (const edge of edges) {
     const original = routes.get(edge.id)!;
@@ -93,8 +89,7 @@ export function shortenCompoundRoutes(
     const padded = [...obstacles, ...otherLabels].map((box) => inflate(box, gap));
     const ports = (id: string): Port[] => {
       const box = boxes.get(id)!;
-      const opposite = boxes.get(id === edge.source ? edge.target : edge.source)!;
-      return slidingPorts(box, opposite, items.get(id)!.kind === "group", attachments.get(id) ?? []).filter(
+      return midpointPorts(box).filter(
         (port) =>
           !padded.some((box) => inside(port.stub, box)) &&
           port.stub.x >= extent.x &&
@@ -127,10 +122,15 @@ export function shortenCompoundRoutes(
       (port) => attachmentCost(edge.source, port.point),
       (port) => attachmentCost(edge.target, port.point),
     );
-    const originalCost = cost(original.points);
-    const candidates = [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : [])]
+    const centeredOriginal =
+      sources.some((port) => samePoint(port.point, original.points[0])) &&
+      targets.some((port) => samePoint(port.point, original.points[original.points.length - 1]));
+    const candidates = [
+      ...simpleRoutes(sources, targets, padded),
+      ...(candidate ? [candidate] : []),
+      ...(centeredOriginal ? [original.points] : []),
+    ]
       .map((points) => ({ points, cost: cost(points) }))
-      .filter((route) => route.cost < originalCost - EPSILON)
       .sort((a, b) => a.cost - b.cost);
     const lineObstacles = [...result.values()].flatMap((route) =>
       route.points.slice(1).map((point, i) => ({
@@ -140,7 +140,9 @@ export function shortenCompoundRoutes(
         height: Math.abs(point.y - route.points[i].y) + 8,
       })),
     );
-    let chosen = original;
+    if (!candidates.length) throw new Error(`Unable to route between side midpoints: ${edge.source} → ${edge.target}.`);
+    // The placement pass reserves this label box. Keep it if no new segment can safely carry the label.
+    let chosen = { points: candidates[0].points, labelPosition: original.labelPosition };
     for (const { points } of candidates) {
       const labelPosition =
         showLabels && edge.label
@@ -157,63 +159,25 @@ export function shortenCompoundRoutes(
   return result;
 }
 
-/** Slide along each side toward the other box, sharing coordinates where their safe spans overlap. */
-function slidingPorts(box: CompoundBox, opposite: CompoundBox, controls: boolean, used: ElkPoint[]): Port[] {
-  const inset = Math.min(24, box.width / 3, box.height / 3);
-  const otherInset = Math.min(24, opposite.width / 3, opposite.height / 3);
-  const values = (axis: "x" | "y", low: number, high: number, attached: ElkPoint[]) => {
-    const size = axis === "x" ? "width" : "height";
-    const clamp = (value: number) => Math.max(low, Math.min(high, value));
-    const sharedLow = Math.max(low, opposite[axis] + otherInset);
-    const sharedHigh = Math.min(high, opposite[axis] + opposite[size] - otherInset);
-    const preferred =
-      sharedLow <= sharedHigh ? (sharedLow + sharedHigh) / 2 : clamp(opposite[axis] + opposite[size] / 2);
-    const base = [
-      preferred,
-      clamp(opposite[axis] + opposite[size] / 2),
-      (low + high) / 2,
-      clamp(preferred - LANE_GAP),
-      clamp(preferred + LANE_GAP),
-      low,
-      high,
-    ];
-    const extra = [
-      ...new Set(attached.flatMap((point) => [clamp(point[axis] - LANE_GAP), clamp(point[axis] + LANE_GAP)])),
-    ];
-    const penalty = (value: number) =>
-      attached.reduce((sum, point) => sum + Math.max(0, LANE_GAP - Math.abs(value - point[axis])), 0);
-    extra.sort((a, b) => penalty(a) - penalty(b) || Math.abs(a - preferred) - Math.abs(b - preferred));
-    // Keep the visibility grid and simple-route search bounded even for high-degree nodes.
-    return [...new Set([...base, ...extra])].slice(0, 12);
-  };
-  const ports: Port[] = [];
-  for (const direction of [0, 1, 2, 3]) {
-    const horizontal = direction % 2 === 0;
-    const axis = horizontal ? "y" : "x";
-    let low = box[axis] + inset;
-    let high = box[axis] + (horizontal ? box.height : box.width) - inset;
-    // Collapsed groups have controls in their upper-right corner; arrows should not land above them.
-    if (controls && direction === 3) high = Math.max(low, box.x + box.width - 72);
-    if (controls && direction === 0) low = Math.min(high, box.y + 40);
-    const side = horizontal
-      ? direction === 0
-        ? box.x + box.width
-        : box.x
-      : direction === 1
-        ? box.y + box.height
-        : box.y;
-    const attached = used.filter((point) => Math.abs((horizontal ? point.x : point.y) - side) < EPSILON);
-    for (const coordinate of values(axis, low, high, attached)) {
-      const point = horizontal
-        ? { x: direction === 0 ? box.x + box.width : box.x, y: coordinate }
-        : { x: coordinate, y: direction === 1 ? box.y + box.height : box.y };
-      const stub = { ...point };
-      if (horizontal) stub.x += direction === 0 ? MIN_STRAIGHT : -MIN_STRAIGHT;
-      else stub.y += direction === 1 ? MIN_STRAIGHT : -MIN_STRAIGHT;
-      ports.push({ point, stub, direction });
-    }
-  }
-  return ports;
+const samePoint = (a: ElkPoint, b: ElkPoint) => Math.hypot(a.x - b.x, a.y - b.y) < EPSILON;
+
+/** Two approach lengths per side share exactly the same midpoint; short stubs fit narrow gaps. */
+function midpointPorts(box: CompoundBox): Port[] {
+  return [
+    { x: box.x + box.width, y: box.y + box.height / 2 },
+    { x: box.x + box.width / 2, y: box.y + box.height },
+    { x: box.x, y: box.y + box.height / 2 },
+    { x: box.x + box.width / 2, y: box.y },
+  ].flatMap((point, direction) =>
+    [MIN_STRAIGHT, 8].map((length) => ({
+      point,
+      direction,
+      stub: {
+        x: point.x + (direction === 0 ? length : direction === 2 ? -length : 0),
+        y: point.y + (direction === 1 ? length : direction === 3 ? -length : 0),
+      },
+    })),
+  );
 }
 
 function crossesBox(a: ElkPoint, b: ElkPoint, box: CompoundBox): boolean {
@@ -423,8 +387,12 @@ function findOrthogonalPath(
   sources.forEach((port, index) => {
     const cell = at(port.stub),
       state = cell * 4 + port.direction;
-    if (sourceCost(port) >= distance[state]) return;
-    distance[state] = sourceCost(port);
+    const initial =
+      sourceCost(port) +
+      Math.hypot(port.point.x - port.stub.x, port.point.y - port.stub.y) +
+      segmentCost(port.point, port.stub);
+    if (initial >= distance[state]) return;
+    distance[state] = initial;
     previous[state] = -index - 2;
     queue.push(state, distance[state] + heuristic(cell));
   });
@@ -441,7 +409,11 @@ function findOrthogonalPath(
     const target = targetCells.get(cell);
     if (target !== undefined && direction !== targets[target].direction) {
       const total =
-        cost + (direction === (targets[target].direction + 2) % 4 ? 0 : BEND_COST) + targetCost(targets[target]);
+        cost +
+        (direction === (targets[target].direction + 2) % 4 ? 0 : BEND_COST) +
+        targetCost(targets[target]) +
+        Math.hypot(targets[target].point.x - targets[target].stub.x, targets[target].point.y - targets[target].stub.y) +
+        segmentCost(targets[target].stub, targets[target].point);
       if (total < best) {
         best = total;
         endState = state;

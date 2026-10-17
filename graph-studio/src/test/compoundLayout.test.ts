@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import GraphStage from "../rendering/GraphStage";
 import ELK from "elkjs/lib/elk.bundled.js";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
@@ -40,6 +43,7 @@ export async function layoutFixture(
   dag: NormalizedDag,
   view: CompoundView = { collapsedGroupIds: [], focusGroupId: null },
   showEdgeLabels = false,
+  showNodeDetail = true,
 ) {
   return buildCompoundStage(
     {
@@ -47,7 +51,7 @@ export async function layoutFixture(
       view,
       showEdgeLabels,
       appearance: getStageAppearance(DEFAULT_GRAPH_APPEARANCE),
-      showNodeDetail: true,
+      showNodeDetail,
       alignNodeWidthsToMax: false,
     },
     new ELK(),
@@ -61,6 +65,19 @@ interface Rect {
   height: number;
 }
 const epsilon = 0.02;
+function assertSideMidpoint(point: { x: number; y: number }, box: Rect) {
+  const midpoints = [
+    { x: box.x + box.width / 2, y: box.y },
+    { x: box.x + box.width / 2, y: box.y + box.height },
+    { x: box.x, y: box.y + box.height / 2 },
+    { x: box.x + box.width, y: box.y + box.height / 2 },
+  ];
+  assert.ok(
+    midpoints.some((mid) => Math.hypot(point.x - mid.x, point.y - mid.y) < epsilon),
+    "endpoint must be a side midpoint",
+  );
+}
+
 function crossesInterior(a: { x: number; y: number }, b: { x: number; y: number }, rect: Rect) {
   if (Math.abs(a.x - b.x) < epsilon)
     return (
@@ -132,6 +149,7 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
     return result;
   };
   const onBorder = (p: { x: number; y: number }, box: Rect) => {
+    assertSideMidpoint(p, box);
     const horizontal =
       p.x >= box.x - epsilon &&
       p.x <= box.x + box.width + epsilon &&
@@ -243,7 +261,7 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     const again = await layoutFixture(dag);
     assert.deepEqual(again, stage, "repeat layouts are deterministic");
   }),
-  defineTest("sliding ports align offset boxes and keep opposite directions in separate lanes", () => {
+  defineTest("fixed midpoints route offset boxes and separate reverse directions without sliding", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
@@ -272,10 +290,8 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
           };
         };
         const original = [
-          { x: 160, y: 220 },
-          { x: 160, y: 500 },
-          { x: 280 + gap, y: 500 },
-          { x: 280 + gap, y: 240 },
+          { x: 220, y: 170 },
+          { x: 220 + gap, y: 170 },
         ].map(rotate);
         const boxes = new Map([
           ["a", rect(100, 100)],
@@ -299,10 +315,20 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
         );
         const forward = routed.get(projection.edges[0].id)!.points;
         const reverse = routed.get(projection.edges[1].id)!.points;
-        assert.equal(forward.length, 2, "offset box centers should still allow a straight connection");
-        assert.equal(reverse.length, 2, "the opposite direction should use a second straight lane");
-        assert.ok(Math.hypot(forward[0].x - reverse[1].x, forward[0].y - reverse[1].y) >= 16 - epsilon);
-        assert.ok(Math.hypot(forward[1].x - reverse[0].x, forward[1].y - reverse[0].y) >= 16 - epsilon);
+        assert.ok(forward.length <= 4, "offset centers need at most two bends");
+        assertSideMidpoint(forward[0], boxes.get("a")!);
+        assertSideMidpoint(forward[forward.length - 1], boxes.get("b")!);
+        assertSideMidpoint(reverse[0], boxes.get("b")!);
+        assertSideMidpoint(reverse[reverse.length - 1], boxes.get("a")!);
+        assert.ok(reverse.length <= 4, "reverse edges use separate midpoint sides or lanes");
+        assert.ok(
+          Math.hypot(forward[0].x - reverse[reverse.length - 1].x, forward[0].y - reverse[reverse.length - 1].y) >=
+            16 - epsilon,
+        );
+        assert.ok(
+          Math.hypot(forward[forward.length - 1].x - reverse[0].x, forward[forward.length - 1].y - reverse[0].y) >=
+            16 - epsilon,
+        );
         assert.deepEqual(
           shortenCompoundRoutes(
             { ...projection, edges: [...projection.edges].reverse() },
@@ -316,24 +342,58 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
         );
       }
   }),
-  defineTest("collapsed commerce feedback avoids the side gutter, tiny hooks and group controls", async () => {
+  defineTest("expanded experience uses one bend and group statistics can hide without changing geometry", async () => {
+    const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
+    const view = {
+      collapsedGroupIds: Object.keys(dag.hierarchy!.groups).filter((id) => id !== "experience"),
+      focusGroupId: null,
+    };
+    for (const showDetail of [false, true]) {
+      const stage = await layoutFixture(dag, view, false, showDetail);
+      assertCompoundGeometry(dag, stage, view);
+      const points = stage.edges.find((edge) => edge.source === "web" && edge.target === "gateway")!.points!;
+      assert.equal(points.length, 3, "the screenshot route needs just one bend");
+      assert.equal(points[0].x, stage.nodeMap.web.x);
+      assert.equal(points[0].y, stage.nodeMap.web.y + stage.nodeMap.web.height / 2);
+      assert.equal(points[2].x, stage.nodeMap.gateway.x + stage.nodeMap.gateway.width / 2);
+      assert.equal(points[2].y, stage.nodeMap.gateway.y);
+      const before = JSON.stringify(stage);
+      const noop = () => {};
+      for (const showGroupStats of [true, false]) {
+        const html = renderToStaticMarkup(
+          createElement(GraphStage, {
+            stage,
+            focusedKey: null,
+            hideNodeBorders: false,
+            appearance: {
+              ...DEFAULT_GRAPH_APPEARANCE,
+              display: { ...DEFAULT_GRAPH_APPEARANCE.display, showGroupStats },
+            },
+            svgRef: { current: null },
+            onNodeClick: noop,
+            onNodeDoubleClick: noop,
+            onNodeContextMenu: noop,
+            onBackgroundContextMenu: noop,
+            onFocusChange: noop,
+          }),
+        );
+        assert.equal(html.includes('class="dag-group-count"'), showGroupStats);
+        const visibleDetails = stage.nodes.filter(
+          (node) => node.detailLines.length && (node.kind !== "group" || showGroupStats),
+        ).length;
+        assert.equal((html.match(/class="dag-node__detail dag-node__content"/g) ?? []).length, visibleDetails);
+      }
+      assert.equal(JSON.stringify(stage), before, "visibility does not move nodes or routes");
+    }
+  }),
+  defineTest("collapsed commerce routes use fixed midpoints and keep labels clear of other lines", async () => {
     const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
     const view = { collapsedGroupIds: Object.keys(dag.hierarchy!.groups), focusGroupId: null };
     const stage = await layoutFixture(dag, view, true);
     assertCompoundGeometry(dag, stage, view);
     const feedback = stage.edges.find((edge) => edge.source === "partners" && edge.target === "commerce")!;
     const points = feedback.points!;
-    const source = stage.nodeMap.partners,
-      target = stage.nodeMap.commerce;
-    assert.equal(points[0].y, source.y + source.height / 2, "leave through the bottom facing Commerce");
-    assert.equal(points[points.length - 1].y, target.y - target.height / 2);
-    assert.ok(points[points.length - 1].x <= target.x + target.width / 2 - 72 + epsilon, "avoid the group controls");
-    assert.ok(points.length <= 4, "feedback should need no more than two bends");
-    for (let i = 1; i < points.length; i++)
-      assert.ok(
-        Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y) >= 20 - epsilon,
-        "do not add tiny endpoint hooks",
-      );
+    assert.ok(points.length <= 5, "labelled feedback needs at most three bends");
     for (const edge of stage.edges) {
       const width = Math.max(edge.label.length * 7 + 10, 18);
       const label = {

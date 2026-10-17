@@ -234,7 +234,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.equal(folded.edges.length, 2);
     const forward = folded.edges.find((edge) => edge.source === "left")!;
     assert.equal(forward.target, "right");
-    assert.equal(forward.label, "5 relationships");
+    assert.equal(forward.label, "5 edges");
     assert.deepEqual(forward.originalEdgeIds, ["request", "event", "amount", "flag", "unlabelled"]);
     assert.deepEqual(folded.edges.find((edge) => edge.source === "right")!.originalEdgeIds, ["response"]);
     assert.deepEqual(folded.items.find((item) => item.id === "left")!.internalEdgeIds, ["internal"]);
@@ -415,7 +415,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     );
     const platformEdges = stage.edges.filter((edge) => edge.source === "commerce" && edge.target === "platform");
     assert.equal(platformEdges.length, 1);
-    assert.equal(platformEdges[0].label, "5 relationships");
+    assert.equal(platformEdges[0].label, "5 edges");
     const platformOriginals = doc.edges.filter((edge) => platformEdges[0].originalEdgeIds!.includes(edge.id));
     assert.equal(platformOriginals.length, 5);
     for (const edge of platformOriginals) {

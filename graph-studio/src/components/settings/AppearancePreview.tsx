@@ -131,7 +131,13 @@ export default function AppearancePreview({
                 { x: 365, label: "Theorem", detail: "A derived result" },
               ].map((node) => (
                 <g key={node.label} className="dag-node" transform={`translate(${node.x} 39)`}>
-                  <rect className="dag-node__shape" width="185" height="70" rx="12" />
+                  <rect
+                    className="dag-node__shape"
+                    width="185"
+                    height="70"
+                    rx={Math.min(appearance.display.nodeCornerRadius, 35)}
+                    ry={Math.min(appearance.display.nodeCornerRadius, 35)}
+                  />
                   <circle className="dag-node__pin" cx="20" cy="29" r="5" fill="var(--dag-text-strong)" />
                   <text className="dag-node__title" x={appearance.display.showNodeDots ? 36 : 16} y="34">
                     {node.label}

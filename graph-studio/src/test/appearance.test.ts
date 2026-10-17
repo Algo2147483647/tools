@@ -1,11 +1,63 @@
 import assert from "node:assert/strict";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { appearanceToStageStyle, DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
+import { getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
+import GraphStage from "../rendering/GraphStage";
 import { parseGraphPagePreferences } from "../state/preferences";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 
 export const appearanceSuite = defineSuite("appearance", [
+  defineTest("card corner radius persists and renders within card bounds without changing layout inputs", () => {
+    const stage = buildStageData({ dag: createSampleDag(), selection: { type: "node", key: "A" } })!;
+    const noop = () => {};
+    for (const [input, saved] of [
+      [-10, 0],
+      [0, 0],
+      [16, 16],
+      [999, 80],
+      [NaN, 24],
+    ]) {
+      const appearance = sanitizeGraphAppearance({ display: { nodeCornerRadius: input } });
+      const restored = parseGraphPagePreferences(JSON.stringify({ chartStyles: { compound: { appearance } } }))!
+        .chartStyles!.compound.appearance;
+      assert.equal(restored.display.nodeCornerRadius, saved);
+      assert.deepEqual(getStageAppearance(restored), getStageAppearance(DEFAULT_GRAPH_APPEARANCE));
+      const html = renderToStaticMarkup(
+        createElement(GraphStage, {
+          stage,
+          focusedKey: null,
+          hideNodeBorders: false,
+          appearance: restored,
+          svgRef: { current: null },
+          onNodeClick: noop,
+          onNodeDoubleClick: noop,
+          onNodeContextMenu: noop,
+          onBackgroundContextMenu: noop,
+          onFocusChange: noop,
+        }),
+      );
+      const cards = [
+        ...html.matchAll(/class="dag-node__shape" width="([\d.]+)" height="([\d.]+)" rx="([\d.]+)" ry="([\d.]+)"/g),
+      ];
+      assert.equal(cards.length, stage.nodes.length);
+      for (const [, width, height, rx, ry] of cards) {
+        assert.equal(Number(rx), Math.min(saved, Number(width) / 2, Number(height) / 2));
+        assert.equal(rx, ry);
+      }
+    }
+  }),
+  defineTest("group statistics preference survives reload independently of node descriptions", () => {
+    assert.equal(DEFAULT_GRAPH_APPEARANCE.display.showGroupStats, true);
+    const appearance = sanitizeGraphAppearance({ display: { showGroupStats: false } });
+    const parsed = parseGraphPagePreferences(
+      JSON.stringify({ chartStyles: { compound: { appearance, showNodeDetail: true } } }),
+    );
+    assert.equal(parsed!.chartStyles!.compound.appearance.display.showGroupStats, false);
+    assert.equal(parsed!.chartStyles!.compound.showNodeDetail, true);
+  }),
   defineTest("node dots default to visible and a hidden preference survives reload", () => {
     assert.equal(sanitizeGraphAppearance({ display: {} }).display.showNodeDots, true);
     const appearance = sanitizeGraphAppearance({ display: { showNodeDots: false } });

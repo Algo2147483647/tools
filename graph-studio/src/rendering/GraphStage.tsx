@@ -333,6 +333,8 @@ export default function GraphStage({
           <GraphNode
             key={node.key}
             node={node}
+            showGroupStats={appearance.display.showGroupStats}
+            nodeCornerRadius={appearance.display.nodeCornerRadius}
             isActive={node.key === stage.root}
             onTimelineNodePin={onTimelineNodePin}
             onClick={onNodeClick}
@@ -344,7 +346,13 @@ export default function GraphStage({
       </g>
       <g className="dag-group-headers">
         {stage.groups?.map((group) => (
-          <GroupHeader key={group.id} group={group} onToggle={onGroupToggle} onEnter={onGroupEnter} />
+          <GroupHeader
+            key={group.id}
+            group={group}
+            showStats={appearance.display.showGroupStats}
+            onToggle={onGroupToggle}
+            onEnter={onGroupEnter}
+          />
         ))}
         {stage.nodes
           .filter((node) => node.kind === "group")

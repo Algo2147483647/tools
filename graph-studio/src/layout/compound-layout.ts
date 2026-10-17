@@ -32,7 +32,8 @@ export async function buildCompoundStage(
   const theme = appearance.layout;
   const visuals = new Map<string, { title: string; detail: string; width: number }>();
   for (const item of projection.items) {
-    const detail = `${item.leafCount} nodes · ${item.internalEdgeIds.length} internal relationships`;
+    const internalEdgeCount = item.internalEdgeIds.length;
+    const detail = `${item.leafCount} node${item.leafCount === 1 ? "" : "s"} · ${internalEdgeCount} internal edge${internalEdgeCount === 1 ? "" : "s"}`;
     const visual =
       item.kind === "group"
         ? {
