@@ -178,6 +178,8 @@
   overflow: hidden;
 }
 .studio-settings .settings-page {
+  container-type: inline-size;
+  container-name: settings-controls;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -295,8 +297,52 @@
 .color-setting,
 .font-setting {
   margin: 0;
-  padding: 12px 0;
-  border-bottom: 1px solid #eef1f5;
+  padding: 10px 0;
+  border-bottom: 0;
+}
+.numeric-setting,
+.color-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 6px;
+}
+.numeric-setting > .setting-label-row,
+.color-setting > .setting-label-row {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+.numeric-setting > .setting-reset,
+.color-setting > .setting-reset {
+  grid-column: 2;
+  grid-row: 2;
+}
+.color-setting > .setting-error {
+  grid-column: 1 / -1;
+}
+.numeric-setting-inputs,
+.color-setting-inputs {
+  min-width: 0;
+}
+@container settings-controls (min-width: 400px) {
+  .numeric-setting {
+    grid-template-columns: 124px minmax(0, 1fr) 28px;
+    column-gap: 12px;
+    min-height: 54px;
+  }
+  .numeric-setting > .setting-label-row {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .numeric-setting > .numeric-setting-inputs {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .numeric-setting > .setting-reset {
+    grid-column: 3;
+    grid-row: 1;
+  }
 }
 .numeric-setting:last-child,
 .color-setting:last-child,
@@ -341,7 +387,7 @@
 }
 .numeric-setting-inputs {
   display: flex;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 .numeric-setting-inputs > input[type="range"] {
@@ -355,7 +401,8 @@
   display: flex;
   align-items: center;
   flex: none;
-  width: 94px;
+  width: 84px;
+  height: 34px;
   border: 1px solid #d9e1ec;
   border-radius: 6px;
   padding: 4px 6px;
@@ -371,8 +418,12 @@
     13px "Segoe UI",
     sans-serif;
   outline: none;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .numeric-setting-value span {
+  min-width: 18px;
+  margin-left: 4px;
   font-size: 11px;
   color: #63728a;
 }
@@ -383,7 +434,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid #eef1f5;
+  border-bottom: 0;
 }
 .settings-toggle-row {
   display: flex;
@@ -446,8 +497,8 @@
 .color-picker {
   position: relative;
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
   border: 1px solid #b8c5d8;
   border-radius: 6px;
@@ -464,7 +515,7 @@
 .color-code {
   width: 100%;
   min-width: 0;
-  height: 32px;
+  height: 34px;
   padding: 5px 7px;
   border: 1px solid #d9e1ec;
   border-radius: 6px;
@@ -480,8 +531,8 @@
   flex: none;
   display: flex;
   align-items: center;
-  width: 76px;
-  height: 32px;
+  width: 84px;
+  height: 34px;
   padding: 4px 5px;
   border: 1px solid #d9e1ec;
   border-radius: 6px;
@@ -489,6 +540,8 @@
   color: #627187;
 }
 .color-alpha input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
   width: 100%;
   min-width: 0;
   border: 0;
@@ -647,9 +700,23 @@
   border-top: 1px solid #e3e8ef;
   background: #fff;
 }
-.settings-footer > span {
+.settings-status-stack {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
   font-size: 11px;
   color: #5e6e83;
+}
+.settings-status-stack .setting-error {
+  margin: 0;
+}
+.settings-pending-status {
+  color: #855b17;
+}
+.settings-pending-status::before {
+  content: "●";
+  margin-right: 6px;
 }
 .settings-save-status::before {
   content: "✓";
@@ -1042,15 +1109,16 @@
     gap: 4px;
     border-right: 0;
     border-bottom: 1px solid #e3e8ef;
+    overflow-x: auto;
   }
   .studio-settings .settings-tab {
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: center;
-    padding: 8px 5px;
+    padding: 8px 10px;
     gap: 5px;
   }
   .studio-settings .settings-tab strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .studio-settings .settings-tab > svg {
     display: none;
@@ -1072,8 +1140,8 @@
   .settings-footer-actions {
     margin-left: auto;
   }
-  .settings-footer > span {
-    font-size: 10px;
+  .settings-status-stack {
+    flex-basis: 100%;
   }
   .chart-type-grid,
   .settings-open-grid {

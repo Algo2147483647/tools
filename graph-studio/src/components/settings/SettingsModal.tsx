@@ -10,7 +10,7 @@ import type { WorkspaceControls } from "../../controllers/workspaceControls";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
 import AppearanceSettings from "./AppearanceSettings";
 import AppearancePreview from "./AppearancePreview";
-import GeneralSettings from "./GeneralSettings";
+import FilesSettings from "./FilesSettings";
 import { type SettingsChapter, SETTINGS_CHAPTERS } from "./settingsConfig";
 import { parseCssPixelValue } from "./settingsUtils";
 import { getGraphChartLabel } from "../../graph/types";
@@ -121,6 +121,7 @@ export default function SettingsModal({
   const chapterCount = (key: SettingsChapter) => results.filter((item) => item.chapter === key).length;
   const shownChapter = !query.trim() || chapterCount(activeChapter) ? activeChapter : results[0]?.chapter;
   const visualChapter = shownChapter === "appearance" || shownChapter === "layout";
+  const cssPending = appearanceCssDraft !== appearance.css;
   useEffect(() => setPreviewMode(shownChapter === "layout" ? "overview" : "detail"), [shownChapter]);
   useEffect(() => {
     if (open) {
@@ -322,6 +323,15 @@ export default function SettingsModal({
                       <span className="settings-chart-badge">{getGraphChartLabel(chartType)}</span>
                     )}
                   </div>
+                  <p>
+                    {shownChapter === "appearance"
+                      ? "Appearance is saved independently for each chart type."
+                      : shownChapter === "layout"
+                        ? "Adjust arrangement and spacing for this chart type."
+                        : shownChapter === "ai"
+                          ? "AI connection and execution settings are shared across graphs in this browser."
+                          : SETTINGS_CHAPTERS.find((chapter) => chapter.key === shownChapter)?.description}
+                  </p>
                   {query.trim() && (
                     <p role="status">
                       {chapterCount(shownChapter)} matching settings · {results.length} across all sections
@@ -329,14 +339,29 @@ export default function SettingsModal({
                   )}
                 </div>
               )}
-              {shownChapter === "general" ? (
-                <GeneralSettings
+              {shownChapter === "general" && (
+                <section className="settings-section">
+                  <h3>Interface</h3>
+                  <label className="settings-toggle-row">
+                    <span>
+                      <strong>Graph console</strong>
+                      <small>Show the sidebar to run commands and work with the AI assistant.</small>
+                    </span>
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      checked={consoleSidebarOpen}
+                      onChange={onConsoleSidebarToggle}
+                    />
+                  </label>
+                </section>
+              )}
+              {shownChapter === "files" ? (
+                <FilesSettings
                   onClose={onClose}
                   fileName={fileName}
                   files={files}
                   hasGraph={hasGraph}
-                  consoleSidebarOpen={consoleSidebarOpen}
-                  onConsoleSidebarToggle={onConsoleSidebarToggle}
                   onInitializeCanvas={onInitializeCanvas}
                   onExport={onExport}
                   showFiles={results.some((item) => item.id === "files")}
@@ -397,13 +422,18 @@ export default function SettingsModal({
           </div>
         </div>
         <footer className="settings-footer">
-          <span role="status" className={preferencesSaved ? "settings-save-status" : "setting-error"}>
-            {appearanceCssDraft !== appearance.css
-              ? "CSS changes not applied"
-              : preferencesSaved
-                ? "Saved automatically in this browser"
-                : "Changes apply now; browser storage is unavailable"}
-          </span>
+          <div className="settings-status-stack" role="status">
+            {cssPending && (
+              <span className="settings-pending-status">
+                CSS draft not applied · Use Apply CSS in Appearance → Advanced
+              </span>
+            )}
+            {!preferencesSaved ? (
+              <span className="setting-error">Applied settings could not be saved in this browser.</span>
+            ) : !cssPending ? (
+              <span className="settings-save-status">Saved automatically in this browser</span>
+            ) : null}
+          </div>
           <div className="settings-footer-actions">
             {visualChapter && (
               <>

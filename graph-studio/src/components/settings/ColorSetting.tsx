@@ -39,7 +39,6 @@ export default function ColorSetting({
           {label}
           {value !== defaultValue && <span className="setting-modified" aria-label="Modified from default" />}
         </label>
-        <ResetSetting label={label} changed={value !== defaultValue} onReset={() => onChange(defaultValue)} />
       </div>
       <div className="color-setting-inputs">
         <label className="color-picker" title={`Choose ${label}`} style={{ background: value }}>
@@ -95,6 +94,7 @@ export default function ColorSetting({
           <span>%</span>
         </label>
       </div>
+      <ResetSetting label={label} changed={value !== defaultValue} onReset={() => onChange(defaultValue)} />
       {error && (
         <p id={`${id}-error`} className="setting-error" role="alert">
           {error}

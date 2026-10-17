@@ -2,7 +2,7 @@ import type { IconName } from "../ui/Icon";
 import type { GraphLayoutAppearance } from "../../graph/appearance";
 import type { GraphChartType } from "../../graph/types";
 
-export type SettingsChapter = "general" | "chart" | "appearance" | "layout" | "ai";
+export type SettingsChapter = "general" | "files" | "chart" | "appearance" | "layout" | "ai";
 
 export const SETTINGS_CHAPTERS: Array<{
   key: SettingsChapter;
@@ -12,6 +12,12 @@ export const SETTINGS_CHAPTERS: Array<{
 }> = [
   {
     key: "general",
+    label: "General",
+    description: "Workspace interface & panels",
+    icon: "sliders",
+  },
+  {
+    key: "files",
     label: "Files",
     description: "Files, folders & recent locations",
     icon: "folder",
@@ -31,7 +37,7 @@ export const SETTINGS_CHAPTERS: Array<{
   {
     key: "appearance",
     label: "Appearance",
-    description: "Style for each chart type",
+    description: "Appearance is saved independently for each chart type.",
     icon: "palette",
   },
   {

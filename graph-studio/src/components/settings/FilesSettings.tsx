@@ -2,14 +2,12 @@ import Icon from "../ui/Icon";
 import type { RecentLocation } from "../../workspace/locations";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
 
-export default function GeneralSettings({
+export default function FilesSettings({
   files,
   hasGraph,
   fileName,
   onInitializeCanvas,
   onExport,
-  consoleSidebarOpen,
-  onConsoleSidebarToggle,
   onClose,
   showFiles = true,
   showSession = true,
@@ -19,8 +17,6 @@ export default function GeneralSettings({
   fileName: string;
   onInitializeCanvas: () => void;
   onExport: () => void;
-  consoleSidebarOpen: boolean;
-  onConsoleSidebarToggle: () => void;
   onClose: () => void;
   showFiles?: boolean;
   showSession?: boolean;
@@ -136,13 +132,6 @@ export default function GeneralSettings({
               </p>
             )}
           </details>
-          <label className="settings-toggle-row">
-            <span>
-              <strong>Graph console</strong>
-              <small>Run commands and work with the AI assistant.</small>
-            </span>
-            <input type="checkbox" role="switch" checked={consoleSidebarOpen} onChange={onConsoleSidebarToggle} />
-          </label>
         </section>
       )}
       {showFiles && (

@@ -57,7 +57,6 @@ export default function NumericSetting({
           {label}
           {changed && <span className="setting-modified" aria-label="Modified from default" />}
         </label>
-        <ResetSetting label={label} changed={changed && !disabled} onReset={() => onChange(defaultValue)} />
       </div>
       <div className="numeric-setting-inputs">
         <input
@@ -93,6 +92,7 @@ export default function NumericSetting({
           <span>{unit}</span>
         </label>
       </div>
+      <ResetSetting label={label} changed={changed && !disabled} onReset={() => onChange(defaultValue)} />
     </div>
   );
 }
