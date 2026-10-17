@@ -10,17 +10,20 @@ export function usePreferencesController(
 ) {
   const charts = useChartPreferences(initial.chartStyles, state.chartType, dispatch);
   const [aiSettings, setAiSettings] = useState(initial.aiSettings);
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
-    saveGraphPagePreferences({
-      timelineSettings: { ...state.timelineSettings, pins: {}, locked: false },
-      mode: state.mode,
-      chartType: state.chartType,
-      layoutMode: state.layout.mode,
-      chartStyles: charts.chartStyles,
-      consoleSidebarOpen: state.ui.consoleSidebarOpen,
-      consoleSidebarWidth: state.ui.consoleSidebarWidth,
-      aiSettings,
-    });
+    setSaved(
+      saveGraphPagePreferences({
+        timelineSettings: { ...state.timelineSettings, pins: {}, locked: false },
+        mode: state.mode,
+        chartType: state.chartType,
+        layoutMode: state.layout.mode,
+        chartStyles: charts.chartStyles,
+        consoleSidebarOpen: state.ui.consoleSidebarOpen,
+        consoleSidebarWidth: state.ui.consoleSidebarWidth,
+        aiSettings,
+      }),
+    );
   }, [
     charts.chartStyles,
     aiSettings,
@@ -31,6 +34,6 @@ export function usePreferencesController(
     state.ui.consoleSidebarOpen,
     state.ui.consoleSidebarWidth,
   ]);
-  return { charts, aiSettings, setAiSettings };
+  return { charts, aiSettings, setAiSettings, saved };
 }
 export type PreferencesController = ReturnType<typeof usePreferencesController>;

@@ -12,6 +12,8 @@ import type { GraphChartType } from "../graph/types";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { sanitizeTimelineChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
+import { resetAppearanceSection } from "../components/settings/appearanceSections";
+import type { AppearanceGroup } from "../components/settings/settingsCatalog";
 
 export function useChartPreferences(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
   const [histories, updateHistories] = useReducer(chartPreferencesReducer, styles, createChartPreferences);
@@ -174,6 +176,8 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
     handleAppearanceCssChange,
     handleAppearancePresetChange,
     handleAppearanceReset,
+    resetSection: (group: AppearanceGroup | "layout") =>
+      commitAppearance(resetAppearanceSection(appearance, group), `Reset ${group} style.`),
     handleAppearanceExport,
     handleAppearanceImportClick,
     handleAppearanceImportChange,

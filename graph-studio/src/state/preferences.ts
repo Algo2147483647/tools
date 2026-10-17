@@ -69,15 +69,16 @@ export function loadGraphPagePreferences(storage: StorageLike | null = getBrowse
 export function saveGraphPagePreferences(
   preferences: GraphPagePreferences,
   storage: StorageLike | null = getBrowserStorage(),
-): void {
+): boolean {
   if (!storage) {
-    return;
+    return false;
   }
 
   try {
     storage.setItem(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify(preferences));
+    return true;
   } catch {
-    // Ignore storage write failures so the page still works in private or locked-down contexts.
+    return false;
   }
 }
 

@@ -156,7 +156,13 @@ Example:
 
 ## Settings UI
 
-The settings dialog separates `Layout` (arrangement and dimensions) from `Appearance` (paint and typography). Both chapters share a live sample preview.
+The settings dialog separates `Layout` (arrangement and dimensions) from `Appearance` (paint and typography). Both chapters share a live sample preview. `Appearance` has five groups: Presets, Nodes, Edges, Text and Advanced. File operations are collected under `Files`; AI execution and generation options are collapsed below the connection settings.
+
+Search keeps the navigation visible with per-section result counts and filters individual appearance and dimension controls. Common Chinese aliases are supported, for example `圆角`. Escape clears a search before closing the dialog.
+
+Numeric controls share a slider, editable value, unit and individual reset. Blue dots indicate values different from the default. Color controls support a picker, HEX/RGB(A) text and opacity; invalid text stays in the field with an error and does not update the graph. Node, edge, text and dimension styles can be reset separately. Section resets preserve custom CSS and other sections. Display options such as descriptions and equal widths retain their separate behavior.
+
+The footer reports whether browser preferences were saved successfully and provides appearance-only Undo/Redo. CSS drafts are explicitly applied and are marked as unapplied until then.
 
 | Section | Purpose |
 | --- | --- |
@@ -236,7 +242,7 @@ A slider drag or a held adjustment key records one appearance undo step when the
 
 ## Live Preview
 
-`Layout` and `Appearance` use the same `GraphStage` renderer and layout functions as the main canvas. The preview remains visible while searching those chapters or scrolling their controls. It sits beside the controls in wide dialogs and above them in narrow dialogs.
+`Layout` and `Appearance` use the same `GraphStage` renderer and layout functions as the main canvas. The preview remains available while searching those chapters or scrolling their controls. It sits beside the controls in wide dialogs; narrow dialogs offer a collapsible preview above the controls. Overview shows the graph, while Detail frames a real sample node for inspecting shape, color and text.
 
 | Chart | Sample coverage |
 | --- | --- |

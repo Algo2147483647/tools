@@ -269,6 +269,12 @@ export default function StudioView({
         onAppearanceDisplayChange={appearanceHistory.handleAppearanceDisplayChange}
         onAppearanceAdjustmentStart={appearanceHistory.beginAdjustment}
         onAppearanceAdjustmentEnd={appearanceHistory.endAdjustment}
+        onSectionReset={appearanceHistory.resetSection}
+        onAppearanceUndo={appearanceHistory.undo}
+        onAppearanceRedo={appearanceHistory.redo}
+        canUndoAppearance={appearanceHistory.canUndo}
+        canRedoAppearance={appearanceHistory.canRedo}
+        preferencesSaved={preferences.saved}
         onAppearancePresetChange={(presetId) => {
           appearanceHistory.handleAppearancePresetChange(presetId);
           if (presetId === "default" && !appearanceHistory.hideNodeBorders) appearanceHistory.toggleNodeBorders();

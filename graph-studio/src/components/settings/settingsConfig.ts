@@ -9,46 +9,36 @@ export const SETTINGS_CHAPTERS: Array<{
   label: string;
   description: string;
   icon: IconName;
-  keywords: string;
 }> = [
   {
     key: "general",
-    label: "Workspace",
+    label: "Files",
     description: "Files, folders & recent locations",
     icon: "folder",
-    keywords:
-      "open create graph new refresh close current session manifest detection default console svg export import workspace",
   },
   {
     key: "chart",
     label: "Chart type",
     description: "Node-link, nested subgraphs, Sankey or timeline",
     icon: "graph",
-    keywords:
-      "diagram visualization display node link network sankey flow numeric value nested compound subgraph hierarchy group timeline time date event track duration branch",
   },
   {
     key: "layout",
     label: "Layout",
     description: "Arrangement & spacing",
     icon: "layout",
-    keywords:
-      "node link sankey flow timeline time date event track duration branch width spacing engine algorithm level bfs sugiyama dagre layered layer node line height width tuning",
   },
   {
     key: "appearance",
     label: "Appearance",
     description: "Style for each chart type",
     icon: "palette",
-    keywords:
-      "node shape corner radius rounded corners link sankey flow bands colors typography shadow shadows elevation blur offset opacity depth preset theme simple compact default slate blueprint contrast presentation tokens fill border root edge active title soft text font size bold italic view details descriptions borders width labels edges group subgraph statistics counts custom css advanced stylesheet configuration import export reset",
   },
   {
     key: "ai",
     label: "AI assistant",
     description: "Providers & execution",
     icon: "ai",
-    keywords: "provider model base url api key token temperature temp connection test ask review automatic read edit",
   },
 ];
 
@@ -99,14 +89,3 @@ export function getLayoutControls(chart: GraphChartType): LayoutControlDefinitio
           : control.label,
   }));
 }
-
-export const APPEARANCE_TOKEN_CONTROLS = [
-  { key: "--dag-node-fill", label: "Node Fill" },
-  { key: "--dag-node-border", label: "Node Border" },
-  { key: "--dag-node-border-strong", label: "Root Border" },
-  { key: "--dag-edge", label: "Edge" },
-  { key: "--dag-edge-active", label: "Active Edge" },
-  { key: "--dag-text-strong", label: "Title Text" },
-  { key: "--dag-text-soft", label: "Soft Text" },
-  { key: "--dag-title-font-size", label: "Title Size" },
-] as const;
