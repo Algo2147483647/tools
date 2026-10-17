@@ -580,15 +580,12 @@ function parseStylePresetInstruction(tokens: ConsoleToken[], line: number) {
     return { ok: false, error: { line, message: "style-preset expects a preset id." } } as const;
   }
   const presetId = parseLiteralToken(tokens[1]);
-  if (
-    !presetId ||
-    !["simple", "compact", "default", "slate", "blueprint", "contrast", "presentation"].includes(presetId)
-  ) {
+  if (presetId !== "default") {
     return {
       ok: false,
       error: {
         line,
-        message: "style-preset expects simple, compact, default, slate, blueprint, contrast, or presentation.",
+        message: "style-preset expects default (the current chart type's default style).",
       },
     } as const;
   }

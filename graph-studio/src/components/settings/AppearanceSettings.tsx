@@ -240,14 +240,6 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
     );
     return (
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
-        <div className="settings-section-heading">
-          <h3>{p.query ? `Appearance / ${label}` : label}</h3>
-          {["nodes", "edges", "text"].includes(id) && (
-            <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
-              Reset {label.toLowerCase()} style
-            </button>
-          )}
-        </div>
         {has("presets") && (
           <>
             <p>{selectedPreset ? `${selectedPreset.label} preset` : "Custom style"} · Choose a starting point.</p>
@@ -277,7 +269,6 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             </div>
           </>
         )}
-        {has("nodeCornerRadius") && <p>Applies to node cards and collapsed groups.</p>}
         {sliders.filter(([key]) => has(key) && key === "nodeCornerRadius").map(slider)}
         {items
           .filter((item) => item.id.startsWith("--dag-"))
@@ -416,6 +407,13 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
               </button>
               {p.appearanceCssDraft !== p.appearance.css && <span className="setting-draft">Unapplied changes</span>}
             </div>
+          </div>
+        )}
+        {["nodes", "edges", "text"].includes(id) && (
+          <div className="appearance-group-actions">
+            <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
+              Reset {label.toLowerCase()} style
+            </button>
           </div>
         )}
         {has("configuration") && (

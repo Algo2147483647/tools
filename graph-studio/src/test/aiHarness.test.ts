@@ -104,9 +104,9 @@ export const aiHarnessSuite = defineSuite("ai harness", [
       userMessage: "Change the graph UI.",
       response: {
         kind: "run_console",
-        answer: "Applying a slate UI style.",
+        answer: "Applying the default UI style with custom spacing and edges.",
         commandBatch: {
-          commands: ["/style-preset slate", "/layout rowGap 36", '/style-var --dag-edge "rgba(120, 160, 255, 0.45)"'],
+          commands: ["/style-preset default", "/layout rowGap 36", '/style-var --dag-edge "rgba(120, 160, 255, 0.45)"'],
         },
       },
     });

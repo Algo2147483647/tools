@@ -11,6 +11,7 @@ import { buildStageData } from "../layout/stage-layout";
 import GraphStage from "../rendering/GraphStage";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
+import { parseConsoleSource } from "../console/dsl";
 
 export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
   defineTest("new graphs and Default share one complete style; presets stay scoped to chart type", () => {
@@ -29,11 +30,21 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
       applyAppearanceCommand(DEFAULT_GRAPH_APPEARANCE, { type: "resetAppearance" }, "node-link").appearance,
       style.appearance,
     );
-    assert.throws(
-      () => applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "compact" }, "node-link"),
-      /not available/,
-    );
-    assert.ok(getGraphAppearancePresets("compound").some((p) => p.id === "compact"));
+    for (const chartType of ["node-link", "compound", "sankey", "timeline"] as const) {
+      const presets = getGraphAppearancePresets(chartType);
+      assert.deepEqual(
+        presets.map((preset) => preset.id),
+        ["default"],
+      );
+      assert.deepEqual(presets[0].appearance, getDefaultChartStyle(chartType).appearance);
+      assert.deepEqual(
+        applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "default" }, chartType).appearance,
+        getDefaultChartStyle(chartType).appearance,
+      );
+    }
+    for (const removed of ["simple", "compact", "slate", "blueprint", "contrast", "presentation"]) {
+      assert.equal(parseConsoleSource(`/style-preset ${removed}`).ok, false);
+    }
     assert.equal(style.showNodeDetail, false);
     assert.equal(style.hideNodeBorders, true);
     assert.equal(style.alignNodeWidthsToMax, true);
@@ -64,6 +75,7 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     assert.doesNotMatch(html, /class="dag-node__detail|class="dag-edge__label-text/);
     assert.equal(style.appearance.cssVars["--dag-title-font-family"], '"Times New Roman", serif');
     assert.equal(style.appearance.cssVars["--dag-edge"], "#e1e3e6");
+    assert.equal(style.appearance.cssVars["--dag-edge-active"], "#8b1e2d");
   }),
   defineTest("saved legacy defaults upgrade while custom styles and other chart types survive", () => {
     const old = sanitizeChartStyle(null);
@@ -80,6 +92,18 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     assert.deepEqual(kept["node-link"], custom);
     const fresh = createChartStyles();
     assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: fresh }))!.chartStyles, fresh);
+  }),
+  defineTest("previous default active edge upgrades without overwriting customized styles", () => {
+    const previous = getDefaultChartStyle("node-link");
+    previous.appearance.cssVars["--dag-edge-active"] = "#a9afb8";
+    const parse = () =>
+      parseGraphPagePreferences(JSON.stringify({ chartStyles: { "node-link": previous } }))!.chartStyles!["node-link"];
+    assert.deepEqual(parse(), getDefaultChartStyle("node-link"));
+    previous.appearance.layout.nodeHeight = 60;
+    assert.deepEqual(parse(), previous);
+    previous.appearance.layout.nodeHeight = 48;
+    previous.appearance.cssVars["--dag-edge-active"] = "#123456";
+    assert.deepEqual(parse(), previous);
   }),
   defineTest("Default applies atomically and undo/redo restore display options without touching other types", () => {
     const styles = createChartStyles();

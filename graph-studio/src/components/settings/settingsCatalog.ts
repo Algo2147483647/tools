@@ -73,14 +73,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
         maxNodeWidth: "node width 节点 宽度",
       }[c.key],
     );
-  a(
-    "presets",
-    "Presets",
-    "Style presets",
-    chart === "node-link"
-      ? "theme default 预设 默认 主题"
-      : "theme simple compact default slate blueprint contrast presentation 预设 主题",
-  );
+  a("presets", "Presets", "Style presets", "theme default 预设 默认 主题");
   if (chart === "node-link" || chart === "compound") {
     a("nodeCornerRadius", "Nodes", "Corner radius", "node shape rounded 圆角 节点 形状");
     a("showNodeDots", "Nodes", "Node dots", "pins markers 节点 圆点");

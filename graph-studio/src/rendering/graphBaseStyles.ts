@@ -14,6 +14,15 @@ export const GRAPH_BASE_CSS = `
   outline: none;
 }
 
+.dag-node__affordance--compact .dag-node__affordance-bg {
+  stroke: none;
+}
+
+.dag-node__affordance--compact .dag-node__affordance-text {
+  font: 500 7px "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
 .dag-group-background {
   fill: var(--dag-group-fill, #fffdf5);
   fill-opacity: 1;

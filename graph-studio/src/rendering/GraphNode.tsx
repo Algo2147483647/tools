@@ -1,13 +1,16 @@
 import { type CSSProperties, type KeyboardEvent, memo } from "react";
 import { formatFlow } from "../graph/sankey";
 import type { StageNode } from "../layout/types";
+import { estimateTextWidth } from "../layout/text";
 import TimelineNode from "./TimelineNode";
 
 const DETAIL_LINE_HEIGHT = 10;
-const AFFORDANCE_HORIZONTAL_PADDING = 8;
-const AFFORDANCE_MIN_WIDTH = 32;
+const AFFORDANCE_HORIZONTAL_PADDING = 6;
+const AFFORDANCE_MIN_WIDTH = 24;
+const AFFORDANCE_MAX_WIDTH = 100;
+const AFFORDANCE_HEIGHT = 10;
+const AFFORDANCE_FONT_SIZE = 7;
 const AFFORDANCE_MAX_INSET = 16;
-const AFFORDANCE_TEXT_AVERAGE_WIDTH = 5.2;
 
 interface GraphNodeProps {
   node: StageNode;
@@ -61,14 +64,20 @@ const GraphNode = memo(function GraphNode({
       } as CSSProperties)
     : undefined;
   const affordanceLabel = node.typeLabel || "";
+  const affordanceMaxWidth = Math.min(AFFORDANCE_MAX_WIDTH, Math.max(AFFORDANCE_MIN_WIDTH, node.width - 64));
+  const affordanceText = fitTypeLabel(affordanceLabel, affordanceMaxWidth - AFFORDANCE_HORIZONTAL_PADDING * 2);
   const affordanceWidth = Math.min(
     Math.max(
-      Math.ceil(affordanceLabel.length * AFFORDANCE_TEXT_AVERAGE_WIDTH) + AFFORDANCE_HORIZONTAL_PADDING * 2,
+      Math.ceil(estimateTextWidth(affordanceText, AFFORDANCE_FONT_SIZE)) + AFFORDANCE_HORIZONTAL_PADDING * 2,
       AFFORDANCE_MIN_WIDTH,
     ),
-    node.width - AFFORDANCE_MAX_INSET * 2,
+    affordanceMaxWidth,
   );
   const affordanceX = node.width - AFFORDANCE_MAX_INSET - affordanceWidth;
+  const affordanceY = Math.max(
+    node.height - AFFORDANCE_HEIGHT - 3,
+    hasDetail ? 45 + (node.detailLines.length - 1) * DETAIL_LINE_HEIGHT + 6 : node.height / 2 + 11,
+  );
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
@@ -190,23 +199,25 @@ const GraphNode = memo(function GraphNode({
             </text>
           ) : null}
           {affordanceLabel ? (
-            <g className="dag-node__affordance">
+            <g className="dag-node__affordance dag-node__affordance--compact">
+              <title>{affordanceLabel}</title>
               <rect
                 className="dag-node__affordance-bg"
                 x={affordanceX}
-                y={node.height - 21}
+                y={affordanceY}
                 width={affordanceWidth}
-                height={14}
-                rx={7}
-                ry={7}
+                height={AFFORDANCE_HEIGHT}
+                rx={3}
+                ry={3}
               />
               <text
                 className="dag-node__affordance-text"
                 x={affordanceX + affordanceWidth / 2}
-                y={node.height - 10}
+                y={affordanceY + AFFORDANCE_HEIGHT / 2}
                 textAnchor="middle"
+                dominantBaseline="middle"
               >
-                {affordanceLabel}
+                {affordanceText}
               </text>
             </g>
           ) : null}
@@ -217,6 +228,14 @@ const GraphNode = memo(function GraphNode({
 }, areEqualGraphNodeProps);
 
 export default GraphNode;
+
+function fitTypeLabel(label: string, maxWidth: number): string {
+  if (estimateTextWidth(label, AFFORDANCE_FONT_SIZE) <= maxWidth) return label;
+  const characters = Array.from(label);
+  while (characters.length && estimateTextWidth(`${characters.join("")}…`, AFFORDANCE_FONT_SIZE) > maxWidth)
+    characters.pop();
+  return `${characters.join("").trimEnd()}…`;
+}
 
 function areEqualGraphNodeProps(previous: GraphNodeProps, next: GraphNodeProps): boolean {
   return (

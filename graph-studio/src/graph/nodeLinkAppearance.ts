@@ -33,7 +33,7 @@ export const NODE_LINK_DEFAULT_APPEARANCE = sanitizeGraphAppearance({
     "--dag-title-font-size": "15px",
     "--dag-title-font-weight": "500",
     "--dag-edge": "#e1e3e6",
-    "--dag-edge-active": "#a9afb8",
+    "--dag-edge-active": "#8b1e2d",
   },
   css: `${DEFAULT_GRAPH_APPEARANCE.css}\n.dag-backdrop { display: none; }\n.dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }`,
 });

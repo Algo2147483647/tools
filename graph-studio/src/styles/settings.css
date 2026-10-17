@@ -254,6 +254,14 @@
 .settings-section-heading {
   margin-bottom: 12px;
 }
+.appearance-group-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+.studio-settings .settings-page:has(> .appearance-tabs) {
+  row-gap: 0;
+}
 .setting-section-reset {
   padding: 3px 0;
   border: 0;
@@ -272,7 +280,7 @@
   display: flex;
   gap: 2px;
   border-bottom: 1px solid #e3e8ef;
-  margin: -4px 0 20px;
+  margin: -4px 0 12px;
   padding-bottom: 8px;
 }
 .appearance-tabs button {

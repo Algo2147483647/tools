@@ -100,7 +100,7 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   {
     label: "/style-preset <id>",
     insertText: "/style-preset ",
-    help: "Apply an appearance preset: simple, compact, default, slate, blueprint, contrast, presentation.",
+    help: "Apply the current chart type's default appearance preset.",
   },
   {
     label: "/style-reset",
@@ -137,7 +137,7 @@ export function buildConsoleHelpText(): string {
     "- /style-var <var> <value>: Set a --dag-* CSS variable for graph appearance.",
     "- /style-var --unset <var>: Remove a --dag-* CSS variable override.",
     "- /style-css show|append|replace: Show, append to, or replace graph CSS using stable .dag-* selectors.",
-    "- /style-preset <simple|compact|default|slate|blueprint|contrast|presentation>: Apply a graph UI preset.",
+    "- /style-preset default: Apply the current chart type's default appearance preset.",
     "- /style-reset: Reset graph appearance.",
     "- /clear | /cls: Clear the console output.",
   ].join("\n");

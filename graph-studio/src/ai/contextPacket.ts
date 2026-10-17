@@ -70,7 +70,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
         "/add Subgroup -p Group",
         '/set Group define "A group is a set with an associative binary operation, an identity element, and inverses."',
         "/edge Group Representation_Theory",
-        "/style-preset slate",
+        "/style-preset default",
         '/style-var --dag-node-fill "rgba(18, 24, 38, 0.94)"',
         '/style-css append ".dag-node[data-type=\\"service\\"] .dag-node__shape { fill: #eef6ff; }"',
         "/layout rowGap 34",

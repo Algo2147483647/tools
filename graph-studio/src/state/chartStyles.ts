@@ -56,6 +56,9 @@ export function sanitizeNodeLinkChartStyle(value: unknown): ChartStyle {
     JSON.stringify(saved.appearance) === JSON.stringify(sanitizeGraphAppearance(DEFAULT_GRAPH_APPEARANCE))
   )
     return defaults;
+  const previousDefault = structuredClone(defaults);
+  previousDefault.appearance.cssVars["--dag-edge-active"] = "#a9afb8";
+  if (JSON.stringify(saved) === JSON.stringify(sanitizeChartStyle(previousDefault))) return defaults;
   return sanitizeChartStyle({ ...defaults, ...input, appearance: input.appearance ?? defaults.appearance });
 }
 
