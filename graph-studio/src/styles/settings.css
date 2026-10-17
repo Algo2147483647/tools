@@ -616,7 +616,7 @@
 }
 .chart-type-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-top: 16px;
 }
@@ -662,6 +662,136 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin: 12px 0;
+}
+.chart-schema {
+  margin-top: 24px;
+  border: 1px solid #dce3ee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.chart-schema-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #f7f9fc;
+  border-bottom: 1px solid #e3e8f0;
+}
+.chart-schema-heading h3 span {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #66768c;
+}
+.chart-schema-heading small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #66768c;
+}
+.chart-schema-switch {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: #eaf0f7;
+  border-radius: 7px;
+}
+.chart-schema button {
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  color: #435774;
+  background: transparent;
+}
+.chart-schema-switch button[aria-pressed="true"] {
+  background: white;
+  color: #284d9c;
+  box-shadow: 0 1px 3px #23395718;
+}
+.chart-schema button:focus-visible {
+  outline: 2px solid #5378b8;
+  outline-offset: 2px;
+}
+.chart-schema-fields {
+  margin: 0;
+  padding: 0 18px;
+}
+.chart-schema-fields > div {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.9fr) minmax(0, 1.4fr);
+  gap: 18px;
+  padding: 13px 0;
+}
+.chart-schema-fields > div + div {
+  border-top: 1px solid #edf0f5;
+}
+.chart-schema-fields dt,
+.chart-schema-fields dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.chart-schema-fields code {
+  font:
+    11px/1.6 Consolas,
+    monospace;
+  color: #334b6d;
+}
+.chart-schema-fields dt > span {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: #748198;
+}
+.chart-schema-fields dd > p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #68788e;
+  line-height: 1.5;
+}
+.chart-schema-code-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 18px;
+  color: #6b7c93;
+  font-size: 11px;
+}
+.chart-schema-code-toolbar button {
+  border: 1px solid #dce3ee;
+  background: white;
+}
+.chart-schema-example pre {
+  margin: 0;
+  padding: 0 18px 16px;
+  color: #334b6d;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    12px/1.65 Consolas,
+    monospace;
+}
+.chart-schema-copy-status {
+  display: block;
+  padding: 0 18px 10px;
+  color: #5378b8;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .chart-schema-fields > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .chart-schema-fields dt > span {
+    display: inline;
+    margin-left: 8px;
+  }
 }
 .layout-mini {
   display: none;
@@ -1045,6 +1175,9 @@
   border-left: 0;
 }
 @media (max-width: 1050px) {
+  .chart-type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .studio-settings .settings-content:has(.settings-preview-card) {
     display: flex;
   }

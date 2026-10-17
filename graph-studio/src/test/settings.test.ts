@@ -5,8 +5,25 @@ import { parseColorValue, formatColorValue } from "../components/settings/colorV
 import { resetAppearanceSection } from "../components/settings/appearanceSections";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getInitialGraphPagePreferences, saveGraphPagePreferences } from "../state/preferences";
+import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
+import { normalizeDagInput } from "../graph/normalize";
+import { getSankeyError } from "../graph/sankey";
+import { parseNodeTimeline } from "../graph/timeline";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("chart schema examples import successfully and satisfy type-specific data requirements", () => {
+    for (const profile of Object.values(CHART_SCHEMAS)) {
+      const graph = normalizeDagInput(JSON.parse(JSON.stringify(profile.example)));
+      assert.ok(Object.keys(graph.nodes).length > 0);
+      assert.ok(graph.edges.length > 0);
+    }
+    const sankey = CHART_SCHEMAS.sankey.example;
+    assert.equal(getSankeyError(sankey.nodes, sankey.edges), null);
+    const compound = CHART_SCHEMAS.compound.example;
+    assert.equal(compound.hierarchy?.parentById.request, "api");
+    for (const node of Object.values(CHART_SCHEMAS.timeline.example.nodes))
+      assert.equal(parseNodeTimeline(node).status, "dated");
+  }),
   defineTest("search targets individual controls, supports Chinese and respects chart capabilities", () => {
     const catalog = getSettingsCatalog("compound");
     const ids = (q: string) => catalog.filter((item) => matchesSetting(item, q)).map((item) => item.id);

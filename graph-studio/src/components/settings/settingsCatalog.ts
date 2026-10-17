@@ -36,7 +36,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     "chart",
     "Chart type",
     "Chart type",
-    "diagram node-link nested compound sankey timeline 图类型 嵌套 桑基 时间线",
+    "diagram node-link nested compound sankey timeline schema json example fields 图类型 嵌套 桑基 时间线 结构 字段 示例",
   );
   if (chart === "node-link")
     add("engine", "layout", "Arrangement", "Layout engine", "algorithm sugiyama dagre bfs level 排布 算法 引擎");

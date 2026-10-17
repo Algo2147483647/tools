@@ -1,4 +1,5 @@
 import ChartTypeIcon from "../ui/ChartTypeIcon";
+import ChartSchema from "./ChartSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import type { ChangeEvent } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
@@ -94,9 +95,8 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <p id="sankey-requirements" className="settings-chart-warning" role="status">
             {p.sankeyUnavailableReason}
           </p>
-        ) : (
-          <p>Sankey requires non-negative numeric edge values. Cycles are displayed as return flows.</p>
-        )}
+        ) : null}
+        <ChartSchema key={p.chartType} chartType={p.chartType} />
       </section>
     );
 
