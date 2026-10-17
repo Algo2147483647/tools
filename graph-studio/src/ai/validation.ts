@@ -4,7 +4,7 @@ import { getNodeChildren, getNodeParents } from "../graph/accessors";
 import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { createGraphDocument } from "../graph/normalize";
 import { getRelationKeys } from "../graph/relations";
-import type { NodeKey, NormalizedDag } from "../graph/types";
+import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
 import { classifyCommandRisk, isDestructiveCommand } from "./executionPolicy";
 import { maxRisk } from "./harnessUtils";
 import type { CommandBatch, ValidationReport } from "./types";
@@ -16,6 +16,7 @@ interface ValidateInput {
 
   appearance?: GraphAppearance;
   graphRevision: string;
+  chartType: GraphChartType;
 }
 
 export function validateCommandBatch(input: ValidateInput): ValidationReport {
@@ -78,6 +79,7 @@ export function validateCommandBatch(input: ValidateInput): ValidationReport {
     parsed.instructions,
     input.contextNodeKey,
     input.appearance || DEFAULT_GRAPH_APPEARANCE,
+    input.chartType,
   );
   const commandRisks = input.batch.commands.map(classifyCommandRisk);
   const riskLevel = maxRisk([input.batch.riskLevel, ...commandRisks]);

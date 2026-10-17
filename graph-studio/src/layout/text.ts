@@ -1,3 +1,4 @@
+import { DEFAULT_TITLE_FONT, type TextFont } from "./typography";
 import { getNodeDefine, getNodeTitle } from "../graph/accessors";
 import { sanitizeNodeLabel } from "../graph/selectors";
 import type { DagNode, NodeKey } from "../graph/types";
@@ -9,6 +10,7 @@ export function getNodeVisual(
   maxNodeWidth: number,
   showDetail: boolean,
   alignToMaxWidth = false,
+  titleFont: TextFont = DEFAULT_TITLE_FONT,
 ): { title: string; detail: string; width: number } {
   if (node.synthetic) {
     const syntheticTitle = getNodeTitle(node) || "Selected roots";
@@ -21,7 +23,7 @@ export function getNodeVisual(
 
   const title = sanitizeNodeLabel(getNodeTitle(node) || nodeKey);
   const detail = showDetail ? getNodeDetail(node, title) : "";
-  const estimatedContentWidth = Math.max(estimateTextWidth(title, 15), estimateTextWidth(detail, 10) * 0.76);
+  const estimatedContentWidth = Math.max(measureText(title, titleFont), estimateTextWidth(detail, 10) * 0.76);
   const width = alignToMaxWidth ? maxNodeWidth : clamp(132 + estimatedContentWidth, minNodeWidth, maxNodeWidth);
   return { title: title || nodeKey, detail, width };
 }
@@ -56,17 +58,34 @@ function firstMeaningfulSegment(text: string): string {
   return segments.find((segment) => /[A-Za-z\u4e00-\u9fff]/.test(segment)) || "";
 }
 
-function truncate(text: string, maxLength: number): string {
-  if (text.length <= maxLength) {
-    return text;
-  }
-  return `${text.slice(0, maxLength - 1)}...`;
+export function truncateTitleToWidth(text: string, nodeWidth: number, font: TextFont = DEFAULT_TITLE_FONT): string {
+  return fitMeasuredText(text, Math.max(nodeWidth - 74, 0), font);
 }
 
-export function truncateTitleToWidth(text: string, nodeWidth: number): string {
-  const availableWidth = Math.max(nodeWidth - 74, 72);
-  const estimatedMaxLength = Math.max(10, Math.floor(availableWidth / 7.1));
-  return truncate(text, estimatedMaxLength);
+export function fitMeasuredText(text: string, width: number, font: TextFont): string {
+  if (measureText(text, font) <= width) return text;
+  const characters = Array.from(text);
+  if (measureText("…", font) > width) return "";
+  let low = 0,
+    high = characters.length;
+  while (low < high) {
+    const mid = Math.ceil((low + high) / 2);
+    if (measureText(characters.slice(0, mid).join("") + "…", font) <= width) low = mid;
+    else high = mid - 1;
+  }
+  return characters.slice(0, low).join("") + "…";
+}
+
+let measurementContext: CanvasRenderingContext2D | null | undefined;
+export function measureText(text: string, font: TextFont): number {
+  if (measurementContext === undefined && typeof document !== "undefined")
+    measurementContext = document.createElement("canvas").getContext("2d");
+  if (measurementContext) {
+    measurementContext.font = `${font.style} ${font.weight} ${font.size}px ${font.family}`;
+    return measurementContext.measureText(text).width;
+  }
+  // Static previews/tests have no browser font engine; use deterministic estimates there.
+  return estimateTextWidth(text, font.size);
 }
 
 export function wrapDetailText(text: string, maxLineWidth: number, maxLines: number): string[] {

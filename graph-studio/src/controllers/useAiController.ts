@@ -121,7 +121,14 @@ export function useAiController({
     (next: AiHarnessState, turnId: string, approved = false): AiHarnessState => {
       const batch = next.pendingCommandBatch;
       if (!batch) return next;
-      const validation = validateCommandBatch({ batch, dag: state.dag, contextNodeKey, appearance, graphRevision });
+      const validation = validateCommandBatch({
+        batch,
+        dag: state.dag,
+        contextNodeKey,
+        appearance,
+        graphRevision,
+        chartType: state.chartType,
+      });
       next = attachValidationToHarness(next, validation, turnId);
       if (next.activePlan) upsertReview(buildConsoleReviewCard(next.activePlan, validation));
       if (!validation.allPassed) {
@@ -148,6 +155,7 @@ export function useAiController({
       appendMessage,
       contextNodeKey,
       graphRevision,
+      state.chartType,
       runSource,
       settings.executionMode,
       state.dag,

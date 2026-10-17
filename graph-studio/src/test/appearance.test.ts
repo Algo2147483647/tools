@@ -119,16 +119,16 @@ export const appearanceSuite = defineSuite("appearance", [
     assert.match(DEFAULT_GRAPH_APPEARANCE.css, /fill:\s*var\(--dag-node-active-fill,\s*var\(--dag-node-fill\)\)/);
   }),
 
-  defineTest("legacy translucent cards become white and shadow changes do not recolor them", () => {
+  defineTest("explicit translucent fills are preserved without legacy rewriting", () => {
     const legacy = sanitizeGraphAppearance({ cssVars: { "--dag-node-fill": "rgba(252, 253, 255, 0.88)" } });
-    assert.equal(legacy.cssVars["--dag-node-fill"], "#ffffff");
+    assert.equal(legacy.cssVars["--dag-node-fill"], "rgba(252, 253, 255, 0.88)");
     const changed = sanitizeGraphAppearance({
       ...legacy,
       display: { ...legacy.display, shadowBlur: 24, shadowOffset: 10, shadowOpacity: 35 },
     });
     const before = appearanceToStageStyle(legacy) as Record<string, unknown>;
     const after = appearanceToStageStyle(changed) as Record<string, unknown>;
-    assert.equal(after["--dag-node-fill"], "#ffffff");
+    assert.equal(after["--dag-node-fill"], "rgba(252, 253, 255, 0.88)");
     assert.notEqual(before["--dag-node-shadow"], after["--dag-node-shadow"]);
     assert.deepEqual(changed.cssVars, legacy.cssVars);
     assert.equal(
@@ -137,20 +137,24 @@ export const appearanceSuite = defineSuite("appearance", [
     );
   }),
 
-  defineTest("latest preferences parse appearance directly", () => {
+  defineTest("preferences parse appearance within its chart profile", () => {
     const raw = JSON.stringify({
-      appearance: {
-        ...DEFAULT_GRAPH_APPEARANCE,
-        cssVars: {
-          "--dag-title-font-size": "18px",
-          "--dag-title-font-style": "normal",
-        },
-        layout: {
-          ...DEFAULT_GRAPH_APPEARANCE.layout,
-          columnGap: 144,
-        },
-        display: {
-          showEdgeLabels: false,
+      chartStyles: {
+        "node-link": {
+          appearance: {
+            ...DEFAULT_GRAPH_APPEARANCE,
+            cssVars: {
+              "--dag-title-font-size": "18px",
+              "--dag-title-font-style": "normal",
+            },
+            layout: {
+              ...DEFAULT_GRAPH_APPEARANCE.layout,
+              columnGap: 144,
+            },
+            display: {
+              showEdgeLabels: false,
+            },
+          },
         },
       },
     });

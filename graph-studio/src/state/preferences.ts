@@ -1,14 +1,7 @@
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { AiProvider, AiSettings } from "../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
-import {
-  type ChartStyles,
-  mapChartTypes,
-  createChartStyles,
-  sanitizeChartStyle,
-  sanitizeTimelineChartStyle,
-  sanitizeNodeLinkChartStyle,
-} from "./chartStyles";
+import { type ChartStyles, mapChartTypes, createChartStyles, sanitizeChartStyleForType } from "./chartStyles";
 import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
@@ -96,10 +89,6 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     layoutMode?: unknown;
     consoleSidebarOpen?: unknown;
     consoleSidebarWidth?: unknown;
-    appearance?: unknown;
-    showNodeDetail?: unknown;
-    hideNodeBorders?: unknown;
-    alignNodeWidthsToMax?: unknown;
 
     aiSettings?: unknown;
   } | null;
@@ -127,31 +116,10 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     parsed.chartType === "timeline"
   ) {
     next.chartType = parsed.chartType;
-  } else if (parsed.layoutMode === "sankey") {
-    next.chartType = "sankey";
   }
-  // Preserve the formerly shared style for both types on first migration.
   if (parsed.chartStyles && typeof parsed.chartStyles === "object" && !Array.isArray(parsed.chartStyles)) {
     const styles = parsed.chartStyles as Record<string, unknown>;
-    next.chartStyles = mapChartTypes((type) =>
-      type === "node-link"
-        ? sanitizeNodeLinkChartStyle(styles[type])
-        : type === "timeline"
-          ? sanitizeTimelineChartStyle(styles[type])
-          : sanitizeChartStyle(styles[type]),
-    );
-  } else if (
-    parsed.appearance ||
-    [parsed.showNodeDetail, parsed.hideNodeBorders, parsed.alignNodeWidthsToMax].some(
-      (value) => typeof value === "boolean",
-    )
-  ) {
-    next.chartStyles = {
-      "node-link": sanitizeNodeLinkChartStyle(sanitizeChartStyle(parsed)),
-      sankey: sanitizeChartStyle(parsed),
-      compound: sanitizeChartStyle(null),
-      timeline: sanitizeTimelineChartStyle(null),
-    };
+    next.chartStyles = mapChartTypes((type) => sanitizeChartStyleForType(type, styles[type]));
   }
   if (typeof parsed.consoleSidebarOpen === "boolean") {
     next.consoleSidebarOpen = parsed.consoleSidebarOpen;

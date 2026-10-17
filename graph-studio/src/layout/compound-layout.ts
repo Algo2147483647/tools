@@ -1,8 +1,9 @@
+import { cardContentLayout, minimumCardHeight } from "./typography";
 import type { ELK } from "elkjs/lib/elk-api";
 import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, NormalizedDag } from "../graph/types";
-import type { StageAppearance } from "./appearance";
-import { getNodeVisual, truncateTitleToWidth, wrapDetailText } from "./text";
+import { stageTitleFont, type StageAppearance } from "./appearance";
+import { getNodeVisual, truncateTitleToWidth, wrapDetailText, measureText } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
 import { roundedPolylinePath } from "./rounded-path";
 import { layoutCompoundHierarchy } from "./compound-hierarchy-layout";
@@ -30,6 +31,7 @@ export async function buildCompoundStage(
       .map((id, index) => [id, index]),
   );
   const theme = appearance.layout;
+  const font = stageTitleFont(appearance);
   const visuals = new Map<string, { title: string; detail: string; width: number }>();
   for (const item of projection.items) {
     const internalEdgeCount = item.internalEdgeIds.length;
@@ -38,8 +40,10 @@ export async function buildCompoundStage(
       item.kind === "group"
         ? {
             title: item.title,
-            detail,
-            width: Math.max(theme.minNodeWidth, Math.min(theme.maxNodeWidth, 100 + item.title.length * 9)),
+            detail: appearance.display.showGroupStats === false ? "" : detail,
+            width: alignNodeWidthsToMax
+              ? theme.maxNodeWidth
+              : Math.max(theme.minNodeWidth, Math.min(theme.maxNodeWidth, 122 + measureText(item.title, font))),
           }
         : getNodeVisual(
             item.id,
@@ -48,16 +52,27 @@ export async function buildCompoundStage(
             theme.maxNodeWidth,
             showNodeDetail,
             alignNodeWidthsToMax,
+            font,
           );
     visuals.set(item.id, visual);
   }
-  const result = await layoutCompoundHierarchy(
-    projection,
-    new Map([...visuals].map(([id, visual]) => [id, { width: visual.width, height: theme.nodeHeight }])),
-    theme,
-    input.showEdgeLabels ?? false,
-    elk,
+  const sizes = new Map(
+    projection.items.map((item) => {
+      const visual = visuals.get(item.id)!;
+      const detailCount = visual.detail ? wrapDetailText(visual.detail, visual.width - 60, 2).length : 0;
+      return [
+        item.id,
+        {
+          width: visual.width,
+          height: Math.max(
+            theme.nodeHeight,
+            minimumCardHeight(font, detailCount, item.external || item.kind === "group"),
+          ),
+        },
+      ];
+    }),
   );
+  const result = await layoutCompoundHierarchy(projection, sizes, theme, input.showEdgeLabels ?? false, elk);
   const nodes: StageNode[] = [];
   const groups: StageGroup[] = [];
   const nodeMap: StageData["nodeMap"] = Object.create(null);
@@ -90,7 +105,7 @@ export async function buildCompoundStage(
         layer: item.depth,
         order: nodes.length,
         title: visual.title,
-        displayTitle: truncateTitleToWidth(visual.title, item.kind === "group" ? width - 48 : width),
+        displayTitle: truncateTitleToWidth(visual.title, item.kind === "group" ? width - 48 : width, font),
         detail: visual.detail,
         detailLines: visual.detail ? wrapDetailText(visual.detail, width - 60, 2) : [],
         typeLabel: item.external ? "External" : item.kind === "group" ? "Subgraph" : undefined,
@@ -100,6 +115,7 @@ export async function buildCompoundStage(
         x: left + width / 2,
         y: top + height / 2,
       };
+      stageNode.contentLayout = cardContentLayout(height, font, stageNode.detailLines.length, !!stageNode.typeLabel);
       nodes.push(stageNode);
       nodeMap[id] = stageNode;
     }

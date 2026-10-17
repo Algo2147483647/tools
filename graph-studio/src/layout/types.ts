@@ -1,3 +1,4 @@
+import type { cardContentLayout } from "./typography";
 import type { DagNode, GraphRenderMode, GraphSelection, NodeKey, RelationValue } from "../graph/types";
 import type { TimelinePrecision, TimelineRelationKind } from "../graph/timeline";
 import type { TimelineAxisMap } from "./timeline-axis";
@@ -69,6 +70,7 @@ export interface StageNodeColorTokens {
 }
 
 export interface StageNode {
+  contentLayout?: ReturnType<typeof cardContentLayout>;
   timeline?: StageTimelineNode;
   kind?: "node" | "group";
   external?: boolean;

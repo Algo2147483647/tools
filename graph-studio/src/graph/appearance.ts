@@ -13,6 +13,7 @@ interface GraphDisplayAppearance {
   showNodeDots: boolean;
   showEdgeLabels: boolean;
   showGroupStats: boolean;
+  showGroupBorders: boolean;
   nodeCornerRadius: number;
   nodeShadow: boolean;
   shadowBlur: number;
@@ -273,6 +274,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     showNodeDots: true,
     showEdgeLabels: false,
     showGroupStats: true,
+    showGroupBorders: true,
     nodeCornerRadius: 24,
     nodeShadow: true,
     shadowBlur: 8,
@@ -337,6 +339,7 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
           ? DEFAULT_GRAPH_APPEARANCE.display.showEdgeLabels
           : displayInput.showEdgeLabels === true,
       nodeShadow: typeof displayInput.nodeShadow === "boolean" ? displayInput.nodeShadow : true,
+      showGroupBorders: typeof displayInput.showGroupBorders === "boolean" ? displayInput.showGroupBorders : true,
       showGroupStats: typeof displayInput.showGroupStats === "boolean" ? displayInput.showGroupStats : true,
       nodeCornerRadius: clampNumeric(displayInput.nodeCornerRadius, 24, 0, 80),
       shadowBlur: clampNumeric(displayInput.shadowBlur, 8, 0, 32),
@@ -384,12 +387,7 @@ function sanitizeCssVars(input: unknown): Record<string, string> {
     if (!key.startsWith("--dag-") || typeof value !== "string") {
       return;
     }
-    // The old translucent default let the drop shadow show through the card.
-    // Migrate that default in saved preferences without changing custom colors.
-    const isLegacyFill =
-      ["--dag-node-fill", "--dag-node-root-fill", "--dag-node-active-fill"].includes(key) &&
-      value.replace(/\s/g, "").toLowerCase() === "rgba(252,253,255,0.88)";
-    vars[key] = isLegacyFill ? "#ffffff" : value.slice(0, 500);
+    vars[key] = value.slice(0, 500);
   });
   return vars;
 }

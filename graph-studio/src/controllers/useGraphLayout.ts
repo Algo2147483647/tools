@@ -1,3 +1,4 @@
+import { useFontMetricsKey } from "./useFontMetricsKey";
 import { useMemo } from "react";
 import { useDebouncedValue } from "./useDebouncedValue";
 import { getNodeTitle } from "../graph/accessors";
@@ -40,7 +41,8 @@ export function useGraphLayout({
     [activeType, activeTrack, state.dag, state.chartType],
   );
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
-  const geometryJson = JSON.stringify(getStageAppearance(appearance));
+  const fontMetricsKey = useFontMetricsKey();
+  const geometryJson = JSON.stringify(getStageAppearance(appearance, state.chartType, fontMetricsKey));
   const requestedGeometry = useMemo(() => JSON.parse(geometryJson) as StageAppearance, [geometryJson]);
   const geometryAppearance = useDebouncedValue(requestedGeometry);
   const timelineSettings = useDebouncedValue(state.timelineSettings);

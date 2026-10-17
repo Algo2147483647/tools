@@ -82,6 +82,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     });
     assert.ok(plan.commandBatch);
     const validation = validateCommandBatch({
+      chartType: "node-link",
       batch: plan.commandBatch,
       dag: createSampleDag(),
       contextNodeKey: null,
@@ -112,6 +113,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     });
     assert.ok(plan.commandBatch);
     const validation = validateCommandBatch({
+      chartType: "node-link",
       batch: plan.commandBatch,
       dag: createSampleDag(),
       contextNodeKey: null,

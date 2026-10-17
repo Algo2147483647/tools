@@ -1,3 +1,4 @@
+import { useFontMetricsKey } from "../../controllers/useFontMetricsKey";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { GraphAppearance } from "../../graph/appearance";
@@ -48,9 +49,11 @@ export default function AppearancePreview({
   const [expanded, setExpanded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [frameRoot, setFrameRoot] = useState<HTMLElement | null>(null);
+  const fontMetricsKey = useFontMetricsKey();
   const json = JSON.stringify(
     previewGeometry({
       appearance,
+      fontMetricsKey,
       chartType,
       layoutMode,
       showNodeDetail,

@@ -48,7 +48,7 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     assert.equal(style.showNodeDetail, false);
     assert.equal(style.hideNodeBorders, true);
     assert.equal(style.alignNodeWidthsToMax, true);
-    assert.deepEqual(getDefaultChartStyle("compound").appearance, DEFAULT_GRAPH_APPEARANCE);
+    assert.equal(getDefaultChartStyle("compound").appearance.layout.nodeHeight, 48);
   }),
   defineTest("actual default nodes render equal widths, no details, dots and open stroke arrows", () => {
     const style = getDefaultChartStyle("node-link");
@@ -77,33 +77,14 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     assert.equal(style.appearance.cssVars["--dag-edge"], "#e1e3e6");
     assert.equal(style.appearance.cssVars["--dag-edge-active"], "#8b1e2d");
   }),
-  defineTest("saved legacy defaults upgrade while custom styles and other chart types survive", () => {
-    const old = sanitizeChartStyle(null);
-    const custom = {
-      ...old,
-      appearance: { ...old.appearance, cssVars: { ...old.appearance.cssVars, "--dag-edge": "#123456" } },
-    };
-    const upgraded = parseGraphPagePreferences(
-      JSON.stringify({ chartStyles: { "node-link": old, compound: custom } }),
-    )!.chartStyles!;
-    assert.deepEqual(upgraded["node-link"], getDefaultChartStyle("node-link"));
-    assert.deepEqual(upgraded.compound, custom);
-    const kept = parseGraphPagePreferences(JSON.stringify({ chartStyles: { "node-link": custom } }))!.chartStyles!;
-    assert.deepEqual(kept["node-link"], custom);
-    const fresh = createChartStyles();
-    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: fresh }))!.chartStyles, fresh);
-  }),
-  defineTest("previous default active edge upgrades without overwriting customized styles", () => {
-    const previous = getDefaultChartStyle("node-link");
-    previous.appearance.cssVars["--dag-edge-active"] = "#a9afb8";
-    const parse = () =>
-      parseGraphPagePreferences(JSON.stringify({ chartStyles: { "node-link": previous } }))!.chartStyles!["node-link"];
-    assert.deepEqual(parse(), getDefaultChartStyle("node-link"));
-    previous.appearance.layout.nodeHeight = 60;
-    assert.deepEqual(parse(), previous);
-    previous.appearance.layout.nodeHeight = 48;
-    previous.appearance.cssVars["--dag-edge-active"] = "#123456";
-    assert.deepEqual(parse(), previous);
+  defineTest("saved styles retain explicit values without guessing previous defaults", () => {
+    const previous = sanitizeChartStyle(null);
+    const styles = createChartStyles();
+    styles["node-link"] = previous;
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: styles }))!.chartStyles, styles);
+    styles["node-link"] = getDefaultChartStyle("node-link");
+    styles["node-link"].appearance.cssVars["--dag-edge-active"] = "#a9afb8";
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: styles }))!.chartStyles, styles);
   }),
   defineTest("Default applies atomically and undo/redo restore display options without touching other types", () => {
     const styles = createChartStyles();

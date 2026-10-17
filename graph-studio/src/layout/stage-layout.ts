@@ -1,3 +1,4 @@
+import { cardContentLayout, minimumCardHeight, type TextFont } from "./typography";
 import { getNodeChildKeys, getNodeChildren, getNodeType } from "../graph/accessors";
 import { type GraphLayoutAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getRelationKeys } from "../graph/relations";
@@ -9,7 +10,7 @@ import { buildDagreLayout } from "./algorithms/dagre";
 import { buildLevelLayout } from "./algorithms/level";
 import { buildSankeyStage } from "./algorithms/sankey";
 import { buildSugiyamaLayout } from "./algorithms/sugiyama";
-import type { StageAppearance } from "./appearance";
+import { stageTitleFont, type StageAppearance } from "./appearance";
 import { resolveStageEdgeGeometry } from "./edgeGeometry";
 import { resolveStageSelection, withSyntheticSelectionRoot } from "./selection";
 import { buildSugiyamaStageRoutes, buildSugiyamaVerticalPlanner } from "./sugiyama-edge-routing";
@@ -54,7 +55,8 @@ export function buildStageData(input: {
     showNodeDetail = true,
     alignNodeWidthsToMax = false,
   } = input;
-  const theme = appearance.layout;
+  const font = stageTitleFont(appearance);
+  const theme = { ...appearance.layout };
   if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {
     return null;
   }
@@ -70,7 +72,7 @@ export function buildStageData(input: {
       : new Set(collectDescendantKeys(layoutDag, layoutRoots));
   const typeColorMap = buildTypeColorMap(input.colorSourceDag ?? sourceDag);
   const edgeIds = new Map(sourceDag.edges.map((edge) => [JSON.stringify([edge.source, edge.target]), edge.id]));
-  const visualByKey = buildNodeVisualMap(layoutDag, reachable, theme, showNodeDetail, alignNodeWidthsToMax);
+  const visualByKey = buildNodeVisualMap(layoutDag, reachable, theme, showNodeDetail, alignNodeWidthsToMax, font);
   if (layoutMode === "sankey") {
     const error = getSankeyError(sourceDag.nodes, sourceDag.edges);
     if (error) {
@@ -79,6 +81,10 @@ export function buildStageData(input: {
       return fallback;
     }
     return buildSankeyStage(sourceDag, reachable, selection, visualByKey, appearance);
+  }
+  for (const [key, visual] of visualByKey) {
+    const detailCount = visual.detail ? wrapDetailText(visual.detail, Math.max(visual.width - 74, 72), 2).length : 0;
+    theme.nodeHeight = Math.max(theme.nodeHeight, minimumCardHeight(font, detailCount, !!getNodeType(layoutDag[key]!)));
   }
   const layoutResult = resolveLayout(layoutMode, layoutDag, layoutRoots, visualByKey, theme);
   const coordinates = layoutResult.coordinates;
@@ -103,7 +109,7 @@ export function buildStageData(input: {
       layer,
       order,
       title: visual.title,
-      displayTitle: truncateTitleToWidth(visual.title, visual.width),
+      displayTitle: truncateTitleToWidth(visual.title, visual.width, font),
       detail: visual.detail,
       detailLines: visual.detail
         ? wrapDetailText(
@@ -120,6 +126,8 @@ export function buildStageData(input: {
       x: 0,
       y: 0,
     };
+
+    nodeData.contentLayout = cardContentLayout(nodeData.height, font, nodeData.detailLines.length, !!typeLabel);
 
     if (!nodesByLayer.has(layer)) {
       nodesByLayer.set(layer, []);
@@ -339,6 +347,7 @@ function buildNodeVisualMap(
   theme: GraphLayoutAppearance,
   showNodeDetail: boolean,
   alignNodeWidthsToMax: boolean,
+  font: TextFont,
 ): Map<NodeKey, ReturnType<typeof getNodeVisual>> {
   const visuals = new Map<NodeKey, ReturnType<typeof getNodeVisual>>();
   nodeKeys.forEach((nodeKey) => {
@@ -348,7 +357,7 @@ function buildNodeVisualMap(
     }
     visuals.set(
       nodeKey,
-      getNodeVisual(nodeKey, node, theme.minNodeWidth, theme.maxNodeWidth, showNodeDetail, alignNodeWidthsToMax),
+      getNodeVisual(nodeKey, node, theme.minNodeWidth, theme.maxNodeWidth, showNodeDetail, alignNodeWidthsToMax, font),
     );
   });
   return visuals;

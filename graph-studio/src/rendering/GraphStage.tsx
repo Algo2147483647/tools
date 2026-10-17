@@ -299,6 +299,7 @@ export default function GraphStage({
             style={
               {
                 "--dag-group-fill": groupBackgroundFill(group.colorFamilyIndex, group.depth),
+                ...(appearance.display.showGroupBorders ? {} : { stroke: "none" }),
               } as CSSProperties
             }
             x={group.x}

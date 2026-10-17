@@ -211,7 +211,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
     ["shadowOpacity", 0, 40, "%"],
     ["sankeyLinkOpacity", 5, 90, "%"],
   ] as const;
-  const toggle = (id: "showNodeDots" | "nodeShadow" | "showGroupStats" | "showEdgeLabels") => (
+  const toggle = (id: "showNodeDots" | "nodeShadow" | "showGroupStats" | "showGroupBorders" | "showEdgeLabels") => (
     <Toggle
       key={id}
       label={catalog.find((item) => item.id === id)!.label}
@@ -285,6 +285,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
         {sliders.filter(([key]) => has(key) && key !== "nodeCornerRadius").map(slider)}
         {has("showNodeDots") && toggle("showNodeDots")}
         {has("showGroupStats") && toggle("showGroupStats")}
+        {has("showGroupBorders") && toggle("showGroupBorders")}
         {has("showEdgeLabels") && toggle("showEdgeLabels")}
         {has("hideNodeBorders") && (
           <Toggle

@@ -335,23 +335,18 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     assert.equal(next.dag, edited);
     assert.match(next.ui.status, /Showing the node-link chart/);
   }),
-  defineTest("legacy shared preferences migrate into two independent profiles", () => {
-    const parsed = parseGraphPagePreferences(
-      JSON.stringify({
-        layoutMode: "sankey",
-        hideNodeBorders: true,
-        showNodeDetail: false,
-        appearance: { cssVars: { "--dag-text-strong": "#123456" }, display: { sankeyLinkOpacity: 55 } },
-      }),
+  defineTest("obsolete shared styles and layout aliases are not migrated", () => {
+    assert.equal(
+      parseGraphPagePreferences(
+        JSON.stringify({
+          layoutMode: "sankey",
+          hideNodeBorders: true,
+          showNodeDetail: false,
+          appearance: { cssVars: { "--dag-text-strong": "#123456" } },
+        }),
+      ),
+      null,
     );
-    assert.equal(parsed?.chartType, "sankey");
-    const styles = parsed!.chartStyles!;
-    assert.equal(styles["node-link"].hideNodeBorders, true);
-    assert.equal(styles.sankey.showNodeDetail, false);
-    assert.equal(styles.sankey.appearance.display.sankeyLinkOpacity, 55);
-    assert.deepEqual(styles["node-link"], styles.sankey);
-    assert.notEqual(styles["node-link"].appearance, styles.sankey.appearance);
-    assert.notEqual(styles["node-link"].appearance.cssVars, styles.sankey.appearance.cssVars);
   }),
   defineTest("reload preserves both styles and the remembered node-link layout", () => {
     let stored = "";

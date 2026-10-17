@@ -95,6 +95,7 @@ export function previewGeometry(input: {
   chartType: GraphChartType;
   layoutMode: GraphLayoutMode;
   appearance: GraphAppearance;
+  fontMetricsKey?: string;
   showNodeDetail: boolean;
   alignNodeWidthsToMax: boolean;
   view: CompoundView;
@@ -103,7 +104,7 @@ export function previewGeometry(input: {
   return {
     chartType: input.chartType,
     layoutMode: input.chartType === "node-link" ? input.layoutMode : input.chartType,
-    appearance: getStageAppearance(input.appearance),
+    appearance: getStageAppearance(input.appearance, input.chartType, input.fontMetricsKey),
     showNodeDetail: input.showNodeDetail,
     alignNodeWidthsToMax: input.alignNodeWidthsToMax,
     showEdgeLabels: input.chartType === "compound" && input.appearance.display.showEdgeLabels,

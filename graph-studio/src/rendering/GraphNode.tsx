@@ -4,11 +4,11 @@ import type { StageNode } from "../layout/types";
 import { estimateTextWidth } from "../layout/text";
 import TimelineNode from "./TimelineNode";
 
-const DETAIL_LINE_HEIGHT = 10;
+import { cardContentLayout, DEFAULT_TITLE_FONT, CARD_BADGE_HEIGHT } from "../layout/typography";
 const AFFORDANCE_HORIZONTAL_PADDING = 6;
 const AFFORDANCE_MIN_WIDTH = 24;
 const AFFORDANCE_MAX_WIDTH = 100;
-const AFFORDANCE_HEIGHT = 10;
+const AFFORDANCE_HEIGHT = CARD_BADGE_HEIGHT;
 const AFFORDANCE_FONT_SIZE = 7;
 const AFFORDANCE_MAX_INSET = 16;
 
@@ -74,10 +74,10 @@ const GraphNode = memo(function GraphNode({
     affordanceMaxWidth,
   );
   const affordanceX = node.width - AFFORDANCE_MAX_INSET - affordanceWidth;
-  const affordanceY = Math.max(
-    node.height - AFFORDANCE_HEIGHT - 3,
-    hasDetail ? 45 + (node.detailLines.length - 1) * DETAIL_LINE_HEIGHT + 6 : node.height / 2 + 11,
-  );
+  const content =
+    node.contentLayout ??
+    cardContentLayout(node.height, DEFAULT_TITLE_FONT, hasDetail ? node.detailLines.length : 0, !!affordanceLabel);
+  const affordanceY = content.badgeY;
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
@@ -181,18 +181,13 @@ const GraphNode = memo(function GraphNode({
           />
           <circle className="dag-node__pin" cx={26} cy={node.height / 2} r={7} />
           <circle className="dag-node__pin-core" cx={26} cy={node.height / 2} r={2.25} />
-          <text
-            className="dag-node__title dag-node__content"
-            x={48}
-            y={hasDetail ? 29 : node.height / 2}
-            dominantBaseline={hasDetail ? undefined : "middle"}
-          >
+          <text className="dag-node__title dag-node__content" x={48} y={content.titleY} dominantBaseline="middle">
             {node.displayTitle}
           </text>
           {hasDetail ? (
-            <text className="dag-node__detail dag-node__content" x={48} y={45}>
+            <text className="dag-node__detail dag-node__content" x={48} y={content.detailY} dominantBaseline="middle">
               {node.detailLines.map((line, index) => (
-                <tspan key={`${line}-${index}`} x={48} dy={index === 0 ? 0 : DETAIL_LINE_HEIGHT}>
+                <tspan key={`${line}-${index}`} x={48} dy={index === 0 ? 0 : content.detailLineHeight}>
                   {line}
                 </tspan>
               ))}

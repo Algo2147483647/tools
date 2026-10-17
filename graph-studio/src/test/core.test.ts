@@ -1,3 +1,4 @@
+import { stylePipelineSuite } from "./stylePipeline.test";
 import { timelineAxisSuite } from "./timelineAxis.test";
 import { timelineFlowSuite } from "./timelineFlow.test";
 import { timelineViewSuite } from "./timelineView.test";
@@ -34,6 +35,7 @@ import { nodeLinkDefaultsSuite } from "./nodeLinkDefaults.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
+    stylePipelineSuite,
     compoundSuite,
     compoundLayoutSuite,
     aiHarnessSuite,

@@ -5,6 +5,7 @@ import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearan
 import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
+import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
 import { getDefaultChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
 import { resetAppearanceSection } from "../components/settings/appearanceSections";
@@ -104,7 +105,7 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
 
   function handleAppearanceExport() {
     const outputFileName = buildTimestampFileName(`${chartType}-appearance.json`);
-    downloadJsonFile(JSON.stringify(appearance, null, 2), outputFileName);
+    downloadJsonFile(serializeChartStyle(chartType, chartStyles[chartType]), outputFileName);
     dispatch({ type: "statusChanged", status: `Exported current UI appearance as ${outputFileName}.` });
   }
 
@@ -143,11 +144,23 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
       if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
         throw new Error("Appearance JSON must be an object.");
       }
-      commitAppearance(sanitizeGraphAppearance(payload), `Imported graph appearance from ${file.name}.`);
+      const { appearance: importedAppearance, ...display } = parseChartStyleFile(payload, chartType);
+      updateHistories({
+        chartType,
+        action: {
+          type: "commit",
+          appearance: importedAppearance,
+          display,
+          label: `Imported graph appearance from ${file.name}.`,
+        },
+      });
       dispatch({ type: "statusChanged", status: `Imported UI appearance from ${file.name}.` });
     } catch (error) {
       console.error(error);
-      dispatch({ type: "statusChanged", status: `Unable to import UI appearance from ${file.name}.` });
+      dispatch({
+        type: "statusChanged",
+        status: `Unable to import ${file.name}: ${error instanceof Error ? error.message : "Invalid style file."}`,
+      });
     }
   }
 

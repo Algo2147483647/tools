@@ -132,7 +132,7 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
     });
     assert.equal(state.chartType, "sankey");
     assert.equal(state.layout.mode, "sugiyama");
-    assert.equal(parseGraphPagePreferences('{"layoutMode":"sankey"}')!.chartType, "sankey");
+    assert.equal(parseGraphPagePreferences('{"chartType":"sankey"}')!.chartType, "sankey");
   }),
   defineTest("circular flows preserve direction, port totals, scale and saved data", () => {
     const input = document();

@@ -1,7 +1,7 @@
 import { sankey } from "d3-sankey";
 import { findFeedbackEdges, formatFlow } from "../../graph/sankey";
 import type { GraphEdge, NormalizedDag } from "../../graph/types";
-import type { StageAppearance } from "../appearance";
+import { stageTitleFont, type StageAppearance } from "../appearance";
 import { truncateTitleToWidth } from "../text";
 import type { ResolvedStageSelection, StageData, StageNode } from "../types";
 
@@ -21,6 +21,7 @@ export function buildSankeyStage(
   appearance: StageAppearance,
 ): StageData {
   const theme = appearance.layout;
+  const font = stageTitleFont(appearance);
   const edges = dag.edges.filter((edge) => keys.has(edge.source) && keys.has(edge.target));
   const positiveEdges = edges.filter((edge) => Number(edge.value) > 0);
   const activeKeys = new Set(positiveEdges.flatMap((edge) => [edge.source, edge.target]));
@@ -102,7 +103,7 @@ export function buildSankeyStage(
       width: nodeWidth,
       height,
       title: visual.title,
-      displayTitle: truncateTitleToWidth(visual.title, theme.maxNodeWidth),
+      displayTitle: truncateTitleToWidth(visual.title, theme.maxNodeWidth, font),
       detail: visual.detail,
       detailLines: [],
       typeLabel: typeof raw.type === "string" ? raw.type : undefined,
@@ -159,7 +160,7 @@ export function buildSankeyStage(
     let labelBottom = theme.stagePaddingY - 24;
     column.forEach((node, index) => {
       node.order = index;
-      node.flow!.labelY = Math.max(node.y, labelBottom + 38);
+      node.flow!.labelY = Math.max(node.y, labelBottom + Math.max(38, font.size * 1.2 + 20));
       labelBottom = node.flow!.labelY;
     });
   }

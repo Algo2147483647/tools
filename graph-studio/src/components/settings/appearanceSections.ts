@@ -10,6 +10,7 @@ const displayKeys = {
     "shadowOffset",
     "shadowOpacity",
     "showGroupStats",
+    "showGroupBorders",
   ],
   edges: ["showEdgeLabels", "sankeyLinkOpacity", "edgeArrowStyle"],
   text: [],
