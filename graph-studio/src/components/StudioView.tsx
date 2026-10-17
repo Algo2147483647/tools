@@ -267,6 +267,8 @@ export default function StudioView({
         onAppearanceCssVarChange={appearanceHistory.handleAppearanceCssVarChange}
         onAppearanceCssChange={appearanceHistory.handleAppearanceCssChange}
         onAppearanceDisplayChange={appearanceHistory.handleAppearanceDisplayChange}
+        onAppearanceAdjustmentStart={appearanceHistory.beginAdjustment}
+        onAppearanceAdjustmentEnd={appearanceHistory.endAdjustment}
         onAppearancePresetChange={(presetId) => {
           appearanceHistory.handleAppearancePresetChange(presetId);
           if (presetId === "default" && !appearanceHistory.hideNodeBorders) appearanceHistory.toggleNodeBorders();

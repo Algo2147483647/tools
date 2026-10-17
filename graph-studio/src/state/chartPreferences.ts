@@ -9,11 +9,14 @@ interface AppearanceTransaction {
 }
 
 interface AppearanceHistory extends ChartStyle {
+  adjustment?: { before: GraphAppearance; label: string };
   undoStack: AppearanceTransaction[];
   redoStack: AppearanceTransaction[];
 }
 
 type AppearanceHistoryAction =
+  | { type: "beginAdjustment" }
+  | { type: "endAdjustment" }
   | { type: "commit"; appearance: GraphAppearance; label: string }
   | { type: "undo" }
   | { type: "redo" }
@@ -31,7 +34,7 @@ export function createChartPreferences(styles: ChartStyles): ChartPreferencesSta
 
 export function getChartStyles(state: ChartPreferencesState): ChartStyles {
   return mapChartTypes((type) => {
-    const { undoStack: _undo, redoStack: _redo, ...style } = state[type];
+    const { undoStack: _undo, redoStack: _redo, adjustment: _adjustment, ...style } = state[type];
     return style;
   });
 }
@@ -46,10 +49,26 @@ export function chartPreferencesReducer(
 
 function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHistoryAction): AppearanceHistory {
   switch (action.type) {
+    case "beginAdjustment":
+      return state.adjustment
+        ? state
+        : { ...state, adjustment: { before: state.appearance, label: "Adjust appearance." } };
+    case "endAdjustment": {
+      if (!state.adjustment) return state;
+      const { adjustment, ...settled } = state;
+      if (JSON.stringify(adjustment.before) === JSON.stringify(state.appearance)) return settled;
+      return {
+        ...settled,
+        undoStack: [...state.undoStack, { ...adjustment, after: state.appearance }].slice(-100),
+        redoStack: [],
+      };
+    }
     case "toggleDisplay":
       return { ...state, [action.key]: !state[action.key] };
     case "commit": {
       if (JSON.stringify(state.appearance) === JSON.stringify(action.appearance)) return state;
+      if (state.adjustment)
+        return { ...state, appearance: action.appearance, adjustment: { ...state.adjustment, label: action.label } };
       const transaction = { label: action.label, before: state.appearance, after: action.appearance };
       return {
         ...state,

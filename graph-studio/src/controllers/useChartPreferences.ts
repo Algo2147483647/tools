@@ -20,6 +20,14 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
   const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") =>
     updateHistories({ chartType, action: { type: "toggleDisplay", key } });
   const { appearance } = history;
+  const beginAdjustment = useCallback(
+    () => updateHistories({ chartType, action: { type: "beginAdjustment" } }),
+    [chartType],
+  );
+  const endAdjustment = useCallback(
+    () => updateHistories({ chartType, action: { type: "endAdjustment" } }),
+    [chartType],
+  );
   const commitAppearance = useCallback(
     (nextAppearance: GraphAppearance, label: string) => {
       updateHistories({ chartType, action: { type: "commit", appearance: nextAppearance, label } });
@@ -145,6 +153,8 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
   }
 
   return {
+    beginAdjustment,
+    endAdjustment,
     appearance,
     chartStyles,
     showNodeDetail: history.showNodeDetail,

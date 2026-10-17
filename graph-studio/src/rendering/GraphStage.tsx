@@ -397,10 +397,11 @@ export default function GraphStage({
 }
 
 function resolveNodeKey(target: EventTarget | null): string | null {
-  if (!(target instanceof Element)) {
+  const element = target as Element | null;
+  if (!element || typeof element.closest !== "function") {
     return null;
   }
-  return target.closest<SVGGElement>(".dag-node[data-key]")?.dataset.key || null;
+  return element.closest<SVGGElement>(".dag-node[data-key]")?.dataset.key || null;
 }
 
 function collectNodeElements(svgElement: SVGSVGElement): Map<string, SVGGElement[]> {

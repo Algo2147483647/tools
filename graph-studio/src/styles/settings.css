@@ -375,13 +375,6 @@
 .settings-no-results p {
   font-size: 12px;
 }
-.settings-preview-card {
-  border: 1px solid var(--studio-border);
-  border-radius: 10px;
-  background: #fbfcff;
-  margin-bottom: 20px;
-  padding: 12px 18px 0;
-}
 .settings-chart-context {
   display: flex;
   align-items: center;
@@ -445,24 +438,6 @@
   background: #fff9ed;
   border-radius: 7px;
   padding: 12px;
-}
-.settings-preview-card > div {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.settings-preview-card small {
-  font-size: 10px;
-  color: #90a0b3;
-}
-.settings-graph-preview {
-  width: 100%;
-  display: block;
-  height: auto;
-  max-height: 110px;
-}
-.settings-graph-preview .dag-node {
-  pointer-events: none;
 }
 .preset-grid {
   display: grid;
@@ -913,9 +888,7 @@
   background: #ffffff42;
   border-color: #bac5d633;
 }
-.settings-graph-preview {
-  overflow: visible;
-}
+
 .display-slider {
   display: flex;
   flex-direction: column;
@@ -969,5 +942,150 @@
   }
   .layout-engine-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* The preview stays outside the independently scrolling settings page. */
+.studio-settings .settings-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.studio-settings .settings-content > .settings-page {
+  flex: 1;
+  min-height: 0;
+}
+.settings-preview-card {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin: 16px 16px 16px 0;
+  padding: 10px 12px 8px;
+  border: 1px solid var(--studio-border);
+  border-radius: 10px;
+  background: #fff;
+}
+.settings-preview-heading,
+.settings-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.settings-preview-heading small {
+  font-size: 11px;
+  color: var(--studio-muted);
+}
+.settings-preview-toolbar {
+  margin: 8px 0;
+}
+.settings-preview-toolbar > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.settings-preview-toolbar button {
+  min-width: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--studio-border);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--studio-ink);
+  font:
+    11px "Segoe UI",
+    sans-serif;
+  cursor: pointer;
+}
+.settings-preview-toolbar output {
+  font-size: 10px;
+  min-width: 36px;
+  color: var(--studio-muted);
+}
+.settings-preview-frame-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.settings-preview-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 5px;
+  background: white;
+}
+.settings-preview-status {
+  font-size: 10px;
+  line-height: 1.4;
+  margin: 7px 0 0;
+  min-height: 14px;
+  color: var(--studio-muted);
+}
+.settings-preview-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font-size: 12px;
+  color: var(--studio-muted);
+}
+@media (max-width: 700px) {
+  .settings-preview-card {
+    padding: 8px;
+  }
+}
+/* Wide dialogs keep a full-height preview beside the independently scrolling controls. */
+.studio-settings .settings-content:has(.settings-preview-card) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.studio-settings .settings-content:has(.settings-preview-card) > .settings-page {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 22px 18px;
+}
+.studio-settings .settings-content:has(.settings-preview-card.is-expanded) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.studio-settings .settings-content:has(.settings-preview-card.is-expanded) > .settings-page {
+  display: none;
+}
+.settings-preview-card.is-expanded {
+  grid-column: 1;
+  margin: 16px;
+}
+@media (max-width: 950px) {
+  .studio-settings .settings-content:has(.settings-preview-card) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .settings-preview-card {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 10px 12px 0;
+  }
+  .settings-preview-frame {
+    height: clamp(130px, 23vh, 210px);
+  }
+  .studio-settings .settings-content:has(.settings-preview-card) > .settings-page {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .studio-settings .settings-content:has(.settings-preview-card.is-expanded) {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .settings-preview-card.is-expanded {
+    margin: 12px;
+  }
+  .settings-preview-card.is-expanded .settings-preview-frame {
+    height: 100%;
   }
 }

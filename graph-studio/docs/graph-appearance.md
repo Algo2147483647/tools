@@ -156,7 +156,7 @@ Example:
 
 ## Settings UI
 
-The settings dialog has an `Appearance` tab for graph UI configuration.
+The settings dialog separates `Layout` (arrangement and dimensions) from `Appearance` (paint and typography). Both chapters share a live sample preview.
 
 | Section | Purpose |
 | --- | --- |
@@ -232,6 +232,25 @@ Graph edits and appearance edits have separate histories. The toolbar `Undo` and
 
 Appearance history records changes from settings controls, presets, reset, and console style commands.
 
+A slider drag or a held adjustment key records one appearance undo step when the gesture ends. Number fields commit on Enter or blur; incomplete input does not repeatedly resize the graph. Timeline view settings retain their existing history behavior.
+
+## Live Preview
+
+`Layout` and `Appearance` use the same `GraphStage` renderer and layout functions as the main canvas. The preview remains visible while searching those chapters or scrolling their controls. It sits beside the controls in wide dialogs and above them in narrow dialogs.
+
+| Chart | Sample coverage |
+| --- | --- |
+| Node-link | All three layout engines, labels, arrows, branches and a return edge |
+| Nested node-link | Expanded and collapsed groups, aggregated edges, cross-group edges and group focus |
+| Sankey | Weighted bands and a return flow |
+| Timeline | Dated events, a duration and multiple tracks; track and relation-flow arrangements |
+
+Zoom buttons change magnification relative to the fitted view. `Fit` restores the overview; `Expand preview` gives the preview the controls' space. `Reset sample` restores the sample's group expansion, focus and zoom. Group interactions affect only the sample. Current-document timeline pins are not copied into sample data.
+
+Paint changes render immediately. Geometry changes are debounced by 150 ms in both preview and main canvas; nested layout continues to use its worker and discards obsolete results. The preview measures rendered bounds, including text, and allows scrolling after zooming in. It has its own iframe document so custom graph CSS and SVG definitions cannot collide with the settings dialog or main graph.
+
+Controls that the selected chart does not use are omitted. Nested layout does not expose edge-lane spacing; Sankey and timeline expose only relevant dimensions. Timeline also omits card shadows, borders and title controls that its event renderer does not use.
+
 ## Sanitization Rules
 
 Appearance is sanitized at every load or mutation boundary.
@@ -254,8 +273,9 @@ These rules keep appearance editable while preventing malformed stored preferenc
 | Appearance commands and presets | [`src/graph/appearanceCommands.ts`](../src/graph/appearanceCommands.ts) |
 | Console parsing | [`src/console/dsl.ts`](../src/console/dsl.ts) |
 | Console execution | [`src/console/executor.ts`](../src/console/executor.ts) |
-| App-level appearance history and export | [`src/App.tsx`](../src/App.tsx) |
-| Settings UI | [`src/components/Topbar.tsx`](../src/components/Topbar.tsx) |
+| Appearance preferences and undo | [`src/state/chartPreferences.ts`](../src/state/chartPreferences.ts), [`src/controllers/useChartPreferences.ts`](../src/controllers/useChartPreferences.ts) |
+| Settings UI | [`src/components/settings/SettingsModal.tsx`](../src/components/settings/SettingsModal.tsx) |
+| Shared live preview and samples | [`src/components/settings/AppearancePreview.tsx`](../src/components/settings/AppearancePreview.tsx), [`src/components/settings/previewModel.ts`](../src/components/settings/previewModel.ts) |
 | SVG rendering | [`src/rendering/GraphStage.tsx`](../src/rendering/GraphStage.tsx) |
 | SVG export | [`src/rendering/export-svg.ts`](../src/rendering/export-svg.ts) |
 | AI context and validation | [`src/ai/context.ts`](../src/ai/context.ts), [`src/ai/harness.ts`](../src/ai/harness.ts) |

@@ -81,9 +81,10 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
       if (!svg || !container) return;
       const rect = svg.getBoundingClientRect();
       const box = container.getBoundingClientRect();
-      const scale = rect.width / stage.stageWidth || 1;
+      const viewBox = svg.viewBox.baseVal;
+      const scale = rect.width / (viewBox.width || stage.stageWidth) || 1;
       const overlays = container.closest(".workspace")?.querySelector(".workspace-overlays")?.getBoundingClientRect();
-      const topbar = document.querySelector(".topbar")?.getBoundingClientRect();
+      const topbar = svg.ownerDocument.querySelector(".topbar")?.getBoundingClientRect();
       const safeLeft =
         overlays && overlays.width > 0 && overlays.width < box.width * 0.75
           ? Math.max(box.left, overlays.right + 6)
@@ -91,9 +92,9 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
       const safeTop = Math.max(box.top, (topbar?.bottom ?? box.top) + 4);
       setViewport({
         scale,
-        x: Math.max(timeline.axisX, (safeLeft - rect.left + 100) / scale),
-        top: Math.max(16, (safeTop - rect.top) / scale),
-        bottom: Math.min(stage.stageHeight, (box.bottom - rect.top) / scale),
+        x: Math.max(timeline.axisX, viewBox.x + (safeLeft - rect.left + 100) / scale),
+        top: Math.max(16, viewBox.y + (safeTop - rect.top) / scale),
+        bottom: Math.min(stage.stageHeight, viewBox.y + (box.bottom - rect.top) / scale),
         width: box.width / scale,
       });
     }

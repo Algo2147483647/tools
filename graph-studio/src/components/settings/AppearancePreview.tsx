@@ -1,163 +1,268 @@
-import { type GraphAppearance, appearanceToStageStyle, GRAPH_EFFECTS_CSS } from "../../graph/appearance";
-import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import type { GraphAppearance } from "../../graph/appearance";
+import { getGraphChartLabel, type CompoundView, type GraphChartType, type GraphLayoutMode } from "../../graph/types";
+import type { TimelineViewSettings } from "../../graph/timelineSettings";
+import { useCompoundStage } from "../../controllers/useCompoundStage";
+import { useDebouncedValue } from "../../controllers/useDebouncedValue";
+import { useTimelineStage } from "../../controllers/useTimelineStage";
+import GraphStage from "../../rendering/GraphStage";
+import type { StageData } from "../../layout/types";
+import graphCss from "../../styles/graph.css?inline";
+import compoundCss from "../../styles/compound.css?inline";
+import {
+  buildFlatPreviewStage,
+  compoundPreviewInput,
+  INITIAL_PREVIEW_VIEW,
+  PREVIEW_GRAPHS,
+  previewGeometry,
+} from "./previewModel";
+
+const FRAME_DOCUMENT =
+  '<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:100%;height:100%;background:#fff}#preview-root{height:100%}</style></head><body><div id="preview-root"></div></body></html>';
+const noop = () => {};
 
 export default function AppearancePreview({
   appearance,
   chartType,
+  layoutMode,
   hideNodeBorders,
   showNodeDetail,
+  alignNodeWidthsToMax,
+  timelineSettings,
 }: {
   appearance: GraphAppearance;
   chartType: GraphChartType;
+  layoutMode: GraphLayoutMode;
   hideNodeBorders: boolean;
   showNodeDetail: boolean;
+  alignNodeWidthsToMax: boolean;
+  timelineSettings?: TimelineViewSettings;
 }) {
-  const sankey = chartType === "sankey";
-  const width = appearance.display.sankeyNodeWidth;
+  const [view, setView] = useState<CompoundView>(INITIAL_PREVIEW_VIEW);
+  const [zoom, setZoom] = useState(1);
+  const [expanded, setExpanded] = useState(false);
+  const [frameRoot, setFrameRoot] = useState<HTMLElement | null>(null);
+  const json = JSON.stringify(
+    previewGeometry({
+      appearance,
+      chartType,
+      layoutMode,
+      showNodeDetail,
+      alignNodeWidthsToMax,
+      timelineSettings,
+      view,
+    }),
+  );
+  const requested = useMemo(() => JSON.parse(json) as ReturnType<typeof previewGeometry>, [json]);
+  const geometry = useDebouncedValue(requested);
+  const compoundInput = useMemo(
+    () => (geometry.chartType === "compound" ? compoundPreviewInput(geometry) : null),
+    [geometry],
+  );
+  const compound = useCompoundStage(compoundInput);
+  const timeline = useTimelineStage({
+    dag: geometry.chartType === "timeline" ? PREVIEW_GRAPHS.timeline : null,
+    visibleDag: PREVIEW_GRAPHS.timeline,
+    generation: 0,
+    range: null,
+    settings: geometry.timelineSettings,
+    appearance: geometry.appearance,
+    showNodeDetail: geometry.showNodeDetail,
+  });
+  const flat = useMemo(() => {
+    try {
+      return { stage: geometry.chartType === "timeline" ? null : buildFlatPreviewStage(geometry), error: "" };
+    } catch (error) {
+      return { stage: null, error: error instanceof Error ? error.message : "Unable to render preview." };
+    }
+  }, [geometry]);
+  const matches = geometry.chartType === chartType;
+  const stage = matches
+    ? chartType === "compound"
+      ? compound.stage
+      : chartType === "timeline"
+        ? timeline.stage
+        : flat.stage
+    : null;
+  const error = matches ? (chartType === "compound" ? compound.error : flat.error) : "";
+  const loading = requested !== geometry || (chartType === "compound" && compound.loading);
+  useEffect(() => {
+    setZoom(1);
+    setView(INITIAL_PREVIEW_VIEW);
+  }, [chartType]);
+  const reset = () => {
+    setView(INITIAL_PREVIEW_VIEW);
+    setZoom(1);
+  };
   return (
-    <section className="settings-preview-card">
-      <div>
+    <section
+      className={`settings-preview-card${expanded ? " is-expanded" : ""}`}
+      aria-label="Live graph preview"
+      aria-busy={loading}
+    >
+      <div className="settings-preview-heading">
         <span className="eyebrow">LIVE PREVIEW</span>
-        <small>{getGraphChartLabel(chartType)} appearance</small>
+        <small>{getGraphChartLabel(chartType)} · sample graph</small>
       </div>
-      <svg
-        viewBox="0 0 600 145"
-        className="settings-graph-preview"
-        style={appearanceToStageStyle(appearance)}
-        role="img"
-        aria-label={`${getGraphChartLabel(chartType)} appearance preview`}
-      >
-        <style>{`${appearance.css}\n${GRAPH_EFFECTS_CSS}`}</style>
-        <g className="dag-graph" data-borderless={hideNodeBorders ? "true" : "false"}>
-          {chartType === "timeline" ? (
+      <div className="settings-preview-toolbar">
+        <div role="group" aria-label="Preview zoom">
+          <button
+            type="button"
+            aria-label="Zoom out preview"
+            disabled={zoom <= 0.5}
+            onClick={() => setZoom((value) => Math.max(0.5, value / 1.25))}
+          >
+            −
+          </button>
+          <button type="button" onClick={() => setZoom(1)}>
+            Fit
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in preview"
+            disabled={zoom >= 4}
+            onClick={() => setZoom((value) => Math.min(4, value * 1.25))}
+          >
+            +
+          </button>
+          <output aria-label="Preview zoom">{Math.round(zoom * 100)}%</output>
+        </div>
+        <button type="button" onClick={reset}>
+          Reset sample
+        </button>
+        <button
+          type="button"
+          aria-label={expanded ? "Show settings controls" : "Expand preview"}
+          aria-pressed={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? "↙" : "⛶"}
+        </button>
+      </div>
+      <div className="settings-preview-frame-wrap">
+        <iframe
+          title="Graph preview"
+          className="settings-preview-frame"
+          sandbox="allow-same-origin"
+          srcDoc={FRAME_DOCUMENT}
+          onLoad={(event) => setFrameRoot(event.currentTarget.contentDocument?.getElementById("preview-root") ?? null)}
+        />
+        {frameRoot &&
+          createPortal(
             <>
-              <path
-                d="M96 20V125M96 32C96 60 334 35 334 65V98C334 124 96 93 96 125"
-                fill="none"
-                stroke="var(--dag-edge)"
-                strokeWidth="2"
-              />
-              {[
-                { x: 96, y: 25, title: "Launch", detail: "July 16 · 13:32 UTC" },
-                { x: 334, y: 66, title: "Lunar mission", detail: "July 20–21 · duration" },
-                { x: 96, y: 121, title: "Reunited", detail: "July 21 · 21:35 UTC" },
-              ].map((event) => (
-                <g key={event.title} className="dag-node">
-                  {event.x === 334 ? (
-                    <rect className="dag-node__shape" x={event.x - 6} y={event.y} width="12" height="31" rx="6" />
-                  ) : (
-                    <circle className="dag-node__shape" cx={event.x} cy={event.y} r="6" />
-                  )}
-                  <text className="dag-node__title" x={event.x + 20} y={event.y + 4}>
-                    {event.title}
-                  </text>
-                  {showNodeDetail && (
-                    <text x={event.x + 20} y={event.y + 20} fill="var(--dag-text-soft)" fontSize="11">
-                      {event.detail}
-                    </text>
-                  )}
-                </g>
-              ))}
-            </>
-          ) : sankey ? (
-            <>
-              <g className="dag-edge">
-                <path
-                  className="dag-edge__flow"
-                  d={`M${92 + width} 55C260 55 270 37 420 37`}
-                  stroke="#5386ce"
-                  strokeWidth="36"
+              <style>{`${graphCss}\n${compoundCss}\n.preview-viewport{width:100%;height:100%;overflow:auto;box-sizing:border-box}.preview-viewport>svg{display:block;max-width:none;margin:auto}`}</style>
+              {stage && (
+                <PreviewCanvas
+                  stage={stage}
+                  appearance={appearance}
+                  hideNodeBorders={hideNodeBorders}
+                  zoom={zoom}
+                  onToggle={(id) =>
+                    setView((current) => ({
+                      ...current,
+                      collapsedGroupIds: current.collapsedGroupIds.includes(id)
+                        ? current.collapsedGroupIds.filter((key) => key !== id)
+                        : [...current.collapsedGroupIds, id],
+                    }))
+                  }
+                  onEnter={(id) => setView((current) => ({ ...current, focusGroupId: id }))}
                 />
-                {appearance.display.showEdgeLabels && (
-                  <text className="dag-edge__label-text" x="300" y="40">
-                    60
-                  </text>
-                )}
-              </g>
-              <g className="dag-edge">
-                <path
-                  className="dag-edge__flow"
-                  d={`M${92 + width} 85C260 85 270 107 420 107`}
-                  stroke="#54a89c"
-                  strokeWidth="24"
-                />
-                {appearance.display.showEdgeLabels && (
-                  <text className="dag-edge__label-text" x="300" y="103">
-                    40
-                  </text>
-                )}
-              </g>
-              {[
-                { x: 92, y: 37, h: 60, color: "#5386ce", title: "Source", value: "100" },
-                { x: 420, y: 19, h: 36, color: "#5386ce", title: "Useful", value: "60" },
-                { x: 420, y: 95, h: 24, color: "#54a89c", title: "Losses", value: "40" },
-              ].map((node) => (
-                <g className="dag-node" key={node.title}>
-                  <rect
-                    className="dag-node__shape"
-                    x={node.x}
-                    y={node.y}
-                    width={width}
-                    height={node.h}
-                    rx="2"
-                    style={{ fill: node.color, stroke: node.color }}
-                  />
-                  <text
-                    className="dag-node__flow-label"
-                    x={node.x === 92 ? 80 : node.x + width + 12}
-                    y={node.y + node.h / 2 - 3}
-                    textAnchor={node.x === 92 ? "end" : "start"}
-                  >
-                    {node.title}
-                    <tspan className="dag-node__flow-value" x={node.x === 92 ? 80 : node.x + width + 12} dy="18">
-                      {node.value}
-                    </tspan>
-                  </text>
-                </g>
-              ))}
-            </>
-          ) : (
-            <>
-              <g className="dag-edge">
-                <path className="dag-edge__path" d="M220 74H365" />
-                {appearance.display.showEdgeLabels && (
-                  <text className="dag-edge__label-text" x="280" y="58">
-                    supports
-                  </text>
-                )}
-              </g>
-              {[
-                { x: 35, label: "Concept", detail: "A connected idea" },
-                { x: 365, label: "Theorem", detail: "A derived result" },
-              ].map((node) => (
-                <g key={node.label} className="dag-node" transform={`translate(${node.x} 39)`}>
-                  <rect
-                    className="dag-node__shape"
-                    width="185"
-                    height="70"
-                    rx={Math.min(appearance.display.nodeCornerRadius, 35)}
-                    ry={Math.min(appearance.display.nodeCornerRadius, 35)}
-                  />
-                  <circle className="dag-node__pin" cx="20" cy="29" r="5" fill="var(--dag-text-strong)" />
-                  <text className="dag-node__title" x={appearance.display.showNodeDots ? 36 : 16} y="34">
-                    {node.label}
-                  </text>
-                  {showNodeDetail && (
-                    <text
-                      x={appearance.display.showNodeDots ? 36 : 16}
-                      y="52"
-                      fill="var(--dag-text-soft)"
-                      fontSize="11"
-                    >
-                      {node.detail}
-                    </text>
-                  )}
-                </g>
-              ))}
-            </>
+              )}
+            </>,
+            frameRoot,
           )}
-        </g>
-      </svg>
+        {!stage && !error && <p className="settings-preview-overlay">Arranging sample…</p>}
+      </div>
+      <p className="settings-preview-status" role="status">
+        {error ||
+          (loading
+            ? "Updating preview…"
+            : "Uses the same layout and rendering as your graph. Sample interactions stay here.")}
+      </p>
     </section>
+  );
+}
+
+function PreviewCanvas({
+  stage,
+  appearance,
+  hideNodeBorders,
+  zoom,
+  onToggle,
+  onEnter,
+}: {
+  stage: StageData;
+  appearance: GraphAppearance;
+  hideNodeBorders: boolean;
+  zoom: number;
+  onToggle: (id: string) => void;
+  onEnter: (id: string) => void;
+}) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const svg = svgRef.current,
+      viewport = viewportRef.current;
+    if (!svg || !viewport) return;
+    let disposed = false;
+    const fit = () => {
+      if (disposed) return;
+      // Measure rendered text as well as geometry; shadows need padding beyond getBBox().
+      const boxes = [...svg.children]
+        .filter(
+          (element) =>
+            element.tagName.toLowerCase() === "g" &&
+            !element.classList.contains("dag-backdrop") &&
+            !element.classList.contains("timeline-floating"),
+        )
+        .map((element) => (element as SVGGraphicsElement).getBBox())
+        .filter((box) => box.width > 0 || box.height > 0);
+      const padding =
+        20 + (appearance.display.nodeShadow ? appearance.display.shadowBlur * 2 + appearance.display.shadowOffset : 0);
+      const x = stage.timeline ? 0 : (boxes.length ? Math.min(...boxes.map((box) => box.x)) : 0) - padding;
+      const y =
+        stage.timeline || stage.lanes.length
+          ? 0
+          : (boxes.length ? Math.min(...boxes.map((box) => box.y)) : 0) - padding;
+      const width = Math.max(
+        1,
+        stage.timeline ? stage.stageWidth : Math.max(...boxes.map((box) => box.x + box.width), 1) - x + padding,
+      );
+      const height = Math.max(
+        1,
+        stage.timeline ? stage.stageHeight : Math.max(...boxes.map((box) => box.y + box.height), 1) - y + padding,
+      );
+      const scale = Math.min(viewport.clientWidth / width, viewport.clientHeight / height) * zoom;
+      svg.setAttribute("viewBox", `${x} ${y} ${width} ${height}`);
+      svg.setAttribute("width", String(width * scale));
+      svg.setAttribute("height", String(height * scale));
+    };
+    const observer = new ResizeObserver(fit);
+    observer.observe(viewport);
+    fit();
+    void svg.ownerDocument.fonts.ready.then(fit);
+    return () => {
+      disposed = true;
+      observer.disconnect();
+    };
+  }, [stage, appearance, hideNodeBorders, zoom]);
+  return (
+    <div className="preview-viewport" ref={viewportRef}>
+      <GraphStage
+        stage={stage}
+        focusedKey={null}
+        appearance={appearance}
+        hideNodeBorders={hideNodeBorders}
+        svgRef={svgRef}
+        onNodeClick={noop}
+        onNodeDoubleClick={noop}
+        onNodeContextMenu={(event) => event.preventDefault()}
+        onBackgroundContextMenu={(event) => event.preventDefault()}
+        onFocusChange={noop}
+        onGroupToggle={onToggle}
+        onGroupEnter={onEnter}
+      />
+    </div>
   );
 }

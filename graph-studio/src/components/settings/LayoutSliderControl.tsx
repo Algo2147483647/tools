@@ -1,4 +1,5 @@
 import type { LayoutControlDefinition } from "./settingsConfig";
+import { useEffect, useState } from "react";
 
 interface LayoutSliderControlProps {
   control: LayoutControlDefinition;
@@ -8,12 +9,16 @@ interface LayoutSliderControlProps {
 
 export default function LayoutSliderControl({ control, value, onChange }: LayoutSliderControlProps) {
   const inputId = `layout-control-${control.key}`;
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
 
   const commitValue = (nextValue: number) => {
     if (!Number.isFinite(nextValue)) {
+      setDraft(String(value));
       return;
     }
     const bounded = Math.max(control.min, Math.min(control.max, Math.round(nextValue)));
+    setDraft(String(bounded));
     onChange(bounded);
   };
 
@@ -41,10 +46,16 @@ export default function LayoutSliderControl({ control, value, onChange }: Layout
             min={control.min}
             max={control.max}
             step={control.step}
-            value={value}
+            value={draft}
             aria-label={`${control.label} value`}
-            onChange={(event) => commitValue(Number(event.currentTarget.value))}
-            onBlur={(event) => commitValue(Number(event.currentTarget.value))}
+            onChange={(event) => setDraft(event.currentTarget.value)}
+            onBlur={() => {
+              if (draft.trim()) commitValue(Number(draft));
+              else setDraft(String(value));
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
+            }}
           />
           <span className="layout-value-unit">{control.unit || ""}</span>
         </label>

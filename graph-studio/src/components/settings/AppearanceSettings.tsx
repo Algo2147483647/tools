@@ -4,9 +4,8 @@ import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appeara
 import { type GraphAppearancePresetId, GRAPH_APPEARANCE_PRESETS } from "../../graph/appearanceCommands";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { getGraphChartLabel, GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
-import AppearancePreview from "./AppearancePreview";
 import LayoutSliderControl from "./LayoutSliderControl";
-import { APPEARANCE_TOKEN_CONTROLS, LAYOUT_CONTROLS } from "./settingsConfig";
+import { APPEARANCE_TOKEN_CONTROLS, getLayoutControls } from "./settingsConfig";
 import { clampNumberInput } from "./settingsUtils";
 
 interface AppearanceSettingsProps {
@@ -229,39 +228,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             <h3>Spacing & dimensions</h3>
             <p>Fine-tune graph density and label room.</p>
             <div className="settings-slider-grid">
-              {LAYOUT_CONTROLS.filter((control) =>
-                isTimeline
-                  ? ["maxNodeWidth", "nodeHeight", "rowGap"].includes(control.key)
-                  : !isSankey ||
-                    control.key === "rowGap" ||
-                    control.key === "maxNodeWidth" ||
-                    control.key === "nodeHeight",
-              ).map((control) => (
+              {getLayoutControls(p.chartType).map((control) => (
                 <LayoutSliderControl
                   key={control.key}
-                  control={
-                    isTimeline
-                      ? {
-                          ...control,
-                          label:
-                            control.key === "maxNodeWidth"
-                              ? "Event label width"
-                              : control.key === "nodeHeight"
-                                ? "Timeline vertical spacing"
-                                : "Label spacing",
-                        }
-                      : isSankey
-                        ? {
-                            ...control,
-                            label:
-                              control.key === "maxNodeWidth"
-                                ? "Label room"
-                                : control.key === "nodeHeight"
-                                  ? "Vertical space per node"
-                                  : control.label,
-                          }
-                        : control
-                  }
+                  control={control}
                   value={p.appearance.layout[control.key]}
                   onChange={(value) => p.onLayoutAppearanceChange(control.key, value)}
                 />
@@ -288,14 +258,6 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             onChange={(value) => p.onAppearanceDisplayChange("sankeyLinkOpacity", value)}
           />
         </section>
-      )}
-      {!p.query && (
-        <AppearancePreview
-          appearance={p.appearance}
-          chartType={p.chartType}
-          hideNodeBorders={p.hideNodeBorders}
-          showNodeDetail={p.showNodeDetail}
-        />
       )}
       {matches("appearance preset theme simple compact default slate blueprint contrast presentation") && (
         <section className="settings-section">
@@ -342,7 +304,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             />
           </section>
         )}
-      {matches("appearance shadow shadows elevation blur offset opacity depth") && (
+      {!isTimeline && matches("appearance shadow shadows elevation blur offset opacity depth") && (
         <section className="settings-section">
           <h3>Node shadows</h3>
           <Toggle
@@ -389,7 +351,9 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             {APPEARANCE_TOKEN_CONTROLS.filter(
               (token) =>
                 token.key !== "--dag-title-font-size" &&
-                (!isSankey || ["--dag-text-strong", "--dag-text-soft", "--dag-edge-active"].includes(token.key)),
+                (!isSankey || ["--dag-text-strong", "--dag-text-soft"].includes(token.key)) &&
+                (!isTimeline ||
+                  ["--dag-node-fill", "--dag-edge", "--dag-text-strong", "--dag-text-soft"].includes(token.key)),
             ).map((token) => (
               <label key={token.key}>
                 <span>{token.label}</span>
@@ -430,26 +394,28 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                 ))}
               </select>
             </label>
-            <label>
-              Size (px)
-              <input
-                aria-label="Title font size"
-                type="number"
-                min="10"
-                max="28"
-                value={p.titleSizeDraft}
-                onChange={(event) => p.onTitleSizeDraftChange(event.target.value)}
-                onBlur={() =>
-                  p.onAppearanceCssVarChange(
-                    "--dag-title-font-size",
-                    `${clampNumberInput(p.titleSizeDraft, 10, 28, p.titleFontSize)}px`,
-                  )
-                }
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") event.currentTarget.blur();
-                }}
-              />
-            </label>
+            {!isTimeline && (
+              <label>
+                Size (px)
+                <input
+                  aria-label="Title font size"
+                  type="number"
+                  min="10"
+                  max="28"
+                  value={p.titleSizeDraft}
+                  onChange={(event) => p.onTitleSizeDraftChange(event.target.value)}
+                  onBlur={() =>
+                    p.onAppearanceCssVarChange(
+                      "--dag-title-font-size",
+                      `${clampNumberInput(p.titleSizeDraft, 10, 28, p.titleFontSize)}px`,
+                    )
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") event.currentTarget.blur();
+                  }}
+                />
+              </label>
+            )}
             <button
               className="studio-button"
               aria-label="Bold title"
@@ -463,19 +429,21 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             >
               <b>B</b>
             </button>
-            <button
-              className="studio-button"
-              aria-label="Italic title"
-              aria-pressed={vars["--dag-title-font-style"] === "italic"}
-              onClick={() =>
-                p.onAppearanceCssVarChange(
-                  "--dag-title-font-style",
-                  vars["--dag-title-font-style"] === "italic" ? "normal" : "italic",
-                )
-              }
-            >
-              <i>I</i>
-            </button>
+            {!isTimeline && (
+              <button
+                className="studio-button"
+                aria-label="Italic title"
+                aria-pressed={vars["--dag-title-font-style"] === "italic"}
+                onClick={() =>
+                  p.onAppearanceCssVarChange(
+                    "--dag-title-font-style",
+                    vars["--dag-title-font-style"] === "italic" ? "normal" : "italic",
+                  )
+                }
+              >
+                <i>I</i>
+              </button>
+            )}
           </div>
         </section>
       )}
@@ -500,12 +468,14 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
               onChange={p.onNodeDetailToggle}
             />
           )}
-          <Toggle
-            label="Node borders"
-            description="Draw an outline around nodes."
-            checked={!p.hideNodeBorders}
-            onChange={p.onNodeBordersToggle}
-          />
+          {!isTimeline && (
+            <Toggle
+              label="Node borders"
+              description="Draw an outline around nodes."
+              checked={!p.hideNodeBorders}
+              onChange={p.onNodeBordersToggle}
+            />
+          )}
           {p.chartType === "compound" && (
             <Toggle
               label="Group statistics"

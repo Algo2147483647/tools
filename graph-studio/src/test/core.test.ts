@@ -8,6 +8,7 @@ import { compoundLayoutSuite } from "./compoundLayout.test";
 import { aiHarnessSuite } from "./aiHarness.test";
 import { documentSessionSuite } from "./documentSession.test";
 import { appearanceSuite } from "./appearance.test";
+import { previewSuite } from "./preview.test";
 import { chartTypesSuite } from "./chartTypes.test";
 import { consoleSuite } from "./console.test";
 import { examplesSuite } from "./examples.test";
@@ -35,6 +36,7 @@ async function main() {
     aiHarnessSuite,
     documentSessionSuite,
     appearanceSuite,
+    previewSuite,
     chartTypesSuite,
     graphSuite,
     importMergeSuite,

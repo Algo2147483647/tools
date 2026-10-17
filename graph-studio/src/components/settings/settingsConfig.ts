@@ -1,5 +1,6 @@
 import type { IconName } from "../ui/Icon";
 import type { GraphLayoutAppearance } from "../../graph/appearance";
+import type { GraphChartType } from "../../graph/types";
 
 export type SettingsChapter = "general" | "chart" | "appearance" | "layout" | "ai";
 
@@ -72,6 +73,32 @@ export const LAYOUT_CONTROLS: LayoutControlDefinition[] = [
   { key: "nodeHeight", label: "Node height", min: 44, max: 160, step: 2, unit: "px" },
   { key: "maxNodeWidth", label: "Node max width", min: 188, max: 480, step: 4, unit: "px" },
 ];
+
+export function getLayoutControls(chart: GraphChartType): LayoutControlDefinition[] {
+  return LAYOUT_CONTROLS.filter((control) =>
+    chart === "compound"
+      ? control.key !== "edgeLaneGap"
+      : chart === "timeline" || chart === "sankey"
+        ? ["maxNodeWidth", "nodeHeight", "rowGap"].includes(control.key)
+        : true,
+  ).map((control) => ({
+    ...control,
+    label:
+      chart === "timeline"
+        ? control.key === "maxNodeWidth"
+          ? "Event label width"
+          : control.key === "nodeHeight"
+            ? "Timeline vertical spacing"
+            : "Label spacing"
+        : chart === "sankey"
+          ? control.key === "maxNodeWidth"
+            ? "Label room"
+            : control.key === "nodeHeight"
+              ? "Vertical space per node"
+              : control.label
+          : control.label,
+  }));
+}
 
 export const APPEARANCE_TOKEN_CONTROLS = [
   { key: "--dag-node-fill", label: "Node Fill" },
