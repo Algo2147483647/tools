@@ -90,6 +90,10 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
           narrow.nodes.map((n) => [n.key, n.y]),
           wide.nodes.map((n) => [n.key, n.y]),
         );
+        assert.deepEqual(
+          narrow.nodes.map((n) => [n.key, n.width, n.height]),
+          wide.nodes.map((n) => [n.key, n.width, n.height]),
+        );
         for (const stage of [narrow, wide]) {
           assert.equal(stage.nodeMap.a.y, stage.nodeMap.b.y);
           assert.equal(stage.nodeMap.a.y, stage.nodeMap.c.y);
@@ -416,7 +420,9 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     const labels = stage.nodes.slice().sort((a, b) => a.timeline!.labelY - b.timeline!.labelY);
     for (let i = 1; i < labels.length; i++)
       assert.ok(labels[i].timeline!.labelY >= labels[i - 1].timeline!.labelY + 40);
-    assert.ok(stage.stageWidth < 6000, "duration channels do not each reserve a text column");
+    const channels = stage.nodes.map((node) => node.x).sort((a, b) => a - b);
+    assert.ok(Math.abs(channels[1] - channels[0] - 79.2) < 1e-8, "100% uses the former 180% channel spacing");
+    assert.ok(stage.stageWidth < 6000 * 1.8, "duration channels do not each reserve a text column");
     assert.ok(stage.stageHeight < 11_000);
     assert.equal(new Set(stage.nodes.map((node) => node.y)).size, 1);
   }),

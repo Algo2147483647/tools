@@ -25,7 +25,7 @@ export function arrangeTimelineFlow(input: {
     events: nodes.map((node) => ({ key: node.key, start: node.y, end: node.timeline!.endY })),
     edges,
     minimum: minimumX,
-    step: Math.max(24, (20 + gap) * spread),
+    step: Math.max(24, (55.2 + gap) * spread),
     pins,
   });
   for (const node of sorted) {

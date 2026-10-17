@@ -20,7 +20,7 @@ import { routeAroundTimelineObstacles, roundedTimelinePath } from "./timeline-ro
 import { packTimelineTrackLabels, timelineLabelBox } from "./timeline-labels";
 
 const DAY = 86_400_000;
-const TRACK_GAP = 44;
+const TRACK_GAP = 79.2;
 
 interface TimelineEntry {
   key: NodeKey;
@@ -222,7 +222,7 @@ export function buildTimelineStage(input: {
   const topLevel = new Set(selection.topLevelKeys);
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
-    const channelStep = Math.max(24, (20 + settings.nodeGap) * settings.horizontalSpread);
+    const channelStep = Math.max(24, (55.2 + settings.nodeGap) * settings.horizontalSpread);
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
     const color = trackColor(track);
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
@@ -234,7 +234,8 @@ export function buildTimelineStage(input: {
       nodeMap[event.key] = createNode(event, x, labelX, labelY, color);
     }
     const trackNodes = events.map((entry) => nodeMap[entry.key]);
-    const textWidth = Math.max(...trackNodes.map((node) => node.width)) + 44;
+    // Reserve a wider text column without changing the event label's own size.
+    const textWidth = Math.max(...trackNodes.map((node) => node.width)) * 1.8 + 79.2;
     const width = Math.max(
       channelsWidth + textWidth * Math.max(1, settings.horizontalSpread),
       estimateTextWidth(track, 12) + 20,
