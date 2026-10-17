@@ -138,16 +138,6 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
       );
     siblings.set(item.parentId, [...(siblings.get(item.parentId) ?? []), box]);
   }
-  const items = new Map(projection.items.map((item) => [item.id, item]));
-  const ancestors = (id: string) => {
-    const result = new Set<string>();
-    let parent = items.get(id)?.parentId;
-    while (parent) {
-      result.add(parent);
-      parent = items.get(parent)?.parentId;
-    }
-    return result;
-  };
   const onBorder = (p: { x: number; y: number }, box: Rect) => {
     assertSideMidpoint(p, box);
     const horizontal =
@@ -170,7 +160,6 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
       onBorder(points[points.length - 1], boxes.get(edge.target)!),
       `${edge.target}: route ends on target boundary`,
     );
-    const allowed = new Set([...ancestors(edge.source), ...ancestors(edge.target)]);
     for (let i = 1; i < points.length; i++) {
       const a = points[i - 1],
         b = points[i];
@@ -181,16 +170,70 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
           !crossesInterior(a, b, boxes.get(node.key)!),
           `${edge.source} → ${edge.target} crosses node ${node.key}`,
         );
-      for (const group of stage.groups ?? []) {
-        assert.ok(!crossesInterior(a, b, { ...group, height: 50 }), `route crosses header ${group.id}`);
-        if (!allowed.has(group.id))
-          assert.ok(!crossesInterior(a, b, group), `route crosses unrelated container ${group.id}`);
-      }
     }
   }
 }
 
 export const compoundLayoutSuite = defineSuite("Independent nested layouts and boundary routing", [
+  defineTest("routing ignores expanded containers and headers but avoids their children and collapsed cards", () => {
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { a: {}, b: {}, child: {} },
+      edges: [{ id: "ab", source: "a", target: "b" }],
+      hierarchy: { id: "scene", groups: { g: { title: "Expanded group" } }, parentById: { child: "g" } },
+    });
+    const boxes = new Map<string, Rect>([
+      ["a", { x: 100, y: 100, width: 100, height: 80 }],
+      ["b", { x: 600, y: 100, width: 100, height: 80 }],
+      ["g", { x: 280, y: 100, width: 200, height: 300 }],
+      ["child", { x: 330, y: 260, width: 100, height: 80 }],
+    ]);
+    const route = (collapsed: boolean) => {
+      const projection = projectCompoundGraph(dag, { collapsedGroupIds: collapsed ? ["g"] : [], focusGroupId: null });
+      const edge = projection.edges[0];
+      return shortenCompoundRoutes(
+        projection,
+        boxes,
+        new Map([
+          [
+            edge.id,
+            {
+              points: [
+                { x: 150, y: 180 },
+                { x: 150, y: 450 },
+                { x: 650, y: 450 },
+                { x: 650, y: 180 },
+              ],
+              labelPosition: { x: 400, y: 450 },
+            },
+          ],
+        ]),
+        { x: 0, y: 0, width: 1000, height: 600 },
+        false,
+      ).get(edge.id)!.points;
+    };
+    const direct = [
+      { x: 200, y: 140 },
+      { x: 600, y: 140 },
+    ];
+    assert.deepEqual(route(false), direct, "a route can cross an unrelated expanded group's header");
+    const group = boxes.get("g")!;
+    boxes.delete("g");
+    dag.hierarchy!.parentById.a = "g";
+    dag.hierarchy!.parentById.b = "g";
+    assert.deepEqual(route(false), direct, "even a common parent box is irrelevant to routing");
+    delete dag.hierarchy!.parentById.a;
+    delete dag.hierarchy!.parentById.b;
+    boxes.set("g", group);
+    boxes.set("child", { x: 330, y: 100, width: 100, height: 80 });
+    for (const collapsed of [false, true]) {
+      const points = route(collapsed);
+      const obstacle = boxes.get(collapsed ? "g" : "child")!;
+      assert.notDeepEqual(points, direct);
+      for (let i = 1; i < points.length; i++) assert.ok(!crossesInterior(points[i - 1], points[i], obstacle));
+    }
+  }),
   defineTest("free routing uses each of the four sides and removes an unnecessary return loop", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",

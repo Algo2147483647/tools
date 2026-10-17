@@ -39,18 +39,11 @@ export function shortenCompoundRoutes(
   bounds: CompoundBox,
   showLabels: boolean,
 ): Map<string, CompoundRoute> {
-  const items = new Map(projection.items.map((item) => [item.id, item]));
-  const groups = projection.items.filter((item) => item.kind === "group" && !item.collapsed);
-  const leaves = projection.items.filter((item) => item.kind !== "group" || item.collapsed);
-  const ancestry = (id: string) => {
-    const path: string[] = [];
-    let parent = items.get(id)?.parentId;
-    while (parent) {
-      path.push(parent);
-      parent = items.get(parent)?.parentId;
-    }
-    return path;
-  };
+  // Expanded containers organize placement only; routing sees visible cards, including collapsed groups.
+  const obstacles = projection.items
+    .filter((item) => item.kind !== "group" || item.collapsed)
+    .map((item) => boxes.get(item.id)!);
+  const extent = bounds;
   const edges = [...projection.edges].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const attachments = new Map<string, ElkPoint[]>();
   const labelBoxes = new Map<string, CompoundBox>();
@@ -65,25 +58,6 @@ export function shortenCompoundRoutes(
       ] as const)
         attachments.set(id, [...(attachments.get(id) ?? []), point]);
     };
-    const sourceAncestors = ancestry(edge.source),
-      targetAncestors = ancestry(edge.target);
-    const allowed = new Set([...sourceAncestors, ...targetAncestors]);
-    const common = sourceAncestors.find((id) => targetAncestors.includes(id));
-    const extent = common ? boxes.get(common)! : bounds;
-    // A solid unrelated container also blocks all its descendants; omit those redundant obstacles.
-    const blockedGroups = new Set(
-      groups
-        .filter((item) => !allowed.has(item.id) && (!item.parentId || allowed.has(item.parentId)))
-        .map((item) => item.id),
-    );
-    const obstacles = [
-      ...leaves
-        .filter((item) => !ancestry(item.id).some((id) => blockedGroups.has(id)))
-        .map((item) => boxes.get(item.id)!),
-      ...groups
-        .filter((item) => allowed.has(item.id) || blockedGroups.has(item.id))
-        .map((item) => (allowed.has(item.id) ? { ...boxes.get(item.id)!, height: 50 } : boxes.get(item.id)!)),
-    ].filter((box) => overlaps(inflate(box, 8), extent));
     const otherLabels = [...labelBoxes].filter(([id]) => id !== edge.id).map(([, box]) => box);
     const gap = 8;
     const padded = [...obstacles, ...otherLabels].map((box) => inflate(box, gap));

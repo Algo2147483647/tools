@@ -100,6 +100,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.ok(folded.nodes.some((node) => node.kind === "group"));
     assert.ok(folded.nodes.every((node) => node.width === 240 && node.height === 48 && node.detailLines.length === 0));
     assert.equal(style.appearance.display.nodeCornerRadius, 16);
+    assert.equal(style.appearance.display.showGroupBorders, false);
     assert.equal(style.appearance.display.edgeArrowStyle, "open");
     assert.equal(
       style.appearance.cssVars["--dag-edge"],

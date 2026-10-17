@@ -49,6 +49,7 @@ export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
           ...DEFAULT_GRAPH_APPEARANCE.display,
           nodeCornerRadius: 16,
           showGroupStats: false,
+          showGroupBorders: false,
           showEdgeLabels: false,
           edgeArrowStyle: "open",
         },
