@@ -1,6 +1,6 @@
 # Documentation Index
 
-This directory contains the main user and developer documentation for DAG Studio.
+This directory contains the main user and developer documentation for Graph Studio.
 
 ## Start Here
 

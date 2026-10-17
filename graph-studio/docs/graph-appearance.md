@@ -1,12 +1,12 @@
 # Graph Appearance System
 
-This document describes the CSS-first graph UI configuration system in DAG Studio. It covers the appearance data model, settings UI, console commands, AI integration, persistence, export behavior, and safety rules.
+This document describes the CSS-first graph UI configuration system in Graph Studio. It covers the appearance data model, settings UI, console commands, AI integration, persistence, export behavior, and safety rules.
 
 For graph JSON shape, see [Data Format Guide](data-format.md). For console syntax, see [Graph Console DSL](graph-console-dsl.md).
 
 ## Overview
 
-DAG Studio separates graph data from graph appearance.
+Graph Studio separates graph data from graph appearance.
 
 | Area | Stored In | Purpose |
 | --- | --- | --- |

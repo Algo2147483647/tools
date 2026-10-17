@@ -18,7 +18,7 @@
 
 也可以继续双击各项目里的 `launch.cmd`，或者从其他目录用绝对路径运行。
 
-Graph Studio 使用项目内的 `scripts/node-runtime.ps1`，可双击 `graph-studio/start.bat`，不依赖外层共享脚本。
+Graph Studio 的 Windows 入口为 `graph-studio/launch.cmd`，macOS 入口为 `graph-studio/launch.command`。两者共用项目内的 `scripts/launch.mjs`，不依赖外层共享脚本。
 
 | 项目 | 默认入口 | 开发模式 |
 | --- | --- | --- |

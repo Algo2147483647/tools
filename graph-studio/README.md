@@ -14,38 +14,51 @@ It is built for fast graph inspection and editing in the browser:
 - undo and redo graph mutations without losing navigation history
 - save the updated graph back to JSON or export the current view as SVG
 
-![DAG Studio screenshot](./docs/assets/screenshot.png)
+![Graph Studio screenshot](./docs/assets/screenshot.png)
 
 ## Quick Start
 
 ### One-click startup (Windows / macOS)
 
-- **Windows:** double-click `start.bat`, or run it from any directory. The project's own [`scripts/node-runtime.ps1`](scripts/node-runtime.ps1) finds Node.js 22.12+ and npm or pnpm, including an existing Codex runtime. It skips older Node installations on PATH. If none is available, install Node.js LTS (including npm) from https://nodejs.org/. No external shared launcher files are required.
-- **macOS:** install Node.js LTS (including npm), run `chmod +x start.command` once in the project directory, then double-click `start.command`. You can also run `bash start.command` in Terminal.
+- **Windows:** double-click [`launch.cmd`](launch.cmd), or run it from any directory. [`launch.ps1`](launch.ps1) selects Node.js 22.12+, including an existing Codex runtime, and skips older installations on PATH.
+- **macOS:** install Node.js 22.12+ including npm, then double-click [`launch.command`](launch.command). If copied from Windows or an archive without executable permissions, run `chmod +x launch.command` once. You can also run `bash launch.command` in Terminal. Homebrew installations in `/opt/homebrew` and `/usr/local` are detected.
 
-The scripts switch to the project directory, install dependencies, and open the app in your browser. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
+Both entry points use [`scripts/launch.mjs`](scripts/launch.mjs) to install and verify dependencies, start the app, and open your browser. They work from any directory and do not require files outside this project. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
 
-On Windows, npm is preferred; when npm is missing, the launcher imports `package-lock.json` into a local pnpm lockfile and installs with pnpm. Successful installations are cached and rechecked on each launch; dependency changes or incomplete installations trigger a reinstall. The generated `pnpm-lock.yaml` is ignored by Git; `package-lock.json` remains authoritative. On macOS, run `npm ci` again after pulling dependency changes.
+On both platforms, npm is preferred; when npm is missing, the launcher imports `package-lock.json` into a local pnpm lockfile and installs with pnpm. Successful installations are fingerprinted and verified on every launch, including the native esbuild binary. Changes to dependencies, runtime, platform, or install configuration trigger a reinstall. `package-lock.json` is the authoritative lockfile; generated `pnpm-lock.yaml` is ignored. Close running Graph Studio servers before updating dependencies, and run only one dependency installation at a time.
 
 Windows startup options:
 
 ```powershell
-.\start.bat -InstallOnly  # Prepare dependencies without starting the server
-.\start.bat -BuildOnly    # Check TypeScript and build the app
-.\start.bat -NoBrowser    # Start without opening a browser
-.\start.bat -Preview      # Build and serve the production app
+.\launch.cmd -InstallOnly  # Prepare dependencies without starting the server
+.\launch.cmd -BuildOnly    # Check TypeScript and build the app
+.\launch.cmd -NoBrowser    # Start without opening a browser
+.\launch.cmd -Preview      # Build and serve the production app
+.\launch.cmd -Help         # Show options
 ```
+
+Equivalent macOS options:
+
+```bash
+bash launch.command --install-only
+bash launch.command --build-only
+bash launch.command --no-browser
+bash launch.command --preview
+bash launch.command --help
+```
+
+Development mode is the default (`-Dev` / `--dev`). Select only one of development, install-only, build-only, or preview; `-NoBrowser` / `--no-browser` can be combined with a server mode.
 
 From the repository root, `.\launch.cmd graph-studio` uses the same launcher (and accepts the same options). The development server ignores `dist` so a concurrent production build does not interrupt file watching on Windows.
 
 ### Manual startup
 
 ```powershell
-npm install
-npm run dev
+npm ci
+npm start
 ```
 
-Then open the local dev server URL shown by Vite.
+`npm start` uses the same verified startup flow. After installing dependencies, `npm run dev` starts Vite directly for development. Node.js 22.12+ is required for all workflows.
 
 Useful commands:
 
@@ -111,10 +124,17 @@ For the recommended data model and additional examples, see [Data Format Guide](
 
 ## Project Structure
 
-- [`src/`](src/): React app source
-- [`public/example.json`](public/example.json): sample graph data
-- [`docs/`](docs/): user and developer documentation
-- [`src/styles/`](src/styles/): split global styles (tokens, layout, controls, graph, console, modals)
+| Location | Contents |
+| --- | --- |
+| `launch.cmd`, `launch.ps1`, `launch.command` | Platform startup entry points |
+| [`src/`](src/) | React/TypeScript source and styles; regression suites in `src/test/` |
+| [`browser-tests/`](browser-tests/) | Browser-only regression fixtures, excluded from production builds |
+| [`public/`](public/) | Runtime static assets, graph schema, and example workspaces |
+| [`scripts/`](scripts/) | Startup, cleanup, example generators, and generator input data in `scripts/data/` |
+| [`docs/`](docs/) | User/developer documentation and documentation images |
+| Root configuration files | npm lockfile, TypeScript, Vite, formatting, and line-ending rules |
+
+`node_modules/`, `dist/`, caches, test output, and logs are generated files and are ignored by Git. Run `npm run clean` to remove build/test output and root diagnostic logs; use `npm run clean -- --cache` to also remove local npm/example-source caches. Cleanup preserves dependencies, source, documentation, and example workspaces. See the [Development Guide](docs/development.md) for details.
 
 ## License
 

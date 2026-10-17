@@ -1,12 +1,12 @@
-# DAG Studio AI Capabilities
+# Graph Studio AI Capabilities
 
-This document summarizes the current AI capability system in DAG Studio. It covers the user-facing workflows, provider integration, execution modes, internal harness model, response protocol, validation path, persistence behavior, and current limitations.
+This document summarizes the current AI capability system in Graph Studio. It covers the user-facing workflows, provider integration, execution modes, internal harness model, response protocol, validation path, persistence behavior, and current limitations.
 
 For console command syntax, see [Graph Console DSL](graph-console-dsl.md). For graph UI configuration, see [Graph Appearance System](graph-appearance.md). For general product workflows, see [Usage Guide](usage.md).
 
 ## Capability Overview
 
-DAG Studio's AI layer is a graph and appearance assistant built on top of the existing console DSL. The model does not mutate graph data or graph UI directly. Instead, it receives a structured context packet, returns a structured JSON response, and the application converts that response into answers, inspection commands, proposed plans, or validated command batches.
+Graph Studio's AI layer is a graph and appearance assistant built on top of the existing console DSL. The model does not mutate graph data or graph UI directly. Instead, it receives a structured context packet, returns a structured JSON response, and the application converts that response into answers, inspection commands, proposed plans, or validated command batches.
 
 The system supports these high-level capabilities:
 
@@ -60,7 +60,7 @@ The provider layer currently supports five provider families:
 | Gemini | `generateContent` request with JSON response MIME type | `https://generativelanguage.googleapis.com` | `gemini-1.5-flash` |
 | Ollama | Local `/api/chat` request | `http://localhost:11434` | `llama3.1` |
 
-Provider requests are made from the browser via `fetch`. The system asks every provider for JSON-only responses that follow DAG Studio's AI response protocol.
+Provider requests are made from the browser via `fetch`. The system asks every provider for JSON-only responses that follow Graph Studio's AI response protocol.
 
 ## Execution Modes
 
@@ -118,7 +118,7 @@ All executable commands must start with `/`. Invalid or empty command batches ar
 
 ## Planning Model
 
-When the assistant returns `propose_changes`, DAG Studio creates an `ActionPlan`:
+When the assistant returns `propose_changes`, Graph Studio creates an `ActionPlan`:
 
 | Field Group | Purpose |
 | --- | --- |
@@ -135,7 +135,7 @@ Plans can move through statuses such as `proposed`, `ready`, `applied`, `failed`
 
 ## Command Validation
 
-Before any AI-generated command batch is applied, DAG Studio runs a preflight validation:
+Before any AI-generated command batch is applied, Graph Studio runs a preflight validation:
 
 1. Join the command lines into console source.
 2. Parse the source with the same console DSL parser used for manual commands.

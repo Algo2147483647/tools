@@ -1,5 +1,10 @@
 node_modules/
 dist/
 test-results/
+coverage/
+.npm-cache/
+.example-source-cache/
+*.log
+pnpm-lock.yaml
 package-lock.json
 public/

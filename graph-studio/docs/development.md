@@ -1,6 +1,6 @@
 # Development Guide
 
-This guide covers the local developer workflow and the main source layout for DAG Studio.
+This guide covers the local developer workflow and the main source layout for Graph Studio.
 
 ## Stack
 
@@ -12,10 +12,10 @@ This guide covers the local developer workflow and the main source layout for DA
 
 ## Local Scripts
 
-Install dependencies once:
+Use Node.js 22.12+ with npm. The platform launchers select a supported runtime and verify dependencies automatically; see [Quick Start](../README.md#quick-start). For manual development:
 
 ```powershell
-npm install
+npm ci
 ```
 
 Available scripts:
@@ -27,17 +27,39 @@ npm test
 npm run preview
 npm run format
 npm run check
+npm run test:launcher
+npm run clean
 ```
 
 Script behavior:
 
-- `npm run dev`: starts the Vite development server
+- `npm start`: uses the same dependency verification and browser startup as the platform launchers
+- `npm run dev`: starts the Vite development server directly
 - `npm run build`: type-checks (including unused locals and parameters) and creates a production build
 - `npm test`: runs the configured test script from `package.json`
 - `npm run preview`: serves the built app locally
-- `npm run format`: formats source and project configuration with Prettier
+- `npm run test:launcher`: checks startup options, dependency fingerprints, invocation from another directory, and cleanup boundaries
+- `npm run clean`: removes `dist/`, `test-results/`, `coverage/`, and root `.log` / `.tsbuildinfo` files
+- `npm run clean -- --cache`: also removes `.npm-cache/` and `.example-source-cache/`; dependencies and example workspaces are preserved
+- `npm run format`: formats source, browser fixtures, startup/cleanup scripts and project configuration with Prettier
 - `npm run format:check`: checks formatting without modifying files
-- `npm run check`: runs formatting checks, regression tests, type checks, and the production build
+- `npm run check`: runs formatting, launcher tests, generated-example consistency checks, application regression tests, type checks, and the production build
+
+## File Organization
+
+- Root: application entry HTML, package/lockfile, tool configuration, license, README, and platform launchers.
+- `src/`: application code and styles; `src/test/` contains the TypeScript regression suites and fixtures.
+- `browser-tests/`: HTML/TSX regression pages used only by the development server.
+- `public/`: files served with the app, including the schema, sample JSON and self-contained example workspaces with their own notes and sources.
+- `scripts/`: build-time tools; `scripts/data/` holds source datasets for example generators, and `scripts/test/` holds launcher tests.
+- `docs/`: project documentation; `docs/assets/` holds documentation images.
+- Generated files: `node_modules/`, `dist/`, `test-results/`, `coverage/`, caches, and diagnostic logs are ignored. Put new test reports in `test-results/` rather than committing logs at the root.
+
+`package-lock.json` is the dependency source of truth. `pnpm-workspace.yaml` allows the esbuild install step for the pnpm fallback; its generated lockfile is not committed. Avoid hand-editing generated example JSON when a generator exists; edit its `scripts/data/` inputs and regenerate it.
+
+Windows uses `launch.cmd` → `launch.ps1` → `scripts/launch.mjs`; macOS uses `launch.command` → `scripts/launch.mjs`. `scripts/node-runtime.ps1` only discovers the Windows Node executable. The shared JavaScript owns dependency checks, installation, build and server options. Invalid or conflicting options fail before installation. Stop servers before installing updated dependencies or cleaning build output.
+
+Text files use LF, with CRLF for Windows `.cmd` / `.ps1` files. Keep `.command` files as LF and enable execution with `chmod +x launch.command` after copying from Windows or extracting an archive that drops executable permissions.
 
 ## Source Layout
 
@@ -101,13 +123,6 @@ Workspace discovery, manifest validation, recent-location persistence, and bound
 
 ## Browser regression fixture
 
-With the development server running, open `/browser-tests/workspace.html`. The fixture runs the real App in Strict Mode with in-memory files, isolated preferences and an intentionally stalled handle database. It does not read or write local user files. It is type-checked and formatted by the normal checks, and is not a production entry point.
+With the development server running, open `/browser-tests/settings.html` and select **Run checks**. The fixture exercises real settings controls with isolated in-memory preferences. It does not read or write user files, storage or AI requests. Browser fixtures are type-checked and formatted by the normal checks, and are not production entry points.
 
-Verify the following flows through the UI:
-
-- Open the first `tmp` directory; create B and C consecutively. Each form closes, the plus button remains usable, and both files appear.
-- Return home and open the same directory again: one recent row. Select the different `tmp` fixture directory: two separate rows.
-- Select the empty directory, open it, then create its first graph.
-- Select Cancel picker: keep the current document and enable the next operation.
-- Open `nested.json`, enter/back out of its group, toggle the explorer and verify the group controls remain available.
-- Verify settings, keyboard creation/cancel, and desktop/narrow layouts. Unit suites cover stale operations, identity after recent removal, delayed hydration, storage timeouts and snapshot-safe saves.
+The fixture covers pointer release/cancellation, grouped keyboard changes, Escape cancellation, and numeric draft commits. Workspace unit suites in `src/test/` cover stale operations, identity after recent removal, delayed hydration, storage timeouts and snapshot-safe saves.

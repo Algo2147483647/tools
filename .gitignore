@@ -1,3 +1,14 @@
+# Repository-local tooling state
+/.idea/
+/.vscode/
+/.npm-cache/
+
+# Operating-system metadata
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
 # Generated conversions; package-lock.json remains authoritative for these projects.
 /svg-studio/pnpm-lock.yaml
 /service-flow-editor/pnpm-lock.yaml

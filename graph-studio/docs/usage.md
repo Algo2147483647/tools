@@ -1,17 +1,17 @@
 # Usage Guide
 
-This guide covers the main workflows for using DAG Studio in the browser.
+This guide covers the main workflows for using Graph Studio in the browser.
 
 ## Running the App
 
 ```powershell
-npm install
-npm run dev
+npm ci
+npm start
 ```
 
 Open the local Vite URL shown in the terminal. On first load, the app shows the welcome page without loading a graph.
 
-On Windows, `start.bat` prepares dependencies and opens the app. Successful installs are cached and verified on later launches. Only one launcher can prepare a project's dependencies at a time. If dependencies need repair while that project's Vite/esbuild process is running, the launcher reports the process IDs before removing any files. Stop the corresponding dev/build terminal with Ctrl+C, then run `start.bat` again.
+Double-click `launch.cmd` on Windows or `launch.command` on macOS to prepare dependencies and open the app. Both use the same dependency verification and startup flow; see [Quick Start](../README.md#quick-start) for setup and options. Stop running Graph Studio servers with Ctrl+C before updating dependencies, and run one installation at a time. On Windows, the launcher reports any running project esbuild process IDs before attempting a reinstall.
 
 ## Editing
 
@@ -48,7 +48,7 @@ Local links resolve only inside an open workspace, relative to the source JSON o
 After loading JSON, the renderer finds roots by looking at incoming indexes computed from the document’s edges.
 
 - If there is one root node, that node becomes the focused root.
-- If there are multiple root nodes, DAG Studio renders them as a forest.
+- If there are multiple root nodes, Graph Studio renders them as a forest.
 - Clicking a node focuses that node or subtree.
 - `Back` returns to the previous focus selection.
 - `Up` renders the current node's parent level.
@@ -94,7 +94,7 @@ Each chart type independently remembers its appearance, dimensions, visibility s
 
 ## Dense Graph Hover Mode
 
-When the visible stage gets large, DAG Studio automatically uses a lower-cost hover rendering path so linked highlighting stays usable.
+When the visible stage gets large, Graph Studio automatically uses a lower-cost hover rendering path so linked highlighting stays usable.
 
 The dense-stage threshold is triggered when any one of these is true:
 

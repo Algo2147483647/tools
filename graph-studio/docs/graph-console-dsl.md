@@ -1,8 +1,8 @@
-# DAG Studio Graph Console DSL
+# Graph Studio Graph Console DSL
 
 ## 1. Scope
 
-This document defines the **Graph Console DSL** used by `DAG Studio`.
+This document defines the **Graph Console DSL** used by `Graph Studio`.
 
 The DSL is a compact, line-oriented instruction set for editing graph JSON and graph appearance in **Edit Mode** through a left-side console panel. It is intended to feel closer to a shell, assembler, or low-level command monitor than to a general-purpose scripting language.
 
