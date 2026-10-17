@@ -28,7 +28,7 @@ export function useConsoleController({
 
   appearance: GraphAppearance;
   transactions: Pick<GraphTransactionsController, "commitBatch">;
-  commitAppearance: (next: GraphAppearance, label: string) => void;
+  commitAppearance: (next: GraphAppearance, label: string, resetDisplay?: boolean) => void;
   openNodeDetail: (key: NodeKey, focus?: "fields" | "raw") => void;
 }) {
   const [input, setInput] = useState("");
@@ -127,6 +127,7 @@ export function useConsoleController({
         parsed.instructions,
         contextNodeKey,
         appearance,
+        state.chartType,
       );
       setContextNodeKey(executed.contextNodeKey);
       if (!executed.ok) {
@@ -142,7 +143,16 @@ export function useConsoleController({
           executed.appearanceMutationCount,
           executed.appearanceResults.at(-1)?.message,
         );
-        commitAppearance(executed.appearance, label);
+        commitAppearance(
+          executed.appearance,
+          label,
+          parsed.instructions.some(
+            (instruction) =>
+              instruction.type === "appearance" &&
+              (instruction.command.type === "resetAppearance" ||
+                (instruction.command.type === "applyPreset" && instruction.command.presetId === "default")),
+          ),
+        );
         appendMessage("success", label);
       }
       if (executed.mutationCount > 0) {
@@ -172,6 +182,7 @@ export function useConsoleController({
       openNodeDetail,
       recordInput,
       state.dag,
+      state.chartType,
       transactions.commitBatch,
     ],
   );

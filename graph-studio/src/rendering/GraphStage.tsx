@@ -278,6 +278,7 @@ export default function GraphStage({
       onContextMenu={onBackgroundContextMenu}
     >
       <GraphDefs
+        edgeArrowStyle={appearance.display.edgeArrowStyle}
         appearanceCss={appearance.css}
         timelineColors={Array.from(
           new Set(stage.edges.flatMap((edge) => (edge.timeline ? [edge.timeline.color] : []))),

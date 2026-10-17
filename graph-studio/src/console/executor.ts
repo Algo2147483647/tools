@@ -11,7 +11,7 @@ import { type AppearanceCommandResult, applyAppearanceCommand } from "../graph/a
 import { type CommandResult, applyGraphCommand } from "../graph/commands";
 import { getRelationKeys } from "../graph/relations";
 import { cloneGraphDocument, structuredCloneValue } from "../graph/serialize";
-import type { NodeKey, NormalizedDag } from "../graph/types";
+import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
 import type { ConsoleInstruction, ConsoleNodeOperand } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
 
@@ -47,6 +47,7 @@ export function executeConsoleInstructions(
   instructions: ConsoleInstruction[],
   initialContextNodeKey: NodeKey | null,
   appearance: GraphAppearance = DEFAULT_GRAPH_APPEARANCE,
+  chartType?: GraphChartType,
 ): ConsoleRunResult {
   let workingDag = cloneGraphDocument(dag);
   let workingAppearance = appearance;
@@ -71,7 +72,7 @@ export function executeConsoleInstructions(
           break;
         }
         case "appearance": {
-          const result = applyAppearanceCommand(workingAppearance, instruction.command);
+          const result = applyAppearanceCommand(workingAppearance, instruction.command, chartType);
           workingAppearance = result.appearance;
           appearanceResults.push(result);
           outputMessages.push(result.message);

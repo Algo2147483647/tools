@@ -1,16 +1,11 @@
 import { type Dispatch, useCallback, useMemo, useReducer } from "react";
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
 import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
-import {
-  type GraphAppearance,
-  type GraphLayoutAppearance,
-  DEFAULT_GRAPH_APPEARANCE,
-  sanitizeGraphAppearance,
-} from "../graph/appearance";
+import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "../graph/appearance";
 import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { sanitizeTimelineChartStyle, type ChartStyles } from "../state/chartStyles";
+import { getDefaultChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
 import { resetAppearanceSection } from "../components/settings/appearanceSections";
 import type { AppearanceGroup } from "../components/settings/settingsCatalog";
@@ -31,8 +26,12 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
     [chartType],
   );
   const commitAppearance = useCallback(
-    (nextAppearance: GraphAppearance, label: string) => {
-      updateHistories({ chartType, action: { type: "commit", appearance: nextAppearance, label } });
+    (nextAppearance: GraphAppearance, label: string, resetDisplay = false) => {
+      const { appearance: _appearance, ...display } = getDefaultChartStyle(chartType);
+      updateHistories({
+        chartType,
+        action: { type: "commit", appearance: nextAppearance, label, ...(resetDisplay ? { display } : {}) },
+      });
     },
     [chartType],
   );
@@ -93,16 +92,14 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
 
   function handleAppearancePresetChange(presetId: GraphAppearancePresetId) {
     commitAppearance(
-      applyAppearanceCommand(appearance, { type: "applyPreset", presetId }).appearance,
+      applyAppearanceCommand(appearance, { type: "applyPreset", presetId }, chartType).appearance,
       `Applied ${presetId} appearance preset.`,
+      presetId === "default",
     );
   }
 
   function handleAppearanceReset() {
-    commitAppearance(
-      chartType === "timeline" ? sanitizeTimelineChartStyle(null).appearance : DEFAULT_GRAPH_APPEARANCE,
-      "Reset graph appearance.",
-    );
+    commitAppearance(getDefaultChartStyle(chartType).appearance, "Reset graph appearance.", true);
   }
 
   function handleAppearanceExport() {
@@ -177,7 +174,11 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
     handleAppearancePresetChange,
     handleAppearanceReset,
     resetSection: (group: AppearanceGroup | "layout") =>
-      commitAppearance(resetAppearanceSection(appearance, group), `Reset ${group} style.`),
+      commitAppearance(
+        resetAppearanceSection(appearance, group, getDefaultChartStyle(chartType).appearance),
+        `Reset ${group} style.`,
+        group === "nodes",
+      ),
     handleAppearanceExport,
     handleAppearanceImportClick,
     handleAppearanceImportChange,

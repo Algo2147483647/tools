@@ -1,4 +1,5 @@
-import { type GraphAppearance, sanitizeGraphAppearance } from "../graph/appearance";
+import { type GraphAppearance, sanitizeGraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { NODE_LINK_DEFAULT_APPEARANCE, NODE_LINK_DEFAULT_DISPLAY } from "../graph/nodeLinkAppearance";
 import type { GraphChartType } from "../graph/types";
 
 export interface ChartDisplayOptions {
@@ -33,7 +34,29 @@ export function sanitizeChartStyle(value: unknown): ChartStyle {
 }
 
 export function createChartStyles(): ChartStyles {
-  return mapChartTypes((type) => (type === "timeline" ? sanitizeTimelineChartStyle(null) : sanitizeChartStyle(null)));
+  return mapChartTypes(getDefaultChartStyle);
+}
+
+export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
+  if (type === "node-link")
+    return { appearance: structuredClone(NODE_LINK_DEFAULT_APPEARANCE), ...NODE_LINK_DEFAULT_DISPLAY };
+  return type === "timeline" ? sanitizeTimelineChartStyle(null) : sanitizeChartStyle(null);
+}
+
+export function sanitizeNodeLinkChartStyle(value: unknown): ChartStyle {
+  const defaults = getDefaultChartStyle("node-link");
+  if (!value || typeof value !== "object" || Array.isArray(value)) return defaults;
+  const input = value as Partial<ChartStyle>;
+  const saved = sanitizeChartStyle(input);
+  // Upgrade only the previous untouched default. Preserve customized styles.
+  if (
+    saved.showNodeDetail &&
+    saved.hideNodeBorders &&
+    !saved.alignNodeWidthsToMax &&
+    JSON.stringify(saved.appearance) === JSON.stringify(sanitizeGraphAppearance(DEFAULT_GRAPH_APPEARANCE))
+  )
+    return defaults;
+  return sanitizeChartStyle({ ...defaults, ...input, appearance: input.appearance ?? defaults.appearance });
 }
 
 export function sanitizeTimelineChartStyle(value: unknown): ChartStyle {

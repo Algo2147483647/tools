@@ -7,6 +7,7 @@ import {
   createChartStyles,
   sanitizeChartStyle,
   sanitizeTimelineChartStyle,
+  sanitizeNodeLinkChartStyle,
 } from "./chartStyles";
 import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 
@@ -133,7 +134,11 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   if (parsed.chartStyles && typeof parsed.chartStyles === "object" && !Array.isArray(parsed.chartStyles)) {
     const styles = parsed.chartStyles as Record<string, unknown>;
     next.chartStyles = mapChartTypes((type) =>
-      type === "timeline" ? sanitizeTimelineChartStyle(styles[type]) : sanitizeChartStyle(styles[type]),
+      type === "node-link"
+        ? sanitizeNodeLinkChartStyle(styles[type])
+        : type === "timeline"
+          ? sanitizeTimelineChartStyle(styles[type])
+          : sanitizeChartStyle(styles[type]),
     );
   } else if (
     parsed.appearance ||
@@ -142,7 +147,7 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     )
   ) {
     next.chartStyles = {
-      "node-link": sanitizeChartStyle(parsed),
+      "node-link": sanitizeNodeLinkChartStyle(sanitizeChartStyle(parsed)),
       sankey: sanitizeChartStyle(parsed),
       compound: sanitizeChartStyle(null),
       timeline: sanitizeTimelineChartStyle(null),

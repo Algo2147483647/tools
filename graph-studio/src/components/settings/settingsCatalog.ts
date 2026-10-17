@@ -77,7 +77,9 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     "presets",
     "Presets",
     "Style presets",
-    "theme simple compact default slate blueprint contrast presentation 预设 主题",
+    chart === "node-link"
+      ? "theme default 预设 默认 主题"
+      : "theme simple compact default slate blueprint contrast presentation 预设 主题",
   );
   if (chart === "node-link" || chart === "compound") {
     a("nodeCornerRadius", "Nodes", "Corner radius", "node shape rounded 圆角 节点 形状");

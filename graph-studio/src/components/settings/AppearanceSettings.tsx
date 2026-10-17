@@ -3,13 +3,13 @@ import ChartSchema from "./ChartSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import type { ChangeEvent } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
-import { type GraphAppearancePresetId, GRAPH_APPEARANCE_PRESETS } from "../../graph/appearanceCommands";
+import { type GraphAppearancePresetId, getGraphAppearancePresets } from "../../graph/appearanceCommands";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
 import LayoutSliderControl from "./LayoutSliderControl";
 import { getLayoutControls } from "./settingsConfig";
 import { useState } from "react";
-import { DEFAULT_GRAPH_APPEARANCE } from "../../graph/appearance";
+import { getDefaultChartStyle } from "../../state/chartStyles";
 import NumericSetting, { ResetSetting } from "./NumericSetting";
 import ColorSetting from "./ColorSetting";
 import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
@@ -52,15 +52,22 @@ interface AppearanceSettingsProps {
 export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const vars = p.appearance.cssVars;
   const titleFamily = vars["--dag-title-font-family"] || GRAPH_TITLE_FONT_OPTIONS[0].value;
-  const selectedPreset = GRAPH_APPEARANCE_PRESETS.find(
-    (preset) => JSON.stringify(preset.appearance) === JSON.stringify(p.appearance),
+  const presets = getGraphAppearancePresets(p.chartType);
+  const defaultStyle = getDefaultChartStyle(p.chartType);
+  const selectedPreset = presets.find(
+    (preset) =>
+      JSON.stringify(preset.appearance) === JSON.stringify(p.appearance) &&
+      (preset.id !== "default" ||
+        (p.showNodeDetail === defaultStyle.showNodeDetail &&
+          p.hideNodeBorders === defaultStyle.hideNodeBorders &&
+          p.alignNodeWidthsToMax === defaultStyle.alignNodeWidthsToMax)),
   );
   const [group, setGroup] = useState<AppearanceGroup>("nodes");
   const catalog = getSettingsCatalog(p.chartType);
   const visible = (id: string) => catalog.some((item) => item.id === id && matchesSetting(item, p.query || ""));
   const isSankey = p.chartType === "sankey";
   const isTimeline = p.chartType === "timeline";
-  const defaults = DEFAULT_GRAPH_APPEARANCE;
+  const defaults = defaultStyle.appearance;
   if (p.view === "chart")
     return (
       <section className="settings-section">
@@ -186,6 +193,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                   <LayoutSliderControl
                     key={control.key}
                     control={control}
+                    defaultValue={defaults.layout[control.key]}
                     value={p.appearance.layout[control.key]}
                     onChange={(value) => p.onLayoutAppearanceChange(control.key, value)}
                   />
@@ -244,7 +252,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <>
             <p>{selectedPreset ? `${selectedPreset.label} preset` : "Custom style"} · Choose a starting point.</p>
             <div className="preset-grid">
-              {GRAPH_APPEARANCE_PRESETS.map((preset) => (
+              {presets.map((preset) => (
                 <button
                   key={preset.id}
                   className={selectedPreset?.id === preset.id ? "is-selected" : ""}
@@ -291,10 +299,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <Toggle
             label="Node borders"
             checked={!p.hideNodeBorders}
-            defaultValue={false}
+            defaultValue={!defaultStyle.hideNodeBorders}
             onChange={p.onNodeBordersToggle}
             onReset={() => {
-              if (!p.hideNodeBorders) p.onNodeBordersToggle();
+              if (p.hideNodeBorders !== defaultStyle.hideNodeBorders) p.onNodeBordersToggle();
             }}
           />
         )}
@@ -302,10 +310,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <Toggle
             label="Node descriptions"
             checked={p.showNodeDetail}
-            defaultValue={!isTimeline}
+            defaultValue={defaultStyle.showNodeDetail}
             onChange={p.onNodeDetailToggle}
             onReset={() => {
-              if (p.showNodeDetail === isTimeline) p.onNodeDetailToggle();
+              if (p.showNodeDetail !== defaultStyle.showNodeDetail) p.onNodeDetailToggle();
             }}
           />
         )}
@@ -313,10 +321,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <Toggle
             label="Equal node widths"
             checked={p.alignNodeWidthsToMax}
-            defaultValue={false}
+            defaultValue={defaultStyle.alignNodeWidthsToMax}
             onChange={p.onNodeWidthAlignToggle}
             onReset={() => {
-              if (p.alignNodeWidthsToMax) p.onNodeWidthAlignToggle();
+              if (p.alignNodeWidthsToMax !== defaultStyle.alignNodeWidthsToMax) p.onNodeWidthAlignToggle();
             }}
           />
         )}

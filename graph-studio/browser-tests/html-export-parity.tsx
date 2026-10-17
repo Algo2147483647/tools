@@ -4,7 +4,8 @@ import { flushSync } from "react-dom";
 import ELK from "elkjs/lib/elk.bundled.js";
 import GraphStage from "../src/rendering/GraphStage";
 import { buildCompoundStage } from "../src/layout/compound-layout";
-import { DEFAULT_GRAPH_APPEARANCE } from "../src/graph/appearance";
+import { getDefaultChartStyle } from "../src/state/chartStyles";
+import { buildExportSvg } from "../src/rendering/export-svg";
 import { buildHtmlDocument, buildHtmlPayload, prepareHtmlSvg } from "../src/rendering/export-html";
 import {
   buildFlatPreviewStage,
@@ -50,7 +51,8 @@ const styles = (svg: SVGSVGElement) =>
 async function run() {
   for (const chartType of ["node-link", "compound", "sankey", "timeline"] as GraphChartType[]) {
     for (const custom of [false, true]) {
-      const appearance = structuredClone(DEFAULT_GRAPH_APPEARANCE);
+      const chartStyle = getDefaultChartStyle(chartType);
+      const appearance = structuredClone(chartStyle.appearance);
       if (custom) {
         appearance.cssVars["--dag-edge-active"] = "#a82750";
         appearance.cssVars["--dag-text-strong"] = "#523412";
@@ -61,8 +63,8 @@ async function run() {
         chartType,
         layoutMode: "sugiyama",
         appearance,
-        showNodeDetail: true,
-        alignNodeWidthsToMax: false,
+        showNodeDetail: chartStyle.showNodeDetail,
+        alignNodeWidthsToMax: chartStyle.alignNodeWidthsToMax,
         view: INITIAL_PREVIEW_VIEW,
       });
       const stage =
@@ -78,7 +80,7 @@ async function run() {
               stage={stage}
               appearance={appearance}
               focusedKey={focusedKey}
-              hideNodeBorders={false}
+              hideNodeBorders={chartStyle.hideNodeBorders}
               svgRef={ref}
               onNodeClick={noop}
               onNodeDoubleClick={noop}
@@ -94,6 +96,16 @@ async function run() {
       source.style.width = "100%";
       source.style.height = "500px";
       const before = source.outerHTML;
+      if (chartType === "node-link") {
+        const exportedSvg = buildExportSvg(source);
+        const arrow = exportedSvg.querySelector("#arrowhead path")!;
+        check(arrow.getAttribute("d") === "M1 1 L9 4 L1 7", "SVG export lost open arrow shape");
+        check(arrow.getAttribute("fill") === "none", "SVG export filled the open arrow");
+        check(
+          arrow.getAttribute("stroke") === getComputedStyle(source.querySelector(".dag-edge__path")!).stroke,
+          "SVG export lost arrow stroke color",
+        );
+      }
       const svgMarkup = prepareHtmlSvg(source);
       check(source.outerHTML === before, "Export mutated original SVG");
       await new Promise<void>((resolve) => {
@@ -103,6 +115,12 @@ async function run() {
       const doc = frame.contentDocument!;
       const viewerWindow = frame.contentWindow as Window & typeof globalThis;
       const exported = doc.getElementById("export-canvas") as unknown as SVGSVGElement;
+      if (chartType === "node-link") {
+        check(
+          exported.querySelector("#arrowhead path")!.getAttribute("d") === "M1 1 L9 4 L1 7",
+          "HTML export lost open arrow shape",
+        );
+      }
       const compare = async (state: string) => {
         await pause();
         const expected = styles(source),

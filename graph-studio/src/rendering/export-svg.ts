@@ -106,9 +106,11 @@ function normalizeExportMarkerColor(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGEl
   }
 
   cloneSvg.querySelectorAll("marker path").forEach((path) => {
-    if (path.getAttribute("fill") === "context-stroke") {
-      path.setAttribute("fill", edgeStroke);
-      (path as SVGElement).style.setProperty("fill", edgeStroke);
+    for (const property of ["fill", "stroke"]) {
+      if (path.getAttribute(property) === "context-stroke") {
+        path.setAttribute(property, edgeStroke);
+        (path as SVGElement).style.setProperty(property, edgeStroke);
+      }
     }
   });
 }

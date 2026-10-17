@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Graph Studio · Node-link 默认预设</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f5f6f8;
+        color: #26364c;
+        font:
+          14px/1.6 "Segoe UI",
+          "Microsoft YaHei",
+          sans-serif;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 2px solid #5276b0;
+        outline-offset: 3px;
+      }
+      main {
+        max-width: 1240px;
+        margin: 44px auto;
+        padding: 0 28px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+      header small {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        color: #8490a1;
+      }
+      h1 {
+        font-size: 25px;
+        margin: 4px 0;
+      }
+      header p {
+        margin: 0;
+        color: #7c8898;
+        font-size: 13px;
+      }
+      .badge {
+        font-size: 12px;
+        color: #53709b;
+        background: #edf2f9;
+        border: 1px solid #dfe6f0;
+        border-radius: 20px;
+        padding: 6px 13px;
+        white-space: nowrap;
+      }
+      .preview {
+        background: #fff;
+        border: 1px solid #e4e8ee;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 17px 22px;
+        border-bottom: 1px solid #edf0f4;
+      }
+      .toolbar strong {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .toolbar small {
+        color: #8b95a4;
+        margin-left: 8px;
+      }
+      .zoom {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .zoom button {
+        border: 1px solid #e1e6ee;
+        background: white;
+        color: #60738e;
+        border-radius: 5px;
+        padding: 4px 11px;
+        font-size: 12px;
+      }
+      .zoom button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .zoom span {
+        min-width: 45px;
+        font-size: 11px;
+        text-align: center;
+        color: #8b95a4;
+      }
+      .canvas {
+        height: 350px;
+        overflow: auto;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .canvas.zoomed {
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+      .graph-host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-width: 100%;
+        flex-shrink: 0;
+      }
+      .selection {
+        color: #7d8ba0;
+        font-size: 12px;
+        padding: 0 22px 16px;
+        min-height: 35px;
+      }
+      .specs {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 20px 22px;
+        border-top: 1px solid #edf0f4;
+        margin: 0;
+        background: #fbfcfe;
+      }
+      .specs dt {
+        font-size: 11px;
+        color: #8b95a4;
+        margin-bottom: 4px;
+      }
+      .specs dd {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 500;
+        color: #42516a;
+      }
+      .specs small {
+        display: block;
+        font-size: 11px;
+        color: #95a0af;
+        margin-top: 3px;
+        font-weight: 400;
+      }
+      footer {
+        font-size: 12px;
+        color: #8d97a6;
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      @media (max-width: 700px) {
+        main {
+          margin: 24px auto;
+          padding: 0 16px;
+        }
+        .specs {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+        .toolbar {
+          padding: 14px;
+          flex-wrap: wrap;
+        }
+        .canvas {
+          height: 280px;
+        }
+        h1 {
+          font-size: 21px;
+        }
+      }
+      @media (max-width: 400px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .toolbar small {
+          display: none;
+        }
+        .specs {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <small>GRAPH STUDIO / NODE-LINK</small>
+          <h1>默认预设</h1>
+          <p>无边框 · 无详情 · 等宽节点 · 保留 dot</p>
+        </div>
+        <span class="badge">Node-link · 唯一预设</span>
+      </header>
+      <section class="preview" aria-label="默认预设预览">
+        <div class="toolbar">
+          <div><strong>Default</strong><small>6 个节点 · 7 条关系</small></div>
+          <div class="zoom" role="group" aria-label="预览缩放">
+            <button id="zoom-out" aria-label="缩小">−</button><span id="zoom-level">适配</span
+            ><button id="zoom-in" aria-label="放大">+</button><button id="fit">适配</button>
+          </div>
+        </div>
+        <div class="canvas"><div class="graph-host"></div></div>
+        <div class="selection" role="status" id="selection-status">点击节点查看关联高亮 · 点击空白处取消</div>
+        <dl class="specs">
+          <div>
+            <dt>节点</dt>
+            <dd>240 × 48 px<small>等宽 · 16 px 圆角</small></dd>
+          </div>
+          <div>
+            <dt>内容</dt>
+            <dd>Times New Roman<small>仅标题 + dot · 无边框 · 无详情</small></dd>
+          </div>
+          <div>
+            <dt>阴影</dt>
+            <dd>轻阴影 · 10%<small>模糊 8 px · 偏移 3 px</small></dd>
+          </div>
+          <div>
+            <dt>连线</dt>
+            <dd>淡灰 #E1E3E6<small>1 px · 开放式箭头 · 隐藏边值</small></dd>
+          </div>
+        </dl>
+      </section>
+      <footer><span>只保留这一套 Node-link 默认预设。</span><span>已设为应用默认 · 与正式渲染一致</span></footer>
+    </main>
+    <script>
+      const presets = [{"id":"default","name":"默认","english":"Default","purpose":"无边框 · 无详情 · 等宽节点 · 保留 dot","detail":false,"labels":false,"gap":64,"row":28,"height":48,"width":240,"radius":16,"font":15,"weight":500,"shadow":true,"dots":true,"edge":"#e1e3e6","extra":".dag-graph .dag-edge .dag-edge__path{stroke-width:1px}","svg":"\u003csvg class=\"dag-graph\" data-layout=\"sugiyama\" data-density=\"normal\" data-borderless=\"true\" data-has-interactive-node=\"false\" viewBox=\"76 73.6 1216 192.00000000000003\" width=\"1368\" height=\"600\" style=\"--dag-text-strong:#162033;--dag-text-soft:#8792a2;--dag-edge:#e1e3e6;--dag-edge-active:#a9afb8;--dag-node-fill:#ffffff;--dag-node-border:rgba(91, 109, 142, 0.17);--dag-node-border-strong:rgba(50, 79, 132, 0.35);--dag-title-font-family:&quot;Times New Roman&quot;, serif;--dag-title-font-size:15px;--dag-title-font-style:normal;--dag-title-font-weight:500;--dag-node-pin-display:inline;--dag-node-content-shift:0px;--dag-node-shadow:drop-shadow(0 1px 1px rgba(24, 39, 64, 0.05)) drop-shadow(0 3px 8px rgba(24, 39, 64, 0.1));--dag-node-shadow-active:drop-shadow(0 1px 1px rgba(24, 39, 64, 0.05)) drop-shadow(0 4.5px 10px rgba(24, 39, 64, 0.1));--dag-sankey-opacity:0.32\" role=\"img\" aria-label=\"DAG view focused on All roots\">\u003cdefs>\u003cstyle>\n.dag-graph,\n.dag-backdrop {\n  fill: none;\n}\n\n.dag-edge {\n  pointer-events: none;\n}\n\n.dag-node {\n  cursor: pointer;\n  outline: none;\n}\n\n.dag-group-background {\n  fill: var(--dag-group-fill, #fffdf5);\n  fill-opacity: 1;\n  stroke: var(--dag-node-border, #b0bdce);\n  stroke-width: 1.3;\n}\n.dag-graph[data-layout=&quot;compound&quot;] .dag-edge {\n  pointer-events: auto;\n}\n.dag-group-title {\n  fill: var(--dag-text-strong, #27364c);\n  font:\n    600 14px &quot;Segoe UI&quot;,\n    sans-serif;\n}\n.dag-group-count {\n  fill: var(--dag-text-muted, #677b92);\n  font:\n    11px &quot;Segoe UI&quot;,\n    sans-serif;\n}\n.dag-group-controls {\n  cursor: pointer;\n}\n.dag-group-controls rect {\n  fill: var(--dag-node-fill, #fff);\n  stroke: var(--dag-node-border, #b0bdce);\n}\n.dag-group-controls text {\n  fill: var(--dag-text-strong, #27364c);\n  font:\n    16px &quot;Segoe UI&quot;,\n    sans-serif;\n  pointer-events: none;\n}\n.dag-group-controls [role=&quot;button&quot;]:focus rect,\n.dag-group-controls [role=&quot;button&quot;]:hover rect {\n  stroke: var(--studio-accent);\n  stroke-width: 2;\n}\n.dag-graph[data-layout=&quot;compound&quot;] .dag-node[data-type=&quot;Subgraph&quot;] .dag-node__shape {\n  stroke-width: 2;\n}\n.dag-graph[data-layout=&quot;compound&quot;] .dag-node[data-type=&quot;External&quot;] .dag-node__shape {\n  stroke-dasharray: 5 3;\n}\n\n.dag-graph,\n.dag-backdrop {\n  fill: none;\n}\n\n.dag-graph[data-density=&quot;dense&quot;] .dag-edge__path,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node__glow,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node__shape,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node__affordance {\n  transition: none;\n}\n\n.dag-stage__halo {\n  fill: rgba(255, 255, 255, 0.8);\n  pointer-events: none;\n}\n\n.dag-stage__lane {\n  stroke: rgba(89, 107, 139, 0.12);\n  stroke-width: 1;\n  stroke-dasharray: 2 12;\n  pointer-events: none;\n}\n\n.dag-stage__lane-label {\n  fill: rgba(102, 117, 144, 0.58);\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.14em;\n  text-transform: uppercase;\n  pointer-events: none;\n}\n\n.dag-edge {\n  pointer-events: none;\n}\n\n.dag-edge__path {\n  fill: none;\n  stroke: var(--dag-edge);\n  stroke-linecap: round;\n  stroke-linejoin: round;\n  stroke-width: 1.65;\n  transition: stroke 0.18s ease, stroke-width 0.18s ease, opacity 0.18s ease;\n}\n\n.dag-edge[data-active=&quot;true&quot;] .dag-edge__path {\n  stroke: var(--dag-edge-active);\n  stroke-width: 2.35;\n  opacity: 1;\n}\n\n.dag-edge__label-text {\n  fill: var(--dag-text-soft);\n  font-size: 10px;\n  font-weight: 700;\n}\n\n.dag-edge__label-bg {\n  fill: rgba(255, 255, 255, 0.84);\n  stroke: rgba(99, 118, 148, 0.12);\n  stroke-width: 1;\n}\n\n.dag-node {\n  cursor: pointer;\n  outline: none;\n  transition: transform 0.18s ease, opacity 0.18s ease;\n}\n\n.dag-node__glow {\n  fill: var(--dag-node-glow, rgba(44, 83, 166, 0.08));\n  opacity: 0;\n  transition: opacity 0.18s ease;\n}\n\n.dag-node__shape {\n  fill: var(--dag-node-fill);\n  stroke: var(--dag-node-border);\n  stroke-width: 1.25;\n  filter: drop-shadow(0 10px 18px rgba(24, 39, 64, 0.06));\n  transition: fill 0.18s ease, stroke 0.18s ease, transform 0.18s ease, filter 0.18s ease;\n}\n\n.dag-node__pin {\n  fill: var(--dag-node-pin-fill, rgba(40, 95, 223, 0.14));\n  stroke: var(--dag-node-pin-stroke, rgba(40, 95, 223, 0.24));\n  stroke-width: 0.75;\n}\n\n.dag-node__pin-core {\n  fill: var(--dag-node-pin-core, rgba(40, 95, 223, 0.78));\n}\n\n.dag-node__title {\n  fill: var(--dag-text-strong);\n  font-family: var(--dag-title-font-family);\n  font-size: var(--dag-title-font-size);\n  font-style: var(--dag-title-font-style);\n  font-weight: var(--dag-title-font-weight);\n  letter-spacing: 0;\n}\n\n.dag-node__detail {\n  fill: rgba(67, 79, 100, 0.88);\n  font-size: 10px;\n}\n\n.dag-node__affordance {\n  opacity: 0;\n  transform: translateY(4px);\n  transform-origin: center;\n  transition: opacity 0.18s ease, transform 0.18s ease;\n}\n\n.dag-node__affordance-bg {\n  fill: var(--dag-node-affordance-bg, rgba(235, 241, 251, 0.94));\n  stroke: rgba(70, 96, 148, 0.16);\n  stroke-width: 1;\n}\n\n.dag-node__affordance-text {\n  fill: var(--dag-node-affordance-text, rgba(46, 82, 152, 0.76));\n  font-size: 8px;\n  font-weight: 700;\n}\n\n.dag-node[data-root=&quot;true&quot;] .dag-node__shape {\n  stroke: var(--dag-node-border-strong);\n  stroke-width: 1.7;\n  fill: var(--dag-node-root-fill, var(--dag-node-fill));\n}\n\n.dag-node[data-root=&quot;true&quot;] .dag-node__glow {\n  opacity: 1;\n}\n\n.dag-node:hover .dag-node__shape,\n.dag-node[data-hovered=&quot;true&quot;] .dag-node__shape,\n.dag-node[data-focused=&quot;true&quot;] .dag-node__shape,\n.dag-node[data-selected=&quot;true&quot;] .dag-node__shape {\n  stroke: var(--dag-node-active-border, rgba(39, 79, 152, 0.48));\n  fill: var(--dag-node-active-fill, var(--dag-node-fill));\n  filter: drop-shadow(0 14px 26px rgba(29, 52, 97, 0.1));\n}\n\n.dag-node:hover .dag-node__glow,\n.dag-node[data-hovered=&quot;true&quot;] .dag-node__glow,\n.dag-node[data-focused=&quot;true&quot;] .dag-node__glow {\n  opacity: 1;\n}\n\n.dag-node:hover .dag-node__affordance,\n.dag-node[data-hovered=&quot;true&quot;] .dag-node__affordance,\n.dag-node[data-focused=&quot;true&quot;] .dag-node__affordance {\n  opacity: 1;\n  transform: translateY(0);\n}\n\n.dag-node:hover .dag-node__pin,\n.dag-node[data-selected=&quot;true&quot;] .dag-node__pin,\n.dag-node[data-hovered=&quot;true&quot;] .dag-node__pin,\n.dag-node[data-focused=&quot;true&quot;] .dag-node__pin {\n  fill: var(--dag-node-pin-fill, rgba(40, 95, 223, 0.18));\n}\n\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-edge__path {\n  opacity: 0.3;\n}\n\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-edge[data-active=&quot;true&quot;] .dag-edge__path {\n  opacity: 1;\n}\n\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-node {\n  opacity: 0.48;\n}\n\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-node[data-connected=&quot;true&quot;],\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-node[data-hovered=&quot;true&quot;],\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-node[data-focused=&quot;true&quot;] {\n  opacity: 1;\n}\n\n.dag-graph[data-borderless=&quot;true&quot;] .dag-node__shape {\n  stroke: transparent;\n}\n\n.dag-graph[data-density=&quot;dense&quot;] .dag-node__shape,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node:hover .dag-node__shape,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node[data-hovered=&quot;true&quot;] .dag-node__shape,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node[data-focused=&quot;true&quot;] .dag-node__shape,\n.dag-graph[data-density=&quot;dense&quot;] .dag-node[data-selected=&quot;true&quot;] .dag-node__shape {\n  filter: none;\n}\n.dag-backdrop { display: none; }\n.dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }\n.dag-graph .dag-node__pin, .dag-graph .dag-node__pin-core { display: var(--dag-node-pin-display, inline) !important; }\n.dag-graph .dag-node__content { transform: translateX(var(--dag-node-content-shift, 0px)); }\n.dag-graph .dag-node__shape { filter: var(--dag-node-shadow) !important; }\n.dag-graph .dag-node:hover .dag-node__shape,\n.dag-graph .dag-node[data-hovered=&quot;true&quot;] .dag-node__shape,\n.dag-graph .dag-node[data-focused=&quot;true&quot;] .dag-node__shape,\n.dag-graph .dag-node[data-selected=&quot;true&quot;] .dag-node__shape { filter: var(--dag-node-shadow-active) !important; }\n.dag-graph[data-density=&quot;dense&quot;] .dag-node .dag-node__shape { filter: none !important; }\n.dag-edge__flow { fill: none; stroke-linecap: butt; opacity: var(--dag-sankey-opacity); transition: opacity .18s ease; pointer-events: stroke; }\n.dag-edge__flow:hover, .dag-edge[data-active=&quot;true&quot;] .dag-edge__flow { opacity: .8; }\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-edge__flow { opacity: .12; }\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-edge[data-active=&quot;true&quot;] .dag-edge__flow { opacity: .8; }\n.dag-node__flow-label { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: var(--dag-title-font-size); font-style: var(--dag-title-font-style); font-weight: var(--dag-title-font-weight); paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; }\n.dag-node__flow-value { fill: var(--dag-text-soft); font-size: 11px; font-style: normal; font-weight: 500; }\n.dag-node[data-flow=&quot;true&quot;]:focus-visible .dag-node__shape { stroke: var(--dag-edge-active); stroke-width: 3; }\n@media (prefers-reduced-motion: reduce) { .dag-graph * { transition: none !important; } }\n.timeline-export-static { display: none; }\n.dag-graph[data-export=&quot;true&quot;] .timeline-export-static { display: inline; }\n.dag-graph[data-export=&quot;true&quot;] .timeline-floating { display: none; }\n.timeline-grid { stroke: var(--dag-edge); stroke-width: .7; opacity: .3; pointer-events: none; }\n.timeline-track-guide { stroke: var(--dag-edge); stroke-width: 1; opacity: .25; pointer-events: none; }\n.timeline-ruler-bg { fill: var(--dag-node-fill); opacity: .97; }\n.timeline-axis { stroke: var(--dag-edge); stroke-width: 1; }\n.timeline-axis-label { fill: var(--dag-text-soft); font: 11px &quot;IBM Plex Mono&quot;, Consolas, monospace; }\n.timeline-track-label { fill: var(--dag-text-strong); font: 600 12px &quot;IBM Plex Sans&quot;, &quot;Segoe UI&quot;, sans-serif; }\n.timeline-caption { fill: var(--dag-text-soft); font: 11px &quot;IBM Plex Sans&quot;, &quot;Segoe UI&quot;, sans-serif; }\n.timeline-node { transition: opacity .15s; }\n.timeline-node__hit { fill: transparent; stroke: none; pointer-events: all; }\n.timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: .55; stroke: none; }\n.timeline-node__point { fill: var(--dag-timeline-color); stroke: var(--dag-node-fill); stroke-width: 1.5; }\n.timeline-node__cap, .timeline-node__open { fill: none; stroke: var(--dag-timeline-color); stroke-width: 2; }\n.timeline-node__unknown { fill: var(--dag-node-fill); stroke: var(--dag-text-soft); stroke-width: 1.5; }\n.timeline-node__leader { fill: none; stroke: #a6abb3; stroke-width: .7; opacity: .32; pointer-events: none; }\n.timeline-node[data-focused=&quot;true&quot;] .timeline-node__leader,\n.timeline-node[data-hovered=&quot;true&quot;] .timeline-node__leader { stroke: #000; stroke-width: 1; stroke-dasharray: 0 2.2; stroke-linecap: round; opacity: 1; }\n.timeline-node__label-bg { fill: var(--dag-node-fill); fill-opacity: .65; stroke: transparent; stroke-width: 1; }\n.timeline-node__title { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: var(--dag-title-font-weight, 400); pointer-events: none; }\n.timeline-node__date { fill: var(--dag-text-soft); font: 10px &quot;IBM Plex Mono&quot;, Consolas, monospace; pointer-events: none; }\n.timeline-node__detail { fill: var(--dag-text-soft); font: 10px &quot;IBM Plex Sans&quot;, &quot;Segoe UI&quot;, sans-serif; pointer-events: none; }\n.timeline-node[data-selected=&quot;true&quot;] .timeline-node__label-bg,\n.timeline-node[data-focused=&quot;true&quot;] .timeline-node__label-bg,\n.timeline-node[data-hovered=&quot;true&quot;] .timeline-node__label-bg,\n.timeline-node:focus-visible .timeline-node__label-bg { stroke: var(--dag-timeline-color); fill: var(--dag-node-fill); fill-opacity: .65; }\n.timeline-node[data-hovered=&quot;true&quot;] .timeline-node__duration, .timeline-node[data-focused=&quot;true&quot;] .timeline-node__duration { fill-opacity: .85; }\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .timeline-node { opacity: .28; }\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .timeline-node[data-connected=&quot;true&quot;],\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .timeline-node[data-focused=&quot;true&quot;],\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .timeline-node[data-hovered=&quot;true&quot;] { opacity: 1; }\n.dag-edge__timeline { fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }\n.dag-edge[data-timeline-kind=&quot;reference&quot;] .dag-edge__timeline,\n.dag-edge[data-timeline-kind=&quot;part-of&quot;] .dag-edge__timeline { stroke-dasharray: 3 5; opacity: .25; }\n.dag-edge[data-backward=&quot;true&quot;] .dag-edge__timeline { stroke-dasharray: 6 3; }\n.dag-graph[data-has-interactive-node=&quot;true&quot;] .dag-edge__timeline { opacity: .07; }\n.dag-graph .dag-edge[data-active=&quot;true&quot;] .dag-edge__timeline { opacity: 1; stroke-width: 2.4; }\n.dag-graph[data-layout=&quot;timeline&quot;] .dag-edge__label-bg,\n.dag-graph[data-layout=&quot;timeline&quot;] .dag-edge__label-text { opacity: 0; }\n.dag-graph[data-layout=&quot;timeline&quot;] .dag-edge[data-active=&quot;true&quot;] .dag-edge__label-bg,\n.dag-graph[data-layout=&quot;timeline&quot;] .dag-edge[data-active=&quot;true&quot;] .dag-edge__label-text { opacity: 1; }\u003c/style>\u003cmarker id=\"arrowhead\" viewBox=\"0 0 10 8\" orient=\"auto\" markerUnits=\"userSpaceOnUse\" markerWidth=\"10\" markerHeight=\"8\" refX=\"9\" refY=\"4\">\u003cpath d=\"M1 1 L9 4 L1 7\" fill=\"none\" stroke=\"context-stroke\" stroke-width=\"1\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\u003c/path>\u003c/marker>\u003cfilter id=\"soft-glow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">\u003cfeGaussianBlur stdDeviation=\"10\">\u003c/feGaussianBlur>\u003c/filter>\u003c/defs>\u003cg class=\"dag-backdrop\">\u003cg class=\"dag-lane\" data-layer=\"0\" data-label=\"Root\">\u003cline class=\"dag-stage__lane\" x1=\"228\" y1=\"54\" x2=\"228\" y2=\"546\">\u003c/line>\u003ctext class=\"dag-stage__lane-label\" x=\"228\" y=\"42\" text-anchor=\"middle\">Root\u003c/text>\u003c/g>\u003cg class=\"dag-lane\" data-layer=\"1\" data-label=\"Tier 1\">\u003cline class=\"dag-stage__lane\" x1=\"532\" y1=\"54\" x2=\"532\" y2=\"546\">\u003c/line>\u003ctext class=\"dag-stage__lane-label\" x=\"532\" y=\"42\" text-anchor=\"middle\">Tier 1\u003c/text>\u003c/g>\u003cg class=\"dag-lane\" data-layer=\"2\" data-label=\"Tier 2\">\u003cline class=\"dag-stage__lane\" x1=\"836\" y1=\"54\" x2=\"836\" y2=\"546\">\u003c/line>\u003ctext class=\"dag-stage__lane-label\" x=\"836\" y=\"42\" text-anchor=\"middle\">Tier 2\u003c/text>\u003c/g>\u003cg class=\"dag-lane\" data-layer=\"3\" data-label=\"Tier 3\">\u003cline class=\"dag-stage__lane\" x1=\"1140\" y1=\"54\" x2=\"1140\" y2=\"546\">\u003c/line>\u003ctext class=\"dag-stage__lane-label\" x=\"1140\" y=\"42\" text-anchor=\"middle\">Tier 3\u003c/text>\u003c/g>\u003c/g>\u003cg class=\"dag-group-backgrounds\">\u003c/g>\u003cg class=\"dag-edge-layer\">\u003cg class=\"dag-edge\" data-source=\"request\" data-target=\"validate\" data-weight=\"payload\" data-label=\"payload\" data-active=\"false\">\u003ctitle>request → validate: payload\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 352 169.6 L 366.25 169.6 Q 380.5 169.6 380.5 155.35 L 380.5 153.35 Q 380.5 137.6 396.25 137.6 L 412 137.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003cg class=\"dag-edge\" data-source=\"request\" data-target=\"auth\" data-weight=\"identity\" data-label=\"identity\" data-active=\"false\">\u003ctitle>request → auth: identity\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 352 169.6 L 366.25 169.6 Q 380.5 169.6 380.5 183.85 L 380.5 185.85 Q 380.5 201.6 396.25 201.6 L 412 201.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003cg class=\"dag-edge\" data-source=\"auth\" data-target=\"process\" data-weight=\"allowed\" data-label=\"allowed\" data-active=\"false\">\u003ctitle>auth → process: allowed\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 656 201.6 L 678.25 201.6 Q 700.5 201.6 700.5 179.35 L 700.5 145.35 Q 700.5 137.6 708.25 137.6 L 716 137.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003cg class=\"dag-edge\" data-source=\"auth\" data-target=\"cache\" data-weight=\"lookup\" data-label=\"lookup\" data-active=\"false\">\u003ctitle>auth → cache: lookup\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 656 201.6 L 716 201.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003cg class=\"dag-edge\" data-source=\"cache\" data-target=\"reply\" data-weight=\"hit\" data-label=\"hit\" data-active=\"false\">\u003ctitle>cache → reply: hit\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 960 201.6 L 988.5 201.6 Q 1004.5 201.6 1004.5 185.6 L 1004.5 177.35 Q 1004.5 169.6 1012.25 169.6 L 1020 169.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003cg class=\"dag-edge\" data-source=\"process\" data-target=\"reply\" data-weight=\"result\" data-label=\"result\" data-active=\"false\">\u003ctitle>process → reply: result\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 960 137.6 L 966.25 137.6 Q 972.5 137.6 972.5 143.85 L 972.5 153.6 Q 972.5 169.6 988.5 169.6 L 1020 169.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003cg class=\"dag-edge\" data-source=\"validate\" data-target=\"process\" data-weight=\"valid\" data-label=\"valid\" data-active=\"false\">\u003ctitle>validate → process: valid\u003c/title>\u003cpath class=\"dag-edge__path\" d=\"M 656 137.6 L 716 137.6\" marker-end=\"url(#arrowhead)\">\u003c/path>\u003c/g>\u003c/g>\u003cg class=\"dag-node-layer\">\u003cg class=\"dag-node\" data-key=\"request\" data-flow=\"false\" data-type=\"\" data-root=\"true\" data-selected=\"false\" data-focused=\"false\" data-hovered=\"false\" data-connected=\"false\" data-layer=\"0\" data-order=\"0\" transform=\"translate(108, 145.6)\" tabindex=\"0\" role=\"button\" aria-label=\"Receive request Current focus.\">\u003crect class=\"dag-node__shape\" width=\"240\" height=\"48\" rx=\"16\" ry=\"16\">\u003c/rect>\u003ccircle class=\"dag-node__pin\" cx=\"26\" cy=\"24\" r=\"7\">\u003c/circle>\u003ccircle class=\"dag-node__pin-core\" cx=\"26\" cy=\"24\" r=\"2.25\">\u003c/circle>\u003ctext class=\"dag-node__title dag-node__content\" x=\"48\" y=\"24\" dominant-baseline=\"middle\">Receive request\u003c/text>\u003c/g>\u003cg class=\"dag-node\" data-key=\"auth\" data-flow=\"false\" data-type=\"\" data-root=\"false\" data-selected=\"false\" data-focused=\"false\" data-hovered=\"false\" data-connected=\"false\" data-layer=\"1\" data-order=\"1\" transform=\"translate(412, 177.6)\" tabindex=\"0\" role=\"button\" aria-label=\"Authorize Activate to focus this branch.\">\u003crect class=\"dag-node__shape\" width=\"240\" height=\"48\" rx=\"16\" ry=\"16\">\u003c/rect>\u003ccircle class=\"dag-node__pin\" cx=\"26\" cy=\"24\" r=\"7\">\u003c/circle>\u003ccircle class=\"dag-node__pin-core\" cx=\"26\" cy=\"24\" r=\"2.25\">\u003c/circle>\u003ctext class=\"dag-node__title dag-node__content\" x=\"48\" y=\"24\" dominant-baseline=\"middle\">Authorize\u003c/text>\u003c/g>\u003cg class=\"dag-node\" data-key=\"cache\" data-flow=\"false\" data-type=\"\" data-root=\"false\" data-selected=\"false\" data-focused=\"false\" data-hovered=\"false\" data-connected=\"false\" data-layer=\"2\" data-order=\"1\" transform=\"translate(716, 177.6)\" tabindex=\"0\" role=\"button\" aria-label=\"Read cache Activate to focus this branch.\">\u003crect class=\"dag-node__shape\" width=\"240\" height=\"48\" rx=\"16\" ry=\"16\">\u003c/rect>\u003ccircle class=\"dag-node__pin\" cx=\"26\" cy=\"24\" r=\"7\">\u003c/circle>\u003ccircle class=\"dag-node__pin-core\" cx=\"26\" cy=\"24\" r=\"2.25\">\u003c/circle>\u003ctext class=\"dag-node__title dag-node__content\" x=\"48\" y=\"24\" dominant-baseline=\"middle\">Read cache\u003c/text>\u003c/g>\u003cg class=\"dag-node\" data-key=\"reply\" data-flow=\"false\" data-type=\"\" data-root=\"false\" data-selected=\"false\" data-focused=\"false\" data-hovered=\"false\" data-connected=\"false\" data-layer=\"3\" data-order=\"0\" transform=\"translate(1020, 145.6)\" tabindex=\"0\" role=\"button\" aria-label=\"Return response Activate to focus this branch.\">\u003crect class=\"dag-node__shape\" width=\"240\" height=\"48\" rx=\"16\" ry=\"16\">\u003c/rect>\u003ccircle class=\"dag-node__pin\" cx=\"26\" cy=\"24\" r=\"7\">\u003c/circle>\u003ccircle class=\"dag-node__pin-core\" cx=\"26\" cy=\"24\" r=\"2.25\">\u003c/circle>\u003ctext class=\"dag-node__title dag-node__content\" x=\"48\" y=\"24\" dominant-baseline=\"middle\">Return response\u003c/text>\u003c/g>\u003cg class=\"dag-node\" data-key=\"process\" data-flow=\"false\" data-type=\"\" data-root=\"false\" data-selected=\"false\" data-focused=\"false\" data-hovered=\"false\" data-connected=\"false\" data-layer=\"2\" data-order=\"0\" transform=\"translate(716, 113.6)\" tabindex=\"0\" role=\"button\" aria-label=\"Run business logic Activate to focus this branch.\">\u003crect class=\"dag-node__shape\" width=\"240\" height=\"48\" rx=\"16\" ry=\"16\">\u003c/rect>\u003ccircle class=\"dag-node__pin\" cx=\"26\" cy=\"24\" r=\"7\">\u003c/circle>\u003ccircle class=\"dag-node__pin-core\" cx=\"26\" cy=\"24\" r=\"2.25\">\u003c/circle>\u003ctext class=\"dag-node__title dag-node__content\" x=\"48\" y=\"24\" dominant-baseline=\"middle\">Run business logic\u003c/text>\u003c/g>\u003cg class=\"dag-node\" data-key=\"validate\" data-flow=\"false\" data-type=\"\" data-root=\"false\" data-selected=\"false\" data-focused=\"false\" data-hovered=\"false\" data-connected=\"false\" data-layer=\"1\" data-order=\"0\" transform=\"translate(412, 113.6)\" tabindex=\"0\" role=\"button\" aria-label=\"Validate fields Activate to focus this branch.\">\u003crect class=\"dag-node__shape\" width=\"240\" height=\"48\" rx=\"16\" ry=\"16\">\u003c/rect>\u003ccircle class=\"dag-node__pin\" cx=\"26\" cy=\"24\" r=\"7\">\u003c/circle>\u003ccircle class=\"dag-node__pin-core\" cx=\"26\" cy=\"24\" r=\"2.25\">\u003c/circle>\u003ctext class=\"dag-node__title dag-node__content\" x=\"48\" y=\"24\" dominant-baseline=\"middle\">Validate fields\u003c/text>\u003c/g>\u003c/g>\u003cg class=\"dag-group-headers\">\u003c/g>\u003c/svg>","canvasWidth":1368,"canvasHeight":600}];
+      const canvas = document.querySelector(".canvas");
+      const host = document.querySelector(".graph-host");
+      const root = host.attachShadow({ mode: "open" });
+      root.innerHTML =
+        '<style>:host{display:block}svg{width:100%;height:100%;display:block;font-family:"Segoe UI",sans-serif}</style>' +
+        presets[0].svg;
+      const svg = root.querySelector("svg");
+      let zoom = 1;
+      function setZoom(value) {
+        zoom = Math.max(1, Math.min(3, value));
+        host.style.width = zoom * 100 + "%";
+        host.style.height = zoom * 100 + "%";
+        canvas.classList.toggle("zoomed", zoom > 1);
+        document.getElementById("zoom-level").textContent = zoom === 1 ? "适配" : Math.round(zoom * 100) + "%";
+        if (zoom === 1) {
+          canvas.scrollLeft = 0;
+          canvas.scrollTop = 0;
+        }
+        document.getElementById("zoom-out").disabled = zoom === 1;
+        document.getElementById("zoom-in").disabled = zoom === 3;
+      }
+      function highlight(key) {
+        const neighbors = new Set();
+        svg.querySelectorAll(".dag-edge").forEach((edge) => {
+          const active = key && (edge.dataset.source === key || edge.dataset.target === key);
+          edge.dataset.active = String(Boolean(active));
+          if (active) {
+            neighbors.add(edge.dataset.source);
+            neighbors.add(edge.dataset.target);
+          }
+        });
+        svg.dataset.hasInteractiveNode = String(Boolean(key));
+        svg.querySelectorAll(".dag-node").forEach((node) => {
+          node.dataset.focused = String(node.dataset.key === key);
+          node.dataset.connected = String(neighbors.has(node.dataset.key) && node.dataset.key !== key);
+        });
+        document.getElementById("selection-status").textContent = key
+          ? "已选中：" + svg.querySelector('[data-key="' + key + '"] .dag-node__title').textContent
+          : "点击节点查看关联高亮 · 点击空白处取消";
+      }
+      svg.addEventListener("click", (event) => highlight(event.target.closest(".dag-node")?.dataset.key || null));
+      svg.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          highlight(event.target.closest(".dag-node")?.dataset.key || null);
+        }
+        if (event.key === "Escape") highlight(null);
+      });
+      document.getElementById("zoom-in").onclick = () => setZoom(zoom + 0.25);
+      document.getElementById("zoom-out").onclick = () => setZoom(zoom - 0.25);
+      document.getElementById("fit").onclick = () => setZoom(1);
+      setZoom(1);
+    </script>
+  </body>
+</html>

@@ -11,27 +11,28 @@ const displayKeys = {
     "shadowOpacity",
     "showGroupStats",
   ],
-  edges: ["showEdgeLabels", "sankeyLinkOpacity"],
+  edges: ["showEdgeLabels", "sankeyLinkOpacity", "edgeArrowStyle"],
   text: [],
 } as const;
 export function resetAppearanceSection(
   appearance: GraphAppearance,
   group: AppearanceGroup | "layout",
+  defaults = DEFAULT_GRAPH_APPEARANCE,
 ): GraphAppearance {
   if (group === "layout")
     return {
       ...appearance,
-      layout: { ...DEFAULT_GRAPH_APPEARANCE.layout },
-      display: { ...appearance.display, sankeyNodeWidth: DEFAULT_GRAPH_APPEARANCE.display.sankeyNodeWidth },
+      layout: { ...defaults.layout },
+      display: { ...appearance.display, sankeyNodeWidth: defaults.display.sankeyNodeWidth },
     };
   if (group !== "nodes" && group !== "edges" && group !== "text") return appearance;
   const display = { ...appearance.display };
-  for (const key of displayKeys[group]) Object.assign(display, { [key]: DEFAULT_GRAPH_APPEARANCE.display[key] });
+  for (const key of displayKeys[group]) Object.assign(display, { [key]: defaults.display[key] });
   const cssVars = { ...appearance.cssVars };
   const prefix = group === "nodes" ? "--dag-node-" : group === "edges" ? "--dag-edge" : "--dag-text-";
   for (const key of Object.keys(cssVars)) {
     if (key.startsWith(prefix) || (group === "text" && key.startsWith("--dag-title-"))) {
-      if (key in DEFAULT_GRAPH_APPEARANCE.cssVars) cssVars[key] = DEFAULT_GRAPH_APPEARANCE.cssVars[key];
+      if (key in defaults.cssVars) cssVars[key] = defaults.cssVars[key];
       else delete cssVars[key];
     }
   }

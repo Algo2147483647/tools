@@ -30,6 +30,7 @@ import { spaceHistorySuite } from "./spaceHistory.test";
 import { scienceHistorySuite } from "./scienceHistory.test";
 import { nodeRelationsSuite } from "./nodeRelations.test";
 import { htmlExportSuite } from "./htmlExport.test";
+import { nodeLinkDefaultsSuite } from "./nodeLinkDefaults.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -41,6 +42,7 @@ async function main() {
     previewSuite,
     settingsSuite,
     htmlExportSuite,
+    nodeLinkDefaultsSuite,
     chartTypesSuite,
     graphSuite,
     importMergeSuite,

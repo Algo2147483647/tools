@@ -9,6 +9,7 @@ export interface GraphAppearance {
 }
 
 interface GraphDisplayAppearance {
+  edgeArrowStyle: "filled" | "open";
   showNodeDots: boolean;
   showEdgeLabels: boolean;
   showGroupStats: boolean;
@@ -268,6 +269,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     stageMinHeight: 600,
   },
   display: {
+    edgeArrowStyle: "filled",
     showNodeDots: true,
     showEdgeLabels: false,
     showGroupStats: true,
@@ -328,6 +330,7 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
       stageMinHeight: clampNumeric(layoutInput.stageMinHeight, defaultLayout.stageMinHeight, 240, 3000),
     },
     display: {
+      edgeArrowStyle: displayInput.edgeArrowStyle === "open" ? "open" : "filled",
       showNodeDots: typeof displayInput.showNodeDots === "boolean" ? displayInput.showNodeDots : true,
       showEdgeLabels:
         displayInput.showEdgeLabels === undefined

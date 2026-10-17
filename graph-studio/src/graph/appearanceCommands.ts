@@ -4,6 +4,8 @@ import {
   DEFAULT_GRAPH_APPEARANCE,
   sanitizeGraphAppearance,
 } from "./appearance";
+import type { GraphChartType } from "./types";
+import { NODE_LINK_DEFAULT_APPEARANCE } from "./nodeLinkAppearance";
 
 export type AppearanceCommand =
   | { type: "setLayout"; key: keyof GraphLayoutAppearance; value: number }
@@ -174,9 +176,19 @@ export const GRAPH_APPEARANCE_PRESETS: GraphAppearancePreset[] = [
   },
 ];
 
-export function applyAppearanceCommand(source: GraphAppearance, command: AppearanceCommand): AppearanceCommandResult {
+export function getGraphAppearancePresets(chartType?: GraphChartType): GraphAppearancePreset[] {
+  return chartType === "node-link"
+    ? [{ id: "default", label: "Default", appearance: NODE_LINK_DEFAULT_APPEARANCE }]
+    : GRAPH_APPEARANCE_PRESETS;
+}
+
+export function applyAppearanceCommand(
+  source: GraphAppearance,
+  command: AppearanceCommand,
+  chartType?: GraphChartType,
+): AppearanceCommandResult {
   const before = sanitizeGraphAppearance(source);
-  const after = sanitizeGraphAppearance(applyRawAppearanceCommand(before, command));
+  const after = sanitizeGraphAppearance(applyRawAppearanceCommand(before, command, chartType));
   return {
     appearance: after,
     message: buildAppearanceCommandMessage(command),
@@ -191,7 +203,11 @@ export function buildAppearanceMutationLabel(count: number, fallbackMessage: str
   return `Updated graph appearance with ${count} commands.`;
 }
 
-function applyRawAppearanceCommand(source: GraphAppearance, command: AppearanceCommand): GraphAppearance {
+function applyRawAppearanceCommand(
+  source: GraphAppearance,
+  command: AppearanceCommand,
+  chartType?: GraphChartType,
+): GraphAppearance {
   switch (command.type) {
     case "setLayout":
       return {
@@ -219,9 +235,12 @@ function applyRawAppearanceCommand(source: GraphAppearance, command: AppearanceC
     case "appendCss":
       return { ...source, css: [source.css.trim(), command.css.trim()].filter(Boolean).join("\n\n") };
     case "resetAppearance":
-      return DEFAULT_GRAPH_APPEARANCE;
-    case "applyPreset":
-      return GRAPH_APPEARANCE_PRESETS.find((preset) => preset.id === command.presetId)?.appearance || source;
+      return chartType === "node-link" ? NODE_LINK_DEFAULT_APPEARANCE : DEFAULT_GRAPH_APPEARANCE;
+    case "applyPreset": {
+      const preset = getGraphAppearancePresets(chartType).find((preset) => preset.id === command.presetId);
+      if (!preset) throw new Error(`Preset ${command.presetId} is not available for ${chartType}.`);
+      return preset.appearance;
+    }
   }
 }
 

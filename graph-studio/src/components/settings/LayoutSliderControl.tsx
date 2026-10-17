@@ -5,10 +5,12 @@ import NumericSetting from "./NumericSetting";
 export default function LayoutSliderControl({
   control,
   value,
+  defaultValue,
   onChange,
 }: {
   control: LayoutControlDefinition;
   value: number;
+  defaultValue?: number;
   onChange: (value: number) => void;
 }) {
   const { key, ...definition } = control;
@@ -16,7 +18,7 @@ export default function LayoutSliderControl({
     <NumericSetting
       {...definition}
       value={value}
-      defaultValue={DEFAULT_GRAPH_APPEARANCE.layout[key]}
+      defaultValue={defaultValue ?? DEFAULT_GRAPH_APPEARANCE.layout[key]}
       onChange={(value) => onChange(Math.round(value))}
     />
   );

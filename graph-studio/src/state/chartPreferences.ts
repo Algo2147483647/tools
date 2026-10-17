@@ -1,11 +1,13 @@
 import type { GraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
-import { mapChartTypes, type ChartStyle, type ChartStyles } from "./chartStyles";
+import { mapChartTypes, type ChartStyle, type ChartStyles, type ChartDisplayOptions } from "./chartStyles";
 
 interface AppearanceTransaction {
   label: string;
   before: GraphAppearance;
   after: GraphAppearance;
+  beforeDisplay?: ChartDisplayOptions;
+  afterDisplay?: ChartDisplayOptions;
 }
 
 interface AppearanceHistory extends ChartStyle {
@@ -17,7 +19,7 @@ interface AppearanceHistory extends ChartStyle {
 type AppearanceHistoryAction =
   | { type: "beginAdjustment" }
   | { type: "endAdjustment" }
-  | { type: "commit"; appearance: GraphAppearance; label: string }
+  | { type: "commit"; appearance: GraphAppearance; label: string; display?: ChartDisplayOptions }
   | { type: "undo" }
   | { type: "redo" }
   | { type: "toggleDisplay"; key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax" };
@@ -66,12 +68,29 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
     case "toggleDisplay":
       return { ...state, [action.key]: !state[action.key] };
     case "commit": {
-      if (JSON.stringify(state.appearance) === JSON.stringify(action.appearance)) return state;
+      if (action.display && state.adjustment)
+        return appearanceHistoryReducer(appearanceHistoryReducer(state, { type: "endAdjustment" }), action);
+      const beforeDisplay = {
+        showNodeDetail: state.showNodeDetail,
+        hideNodeBorders: state.hideNodeBorders,
+        alignNodeWidthsToMax: state.alignNodeWidthsToMax,
+      };
+      if (
+        JSON.stringify(state.appearance) === JSON.stringify(action.appearance) &&
+        (!action.display || JSON.stringify(beforeDisplay) === JSON.stringify(action.display))
+      )
+        return state;
       if (state.adjustment)
         return { ...state, appearance: action.appearance, adjustment: { ...state.adjustment, label: action.label } };
-      const transaction = { label: action.label, before: state.appearance, after: action.appearance };
+      const transaction = {
+        label: action.label,
+        before: state.appearance,
+        after: action.appearance,
+        ...(action.display ? { beforeDisplay, afterDisplay: action.display } : {}),
+      };
       return {
         ...state,
+        ...action.display,
         appearance: action.appearance,
         undoStack: [...state.undoStack, transaction].slice(-100),
         redoStack: [],
@@ -83,6 +102,7 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
         ? {
             ...state,
             appearance: transaction.before,
+            ...transaction.beforeDisplay,
             undoStack: state.undoStack.slice(0, -1),
             redoStack: [...state.redoStack, transaction],
           }
@@ -94,6 +114,7 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
         ? {
             ...state,
             appearance: transaction.after,
+            ...transaction.afterDisplay,
             undoStack: [...state.undoStack, transaction].slice(-100),
             redoStack: state.redoStack.slice(0, -1),
           }

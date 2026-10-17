@@ -46,11 +46,11 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
       action: { type: "commit", appearance, label: "Color" },
     });
     state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "undo" } });
-    assert.equal(state["node-link"].showNodeDetail, false);
+    assert.equal(state["node-link"].showNodeDetail, true);
     assert.equal(state.sankey.showNodeDetail, true);
     state = chartPreferencesReducer(state, { chartType: "node-link", action: { type: "redo" } });
     const persisted = getChartStyles(state);
-    assert.equal(persisted["node-link"].showNodeDetail, false);
+    assert.equal(persisted["node-link"].showNodeDetail, true);
     assert.equal("undoStack" in persisted["node-link"], false);
     assert.equal("redoStack" in persisted["node-link"], false);
     assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: persisted }))?.chartStyles, persisted);
@@ -377,7 +377,7 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     const invalid = parseGraphPagePreferences(
       '{"chartStyles":{"node-link":null,"sankey":{"appearance":{"display":{"sankeyLinkOpacity":999}}}}}',
     )!;
-    assert.equal(invalid.chartStyles!["node-link"].showNodeDetail, true);
+    assert.equal(invalid.chartStyles!["node-link"].showNodeDetail, false);
     assert.equal(invalid.chartStyles!.sankey.appearance.display.sankeyLinkOpacity, 90);
   }),
   defineTest("appearance commits, resets, undo and redo affect only their chart type", () => {
