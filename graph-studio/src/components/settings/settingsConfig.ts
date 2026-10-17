@@ -7,43 +7,36 @@ export type SettingsChapter = "general" | "files" | "chart" | "appearance" | "la
 export const SETTINGS_CHAPTERS: Array<{
   key: SettingsChapter;
   label: string;
-  description: string;
   icon: IconName;
 }> = [
   {
     key: "general",
     label: "General",
-    description: "Workspace interface & panels",
     icon: "sliders",
   },
   {
     key: "files",
     label: "Files",
-    description: "Files, folders & recent locations",
     icon: "folder",
   },
   {
     key: "chart",
     label: "Chart type",
-    description: "Node-link, nested subgraphs, Sankey or timeline",
     icon: "graph",
   },
   {
     key: "layout",
     label: "Layout",
-    description: "Arrangement & spacing",
     icon: "layout",
   },
   {
     key: "appearance",
     label: "Appearance",
-    description: "Appearance is saved independently for each chart type.",
     icon: "palette",
   },
   {
     key: "ai",
     label: "AI assistant",
-    description: "Providers & execution",
     icon: "ai",
   },
 ];

@@ -636,11 +636,11 @@
   background: #f0f5ff;
   box-shadow: 0 0 0 1px #6286ce;
 }
-.chart-type-grid svg {
+.chart-type-grid .chart-type-icon {
   display: block;
-  width: 100%;
-  height: 74px;
-  margin-bottom: 10px;
+  width: 64px;
+  height: 64px;
+  margin: 5px auto 15px;
 }
 .chart-type-grid strong,
 .layout-engine-grid strong {

@@ -1,3 +1,4 @@
+import ChartTypeIcon from "../ui/ChartTypeIcon";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import type { ChangeEvent } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
@@ -62,7 +63,6 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   if (p.view === "chart")
     return (
       <section className="settings-section">
-        <p>Choose how to represent your graph. Each type remembers its own appearance.</p>
         <div className="chart-type-grid">
           {(
             [
@@ -84,58 +84,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
               aria-describedby={value === "sankey" && p.sankeyUnavailableReason ? "sankey-requirements" : undefined}
               onClick={() => p.onChartTypeChange(value)}
             >
-              <svg viewBox="0 0 160 70" aria-hidden="true">
-                {value === "node-link" ? (
-                  <>
-                    <path d="M35 35H72L116 17M72 35L116 53" fill="none" stroke="currentColor" strokeWidth="2" />
-                    {[
-                      [18, 25],
-                      [116, 7],
-                      [116, 43],
-                    ].map(([x, y]) => (
-                      <rect key={y} x={x} y={y} width="28" height="20" rx="5" fill="white" stroke="currentColor" />
-                    ))}
-                  </>
-                ) : value === "timeline" ? (
-                  <g fill="white" stroke="currentColor" strokeWidth="2">
-                    <path d="M42 9V61M42 20C42 31 94 27 94 39V47C94 57 42 51 42 61" fill="none" />
-                    <circle cx="42" cy="10" r="5" />
-                    <circle cx="42" cy="61" r="5" />
-                    <rect x="89" y="32" width="10" height="18" rx="5" />
-                    <path d="M57 10h55M108 36h34M57 61h55" opacity=".35" />
-                  </g>
-                ) : value === "compound" ? (
-                  <g fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="10" y="5" width="95" height="60" rx="5" />
-                    <rect x="20" y="22" width="45" height="33" rx="4" />
-                    <rect x="29" y="33" width="20" height="12" rx="2" />
-                    <path d="M49 39H125" />
-                    <rect x="125" y="29" width="25" height="20" rx="4" />
-                  </g>
-                ) : (
-                  <>
-                    <path
-                      d="M30 32C76 32 76 22 126 22"
-                      stroke="currentColor"
-                      strokeWidth="20"
-                      opacity=".3"
-                      fill="none"
-                    />
-                    <path
-                      d="M30 49C76 49 76 55 126 55"
-                      stroke="currentColor"
-                      strokeWidth="12"
-                      opacity=".5"
-                      fill="none"
-                    />
-                    <g fill="currentColor">
-                      <rect x="23" y="22" width="7" height="33" rx="2" />
-                      <rect x="126" y="12" width="7" height="20" rx="2" />
-                      <rect x="126" y="49" width="7" height="12" rx="2" />
-                    </g>
-                  </>
-                )}
-              </svg>
+              <ChartTypeIcon type={value} />
               <strong>{label}</strong>
               <small>{description}</small>
             </button>

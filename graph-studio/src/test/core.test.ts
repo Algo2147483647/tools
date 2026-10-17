@@ -29,6 +29,7 @@ import { timelineRenderingSuite } from "./timelineRendering.test";
 import { spaceHistorySuite } from "./spaceHistory.test";
 import { scienceHistorySuite } from "./scienceHistory.test";
 import { nodeRelationsSuite } from "./nodeRelations.test";
+import { htmlExportSuite } from "./htmlExport.test";
 
 async function main() {
   const { passed, failed } = await runSuites([
@@ -39,6 +40,7 @@ async function main() {
     appearanceSuite,
     previewSuite,
     settingsSuite,
+    htmlExportSuite,
     chartTypesSuite,
     graphSuite,
     importMergeSuite,

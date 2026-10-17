@@ -13,10 +13,23 @@ It is built for fast graph inspection and editing in the browser:
 - batch graph edits from a text console in `Edit` mode
 - undo and redo graph mutations without losing navigation history
 - save the updated graph back to JSON or export the current view as SVG
+- export the current canvas as a standalone interactive HTML file with read-only node details
 
 ![Graph Studio screenshot](./docs/assets/screenshot.png)
 
 ## Quick Start
+
+### Interactive HTML export
+
+Open **Settings → Files → Export interactive HTML** after a graph has rendered. The single HTML file contains the current view's layout, styles, visible node fields and visible relationships. It opens without Graph Studio or a network connection and has no app toolbar, workspace explorer or console.
+
+- Click a node to select it; double-click, press Enter or choose **Node details** to open its detail page.
+- The detail page includes Markdown fields, formulas, raw JSON and links to related nodes in the exported view. Escape returns to the canvas.
+- Drag to pan, scroll or pinch to zoom. With the canvas focused, use `+` / `-` to zoom, arrow keys to pan and `0` to fit the complete exported view.
+
+The export is a read-only snapshot: filtered nodes, nodes inside collapsed groups, linked workspace files and embedded images are not bundled. Expand groups before export to include their nodes. Group containers retain their displayed title and can be selected, but their layout cannot be expanded or edited in the exported file. External references remain links; opening them requires a connection. Fonts use the recipient's installed fonts.
+
+For development, `/browser-tests/html-export.html` serves a fixed-data interaction fixture through Vite, covering selection, details, Markdown/math, relationships and zoom without opening local user files.
 
 ### One-click startup (Windows / macOS)
 

@@ -8,6 +8,8 @@ export default function FilesSettings({
   fileName,
   onInitializeCanvas,
   onExport,
+  onExportHtml,
+  canExportCanvas,
   onClose,
   showFiles = true,
   showSession = true,
@@ -17,6 +19,8 @@ export default function FilesSettings({
   fileName: string;
   onInitializeCanvas: () => void;
   onExport: () => void;
+  onExportHtml: () => void;
+  canExportCanvas: boolean;
   onClose: () => void;
   showFiles?: boolean;
   showSession?: boolean;
@@ -29,7 +33,6 @@ export default function FilesSettings({
           <div className="settings-section-header">
             <div>
               <h3>Open & create</h3>
-              <p>Choose a single document or a folder-based workspace.</p>
             </div>
           </div>
           <div className="settings-open-grid">
@@ -70,8 +73,18 @@ export default function FilesSettings({
             >
               + New graph
             </button>
-            <button className="studio-button" disabled={!hasGraph} onClick={onExport}>
-              Export current view as SVG
+          </div>
+        </section>
+      )}
+      {showFiles && (
+        <section className="settings-section">
+          <h3>Export current view</h3>
+          <div className="settings-inline-actions">
+            <button className="studio-button" disabled={!canExportCanvas} onClick={onExport}>
+              Export SVG
+            </button>
+            <button className="studio-button" disabled={!canExportCanvas} onClick={onExportHtml}>
+              Export interactive HTML
             </button>
           </div>
         </section>
@@ -137,7 +150,6 @@ export default function FilesSettings({
       {showFiles && (
         <section className="settings-section">
           <h3>Recent locations</h3>
-          <p>Folder permissions may need to be renewed when reopening.</p>
           {!files.recents.length && (
             <p className="settings-help">Recently opened files and workspaces will appear here.</p>
           )}

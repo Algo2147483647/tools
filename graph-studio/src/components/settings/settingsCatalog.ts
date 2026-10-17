@@ -27,7 +27,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     "files",
     "Files",
     "Open & create",
-    "workspace graph new recent import export file folder 文件 工作区 打开 新建 最近",
+    "workspace graph new recent import export svg html canvas file folder 文件 工作区 打开 新建 最近 导出 画布",
   );
   add("session", "files", "Workspace", "Current session", "manifest location refresh close 会话 路径");
   add("console", "general", "Interface", "Graph console", "panel sidebar ai commands 控制台 面板 侧栏 命令");

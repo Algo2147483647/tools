@@ -61,6 +61,8 @@ interface SettingsModalProps {
   onConsoleSidebarToggle: () => void;
   onInitializeCanvas: () => void;
   onExport: () => void;
+  onExportHtml: () => void;
+  canExportCanvas: boolean;
   onAiSettingsChange: (settings: AiSettings) => void;
   onAiConnectionTest: () => Promise<boolean>;
 }
@@ -107,6 +109,8 @@ export default function SettingsModal({
   onConsoleSidebarToggle,
   onInitializeCanvas,
   onExport,
+  onExportHtml,
+  canExportCanvas,
   onAiSettingsChange,
   onAiConnectionTest,
 }: SettingsModalProps) {
@@ -280,7 +284,6 @@ export default function SettingsModal({
                   setActiveChapter(chapter.key);
                   if (query && !chapterCount(chapter.key)) setQuery("");
                 }}
-                title={chapter.description}
               >
                 <Icon name={chapter.icon} />
                 <span>
@@ -323,15 +326,6 @@ export default function SettingsModal({
                       <span className="settings-chart-badge">{getGraphChartLabel(chartType)}</span>
                     )}
                   </div>
-                  <p>
-                    {shownChapter === "appearance"
-                      ? "Appearance is saved independently for each chart type."
-                      : shownChapter === "layout"
-                        ? "Adjust arrangement and spacing for this chart type."
-                        : shownChapter === "ai"
-                          ? "AI connection and execution settings are shared across graphs in this browser."
-                          : SETTINGS_CHAPTERS.find((chapter) => chapter.key === shownChapter)?.description}
-                  </p>
                   {query.trim() && (
                     <p role="status">
                       {chapterCount(shownChapter)} matching settings · {results.length} across all sections
@@ -364,6 +358,8 @@ export default function SettingsModal({
                   hasGraph={hasGraph}
                   onInitializeCanvas={onInitializeCanvas}
                   onExport={onExport}
+                  onExportHtml={onExportHtml}
+                  canExportCanvas={canExportCanvas}
                   showFiles={results.some((item) => item.id === "files")}
                   showSession={results.some((item) => item.id === "session")}
                 />

@@ -18,11 +18,13 @@ const EXPORT_STYLE_PROPERTIES = [
   "text-anchor",
   "dominant-baseline",
   "filter",
+  "display",
+  "visibility",
 ];
 
 const EXPORT_OPTIONAL_NONE_PROPERTIES = new Set(["stroke", "stroke-dasharray", "filter"]);
 
-function buildExportSvg(sourceSvg: SVGSVGElement): SVGSVGElement {
+export function buildExportSvg(sourceSvg: SVGSVGElement): SVGSVGElement {
   const clone = sourceSvg.cloneNode(true) as SVGSVGElement;
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");

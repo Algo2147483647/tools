@@ -1,3 +1,4 @@
+import { GRAPH_BASE_CSS } from "./graphBaseStyles";
 import { GRAPH_EFFECTS_CSS } from "../graph/appearance";
 import { TIMELINE_CSS, timelineMarkerId } from "./timelineStyles";
 
@@ -12,7 +13,7 @@ interface GraphDefsProps {
 export default function GraphDefs({ appearanceCss, timelineColors = [] }: GraphDefsProps) {
   return (
     <defs>
-      <style>{`${appearanceCss}\n${GRAPH_EFFECTS_CSS}\n${TIMELINE_CSS}`}</style>
+      <style>{`${GRAPH_BASE_CSS}\n${appearanceCss}\n${GRAPH_EFFECTS_CSS}\n${TIMELINE_CSS}`}</style>
       {timelineColors.map((color) => (
         <marker
           key={color}
