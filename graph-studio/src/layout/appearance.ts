@@ -7,7 +7,9 @@ export interface StageAppearance {
   typography?: TextFont;
   fontMetricsKey?: string;
   display: Pick<GraphAppearance["display"], "sankeyNodeWidth"> &
-    Partial<Pick<GraphAppearance["display"], "showGroupStats">>;
+    Partial<
+      Pick<GraphAppearance["display"], "showGroupStats" | "titleAlign" | "titleOverflow" | "titleWrap" | "showNodeDots">
+    >;
 }
 export function getStageAppearance(
   appearance: GraphAppearance,
@@ -21,7 +23,13 @@ export function getStageAppearance(
     display: {
       sankeyNodeWidth: appearance.display.sankeyNodeWidth,
       ...(chartType === undefined || chartType === "compound"
-        ? { showGroupStats: appearance.display.showGroupStats }
+        ? {
+            showGroupStats: appearance.display.showGroupStats,
+            titleAlign: appearance.display.titleAlign,
+            titleOverflow: appearance.display.titleOverflow,
+            titleWrap: appearance.display.titleWrap,
+            showNodeDots: appearance.display.showNodeDots,
+          }
         : {}),
     },
   };

@@ -1,6 +1,6 @@
 import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "./appearance";
 import type { GraphChartType } from "./types";
-import { getDefaultChartStyle } from "../state/chartStyles";
+import { getDefaultChartStyle, getCompoundPreset2Style } from "../state/chartStyles";
 
 export type AppearanceCommand =
   | { type: "setLayout"; key: keyof GraphLayoutAppearance; value: number }
@@ -11,7 +11,7 @@ export type AppearanceCommand =
   | { type: "resetAppearance" }
   | { type: "applyPreset"; presetId: GraphAppearancePresetId };
 
-export type GraphAppearancePresetId = "default";
+export type GraphAppearancePresetId = "default" | "preset-2";
 
 interface GraphAppearancePreset {
   id: GraphAppearancePresetId;
@@ -26,7 +26,13 @@ export interface AppearanceCommandResult {
 }
 
 export function getGraphAppearancePresets(chartType?: GraphChartType): GraphAppearancePreset[] {
-  return [{ id: "default", label: "Default", appearance: getDefaultChartStyle(chartType ?? "compound").appearance }];
+  const type = chartType ?? "compound";
+  return [
+    { id: "default", label: "Default", appearance: getDefaultChartStyle(type).appearance },
+    ...(type === "compound"
+      ? [{ id: "preset-2" as const, label: "Preset 2", appearance: getCompoundPreset2Style().appearance }]
+      : []),
+  ];
 }
 
 export function applyAppearanceCommand(

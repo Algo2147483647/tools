@@ -40,26 +40,25 @@ export function createChartStyles(): ChartStyles {
 export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
   if (type === "node-link")
     return { appearance: structuredClone(NODE_LINK_DEFAULT_APPEARANCE), ...NODE_LINK_DEFAULT_DISPLAY };
-  if (type === "compound")
-    return {
-      appearance: sanitizeGraphAppearance({
-        ...DEFAULT_GRAPH_APPEARANCE,
-        layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, columnGap: 24, rowGap: 24, nodeHeight: 48, maxNodeWidth: 240 },
-        display: {
-          ...DEFAULT_GRAPH_APPEARANCE.display,
-          nodeCornerRadius: 16,
-          showGroupStats: false,
-          showGroupBorders: false,
-          showEdgeLabels: false,
-          edgeArrowStyle: "open",
-        },
-        cssVars: { ...DEFAULT_GRAPH_APPEARANCE.cssVars, "--dag-edge": "#e1e3e6", "--dag-edge-active": "#8b1e2d" },
-        css: `${DEFAULT_GRAPH_APPEARANCE.css}\n.dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }`,
-      }),
-      showNodeDetail: false,
-      hideNodeBorders: true,
-      alignNodeWidthsToMax: true,
-    };
+  if (type === "compound") {
+    const style = getCompoundPreset2Style();
+    style.appearance.layout.nodeHeight = 100;
+    style.appearance.layout.minNodeWidth = 200;
+    style.appearance.layout.maxNodeWidth = 200;
+    Object.assign(style.appearance.display, {
+      titleAlign: "center",
+      titleWrap: true,
+      showNodeDots: false,
+      nodeCornerRadius: 20,
+    });
+    Object.assign(style.appearance.cssVars, {
+      "--dag-title-font-size": "22px",
+      "--dag-title-font-family": '"Times New Roman", serif',
+      "--dag-edge-active": "#cc0000",
+      "--dag-edge": "#cccccc",
+    });
+    return style;
+  }
   return sanitizeChartStyle(type === "timeline" ? { showNodeDetail: false } : null);
 }
 
@@ -67,4 +66,26 @@ export function sanitizeChartStyleForType(type: GraphChartType, value: unknown):
   const defaults = getDefaultChartStyle(type);
   const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Partial<ChartStyle>) : {};
   return sanitizeChartStyle({ ...defaults, ...input, appearance: input.appearance ?? defaults.appearance });
+}
+
+export function getCompoundPreset2Style(): ChartStyle {
+  return {
+    appearance: sanitizeGraphAppearance({
+      ...DEFAULT_GRAPH_APPEARANCE,
+      layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, columnGap: 24, rowGap: 24, nodeHeight: 48, maxNodeWidth: 240 },
+      display: {
+        ...DEFAULT_GRAPH_APPEARANCE.display,
+        nodeCornerRadius: 16,
+        showGroupStats: false,
+        showGroupBorders: false,
+        showEdgeLabels: false,
+        edgeArrowStyle: "open",
+      },
+      cssVars: { ...DEFAULT_GRAPH_APPEARANCE.cssVars, "--dag-edge": "#e1e3e6", "--dag-edge-active": "#8b1e2d" },
+      css: `${DEFAULT_GRAPH_APPEARANCE.css}\n.dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }`,
+    }),
+    showNodeDetail: false,
+    hideNodeBorders: true,
+    alignNodeWidthsToMax: true,
+  };
 }

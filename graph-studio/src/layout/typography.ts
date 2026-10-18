@@ -23,16 +23,22 @@ export const DEFAULT_TITLE_FONT = getTitleFont(DEFAULT_GRAPH_APPEARANCE);
 export const CARD_DETAIL_LINE_HEIGHT = 12;
 export const CARD_BADGE_HEIGHT = 10;
 
-export function minimumCardHeight(font: TextFont, detailCount: number, hasBadge: boolean): number {
-  const titleHeight = Math.ceil(font.size * 1.2);
+export function minimumCardHeight(font: TextFont, detailCount: number, hasBadge: boolean, titleLines = 1): number {
+  const titleHeight = Math.ceil(font.size * 1.2) * titleLines;
   return detailCount
     ? 16 + titleHeight + 4 + detailCount * CARD_DETAIL_LINE_HEIGHT + (hasBadge ? 4 + CARD_BADGE_HEIGHT : 0)
     : titleHeight + (hasBadge ? 30 : 16);
 }
 
-export function cardContentLayout(height: number, font: TextFont, detailCount: number, hasBadge: boolean) {
-  const titleHeight = Math.ceil(font.size * 1.2);
-  const top = (height - minimumCardHeight(font, detailCount, hasBadge)) / 2 + 8;
+export function cardContentLayout(
+  height: number,
+  font: TextFont,
+  detailCount: number,
+  hasBadge: boolean,
+  titleLines = 1,
+) {
+  const titleHeight = Math.ceil(font.size * 1.2) * titleLines;
+  const top = (height - minimumCardHeight(font, detailCount, hasBadge, titleLines)) / 2 + 8;
   return {
     titleY: detailCount ? top + titleHeight / 2 : height / 2,
     detailY: top + titleHeight + 4 + CARD_DETAIL_LINE_HEIGHT / 2,

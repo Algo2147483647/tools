@@ -95,7 +95,7 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
     commitAppearance(
       applyAppearanceCommand(appearance, { type: "applyPreset", presetId }, chartType).appearance,
       `Applied ${presetId} appearance preset.`,
-      presetId === "default",
+      true,
     );
   }
 

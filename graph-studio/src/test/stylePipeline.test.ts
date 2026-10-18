@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import ELK from "elkjs/lib/elk.bundled.js";
 import { defineSuite, defineTest } from "./harness";
 import { normalizeDagInput } from "../graph/normalize";
-import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
+import { getDefaultChartStyle, getCompoundPreset2Style, createChartStyles } from "../state/chartStyles";
 import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { getStageAppearance } from "../layout/appearance";
@@ -13,7 +13,7 @@ import { buildCompoundStage } from "../layout/compound-layout";
 import { PREVIEW_GRAPHS } from "../components/settings/previewModel";
 import GraphStage from "../rendering/GraphStage";
 import GraphNode from "../rendering/GraphNode";
-import { measureText } from "../layout/text";
+import { measureText, layoutCardTitle } from "../layout/text";
 import { getTitleFont } from "../layout/typography";
 import { parseConsoleSource } from "../console/dsl";
 import { executeConsoleInstructions } from "../console/executor";
@@ -36,6 +36,53 @@ const dag = normalizeDagInput({
 });
 
 export const stylePipelineSuite = defineSuite("Complete style and content layout", [
+  defineTest("compound title bounds, alignment, wrapping and overflow follow the configured policy", async () => {
+    const style = getCompoundPreset2Style();
+    const font = getTitleFont(style.appearance);
+    const text = "Set theory and mathematical logic";
+    const fitted = layoutCardTitle(text, 240, font, {});
+    assert.equal(fitted.x, 48);
+    assert.ok(measureText(fitted.lines[0], font) <= 176);
+    const full = layoutCardTitle(text, 240, font, { titleOverflow: "visible" });
+    assert.equal(full.lines[0], text);
+    const clip = layoutCardTitle(text, 240, font, { titleOverflow: "clip" });
+    assert.ok(!clip.lines[0].endsWith("…"));
+    assert.ok(measureText(clip.lines[0], font) <= 176);
+    const noDot = layoutCardTitle(text, 240, font, { showNodeDots: false });
+    assert.equal(noDot.x, 16);
+    assert.ok(noDot.lines[0].length >= fitted.lines[0].length);
+    const centered = layoutCardTitle(text, 240, font, { titleAlign: "center", titleWrap: true });
+    assert.equal(centered.x, 120);
+    assert.equal(centered.anchor, "middle");
+    assert.equal(centered.lines.length, 2);
+    for (const line of centered.lines) assert.ok(measureText(line, font) <= 144);
+    style.appearance.display.titleAlign = "center";
+    style.appearance.display.titleWrap = true;
+    style.showNodeDetail = true;
+    const stage = await buildCompoundStage(
+      {
+        dag,
+        view: { collapsedGroupIds: [], focusGroupId: null },
+        ...style,
+        appearance: getStageAppearance(style.appearance, "compound"),
+      },
+      new ELK(),
+    );
+    const node = stage.nodeMap.a;
+    assert.equal(node.titleLayout!.lines.length, 2);
+    assert.equal(node.titleLayout!.x, node.width / 2);
+    assert.ok(
+      node.contentLayout!.titleY + node.titleLayout!.lineHeight / 2 + font.size * 0.6 < node.contentLayout!.detailY - 5,
+    );
+    const html = renderToStaticMarkup(
+      createElement(GraphNode, { node, isActive: false, onClick: noop, onContextMenu: noop, onFocusChange: noop }),
+    );
+    assert.match(html, /text-anchor="middle" style="transform:none"/);
+    assert.ok(html.includes(node.titleLayout!.lines[0]));
+    const restored = parseChartStyleFile(JSON.parse(serializeChartStyle("compound", style)), "compound");
+    assert.equal(restored.appearance.display.titleWrap, true);
+    assert.equal(restored.appearance.display.titleAlign, "center");
+  }),
   defineTest("font metrics invalidate geometry and fit titles for all node-link engines", () => {
     const style = getDefaultChartStyle("node-link");
     const large = structuredClone(style.appearance);
@@ -88,7 +135,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
       assert.ok(html.includes(`y="${content.titleY}"`));
     }
   }),
-  defineTest("compound default cards are 240x48 and expanded borders have an independent switch", async () => {
+  defineTest("compound default cards are 200x100 and expanded borders have an independent switch", async () => {
     const style = getDefaultChartStyle("compound");
     const input = {
       dag: PREVIEW_GRAPHS.compound,
@@ -98,16 +145,45 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     };
     const folded = await buildCompoundStage(input, new ELK());
     assert.ok(folded.nodes.some((node) => node.kind === "group"));
-    assert.ok(folded.nodes.every((node) => node.width === 240 && node.height === 48 && node.detailLines.length === 0));
-    assert.equal(style.appearance.display.nodeCornerRadius, 16);
+    assert.ok(folded.nodes.every((node) => node.width === 200 && node.height === 100 && node.detailLines.length === 0));
+    assert.equal(style.appearance.display.nodeCornerRadius, 20);
+    assert.equal(style.appearance.display.titleAlign, "center");
+    assert.equal(style.appearance.display.titleWrap, true);
+    assert.equal(style.appearance.display.showNodeDots, false);
+    assert.equal(style.appearance.cssVars["--dag-title-font-size"], "22px");
+    assert.equal(style.appearance.cssVars["--dag-title-font-family"], '"Times New Roman", serif');
+    assert.equal(style.appearance.cssVars["--dag-edge-active"], "#cc0000");
+    const titledDag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: { child: { title: "Child" } },
+      edges: [],
+      hierarchy: {
+        id: "root",
+        groups: { customer: { title: "Customer experience" } },
+        parentById: { child: "customer" },
+      },
+    });
+    const titleStage = await buildCompoundStage(
+      { ...input, dag: titledDag, view: { collapsedGroupIds: ["customer"], focusGroupId: null } },
+      new ELK(),
+    );
+    const customer = titleStage.nodeMap.customer;
+    assert.deepEqual(customer.titleLayout!.lines, ["Customer", "experience"]);
+    assert.equal(customer.width, 200);
+    assert.equal(customer.height, 100);
+    assert.equal(customer.titleLayout!.x, 100);
+    assert.equal(customer.contentLayout!.titleY, 50);
+    const previous = getCompoundPreset2Style();
+    assert.equal(previous.appearance.layout.maxNodeWidth, 240);
+    assert.equal(previous.appearance.layout.nodeHeight, 48);
+    assert.equal(previous.appearance.display.nodeCornerRadius, 16);
+    assert.equal(previous.appearance.display.showNodeDots, true);
     assert.equal(style.appearance.display.showGroupBorders, false);
     assert.equal(style.appearance.layout.columnGap, 24);
     assert.equal(style.appearance.layout.rowGap, 24);
     assert.equal(style.appearance.display.edgeArrowStyle, "open");
-    assert.equal(
-      style.appearance.cssVars["--dag-edge"],
-      getDefaultChartStyle("node-link").appearance.cssVars["--dag-edge"],
-    );
+    assert.equal(style.appearance.cssVars["--dag-edge"], "#cccccc");
     const expanded = await buildCompoundStage(
       { ...input, view: { collapsedGroupIds: [], focusGroupId: null } },
       new ELK(),

@@ -181,8 +181,27 @@ const GraphNode = memo(function GraphNode({
           />
           <circle className="dag-node__pin" cx={26} cy={node.height / 2} r={7} />
           <circle className="dag-node__pin-core" cx={26} cy={node.height / 2} r={2.25} />
-          <text className="dag-node__title dag-node__content" x={48} y={content.titleY} dominantBaseline="middle">
-            {node.displayTitle}
+          <text
+            className="dag-node__title dag-node__content"
+            x={node.titleLayout?.x ?? 48}
+            y={content.titleY}
+            textAnchor={node.titleLayout?.anchor}
+            style={node.titleLayout ? { transform: "none" } : undefined}
+            dominantBaseline="middle"
+          >
+            {node.titleLayout
+              ? node.titleLayout.lines.map((line, index) => (
+                  <tspan
+                    key={index}
+                    x={node.titleLayout!.x}
+                    y={
+                      content.titleY + (index - (node.titleLayout!.lines.length - 1) / 2) * node.titleLayout!.lineHeight
+                    }
+                  >
+                    {line}
+                  </tspan>
+                ))
+              : node.displayTitle}
           </text>
           {hasDetail ? (
             <text className="dag-node__detail dag-node__content" x={48} y={content.detailY} dominantBaseline="middle">

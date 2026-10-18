@@ -214,3 +214,54 @@ function isCjkCharacter(character: string): boolean {
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
+
+/** Fit titles to the card content bounds. Group controls render independently above the text. */
+export function layoutCardTitle(
+  text: string,
+  width: number,
+  font: TextFont,
+  options: {
+    titleAlign?: "left" | "center";
+    titleOverflow?: "ellipsis" | "clip" | "visible";
+    titleWrap?: boolean;
+    showNodeDots?: boolean;
+  },
+) {
+  const left = options.showNodeDots === false ? 16 : 48;
+  const center = options.titleAlign === "center";
+  const right = 16;
+  const available = Math.max(0, width - (center ? Math.max(left, right) * 2 : left + right));
+  const chars = Array.from(text);
+  const prefix = (value: string, limit: number) => {
+    const letters = Array.from(value);
+    let low = 0,
+      high = letters.length;
+    while (low < high) {
+      const mid = Math.ceil((low + high) / 2);
+      if (measureText(letters.slice(0, mid).join(""), font) <= limit) low = mid;
+      else high = mid - 1;
+    }
+    return low;
+  };
+  const overflow = (value: string) =>
+    options.titleOverflow === "visible"
+      ? value
+      : options.titleOverflow === "clip"
+        ? Array.from(value).slice(0, prefix(value, available)).join("")
+        : fitMeasuredText(value, available, font);
+  let lines: string[];
+  if (options.titleWrap && measureText(text, font) > available && available > 0) {
+    let split = Math.max(1, prefix(text, available));
+    // Prefer a word boundary; long words and CJK can break between characters.
+    const candidate = chars.slice(0, split).join("");
+    const boundary = candidate.search(/\s+\S*$/u);
+    if (boundary > 0) split = Array.from(candidate.slice(0, boundary)).length;
+    lines = [overflow(chars.slice(0, split).join("").trimEnd()), overflow(chars.slice(split).join("").trimStart())];
+  } else lines = [overflow(text)];
+  return {
+    lines,
+    x: center ? width / 2 : left,
+    anchor: center ? ("middle" as const) : ("start" as const),
+    lineHeight: Math.ceil(font.size * 1.2),
+  };
+}

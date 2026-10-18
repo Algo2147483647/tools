@@ -9,6 +9,9 @@ export interface GraphAppearance {
 }
 
 interface GraphDisplayAppearance {
+  titleAlign: "left" | "center";
+  titleOverflow: "ellipsis" | "clip" | "visible";
+  titleWrap: boolean;
   edgeArrowStyle: "filled" | "open";
   showNodeDots: boolean;
   showEdgeLabels: boolean;
@@ -270,6 +273,9 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
     stageMinHeight: 600,
   },
   display: {
+    titleAlign: "left",
+    titleOverflow: "ellipsis",
+    titleWrap: false,
     edgeArrowStyle: "filled",
     showNodeDots: true,
     showEdgeLabels: false,
@@ -332,6 +338,12 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
       stageMinHeight: finiteNumeric(layoutInput.stageMinHeight, defaultLayout.stageMinHeight),
     },
     display: {
+      titleAlign: displayInput.titleAlign === "center" ? "center" : "left",
+      titleOverflow:
+        displayInput.titleOverflow === "clip" || displayInput.titleOverflow === "visible"
+          ? displayInput.titleOverflow
+          : "ellipsis",
+      titleWrap: displayInput.titleWrap === true,
       edgeArrowStyle: displayInput.edgeArrowStyle === "open" ? "open" : "filled",
       showNodeDots: typeof displayInput.showNodeDots === "boolean" ? displayInput.showNodeDots : true,
       showEdgeLabels:

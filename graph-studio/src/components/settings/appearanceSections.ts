@@ -13,7 +13,7 @@ const displayKeys = {
     "showGroupBorders",
   ],
   edges: ["showEdgeLabels", "sankeyLinkOpacity", "edgeArrowStyle"],
-  text: [],
+  text: ["titleAlign", "titleOverflow", "titleWrap"],
 } as const;
 export function resetAppearanceSection(
   appearance: GraphAppearance,

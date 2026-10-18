@@ -79,6 +79,7 @@ export interface StageNode {
   order: number;
   title: string;
   displayTitle: string;
+  titleLayout?: { lines: string[]; x: number; anchor: "start" | "middle"; lineHeight: number };
   detail: string;
   detailLines: string[];
   typeLabel?: string;

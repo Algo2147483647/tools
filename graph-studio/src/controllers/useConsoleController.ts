@@ -149,8 +149,7 @@ export function useConsoleController({
           parsed.instructions.some(
             (instruction) =>
               instruction.type === "appearance" &&
-              (instruction.command.type === "resetAppearance" ||
-                (instruction.command.type === "applyPreset" && instruction.command.presetId === "default")),
+              (instruction.command.type === "resetAppearance" || instruction.command.type === "applyPreset"),
           ),
         );
         appendMessage("success", label);

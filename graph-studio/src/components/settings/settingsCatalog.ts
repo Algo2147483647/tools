@@ -90,6 +90,11 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   if (chart === "compound")
     a("showGroupStats", "Nodes", "Group statistics", "internal edges nodes counts 分组 统计 数量");
   if (chart === "compound") a("showGroupBorders", "Nodes", "Expanded group borders", "expanded subgraph outline");
+  if (chart === "compound") {
+    a("titleAlign", "Text", "Title alignment", "center left 标题 居中 对齐");
+    a("titleOverflow", "Text", "Title overflow", "truncate ellipsis clip 标题 截断 省略");
+    a("titleWrap", "Text", "Two-line title", "wrap 标题 换行 两行");
+  }
   if (chart === "sankey") a("sankeyLinkOpacity", "Edges", "Flow opacity", "bands alpha 桑基 流带 透明度");
   a("showEdgeLabels", "Edges", "Edge labels", "relation value 连线 标签");
   const colors =

@@ -1,3 +1,4 @@
+import Icon from "../ui/Icon";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import ChartSchema from "./ChartSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
@@ -320,6 +321,116 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             }}
           />
         )}
+        {(has("titleAlign") || has("titleOverflow") || has("fontWeight") || has("fontStyle")) && (
+          <div className="title-format-controls" role="group" aria-label="Title formatting">
+            {has("titleAlign") && (
+              <div className="title-format-row">
+                <span id="title-alignment-label">Alignment</span>
+                <div className="title-format-segments" role="group" aria-labelledby="title-alignment-label">
+                  {(["left", "center"] as const).map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      title={value === "left" ? "Align left" : "Align center"}
+                      aria-label={value === "left" ? "Align title left" : "Align title center"}
+                      aria-pressed={p.appearance.display.titleAlign === value}
+                      onClick={() => p.onAppearanceDisplayChange("titleAlign", value)}
+                    >
+                      <Icon name={value === "left" ? "align-left" : "align-center"} size={18} />
+                    </button>
+                  ))}
+                </div>
+                <ResetSetting
+                  label="Title alignment"
+                  changed={p.appearance.display.titleAlign !== defaults.display.titleAlign}
+                  onReset={() => p.onAppearanceDisplayChange("titleAlign", defaults.display.titleAlign)}
+                />
+              </div>
+            )}
+            {has("titleOverflow") && (
+              <div className="title-format-row">
+                <span id="title-overflow-label">Overflow</span>
+                <div className="title-format-segments" role="group" aria-labelledby="title-overflow-label">
+                  {(
+                    [
+                      { value: "ellipsis", label: "Ellipsis", icon: "text-ellipsis" },
+                      { value: "clip", label: "Clip text", icon: "text-clip" },
+                      { value: "visible", label: "Show full title", icon: "text-overflow" },
+                    ] as const
+                  ).map(({ value, label, icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      title={label}
+                      aria-label={label}
+                      aria-pressed={p.appearance.display.titleOverflow === value}
+                      onClick={() => p.onAppearanceDisplayChange("titleOverflow", value)}
+                    >
+                      <Icon name={icon} size={18} />
+                    </button>
+                  ))}
+                </div>
+                <ResetSetting
+                  label="Title overflow"
+                  changed={p.appearance.display.titleOverflow !== defaults.display.titleOverflow}
+                  onReset={() => p.onAppearanceDisplayChange("titleOverflow", defaults.display.titleOverflow)}
+                />
+              </div>
+            )}
+            {(has("fontWeight") || has("fontStyle")) && (
+              <div className="title-format-row">
+                <span id="title-style-label">Style</span>
+                <div className="title-format-segments" role="group" aria-labelledby="title-style-label">
+                  {has("fontWeight") && (
+                    <button
+                      type="button"
+                      title="Bold"
+                      aria-label="Bold title"
+                      aria-pressed={vars["--dag-title-font-weight"] === "700"}
+                      onClick={() =>
+                        p.onAppearanceCssVarChange(
+                          "--dag-title-font-weight",
+                          vars["--dag-title-font-weight"] === "700"
+                            ? defaults.cssVars["--dag-title-font-weight"] === "700"
+                              ? "400"
+                              : defaults.cssVars["--dag-title-font-weight"]
+                            : "700",
+                        )
+                      }
+                    >
+                      <Icon name="bold" size={18} />
+                    </button>
+                  )}
+                  {has("fontStyle") && (
+                    <button
+                      type="button"
+                      title="Italic"
+                      aria-label="Italic title"
+                      aria-pressed={vars["--dag-title-font-style"] === "italic"}
+                      onClick={() =>
+                        p.onAppearanceCssVarChange(
+                          "--dag-title-font-style",
+                          vars["--dag-title-font-style"] === "italic" ? "normal" : "italic",
+                        )
+                      }
+                    >
+                      <Icon name="italic" size={18} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {has("titleWrap") && (
+          <Toggle
+            label="Two-line title"
+            checked={p.appearance.display.titleWrap}
+            defaultValue={defaults.display.titleWrap}
+            onChange={() => p.onAppearanceDisplayChange("titleWrap", !p.appearance.display.titleWrap)}
+            onReset={() => p.onAppearanceDisplayChange("titleWrap", defaults.display.titleWrap)}
+          />
+        )}
         {has("fontFamily") && (
           <div className="font-setting">
             <div className="setting-label-row">
@@ -353,38 +464,6 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             min={0}
             max={28}
             onChange={(value) => p.onAppearanceCssVarChange("--dag-title-font-size", `${value}px`)}
-          />
-        )}
-        {has("fontWeight") && (
-          <Toggle
-            label="Bold title"
-            checked={vars["--dag-title-font-weight"] === "700"}
-            defaultValue={defaults.cssVars["--dag-title-font-weight"] === "700"}
-            onChange={() =>
-              p.onAppearanceCssVarChange(
-                "--dag-title-font-weight",
-                vars["--dag-title-font-weight"] === "700" ? "400" : "700",
-              )
-            }
-            onReset={() =>
-              p.onAppearanceCssVarChange("--dag-title-font-weight", defaults.cssVars["--dag-title-font-weight"])
-            }
-          />
-        )}
-        {has("fontStyle") && (
-          <Toggle
-            label="Italic title"
-            checked={vars["--dag-title-font-style"] === "italic"}
-            defaultValue={defaults.cssVars["--dag-title-font-style"] === "italic"}
-            onChange={() =>
-              p.onAppearanceCssVarChange(
-                "--dag-title-font-style",
-                vars["--dag-title-font-style"] === "italic" ? "normal" : "italic",
-              )
-            }
-            onReset={() =>
-              p.onAppearanceCssVarChange("--dag-title-font-style", defaults.cssVars["--dag-title-font-style"])
-            }
           />
         )}
         {has("css") && (

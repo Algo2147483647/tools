@@ -1,5 +1,12 @@
 import type { SVGProps } from "react";
 const paths = {
+  "align-left": "M4 5h16M4 10h10M4 15h16M4 20h10",
+  "align-center": "M4 5h16M7 10h10M4 15h16M7 20h10",
+  "text-ellipsis": "M4 6h16M4 12h10M4 18h4M12 18h.01M16 18h.01M20 18h.01",
+  "text-clip": "M4 6h12M4 12h12M4 18h12M19 3v18",
+  "text-overflow": "M4 6h11M4 12h16M4 18h11M17 9l3 3-3 3",
+  bold: "M7 4h6a4 4 0 0 1 0 8H7V4ZM7 12h7a4 4 0 0 1 0 8H7v-8Z",
+  italic: "M11 4h8M5 20h8M15 4 9 20",
   folder: "M3 7V5a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z",
   file: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8L14 2ZM14 2v6h6M8 13h8M8 17h5",
   recent: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8M3 3v5h5M12 7v5l3 2",

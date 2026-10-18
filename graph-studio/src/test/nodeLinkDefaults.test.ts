@@ -34,7 +34,7 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
       const presets = getGraphAppearancePresets(chartType);
       assert.deepEqual(
         presets.map((preset) => preset.id),
-        ["default"],
+        chartType === "compound" ? ["default", "preset-2"] : ["default"],
       );
       assert.deepEqual(presets[0].appearance, getDefaultChartStyle(chartType).appearance);
       assert.deepEqual(
@@ -45,10 +45,20 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     for (const removed of ["simple", "compact", "slate", "blueprint", "contrast", "presentation"]) {
       assert.equal(parseConsoleSource(`/style-preset ${removed}`).ok, false);
     }
+    assert.equal(parseConsoleSource("/style-preset preset-2").ok, true);
+    assert.equal(
+      applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "preset-2" }, "compound").appearance
+        .layout.maxNodeWidth,
+      240,
+    );
+    assert.throws(
+      () => applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "preset-2" }, "node-link"),
+      /not available/,
+    );
     assert.equal(style.showNodeDetail, false);
     assert.equal(style.hideNodeBorders, true);
     assert.equal(style.alignNodeWidthsToMax, true);
-    assert.equal(getDefaultChartStyle("compound").appearance.layout.nodeHeight, 48);
+    assert.equal(getDefaultChartStyle("compound").appearance.layout.nodeHeight, 100);
   }),
   defineTest("actual default nodes render equal widths, no details, dots and open stroke arrows", () => {
     const style = getDefaultChartStyle("node-link");
