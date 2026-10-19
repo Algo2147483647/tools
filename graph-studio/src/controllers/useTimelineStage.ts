@@ -71,7 +71,7 @@ export function useTimelineStage(input: {
       const document = serializeDag(dag);
       document.nodes = Object.fromEntries(Object.entries(document.nodes).filter(([key]) => keys.has(key)));
       document.edges = document.edges.filter((edge) => keys.has(edge.source) && keys.has(edge.target));
-      delete document.hierarchy;
+      delete document.hierarchy_edges;
       source = normalizeDagInput(document);
     }
     const previous = retained.current;

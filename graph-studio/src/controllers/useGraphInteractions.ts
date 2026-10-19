@@ -1,3 +1,4 @@
+import { getGroupNodes } from "../graph/hierarchy";
 import { type Dispatch, useEffect, useRef } from "react";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
@@ -19,7 +20,6 @@ export function useGraphInteractions({
   stage,
   setFocusedKey,
   openNodeDetail,
-  enterGroup,
   focusGroupId,
 }: InteractionInput) {
   const pendingNodeClickTimeoutRef = useRef<number | null>(null);
@@ -44,13 +44,6 @@ export function useGraphInteractions({
 
   function handleNodeDoubleClick(nodeKey: string) {
     clearPendingNodeClick();
-    if (
-      state.chartType === "compound" &&
-      Object.prototype.hasOwnProperty.call(state.dag?.hierarchy?.groups ?? {}, nodeKey)
-    ) {
-      enterGroup(nodeKey);
-      return;
-    }
     if (!stage?.nodeMap[nodeKey]) {
       return;
     }
@@ -70,7 +63,7 @@ export function useGraphInteractions({
     event.stopPropagation();
     const group =
       state.chartType === "compound" &&
-      Object.prototype.hasOwnProperty.call(state.dag?.hierarchy?.groups ?? {}, nodeKey);
+      Object.prototype.hasOwnProperty.call(getGroupNodes(state.dag), nodeKey);
     dispatch({
       type: "contextMenuOpened",
       x: event.clientX,

@@ -27,12 +27,11 @@ export function useNodeActions(
   const [hierarchyEdit, setHierarchyEdit] = useState<HierarchyEdit | null>(null);
   useEffect(() => setHierarchyEdit(null), [state.document.generation, state.chartType]);
   function parentOf(id: string) {
-    const parents = state.dag?.hierarchy?.parentById ?? {};
-    return Object.prototype.hasOwnProperty.call(parents, id) ? parents[id] : null;
+    return state.dag?.hierarchy_edges?.find(edge => edge.target === id)?.source ?? null;
   }
   function handleContextMenuAction(action: ContextMenuAction, target: GraphContextTarget) {
     dispatch({ type: "contextMenuClosed" });
-    const nodeKey = target.kind === "node" ? target.id : null;
+    const nodeKey = target.kind !== "canvas" ? target.id : null;
     const id = target.kind === "canvas" ? null : target.id;
     const container =
       target.kind === "canvas" ? target.parentId : target.kind === "group" ? target.id : parentOf(target.id);

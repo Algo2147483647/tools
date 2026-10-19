@@ -1,3 +1,4 @@
+import { getGroupNodes } from "../graph/hierarchy";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createElement } from "react";
@@ -18,7 +19,7 @@ import { defineSuite, defineTest } from "./harness";
 export function nestedChainFixture(): NormalizedDag {
   const nodes: GraphDocument["nodes"] = {};
   const edges: GraphDocument["edges"] = [];
-  const groups: NonNullable<GraphDocument["hierarchy"]>["groups"] = {};
+  const groups: GraphDocument["nodes"] = {};
   const parentById: Record<string, string> = {};
   for (let system = 0; system < 3; system++) {
     groups[`system-${system}`] = { title: `System ${system}` };
@@ -33,9 +34,9 @@ export function nestedChainFixture(): NormalizedDag {
   return normalizeDagInput({
     format: "graph-studio",
     version: 3,
-    nodes,
+    nodes: {...nodes, ...groups},
     edges,
-    hierarchy: { id: "systems", groups, parentById },
+    hierarchy_edges: Object.entries(parentById).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
   });
 }
 
@@ -190,9 +191,9 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: { a: {}, b: {}, child: {} },
+      nodes: {...{ a: {}, b: {}, child: {} }, ...{ g: { title: "Expanded group" } }},
       edges: [{ id: "ab", source: "a", target: "b" }],
-      hierarchy: { id: "scene", groups: { g: { title: "Expanded group" } }, parentById: { child: "g" } },
+      hierarchy_edges: Object.entries({ child: "g" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     });
     const boxes = new Map<string, Rect>([
       ["a", { x: 100, y: 100, width: 100, height: 80 }],
@@ -231,11 +232,11 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     assert.deepEqual(route(false), direct, "a route can cross an unrelated expanded group's header");
     const group = boxes.get("g")!;
     boxes.delete("g");
-    dag.hierarchy!.parentById.a = "g";
-    dag.hierarchy!.parentById.b = "g";
+    dag.hierarchy_edges!.push({id:"ga",source:"g",target:"a"});
+    dag.hierarchy_edges!.push({id:"gb",source:"g",target:"b"});
     assert.deepEqual(route(false), direct, "even a common parent box is irrelevant to routing");
-    delete dag.hierarchy!.parentById.a;
-    delete dag.hierarchy!.parentById.b;
+    dag.hierarchy_edges = dag.hierarchy_edges!.filter(edge => edge.target !== "a");
+    dag.hierarchy_edges = dag.hierarchy_edges!.filter(edge => edge.target !== "b");
     boxes.set("g", group);
     boxes.set("child", { x: 330, y: 100, width: 100, height: 80 });
     for (const collapsed of [false, true]) {
@@ -399,7 +400,7 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
   defineTest("expanded experience uses one bend and group statistics can hide without changing geometry", async () => {
     const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
     const view = {
-      collapsedGroupIds: Object.keys(dag.hierarchy!.groups).filter((id) => id !== "experience"),
+      collapsedGroupIds: Object.keys(getGroupNodes(dag)).filter((id) => id !== "experience"),
       focusGroupId: null,
     };
     for (const showDetail of [false, true]) {
@@ -442,7 +443,7 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
   }),
   defineTest("collapsed commerce routes use fixed midpoints and keep labels clear of other lines", async () => {
     const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
-    const view = { collapsedGroupIds: Object.keys(dag.hierarchy!.groups), focusGroupId: null };
+    const view = { collapsedGroupIds: Object.keys(getGroupNodes(dag)), focusGroupId: null };
     const stage = await layoutFixture(dag, view, true);
     assertCompoundGeometry(dag, stage, view);
     for (const edge of stage.edges) {
@@ -467,18 +468,14 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
       const dag = normalizeDagInput({
         format: "graph-studio",
         version: 3,
-        nodes: { a1: {}, a2: {}, b1: {}, b2: {}, isolated: {}, outside: {} },
+        nodes: {...{ a1: {}, a2: {}, b1: {}, b2: {}, isolated: {}, outside: {} }, ...{ A: { title: "A" }, B: { title: "B" }, deep: { title: "Deep" } }},
         edges: [
           { id: "ab", source: "a1", target: "b1" },
           { id: "ba", source: "b1", target: "a2" },
           { id: "bb", source: "b1", target: "b2" },
           { id: "ax", source: "a2", target: "outside" },
         ],
-        hierarchy: {
-          id: "H",
-          groups: { A: { title: "A" }, B: { title: "B" }, deep: { title: "Deep" } },
-          parentById: { a1: "deep", deep: "A", a2: "A", isolated: "A", b1: "B", b2: "B" },
-        },
+        hierarchy_edges: Object.entries({ a1: "deep", deep: "A", a2: "A", isolated: "A", b1: "B", b2: "B" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
       });
       for (const view of [
         { collapsedGroupIds: [], focusGroupId: null },
@@ -504,13 +501,9 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes,
+      nodes: {...nodes, ...{ chain: { title: "Chain" }, fan: { title: "Fan-out" } }},
       edges,
-      hierarchy: {
-        id: "H",
-        groups: { chain: { title: "Chain" }, fan: { title: "Fan-out" } },
-        parentById,
-      },
+      hierarchy_edges: Object.entries(parentById).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     });
     const stage = await layoutFixture(dag);
     const chainStart = stage.nodeMap["chain-0"],
@@ -543,8 +536,8 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
     for (const view of [
       { collapsedGroupIds: [], focusGroupId: null },
-      { collapsedGroupIds: Object.keys(dag.hierarchy!.groups), focusGroupId: null },
-      ...Object.keys(dag.hierarchy!.groups)
+      { collapsedGroupIds: Object.keys(getGroupNodes(dag)), focusGroupId: null },
+      ...Object.keys(getGroupNodes(dag))
         .slice(0, 4)
         .map((focusGroupId) => ({ collapsedGroupIds: [], focusGroupId })),
     ]) {

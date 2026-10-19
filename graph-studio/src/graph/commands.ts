@@ -1,6 +1,6 @@
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
-import { applyHierarchyCommand, pruneEmptyGroups, type HierarchyCommand } from "./hierarchy";
+import { applyHierarchyCommand, pruneHierarchyEdges, type HierarchyCommand } from "./hierarchy";
 import { collectDescendantKeys } from "./traversal";
 import { getTimelineEditError, getTimelineReferenceTime } from "./timelineEditing";
 import { type GraphEdge, type NodeKey, type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
@@ -51,8 +51,6 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
   const requireNew = (key: string, current?: string) => {
     validateNodeKey(key);
     if (key !== current && exists(key)) throw new Error(`Node key "${key}" already exists.`);
-    if (Object.prototype.hasOwnProperty.call(document.hierarchy?.groups ?? {}, key))
-      throw new Error(`Group ID "${key}" already exists.`);
   };
   const putNode = (key: string, fields: Record<string, unknown>) => {
     validateNodeFields(fields, `/nodes/${key}`);
@@ -69,17 +67,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     if (oldKey === key) return;
     putNode(key, nodes[oldKey]);
     delete nodes[oldKey];
-    const parents = document.hierarchy?.parentById;
-    if (parents && Object.prototype.hasOwnProperty.call(parents, oldKey)) {
-      Object.defineProperty(parents, key, {
-        value: parents[oldKey],
-        enumerable: true,
-        configurable: true,
-        writable: true,
-      });
-      delete parents[oldKey];
-    }
-    document.edges.forEach((edge) => {
+    [...document.edges, ...(document.hierarchy_edges ?? [])].forEach((edge) => {
       if (edge.source === oldKey) edge.source = key;
       if (edge.target === oldKey) edge.target = key;
     });
@@ -106,7 +94,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
       keys.forEach((key) => delete nodes[key]);
       document.edges = document.edges.filter((edge) => !removed.has(edge.source) && !removed.has(edge.target));
       result.deletedKeys = keys;
-      pruneEmptyGroups(document);
+      pruneHierarchyEdges(document);
       result.message = `Deleted ${keys.length} node(s).`;
       break;
     }

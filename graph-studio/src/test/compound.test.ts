@@ -1,3 +1,4 @@
+import { getGroupNodes } from "../graph/hierarchy";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import ELK from "elkjs/lib/elk.bundled.js";
@@ -24,23 +25,19 @@ export const compoundFixture = () =>
   normalizeDagInput({
     format: "graph-studio",
     version: 3,
-    nodes: {
+    nodes: {...{
       a: { title: "A", type: "service" },
       d: { title: "D", type: "service" },
       x: { title: "X", type: "external" },
       isolated: {},
-    },
+    }, ...{ b: { title: "B" }, c: { title: "C" } }},
     edges: [
       { id: "ad", source: "a", target: "d", value: "request" },
       { id: "ax", source: "a", target: "x", value: "request" },
       { id: "dx", source: "d", target: "x", value: "request" },
       { id: "xa", source: "x", target: "a", value: "response" },
     ],
-    hierarchy: {
-      id: "H",
-      groups: { b: { title: "B" }, c: { title: "C" } },
-      parentById: { a: "b", b: "c", d: "c", isolated: "c" },
-    },
+    hierarchy_edges: Object.entries({ a: "b", b: "c", d: "c", isolated: "c" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
   });
 const view = (collapsedGroupIds: string[] = [], focusGroupId: string | null = null) => ({
   collapsedGroupIds,
@@ -110,7 +107,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.ok(
       actions.includes("group-dissolve") && actions.includes("group-members") && actions.includes("group-move"),
     );
-    assert.ok(!actions.includes("delete-node") && !actions.includes("edit-parents"));
+    assert.ok(actions.includes("delete-node") && actions.includes("edit-parents") && actions.includes("view-node"));
     const node = getContextMenuPages({ kind: "node", id: "a" }, dag, "compound", view());
     assert.ok(node.root.sections.flat().some((item) => item.page === "organize"));
     assert.ok(node.connections.sections.flat().some((item) => item.action === "edit-parents"));
@@ -135,7 +132,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
       "Add member",
     )!;
     const edited = graphReducer(state, action);
-    assert.equal(edited.dag!.hierarchy!.parentById.new, "b");
+    assert.equal(indexHierarchy(edited.dag!).parent.get("new"), "b");
     assert.deepEqual(edited.dag!.edges, dag.edges);
     assert.equal(edited.editHistory.undoStack.length, 1);
     assert.deepEqual(graphReducer(edited, { type: "undoRequested" }).dag, dag);
@@ -156,17 +153,46 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.deepEqual(normalizeDagInput(serializeDag(doc)), doc);
     assert.throws(() => normalizeDagInput({ ...serializeDag(doc), version: 2 }), /version 3/);
     assert.deepEqual(Object.keys(doc.nodes.a.parents as object), ["x"]);
-    assert.equal(doc.hierarchy!.parentById.a, "b");
+    assert.equal(indexHierarchy(doc).parent.get("a"), "b");
   }),
-  defineTest("invalid references, cycles, empty groups and node/group collisions are rejected", () => {
-    for (const hierarchy of [
-      { id: "H", groups: { b: { title: "B" } }, parentById: { missing: "b" } },
-      { id: "H", groups: { b: { title: "B" }, c: { title: "C" } }, parentById: { b: "c", c: "b", a: "b" } },
-      { id: "H", groups: { b: { title: "B" } }, parentById: {} },
-      { id: "H", groups: { a: { title: "A" } }, parentById: { d: "a" } },
-      { id: "H", groups: {}, parentById: { a: "d" } },
-    ])
-      assert.throws(() => normalizeDagInput({ ...serializeDag(compoundFixture()), hierarchy }));
+  defineTest("new containment validation rejects dangling edges, cycles, duplicate IDs and multiple parents; old hierarchy is rejected", () => {
+    const doc = serializeDag(compoundFixture());
+    for (const hierarchy_edges of [
+      [{id:"1",source:"missing",target:"a"}],
+      [{id:"1",source:"a",target:"a"}],
+      [{id:"1",source:"b",target:"c"},{id:"2",source:"c",target:"b"}],
+      [{id:"1",source:"b",target:"a"},{id:"2",source:"c",target:"a"}],
+      [{id:"1",source:"b",target:"a"},{id:"1",source:"c",target:"d"}],
+      [{id:"1",source:"b",target:"a",value:"not allowed"}],
+    ]) assert.throws(() => normalizeDagInput({...doc, hierarchy_edges}));
+    assert.throws(() => normalizeDagInput({...doc, hierarchy: {id:"H",groups:{},parentById:{}}}), /Unknown document field/);
+    const plain = normalizeDagInput({...doc, hierarchy_edges: []});
+    assert.ok(plain.nodes.b);
+    assert.equal(indexHierarchy(plain).groups.size, 0);
+  }),
+  defineTest("parent nodes retain fields and can be ordinary edge endpoints in every compound view", async () => {
+    const original = serializeDag(compoundFixture());
+    original.nodes.b.define = "Parent node details";
+    original.nodes.b.type = "service";
+    original.edges.push({id:"bx",source:"b",target:"x",value:"parent out"}, {id:"xb",source:"x",target:"b"}, {id:"ba",source:"b",target:"a"}, {id:"ab",source:"a",target:"b"});
+    const dag = normalizeDagInput(original);
+    for (const currentView of [view(),view(["b"]),view(["c"]),view([],"b")]) {
+      const projection = projectCompoundGraph(dag, currentView);
+      const ids = [...projection.edges.flatMap(edge => edge.originalEdgeIds), ...projection.items.flatMap(item => item.internalEdgeIds)];
+      for (const id of ["bx","xb","ba","ab"]) assert.ok(ids.includes(id), `${id} missing in ${JSON.stringify(currentView)}`);
+      const stage = await layout(dag, currentView);
+      assert.ok(stage.edges.every(edge => !/NaN|Infinity|undefined/.test(edge.path)));
+    }
+    const renamed = applyGraphCommand(dag,{type:"renameNode",oldKey:"b",newKey:"parent"}).dag;
+    assert.equal(indexHierarchy(renamed).parent.get("a"),"parent");
+    assert.equal(renamed.edges.find(edge => edge.id === "bx")!.source,"parent");
+    assert.equal(renamed.nodes.parent.define,"Parent node details");
+    const dissolved = applyGraphCommand(dag,{type:"groupDissolve",id:"b"}).dag;
+    assert.deepEqual(dissolved.nodes.b,dag.nodes.b);
+    assert.deepEqual(dissolved.edges,dag.edges);
+    const removed = applyGraphCommand(dag,{type:"deleteNode",key:"b"}).dag;
+    assert.ok(removed.nodes.a);
+    assert.ok(!removed.hierarchy_edges!.some(edge => edge.source === "b" || edge.target === "b"));
   }),
   defineTest("deep hierarchies validate and index without recursive stack overflow", () => {
     const count = 5000;
@@ -176,9 +202,9 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     const doc = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: { a: {} },
+      nodes: {...{ a: {} }, ...groups},
       edges: [],
-      hierarchy: { id: "H", groups, parentById },
+      hierarchy_edges: Object.entries(parentById).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     });
     assert.equal(indexHierarchy(doc).leafCount.get("g0"), 1);
     const p = projectCompoundGraph(doc, view(["g0"]));
@@ -213,7 +239,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     const doc = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: { a: {}, b: {}, c: {}, x: {}, y: {}, z: {} },
+      nodes: {...{ a: {}, b: {}, c: {}, x: {}, y: {}, z: {} }, ...{ left: { title: "Left" }, right: { title: "Right" } }},
       edges: [
         { id: "request", source: "a", target: "x", value: "request" },
         { id: "event", source: "a", target: "y", value: "event" },
@@ -223,11 +249,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
         { id: "response", source: "x", target: "a", value: "response" },
         { id: "internal", source: "a", target: "b", value: "handover" },
       ],
-      hierarchy: {
-        id: "H",
-        groups: { left: { title: "Left" }, right: { title: "Right" } },
-        parentById: { a: "left", b: "left", c: "left", x: "right", y: "right", z: "right" },
-      },
+      hierarchy_edges: Object.entries({ a: "left", b: "left", c: "left", x: "right", y: "right", z: "right" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     });
     const before = JSON.stringify(doc);
     const folded = projectCompoundGraph(doc, view(["left", "right"]));
@@ -270,30 +292,32 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
       p.edges.flatMap((edge) => edge.originalEdgeIds),
       ["ad"],
     );
-    assert.ok(!projectGraphByType(compoundFixture(), "service").hierarchy);
+    assert.ok(!projectGraphByType(compoundFixture(), "service").hierarchy_edges);
   }),
-  defineTest("grouping, moving and dissolving only modify H and reject cycles atomically", () => {
+  defineTest("grouping, moving and dissolving preserve ordinary relationships and reject cycles atomically", () => {
     const doc = compoundFixture();
     const grouped = applyGraphCommand(doc, { type: "groupCreate", id: "top", title: "Top", memberIds: ["c", "x"] }).dag;
     assert.deepEqual(grouped.edges, doc.edges);
-    assert.deepEqual(grouped.nodes, doc.nodes);
+    assert.deepEqual(grouped.nodes.top, {title: "Top"});
+    for (const id of Object.keys(doc.nodes)) assert.deepEqual(grouped.nodes[id], doc.nodes[id]);
     assert.throws(
       () => applyGraphCommand(grouped, { type: "groupMove", memberIds: ["top"], parentId: "b" }),
       /descendants/,
     );
     const moved = applyGraphCommand(grouped, { type: "groupMove", memberIds: ["a"], parentId: "c" }).dag;
-    assert.ok(!Object.prototype.hasOwnProperty.call(moved.hierarchy!.groups, "b"));
+    assert.ok(!Object.prototype.hasOwnProperty.call(getGroupNodes(moved), "b"));
+    assert.ok(moved.nodes.b);
     const dissolved = applyGraphCommand(moved, { type: "groupDissolve", id: "c" }).dag;
-    assert.equal(dissolved.hierarchy!.parentById.a, "top");
+    assert.equal(indexHierarchy(dissolved).parent.get("a"), "top");
     assert.deepEqual(dissolved.edges, doc.edges);
   }),
   defineTest("node rename/delete repair H and undo restores complete hierarchy", () => {
     const doc = compoundFixture();
     const renamed = applyGraphCommand(doc, { type: "renameNode", oldKey: "a", newKey: "a2" }).dag;
-    assert.equal(renamed.hierarchy!.parentById.a2, "b");
-    assert.ok(!renamed.hierarchy!.parentById.a);
+    assert.equal(indexHierarchy(renamed).parent.get("a2"), "b");
+    assert.ok(!indexHierarchy(renamed).parent.get("a"));
     const removed = applyGraphCommand(renamed, { type: "deleteNode", key: "a2" });
-    assert.ok(!removed.dag.hierarchy!.groups.b);
+    assert.ok(!getGroupNodes(removed.dag).b);
     const state = { ...createInitialGraphState(), dag: renamed, selection: { type: "full" } as const };
     const transaction = prepareGraphTransaction(state, [removed], "Delete");
     const edited = graphReducer(state, transaction!);
@@ -323,17 +347,17 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     const second = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: { y: {} },
+      nodes: {...{ y: {} }, ...{ z: { title: "Z" } }},
       edges: [],
-      hierarchy: { id: "other", groups: { z: { title: "Z" } }, parentById: { y: "z" } },
+      hierarchy_edges: Object.entries({ y: "z" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     });
     const result = analyzeGraphImport([
       { name: "one", payload: serializeDag(first) },
       { name: "two", payload: serializeDag(second) },
     ]);
     assert.equal(result.unresolved.length, 0);
-    assert.equal(result.dag.hierarchy!.parentById.y, "z");
-    assert.equal(result.dag.hierarchy!.parentById.a, "b");
+    assert.equal(indexHierarchy(result.dag).parent.get("y"), "z");
+    assert.equal(indexHierarchy(result.dag).parent.get("a"), "b");
   }),
   defineTest("ELK routes cross-boundary and reverse edges for expanded, folded and focused views", async () => {
     for (const state of [view(), view(["b"]), view(["b", "c"]), view([], "b")]) {
@@ -347,7 +371,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
       for (const node of stage.nodes) assert.ok([node.x, node.y, node.width, node.height].every(Number.isFinite));
       for (const group of stage.groups ?? []) {
         assert.ok(group.width > 0 && group.height > 0);
-        const parentById = compoundFixture().hierarchy!.parentById;
+        const parentById = Object.fromEntries(indexHierarchy(compoundFixture()).parent);
         for (const node of stage.nodes.filter((item) => parentById[item.key] === group.id)) {
           assert.ok(node.x - node.width / 2 >= group.x);
           assert.ok(node.y - node.height / 2 >= group.y + 50);
@@ -361,53 +385,50 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     const first = {
       format: "graph-studio",
       version: 3,
-      nodes: { a: {}, x: {} },
+      nodes: {...{ a: {}, x: {} }, ...{ b: { title: "B" } }},
       edges: [],
-      hierarchy: { id: "H", groups: { b: { title: "B" } }, parentById: { a: "b" } },
+      hierarchy_edges: Object.entries({ a: "b" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     };
     const incoming = {
       format: "graph-studio",
       version: 3,
-      nodes: { a: {}, y: {} },
+      nodes: {...{ a: {}, y: {} }, ...{ b: { title: "Different B" } }},
       edges: [],
-      hierarchy: { id: "H2", groups: { b: { title: "Different B" } }, parentById: { y: "b" } },
+      hierarchy_edges: Object.entries({ y: "b" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     };
     const documents = [
       { name: "one", payload: first },
       { name: "two", payload: incoming },
     ];
     const analysis = analyzeGraphImport(documents);
-    const group = analysis.unresolved.find((conflict) => conflict.path === "/hierarchy/groups/b")!;
-    const membership = analysis.unresolved.find((conflict) => conflict.path === "/hierarchy/parentById/a")!;
+    const group = analysis.unresolved.find((conflict) => conflict.path === "/nodes/b")!;
     assert.ok(group.canRename);
-    assert.equal(membership.incoming, null);
-    assert.equal(analysis.dag.hierarchy!.parentById.a, "b");
+    assert.equal(indexHierarchy(analysis.dag).parent.get("a"), "b");
     const resolved = analyzeGraphImport(documents, {
       [group.id]: { strategy: "rename", name: "b2" },
-      [membership.id]: { strategy: "replace" },
     });
     assert.equal(resolved.unresolved.length, 0);
-    assert.equal(resolved.dag.hierarchy!.parentById.y, "b2");
-    assert.equal(resolved.dag.hierarchy!.parentById.a, undefined);
-    assert.equal(resolved.dag.hierarchy!.groups.b, undefined);
+    assert.equal(indexHierarchy(resolved.dag).parent.get("y"), "b2");
+    assert.equal(indexHierarchy(resolved.dag).parent.get("a"), "b");
+    assert.ok(resolved.dag.nodes.b);
   }),
   defineTest("special object-key IDs remain ordinary members and stale focus falls back safely", () => {
     const doc = normalizeDagInput(
       JSON.parse(
-        '{"format":"graph-studio","version":3,"nodes":{"__proto__":{},"constructor":{}},"edges":[],"hierarchy":{"id":"H","groups":{"toString":{"title":"Group"}},"parentById":{"__proto__":"toString","constructor":"toString"}}}',
+        '{"format":"graph-studio","version":3,"nodes":{"__proto__":{},"constructor":{},"toString":{"title":"Group"}},"edges":[],"hierarchy_edges":[{"id":"h:__proto__","source":"toString","target":"__proto__"},{"id":"h:constructor","source":"toString","target":"constructor"}]}',
       ),
     );
     const p = projectCompoundGraph(doc, view(["toString"], "deleted"));
     assert.equal(p.focusGroupId, null);
     assert.equal(p.items[0].leafCount, 2);
     const renamed = applyGraphCommand(doc, { type: "renameNode", oldKey: "__proto__", newKey: "renamed" }).dag;
-    assert.equal(renamed.hierarchy!.parentById.renamed, "toString");
+    assert.equal(indexHierarchy(renamed).parent.get("renamed"), "toString");
   }),
   defineTest("commerce workspace demonstrates nested groups and complete relationship provenance", async () => {
     const doc = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
-    assert.ok(Object.keys(doc.hierarchy!.groups).length >= 8);
+    assert.ok(Object.keys(getGroupNodes(doc)).length >= 8);
     assert.ok(Math.max(...indexHierarchy(doc).depth.values()) >= 3);
-    const stage = await layout(doc, view(Object.keys(doc.hierarchy!.groups)));
+    const stage = await layout(doc, view(Object.keys(getGroupNodes(doc))));
     assert.ok(stage.nodes.length < Object.keys(doc.nodes).length);
     assert.equal(
       new Set(stage.edges.map((edge) => JSON.stringify([edge.source, edge.target]))).size,
@@ -421,7 +442,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     for (const edge of platformOriginals) {
       assert.ok(platformEdges[0].description!.includes(`${edge.id}: ${edge.source} → ${edge.target} (${edge.value})`));
     }
-    const p = projectCompoundGraph(doc, view(Object.keys(doc.hierarchy!.groups)));
+    const p = projectCompoundGraph(doc, view(Object.keys(getGroupNodes(doc))));
     const ids = [
       ...p.edges.flatMap((edge) => edge.originalEdgeIds),
       ...p.items.flatMap((item) => item.internalEdgeIds),

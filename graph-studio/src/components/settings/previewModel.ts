@@ -27,13 +27,13 @@ export const PREVIEW_GRAPHS = {
   compound: normalizeDagInput({
     format: "graph-studio",
     version: 3,
-    nodes: {
+    nodes: {...{
       web: { title: "Web app", define: "Customer requests" },
       api: { title: "API", define: "Validate and dispatch" },
       cache: { title: "Cache", define: "Frequently used records" },
       database: { title: "Database", define: "Persistent records" },
       partner: { title: "Partner", define: "External notifications" },
-    },
+    }, ...{ app: { title: "Application" }, storage: { title: "Storage" } }},
     edges: [
       { id: "web-api", source: "web", target: "api", value: "request" },
       { id: "api-cache", source: "api", target: "cache", value: "read" },
@@ -42,11 +42,7 @@ export const PREVIEW_GRAPHS = {
       { id: "api-partner", source: "api", target: "partner", value: "notify" },
       { id: "partner-api", source: "partner", target: "api", value: "ack" },
     ],
-    hierarchy: {
-      id: "preview",
-      groups: { app: { title: "Application" }, storage: { title: "Storage" } },
-      parentById: { web: "app", api: "app", storage: "app", cache: "storage", database: "storage" },
-    },
+    hierarchy_edges: Object.entries({ web: "app", api: "app", storage: "app", cache: "storage", database: "storage" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
   }),
   sankey: normalizeDagInput({
     format: "graph-studio",

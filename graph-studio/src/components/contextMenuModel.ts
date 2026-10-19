@@ -54,9 +54,7 @@ export function getContextMenuPages(
   const parent =
     target.kind === "canvas"
       ? target.parentId
-      : Object.prototype.hasOwnProperty.call(dag.hierarchy?.parentById ?? {}, target.id)
-        ? dag.hierarchy!.parentById[target.id]
-        : null;
+      : indexHierarchy(dag).parent.get(target.id) ?? null;
   const organize: MenuPage = {
     label: "Subgraph membership",
     sections: [
@@ -77,8 +75,10 @@ export function getContextMenuPages(
       ],
     ],
   };
-  if (target.kind === "group")
+  if (target.kind === "group") {
+    const nodePages = getContextMenuPages({kind: "node", id: target.id}, dag, chart, view);
     return {
+      ...nodePages,
       root: {
         label: "Subgraph",
         sections: [
@@ -94,13 +94,18 @@ export function getContextMenuPages(
               : []),
           ],
           [
+            { label: "Open details", action: "view-node" },
+            { label: "Rename ID…", action: "rename-node" },
+            { label: "Connections", page: "connections" },
+            { label: "Copy & paste", page: "clipboard" },
             { label: "Rename subgraph…", action: "group-rename" },
             { label: "Members", page: "members" },
             { label: "Subgraph membership", page: "organize" },
           ],
           [
             { label: "Copy ID", action: "copy-key" },
-            { label: "Ungroup · keep members", action: "group-dissolve", danger: true },
+            { label: "Ungroup · keep nodes", action: "group-dissolve" },
+            { label: "Delete node", action: "delete-node", danger: true },
           ],
         ],
       },
@@ -120,6 +125,7 @@ export function getContextMenuPages(
       },
       organize,
     };
+  }
   if (target.kind === "canvas")
     return {
       root: {

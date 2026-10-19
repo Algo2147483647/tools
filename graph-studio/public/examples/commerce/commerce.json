@@ -199,6 +199,48 @@
       "type": "partner",
       "define": "External label and tracking API.",
       "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "experience": {
+      "title": "Customer experience"
+    },
+    "commerce": {
+      "title": "Commerce domain"
+    },
+    "checkout": {
+      "title": "Checkout & orders"
+    },
+    "payments": {
+      "title": "Payments"
+    },
+    "risk": {
+      "title": "Risk checks"
+    },
+    "settlement": {
+      "title": "Settlement"
+    },
+    "fulfillment": {
+      "title": "Fulfillment"
+    },
+    "warehouse": {
+      "title": "Warehouse"
+    },
+    "delivery": {
+      "title": "Delivery"
+    },
+    "aftersales": {
+      "title": "After-sales"
+    },
+    "platform": {
+      "title": "Platform services"
+    },
+    "messaging": {
+      "title": "Messaging"
+    },
+    "observability": {
+      "title": "Observability"
+    },
+    "partners": {
+      "title": "External partners"
     }
   },
   "edges": [
@@ -473,95 +515,216 @@
       "value": "telemetry"
     }
   ],
-  "hierarchy": {
-    "id": "commerce-domains",
-    "groups": {
-      "experience": {
-        "title": "Customer experience"
-      },
-      "commerce": {
-        "title": "Commerce domain"
-      },
-      "checkout": {
-        "title": "Checkout & orders"
-      },
-      "payments": {
-        "title": "Payments"
-      },
-      "risk": {
-        "title": "Risk checks"
-      },
-      "settlement": {
-        "title": "Settlement"
-      },
-      "fulfillment": {
-        "title": "Fulfillment"
-      },
-      "warehouse": {
-        "title": "Warehouse"
-      },
-      "delivery": {
-        "title": "Delivery"
-      },
-      "aftersales": {
-        "title": "After-sales"
-      },
-      "platform": {
-        "title": "Platform services"
-      },
-      "messaging": {
-        "title": "Messaging"
-      },
-      "observability": {
-        "title": "Observability"
-      },
-      "partners": {
-        "title": "External partners"
-      }
+  "hierarchy_edges": [
+    {
+      "id": "hierarchy:checkout",
+      "source": "commerce",
+      "target": "checkout"
     },
-    "parentById": {
-      "checkout": "commerce",
-      "payments": "commerce",
-      "risk": "payments",
-      "settlement": "payments",
-      "fulfillment": "commerce",
-      "warehouse": "fulfillment",
-      "delivery": "fulfillment",
-      "aftersales": "commerce",
-      "messaging": "platform",
-      "observability": "platform",
-      "web": "experience",
-      "mobile": "experience",
-      "gateway": "experience",
-      "cart": "checkout",
-      "pricing": "checkout",
-      "orders": "checkout",
-      "order-db": "checkout",
-      "fraud": "risk",
-      "risk-rules": "risk",
-      "authorize": "settlement",
-      "capture": "settlement",
-      "refund": "settlement",
-      "payment-ledger": "settlement",
-      "reserve": "warehouse",
-      "stock-db": "warehouse",
-      "pick": "warehouse",
-      "pack": "warehouse",
-      "restock": "warehouse",
-      "shipment": "delivery",
-      "dispatch": "delivery",
-      "tracking": "delivery",
-      "return-case": "aftersales",
-      "inspection": "aftersales",
-      "case-db": "aftersales",
-      "events": "messaging",
-      "notifications": "messaging",
-      "email": "messaging",
-      "audit": "observability",
-      "metrics": "observability",
-      "synthetic-monitor": "observability",
-      "bank": "partners",
-      "carrier": "partners"
+    {
+      "id": "hierarchy:payments",
+      "source": "commerce",
+      "target": "payments"
+    },
+    {
+      "id": "hierarchy:risk",
+      "source": "payments",
+      "target": "risk"
+    },
+    {
+      "id": "hierarchy:settlement",
+      "source": "payments",
+      "target": "settlement"
+    },
+    {
+      "id": "hierarchy:fulfillment",
+      "source": "commerce",
+      "target": "fulfillment"
+    },
+    {
+      "id": "hierarchy:warehouse",
+      "source": "fulfillment",
+      "target": "warehouse"
+    },
+    {
+      "id": "hierarchy:delivery",
+      "source": "fulfillment",
+      "target": "delivery"
+    },
+    {
+      "id": "hierarchy:aftersales",
+      "source": "commerce",
+      "target": "aftersales"
+    },
+    {
+      "id": "hierarchy:messaging",
+      "source": "platform",
+      "target": "messaging"
+    },
+    {
+      "id": "hierarchy:observability",
+      "source": "platform",
+      "target": "observability"
+    },
+    {
+      "id": "hierarchy:web",
+      "source": "experience",
+      "target": "web"
+    },
+    {
+      "id": "hierarchy:mobile",
+      "source": "experience",
+      "target": "mobile"
+    },
+    {
+      "id": "hierarchy:gateway",
+      "source": "experience",
+      "target": "gateway"
+    },
+    {
+      "id": "hierarchy:cart",
+      "source": "checkout",
+      "target": "cart"
+    },
+    {
+      "id": "hierarchy:pricing",
+      "source": "checkout",
+      "target": "pricing"
+    },
+    {
+      "id": "hierarchy:orders",
+      "source": "checkout",
+      "target": "orders"
+    },
+    {
+      "id": "hierarchy:order-db",
+      "source": "checkout",
+      "target": "order-db"
+    },
+    {
+      "id": "hierarchy:fraud",
+      "source": "risk",
+      "target": "fraud"
+    },
+    {
+      "id": "hierarchy:risk-rules",
+      "source": "risk",
+      "target": "risk-rules"
+    },
+    {
+      "id": "hierarchy:authorize",
+      "source": "settlement",
+      "target": "authorize"
+    },
+    {
+      "id": "hierarchy:capture",
+      "source": "settlement",
+      "target": "capture"
+    },
+    {
+      "id": "hierarchy:refund",
+      "source": "settlement",
+      "target": "refund"
+    },
+    {
+      "id": "hierarchy:payment-ledger",
+      "source": "settlement",
+      "target": "payment-ledger"
+    },
+    {
+      "id": "hierarchy:reserve",
+      "source": "warehouse",
+      "target": "reserve"
+    },
+    {
+      "id": "hierarchy:stock-db",
+      "source": "warehouse",
+      "target": "stock-db"
+    },
+    {
+      "id": "hierarchy:pick",
+      "source": "warehouse",
+      "target": "pick"
+    },
+    {
+      "id": "hierarchy:pack",
+      "source": "warehouse",
+      "target": "pack"
+    },
+    {
+      "id": "hierarchy:restock",
+      "source": "warehouse",
+      "target": "restock"
+    },
+    {
+      "id": "hierarchy:shipment",
+      "source": "delivery",
+      "target": "shipment"
+    },
+    {
+      "id": "hierarchy:dispatch",
+      "source": "delivery",
+      "target": "dispatch"
+    },
+    {
+      "id": "hierarchy:tracking",
+      "source": "delivery",
+      "target": "tracking"
+    },
+    {
+      "id": "hierarchy:return-case",
+      "source": "aftersales",
+      "target": "return-case"
+    },
+    {
+      "id": "hierarchy:inspection",
+      "source": "aftersales",
+      "target": "inspection"
+    },
+    {
+      "id": "hierarchy:case-db",
+      "source": "aftersales",
+      "target": "case-db"
+    },
+    {
+      "id": "hierarchy:events",
+      "source": "messaging",
+      "target": "events"
+    },
+    {
+      "id": "hierarchy:notifications",
+      "source": "messaging",
+      "target": "notifications"
+    },
+    {
+      "id": "hierarchy:email",
+      "source": "messaging",
+      "target": "email"
+    },
+    {
+      "id": "hierarchy:audit",
+      "source": "observability",
+      "target": "audit"
+    },
+    {
+      "id": "hierarchy:metrics",
+      "source": "observability",
+      "target": "metrics"
+    },
+    {
+      "id": "hierarchy:synthetic-monitor",
+      "source": "observability",
+      "target": "synthetic-monitor"
+    },
+    {
+      "id": "hierarchy:bank",
+      "source": "partners",
+      "target": "bank"
+    },
+    {
+      "id": "hierarchy:carrier",
+      "source": "partners",
+      "target": "carrier"
     }
-  }
+  ]
 }

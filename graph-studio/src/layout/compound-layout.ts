@@ -1,9 +1,11 @@
+import { getNodeTitle } from "../graph/accessors";
+import { getGroupNodes } from "../graph/hierarchy";
 import { cardContentLayout, minimumCardHeight } from "./typography";
 import type { ELK } from "elkjs/lib/elk-api";
 import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, NormalizedDag } from "../graph/types";
 import { stageTitleFont, type StageAppearance } from "./appearance";
-import { getNodeVisual, layoutCardTitle, wrapDetailText, measureText } from "./text";
+import { getNodeVisual, layoutCardTitle, wrapDetailText } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
 import { roundedPolylinePath } from "./rounded-path";
 import { layoutCompoundHierarchy } from "./compound-hierarchy-layout";
@@ -22,10 +24,10 @@ export async function buildCompoundStage(
 ): Promise<StageData> {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
-  const groupParents = new Map(Object.entries(dag.hierarchy?.parentById ?? {}));
+  const groupParents = new Map((dag.hierarchy_edges ?? []).map(edge => [edge.target, edge.source]));
   // Use all original roots, including collapsed/hidden ones, to keep colors stable.
   const colorFamilies = new Map(
-    Object.keys(dag.hierarchy?.groups ?? {})
+    Object.keys(getGroupNodes(dag))
       .filter((id) => !groupParents.has(id))
       .sort()
       .map((id, index) => [id, index]),
@@ -36,24 +38,8 @@ export async function buildCompoundStage(
   for (const item of projection.items) {
     const internalEdgeCount = item.internalEdgeIds.length;
     const detail = `${item.leafCount} node${item.leafCount === 1 ? "" : "s"} · ${internalEdgeCount} internal edge${internalEdgeCount === 1 ? "" : "s"}`;
-    const visual =
-      item.kind === "group"
-        ? {
-            title: item.title,
-            detail: appearance.display.showGroupStats === false ? "" : detail,
-            width: alignNodeWidthsToMax
-              ? theme.maxNodeWidth
-              : Math.max(theme.minNodeWidth, Math.min(theme.maxNodeWidth, 122 + measureText(item.title, font))),
-          }
-        : getNodeVisual(
-            item.id,
-            dag.nodes[item.id],
-            theme.minNodeWidth,
-            theme.maxNodeWidth,
-            showNodeDetail,
-            alignNodeWidthsToMax,
-            font,
-          );
+    const visual = getNodeVisual(item.id, dag.nodes[item.id], theme.minNodeWidth, theme.maxNodeWidth, showNodeDetail, alignNodeWidthsToMax, font);
+    if (item.kind === "group" && appearance.display.showGroupStats !== false) visual.detail = [visual.detail, detail].filter(Boolean).join(" · ");
     visuals.set(item.id, visual);
   }
   function cardGeometry(
@@ -162,7 +148,7 @@ export async function buildCompoundStage(
       rootKey: "",
       topLevelKeys: [],
       isForest: true,
-      label: projection.focusGroupId ? dag.hierarchy!.groups[projection.focusGroupId].title : "All groups",
+      label: projection.focusGroupId ? getNodeTitle(dag.nodes[projection.focusGroupId]) : "All groups",
       appSelection: { type: "full" },
     },
     nodeMap,

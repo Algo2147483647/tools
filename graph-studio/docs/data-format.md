@@ -28,11 +28,11 @@ The application accepts only this protocol. Legacy node maps, arrays, field alia
 | `diagram` | Optional `"dag"` or `"sankey"`; omitted means an ordinary graph. Sankey documents automatically select the flow layout |
 | `id`, `title` | Optional document identifier and title strings |
 | `metadata` | Optional object for document extensions |
-| `hierarchy` | Optional containment forest H: `id`, `groups`, and `parentById`; independent of G's edges. Its presence initially selects Nested node-link |
+| `hierarchy_edges` | Optional array of `{ id, source, target }`, directed from parent node to child node. Parents live in `nodes`; a nonempty collection initially selects Nested node-link |
 | `nodes` | Required object mapping IDs to node objects; may be empty |
 | `nodes[id].title`, `define`, `type` | Optional strings for title, description and type filtering; aliases are not inferred |
 | Custom node fields | Arbitrary JSON values; stored `key`, `parents` and `children` are forbidden |
-| `edges` | Required array; the only stored relationship collection; may be empty |
+| `edges` | Required array; ordinary relationship collection; may be empty |
 | `edges[].id` | Required and unique; stable when editing the edge or renaming endpoints |
 | `edges[].source`, `target` | Required references to existing nodes |
 | `edges[].value` | Optional scalar: string, finite number, boolean or `null`. An omitted value appears as `related_to` without being written into the file |
@@ -45,7 +45,7 @@ Each directed endpoint pair has at most one edge. Self-loops are rejected. Ordin
 
 The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime validation additionally checks unique edge IDs, existing endpoints, unique endpoint pairs, self-loops and Sankey values/totals.
 
-For independent containment H and the `compound` chart type, see [Nested node-link](compound.md). Its hierarchy describes membership; the document's `edges` continue to describe only G relationships.
+For containment and the `compound` chart type, see [Nested node-link](compound.md). `hierarchy_edges` describes membership; `edges` describes ordinary relationships and can connect parent nodes. The old `hierarchy` object is rejected, without migration. Containment requires one parent per child and no cycles.
 
 For time-based display, set `metadata.timeline.version` to `1`, give nodes a `time` object (`at`, or `start` and `end`) and an optional `track`. This remains a v3 ordinary graph; `diagram` does not gain a new value. Missing or invalid times remain inspectable in the timeline's unplaced region. See [Timeline](timeline.md) for date precision, timezone, relation anchors, editing, and snapshot conventions.
 

@@ -31,15 +31,15 @@ export interface CompoundProjection {
 
 /** Builds a disposable scene without introducing nodes or edges into G. */
 export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, selectedType = ""): CompoundProjection {
-  const h = doc.hierarchy;
   const index = indexHierarchy(doc);
-  const groups = new Set(Object.keys(h?.groups ?? {}));
+  const groups = index.groups;
   const focus = view.focusGroupId && groups.has(view.focusGroupId) ? view.focusGroupId : null;
   const collapsed = new Set(view.collapsedGroupIds.filter((id) => id !== focus));
   const items = new Map<string, CompoundItem>();
   const representative = new Map<string, string>();
-  const activeLeaves = new Set<string>();
-  const inside = (id: string) => !focus || isHierarchyDescendant(index, id, focus);
+  const activeNodes = new Set<string>();
+  if (focus && (!selectedType || getNodeType(doc.nodes[focus]) === selectedType)) activeNodes.add(focus);
+  const inside = (id: string) => !focus || (id !== focus && isHierarchyDescendant(index, id, focus));
   const add = (id: string, external = false): CompoundItem => {
     let item = items.get(id);
     if (item) return item;
@@ -48,7 +48,7 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
     item = {
       id,
       kind: isGroup ? "group" : "node",
-      title: isGroup ? h!.groups[id].title || id : getNodeTitle(doc.nodes[id]) || id,
+      title: getNodeTitle(doc.nodes[id]) || id,
       parentId: external || parent === focus ? null : parent,
       collapsed: isGroup && (external || collapsed.has(id)),
       external,
@@ -67,8 +67,8 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
     const hidden = parent && parent !== focus ? hiddenBy.get(parent) : undefined;
     const proxy = hidden ?? (groups.has(id) && collapsed.has(id) ? id : undefined);
     if (proxy) hiddenBy.set(id, proxy);
-    if (!groups.has(id) && (!selectedType || getNodeType(doc.nodes[id]) === selectedType)) {
-      activeLeaves.add(id);
+    if ((!selectedType || getNodeType(doc.nodes[id]) === selectedType)) {
+      activeNodes.add(id);
       const rep = proxy ?? id;
       representative.set(id, rep);
       add(rep);
@@ -81,6 +81,7 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
   }
   // While drilling down, preserve incident external relationships as boundary summaries.
   const externalRep = (id: string) => {
+    if (id === focus) { add(id, true); representative.set(id, id); return id; }
     let current = id;
     // Stop below an ancestor of the focus: an external summary must never contain the focused scope itself.
     while (index.parent.has(current) && !isHierarchyDescendant(index, focus!, index.parent.get(current)!))
@@ -91,8 +92,8 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
   };
   const aggregates = new Map<string, { source: string; target: string; edges: GraphEdge[] }>();
   for (const edge of doc.edges) {
-    const sourceActive = activeLeaves.has(edge.source);
-    const targetActive = activeLeaves.has(edge.target);
+    const sourceActive = activeNodes.has(edge.source);
+    const targetActive = activeNodes.has(edge.target);
     if (!sourceActive && !targetActive) continue;
     if ((!sourceActive && inside(edge.source)) || (!targetActive && inside(edge.target))) continue;
     const source = representative.get(edge.source) ?? externalRep(edge.source);

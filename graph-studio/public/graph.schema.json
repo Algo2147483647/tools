@@ -69,37 +69,27 @@
         "$ref": "#/$defs/edge"
       }
     },
-    "hierarchy": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "groups",
-        "parentById"
-      ],
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "groups": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "title"
-            ],
-            "properties": {
-              "title": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "parentById": {
-          "type": "object",
-          "additionalProperties": {
+    "hierarchy_edges": {
+      "type": "array",
+      "description": "Containment edges: source is the parent node and target is the child. Single parent per child; no cycles.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source",
+          "target"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
             "type": "string",
             "minLength": 1
           }

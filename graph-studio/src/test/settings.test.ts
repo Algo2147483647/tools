@@ -1,3 +1,4 @@
+import { indexHierarchy } from "../graph/hierarchy";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -72,7 +73,7 @@ export const settingsSuite = defineSuite("Settings controls", [
     const sankey = CHART_SCHEMAS.sankey.example;
     assert.equal(getSankeyError(sankey.nodes, sankey.edges), null);
     const compound = CHART_SCHEMAS.compound.example;
-    assert.equal(compound.hierarchy?.parentById.request, "api");
+    assert.equal(indexHierarchy(compound).parent.get("request"), "api");
     for (const node of Object.values(CHART_SCHEMAS.timeline.example.nodes))
       assert.equal(parseNodeTimeline(node).status, "dated");
   }),

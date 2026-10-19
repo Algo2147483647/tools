@@ -1,3 +1,4 @@
+import { getGroupNodes } from "../graph/hierarchy";
 import { useMemo, useState } from "react";
 import { getNodeTitle } from "../graph/accessors";
 import { indexHierarchy } from "../graph/hierarchy";
@@ -23,7 +24,7 @@ export default function CompoundPanel({
   onMemberContextMenu: (event: React.MouseEvent<Element>, id: string) => void;
 }) {
   const index = useMemo(() => indexHierarchy(dag), [dag]);
-  const groups = dag.hierarchy?.groups ?? {};
+  const groups = getGroupNodes(dag);
   const focus = view.focusGroupId && has(groups, view.focusGroupId) ? view.focusGroupId : null;
   const children = index.children.get(focus) ?? [];
   const [checked, setChecked] = useState<string[]>([]);
@@ -76,7 +77,7 @@ export default function CompoundPanel({
             {" "}
             /{" "}
             <button onClick={() => enter(id)} aria-current={id === focus ? "location" : undefined}>
-              {groups[id].title || id}
+              {getNodeTitle(groups[id]) || id}
             </button>
           </span>
         ))}
@@ -108,9 +109,9 @@ export default function CompoundPanel({
                 className="compound-member-name"
                 title={id}
                 onClick={() => onSelect(id)}
-                onDoubleClick={() => (group ? enter(id) : onOpenNode(id))}
+                onDoubleClick={() => onOpenNode(id)}
               >
-                {group ? groups[id].title || id : getNodeTitle(dag.nodes[id]) || id}
+                {group ? getNodeTitle(groups[id]) || id : getNodeTitle(dag.nodes[id]) || id}
               </button>
               {group && (
                 <>
@@ -144,9 +145,9 @@ export default function CompoundPanel({
       <div className="compound-panel-actions">
         <select aria-label="Move members to" value={target} onChange={(event) => setTarget(event.target.value)}>
           <option value="">Top level</option>
-          {Object.entries(groups).map(([id, group]) => (
+          {Object.entries(dag.nodes).map(([id, group]) => (
             <option key={id} value={id}>
-              {group.title || id} ({id})
+              {getNodeTitle(group) || id} ({id})
             </option>
           ))}
         </select>
@@ -163,7 +164,7 @@ export default function CompoundPanel({
         <div className="compound-panel-actions">
           <button
             onClick={() => {
-              const title = window.prompt("Subgraph name:", groups[selected[0]].title);
+              const title = window.prompt("Subgraph name:", getNodeTitle(groups[selected[0]]));
               if (title !== null) runCommand({ type: "groupRename", id: selected[0], title });
             }}
           >

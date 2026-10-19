@@ -51,31 +51,13 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
       ...commonFields,
       valueField,
       {
-        path: "hierarchy.id",
-        type: "string",
-        requirement: "For grouping",
-        description: "Containment hierarchy identifier.",
-      },
-      {
-        path: "hierarchy.groups",
-        type: "{ [id]: { title } }",
-        requirement: "For grouping",
-        description: "Group IDs must be distinct from node IDs.",
-      },
-      {
-        path: "hierarchy.parentById",
-        type: "{ [childId]: groupId }",
-        requirement: "For grouping",
-        description: "One parent per node or group; no containment cycles. Edges remain independent of membership.",
+        path: "hierarchy_edges[]", type: "{ id, source, target }", requirement: "For grouping",
+        description: "Parent node → child node. One parent per child, no cycles. All groups are ordinary nodes and can be endpoints in edges.",
       },
     ],
     example: {
       ...example,
-      hierarchy: {
-        id: "services",
-        groups: { api: { title: "API service" } },
-        parentById: { request: "api", validate: "api" },
-      },
+      hierarchy_edges: Object.entries({ request: "api", validate: "api" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})), nodes: {...example.nodes, ...{ api: { title: "API service" } }},
     },
   },
   sankey: {

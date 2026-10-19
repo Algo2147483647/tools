@@ -115,6 +115,42 @@
       "type": "partner",
       "define": "External authorization, capture and refund API.",
       "notes": "[Scenario guide](./notes/scenario.md) · [Failure and return paths](./notes/exceptions.md)"
+    },
+    "experience": {
+      "title": "Customer experience"
+    },
+    "commerce": {
+      "title": "Commerce domain"
+    },
+    "checkout": {
+      "title": "Checkout & orders"
+    },
+    "payments": {
+      "title": "Payments"
+    },
+    "settlement": {
+      "title": "Settlement"
+    },
+    "fulfillment": {
+      "title": "Fulfillment"
+    },
+    "warehouse": {
+      "title": "Warehouse"
+    },
+    "aftersales": {
+      "title": "After-sales"
+    },
+    "platform": {
+      "title": "Platform services"
+    },
+    "messaging": {
+      "title": "Messaging"
+    },
+    "observability": {
+      "title": "Observability"
+    },
+    "partners": {
+      "title": "External partners"
     }
   },
   "edges": [
@@ -239,73 +275,136 @@
       "value": "telemetry"
     }
   ],
-  "hierarchy": {
-    "id": "commerce-domains",
-    "groups": {
-      "experience": {
-        "title": "Customer experience"
-      },
-      "commerce": {
-        "title": "Commerce domain"
-      },
-      "checkout": {
-        "title": "Checkout & orders"
-      },
-      "payments": {
-        "title": "Payments"
-      },
-      "settlement": {
-        "title": "Settlement"
-      },
-      "fulfillment": {
-        "title": "Fulfillment"
-      },
-      "warehouse": {
-        "title": "Warehouse"
-      },
-      "aftersales": {
-        "title": "After-sales"
-      },
-      "platform": {
-        "title": "Platform services"
-      },
-      "messaging": {
-        "title": "Messaging"
-      },
-      "observability": {
-        "title": "Observability"
-      },
-      "partners": {
-        "title": "External partners"
-      }
+  "hierarchy_edges": [
+    {
+      "id": "hierarchy:checkout",
+      "source": "commerce",
+      "target": "checkout"
     },
-    "parentById": {
-      "checkout": "commerce",
-      "payments": "commerce",
-      "settlement": "payments",
-      "fulfillment": "commerce",
-      "warehouse": "fulfillment",
-      "aftersales": "commerce",
-      "messaging": "platform",
-      "observability": "platform",
-      "web": "experience",
-      "gateway": "experience",
-      "orders": "checkout",
-      "order-db": "checkout",
-      "refund": "settlement",
-      "payment-ledger": "settlement",
-      "stock-db": "warehouse",
-      "restock": "warehouse",
-      "return-case": "aftersales",
-      "inspection": "aftersales",
-      "case-db": "aftersales",
-      "events": "messaging",
-      "notifications": "messaging",
-      "email": "messaging",
-      "audit": "observability",
-      "metrics": "observability",
-      "synthetic-monitor": "observability",
-      "bank": "partners"
+    {
+      "id": "hierarchy:payments",
+      "source": "commerce",
+      "target": "payments"
+    },
+    {
+      "id": "hierarchy:settlement",
+      "source": "payments",
+      "target": "settlement"
+    },
+    {
+      "id": "hierarchy:fulfillment",
+      "source": "commerce",
+      "target": "fulfillment"
+    },
+    {
+      "id": "hierarchy:warehouse",
+      "source": "fulfillment",
+      "target": "warehouse"
+    },
+    {
+      "id": "hierarchy:aftersales",
+      "source": "commerce",
+      "target": "aftersales"
+    },
+    {
+      "id": "hierarchy:messaging",
+      "source": "platform",
+      "target": "messaging"
+    },
+    {
+      "id": "hierarchy:observability",
+      "source": "platform",
+      "target": "observability"
+    },
+    {
+      "id": "hierarchy:web",
+      "source": "experience",
+      "target": "web"
+    },
+    {
+      "id": "hierarchy:gateway",
+      "source": "experience",
+      "target": "gateway"
+    },
+    {
+      "id": "hierarchy:orders",
+      "source": "checkout",
+      "target": "orders"
+    },
+    {
+      "id": "hierarchy:order-db",
+      "source": "checkout",
+      "target": "order-db"
+    },
+    {
+      "id": "hierarchy:refund",
+      "source": "settlement",
+      "target": "refund"
+    },
+    {
+      "id": "hierarchy:payment-ledger",
+      "source": "settlement",
+      "target": "payment-ledger"
+    },
+    {
+      "id": "hierarchy:stock-db",
+      "source": "warehouse",
+      "target": "stock-db"
+    },
+    {
+      "id": "hierarchy:restock",
+      "source": "warehouse",
+      "target": "restock"
+    },
+    {
+      "id": "hierarchy:return-case",
+      "source": "aftersales",
+      "target": "return-case"
+    },
+    {
+      "id": "hierarchy:inspection",
+      "source": "aftersales",
+      "target": "inspection"
+    },
+    {
+      "id": "hierarchy:case-db",
+      "source": "aftersales",
+      "target": "case-db"
+    },
+    {
+      "id": "hierarchy:events",
+      "source": "messaging",
+      "target": "events"
+    },
+    {
+      "id": "hierarchy:notifications",
+      "source": "messaging",
+      "target": "notifications"
+    },
+    {
+      "id": "hierarchy:email",
+      "source": "messaging",
+      "target": "email"
+    },
+    {
+      "id": "hierarchy:audit",
+      "source": "observability",
+      "target": "audit"
+    },
+    {
+      "id": "hierarchy:metrics",
+      "source": "observability",
+      "target": "metrics"
+    },
+    {
+      "id": "hierarchy:synthetic-monitor",
+      "source": "observability",
+      "target": "synthetic-monitor"
+    },
+    {
+      "id": "hierarchy:bank",
+      "source": "partners",
+      "target": "bank"
     }
-  }
+  ]
 }

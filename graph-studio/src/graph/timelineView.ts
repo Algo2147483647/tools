@@ -22,7 +22,7 @@ export function getTimelineTrackOptions(dag: NormalizedDag): string[] {
 export function projectGraphByTimelineTrack(dag: NormalizedDag, track: string): NormalizedDag {
   if (!track) return dag;
   const document = serializeDag(dag);
-  delete document.hierarchy;
+  delete document.hierarchy_edges;
   document.nodes = Object.fromEntries(
     Object.entries(document.nodes).filter(([, node]) => timelineTrack(node.track) === track),
   );

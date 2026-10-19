@@ -1,6 +1,5 @@
 import { isRecord, normalizeDagInput, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
-import { pruneEmptyGroups } from "./hierarchy";
 import type { GraphEdge, NormalizedDag } from "./types";
 
 export interface ImportGraphDocument {
@@ -149,11 +148,8 @@ export function analyzeGraphImport(
   };
   for (let index = 1; index < parsed.length; index++) {
     const incoming = structuredClone(parsed[index]);
-    const previousMembers = new Set([...Object.keys(output.nodes), ...Object.keys(output.hierarchy?.groups ?? {})]);
     const renameMap = new Map<string, string>();
     for (const [key, node] of Object.entries(incoming.nodes)) {
-      if (has(output.hierarchy?.groups ?? {}, key))
-        throw new Error(`Node "${key}" conflicts with an existing group ID. Rename it before merging.`);
       if (!has(output.nodes, key)) {
         set(output.nodes, key, node);
         continue;
@@ -169,83 +165,32 @@ export function analyzeGraphImport(
         validateNodeKey(name);
         if (
           has(output.nodes, name) ||
-          has(incoming.nodes, name) ||
-          has(output.hierarchy?.groups ?? {}, name) ||
-          has(incoming.hierarchy?.groups ?? {}, name)
+          has(incoming.nodes, name)
         )
           throw new Error(`Node rename target "${name}" already exists.`);
         set(output.nodes, name, node);
         renameMap.set(key, name);
       }
     }
-    if (incoming.hierarchy) {
-      const hierarchy = incoming.hierarchy;
-      output.hierarchy ??= { id: hierarchy.id, groups: {}, parentById: {} };
-      const target = output.hierarchy;
-      const groupRenames = new Map<string, string>();
-      for (const [id, group] of Object.entries(hierarchy.groups)) {
-        const collision = has(output.nodes, id) || has(target.groups, id);
-        if (!collision) {
-          set(target.groups, id, group);
-          continue;
-        }
-        if (!has(output.nodes, id) && equal(target.groups[id], group)) continue;
-        const choice = decide(
-          index,
-          `/hierarchy/groups/${segment(id)}`,
-          "field",
-          target.groups[id] ?? { node: id },
-          group,
-          false,
-          true,
-        );
-        if (!choice || choice.strategy === "keep") {
-          if (has(output.nodes, id)) groupRenames.set(id, "");
-          continue;
-        }
-        const name =
-          choice.name?.trim() ||
-          unique(`${id}__import_${index + 1}`, [
-            ...Object.keys(output.nodes),
-            ...Object.keys(target.groups),
-            ...Object.keys(hierarchy.groups),
-          ]);
-        validateNodeKey(name);
-        if (has(output.nodes, name) || has(target.groups, name) || has(hierarchy.groups, name))
-          throw new Error(`Group rename target "${name}" already exists.`);
-        set(target.groups, name, group);
-        groupRenames.set(id, name);
-      }
-      for (const rawId of [...Object.keys(incoming.nodes), ...Object.keys(hierarchy.groups)]) {
-        const rawParent = has(hierarchy.parentById, rawId) ? hierarchy.parentById[rawId] : undefined;
-        const id = groupRenames.get(rawId) ?? renameMap.get(rawId) ?? rawId;
-        let parent: string | undefined = rawParent;
-        while (parent !== undefined && groupRenames.get(parent) === "")
-          parent = has(hierarchy.parentById, parent) ? hierarchy.parentById[parent] : undefined;
-        const mappedParent = parent === undefined ? undefined : (groupRenames.get(parent) ?? parent);
-        if (!id) continue;
-        const existingParent = has(target.parentById, id) ? target.parentById[id] : undefined;
-        if (existingParent === mappedParent) continue;
-        if (!previousMembers.has(id)) {
-          if (mappedParent !== undefined) set(target.parentById, id, mappedParent);
-          continue;
-        }
-        const choice = decide(
-          index,
-          `/hierarchy/parentById/${segment(id)}`,
-          "field",
-          existingParent ?? null,
-          mappedParent ?? null,
-          false,
-          false,
-          true,
-        );
+    if (incoming.hierarchy_edges !== undefined) {
+      output.hierarchy_edges ??= [];
+      for (const raw of incoming.hierarchy_edges) {
+        const edge = {...raw, source: renameMap.get(raw.source) ?? raw.source, target: renameMap.get(raw.target) ?? raw.target};
+        const existing: import("./types").HierarchyEdge | undefined = output.hierarchy_edges.find(item => item.target === edge.target || item.id === edge.id);
+        if (!existing) { output.hierarchy_edges.push(edge); continue; }
+        if (equal(existing, edge)) continue;
+        const sameChild = existing.target === edge.target;
+        const choice = decide(index, `/hierarchy_edges/${segment(edge.id)}`, "edge", existing, edge, false, !sameChild, true);
         if (choice?.strategy === "replace") {
-          if (mappedParent === undefined) delete target.parentById[id];
-          else set(target.parentById, id, mappedParent);
+          output.hierarchy_edges = output.hierarchy_edges.filter(item => item.id !== existing.id && item.target !== edge.target);
+          output.hierarchy_edges.push(edge);
+        } else if (choice?.strategy === "rename") {
+          const id = choice.name?.trim() || unique(`${edge.id}__import_${index + 1}`, output.hierarchy_edges.map(item => item.id));
+          validateNodeKey(id);
+          if (output.hierarchy_edges.some(item => item.id === id || item.target === edge.target)) throw new Error("Hierarchy edge rename must preserve unique IDs and one parent per child.");
+          output.hierarchy_edges.push({...edge, id});
         }
       }
-      pruneEmptyGroups(output);
     }
     for (const edge of incoming.edges) {
       edge.source = renameMap.get(edge.source) ?? edge.source;
@@ -325,7 +270,7 @@ export function analyzeGraphImport(
         ...(doc.id !== undefined ? { id: doc.id } : {}),
         ...(doc.title !== undefined ? { title: doc.title } : {}),
         ...(doc.metadata !== undefined ? { metadata: doc.metadata } : {}),
-        ...(doc.hierarchy !== undefined ? { hierarchy: doc.hierarchy } : {}),
+        ...(doc.hierarchy_edges !== undefined ? { hierarchy_edges: doc.hierarchy_edges } : {}),
       })),
     );
   }

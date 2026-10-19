@@ -31,7 +31,7 @@ export function replaceDocument(
         }
       : initial.source,
     selection: loaded
-      ? action.dag.hierarchy || isTimelineDocument(action.dag)
+      ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag)
         ? { type: "full" }
         : action.selection
       : null,
@@ -39,7 +39,7 @@ export function replaceDocument(
     chartType: loaded
       ? isTimelineDocument(action.dag)
         ? "timeline"
-        : action.dag.hierarchy
+        : action.dag.hierarchy_edges?.length
           ? "compound"
           : action.dag.diagram === "sankey"
             ? "sankey"

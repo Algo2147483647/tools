@@ -156,13 +156,9 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     const titledDag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: { child: { title: "Child" } },
+      nodes: {...{ child: { title: "Child" } }, ...{ customer: { title: "Customer experience" } }},
       edges: [],
-      hierarchy: {
-        id: "root",
-        groups: { customer: { title: "Customer experience" } },
-        parentById: { child: "customer" },
-      },
+      hierarchy_edges: Object.entries({ child: "customer" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
     });
     const titleStage = await buildCompoundStage(
       { ...input, dag: titledDag, view: { collapsedGroupIds: ["customer"], focusGroupId: null } },

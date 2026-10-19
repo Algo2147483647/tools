@@ -48,11 +48,11 @@ function MenuContent({
   const page = pageId ? pages[pageId] : null;
   const id = menu.target.kind === "canvas" ? menu.target.parentId : menu.target.id;
   const title = id
-    ? (menu.target.kind === "node" ? getNodeTitle(dag.nodes[id]) : dag.hierarchy?.groups[id]?.title) || id
+    ? getNodeTitle(dag.nodes[id]) || id
     : "All nodes";
   const hierarchy = useMemo(() => (chartType === "compound" ? indexHierarchy(dag) : null), [dag, chartType]);
   const parent = menu.target.kind === "canvas" ? menu.target.parentId : hierarchy?.parent.get(menu.target.id);
-  const scopeLabel = parent ? dag.hierarchy?.groups[parent]?.title || parent : "Top level";
+  const scopeLabel = parent ? getNodeTitle(dag.nodes[parent]) || parent : "Top level";
   const detail =
     menu.target.kind === "group"
       ? `${hierarchy?.leafCount.get(menu.target.id) ?? 0} nodes · ${hierarchy?.children.get(menu.target.id)?.length ?? 0} direct members`

@@ -1,3 +1,4 @@
+import { getGroupNodes } from "../graph/hierarchy";
 import { useMemo, useState } from "react";
 import { getNodeTitle } from "../graph/accessors";
 import type { GraphCommand } from "../graph/commands";
@@ -22,8 +23,8 @@ export default function HierarchyEditorModal({
   onClose: () => void;
 }) {
   const index = useMemo(() => indexHierarchy(dag), [dag]);
-  const groups = dag.hierarchy?.groups ?? {};
-  const [name, setName] = useState(edit.mode === "rename" ? (groups[edit.id]?.title ?? "") : "");
+  const groups = getGroupNodes(dag);
+  const [name, setName] = useState(edit.mode === "rename" ? getNodeTitle(dag.nodes[edit.id]) : "");
   const [nodeId, setNodeId] = useState(() => uniqueId(dag, "node"));
   const [selected, setSelected] = useState(edit.mode === "create" ? edit.selectedIds : []);
   const [destination, setDestination] = useState(
@@ -40,13 +41,13 @@ export default function HierarchyEditorModal({
           ? "Rename subgraph"
           : "Add node";
   const label = (id: string) =>
-    Object.prototype.hasOwnProperty.call(groups, id) ? groups[id].title || id : getNodeTitle(dag.nodes[id]) || id;
+    Object.prototype.hasOwnProperty.call(groups, id) ? getNodeTitle(groups[id]) || id : getNodeTitle(dag.nodes[id]) || id;
   const parentLabel = "parentId" in edit && edit.parentId ? label(edit.parentId) : "Top level";
   const members = edit.mode === "create" ? (index.children.get(edit.parentId) ?? []) : [];
   const visibleMembers = members.filter((id) => `${id} ${label(id)}`.toLowerCase().includes(filter.toLowerCase()));
   const destinations =
     edit.mode === "move"
-      ? Object.keys(groups).filter((id) => !edit.memberIds.some((member) => isHierarchyDescendant(index, id, member)))
+      ? Object.keys(dag.nodes).filter((id) => !edit.memberIds.some((member) => isHierarchyDescendant(index, id, member)))
       : [];
 
   function save() {
@@ -220,7 +221,7 @@ export default function HierarchyEditorModal({
 }
 
 function uniqueId(dag: NormalizedDag, prefix: string) {
-  const ids = new Set([...Object.keys(dag.nodes), ...Object.keys(dag.hierarchy?.groups ?? {})]);
+  const ids = new Set([...Object.keys(dag.nodes), ...Object.keys(getGroupNodes(dag))]);
   let number = 1;
   while (ids.has(`${prefix}-${number}`)) number++;
   return `${prefix}-${number}`;
