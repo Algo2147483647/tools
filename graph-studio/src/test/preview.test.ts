@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import ELK from "elkjs/lib/elk.bundled.js";
 import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../graph/appearance";
 import { createChartStyles } from "../state/chartStyles";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
@@ -87,7 +86,7 @@ export const previewSuite = defineSuite("Shared live preview", [
   }),
   defineTest("nested preview contains real expanded and folded groups and supports focus", async () => {
     const initial = input("compound");
-    const stage = await buildCompoundStage(compoundPreviewInput(initial), new ELK());
+    const stage = await buildCompoundStage(compoundPreviewInput(initial));
     assertCompoundGeometry(PREVIEW_GRAPHS.compound, stage, initial.view);
     assert.ok(stage.groups?.some((group) => group.id === "app"));
     assert.equal(stage.nodeMap.storage.kind, "group");
@@ -98,7 +97,7 @@ export const previewSuite = defineSuite("Shared live preview", [
       { collapsedGroupIds: [], focusGroupId: null },
       { collapsedGroupIds: [], focusGroupId: "storage" },
     ]) {
-      const expanded = await buildCompoundStage(compoundPreviewInput({ ...initial, view }), new ELK());
+      const expanded = await buildCompoundStage(compoundPreviewInput({ ...initial, view }));
       assert.ok(expanded.nodeMap.database);
       assertCompoundGeometry(PREVIEW_GRAPHS.compound, expanded, view);
     }

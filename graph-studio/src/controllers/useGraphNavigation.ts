@@ -13,10 +13,7 @@ export function useGraphNavigation(
   dispatch: Dispatch<GraphAction>,
   captureLayoutAnchor: (key: string) => void,
 ) {
-  const compound = useCompoundView(
-    state.document.id,
-    Object.keys(getGroupNodes(state.dag)),
-  );
+  const compound = useCompoundView(state.document.id, Object.keys(getGroupNodes(state.dag)));
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const [selectedTrack, setSelectedTrack] = useState("");
@@ -52,7 +49,7 @@ export function useGraphNavigation(
   function up(parentSelection: GraphSelection | null) {
     if (state.chartType === "compound") {
       const id = compound.view.focusGroupId;
-      enterGroup(id ? (state.dag?.hierarchy_edges?.find(edge => edge.target === id)?.source ?? null) : null);
+      enterGroup(id ? (state.dag?.hierarchy_edges?.find((edge) => edge.target === id)?.source ?? null) : null);
       return;
     }
     if (parentSelection) dispatch({ type: "selectionChanged", selection: parentSelection, pushHistory: true });

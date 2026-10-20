@@ -41,13 +41,17 @@ export default function HierarchyEditorModal({
           ? "Rename subgraph"
           : "Add node";
   const label = (id: string) =>
-    Object.prototype.hasOwnProperty.call(groups, id) ? getNodeTitle(groups[id]) || id : getNodeTitle(dag.nodes[id]) || id;
+    Object.prototype.hasOwnProperty.call(groups, id)
+      ? getNodeTitle(groups[id]) || id
+      : getNodeTitle(dag.nodes[id]) || id;
   const parentLabel = "parentId" in edit && edit.parentId ? label(edit.parentId) : "Top level";
   const members = edit.mode === "create" ? (index.children.get(edit.parentId) ?? []) : [];
   const visibleMembers = members.filter((id) => `${id} ${label(id)}`.toLowerCase().includes(filter.toLowerCase()));
   const destinations =
     edit.mode === "move"
-      ? Object.keys(dag.nodes).filter((id) => !edit.memberIds.some((member) => isHierarchyDescendant(index, id, member)))
+      ? Object.keys(dag.nodes).filter(
+          (id) => !edit.memberIds.some((member) => isHierarchyDescendant(index, id, member)),
+        )
       : [];
 
   function save() {

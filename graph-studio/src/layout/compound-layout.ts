@@ -1,7 +1,6 @@
-import { getNodeTitle } from "../graph/accessors";
+import { getNodeTitle, getNodeDefine } from "../graph/accessors";
 import { getGroupNodes } from "../graph/hierarchy";
 import { cardContentLayout, minimumCardHeight } from "./typography";
-import type { ELK } from "elkjs/lib/elk-api";
 import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, NormalizedDag } from "../graph/types";
 import { stageTitleFont, type StageAppearance } from "./appearance";
@@ -9,6 +8,7 @@ import { getNodeVisual, layoutCardTitle, wrapDetailText } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
 import { roundedPolylinePath } from "./rounded-path";
 import { layoutCompoundHierarchy } from "./compound-hierarchy-layout";
+import { routeCompoundEdges } from "./compound-orthogonal-router";
 
 export async function buildCompoundStage(
   input: {
@@ -20,11 +20,10 @@ export async function buildCompoundStage(
     alignNodeWidthsToMax: boolean;
     showEdgeLabels?: boolean;
   },
-  elk: Pick<ELK, "layout">,
 ): Promise<StageData> {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
-  const groupParents = new Map((dag.hierarchy_edges ?? []).map(edge => [edge.target, edge.source]));
+  const groupParents = new Map((dag.hierarchy_edges ?? []).map((edge) => [edge.target, edge.source]));
   // Use all original roots, including collapsed/hidden ones, to keep colors stable.
   const colorFamilies = new Map(
     Object.keys(getGroupNodes(dag))
@@ -38,8 +37,18 @@ export async function buildCompoundStage(
   for (const item of projection.items) {
     const internalEdgeCount = item.internalEdgeIds.length;
     const detail = `${item.leafCount} node${item.leafCount === 1 ? "" : "s"} · ${internalEdgeCount} internal edge${internalEdgeCount === 1 ? "" : "s"}`;
-    const visual = getNodeVisual(item.id, dag.nodes[item.id], theme.minNodeWidth, theme.maxNodeWidth, showNodeDetail, alignNodeWidthsToMax, font);
-    if (item.kind === "group" && appearance.display.showGroupStats !== false) visual.detail = [visual.detail, detail].filter(Boolean).join(" · ");
+    const visual = getNodeVisual(
+      item.id,
+      dag.nodes[item.id],
+      theme.minNodeWidth,
+      theme.maxNodeWidth,
+      showNodeDetail,
+      alignNodeWidthsToMax,
+      font,
+    );
+    if (item.kind === "group" && !getNodeDefine(dag.nodes[item.id])) visual.detail = "";
+    if (item.kind === "group" && appearance.display.showGroupStats !== false)
+      visual.detail = [visual.detail, detail].filter(Boolean).join(" · ");
     visuals.set(item.id, visual);
   }
   function cardGeometry(
@@ -65,7 +74,9 @@ export async function buildCompoundStage(
       return [item.id, { width: visual.width, height }];
     }),
   );
-  const result = await layoutCompoundHierarchy(projection, sizes, theme, input.showEdgeLabels ?? false, elk);
+  const placement = layoutCompoundHierarchy(projection, sizes, theme);
+  const routing = routeCompoundEdges(projection, placement.boxes, {x:0, y:0, width:placement.width, height:placement.height}, input.showEdgeLabels ?? false);
+  const result = {...placement, ...routing};
   const nodes: StageNode[] = [];
   const groups: StageGroup[] = [];
   const nodeMap: StageData["nodeMap"] = Object.create(null);
@@ -74,6 +85,21 @@ export async function buildCompoundStage(
     const { x: left, y: top, width, height } = result.boxes.get(id)!;
     const visual = visuals.get(id)!;
     if (item.kind === "group" && !item.collapsed) {
+      nodeMap[id] = {
+        key: id,
+        kind: "group",
+        title: visual.title,
+        displayTitle: visual.title,
+        detail: visual.detail,
+        detailLines: [],
+        width,
+        height,
+        x: left + width / 2,
+        y: top + height / 2,
+        layer: item.depth,
+        order: groups.length,
+        isRoot: false,
+      };
       // Use the original root ancestor so drilling into a group preserves its color family.
       let colorFamilyId = id;
       while (groupParents.has(colorFamilyId)) {
@@ -95,6 +121,7 @@ export async function buildCompoundStage(
       const stageNode: StageNode = {
         key: id,
         kind: item.kind,
+        groupStatsOnly: item.kind === "group" && (!showNodeDetail || !getNodeDefine(dag.nodes[id])),
         external: item.external,
         layer: item.depth,
         order: nodes.length,
@@ -133,7 +160,9 @@ export async function buildCompoundStage(
       labelPosition: route.labelPosition,
     });
   }
-  const connectedKeysByNode = new Map<string, Set<string>>(nodes.map((node) => [node.key, new Set<string>()]));
+  const connectedKeysByNode = new Map<string, Set<string>>(
+    projection.items.map((item) => [item.id, new Set<string>()]),
+  );
   edges.forEach((edge) => {
     connectedKeysByNode.get(edge.source)?.add(edge.target);
     connectedKeysByNode.get(edge.target)?.add(edge.source);

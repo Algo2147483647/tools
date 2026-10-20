@@ -1,6 +1,6 @@
 import { isRecord, normalizeDagInput, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
-import type { GraphEdge, NormalizedDag } from "./types";
+import type { GraphEdge, HierarchyEdge, NormalizedDag } from "./types";
 
 export interface ImportGraphDocument {
   name: string;
@@ -163,10 +163,7 @@ export function analyzeGraphImport(
           choice.name?.trim() ||
           unique(`${key}__import_${index + 1}`, [...Object.keys(output.nodes), ...Object.keys(incoming.nodes)]);
         validateNodeKey(name);
-        if (
-          has(output.nodes, name) ||
-          has(incoming.nodes, name)
-        )
+        if (has(output.nodes, name) || has(incoming.nodes, name))
           throw new Error(`Node rename target "${name}" already exists.`);
         set(output.nodes, name, node);
         renameMap.set(key, name);
@@ -175,20 +172,47 @@ export function analyzeGraphImport(
     if (incoming.hierarchy_edges !== undefined) {
       output.hierarchy_edges ??= [];
       for (const raw of incoming.hierarchy_edges) {
-        const edge = {...raw, source: renameMap.get(raw.source) ?? raw.source, target: renameMap.get(raw.target) ?? raw.target};
-        const existing: import("./types").HierarchyEdge | undefined = output.hierarchy_edges.find(item => item.target === edge.target || item.id === edge.id);
-        if (!existing) { output.hierarchy_edges.push(edge); continue; }
-        if (equal(existing, edge)) continue;
-        const sameChild = existing.target === edge.target;
-        const choice = decide(index, `/hierarchy_edges/${segment(edge.id)}`, "edge", existing, edge, false, !sameChild, true);
+        const edge = {
+          ...raw,
+          source: renameMap.get(raw.source) ?? raw.source,
+          target: renameMap.get(raw.target) ?? raw.target,
+        };
+        const matches: HierarchyEdge[] = output.hierarchy_edges.filter(
+          (item) => item.target === edge.target || item.id === edge.id,
+        );
+        if (!matches.length) {
+          output.hierarchy_edges.push(edge);
+          continue;
+        }
+        if (matches.length === 1 && equal(matches[0], edge)) continue;
+        const existing = matches.length === 1 ? matches[0] : matches;
+        const sameChild = matches.some((item) => item.target === edge.target);
+        const choice = decide(
+          index,
+          `/hierarchy_edges/${segment(edge.id)}`,
+          "edge",
+          existing,
+          edge,
+          false,
+          !sameChild,
+          true,
+        );
         if (choice?.strategy === "replace") {
-          output.hierarchy_edges = output.hierarchy_edges.filter(item => item.id !== existing.id && item.target !== edge.target);
+          output.hierarchy_edges = output.hierarchy_edges.filter(
+            (item) => item.id !== edge.id && item.target !== edge.target,
+          );
           output.hierarchy_edges.push(edge);
         } else if (choice?.strategy === "rename") {
-          const id = choice.name?.trim() || unique(`${edge.id}__import_${index + 1}`, output.hierarchy_edges.map(item => item.id));
+          const id =
+            choice.name?.trim() ||
+            unique(
+              `${edge.id}__import_${index + 1}`,
+              output.hierarchy_edges.map((item) => item.id),
+            );
           validateNodeKey(id);
-          if (output.hierarchy_edges.some(item => item.id === id || item.target === edge.target)) throw new Error("Hierarchy edge rename must preserve unique IDs and one parent per child.");
-          output.hierarchy_edges.push({...edge, id});
+          if (output.hierarchy_edges.some((item) => item.id === id || item.target === edge.target))
+            throw new Error("Hierarchy edge rename must preserve unique IDs and one parent per child.");
+          output.hierarchy_edges.push({ ...edge, id });
         }
       }
     }

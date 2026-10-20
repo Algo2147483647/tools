@@ -51,10 +51,7 @@ export function getContextMenuPages(
     target.kind === "group" &&
     Boolean(view.focusGroupId) &&
     !isHierarchyDescendant(indexHierarchy(dag), target.id, view.focusGroupId!);
-  const parent =
-    target.kind === "canvas"
-      ? target.parentId
-      : indexHierarchy(dag).parent.get(target.id) ?? null;
+  const parent = target.kind === "canvas" ? target.parentId : (indexHierarchy(dag).parent.get(target.id) ?? null);
   const organize: MenuPage = {
     label: "Subgraph membership",
     sections: [
@@ -76,7 +73,7 @@ export function getContextMenuPages(
     ],
   };
   if (target.kind === "group") {
-    const nodePages = getContextMenuPages({kind: "node", id: target.id}, dag, chart, view);
+    const nodePages = getContextMenuPages({ kind: "node", id: target.id }, dag, chart, view);
     return {
       ...nodePages,
       root: {

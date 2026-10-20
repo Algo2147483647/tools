@@ -47,9 +47,7 @@ function MenuContent({
   const pages = getContextMenuPages(menu.target, dag, chartType, view);
   const page = pageId ? pages[pageId] : null;
   const id = menu.target.kind === "canvas" ? menu.target.parentId : menu.target.id;
-  const title = id
-    ? getNodeTitle(dag.nodes[id]) || id
-    : "All nodes";
+  const title = id ? getNodeTitle(dag.nodes[id]) || id : "All nodes";
   const hierarchy = useMemo(() => (chartType === "compound" ? indexHierarchy(dag) : null), [dag, chartType]);
   const parent = menu.target.kind === "canvas" ? menu.target.parentId : hierarchy?.parent.get(menu.target.id);
   const scopeLabel = parent ? getNodeTitle(dag.nodes[parent]) || parent : "Top level";

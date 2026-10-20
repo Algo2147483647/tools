@@ -32,24 +32,29 @@ const overlaps = (a: CompoundBox, b: CompoundBox) =>
   b.y < a.y + a.height - EPSILON;
 
 /** Final routes attach only to the four side midpoints, independently of placement direction. */
-export function shortenCompoundRoutes(
+export function routeCompoundEdges(
   projection: CompoundProjection,
   boxes: Map<string, CompoundBox>,
-  routes: Map<string, CompoundRoute>,
   bounds: CompoundBox,
   showLabels: boolean,
-): Map<string, CompoundRoute> {
+): { routes: Map<string, CompoundRoute>; width: number; height: number } {
   // Expanded containers organize placement only; routing sees visible cards, including collapsed groups.
   const obstacles = projection.items
     .filter((item) => item.kind !== "group" || item.collapsed)
     .map((item) => boxes.get(item.id)!);
-  const extent = bounds;
+  const extent = { ...bounds };
+  let clearance = 8;
+  for (let i = 0; i < obstacles.length; i++) for (let j = i + 1; j < obstacles.length; j++) {
+    const a = obstacles[i], b = obstacles[j];
+    const dx = Math.max(0, a.x - b.x - b.width, b.x - a.x - a.width);
+    const dy = Math.max(0, a.y - b.y - b.height, b.y - a.y - a.height);
+    clearance = Math.min(clearance, Math.hypot(dx, dy) / 3);
+  }
   const edges = [...projection.edges].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const attachments = new Map<string, ElkPoint[]>();
   const labelBoxes = new Map<string, CompoundBox>();
   const result = new Map<string, CompoundRoute>();
   for (const edge of edges) {
-    const original = routes.get(edge.id)!;
     const accept = (route: CompoundRoute) => {
       result.set(edge.id, route);
       for (const [id, point] of [
@@ -59,11 +64,11 @@ export function shortenCompoundRoutes(
         attachments.set(id, [...(attachments.get(id) ?? []), point]);
     };
     const otherLabels = [...labelBoxes].filter(([id]) => id !== edge.id).map(([, box]) => box);
-    const gap = 8;
+    const gap = clearance;
     const padded = [...obstacles, ...otherLabels].map((box) => inflate(box, gap));
     const ports = (id: string): Port[] => {
       const box = boxes.get(id)!;
-      return midpointPorts(box).filter(
+      return midpointPorts(box, gap).filter(
         (port) =>
           !padded.some((box) => inside(port.stub, box)) &&
           port.stub.x >= extent.x &&
@@ -74,7 +79,8 @@ export function shortenCompoundRoutes(
     };
     const reverse = edges.find((other) => other.source === edge.target && other.target === edge.source);
     const reverseRoute = reverse && result.get(reverse.id);
-    const sharedCost = (a: ElkPoint, b: ElkPoint) => parallelRouteCost(a, b, reverseRoute?.points ?? []);
+    const sharedCost = (a: ElkPoint, b: ElkPoint) => [...result.values()].reduce((sum, route) =>
+      sum + parallelRouteCost(a, b, route.points) * (route === reverseRoute ? 1 : 0.15) + crossingCost(a, b, route.points), 0);
     const attachmentCost = (id: string, point: ElkPoint) =>
       (attachments.get(id) ?? []).reduce(
         (sum, used) => sum + Math.max(0, LANE_GAP - Math.hypot(point.x - used.x, point.y - used.y)) * 4,
@@ -96,13 +102,9 @@ export function shortenCompoundRoutes(
       (port) => attachmentCost(edge.source, port.point),
       (port) => attachmentCost(edge.target, port.point),
     );
-    const centeredOriginal =
-      sources.some((port) => samePoint(port.point, original.points[0])) &&
-      targets.some((port) => samePoint(port.point, original.points[original.points.length - 1]));
     const candidates = [
       ...simpleRoutes(sources, targets, padded),
       ...(candidate ? [candidate] : []),
-      ...(centeredOriginal ? [original.points] : []),
     ]
       .map((points) => ({ points, cost: cost(points) }))
       .sort((a, b) => a.cost - b.cost);
@@ -115,35 +117,63 @@ export function shortenCompoundRoutes(
       })),
     );
     if (!candidates.length) throw new Error(`Unable to route between side midpoints: ${edge.source} → ${edge.target}.`);
-    // The placement pass reserves this label box. Keep it if no new segment can safely carry the label.
-    let chosen = { points: candidates[0].points, labelPosition: original.labelPosition };
+    const middle = candidates[0].points[Math.floor(candidates[0].points.length / 2)];
+    let chosen = { points: candidates[0].points, labelPosition: { x: middle.x, y: middle.y - 10 } };
+    let labelPlaced = false;
     for (const { points } of candidates) {
       const labelPosition =
         showLabels && edge.label
           ? placeLabel(edge.label, points, [...obstacles, ...otherLabels, ...lineObstacles], extent)
-          : original.labelPosition;
+          : chosen.labelPosition;
       if (labelPosition) {
         chosen = { points, labelPosition };
+        labelPlaced = true;
         break;
       }
     }
-    if (showLabels && edge.label) labelBoxes.set(edge.id, labelBox(edge.label, chosen.labelPosition));
+    if (showLabels && edge.label) {
+      if (!labelPlaced) {
+        // Route through an outer label lane; only the canvas grows, never a node or container.
+        const size = labelBox(edge.label, {x: 0, y: 0});
+        const y = extent.y + extent.height + 36;
+        const left = extent.x + 36, right = Math.max(left + size.width + 24, extent.x + extent.width - 36);
+        extent.width = Math.max(extent.width, right - extent.x + 36);
+        extent.height = y - extent.y + 36;
+        const labelPosition = { x: (left + right) / 2, y };
+        const labelObstacle = inflate(labelBox(edge.label, labelPosition), gap);
+        const entry: Port = {point:{x:left,y},stub:{x:left-20,y},direction:2};
+        const exit: Port = {point:{x:right,y},stub:{x:right+20,y},direction:0};
+        const start = findOrthogonalPath(sources, [entry], [...padded,labelObstacle], extent, sharedCost, port => attachmentCost(edge.source,port.point), () => 0);
+        const end = findOrthogonalPath([exit], targets, [...padded,labelObstacle], extent, sharedCost, () => 0, port => attachmentCost(edge.target,port.point));
+        if (!start || !end) throw new Error(`Unable to route label lane: ${edge.source} → ${edge.target}.`);
+        chosen = {points: simplifyRoute([...start,...end]) ?? [...start,...end],labelPosition};
+      }
+      labelBoxes.set(edge.id, labelBox(edge.label, chosen.labelPosition));
+    }
     accept(chosen);
   }
-  return result;
+  return { routes: result, width: extent.width, height: extent.height };
 }
 
-const samePoint = (a: ElkPoint, b: ElkPoint) => Math.hypot(a.x - b.x, a.y - b.y) < EPSILON;
+function crossingCost(a: ElkPoint, b: ElkPoint, points: ElkPoint[]): number {
+  let cost = 0;
+  for (let i=1;i<points.length;i++) {
+    const c=points[i-1],d=points[i];
+    if (a.y===b.y && c.x===d.x && c.x>Math.min(a.x,b.x)&&c.x<Math.max(a.x,b.x)&&a.y>Math.min(c.y,d.y)&&a.y<Math.max(c.y,d.y)) cost+=40;
+    if (a.x===b.x && c.y===d.y && c.y>Math.min(a.y,b.y)&&c.y<Math.max(a.y,b.y)&&a.x>Math.min(c.x,d.x)&&a.x<Math.max(c.x,d.x)) cost+=40;
+  }
+  return cost;
+}
 
 /** Two approach lengths per side share exactly the same midpoint; short stubs fit narrow gaps. */
-function midpointPorts(box: CompoundBox): Port[] {
+function midpointPorts(box: CompoundBox, clearance: number): Port[] {
   return [
     { x: box.x + box.width, y: box.y + box.height / 2 },
     { x: box.x + box.width / 2, y: box.y + box.height },
     { x: box.x, y: box.y + box.height / 2 },
     { x: box.x + box.width / 2, y: box.y },
   ].flatMap((point, direction) =>
-    [MIN_STRAIGHT, 8].map((length) => ({
+    [...new Set([MIN_STRAIGHT, clearance])].map((length) => ({
       point,
       direction,
       stub: {

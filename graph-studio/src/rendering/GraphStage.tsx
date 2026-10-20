@@ -352,6 +352,10 @@ export default function GraphStage({
             key={group.id}
             group={group}
             showStats={appearance.display.showGroupStats}
+            onNodeClick={onNodeClick}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onNodeContextMenu={onNodeContextMenu}
+            onFocusChange={onFocusChange}
             onToggle={onGroupToggle}
             onEnter={onGroupEnter}
           />

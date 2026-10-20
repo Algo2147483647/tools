@@ -27,7 +27,7 @@ export function useNodeActions(
   const [hierarchyEdit, setHierarchyEdit] = useState<HierarchyEdit | null>(null);
   useEffect(() => setHierarchyEdit(null), [state.document.generation, state.chartType]);
   function parentOf(id: string) {
-    return state.dag?.hierarchy_edges?.find(edge => edge.target === id)?.source ?? null;
+    return state.dag?.hierarchy_edges?.find((edge) => edge.target === id)?.source ?? null;
   }
   function handleContextMenuAction(action: ContextMenuAction, target: GraphContextTarget) {
     dispatch({ type: "contextMenuClosed" });

@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import ELK from "elkjs/lib/elk.bundled.js";
 import { defineSuite, defineTest } from "./harness";
 import { normalizeDagInput } from "../graph/normalize";
 import { getDefaultChartStyle, getCompoundPreset2Style, createChartStyles } from "../state/chartStyles";
@@ -66,7 +65,6 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
         ...style,
         appearance: getStageAppearance(style.appearance, "compound"),
       },
-      new ELK(),
     );
     const node = stage.nodeMap.a;
     assert.equal(node.titleLayout!.lines.length, 2);
@@ -143,7 +141,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
       appearance: getStageAppearance(style.appearance),
       view: { collapsedGroupIds: ["app", "storage"], focusGroupId: null },
     };
-    const folded = await buildCompoundStage(input, new ELK());
+    const folded = await buildCompoundStage(input);
     assert.ok(folded.nodes.some((node) => node.kind === "group"));
     assert.ok(folded.nodes.every((node) => node.width === 200 && node.height === 100 && node.detailLines.length === 0));
     assert.equal(style.appearance.display.nodeCornerRadius, 20);
@@ -156,13 +154,16 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     const titledDag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: {...{ child: { title: "Child" } }, ...{ customer: { title: "Customer experience" } }},
+      nodes: { ...{ child: { title: "Child" } }, ...{ customer: { title: "Customer experience" } } },
       edges: [],
-      hierarchy_edges: Object.entries({ child: "customer" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})),
+      hierarchy_edges: Object.entries({ child: "customer" }).map(([target, source]) => ({
+        id: `hierarchy:${target}`,
+        source,
+        target,
+      })),
     });
     const titleStage = await buildCompoundStage(
       { ...input, dag: titledDag, view: { collapsedGroupIds: ["customer"], focusGroupId: null } },
-      new ELK(),
     );
     const customer = titleStage.nodeMap.customer;
     assert.deepEqual(customer.titleLayout!.lines, ["Customer", "experience"]);
@@ -182,7 +183,6 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.equal(style.appearance.cssVars["--dag-edge"], "#cccccc");
     const expanded = await buildCompoundStage(
       { ...input, view: { collapsedGroupIds: [], focusGroupId: null } },
-      new ELK(),
     );
     const render = (showGroupBorders: boolean) =>
       renderToStaticMarkup(

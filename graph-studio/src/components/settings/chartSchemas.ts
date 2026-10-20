@@ -51,13 +51,21 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
       ...commonFields,
       valueField,
       {
-        path: "hierarchy_edges[]", type: "{ id, source, target }", requirement: "For grouping",
-        description: "Parent node → child node. One parent per child, no cycles. All groups are ordinary nodes and can be endpoints in edges.",
+        path: "hierarchy_edges[]",
+        type: "{ id, source, target }",
+        requirement: "For grouping",
+        description:
+          "Parent node → child node. One parent per child, no cycles. All groups are ordinary nodes and can be endpoints in edges.",
       },
     ],
     example: {
       ...example,
-      hierarchy_edges: Object.entries({ request: "api", validate: "api" }).map(([target, source]) => ({id: `hierarchy:${target}`, source, target})), nodes: {...example.nodes, ...{ api: { title: "API service" } }},
+      hierarchy_edges: Object.entries({ request: "api", validate: "api" }).map(([target, source]) => ({
+        id: `hierarchy:${target}`,
+        source,
+        target,
+      })),
+      nodes: { ...example.nodes, ...{ api: { title: "API service" } } },
     },
   },
   sankey: {

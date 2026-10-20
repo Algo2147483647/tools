@@ -1,17 +1,30 @@
 import type { GraphDocument, HierarchyEdge } from "./types";
 const has = (record: object, key: string) => Object.prototype.hasOwnProperty.call(record, key);
-const validId = (value: unknown): value is string => typeof value === "string" && Boolean(value) && value.trim() === value && !/[\r\n,]/.test(value);
+const validId = (value: unknown): value is string =>
+  typeof value === "string" && Boolean(value) && value.trim() === value && !/[\r\n,]/.test(value);
 
-export function validateHierarchyEdges(value: unknown, nodes: GraphDocument["nodes"]): asserts value is HierarchyEdge[] {
+export function validateHierarchyEdges(
+  value: unknown,
+  nodes: GraphDocument["nodes"],
+): asserts value is HierarchyEdge[] {
   if (!Array.isArray(value)) throw new Error("/hierarchy_edges must be an array.");
   const ids = new Set<string>();
   const parents = new Map<string, string>();
   for (const [i, edge] of value.entries()) {
-    if (!edge || typeof edge !== "object" || Array.isArray(edge) || Object.keys(edge).some(key => !["id", "source", "target"].includes(key)) || !validId(edge.id) || !validId(edge.source) || !validId(edge.target))
+    if (
+      !edge ||
+      typeof edge !== "object" ||
+      Array.isArray(edge) ||
+      Object.keys(edge).some((key) => !["id", "source", "target"].includes(key)) ||
+      !validId(edge.id) ||
+      !validId(edge.source) ||
+      !validId(edge.target)
+    )
       throw new Error(`/hierarchy_edges/${i} requires id, source and target only.`);
     if (ids.has(edge.id)) throw new Error(`Duplicate hierarchy edge ID "${edge.id}".`);
     ids.add(edge.id);
-    if (!has(nodes, edge.source) || !has(nodes, edge.target)) throw new Error("Hierarchy edge endpoints must exist in nodes.");
+    if (!has(nodes, edge.source) || !has(nodes, edge.target))
+      throw new Error("Hierarchy edge endpoints must exist in nodes.");
     if (parents.has(edge.target)) throw new Error(`Node "${edge.target}" has more than one hierarchy parent.`);
     parents.set(edge.target, edge.source);
   }
@@ -21,14 +34,17 @@ export function validateHierarchyEdges(value: unknown, nodes: GraphDocument["nod
     let current: string | undefined = id;
     while (current !== undefined && !done.has(current)) {
       if (path.has(current)) throw new Error(`Hierarchy cycle at "${current}".`);
-      path.add(current); current = parents.get(current);
+      path.add(current);
+      current = parents.get(current);
     }
-    path.forEach(key => done.add(key));
+    path.forEach((key) => done.add(key));
   }
 }
 
 export function getGroupNodes(doc: GraphDocument | null | undefined): GraphDocument["nodes"] {
-  return Object.fromEntries([...new Set((doc?.hierarchy_edges ?? []).map(edge => edge.source))].map(id => [id, doc!.nodes[id]]));
+  return Object.fromEntries(
+    [...new Set((doc?.hierarchy_edges ?? []).map((edge) => edge.source))].map((id) => [id, doc!.nodes[id]]),
+  );
 }
 
 export interface HierarchyIndex {
@@ -93,7 +109,10 @@ export function isHierarchyDescendant(index: HierarchyIndex, id: string, ancesto
 
 /** Remove dangling membership edges; nodes never disappear merely because they become empty. */
 export function pruneHierarchyEdges(doc: GraphDocument): void {
-  if (doc.hierarchy_edges) doc.hierarchy_edges = doc.hierarchy_edges.filter(edge => has(doc.nodes, edge.source) && has(doc.nodes, edge.target));
+  if (doc.hierarchy_edges)
+    doc.hierarchy_edges = doc.hierarchy_edges.filter(
+      (edge) => has(doc.nodes, edge.source) && has(doc.nodes, edge.target),
+    );
 }
 
 export type HierarchyCommand =
@@ -106,13 +125,13 @@ export function applyHierarchyCommand(doc: GraphDocument, command: HierarchyComm
   doc.hierarchy_edges ??= [];
   const index = indexHierarchy(doc);
   const setParent = (id: string, parent: string | null) => {
-    const previous = doc.hierarchy_edges!.find(edge => edge.target === id);
-    doc.hierarchy_edges = doc.hierarchy_edges!.filter(edge => edge.target !== id);
+    const previous = doc.hierarchy_edges!.find((edge) => edge.target === id);
+    doc.hierarchy_edges = doc.hierarchy_edges!.filter((edge) => edge.target !== id);
     if (parent !== null) {
       let edgeId = previous?.id ?? `hierarchy:${id}`;
       let n = 1;
-      while (doc.hierarchy_edges.some(edge => edge.id === edgeId)) edgeId = `hierarchy:${id}:${n++}`;
-      doc.hierarchy_edges.push({id: edgeId, source: parent, target: id});
+      while (doc.hierarchy_edges.some((edge) => edge.id === edgeId)) edgeId = `hierarchy:${id}:${n++}`;
+      doc.hierarchy_edges.push({ id: edgeId, source: parent, target: id });
     }
   };
   if (command.type === "groupRename" || command.type === "groupDissolve") {
@@ -128,18 +147,28 @@ export function applyHierarchyCommand(doc: GraphDocument, command: HierarchyComm
   const ids = [...new Set(command.memberIds)];
   if (!ids.length) throw new Error("Select at least one member.");
   for (const id of ids) if (!has(doc.nodes, id)) throw new Error(`Unknown member "${id}".`);
-  for (const id of ids) for (const other of ids)
-    if (id !== other && isHierarchyDescendant(index, id, other)) throw new Error("Select a group or its descendants, not both.");
+  for (const id of ids)
+    for (const other of ids)
+      if (id !== other && isHierarchyDescendant(index, id, other))
+        throw new Error("Select a group or its descendants, not both.");
   if (command.type === "groupCreate") {
     if (!validId(command.id) || has(doc.nodes, command.id)) throw new Error("Enter a unique group ID.");
     const parent = index.parent.get(ids[0]) ?? null;
-    if (ids.some(id => (index.parent.get(id) ?? null) !== parent)) throw new Error("New groups require members with the same parent.");
-    Object.defineProperty(doc.nodes, command.id, { value: {title: command.title}, enumerable: true, configurable: true, writable: true });
+    if (ids.some((id) => (index.parent.get(id) ?? null) !== parent))
+      throw new Error("New groups require members with the same parent.");
+    Object.defineProperty(doc.nodes, command.id, {
+      value: { title: command.title },
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    });
     setParent(command.id, parent);
-    ids.forEach(id => setParent(id, command.id));
+    ids.forEach((id) => setParent(id, command.id));
   } else {
     if (command.parentId !== null && !has(doc.nodes, command.parentId)) throw new Error("Target node does not exist.");
-    for (const id of ids) if (command.parentId !== null && isHierarchyDescendant(index, command.parentId, id)) throw new Error("A node cannot be moved into itself or its descendants.");
-    ids.forEach(id => setParent(id, command.parentId));
+    for (const id of ids)
+      if (command.parentId !== null && isHierarchyDescendant(index, command.parentId, id))
+        throw new Error("A node cannot be moved into itself or its descendants.");
+    ids.forEach((id) => setParent(id, command.parentId));
   }
 }

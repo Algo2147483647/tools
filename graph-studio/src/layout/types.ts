@@ -73,6 +73,7 @@ export interface StageNode {
   contentLayout?: ReturnType<typeof cardContentLayout>;
   timeline?: StageTimelineNode;
   kind?: "node" | "group";
+  groupStatsOnly?: boolean;
   external?: boolean;
   key: NodeKey;
   layer: number;

@@ -48,7 +48,7 @@ const GraphNode = memo(function GraphNode({
         onFocusChange={onFocusChange}
       />
     );
-  const hasDetail = node.detailLines.length > 0 && (node.kind !== "group" || showGroupStats);
+  const hasDetail = node.detailLines.length > 0 && (!node.groupStatsOnly || showGroupStats);
   const cornerRadius = Math.max(0, Math.min(nodeCornerRadius, node.width / 2, node.height / 2));
   const style = node.colorTokens
     ? ({

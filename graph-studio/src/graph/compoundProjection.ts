@@ -67,7 +67,7 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
     const hidden = parent && parent !== focus ? hiddenBy.get(parent) : undefined;
     const proxy = hidden ?? (groups.has(id) && collapsed.has(id) ? id : undefined);
     if (proxy) hiddenBy.set(id, proxy);
-    if ((!selectedType || getNodeType(doc.nodes[id]) === selectedType)) {
+    if (!selectedType || getNodeType(doc.nodes[id]) === selectedType) {
       activeNodes.add(id);
       const rep = proxy ?? id;
       representative.set(id, rep);
@@ -81,7 +81,11 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
   }
   // While drilling down, preserve incident external relationships as boundary summaries.
   const externalRep = (id: string) => {
-    if (id === focus) { add(id, true); representative.set(id, id); return id; }
+    if (id === focus) {
+      add(id, true);
+      representative.set(id, id);
+      return id;
+    }
     let current = id;
     // Stop below an ancestor of the focus: an external summary must never contain the focused scope itself.
     while (index.parent.has(current) && !isHierarchyDescendant(index, focus!, index.parent.get(current)!))

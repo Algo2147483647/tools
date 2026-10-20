@@ -17,7 +17,7 @@ export const EXAMPLE_WORKSPACES = [
     kind: "Nested node-link",
     description:
       "Explore checkout, payments, warehouse, delivery and returns. Expand domain boundaries and trace their original relationships.",
-    detail: "32 nodes · 14 groups · 3 journeys",
+    detail: "46 nodes · 14 parents · 3 journeys",
     accent: "#527f82",
   },
   {

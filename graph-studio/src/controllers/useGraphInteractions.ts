@@ -10,7 +10,6 @@ interface InteractionInput {
   stage: StageData | null;
   setFocusedKey(key: string): void;
   openNodeDetail(key: string): void;
-  enterGroup(id: string | null): void;
   focusGroupId: string | null;
 }
 export function useGraphInteractions({
@@ -62,8 +61,7 @@ export function useGraphInteractions({
     event.preventDefault();
     event.stopPropagation();
     const group =
-      state.chartType === "compound" &&
-      Object.prototype.hasOwnProperty.call(getGroupNodes(state.dag), nodeKey);
+      state.chartType === "compound" && Object.prototype.hasOwnProperty.call(getGroupNodes(state.dag), nodeKey);
     dispatch({
       type: "contextMenuOpened",
       x: event.clientX,

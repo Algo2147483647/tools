@@ -77,7 +77,6 @@ export function useGraphViewport(
     stage,
     openNodeDetail,
     setFocusedKey: navigation.setFocusedKey,
-    enterGroup: navigation.enterGroup,
     focusGroupId: compound.view.focusGroupId,
   });
   return {
