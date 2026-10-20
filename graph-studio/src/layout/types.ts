@@ -61,6 +61,7 @@ export interface StageTimelineData {
   clock?: TimelineClock;
   relativeTickStep?: number;
   layout?: TimelineViewSettings["layout"];
+  edgeRouting?: TimelineViewSettings["edgeRouting"];
   axisMap?: TimelineAxisMap;
   tickInterval?: TimelineTickInterval;
   timeZone: "UTC" | null;

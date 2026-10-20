@@ -159,6 +159,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             {...p.timelineControls}
             showArrangement={visible("timeline-arrangement")}
             showAxis={visible("timeline-axis")}
+            showRouting={visible("timeline-routing")}
           />
         )}
         {isSankey && visible("sankeyNodeWidth") && (

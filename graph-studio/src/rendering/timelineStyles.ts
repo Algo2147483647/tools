@@ -16,8 +16,8 @@ export const TIMELINE_CSS = `
 .timeline-caption { fill: var(--dag-text-soft); font: 11px "IBM Plex Sans", "Segoe UI", sans-serif; }
 .timeline-node { transition: opacity .15s; }
 .timeline-node__hit { fill: transparent; stroke: none; pointer-events: all; }
-.timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: .55; stroke: none; }
-.timeline-node[data-interval-style="solid"] .timeline-node__duration { fill-opacity: 1; }
+.timeline-node__duration { fill: var(--timeline-soft-fill, var(--dag-timeline-color)); fill-opacity: var(--timeline-soft-opacity, .24); stroke: none; }
+.timeline-node[data-interval-style="solid"] .timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: 1; }
 .timeline-node[data-interval-style="solid"] .timeline-node__inside-title { fill: var(--timeline-text-color, white); }
 .timeline-node[data-interval-style="outline"] .timeline-node__duration { fill: var(--dag-node-fill); fill-opacity: .9; stroke: var(--timeline-border-color); stroke-width: var(--timeline-border-width); }
 .timeline-node[data-interval-border="solid"] .timeline-node__duration,
@@ -40,7 +40,8 @@ export const TIMELINE_CSS = `
 .timeline-node[data-focused="true"] .timeline-node__label-bg,
 .timeline-node[data-hovered="true"] .timeline-node__label-bg,
 .timeline-node:focus-visible .timeline-node__label-bg { stroke: var(--dag-timeline-color); fill: var(--dag-node-fill); fill-opacity: .65; }
-.timeline-node[data-hovered="true"] .timeline-node__duration, .timeline-node[data-focused="true"] .timeline-node__duration { fill-opacity: .85; }
+.timeline-node[data-interval-style="soft"][data-hovered="true"] .timeline-node__duration,
+.timeline-node[data-interval-style="soft"][data-focused="true"] .timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: .38; }
 .dag-graph[data-has-interactive-node="true"] .timeline-node { opacity: .28; }
 .dag-graph[data-has-interactive-node="true"] .timeline-node[data-connected="true"],
 .dag-graph[data-has-interactive-node="true"] .timeline-node[data-focused="true"],

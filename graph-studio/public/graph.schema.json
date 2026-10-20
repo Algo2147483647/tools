@@ -88,50 +88,14 @@
                 }
               },
               "additionalProperties": false
-            },
-            "view": {
-              "type": "object",
-              "properties": {
-                "orientation": {
-                  "enum": [
-                    "vertical",
-                    "horizontal"
-                  ]
-                },
-                "relativeTickStep": {
-                  "type": "number",
-                  "exclusiveMinimum": 0
-                },
-                "intervalTitle": {
-                  "enum": [
-                    "outside",
-                    "inside",
-                    "hidden"
-                  ]
-                },
-                "intervalAlign": {
-                  "enum": [
-                    "start",
-                    "center",
-                    "end"
-                  ]
-                },
-                "intervalStyle": {
-                  "enum": [
-                    "soft",
-                    "solid",
-                    "outline"
-                  ]
-                },
-                "intervalWidth": {
-                  "type": "number",
-                  "description": "Short dimension of duration bars in pixels; horizontal height or vertical width. Default 36."
-                }
-              },
-              "additionalProperties": true
             }
           },
           "additionalProperties": true
+        },
+        "style": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to a graph-studio-style JSON file, resolved from this graph within the opened workspace. Appearance and layout settings belong in that file."
         }
       }
     },

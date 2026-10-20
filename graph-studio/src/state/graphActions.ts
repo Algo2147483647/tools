@@ -2,12 +2,14 @@ import type { GraphChartType, GraphLayoutMode, GraphSelection, NodeKey, Normaliz
 import type { EditTransaction } from "./initialState";
 import type { GraphContextTarget } from "./contextMenu";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
+import type { ChartStyle } from "./chartStyles";
 
 export type GraphAction =
   | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }
   | { type: "graphClosed"; status: string }
   | {
       type: "graphLoaded";
+      linkedStyle?: ChartStyle;
       documentId: string;
       dag: NormalizedDag;
       fileName: string;

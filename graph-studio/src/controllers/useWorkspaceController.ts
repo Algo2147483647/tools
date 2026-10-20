@@ -14,6 +14,7 @@ import { createWorkspaceGraph } from "../workspace/creation";
 import type { WorkspaceSession, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 import { useRecentLocations } from "./useRecentLocations";
 import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
+import { readLinkedStyle } from "../workspace/linkedStyle";
 
 export function useWorkspaceController({
   dispatch,
@@ -55,15 +56,21 @@ export function useWorkspaceController({
   );
   useEffect(() => () => operations.invalidate(), [operations]);
   const run = operations.run;
-  function commit(dag: ReturnType<typeof normalizeDagInput>, entry: WorkspaceFile, locationId: string) {
+  function commit(
+    dag: ReturnType<typeof normalizeDagInput>,
+    entry: WorkspaceFile,
+    locationId: string,
+    style: Awaited<ReturnType<typeof readLinkedStyle>> = {},
+  ) {
     dispatch({
       type: "graphLoaded",
       documentId: documentIdentity(locationId, entry.path),
       dag,
+      linkedStyle: style.linkedStyle,
       fileName: entry.path,
       fileHandle: entry.handle,
       selection: getInitialSelection(dag),
-      status: `${Object.keys(dag.nodes).length} nodes loaded from ${entry.path}.`,
+      status: `${Object.keys(dag.nodes).length} nodes loaded from ${entry.path}.${style.styleNotice ? ` ${style.styleNotice}` : ""}`,
     });
     setHomeVisible(false);
   }
@@ -80,12 +87,12 @@ export function useWorkspaceController({
           handle: entry.handle || undefined,
         };
         const id = await identify(input);
-        return { dag, input: { ...input, id } };
+        return { dag, input: { ...input, id }, ...(await readLinkedStyle(dag, entry.path)) };
       },
       mayReplace,
-      ({ dag, input }) => {
+      ({ dag, input, ...style }) => {
         setWorkspace(null);
-        commit(dag, entry, input.id);
+        commit(dag, entry, input.id, style);
       },
       ({ input }) => remember(input),
     );
@@ -108,11 +115,11 @@ export function useWorkspaceController({
         return { ...prepared, input: { ...input, id } };
       },
       mayReplace,
-      ({ workspace: found, entry, dag, input }) => {
+      ({ workspace: found, entry, dag, input, ...style }) => {
         setWorkspace({ ...found, locationId: input.id });
         setExplorerOpen(true);
         setHomeVisible(false);
-        if (dag && entry) commit(dag, entry, input.id);
+        if (dag && entry) commit(dag, entry, input.id, style);
         else
           dispatch({
             type: "graphClosed",
@@ -233,8 +240,8 @@ export function useWorkspaceController({
         context,
         () => prepareWorkspaceGraph(folder, path),
         mayReplace,
-        ({ entry, dag }) => {
-          commit(dag, entry, folder.locationId);
+        ({ entry, dag, ...style }) => {
+          commit(dag, entry, folder.locationId, style);
           setWorkspace({ ...folder, activePath: path });
         },
         () => rememberWorkspace(folder, path),

@@ -9,6 +9,7 @@ import type {
 import { type GraphPagePreferences, getInitialGraphPagePreferences } from "./preferences";
 import type { GraphContextMenu } from "./contextMenu";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
+import type { ChartStyle } from "./chartStyles";
 
 export interface EditTransaction {
   label: string;
@@ -25,7 +26,7 @@ export interface EditTransaction {
 export interface GraphAppState {
   timelineSettings: TimelineViewSettings;
   dag: NormalizedDag | null;
-  document: { id: string; generation: number; savedDag: NormalizedDag | null };
+  document: { id: string; generation: number; savedDag: NormalizedDag | null; linkedStyle?: ChartStyle };
   nextRevision: number;
   source: {
     fileName: string;

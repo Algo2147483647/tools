@@ -20,28 +20,64 @@ import { parseNodeTimeline } from "../graph/timeline";
 import { createInitialGraphState } from "../state/initialState";
 import { replaceDocument } from "../state/documentTransitions";
 import TimelineColorSettings from "../components/TimelineColorSettings";
+import fs from "node:fs";
+import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
+import { getDefaultChartStyle } from "../state/chartStyles";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("Graph schema references a separate style; all Timeline options round-trip through that file", () => {
+    const schema = JSON.parse(fs.readFileSync(new URL("../../public/graph.schema.json", import.meta.url), "utf8"));
+    assert.equal(schema.properties.metadata.properties.timeline.properties.view, undefined);
+    assert.equal(schema.properties.metadata.properties.style.type, "string");
+    assert(!CHART_SCHEMAS.timeline.fields.some((field) => field.path.startsWith("metadata.timeline.view")));
+    assert(CHART_SCHEMAS.timeline.fields.some((field) => field.path === "metadata.style"));
+    const timeline = sanitizeTimelineSettings({
+      horizontalSpread: 0,
+      edgeRouting: "direct",
+      colorBy: "type",
+      intervalStyle: "outline",
+      intervalTextColor: "#123456",
+    });
+    const style = { ...getDefaultChartStyle("timeline"), timeline };
+    assert.deepEqual(parseChartStyleFile(JSON.parse(serializeChartStyle("timeline", style)), "timeline"), style);
+    assert.equal(
+      new Set(CHART_SCHEMAS.timeline.fields.map((field) => field.path)).size,
+      CHART_SCHEMAS.timeline.fields.length,
+    );
+  }),
   defineTest("Type color controls stay generic and document palettes do not leak to another graph", () => {
-    const view = {colorBy:"type",typeColors:{ExampleCategory:"#123456"}};
-    const controls = renderToStaticMarkup(createElement(TimelineColorSettings,{
-      settings:sanitizeTimelineSettings(view),onChange(){},
-    }));
-    assert.doesNotMatch(controls,/ExampleCategory|palette|Edit colors/);
-    const document = (withColors:boolean) => normalizeDagInput({
-      format:"graph-studio",version:3,
-      metadata:{timeline:{version:1,...(withColors?{view}:{})}},
-      nodes:{a:{time:{at:"2000"}}},edges:[],
+    const view = { colorBy: "type", typeColors: { ExampleCategory: "#123456" } };
+    const controls = renderToStaticMarkup(
+      createElement(TimelineColorSettings, {
+        settings: sanitizeTimelineSettings(view),
+        onChange() {},
+      }),
+    );
+    assert.doesNotMatch(controls, /ExampleCategory|palette|Edit colors/);
+    const document = (withColors: boolean) =>
+      normalizeDagInput({
+        format: "graph-studio",
+        version: 3,
+        metadata: { timeline: { version: 1, ...(withColors ? { view } : {}) } },
+        nodes: { a: { time: { at: "2000" } } },
+        edges: [],
+      });
+    const action = (withColors: boolean) => ({
+      type: "graphLoaded" as const,
+      documentId: withColors ? "first" : "second",
+      fileName: "graph.json",
+      dag: document(withColors),
+      selection: { type: "full" as const },
+      status: "",
     });
-    const action = (withColors:boolean) => ({
-      type:"graphLoaded" as const,documentId:withColors?"first":"second",fileName:"graph.json",
-      dag:document(withColors),selection:{type:"full" as const},status:"",
-    });
-    const first=replaceDocument(createInitialGraphState(),action(true));
-    assert.equal(first.timelineSettings.typeColors.ExampleCategory,"#123456");
-    const second=replaceDocument(first,action(false));
-    assert.deepEqual(second.timelineSettings.typeColors,{});
-    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({timelineSettings:view}))!.timelineSettings!.typeColors,{});
+    const first = replaceDocument(createInitialGraphState(), action(true));
+    assert.equal(first.timelineSettings.typeColors.ExampleCategory, "#123456");
+    const second = replaceDocument(first, action(false));
+    assert.deepEqual(second.timelineSettings.typeColors, {});
+    assert.deepEqual(
+      parseGraphPagePreferences(JSON.stringify({ timelineSettings: view }))!.timelineSettings!.typeColors,
+      {},
+    );
   }),
   defineTest("sliders start at zero while numeric inputs retain values outside their range", () => {
     for (const control of LAYOUT_CONTROLS) {

@@ -44,6 +44,13 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     add("nested", "layout", "Arrangement", "Nested layout", "compound elk group subgraph 嵌套 分组 排布");
   if (chart === "timeline") {
     add(
+      "timeline-routing",
+      "layout",
+      "Timeline",
+      "Connections",
+      "edge routing direct straight avoid obstacles 连线 直连 直线 避障 绕行",
+    );
+    add(
       "timeline-colors",
       "appearance",
       "Nodes",

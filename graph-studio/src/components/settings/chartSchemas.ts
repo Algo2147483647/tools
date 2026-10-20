@@ -1,10 +1,13 @@
 import type { GraphChartType, GraphDocument } from "../../graph/types";
+import { TIMELINE_SCHEMA_FIELDS } from "./timelineSchemaFields";
 
-interface SchemaField {
+export interface SchemaField {
+  group?: string;
   path: string;
   type: string;
   requirement: string;
   description: string;
+  defaultValue?: string;
 }
 interface ChartSchema {
   fields: SchemaField[];
@@ -13,19 +16,50 @@ interface ChartSchema {
 const commonFields: SchemaField[] = [
   { path: "format", type: '"graph-studio"', requirement: "Required", description: "Document format." },
   { path: "version", type: "3", requirement: "Required", description: "Protocol version." },
-  { path: "nodes", type: "{ [id]: node }", requirement: "Required", description: "Unique IDs map to node objects." },
   {
-    path: "nodes[id].title / define / type",
+    path: "metadata.style",
     type: "string",
     requirement: "Optional",
-    description: "Title, Markdown description and category. Custom node fields are also supported.",
+    description:
+      "Relative path to a separate graph-studio-style JSON file, resolved from this graph inside the opened workspace. Store appearance and layout settings in the style file.",
+  },
+  { path: "nodes", type: "{ [id]: node }", requirement: "Required", description: "Unique IDs map to node objects." },
+  {
+    path: "nodes[id].title",
+    type: "string",
+    requirement: "Optional",
+    description: "Display title. Node IDs remain stable identifiers; custom node fields are allowed.",
+  },
+  {
+    path: "nodes[id].define",
+    type: "string",
+    requirement: "Optional",
+    description: "Markdown description shown in node details.",
+  },
+  {
+    path: "nodes[id].type",
+    type: "string",
+    requirement: "Optional",
+    description: "Category used for Type filtering and coloring.",
   },
   { path: "edges", type: "edge[]", requirement: "Required", description: "Relationships; an empty array is valid." },
   {
-    path: "edges[].id / source / target",
+    path: "edges[].id",
     type: "string",
     requirement: "Required",
-    description: "Unique edge ID and two existing node IDs. No self-loops or duplicate endpoint pairs.",
+    description: "Non-empty identifier, unique across all edges.",
+  },
+  {
+    path: "edges[].source",
+    type: "string",
+    requirement: "Required",
+    description: "Existing source node ID. Must differ from target.",
+  },
+  {
+    path: "edges[].target",
+    type: "string",
+    requirement: "Required",
+    description: "Existing target node ID. Directed source/target pairs must be unique.",
   },
 ];
 const example: GraphDocument = {
@@ -102,58 +136,20 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
     },
   },
   timeline: {
-    fields: [
-      ...commonFields,
-      valueField,
-      {
-        path: "metadata.timeline",
-        type: "{ version: 1, clock?, view? }",
-        requirement: "View hint",
-        description: "Open in Timeline. The document remains protocol v3; diagram stays dag or is omitted.",
-      },
-      {
-        path: "nodes[id].time",
-        type: "{ at } | { start, end }",
-        requirement: "For placement",
-        description:
-          "Calendar: ISO date strings. Relative: finite numeric values in the declared unit, including zero, negative and fractional values. Missing or invalid times stay unplaced.",
-      },
-      {
-        path: "metadata.timeline.clock",
-        type: "{ mode, unit, origin, format, precision }",
-        requirement: "Relative time",
-        description:
-          "mode: relative. unit: unit (schematic), second, minute, hour, day, week or cycle. Numeric values never become dates.",
-      },
-      {
-        path: "metadata.timeline.view",
-        type: "object",
-        requirement: "Optional",
-        description:
-          "colorBy: track or type. Optional typeColors maps Type values to HEX or RGB(A) colors for this document only. orientation: horizontal or vertical; intervalTitle: inside, outside or hidden; intervalAlign: start, center or end; intervalBorder: auto, none, solid or dashed; intervalBorderWidth and intervalRadius are pixels; intervalBorderColor and intervalTextColor accept HEX or RGB(A), with an empty string for automatic colors. Interval text color does not affect point events. relativeTickStep controls numeric tick spacing.",
-      },
-      {
-        path: "nodes[id].space",
-        type: "integer ≥ 1",
-        requirement: "Optional",
-        description:
-          "One-based row (horizontal time) or column (vertical time). Spacing determines the distance; automatic layout and view pins never change the assigned index.",
-      },
-      { path: "nodes[id].track", type: "string", requirement: "Optional", description: "Timeline track name." },
-      {
-        path: "metadata.timeline.asOf",
-        type: "date string",
-        requirement: "Optional",
-        description: "Snapshot date for ongoing intervals.",
-      },
-    ],
+    fields: [...commonFields, valueField, ...TIMELINE_SCHEMA_FIELDS],
     example: {
       format: "graph-studio",
       version: 3,
-      metadata: { timeline: { version: 1, timeZone: "UTC" } },
+      metadata: {
+        style: "timeline.style.json",
+        timeline: {
+          version: 1,
+          timeZone: "UTC",
+        },
+      },
       nodes: {
-        kickoff: { title: "Kickoff", time: { at: "2026-05-01" }, track: "Delivery" },
-        build: { title: "Build", time: { start: "2026-05-02", end: "2026-05-10" }, track: "Delivery" },
+        kickoff: { title: "Kickoff", type: "Milestone", time: { at: "2026-05-01" }, track: "Delivery" },
+        build: { title: "Build", type: "Phase", time: { start: "2026-05-02", end: "2026-05-10" }, track: "Delivery" },
       },
       edges: [{ id: "kickoff-build", source: "kickoff", target: "build", value: "starts" }],
     },

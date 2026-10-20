@@ -73,6 +73,8 @@ export function projectTimelineStage(
             nodeMap,
             stage.timeline!.tracks,
             axis,
+            [],
+            stage.timeline?.edgeRouting,
           )
         : edge,
     );

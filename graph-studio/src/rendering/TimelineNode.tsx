@@ -112,7 +112,9 @@ export default function TimelineNode({
       style={
         {
           "--dag-timeline-color": time.color,
-          "--timeline-border-color": time.intervalBorderColor || time.color,
+          "--timeline-soft-fill": node.colorTokens?.pinFill || time.color,
+          "--timeline-soft-opacity": node.colorTokens ? 1 : 0.24,
+          "--timeline-border-color": time.intervalBorderColor || node.colorTokens?.borderStrong || time.color,
           "--timeline-border-width": time.intervalBorderWidth ?? 1.5,
           "--timeline-text-color": range ? time.intervalTextColor || undefined : undefined,
         } as CSSProperties

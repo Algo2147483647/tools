@@ -26,7 +26,7 @@ export function arrangeTimelineFlow(input: {
     events: nodes.map((node) => ({ key: node.key, start: node.y, end: node.timeline!.endY })),
     edges,
     minimum: minimumX,
-    step: Math.max(...nodes.map((node) => (node.timeline!.barWidth ?? 12) + 8), (55.2 + gap) * Math.max(0, spread)),
+    step: Math.max(0, ...nodes.map((node) => node.timeline!.barWidth ?? 12), (55.2 + gap) * Math.max(0, spread)),
     pins,
     fixedPositions: Object.fromEntries(
       nodes.filter((node) => node.timeline!.space !== undefined).map((node) => [node.key, node.x]),

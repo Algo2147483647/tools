@@ -8,17 +8,25 @@ export function usePreferencesController(
   state: GraphAppState,
   dispatch: Dispatch<GraphAction>,
 ) {
-  const charts = useChartPreferences(initial.chartStyles, state.chartType, dispatch);
+  const charts = useChartPreferences(initial.chartStyles, state.chartType, dispatch, state);
   const [aiSettings, setAiSettings] = useState(initial.aiSettings);
   const [saved, setSaved] = useState(false);
+  const linkedChartType = charts.linkedChartType ?? state.chartType;
   useEffect(() => {
     setSaved(
       saveGraphPagePreferences({
-        timelineSettings: { ...state.timelineSettings, typeColors: {}, pins: {}, locked: false },
+        timelineSettings: {
+          ...(state.document.linkedStyle ? initial.timelineSettings : state.timelineSettings),
+          typeColors: {},
+          pins: {},
+          locked: false,
+        },
         mode: state.mode,
         chartType: state.chartType,
         layoutMode: state.layout.mode,
-        chartStyles: charts.chartStyles,
+        chartStyles: state.document.linkedStyle
+          ? { ...charts.chartStyles, [linkedChartType]: initial.chartStyles[linkedChartType] }
+          : charts.chartStyles,
         consoleSidebarOpen: state.ui.consoleSidebarOpen,
         consoleSidebarWidth: state.ui.consoleSidebarWidth,
         aiSettings,
@@ -28,6 +36,8 @@ export function usePreferencesController(
     charts.chartStyles,
     aiSettings,
     state.timelineSettings,
+    state.document.linkedStyle,
+    linkedChartType,
     state.mode,
     state.chartType,
     state.layout.mode,

@@ -15,6 +15,12 @@ import {
 import { linkPath, manifestPath } from "../workspace/paths";
 import type { WorkspaceFolder, WorkspaceGraph } from "../workspace/types";
 import { defineSuite, defineTest } from "./harness";
+import { prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
+import { readLinkedStyle } from "../workspace/linkedStyle";
+import { getDefaultChartStyle } from "../state/chartStyles";
+import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { serializeChartStyle } from "../state/chartStyleFile";
+import { normalizeDagInput } from "../graph/normalize";
 
 const graph = (title = "Example") => ({
   format: "graph-studio",
@@ -68,6 +74,42 @@ const recent = (id: string, time: number): RecentLocation => ({
 });
 
 export const workspaceSuite = defineSuite("Workspace opening and local paths", [
+  defineTest("linked styles load relative to a graph and remain separate from graph data", async () => {
+    const doc = { ...graph(), metadata: { style: "../styles/timeline.json", timeline: { version: 1 } } };
+    const style = {
+      ...getDefaultChartStyle("timeline"),
+      timeline: sanitizeTimelineSettings({ orientation: "horizontal", edgeRouting: "direct", horizontalSpread: 0 }),
+    };
+    const files = folder({
+      [WORKSPACE_MANIFEST]: manifest(["graphs/example.json"]),
+      "graphs/example.json": doc,
+      "styles/timeline.json": serializeChartStyle("timeline", style),
+    });
+    const prepared = await prepareWorkspace(files);
+    assert.deepEqual(prepared.linkedStyle, style);
+    assert.equal(prepared.styleNotice, undefined);
+    assert.deepEqual(prepared.dag!.metadata, doc.metadata);
+    assert.deepEqual((await prepareWorkspaceGraph(prepared.workspace, "graphs/example.json")).linkedStyle, style);
+    for (const reference of ["../../outside.json", "https://example.com/style.json", "missing.json"]) {
+      const result = await readLinkedStyle(
+        normalizeDagInput({ ...doc, metadata: { ...doc.metadata, style: reference } }),
+        "graphs/example.json",
+        files,
+      );
+      assert.equal(result.linkedStyle, undefined);
+      assert.match(result.styleNotice!, /unavailable/);
+    }
+    assert.match((await readLinkedStyle(normalizeDagInput(doc), "example.json")).styleNotice!, /workspace/i);
+    files.files.set("styles/timeline.json", {
+      path: "styles/timeline.json",
+      handle: null,
+      file: new File(["broken"], "timeline.json"),
+    });
+    const invalid = await prepareWorkspace(files);
+    assert.ok(invalid.dag);
+    assert.equal(invalid.linkedStyle, undefined);
+    assert.match(invalid.styleNotice!, /unavailable/);
+  }),
   defineTest("manifest round-trips legal metadata without accepting unknown fields", () => {
     const input = manifest(["graphs/main.json"], {
       defaultGraph: "graphs/main.json",

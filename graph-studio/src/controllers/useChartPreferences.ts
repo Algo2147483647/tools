@@ -1,4 +1,4 @@
-import { type Dispatch, useCallback, useMemo, useReducer } from "react";
+import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
 import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
 import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "../graph/appearance";
@@ -10,9 +10,32 @@ import { getDefaultChartStyle, type ChartStyles } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
 import { resetAppearanceSection } from "../components/settings/appearanceSections";
 import type { AppearanceGroup } from "../components/settings/settingsCatalog";
+import type { GraphAppState } from "../state/initialState";
 
-export function useChartPreferences(styles: ChartStyles, chartType: GraphChartType, dispatch: Dispatch<GraphAction>) {
+export function useChartPreferences(
+  styles: ChartStyles,
+  chartType: GraphChartType,
+  dispatch: Dispatch<GraphAction>,
+  state: GraphAppState,
+) {
   const [histories, updateHistories] = useReducer(chartPreferencesReducer, styles, createChartPreferences);
+  const previousDocument = useRef(-1);
+  const linkedChart = useRef<GraphChartType | null>(null);
+  useEffect(() => {
+    if (previousDocument.current === state.document.generation) return;
+    previousDocument.current = state.document.generation;
+    // Restore the user's chart preference when leaving a document with its own style.
+    if (linkedChart.current) {
+      updateHistories({
+        chartType: linkedChart.current,
+        action: { type: "replace", style: styles[linkedChart.current] },
+      });
+    }
+    linkedChart.current = state.document.linkedStyle ? chartType : null;
+    if (state.document.linkedStyle) {
+      updateHistories({ chartType, action: { type: "replace", style: state.document.linkedStyle } });
+    }
+  }, [state.document.generation, state.document.linkedStyle, chartType, styles]);
   const history = histories[chartType];
   const chartStyles = useMemo(() => getChartStyles(histories), [histories]);
   const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") =>
@@ -105,7 +128,11 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
 
   function handleAppearanceExport() {
     const outputFileName = buildTimestampFileName(`${chartType}-appearance.json`);
-    downloadJsonFile(serializeChartStyle(chartType, chartStyles[chartType]), outputFileName);
+    const style = {
+      ...chartStyles[chartType],
+      ...(chartType === "timeline" ? { timeline: state.timelineSettings } : {}),
+    };
+    downloadJsonFile(serializeChartStyle(chartType, style), outputFileName);
     dispatch({ type: "statusChanged", status: `Exported current UI appearance as ${outputFileName}.` });
   }
 
@@ -144,7 +171,7 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
       if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
         throw new Error("Appearance JSON must be an object.");
       }
-      const { appearance: importedAppearance, ...display } = parseChartStyleFile(payload, chartType);
+      const { appearance: importedAppearance, timeline, ...display } = parseChartStyleFile(payload, chartType);
       updateHistories({
         chartType,
         action: {
@@ -154,6 +181,7 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
           label: `Imported graph appearance from ${file.name}.`,
         },
       });
+      if (chartType === "timeline" && timeline) dispatch({ type: "timelineSettingsChanged", patch: timeline });
       dispatch({ type: "statusChanged", status: `Imported UI appearance from ${file.name}.` });
     } catch (error) {
       console.error(error);
@@ -169,6 +197,7 @@ export function useChartPreferences(styles: ChartStyles, chartType: GraphChartTy
     endAdjustment,
     appearance,
     chartStyles,
+    linkedChartType: linkedChart.current,
     showNodeDetail: history.showNodeDetail,
     hideNodeBorders: history.hideNodeBorders,
     alignNodeWidthsToMax: history.alignNodeWidthsToMax,

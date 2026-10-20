@@ -3,6 +3,7 @@ export type TimelineTickUnit = "auto" | "second" | "minute" | "hour" | "day" | "
 export interface TimelineViewSettings {
   layout: "tracks" | "flow";
   orientation: "vertical" | "horizontal";
+  edgeRouting: "avoid" | "direct";
   colorBy: "track" | "type";
   typeColors: Record<string, string>;
   intervalWidth: number;
@@ -37,6 +38,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
   return {
     layout: input.layout === "flow" || input.layout === "cluster" ? "flow" : "tracks",
     orientation: input.orientation === "horizontal" ? "horizontal" : "vertical",
+    edgeRouting: input.edgeRouting === "direct" ? "direct" : "avoid",
     colorBy: input.colorBy === "type" ? "type" : "track",
     typeColors: Object.fromEntries(
       Object.entries(
@@ -82,6 +84,8 @@ function color(value: unknown): string {
 export function getDocumentTimelineSettings(
   metadata: Record<string, unknown> | undefined,
 ): Partial<TimelineViewSettings> {
+  // Compatibility for existing documents only. New graphs link metadata.style;
+  // these view options belong to the separate style file, not the graph schema.
   const timeline = metadata?.timeline;
   if (!timeline || typeof timeline !== "object" || Array.isArray(timeline)) return {};
   const view = (timeline as Record<string, unknown>).view;

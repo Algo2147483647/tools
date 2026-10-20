@@ -10,6 +10,7 @@ export interface TimelineControlsProps {
   onReadapt: () => void;
   showArrangement?: boolean;
   showAxis?: boolean;
+  showRouting?: boolean;
 }
 
 export default function TimelineControls({
@@ -19,6 +20,7 @@ export default function TimelineControls({
   onReadapt,
   showArrangement = true,
   showAxis = true,
+  showRouting = true,
 }: TimelineControlsProps) {
   const horizontal = settings.orientation === "horizontal";
   return (
@@ -134,6 +136,24 @@ export default function TimelineControls({
               Clear pinned positions ({Object.keys(settings.pins).length})
             </button>
           )}
+        </section>
+      )}
+      {showRouting && (
+        <section className="settings-section timeline-settings-section">
+          <h3>Connections</h3>
+          <div className="timeline-control-row">
+            <span>Routing</span>
+            <TimelineChoices
+              label="Timeline edge routing"
+              value={settings.edgeRouting}
+              options={[
+                { value: "direct", label: "Direct" },
+                { value: "avoid", label: "Avoid obstacles" },
+              ]}
+              onChange={(edgeRouting) => onChange({ edgeRouting })}
+            />
+          </div>
+          <p>Direct connects time anchors with a straight line. Avoid obstacles routes around interval bars.</p>
         </section>
       )}
       {showAxis && (

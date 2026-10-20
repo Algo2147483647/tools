@@ -358,7 +358,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     );
     const reversed = stageFor({ ...input, nodes: Object.fromEntries(Object.entries(input.nodes).reverse()) });
     assert.deepEqual(stage.timeline!.tracks, reversed.timeline!.tracks);
-    const apolloOnly = stageFor({ ...input, nodes: { moon: input.nodes.moon } });
+    const apolloOnly = stageFor(input, { type: "node", key: "moon" });
     assert.equal(stage.nodeMap.moon.timeline!.color, apolloOnly.nodeMap.moon.timeline!.color);
   }),
   defineTest("full, forest and focused selections include disconnected cycles correctly", () => {

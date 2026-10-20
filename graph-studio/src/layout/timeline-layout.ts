@@ -1,7 +1,8 @@
 import { getTimelineClock } from "../graph/timelineClock";
 import { orientTimelineStage } from "./timeline-orientation";
 import { getNodeType } from "../graph/accessors";
-import { timelineCategoryColor, timelineTypeColor } from "../graph/timelineColors";
+import { timelineTypeColor } from "../graph/timelineColors";
+import { buildCategoryColorMap, normalizeTypeLabel } from "../graph/categoryColors";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getTimelineRelation, parseNodeTimeline, parseTimelineDate, type ParsedTimelineTime } from "../graph/timeline";
 import { collectDescendantKeys } from "../graph/traversal";
@@ -52,6 +53,13 @@ export function buildTimelineStage(input: {
     ...input.timelineSettings,
   });
   const clock = getTimelineClock(dag.metadata);
+  const colorSource = Object.values((input.axisSource ?? dag).nodes);
+  const typePalette = buildCategoryColorMap(colorSource.map(getNodeType));
+  const trackPalette = buildCategoryColorMap(
+    colorSource.map((node) =>
+      settings.layout === "flow" ? getNodeType(node) || "Events" : String(node.track || "Events"),
+    ),
+  );
   const relative = clock.mode === "relative";
   const baseSpan = relative ? Math.max(1, settings.relativeTickStep) : DAY;
   const intervalWidth = Math.max(0, settings.intervalWidth);
@@ -226,7 +234,8 @@ export function buildTimelineStage(input: {
   const stageTracks: StageTimelineData["tracks"] = [];
   const axisX = 160;
   const minimumCross = axisX + Math.max(54, intervalWidth / 2 + 24);
-  const channelStep = Math.max(intervalWidth + 8, (55.2 + settings.nodeGap) * Math.max(0, settings.horizontalSpread));
+  const markerWidth = Math.max(0, ...entries.map((entry) => (entry.time.kind === "range" ? intervalWidth : 12)));
+  const channelStep = Math.max(markerWidth, (55.2 + settings.nodeGap) * Math.max(0, settings.horizontalSpread));
   // space is a one-based row/column index shared across tracks, not a pixel coordinate.
   const fixedPositions: Record<string, number> = Object.create(null);
   for (const entry of entries) {
@@ -241,7 +250,7 @@ export function buildTimelineStage(input: {
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
-    const color = timelineCategoryColor(track);
+    const color = trackPalette.get(normalizeTypeLabel(track) ?? "")?.pinCore ?? "#64748b";
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
     // Reserve explicit coordinates before placing automatic nodes, including other tracks' fixed events.
     const physicalPositions =
@@ -274,8 +283,9 @@ export function buildTimelineStage(input: {
         ? Math.max(72, intervalWidth + 24)
         : Math.max(intervalWidth + 24, Math.max(...trackNodes.map((node) => node.width)) * 1.8 + 79.2);
     const width = Math.max(
-      channelsWidth + textWidth * Math.max(1, settings.horizontalSpread),
-      estimateTextWidth(track, 12) + 20,
+      channelsWidth + markerWidth,
+      Math.max(channelsWidth + textWidth * Math.max(1, settings.horizontalSpread), estimateTextWidth(track, 12) + 20) *
+        Math.min(1, Math.max(0, settings.horizontalSpread)),
     );
     stageTracks.push({ id: track, label: track, x: trackX, width, color });
     if (!flow && settings.orientation !== "horizontal") {
@@ -371,7 +381,9 @@ export function buildTimelineStage(input: {
       timelineLabelBox(node).right + 48,
     );
   }
-  const edges = sourceEdges.map((edge, index) => routeEdge(edge, index, nodeMap, stageTracks, axisMap, warnings));
+  const edges = sourceEdges.map((edge, index) =>
+    routeEdge(edge, index, nodeMap, stageTracks, axisMap, warnings, settings.edgeRouting),
+  );
   for (const edge of edges)
     for (const point of edge.points ?? []) {
       stageWidth = Math.max(stageWidth, point.x + 40);
@@ -407,6 +419,7 @@ export function buildTimelineStage(input: {
         clock,
         relativeTickStep: settings.relativeTickStep,
         layout: settings.layout,
+        edgeRouting: settings.edgeRouting,
         axisMap,
         tickInterval,
         axisX,
@@ -435,7 +448,17 @@ export function buildTimelineStage(input: {
   );
 
   function createNode(entry: TimelineEntry, x: number, labelX: number, labelY: number, color: string): StageNode {
-    if (settings.colorBy === "type") color = timelineTypeColor(getNodeType(dag.nodes[entry.key]), settings.typeColors);
+    const type = getNodeType(dag.nodes[entry.key]);
+    const hasCustomColor =
+      settings.colorBy === "type" &&
+      Object.prototype.hasOwnProperty.call(settings.typeColors, type) &&
+      Boolean(settings.typeColors[type]);
+    const colorTokens = hasCustomColor
+      ? undefined
+      : settings.colorBy === "type"
+        ? typePalette.get(normalizeTypeLabel(type) ?? "")
+        : trackPalette.get(normalizeTypeLabel(entry.track) ?? "");
+    if (settings.colorBy === "type") color = timelineTypeColor(type, settings.typeColors, typePalette);
     const visual = getNodeVisual(
       entry.key,
       dag.nodes[entry.key],
@@ -471,6 +494,7 @@ export function buildTimelineStage(input: {
       detail: visual.detail,
       detailLines: showNodeDetail && visual.detail ? wrapDetailText(visual.detail, labelWidth, 1) : [],
       typeLabel: getNodeType(dag.nodes[entry.key]) || undefined,
+      colorTokens,
       width: contentWidth,
       height: Math.max(36, entry.endY - entry.startY),
       isRoot: topLevel.has(entry.key),
@@ -518,8 +542,9 @@ export function routeTimelineEdge(
   tracks: StageTimelineData["tracks"],
   axis?: TimelineAxisMap,
   warnings: string[] = [],
+  routing: TimelineViewSettings["edgeRouting"] = "avoid",
 ): StageEdge {
-  return routeEdge(edge, index, nodes, tracks, axis, warnings);
+  return routeEdge(edge, index, nodes, tracks, axis, warnings, routing);
 }
 
 function routeEdge(
@@ -529,6 +554,7 @@ function routeEdge(
   tracks: StageTimelineData["tracks"],
   axis?: TimelineAxisMap,
   warnings: string[] = [],
+  routing: TimelineViewSettings["edgeRouting"] = "avoid",
 ): StageEdge {
   const source = nodes[edge.source];
   const target = nodes[edge.target];
@@ -555,46 +581,55 @@ function routeEdge(
   const backward = sourceTime !== null && targetTime !== null && targetTime < sourceTime;
   const channel = 14 + (index % 5) * 4;
   const leftTrack = tracks.find((track) => track.id === (source.x < target.x ? source : target).timeline!.track);
-  const points = timelineRoute(
-    { x: source.x, y: sourceY },
-    { x: target.x, y: targetY },
-    Object.values(nodes).flatMap((node) => {
-      const time = node.timeline!;
-      const endpoint = node.key === source.key || node.key === target.key;
-      // Endpoints are allowed, but a long duration body must not become an edge corridor.
-      const top = time.startY + (endpoint ? 8 : -8);
-      const bottom = time.endY + (endpoint ? -8 : 8);
-      const boxes: RouteObstacle[] = [];
-      if (top < bottom) {
-        const cuts = [
-          top,
-          ...(node.key === source.key ? [sourceY - 10, sourceY + 10] : []),
-          ...(node.key === target.key ? [targetY - 10, targetY + 10] : []),
-          bottom,
+  const points =
+    routing === "direct"
+      ? [
+          { x: source.x, y: sourceY },
+          { x: target.x, y: targetY },
         ]
-          .filter((y) => y >= top && y <= bottom)
-          .sort((a, b) => a - b);
-        for (let i = 0; i < cuts.length - 1; i++) {
-          const mid = (cuts[i] + cuts[i + 1]) / 2;
-          if (
-            (node.key === source.key && Math.abs(mid - sourceY) < 10) ||
-            (node.key === target.key && Math.abs(mid - targetY) < 10)
-          )
-            continue;
-          boxes.push({
-            left: node.x - (time.barWidth ?? 12) / 2 - 2,
-            right: node.x + (time.barWidth ?? 12) / 2 + 2,
-            top: cuts[i],
-            bottom: cuts[i + 1],
-          });
-        }
-      }
-      return boxes;
-    }),
-    Math.max(180, (leftTrack?.x ?? Math.min(source.x, target.x)) - channel),
-  );
+      : timelineRoute(
+          { x: source.x, y: sourceY },
+          { x: target.x, y: targetY },
+          Object.values(nodes).flatMap((node) => {
+            const time = node.timeline!;
+            const endpoint = node.key === source.key || node.key === target.key;
+            // Endpoints are allowed, but a long duration body must not become an edge corridor.
+            const top = time.startY + (endpoint ? 8 : -8);
+            const bottom = time.endY + (endpoint ? -8 : 8);
+            const boxes: RouteObstacle[] = [];
+            if (top < bottom) {
+              const cuts = [
+                top,
+                ...(node.key === source.key ? [sourceY - 10, sourceY + 10] : []),
+                ...(node.key === target.key ? [targetY - 10, targetY + 10] : []),
+                bottom,
+              ]
+                .filter((y) => y >= top && y <= bottom)
+                .sort((a, b) => a - b);
+              for (let i = 0; i < cuts.length - 1; i++) {
+                const mid = (cuts[i] + cuts[i + 1]) / 2;
+                if (
+                  (node.key === source.key && Math.abs(mid - sourceY) < 10) ||
+                  (node.key === target.key && Math.abs(mid - targetY) < 10)
+                )
+                  continue;
+                boxes.push({
+                  left: node.x - (time.barWidth ?? 12) / 2 - 2,
+                  right: node.x + (time.barWidth ?? 12) / 2 + 2,
+                  top: cuts[i],
+                  bottom: cuts[i + 1],
+                });
+              }
+            }
+            return boxes;
+          }),
+          Math.max(180, (leftTrack?.x ?? Math.min(source.x, target.x)) - channel),
+        );
   const path = roundedTimelinePath(points);
-  const middle = points[Math.floor(points.length / 2)];
+  const middle =
+    points.length === 2
+      ? { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 }
+      : points[Math.floor(points.length / 2)];
   return {
     id: edge.id,
     originalEdgeIds: [edge.id],

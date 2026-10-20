@@ -1,6 +1,7 @@
 import { type GraphAppearance, sanitizeGraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { NODE_LINK_DEFAULT_APPEARANCE, NODE_LINK_DEFAULT_DISPLAY } from "../graph/nodeLinkAppearance";
 import type { GraphChartType } from "../graph/types";
+import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 
 export interface ChartDisplayOptions {
   showNodeDetail: boolean;
@@ -10,6 +11,7 @@ export interface ChartDisplayOptions {
 
 export interface ChartStyle extends ChartDisplayOptions {
   appearance: GraphAppearance;
+  timeline?: TimelineViewSettings;
 }
 
 export type ChartStyles = Record<GraphChartType, ChartStyle>;
@@ -26,6 +28,7 @@ export function mapChartTypes<T>(create: (type: GraphChartType) => T): Record<Gr
 export function sanitizeChartStyle(value: unknown): ChartStyle {
   const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Partial<ChartStyle>) : {};
   return {
+    ...(input.timeline ? { timeline: sanitizeTimelineSettings(input.timeline) } : {}),
     appearance: sanitizeGraphAppearance(input.appearance),
     showNodeDetail: typeof input.showNodeDetail === "boolean" ? input.showNodeDetail : true,
     hideNodeBorders: typeof input.hideNodeBorders === "boolean" ? input.hideNodeBorders : true,

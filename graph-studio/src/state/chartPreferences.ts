@@ -17,6 +17,7 @@ interface AppearanceHistory extends ChartStyle {
 }
 
 type AppearanceHistoryAction =
+  | { type: "replace"; style: ChartStyle }
   | { type: "beginAdjustment" }
   | { type: "endAdjustment" }
   | { type: "commit"; appearance: GraphAppearance; label: string; display?: ChartDisplayOptions }
@@ -51,6 +52,8 @@ export function chartPreferencesReducer(
 
 function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHistoryAction): AppearanceHistory {
   switch (action.type) {
+    case "replace":
+      return createAppearanceHistory(action.style);
     case "beginAdjustment":
       return state.adjustment
         ? state
