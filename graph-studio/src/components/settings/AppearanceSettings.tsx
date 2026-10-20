@@ -146,8 +146,8 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <section className="settings-section">
             <h3>Nested layout</h3>
             <p>
-              ELK arranges nested containers and routes relationships across group boundaries. Expand and collapse
-              groups on the canvas.
+              Each subgraph keeps its internal arrangement when placed in its parent. Expand and collapse groups on the
+              canvas.
             </p>
           </section>
         )}
