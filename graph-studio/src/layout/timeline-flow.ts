@@ -28,6 +28,9 @@ export function arrangeTimelineFlow(input: {
     minimum: minimumX,
     step: Math.max(...nodes.map((node) => (node.timeline!.barWidth ?? 12) + 8), (55.2 + gap) * Math.max(0, spread)),
     pins,
+    fixedPositions: Object.fromEntries(
+      nodes.filter((node) => node.timeline!.space !== undefined).map((node) => [node.key, node.x]),
+    ),
   });
   for (const node of sorted) {
     node.x = positions.get(node.key)!;

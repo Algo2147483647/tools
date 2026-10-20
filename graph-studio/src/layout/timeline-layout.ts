@@ -225,20 +225,45 @@ export function buildTimelineStage(input: {
   const stageTracks: StageTimelineData["tracks"] = [];
   const axisX = 160;
   const minimumCross = axisX + Math.max(54, intervalWidth / 2 + 24);
+  const channelStep = Math.max(intervalWidth + 8, (55.2 + settings.nodeGap) * Math.max(0, settings.horizontalSpread));
+  // space is a one-based row/column index shared across tracks, not a pixel coordinate.
+  const fixedPositions: Record<string, number> = Object.create(null);
+  for (const entry of entries) {
+    const space = dag.nodes[entry.key].space;
+    if (typeof space === "number" && Number.isSafeInteger(space) && space >= 1)
+      fixedPositions[entry.key] = minimumCross + (space - 1) * channelStep;
+  }
+  const fixedEntries = dated.filter((entry) => fixedPositions[entry.key] !== undefined);
   let trackX = Math.max(minimumCross, theme.stagePaddingX + 120);
   let lastLabelBottom = axisMap ? axisMap.originY + axisMap.height : top;
   const topLevel = new Set(selection.topLevelKeys);
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
-    const channelStep = Math.max(intervalWidth + 8, (55.2 + settings.nodeGap) * Math.max(0, settings.horizontalSpread));
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
     const color = trackColor(track);
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
-    const labelX = trackX + channelsWidth + 32;
+    // Reserve explicit coordinates before placing automatic nodes, including other tracks' fixed events.
+    const physicalPositions =
+      !flow && Object.keys(fixedPositions).length
+        ? assignTimelineChannels({
+            events: [
+              ...dated.filter((entry) => entry.track === track),
+              ...fixedEntries.filter((entry) => entry.track !== track),
+            ].map((entry) => ({ key: entry.key, start: entry.startY, end: entry.endY })),
+            edges: sourceEdges,
+            minimum: trackX + 10,
+            step: channelStep,
+            fixedPositions,
+          })
+        : undefined;
+    const labelX = Math.max(
+      trackX + channelsWidth + 32,
+      ...events.map((event) => (physicalPositions?.get(event.key) ?? trackX) + 22),
+    );
     labelColumns.set(track, labelX);
     for (const event of events) {
       const labelY = event.startY + 3;
-      const x = trackX + event.lane * channelStep + 10;
+      const x = physicalPositions?.get(event.key) ?? trackX + event.lane * channelStep + 10;
       nodeMap[event.key] = createNode(event, x, labelX, labelY, color);
     }
     const trackNodes = events.map((entry) => nodeMap[entry.key]);
@@ -257,7 +282,9 @@ export function buildTimelineStage(input: {
       packTimelineTrackLabels(datedNodes, top + 3);
       for (const node of datedNodes) lastLabelBottom = Math.max(lastLabelBottom, timelineLabelBox(node).bottom);
     }
-    trackX += width + TRACK_GAP * settings.horizontalSpread;
+    trackX =
+      (physicalPositions ? Math.max(trackX + width, labelX + textWidth) : trackX + width) +
+      TRACK_GAP * settings.horizontalSpread;
   }
   let flowWidth = 0;
   if (flow) {
@@ -326,6 +353,13 @@ export function buildTimelineStage(input: {
     .slice()
     .sort(compareEntries)
     .map((entry) => nodeMap[entry.key]);
+  for (const node of nodes) {
+    stageWidth = Math.max(
+      stageWidth,
+      node.x + (node.timeline!.barWidth ?? 12) / 2 + 48,
+      timelineLabelBox(node).right + 48,
+    );
+  }
   const edges = sourceEdges.map((edge, index) => routeEdge(edge, index, nodeMap, stageTracks, axisMap, warnings));
   for (const edge of edges)
     for (const point of edge.points ?? []) {
@@ -400,6 +434,11 @@ export function buildTimelineStage(input: {
       titleFont,
     );
     const time = entry.time;
+    const space = dag.nodes[entry.key].space as number | undefined;
+    if (space !== undefined) {
+      x = fixedPositions[entry.key];
+      labelX = x + 22;
+    }
     const contentWidth = !showNodeDetail
       ? Math.min(labelWidth, Math.max(110, measureText(visual.title, titleFont) + 16, time.label.length * 6.1 + 12))
       : labelWidth;
@@ -430,6 +469,7 @@ export function buildTimelineStage(input: {
         intervalAlign: settings.intervalAlign,
         intervalStyle: settings.intervalStyle,
         minimumCross,
+        space,
         barWidth: time.kind === "range" ? intervalWidth : 12,
         status: time.status,
         kind: time.kind,

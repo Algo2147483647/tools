@@ -133,10 +133,11 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
           "orientation: horizontal or vertical; intervalTitle: inside, outside or hidden; intervalAlign: start, center or end; relativeTickStep controls numeric tick spacing.",
       },
       {
-        path: "nodes[id].status",
-        type: "string",
+        path: "nodes[id].space",
+        type: "integer ≥ 1",
         requirement: "Optional",
-        description: "Status coloring recognizes planned, active, completed and blocked.",
+        description:
+          "One-based row (horizontal time) or column (vertical time). Spacing determines the distance; automatic layout and view pins never change the assigned index.",
       },
       { path: "nodes[id].track", type: "string", requirement: "Optional", description: "Timeline track name." },
       {

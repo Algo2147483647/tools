@@ -233,6 +233,12 @@
         "time": {
           "$ref": "#/$defs/timelineTime"
         },
+        "space": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991,
+          "description": "One-based row index for horizontal timelines, column index for vertical timelines. Layout spacing determines the pixel distance; automatic layout never changes or compacts this index. Equal indices remain on the same row/column."
+        },
         "track": {
           "type": "string",
           "description": "Optional timeline track. Overlapping events may use adjacent subtracks."

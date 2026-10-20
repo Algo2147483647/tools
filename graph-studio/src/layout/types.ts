@@ -15,6 +15,8 @@ export interface StageTimelineNode {
   intervalStyle?: TimelineViewSettings["intervalStyle"];
   barWidth?: number;
   minimumCross?: number;
+  /** One-based protocol row/column index perpendicular to time; unaffected by auto layout or view pins. */
+  space?: number;
   status: "dated" | "missing" | "invalid";
   kind: "instant" | "range" | "undated";
   start: number | null;

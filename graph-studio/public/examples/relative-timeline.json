@@ -26,6 +26,7 @@
   "nodes": {
     "prepare": {
       "title": "准备活动",
+      "space": 1,
       "time": {
         "start": -5,
         "end": 0
@@ -40,6 +41,7 @@
     },
     "window": {
       "title": "活动参与窗口",
+      "space": 3,
       "time": {
         "start": 0,
         "end": 30
@@ -48,6 +50,7 @@
     },
     "verify": {
       "title": "核验资格",
+      "space": 5,
       "time": {
         "start": 5,
         "end": 12.5

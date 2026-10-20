@@ -274,6 +274,98 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
         }
       }
   }),
+  defineTest("protocol space fixes row indices across directions, layouts, clocks and spacing changes", () => {
+    for (const relative of [true, false])
+      for (const orientation of ["horizontal", "vertical"] as const)
+        for (const layout of ["tracks", "flow"] as const)
+          for (const axis of ["linear", "adaptive"] as const) {
+            const time = relative ? { start: 0, end: 10 } : { start: "2026-01-01", end: "2026-01-11" };
+            const dag = normalizeDagInput({
+              format: "graph-studio",
+              version: 3,
+              metadata: { timeline: { clock: relative ? clock : { mode: "calendar" } } },
+              nodes: {
+                a: { title: "A", time, space: 3, track: "One" },
+                overlap: { title: "Overlap", time, space: 3, track: "Two" },
+                first: { title: "First", time, space: 1 },
+                far: { title: "Far", time, space: 14 },
+                undated: { title: "Undated", space: 7 },
+                automatic: { title: "Automatic", time, track: "One" },
+              },
+              edges: [{ id: "edge", source: "a", target: "far" }],
+            });
+            const expected = { a: 3, overlap: 3, first: 1, far: 14, undated: 7 };
+            const build = (spread: number) =>
+              buildTimelineStage({
+                dag,
+                selection: { type: "full" },
+                timelineSettings: {
+                  orientation,
+                  layout,
+                  axis,
+                  intervalTitle: "inside",
+                  horizontalSpread: spread,
+                  nodeGap: 90,
+                  pins: { a: 999, first: 999, far: 999, undated: 999 },
+                },
+              })!;
+            const original = build(1);
+            for (const spread of [0, 1, 3]) {
+              const stage = build(spread);
+              const step = Math.max(44, (55.2 + 90) * spread);
+              const rowCoordinate = (row: number) => 214 + (row - 1) * step;
+              const cross = (key: string) =>
+                orientation === "horizontal" ? stage.nodeMap[key].y : stage.nodeMap[key].x;
+              for (const [key, row] of Object.entries(expected)) {
+                assert.equal(cross(key), rowCoordinate(row));
+                assert.equal(stage.nodeMap[key].timeline!.space, row);
+              }
+              assert.notEqual(cross("automatic"), rowCoordinate(3));
+              assert.equal(stage.nodeMap.a.timeline!.startY, original.nodeMap.a.timeline!.startY);
+              assert.equal(stage.nodeMap.a.timeline!.endY, original.nodeMap.a.timeline!.endY);
+              assert.ok((orientation === "horizontal" ? stage.stageHeight : stage.stageWidth) > rowCoordinate(14));
+              const edge = stage.edges[0];
+              assert.equal(orientation === "horizontal" ? edge.points![0].y : edge.points![0].x, rowCoordinate(3));
+              assert.equal(
+                orientation === "horizontal" ? edge.points!.at(-1)!.y : edge.points!.at(-1)!.x,
+                rowCoordinate(14),
+              );
+              const range = {
+                start: relative ? 2 : Date.parse("2026-01-03"),
+                end: relative ? 8 : Date.parse("2026-01-09"),
+              };
+              const filtered = projectTimelineStage(stage, new Set(["a", "far", "first"]), range)!;
+              assert.equal(
+                orientation === "horizontal" ? filtered.nodeMap.a.y : filtered.nodeMap.a.x,
+                rowCoordinate(3),
+              );
+              assert.equal(
+                orientation === "horizontal" ? filtered.nodeMap.first.y : filtered.nodeMap.first.x,
+                rowCoordinate(1),
+              );
+            }
+            assert.equal(normalizeDagInput(JSON.parse(JSON.stringify(serializeDag(dag)))).nodes.a.space, 3);
+          }
+  }),
+  defineTest("space validates positive integer rows and persists edits without changing time", () => {
+    for (const space of ["3", null, NaN, Infinity, {}, 0, -1, 2.5, Number.MAX_SAFE_INTEGER + 1]) {
+      assert.throws(
+        () => normalizeDagInput({ format: "graph-studio", version: 3, nodes: { a: { space } }, edges: [] }),
+        /space.*positive safe integer/,
+      );
+    }
+    const dag = applyGraphCommand(graph(), {
+      type: "updateNodeFields",
+      key: "a",
+      fields: { ...serializeDag(graph()).nodes.a, space: 3 },
+    }).dag;
+    assert.deepEqual(dag.nodes.a.time, { start: 0, end: 30 });
+    assert.equal(dag.nodes.a.space, 3);
+    assert.throws(
+      () => applyGraphCommand(dag, { type: "updateNodeFields", key: "a", fields: { space: "3" } }),
+      /space.*positive safe integer/,
+    );
+  }),
   defineTest("menus, editors and exported details identify relative units without dates", () => {
     const controls = renderToStaticMarkup(
       createElement(TimelineControls, {

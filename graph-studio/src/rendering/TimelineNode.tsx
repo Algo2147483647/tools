@@ -53,6 +53,7 @@ export default function TimelineNode({
         : bar.y + bar.height / 2;
   const cross = horizontal ? node.y : node.x;
   const minimumCross = time.minimumCross ?? 214;
+  const canPin = Boolean(onPin) && time.space === undefined;
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
   const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
   const labelEdgeX = Math.max(labelX - 7, Math.min(anchor.x, labelX + node.width + 7));
@@ -67,12 +68,12 @@ export default function TimelineNode({
   }
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (
-      onPin &&
+      canPin &&
       event.altKey &&
       (horizontal ? ["ArrowUp", "ArrowDown"] : ["ArrowLeft", "ArrowRight"]).includes(event.key)
     ) {
       event.preventDefault();
-      onPin(node.key, Math.max(minimumCross, cross + (["ArrowLeft", "ArrowUp"].includes(event.key) ? -16 : 16)));
+      onPin!(node.key, Math.max(minimumCross, cross + (["ArrowLeft", "ArrowUp"].includes(event.key) ? -16 : 16)));
       return;
     }
     if (event.key === "Enter" || event.key === " ") {
@@ -113,7 +114,7 @@ export default function TimelineNode({
       aria-hidden={layer === "marker" || layer === "leader" || undefined}
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}. Select event; press Enter or double-click for details.`}
       onPointerDown={(event) => {
-        if (!onPin || event.button !== 0) return;
+        if (!canPin || event.button !== 0) return;
         const scale = event.currentTarget.ownerSVGElement?.getScreenCTM()?.a || 1;
         drag.current = { clientX: horizontal ? event.clientY : event.clientX, scale, delta: 0 };
         dragged.current = false;

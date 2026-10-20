@@ -23,6 +23,11 @@ export function validateNodeFields(value: unknown, path: string): asserts value 
     if (value[name] !== undefined && typeof value[name] !== "string")
       throw new Error(`${path}/${name} must be a string.`);
   }
+  if (
+    value.space !== undefined &&
+    (typeof value.space !== "number" || !Number.isSafeInteger(value.space) || value.space < 1)
+  )
+    throw new Error(`${path}/space must be a positive safe integer (rows start at 1).`);
   validateJsonValue(value, path);
 }
 

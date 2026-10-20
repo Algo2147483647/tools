@@ -146,3 +146,18 @@ The time-range filter uses inclusive numeric From/To bounds in relative mode. No
 - **Fill style**: Soft, Solid or Outline.
 
 Layout and interval appearance remain view preferences; `metadata.timeline.view` supplies portable initial defaults. A ready-to-open example is [`relative-timeline.json`](../public/examples/relative-timeline.json).
+
+## Explicit rows and columns
+
+Set `nodes[id].space` to a positive integer starting at **1**. It is the row number for a horizontal timeline, or the column number for a vertical timeline. It is not a pixel coordinate.
+
+```json
+"nodes": {
+  "a": { "title": "Activity", "time": { "start": 0, "end": 30 }, "space": 1 },
+  "b": { "title": "Review", "time": { "start": 5, "end": 12 }, "space": 3 }
+}
+```
+
+Row/column 1 starts next to the time ruler. The layout's spread, node gap and interval bar width determine the physical distance between rows, shared across tracks. Changing that spacing moves the grid while preserving each node's assigned index. Skipped indices are not compacted; equal indices remain on the same row even when intervals overlap.
+
+This applies to Tracks and Relation flow, calendar and relative clocks, points, intervals and undated nodes. Protocol rows take precedence over temporary view pins and survive filtering, fitting and rebuilding. Only unspecified nodes are automatically arranged; labels and edge routes may avoid collisions without changing the fixed row. Dragging and keyboard pinning are disabled for fixed nodes; edit `space` to move them. Saved JSON retains the indices; SVG and HTML use the resulting geometry.

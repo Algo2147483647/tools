@@ -33,8 +33,9 @@ export function assignTimelineChannels(input: {
   minimum: number;
   step: number;
   pins?: Record<string, number>;
+  fixedPositions?: Record<string, number>;
 }): Map<string, number> {
-  const { events, edges, minimum, step, pins = {} } = input;
+  const { events, edges, minimum, step, pins = {}, fixedPositions = {} } = input;
   const sorted = events.slice().sort(compareEvents);
   const byKey = new Map(events.map((event) => [event.key, event]));
   const incoming = new Map<string, Connection[]>();
@@ -62,7 +63,12 @@ export function assignTimelineChannels(input: {
   const chains: Chain[] = [];
   const chainByKey = new Map<string, Chain>();
   for (const event of sorted) {
-    const pin = Number.isFinite(pins[event.key]) ? Math.max(minimum, pins[event.key]) : undefined;
+    // Resolved protocol rows are exact constraints; never clamp or reorder them.
+    const pin = Number.isFinite(fixedPositions[event.key])
+      ? fixedPositions[event.key]
+      : Number.isFinite(pins[event.key])
+        ? Math.max(minimum, pins[event.key])
+        : undefined;
     const candidates = (incoming.get(event.key) ?? []).filter((link) => {
       const chain = chainByKey.get(link.source.key)!;
       return (
