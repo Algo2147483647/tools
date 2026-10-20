@@ -208,10 +208,10 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     assert.equal(web.x, gateway.x, "the second source uses the free slot beneath its successor");
     assert.ok(web.y > gateway.y);
     for (const edge of stage.edges) {
-      const length = edge.points.slice(1).reduce(
-        (sum, point, i) => sum + Math.abs(point.x - edge.points[i].x) + Math.abs(point.y - edge.points[i].y),
-        0,
-      );
+      const points = edge.points!;
+      const length = points
+        .slice(1)
+        .reduce((sum, point, i) => sum + Math.abs(point.x - points[i].x) + Math.abs(point.y - points[i].y), 0);
       assert.ok(length <= 24 + epsilon, "routing happens after placement and needs only the configured gap");
     }
     assertCompoundGeometry(dag, stage, { collapsedGroupIds: [], focusGroupId: null });
@@ -689,7 +689,10 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     const fanStart = stage.nodeMap["fan-0"];
     assert.ok(chainNext.y - chainStart.y > chainStart.height, "long chain chooses vertical flow");
     const leaves = Array.from({ length: 5 }, (_, i) => stage.nodeMap[`fan-${i + 1}`]);
-    assert.ok(leaves.some((leaf) => leaf.x - fanStart.x > fanStart.width), "fan-out retains horizontal flow");
+    assert.ok(
+      leaves.some((leaf) => leaf.x - fanStart.x > fanStart.width),
+      "fan-out retains horizontal flow",
+    );
     assert.ok(
       leaves.every((leaf) => leaf.x > fanStart.x || (leaf.x === fanStart.x && leaf.y < fanStart.y)),
       "aligned leaves may use upstream-column free slots while remaining after their source",
