@@ -1,11 +1,11 @@
-import type { ElkPoint } from "elkjs/lib/elk-api";
+type Point = { x: number; y: number };
 import type { CompoundProjection } from "../graph/compoundProjection";
 import type { CompoundBox, CompoundRoute } from "./compound-routes";
 import { estimateTextWidth } from "./text";
 
 interface Port {
-  point: ElkPoint;
-  stub: ElkPoint;
+  point: Point;
+  stub: Point;
   /** Outward direction: east, south, west, north. */
   direction: number;
 }
@@ -14,7 +14,7 @@ const BEND_COST = 20;
 const MIN_STRAIGHT = 20;
 const LANE_GAP = 16;
 
-const inside = (point: ElkPoint, box: CompoundBox) =>
+const inside = (point: Point, box: CompoundBox) =>
   point.x > box.x + EPSILON &&
   point.x < box.x + box.width - EPSILON &&
   point.y > box.y + EPSILON &&
@@ -44,14 +44,16 @@ export function routeCompoundEdges(
     .map((item) => boxes.get(item.id)!);
   const extent = { ...bounds };
   let clearance = 8;
-  for (let i = 0; i < obstacles.length; i++) for (let j = i + 1; j < obstacles.length; j++) {
-    const a = obstacles[i], b = obstacles[j];
-    const dx = Math.max(0, a.x - b.x - b.width, b.x - a.x - a.width);
-    const dy = Math.max(0, a.y - b.y - b.height, b.y - a.y - a.height);
-    clearance = Math.min(clearance, Math.hypot(dx, dy) / 3);
-  }
+  for (let i = 0; i < obstacles.length; i++)
+    for (let j = i + 1; j < obstacles.length; j++) {
+      const a = obstacles[i],
+        b = obstacles[j];
+      const dx = Math.max(0, a.x - b.x - b.width, b.x - a.x - a.width);
+      const dy = Math.max(0, a.y - b.y - b.height, b.y - a.y - a.height);
+      clearance = Math.min(clearance, Math.hypot(dx, dy) / 3);
+    }
   const edges = [...projection.edges].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  const attachments = new Map<string, ElkPoint[]>();
+  const attachments = new Map<string, Point[]>();
   const labelBoxes = new Map<string, CompoundBox>();
   const result = new Map<string, CompoundRoute>();
   for (const edge of edges) {
@@ -79,14 +81,20 @@ export function routeCompoundEdges(
     };
     const reverse = edges.find((other) => other.source === edge.target && other.target === edge.source);
     const reverseRoute = reverse && result.get(reverse.id);
-    const sharedCost = (a: ElkPoint, b: ElkPoint) => [...result.values()].reduce((sum, route) =>
-      sum + parallelRouteCost(a, b, route.points) * (route === reverseRoute ? 1 : 0.15) + crossingCost(a, b, route.points), 0);
-    const attachmentCost = (id: string, point: ElkPoint) =>
+    const sharedCost = (a: Point, b: Point) =>
+      [...result.values()].reduce(
+        (sum, route) =>
+          sum +
+          parallelRouteCost(a, b, route.points) * (route === reverseRoute ? 1 : 0.15) +
+          crossingCost(a, b, route.points),
+        0,
+      );
+    const attachmentCost = (id: string, point: Point) =>
       (attachments.get(id) ?? []).reduce(
         (sum, used) => sum + Math.max(0, LANE_GAP - Math.hypot(point.x - used.x, point.y - used.y)) * 4,
         0,
       );
-    const cost = (points: ElkPoint[]) =>
+    const cost = (points: Point[]) =>
       routeCost(points) +
       attachmentCost(edge.source, points[0]) +
       attachmentCost(edge.target, points[points.length - 1]) +
@@ -102,10 +110,7 @@ export function routeCompoundEdges(
       (port) => attachmentCost(edge.source, port.point),
       (port) => attachmentCost(edge.target, port.point),
     );
-    const candidates = [
-      ...simpleRoutes(sources, targets, padded),
-      ...(candidate ? [candidate] : []),
-    ]
+    const candidates = [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : [])]
       .map((points) => ({ points, cost: cost(points) }))
       .sort((a, b) => a.cost - b.cost);
     const lineObstacles = [...result.values()].flatMap((route) =>
@@ -134,19 +139,36 @@ export function routeCompoundEdges(
     if (showLabels && edge.label) {
       if (!labelPlaced) {
         // Route through an outer label lane; only the canvas grows, never a node or container.
-        const size = labelBox(edge.label, {x: 0, y: 0});
+        const size = labelBox(edge.label, { x: 0, y: 0 });
         const y = extent.y + extent.height + 36;
-        const left = extent.x + 36, right = Math.max(left + size.width + 24, extent.x + extent.width - 36);
+        const left = extent.x + 36,
+          right = Math.max(left + size.width + 24, extent.x + extent.width - 36);
         extent.width = Math.max(extent.width, right - extent.x + 36);
         extent.height = y - extent.y + 36;
         const labelPosition = { x: (left + right) / 2, y };
         const labelObstacle = inflate(labelBox(edge.label, labelPosition), gap);
-        const entry: Port = {point:{x:left,y},stub:{x:left-20,y},direction:2};
-        const exit: Port = {point:{x:right,y},stub:{x:right+20,y},direction:0};
-        const start = findOrthogonalPath(sources, [entry], [...padded,labelObstacle], extent, sharedCost, port => attachmentCost(edge.source,port.point), () => 0);
-        const end = findOrthogonalPath([exit], targets, [...padded,labelObstacle], extent, sharedCost, () => 0, port => attachmentCost(edge.target,port.point));
+        const entry: Port = { point: { x: left, y }, stub: { x: left - 20, y }, direction: 2 };
+        const exit: Port = { point: { x: right, y }, stub: { x: right + 20, y }, direction: 0 };
+        const start = findOrthogonalPath(
+          sources,
+          [entry],
+          [...padded, labelObstacle],
+          extent,
+          sharedCost,
+          (port) => attachmentCost(edge.source, port.point),
+          () => 0,
+        );
+        const end = findOrthogonalPath(
+          [exit],
+          targets,
+          [...padded, labelObstacle],
+          extent,
+          sharedCost,
+          () => 0,
+          (port) => attachmentCost(edge.target, port.point),
+        );
         if (!start || !end) throw new Error(`Unable to route label lane: ${edge.source} → ${edge.target}.`);
-        chosen = {points: simplifyRoute([...start,...end]) ?? [...start,...end],labelPosition};
+        chosen = { points: simplifyRoute([...start, ...end]) ?? [...start, ...end], labelPosition };
       }
       labelBoxes.set(edge.id, labelBox(edge.label, chosen.labelPosition));
     }
@@ -155,12 +177,29 @@ export function routeCompoundEdges(
   return { routes: result, width: extent.width, height: extent.height };
 }
 
-function crossingCost(a: ElkPoint, b: ElkPoint, points: ElkPoint[]): number {
+function crossingCost(a: Point, b: Point, points: Point[]): number {
   let cost = 0;
-  for (let i=1;i<points.length;i++) {
-    const c=points[i-1],d=points[i];
-    if (a.y===b.y && c.x===d.x && c.x>Math.min(a.x,b.x)&&c.x<Math.max(a.x,b.x)&&a.y>Math.min(c.y,d.y)&&a.y<Math.max(c.y,d.y)) cost+=40;
-    if (a.x===b.x && c.y===d.y && c.y>Math.min(a.y,b.y)&&c.y<Math.max(a.y,b.y)&&a.x>Math.min(c.x,d.x)&&a.x<Math.max(c.x,d.x)) cost+=40;
+  for (let i = 1; i < points.length; i++) {
+    const c = points[i - 1],
+      d = points[i];
+    if (
+      a.y === b.y &&
+      c.x === d.x &&
+      c.x > Math.min(a.x, b.x) &&
+      c.x < Math.max(a.x, b.x) &&
+      a.y > Math.min(c.y, d.y) &&
+      a.y < Math.max(c.y, d.y)
+    )
+      cost += 40;
+    if (
+      a.x === b.x &&
+      c.y === d.y &&
+      c.y > Math.min(a.y, b.y) &&
+      c.y < Math.max(a.y, b.y) &&
+      a.x > Math.min(c.x, d.x) &&
+      a.x < Math.max(c.x, d.x)
+    )
+      cost += 40;
   }
   return cost;
 }
@@ -184,7 +223,7 @@ function midpointPorts(box: CompoundBox, clearance: number): Port[] {
   );
 }
 
-function crossesBox(a: ElkPoint, b: ElkPoint, box: CompoundBox): boolean {
+function crossesBox(a: Point, b: Point, box: CompoundBox): boolean {
   return a.x === b.x
     ? a.x > box.x + EPSILON &&
         a.x < box.x + box.width - EPSILON &&
@@ -196,8 +235,8 @@ function crossesBox(a: ElkPoint, b: ElkPoint, box: CompoundBox): boolean {
         Math.min(a.x, b.x) < box.x + box.width - EPSILON;
 }
 
-function simplifyRoute(points: ElkPoint[]): ElkPoint[] | null {
-  const result: ElkPoint[] = [];
+function simplifyRoute(points: Point[]): Point[] | null {
+  const result: Point[] = [];
   for (const point of points) {
     const b = result[result.length - 1],
       a = result[result.length - 2];
@@ -212,8 +251,8 @@ function simplifyRoute(points: ElkPoint[]): ElkPoint[] | null {
 }
 
 /** Try clean one-/two-bend routes as well as the visibility search, so tiny jogs need not win by length. */
-function simpleRoutes(sources: Port[], targets: Port[], obstacles: CompoundBox[]): ElkPoint[][] {
-  const result: ElkPoint[][] = [];
+function simpleRoutes(sources: Port[], targets: Port[], obstacles: CompoundBox[]): Point[][] {
+  const result: Point[][] = [];
   const seen = new Set<string>();
   for (const source of sources)
     for (const target of targets) {
@@ -258,7 +297,7 @@ function simpleRoutes(sources: Port[], targets: Port[], obstacles: CompoundBox[]
   return result;
 }
 
-function parallelRouteCost(a: ElkPoint, b: ElkPoint, route: ElkPoint[]): number {
+function parallelRouteCost(a: Point, b: Point, route: Point[]): number {
   const horizontal = a.y === b.y;
   let cost = 0;
   for (let i = 1; i < route.length; i++) {
@@ -274,12 +313,12 @@ function parallelRouteCost(a: ElkPoint, b: ElkPoint, route: ElkPoint[]): number 
   return cost;
 }
 
-function labelBox(label: string, position: ElkPoint): CompoundBox {
+function labelBox(label: string, position: Point): CompoundBox {
   const width = Math.max(label.length * 7 + 12, estimateTextWidth(label, 10) + 14);
   return { x: position.x - width / 2, y: position.y - 10, width, height: 18 };
 }
 
-function placeLabel(label: string, points: ElkPoint[], obstacles: CompoundBox[], extent: CompoundBox): ElkPoint | null {
+function placeLabel(label: string, points: Point[], obstacles: CompoundBox[], extent: CompoundBox): Point | null {
   const segments = points
     .slice(1)
     .map((b, i) => ({ a: points[i], b, length: Math.abs(b.x - points[i].x) + Math.abs(b.y - points[i].y) }))
@@ -300,7 +339,7 @@ function placeLabel(label: string, points: ElkPoint[], obstacles: CompoundBox[],
   return null;
 }
 
-export function routeCost(points: readonly ElkPoint[]): number {
+export function routeCost(points: readonly Point[]): number {
   let length = 0,
     bends = 0,
     shortSegments = 0;
@@ -326,10 +365,10 @@ function findOrthogonalPath(
   targets: Port[],
   obstacles: CompoundBox[],
   extent: CompoundBox,
-  segmentCost: (a: ElkPoint, b: ElkPoint) => number,
+  segmentCost: (a: Point, b: Point) => number,
   sourceCost: (port: Port) => number,
   targetCost: (port: Port) => number,
-): ElkPoint[] | null {
+): Point[] | null {
   if (!sources.length || !targets.length) return null;
   const coordinates = (axis: "x" | "y") =>
     [
@@ -377,7 +416,7 @@ function findOrthogonalPath(
       }
     }
   }
-  const at = (point: ElkPoint) => yIndex.get(point.y)! * width + xIndex.get(point.x)!;
+  const at = (point: Point) => yIndex.get(point.y)! * width + xIndex.get(point.x)!;
   const targetCells = new Map(targets.map((port, index) => [at(port.stub), index]));
   const distance = new Float64Array(width * height * 4).fill(Infinity);
   const previous = new Int32Array(distance.length).fill(-1);
@@ -445,7 +484,7 @@ function findOrthogonalPath(
     if (y > 0 && !vertical[cell - width]) visit(cell - width, 3, ys[y] - ys[y - 1]);
   }
   if (endState < 0) return null;
-  const reversed: ElkPoint[] = [targets[endPort].point];
+  const reversed: Point[] = [targets[endPort].point];
   let state = endState;
   while (state >= 0) {
     const cell = Math.floor(state / 4);

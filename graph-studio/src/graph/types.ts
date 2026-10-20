@@ -80,7 +80,7 @@ export function getGraphLayoutLabel(mode: GraphRenderMode): string {
     case "timeline":
       return "Timeline · UTC";
     case "compound":
-      return "Nested node-link · ELK";
+      return "Nested node-link";
     case "sankey":
       return "Sankey flow";
     case "sugiyama":

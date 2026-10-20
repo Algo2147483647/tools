@@ -10,17 +10,15 @@ import { roundedPolylinePath } from "./rounded-path";
 import { layoutCompoundHierarchy } from "./compound-hierarchy-layout";
 import { routeCompoundEdges } from "./compound-orthogonal-router";
 
-export async function buildCompoundStage(
-  input: {
-    dag: NormalizedDag;
-    view: CompoundView;
-    selectedType?: string;
-    appearance: StageAppearance;
-    showNodeDetail: boolean;
-    alignNodeWidthsToMax: boolean;
-    showEdgeLabels?: boolean;
-  },
-): Promise<StageData> {
+export async function buildCompoundStage(input: {
+  dag: NormalizedDag;
+  view: CompoundView;
+  selectedType?: string;
+  appearance: StageAppearance;
+  showNodeDetail: boolean;
+  alignNodeWidthsToMax: boolean;
+  showEdgeLabels?: boolean;
+}): Promise<StageData> {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
   const groupParents = new Map((dag.hierarchy_edges ?? []).map((edge) => [edge.target, edge.source]));
@@ -75,8 +73,13 @@ export async function buildCompoundStage(
     }),
   );
   const placement = layoutCompoundHierarchy(projection, sizes, theme);
-  const routing = routeCompoundEdges(projection, placement.boxes, {x:0, y:0, width:placement.width, height:placement.height}, input.showEdgeLabels ?? false);
-  const result = {...placement, ...routing};
+  const routing = routeCompoundEdges(
+    projection,
+    placement.boxes,
+    { x: 0, y: 0, width: placement.width, height: placement.height },
+    input.showEdgeLabels ?? false,
+  );
+  const result = { ...placement, ...routing };
   const nodes: StageNode[] = [];
   const groups: StageGroup[] = [];
   const nodeMap: StageData["nodeMap"] = Object.create(null);

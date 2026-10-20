@@ -8,7 +8,7 @@ This guide covers the local developer workflow and the main source layout for Gr
 - TypeScript
 - Vite
 - Dagre for one of the layered layout engines
-- ELK Layered in a dedicated Web Worker for the Nested node-link chart type
+- Bottom-up topological grids with fixed child rectangles, followed by independent orthogonal routing for Nested node-link
 
 ## Local Scripts
 

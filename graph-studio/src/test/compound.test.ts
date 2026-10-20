@@ -50,15 +50,13 @@ const view = (collapsedGroupIds: string[] = [], focusGroupId: string | null = nu
   focusGroupId,
 });
 const layout = (dag = compoundFixture(), currentView = view()) =>
-  buildCompoundStage(
-    {
-      dag,
-      view: currentView,
-      appearance: getStageAppearance(DEFAULT_GRAPH_APPEARANCE),
-      showNodeDetail: true,
-      alignNodeWidthsToMax: false,
-    },
-  );
+  buildCompoundStage({
+    dag,
+    view: currentView,
+    appearance: getStageAppearance(DEFAULT_GRAPH_APPEARANCE),
+    showNodeDetail: true,
+    alignNodeWidthsToMax: false,
+  });
 
 export const compoundSuite = defineSuite("Compound hierarchy, projection and layout", [
   defineTest("context menus stay within the viewport and flyouts flip or fall back to one panel", () => {
@@ -214,18 +212,16 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
       assert.ok(stage.edges.every((edge) => !/NaN|Infinity|undefined/.test(edge.path)));
       for (const edge of stage.edges) assert.ok(stage.nodeMap[edge.source] && stage.nodeMap[edge.target]);
     }
-    const descriptionStage = await buildCompoundStage(
-      {
-        dag,
-        view: view(["b"]),
-        appearance: getStageAppearance({
-          ...DEFAULT_GRAPH_APPEARANCE,
-          display: { ...DEFAULT_GRAPH_APPEARANCE.display, showGroupStats: false },
-        }),
-        showNodeDetail: true,
-        alignNodeWidthsToMax: false,
-      },
-    );
+    const descriptionStage = await buildCompoundStage({
+      dag,
+      view: view(["b"]),
+      appearance: getStageAppearance({
+        ...DEFAULT_GRAPH_APPEARANCE,
+        display: { ...DEFAULT_GRAPH_APPEARANCE.display, showGroupStats: false },
+      }),
+      showNodeDetail: true,
+      alignNodeWidthsToMax: false,
+    });
     assert.equal(descriptionStage.nodeMap.b.detail, "Parent node details");
     assert.equal(descriptionStage.nodeMap.b.groupStatsOnly, false);
     const renamed = applyGraphCommand(dag, { type: "renameNode", oldKey: "b", newKey: "parent" }).dag;
@@ -417,28 +413,31 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.equal(indexHierarchy(result.dag).parent.get("y"), "z");
     assert.equal(indexHierarchy(result.dag).parent.get("a"), "b");
   }),
-  defineTest("ELK routes cross-boundary and reverse edges for expanded, folded and focused views", async () => {
-    for (const state of [view(), view(["b"]), view(["b", "c"]), view([], "b")]) {
-      const stage = await layout(compoundFixture(), state);
-      assert.ok(Number.isFinite(stage.stageWidth));
-      for (const edge of stage.edges) {
-        assert.ok(!/NaN|Infinity|undefined/.test(edge.path), edge.path);
-        assert.ok(edge.path.startsWith("M"));
-        assert.ok(edge.originalEdgeIds!.length);
-      }
-      for (const node of stage.nodes) assert.ok([node.x, node.y, node.width, node.height].every(Number.isFinite));
-      for (const group of stage.groups ?? []) {
-        assert.ok(group.width > 0 && group.height > 0);
-        const parentById = Object.fromEntries(indexHierarchy(compoundFixture()).parent);
-        for (const node of stage.nodes.filter((item) => parentById[item.key] === group.id)) {
-          assert.ok(node.x - node.width / 2 >= group.x);
-          assert.ok(node.y - node.height / 2 >= group.y + 50);
-          assert.ok(node.x + node.width / 2 <= group.x + group.width);
-          assert.ok(node.y + node.height / 2 <= group.y + group.height);
+  defineTest(
+    "fixed-layout routing preserves cross-boundary and reverse edges in expanded, folded and focused views",
+    async () => {
+      for (const state of [view(), view(["b"]), view(["b", "c"]), view([], "b")]) {
+        const stage = await layout(compoundFixture(), state);
+        assert.ok(Number.isFinite(stage.stageWidth));
+        for (const edge of stage.edges) {
+          assert.ok(!/NaN|Infinity|undefined/.test(edge.path), edge.path);
+          assert.ok(edge.path.startsWith("M"));
+          assert.ok(edge.originalEdgeIds!.length);
+        }
+        for (const node of stage.nodes) assert.ok([node.x, node.y, node.width, node.height].every(Number.isFinite));
+        for (const group of stage.groups ?? []) {
+          assert.ok(group.width > 0 && group.height > 0);
+          const parentById = Object.fromEntries(indexHierarchy(compoundFixture()).parent);
+          for (const node of stage.nodes.filter((item) => parentById[item.key] === group.id)) {
+            assert.ok(node.x - node.width / 2 >= group.x);
+            assert.ok(node.y - node.height / 2 >= group.y + 50);
+            assert.ok(node.x + node.width / 2 <= group.x + group.width);
+            assert.ok(node.y + node.height / 2 <= group.y + group.height);
+          }
         }
       }
-    }
-  }),
+    },
+  ),
   defineTest("hierarchy import conflicts require explicit parent choices and remap renamed groups", () => {
     const first = {
       format: "graph-studio",

@@ -39,7 +39,11 @@ Group context menus expose the same details, rename-ID, incoming/outgoing relati
 
 Collapsed parents represent their descendants; ordinary edges map to those visible endpoints, aggregating each directed pair while preserving original edge IDs and values. Internal edges remain recorded in summary statistics. Expanded parents can be actual ordinary-edge endpoints. Type filtering uses each node's own type and retains necessary ancestor containers. Entering a parent keeps incident external relationships as boundary summaries, including edges involving the focused parent itself.
 
-ELK lays out containment scopes from the inside out. The final router avoids visible cards, while expanded container rectangles are not collision obstacles. Ordinary node-link renders all nodes and ordinary edges without applying containment. SVG and HTML exports use the visible scene; HTML node details come from the same node records.
+Placement runs from the innermost scope outward. Each scope ranks its immediate children by topology, aligns them on compact row/column tracks, and freezes the resulting rectangle before its parent is arranged. Cross-boundary edges contribute ordering only at their lowest common containing scope; they never change a finished child's internal layout. Parent-to-descendant edges do not introduce artificial outer self-loops. Cycles are identified before ranking: edges between strongly connected components retain downstream order, while unavoidable feedback edges keep their original direction.
+
+Each connected component chooses horizontal or vertical flow using only its local fixed rectangles. Disconnected components are packed together. There are no boundary-port refinement passes or parent-selected child alternatives. Changes to a scope may still move its rectangle in its parent; unchanged child internals remain fixed relative to their own container.
+
+Only after all node and container positions are fixed does the orthogonal router choose side-midpoint attachments and approach lengths. It avoids visible cards, reduces crossings/shared runs, and places labels without moving nodes. A label too wide for an existing segment receives an outer routing lane, which can enlarge the canvas. Expanded container rectangles remain excluded from collision detection. Ordinary node-link renders all nodes and ordinary edges without applying containment. SVG and HTML exports use the visible scene; HTML node details come from the same node records.
 
 ## Defaults and examples
 

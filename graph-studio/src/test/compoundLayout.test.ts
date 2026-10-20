@@ -53,16 +53,14 @@ export async function layoutFixture(
   showNodeDetail = false,
   appearance = getStageAppearance(getDefaultChartStyle("compound").appearance, "compound"),
 ) {
-  return buildCompoundStage(
-    {
-      dag,
-      view,
-      showEdgeLabels,
-      appearance,
-      showNodeDetail,
-      alignNodeWidthsToMax: true,
-    },
-  );
+  return buildCompoundStage({
+    dag,
+    view,
+    showEdgeLabels,
+    appearance,
+    showNodeDetail,
+    alignNodeWidthsToMax: true,
+  });
 }
 
 interface Rect {
@@ -181,11 +179,73 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
   }
 }
 
-export const compoundLayoutSuite = defineSuite("Independent nested layouts and boundary routing", [
+export const compoundLayoutSuite = defineSuite("Independent topological layouts and fixed-position routing", [
+  defineTest(
+    "external neighbors, parent edges and sibling expansion cannot change a completed child's local geometry",
+    () => {
+      const dag = nestedChainFixture();
+      const theme = getDefaultChartStyle("compound").appearance.layout;
+      const place = (doc: NormalizedDag, collapsedGroupIds: string[] = []) => {
+        const projection = projectCompoundGraph(doc, { collapsedGroupIds, focusGroupId: null });
+        return layoutCompoundHierarchy(
+          projection,
+          new Map(projection.items.map((item) => [item.id, { width: 200, height: 100 }])),
+          theme,
+        );
+      };
+      const original = place(dag);
+      const changed = serializeDag(dag);
+      changed.nodes.external = {};
+      changed.edges.push(
+        { id: "external-in", source: "external", target: "s1-3" },
+        { id: "parent-child", source: "system-1", target: "s1-4" },
+      );
+      const local = (result: ReturnType<typeof place>) => {
+        const parent = result.boxes.get("system-1")!;
+        return {
+          width: parent.width,
+          height: parent.height,
+          children: Array.from({ length: 5 }, (_, i) => {
+            const box = result.boxes.get(`s1-${i}`)!;
+            return { ...box, x: box.x - parent.x, y: box.y - parent.y };
+          }),
+        };
+      };
+      assert.deepEqual(local(place(normalizeDagInput(changed))), local(original));
+      assert.deepEqual(local(place(dag, ["system-0"])), local(original));
+    },
+  ),
+  defineTest("topological grids keep upstream ranks before downstream ranks and align parallel branches", () => {
+    const ids = ["a", "b", "c", "d", "e", "f"];
+    const edges: [string, string][] = [
+      ["a", "b"],
+      ["a", "c"],
+      ["b", "d"],
+      ["c", "e"],
+      ["d", "f"],
+      ["e", "f"],
+    ];
+    const sizes = new Map(ids.map((id) => [id, { width: 200, height: 100 }]));
+    const result = arrangeTopology(ids, edges, sizes, 24, 24);
+    const axis = result.boxes.get("a")!.x === result.boxes.get("f")!.x ? "y" : "x";
+    for (const [a, b] of edges) assert.ok(result.boxes.get(a)![axis] < result.boxes.get(b)![axis]);
+    assert.equal(result.boxes.get("b")![axis], result.boxes.get("c")![axis]);
+    assert.equal(result.boxes.get("d")![axis], result.boxes.get("e")![axis]);
+    assert.deepEqual(arrangeTopology([...ids].reverse(), [...edges].reverse(), sizes, 24, 24), result);
+    const cyclic = arrangeTopology(ids, [...edges, ["d", "b"]], sizes, 24, 24);
+    const cyclicAxis = cyclic.boxes.get("a")!.x === cyclic.boxes.get("f")!.x ? "y" : "x";
+    for (const [a, b] of [
+      ["a", "b"],
+      ["d", "f"],
+      ["c", "e"],
+      ["e", "f"],
+    ])
+      assert.ok(cyclic.boxes.get(a)![cyclicAxis] < cyclic.boxes.get(b)![cyclicAxis]);
+  }),
   defineTest("zero configured gaps produce finite nested geometry", async () => {
     const dag = nestedChainFixture();
     const defaults = getStageAppearance(getDefaultChartStyle("compound").appearance, "compound");
-    const appearance = { ...defaults, layout: {...defaults.layout, columnGap: 0, rowGap: 0} };
+    const appearance = { ...defaults, layout: { ...defaults.layout, columnGap: 0, rowGap: 0 } };
     const stage = await layoutFixture(dag, undefined, false, false, appearance);
     assert.ok(stage.nodes.length > 0);
     for (const node of stage.nodes)
@@ -214,7 +274,8 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     const route = (collapsed: boolean) => {
       const projection = projectCompoundGraph(dag, { collapsedGroupIds: collapsed ? ["g"] : [], focusGroupId: null });
       const edge = projection.edges[0];
-      return routeCompoundEdges(projection, boxes, { x: 0, y: 0, width: 1000, height: 600 }, false).routes.get(edge.id)!.points;
+      return routeCompoundEdges(projection, boxes, { x: 0, y: 0, width: 1000, height: 600 }, false).routes.get(edge.id)!
+        .points;
     };
     const direct = [
       { x: 200, y: 140 },
@@ -262,11 +323,16 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
           height: Math.abs(a.y - b.y),
         };
       };
-      
-      const routed = routeCompoundEdges(projection, new Map([
+
+      const routed = routeCompoundEdges(
+        projection,
+        new Map([
           ["a", rect(100)],
           ["b", rect(500)],
-        ]), { x: 0, y: 0, width: 1000, height: 1000 }, false).routes.get(edge.id)!;
+        ]),
+        { x: 0, y: 0, width: 1000, height: 1000 },
+        false,
+      ).routes.get(edge.id)!;
       assert.deepEqual(routed.points, [rotate({ x: 200, y: 140 }), rotate({ x: 500, y: 140 })]);
     }
   }),
@@ -321,12 +387,12 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
             height: Math.abs(a.y - b.y),
           };
         };
-        
+
         const boxes = new Map([
           ["a", rect(100, 100)],
           ["b", rect(220 + gap, 120)],
         ]);
-        
+
         const routed = routeCompoundEdges(projection, boxes, { x: 0, y: 0, width: 1000, height: 1000 }, false).routes;
         const forward = routed.get(projection.edges[0].id)!.points;
         const reverse = routed.get(projection.edges[1].id)!.points;
@@ -345,13 +411,18 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
             16 - epsilon,
         );
         assert.deepEqual(
-          routeCompoundEdges({ ...projection, edges: [...projection.edges].reverse() }, boxes, { x: 0, y: 0, width: 1000, height: 1000 }, false).routes,
+          routeCompoundEdges(
+            { ...projection, edges: [...projection.edges].reverse() },
+            boxes,
+            { x: 0, y: 0, width: 1000, height: 1000 },
+            false,
+          ).routes,
           routed,
           "edge input order must not change the lanes",
         );
       }
   }),
-  defineTest("expanded experience uses one bend and group statistics can hide without changing geometry", async () => {
+  defineTest("expanded group statistics can hide without changing geometry", async () => {
     const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
     const view = {
       collapsedGroupIds: Object.keys(getGroupNodes(dag)).filter((id) => id !== "experience"),
@@ -360,12 +431,6 @@ export const compoundLayoutSuite = defineSuite("Independent nested layouts and b
     for (const showDetail of [false, true]) {
       const stage = await layoutFixture(dag, view, false, showDetail);
       assertCompoundGeometry(dag, stage, view);
-      const points = stage.edges.find((edge) => edge.source === "web" && edge.target === "gateway")!.points!;
-      assert.equal(points.length, 3, "the screenshot route needs just one bend");
-      assert.equal(points[0].x, stage.nodeMap.web.x);
-      assert.equal(points[0].y, stage.nodeMap.web.y + stage.nodeMap.web.height / 2);
-      assert.equal(points[2].x, stage.nodeMap.gateway.x + stage.nodeMap.gateway.width / 2);
-      assert.equal(points[2].y, stage.nodeMap.gateway.y);
       const before = JSON.stringify(stage);
       const noop = () => {};
       for (const showGroupStats of [true, false]) {

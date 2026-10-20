@@ -58,14 +58,12 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     style.appearance.display.titleAlign = "center";
     style.appearance.display.titleWrap = true;
     style.showNodeDetail = true;
-    const stage = await buildCompoundStage(
-      {
-        dag,
-        view: { collapsedGroupIds: [], focusGroupId: null },
-        ...style,
-        appearance: getStageAppearance(style.appearance, "compound"),
-      },
-    );
+    const stage = await buildCompoundStage({
+      dag,
+      view: { collapsedGroupIds: [], focusGroupId: null },
+      ...style,
+      appearance: getStageAppearance(style.appearance, "compound"),
+    });
     const node = stage.nodeMap.a;
     assert.equal(node.titleLayout!.lines.length, 2);
     assert.equal(node.titleLayout!.x, node.width / 2);
@@ -162,9 +160,11 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
         target,
       })),
     });
-    const titleStage = await buildCompoundStage(
-      { ...input, dag: titledDag, view: { collapsedGroupIds: ["customer"], focusGroupId: null } },
-    );
+    const titleStage = await buildCompoundStage({
+      ...input,
+      dag: titledDag,
+      view: { collapsedGroupIds: ["customer"], focusGroupId: null },
+    });
     const customer = titleStage.nodeMap.customer;
     assert.deepEqual(customer.titleLayout!.lines, ["Customer", "experience"]);
     assert.equal(customer.width, 200);
@@ -181,9 +181,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.equal(style.appearance.layout.rowGap, 24);
     assert.equal(style.appearance.display.edgeArrowStyle, "open");
     assert.equal(style.appearance.cssVars["--dag-edge"], "#cccccc");
-    const expanded = await buildCompoundStage(
-      { ...input, view: { collapsedGroupIds: [], focusGroupId: null } },
-    );
+    const expanded = await buildCompoundStage({ ...input, view: { collapsedGroupIds: [], focusGroupId: null } });
     const render = (showGroupBorders: boolean) =>
       renderToStaticMarkup(
         createElement(GraphStage, {
