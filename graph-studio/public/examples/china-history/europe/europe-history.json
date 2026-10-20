@@ -10,18 +10,7 @@
     "historicalScope": "约公元前1900年—2026年；爱琴海青铜时代至当代的欧洲历史选编",
     "description": "中文说明与原语言专名；点事件为主，跨地区线路在共同事件处交汇。不是穷尽所有国家与事件的通史。",
     "timeline": {
-      "version": 1,
-      "timeZone": "UTC",
-      "view": {
-        "layout": "flow",
-        "axis": "adaptive",
-        "tickStep": 100,
-        "tickUnit": "year",
-        "nodeGap": 24,
-        "compactness": 0.5,
-        "locked": false,
-        "pins": {}
-      }
+      "timeZone": "UTC"
     },
     "edgeSemantics": {
       "sequence": "所选主题事件的阅读次序；非充分或唯一因果。同年连接不隐含月日精度。",
@@ -61,7 +50,8 @@
         "guide": "notes/contemporary.md",
         "eventCount": 55
       }
-    }
+    },
+    "style": "europe-history.style.json"
   },
   "nodes": {
     "knossos-palace": {

@@ -75,7 +75,7 @@ const recent = (id: string, time: number): RecentLocation => ({
 
 export const workspaceSuite = defineSuite("Workspace opening and local paths", [
   defineTest("linked styles load relative to a graph and remain separate from graph data", async () => {
-    const doc = { ...graph(), metadata: { style: "../styles/timeline.json", timeline: { version: 1 } } };
+    const doc = { ...graph(), metadata: { style: "../styles/timeline.json", timeline: {} } };
     const style = {
       ...getDefaultChartStyle("timeline"),
       timeline: sanitizeTimelineSettings({ orientation: "horizontal", edgeRouting: "direct", horizontalSpread: 0 }),

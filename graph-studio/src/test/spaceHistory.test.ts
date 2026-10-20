@@ -92,7 +92,7 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
     for (const path of ["space-history.json"]) {
       const graph = await read(path);
       assert.equal(normalizeDagInput(graph).diagram, "dag");
-      assert.deepEqual(graph.metadata.timeline, { version: 1, timeZone: "UTC" });
+      assert.deepEqual(graph.metadata.timeline, { timeZone: "UTC" });
       for (const [id, node] of Object.entries(graph.nodes))
         assert.deepEqual(node, full.nodes[id], `${path}/${id}: shared facts`);
       assert.deepEqual(

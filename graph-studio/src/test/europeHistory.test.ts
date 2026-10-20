@@ -99,7 +99,11 @@ export const europeHistorySuite = defineSuite("欧洲历史独立时间画布", 
   }),
   defineTest("the full canvas renders original-script points and period joins on actual time rows", async () => {
     const dag = normalizeDagInput(await read("europe-history.json"));
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("europe-history.style.json")).style.timeline,
+    })!;
     assert.equal(stage.nodes.length, 598);
     assert.equal(stage.edges.length, 673);
     assert.equal(stage.warnings.length, 0);

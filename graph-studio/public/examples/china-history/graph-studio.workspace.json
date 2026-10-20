@@ -53,7 +53,9 @@
       "europe/notes/nineteenth-catalog.md",
       "europe/notes/nineteenth.md",
       "europe/notes/twentieth-catalog.md",
-      "europe/notes/twentieth.md"
+      "europe/notes/twentieth.md",
+      "china-history.style.json",
+      "europe/europe-history.style.json"
     ],
     "graphStats": {
       "china-history.json": {

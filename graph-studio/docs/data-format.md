@@ -15,29 +15,27 @@ The application accepts only this protocol. Legacy node maps, arrays, field alia
     "A": { "title": "Node A", "define": "Markdown description", "type": "Concept" },
     "B": { "title": "Node B", "type": "Theorem" }
   },
-  "edges": [
-    { "id": "edge-ab", "source": "A", "target": "B", "value": "supports", "metadata": { "source": "Notes" } }
-  ]
+  "edges": [{ "id": "edge-ab", "source": "A", "target": "B", "value": "supports", "metadata": { "source": "Notes" } }]
 }
 ```
 
-| Field | Rule |
-| --- | --- |
-| `format` | Required; exactly `"graph-studio"` |
-| `version` | Required; the number `3`, not a string or an unknown version |
-| `diagram` | Optional `"dag"` or `"sankey"`; omitted means an ordinary graph. Sankey documents automatically select the flow layout |
-| `id`, `title` | Optional document identifier and title strings |
-| `metadata` | Optional object for document extensions |
-| `hierarchy_edges` | Optional array of `{ id, source, target }`, directed from parent node to child node. Parents live in `nodes`; a nonempty collection initially selects Nested node-link |
-| `nodes` | Required object mapping IDs to node objects; may be empty |
-| `nodes[id].title`, `define`, `type` | Optional strings for title, description and type filtering; aliases are not inferred |
-| Custom node fields | Arbitrary JSON values; stored `key`, `parents` and `children` are forbidden |
-| `edges` | Required array; ordinary relationship collection; may be empty |
-| `edges[].id` | Required and unique; stable when editing the edge or renaming endpoints |
-| `edges[].source`, `target` | Required references to existing nodes |
-| `edges[].value` | Optional scalar: string, finite number, boolean or `null`. An omitted value appears as `related_to` without being written into the file |
-| `edges[].metadata` | Optional object for edge extensions |
-| Unknown top-level or edge fields | Rejected; place extensions in the corresponding `metadata` |
+| Field                               | Rule                                                                                                                                                                   |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `format`                            | Required; exactly `"graph-studio"`                                                                                                                                     |
+| `version`                           | Required; the number `3`, not a string or an unknown version                                                                                                           |
+| `diagram`                           | Optional `"dag"` or `"sankey"`; omitted means an ordinary graph. Sankey documents automatically select the flow layout                                                 |
+| `id`, `title`                       | Optional document identifier and title strings                                                                                                                         |
+| `metadata`                          | Optional object for document extensions                                                                                                                                |
+| `hierarchy_edges`                   | Optional array of `{ id, source, target }`, directed from parent node to child node. Parents live in `nodes`; a nonempty collection initially selects Nested node-link |
+| `nodes`                             | Required object mapping IDs to node objects; may be empty                                                                                                              |
+| `nodes[id].title`, `define`, `type` | Optional strings for title, description and type filtering; aliases are not inferred                                                                                   |
+| Custom node fields                  | Arbitrary JSON values; stored `key`, `parents` and `children` are forbidden                                                                                            |
+| `edges`                             | Required array; ordinary relationship collection; may be empty                                                                                                         |
+| `edges[].id`                        | Required and unique; stable when editing the edge or renaming endpoints                                                                                                |
+| `edges[].source`, `target`          | Required references to existing nodes                                                                                                                                  |
+| `edges[].value`                     | Optional scalar: string, finite number, boolean or `null`. An omitted value appears as `related_to` without being written into the file                                |
+| `edges[].metadata`                  | Optional object for edge extensions                                                                                                                                    |
+| Unknown top-level or edge fields    | Rejected; place extensions in the corresponding `metadata`                                                                                                             |
 
 IDs must be nonempty strings without leading/trailing whitespace, commas, carriage returns or newlines. Node IDs are object keys and are not repeated inside their node objects.
 
@@ -47,7 +45,7 @@ The [JSON Schema](../public/graph.schema.json) describes document shape. Runtime
 
 For containment and the `compound` chart type, see [Nested node-link](compound.md). `hierarchy_edges` describes membership; `edges` describes ordinary relationships and can connect parent nodes. The old `hierarchy` object is rejected, without migration. Containment requires one parent per child and no cycles.
 
-For time-based display, set `metadata.timeline.version` to `1`, give nodes a `time` object (`at`, or `start` and `end`) and an optional `track`. This remains a v3 ordinary graph; `diagram` does not gain a new value. Missing or invalid times remain inspectable in the timeline's unplaced region. See [Timeline](timeline.md) for date precision, timezone, relation anchors, editing, and snapshot conventions.
+For time-based display, add a `metadata.timeline` object (an empty object is sufficient), give nodes a `time` object (`at`, or `start` and `end`) and an optional `track`. This remains a v3 ordinary graph; `diagram` does not gain a new value. Missing or invalid times remain inspectable in the timeline's unplaced region. See [Timeline](timeline.md) for date precision, timezone, relation anchors, editing, and snapshot conventions.
 
 ## Sankey diagrams
 
@@ -106,11 +104,11 @@ The interface opens single files or workspaces. Each graph in a workspace is ind
 
 All files are validated before merging. Invalid JSON, structure or versions reject the batch. Non-JSON files are ignored and counted in status information. Files are processed in order, starting with the first document. Identical nodes/edges with matching IDs are reused. Other conflicts report the filename, JSON path, existing value and incoming value. Results are returned only after every conflict is resolved; source files are not written.
 
-| Strategy | Behavior |
-| --- | --- |
-| Keep existing | Retains the selected existing value. Keeping a whole node does not import other incoming fields from it; incoming edges are analyzed separately |
-| Merge fields | Combines complementary object fields and requests decisions for conflicting children. Explicit array merges retain order and add distinct values; different scalars are not automatically merged |
-| Rename incoming | Retains both copies. Node renaming updates that file's edge endpoints. Field renaming creates a sibling field. Edge IDs can be renamed only if their endpoint pairs differ |
+| Strategy        | Behavior                                                                                                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Keep existing   | Retains the selected existing value. Keeping a whole node does not import other incoming fields from it; incoming edges are analyzed separately                                                  |
+| Merge fields    | Combines complementary object fields and requests decisions for conflicting children. Explicit array merges retain order and add distinct values; different scalars are not automatically merged |
+| Rename incoming | Retains both copies. Node renaming updates that file's edge endpoints. Field renaming creates a sibling field. Edge IDs can be renamed only if their endpoint pairs differ                       |
 
 Names can be provided or generated uniquely. Duplicate/reserved names block import. Renaming an edge ID cannot create parallel edges with identical endpoints; keep or merge their properties instead.
 

@@ -167,7 +167,7 @@ export function timelinePreviewGraph(clock: TimelineClock) {
   return normalizeDagInput({
     format: "graph-studio",
     version: 3,
-    metadata: { timeline: { version: 1, clock } },
+    metadata: { timeline: { clock } },
     nodes: {
       launch: { title: "Kickoff", type: "Milestone", time: { at: 0 }, track: "Delivery" },
       build: { title: "Build", type: "Phase", time: { start: 1, end: 6 }, track: "Delivery", status: "active" },

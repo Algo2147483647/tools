@@ -16,7 +16,7 @@ const document = () =>
   normalizeDagInput({
     format: "graph-studio",
     version: 3,
-    metadata: { timeline: { version: 1, view: { layout: "flow", axis: "adaptive" } } },
+    metadata: { timeline: {} },
     nodes: {
       a: { title: "甲", type: "政治", time: { at: "1000" } },
       b: { title: "乙", type: "经济", time: { at: "1500" } },
@@ -132,7 +132,11 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
     assert.equal(filtered.edges[0].points![0].y, base.nodeMap.event.y);
   }),
   defineTest("category projection preserves positions and time map and never invents links", () => {
-    const base = buildTimelineStage({ dag: document(), selection: { type: "full" } })!;
+    const base = buildTimelineStage({
+      dag: document(),
+      selection: { type: "full" },
+      timelineSettings: { layout: "flow", axis: "adaptive" },
+    })!;
     const filtered = projectTimelineStage(base, new Set(["a", "c"]))!;
     assert.strictEqual(filtered.timeline!.axisMap, base.timeline!.axisMap);
     assert.strictEqual(filtered.nodeMap.a, base.nodeMap.a);
@@ -143,7 +147,11 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
     assert.equal(projectTimelineStage(base, new Set()), null);
   }),
   defineTest("exports keep a minimal English ruler without category tracks or explanations", () => {
-    const stage = buildTimelineStage({ dag: document(), selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag: document(),
+      selection: { type: "full" },
+      timelineSettings: { layout: "flow", axis: "adaptive" },
+    })!;
     const html = renderToStaticMarkup(createElement(TimelineBackdrop, { stage }));
     assert.match(html, /TIME · UTC/);
     assert.doesNotMatch(html, /非线性|长度不代表|关系流/);

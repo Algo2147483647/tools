@@ -3,6 +3,7 @@ import ChartTypeIcon from "../ui/ChartTypeIcon";
 import ChartSchema from "./ChartSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import TimelineIntervalSettings from "../TimelineIntervalSettings";
+import TimelinePointSettings from "../TimelinePointSettings";
 import TimelineColorSettings from "../TimelineColorSettings";
 import { sanitizeTimelineSettings } from "../../graph/timelineSettings";
 import type { ChangeEvent } from "react";
@@ -61,10 +62,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const selectedPreset = presets.find(
     (preset) =>
       JSON.stringify(preset.appearance) === JSON.stringify(p.appearance) &&
-      (preset.id !== "default" ||
-        (p.showNodeDetail === defaultStyle.showNodeDetail &&
-          p.hideNodeBorders === defaultStyle.hideNodeBorders &&
-          p.alignNodeWidthsToMax === defaultStyle.alignNodeWidthsToMax)),
+      p.showNodeDetail === preset.style.showNodeDetail &&
+      p.hideNodeBorders === preset.style.hideNodeBorders &&
+      p.alignNodeWidthsToMax === preset.style.alignNodeWidthsToMax &&
+      (p.chartType !== "timeline" || JSON.stringify(p.timelineControls?.settings) === JSON.stringify(preset.style.timeline)),
   );
   const [group, setGroup] = useState<AppearanceGroup>("nodes");
   const catalog = getSettingsCatalog(p.chartType);
@@ -246,9 +247,11 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
     return (
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
         {has("timeline-colors") && p.timelineControls && <TimelineColorSettings {...p.timelineControls} />}
+        {has("timeline-points") && p.timelineControls && <TimelinePointSettings {...p.timelineControls} />}
         {has("timeline-intervals") && p.timelineControls && (
           <TimelineIntervalSettings settings={p.timelineControls.settings} onChange={p.timelineControls.onChange} />
         )}
+        {has("timeline-anchors") && p.timelineControls && <TimelinePointSettings {...p.timelineControls} anchors />}
         {has("presets") && (
           <>
             <p>{selectedPreset ? `${selectedPreset.label} preset` : "Custom style"} · Choose a starting point.</p>
@@ -518,6 +521,15 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                     intervalBorderColor: defaults.intervalBorderColor,
                     intervalRadius: defaults.intervalRadius,
                     intervalTextColor: defaults.intervalTextColor,
+                    intervalTextColorMode: defaults.intervalTextColorMode,
+                    pointMarker: defaults.pointMarker,
+                    anchorMarker: defaults.anchorMarker,
+                    pointTextColor: defaults.pointTextColor,
+                    pointDateVisible: defaults.pointDateVisible,
+                    pointDateColor: defaults.pointDateColor,
+                    leaderStyle: defaults.leaderStyle,
+                    leaderColor: defaults.leaderColor,
+                    leaderWidth: defaults.leaderWidth,
                   });
                 }
               }}

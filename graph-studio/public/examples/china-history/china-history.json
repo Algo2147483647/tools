@@ -9,18 +9,7 @@
     "historicalScope": "约公元前1750年—2026-10-14；从二里头考古材料起的专题选编",
     "asOf": "2026-10-14",
     "timeline": {
-      "version": 1,
-      "timeZone": "UTC",
-      "view": {
-        "layout": "flow",
-        "axis": "adaptive",
-        "tickStep": 100,
-        "tickUnit": "year",
-        "nodeGap": 24,
-        "compactness": 0.5,
-        "locked": false,
-        "pins": {}
-      }
+      "timeZone": "UTC"
     },
     "description": "政权、文化、科技、制度、外交和战争共同构成一张时间关系图。类别只用颜色标识，不是固定轨道。",
     "edgeSemantics": {
@@ -71,7 +60,8 @@
         "revisedNodes": 13,
         "guide": "notes/yuan-qing.md"
       }
-    }
+    },
+    "style": "china-history.style.json"
   },
   "nodes": {
     "roc-period": {

@@ -36,13 +36,7 @@
         "timeline": {
           "type": "object",
           "description": "An optional view hint. Timeline preserves the v3 graph and its original edges.",
-          "required": [
-            "version"
-          ],
           "properties": {
-            "version": {
-              "const": 1
-            },
             "timeZone": {
               "const": "UTC"
             },
@@ -90,7 +84,7 @@
               "additionalProperties": false
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "style": {
           "type": "string",

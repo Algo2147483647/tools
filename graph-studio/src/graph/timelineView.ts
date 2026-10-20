@@ -5,12 +5,7 @@ import type { NormalizedDag } from "./types";
 /** Timeline is a view over v3 graph data; it does not change edge semantics. */
 export function isTimelineDocument(dag: Pick<NormalizedDag, "metadata">): boolean {
   const timeline = dag.metadata?.timeline;
-  return Boolean(
-    timeline &&
-    typeof timeline === "object" &&
-    !Array.isArray(timeline) &&
-    (timeline as Record<string, unknown>).version === 1,
-  );
+  return Boolean(timeline && typeof timeline === "object" && !Array.isArray(timeline));
 }
 
 export function getTimelineTrackOptions(dag: NormalizedDag): string[] {

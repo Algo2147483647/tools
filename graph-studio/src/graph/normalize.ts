@@ -67,6 +67,16 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
   for (const name of ["id", "title"])
     if (input[name] !== undefined && typeof input[name] !== "string") throw new Error(`/${name} must be a string.`);
   if (input.metadata !== undefined && !isRecord(input.metadata)) throw new Error("/metadata must be an object.");
+  const timeline = isRecord(input.metadata) ? input.metadata.timeline : undefined;
+  if (timeline !== undefined) {
+    if (!isRecord(timeline)) throw new Error("/metadata/timeline must be an object.");
+    for (const key of Object.keys(timeline)) {
+      if (!["timeZone", "asOf", "clock"].includes(key))
+        throw new Error(
+          `Unknown timeline field /metadata/timeline/${key}. Store view and appearance settings in the linked style file.`,
+        );
+    }
+  }
   if (!isRecord(input.nodes)) throw new Error("/nodes must be an object keyed by node ID.");
   if (!Array.isArray(input.edges)) throw new Error("/edges must be an array.");
   const nodes = input.nodes;

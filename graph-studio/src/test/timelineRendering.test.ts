@@ -14,8 +14,95 @@ import { timelineTypeColor } from "../graph/timelineColors";
 import { projectTimelineStage } from "../layout/timeline-project";
 import { buildStageData } from "../layout/stage-layout";
 import { timelineBarBox } from "../layout/timeline-orientation";
+import { TIMELINE_CSS } from "../rendering/timelineStyles";
+import TimelinePointSettings from "../components/TimelinePointSettings";
+import TimelineIntervalSettings from "../components/TimelineIntervalSettings";
+import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 
 export const timelineRenderingSuite = defineSuite("Timeline rendering", [
+  defineTest(
+    "point and anchor styles render independently; interval titles follow automatic colors and italic font",
+    () => {
+      const dag = normalizeDagInput({
+        format: "graph-studio",
+        version: 3,
+        metadata: { timeline: { clock: { mode: "relative" } } },
+        nodes: { point: { type: "Event", time: { at: 5 } }, bar: { type: "Period", time: { start: 0, end: 10 } } },
+        edges: [{ id: "link", source: "bar", target: "point", metadata: { timeline: { sourceTime: 5 } } }],
+      });
+      const settings = sanitizeTimelineSettings({
+        colorBy: "type",
+        intervalTitle: "inside",
+        intervalTextColorMode: "event",
+        pointMarker: { shape: "square", size: 22, fill: "#112233", borderColor: "#abcdef", borderWidth: 3 },
+        anchorMarker: { shape: "diamond", size: 10, fill: "#456789", borderWidth: 2 },
+        pointTextColor: "#135790",
+        pointDateVisible: false,
+        leaderStyle: "dashed",
+        leaderColor: "#345678",
+        leaderWidth: 2,
+      });
+      const appearance = structuredClone(DEFAULT_GRAPH_APPEARANCE);
+      appearance.cssVars["--dag-title-font-style"] = "italic";
+      for (const orientation of ["horizontal", "vertical"] as const) {
+        const stage = buildTimelineStage({
+          dag,
+          selection: { type: "full" },
+          appearance,
+          timelineSettings: { ...settings, orientation },
+        })!;
+        const render = (key: string) =>
+          renderToStaticMarkup(
+            createElement(TimelineNode, {
+              node: stage.nodeMap[key],
+              isActive: false,
+              onClick() {},
+              onContextMenu() {},
+              onFocusChange() {},
+            }),
+          );
+        const point = render("point"),
+          bar = render("bar");
+        assert.match(point, /<rect[^>]*timeline-node__instant[^>]*width="22"/);
+        assert.match(point, /--timeline-marker-fill:#112233/);
+        assert.match(point, /--timeline-text-color:#135790/);
+        assert.doesNotMatch(point, /<text class="timeline-node__date"/);
+        assert.match(point, /--timeline-leader-dash:4 3/);
+        assert.equal((bar.match(/timeline-node__point timeline-node__anchor/g) || []).length, 3);
+        assert.match(bar, /--timeline-marker-fill:#456789/);
+        assert.ok(bar.includes(`--timeline-text-color:${stage.nodeMap.bar.timeline!.color}`));
+        const hidden = buildTimelineStage({
+          dag,
+          selection: { type: "full" },
+          timelineSettings: {
+            ...settings,
+            orientation,
+            pointMarker: { ...settings.pointMarker, visible: false },
+            anchorMarker: { ...settings.anchorMarker, visible: false },
+            leaderStyle: "none",
+          },
+        })!;
+        const markup = renderToStaticMarkup(
+          createElement(TimelineNode, {
+            node: hidden.nodeMap.point,
+            isActive: false,
+            onClick() {},
+            onContextMenu() {},
+            onFocusChange() {},
+          }),
+        );
+        assert.doesNotMatch(markup, /class="timeline-node__point|class="timeline-node__leader"/);
+        assert.match(markup, /role="button"/);
+        assert.equal(hidden.nodeMap.point.timeline!.start, 5);
+      }
+      assert.match(TIMELINE_CSS, /font-style: var\(--dag-title-font-style/);
+      assert(getSettingsCatalog("timeline").some((item) => item.id === "fontStyle"));
+      const menu = renderToStaticMarkup(createElement(TimelinePointSettings, { settings, onChange() {} }));
+      assert.match(menu, /Point marker shape/);
+      const intervalMenu = renderToStaticMarkup(createElement(TimelineIntervalSettings, { settings, onChange() {} }));
+      assert.match(intervalMenu, /Match interval/);
+    },
+  ),
   defineTest("zero cross-axis spread makes adjacent bars touch in tracks, flow, and explicit rows", () => {
     for (const orientation of ["horizontal", "vertical"] as const) {
       for (const layout of ["tracks", "flow"] as const) {
@@ -24,7 +111,7 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
             const dag = normalizeDagInput({
               format: "graph-studio",
               version: 3,
-              metadata: { timeline: { version: 1, clock: { mode: "relative" } } },
+              metadata: { timeline: { clock: { mode: "relative" } } },
               nodes: Object.fromEntries(
                 ["a", "b", "c"].map((id, i) => [
                   id,
@@ -61,7 +148,7 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      metadata: { timeline: { version: 1, clock: { mode: "relative" } } },
+      metadata: { timeline: { clock: { mode: "relative" } } },
       nodes: {
         a: { space: 1, time: { start: 0, end: 10 } },
         obstacle: { space: 2, time: { start: 0, end: 10 } },

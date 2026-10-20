@@ -19,7 +19,7 @@ Timeline uses the existing graph document. `diagram` remains `dag` or `sankey`; 
 
 ```json
 "metadata": {
-  "timeline": { "version": 1, "timeZone": "UTC" }
+  "timeline": { "timeZone": "UTC" }
 }
 ```
 
@@ -32,7 +32,7 @@ For a historical snapshot, optional `metadata.timeline.asOf` accepts a date or e
   "format": "graph-studio",
   "version": 3,
   "title": "A mission",
-  "metadata": { "timeline": { "version": 1, "timeZone": "UTC" } },
+  "metadata": { "timeline": { "timeZone": "UTC" } },
   "nodes": {
     "launch": {
       "title": "Launch",
@@ -89,7 +89,7 @@ Both arrangements keep time coordinates fixed and place labels independently aft
 - **Fixed interval**: equal elapsed durations have equal distances. Set a positive integer interval with seconds, minutes, hours, days, weeks, months or years, or select Auto. Calendar months and years follow UTC boundaries; zoom may omit labels at whole multiples of the configured base interval.
 - **Adaptive**: expand dense event dates and duration endpoints, compress sparse periods, and smooth local scale changes. All branches use the same strictly increasing, reversible mapping. Duration bars alone do not add density throughout their lifetimes. Screen lengths are not proportional to real durations. The live ruler, grid and SVG export use the same mapping.
 
-Ordinary filters retain node positions and the axis. Time range clipping preserves stored dates. **Fit visible events** rebuilds from visible events; **Show all events** restores the full layout. **Lock time axis** retains its mapping across content edits; newly exposed dates extend its existing end segments. Layout/axis choices are browser preferences and can be exported in a separate style file. A graph links that file with `metadata.style`. Pins are local view state and do not carry into other documents. Existing documents default to Tracks and a linear axis; legacy draft `cluster` settings migrate to Relation flow.
+Ordinary filters retain node positions and the axis. Time range clipping preserves stored dates. **Fit visible events** rebuilds from visible events; **Show all events** restores the full layout. **Lock time axis** retains its mapping across content edits; newly exposed dates extend its existing end segments. Layout/axis choices are browser preferences and can be exported in a separate style file. A graph links that file with `metadata.style`. Pins are local view state and do not carry into other documents. Existing documents default to Tracks and a linear axis.
 
 In both layouts, simultaneous event markers and duration endpoints stay on the exact same time coordinate. Text is positioned independently and may move above or below its event, with straight leaders connecting it to the anchor. Leaders render beneath relationship lines and markers. Labels sit above rounded orthogonal relationship lines with translucent backgrounds; relationship routing ignores labels. **Horizontal spread** (Vertical spread in horizontal orientation) adjusts spacing from 0% to 300% while preserving time coordinates and pinned positions. At 0%, adjacent duration bars touch without an extra gutter; explicit skipped rows still keep their indices. **Layout → Connections → Routing** selects Direct for one straight segment between time anchors, or Avoid obstacles for routed connections.
 
@@ -121,7 +121,6 @@ Relative values are numbers in the declared unit, never timestamps or dates. `un
   "version": 3,
   "metadata": {
     "timeline": {
-      "version": 1,
       "clock": { "mode": "relative", "unit": "minute", "origin": "领取", "format": "elapsed", "precision": 2 }
     }
   },
@@ -143,10 +142,16 @@ The time-range filter uses inclusive numeric From/To bounds in relative mode. No
 - **Title placement**: Outside (title and time), Inside (title only), or Hidden. Inside titles never include time or node details; short bars clip text within their true duration instead of extending the bar.
 - **Title alignment**: start/center/end maps to Left/Center/Right horizontally and Top/Center/Bottom vertically.
 - **Fill style**: Soft, Solid or Outline.
+- **Font color**: Match interval follows the current Type or Track color automatically; Theme uses the theme text color; Custom selects an independent title color.
+
+**Appearance → Text → Italic title** controls slanted titles for both points and intervals.
+**Appearance → Nodes → Point events** configures marker visibility, shape, size, fill, border, title color and time-label visibility/color.
+**Time anchors** in the same Nodes section configures interval endpoints and interior connection markers independently, plus the line that links a label to its exact time.
+Changing these styles never changes the stored event times or connection anchors. Clipped and ongoing endpoints retain their open-ended indicator.
 
 Layout and appearance belong to a separate **graph-studio-style** file. Export it from **Appearance → Configuration → Export style**, save it alongside the graph, and set only `"metadata": { "style": "timeline.style.json" }` in the graph. Opening the workspace resolves the reference relative to the graph file and applies the style automatically. Opening just the graph file cannot access sibling files; import the style manually or open its workspace. Missing or invalid style files produce a notice while the graph stays usable.
 
-The style file stores timeline controls under `style.timeline`, including routing, direction, spacing, colors and interval appearance. Older inline view settings remain readable for compatibility, but are no longer part of the documented graph schema. **Appearance → Nodes → Event colors → Type** uses the same category palette and light fills as Node-link; Type names come from the graph.
+The style file stores timeline controls under `style.timeline`, including routing, direction, spacing, colors and interval appearance. Timeline metadata only accepts `timeZone`, `asOf` and `clock`. Nested `version` and inline `view` fields are rejected. **Appearance → Nodes → Event colors → Type** uses the same category palette and light fills as Node-link; Type names come from the graph.
 
 ## Explicit rows and columns
 

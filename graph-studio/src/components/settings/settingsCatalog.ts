@@ -43,6 +43,13 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   if (chart === "compound")
     add("nested", "layout", "Arrangement", "Nested layout", "compound elk group subgraph 嵌套 分组 排布");
   if (chart === "timeline") {
+    a(
+      "timeline-points",
+      "Nodes",
+      "Point events",
+      "instant marker shape size fill border title date 时间点 标记 形状 大小 填充 边框 文字 日期",
+    );
+    a("timeline-anchors", "Nodes", "Time anchors", "endpoint port marker leader line 时间锚点 端点 连接点 引导线");
     add(
       "timeline-routing",
       "layout",
@@ -159,9 +166,9 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     );
   a("fontFamily", "Text", "Title font", "typography family 字体");
   a("fontWeight", "Text", "Bold title", "typography weight 粗体 字重");
+  a("fontStyle", "Text", "Italic title", "typography italic 斜体");
   if (chart !== "timeline") {
     a("fontSize", "Text", "Title size", "typography font size 字号");
-    a("fontStyle", "Text", "Italic title", "typography italic 斜体");
   }
   a("css", "Advanced", "Custom CSS", "stylesheet 高级 样式");
   a("configuration", "Advanced", "Appearance configuration", "import export reset 导入 导出 重置");

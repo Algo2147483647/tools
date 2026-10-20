@@ -19,6 +19,7 @@ export const TIMELINE_CSS = `
 .timeline-node__duration { fill: var(--timeline-soft-fill, var(--dag-timeline-color)); fill-opacity: var(--timeline-soft-opacity, .24); stroke: none; }
 .timeline-node[data-interval-style="solid"] .timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: 1; }
 .timeline-node[data-interval-style="solid"] .timeline-node__inside-title { fill: var(--timeline-text-color, white); }
+.timeline-node[data-interval-style="solid"][data-interval-text-color="event"] .timeline-node__inside-title { paint-order: stroke; stroke: var(--dag-node-fill); stroke-width: 2px; stroke-linejoin: round; }
 .timeline-node[data-interval-style="outline"] .timeline-node__duration { fill: var(--dag-node-fill); fill-opacity: .9; stroke: var(--timeline-border-color); stroke-width: var(--timeline-border-width); }
 .timeline-node[data-interval-border="solid"] .timeline-node__duration,
 .timeline-node[data-interval-border="dashed"] .timeline-node__duration { stroke: var(--timeline-border-color); stroke-width: var(--timeline-border-width); }
@@ -26,15 +27,15 @@ export const TIMELINE_CSS = `
 .timeline-node[data-interval-border="none"] .timeline-node__duration { stroke: none; }
 .timeline-node[data-selected="true"] .timeline-node__duration,
 .timeline-node[data-focused="true"] .timeline-node__duration { stroke: var(--dag-timeline-color); stroke-width: 2.5; }
-.timeline-node__point { fill: var(--dag-timeline-color); stroke: var(--dag-node-fill); stroke-width: 1.5; }
-.timeline-node__cap, .timeline-node__open { fill: none; stroke: var(--dag-timeline-color); stroke-width: 2; }
+.timeline-node__point { fill: var(--timeline-marker-fill, var(--dag-timeline-color)); stroke: var(--timeline-marker-border, var(--dag-node-fill)); stroke-width: var(--timeline-marker-stroke, 1.5); }
+.timeline-node__cap, .timeline-node__open { fill: none; stroke: var(--timeline-marker-fill, var(--dag-timeline-color)); stroke-width: var(--timeline-marker-stroke, 2); }
 .timeline-node__unknown { fill: var(--dag-node-fill); stroke: var(--dag-text-soft); stroke-width: 1.5; }
-.timeline-node__leader { fill: none; stroke: #a6abb3; stroke-width: .7; opacity: .32; pointer-events: none; }
+.timeline-node__leader { fill: none; stroke: var(--timeline-leader-color, #a6abb3); stroke-width: var(--timeline-leader-width, .7); stroke-dasharray: var(--timeline-leader-dash, none); opacity: var(--timeline-leader-opacity, .32); pointer-events: none; }
 .timeline-node[data-focused="true"] .timeline-node__leader,
-.timeline-node[data-hovered="true"] .timeline-node__leader { stroke: #000; stroke-width: 1; stroke-dasharray: 0 2.2; stroke-linecap: round; opacity: 1; }
+.timeline-node[data-hovered="true"] .timeline-node__leader { stroke: var(--timeline-leader-color, #000); stroke-width: var(--timeline-leader-width, 1); stroke-dasharray: var(--timeline-leader-dash, none); stroke-linecap: round; opacity: 1; }
 .timeline-node__label-bg { fill: var(--dag-node-fill); fill-opacity: .65; stroke: transparent; stroke-width: 1; }
-.timeline-node__title { fill: var(--timeline-text-color, var(--dag-text-strong)); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: var(--dag-title-font-weight, 400); pointer-events: none; }
-.timeline-node__date { fill: var(--timeline-text-color, var(--dag-text-soft)); font: 10px "IBM Plex Mono", Consolas, monospace; pointer-events: none; }
+.timeline-node__title { fill: var(--timeline-text-color, var(--dag-text-strong)); font-family: var(--dag-title-font-family); font-size: 13px; font-style: var(--dag-title-font-style, normal); font-weight: var(--dag-title-font-weight, 400); pointer-events: none; }
+.timeline-node__date { fill: var(--timeline-date-color, var(--dag-text-soft)); font: 10px "IBM Plex Mono", Consolas, monospace; pointer-events: none; }
 .timeline-node__detail { fill: var(--timeline-text-color, var(--dag-text-soft)); font: 10px "IBM Plex Sans", "Segoe UI", sans-serif; pointer-events: none; }
 .timeline-node[data-selected="true"] .timeline-node__label-bg,
 .timeline-node[data-focused="true"] .timeline-node__label-bg,

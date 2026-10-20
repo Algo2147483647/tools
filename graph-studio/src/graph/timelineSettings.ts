@@ -1,4 +1,12 @@
 export type TimelineTickUnit = "auto" | "second" | "minute" | "hour" | "day" | "week" | "month" | "year";
+export interface TimelineMarkerSettings {
+  visible: boolean;
+  shape: "auto" | "circle" | "square" | "diamond";
+  size: number;
+  fill: string;
+  borderColor: string;
+  borderWidth: number;
+}
 
 export interface TimelineViewSettings {
   layout: "tracks" | "flow";
@@ -15,6 +23,15 @@ export interface TimelineViewSettings {
   intervalBorderColor: string;
   intervalRadius: number;
   intervalTextColor: string;
+  intervalTextColorMode: "theme" | "event" | "custom";
+  pointMarker: TimelineMarkerSettings;
+  anchorMarker: TimelineMarkerSettings;
+  pointTextColor: string;
+  pointDateVisible: boolean;
+  pointDateColor: string;
+  leaderStyle: "none" | "solid" | "dashed";
+  leaderColor: string;
+  leaderWidth: number;
   relativeTickStep: number;
   axis: "linear" | "adaptive";
   tickStep: number;
@@ -36,7 +53,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
     ),
   );
   return {
-    layout: input.layout === "flow" || input.layout === "cluster" ? "flow" : "tracks",
+    layout: input.layout === "flow" ? "flow" : "tracks",
     orientation: input.orientation === "horizontal" ? "horizontal" : "vertical",
     edgeRouting: input.edgeRouting === "direct" ? "direct" : "avoid",
     colorBy: input.colorBy === "type" ? "type" : "track",
@@ -60,6 +77,21 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
     intervalBorderColor: color(input.intervalBorderColor),
     intervalRadius: Math.max(0, Math.min(120, finite(input.intervalRadius, 6))),
     intervalTextColor: color(input.intervalTextColor),
+    intervalTextColorMode:
+      input.intervalTextColorMode === "event"
+        ? "event"
+        : input.intervalTextColorMode === "custom" ||
+            (input.intervalTextColorMode === undefined && color(input.intervalTextColor))
+          ? "custom"
+          : "theme",
+    pointMarker: sanitizeTimelineMarker(input.pointMarker, false),
+    anchorMarker: sanitizeTimelineMarker(input.anchorMarker, true),
+    pointTextColor: color(input.pointTextColor),
+    pointDateVisible: input.pointDateVisible !== false,
+    pointDateColor: color(input.pointDateColor),
+    leaderStyle: input.leaderStyle === "none" || input.leaderStyle === "dashed" ? input.leaderStyle : "solid",
+    leaderColor: color(input.leaderColor),
+    leaderWidth: Math.max(0, Math.min(20, finite(input.leaderWidth, 0.7))),
     relativeTickStep: finite(input.relativeTickStep, 1),
     axis: input.axis === "adaptive" ? "adaptive" : "linear",
     tickStep: finite(input.tickStep, 10),
@@ -81,13 +113,21 @@ function color(value: unknown): string {
     : "";
 }
 
-export function getDocumentTimelineSettings(
-  metadata: Record<string, unknown> | undefined,
-): Partial<TimelineViewSettings> {
-  // Compatibility for existing documents only. New graphs link metadata.style;
-  // these view options belong to the separate style file, not the graph schema.
-  const timeline = metadata?.timeline;
-  if (!timeline || typeof timeline !== "object" || Array.isArray(timeline)) return {};
-  const view = (timeline as Record<string, unknown>).view;
-  return view && typeof view === "object" && !Array.isArray(view) ? (view as Partial<TimelineViewSettings>) : {};
+export function sanitizeTimelineMarker(value: unknown, anchor: boolean): TimelineMarkerSettings {
+  const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+  const number = (value: unknown, fallback: number, max: number) =>
+    typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.min(max, value)) : fallback;
+  return {
+    visible: input.visible !== false,
+    shape:
+      input.shape === "circle" || input.shape === "square" || input.shape === "diamond"
+        ? input.shape
+        : anchor
+          ? "auto"
+          : "circle",
+    size: number(input.size, anchor ? 8 : 12, 120),
+    fill: color(input.fill),
+    borderColor: color(input.borderColor),
+    borderWidth: number(input.borderWidth, 1.5, 20),
+  };
 }

@@ -108,7 +108,11 @@ export const scienceHistorySuite = defineSuite("Combined mathematics and physics
   defineTest("the complete and filtered timelines lay out every original-script point", async () => {
     const dag = normalizeDagInput(await read());
     for (const view of [dag, projectGraphByTimelineTrack(dag, "Quantum theory and information")]) {
-      const stage = buildTimelineStage({ dag: view, selection: { type: "full" } })!;
+      const stage = buildTimelineStage({
+        dag: view,
+        selection: { type: "full" },
+        timelineSettings: (await read("mathematics-physics/mathematics-physics.style.json")).style.timeline,
+      })!;
       assert.ok(stage);
       assert.equal(stage.nodes.length, Object.keys(view.nodes).length);
       for (const node of stage.nodes) assert.ok(Number.isFinite(node.x) && Number.isFinite(node.y));

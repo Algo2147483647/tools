@@ -60,7 +60,7 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
       format: "graph-studio",
       version: 3,
       diagram: "dag",
-      metadata: { timeline: { version: 1, timeZone: "UTC" } },
+      metadata: { timeline: { timeZone: "UTC" } },
       nodes: { A: { time: { at: "1969-07-16" } }, B: {} },
       edges: [{ id: "ab", source: "A", target: "B" }],
     });
@@ -78,8 +78,18 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     assert.deepEqual(loaded.selection, { type: "full" });
     assert.equal(loaded.dag, source);
     assert.equal(serializeDag(source).diagram, "dag");
-    assert.deepEqual(serializeDag(source).metadata, { timeline: { version: 1, timeZone: "UTC" } });
-    assert.equal(isTimelineDocument({ metadata: { timeline: { version: 2 } } }), false);
+    assert.deepEqual(serializeDag(source).metadata, { timeline: { timeZone: "UTC" } });
+    assert.equal(isTimelineDocument({ metadata: { timeline: {} } }), true);
+    assert.equal(isTimelineDocument({ metadata: { timeline: null } }), false);
+    assert.throws(
+      () => normalizeDagInput({ ...serializeDag(source), metadata: { timeline: { version: 1 } } }),
+      /Unknown timeline field/,
+    );
+    assert.throws(
+      () =>
+        normalizeDagInput({ ...serializeDag(source), metadata: { timeline: { view: { intervalStyle: "solid" } } } }),
+      /Unknown timeline field/,
+    );
   }),
   defineTest("timeline accepts ordinary undated graphs and preserves other view state", () => {
     const original = {
@@ -249,7 +259,7 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     const source = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      metadata: { timeline: { version: 1, asOf: "2025-01-01" } },
+      metadata: { timeline: { asOf: "2025-01-01" } },
       nodes: { A: {} },
       edges: [],
     });

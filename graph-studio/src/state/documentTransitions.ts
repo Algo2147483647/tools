@@ -1,5 +1,5 @@
 import { isTimelineDocument } from "../graph/timelineView";
-import { getDocumentTimelineSettings, sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 import { type GraphAppState, createInitialGraphState, type EditTransaction } from "./initialState";
 import type { GraphAction } from "./graphActions";
 export function replaceDocument(
@@ -16,7 +16,6 @@ export function replaceDocument(
       typeColors: {},
       pins: {},
       locked: false,
-      ...(loaded ? getDocumentTimelineSettings(action.dag.metadata) : {}),
       ...(action.type === "graphLoaded" ? action.linkedStyle?.timeline : {}),
     }),
     dag: loaded ? action.dag : null,

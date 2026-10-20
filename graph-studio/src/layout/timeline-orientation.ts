@@ -1,6 +1,11 @@
 import type { StageData, StageNode } from "./types";
 import { roundedTimelinePath } from "./timeline-routing";
-import { findFreeTimelineLabelPosition, timelineLabelBox, type TimelineLabelBox } from "./timeline-labels";
+import {
+  findFreeTimelineLabelPosition,
+  timelineLabelBox,
+  timelineMarkerBox,
+  type TimelineLabelBox,
+} from "./timeline-labels";
 
 /** Layout solves cross-axis channels and time-axis positions. Map those coordinates to
  * the canvas once; text remains upright and gets its own physical collision pass. */
@@ -16,12 +21,7 @@ export function orientTimelineStage(
     y: node.x,
     timeline: { ...node.timeline!, orientation: "horizontal" as const, labelX: node.y + 10, labelY: node.x + 28 },
   }));
-  const boxes: TimelineLabelBox[] = nodes.map((node) => ({
-    left: node.timeline!.startY - 10,
-    right: node.timeline!.endY + 10,
-    top: node.y - Math.max(10, (node.timeline!.barWidth ?? 12) / 2 + 4),
-    bottom: node.y + Math.max(10, (node.timeline!.barWidth ?? 12) / 2 + 4),
-  }));
+  const boxes: TimelineLabelBox[] = nodes.map(timelineMarkerBox);
   const outside = (node: StageNode) =>
     node.timeline!.kind !== "range" || !node.timeline!.intervalTitle || node.timeline!.intervalTitle === "outside";
   const retained = new Set<string>();

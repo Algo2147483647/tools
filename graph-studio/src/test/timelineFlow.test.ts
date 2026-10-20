@@ -259,13 +259,17 @@ export const timelineFlowSuite = defineSuite("Timeline relation flow", [
     assert.equal(overlaps(label(stage.nodeMap.left), label(stage.nodeMap.right)), false);
     assert.equal(overlaps(marker(stage.nodeMap.left), marker(stage.nodeMap.right)), false);
   }),
-  defineTest("metadata can select the new layout while absent settings preserve existing tracks", () => {
+  defineTest("separate style settings select flow while absent settings preserve tracks", () => {
     const document = example();
     const dag = normalizeDagInput({
       ...document,
-      metadata: { timeline: { view: { layout: "flow", axis: "adaptive" } } },
+      metadata: { timeline: {} },
     });
-    const configured = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const configured = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: { layout: "flow", axis: "adaptive" },
+    })!;
     assert.equal(configured.timeline!.layout, "flow");
     assert.equal(configured.timeline!.axisMap!.mode, "adaptive");
     const existing = buildTimelineStage({ dag: normalizeDagInput(document), selection: { type: "full" } })!;

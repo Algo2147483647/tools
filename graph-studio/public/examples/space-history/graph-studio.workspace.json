@@ -37,7 +37,8 @@
       "mathematics-physics/notes/foundations-catalog.md",
       "mathematics-physics/notes/foundations.md",
       "mathematics-physics/notes/nineteenth-catalog.md",
-      "mathematics-physics/notes/nineteenth.md"
+      "mathematics-physics/notes/nineteenth.md",
+      "mathematics-physics/mathematics-physics.style.json"
     ],
     "graphStats": {
       "space-history.json": {

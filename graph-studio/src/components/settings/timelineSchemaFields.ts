@@ -20,13 +20,6 @@ export const TIMELINE_SCHEMA_FIELDS: SchemaField[] = [
     "object",
     "Enables Timeline view. The enclosing document uses protocol version 3; diagram must be dag or omitted.",
   ),
-  {
-    group: "Timeline",
-    path: "metadata.timeline.version",
-    type: "1",
-    requirement: "Required in timeline",
-    description: "Timeline metadata version; independent of document version 3.",
-  },
   field(
     "Timeline",
     "metadata.timeline.timeZone",

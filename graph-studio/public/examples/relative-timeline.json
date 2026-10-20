@@ -4,24 +4,15 @@
   "title": "Relative timeline · activity workflow",
   "metadata": {
     "timeline": {
-      "version": 1,
       "clock": {
         "mode": "relative",
         "unit": "minute",
         "origin": "领取",
         "format": "elapsed",
         "precision": 1
-      },
-      "view": {
-        "orientation": "horizontal",
-        "layout": "flow",
-        "intervalTitle": "inside",
-        "intervalAlign": "center",
-        "intervalStyle": "soft",
-        "relativeTickStep": 5,
-        "intervalWidth": 36
       }
-    }
+    },
+    "style": "relative-timeline.style.json"
   },
   "nodes": {
     "prepare": {

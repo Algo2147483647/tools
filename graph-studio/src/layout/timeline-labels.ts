@@ -3,15 +3,19 @@ import type { StageNode } from "./types";
 export type TimelineLabelBox = { left: number; right: number; top: number; bottom: number };
 
 export function timelineMarkerBox(node: StageNode): TimelineLabelBox {
-  const half = Math.max(10, (node.timeline!.barWidth ?? 12) / 2 + 4);
+  const time = node.timeline!;
+  const marker = time.kind === "range" ? time.anchorMarker : time.pointMarker;
+  const radius = marker && marker.visible ? marker.size / 2 : 0;
+  const temporal = Math.max(10, radius + 4);
+  const half = Math.max(10, (time.barWidth ?? 12) / 2 + 4, radius * (marker?.shape === "auto" ? 1.75 : 1) + 4);
   if (node.timeline!.orientation === "horizontal")
     return {
-      left: node.timeline!.startY - 10,
-      right: node.timeline!.endY + 10,
+      left: node.timeline!.startY - temporal,
+      right: node.timeline!.endY + temporal,
       top: node.y - half,
       bottom: node.y + half,
     };
-  return { left: node.x - half, right: node.x + half, top: node.y - 10, bottom: node.timeline!.endY + 10 };
+  return { left: node.x - half, right: node.x + half, top: node.y - temporal, bottom: node.timeline!.endY + temporal };
 }
 
 export function timelineLabelBox(node: StageNode): TimelineLabelBox {

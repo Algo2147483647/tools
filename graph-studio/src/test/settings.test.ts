@@ -28,6 +28,7 @@ export const settingsSuite = defineSuite("Settings controls", [
   defineTest("Graph schema references a separate style; all Timeline options round-trip through that file", () => {
     const schema = JSON.parse(fs.readFileSync(new URL("../../public/graph.schema.json", import.meta.url), "utf8"));
     assert.equal(schema.properties.metadata.properties.timeline.properties.view, undefined);
+    assert.equal(schema.properties.metadata.properties.timeline.properties.version, undefined);
     assert.equal(schema.properties.metadata.properties.style.type, "string");
     assert(!CHART_SCHEMAS.timeline.fields.some((field) => field.path.startsWith("metadata.timeline.view")));
     assert(CHART_SCHEMAS.timeline.fields.some((field) => field.path === "metadata.style"));
@@ -37,6 +38,11 @@ export const settingsSuite = defineSuite("Settings controls", [
       colorBy: "type",
       intervalStyle: "outline",
       intervalTextColor: "#123456",
+      intervalTextColorMode: "event",
+      pointMarker: { shape: "diamond", size: 20, fill: "#123456", borderWidth: 3 },
+      anchorMarker: { visible: false },
+      pointDateVisible: false,
+      leaderStyle: "dashed",
     });
     const style = { ...getDefaultChartStyle("timeline"), timeline };
     assert.deepEqual(parseChartStyleFile(JSON.parse(serializeChartStyle("timeline", style)), "timeline"), style);
@@ -54,11 +60,11 @@ export const settingsSuite = defineSuite("Settings controls", [
       }),
     );
     assert.doesNotMatch(controls, /ExampleCategory|palette|Edit colors/);
-    const document = (withColors: boolean) =>
+    const document = () =>
       normalizeDagInput({
         format: "graph-studio",
         version: 3,
-        metadata: { timeline: { version: 1, ...(withColors ? { view } : {}) } },
+        metadata: { timeline: {} },
         nodes: { a: { time: { at: "2000" } } },
         edges: [],
       });
@@ -66,7 +72,10 @@ export const settingsSuite = defineSuite("Settings controls", [
       type: "graphLoaded" as const,
       documentId: withColors ? "first" : "second",
       fileName: "graph.json",
-      dag: document(withColors),
+      dag: document(),
+      linkedStyle: withColors
+        ? { ...getDefaultChartStyle("timeline"), timeline: sanitizeTimelineSettings(view) }
+        : undefined,
       selection: { type: "full" as const },
       status: "",
     });

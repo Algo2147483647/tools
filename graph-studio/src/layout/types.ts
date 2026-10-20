@@ -18,6 +18,15 @@ export interface StageTimelineNode {
   intervalBorderColor?: string;
   intervalRadius?: number;
   intervalTextColor?: string;
+  intervalTextColorMode?: TimelineViewSettings["intervalTextColorMode"];
+  pointMarker?: TimelineViewSettings["pointMarker"];
+  anchorMarker?: TimelineViewSettings["anchorMarker"];
+  pointTextColor?: string;
+  pointDateVisible?: boolean;
+  pointDateColor?: string;
+  leaderStyle?: TimelineViewSettings["leaderStyle"];
+  leaderColor?: string;
+  leaderWidth?: number;
   barWidth?: number;
   minimumCross?: number;
   /** One-based protocol row/column index perpendicular to time; unaffected by auto layout or view pins. */

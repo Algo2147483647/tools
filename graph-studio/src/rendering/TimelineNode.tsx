@@ -1,6 +1,8 @@
 import { timelineBarBox, timelinePoint } from "../layout/timeline-orientation";
 import { useId, useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import type { StageNode } from "../layout/types";
+import { sanitizeTimelineMarker } from "../graph/timelineSettings";
+import TimelineMarker, { timelineMarkerStyle } from "./TimelineMarker";
 
 interface TimelineNodeProps {
   layer?: "leader" | "marker" | "label" | "all";
@@ -28,6 +30,9 @@ export default function TimelineNode({
   const time = node.timeline!;
   const { startY, endY, labelX, labelY, anchorY } = time;
   const range = time.kind === "range";
+  const pointMarker = time.pointMarker ?? sanitizeTimelineMarker(undefined, false);
+  const anchorMarker = time.anchorMarker ?? sanitizeTimelineMarker(undefined, true);
+  const anchorRadius = anchorMarker.size * 0.75;
   const horizontal = time.orientation === "horizontal";
   const inside = range && time.intervalTitle === "inside";
   const external = !range || !time.intervalTitle || time.intervalTitle === "outside";
@@ -104,6 +109,7 @@ export default function TimelineNode({
       data-connected="false"
       data-time-kind={time.kind}
       data-interval-style={time.intervalStyle ?? "soft"}
+      data-interval-text-color={time.intervalTextColorMode ?? "theme"}
       data-interval-border={time.intervalBorder ?? "auto"}
       data-time-status={time.status}
       data-track={time.track}
@@ -116,7 +122,18 @@ export default function TimelineNode({
           "--timeline-soft-opacity": node.colorTokens ? 1 : 0.24,
           "--timeline-border-color": time.intervalBorderColor || node.colorTokens?.borderStrong || time.color,
           "--timeline-border-width": time.intervalBorderWidth ?? 1.5,
-          "--timeline-text-color": range ? time.intervalTextColor || undefined : undefined,
+          "--timeline-text-color": range
+            ? time.intervalTextColorMode === "event"
+              ? time.color
+              : time.intervalTextColorMode === "custom"
+                ? time.intervalTextColor || "#18212f"
+                : undefined
+            : time.pointTextColor || undefined,
+          "--timeline-date-color": !range ? time.pointDateColor || undefined : undefined,
+          "--timeline-leader-color": time.leaderColor || undefined,
+          "--timeline-leader-opacity": time.leaderColor ? 1 : undefined,
+          "--timeline-leader-width": time.leaderWidth ?? 0.7,
+          "--timeline-leader-dash": time.leaderStyle === "dashed" ? "4 3" : "none",
         } as CSSProperties
       }
       tabIndex={layer === "leader" ? undefined : layer === "marker" ? -1 : 0}
@@ -177,15 +194,17 @@ export default function TimelineNode({
           .filter(Boolean)
           .join("\n")}
       </title>
-      {external && (layer === "leader" || layer === "all") && <path className="timeline-node__leader" d={leader} />}
+      {external && time.leaderStyle !== "none" && (layer === "leader" || layer === "all") && (
+        <path className="timeline-node__leader" d={leader} />
+      )}
       {(layer === "marker" || layer === "all") && (
         <>
           <rect
             className="timeline-node__hit"
-            x={range ? bar.x - 6 : start.x - 12}
-            y={range ? bar.y - 6 : start.y - 12}
-            width={range ? bar.width + 12 : 24}
-            height={range ? bar.height + 12 : 24}
+            x={range ? bar.x - 6 : start.x - Math.max(12, pointMarker.size / 2 + 4)}
+            y={range ? bar.y - 6 : start.y - Math.max(12, pointMarker.size / 2 + 4)}
+            width={range ? bar.width + 12 : Math.max(24, pointMarker.size + 8)}
+            height={range ? bar.height + 12 : Math.max(24, pointMarker.size + 8)}
             rx={8}
           />
           {range ? (
@@ -195,48 +214,49 @@ export default function TimelineNode({
                 {...bar}
                 rx={Math.min(time.intervalRadius ?? 6, bar.width / 2, bar.height / 2)}
               />
-              {time.clippedStart ? (
-                <path
-                  className="timeline-node__open"
-                  d={
-                    horizontal
-                      ? `M${start.x + 6},${start.y - 6} L${start.x},${start.y} L${start.x + 6},${start.y + 6}`
-                      : `M${start.x - 6},${start.y + 6} L${start.x},${start.y} L${start.x + 6},${start.y + 6}`
-                  }
-                />
-              ) : (
-                <circle className="timeline-node__point" cx={start.x} cy={start.y} r={4} />
-              )}
-              {time.ongoing || time.clippedEnd ? (
-                <path
-                  className="timeline-node__open"
-                  d={
-                    horizontal
-                      ? `M${end.x - 6},${end.y - 6} L${end.x},${end.y} L${end.x - 6},${end.y + 6}`
-                      : `M${end.x - 6},${end.y - 6} L${end.x},${end.y} L${end.x + 6},${end.y - 6}`
-                  }
-                />
-              ) : (
-                <line
-                  className="timeline-node__cap"
-                  x1={end.x - (horizontal ? 0 : 7)}
-                  x2={end.x + (horizontal ? 0 : 7)}
-                  y1={end.y - (horizontal ? 7 : 0)}
-                  y2={end.y + (horizontal ? 7 : 0)}
-                />
-              )}
+              {anchorMarker.visible &&
+                anchorMarker.size > 0 &&
+                (time.clippedStart ? (
+                  <path
+                    className="timeline-node__open"
+                    style={timelineMarkerStyle(anchorMarker)}
+                    d={
+                      horizontal
+                        ? `M${start.x + anchorRadius},${start.y - anchorRadius} L${start.x},${start.y} L${start.x + anchorRadius},${start.y + anchorRadius}`
+                        : `M${start.x - anchorRadius},${start.y + anchorRadius} L${start.x},${start.y} L${start.x + anchorRadius},${start.y + anchorRadius}`
+                    }
+                  />
+                ) : (
+                  <TimelineMarker x={start.x} y={start.y} settings={anchorMarker} anchor />
+                ))}
+              {anchorMarker.visible &&
+                anchorMarker.size > 0 &&
+                (time.ongoing || time.clippedEnd ? (
+                  <path
+                    className="timeline-node__open"
+                    style={timelineMarkerStyle(anchorMarker)}
+                    d={
+                      horizontal
+                        ? `M${end.x - anchorRadius},${end.y - anchorRadius} L${end.x},${end.y} L${end.x - anchorRadius},${end.y + anchorRadius}`
+                        : `M${end.x - anchorRadius},${end.y - anchorRadius} L${end.x},${end.y} L${end.x + anchorRadius},${end.y - anchorRadius}`
+                    }
+                  />
+                ) : (
+                  <TimelineMarker x={end.x} y={end.y} settings={anchorMarker} anchor end horizontal={horizontal} />
+                ))}
             </>
           ) : time.status === "dated" ? (
-            <circle className="timeline-node__point" cx={start.x} cy={start.y} r={6} />
+            <TimelineMarker x={start.x} y={start.y} settings={pointMarker} />
           ) : (
-            <path className="timeline-node__unknown" d={`M${start.x},${start.y - 7} l7,7 -7,7 -7,-7 z`} />
+            <TimelineMarker x={start.x} y={start.y} settings={{ ...pointMarker, shape: "diamond" }} />
           )}
-          {time.ports?.map((port) => {
-            const p = timelinePoint(node, port.y);
-            return (
-              <circle key={port.time} className="timeline-node__point" cx={p.x} cy={p.y} r={4} aria-hidden="true" />
-            );
-          })}
+          {range &&
+            time.ports
+              ?.filter((port) => port.y !== startY && port.y !== endY)
+              .map((port) => {
+                const p = timelinePoint(node, port.y);
+                return <TimelineMarker key={port.time} x={p.x} y={p.y} settings={anchorMarker} anchor />;
+              })}
         </>
       )}
       {external && (layer === "label" || layer === "all") && (
@@ -252,9 +272,11 @@ export default function TimelineNode({
           <text className="timeline-node__title" x={labelX} y={labelY}>
             {node.displayTitle}
           </text>
-          <text className="timeline-node__date" x={labelX} y={labelY + 17}>
-            {dateLabel}
-          </text>
+          {(range || time.pointDateVisible !== false) && (
+            <text className="timeline-node__date" x={labelX} y={labelY + 17}>
+              {dateLabel}
+            </text>
+          )}
           {node.detailLines.length > 0 && (
             <text className="timeline-node__detail" x={labelX} y={labelY + 32}>
               {node.detailLines[0]}

@@ -11,11 +11,7 @@ import { stageTitleFont, type StageAppearance } from "./appearance";
 import { resolveStageSelection } from "./selection";
 import { estimateTextWidth, getNodeVisual, wrapDetailText, measureText, fitMeasuredText } from "./text";
 import type { StageData, StageEdge, StageNode, StageRoutePoint, StageTimelineData } from "./types";
-import {
-  getDocumentTimelineSettings,
-  sanitizeTimelineSettings,
-  type TimelineViewSettings,
-} from "../graph/timelineSettings";
+import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, type TimelineAxisMap } from "./timeline-axis";
 import { getTimelineAxisTicks } from "./timeline-ticks";
 import { arrangeTimelineFlow } from "./timeline-flow";
@@ -49,7 +45,6 @@ export function buildTimelineStage(input: {
 }): StageData | null {
   const { dag, appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = false } = input;
   const settings = sanitizeTimelineSettings({
-    ...getDocumentTimelineSettings(dag.metadata),
     ...input.timelineSettings,
   });
   const clock = getTimelineClock(dag.metadata);
@@ -82,7 +77,7 @@ export function buildTimelineStage(input: {
     return null;
   const filtered = rangeStart !== undefined || rangeEnd !== undefined;
   const theme = appearance.layout;
-  const titleFont = { ...stageTitleFont(appearance), size: 13, style: "normal" };
+  const titleFont = { ...stageTitleFont(appearance), size: 13 };
   const selection = resolveStageSelection(
     {
       ...dag,
@@ -233,8 +228,9 @@ export function buildTimelineStage(input: {
   const nodeMap: Record<NodeKey, StageNode> = Object.create(null);
   const stageTracks: StageTimelineData["tracks"] = [];
   const axisX = 160;
-  const minimumCross = axisX + Math.max(54, intervalWidth / 2 + 24);
-  const markerWidth = Math.max(0, ...entries.map((entry) => (entry.time.kind === "range" ? intervalWidth : 12)));
+  const pointSize = settings.pointMarker.visible ? settings.pointMarker.size : 0;
+  const minimumCross = axisX + Math.max(54, Math.max(intervalWidth, pointSize) / 2 + 24);
+  const markerWidth = Math.max(0, ...entries.map((entry) => (entry.time.kind === "range" ? intervalWidth : pointSize)));
   const channelStep = Math.max(markerWidth, (55.2 + settings.nodeGap) * Math.max(0, settings.horizontalSpread));
   // space is a one-based row/column index shared across tracks, not a pixel coordinate.
   const fixedPositions: Record<string, number> = Object.create(null);
@@ -509,9 +505,18 @@ export function buildTimelineStage(input: {
         intervalBorderColor: settings.intervalBorderColor,
         intervalRadius: settings.intervalRadius,
         intervalTextColor: settings.intervalTextColor,
+        intervalTextColorMode: settings.intervalTextColorMode,
+        pointMarker: settings.pointMarker,
+        anchorMarker: settings.anchorMarker,
+        pointTextColor: settings.pointTextColor,
+        pointDateVisible: settings.pointDateVisible,
+        pointDateColor: settings.pointDateColor,
+        leaderStyle: settings.leaderStyle,
+        leaderColor: settings.leaderColor,
+        leaderWidth: settings.leaderWidth,
         minimumCross,
         space,
-        barWidth: time.kind === "range" ? intervalWidth : 12,
+        barWidth: time.kind === "range" ? intervalWidth : settings.pointMarker.visible ? settings.pointMarker.size : 0,
         status: time.status,
         kind: time.kind,
         start: isDated ? time.start : null,

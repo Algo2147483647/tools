@@ -127,13 +127,32 @@ export default function TimelineIntervalSettings({
           </div>
         )}
         {settings.intervalTitle !== "hidden" && (
-          <ColorSetting
-            label="Font color"
-            value={settings.intervalTextColor}
-            defaultValue=""
-            automatic={{ color: "#18212f", description: "Uses theme colors; white inside solid bars." }}
-            onChange={(intervalTextColor) => onChange({ intervalTextColor })}
-          />
+          <>
+            <div className="timeline-control-row">
+              <span>Font color</span>
+              <TimelineChoices
+                label="Interval title color source"
+                value={settings.intervalTextColorMode}
+                options={[
+                  { value: "event", label: "Match interval" },
+                  { value: "theme", label: "Theme" },
+                  { value: "custom", label: "Custom" },
+                ]}
+                onChange={(intervalTextColorMode) => onChange({ intervalTextColorMode })}
+              />
+            </div>
+            {settings.intervalTextColorMode === "event" && (
+              <p className="timeline-style-hint">Automatically follows the interval's Type or Track color.</p>
+            )}
+            {settings.intervalTextColorMode === "custom" && (
+              <ColorSetting
+                label="Font color"
+                value={settings.intervalTextColor || "#18212f"}
+                defaultValue="#18212f"
+                onChange={(intervalTextColor) => onChange({ intervalTextColor })}
+              />
+            )}
+          </>
         )}
       </fieldset>
     </section>

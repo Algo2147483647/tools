@@ -71,7 +71,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
   }),
   defineTest("branches and cross-category joins preserve one event and its actual timestamp", async () => {
     const dag = normalizeDagInput(await read("china-history.json"));
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("china-history.style.json")).style.timeline,
+    })!;
     assert.equal(stage.timeline!.layout, "flow");
     assert.equal(stage.timeline!.axisMap!.mode, "adaptive");
     assert.equal(stage.nodes.length, 1273);
@@ -96,7 +100,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(stage.nodeMap["northern-song"].timeline!.endY, stage.nodeMap["jingkang"].timeline!.startY);
     assert.equal(stage.nodeMap["southern-song"].timeline!.startY, stage.nodeMap["jingkang"].timeline!.startY);
     const timestamp = (value: string) => parseTimelineDate(value)!.timestamp;
-    const linear = buildTimelineStage({ dag, selection: { type: "full" }, timelineSettings: { axis: "linear" } })!;
+    const linear = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: { ...(await read("china-history.style.json")).style.timeline, axis: "linear" },
+    })!;
     const share = (view: typeof stage, a: string, b: string) => {
       const map = view.timeline!.axisMap!;
       return (timelineTimeToY(map, timestamp(b)) - timelineTimeToY(map, timestamp(a))) / map.height;
@@ -141,7 +149,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
       !Object.values(graph.nodes).some((node: any) => ["夏", "夏朝", "旧石器时代", "新石器时代"].includes(node.type)),
     );
     const dag = normalizeDagInput(graph);
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("china-history.style.json")).style.timeline,
+    })!;
     for (const [source, target] of [
       ["shang-period", "muye"],
       ["western-zhou", "western-zhou-fall"],
@@ -169,7 +181,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
   defineTest("early history distinguishes staged transitions and preserves later namesakes", async () => {
     const graph = await read("china-history.json");
     const dag = normalizeDagInput(graph);
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("china-history.style.json")).style.timeline,
+    })!;
     assert.equal(graph.metadata.supplements.earlyChina.addedNodes, 124);
     for (const [id, date] of [
       ["jinyang", "-000452"],
@@ -240,7 +256,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.equal(graph.nodes["eastern-wu"].time.start, "0222");
     assert.equal(graph.nodes["eastern-wu"].time.end, "0280");
     const dag = normalizeDagInput(graph);
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("china-history.style.json")).style.timeline,
+    })!;
     for (const [source, target] of [
       ["western-han", "mang-emperor"],
       ["xin", "xin-fall"],
@@ -310,7 +330,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     assert.deepEqual(graph.nodes["eastern-jin"].time, { start: "0317", end: "0420" });
     assert.deepEqual(graph.nodes["grand-canal"].time, { start: "0605", end: "0610" });
     const dag = normalizeDagInput(graph);
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("china-history.style.json")).style.timeline,
+    })!;
     const edges = dag.edges.filter((edge) => edge.id.startsWith("jin-sui:"));
     assert.equal(edges.length, 312);
     for (const edge of edges) {
@@ -367,7 +391,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
       assert.deepEqual(graph.nodes.tang.time, { start: "0618", end: "0907" });
       assert.deepEqual(graph.nodes["southern-song"].time, { start: "1127", end: "1279" });
       const dag = normalizeDagInput(graph);
-      const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+      const stage = buildTimelineStage({
+        dag,
+        selection: { type: "full" },
+        timelineSettings: (await read("china-history.style.json")).style.timeline,
+      })!;
       const edges = dag.edges.filter((edge) => edge.id.startsWith("tang-song:"));
       assert.equal(edges.length, 462);
       for (const edge of edges) {
@@ -492,7 +520,11 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
   defineTest("modern polity ranges remain ongoing across relocation and party transitions", async () => {
     const graph = await read("china-history.json");
     const dag = normalizeDagInput(graph);
-    const stage = buildTimelineStage({ dag, selection: { type: "full" } })!;
+    const stage = buildTimelineStage({
+      dag,
+      selection: { type: "full" },
+      timelineSettings: (await read("china-history.style.json")).style.timeline,
+    })!;
     for (const [id, start, event] of [
       ["roc-period", "1912-01-01", "republic"],
       ["prc-period", "1949-10-01", "prc"],

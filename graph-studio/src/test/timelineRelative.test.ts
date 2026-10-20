@@ -33,7 +33,7 @@ function graph() {
   return normalizeDagInput({
     format: "graph-studio",
     version: 3,
-    metadata: { timeline: { version: 1, clock } },
+    metadata: { timeline: { clock } },
     nodes: {
       pre: { title: "Prepare", time: { at: -2.5 } },
       a: { title: "Participation window", time: { start: 0, end: 30 }, status: "active" },

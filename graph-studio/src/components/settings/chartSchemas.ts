@@ -142,10 +142,7 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
       version: 3,
       metadata: {
         style: "timeline.style.json",
-        timeline: {
-          version: 1,
-          timeZone: "UTC",
-        },
+        timeline: { timeZone: "UTC" },
       },
       nodes: {
         kickoff: { title: "Kickoff", type: "Milestone", time: { at: "2026-05-01" }, track: "Delivery" },
