@@ -1,5 +1,6 @@
 import type { CompoundBox } from "./compound-routes";
 import { compactFlow, packRectangles, compareArrangements } from "./compound-rectangle-packing";
+import { refineLocalPlacement } from "./compound-local-refinement";
 type Size = { width: number; height: number };
 type Arrangement = { boxes: Map<string, CompoundBox>; width: number; height: number };
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
@@ -93,7 +94,7 @@ function topology(ids: string[], edges: [string, string][]) {
   });
   return { layers, forward: edges.filter(([a, b]) => position.get(a)! < position.get(b)!) };
 }
-/** Pack actual rectangles subject to local dependencies; child geometry stays frozen. */
+/** Seed from topology, then shorten local routes; child geometry stays frozen. */
 export function arrangeTopology(
   ids: string[],
   edges: [string, string][],
@@ -126,10 +127,8 @@ export function arrangeTopology(
         }
     }
     const memberSet = new Set(members);
-    const { layers, forward } = topology(
-      members.sort(compare),
-      edges.filter(([a, b]) => memberSet.has(a) && memberSet.has(b)),
-    );
+    const localEdges = edges.filter(([a, b]) => memberSet.has(a) && memberSet.has(b));
+    const { layers, forward } = topology(members.sort(compare), localEdges);
     const candidates: { layout: Arrangement; down: boolean }[] = [];
     for (const down of [false, true]) {
       const oriented = new Map(
@@ -174,7 +173,8 @@ export function arrangeTopology(
       }
     }
     candidates.sort((a, b) => compareArrangements(a.layout, b.layout, forward, columnGap, rowGap, a.down, b.down));
-    pieces.push(candidates[0].layout);
+    const best = candidates[0];
+    pieces.push(refineLocalPlacement(best.layout, localEdges, forward, columnGap, rowGap, best.down));
   }
   if (!pieces.length) return { boxes: new Map(), width: 0, height: 0 };
   const keys = pieces.map((_, i) => String(i)),

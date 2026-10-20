@@ -12,6 +12,8 @@ import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getDefaultChartStyle } from "../state/chartStyles";
 import { layoutCompoundHierarchy } from "../layout/compound-hierarchy-layout";
 import { arrangeTopology } from "../layout/compound-topology-layout";
+import { compactFlow } from "../layout/compound-rectangle-packing";
+import { refineLocalPlacement } from "../layout/compound-local-refinement";
 import { getStageAppearance } from "../layout/appearance";
 import { buildCompoundStage } from "../layout/compound-layout";
 import type { StageData } from "../layout/types";
@@ -180,6 +182,99 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
 }
 
 export const compoundLayoutSuite = defineSuite("Independent topological layouts and fixed-position routing", [
+  defineTest("converging source moves into the free slot and both final routes are short straight lines", async () => {
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: {
+        customer: { title: "Customer experience" },
+        mobile: { title: "Mobile app" },
+        web: { title: "Web storefront" },
+        gateway: { title: "Storefront API" },
+      },
+      edges: [
+        { id: "mobile-api", source: "mobile", target: "gateway" },
+        { id: "web-api", source: "web", target: "gateway" },
+      ],
+      hierarchy_edges: ["mobile", "web", "gateway"].map((target) => ({
+        id: `contains-${target}`,
+        source: "customer",
+        target,
+      })),
+    });
+    const stage = await layoutFixture(dag);
+    const { mobile, web, gateway } = stage.nodeMap;
+    assert.equal(mobile.y, gateway.y);
+    assert.equal(web.x, gateway.x, "the second source uses the free slot beneath its successor");
+    assert.ok(web.y > gateway.y);
+    for (const edge of stage.edges) {
+      const length = edge.points.slice(1).reduce(
+        (sum, point, i) => sum + Math.abs(point.x - edge.points[i].x) + Math.abs(point.y - edge.points[i].y),
+        0,
+      );
+      assert.ok(length <= 24 + epsilon, "routing happens after placement and needs only the configured gap");
+    }
+    assertCompoundGeometry(dag, stage, { collapsedGroupIds: [], focusGroupId: null });
+  }),
+  defineTest("local refinement preserves upstream order, spacing and frozen sizes in both orientations", () => {
+    const ids = ["a", "b", "c", "d", "e", "f"];
+    const edges: [string, string][] = [
+      ["a", "c"],
+      ["b", "e"],
+      ["c", "d"],
+      ["d", "e"],
+      ["c", "f"],
+      ["e", "f"],
+    ];
+    for (const down of [false, true])
+      for (const gap of [0, 24])
+        for (const large of [false, true]) {
+          const sizes = new Map(
+            ids.map((id, i) => [id, { width: large ? 100 + i * 50 : 200, height: 100 + (i % 2) * 40 }]),
+          );
+          const seed = compactFlow(ids, edges, sizes, gap, gap);
+          const initial = down
+            ? {
+                boxes: new Map(
+                  [...seed.boxes].map(([id, box]) => [
+                    id,
+                    { x: box.y, y: box.x, width: box.height, height: box.width },
+                  ]),
+                ),
+                width: seed.height,
+                height: seed.width,
+              }
+            : seed;
+          const snapshot = structuredClone(initial);
+          const result = refineLocalPlacement(initial, edges, edges, gap, gap, down);
+          assert.deepEqual(initial, snapshot, "refinement must not mutate a completed input");
+          assert.ok(result.width <= initial.width && result.height <= initial.height);
+          for (const [a, b] of edges) {
+            const source = result.boxes.get(a)!,
+              target = result.boxes.get(b)!;
+            const dx = target.x + target.width / 2 - source.x - source.width / 2;
+            const dy = target.y + target.height / 2 - source.y - source.height / 2;
+            assert.ok(
+              down ? dy > 0 || (dy === 0 && dx < 0) : dx > 0 || (dx === 0 && dy < 0),
+              "every dependency advances in the component's geometric reading order",
+            );
+          }
+          for (const [id, box] of result.boxes) {
+            const original = initial.boxes.get(id)!;
+            assert.equal(box.width, original.width);
+            assert.equal(box.height, original.height);
+            assert.ok(box.x >= 0 && box.y >= 0);
+            for (const [other, occupied] of result.boxes)
+              if (other !== id)
+                assert.ok(
+                  box.x + box.width + gap <= occupied.x ||
+                    occupied.x + occupied.width + gap <= box.x ||
+                    box.y + box.height + gap <= occupied.y ||
+                    occupied.y + occupied.height + gap <= box.y,
+                );
+          }
+        }
+  }),
   defineTest(
     "external neighbors, parent edges and sibling expansion cannot change a completed child's local geometry",
     () => {
@@ -258,14 +353,16 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       const result = arrangeTopology(ids, edges, sizes, 24, 24);
       assert.ok(result.width * result.height <= 848 * 224, "the short branch must fit alongside the 600px rectangle");
       const wide = result.boxes.get("wide")!,
-        c = result.boxes.get("c")!,
-        join = result.boxes.get("join")!;
+        c = result.boxes.get("c")!;
       assert.ok(c.x < wide.x + wide.width, "only actual predecessors constrain a downstream position");
-      assert.ok(join.x >= wide.x + wide.width + 24, "the merge still follows the complete wide branch");
       for (const [a, b] of edges) {
         const source = result.boxes.get(a)!,
           target = result.boxes.get(b)!;
-        assert.ok(source.x + source.width + 24 <= target.x);
+        const dx = target.x + target.width / 2 - source.x - source.width / 2;
+        assert.ok(
+          dx > 0 || (dx === 0 && target.y + target.height / 2 < source.y + source.height / 2),
+          "a branch may turn upward within a column but cannot reverse topological order",
+        );
       }
       for (const id of ids)
         assert.deepEqual({ width: result.boxes.get(id)!.width, height: result.boxes.get(id)!.height }, sizes.get(id));
@@ -589,10 +686,14 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     const stage = await layoutFixture(dag);
     const chainStart = stage.nodeMap["chain-0"],
       chainNext = stage.nodeMap["chain-1"];
-    const fanStart = stage.nodeMap["fan-0"],
-      fanNext = stage.nodeMap["fan-1"];
+    const fanStart = stage.nodeMap["fan-0"];
     assert.ok(chainNext.y - chainStart.y > chainStart.height, "long chain chooses vertical flow");
-    assert.ok(fanNext.x - fanStart.x > fanStart.width, "fan-out chooses horizontal flow at the same depth");
+    const leaves = Array.from({ length: 5 }, (_, i) => stage.nodeMap[`fan-${i + 1}`]);
+    assert.ok(leaves.some((leaf) => leaf.x - fanStart.x > fanStart.width), "fan-out retains horizontal flow");
+    assert.ok(
+      leaves.every((leaf) => leaf.x > fanStart.x || (leaf.x === fanStart.x && leaf.y < fanStart.y)),
+      "aligned leaves may use upstream-column free slots while remaining after their source",
+    );
     assertCompoundGeometry(dag, stage, { collapsedGroupIds: [], focusGroupId: null });
   }),
   defineTest("edge labels never change fixed nodes or container geometry", async () => {
