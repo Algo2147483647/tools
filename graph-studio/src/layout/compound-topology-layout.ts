@@ -1,10 +1,8 @@
 import type { CompoundBox } from "./compound-routes";
+import { compactFlow, packRectangles, compareArrangements } from "./compound-rectangle-packing";
 type Size = { width: number; height: number };
 type Arrangement = { boxes: Map<string, CompoundBox>; width: number; height: number };
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-const shapeCost = ({ width, height }: Size) =>
-  Math.log(Math.max(1, width * height)) + 0.35 * Math.abs(Math.log(Math.max(1, width) / Math.max(1, height) / 1.6));
-
 /** Condense cycles before ranking. Every edge between components must point downstream. */
 function topology(ids: string[], edges: [string, string][]) {
   const outgoing = new Map(ids.map((id) => [id, new Set<string>()]));
@@ -93,44 +91,9 @@ function topology(ids: string[], edges: [string, string][]) {
     layer.sort((a, b) => barycenter(a) - barycenter(b) || compare(a, b));
     layer.forEach((id, i) => row.set(id, i));
   });
-  return layers;
+  return { layers, forward: edges.filter(([a, b]) => position.get(a)! < position.get(b)!) };
 }
-
-function grid(
-  layers: string[][],
-  sizes: Map<string, Size>,
-  columnGap: number,
-  rowGap: number,
-  down: boolean,
-): Arrangement {
-  const widthOf = (id: string) => (down ? sizes.get(id)!.height : sizes.get(id)!.width);
-  const heightOf = (id: string) => (down ? sizes.get(id)!.width : sizes.get(id)!.height);
-  const widths = layers.map((layer) => Math.max(0, ...layer.map(widthOf)));
-  const heights = Array.from({ length: Math.max(0, ...layers.map((layer) => layer.length)) }, (_, i) =>
-    Math.max(0, ...layers.map((layer) => (layer[i] ? heightOf(layer[i]) : 0))),
-  );
-  const offsets = (values: number[], gap: number) => {
-    let at = 0;
-    return values.map((value) => {
-      const start = at;
-      at += value + gap;
-      return start;
-    });
-  };
-  const xs = offsets(widths, down ? rowGap : columnGap),
-    ys = offsets(heights, down ? columnGap : rowGap);
-  const boxes = new Map<string, CompoundBox>();
-  layers.forEach((layer, col) =>
-    layer.forEach((id, row) =>
-      boxes.set(id, { ...sizes.get(id)!, x: down ? ys[row] : xs[col], y: down ? xs[col] : ys[row] }),
-    ),
-  );
-  const width = widths.length ? xs[xs.length - 1] + widths[widths.length - 1] : 0,
-    height = heights.length ? ys[ys.length - 1] + heights[heights.length - 1] : 0;
-  return { boxes, width: down ? height : width, height: down ? width : height };
-}
-
-/** Rank first; choose an aligned orientation using only local, already-fixed rectangles. */
+/** Pack actual rectangles subject to local dependencies; child geometry stays frozen. */
 export function arrangeTopology(
   ids: string[],
   edges: [string, string][],
@@ -163,27 +126,64 @@ export function arrangeTopology(
         }
     }
     const memberSet = new Set(members);
-    const layers = topology(
+    const { layers, forward } = topology(
       members.sort(compare),
       edges.filter(([a, b]) => memberSet.has(a) && memberSet.has(b)),
     );
-    const candidates = [grid(layers, sizes, columnGap, rowGap, false), grid(layers, sizes, columnGap, rowGap, true)];
-    pieces.push(candidates.sort((a, b) => shapeCost(a) - shapeCost(b))[0]);
+    const candidates: { layout: Arrangement; down: boolean }[] = [];
+    for (const down of [false, true]) {
+      const oriented = new Map(
+        members.map((id) => {
+          const size = sizes.get(id)!;
+          return [id, down ? { width: size.height, height: size.width } : size];
+        }),
+      );
+      // Try both large-first and small-first siblings. Only independent nodes within a rank are exchanged.
+      const orders = [
+        layers.flat(),
+        ...[1, -1].map((sign) =>
+          layers.flatMap((layer) =>
+            [...layer].sort(
+              (a, b) =>
+                sign *
+                  (oriented.get(b)!.width * oriented.get(b)!.height -
+                    oriented.get(a)!.width * oriented.get(a)!.height) || compare(a, b),
+            ),
+          ),
+        ),
+      ];
+      const tried = new Set<string>();
+      for (const order of orders) {
+        const signature = JSON.stringify(order);
+        if (tried.has(signature)) continue;
+        tried.add(signature);
+        const result = compactFlow(order, forward, oriented, down ? rowGap : columnGap, down ? columnGap : rowGap);
+        const layout = down
+          ? {
+              boxes: new Map(
+                [...result.boxes].map(([id, box]) => [
+                  id,
+                  { x: box.y, y: box.x, width: box.height, height: box.width },
+                ]),
+              ),
+              width: result.height,
+              height: result.width,
+            }
+          : result;
+        candidates.push({ layout, down });
+      }
+    }
+    candidates.sort((a, b) => compareArrangements(a.layout, b.layout, forward, columnGap, rowGap, a.down, b.down));
+    pieces.push(candidates[0].layout);
   }
   if (!pieces.length) return { boxes: new Map(), width: 0, height: 0 };
   const keys = pieces.map((_, i) => String(i)),
     pieceSizes = new Map(keys.map((key, i) => [key, pieces[i]]));
-  let packed: Arrangement | undefined;
-  for (let columns = 1; columns <= pieces.length; columns++) {
-    const layers = Array.from({ length: columns }, () => [] as string[]);
-    keys.forEach((key, i) => layers[i % columns].push(key));
-    const candidate = grid(layers, pieceSizes, columnGap, rowGap, false);
-    if (!packed || shapeCost(candidate) < shapeCost(packed)) packed = candidate;
-  }
+  const packed = packRectangles(keys, pieceSizes, columnGap, rowGap);
   const boxes = new Map<string, CompoundBox>();
   pieces.forEach((piece, i) => {
-    const offset = packed!.boxes.get(String(i))!;
+    const offset = packed.boxes.get(String(i))!;
     for (const [id, box] of piece.boxes) boxes.set(id, { ...box, x: box.x + offset.x, y: box.y + offset.y });
   });
-  return { boxes, width: packed!.width, height: packed!.height };
+  return { boxes, width: packed.width, height: packed.height };
 }
