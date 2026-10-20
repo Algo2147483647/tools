@@ -1,5 +1,5 @@
 import { getTimelineClock, type TimelineClock } from "./timelineClock";
-import { nextEdgeId } from "./edgeIds";
+import { nextEdgeId } from "./relations";
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
 import { applyHierarchyCommand, pruneHierarchyEdges, type HierarchyCommand } from "./hierarchy";

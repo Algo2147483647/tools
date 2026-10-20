@@ -2,7 +2,6 @@ import { getTimelineClock } from "../graph/timelineClock";
 import Icon from "./ui/Icon";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
-import { getRelationKeys } from "../graph/relations";
 import { getTimelineEditError } from "../graph/timelineEditing";
 import type { DagNode, NodeKey, NormalizedDag } from "../graph/types";
 import NodeFieldEditor from "./NodeFieldEditor";
@@ -11,11 +10,12 @@ import {
   type EditableField,
   type FieldDisplayMode,
   buildEditableFields,
+  buildRawNodeEditorValue,
   formatEditorValue,
   parseNodeFieldValue,
+  parseRawNodeEditorValue,
   supportsDisplayMode,
 } from "./nodeFields";
-import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./nodeDetailRawJson";
 import NodeTimeEditor from "./NodeTimeEditor";
 import NodeJsonView from "./NodeJsonView";
 import NodeRelationsPanel from "./NodeRelationsPanel";
@@ -37,7 +37,6 @@ interface NodeDetailModalProps {
   initialFocus?: "fields" | "raw";
   relativeLinkRoot: RelativeLinkRoot | null;
   onOpenRelativeLink: (url: string) => void;
-  onRelativeLinkError: (message: string) => void;
   onSave: (nextKey: NodeKey, fields: Record<string, unknown>) => string | void;
   onClose: () => void;
 }
@@ -52,7 +51,6 @@ export default function NodeDetailModal({
   initialFocus = "fields",
   relativeLinkRoot,
   onOpenRelativeLink,
-  onRelativeLinkError,
   onSave,
   onClose,
 }: NodeDetailModalProps) {
@@ -233,7 +231,7 @@ export default function NodeDetailModal({
                   .map((field) => (
                     <article key={field.name} className="node-detail-field">
                       <div className="node-detail-field__header">
-                        <h3 className="node-detail-field__label">{field.displayName}</h3>
+                        <h3 className="node-detail-field__label">{field.name}</h3>
                         {supportsDisplayMode(field) ? (
                           <FieldDisplayModeToggle
                             mode={fieldDisplayModes[field.name] || "text"}
@@ -249,7 +247,6 @@ export default function NodeDetailModal({
                             displayMode={fieldDisplayModes[field.name] || "text"}
                             relativeLinkRoot={relativeLinkRoot}
                             onOpenRelativeLink={onOpenRelativeLink}
-                            onRelativeLinkError={onRelativeLinkError}
                             onChange={(value) => handleFieldChange(field.name, value)}
                           />
                         ) : (
@@ -259,7 +256,6 @@ export default function NodeDetailModal({
                             displayMode={fieldDisplayModes[field.name] || "text"}
                             relativeLinkRoot={relativeLinkRoot}
                             onOpenRelativeLink={onOpenRelativeLink}
-                            onRelativeLinkError={onRelativeLinkError}
                           />
                         )}
                       </div>
@@ -361,10 +357,6 @@ export default function NodeDetailModal({
         setError(parsed.message);
         return;
       }
-      if (!validateNodeRelations(parsed.nextKey, parsed.fields)) {
-        setError("A node cannot reference itself.");
-        return;
-      }
       saveValidated(parsed.nextKey, parsed.fields);
       return;
     }
@@ -392,10 +384,6 @@ export default function NodeDetailModal({
       patch[field.name] = parsed.value;
     }
 
-    if (!validateNodeRelations(nextKey, patch)) {
-      setError("A node cannot reference itself.");
-      return;
-    }
     saveValidated(nextKey, patch);
   }
 
@@ -474,17 +462,7 @@ function tryBuildRawJsonFromFieldValues(
     patch[field.name] = parsed.value;
   }
 
-  if (!validateNodeRelations(nextKey, patch)) {
-    return null;
-  }
-
   return buildRawNodeEditorValue(nextKey, patch);
-}
-
-function validateNodeRelations(nextKey: NodeKey, fields: Record<string, unknown>): boolean {
-  const parentKeys = getRelationKeys(fields.parents);
-  const childKeys = getRelationKeys(fields.children);
-  return !parentKeys.includes(nextKey) && !childKeys.includes(nextKey);
 }
 
 function EditIcon() {
@@ -511,14 +489,12 @@ function NodeFieldPreview({
   displayMode,
   relativeLinkRoot,
   onOpenRelativeLink,
-  onRelativeLinkError,
 }: {
   field: EditableField;
   value: string;
   displayMode: FieldDisplayMode;
   relativeLinkRoot: RelativeLinkRoot | null;
   onOpenRelativeLink: (url: string) => void;
-  onRelativeLinkError: (message: string) => void;
 }) {
   if (!value.trim()) {
     return <p className="node-detail-empty">(empty string)</p>;
@@ -530,11 +506,10 @@ function NodeFieldPreview({
         previewSurface
         relativeLinkRoot={relativeLinkRoot}
         onOpenRelativeLink={onOpenRelativeLink}
-        onRelativeLinkError={onRelativeLinkError}
       />
     );
   }
-  if (field.name === "key" || field.editorKind === "plainText" || field.editorKind === "multilineText") {
+  if (field.name === "key" || typeof field.value === "string") {
     return <p className="node-detail-text">{value}</p>;
   }
   return <pre className="node-detail-pre">{value}</pre>;

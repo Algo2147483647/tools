@@ -6,9 +6,8 @@ import {
   resolveRelativeFile,
 } from "../adapters/relativeLinks";
 import type { GraphAction } from "../state/graphActions";
-export type FilePreviewState = ResolvedRelativeFile;
 export function useFilePreview(dispatch: Dispatch<GraphAction>, relativeLinkRoot: RelativeLinkRoot | null) {
-  const [filePreview, setFilePreview] = useState<FilePreviewState | null>(null);
+  const [filePreview, setFilePreview] = useState<ResolvedRelativeFile | null>(null);
   const requestRef = useRef(0);
   useEffect(() => {
     requestRef.current++;
@@ -50,5 +49,5 @@ export function useFilePreview(dispatch: Dispatch<GraphAction>, relativeLinkRoot
     requestRef.current++;
     setFilePreview(null);
   }
-  return { relativeLinkRoot, filePreview, handleOpenRelativeLink, handleRelativeLinkError, closeFilePreview };
+  return { relativeLinkRoot, filePreview, handleOpenRelativeLink, closeFilePreview };
 }

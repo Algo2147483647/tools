@@ -1,6 +1,6 @@
 import { normalizeDagInput, validateJsonValue } from "../graph/normalize";
 import { isRecord } from "../utils/json";
-import { readWorkspaceFile } from "./files";
+import { readWorkspaceFile } from "../adapters/workspaceAccess";
 import { manifestPath } from "./paths";
 import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder, WorkspaceGraph, WorkspaceManifest } from "./types";
 

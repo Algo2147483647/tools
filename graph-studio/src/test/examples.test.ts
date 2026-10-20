@@ -7,7 +7,7 @@ import { buildStageData } from "../layout/stage-layout";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 import { discoverWorkspace, readGraphFile } from "../workspace/discovery";
-import { readWorkspaceFile } from "../workspace/files";
+import { readWorkspaceFile } from "../adapters/workspaceAccess";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
 import { resolveWorkspacePath } from "../workspace/paths";
 import { parseRecentMetadata } from "../workspace/locations";

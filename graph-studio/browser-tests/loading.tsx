@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import FilePreviewModal from "../src/components/FilePreviewModal";
 import MarkdownValue from "../src/components/MarkdownValue";
-import { prepareHtmlSvg } from "../src/rendering/export-html-svg";
+import { prepareHtmlSvg } from "../src/rendering/export-svg";
 import "../src/styles/index.css";
 import "katex/dist/katex.min.css";
 
@@ -52,7 +52,6 @@ const tests: Array<[string, (host: HTMLDivElement) => Promise<void>]> = [
             },
             relativeLinkRoot: null,
             onOpenRelativeLink: () => {},
-            onRelativeLinkError: () => {},
             onClose: () => {},
           }),
         );

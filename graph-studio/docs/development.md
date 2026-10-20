@@ -36,7 +36,7 @@ Script behavior:
 - `npm start`: uses the same dependency verification and browser startup as the platform launchers
 - `npm run dev`: starts the Vite development server directly
 - `npm run build`: type-checks (including unused locals and parameters) and creates a production build
-- `npm test`: runs all application regression suites; append case-insensitive suite-name fragments to select suites, for example `npm test -- "Graph projections" "AI provider transport"`
+- `npm test`: runs all application regression suites; append case-insensitive suite-name fragments to select suites, for example `npm test -- "v3 document" "ai harness"`
 - `npm run preview`: serves the built app locally
 - `npm run test:launcher`: checks startup options, dependency fingerprints, invocation from another directory, and cleanup boundaries
 - `npm run clean`: removes `dist/`, `test-results/`, `coverage/`, and root `.log` / `.tsbuildinfo` files
@@ -84,7 +84,7 @@ The codebase is organized around a few clear responsibilities:
 - graph loading and normalization happen in the graph layer
 - v3 semantic fields are fixed in `graph/fieldRoles.ts`; UI, layout, console and AI use them directly without passing a mapping object
 - descendant traversal is shared by graph commands and stage layout in `graph/traversal.ts`; layout-specific breadth-first ordering stays in the layout layer
-- type filters, timeline tracks and timeline readaptation share `graph/projection.ts`; projections clone only retained data, rebuild adjacency and leave source metadata and containment untouched
+- type filters, timeline tracks and timeline readaptation share `projectGraphDocument` in `graph/serialize.ts`; projections clone only retained data, rebuild adjacency and leave source metadata and containment untouched
 - graph documents are validated as v3; edges are authoritative and graphIndex builds non-enumerable read-only adjacency projections
 - `graph/importMerge.ts` retains a tested conflict-resolution API for multi-file documents; the current opening flow does not use it, and it is excluded from the runtime bundle
 - edits flow through graph commands and reducer-managed history
@@ -93,11 +93,11 @@ The codebase is organized around a few clear responsibilities:
 - graph appearance is a CSS-first configuration object stored separately from graph JSON
 - the console DSL acts as a textual front end for the same graph mutation and appearance command cores used by the UI
 
-Keep data helpers independent of React components. `components/nodeFields.ts` owns field parsing/formatting, `graph/relations.ts` owns relation input, and components import their types and helpers directly instead of re-exporting them through other components. `hooks/useDebouncedValue.ts` is shared by settings previews and graph controllers.
+Keep data helpers independent of React components. `components/nodeFields.ts` owns field parsing/formatting and the raw node editor envelope; fields retain only their name and JSON value. Relationships use the dedicated relation editor because v3 forbids `parents`/`children` fields on nodes. `graph/relations.ts` owns relation input and edge ID allocation. Related helpers stay in these existing modules. `hooks/useDebouncedValue.ts` is shared by settings previews and graph controllers.
 
-`MarkdownValue` loads the Markdown renderer only when nonempty rich content is displayed and falls back to readable plain text if rendering cannot load. `MarkdownContent` owns Markdown plugins, relative links and image URL cleanup. HTML export synchronously captures a sanitized SVG and inherited typography through `rendering/export-html-svg.ts`, then loads `rendering/export-html.ts` on demand. Keeping capture separate prevents edits during module loading from mixing document versions. The HTML viewer and server-side Markdown renderer stay outside the initial JavaScript bundle.
+`MarkdownValue` loads the Markdown renderer only when nonempty rich content is displayed and falls back to readable plain text if rendering cannot load. `MarkdownContent` owns Markdown plugins, relative links and image URL cleanup. HTML export synchronously captures a sanitized SVG and inherited typography through `prepareHtmlSvg` in `rendering/export-svg.ts`, then loads `rendering/export-html.ts` on demand. Keeping capture separate prevents edits during module loading from mixing document versions. The HTML viewer and server-side Markdown renderer stay outside the initial JavaScript bundle.
 
-`workspace/files.ts` is the shared file-read boundary for discovery, linked styles and relative assets. File handles are read afresh; immutable example downloads retain their own retryable cache. `utils/json.ts` narrows untrusted objects consistently in graph validation, AI persistence and provider parsing. AI transports treat response data as `unknown` until its shape is checked.
+`adapters/workspaceAccess.ts` owns workspace file reads and directory access for discovery, linked styles and relative assets. File handles are read afresh; immutable example downloads retain their own retryable cache. `utils/json.ts` keeps the shared object guard independent of graph validation and AI code. AI transports treat response data as `unknown` until its shape is checked.
 
 Document identity combines a stable location ID and a workspace-relative graph path. The identity catalog is independent of the recent list: removing or evicting a recent row does not delete the stored location handle. Existing v1 records are reused without changing document IDs. A new opening increments the document generation, even when reopening the same file. AI persistence uses document identity; pending requests and plans also carry runtime generation/revision context. The browser fallback creates a new identity when it cannot verify filesystem identity.
 

@@ -4,7 +4,7 @@ import type { ContextMenuAction } from "../components/contextMenuModel";
 import type { HierarchyEdit } from "../components/HierarchyEditorModal";
 import type { GraphContextTarget } from "../state/contextMenu";
 import type { GraphCommand } from "../graph/commands";
-import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeDetailRawJson";
+import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeFields";
 import type { NodeKey, RelationValue } from "../graph/types";
 import type { Dispatch } from "react";
 import type { GraphAppState } from "../state/initialState";

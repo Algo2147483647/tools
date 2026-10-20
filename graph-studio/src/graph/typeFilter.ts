@@ -1,7 +1,7 @@
 import { getNodeType } from "./accessors";
-import { nextEdgeId } from "./edgeIds";
+import { nextEdgeId } from "./relations";
 import { indexGraphDocument } from "./graphIndex";
-import { projectGraphDocument } from "./projection";
+import { projectGraphDocument } from "./serialize";
 import type { GraphChartType, NormalizedDag } from "./types";
 
 const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";

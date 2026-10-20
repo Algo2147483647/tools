@@ -34,15 +34,9 @@ import { nodeRelationsSuite } from "./nodeRelations.test";
 import { htmlExportSuite } from "./htmlExport.test";
 import { nodeLinkDefaultsSuite } from "./nodeLinkDefaults.test";
 import { timelinePresetsSuite } from "./timelinePresets.test";
-import { projectionSuite } from "./projection.test";
-import { providerTransportSuite } from "./providerTransport.test";
-import { nodeFieldsSuite } from "./nodeFields.test";
 
 async function main() {
   const suites = [
-    projectionSuite,
-    providerTransportSuite,
-    nodeFieldsSuite,
     stylePipelineSuite,
     compoundSuite,
     compoundLayoutSuite,

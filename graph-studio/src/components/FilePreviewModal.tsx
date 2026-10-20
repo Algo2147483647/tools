@@ -1,14 +1,12 @@
 import Icon from "./ui/Icon";
 import { useEffect, useState } from "react";
-import type { RelativeLinkRoot } from "../adapters/relativeLinks";
-import type { FilePreviewState } from "../controllers/useFilePreview";
+import type { RelativeLinkRoot, ResolvedRelativeFile } from "../adapters/relativeLinks";
 import MarkdownValue from "./MarkdownValue";
 
 interface FilePreviewModalProps {
-  preview: FilePreviewState | null;
+  preview: ResolvedRelativeFile | null;
   relativeLinkRoot: RelativeLinkRoot | null;
   onOpenRelativeLink: (url: string) => void;
-  onRelativeLinkError: (message: string) => void;
   onClose: () => void;
 }
 
@@ -16,7 +14,6 @@ export default function FilePreviewModal({
   preview,
   relativeLinkRoot,
   onOpenRelativeLink,
-  onRelativeLinkError,
   onClose,
 }: FilePreviewModalProps) {
   const [textContent, setTextContent] = useState<string | null>(null);
@@ -118,7 +115,6 @@ export default function FilePreviewModal({
           previewSurface
           relativeLinkRoot={relativeLinkRoot}
           onOpenRelativeLink={onOpenRelativeLink}
-          onRelativeLinkError={onRelativeLinkError}
         />
       ) : (
         <p className="node-detail-empty">Reading file: {activePreview.path}</p>

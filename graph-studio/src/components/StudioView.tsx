@@ -7,8 +7,7 @@ import type { WorkspaceControls } from "../controllers/workspaceControls";
 import type { StudioUiController } from "../controllers/useStudioUi";
 import { useWorkspacePreview } from "../controllers/useWorkspacePreview";
 import { useSidebarResize } from "../hooks/useSidebarResize";
-import { downloadSvg } from "../rendering/export-svg";
-import { prepareHtmlSvg } from "../rendering/export-html-svg";
+import { downloadSvg, prepareHtmlSvg } from "../rendering/export-svg";
 import type { ConsoleController } from "../controllers/useConsoleController";
 import type { DocumentSessionController } from "../controllers/useDocumentSession";
 import type { GraphTransactionsController } from "../controllers/useGraphTransactions";
@@ -352,7 +351,6 @@ export default function StudioView({
         initialFocus={ui.nodeDetailInitialFocus}
         relativeLinkRoot={relativeLinkRoot}
         onOpenRelativeLink={preview.handleOpenRelativeLink}
-        onRelativeLinkError={preview.handleRelativeLinkError}
         onSave={nodeActions.saveNode}
         onClose={ui.closeModals}
       />
@@ -364,7 +362,6 @@ export default function StudioView({
             : relativeLinkRoot
         }
         onOpenRelativeLink={(url) => void preview.handleOpenRelativeLink(url, filePreview?.relativePath)}
-        onRelativeLinkError={preview.handleRelativeLinkError}
         onClose={preview.closeFilePreview}
       />
       <SaveJsonModal

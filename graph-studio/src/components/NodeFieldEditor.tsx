@@ -1,12 +1,6 @@
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import MarkdownValue from "./MarkdownValue";
-import {
-  type EditableField,
-  type FieldDisplayMode,
-  getEditorHint,
-  getEditorRows,
-  supportsDisplayMode,
-} from "./nodeFields";
+import { type EditableField, type FieldDisplayMode, supportsDisplayMode } from "./nodeFields";
 
 interface NodeFieldEditorProps {
   field: EditableField;
@@ -14,7 +8,6 @@ interface NodeFieldEditorProps {
   displayMode: FieldDisplayMode;
   relativeLinkRoot: RelativeLinkRoot | null;
   onOpenRelativeLink: (url: string) => void;
-  onRelativeLinkError: (message: string) => void;
   onChange: (value: string) => void;
 }
 
@@ -24,7 +17,6 @@ export default function NodeFieldEditor({
   displayMode,
   relativeLinkRoot,
   onOpenRelativeLink,
-  onRelativeLinkError,
   onChange,
 }: NodeFieldEditorProps) {
   if (field.name === "key") {
@@ -43,7 +35,7 @@ export default function NodeFieldEditor({
     <div className="node-detail-editor-wrap">
       <textarea
         className="node-detail-editor node-detail-editor--textarea"
-        rows={getEditorRows(field)}
+        rows={field.name === "define" ? 8 : typeof field.value === "string" ? 3 : 6}
         spellCheck={false}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -54,10 +46,9 @@ export default function NodeFieldEditor({
           previewSurface
           relativeLinkRoot={relativeLinkRoot}
           onOpenRelativeLink={onOpenRelativeLink}
-          onRelativeLinkError={onRelativeLinkError}
         />
       ) : null}
-      {getEditorHint(field) ? <p className="node-detail-editor-hint">{getEditorHint(field)}</p> : null}
+      {typeof field.value !== "string" && <p className="node-detail-editor-hint">Enter valid JSON.</p>}
     </div>
   );
 }

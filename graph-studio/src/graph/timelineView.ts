@@ -1,4 +1,4 @@
-import { projectGraphDocument } from "./projection";
+import { projectGraphDocument } from "./serialize";
 import type { NormalizedDag } from "./types";
 
 /** Timeline is a view over v3 graph data; it does not change edge semantics. */

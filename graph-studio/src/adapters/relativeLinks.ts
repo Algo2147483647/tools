@@ -1,4 +1,4 @@
-import { readWorkspaceFile } from "../workspace/files";
+import { readWorkspaceFile } from "./workspaceAccess";
 import { linkPath } from "../workspace/paths";
 import type { WorkspaceFile } from "../workspace/types";
 

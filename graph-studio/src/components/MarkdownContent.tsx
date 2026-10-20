@@ -13,19 +13,13 @@ export default function MarkdownContent({
   previewSurface = false,
   relativeLinkRoot = null,
   onOpenRelativeLink,
-  onRelativeLinkError,
 }: {
   value: string;
   emphasize?: boolean;
   previewSurface?: boolean;
   relativeLinkRoot?: RelativeLinkRoot | null;
   onOpenRelativeLink?: (url: string) => void;
-  onRelativeLinkError?: (message: string) => void;
 }) {
-  if (!value.trim()) {
-    return <p className="node-detail-empty">(empty string)</p>;
-  }
-
   return (
     <div
       className={[
@@ -83,7 +77,6 @@ export default function MarkdownContent({
               src={String(src || "")}
               alt={String(alt || "")}
               relativeLinkRoot={relativeLinkRoot}
-              onRelativeLinkError={onRelativeLinkError}
               {...props}
             />
           ),
@@ -99,13 +92,11 @@ function RelativeMarkdownImage({
   src,
   alt,
   relativeLinkRoot,
-  onRelativeLinkError: _onRelativeLinkError,
   ...props
 }: {
   src: string;
   alt: string;
   relativeLinkRoot: RelativeLinkRoot | null;
-  onRelativeLinkError?: (message: string) => void;
 } & React.ImgHTMLAttributes<HTMLImageElement>) {
   const [resolvedSrc, setResolvedSrc] = useState(src);
   const [unavailable, setUnavailable] = useState(false);

@@ -1,8 +1,9 @@
 import { getTimelineClock } from "../graph/timelineClock";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { parseNodeTimeline, parseTimelineDate } from "../graph/timeline";
+import { parseNodeTimeline } from "../graph/timeline";
+import { getTimelineReferenceTime } from "../graph/timelineEditing";
 import type { NormalizedDag } from "../graph/types";
-import { projectGraphDocument } from "../graph/projection";
+import { projectGraphDocument } from "../graph/serialize";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import type { StageAppearance } from "../layout/appearance";
@@ -29,11 +30,7 @@ export function useTimelineStage(input: {
   } | null>(null);
   const retained = useRef<{ generation: number; revision: number; clock: string; stage: StageData | null }>();
   const activeScope = scope?.generation === generation ? scope : null;
-  const timelineMetadata = dag?.metadata?.timeline;
-  const asOf =
-    timelineMetadata && typeof timelineMetadata === "object" && !Array.isArray(timelineMetadata)
-      ? parseTimelineDate((timelineMetadata as Record<string, unknown>).asOf)?.timestamp
-      : undefined;
+  const asOf = getTimelineReferenceTime(dag);
   const currentKeys = useMemo(
     () =>
       Object.entries(visibleDag?.nodes ?? {})
