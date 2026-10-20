@@ -1,0 +1,110 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "title": "Relative timeline · activity workflow",
+  "metadata": {
+    "timeline": {
+      "version": 1,
+      "clock": {
+        "mode": "relative",
+        "unit": "minute",
+        "origin": "领取",
+        "format": "elapsed",
+        "precision": 1
+      },
+      "view": {
+        "orientation": "horizontal",
+        "layout": "flow",
+        "intervalTitle": "inside",
+        "intervalAlign": "center",
+        "intervalStyle": "soft",
+        "relativeTickStep": 5,
+        "intervalWidth": 36
+      }
+    }
+  },
+  "nodes": {
+    "prepare": {
+      "title": "准备活动",
+      "time": {
+        "start": -5,
+        "end": 0
+      },
+      "status": "completed"
+    },
+    "claim": {
+      "title": "领取",
+      "time": {
+        "at": 0
+      }
+    },
+    "window": {
+      "title": "活动参与窗口",
+      "time": {
+        "start": 0,
+        "end": 30
+      },
+      "status": "active"
+    },
+    "verify": {
+      "title": "核验资格",
+      "time": {
+        "start": 5,
+        "end": 12.5
+      },
+      "status": "blocked"
+    },
+    "reward": {
+      "title": "领取奖励",
+      "time": {
+        "at": 30
+      },
+      "status": "planned"
+    }
+  },
+  "edges": [
+    {
+      "id": "prepare-claim",
+      "source": "prepare",
+      "target": "claim",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "end"
+        }
+      }
+    },
+    {
+      "id": "claim-window",
+      "source": "claim",
+      "target": "window",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence"
+        }
+      }
+    },
+    {
+      "id": "window-verify",
+      "source": "window",
+      "target": "verify",
+      "metadata": {
+        "timeline": {
+          "kind": "dependency",
+          "sourceTime": 5
+        }
+      }
+    },
+    {
+      "id": "window-reward",
+      "source": "window",
+      "target": "reward",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "end"
+        }
+      }
+    }
+  ]
+}

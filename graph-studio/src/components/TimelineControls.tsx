@@ -280,33 +280,6 @@ export default function TimelineControls({
               onChange={(intervalStyle) => onChange({ intervalStyle })}
             />
           </div>
-          <div className="timeline-control-row">
-            <span>Color</span>
-            <TimelineChoices
-              label="Interval color by"
-              value={settings.intervalColor}
-              options={[
-                { value: "category", label: "Category" },
-                { value: "status", label: "Status" },
-              ]}
-              onChange={(intervalColor) => onChange({ intervalColor })}
-            />
-          </div>
-          {settings.intervalColor === "status" && (
-            <div className="timeline-status-legend" aria-label="Interval status colors">
-              {[
-                ["Planned", "#64748b"],
-                ["Active", "#2563eb"],
-                ["Completed", "#15803d"],
-                ["Blocked", "#b91c1c"],
-              ].map(([label, color]) => (
-                <span key={label}>
-                  <i style={{ background: color }} />
-                  {label}
-                </span>
-              ))}
-            </div>
-          )}
         </section>
       )}
     </>

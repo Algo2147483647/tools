@@ -222,10 +222,6 @@ export default function NodeDetailModal({
                 track={getDraftValue("track")}
                 readOnly={!isEditing}
                 referenceTime={timelineReferenceTime}
-                status={getDraftValue("status")}
-                onStatusChange={(status) =>
-                  handleTimelineChange(getDraftValue("time"), String(getDraftValue("track") ?? ""), status)
-                }
                 onChange={handleTimelineChange}
               />
             )}
@@ -317,18 +313,16 @@ export default function NodeDetailModal({
     return parsed.ok ? parsed.value : values[name];
   }
 
-  function handleTimelineChange(time: unknown, track: string, status: unknown = getDraftValue("status")) {
-    const nextFields = fields.filter((field) => !["time", "track", "status"].includes(field.name));
+  function handleTimelineChange(time: unknown, track: string) {
+    const nextFields = fields.filter((field) => !["time", "track"].includes(field.name));
     const added = buildEditableFields(currentNodeKey, {
       ...(time === undefined ? {} : { time }),
       ...(track ? { track } : {}),
-      ...(status ? { status } : {}),
     }).filter((field) => field.name !== "key");
     nextFields.push(...added);
     const nextValues = { ...values };
     delete nextValues.time;
     delete nextValues.track;
-    delete nextValues.status;
     for (const field of added) nextValues[field.name] = formatEditorValue(field);
     setFields(nextFields);
     setValues(nextValues);

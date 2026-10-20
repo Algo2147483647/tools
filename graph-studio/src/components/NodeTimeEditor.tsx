@@ -4,8 +4,6 @@ import { parseNodeTimeline } from "../graph/timeline";
 interface NodeTimeEditorProps {
   time: unknown;
   clock?: TimelineClock;
-  status?: unknown;
-  onStatusChange?: (value: string) => void;
   track: unknown;
   readOnly: boolean;
   referenceTime?: number;
@@ -19,8 +17,6 @@ export default function NodeTimeEditor({
   readOnly,
   referenceTime,
   clock = sanitizeTimelineClock(null),
-  status,
-  onStatusChange,
   onChange,
 }: NodeTimeEditorProps) {
   const value = time && typeof time === "object" && !Array.isArray(time) ? (time as Record<string, unknown>) : {};
@@ -82,28 +78,6 @@ export default function NodeTimeEditor({
                 onChange={(event) => onChange(time, event.currentTarget.value)}
               />
             </label>
-            {onStatusChange && (
-              <label>
-                Status
-                <select
-                  className="node-detail-editor"
-                  aria-label="Event status"
-                  value={typeof status === "string" ? status : ""}
-                  onChange={(e) => onStatusChange(e.currentTarget.value)}
-                >
-                  <option value="">Category color</option>
-                  {typeof status === "string" &&
-                    status &&
-                    !["planned", "active", "completed", "blocked"].includes(status) && (
-                      <option value={status}>{status}</option>
-                    )}
-                  <option value="planned">Planned</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="blocked">Blocked</option>
-                </select>
-              </label>
-            )}
             {mode !== "none" && (
               <label>
                 {mode === "instant" ? "Time" : "Start"}

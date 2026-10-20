@@ -103,7 +103,6 @@ export default function TimelineNode({
       data-connected="false"
       data-time-kind={time.kind}
       data-interval-style={time.intervalStyle ?? "soft"}
-      data-event-status={time.eventStatus}
       data-time-status={time.status}
       data-track={time.track}
       data-clipped-start={time.clippedStart || undefined}

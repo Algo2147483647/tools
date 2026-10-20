@@ -1520,31 +1520,10 @@
   border: 1px solid #557fc6;
   background: transparent;
 }
-.timeline-status-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin: 12px 0 0 98px;
-  color: #7b899e;
-  font-size: 11px;
-}
-.timeline-status-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.timeline-status-legend i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
 @container (max-width: 340px) {
   .timeline-control-row {
     grid-template-columns: 1fr;
     gap: 6px;
-  }
-  .timeline-status-legend {
-    margin-left: 0;
   }
   .timeline-choice button {
     min-height: 32px;

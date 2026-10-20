@@ -15,7 +15,6 @@ export interface StageTimelineNode {
   intervalStyle?: TimelineViewSettings["intervalStyle"];
   barWidth?: number;
   minimumCross?: number;
-  eventStatus?: string;
   status: "dated" | "missing" | "invalid";
   kind: "instant" | "range" | "undated";
   start: number | null;

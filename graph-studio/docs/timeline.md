@@ -123,7 +123,7 @@ Relative values are numbers in the declared unit, never timestamps or dates. `un
     "timeline": {
       "version": 1,
       "clock": { "mode": "relative", "unit": "minute", "origin": "领取", "format": "elapsed", "precision": 2 },
-      "view": { "orientation": "horizontal", "relativeTickStep": 5, "intervalTitle": "inside", "intervalAlign": "center", "intervalColor": "status" }
+      "view": { "orientation": "horizontal", "relativeTickStep": 5, "intervalTitle": "inside", "intervalAlign": "center" }
     }
   },
   "nodes": {
@@ -144,6 +144,5 @@ The time-range filter uses inclusive numeric From/To bounds in relative mode. No
 - **Title placement**: Outside (title and time), Inside (title only), or Hidden. Inside titles never include time or node details; short bars clip text within their true duration instead of extending the bar.
 - **Title alignment**: start/center/end maps to Left/Center/Right horizontally and Top/Center/Bottom vertically.
 - **Fill style**: Soft, Solid or Outline.
-- **Color by**: Category or Status. Status colors recognize `planned`, `active`, `completed`, and `blocked`; unknown statuses keep their category color. The node time editor includes a status selector.
 
 Layout and interval appearance remain view preferences; `metadata.timeline.view` supplies portable initial defaults. A ready-to-open example is [`relative-timeline.json`](../public/examples/relative-timeline.json).

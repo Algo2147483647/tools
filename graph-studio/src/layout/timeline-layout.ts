@@ -431,7 +431,6 @@ export function buildTimelineStage(input: {
         intervalStyle: settings.intervalStyle,
         minimumCross,
         barWidth: time.kind === "range" ? intervalWidth : 12,
-        eventStatus: typeof dag.nodes[entry.key].status === "string" ? String(dag.nodes[entry.key].status) : undefined,
         status: time.status,
         kind: time.kind,
         start: isDated ? time.start : null,
@@ -448,7 +447,7 @@ export function buildTimelineStage(input: {
         labelX,
         labelY,
         label: time.label,
-        color: settings.intervalColor === "status" ? statusColor(dag.nodes[entry.key].status, color) : color,
+        color,
         warning: isDated ? undefined : time.message,
       },
     };
@@ -639,14 +638,4 @@ function trackColor(track: string): string {
   let hash = 0;
   for (const character of track) hash = (hash * 31 + character.charCodeAt(0)) | 0;
   return `hsl(${((hash % 360) + 360) % 360} 58% 43%)`;
-}
-
-function statusColor(status: unknown, fallback: string): string {
-  const colors: Record<string, string> = {
-    planned: "#64748b",
-    active: "#2563eb",
-    completed: "#15803d",
-    blocked: "#b91c1c",
-  };
-  return typeof status === "string" && Object.prototype.hasOwnProperty.call(colors, status) ? colors[status] : fallback;
 }

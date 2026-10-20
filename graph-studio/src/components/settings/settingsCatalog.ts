@@ -48,7 +48,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
       "layout",
       "Timeline",
       "Interval bars",
-      "title alignment status fill inside duration width thickness 标题 对齐 区间 状态 宽度 厚度",
+      "title alignment fill inside duration width thickness 标题 对齐 区间 宽度 厚度",
     );
     add(
       "timeline-arrangement",

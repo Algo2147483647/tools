@@ -7,7 +7,6 @@ export interface TimelineViewSettings {
   intervalTitle: "outside" | "inside" | "hidden";
   intervalAlign: "start" | "center" | "end";
   intervalStyle: "soft" | "solid" | "outline";
-  intervalColor: "category" | "status";
   relativeTickStep: number;
   axis: "linear" | "adaptive";
   tickStep: number;
@@ -36,7 +35,6 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
       input.intervalTitle === "inside" || input.intervalTitle === "hidden" ? input.intervalTitle : "outside",
     intervalAlign: input.intervalAlign === "start" || input.intervalAlign === "end" ? input.intervalAlign : "center",
     intervalStyle: input.intervalStyle === "solid" || input.intervalStyle === "outline" ? input.intervalStyle : "soft",
-    intervalColor: input.intervalColor === "status" ? "status" : "category",
     relativeTickStep: finite(input.relativeTickStep, 1),
     axis: input.axis === "adaptive" ? "adaptive" : "linear",
     tickStep: finite(input.tickStep, 10),

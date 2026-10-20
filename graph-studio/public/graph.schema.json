@@ -123,12 +123,6 @@
                     "outline"
                   ]
                 },
-                "intervalColor": {
-                  "enum": [
-                    "category",
-                    "status"
-                  ]
-                },
                 "intervalWidth": {
                   "type": "number",
                   "description": "Short dimension of duration bars in pixels; horizontal height or vertical width. Default 36."
@@ -245,7 +239,7 @@
         },
         "status": {
           "type": "string",
-          "description": "Timeline status colors recognize planned, active, completed and blocked; other statuses retain category color."
+          "description": "Optional event status stored as node data."
         }
       },
       "additionalProperties": true
