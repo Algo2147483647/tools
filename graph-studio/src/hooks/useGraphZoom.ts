@@ -1,3 +1,4 @@
+import { timelineBarBox } from "../layout/timeline-orientation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { StageData, StageNode } from "../layout/types";
 
@@ -230,6 +231,10 @@ export function useGraphZoom({
 }
 
 export function getNodeLocatePoint(node: StageNode): { x: number; y: number } {
+  if (node.timeline?.kind === "range" && node.timeline.intervalTitle !== "outside" && node.timeline.intervalTitle) {
+    const box = timelineBarBox(node);
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  }
   return node.timeline
     ? { x: node.timeline.labelX + node.width / 2, y: node.timeline.labelY }
     : { x: node.x, y: node.y };

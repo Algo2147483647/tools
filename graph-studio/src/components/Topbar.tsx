@@ -1,3 +1,4 @@
+import type { TimelineClock } from "../graph/timelineClock";
 import Icon from "./ui/Icon";
 import type { RefObject } from "react";
 import type { WorkspaceControls } from "../controllers/workspaceControls";
@@ -14,6 +15,7 @@ interface TopbarProps {
   selectedType: string;
   onTypeChange: (type: string) => void;
   timeline?: {
+    clock?: TimelineClock;
     tracks: string[];
     selectedTrack: string;
     onTrackChange: (track: string) => void;
@@ -114,7 +116,7 @@ export default function Topbar({
                     ))}
                   </select>
                 </label>
-                <TimelineRangeFilter range={timeline.range} onChange={timeline.onRangeChange} />
+                <TimelineRangeFilter clock={timeline.clock} range={timeline.range} onChange={timeline.onRangeChange} />
                 <IconButton
                   id="timeline-locate-btn"
                   label="Locate selected event"

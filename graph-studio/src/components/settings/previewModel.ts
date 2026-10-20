@@ -1,3 +1,4 @@
+import { sanitizeTimelineClock, type TimelineClock } from "../../graph/timelineClock";
 import { normalizeDagInput } from "../../graph/normalize";
 import type { CompoundView, GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { getStageAppearance } from "../../layout/appearance";
@@ -105,6 +106,7 @@ export function previewGeometry(input: {
   alignNodeWidthsToMax: boolean;
   view: CompoundView;
   timelineSettings?: TimelineViewSettings;
+  timelineClock?: TimelineClock;
 }) {
   return {
     chartType: input.chartType,
@@ -115,6 +117,7 @@ export function previewGeometry(input: {
     showEdgeLabels: input.chartType === "compound" && input.appearance.display.showEdgeLabels,
     view: input.view,
     // Sample IDs never use the current document's pinned positions.
+    timelineClock: sanitizeTimelineClock(input.timelineClock),
     timelineSettings: sanitizeTimelineSettings({ ...input.timelineSettings, pins: {} }),
   };
 }
@@ -127,11 +130,31 @@ export function compoundPreviewInput(input: PreviewGeometry) {
 
 export function buildFlatPreviewStage(input: PreviewGeometry) {
   if (input.chartType === "compound") return null;
-  const shared = { ...input, dag: PREVIEW_GRAPHS[input.chartType], selection: { type: "full" as const } };
+  const shared = {
+    ...input,
+    dag: input.chartType === "timeline" ? timelinePreviewGraph(input.timelineClock) : PREVIEW_GRAPHS[input.chartType],
+    selection: { type: "full" as const },
+  };
   return input.chartType === "timeline"
     ? buildTimelineStage(shared)
     : buildStageData({
         ...shared,
         layoutMode: input.chartType === "sankey" ? "sankey" : (input.layoutMode as GraphLayoutMode),
       });
+}
+
+export function timelinePreviewGraph(clock: TimelineClock) {
+  if (clock.mode !== "relative") return PREVIEW_GRAPHS.timeline;
+  return normalizeDagInput({
+    format: "graph-studio",
+    version: 3,
+    metadata: { timeline: { version: 1, clock } },
+    nodes: {
+      launch: { title: "Kickoff", time: { at: 0 }, track: "Delivery" },
+      build: { title: "Build", time: { start: 1, end: 6 }, track: "Delivery", status: "active" },
+      review: { title: "Review", time: { at: 3.5 }, track: "Quality" },
+      ship: { title: "Release", time: { at: 8 }, track: "Delivery" },
+    },
+    edges: PREVIEW_GRAPHS.timeline.edges,
+  });
 }

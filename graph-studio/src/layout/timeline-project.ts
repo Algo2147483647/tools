@@ -1,3 +1,4 @@
+import { orientTimelineStage } from "./timeline-orientation";
 import type { StageData } from "./types";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import { timelineTimeToY } from "./timeline-axis";
@@ -11,6 +12,10 @@ export function projectTimelineStage(
   range?: TimelineTimeRange | null,
 ): StageData | null {
   if (!stage) return null;
+  if (stage.timeline?.canonicalStage) {
+    const projected = projectTimelineStage(stage.timeline.canonicalStage, visible, range);
+    return projected ? orientTimelineStage(projected, "horizontal", stage) : null;
+  }
   const axis = stage.timeline?.axisMap;
   const nodes = stage.nodes
     .filter(
@@ -52,11 +57,15 @@ export function projectTimelineStage(
                   sourceTime:
                     edge.timeline?.sourceTime === undefined
                       ? undefined
-                      : new Date(edge.timeline.sourceTime).toISOString(),
+                      : stage.timeline?.clock?.mode === "relative"
+                        ? edge.timeline.sourceTime
+                        : new Date(edge.timeline.sourceTime).toISOString(),
                   targetTime:
                     edge.timeline?.targetTime === undefined
                       ? undefined
-                      : new Date(edge.timeline.targetTime).toISOString(),
+                      : stage.timeline?.clock?.mode === "relative"
+                        ? edge.timeline.targetTime
+                        : new Date(edge.timeline.targetTime).toISOString(),
                 },
               },
             },

@@ -17,6 +17,7 @@ export function arrangeTimelineFlow(input: {
   gap: number;
   spread: number;
   pins: Record<string, number>;
+  packLabels?: boolean;
 }): { width: number; bottom: number } {
   const { nodes, edges, minimumX, gap, spread, pins } = input;
   if (!nodes.length) return { width: minimumX, bottom: 0 };
@@ -25,7 +26,7 @@ export function arrangeTimelineFlow(input: {
     events: nodes.map((node) => ({ key: node.key, start: node.y, end: node.timeline!.endY })),
     edges,
     minimum: minimumX,
-    step: (55.2 + gap) * spread,
+    step: Math.max(...nodes.map((node) => (node.timeline!.barWidth ?? 12) + 8), (55.2 + gap) * Math.max(0, spread)),
     pins,
   });
   for (const node of sorted) {
@@ -36,6 +37,9 @@ export function arrangeTimelineFlow(input: {
   // Text never participates in channel assignment or moves a time anchor.
   const occupied = nodes.map(markerBox);
   for (const node of sorted) {
+    if (input.packLabels === false) continue;
+    if (node.timeline!.kind === "range" && node.timeline!.intervalTitle && node.timeline!.intervalTitle !== "outside")
+      continue;
     const position = findFreeTimelineLabelPosition(node, occupied, minimumX);
     node.timeline!.labelX = position.x;
     node.timeline!.labelY = position.y;
@@ -49,7 +53,12 @@ export function arrangeTimelineFlow(input: {
       node.timeline!.lane = index;
     });
   return {
-    width: Math.max(...nodes.map((node) => Math.max(markerBox(node).right, labelBox(node).right))) + 48,
-    bottom: Math.max(...nodes.map((node) => Math.max(markerBox(node).bottom, labelBox(node).bottom))),
+    width:
+      Math.max(
+        ...nodes.map((node) => Math.max(markerBox(node).right, input.packLabels === false ? 0 : labelBox(node).right)),
+      ) + 48,
+    bottom: Math.max(
+      ...nodes.map((node) => Math.max(markerBox(node).bottom, input.packLabels === false ? 0 : labelBox(node).bottom)),
+    ),
   };
 }

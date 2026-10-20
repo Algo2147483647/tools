@@ -1,3 +1,4 @@
+import { getTimelineClock, type TimelineClock } from "./timelineClock";
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
 import { applyHierarchyCommand, pruneHierarchyEdges, type HierarchyCommand } from "./hierarchy";
@@ -109,7 +110,8 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
           : command.type === "addNodeFromFields"
             ? command.fields
             : { define: "", type: "" };
-      if (command.type === "addNodeFromFields") validateEventFields(undefined, fields, timelineReferenceTime);
+      if (command.type === "addNodeFromFields")
+        validateEventFields(undefined, fields, timelineReferenceTime, getTimelineClock(document.metadata));
       putNode(command.key, fields);
       if (command.parentKey) setEdge(command.parentKey, command.key, defaultRelationValue);
       result.message = `Added node ${command.key}.`;
@@ -117,7 +119,12 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     }
     case "updateNodeFields": {
       const key = command.nextKey ?? command.key;
-      validateEventFields(nodes[command.key], command.fields, timelineReferenceTime);
+      validateEventFields(
+        nodes[command.key],
+        command.fields,
+        timelineReferenceTime,
+        getTimelineClock(document.metadata),
+      );
       rename(command.key, key);
       putNode(key, command.fields);
       result.message = `Saved node ${key}.`;
@@ -180,8 +187,9 @@ function validateEventFields(
   previous: Record<string, unknown> | undefined,
   fields: Record<string, unknown>,
   referenceTime?: number,
+  clock?: TimelineClock,
 ) {
-  const error = getTimelineEditError(previous, fields, referenceTime);
+  const error = getTimelineEditError(previous, fields, referenceTime, clock);
   if (error) throw new Error(error);
 }
 

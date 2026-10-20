@@ -1,4 +1,5 @@
-import { parseTimelineDate, parseTimelineTime } from "./timeline";
+import type { TimelineClock } from "./timelineClock";
+import { parseTimelineDate, parseTimelineTime, parseNodeTimeline } from "./timeline";
 import type { GraphDocument } from "./types";
 
 export function getTimelineReferenceTime(document: Pick<GraphDocument, "metadata"> | null): number | undefined {
@@ -13,9 +14,10 @@ export function getTimelineEditError(
   previous: Record<string, unknown> | undefined,
   next: Record<string, unknown>,
   referenceTime?: number,
+  clock?: TimelineClock,
 ): string | null {
   if (JSON.stringify(previous?.time) !== JSON.stringify(next.time)) {
-    const parsed = parseTimelineTime(next.time, referenceTime);
+    const parsed = clock ? parseNodeTimeline(next, referenceTime, clock) : parseTimelineTime(next.time, referenceTime);
     if (parsed.status === "invalid") return parsed.message;
   }
   if (

@@ -1,3 +1,4 @@
+import { formatRelativeTime, type TimelineClock } from "../graph/timelineClock";
 import { formatTimelineDate, formatTimelineYear } from "../graph/timeline";
 import { createTimelineAxis, timelineTimeToY, timelineYToTime, type TimelineAxisMap } from "./timeline-axis";
 
@@ -34,7 +35,10 @@ export function getTimelineAxisTicks(
   bottom: number,
   scale: number,
   interval?: TimelineTickInterval,
+  clock?: TimelineClock,
+  relativeStep = 1,
 ): TimelineTick[] {
+  if (clock?.mode === "relative") return getRelativeTicks(map, top, bottom, scale, clock, relativeStep);
   if (![top, bottom, scale].every(Number.isFinite) || bottom <= top || scale <= 0) return [];
   if (interval && (!Number.isSafeInteger(interval.step) || interval.step <= 0 || !(interval.unit in UNIT_MS)))
     return [];
@@ -168,4 +172,45 @@ export function formatTimelineTick(time: number, step: number): string {
   const iso = date.toISOString();
   const clock = iso.split("T")[1].slice(0, step < 60_000 ? 8 : 5);
   return `${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")} ${clock}`;
+}
+
+/** Numeric, origin-aligned ticks: no Date objects or duration conversion in this path. */
+function getRelativeTicks(
+  map: TimelineAxisMap,
+  top: number,
+  bottom: number,
+  scale: number,
+  clock: TimelineClock,
+  step: number,
+): TimelineTick[] {
+  if (![top, bottom, scale, step].every(Number.isFinite) || bottom <= top || scale <= 0 || step <= 0) return [];
+  const first = Math.max(map.start, timelineYToTime(map, top));
+  const last = Math.min(map.end, timelineYToTime(map, bottom));
+  if (first > last) return [];
+  const candidates = new Map<number, TimelineTick>();
+  const quantum = 10 ** -clock.precision;
+  const base = Math.max(step, quantum);
+  for (let i = 0; i < Math.max(1, map.knots.length - 1); i++) {
+    const left = map.knots[i],
+      right = map.knots[i + 1] ?? left;
+    const lo = Math.max(first, left.time),
+      hi = Math.min(last, right.time);
+    if (lo > hi) continue;
+    const pixels = right.time === left.time ? 1 : ((right.y - left.y) / (right.time - left.time)) * scale;
+    const stride = Math.max(1, Math.ceil(88 / (pixels * base)), Math.ceil((hi - lo) / base / 1200));
+    const spacing = base * stride;
+    if (!Number.isFinite(spacing) || spacing <= 0) continue;
+    const startIndex = Math.ceil(lo / spacing - 1e-10);
+    for (let n = 0; n < 1200; n++) {
+      const value = Number(((startIndex + n) * spacing).toPrecision(14));
+      if (value > hi + spacing * 1e-10) break;
+      if (value < first || value > last) continue;
+      candidates.set(value, { time: value, y: timelineTimeToY(map, value), label: formatRelativeTime(value, clock) });
+    }
+  }
+  const ticks: TimelineTick[] = [];
+  for (const tick of [...candidates.values()].sort((a, b) => a.time - b.time)) {
+    if (!ticks.length || (tick.y - ticks[ticks.length - 1].y) * scale >= 70) ticks.push(tick);
+  }
+  return ticks;
 }

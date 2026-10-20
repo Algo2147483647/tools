@@ -44,6 +44,13 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     add("nested", "layout", "Arrangement", "Nested layout", "compound elk group subgraph 嵌套 分组 排布");
   if (chart === "timeline") {
     add(
+      "timeline-intervals",
+      "layout",
+      "Timeline",
+      "Interval bars",
+      "title alignment status fill inside duration width thickness 标题 对齐 区间 状态 宽度 厚度",
+    );
+    add(
       "timeline-arrangement",
       "layout",
       "Timeline",
@@ -55,7 +62,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
       "layout",
       "Timeline",
       "Time axis",
-      "tick unit interval adaptive compression lock fit 时间 刻度 单位 间隔 压缩 锁定",
+      "calendar tick unit interval adaptive compression lock fit 时间 刻度 单位 间隔 压缩 锁定",
     );
   }
   if (chart === "sankey") add("sankeyNodeWidth", "layout", "Flow", "Flow node width", "bar sankey 桑基 节点 宽度");

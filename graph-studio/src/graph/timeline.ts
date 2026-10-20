@@ -1,4 +1,5 @@
-export type TimelinePrecision = "year" | "month" | "date" | "datetime";
+import { formatRelativeTime, sanitizeTimelineClock, type TimelineClock } from "./timelineClock";
+export type TimelinePrecision = "year" | "month" | "date" | "datetime" | "relative";
 export type TimelineRelationKind = "sequence" | "dependency" | "reference" | "rendezvous" | "part-of";
 
 export interface DatedTimelineTime {
@@ -58,7 +59,7 @@ export function parseTimelineDate(value: unknown): { timestamp: number; precisio
   };
 }
 
-export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimelineTime {
+export function parseTimelineTime(value: unknown, now?: number): ParsedTimelineTime {
   if (value === undefined)
     return { status: "missing", kind: "undated", message: "No event time is set.", label: "Undated" };
   const invalid = (message: string): UndatedTimelineTime => ({
@@ -70,6 +71,35 @@ export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimel
   if (!value || typeof value !== "object" || Array.isArray(value))
     return invalid("Time must be an object with at, or start and end.");
   const time = value as Record<string, unknown>;
+  if (time.basis !== undefined && time.basis !== "calendar" && time.basis !== "relative")
+    return invalid("Unknown time basis.");
+  if (time.basis === "relative" || typeof time.at === "number" || typeof time.start === "number") {
+    if (time.basis !== undefined && time.basis !== "relative")
+      return invalid("Numeric time requires the relative basis.");
+    const instant = Object.prototype.hasOwnProperty.call(time, "at");
+    if (
+      instant &&
+      (Object.prototype.hasOwnProperty.call(time, "start") || Object.prototype.hasOwnProperty.call(time, "end"))
+    )
+      return invalid("Use either at or start/end, never both.");
+    const start = instant ? time.at : time.start;
+    const end = instant ? time.at : time.end;
+    if (typeof start !== "number" || !Number.isFinite(start) || typeof end !== "number" || !Number.isFinite(end))
+      return invalid("Relative time requires finite numeric values; ongoing intervals need an explicit numeric end.");
+    if (end < start) return invalid("Event end cannot be earlier than its start.");
+    const clock = sanitizeTimelineClock({ mode: "relative" });
+    return {
+      status: "dated",
+      kind: instant ? "instant" : "range",
+      start,
+      end,
+      ongoing: false,
+      precision: "relative",
+      label: instant
+        ? formatRelativeTime(start, clock)
+        : `${formatRelativeTime(start, clock)} → ${formatRelativeTime(end, clock)}`,
+    };
+  }
   if (Object.prototype.hasOwnProperty.call(time, "at")) {
     if (Object.prototype.hasOwnProperty.call(time, "start") || Object.prototype.hasOwnProperty.call(time, "end"))
       return invalid("Use either at or start/end, never both.");
@@ -90,7 +120,7 @@ export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimel
   if (!start)
     return invalid("start must be a valid year, YYYY-MM, YYYY-MM-DD or ISO date-time with an explicit timezone.");
   const ongoing = time.end === null;
-  const end = ongoing ? { timestamp: now, precision: start.precision } : parseTimelineDate(time.end);
+  const end = ongoing ? { timestamp: now ?? Date.now(), precision: start.precision } : parseTimelineDate(time.end);
   if (!end || !Number.isFinite(end.timestamp))
     return invalid("end must be a valid date/date-time, or null for an ongoing event.");
   if (end.timestamp < start.timestamp)
@@ -113,8 +143,29 @@ export function parseTimelineTime(value: unknown, now = Date.now()): ParsedTimel
   };
 }
 
-export function parseNodeTimeline(node: Record<string, unknown>, now = Date.now()): ParsedTimelineTime {
-  return parseTimelineTime(node.time, now);
+export function parseNodeTimeline(
+  node: Record<string, unknown>,
+  now?: number,
+  clock?: TimelineClock,
+): ParsedTimelineTime {
+  const parsed = parseTimelineTime(node.time, now);
+  if (parsed.status !== "dated" || !clock) return parsed;
+  const relative = parsed.precision === "relative";
+  if (relative !== (clock.mode === "relative"))
+    return {
+      status: "invalid",
+      kind: "undated",
+      label: "Different time basis",
+      message: `This event uses ${relative ? "relative" : "calendar"} time; the axis uses ${clock.mode} time. Values are not converted.`,
+    };
+  if (!relative) return parsed;
+  return {
+    ...parsed,
+    label:
+      parsed.kind === "instant"
+        ? formatRelativeTime(parsed.start, clock)
+        : `${formatRelativeTime(parsed.start, clock)} → ${formatRelativeTime(parsed.end, clock)}`,
+  };
 }
 
 /** Missing time is permitted; only a supplied malformed value blocks editing. */
@@ -123,7 +174,10 @@ export function validateTimelineTime(value: unknown): string | null {
   return parsed.status === "invalid" ? parsed.message : null;
 }
 
-export function getTimelineRelation(metadata?: Record<string, unknown>): {
+export function getTimelineRelation(
+  metadata?: Record<string, unknown>,
+  relative = false,
+): {
   kind: TimelineRelationKind;
   sourceAnchor: "start" | "end";
   targetAnchor: "start" | "end";
@@ -147,12 +201,19 @@ export function getTimelineRelation(metadata?: Record<string, unknown>): {
           ? "end"
           : "start",
     targetAnchor: timeline.targetAnchor === "end" ? "end" : "start",
-    ...(parseTimelineDate(timeline.sourceTime)
-      ? { sourceTime: parseTimelineDate(timeline.sourceTime)!.timestamp }
-      : {}),
-    ...(parseTimelineDate(timeline.targetTime)
-      ? { targetTime: parseTimelineDate(timeline.targetTime)!.timestamp }
-      : {}),
+    ...(["sourceTime", "targetTime"] as const).reduce(
+      (result, key) => {
+        const value = timeline[key];
+        const parsed = relative
+          ? typeof value === "number" && Number.isFinite(value)
+            ? value
+            : undefined
+          : parseTimelineDate(value)?.timestamp;
+        if (parsed !== undefined) result[key] = parsed;
+        return result;
+      },
+      {} as { sourceTime?: number; targetTime?: number },
+    ),
   };
 }
 

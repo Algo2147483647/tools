@@ -51,7 +51,9 @@ export function useGraphViewport(
       state.document.generation,
       state.chartType,
       compound.view.focusGroupId,
-      ...(state.chartType === "timeline" ? [] : [activeType, activeTrack, activeTimelineRange]),
+      ...(state.chartType === "timeline"
+        ? [state.timelineSettings.orientation]
+        : [activeType, activeTrack, activeTimelineRange]),
     ]),
     scale: state.zoom.scale,
     minScale: state.zoom.minScale,

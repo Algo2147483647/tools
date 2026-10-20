@@ -1,3 +1,4 @@
+import { getTimelineClock } from "../graph/timelineClock";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { parseNodeTimeline, parseTimelineDate } from "../graph/timeline";
 import type { NormalizedDag } from "../graph/types";
@@ -39,15 +40,15 @@ export function useTimelineStage(input: {
       Object.entries(visibleDag?.nodes ?? {})
         .filter(([, node]) => {
           if (!range) return true;
-          const time = parseNodeTimeline(node, asOf);
+          const time = parseNodeTimeline(node, asOf, getTimelineClock(dag?.metadata));
           return (
             time.status === "dated" && time.end >= (range.start ?? -Infinity) && time.start <= (range.end ?? Infinity)
           );
         })
         .map(([key]) => key),
-    [visibleDag, range, asOf],
+    [visibleDag, range, asOf, dag?.metadata],
   );
-  const clock = JSON.stringify([settings.axis, settings.compactness]);
+  const clock = JSON.stringify([settings.axis, settings.compactness, getTimelineClock(dag?.metadata)]);
   const scopeKeys = activeScope ? JSON.stringify([...new Set([...activeScope.keys, ...currentKeys])].sort()) : "";
   const scopeRange =
     activeScope?.range && range

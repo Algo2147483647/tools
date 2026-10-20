@@ -1,3 +1,4 @@
+import { timelineRelativeSuite } from "./timelineRelative.test";
 import { stylePipelineSuite } from "./stylePipeline.test";
 import { timelineAxisSuite } from "./timelineAxis.test";
 import { timelineFlowSuite } from "./timelineFlow.test";
@@ -58,6 +59,7 @@ async function main() {
     sankeySuite,
     examplesSuite,
     mathematicsSuite,
+    timelineRelativeSuite,
     timelineAxisSuite,
     timelineFlowSuite,
     timelineViewSuite,

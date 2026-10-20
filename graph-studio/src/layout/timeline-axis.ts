@@ -115,6 +115,7 @@ export function extendTimelineAxis(
   start: number,
   end: number,
   minimumOriginY = 0,
+  singletonSpan = 86_400_000,
 ): TimelineAxisMap {
   if (![start, end, minimumOriginY].every(Number.isFinite) || start > end)
     throw new RangeError("Axis extension needs finite ordered times and a finite origin.");
@@ -123,7 +124,7 @@ export function extendTimelineAxis(
   if (extendedStart === map.start && extendedEnd === map.end) return map;
   const project =
     map.start === map.end
-      ? (time: number) => map.originY + ((time - map.start) * map.height) / 86_400_000
+      ? (time: number) => map.originY + ((time - map.start) * map.height) / singletonSpan
       : (time: number) => timelineTimeToY(map, time);
   const knots = map.knots.map((knot) => ({ ...knot }));
   if (extendedStart < map.start) knots.unshift({ time: extendedStart, y: project(extendedStart) });

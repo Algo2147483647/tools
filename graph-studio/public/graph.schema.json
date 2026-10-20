@@ -48,6 +48,93 @@
             },
             "asOf": {
               "$ref": "#/$defs/timelineDate"
+            },
+            "clock": {
+              "type": "object",
+              "required": [
+                "mode"
+              ],
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "calendar",
+                    "relative"
+                  ]
+                },
+                "unit": {
+                  "enum": [
+                    "unit",
+                    "second",
+                    "minute",
+                    "hour",
+                    "day",
+                    "week",
+                    "cycle"
+                  ]
+                },
+                "origin": {
+                  "type": "string"
+                },
+                "format": {
+                  "enum": [
+                    "offset",
+                    "elapsed"
+                  ]
+                },
+                "precision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 12
+                }
+              },
+              "additionalProperties": false
+            },
+            "view": {
+              "type": "object",
+              "properties": {
+                "orientation": {
+                  "enum": [
+                    "vertical",
+                    "horizontal"
+                  ]
+                },
+                "relativeTickStep": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "intervalTitle": {
+                  "enum": [
+                    "outside",
+                    "inside",
+                    "hidden"
+                  ]
+                },
+                "intervalAlign": {
+                  "enum": [
+                    "start",
+                    "center",
+                    "end"
+                  ]
+                },
+                "intervalStyle": {
+                  "enum": [
+                    "soft",
+                    "solid",
+                    "outline"
+                  ]
+                },
+                "intervalColor": {
+                  "enum": [
+                    "category",
+                    "status"
+                  ]
+                },
+                "intervalWidth": {
+                  "type": "number",
+                  "description": "Short dimension of duration bars in pixels; horizontal height or vertical width. Default 36."
+                }
+              },
+              "additionalProperties": true
             }
           },
           "additionalProperties": true
@@ -155,6 +242,10 @@
         "track": {
           "type": "string",
           "description": "Optional timeline track. Overlapping events may use adjacent subtracks."
+        },
+        "status": {
+          "type": "string",
+          "description": "Timeline status colors recognize planned, active, completed and blocked; other statuses retain category color."
         }
       },
       "additionalProperties": true
@@ -214,12 +305,24 @@
                   ]
                 },
                 "sourceTime": {
-                  "$ref": "#/$defs/timelineDate",
-                  "description": "Explicit time within the source interval, overriding sourceAnchor."
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/timelineDate"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
                 },
                 "targetTime": {
-                  "$ref": "#/$defs/timelineDate",
-                  "description": "Explicit time within the target interval, overriding targetAnchor."
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/timelineDate"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
                 }
               },
               "additionalProperties": true
@@ -235,7 +338,7 @@
     },
     "timelineTime": {
       "type": "object",
-      "description": "Instant or interval. Explicit null end means ongoing. Missing time is allowed; malformed imported times are shown in the undated area for correction.",
+      "description": "Calendar strings or relative numeric coordinates in metadata.timeline.clock.unit. No calendar conversion for numeric values. An explicit null end is calendar-only.",
       "oneOf": [
         {
           "required": [
@@ -246,7 +349,10 @@
               "$ref": "#/$defs/timelineDate"
             },
             "start": false,
-            "end": false
+            "end": false,
+            "basis": {
+              "const": "calendar"
+            }
           }
         },
         {
@@ -268,6 +374,42 @@
                   "type": "null"
                 }
               ]
+            },
+            "basis": {
+              "const": "calendar"
+            }
+          }
+        },
+        {
+          "required": [
+            "at"
+          ],
+          "properties": {
+            "basis": {
+              "const": "relative"
+            },
+            "at": {
+              "type": "number"
+            },
+            "start": false,
+            "end": false
+          }
+        },
+        {
+          "required": [
+            "start",
+            "end"
+          ],
+          "properties": {
+            "basis": {
+              "const": "relative"
+            },
+            "at": false,
+            "start": {
+              "type": "number"
+            },
+            "end": {
+              "type": "number"
             }
           }
         }

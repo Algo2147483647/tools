@@ -17,6 +17,11 @@ export const TIMELINE_CSS = `
 .timeline-node { transition: opacity .15s; }
 .timeline-node__hit { fill: transparent; stroke: none; pointer-events: all; }
 .timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: .55; stroke: none; }
+.timeline-node[data-interval-style="solid"] .timeline-node__duration { fill-opacity: 1; }
+.timeline-node[data-interval-style="solid"] .timeline-node__inside-title { fill: white; }
+.timeline-node[data-interval-style="outline"] .timeline-node__duration { fill: var(--dag-node-fill); fill-opacity: .9; stroke: var(--dag-timeline-color); stroke-width: 1.5; }
+.timeline-node[data-selected="true"] .timeline-node__duration,
+.timeline-node[data-focused="true"] .timeline-node__duration { stroke: var(--dag-timeline-color); stroke-width: 2.5; }
 .timeline-node__point { fill: var(--dag-timeline-color); stroke: var(--dag-node-fill); stroke-width: 1.5; }
 .timeline-node__cap, .timeline-node__open { fill: none; stroke: var(--dag-timeline-color); stroke-width: 2; }
 .timeline-node__unknown { fill: var(--dag-node-fill); stroke: var(--dag-text-soft); stroke-width: 1.5; }

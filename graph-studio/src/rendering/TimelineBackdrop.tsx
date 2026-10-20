@@ -1,3 +1,4 @@
+import { sanitizeTimelineClock, timelineClockCaption } from "../graph/timelineClock";
 import { useLayoutEffect, useState, type RefObject } from "react";
 import type { StageData } from "../layout/types";
 
@@ -6,6 +7,8 @@ export { getVisibleTimeTicks } from "../layout/timeline-ticks";
 
 export default function TimelineBackdrop({ stage }: { stage: StageData }) {
   const timeline = stage.timeline!;
+  const caption = timelineClockCaption(timeline.clock ?? sanitizeTimelineClock(null));
+  if (timeline.orientation === "horizontal") return <HorizontalBackdrop stage={stage} />;
   return (
     <g className="timeline-backdrop" pointerEvents="none">
       {timeline.ticks.map((tick) => (
@@ -45,7 +48,7 @@ export default function TimelineBackdrop({ stage }: { stage: StageData }) {
       <g className="timeline-export-static">
         <line className="timeline-axis" x1={timeline.axisX} x2={timeline.axisX} y1={55} y2={stage.stageHeight - 25} />
         <text className="timeline-caption" x={timeline.axisX - 8} y={32} textAnchor="end">
-          TIME · UTC ↓
+          TIME · {caption} ↓
         </text>
         {timeline.ticks.map((tick) => (
           <text key={tick.time} className="timeline-axis-label" x={timeline.axisX - 8} y={tick.y + 4} textAnchor="end">
@@ -70,6 +73,8 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
     top: 16,
     bottom: stage.stageHeight,
     width: stage.stageWidth,
+    left: 0,
+    right: stage.stageWidth,
   });
   useLayoutEffect(() => {
     const svg = svgRef.current;
@@ -96,6 +101,8 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
         top: Math.max(16, viewBox.y + (safeTop - rect.top) / scale),
         bottom: Math.min(stage.stageHeight, viewBox.y + (box.bottom - rect.top) / scale),
         width: box.width / scale,
+        left: Math.max(0, viewBox.x + (safeLeft - rect.left) / scale),
+        right: Math.min(stage.stageWidth, viewBox.x + (box.right - rect.left) / scale),
       });
     }
     const schedule = () => {
@@ -115,18 +122,75 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
     };
   }, [stage, svgRef, timeline.axisX]);
   const { scale, x, top, bottom } = viewport;
+  const caption = timelineClockCaption(timeline.clock ?? sanitizeTimelineClock(null));
+  const horizontal = timeline.orientation === "horizontal";
   const originY = timeline.originY;
   const ticks = timeline.axisMap
-    ? getTimelineAxisTicks(timeline.axisMap, top + 36 / scale, bottom, scale, timeline.tickInterval)
+    ? getTimelineAxisTicks(
+        timeline.axisMap,
+        horizontal ? viewport.left : top + 36 / scale,
+        horizontal ? viewport.right : bottom,
+        scale,
+        timeline.tickInterval,
+        timeline.clock,
+        timeline.relativeTickStep,
+      )
     : getVisibleTimeTicks(
         timeline.start,
         timeline.end,
-        timeline.pixelsPerMillisecond,
+        timeline.pixelsPerUnit,
         originY,
         top + 36 / scale,
         bottom,
         scale,
       );
+  if (horizontal) {
+    const rulerY = Math.max(timeline.axisX, top + 50 / scale);
+    return (
+      <g className="timeline-floating" pointerEvents="none" aria-hidden="true">
+        {ticks.map((tick) => (
+          <line
+            key={tick.time}
+            className="timeline-grid"
+            x1={tick.y}
+            x2={tick.y}
+            y1={rulerY}
+            y2={stage.stageHeight - 20}
+          />
+        ))}
+        <rect
+          className="timeline-ruler-bg"
+          x={viewport.left}
+          y={top}
+          width={viewport.right - viewport.left}
+          height={Math.max(0, rulerY - top)}
+        />
+        <line className="timeline-axis" x1={viewport.left} x2={viewport.right} y1={rulerY} y2={rulerY} />
+        {ticks.map((tick) => (
+          <g key={tick.time} transform={`translate(${tick.y},${rulerY - 8 / scale}) scale(${1 / scale})`}>
+            <line className="timeline-axis" x1={0} x2={0} y1={3} y2={8} />
+            <text className="timeline-axis-label" textAnchor="middle">
+              {tick.label}
+            </text>
+          </g>
+        ))}
+        <text
+          className="timeline-caption"
+          transform={`translate(${viewport.left + 10 / scale},${top + 14 / scale}) scale(${1 / scale})`}
+        >
+          {caption} →
+        </text>
+        {timeline.tracks.map((track) => (
+          <g
+            key={track.id}
+            transform={`translate(${viewport.left + 8 / scale},${track.x - 22 / scale}) scale(${1 / scale})`}
+          >
+            <text className="timeline-track-label">{track.label}</text>
+          </g>
+        ))}
+      </g>
+    );
+  }
   return (
     <g className="timeline-floating" pointerEvents="none" aria-hidden="true">
       {ticks.map((tick) => (
@@ -167,7 +231,7 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
         transform={`translate(${x - 8 / scale},${top + 21 / scale}) scale(${1 / scale})`}
         textAnchor="end"
       >
-        UTC ↓
+        {caption} ↓
       </text>
       {timeline.tracks.map((track) => (
         <g key={track.id} transform={`translate(${track.x + 10},${top + 21 / scale}) scale(${1 / scale})`}>
@@ -179,6 +243,65 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
           </text>
         </g>
       ))}
+    </g>
+  );
+}
+
+function HorizontalBackdrop({ stage }: { stage: StageData }) {
+  const t = stage.timeline!;
+  const caption = timelineClockCaption(t.clock ?? sanitizeTimelineClock(null));
+  return (
+    <g className="timeline-backdrop" pointerEvents="none">
+      {t.ticks.map((tick) => (
+        <line
+          key={tick.time}
+          className="timeline-grid timeline-export-static"
+          x1={tick.y}
+          x2={tick.y}
+          y1={t.axisX}
+          y2={stage.stageHeight - 20}
+        />
+      ))}
+      {t.tracks.map((track) => (
+        <line
+          key={track.id}
+          className="timeline-track-guide"
+          x1={70}
+          x2={stage.stageWidth - 28}
+          y1={track.x}
+          y2={track.x}
+        />
+      ))}
+      {t.undatedY !== null && (
+        <g>
+          <line
+            className="timeline-axis"
+            x1={t.undatedY - 22}
+            x2={t.undatedY - 22}
+            y1={t.axisX}
+            y2={stage.stageHeight - 20}
+          />
+          <text className="timeline-caption" x={t.undatedY} y={t.axisX - 35}>
+            UNPLACED EVENTS
+          </text>
+        </g>
+      )}
+      <g className="timeline-export-static">
+        <line className="timeline-axis" x1={55} x2={stage.stageWidth - 25} y1={t.axisX} y2={t.axisX} />
+        <text className="timeline-caption" x={55} y={t.axisX - 35}>
+          TIME · {caption} →
+        </text>
+        {t.ticks.map((tick) => (
+          <text key={tick.time} className="timeline-axis-label" x={tick.y} y={t.axisX - 8} textAnchor="middle">
+            {tick.label}
+          </text>
+        ))}
+        {t.tracks.map((track) => (
+          <text key={track.id} className="timeline-track-label" x={32} y={track.x - 20}>
+            {track.label}
+          </text>
+        ))}
+      </g>
     </g>
   );
 }

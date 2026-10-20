@@ -107,7 +107,7 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
       valueField,
       {
         path: "metadata.timeline",
-        type: "{ version: 1, timeZone?: 'UTC' }",
+        type: "{ version: 1, clock?, view? }",
         requirement: "View hint",
         description: "Open in Timeline. The document remains protocol v3; diagram stays dag or is omitted.",
       },
@@ -115,7 +115,28 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
         path: "nodes[id].time",
         type: "{ at } | { start, end }",
         requirement: "For placement",
-        description: "Date strings for an event or interval. Missing or invalid dates appear in the unplaced region.",
+        description:
+          "Calendar: ISO date strings. Relative: finite numeric values in the declared unit, including zero, negative and fractional values. Missing or invalid times stay unplaced.",
+      },
+      {
+        path: "metadata.timeline.clock",
+        type: "{ mode, unit, origin, format, precision }",
+        requirement: "Relative time",
+        description:
+          "mode: relative. unit: unit (schematic), second, minute, hour, day, week or cycle. Numeric values never become dates.",
+      },
+      {
+        path: "metadata.timeline.view",
+        type: "object",
+        requirement: "Optional",
+        description:
+          "orientation: horizontal or vertical; intervalTitle: inside, outside or hidden; intervalAlign: start, center or end; relativeTickStep controls numeric tick spacing.",
+      },
+      {
+        path: "nodes[id].status",
+        type: "string",
+        requirement: "Optional",
+        description: "Status coloring recognizes planned, active, completed and blocked.",
       },
       { path: "nodes[id].track", type: "string", requirement: "Optional", description: "Timeline track name." },
       {

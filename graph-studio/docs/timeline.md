@@ -4,10 +4,10 @@ Timeline is a fourth chart type, alongside Node-link, Sankey, and Nested node-li
 
 ## Reading the timeline
 
-- Time runs downward on one shared UTC axis. **Settings → Layout** independently selects the arrangement (Tracks or Relation flow) and axis (Fixed interval or Adaptive).
+- Time runs on one shared axis. **Settings → Layout → Timeline arrangement** selects Vertical (top to bottom) or Horizontal (left to right); text always stays upright. Calendar axes use UTC, while relative axes use native numeric values. **Settings → Layout** independently selects the arrangement (Tracks or Relation flow) and axis (Fixed interval or Adaptive).
 - A point represents an instant; a thick rounded bar represents a duration. An ongoing bar has an open endpoint. Labels may move to avoid overlaps, with a leader back to the exact time anchor.
 - Branches and merges come from actual graph edges. Sharing a track or occurring one after another does not create a relationship.
-- Tracks group events in columns with compact subchannels. Relation flow arranges events by their connections; type and track never constrain horizontal position. Type colors identify categories without background regions. Drag a flow node horizontally, or use Alt + Left/Right, to pin it without changing its date. Layout can clear pins.
+- Tracks group events in columns with compact subchannels. Relation flow arranges events by their connections; type and track never constrain horizontal position. Type colors identify categories without background regions. Drag a flow node across the time axis (horizontally in Vertical mode, vertically in Horizontal mode), or use Alt + Left/Right or Alt + Up/Down respectively, to pin it without changing its date. Layout can clear pins.
 - Events without a usable time remain in an **Undated** area. Invalid imported dates produce warnings instead of silently disappearing.
 - References and containment relationships are visually distinct from sequence, dependency, and rendezvous edges. Backward relationships keep their original direction.
 
@@ -107,3 +107,43 @@ The pre-Eastern-Zhou supplement starts with Erlitou archaeology and continues th
 To reduce overlapping duration bars, 26 Western Zhou topics and seven Spring and Autumn / Warring States entries use point markers. Original spans remain in `historicalRange` and the details; approximate markers do not turn uncertain dates or extended activities into exact single-year events. Dynasty, state and major period ranges remain visible. Relations from converted points no longer use interior range anchors.
 
 Open **Human History** in the example gallery and select **中国历史：分流与交汇**. Its 1273 events and periods and 2322 named relationships span c. 1750 BCE–2026 CE, with source links, 109 polity or archaeological-site categories, six topic guides, and explicit joins. The modern selection includes political campaigns, human rights, economic reform, public health, science, and diplomacy; disputed findings retain source attribution. The modern-event cutoff is October 14, 2026; ancient-history supplements were added on October 15. The Spring and Autumn through early Han supplement adds 124 nodes. The Emperor Wu through Three Kingdoms supplement adds 143 point events and revises 12 existing accounts, with a narrative guide, chronological catalog, and source notes; existing dynasty ranges remain unchanged. It distinguishes accession, imperial titles, campaigns, and unification, including Wu's 221/222/229 milestones and Jin's 265/280 transitions. The Jin through Sui supplement adds 154 point events and revises 10 existing accounts, covering the parallel Sixteen Kingdoms, Northern and Southern dynasties, institutions, knowledge, and Sui campaigns and canals through 618. The Sui–Tang through Southern Song supplement adds 209 point events and revises 13 existing accounts, distinguishing parallel Five Dynasties and Ten Kingdoms, Song–Liao–Xia–Jin relations, institutions and knowledge, and the separate 1273, 1276, and 1279 stages of the Southern Song collapse. The Yuan through Qing supplement adds 236 point events and revises 13 existing accounts through the 1912 abdication, with separate Yuan collapse, Ming succession, Southern Ming and Zheng, Qing institutions, frontier warfare, publishing, industrial education, and late Qing constitutional milestones. It preserves all earlier dates and period bars and distinguishes edition dates from composition, and initial reforms from later implementation. It defaults to Relation flow with an adaptive axis. The example documents and source notes are in `public/examples/china-history/`.
+
+
+## Relative time and interval bars
+
+The document protocol (`metadata.timeline.clock`) determines Calendar or Relative time, its unit, zero-point name, format and precision. These are not menu settings. Events from the other basis stay in the unplaced region with a warning until edited. Unit changes relabel the numeric coordinate system without rescaling values.
+
+Relative values are numbers in the declared unit, never timestamps or dates. `unit` means schematic units and `cycle` means schematic cycles; neither implies seconds, hours or any other elapsed duration. Actual-duration units are `second`, `minute`, `hour`, `day`, and `week`. Zero, negative values, decimals, and zero-length intervals are valid. A relative interval needs an explicit numeric end; it never extends to the computer's current date.
+
+```json
+{
+  "format": "graph-studio",
+  "version": 3,
+  "metadata": {
+    "timeline": {
+      "version": 1,
+      "clock": { "mode": "relative", "unit": "minute", "origin": "领取", "format": "elapsed", "precision": 2 },
+      "view": { "orientation": "horizontal", "relativeTickStep": 5, "intervalTitle": "inside", "intervalAlign": "center", "intervalColor": "status" }
+    }
+  },
+  "nodes": {
+    "prepare": { "title": "准备", "time": { "at": -2.5 } },
+    "window": { "title": "参与窗口", "time": { "start": 0, "end": 30 }, "status": "active" }
+  },
+  "edges": [{ "id": "prepare-window", "source": "prepare", "target": "window" }]
+}
+```
+
+The zero-point `origin` defaults to `T0` and can be named “活动开始” or “领取”. `format: "offset"` produces `T0`, `T+2`, `T−0.5`; `format: "elapsed"` produces `领取后 30 分钟`. `precision` sets the maximum displayed decimal places (0–12); it never rounds stored values. The protocol field `metadata.timeline.view.relativeTickStep` defines positive decimal tick steps in the declared unit. At smaller zooms, the ruler skips whole multiples of that step; display precision also prevents indistinguishable tick labels. Both linear and adaptive axes support relative time. Adaptive spacing remains explicitly non-proportional.
+
+The time-range filter uses inclusive numeric From/To bounds in relative mode. Node editing also uses numeric values. Optional edge `sourceTime` / `targetTime` anchors are numeric in a relative document, and strings in a calendar document. SVG and offline HTML use the same direction, clock labels, interval titles and styles as the canvas; HTML details identify the relative unit.
+
+**Settings → Layout → Interval bars** controls:
+
+- **Interval bar width**: the short dimension in pixels (height in horizontal mode, width in vertical mode). The default is 36 px. The slider spans 0–240; the numeric field accepts values beyond that range. Changing it reserves room across the time axis without changing any time coordinate.
+- **Title placement**: Outside (title and time), Inside (title only), or Hidden. Inside titles never include time or node details; short bars clip text within their true duration instead of extending the bar.
+- **Title alignment**: start/center/end maps to Left/Center/Right horizontally and Top/Center/Bottom vertically.
+- **Fill style**: Soft, Solid or Outline.
+- **Color by**: Category or Status. Status colors recognize `planned`, `active`, `completed`, and `blocked`; unknown statuses keep their category color. The node time editor includes a status selector.
+
+Layout and interval appearance remain view preferences; `metadata.timeline.view` supplies portable initial defaults. A ready-to-open example is [`relative-timeline.json`](../public/examples/relative-timeline.json).

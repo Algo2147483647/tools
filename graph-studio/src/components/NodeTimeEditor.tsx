@@ -1,7 +1,11 @@
-import { parseTimelineTime } from "../graph/timeline";
+import { sanitizeTimelineClock, timelineClockCaption, type TimelineClock } from "../graph/timelineClock";
+import { parseNodeTimeline } from "../graph/timeline";
 
 interface NodeTimeEditorProps {
   time: unknown;
+  clock?: TimelineClock;
+  status?: unknown;
+  onStatusChange?: (value: string) => void;
   track: unknown;
   readOnly: boolean;
   referenceTime?: number;
@@ -9,13 +13,35 @@ interface NodeTimeEditorProps {
 }
 
 /** Keep incomplete text in the draft; only Save commits and validates it. */
-export default function NodeTimeEditor({ time, track, readOnly, referenceTime, onChange }: NodeTimeEditorProps) {
+export default function NodeTimeEditor({
+  time,
+  track,
+  readOnly,
+  referenceTime,
+  clock = sanitizeTimelineClock(null),
+  status,
+  onStatusChange,
+  onChange,
+}: NodeTimeEditorProps) {
   const value = time && typeof time === "object" && !Array.isArray(time) ? (time as Record<string, unknown>) : {};
   const mode = time === undefined ? "none" : "at" in value ? "instant" : value.end === null ? "ongoing" : "range";
-  const start = typeof value.at === "string" ? value.at : typeof value.start === "string" ? value.start : "";
-  const end = typeof value.end === "string" ? value.end : "";
+  const relative = clock.mode === "relative";
+  const start = value.at ?? value.start ?? "";
+  const end = value.end ?? "";
+  const inputValue = (v: unknown) => (typeof v === "number" || typeof v === "string" ? String(v) : "");
+  const numeric = (v: unknown) =>
+    relative && typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : v;
+  const makeTime = (next: string, from: unknown, to: unknown) =>
+    next === "none"
+      ? undefined
+      : {
+          ...(relative ? { basis: "relative" } : {}),
+          ...(next === "instant"
+            ? { at: numeric(from) }
+            : { start: numeric(from), end: next === "ongoing" ? null : numeric(to) }),
+        };
   const trackName = typeof track === "string" ? track : "";
-  const parsed = parseTimelineTime(time, referenceTime);
+  const parsed = parseNodeTimeline({ time }, referenceTime, clock);
 
   return (
     <section className="node-detail-section">
@@ -37,20 +63,13 @@ export default function NodeTimeEditor({ time, track, readOnly, referenceTime, o
                 value={mode}
                 onChange={(event) => {
                   const next = event.currentTarget.value;
-                  onChange(
-                    next === "none"
-                      ? undefined
-                      : next === "instant"
-                        ? { at: start }
-                        : { start, end: next === "ongoing" ? null : end },
-                    trackName,
-                  );
+                  onChange(makeTime(next, start, end), trackName);
                 }}
               >
                 <option value="none">Undated</option>
                 <option value="instant">Instant event</option>
                 <option value="range">Time interval</option>
-                <option value="ongoing">Ongoing event</option>
+                {!relative && <option value="ongoing">Ongoing event</option>}
               </select>
             </label>
             <label>
@@ -63,6 +82,28 @@ export default function NodeTimeEditor({ time, track, readOnly, referenceTime, o
                 onChange={(event) => onChange(time, event.currentTarget.value)}
               />
             </label>
+            {onStatusChange && (
+              <label>
+                Status
+                <select
+                  className="node-detail-editor"
+                  aria-label="Event status"
+                  value={typeof status === "string" ? status : ""}
+                  onChange={(e) => onStatusChange(e.currentTarget.value)}
+                >
+                  <option value="">Category color</option>
+                  {typeof status === "string" &&
+                    status &&
+                    !["planned", "active", "completed", "blocked"].includes(status) && (
+                      <option value={status}>{status}</option>
+                    )}
+                  <option value="planned">Planned</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </label>
+            )}
             {mode !== "none" && (
               <label>
                 {mode === "instant" ? "Time" : "Start"}
@@ -71,16 +112,9 @@ export default function NodeTimeEditor({ time, track, readOnly, referenceTime, o
                   aria-label={mode === "instant" ? "Event time" : "Event start"}
                   type="text"
                   spellCheck={false}
-                  placeholder="1969-07-16 or 1969-07-16T13:32:00Z"
-                  value={start}
-                  onChange={(event) =>
-                    onChange(
-                      mode === "instant"
-                        ? { at: event.currentTarget.value }
-                        : { start: event.currentTarget.value, end: mode === "ongoing" ? null : end },
-                      trackName,
-                    )
-                  }
+                  placeholder={relative ? "0 / -2 / 0.5" : "1969-07-16 or 1969-07-16T13:32:00Z"}
+                  value={inputValue(start)}
+                  onChange={(event) => onChange(makeTime(mode, event.currentTarget.value, end), trackName)}
                 />
               </label>
             )}
@@ -92,20 +126,17 @@ export default function NodeTimeEditor({ time, track, readOnly, referenceTime, o
                   aria-label="Event end"
                   type="text"
                   spellCheck={false}
-                  placeholder="1969-07-24T16:50:35Z"
-                  value={end}
-                  onChange={(event) => onChange({ start, end: event.currentTarget.value }, trackName)}
+                  placeholder={relative ? "6" : "1969-07-24T16:50:35Z"}
+                  value={inputValue(end)}
+                  onChange={(event) => onChange(makeTime("range", start, event.currentTarget.value), trackName)}
                 />
               </label>
             )}
           </div>
           <p className="node-detail-editor-hint">
-            Use YYYY, YYYY-MM or YYYY-MM-DD to retain precision; ISO date-times require Z or an offset such as +08:00.
-            BCE uses astronomical years (221 BCE = -000220). The axis displays UTC. Ongoing events extend to{" "}
-            {referenceTime === undefined
-              ? "the current time"
-              : `the saved reference time, ${new Date(referenceTime).toISOString()}`}
-            .
+            {relative
+              ? `${timelineClockCaption(clock)} · Numeric values support zero, negatives and decimals.`
+              : `Use YYYY, YYYY-MM or YYYY-MM-DD; ISO date-times require Z or an offset. BCE uses astronomical years (221 BCE = -000220). Ongoing events extend to ${referenceTime === undefined ? "the current time" : new Date(referenceTime).toISOString()}.`}
           </p>
           {parsed.status === "invalid" && (
             <p className="node-detail-error" role="status">

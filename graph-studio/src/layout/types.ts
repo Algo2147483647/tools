@@ -1,3 +1,4 @@
+import type { TimelineClock } from "../graph/timelineClock";
 import type { cardContentLayout } from "./typography";
 import type { DagNode, GraphRenderMode, GraphSelection, NodeKey, RelationValue } from "../graph/types";
 import type { TimelinePrecision, TimelineRelationKind } from "../graph/timeline";
@@ -5,13 +6,21 @@ import type { TimelineAxisMap } from "./timeline-axis";
 import type { TimelineTickInterval } from "./timeline-ticks";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 
-/** All y coordinates are absolute stage coordinates. Labels may move; time anchors never do. */
+/** startY/endY/anchorY are canonical time-axis coordinates (canvas x in horizontal mode).
+ * labelX/labelY are physical canvas coordinates; text moves independently of time anchors. */
 export interface StageTimelineNode {
+  orientation?: "vertical" | "horizontal";
+  intervalTitle?: TimelineViewSettings["intervalTitle"];
+  intervalAlign?: TimelineViewSettings["intervalAlign"];
+  intervalStyle?: TimelineViewSettings["intervalStyle"];
+  barWidth?: number;
+  minimumCross?: number;
+  eventStatus?: string;
   status: "dated" | "missing" | "invalid";
   kind: "instant" | "range" | "undated";
   start: number | null;
   end: number | null;
-  /** Original timestamps remain above; clipping only changes the rendered endpoints below. */
+  /** Original calendar timestamps or relative values remain above; clipping only changes the rendered endpoints below. */
   clippedStart?: boolean;
   clippedEnd?: boolean;
   ongoing: boolean;
@@ -40,17 +49,23 @@ export interface StageTimelineEdge {
 }
 
 export interface StageTimelineData {
+  /** Canonical cross-axis/time-axis geometry used when projecting a horizontal view. */
+  canonicalStage?: StageData;
+  orientation?: "vertical" | "horizontal";
+  clock?: TimelineClock;
+  relativeTickStep?: number;
   layout?: TimelineViewSettings["layout"];
   axisMap?: TimelineAxisMap;
   tickInterval?: TimelineTickInterval;
-  timeZone: "UTC";
+  timeZone: "UTC" | null;
   filtered?: boolean;
   axisX: number;
   /** Stage y coordinate corresponding to the start of the displayed time domain. */
   originY: number;
   start: number | null;
   end: number | null;
-  pixelsPerMillisecond: number;
+  /** Pixels per millisecond for calendar time; pixels per declared unit for relative time. */
+  pixelsPerUnit: number;
   ticks: { time: number; y: number; label: string }[];
   /** Track x/width describe the complete header and content extent, not marker centers. */
   tracks: { id: string; label: string; x: number; width: number; color: string }[];

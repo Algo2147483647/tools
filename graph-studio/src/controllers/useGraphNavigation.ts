@@ -1,3 +1,4 @@
+import { getTimelineClock } from "../graph/timelineClock";
 import { getGroupNodes } from "../graph/hierarchy";
 import { type Dispatch, useEffect, useMemo, useState } from "react";
 import { getFullGraphSelection } from "../graph/selectors";
@@ -29,6 +30,8 @@ export function useGraphNavigation(
     setSelectedType("");
     setFocusedKey(null);
   }, [state.document.generation]);
+  const timeBasis = getTimelineClock(state.dag?.metadata).mode;
+  useEffect(() => setTimelineRange(null), [timeBasis]);
   useEffect(() => {
     if (selectedType && !typeOptions.includes(selectedType)) {
       setSelectedType("");

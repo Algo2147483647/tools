@@ -306,6 +306,7 @@ export default function SettingsModal({
                 hideNodeBorders={hideNodeBorders}
                 alignNodeWidthsToMax={alignNodeWidthsToMax}
                 timelineSettings={timelineControls?.settings}
+                timelineClock={timelineControls?.clock}
                 mode={previewMode}
                 onModeChange={setPreviewMode}
               />

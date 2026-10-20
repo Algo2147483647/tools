@@ -8,7 +8,19 @@ export interface TimelineTimeRange {
 export function parseTimelineRangeInput(
   from: string,
   to: string,
+  relative = false,
 ): { ok: true; range: TimelineTimeRange | null } | { ok: false; error: string } {
+  if (relative) {
+    const numeric = (v: string) =>
+      v.trim() === "" ? undefined : /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(v.trim()) ? Number(v) : NaN;
+    const start = numeric(from),
+      end = numeric(to);
+    if ((start !== undefined && !Number.isFinite(start)) || (end !== undefined && !Number.isFinite(end)))
+      return { ok: false, error: "Enter a finite relative time value." };
+    if (start !== undefined && end !== undefined && start > end)
+      return { ok: false, error: "From must be on or before To." };
+    return { ok: true, range: start === undefined && end === undefined ? null : { start, end } };
+  }
   const date = (value: string) =>
     /^(?:[+-]\d{6}|\d{4})(?:-\d{2}(?:-\d{2})?)?$/.test(value) ? parseTimelineDate(value) : null;
   const start = from ? date(from)?.timestamp : undefined;
@@ -39,9 +51,14 @@ export function parseTimelineRangeInput(
   };
 }
 
-export function timelineRangeDates(range: TimelineTimeRange | null): { from: string; to: string } {
+export function timelineRangeDates(range: TimelineTimeRange | null, relative = false): { from: string; to: string } {
   return {
-    from: range?.start === undefined ? "" : new Date(range.start).toISOString().split("T")[0],
-    to: range?.end === undefined ? "" : new Date(range.end).toISOString().split("T")[0],
+    from:
+      range?.start === undefined
+        ? ""
+        : relative
+          ? String(range.start)
+          : new Date(range.start).toISOString().split("T")[0],
+    to: range?.end === undefined ? "" : relative ? String(range.end) : new Date(range.end).toISOString().split("T")[0],
   };
 }

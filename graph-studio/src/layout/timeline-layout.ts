@@ -1,3 +1,5 @@
+import { getTimelineClock } from "../graph/timelineClock";
+import { orientTimelineStage } from "./timeline-orientation";
 import { getNodeType } from "../graph/accessors";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getTimelineRelation, parseNodeTimeline, parseTimelineDate, type ParsedTimelineTime } from "../graph/timeline";
@@ -48,6 +50,10 @@ export function buildTimelineStage(input: {
     ...getDocumentTimelineSettings(dag.metadata),
     ...input.timelineSettings,
   });
+  const clock = getTimelineClock(dag.metadata);
+  const relative = clock.mode === "relative";
+  const baseSpan = relative ? Math.max(1, settings.relativeTickStep) : DAY;
+  const intervalWidth = Math.max(0, settings.intervalWidth);
   const flow = settings.layout === "flow";
   if (!Object.keys(dag.nodes).length) return null;
   if (
@@ -58,7 +64,7 @@ export function buildTimelineStage(input: {
   const rangeStart = input.timeRange?.start;
   const rangeEnd = input.timeRange?.end;
   const isValidBound = (value: number | undefined) =>
-    value === undefined || (Number.isFinite(value) && Math.abs(value) <= 8.64e15);
+    value === undefined || (Number.isFinite(value) && (relative || Math.abs(value) <= 8.64e15));
   if (
     !isValidBound(rangeStart) ||
     !isValidBound(rangeEnd) ||
@@ -89,10 +95,10 @@ export function buildTimelineStage(input: {
     metadata && typeof metadata === "object" && !Array.isArray(metadata)
       ? parseTimelineDate((metadata as Record<string, unknown>).asOf)?.timestamp
       : undefined;
-  const now = input.now ?? asOf ?? Date.now();
+  const now = input.now ?? asOf ?? (relative ? 0 : Date.now());
   const selectedEntries: TimelineEntry[] = selectedKeys.map((key) => ({
     key,
-    time: parseNodeTimeline(dag.nodes[key], now),
+    time: parseNodeTimeline(dag.nodes[key], now, clock),
     track: flow
       ? getNodeType(dag.nodes[key]) || "Events"
       : typeof dag.nodes[key].track === "string" && String(dag.nodes[key].track).trim()
@@ -135,34 +141,34 @@ export function buildTimelineStage(input: {
   const dated = entries.filter((entry) => entry.time.status === "dated");
   const undated = entries.filter((entry) => entry.time.status !== "dated");
   const axisEntries = input.axisSource
-    ? Object.values(input.axisSource.nodes).map((node) => parseNodeTimeline(node, now))
+    ? Object.values(input.axisSource.nodes).map((node) => parseNodeTimeline(node, now, clock))
     : dated.map((entry) => entry.time);
   const timestamps = axisEntries.flatMap((time) =>
     time.status === "dated" ? (time.start === time.end ? [time.start] : [time.start, time.end]) : [],
   );
   for (const edge of (input.axisSource ?? dag).edges) {
-    const relation = getTimelineRelation(edge.metadata);
+    const relation = getTimelineRelation(edge.metadata, relative);
     for (const [key, time] of [
       [edge.source, relation.sourceTime],
       [edge.target, relation.targetTime],
     ] as const) {
       if (time === undefined) continue;
       const node = (input.axisSource ?? dag).nodes[key];
-      const parsed = node && parseNodeTimeline(node, now);
+      const parsed = node && parseNodeTimeline(node, now, clock);
       if (parsed?.status === "dated" && time >= parsed.start && time <= parsed.end) timestamps.push(time);
     }
   }
   let start = rangeStart ?? (timestamps.length ? Math.min(...timestamps) : null);
   let end = rangeEnd ?? (timestamps.length ? Math.max(...timestamps) : null);
   if (!filtered && start !== null && end === start) {
-    start -= DAY / 2;
-    end += DAY / 2;
+    start -= baseSpan / 2;
+    end += baseSpan / 2;
   }
   const labelWidth = Math.max(0, theme.maxNodeWidth);
   const labelStep = Math.max(showNodeDetail ? 60 : 44, theme.nodeHeight * 0.58 + theme.rowGap * 0.2);
   const trackCounts = new Map<string, number>();
   for (const node of Object.values(input.axisSource?.nodes ?? dag.nodes)) {
-    if (parseNodeTimeline(node, now).status !== "dated") continue;
+    if (parseNodeTimeline(node, now, clock).status !== "dated") continue;
     const track = typeof node.track === "string" && node.track.trim() ? node.track.trim() : "Events";
     trackCounts.set(track, (trackCounts.get(track) ?? 0) + 1);
   }
@@ -174,7 +180,7 @@ export function buildTimelineStage(input: {
   const axisMap =
     start !== null && end !== null
       ? input.timelineAxis && input.timelineAxis.mode === settings.axis
-        ? extendTimelineAxis(input.timelineAxis, start, end, top)
+        ? extendTimelineAxis(input.timelineAxis, start, end, top, baseSpan)
         : createTimelineAxis({
             start,
             end,
@@ -189,10 +195,10 @@ export function buildTimelineStage(input: {
     start = axisMap.start;
     end = axisMap.end;
   }
-  const scale = axisMap ? axisMap.height / (axisMap.end - axisMap.start || DAY) : 0;
+  const scale = axisMap ? axisMap.height / (axisMap.end - axisMap.start || baseSpan) : 0;
   const yAt = (time: number) => (axisMap ? timelineTimeToY(axisMap, time) : top);
   const tickInterval =
-    settings.axis === "linear" && settings.tickUnit !== "auto"
+    !relative && settings.axis === "linear" && settings.tickUnit !== "auto"
       ? { step: settings.tickStep, unit: settings.tickUnit }
       : undefined;
   dated.forEach((entry) => {
@@ -218,12 +224,13 @@ export function buildTimelineStage(input: {
   const nodeMap: Record<NodeKey, StageNode> = Object.create(null);
   const stageTracks: StageTimelineData["tracks"] = [];
   const axisX = 160;
-  let trackX = Math.max(axisX + 54, theme.stagePaddingX + 120);
+  const minimumCross = axisX + Math.max(54, intervalWidth / 2 + 24);
+  let trackX = Math.max(minimumCross, theme.stagePaddingX + 120);
   let lastLabelBottom = axisMap ? axisMap.originY + axisMap.height : top;
   const topLevel = new Set(selection.topLevelKeys);
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
-    const channelStep = (55.2 + settings.nodeGap) * settings.horizontalSpread;
+    const channelStep = Math.max(intervalWidth + 8, (55.2 + settings.nodeGap) * Math.max(0, settings.horizontalSpread));
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
     const color = trackColor(track);
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
@@ -236,13 +243,16 @@ export function buildTimelineStage(input: {
     }
     const trackNodes = events.map((entry) => nodeMap[entry.key]);
     // Reserve a wider text column without changing the event label's own size.
-    const textWidth = Math.max(...trackNodes.map((node) => node.width)) * 1.8 + 79.2;
+    const textWidth =
+      settings.orientation === "horizontal"
+        ? Math.max(72, intervalWidth + 24)
+        : Math.max(intervalWidth + 24, Math.max(...trackNodes.map((node) => node.width)) * 1.8 + 79.2);
     const width = Math.max(
       channelsWidth + textWidth * Math.max(1, settings.horizontalSpread),
       estimateTextWidth(track, 12) + 20,
     );
     stageTracks.push({ id: track, label: track, x: trackX, width, color });
-    if (!flow) {
+    if (!flow && settings.orientation !== "horizontal") {
       const datedNodes = trackNodes.filter((node) => node.timeline!.status === "dated");
       packTimelineTrackLabels(datedNodes, top + 3);
       for (const node of datedNodes) lastLabelBottom = Math.max(lastLabelBottom, timelineLabelBox(node).bottom);
@@ -254,10 +264,11 @@ export function buildTimelineStage(input: {
     const arranged = arrangeTimelineFlow({
       nodes: dated.map((entry) => nodeMap[entry.key]),
       edges: sourceEdges.filter((edge) => nodeMap[edge.source] && nodeMap[edge.target]),
-      minimumX: axisX + 54,
+      minimumX: minimumCross,
       gap: settings.nodeGap,
       spread: settings.horizontalSpread,
       pins: settings.pins,
+      packLabels: settings.orientation !== "horizontal",
     });
     flowWidth = arranged.width;
     lastLabelBottom = Math.max(axisMap ? axisMap.originY + axisMap.height : top, arranged.bottom);
@@ -299,10 +310,11 @@ export function buildTimelineStage(input: {
           undatedNodes.some((node) => node.key === edge.source) &&
           undatedNodes.some((node) => node.key === edge.target),
       ),
-      minimumX: axisX + 54,
+      minimumX: minimumCross,
       gap: settings.nodeGap,
       spread: settings.horizontalSpread,
       pins: settings.pins,
+      packLabels: settings.orientation !== "horizontal",
     });
     flowWidth = Math.max(flowWidth, arranged.width);
     lastLabelBottom = Math.max(lastLabelBottom, arranged.bottom);
@@ -325,44 +337,57 @@ export function buildTimelineStage(input: {
     connectedKeysByNode.get(edge.source)!.add(edge.target);
     connectedKeysByNode.get(edge.target)!.add(edge.source);
   });
-  return {
-    dag: dag.nodes,
-    layoutMode: "timeline",
-    root: selection.rootKey,
-    selection,
-    topLevelKeys: selection.topLevelKeys,
-    isForest: selection.isForest,
-    nodeMap,
-    nodes,
-    edges,
-    connectedKeysByNode,
-    lanes: stageTracks.map((track, layer) => ({
-      layer,
-      label: track.label,
-      x: track.x + track.width / 2,
-      width: track.width,
-    })),
-    stageWidth,
-    stageHeight,
-    warnings,
-    timeline: {
-      layout: settings.layout,
-      axisMap,
-      tickInterval,
-      axisX,
-      originY: axisMap?.originY ?? top,
-      filtered: filtered || undefined,
-      start,
-      end,
-      pixelsPerMillisecond: scale,
-      ticks: axisMap
-        ? getTimelineAxisTicks(axisMap, axisMap.originY, axisMap.originY + axisMap.height, 1, tickInterval)
-        : [],
-      tracks: stageTracks,
-      undatedY,
-      timeZone: "UTC",
+  return orientTimelineStage(
+    {
+      dag: dag.nodes,
+      layoutMode: "timeline",
+      root: selection.rootKey,
+      selection,
+      topLevelKeys: selection.topLevelKeys,
+      isForest: selection.isForest,
+      nodeMap,
+      nodes,
+      edges,
+      connectedKeysByNode,
+      lanes: stageTracks.map((track, layer) => ({
+        layer,
+        label: track.label,
+        x: track.x + track.width / 2,
+        width: track.width,
+      })),
+      stageWidth,
+      stageHeight,
+      warnings,
+      timeline: {
+        clock,
+        relativeTickStep: settings.relativeTickStep,
+        layout: settings.layout,
+        axisMap,
+        tickInterval,
+        axisX,
+        originY: axisMap?.originY ?? top,
+        filtered: filtered || undefined,
+        start,
+        end,
+        pixelsPerUnit: scale,
+        ticks: axisMap
+          ? getTimelineAxisTicks(
+              axisMap,
+              axisMap.originY,
+              axisMap.originY + axisMap.height,
+              1,
+              tickInterval,
+              clock,
+              settings.relativeTickStep,
+            )
+          : [],
+        tracks: stageTracks,
+        undatedY,
+        timeZone: relative ? null : "UTC",
+      },
     },
-  };
+    settings.orientation,
+  );
 
   function createNode(entry: TimelineEntry, x: number, labelX: number, labelY: number, color: string): StageNode {
     const visual = getNodeVisual(
@@ -378,7 +403,13 @@ export function buildTimelineStage(input: {
     const contentWidth = !showNodeDetail
       ? Math.min(labelWidth, Math.max(110, measureText(visual.title, titleFont) + 16, time.label.length * 6.1 + 12))
       : labelWidth;
-    const displayTitle = fitMeasuredText(visual.title, contentWidth - 6, titleFont);
+    const inside = time.kind === "range" && settings.intervalTitle === "inside";
+    const insideWidth = settings.orientation === "horizontal" ? entry.endY - entry.startY : intervalWidth;
+    const displayTitle = fitMeasuredText(
+      visual.title,
+      inside ? Math.max(0, insideWidth - 16) : contentWidth - 6,
+      titleFont,
+    );
     const isDated = time.status === "dated";
     return {
       key: entry.key,
@@ -395,6 +426,12 @@ export function buildTimelineStage(input: {
       x,
       y: entry.startY,
       timeline: {
+        intervalTitle: settings.intervalTitle,
+        intervalAlign: settings.intervalAlign,
+        intervalStyle: settings.intervalStyle,
+        minimumCross,
+        barWidth: time.kind === "range" ? intervalWidth : 12,
+        eventStatus: typeof dag.nodes[entry.key].status === "string" ? String(dag.nodes[entry.key].status) : undefined,
         status: time.status,
         kind: time.kind,
         start: isDated ? time.start : null,
@@ -411,7 +448,7 @@ export function buildTimelineStage(input: {
         labelX,
         labelY,
         label: time.label,
-        color,
+        color: settings.intervalColor === "status" ? statusColor(dag.nodes[entry.key].status, color) : color,
         warning: isDated ? undefined : time.message,
       },
     };
@@ -439,7 +476,7 @@ function routeEdge(
 ): StageEdge {
   const source = nodes[edge.source];
   const target = nodes[edge.target];
-  const relation = getTimelineRelation(edge.metadata);
+  const relation = getTimelineRelation(edge.metadata, source.timeline?.precision === "relative");
   function anchor(node: StageNode, position: "start" | "end", time: number | undefined) {
     const data = node.timeline!;
     if (
@@ -488,7 +525,12 @@ function routeEdge(
             (node.key === target.key && Math.abs(mid - targetY) < 10)
           )
             continue;
-          boxes.push({ left: node.x - 8, right: node.x + 8, top: cuts[i], bottom: cuts[i + 1] });
+          boxes.push({
+            left: node.x - (time.barWidth ?? 12) / 2 - 2,
+            right: node.x + (time.barWidth ?? 12) / 2 + 2,
+            top: cuts[i],
+            bottom: cuts[i + 1],
+          });
         }
       }
       return boxes;
@@ -597,4 +639,14 @@ function trackColor(track: string): string {
   let hash = 0;
   for (const character of track) hash = (hash * 31 + character.charCodeAt(0)) | 0;
   return `hsl(${((hash % 360) + 360) % 360} 58% 43%)`;
+}
+
+function statusColor(status: unknown, fallback: string): string {
+  const colors: Record<string, string> = {
+    planned: "#64748b",
+    active: "#2563eb",
+    completed: "#15803d",
+    blocked: "#b91c1c",
+  };
+  return typeof status === "string" && Object.prototype.hasOwnProperty.call(colors, status) ? colors[status] : fallback;
 }

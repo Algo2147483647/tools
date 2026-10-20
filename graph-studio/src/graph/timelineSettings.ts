@@ -2,6 +2,13 @@ export type TimelineTickUnit = "auto" | "second" | "minute" | "hour" | "day" | "
 
 export interface TimelineViewSettings {
   layout: "tracks" | "flow";
+  orientation: "vertical" | "horizontal";
+  intervalWidth: number;
+  intervalTitle: "outside" | "inside" | "hidden";
+  intervalAlign: "start" | "center" | "end";
+  intervalStyle: "soft" | "solid" | "outline";
+  intervalColor: "category" | "status";
+  relativeTickStep: number;
   axis: "linear" | "adaptive";
   tickStep: number;
   tickUnit: TimelineTickUnit;
@@ -23,6 +30,14 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
   );
   return {
     layout: input.layout === "flow" || input.layout === "cluster" ? "flow" : "tracks",
+    orientation: input.orientation === "horizontal" ? "horizontal" : "vertical",
+    intervalWidth: finite(input.intervalWidth, 36),
+    intervalTitle:
+      input.intervalTitle === "inside" || input.intervalTitle === "hidden" ? input.intervalTitle : "outside",
+    intervalAlign: input.intervalAlign === "start" || input.intervalAlign === "end" ? input.intervalAlign : "center",
+    intervalStyle: input.intervalStyle === "solid" || input.intervalStyle === "outline" ? input.intervalStyle : "soft",
+    intervalColor: input.intervalColor === "status" ? "status" : "category",
+    relativeTickStep: finite(input.relativeTickStep, 1),
     axis: input.axis === "adaptive" ? "adaptive" : "linear",
     tickStep: finite(input.tickStep, 10),
     tickUnit: ["second", "minute", "hour", "day", "week", "month", "year"].includes(String(unit))

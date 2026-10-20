@@ -1,20 +1,24 @@
+import { timelineClockCaption, type TimelineClock } from "../graph/timelineClock";
 import { useEffect, useRef, useState } from "react";
 import { parseTimelineRangeInput, timelineRangeDates, type TimelineTimeRange } from "../graph/timelineRange";
 
 export default function TimelineRangeFilter({
   range,
+  clock,
   onChange,
 }: {
   range: TimelineTimeRange | null;
+  clock?: TimelineClock;
   onChange: (range: TimelineTimeRange | null) => void;
 }) {
+  const relative = clock?.mode === "relative";
   const details = useRef<HTMLDetailsElement>(null);
-  const [draft, setDraft] = useState(() => timelineRangeDates(range));
+  const [draft, setDraft] = useState(() => timelineRangeDates(range, relative));
   const [error, setError] = useState("");
   useEffect(() => {
-    setDraft(timelineRangeDates(range));
+    setDraft(timelineRangeDates(range, relative));
     setError("");
-  }, [range]);
+  }, [range, relative]);
   useEffect(() => {
     const close = (event: PointerEvent) => {
       if (details.current?.open && event.target instanceof Node && !details.current.contains(event.target))
@@ -23,7 +27,7 @@ export default function TimelineRangeFilter({
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, []);
-  const active = timelineRangeDates(range);
+  const active = timelineRangeDates(range, relative);
   return (
     <details
       ref={details}
@@ -60,7 +64,7 @@ export default function TimelineRangeFilter({
           const form = new FormData(event.currentTarget);
           const dates = { from: String(form.get("from") || ""), to: String(form.get("to") || "") };
           setDraft(dates);
-          const result = parseTimelineRangeInput(dates.from, dates.to);
+          const result = parseTimelineRangeInput(dates.from, dates.to, relative);
           if (!result.ok) {
             setError(result.error);
             return;
@@ -70,15 +74,19 @@ export default function TimelineRangeFilter({
         }}
       >
         <strong>Time range</strong>
-        <p>UTC years, months or dates. To includes the full period. For 221 BCE, enter -000220.</p>
+        <p>
+          {relative
+            ? `${timelineClockCaption(clock!)} · Negative and decimal values are supported.`
+            : "UTC years, months or dates. To includes the full period. For 221 BCE, enter -000220."}
+        </p>
         <div className="timeline-range-dates">
           <label>
             From
             <input
-              aria-label="Timeline from date"
+              aria-label={relative ? "Timeline from value" : "Timeline from date"}
               name="from"
               type="text"
-              placeholder="YYYY / YYYY-MM / YYYY-MM-DD"
+              placeholder={relative ? "0" : "YYYY / YYYY-MM / YYYY-MM-DD"}
               value={draft.from}
               onChange={(event) => {
                 setDraft({ ...draft, from: event.currentTarget.value });
@@ -89,10 +97,10 @@ export default function TimelineRangeFilter({
           <label>
             To
             <input
-              aria-label="Timeline to date"
+              aria-label={relative ? "Timeline to value" : "Timeline to date"}
               name="to"
               type="text"
-              placeholder="YYYY / YYYY-MM / YYYY-MM-DD"
+              placeholder={relative ? "0" : "YYYY / YYYY-MM / YYYY-MM-DD"}
               value={draft.to}
               onChange={(event) => {
                 setDraft({ ...draft, to: event.currentTarget.value });

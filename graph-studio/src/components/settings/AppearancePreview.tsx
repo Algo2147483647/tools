@@ -1,3 +1,4 @@
+import type { TimelineClock } from "../../graph/timelineClock";
 import { useFontMetricsKey } from "../../controllers/useFontMetricsKey";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -15,7 +16,7 @@ import {
   buildFlatPreviewStage,
   compoundPreviewInput,
   INITIAL_PREVIEW_VIEW,
-  PREVIEW_GRAPHS,
+  timelinePreviewGraph,
   previewGeometry,
 } from "./previewModel";
 
@@ -31,6 +32,7 @@ export default function AppearancePreview({
   showNodeDetail,
   alignNodeWidthsToMax,
   timelineSettings,
+  timelineClock,
   mode,
   onModeChange,
 }: {
@@ -41,6 +43,7 @@ export default function AppearancePreview({
   showNodeDetail: boolean;
   alignNodeWidthsToMax: boolean;
   timelineSettings?: TimelineViewSettings;
+  timelineClock?: TimelineClock;
   mode: "overview" | "detail";
   onModeChange: (mode: "overview" | "detail") => void;
 }) {
@@ -59,6 +62,7 @@ export default function AppearancePreview({
       showNodeDetail,
       alignNodeWidthsToMax,
       timelineSettings,
+      timelineClock,
       view,
     }),
   );
@@ -69,9 +73,10 @@ export default function AppearancePreview({
     [geometry],
   );
   const compound = useCompoundStage(compoundInput);
+  const timelineSample = useMemo(() => timelinePreviewGraph(geometry.timelineClock), [geometry.timelineClock]);
   const timeline = useTimelineStage({
-    dag: geometry.chartType === "timeline" ? PREVIEW_GRAPHS.timeline : null,
-    visibleDag: PREVIEW_GRAPHS.timeline,
+    dag: geometry.chartType === "timeline" ? timelineSample : null,
+    visibleDag: timelineSample,
     generation: 0,
     range: null,
     settings: geometry.timelineSettings,

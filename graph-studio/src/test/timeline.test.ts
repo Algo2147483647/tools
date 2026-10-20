@@ -188,8 +188,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     assert.equal(stage.nodeMap.orbit.timeline!.endY, stage.nodeMap.dock.timeline!.startY);
     const cruise = stage.nodeMap.cruise.timeline!;
     assert.ok(
-      Math.abs((cruise.endY - cruise.startY) / (cruise.end! - cruise.start!) - stage.timeline!.pixelsPerMillisecond) <
-        1e-12,
+      Math.abs((cruise.endY - cruise.startY) / (cruise.end! - cruise.start!) - stage.timeline!.pixelsPerUnit) < 1e-12,
     );
     assert.equal(stage.nodeMap.future.timeline!.status, "missing");
     assert.ok(stage.nodeMap.future.y > stage.nodeMap.dock.y);
@@ -401,7 +400,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
           stage.nodeMap.a.y,
           stage.nodeMap.a.width,
           stage.nodeMap.a.height,
-          stage.timeline!.pixelsPerMillisecond,
+          stage.timeline!.pixelsPerUnit,
         ].every(Number.isFinite),
       );
       if (time?.at === "broken") assert.match(stage.warnings[0], /valid/);
@@ -564,7 +563,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     assert.equal(stage.timeline!.start, bound);
     assert.equal(stage.timeline!.end, bound);
     assert.equal(stage.timeline!.ticks.length, 1);
-    assert.ok(Number.isFinite(stage.timeline!.pixelsPerMillisecond));
+    assert.ok(Number.isFinite(stage.timeline!.pixelsPerUnit));
     assert.ok(
       stage.nodes.every((node) => [node.x, node.y, node.timeline!.startY, node.timeline!.endY].every(Number.isFinite)),
     );

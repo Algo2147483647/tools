@@ -3,11 +3,21 @@ import type { StageNode } from "./types";
 export type TimelineLabelBox = { left: number; right: number; top: number; bottom: number };
 
 export function timelineMarkerBox(node: StageNode): TimelineLabelBox {
-  return { left: node.x - 10, right: node.x + 10, top: node.y - 10, bottom: node.timeline!.endY + 10 };
+  const half = Math.max(10, (node.timeline!.barWidth ?? 12) / 2 + 4);
+  if (node.timeline!.orientation === "horizontal")
+    return {
+      left: node.timeline!.startY - 10,
+      right: node.timeline!.endY + 10,
+      top: node.y - half,
+      bottom: node.y + half,
+    };
+  return { left: node.x - half, right: node.x + half, top: node.y - 10, bottom: node.timeline!.endY + 10 };
 }
 
 export function timelineLabelBox(node: StageNode): TimelineLabelBox {
   const time = node.timeline!;
+  if (time.kind === "range" && time.intervalTitle !== undefined && time.intervalTitle !== "outside")
+    return timelineMarkerBox(node);
   return {
     left: time.labelX - 6,
     right: time.labelX + node.width + 6,
@@ -61,7 +71,12 @@ export function findFreeTimelineLabelPosition(
 
 /** A label column shares width across time. Pool adjacent collisions to minimize vertical displacement. */
 export function packTimelineTrackLabels(nodes: StageNode[], minimumY: number): void {
-  const sorted = nodes.slice().sort((a, b) => a.y - b.y || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+  const sorted = nodes
+    .filter(
+      (node) =>
+        node.timeline!.kind !== "range" || !node.timeline!.intervalTitle || node.timeline!.intervalTitle === "outside",
+    )
+    .sort((a, b) => a.y - b.y || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
   const offsets: number[] = [];
   const blocks: { start: number; end: number; total: number; count: number }[] = [];
   for (const [index, node] of sorted.entries()) {

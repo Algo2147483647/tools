@@ -71,6 +71,12 @@ function copyInlineSvgStyles(sourceSvg: SVGSVGElement, cloneSvg: SVGSVGElement):
 
     const computedStyle = window.getComputedStyle(sourceElement);
     const inlineStyle = EXPORT_STYLE_PROPERTIES.map((propertyName) => {
+      if (
+        propertyName === "display" &&
+        (sourceElement.classList.contains("timeline-export-static") ||
+          sourceElement.classList.contains("timeline-floating"))
+      )
+        return "";
       const propertyValue = computedStyle.getPropertyValue(propertyName);
       if (!propertyValue) {
         return "";

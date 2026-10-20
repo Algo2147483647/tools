@@ -1,3 +1,4 @@
+import { getTimelineClock } from "../graph/timelineClock";
 import { useMemo } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
@@ -144,6 +145,7 @@ export default function StudioView({
         timeline={
           state.chartType === "timeline"
             ? {
+                clock: getTimelineClock(state.dag?.metadata),
                 tracks: viewport.trackOptions,
                 selectedTrack: viewport.activeTrack,
                 onTrackChange: viewport.changeTrack,
@@ -262,6 +264,7 @@ export default function StudioView({
         sankeyUnavailableReason={sankeyUnavailableReason}
         onChartTypeChange={ui.changeChartType}
         timelineControls={{
+          clock: getTimelineClock(state.dag?.metadata),
           settings: viewport.timelineSettings,
           onChange: viewport.changeTimelineSettings,
           onReadapt: viewport.readaptTimeline,

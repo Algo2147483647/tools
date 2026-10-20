@@ -1,3 +1,4 @@
+import { timelineClockCaption } from "../graph/timelineClock";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";
@@ -65,7 +66,12 @@ export function buildHtmlPayload(stage: StageData, graph: NormalizedDag): HtmlGr
         title,
         fields: Object.entries(data).map(([name, value]) => ({
           name,
-          text: typeof value === "string" ? value : (JSON.stringify(value, null, 2) ?? ""),
+          text:
+            name === "time" && stage.timeline?.clock?.mode === "relative"
+              ? `${stage.nodeMap[key]?.timeline?.label ?? JSON.stringify(value)} · ${timelineClockCaption(stage.timeline.clock)}`
+              : typeof value === "string"
+                ? value
+                : (JSON.stringify(value, null, 2) ?? ""),
           ...(typeof value === "string" && value.trim() ? { html: renderField(value) } : {}),
         })),
         raw: JSON.stringify({ id: key, data }, null, 2),
