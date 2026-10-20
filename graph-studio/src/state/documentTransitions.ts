@@ -13,6 +13,7 @@ export function replaceDocument(
     ...initial,
     timelineSettings: sanitizeTimelineSettings({
       ...state.timelineSettings,
+      typeColors: {},
       pins: {},
       locked: false,
       ...(loaded ? getDocumentTimelineSettings(action.dag.metadata) : {}),

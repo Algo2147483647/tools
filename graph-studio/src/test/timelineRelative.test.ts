@@ -17,6 +17,7 @@ import { getNodeLocatePoint } from "../hooks/useGraphZoom";
 import TimelineNode from "../rendering/TimelineNode";
 import TimelineBackdrop from "../rendering/TimelineBackdrop";
 import TimelineControls from "../components/TimelineControls";
+import TimelineIntervalSettings from "../components/TimelineIntervalSettings";
 import NodeTimeEditor from "../components/NodeTimeEditor";
 import { buildHtmlPayload } from "../rendering/export-html";
 import { defineSuite, defineTest } from "./harness";
@@ -380,9 +381,16 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
       /Timeline time basis|Relative tick interval|Relative time origin|Relative time unit|Relative display precision/,
     );
     assert.match(controls, /layout-engine-grid/);
-    assert.match(controls, /Interval bar width/);
-    assert.doesNotMatch(controls, /Interval color by|Interval status colors/);
-    assert.match(controls, />Left</);
+    assert.doesNotMatch(controls, /Interval bars/);
+    const intervals = renderToStaticMarkup(
+      createElement(TimelineIntervalSettings, {
+        settings: sanitizeTimelineSettings({ orientation: "horizontal", intervalTitle: "inside" }),
+        onChange() {},
+      }),
+    );
+    assert.match(intervals, /Thickness/);
+    assert.doesNotMatch(intervals, /Interval color by|Interval status colors/);
+    assert.match(intervals, />Left</);
     const editor = renderToStaticMarkup(
       createElement(NodeTimeEditor, {
         clock,

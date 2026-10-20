@@ -13,6 +13,11 @@ export interface StageTimelineNode {
   intervalTitle?: TimelineViewSettings["intervalTitle"];
   intervalAlign?: TimelineViewSettings["intervalAlign"];
   intervalStyle?: TimelineViewSettings["intervalStyle"];
+  intervalBorder?: TimelineViewSettings["intervalBorder"];
+  intervalBorderWidth?: number;
+  intervalBorderColor?: string;
+  intervalRadius?: number;
+  intervalTextColor?: string;
   barWidth?: number;
   minimumCross?: number;
   /** One-based protocol row/column index perpendicular to time; unaffected by auto layout or view pins. */

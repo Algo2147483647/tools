@@ -77,15 +77,34 @@ export const PREVIEW_GRAPHS = {
     version: 3,
     metadata: { timeline: { asOf: "2026-05-20" } },
     nodes: {
-      launch: { title: "Kickoff", define: "Agree on scope", time: { at: "2026-05-01" }, track: "Delivery" },
+      launch: {
+        title: "Kickoff",
+        type: "Milestone",
+        define: "Agree on scope",
+        time: { at: "2026-05-01" },
+        track: "Delivery",
+      },
       build: {
         title: "Build",
+        type: "Phase",
         define: "Implement the release",
         time: { start: "2026-05-02", end: "2026-05-10" },
         track: "Delivery",
       },
-      review: { title: "Review", define: "Check acceptance criteria", time: { at: "2026-05-06" }, track: "Quality" },
-      ship: { title: "Release", define: "Ship the approved result", time: { at: "2026-05-12" }, track: "Delivery" },
+      review: {
+        title: "Review",
+        type: "Milestone",
+        define: "Check acceptance criteria",
+        time: { at: "2026-05-06" },
+        track: "Quality",
+      },
+      ship: {
+        title: "Release",
+        type: "Milestone",
+        define: "Ship the approved result",
+        time: { at: "2026-05-12" },
+        track: "Delivery",
+      },
     },
     edges: [
       { id: "launch-build", source: "launch", target: "build", value: "starts" },
@@ -150,10 +169,10 @@ export function timelinePreviewGraph(clock: TimelineClock) {
     version: 3,
     metadata: { timeline: { version: 1, clock } },
     nodes: {
-      launch: { title: "Kickoff", time: { at: 0 }, track: "Delivery" },
-      build: { title: "Build", time: { start: 1, end: 6 }, track: "Delivery", status: "active" },
-      review: { title: "Review", time: { at: 3.5 }, track: "Quality" },
-      ship: { title: "Release", time: { at: 8 }, track: "Delivery" },
+      launch: { title: "Kickoff", type: "Milestone", time: { at: 0 }, track: "Delivery" },
+      build: { title: "Build", type: "Phase", time: { start: 1, end: 6 }, track: "Delivery", status: "active" },
+      review: { title: "Review", type: "Milestone", time: { at: 3.5 }, track: "Quality" },
+      ship: { title: "Release", type: "Milestone", time: { at: 8 }, track: "Delivery" },
     },
     edges: PREVIEW_GRAPHS.timeline.edges,
   });

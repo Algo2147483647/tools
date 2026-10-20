@@ -18,8 +18,12 @@ export const TIMELINE_CSS = `
 .timeline-node__hit { fill: transparent; stroke: none; pointer-events: all; }
 .timeline-node__duration { fill: var(--dag-timeline-color); fill-opacity: .55; stroke: none; }
 .timeline-node[data-interval-style="solid"] .timeline-node__duration { fill-opacity: 1; }
-.timeline-node[data-interval-style="solid"] .timeline-node__inside-title { fill: white; }
-.timeline-node[data-interval-style="outline"] .timeline-node__duration { fill: var(--dag-node-fill); fill-opacity: .9; stroke: var(--dag-timeline-color); stroke-width: 1.5; }
+.timeline-node[data-interval-style="solid"] .timeline-node__inside-title { fill: var(--timeline-text-color, white); }
+.timeline-node[data-interval-style="outline"] .timeline-node__duration { fill: var(--dag-node-fill); fill-opacity: .9; stroke: var(--timeline-border-color); stroke-width: var(--timeline-border-width); }
+.timeline-node[data-interval-border="solid"] .timeline-node__duration,
+.timeline-node[data-interval-border="dashed"] .timeline-node__duration { stroke: var(--timeline-border-color); stroke-width: var(--timeline-border-width); }
+.timeline-node[data-interval-border="dashed"] .timeline-node__duration { stroke-dasharray: 6 4; }
+.timeline-node[data-interval-border="none"] .timeline-node__duration { stroke: none; }
 .timeline-node[data-selected="true"] .timeline-node__duration,
 .timeline-node[data-focused="true"] .timeline-node__duration { stroke: var(--dag-timeline-color); stroke-width: 2.5; }
 .timeline-node__point { fill: var(--dag-timeline-color); stroke: var(--dag-node-fill); stroke-width: 1.5; }
@@ -29,9 +33,9 @@ export const TIMELINE_CSS = `
 .timeline-node[data-focused="true"] .timeline-node__leader,
 .timeline-node[data-hovered="true"] .timeline-node__leader { stroke: #000; stroke-width: 1; stroke-dasharray: 0 2.2; stroke-linecap: round; opacity: 1; }
 .timeline-node__label-bg { fill: var(--dag-node-fill); fill-opacity: .65; stroke: transparent; stroke-width: 1; }
-.timeline-node__title { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: var(--dag-title-font-weight, 400); pointer-events: none; }
-.timeline-node__date { fill: var(--dag-text-soft); font: 10px "IBM Plex Mono", Consolas, monospace; pointer-events: none; }
-.timeline-node__detail { fill: var(--dag-text-soft); font: 10px "IBM Plex Sans", "Segoe UI", sans-serif; pointer-events: none; }
+.timeline-node__title { fill: var(--timeline-text-color, var(--dag-text-strong)); font-family: var(--dag-title-font-family); font-size: 13px; font-weight: var(--dag-title-font-weight, 400); pointer-events: none; }
+.timeline-node__date { fill: var(--timeline-text-color, var(--dag-text-soft)); font: 10px "IBM Plex Mono", Consolas, monospace; pointer-events: none; }
+.timeline-node__detail { fill: var(--timeline-text-color, var(--dag-text-soft)); font: 10px "IBM Plex Sans", "Segoe UI", sans-serif; pointer-events: none; }
 .timeline-node[data-selected="true"] .timeline-node__label-bg,
 .timeline-node[data-focused="true"] .timeline-node__label-bg,
 .timeline-node[data-hovered="true"] .timeline-node__label-bg,

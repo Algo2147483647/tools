@@ -183,7 +183,7 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
         {timeline.tracks.map((track) => (
           <g
             key={track.id}
-            transform={`translate(${viewport.left + 8 / scale},${track.x - 22 / scale}) scale(${1 / scale})`}
+            transform={`translate(${viewport.left + 8 / scale},${track.x - 12 / scale}) scale(${1 / scale})`}
           >
             <text className="timeline-track-label">{track.label}</text>
           </g>
@@ -234,7 +234,7 @@ export function TimelineRuler({ stage, svgRef }: { stage: StageData; svgRef: Ref
         {caption} ↓
       </text>
       {timeline.tracks.map((track) => (
-        <g key={track.id} transform={`translate(${track.x + 10},${top + 21 / scale}) scale(${1 / scale})`}>
+        <g key={track.id} transform={`translate(${track.x + 10 / scale},${top + 21 / scale}) scale(${1 / scale})`}>
           <circle cx={3} cy={-4} r={3} fill={track.color} />
           <text className="timeline-track-label" x={12}>
             {track.label.length > Math.max(3, Math.floor((track.width * scale - 25) / 7))
@@ -297,7 +297,7 @@ function HorizontalBackdrop({ stage }: { stage: StageData }) {
           </text>
         ))}
         {t.tracks.map((track) => (
-          <text key={track.id} className="timeline-track-label" x={32} y={track.x - 20}>
+          <text key={track.id} className="timeline-track-label" x={32} y={track.x - 12}>
             {track.label}
           </text>
         ))}

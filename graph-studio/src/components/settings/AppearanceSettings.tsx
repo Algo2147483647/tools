@@ -2,6 +2,9 @@ import Icon from "../ui/Icon";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import ChartSchema from "./ChartSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
+import TimelineIntervalSettings from "../TimelineIntervalSettings";
+import TimelineColorSettings from "../TimelineColorSettings";
+import { sanitizeTimelineSettings } from "../../graph/timelineSettings";
 import type { ChangeEvent } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import { type GraphAppearancePresetId, getGraphAppearancePresets } from "../../graph/appearanceCommands";
@@ -156,7 +159,6 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
             {...p.timelineControls}
             showArrangement={visible("timeline-arrangement")}
             showAxis={visible("timeline-axis")}
-            showIntervals={visible("timeline-intervals")}
           />
         )}
         {isSankey && visible("sankeyNodeWidth") && (
@@ -242,6 +244,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
     );
     return (
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
+        {has("timeline-colors") && p.timelineControls && <TimelineColorSettings {...p.timelineControls} />}
+        {has("timeline-intervals") && p.timelineControls && (
+          <TimelineIntervalSettings settings={p.timelineControls.settings} onChange={p.timelineControls.onChange} />
+        )}
         {has("presets") && (
           <>
             <p>{selectedPreset ? `${selectedPreset.label} preset` : "Custom style"} · Choose a starting point.</p>
@@ -492,7 +498,29 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
         )}
         {["nodes", "edges", "text"].includes(id) && (
           <div className="appearance-group-actions">
-            <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
+            <button
+              type="button"
+              className="setting-section-reset"
+              onClick={() => {
+                p.onSectionReset(id);
+                if (id === "nodes" && isTimeline && p.timelineControls) {
+                  const defaults = sanitizeTimelineSettings(null);
+                  p.timelineControls.onChange({
+                    colorBy: defaults.colorBy,
+                    typeColors: defaults.typeColors,
+                    intervalWidth: defaults.intervalWidth,
+                    intervalTitle: defaults.intervalTitle,
+                    intervalAlign: defaults.intervalAlign,
+                    intervalStyle: defaults.intervalStyle,
+                    intervalBorder: defaults.intervalBorder,
+                    intervalBorderWidth: defaults.intervalBorderWidth,
+                    intervalBorderColor: defaults.intervalBorderColor,
+                    intervalRadius: defaults.intervalRadius,
+                    intervalTextColor: defaults.intervalTextColor,
+                  });
+                }
+              }}
+            >
               Reset {label.toLowerCase()} style
             </button>
           </div>

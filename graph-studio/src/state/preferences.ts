@@ -102,7 +102,9 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   }
 
   const next: Partial<GraphPagePreferences> = {};
-  if (parsed.timelineSettings) next.timelineSettings = sanitizeTimelineSettings(parsed.timelineSettings);
+  if (parsed.timelineSettings) {
+    next.timelineSettings = { ...sanitizeTimelineSettings(parsed.timelineSettings), typeColors: {} };
+  }
   if (parsed.mode === "edit") {
     next.mode = parsed.mode;
   }

@@ -14,7 +14,7 @@ export function usePreferencesController(
   useEffect(() => {
     setSaved(
       saveGraphPagePreferences({
-        timelineSettings: { ...state.timelineSettings, pins: {}, locked: false },
+        timelineSettings: { ...state.timelineSettings, typeColors: {}, pins: {}, locked: false },
         mode: state.mode,
         chartType: state.chartType,
         layoutMode: state.layout.mode,

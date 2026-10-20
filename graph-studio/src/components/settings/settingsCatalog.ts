@@ -44,11 +44,18 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     add("nested", "layout", "Arrangement", "Nested layout", "compound elk group subgraph 嵌套 分组 排布");
   if (chart === "timeline") {
     add(
+      "timeline-colors",
+      "appearance",
+      "Nodes",
+      "Event colors",
+      "color by type track palette category point interval 按 类型 着色 配色 轨道 颜色",
+    );
+    add(
       "timeline-intervals",
-      "layout",
-      "Timeline",
+      "appearance",
+      "Nodes",
       "Interval bars",
-      "title alignment fill inside duration width thickness 标题 对齐 区间 宽度 厚度",
+      "title alignment fill inside duration width thickness border radius font color 标题 对齐 区间 宽度 厚度 边框 圆角 字体 颜色",
     );
     add(
       "timeline-arrangement",

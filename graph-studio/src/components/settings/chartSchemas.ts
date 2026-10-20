@@ -130,7 +130,7 @@ export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
         type: "object",
         requirement: "Optional",
         description:
-          "orientation: horizontal or vertical; intervalTitle: inside, outside or hidden; intervalAlign: start, center or end; relativeTickStep controls numeric tick spacing.",
+          "colorBy: track or type. Optional typeColors maps Type values to HEX or RGB(A) colors for this document only. orientation: horizontal or vertical; intervalTitle: inside, outside or hidden; intervalAlign: start, center or end; intervalBorder: auto, none, solid or dashed; intervalBorderWidth and intervalRadius are pixels; intervalBorderColor and intervalTextColor accept HEX or RGB(A), with an empty string for automatic colors. Interval text color does not affect point events. relativeTickStep controls numeric tick spacing.",
       },
       {
         path: "nodes[id].space",

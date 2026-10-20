@@ -104,11 +104,19 @@ export default function TimelineNode({
       data-connected="false"
       data-time-kind={time.kind}
       data-interval-style={time.intervalStyle ?? "soft"}
+      data-interval-border={time.intervalBorder ?? "auto"}
       data-time-status={time.status}
       data-track={time.track}
       data-clipped-start={time.clippedStart || undefined}
       data-clipped-end={time.clippedEnd || undefined}
-      style={{ "--dag-timeline-color": time.color } as CSSProperties}
+      style={
+        {
+          "--dag-timeline-color": time.color,
+          "--timeline-border-color": time.intervalBorderColor || time.color,
+          "--timeline-border-width": time.intervalBorderWidth ?? 1.5,
+          "--timeline-text-color": range ? time.intervalTextColor || undefined : undefined,
+        } as CSSProperties
+      }
       tabIndex={layer === "leader" ? undefined : layer === "marker" ? -1 : 0}
       role={layer === "marker" || layer === "leader" ? undefined : "button"}
       aria-hidden={layer === "marker" || layer === "leader" || undefined}
@@ -180,7 +188,11 @@ export default function TimelineNode({
           />
           {range ? (
             <>
-              <rect className="timeline-node__duration" {...bar} rx={Math.min(6, bar.width / 2, bar.height / 2)} />
+              <rect
+                className="timeline-node__duration"
+                {...bar}
+                rx={Math.min(time.intervalRadius ?? 6, bar.width / 2, bar.height / 2)}
+              />
               {time.clippedStart ? (
                 <path
                   className="timeline-node__open"

@@ -5,14 +5,14 @@
       "id": "gold_physical_001",
       "type": "gold",
       "name": "Physical Gold",
-      "quantity": 25,
+      "quantity": 35,
       "unit": "gram"
     },
     {
       "id": "gold_paper_001",
       "type": "gold",
       "name": "Paper Gold",
-      "quantity": 8,
+      "quantity": 0,
       "unit": "gram"
     },
     {

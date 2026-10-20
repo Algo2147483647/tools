@@ -17,8 +17,32 @@ import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
 import { parseNodeTimeline } from "../graph/timeline";
+import { createInitialGraphState } from "../state/initialState";
+import { replaceDocument } from "../state/documentTransitions";
+import TimelineColorSettings from "../components/TimelineColorSettings";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("Type color controls stay generic and document palettes do not leak to another graph", () => {
+    const view = {colorBy:"type",typeColors:{ExampleCategory:"#123456"}};
+    const controls = renderToStaticMarkup(createElement(TimelineColorSettings,{
+      settings:sanitizeTimelineSettings(view),onChange(){},
+    }));
+    assert.doesNotMatch(controls,/ExampleCategory|palette|Edit colors/);
+    const document = (withColors:boolean) => normalizeDagInput({
+      format:"graph-studio",version:3,
+      metadata:{timeline:{version:1,...(withColors?{view}:{})}},
+      nodes:{a:{time:{at:"2000"}}},edges:[],
+    });
+    const action = (withColors:boolean) => ({
+      type:"graphLoaded" as const,documentId:withColors?"first":"second",fileName:"graph.json",
+      dag:document(withColors),selection:{type:"full" as const},status:"",
+    });
+    const first=replaceDocument(createInitialGraphState(),action(true));
+    assert.equal(first.timelineSettings.typeColors.ExampleCategory,"#123456");
+    const second=replaceDocument(first,action(false));
+    assert.deepEqual(second.timelineSettings.typeColors,{});
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({timelineSettings:view}))!.timelineSettings!.typeColors,{});
+  }),
   defineTest("sliders start at zero while numeric inputs retain values outside their range", () => {
     for (const control of LAYOUT_CONTROLS) {
       assert.equal(control.min, 0);
@@ -85,6 +109,10 @@ export const settingsSuite = defineSuite("Settings controls", [
     assert.deepEqual(ids("node height"), ["nodeHeight"]);
     assert.deepEqual(ids("node fill"), ["--dag-node-fill"]);
     assert.deepEqual(ids("unknown-setting-xyz"), []);
+    const timelineColors = getSettingsCatalog("timeline").find((item) => item.id === "timeline-colors")!;
+    assert.equal(timelineColors.chapter, "appearance");
+    assert.equal(timelineColors.group, "Nodes");
+    assert.ok(matchesSetting(timelineColors, "按 类型 着色"));
     for (const type of ["node-link", "compound", "timeline", "sankey"] as const) {
       const items = getSettingsCatalog(type);
       assert.equal(new Set(items.map((item) => item.id)).size, items.length);

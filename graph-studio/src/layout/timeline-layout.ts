@@ -1,6 +1,7 @@
 import { getTimelineClock } from "../graph/timelineClock";
 import { orientTimelineStage } from "./timeline-orientation";
 import { getNodeType } from "../graph/accessors";
+import { timelineCategoryColor, timelineTypeColor } from "../graph/timelineColors";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getTimelineRelation, parseNodeTimeline, parseTimelineDate, type ParsedTimelineTime } from "../graph/timeline";
 import { collectDescendantKeys } from "../graph/traversal";
@@ -240,7 +241,7 @@ export function buildTimelineStage(input: {
   const labelColumns = new Map<string, number>();
   for (const track of tracks) {
     const channelsWidth = ((channelCounts.get(track) || 1) - 1) * channelStep;
-    const color = trackColor(track);
+    const color = timelineCategoryColor(track);
     const events = entries.filter((entry) => entry.track === track).sort(compareEntries);
     // Reserve explicit coordinates before placing automatic nodes, including other tracks' fixed events.
     const physicalPositions =
@@ -347,6 +348,16 @@ export function buildTimelineStage(input: {
     lastLabelBottom = Math.max(lastLabelBottom, arranged.bottom);
   }
   if (flow) stageTracks.length = 0;
+  // Explicit rows can move events away from their allocated track.
+  // Anchor guides and headings to the actual cross-axis extent.
+  for (const track of stageTracks) {
+    const members = Object.values(nodeMap).filter((node) => node.timeline!.track === track.id);
+    if (!members.length) continue;
+    const left = Math.min(...members.map((node) => node.x)) - 10;
+    const right = Math.max(...members.map((node) => node.x + (node.timeline!.barWidth ?? 12) / 2));
+    track.x = left;
+    track.width = Math.max(track.width, right - left);
+  }
   let stageWidth = Math.max(600, flow ? flowWidth : trackX - TRACK_GAP * settings.horizontalSpread + 64);
   let stageHeight = Math.max(360, lastLabelBottom + 80);
   const nodes = entries
@@ -424,6 +435,7 @@ export function buildTimelineStage(input: {
   );
 
   function createNode(entry: TimelineEntry, x: number, labelX: number, labelY: number, color: string): StageNode {
+    if (settings.colorBy === "type") color = timelineTypeColor(getNodeType(dag.nodes[entry.key]), settings.typeColors);
     const visual = getNodeVisual(
       entry.key,
       dag.nodes[entry.key],
@@ -468,6 +480,11 @@ export function buildTimelineStage(input: {
         intervalTitle: settings.intervalTitle,
         intervalAlign: settings.intervalAlign,
         intervalStyle: settings.intervalStyle,
+        intervalBorder: settings.intervalBorder,
+        intervalBorderWidth: settings.intervalBorderWidth,
+        intervalBorderColor: settings.intervalBorderColor,
+        intervalRadius: settings.intervalRadius,
+        intervalTextColor: settings.intervalTextColor,
         minimumCross,
         space,
         barWidth: time.kind === "range" ? intervalWidth : 12,
@@ -673,9 +690,4 @@ function compareEntries(a: TimelineEntry, b: TimelineEntry): number {
   const aTime = a.time.status === "dated" ? a.time.start : Infinity;
   const bTime = b.time.status === "dated" ? b.time.start : Infinity;
   return aTime - bTime || compareKeys(a.key, b.key);
-}
-function trackColor(track: string): string {
-  let hash = 0;
-  for (const character of track) hash = (hash * 31 + character.charCodeAt(0)) | 0;
-  return `hsl(${((hash % 360) + 360) % 360} 58% 43%)`;
 }

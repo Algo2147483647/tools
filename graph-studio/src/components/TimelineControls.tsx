@@ -1,7 +1,7 @@
 import { sanitizeTimelineClock, type TimelineClock } from "../graph/timelineClock";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import NumericSetting from "./settings/NumericSetting";
-import { TimelineChoices, TimelineNumberField, TimelineAlignmentIcon } from "./TimelineSettingFields";
+import { TimelineChoices, TimelineNumberField } from "./TimelineSettingFields";
 
 export interface TimelineControlsProps {
   settings: TimelineViewSettings;
@@ -10,7 +10,6 @@ export interface TimelineControlsProps {
   onReadapt: () => void;
   showArrangement?: boolean;
   showAxis?: boolean;
-  showIntervals?: boolean;
 }
 
 export default function TimelineControls({
@@ -20,7 +19,6 @@ export default function TimelineControls({
   onReadapt,
   showArrangement = true,
   showAxis = true,
-  showIntervals = true,
 }: TimelineControlsProps) {
   const horizontal = settings.orientation === "horizontal";
   return (
@@ -223,62 +221,6 @@ export default function TimelineControls({
             <button type="button" className="timeline-text-action" disabled={settings.locked} onClick={onReadapt}>
               Fit visible events
             </button>
-          </div>
-        </section>
-      )}
-      {showIntervals && (
-        <section className="settings-section timeline-settings-section">
-          <h3>Interval bars</h3>
-          <NumericSetting
-            label="Interval bar width"
-            value={settings.intervalWidth}
-            defaultValue={36}
-            min={0}
-            max={240}
-            step={1}
-            unit="px"
-            onChange={(intervalWidth) => onChange({ intervalWidth })}
-          />
-          <div className="timeline-control-row">
-            <span>Title</span>
-            <TimelineChoices
-              label="Interval title placement"
-              value={settings.intervalTitle}
-              options={[
-                { value: "outside", label: "Outside" },
-                { value: "inside", label: "Inside" },
-                { value: "hidden", label: "Hidden" },
-              ]}
-              onChange={(intervalTitle) => onChange({ intervalTitle })}
-            />
-          </div>
-          {settings.intervalTitle === "inside" && (
-            <div className="timeline-control-row">
-              <span>Alignment</span>
-              <TimelineChoices
-                label="Interval title alignment"
-                value={settings.intervalAlign}
-                options={(["start", "center", "end"] as const).map((value, i) => ({
-                  value,
-                  label: (horizontal ? ["Left", "Center", "Right"] : ["Top", "Center", "Bottom"])[i],
-                  icon: <TimelineAlignmentIcon align={value} horizontal={horizontal} />,
-                }))}
-                onChange={(intervalAlign) => onChange({ intervalAlign })}
-              />
-            </div>
-          )}
-          <div className="timeline-control-row">
-            <span>Fill</span>
-            <TimelineChoices
-              label="Interval fill style"
-              value={settings.intervalStyle}
-              options={[
-                { value: "soft", label: "Soft", icon: <i className="timeline-fill-swatch soft" /> },
-                { value: "solid", label: "Solid", icon: <i className="timeline-fill-swatch solid" /> },
-                { value: "outline", label: "Outline", icon: <i className="timeline-fill-swatch outline" /> },
-              ]}
-              onChange={(intervalStyle) => onChange({ intervalStyle })}
-            />
           </div>
         </section>
       )}

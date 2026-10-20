@@ -1362,6 +1362,99 @@
 .timeline-settings-section {
   container-type: inline-size;
 }
+.timeline-style-group {
+  min-width: 0;
+  margin: 20px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid #e3e8ef;
+}
+.timeline-style-group > legend {
+  padding: 0 12px 0 0;
+  color: #33435b;
+  font-size: 12px;
+  font-weight: 600;
+}
+.timeline-style-group .timeline-control-row {
+  grid-template-columns: 100px minmax(0, 1fr);
+  margin: 0 0 10px;
+}
+.timeline-style-group .numeric-setting {
+  grid-template-columns: 100px minmax(0, 1fr) 28px;
+  column-gap: 12px;
+  min-height: 48px;
+  padding: 8px 0;
+}
+.timeline-style-group .numeric-setting > .setting-label-row {
+  grid-column: 1;
+  grid-row: 1;
+}
+.timeline-style-group .numeric-setting > .numeric-setting-inputs {
+  grid-column: 2;
+  grid-row: 1;
+}
+.timeline-style-group .numeric-setting > .setting-reset {
+  grid-column: 3;
+  grid-row: 1;
+}
+.timeline-style-group .color-setting > .setting-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.color-setting-mode {
+  min-width: 112px;
+  height: 30px;
+  padding: 3px 8px;
+  border: 1px solid #d9e1ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #40516a;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.color-setting-mode:focus-visible {
+  outline: 2px solid #6086da;
+  outline-offset: 2px;
+}
+.timeline-style-group .color-setting-auto-hint,
+.timeline-style-group .timeline-style-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #78869a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.timeline-border-swatch {
+  width: 14px;
+  border-top: 2px solid currentColor;
+}
+.timeline-border-swatch.dashed {
+  border-top-style: dashed;
+}
+@container (max-width: 400px) {
+  .timeline-style-group .timeline-control-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .timeline-style-group .numeric-setting {
+    grid-template-columns: minmax(0, 1fr) 28px;
+    row-gap: 6px;
+  }
+  .timeline-style-group .numeric-setting > .setting-label-row {
+    grid-column: 1 / -1;
+  }
+  .timeline-style-group .numeric-setting > .numeric-setting-inputs {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .timeline-style-group .numeric-setting > .setting-reset {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
 .timeline-control-row {
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr);
