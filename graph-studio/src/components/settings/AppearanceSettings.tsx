@@ -4,8 +4,8 @@ import ChartSchema from "./ChartSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import TimelineIntervalSettings from "../TimelineIntervalSettings";
 import TimelinePointSettings from "../TimelinePointSettings";
+import { TimelinePointTextSettings, TimelineIntervalTextSettings } from "../TimelineTextSettings";
 import TimelineColorSettings from "../TimelineColorSettings";
-import { sanitizeTimelineSettings } from "../../graph/timelineSettings";
 import type { ChangeEvent } from "react";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import { type GraphAppearancePresetId, getGraphAppearancePresets } from "../../graph/appearanceCommands";
@@ -14,7 +14,7 @@ import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
 import LayoutSliderControl from "./LayoutSliderControl";
 import { getLayoutControls } from "./settingsConfig";
 import { useState } from "react";
-import { getDefaultChartStyle } from "../../state/chartStyles";
+import { getDefaultChartStyle, chartStylesEqual } from "../../state/chartStyles";
 import NumericSetting, { ResetSetting } from "./NumericSetting";
 import ColorSetting from "./ColorSetting";
 import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
@@ -59,13 +59,14 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const titleFamily = vars["--dag-title-font-family"] || GRAPH_TITLE_FONT_OPTIONS[0].value;
   const presets = getGraphAppearancePresets(p.chartType);
   const defaultStyle = getDefaultChartStyle(p.chartType);
-  const selectedPreset = presets.find(
-    (preset) =>
-      JSON.stringify(preset.appearance) === JSON.stringify(p.appearance) &&
-      p.showNodeDetail === preset.style.showNodeDetail &&
-      p.hideNodeBorders === preset.style.hideNodeBorders &&
-      p.alignNodeWidthsToMax === preset.style.alignNodeWidthsToMax &&
-      (p.chartType !== "timeline" || JSON.stringify(p.timelineControls?.settings) === JSON.stringify(preset.style.timeline)),
+  const selectedPreset = presets.find((preset) =>
+    chartStylesEqual(preset.style, {
+      appearance: p.appearance,
+      showNodeDetail: p.showNodeDetail,
+      hideNodeBorders: p.hideNodeBorders,
+      alignNodeWidthsToMax: p.alignNodeWidthsToMax,
+      ...(p.chartType === "timeline" ? { timeline: p.timelineControls?.settings } : {}),
+    }),
   );
   const [group, setGroup] = useState<AppearanceGroup>("nodes");
   const catalog = getSettingsCatalog(p.chartType);
@@ -252,6 +253,10 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
           <TimelineIntervalSettings settings={p.timelineControls.settings} onChange={p.timelineControls.onChange} />
         )}
         {has("timeline-anchors") && p.timelineControls && <TimelinePointSettings {...p.timelineControls} anchors />}
+        {has("timeline-point-text") && p.timelineControls && <TimelinePointTextSettings {...p.timelineControls} />}
+        {has("timeline-interval-text") && p.timelineControls && (
+          <TimelineIntervalTextSettings {...p.timelineControls} />
+        )}
         {has("presets") && (
           <>
             <p>{selectedPreset ? `${selectedPreset.label} preset` : "Custom style"} · Choose a starting point.</p>
@@ -259,16 +264,20 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
               {presets.map((preset) => (
                 <button
                   key={preset.id}
+                  aria-label={preset.label}
                   className={selectedPreset?.id === preset.id ? "is-selected" : ""}
                   aria-pressed={selectedPreset?.id === preset.id}
                   onClick={() => p.onAppearancePresetChange(preset.id)}
                 >
                   <span
                     className="preset-sample"
+                    aria-hidden="true"
                     style={{
                       background: preset.appearance.cssVars["--dag-node-fill"],
                       color: preset.appearance.cssVars["--dag-text-strong"],
                       borderColor: preset.appearance.cssVars["--dag-node-border"],
+                      fontFamily: preset.appearance.cssVars["--dag-title-font-family"],
+                      fontStyle: preset.appearance.cssVars["--dag-title-font-style"],
                     }}
                   >
                     <i />
@@ -502,38 +511,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
         )}
         {["nodes", "edges", "text"].includes(id) && (
           <div className="appearance-group-actions">
-            <button
-              type="button"
-              className="setting-section-reset"
-              onClick={() => {
-                p.onSectionReset(id);
-                if (id === "nodes" && isTimeline && p.timelineControls) {
-                  const defaults = sanitizeTimelineSettings(null);
-                  p.timelineControls.onChange({
-                    colorBy: defaults.colorBy,
-                    typeColors: defaults.typeColors,
-                    intervalWidth: defaults.intervalWidth,
-                    intervalTitle: defaults.intervalTitle,
-                    intervalAlign: defaults.intervalAlign,
-                    intervalStyle: defaults.intervalStyle,
-                    intervalBorder: defaults.intervalBorder,
-                    intervalBorderWidth: defaults.intervalBorderWidth,
-                    intervalBorderColor: defaults.intervalBorderColor,
-                    intervalRadius: defaults.intervalRadius,
-                    intervalTextColor: defaults.intervalTextColor,
-                    intervalTextColorMode: defaults.intervalTextColorMode,
-                    pointMarker: defaults.pointMarker,
-                    anchorMarker: defaults.anchorMarker,
-                    pointTextColor: defaults.pointTextColor,
-                    pointDateVisible: defaults.pointDateVisible,
-                    pointDateColor: defaults.pointDateColor,
-                    leaderStyle: defaults.leaderStyle,
-                    leaderColor: defaults.leaderColor,
-                    leaderWidth: defaults.leaderWidth,
-                  });
-                }
-              }}
-            >
+            <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
               Reset {label.toLowerCase()} style
             </button>
           </div>

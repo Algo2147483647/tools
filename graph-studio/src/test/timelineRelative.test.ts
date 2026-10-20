@@ -18,6 +18,7 @@ import TimelineNode from "../rendering/TimelineNode";
 import TimelineBackdrop from "../rendering/TimelineBackdrop";
 import TimelineControls from "../components/TimelineControls";
 import TimelineIntervalSettings from "../components/TimelineIntervalSettings";
+import { TimelineIntervalTextSettings } from "../components/TimelineTextSettings";
 import NodeTimeEditor from "../components/NodeTimeEditor";
 import { buildHtmlPayload } from "../rendering/export-html";
 import { defineSuite, defineTest } from "./harness";
@@ -390,7 +391,13 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
     );
     assert.match(intervals, /Thickness/);
     assert.doesNotMatch(intervals, /Interval color by|Interval status colors/);
-    assert.match(intervals, />Left</);
+    const intervalText = renderToStaticMarkup(
+      createElement(TimelineIntervalTextSettings, {
+        settings: sanitizeTimelineSettings({ orientation: "horizontal", intervalTitle: "inside" }),
+        onChange() {},
+      }),
+    );
+    assert.match(intervalText, />Left</);
     const editor = renderToStaticMarkup(
       createElement(NodeTimeEditor, {
         clock,

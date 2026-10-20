@@ -1,7 +1,7 @@
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import ColorSetting from "./settings/ColorSetting";
 import NumericSetting from "./settings/NumericSetting";
-import { TimelineAlignmentIcon, TimelineChoices } from "./TimelineSettingFields";
+import { TimelineChoices } from "./TimelineSettingFields";
 
 export default function TimelineIntervalSettings({
   settings,
@@ -10,7 +10,6 @@ export default function TimelineIntervalSettings({
   settings: TimelineViewSettings;
   onChange: (patch: Partial<TimelineViewSettings>) => void;
 }) {
-  const horizontal = settings.orientation === "horizontal";
   const hasBorder =
     settings.intervalBorder === "solid" ||
     settings.intervalBorder === "dashed" ||
@@ -93,65 +92,6 @@ export default function TimelineIntervalSettings({
               automatic={{ color: "#64748b", description: "Uses the event color from Color by." }}
               onChange={(intervalBorderColor) => onChange({ intervalBorderColor })}
             />
-          </>
-        )}
-      </fieldset>
-      <fieldset className="timeline-style-group">
-        <legend>Text</legend>
-        <div className="timeline-control-row">
-          <span>Placement</span>
-          <TimelineChoices
-            label="Interval title placement"
-            value={settings.intervalTitle}
-            options={[
-              { value: "outside", label: "Outside" },
-              { value: "inside", label: "Inside" },
-              { value: "hidden", label: "Hidden" },
-            ]}
-            onChange={(intervalTitle) => onChange({ intervalTitle })}
-          />
-        </div>
-        {settings.intervalTitle === "inside" && (
-          <div className="timeline-control-row">
-            <span>Alignment</span>
-            <TimelineChoices
-              label="Interval title alignment"
-              value={settings.intervalAlign}
-              options={(["start", "center", "end"] as const).map((value, i) => ({
-                value,
-                label: (horizontal ? ["Left", "Center", "Right"] : ["Top", "Center", "Bottom"])[i],
-                icon: <TimelineAlignmentIcon align={value} horizontal={horizontal} />,
-              }))}
-              onChange={(intervalAlign) => onChange({ intervalAlign })}
-            />
-          </div>
-        )}
-        {settings.intervalTitle !== "hidden" && (
-          <>
-            <div className="timeline-control-row">
-              <span>Font color</span>
-              <TimelineChoices
-                label="Interval title color source"
-                value={settings.intervalTextColorMode}
-                options={[
-                  { value: "event", label: "Match interval" },
-                  { value: "theme", label: "Theme" },
-                  { value: "custom", label: "Custom" },
-                ]}
-                onChange={(intervalTextColorMode) => onChange({ intervalTextColorMode })}
-              />
-            </div>
-            {settings.intervalTextColorMode === "event" && (
-              <p className="timeline-style-hint">Automatically follows the interval's Type or Track color.</p>
-            )}
-            {settings.intervalTextColorMode === "custom" && (
-              <ColorSetting
-                label="Font color"
-                value={settings.intervalTextColor || "#18212f"}
-                defaultValue="#18212f"
-                onChange={(intervalTextColor) => onChange({ intervalTextColor })}
-              />
-            )}
           </>
         )}
       </fieldset>

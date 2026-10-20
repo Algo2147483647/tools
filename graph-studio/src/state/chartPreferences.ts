@@ -1,6 +1,13 @@
 import type { GraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
-import { mapChartTypes, type ChartStyle, type ChartStyles, type ChartDisplayOptions } from "./chartStyles";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
+import {
+  mapChartTypes,
+  chartStylesEqual,
+  type ChartStyle,
+  type ChartStyles,
+  type ChartDisplayOptions,
+} from "./chartStyles";
 
 interface AppearanceTransaction {
   label: string;
@@ -8,6 +15,8 @@ interface AppearanceTransaction {
   after: GraphAppearance;
   beforeDisplay?: ChartDisplayOptions;
   afterDisplay?: ChartDisplayOptions;
+  beforeTimeline?: TimelineViewSettings;
+  afterTimeline?: TimelineViewSettings;
 }
 
 interface AppearanceHistory extends ChartStyle {
@@ -20,7 +29,13 @@ type AppearanceHistoryAction =
   | { type: "replace"; style: ChartStyle }
   | { type: "beginAdjustment" }
   | { type: "endAdjustment" }
-  | { type: "commit"; appearance: GraphAppearance; label: string; display?: ChartDisplayOptions }
+  | {
+      type: "commit";
+      appearance: GraphAppearance;
+      label: string;
+      display?: ChartDisplayOptions;
+      timeline?: { before: TimelineViewSettings; after: TimelineViewSettings };
+    }
   | { type: "undo" }
   | { type: "redo" }
   | { type: "toggleDisplay"; key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax" };
@@ -71,7 +86,7 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
     case "toggleDisplay":
       return { ...state, [action.key]: !state[action.key] };
     case "commit": {
-      if (action.display && state.adjustment)
+      if ((action.display || action.timeline) && state.adjustment)
         return appearanceHistoryReducer(appearanceHistoryReducer(state, { type: "endAdjustment" }), action);
       const beforeDisplay = {
         showNodeDetail: state.showNodeDetail,
@@ -79,8 +94,14 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
         alignNodeWidthsToMax: state.alignNodeWidthsToMax,
       };
       if (
-        JSON.stringify(state.appearance) === JSON.stringify(action.appearance) &&
-        (!action.display || JSON.stringify(beforeDisplay) === JSON.stringify(action.display))
+        chartStylesEqual(
+          { appearance: state.appearance, ...beforeDisplay, timeline: action.timeline?.before ?? state.timeline },
+          {
+            appearance: action.appearance,
+            ...(action.display ?? beforeDisplay),
+            timeline: action.timeline?.after ?? state.timeline,
+          },
+        )
       )
         return state;
       if (state.adjustment)
@@ -90,11 +111,18 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
         before: state.appearance,
         after: action.appearance,
         ...(action.display ? { beforeDisplay, afterDisplay: action.display } : {}),
+        ...(action.timeline
+          ? {
+              beforeTimeline: structuredClone(action.timeline.before),
+              afterTimeline: structuredClone(action.timeline.after),
+            }
+          : {}),
       };
       return {
         ...state,
         ...action.display,
         appearance: action.appearance,
+        ...(action.timeline ? { timeline: action.timeline.after } : {}),
         undoStack: [...state.undoStack, transaction].slice(-100),
         redoStack: [],
       };
@@ -106,6 +134,7 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
             ...state,
             appearance: transaction.before,
             ...transaction.beforeDisplay,
+            ...(transaction.beforeTimeline ? { timeline: transaction.beforeTimeline } : {}),
             undoStack: state.undoStack.slice(0, -1),
             redoStack: [...state.redoStack, transaction],
           }
@@ -118,6 +147,7 @@ function appearanceHistoryReducer(state: AppearanceHistory, action: AppearanceHi
             ...state,
             appearance: transaction.after,
             ...transaction.afterDisplay,
+            ...(transaction.afterTimeline ? { timeline: transaction.afterTimeline } : {}),
             undoStack: [...state.undoStack, transaction].slice(-100),
             redoStack: state.redoStack.slice(0, -1),
           }

@@ -17,6 +17,7 @@ import { timelineBarBox } from "../layout/timeline-orientation";
 import { TIMELINE_CSS } from "../rendering/timelineStyles";
 import TimelinePointSettings from "../components/TimelinePointSettings";
 import TimelineIntervalSettings from "../components/TimelineIntervalSettings";
+import { TimelinePointTextSettings, TimelineIntervalTextSettings } from "../components/TimelineTextSettings";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 
 export const timelineRenderingSuite = defineSuite("Timeline rendering", [
@@ -99,8 +100,19 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
       assert(getSettingsCatalog("timeline").some((item) => item.id === "fontStyle"));
       const menu = renderToStaticMarkup(createElement(TimelinePointSettings, { settings, onChange() {} }));
       assert.match(menu, /Point marker shape/);
+      assert.doesNotMatch(menu, /Point title color|Show point time label|Label leaders/);
       const intervalMenu = renderToStaticMarkup(createElement(TimelineIntervalSettings, { settings, onChange() {} }));
-      assert.match(intervalMenu, /Match interval/);
+      assert.match(intervalMenu, /Interval fill style/);
+      assert.doesNotMatch(intervalMenu, /Match interval|Interval title placement/);
+      const pointText = renderToStaticMarkup(createElement(TimelinePointTextSettings, { settings, onChange() {} }));
+      assert.match(pointText, /Point title color|Show point time label/);
+      assert.doesNotMatch(pointText, /Point marker shape/);
+      const intervalText = renderToStaticMarkup(
+        createElement(TimelineIntervalTextSettings, { settings, onChange() {} }),
+      );
+      assert.match(intervalText, /Match interval/);
+      assert.match(intervalText, /Interval title placement/);
+      assert.doesNotMatch(intervalText, /Interval fill style/);
     },
   ),
   defineTest("zero cross-axis spread makes adjacent bars touch in tracks, flow, and explicit rows", () => {

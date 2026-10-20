@@ -2,6 +2,8 @@
 
 Timeline is a fourth chart type, alongside Node-link, Sankey, and Nested node-link. Choose it in **Settings → Chart type**. Its appearance and spacing are remembered independently of the other chart types.
 
+**Appearance → Presets** provides **Default** and **Preset 2**. Preset 2 saves the compact horizontal style: direct connections, Type colors, 24 px interval bars, square corners, inside titles that follow interval colors, and italic Times New Roman. Both presets apply the complete style, including Timeline controls. **Reset current style** restores Default; style undo/redo restores the complete previous/next configuration. The portable snapshot is [`timeline-preset-2.style.json`](../public/presets/timeline-preset-2.style.json).
+
 ## Reading the timeline
 
 - Time runs on one shared axis. **Settings → Layout → Timeline arrangement** selects Vertical (top to bottom) or Horizontal (left to right); text always stays upright. Calendar axes use UTC, while relative axes use native numeric values. **Settings → Layout** independently selects the arrangement (Tracks or Relation flow) and axis (Fixed interval or Adaptive).
@@ -139,14 +141,20 @@ The time-range filter uses inclusive numeric From/To bounds in relative mode. No
 **Settings → Appearance → Nodes → Interval bars** controls:
 
 - **Interval bar width**: the short dimension in pixels (height in horizontal mode, width in vertical mode). The default is 36 px. The slider spans 0–240; the numeric field accepts values beyond that range. Changing it reserves room across the time axis without changing any time coordinate.
+- **Fill style**: Soft, Solid or Outline.
+- **Border and corner radius**: outline style, stroke width/color, and bar rounding.
+
+**Appearance → Text → Interval text** controls:
+
 - **Title placement**: Outside (title and time), Inside (title only), or Hidden. Inside titles never include time or node details; short bars clip text within their true duration instead of extending the bar.
 - **Title alignment**: start/center/end maps to Left/Center/Right horizontally and Top/Center/Bottom vertically.
-- **Fill style**: Soft, Solid or Outline.
 - **Font color**: Match interval follows the current Type or Track color automatically; Theme uses the theme text color; Custom selects an independent title color.
 
 **Appearance → Text → Italic title** controls slanted titles for both points and intervals.
-**Appearance → Nodes → Point events** configures marker visibility, shape, size, fill, border, title color and time-label visibility/color.
-**Time anchors** in the same Nodes section configures interval endpoints and interior connection markers independently, plus the line that links a label to its exact time.
+**Appearance → Nodes → Point events** configures marker visibility, shape, size, fill and border.
+**Appearance → Text → Point text** configures point title color and time-label visibility/color. Node descriptions also belong to Text.
+**Appearance → Edges → Time anchors** configures interval endpoints and interior connection markers independently, plus the line that links a label to its exact time.
+Each appearance group's reset affects only its own settings and supports Undo/Redo. Connection routing remains under **Layout → Connections**.
 Changing these styles never changes the stored event times or connection anchors. Clipped and ongoing endpoints retain their open-ended indicator.
 
 Layout and appearance belong to a separate **graph-studio-style** file. Export it from **Appearance → Configuration → Export style**, save it alongside the graph, and set only `"metadata": { "style": "timeline.style.json" }` in the graph. Opening the workspace resolves the reference relative to the graph file and applies the style automatically. Opening just the graph file cannot access sibling files; import the style manually or open its workspace. Missing or invalid style files produce a notice while the graph stays usable.

@@ -1,6 +1,11 @@
 import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "./appearance";
 import type { GraphChartType } from "./types";
-import { getDefaultChartStyle, getCompoundPreset2Style } from "../state/chartStyles";
+import {
+  getDefaultChartStyle,
+  getCompoundPreset2Style,
+  getTimelinePreset2Style,
+  type ChartStyle,
+} from "../state/chartStyles";
 
 export type AppearanceCommand =
   | { type: "setLayout"; key: keyof GraphLayoutAppearance; value: number }
@@ -17,6 +22,7 @@ interface GraphAppearancePreset {
   id: GraphAppearancePresetId;
   label: string;
   appearance: GraphAppearance;
+  style: ChartStyle;
 }
 
 export interface AppearanceCommandResult {
@@ -28,11 +34,23 @@ export interface AppearanceCommandResult {
 export function getGraphAppearancePresets(chartType?: GraphChartType): GraphAppearancePreset[] {
   const type = chartType ?? "compound";
   return [
-    { id: "default", label: "Default", appearance: getDefaultChartStyle(type).appearance },
-    ...(type === "compound"
-      ? [{ id: "preset-2" as const, label: "Preset 2", appearance: getCompoundPreset2Style().appearance }]
+    { id: "default" as const, label: "Default", style: getDefaultChartStyle(type) },
+    ...(type === "compound" || type === "timeline"
+      ? [
+          {
+            id: "preset-2" as const,
+            label: "Preset 2",
+            style: type === "timeline" ? getTimelinePreset2Style() : getCompoundPreset2Style(),
+          },
+        ]
       : []),
-  ];
+  ].map((preset) => ({ ...preset, appearance: preset.style.appearance }));
+}
+
+export function getGraphPresetStyle(chartType: GraphChartType, presetId: GraphAppearancePresetId): ChartStyle {
+  const preset = getGraphAppearancePresets(chartType).find((preset) => preset.id === presetId);
+  if (!preset) throw new Error(`Preset ${presetId} is not available for ${chartType}.`);
+  return structuredClone(preset.style);
 }
 
 export function applyAppearanceCommand(

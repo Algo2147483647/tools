@@ -34,7 +34,7 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
       const presets = getGraphAppearancePresets(chartType);
       assert.deepEqual(
         presets.map((preset) => preset.id),
-        chartType === "compound" ? ["default", "preset-2"] : ["default"],
+        chartType === "compound" || chartType === "timeline" ? ["default", "preset-2"] : ["default"],
       );
       assert.deepEqual(presets[0].appearance, getDefaultChartStyle(chartType).appearance);
       assert.deepEqual(

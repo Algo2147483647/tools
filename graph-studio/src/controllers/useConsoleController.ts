@@ -9,7 +9,8 @@ import {
 } from "../console/presentation";
 import type { ConsoleEntry, ConsoleReviewCard } from "../console/types";
 import type { GraphAppearance } from "../graph/appearance";
-import { buildAppearanceMutationLabel } from "../graph/appearanceCommands";
+import { buildAppearanceMutationLabel, getGraphPresetStyle } from "../graph/appearanceCommands";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
 import { createGraphDocument } from "../graph/normalize";
 import type { NodeKey } from "../graph/types";
 import type { GraphAppState } from "../state/initialState";
@@ -28,7 +29,12 @@ export function useConsoleController({
 
   appearance: GraphAppearance;
   transactions: Pick<GraphTransactionsController, "commitBatch">;
-  commitAppearance: (next: GraphAppearance, label: string, resetDisplay?: boolean) => void;
+  commitAppearance: (
+    next: GraphAppearance,
+    label: string,
+    resetDisplay?: boolean,
+    timeline?: TimelineViewSettings,
+  ) => void;
   openNodeDetail: (key: NodeKey, focus?: "fields" | "raw") => void;
 }) {
   const [input, setInput] = useState("");
@@ -143,15 +149,21 @@ export function useConsoleController({
           executed.appearanceMutationCount,
           executed.appearanceResults.at(-1)?.message,
         );
-        commitAppearance(
-          executed.appearance,
-          label,
-          parsed.instructions.some(
-            (instruction) =>
-              instruction.type === "appearance" &&
-              (instruction.command.type === "resetAppearance" || instruction.command.type === "applyPreset"),
-          ),
-        );
+        const resetCommand = parsed.instructions
+          .flatMap((instruction) =>
+            instruction.type === "appearance" &&
+            (instruction.command.type === "resetAppearance" || instruction.command.type === "applyPreset")
+              ? [instruction.command]
+              : [],
+          )
+          .at(-1);
+        const resetStyle = resetCommand
+          ? getGraphPresetStyle(
+              state.chartType,
+              resetCommand.type === "applyPreset" ? resetCommand.presetId : "default",
+            )
+          : undefined;
+        commitAppearance(executed.appearance, label, Boolean(resetStyle), resetStyle?.timeline);
         appendMessage("success", label);
       }
       if (executed.mutationCount > 0) {

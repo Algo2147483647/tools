@@ -89,7 +89,7 @@ export default function TimelinePointSettings({
           </>
         )}
       </fieldset>
-      {anchors ? (
+      {anchors && (
         <fieldset className="timeline-style-group">
           <legend>Label leaders</legend>
           <div className="timeline-control-row">
@@ -124,34 +124,6 @@ export default function TimelinePointSettings({
                 onChange={(leaderColor) => onChange({ leaderColor })}
               />
             </>
-          )}
-        </fieldset>
-      ) : (
-        <fieldset className="timeline-style-group">
-          <legend>Text</legend>
-          <ColorSetting
-            label="Point title color"
-            value={settings.pointTextColor}
-            defaultValue=""
-            automatic={{ color: "#18212f", description: "Uses the theme title color." }}
-            onChange={(pointTextColor) => onChange({ pointTextColor })}
-          />
-          <label className="timeline-check">
-            <input
-              type="checkbox"
-              checked={settings.pointDateVisible}
-              onChange={(e) => onChange({ pointDateVisible: e.target.checked })}
-            />
-            Show point time label
-          </label>
-          {settings.pointDateVisible && (
-            <ColorSetting
-              label="Point time color"
-              value={settings.pointDateColor}
-              defaultValue=""
-              automatic={{ color: "#64748b", description: "Uses the theme secondary text color." }}
-              onChange={(pointDateColor) => onChange({ pointDateColor })}
-            />
           )}
         </fieldset>
       )}

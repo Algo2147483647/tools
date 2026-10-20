@@ -2,15 +2,16 @@ import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } fr
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
 import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
 import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "../graph/appearance";
-import { type GraphAppearancePresetId, applyAppearanceCommand } from "../graph/appearanceCommands";
+import { type GraphAppearancePresetId, applyAppearanceCommand, getGraphPresetStyle } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
-import { getDefaultChartStyle, type ChartStyles } from "../state/chartStyles";
+import { getDefaultChartStyle, type ChartStyles, type ChartStyle } from "../state/chartStyles";
 import type { GraphAction } from "../state/graphActions";
-import { resetAppearanceSection } from "../components/settings/appearanceSections";
+import { resetChartStyleSection } from "../components/settings/appearanceSections";
 import type { AppearanceGroup } from "../components/settings/settingsCatalog";
 import type { GraphAppState } from "../state/initialState";
+import type { TimelineViewSettings } from "../graph/timelineSettings";
 
 export function useChartPreferences(
   styles: ChartStyles,
@@ -50,25 +51,36 @@ export function useChartPreferences(
     [chartType],
   );
   const commitAppearance = useCallback(
-    (nextAppearance: GraphAppearance, label: string, resetDisplay = false) => {
-      const { appearance: _appearance, ...display } = getDefaultChartStyle(chartType);
+    (nextAppearance: GraphAppearance, label: string, resetDisplay = false, timeline?: TimelineViewSettings) => {
+      const { appearance: _appearance, timeline: _timeline, ...display } = getDefaultChartStyle(chartType);
       updateHistories({
         chartType,
-        action: { type: "commit", appearance: nextAppearance, label, ...(resetDisplay ? { display } : {}) },
+        action: {
+          type: "commit",
+          appearance: nextAppearance,
+          label,
+          ...(resetDisplay ? { display } : {}),
+          ...(timeline ? { timeline: { before: state.timelineSettings, after: timeline } } : {}),
+        },
       });
+      if (timeline) dispatch({ type: "timelineSettingsChanged", patch: timeline });
     },
-    [chartType],
+    [chartType, state.timelineSettings, dispatch],
   );
   const undo = useCallback(() => {
     const transaction = history.undoStack.at(-1);
     if (!transaction) return;
     updateHistories({ chartType, action: { type: "undo" } });
+    if (chartType === "timeline" && transaction.beforeTimeline)
+      dispatch({ type: "timelineSettingsChanged", patch: transaction.beforeTimeline });
     dispatch({ type: "statusChanged", status: `Undid: ${transaction.label}` });
   }, [chartType, dispatch, history.undoStack]);
   const redo = useCallback(() => {
     const transaction = history.redoStack.at(-1);
     if (!transaction) return;
     updateHistories({ chartType, action: { type: "redo" } });
+    if (chartType === "timeline" && transaction.afterTimeline)
+      dispatch({ type: "timelineSettingsChanged", patch: transaction.afterTimeline });
     dispatch({ type: "statusChanged", status: `Redid: ${transaction.label}` });
   }, [chartType, dispatch, history.redoStack]);
   function handleLayoutAppearanceChange<K extends keyof GraphLayoutAppearance>(
@@ -115,17 +127,28 @@ export function useChartPreferences(
   }
 
   function handleAppearancePresetChange(presetId: GraphAppearancePresetId) {
-    commitAppearance(
-      applyAppearanceCommand(appearance, { type: "applyPreset", presetId }, chartType).appearance,
-      `Applied ${presetId} appearance preset.`,
-      true,
-    );
+    commitStyle(getGraphPresetStyle(chartType, presetId), `Applied ${presetId} appearance preset.`);
   }
 
   function handleAppearanceReset() {
-    commitAppearance(getDefaultChartStyle(chartType).appearance, "Reset graph appearance.", true);
+    commitStyle(getDefaultChartStyle(chartType), "Reset graph appearance.");
   }
 
+  function commitStyle(style: ChartStyle, label: string) {
+    const { appearance, timeline, ...display } = style;
+    const nextTimeline = chartType === "timeline" ? timeline : undefined;
+    updateHistories({
+      chartType,
+      action: {
+        type: "commit",
+        appearance,
+        display,
+        label,
+        ...(nextTimeline ? { timeline: { before: state.timelineSettings, after: nextTimeline } } : {}),
+      },
+    });
+    if (nextTimeline) dispatch({ type: "timelineSettingsChanged", patch: nextTimeline });
+  }
   function handleAppearanceExport() {
     const outputFileName = buildTimestampFileName(`${chartType}-appearance.json`);
     const style = {
@@ -171,17 +194,7 @@ export function useChartPreferences(
       if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
         throw new Error("Appearance JSON must be an object.");
       }
-      const { appearance: importedAppearance, timeline, ...display } = parseChartStyleFile(payload, chartType);
-      updateHistories({
-        chartType,
-        action: {
-          type: "commit",
-          appearance: importedAppearance,
-          display,
-          label: `Imported graph appearance from ${file.name}.`,
-        },
-      });
-      if (chartType === "timeline" && timeline) dispatch({ type: "timelineSettingsChanged", patch: timeline });
+      commitStyle(parseChartStyleFile(payload, chartType), `Imported graph appearance from ${file.name}.`);
       dispatch({ type: "statusChanged", status: `Imported UI appearance from ${file.name}.` });
     } catch (error) {
       console.error(error);
@@ -216,10 +229,16 @@ export function useChartPreferences(
     handleAppearancePresetChange,
     handleAppearanceReset,
     resetSection: (group: AppearanceGroup | "layout") =>
-      commitAppearance(
-        resetAppearanceSection(appearance, group, getDefaultChartStyle(chartType).appearance),
+      commitStyle(
+        resetChartStyleSection(
+          {
+            ...chartStyles[chartType],
+            ...(chartType === "timeline" ? { timeline: state.timelineSettings } : {}),
+          },
+          chartType,
+          group,
+        ),
         `Reset ${group} style.`,
-        group === "nodes",
       ),
     handleAppearanceExport,
     handleAppearanceImportClick,

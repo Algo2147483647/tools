@@ -16,6 +16,17 @@ export interface ChartStyle extends ChartDisplayOptions {
 
 export type ChartStyles = Record<GraphChartType, ChartStyle>;
 
+/** Imported JSON can use a different property order without changing the style. */
+export function chartStylesEqual(left: ChartStyle, right: ChartStyle): boolean {
+  const stable = (value: ChartStyle) =>
+    JSON.stringify(value, (_key, entry) =>
+      entry && typeof entry === "object" && !Array.isArray(entry)
+        ? Object.fromEntries(Object.entries(entry).sort(([a], [b]) => a.localeCompare(b)))
+        : entry,
+    );
+  return stable(left) === stable(right);
+}
+
 export function mapChartTypes<T>(create: (type: GraphChartType) => T): Record<GraphChartType, T> {
   return {
     "node-link": create("node-link"),
@@ -62,7 +73,34 @@ export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
     });
     return style;
   }
-  return sanitizeChartStyle(type === "timeline" ? { showNodeDetail: false } : null);
+  return sanitizeChartStyle(
+    type === "timeline" ? { showNodeDetail: false, timeline: sanitizeTimelineSettings(null) } : null,
+  );
+}
+
+/** The saved horizontal timeline style. Category names and document pins are not part of a preset. */
+export function getTimelinePreset2Style(): ChartStyle {
+  const style = getDefaultChartStyle("timeline");
+  style.appearance = structuredClone(style.appearance);
+  Object.assign(style.appearance.cssVars, {
+    "--dag-title-font-family": '"Times New Roman", serif',
+    "--dag-title-font-style": "italic",
+  });
+  style.timeline = sanitizeTimelineSettings({
+    orientation: "horizontal",
+    edgeRouting: "direct",
+    colorBy: "type",
+    intervalWidth: 24,
+    intervalTitle: "inside",
+    intervalBorder: "solid",
+    intervalBorderWidth: 1,
+    intervalRadius: 0,
+    intervalTextColorMode: "event",
+    tickStep: 1,
+    nodeGap: 0,
+    horizontalSpread: 0,
+  });
+  return style;
 }
 
 export function sanitizeChartStyleForType(type: GraphChartType, value: unknown): ChartStyle {
