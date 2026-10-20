@@ -8,7 +8,7 @@ This guide covers the local developer workflow and the main source layout for Gr
 - TypeScript
 - Vite
 - Dagre for one of the layered layout engines
-- Bottom-up topological grids with fixed child rectangles, followed by independent orthogonal routing for Nested node-link
+- Bottom-up topology-constrained rectangle packing with fixed child rectangles, followed by independent orthogonal routing for Nested node-link
 
 ## Local Scripts
 

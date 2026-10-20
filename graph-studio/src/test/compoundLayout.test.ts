@@ -215,7 +215,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       assert.deepEqual(local(place(dag, ["system-0"])), local(original));
     },
   ),
-  defineTest("topological grids keep upstream ranks before downstream ranks and align parallel branches", () => {
+  defineTest("topological placement keeps dependencies downstream and aligns equal parallel branches", () => {
     const ids = ["a", "b", "c", "d", "e", "f"];
     const edges: [string, string][] = [
       ["a", "b"],
@@ -241,6 +241,59 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       ["e", "f"],
     ])
       assert.ok(cyclic.boxes.get(a)![cyclicAxis] < cyclic.boxes.get(b)![cyclicAxis]);
+  }),
+  defineTest(
+    "short dependent branches occupy space beside a wide sibling instead of inheriting its column width",
+    () => {
+      const ids = ["source", "wide", "b", "c", "d", "join"];
+      const sizes = new Map(ids.map((id) => [id, { width: id === "wide" ? 600 : 100, height: 100 }]));
+      const edges: [string, string][] = [
+        ["source", "wide"],
+        ["source", "b"],
+        ["b", "c"],
+        ["c", "d"],
+        ["wide", "join"],
+        ["d", "join"],
+      ];
+      const result = arrangeTopology(ids, edges, sizes, 24, 24);
+      assert.ok(result.width * result.height <= 848 * 224, "the short branch must fit alongside the 600px rectangle");
+      const wide = result.boxes.get("wide")!,
+        c = result.boxes.get("c")!,
+        join = result.boxes.get("join")!;
+      assert.ok(c.x < wide.x + wide.width, "only actual predecessors constrain a downstream position");
+      assert.ok(join.x >= wide.x + wide.width + 24, "the merge still follows the complete wide branch");
+      for (const [a, b] of edges) {
+        const source = result.boxes.get(a)!,
+          target = result.boxes.get(b)!;
+        assert.ok(source.x + source.width + 24 <= target.x);
+      }
+      for (const id of ids)
+        assert.deepEqual({ width: result.boxes.get(id)!.width, height: result.boxes.get(id)!.height }, sizes.get(id));
+    },
+  ),
+  defineTest("unequal disconnected rectangles fill a contour without sharing the largest row height", () => {
+    const ids = ["large", "a", "b", "c"];
+    const sizes = new Map(
+      ids.map((id) => [id, id === "large" ? { width: 600, height: 600 } : { width: 200, height: 100 }]),
+    );
+    const result = arrangeTopology(ids, [], sizes, 24, 24);
+    assert.ok(
+      result.width * result.height <= 648 * 724,
+      "three small rectangles should share the free strip beside the large one",
+    );
+    const boxes = [...result.boxes.values()];
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i],
+          b = boxes[j];
+        assert.ok(
+          a.x + a.width + 24 <= b.x ||
+            b.x + b.width + 24 <= a.x ||
+            a.y + a.height + 24 <= b.y ||
+            b.y + b.height + 24 <= a.y,
+        );
+      }
+    assert.deepEqual(arrangeTopology([...ids].reverse(), [], sizes, 24, 24), result);
   }),
   defineTest("zero configured gaps produce finite nested geometry", async () => {
     const dag = nestedChainFixture();
