@@ -245,5 +245,3 @@ export function useChartPreferences(
     handleAppearanceImportChange,
   };
 }
-
-export type ChartPreferencesController = ReturnType<typeof useChartPreferences>;

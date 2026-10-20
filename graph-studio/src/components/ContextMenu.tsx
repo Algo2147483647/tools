@@ -6,7 +6,6 @@ import type { GraphContextMenu, GraphContextTarget } from "../state/contextMenu"
 import { getContextMenuPages, type ContextMenuAction, type MenuPage } from "./contextMenuModel";
 import { placeContextMenu, placeContextSubmenu } from "./contextMenuPosition";
 import ContextMenuIcon from "./ContextMenuIcon";
-export type { ContextMenuAction } from "./contextMenuModel";
 
 interface ContextMenuProps {
   menu: GraphContextMenu | null;

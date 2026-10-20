@@ -1,4 +1,5 @@
-import { isRecord, normalizeDagInput, validateNodeKey } from "./normalize";
+import { normalizeDagInput, validateNodeKey } from "./normalize";
+import { isRecord } from "../utils/json";
 import { serializeDag } from "./serialize";
 import type { GraphEdge, HierarchyEdge, NormalizedDag } from "./types";
 

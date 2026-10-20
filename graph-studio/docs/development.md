@@ -36,14 +36,14 @@ Script behavior:
 - `npm start`: uses the same dependency verification and browser startup as the platform launchers
 - `npm run dev`: starts the Vite development server directly
 - `npm run build`: type-checks (including unused locals and parameters) and creates a production build
-- `npm test`: runs the configured test script from `package.json`
+- `npm test`: runs all application regression suites; append case-insensitive suite-name fragments to select suites, for example `npm test -- "Graph projections" "AI provider transport"`
 - `npm run preview`: serves the built app locally
 - `npm run test:launcher`: checks startup options, dependency fingerprints, invocation from another directory, and cleanup boundaries
 - `npm run clean`: removes `dist/`, `test-results/`, `coverage/`, and root `.log` / `.tsbuildinfo` files
 - `npm run clean -- --cache`: also removes `.npm-cache/` and `.example-source-cache/`; dependencies and example workspaces are preserved
-- `npm run format`: formats source, browser fixtures, startup/cleanup scripts and project configuration with Prettier
+- `npm run format`: formats source, browser fixtures, JavaScript tools/tests and project configuration with Prettier
 - `npm run format:check`: checks formatting without modifying files
-- `npm run check`: runs formatting, launcher tests, generated-example consistency checks, application regression tests, type checks, and the production build
+- `npm run check`: runs formatting, launcher tests, application regression tests (including bundled examples), type checks, and the production build
 
 ## File Organization
 
@@ -51,11 +51,11 @@ Script behavior:
 - `src/`: application code and styles; `src/test/` contains the TypeScript regression suites and fixtures.
 - `browser-tests/`: HTML/TSX regression pages used only by the development server.
 - `public/`: files served with the app, including the schema, sample JSON and self-contained example workspaces with their own notes and sources.
-- `scripts/`: build-time tools; `scripts/data/` holds source datasets for example generators, and `scripts/test/` holds launcher tests.
+- `scripts/`: startup and cleanup tools; `scripts/test/` holds launcher tests.
 - `docs/`: project documentation; `docs/assets/` holds documentation images.
 - Generated files: `node_modules/`, `dist/`, `test-results/`, `coverage/`, caches, and diagnostic logs are ignored. Put new test reports in `test-results/` rather than committing logs at the root.
 
-`package-lock.json` is the dependency source of truth. `pnpm-workspace.yaml` allows the esbuild install step for the pnpm fallback; its generated lockfile is not committed. Avoid hand-editing generated example JSON when a generator exists; edit its `scripts/data/` inputs and regenerate it.
+`package-lock.json` is the dependency source of truth. Build tools and type packages belong in `devDependencies`; the launcher explicitly installs them for development and builds. `pnpm-workspace.yaml` allows the esbuild install step for the pnpm fallback; its generated lockfile is not committed. This checkout includes the example documents but does not include the historical example generators or their input datasets. The example regression suites validate the checked-in documents.
 
 Windows uses `launch.cmd` → `launch.ps1` → `scripts/launch.mjs`; macOS uses `launch.command` → `scripts/launch.mjs`. `scripts/node-runtime.ps1` only discovers the Windows Node executable. The shared JavaScript owns dependency checks, installation, build and server options. Invalid or conflicting options fail before installation. Stop servers before installing updated dependencies or cleaning build output.
 
@@ -75,6 +75,7 @@ Text files use LF, with CRLF for Windows `.cmd` / `.ps1` files. Keep `.command` 
 - [`src/console/`](../src/console/): console DSL parsing, execution, and reference content
 - [`src/adapters/`](../src/adapters/): browser-specific capabilities such as file access, clipboard, and downloads
 - [`src/hooks/`](../src/hooks/): reusable UI hooks for zoom, pan, resize, keyboard shortcuts, and dismissal behavior
+- [`src/utils/`](../src/utils/): small dependency-free helpers shared across domains, such as the JSON object guard
 
 ## Architecture Notes
 
@@ -83,13 +84,20 @@ The codebase is organized around a few clear responsibilities:
 - graph loading and normalization happen in the graph layer
 - v3 semantic fields are fixed in `graph/fieldRoles.ts`; UI, layout, console and AI use them directly without passing a mapping object
 - descendant traversal is shared by graph commands and stage layout in `graph/traversal.ts`; layout-specific breadth-first ordering stays in the layout layer
+- type filters, timeline tracks and timeline readaptation share `graph/projection.ts`; projections clone only retained data, rebuild adjacency and leave source metadata and containment untouched
 - graph documents are validated as v3; edges are authoritative and graphIndex builds non-enumerable read-only adjacency projections
-- importMerge produces explicit conflicts before committing a multi-file document; metadata survives serialization
+- `graph/importMerge.ts` retains a tested conflict-resolution API for multi-file documents; the current opening flow does not use it, and it is excluded from the runtime bundle
 - edits flow through graph commands and reducer-managed history
 - layout selection is separated from rendering so multiple layout engines can coexist
 - browser integrations such as file access and clipboard support live in adapters instead of core graph logic
 - graph appearance is a CSS-first configuration object stored separately from graph JSON
 - the console DSL acts as a textual front end for the same graph mutation and appearance command cores used by the UI
+
+Keep data helpers independent of React components. `components/nodeFields.ts` owns field parsing/formatting, `graph/relations.ts` owns relation input, and components import their types and helpers directly instead of re-exporting them through other components. `hooks/useDebouncedValue.ts` is shared by settings previews and graph controllers.
+
+`MarkdownValue` loads the Markdown renderer only when nonempty rich content is displayed and falls back to readable plain text if rendering cannot load. `MarkdownContent` owns Markdown plugins, relative links and image URL cleanup. HTML export synchronously captures a sanitized SVG and inherited typography through `rendering/export-html-svg.ts`, then loads `rendering/export-html.ts` on demand. Keeping capture separate prevents edits during module loading from mixing document versions. The HTML viewer and server-side Markdown renderer stay outside the initial JavaScript bundle.
+
+`workspace/files.ts` is the shared file-read boundary for discovery, linked styles and relative assets. File handles are read afresh; immutable example downloads retain their own retryable cache. `utils/json.ts` narrows untrusted objects consistently in graph validation, AI persistence and provider parsing. AI transports treat response data as `unknown` until its shape is checked.
 
 Document identity combines a stable location ID and a workspace-relative graph path. The identity catalog is independent of the recent list: removing or evicting a recent row does not delete the stored location handle. Existing v1 records are reused without changing document IDs. A new opening increments the document generation, even when reopening the same file. AI persistence uses document identity; pending requests and plans also carry runtime generation/revision context. The browser fallback creates a new identity when it cannot verify filesystem identity.
 
@@ -101,7 +109,7 @@ Preferences are loaded once at the composition root in `App`. `useDocumentSessio
 
 `state/chartPreferences.ts` owns one profile per chart, including display flags and appearance history. Appearance undo does not undo display toggles. Only `getChartStyles` output is persisted, so undo stacks stay transient. `state/documentTransitions.ts` centralizes document replacement and edit-history traversal; graph data, selection and history still change atomically through the reducer.
 
-`useGraphViewport` composes `useGraphLayout`, `useGraphNavigation` and `useGraphInteractions` with pan/zoom. Compound worker scheduling and retained timeline axes keep their specialized controllers. Sidebar resizing belongs to UI, outside graph layout. `StudioView` composes settings directly; the toolbar owns only toolbar controls.
+`useGraphViewport` composes `useGraphLayout`, `useGraphNavigation` and `useGraphInteractions` with pan/zoom. Deferred compound layout and retained timeline axes keep their specialized controllers. Sidebar resizing belongs to UI, outside graph layout. `StudioView` composes settings directly; the toolbar owns only toolbar controls.
 
 Layout consumes `StageAppearance`, which contains only geometry inputs. Colors, custom CSS, shadows and link opacity are applied by rendering without recalculating layout. Shared icons, icon buttons, inputs and inline forms live in `components/ui/` and `styles/ui.css`. `welcome.css` owns the home screen and recent projects; `explorer.css` owns the file explorer and empty workspace; `chrome.css` owns the application shell; `settings.css` owns settings. Component base rules and responsive/transparency variants stay in their owning file. Shared variables live in `tokens.css`.
 
@@ -123,6 +131,6 @@ Workspace discovery, manifest validation, recent-location persistence, and bound
 
 ## Browser regression fixture
 
-With the development server running, open `/browser-tests/settings.html` and select **Run checks**. The fixture exercises real settings controls with isolated in-memory preferences. It does not read or write user files, storage or AI requests. Browser fixtures are type-checked and formatted by the normal checks, and are not production entry points.
+With the development server running, open `/browser-tests/loading.html` and select **Run checks**. The fixture exercises deferred Markdown/math rendering, completion of empty-file previews, inherited export typography, SVG sanitization and capture before later changes. It uses in-memory data and does not read or write user files, storage or AI requests. Browser fixtures are type-checked and formatted by the normal checks, but must be run in a browser; they are not production entry points.
 
-The fixture covers pointer release/cancellation, grouped keyboard changes, Escape cancellation, and numeric draft commits. Workspace unit suites in `src/test/` cover stale operations, identity after recent removal, delayed hydration, storage timeouts and snapshot-safe saves.
+Workspace unit suites in `src/test/` cover stale operations, identity after recent removal, delayed hydration, storage timeouts and snapshot-safe saves. Projection regressions cover cycles, broad graphs, stable edge IDs, unusual node keys and source isolation. Provider tests use local fetch stubs and make no external requests.

@@ -7,7 +7,7 @@ import TimelineNode from "../rendering/TimelineNode";
 import GraphEdge from "../rendering/GraphEdge";
 import GraphStage from "../rendering/GraphStage";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import { getVisibleTimeTicks } from "../rendering/TimelineBackdrop";
+import { getVisibleTimeTicks } from "../layout/timeline-ticks";
 import { defineSuite, defineTest } from "./harness";
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 import { timelineTypeColor } from "../graph/timelineColors";

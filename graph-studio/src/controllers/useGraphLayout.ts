@@ -1,6 +1,6 @@
 import { useFontMetricsKey } from "./useFontMetricsKey";
 import { useMemo } from "react";
-import { useDebouncedValue } from "./useDebouncedValue";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { getNodeTitle } from "../graph/accessors";
 import type { GraphAppearance } from "../graph/appearance";
 import { getParentLevelSelection, sanitizeNodeLabel } from "../graph/selectors";
@@ -33,12 +33,14 @@ export function useGraphLayout({
   showNodeDetail,
   alignNodeWidthsToMax,
 }: LayoutInput) {
-  const displayDag = useMemo(
+  const typeFilteredDag = useMemo(
     () =>
-      state.dag && state.chartType !== "compound"
-        ? projectGraphByTimelineTrack(projectGraphByType(state.dag, activeType, state.chartType), activeTrack)
-        : null,
-    [activeType, activeTrack, state.dag, state.chartType],
+      state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, activeType, state.chartType) : null,
+    [activeType, state.dag, state.chartType],
+  );
+  const displayDag = useMemo(
+    () => typeFilteredDag && projectGraphByTimelineTrack(typeFilteredDag, activeTrack),
+    [typeFilteredDag, activeTrack],
   );
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
   const fontMetricsKey = useFontMetricsKey();
@@ -48,7 +50,7 @@ export function useGraphLayout({
   const timelineSettings = useDebouncedValue(state.timelineSettings);
   const timelineView = useTimelineStage({
     dag: state.chartType === "timeline" ? state.dag : null,
-    visibleDag: displayDag,
+    visibleDag: state.chartType === "timeline" ? displayDag : null,
     generation: state.document.generation,
     settings: timelineSettings,
     appearance: geometryAppearance,

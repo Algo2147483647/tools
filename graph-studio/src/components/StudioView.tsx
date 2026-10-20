@@ -8,7 +8,7 @@ import type { StudioUiController } from "../controllers/useStudioUi";
 import { useWorkspacePreview } from "../controllers/useWorkspacePreview";
 import { useSidebarResize } from "../hooks/useSidebarResize";
 import { downloadSvg } from "../rendering/export-svg";
-import { downloadHtml } from "../rendering/export-html";
+import { prepareHtmlSvg } from "../rendering/export-html-svg";
 import type { ConsoleController } from "../controllers/useConsoleController";
 import type { DocumentSessionController } from "../controllers/useDocumentSession";
 import type { GraphTransactionsController } from "../controllers/useGraphTransactions";
@@ -72,13 +72,19 @@ export default function StudioView({
     downloadSvg(viewport.svgRef.current);
     dispatch({ type: "statusChanged", status: "Exported current view as dag-graph.svg." });
   }
-  function exportHtml() {
-    if (!viewport.svgRef.current || !viewport.stage || !state.dag) {
+  async function exportHtml() {
+    const { stage } = viewport;
+    const graph = state.dag;
+    const svg = viewport.svgRef.current;
+    if (!svg || !stage || !graph) {
       dispatch({ type: "statusChanged", status: "Render a graph first, then export HTML." });
       return;
     }
     try {
-      downloadHtml(viewport.svgRef.current, viewport.stage, state.dag, state.source.fileName);
+      // Snapshot before loading so a later edit or navigation cannot mix document and SVG versions.
+      const snapshot = prepareHtmlSvg(svg);
+      const { downloadHtml } = await import("../rendering/export-html");
+      downloadHtml(snapshot, stage, graph, state.source.fileName);
       dispatch({ type: "statusChanged", status: "Exported current canvas as interactive HTML." });
     } catch (error) {
       dispatch({

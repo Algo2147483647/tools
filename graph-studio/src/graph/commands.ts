@@ -1,10 +1,11 @@
 import { getTimelineClock, type TimelineClock } from "./timelineClock";
+import { nextEdgeId } from "./edgeIds";
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
 import { serializeDag } from "./serialize";
 import { applyHierarchyCommand, pruneHierarchyEdges, type HierarchyCommand } from "./hierarchy";
 import { collectDescendantKeys } from "./traversal";
 import { getTimelineEditError, getTimelineReferenceTime } from "./timelineEditing";
-import { type GraphEdge, type NodeKey, type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
+import { type NodeKey, type NormalizedDag, type RelationValue, DEFAULT_RELATION_VALUE } from "./types";
 
 export type GraphCommand =
   | HierarchyCommand
@@ -80,7 +81,10 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     if (source === target) throw new Error("A node cannot reference itself.");
     const edge = document.edges.find((edge) => edge.source === source && edge.target === target);
     if (edge) edge.value = value;
-    else document.edges.push({ id: newEdgeId(document.edges), source, target, value });
+    else {
+      const id = nextEdgeId(new Set(document.edges.map((edge) => edge.id)), document.edges.length + 1);
+      document.edges.push({ id, source, target, value });
+    }
   };
   switch (command.type) {
     case "renameNode":
@@ -191,13 +195,6 @@ function validateEventFields(
 ) {
   const error = getTimelineEditError(previous, fields, referenceTime, clock);
   if (error) throw new Error(error);
-}
-
-export function newEdgeId(edges: GraphEdge[]): string {
-  const used = new Set(edges.map((edge) => edge.id));
-  let n = edges.length + 1;
-  while (used.has(`edge-${n}`)) n++;
-  return `edge-${n}`;
 }
 
 export function collectSubtreeNodeKeys(dag: NormalizedDag, root: NodeKey): NodeKey[] {

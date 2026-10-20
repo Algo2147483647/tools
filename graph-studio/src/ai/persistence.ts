@@ -1,4 +1,5 @@
 import { normalizeAiExecutionMode } from "./executionPolicy";
+import { isRecord } from "../utils/json";
 import type {
   ActionPlan,
   AiEvent,
@@ -430,8 +431,4 @@ function sanitizeOptionalString(value: unknown): string | undefined {
 
 function sanitizeNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }

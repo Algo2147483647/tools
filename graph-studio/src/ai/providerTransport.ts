@@ -1,4 +1,5 @@
 import type { AiSettings } from "./types";
+import { isRecord } from "../utils/json";
 export async function requestProviderText(
   settings: AiSettings,
   systemPrompt: string,
@@ -6,8 +7,6 @@ export async function requestProviderText(
   signal?: AbortSignal,
 ): Promise<string> {
   switch (settings.provider) {
-    case "deepseek":
-      return requestOpenAiCompatible(settings, systemPrompt, userPrompt, signal);
     case "anthropic":
       return requestAnthropic(settings, systemPrompt, userPrompt, signal);
     case "gemini":
@@ -41,11 +40,8 @@ async function requestOpenAiCompatible(
     }),
   });
   const json = await parseResponseJson(response);
-  const text = json?.choices?.[0]?.message?.content;
-  if (typeof text !== "string") {
-    throw new Error("AI response did not include message content.");
-  }
-  return text;
+  const choice: unknown = Array.isArray(json.choices) ? json.choices[0] : undefined;
+  return readMessageText(isRecord(choice) ? choice.message : undefined);
 }
 
 async function requestAnthropic(
@@ -71,14 +67,7 @@ async function requestAnthropic(
     }),
   });
   const json = await parseResponseJson(response);
-  const text = json?.content
-    ?.map((item: { text?: unknown }) => item.text)
-    .filter((item: unknown) => typeof item === "string")
-    .join("\n");
-  if (typeof text !== "string" || !text) {
-    throw new Error("AI response did not include message content.");
-  }
-  return text;
+  return readTextParts(json.content);
 }
 
 async function requestGemini(
@@ -104,14 +93,9 @@ async function requestGemini(
     }),
   });
   const json = await parseResponseJson(response);
-  const text = json?.candidates?.[0]?.content?.parts
-    ?.map((part: { text?: unknown }) => part.text)
-    .filter((item: unknown) => typeof item === "string")
-    .join("\n");
-  if (typeof text !== "string" || !text) {
-    throw new Error("AI response did not include message content.");
-  }
-  return text;
+  const candidate: unknown = Array.isArray(json.candidates) ? json.candidates[0] : undefined;
+  const content = isRecord(candidate) ? candidate.content : undefined;
+  return readTextParts(isRecord(content) ? content.parts : undefined);
 }
 
 async function requestOllama(
@@ -138,26 +122,46 @@ async function requestOllama(
     }),
   });
   const json = await parseResponseJson(response);
-  const text = json?.message?.content;
-  if (typeof text !== "string") {
+  return readMessageText(json.message);
+}
+
+function readMessageText(message: unknown): string {
+  if (!isRecord(message) || typeof message.content !== "string") {
     throw new Error("AI response did not include message content.");
   }
+  return message.content;
+}
+
+function readTextParts(parts: unknown): string {
+  const text = Array.isArray(parts)
+    ? parts
+        .filter(isRecord)
+        .map((part) => part.text)
+        .filter((part): part is string => typeof part === "string")
+        .join("\n")
+    : "";
+  if (!text) throw new Error("AI response did not include message content.");
   return text;
 }
 
-async function parseResponseJson(response: Response): Promise<any> {
+async function parseResponseJson(response: Response): Promise<Record<string, unknown>> {
   const text = await response.text();
-  let json: any = null;
+  let json: unknown;
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
     json = null;
   }
+  const record = isRecord(json) ? json : {};
   if (!response.ok) {
-    const message = json?.error?.message || json?.error || text || `AI request failed with HTTP ${response.status}.`;
+    const message =
+      (isRecord(record.error) ? record.error.message : undefined) ||
+      record.error ||
+      text ||
+      `AI request failed with HTTP ${response.status}.`;
     throw new Error(typeof message === "string" ? message : `AI request failed with HTTP ${response.status}.`);
   }
-  return json;
+  return record;
 }
 
 function buildJsonHeaders(extra: Record<string, string> = {}): HeadersInit {

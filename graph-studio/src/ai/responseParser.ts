@@ -1,4 +1,5 @@
 import type { AiResponse, LegacyAiPlan, ProposedChange } from "./types";
+import { isRecord } from "../utils/json";
 export function parseAiResponse(raw: string): AiResponse {
   const jsonSource = extractJsonObject(raw);
   let parsed: unknown;
@@ -208,10 +209,6 @@ function normalizeRisk(value: unknown): "low" | "medium" | "high" | undefined {
 
 function normalizeNextAction(value: string): "await_user_confirmation" | "validate_then_execute" | "needs_inspection" {
   return value === "validate_then_execute" || value === "needs_inspection" ? value : "await_user_confirmation";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function extractJsonObject(raw: string): string {

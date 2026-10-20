@@ -1,15 +1,11 @@
-import { isRecord, normalizeDagInput, validateJsonValue } from "../graph/normalize";
+import { normalizeDagInput, validateJsonValue } from "../graph/normalize";
+import { isRecord } from "../utils/json";
+import { readWorkspaceFile } from "./files";
 import { manifestPath } from "./paths";
 import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder, WorkspaceGraph, WorkspaceManifest } from "./types";
 
 export const WORKSPACE_MANIFEST = "graph-studio.workspace.json";
 const MAX_JSON_BYTES = 16 * 1024 * 1024;
-export async function readWorkspaceFile(entry: WorkspaceFile): Promise<File> {
-  if (entry.handle) return entry.handle.getFile();
-  if (entry.file) return entry.file;
-  if (entry.loadFile) return entry.loadFile();
-  throw new Error(`File unavailable: ${entry.path}`);
-}
 export async function readGraphFile(entry: WorkspaceFile) {
   const file = await readWorkspaceFile(entry);
   if (file.size > MAX_JSON_BYTES) throw new Error(`${entry.path}: graph JSON exceeds the 16 MB limit.`);

@@ -1,25 +1,13 @@
-import { getNodeChildKeys, getNodeParentKeys } from "./accessors";
+import { getNodeParentKeys } from "./accessors";
 import { isTimelineDocument } from "./timelineView";
 import type { GraphSelection, NodeKey, NormalizedDag } from "./types";
 
 export function findRootsFromDag(dag: NormalizedDag): NodeKey[] {
   const nodeKeys = Object.keys(dag.nodes);
   const nodesWithIncoming = new Set<NodeKey>();
-  nodeKeys.forEach((nodeKey) => {
-    getNodeParentKeys(dag.nodes[nodeKey]).forEach((parentKey) => {
-      if (parentKey && parentKey !== nodeKey) {
-        nodesWithIncoming.add(nodeKey);
-      }
-    });
-  });
-
-  nodeKeys.forEach((nodeKey) => {
-    getNodeChildKeys(dag.nodes[nodeKey]).forEach((childKey) => {
-      if (childKey && childKey !== nodeKey) {
-        nodesWithIncoming.add(childKey);
-      }
-    });
-  });
+  for (const edge of dag.edges) {
+    if (edge.source !== edge.target) nodesWithIncoming.add(edge.target);
+  }
 
   const inferredRoots = nodeKeys.filter((nodeKey) => !nodesWithIncoming.has(nodeKey));
   return inferredRoots.length ? inferredRoots : nodeKeys;
@@ -32,10 +20,6 @@ export function getInitialSelection(dag: NormalizedDag): GraphSelection {
   if (roots.length === 1) {
     return { type: "node", key: roots[0] };
   }
-  return { type: "full" };
-}
-
-export function getFullGraphSelection(): GraphSelection {
   return { type: "full" };
 }
 

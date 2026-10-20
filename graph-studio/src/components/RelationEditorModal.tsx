@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { formatRelationValue, parseRelationValue, uniqueKeys } from "../graph/relations";
+import { formatRelationValue, parseRelationInput, parseRelationValue } from "../graph/relations";
 import type { DagNode, NodeKey, RelationField, RelationValue } from "../graph/types";
 import { DEFAULT_RELATION_VALUE } from "../graph/types";
 
@@ -209,10 +209,6 @@ export default function RelationEditorModal({
       </div>
     </div>
   );
-}
-
-export function parseRelationInput(rawText: string): NodeKey[] {
-  return uniqueKeys(String(rawText || "").split(/[\n,]/));
 }
 
 function buildRelationRows(

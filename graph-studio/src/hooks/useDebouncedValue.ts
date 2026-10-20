@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/** Keep expensive geometry work off the stream of intermediate slider values. */
+/** Settle rapidly changing values before starting expensive work. */
 export function useDebouncedValue<T>(value: T, delay = 150): T {
   const [settled, setSettled] = useState(value);
   useEffect(() => {

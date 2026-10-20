@@ -2,8 +2,7 @@ import { getTimelineClock } from "../graph/timelineClock";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { parseNodeTimeline, parseTimelineDate } from "../graph/timeline";
 import type { NormalizedDag } from "../graph/types";
-import { normalizeDagInput } from "../graph/normalize";
-import { serializeDag } from "../graph/serialize";
+import { projectGraphDocument } from "../graph/projection";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import type { StageAppearance } from "../layout/appearance";
@@ -69,11 +68,7 @@ export function useTimelineStage(input: {
     let source = dag;
     if (scopeKeys) {
       const keys = new Set<string>(JSON.parse(scopeKeys));
-      const document = serializeDag(dag);
-      document.nodes = Object.fromEntries(Object.entries(document.nodes).filter(([key]) => keys.has(key)));
-      document.edges = document.edges.filter((edge) => keys.has(edge.source) && keys.has(edge.target));
-      delete document.hierarchy_edges;
-      source = normalizeDagInput(document);
+      source = projectGraphDocument(dag, keys);
     }
     const previous = retained.current;
     const keep =

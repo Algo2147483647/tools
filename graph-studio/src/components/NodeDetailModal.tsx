@@ -5,15 +5,16 @@ import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import { getRelationKeys } from "../graph/relations";
 import { getTimelineEditError } from "../graph/timelineEditing";
 import type { DagNode, NodeKey, NormalizedDag } from "../graph/types";
-import NodeFieldEditor, {
+import NodeFieldEditor from "./NodeFieldEditor";
+import MarkdownValue from "./MarkdownValue";
+import {
   type EditableField,
   type FieldDisplayMode,
-  MarkdownValue,
   buildEditableFields,
   formatEditorValue,
   parseNodeFieldValue,
   supportsDisplayMode,
-} from "./NodeFieldEditor";
+} from "./nodeFields";
 import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "./nodeDetailRawJson";
 import NodeTimeEditor from "./NodeTimeEditor";
 import NodeJsonView from "./NodeJsonView";

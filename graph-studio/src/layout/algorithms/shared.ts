@@ -18,8 +18,8 @@ function collectReachableInLevelOrder(dag: Record<NodeKey, DagNode | undefined>,
   const visited = new Set(queue);
   const nodeKeys: NodeKey[] = [];
 
-  while (queue.length) {
-    const key = queue.shift()!;
+  for (let head = 0; head < queue.length; head++) {
+    const key = queue[head];
     const node = dag[key];
     if (!node) {
       continue;

@@ -3,7 +3,6 @@ import { useLayoutEffect, useState, type RefObject } from "react";
 import type { StageData } from "../layout/types";
 
 import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline-ticks";
-export { getVisibleTimeTicks } from "../layout/timeline-ticks";
 
 export default function TimelineBackdrop({ stage }: { stage: StageData }) {
   const timeline = stage.timeline!;

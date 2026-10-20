@@ -34,9 +34,15 @@ import { nodeRelationsSuite } from "./nodeRelations.test";
 import { htmlExportSuite } from "./htmlExport.test";
 import { nodeLinkDefaultsSuite } from "./nodeLinkDefaults.test";
 import { timelinePresetsSuite } from "./timelinePresets.test";
+import { projectionSuite } from "./projection.test";
+import { providerTransportSuite } from "./providerTransport.test";
+import { nodeFieldsSuite } from "./nodeFields.test";
 
 async function main() {
-  const { passed, failed } = await runSuites([
+  const suites = [
+    projectionSuite,
+    providerTransportSuite,
+    nodeFieldsSuite,
     stylePipelineSuite,
     compoundSuite,
     compoundLayoutSuite,
@@ -72,7 +78,13 @@ async function main() {
     spaceHistorySuite,
     scienceHistorySuite,
     nodeRelationsSuite,
-  ]);
+  ];
+  const filters = process.argv.slice(2).map((filter) => filter.toLowerCase());
+  const selected = filters.length
+    ? suites.filter((suite) => filters.some((filter) => suite.name.toLowerCase().includes(filter)))
+    : suites;
+  if (!selected.length) throw new Error(`No test suites matched: ${filters.join(", ")}`);
+  const { passed, failed } = await runSuites(selected);
 
   console.log(`\nSummary: ${passed} passed, ${failed} failed`);
   if (failed > 0) {

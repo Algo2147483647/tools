@@ -2,7 +2,7 @@ import Icon from "./ui/Icon";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import type { FilePreviewState } from "../controllers/useFilePreview";
-import { MarkdownValue } from "./NodeFieldEditor";
+import MarkdownValue from "./MarkdownValue";
 
 interface FilePreviewModalProps {
   preview: FilePreviewState | null;
@@ -19,13 +19,13 @@ export default function FilePreviewModal({
   onRelativeLinkError,
   onClose,
 }: FilePreviewModalProps) {
-  const [textContent, setTextContent] = useState("");
+  const [textContent, setTextContent] = useState<string | null>(null);
   const [readError, setReadError] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    setTextContent("");
+    setTextContent(null);
     setReadError("");
     if (!preview || (preview.previewKind !== "markdown" && preview.previewKind !== "text")) {
       return;
@@ -112,7 +112,7 @@ export default function FilePreviewModal({
       return <iframe className="file-preview-frame" title={activePreview.path} src={activePreview.url} sandbox="" />;
     }
     if (activePreview.previewKind === "markdown") {
-      return textContent ? (
+      return textContent !== null ? (
         <MarkdownValue
           value={textContent}
           previewSurface
@@ -125,7 +125,7 @@ export default function FilePreviewModal({
       );
     }
     if (activePreview.previewKind === "text") {
-      return textContent ? (
+      return textContent !== null ? (
         <pre className="file-preview-text">{textContent}</pre>
       ) : (
         <p className="node-detail-empty">Reading file: {activePreview.path}</p>

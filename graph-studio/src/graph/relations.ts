@@ -1,4 +1,4 @@
-import type { NodeKey, RelationField, RelationValue } from "./types";
+import type { NodeKey, RelationValue } from "./types";
 import { DEFAULT_RELATION_VALUE } from "./types";
 
 export function uniqueKeys(keys: Iterable<unknown>): NodeKey[] {
@@ -26,8 +26,8 @@ export function toRelationMap(
     ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, coerceRelationValue(item)]))
     : {};
 }
-export function normalizeRelationField(value: unknown): RelationField {
-  return toRelationMap(value);
+export function parseRelationInput(rawText: string): NodeKey[] {
+  return uniqueKeys(rawText.split(/[\n,]/));
 }
 
 export function parseRelationValue(rawValue: string): RelationValue {

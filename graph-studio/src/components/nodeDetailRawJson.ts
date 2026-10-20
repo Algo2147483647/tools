@@ -1,4 +1,5 @@
-import { isRecord, validateNodeFields, validateNodeKey } from "../graph/normalize";
+import { validateNodeFields, validateNodeKey } from "../graph/normalize";
+import { isRecord } from "../utils/json";
 import type { NodeKey } from "../graph/types";
 
 export function buildRawNodeEditorValue(nodeKey: NodeKey, node: Record<string, unknown>): string {

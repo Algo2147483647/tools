@@ -10,7 +10,7 @@ import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appeara
 import { type AppearanceCommandResult, applyAppearanceCommand } from "../graph/appearanceCommands";
 import { type CommandResult, applyGraphCommand } from "../graph/commands";
 import { getRelationKeys } from "../graph/relations";
-import { cloneGraphDocument, structuredCloneValue } from "../graph/serialize";
+import { cloneGraphDocument } from "../graph/serialize";
 import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
 import type { ConsoleInstruction, ConsoleNodeOperand } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
@@ -246,7 +246,7 @@ export function executeConsoleInstructions(
           if (!currentNode) {
             throw new Error(`Node "${key}" does not exist.`);
           }
-          const { key: _oldKey, ...fields } = structuredCloneValue(currentNode);
+          const { key: _oldKey, ...fields } = structuredClone(currentNode);
           Object.defineProperty(fields, instruction.field, {
             value: instruction.value,
             enumerable: true,
@@ -276,7 +276,7 @@ export function executeConsoleInstructions(
             outputMessages.push(`Node "${key}" has no field named "${instruction.field}".`);
             break;
           }
-          const { key: _oldKey, ...fields } = structuredCloneValue(currentNode);
+          const { key: _oldKey, ...fields } = structuredClone(currentNode);
           delete fields[instruction.field];
           const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields });
           workingDag = result.dag;
@@ -474,8 +474,8 @@ function buildDirectedPathSummary(fromKey: NodeKey, toKey: NodeKey, dag: Normali
   const visited = new Set<NodeKey>([fromKey]);
   const previous = new Map<NodeKey, NodeKey>();
 
-  while (queue.length) {
-    const currentKey = queue.shift() as NodeKey;
+  for (let head = 0; head < queue.length; head++) {
+    const currentKey = queue[head];
     const children = getRelationKeys(getNodeChildren(dag.nodes[currentKey])).filter((key) => dag.nodes[key]);
     for (const childKey of children) {
       if (visited.has(childKey)) {

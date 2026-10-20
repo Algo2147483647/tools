@@ -8,12 +8,13 @@ export function buildLevelLayout(dag: Record<NodeKey, DagNode | undefined>, root
   const queue = getExistingRoots(dag, roots);
   const visited = new Set(queue);
   let level = -1;
+  let head = 0;
 
-  while (queue.length) {
-    const levelCount = queue.length;
+  while (head < queue.length) {
+    const levelCount = queue.length - head;
     level += 1;
     for (let index = 0; index < levelCount; index += 1) {
-      const key = queue.shift()!;
+      const key = queue[head++];
       const node = dag[key];
       if (!node) {
         continue;

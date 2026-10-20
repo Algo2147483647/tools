@@ -2,10 +2,7 @@ import { indexGraphDocument } from "./graphIndex";
 import { validateHierarchyEdges } from "./hierarchy";
 import { getSankeyError } from "./sankey";
 import type { GraphDocument, NormalizedDag, RawGraphNode } from "./types";
-
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
+import { isRecord } from "../utils/json";
 
 export function validateNodeKey(key: unknown, path = "Node ID"): asserts key is string {
   if (typeof key !== "string" || !key || key.trim() !== key || /[\r\n,]/.test(key)) {

@@ -1,6 +1,6 @@
 import { copyTextToClipboard, readTextFromClipboard } from "../adapters/clipboard";
 import { useEffect, useState } from "react";
-import type { ContextMenuAction } from "../components/ContextMenu";
+import type { ContextMenuAction } from "../components/contextMenuModel";
 import type { HierarchyEdit } from "../components/HierarchyEditorModal";
 import type { GraphContextTarget } from "../state/contextMenu";
 import type { GraphCommand } from "../graph/commands";

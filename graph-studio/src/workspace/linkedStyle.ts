@@ -2,7 +2,7 @@ import type { NormalizedDag } from "../graph/types";
 import { isTimelineDocument } from "../graph/timelineView";
 import { parseChartStyleFile } from "../state/chartStyleFile";
 import type { ChartStyle } from "../state/chartStyles";
-import { readWorkspaceFile } from "./discovery";
+import { readWorkspaceFile } from "./files";
 import { resolveWorkspacePath } from "./paths";
 import type { WorkspaceFolder } from "./types";
 

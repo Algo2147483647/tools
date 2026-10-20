@@ -5,7 +5,7 @@ Graph Studio is a browser-based graph viewer and lightweight JSON editor for dir
 It is built for fast graph inspection and editing in the browser:
 
 - load a JSON graph and render it immediately
-- validate versioned graph documents and resolve multi-file conflicts before importing
+- validate versioned graph documents before opening
 - navigate by root, subtree, or parent level
 - explore and edit arbitrarily nested subgraphs with the independent Nested node-link chart type ([guide](docs/compound.md))
 - explore events on a true UTC time axis, with Git-style branching, duration bars, track filtering, and editable event times ([guide](docs/timeline.md))
@@ -31,7 +31,7 @@ Open **Settings → Files → Export interactive HTML** after a graph has render
 
 The export is a read-only snapshot: filtered nodes, nodes inside collapsed groups, linked workspace files and embedded images are not bundled. Expand groups before export to include their nodes. Group containers retain their displayed title and can be selected, but their layout cannot be expanded or edited in the exported file. External references remain links; opening them requires a connection. Fonts use the recipient's installed fonts.
 
-For development, `/browser-tests/html-export.html` serves a fixed-data interaction fixture through Vite, covering selection, details, Markdown/math, relationships and zoom without opening local user files.
+For development, `/browser-tests/loading.html` serves an isolated regression fixture through Vite, covering deferred Markdown/math rendering, empty-file previews and export snapshots without opening local user files.
 
 ### One-click startup (Windows / macOS)
 
@@ -80,6 +80,7 @@ Useful commands:
 ```powershell
 npm run build
 npm test
+npm run check
 ```
 
 The app starts on a welcome page. Open a graph file, open a folder as a workspace, reopen a recent location, or explore an independent example workspace:
@@ -145,7 +146,7 @@ For the recommended data model and additional examples, see [Data Format Guide](
 | [`src/`](src/) | React/TypeScript source and styles; regression suites in `src/test/` |
 | [`browser-tests/`](browser-tests/) | Browser-only regression fixtures, excluded from production builds |
 | [`public/`](public/) | Runtime static assets, graph schema, and example workspaces |
-| [`scripts/`](scripts/) | Startup, cleanup, example generators, and generator input data in `scripts/data/` |
+| [`scripts/`](scripts/) | Startup, cleanup, and launcher regression tests |
 | [`docs/`](docs/) | User/developer documentation and documentation images |
 | Root configuration files | npm lockfile, TypeScript, Vite, formatting, and line-ending rules |
 

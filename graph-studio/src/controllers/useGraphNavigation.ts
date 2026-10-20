@@ -1,7 +1,6 @@
 import { getTimelineClock } from "../graph/timelineClock";
 import { getGroupNodes } from "../graph/hierarchy";
 import { type Dispatch, useEffect, useMemo, useState } from "react";
-import { getFullGraphSelection } from "../graph/selectors";
 import { getGraphTypeOptions } from "../graph/typeFilter";
 import { getTimelineTrackOptions } from "../graph/timelineView";
 import type { TimelineTimeRange } from "../graph/timelineRange";
@@ -14,7 +13,8 @@ export function useGraphNavigation(
   dispatch: Dispatch<GraphAction>,
   captureLayoutAnchor: (key: string) => void,
 ) {
-  const compound = useCompoundView(state.document.id, Object.keys(getGroupNodes(state.dag)));
+  const groupIds = useMemo(() => Object.keys(getGroupNodes(state.dag)), [state.dag]);
+  const compound = useCompoundView(state.document.id, groupIds);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const [selectedTrack, setSelectedTrack] = useState("");
@@ -66,7 +66,7 @@ export function useGraphNavigation(
       enterGroup(null);
       return;
     }
-    dispatch({ type: "selectionChanged", selection: getFullGraphSelection(), pushHistory: true });
+    dispatch({ type: "selectionChanged", selection: { type: "full" }, pushHistory: true });
   }
   function enterGroup(id: string | null) {
     setFocusedKey(null);

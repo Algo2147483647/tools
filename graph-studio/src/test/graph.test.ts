@@ -13,7 +13,7 @@ import {
   removeSelectionKeys,
   sanitizeNodeLabel,
 } from "../graph/selectors";
-import { cloneGraphDocument, serializeDag, structuredCloneValue } from "../graph/serialize";
+import { cloneGraphDocument, serializeDag } from "../graph/serialize";
 import { collectDescendantKeys } from "../graph/traversal";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
 import { buildStageData } from "../layout/stage-layout";
@@ -173,8 +173,8 @@ export const graphSuite = defineSuite("v3 document and graph", [
     assert.deepEqual(getNodeChildren(clone.nodes.A), { B: "edge_ab", C: "edge_ac" });
     assert.equal(buildStageData({ dag: createGraphDocument(), selection: { type: "full" } }), null);
     assert.equal(serializeDag(createInitialCanvasDag()).version, 3);
-    const fields = { format: "graph-studio", nodes: { key: "custom" }, edges: 42 };
-    assert.deepEqual(structuredCloneValue(fields), fields);
+    assert.deepEqual(serializeDag(clone), serializeDag(source));
+    assert.notEqual(clone.nodes.A, source.nodes.A);
   }),
   defineTest("type projection bridges hidden paths and layouts use derived indexes", () => {
     const source = createSampleDag();

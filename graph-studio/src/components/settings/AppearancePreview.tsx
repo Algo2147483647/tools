@@ -6,7 +6,7 @@ import type { GraphAppearance } from "../../graph/appearance";
 import { getGraphChartLabel, type CompoundView, type GraphChartType, type GraphLayoutMode } from "../../graph/types";
 import type { TimelineViewSettings } from "../../graph/timelineSettings";
 import { useCompoundStage } from "../../controllers/useCompoundStage";
-import { useDebouncedValue } from "../../controllers/useDebouncedValue";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useTimelineStage } from "../../controllers/useTimelineStage";
 import GraphStage from "../../rendering/GraphStage";
 import type { StageData } from "../../layout/types";

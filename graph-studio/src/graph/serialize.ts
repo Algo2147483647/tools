@@ -6,10 +6,6 @@ export function serializeDag(dag: NormalizedDag): GraphDocument {
   return structuredClone(dag);
 }
 
-export function structuredCloneValue<T>(value: T): T {
-  return structuredClone(value);
-}
-
 export function cloneGraphDocument(dag: NormalizedDag): NormalizedDag {
   return indexGraphDocument(structuredClone(dag));
 }

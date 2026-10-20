@@ -20,7 +20,7 @@ The European history canvas in **Human History** starts with Aegean Bronze Age e
 
 Chinese prose accompanies original-language proper names, preserving Greek, Cyrillic, Arabic-script Ottoman names and European diacritics. The names guide distinguishes normalized historical spelling, multilingual states, later historiographical terms and archaeological cultures without deciphered self-designations. Every node includes sources and precision notes; the bibliography distinguishes primary institutional sources from secondary overview articles. Contemporary entries are dated snapshots, not predictions or a live status feed.
 
-Edit `scripts/data/europe-history/`, run `npm run examples:europe-history`, and verify with `npm run examples:europe-history:check`. Six handwritten guides under `public/examples/china-history/europe/notes/` are preserved by generation; catalogs, names, bibliography and graph files are generated. The example and European history suites verify loading, local links, serialization, date semantics, distinct institutional stages and the complete timeline layout.
+The graph, catalogs, names guide, bibliography and six handwritten guides are checked in under `public/examples/china-history/europe/`. This checkout does not contain their original generator or input dataset. After editing these documents, run `npm run check`; the example and European history suites verify loading, local links, serialization, date semantics, distinct institutional stages and the complete timeline layout.
 
 ## History of Technology
 
@@ -30,7 +30,7 @@ The default **space-history.json** opens with the complete space corpus. Use the
 
 Use Type, Track and Time range to inspect a subject or period, and Show all events to restore the complete canvas. Chronology is not causality. The science canvas distinguishes approximate manuscript dates, lectures, publications, proposals, experiments and later verification. Its adaptive axis compresses quiet gaps; switch to a linear axis to compare elapsed durations. The space canvas retains its original completed-phase intervals and finer mission dates.
 
-Edit `scripts/data/science-history/`, run `npm run examples:science-history`, and verify with `npm run examples:science-history:check`. The generator updates only the new graph, its generated reference files and the shared manifest; it preserves the space-history graph and five handwritten period guides. The example, space-history and science-history regression suites validate loading, local links, naming, chronology, cross-disciplinary junctions and timeline layout as part of `npm run check`.
+The graph, reference files and five period guides are checked in under `public/examples/space-history/mathematics-physics/`; the workspace manifest is shared with space history. This checkout does not contain their original generator or input dataset. The example, space-history and science-history regression suites validate loading, local links, naming, chronology, cross-disciplinary junctions and timeline layout as part of `npm run check`.
 
 ## Factorio data and interpretation
 

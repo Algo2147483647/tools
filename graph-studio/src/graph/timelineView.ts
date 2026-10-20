@@ -1,5 +1,4 @@
-import { normalizeDagInput } from "./normalize";
-import { serializeDag } from "./serialize";
+import { projectGraphDocument } from "./projection";
 import type { NormalizedDag } from "./types";
 
 /** Timeline is a view over v3 graph data; it does not change edge semantics. */
@@ -16,14 +15,8 @@ export function getTimelineTrackOptions(dag: NormalizedDag): string[] {
 
 export function projectGraphByTimelineTrack(dag: NormalizedDag, track: string): NormalizedDag {
   if (!track) return dag;
-  const document = serializeDag(dag);
-  delete document.hierarchy_edges;
-  document.nodes = Object.fromEntries(
-    Object.entries(document.nodes).filter(([, node]) => timelineTrack(node.track) === track),
-  );
-  const visible = new Set(Object.keys(document.nodes));
-  document.edges = document.edges.filter((edge) => visible.has(edge.source) && visible.has(edge.target));
-  return normalizeDagInput(document);
+  const visible = new Set(Object.keys(dag.nodes).filter((key) => timelineTrack(dag.nodes[key].track) === track));
+  return projectGraphDocument(dag, visible);
 }
 
 function timelineTrack(value: unknown): string {
