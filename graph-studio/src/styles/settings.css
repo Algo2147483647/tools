@@ -20,16 +20,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 0 16px;
   background: #18243d4d;
   backdrop-filter: none;
 }
 .settings-modal.studio-settings {
-  width: min(1200px, 100%);
-  height: min(860px, calc(100dvh - 48px));
+  width: min(1440px, 100%);
+  height: 100dvh;
   max-height: none;
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr) 54px;
+  grid-template-columns: 192px minmax(0, 1fr) 54px;
   grid-template-rows: 64px minmax(0, 1fr) auto;
   overflow: hidden;
   background: #fff;
@@ -38,7 +38,8 @@
     13px/1.5 "Segoe UI",
     sans-serif;
   border: 1px solid #d8dfe9;
-  border-radius: 16px;
+  border-block: 0;
+  border-radius: 0;
   box-shadow: 0 24px 80px #18243d35;
   backdrop-filter: none;
 }
@@ -79,8 +80,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  width: min(460px, 100%);
-  margin: 0;
+  width: min(520px, calc(100% - 24px));
+  margin: 0 0 0 24px;
   padding: 8px 10px;
   background: #f4f6f9;
   border: 1px solid #e1e6ee;
@@ -118,7 +119,7 @@
   grid-column: 1/-1;
   grid-row: 2;
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
+  grid-template-columns: 192px minmax(0, 1fr);
   min-height: 0;
   border: 0;
   overflow: hidden;
@@ -126,8 +127,8 @@
 .studio-settings .settings-tabs {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 14px 10px;
+  gap: 6px;
+  padding: 20px 12px;
   background: #f5f7fa;
   border-right: 1px solid #e3e8ef;
   overflow: auto;
@@ -136,7 +137,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px;
+  padding: 12px;
   background: transparent;
   border: 0;
   border-radius: 7px;
@@ -162,6 +163,10 @@
 .studio-settings .settings-tab.is-active {
   color: #234fae;
   background: #e5edfc;
+  box-shadow: inset 3px 0 #315fce;
+}
+.studio-settings .settings-tab.is-active strong {
+  font-weight: 600;
 }
 .settings-result-count {
   margin-left: auto;
@@ -184,9 +189,11 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: 22px 24px;
-  background: #fff;
+  padding: 24px;
+  background: #fafbfd;
   scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  scroll-padding-top: 76px;
 }
 .settings-page-heading {
   margin: 0 0 20px;
@@ -257,7 +264,9 @@
 .appearance-group-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #e3e8ef;
 }
 .studio-settings .settings-page:has(> .appearance-tabs) {
   row-gap: 0;
@@ -277,29 +286,53 @@
   text-decoration: underline;
 }
 .appearance-tabs {
+  position: sticky;
+  top: -24px;
+  z-index: 2;
   display: flex;
-  gap: 2px;
-  border-bottom: 1px solid #e3e8ef;
-  margin: -4px 0 12px;
-  padding-bottom: 8px;
+  gap: 4px;
+  margin: -4px 0 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid #dfe6f0;
+  background: #fafbfd;
 }
 .appearance-tabs button {
   flex: 1;
   min-width: 0;
-  border: 0;
+  border: 1px solid transparent;
   background: none;
   color: #5c6c82;
   border-radius: 6px;
-  padding: 7px 5px;
+  padding: 9px 6px;
   font:
     12px "Segoe UI",
     sans-serif;
   cursor: pointer;
 }
 .appearance-tabs button[aria-pressed="true"] {
-  background: #edf3ff;
+  background: #fff;
+  border-color: #cbd9f1;
+  box-shadow: 0 2px 4px #2030520a;
   color: #234fae;
   font-weight: 600;
+}
+.appearance-tabs button:hover:not([aria-pressed="true"]) {
+  background: #edf2f9;
+  color: #344d73;
+}
+.studio-settings .appearance-group > .timeline-settings-section {
+  margin: 0 0 16px;
+  padding: 18px;
+  border: 1px solid #e1e7ef;
+  border-radius: 10px;
+  background: #fff;
+}
+.studio-settings .appearance-group > .timeline-settings-section:last-child {
+  margin-bottom: 0;
+}
+.studio-settings .timeline-settings-section > h3 {
+  color: #293e5b;
+  font-size: 14px;
 }
 .numeric-setting,
 .color-setting,
@@ -1046,7 +1079,7 @@
 /* Preview and settings share available width without squeezing numeric inputs. */
 .studio-settings .settings-content:has(.settings-preview-card) {
   display: grid;
-  grid-template-columns: minmax(360px, 0.95fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(420px, 1.2fr) minmax(320px, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
 .studio-settings .settings-content:has(.settings-preview-card) > .settings-page {
@@ -1060,7 +1093,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 22px 18px 14px;
+  padding: 24px 20px 16px;
   margin: 0;
   background: #f8fafd;
   border: 0;
@@ -1219,11 +1252,12 @@
 }
 @media (max-width: 700px) {
   .settings-modal-backdrop {
-    padding: 8px;
+    padding: 0;
   }
   .settings-modal.studio-settings {
-    height: calc(100dvh - 16px);
-    border-radius: 10px;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
     grid-template-columns: 96px minmax(0, 1fr) 44px;
     grid-template-rows: 58px minmax(0, 1fr) auto;
   }
@@ -1235,6 +1269,7 @@
   }
   .settings-search {
     width: 100%;
+    margin: 0;
     padding: 7px;
   }
   .settings-search kbd {
@@ -1270,6 +1305,12 @@
   }
   .studio-settings .settings-page {
     padding: 18px;
+  }
+  .appearance-tabs {
+    top: -18px;
+  }
+  .studio-settings .appearance-group > .timeline-settings-section {
+    padding: 14px;
   }
   .settings-preview-card {
     padding: 10px 18px;
@@ -1376,8 +1417,8 @@
 }
 .timeline-style-group {
   min-width: 0;
-  margin: 20px 0 0;
-  padding: 12px 0 0;
+  margin: 16px 0 0;
+  padding: 10px 0 0;
   border: 0;
   border-top: 1px solid #e3e8ef;
 }
@@ -1388,11 +1429,11 @@
   font-weight: 600;
 }
 .timeline-style-group .timeline-control-row {
-  grid-template-columns: 100px minmax(0, 1fr);
+  grid-template-columns: 128px minmax(0, 1fr);
   margin: 0 0 10px;
 }
 .timeline-style-group .numeric-setting {
-  grid-template-columns: 100px minmax(0, 1fr) 28px;
+  grid-template-columns: 128px minmax(0, 1fr) 28px;
   column-gap: 12px;
   min-height: 48px;
   padding: 8px 0;

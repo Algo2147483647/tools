@@ -548,8 +548,9 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
               key={item.id}
               type="button"
               aria-pressed={group === item.id}
-              onClick={() => {
+              onClick={(event) => {
                 setGroup(item.id);
+                event.currentTarget.closest(".settings-page")?.scrollTo({ top: 0 });
                 p.onPreviewModeChange(item.id === "nodes" || item.id === "text" ? "detail" : "overview");
               }}
             >
