@@ -92,7 +92,7 @@ export function buildSpatialStage(input: {
   const colors = buildCategoryColorMap(Object.values(source.nodes).map(getNodeType));
   let tray = 0;
   const visibleCount = Object.keys(dag.nodes).length;
-  const nodes: StageNode[] = Object.values(dag.nodes).map((node, order) => {
+  const nodes = Object.values(dag.nodes).flatMap((node, order): StageNode[] => {
     const coordinates = Array.isArray(node.space) ? (node.space as number[]) : [];
     const v = converted.get(node.key);
     let point = v
@@ -102,34 +102,43 @@ export function buildSpatialStage(input: {
       : [80 + (tray % 12) * 110, height + 40 + Math.floor(tray++ / 12) * 60, 0];
     // A 0D space has one location. A clearly labelled tray keeps coincident points individually operable.
     if (metadata?.dimensions === 0) point = [160 + (order % 10) * 120, 220 + Math.floor(order / 10) * 64, 0];
+    if (view.hideBackPoints && sphere && !map && v) {
+      // The orthographic camera is on +Z. Perspective uses an eye at (0, 0, 3):
+      // a radial surface normal faces it when dot(point, eye - point) >= 0.
+      const radiusSquared = selected(v).reduce((sum, x, i) => sum + ((x - center[i]) / extent) ** 2, 0);
+      const horizon = view.projection === "perspective" ? radiusSquared / 3 : 0;
+      if (point[2] < horizon - 1e-10) return [];
+    }
     const typeLabel = getNodeType(node).trim();
     const color = colors.get(typeLabel)?.pinCore ?? "#557fa6";
     const magnitude = typeof node.magnitude === "number" ? node.magnitude : undefined;
     const radius = magnitude === undefined ? (valid.length > 1000 ? 2.2 : 4.5) : Math.max(1, 4.8 - magnitude * 0.65);
-    return {
-      key: node.key,
-      title: getNodeTitle(node) || node.key,
-      displayTitle: getNodeTitle(node) || node.key,
-      detail: typeof node.define === "string" ? node.define : "",
-      detailLines: [],
-      typeLabel,
-      colorTokens: colors.get(typeLabel),
-      layer: 0,
-      order,
-      width: 18,
-      height: 18,
-      isRoot: false,
-      x: point[0],
-      y: point[1],
-      spatial: {
-        coordinates,
-        depth: point[2],
-        radius,
-        color,
-        labelSide: point[0] > width / 2 + 160 ? "left" : "right",
-        showLabel: view.labels && (visibleCount < 350 || (magnitude !== undefined && magnitude < 2)),
+    return [
+      {
+        key: node.key,
+        title: getNodeTitle(node) || node.key,
+        displayTitle: getNodeTitle(node) || node.key,
+        detail: typeof node.define === "string" ? node.define : "",
+        detailLines: [],
+        typeLabel,
+        colorTokens: colors.get(typeLabel),
+        layer: 0,
+        order,
+        width: 18,
+        height: 18,
+        isRoot: false,
+        x: point[0],
+        y: point[1],
+        spatial: {
+          coordinates,
+          depth: point[2],
+          radius,
+          color,
+          labelSide: point[0] > width / 2 + 160 ? "left" : "right",
+          showLabel: view.labels && (visibleCount < 350 || (magnitude !== undefined && magnitude < 2)),
+        },
       },
-    };
+    ];
   });
   // Declutter labels only; points always retain their exact projected coordinates.
   const labelBoxes: { x: number; y: number; width: number }[] = [];

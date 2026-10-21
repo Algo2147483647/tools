@@ -155,6 +155,91 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
         }),
       );
   }),
+  defineTest("hiding sphere backs follows rotation, removes incident edges and preserves source data and scale", () => {
+    const dag = normalizeDagInput({
+      ...serializeDag(
+        graph(3, "spherical", {
+          front: { space: [1, 90, 0], type: "Keep" },
+          back: { space: [1, -90, 0], type: "Keep" },
+          frontNorth: { space: [1, 90, 45], type: "Keep" },
+          limb: { space: [1, 180, 0], type: "Other" },
+          missing: {},
+        }),
+      ),
+      edges: [
+        { id: "visible", source: "front", target: "frontNorth" },
+        { id: "hidden", source: "front", target: "back" },
+      ],
+    });
+    const original = serializeDag(dag);
+    const all = buildSpatialStage({ dag });
+    const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
+    const front = buildSpatialStage({ dag, spaceView: view });
+    assert.equal(all.nodes.length, 5);
+    assert.deepEqual(front.nodes.map((n) => n.key).sort(), ["front", "frontNorth", "limb", "missing"]);
+    assert.deepEqual(
+      front.edges.map((e) => e.id),
+      ["visible"],
+    );
+    assert.equal(front.nodeMap.front.x, all.nodeMap.front.x);
+    assert.equal(front.nodeMap.front.y, all.nodeMap.front.y);
+    assert.equal(front.nodeMap.front.spatial!.color, all.nodeMap.front.spatial!.color);
+    assert.equal(front.stageWidth, all.stageWidth);
+    assert.equal(front.stageHeight, all.stageHeight);
+    assert.deepEqual([...front.connectedKeysByNode.get("front")!], ["frontNorth"]);
+    const reversed = buildSpatialStage({ dag, spaceView: { ...view, yaw: 180 } });
+    assert.ok(reversed.nodeMap.back);
+    assert.equal(reversed.nodeMap.front, undefined);
+    assert.equal(reversed.nodeMap.frontNorth, undefined);
+    const filtered = buildSpatialStage({
+      dag: projectGraphByType(dag, "Keep", "spatial"),
+      colorSourceDag: dag,
+      spaceView: view,
+    });
+    assert.deepEqual(filtered.nodes.map((n) => n.key).sort(), ["front", "frontNorth"]);
+    assert.equal(filtered.nodeMap.front.x, front.nodeMap.front.x);
+    assert.deepEqual(serializeDag(dag), original);
+    const map = buildSpatialStage({ dag, spaceView: { ...view, projection: "map" } });
+    assert.equal(map.nodes.length, all.nodes.length);
+    assert.equal(map.edges.length, all.edges.length);
+    finite(front);
+    finite(reversed);
+  }),
+  defineTest("sphere hiding respects perspective tangency and keeps the origin and near points", () => {
+    const dag = graph(3, "spherical", {
+      front: { space: [1, 90, 0] },
+      nearLimb: { space: [1, 10, 0] },
+      tangent: { space: [1, (Math.asin(1 / 3) * 180) / Math.PI, 0] },
+      inner: { space: [0.1, 90, 0] },
+      origin: { space: [0, 0, 0] },
+      back: { space: [1, -90, 0] },
+    });
+    const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
+    assert.ok(buildSpatialStage({ dag, spaceView: view }).nodeMap.nearLimb);
+    const perspective = buildSpatialStage({ dag, spaceView: { ...view, projection: "perspective" } });
+    assert.deepEqual(perspective.nodes.map((n) => n.key).sort(), ["front", "inner", "origin", "tangent"]);
+    finite(perspective);
+  }),
+  defineTest("geographic back points respond to tilt while other coordinate systems remain unchanged", () => {
+    const dag = graph(2, "geographic", { north: { space: [0, 90] }, south: { space: [0, -90] } });
+    const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
+    assert.deepEqual(
+      buildSpatialStage({ dag, spaceView: { ...view, pitch: 90 } }).nodes.map((n) => n.key),
+      ["north"],
+    );
+    assert.deepEqual(
+      buildSpatialStage({ dag, spaceView: { ...view, pitch: -90 } }).nodes.map((n) => n.key),
+      ["south"],
+    );
+    const cartesian = graph(3, "cartesian", { a: { space: [0, 0, -1] }, b: { space: [0, 0, 1] } });
+    assert.equal(
+      buildSpatialStage({
+        dag: cartesian,
+        spaceView: { ...defaultSpaceView(getSpaceMetadata(cartesian)), hideBackPoints: true },
+      }).nodes.length,
+      2,
+    );
+  }),
   defineTest("missing positions stay inspectable and coordinate edits validate before committing", () => {
     const dag = graph(2, "cartesian", { a: {}, b: { space: [2, 3] } });
     const stage = buildSpatialStage({ dag });

@@ -415,12 +415,14 @@
 }
 @supports not (backdrop-filter: blur(1px)) {
   .topbar,
+  .spatial-controls,
   .workspace-sidebar-shell {
     background: #f1f4f9;
   }
 }
 @media (prefers-reduced-transparency: reduce) {
   .topbar,
+  .spatial-controls,
   .workspace-sidebar-shell {
     background: #f1f4f9;
     backdrop-filter: none;

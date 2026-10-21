@@ -18,6 +18,7 @@ export interface SpaceView {
   pitch: number;
   labels: boolean;
   grid: boolean;
+  hideBackPoints: boolean;
 }
 export function isSpatialDocument(dag: Pick<GraphDocument, "metadata">): boolean {
   return isRecord(dag.metadata?.space);
@@ -33,6 +34,7 @@ export function defaultSpaceView(metadata: SpaceMetadata | null): SpaceView {
     pitch: 0,
     labels: true,
     grid: true,
+    hideBackPoints: false,
   };
 }
 export function validateSpaceMetadata(value: unknown): asserts value is SpaceMetadata {

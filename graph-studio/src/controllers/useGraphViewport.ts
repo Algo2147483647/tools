@@ -68,6 +68,7 @@ export function useGraphViewport(
     viewKey: JSON.stringify([
       state.document.generation,
       state.chartType,
+      state.chartType === "spatial" ? spatialView.resetVersion : 0,
       compound.view.focusGroupId,
       ...(state.chartType === "timeline"
         ? [state.timelineSettings.orientation]

@@ -132,7 +132,7 @@ export function useGraphZoom({
     }
     layoutAnchorRef.current = null;
     previousStageRef.current = { stage, viewKey };
-  }, [stage]);
+  }, [stage, viewKey]);
 
   useEffect(() => {
     const overlays = containerRef.current?.closest(".workspace")?.querySelector(".workspace-overlays");
