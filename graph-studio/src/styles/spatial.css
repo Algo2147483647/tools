@@ -122,6 +122,9 @@
   font: inherit;
   font-variant-numeric: tabular-nums;
 }
+.spatial-display-units input {
+  width: 12ch;
+}
 .dag-graph .spatial-node {
   cursor: pointer;
 }
