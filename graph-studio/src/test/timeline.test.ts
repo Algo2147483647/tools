@@ -179,7 +179,12 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     assert.equal(parseTimelineTime({ start: "2025-01-01", end: "2025-01-01" }).status, "dated");
   }),
   defineTest("equal timestamps and interval endpoints share an exact linear axis", () => {
-    const stage = stageFor(document());
+    const stage = buildTimelineStage({
+      dag: normalizeDagInput(document()),
+      selection: { type: "full" },
+      now,
+      timelineSettings: { axis: "linear" },
+    })!;
     assert.equal(stage.layoutMode, "timeline");
     assert.equal(stage.nodes.length, 7);
     assert.equal(stage.nodeMap.launch.y, stage.nodeMap.cruise.y);
@@ -239,7 +244,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     assert.equal(stage.nodeMap.f.x, stage.nodeMap.a.x);
   }),
   defineTest("same-time and subpixel connections do not turn back into spurious loops", () => {
-    const stage = stageFor({
+    const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
       nodes: {
@@ -255,6 +260,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
         { id: "skip-phase", source: "launch", target: "arrival" },
       ],
     });
+    const stage = buildTimelineStage({ dag, selection: { type: "full" }, timelineSettings: { axis: "linear" }, now })!;
     assert.ok(stage.nodeMap.arrival.y - stage.nodeMap.launch.y < 1);
     for (const edge of stage.edges.filter((edge) => edge.id !== "skip-phase")) {
       const points = edge.points!;

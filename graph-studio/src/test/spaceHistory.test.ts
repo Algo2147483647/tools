@@ -15,7 +15,11 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
   defineTest("Luna milestone connectors stay local in both the complete and filtered timeline", async () => {
     const dag = normalizeDagInput(await read("space-history.json"));
     for (const view of [dag, projectGraphByTimelineTrack(dag, "Robotic Moon")]) {
-      const stage = buildTimelineStage({ dag: view, selection: { type: "full" } })!;
+      const stage = buildTimelineStage({
+        dag: view,
+        selection: { type: "full" },
+        timelineSettings: { axis: "linear" },
+      })!;
       for (const mission of ["luna-1", "luna-2", "luna-3", "luna-9", "luna-10"]) {
         const connectors = stage.edges.filter(
           (edge) => edge.source.startsWith(mission + ".") && edge.target.startsWith(mission + "."),

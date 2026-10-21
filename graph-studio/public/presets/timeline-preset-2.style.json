@@ -77,7 +77,7 @@
         "borderWidth": 1.5
       },
       "anchorMarker": {
-        "visible": true,
+        "visible": false,
         "shape": "auto",
         "size": 8,
         "fill": "",

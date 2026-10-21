@@ -96,6 +96,8 @@ export function getTimelinePreset2Style(): ChartStyle {
     intervalBorderWidth: 1,
     intervalRadius: 0,
     intervalTextColorMode: "event",
+    anchorMarker: { visible: false },
+    axis: "linear",
     tickStep: 1,
     nodeGap: 0,
     horizontalSpread: 0,

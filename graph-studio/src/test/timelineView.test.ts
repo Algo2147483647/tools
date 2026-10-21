@@ -199,7 +199,7 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
       pins: { a: Infinity, b: 200 },
     });
     assert.equal(invalid.layout, "tracks");
-    assert.equal(invalid.axis, "linear");
+    assert.equal(invalid.axis, "adaptive");
     assert.equal(invalid.compactness, -10);
     assert.equal(invalid.horizontalSpread, -2);
     assert.equal(sanitizeTimelineSettings({ horizontalSpread: Infinity }).horizontalSpread, 1);

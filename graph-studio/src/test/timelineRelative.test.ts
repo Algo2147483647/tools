@@ -143,7 +143,7 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
     assert.ok(a.y !== b.y);
     const bar = timelineBarBox(a);
     assert.equal(bar.x + bar.width, timelineTimeToY(axis, 30));
-    assert.equal(bar.height, 36);
+    assert.equal(bar.height, 12);
     const edge = stage.edges.find((e) => e.id === "a-b")!;
     assert.equal(edge.points![0].x, timelineTimeToY(axis, 5));
     assert.equal(edge.points![0].y, a.y);
@@ -314,7 +314,7 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
             const original = build(1);
             for (const spread of [0, 1, 3]) {
               const stage = build(spread);
-              const step = Math.max(36, (55.2 + 90) * spread);
+              const step = Math.max(12, (55.2 + 90) * spread);
               const rowCoordinate = (row: number) => 214 + (row - 1) * step;
               const cross = (key: string) =>
                 orientation === "horizontal" ? stage.nodeMap[key].y : stage.nodeMap[key].x;

@@ -64,7 +64,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
           : {},
       ).flatMap(([key, value]) => (color(value) ? [[key, color(value)]] : [])),
     ),
-    intervalWidth: finite(input.intervalWidth, 36),
+    intervalWidth: finite(input.intervalWidth, 12),
     intervalTitle:
       input.intervalTitle === "inside" || input.intervalTitle === "hidden" ? input.intervalTitle : "outside",
     intervalAlign: input.intervalAlign === "start" || input.intervalAlign === "end" ? input.intervalAlign : "center",
@@ -75,7 +75,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
         : "auto",
     intervalBorderWidth: Math.max(0, Math.min(20, finite(input.intervalBorderWidth, 1.5))),
     intervalBorderColor: color(input.intervalBorderColor),
-    intervalRadius: Math.max(0, Math.min(120, finite(input.intervalRadius, 6))),
+    intervalRadius: Math.max(0, Math.min(120, finite(input.intervalRadius, 4))),
     intervalTextColor: color(input.intervalTextColor),
     intervalTextColorMode:
       input.intervalTextColorMode === "event"
@@ -93,7 +93,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
     leaderColor: color(input.leaderColor),
     leaderWidth: Math.max(0, Math.min(20, finite(input.leaderWidth, 0.7))),
     relativeTickStep: finite(input.relativeTickStep, 1),
-    axis: input.axis === "adaptive" ? "adaptive" : "linear",
+    axis: input.axis === "linear" ? "linear" : "adaptive",
     tickStep: finite(input.tickStep, 10),
     tickUnit: ["second", "minute", "hour", "day", "week", "month", "year"].includes(String(unit))
       ? (unit as TimelineTickUnit)
