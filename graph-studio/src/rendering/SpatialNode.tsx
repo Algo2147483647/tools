@@ -45,13 +45,15 @@ export default function SpatialNode({
         }
       }}
     >
-      <title>{`${node.title}${node.typeLabel ? ` · ${node.typeLabel}` : ""}\n[${spatial.coordinates.join(", ")}]`}</title>
+      <title>{`${node.title}${node.typeLabel ? ` · ${node.typeLabel}` : ""}\n[${spatial.coordinates.join(", ")}]${node.detail ? `\n${node.detail}` : ""}`}</title>
       <circle className="spatial-hit" r={Math.max(8, spatial.radius + 4)} fill="transparent" />
       <circle
         className="spatial-point"
         r={spatial.radius}
-        fill={spatial.color}
-        opacity={0.65 + (spatial.depth + 1) * 0.175}
+        fill={spatial.hollow ? "none" : spatial.color}
+        stroke={spatial.hollow ? spatial.color : undefined}
+        strokeWidth={spatial.hollow ? 1.2 : undefined}
+        opacity={(spatial.opacity ?? 1) * (0.65 + (spatial.depth + 1) * 0.175)}
       />
       <circle
         className="spatial-selection"

@@ -131,6 +131,29 @@ export default function SpatialControls({
               Hide back points
             </label>
           )}
+          {layout?.legend && (
+            <div className="spatial-legend" aria-label="Point size legend">
+              <strong>{layout.legend.title}</strong>
+              <div className="spatial-legend-items">
+                {layout.legend.items.map((item, index) => (
+                  <span key={index}>
+                    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+                      <circle
+                        cx="13"
+                        cy="13"
+                        r={item.radius}
+                        fill={item.hollow ? "none" : "currentColor"}
+                        stroke={item.hollow ? "currentColor" : undefined}
+                        opacity={item.opacity}
+                      />
+                    </svg>
+                    {item.label}
+                  </span>
+                ))}
+              </div>
+              <small>{layout.legend.description}</small>
+            </div>
+          )}
         </div>
       )}
     </aside>

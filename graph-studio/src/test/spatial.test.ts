@@ -380,7 +380,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       assert.deepEqual(normalizeDagInput(serializeDag(dag)), dag);
     }
     const cities = await read("world-cities");
-    assert.equal(Object.keys(cities.nodes).length, 243);
+    assert.equal(Object.keys(cities.nodes).length, 8097);
     assert.equal(getSpaceMetadata(cities)!.coordinateSystem, "spherical");
     assert.ok(
       Object.values(cities.nodes).every(
@@ -397,6 +397,87 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     const metro = await read("beijing-metro");
     assert.equal(Object.keys(metro.nodes).length, 423);
     assert.ok(Object.values(metro.nodes).every((n) => n.coordinateReference === "WGS84 / EPSG:4326"));
+  }),
+  defineTest("world cities retain every global source capital, including small regional seats", async () => {
+    const dag = normalizeDagInput(
+      JSON.parse(await readFile("public/examples/spatial-atlas/world-cities.json", "utf8")),
+    );
+    const snapshot = JSON.parse(await readFile("scripts/world-cities-source.json", "utf8"));
+    const nodes = Object.values(dag.nodes);
+    const ids = new Set(nodes.map((n) => n.geonamesId));
+    assert.equal(snapshot.capitalIds.length, 3708);
+    for (const id of snapshot.capitalIds) assert.ok(ids.has(id), `omitted global capital ${id}`);
+    const capitals = nodes.filter((n) => n.featureCode === "PPLA" || n.featureCode === "PPLC");
+    for (const [country, count] of Object.entries({ US: 51, JP: 47, DE: 16, BR: 27, AU: 8, CA: 14, CN: 31, CH: 26 }))
+      assert.equal(capitals.filter((n) => n.countryCode === country).length, count, country);
+    const usStates = capitals.filter((n) => n.countryCode === "US" && n.featureCode === "PPLA");
+    assert.equal(new Set(usStates.map((n) => n.admin1Code)).size, 50);
+    const japan = capitals.filter((n) => n.countryCode === "JP");
+    assert.equal(new Set(japan.map((n) => n.admin1Code)).size, 47);
+    for (const name of ["Montpelier", "Iqaluit", "Schwerin", "Kavaratti"])
+      assert.ok(
+        capitals.some((n) => n.name_en === name && Number(n.population) < 100000),
+        name,
+      );
+    assert.equal(new Set(nodes.map((n) => n.countryCode)).size, 245);
+    for (const [name, title] of [
+      ["Munich", "München"],
+      ["Chennai", "சென்னை"],
+      ["Thiruvananthapuram", "തിരുവനന്തപുരം"],
+    ])
+      assert.equal(nodes.find((n) => n.name_en === name)?.title, title);
+  }),
+  defineTest("city economic size and intensity stay comparable after geographic filtering", async () => {
+    const dag = normalizeDagInput(
+      JSON.parse(await readFile("public/examples/spatial-atlas/world-cities.json", "utf8")),
+    );
+    const stage = buildSpatialStage({ dag });
+    const nodes = Object.values(dag.nodes);
+    const measured = nodes
+      .filter((n) => (n.economy as { gdpPpp2020: number | null }).gdpPpp2020 !== null)
+      .sort(
+        (a, b) => (a.economy as { gdpPpp2020: number }).gdpPpp2020 - (b.economy as { gdpPpp2020: number }).gdpPpp2020,
+      );
+    assert.equal(measured.length, 5870);
+    let radius = 0,
+      opacity = 0;
+    for (const n of measured) {
+      const point = stage.nodeMap[n.key].spatial!;
+      assert.ok(point.radius >= radius && point.opacity! >= opacity);
+      assert.ok(!point.hollow);
+      radius = point.radius;
+      opacity = point.opacity!;
+      assert.equal((n.economy as { year: number }).year, 2020);
+    }
+    const missing = nodes.filter((n) => (n.economy as { gdpPpp2020: number | null }).gdpPpp2020 === null);
+    assert.equal(missing.length, 2227);
+    for (const n of missing) {
+      assert.equal(stage.nodeMap[n.key].spatial!.hollow, true);
+      assert.equal(stage.nodeMap[n.key].spatial!.radius, 2.1);
+    }
+    const raw = serializeDag(dag);
+    const filtered = normalizeDagInput({
+      ...raw,
+      nodes: Object.fromEntries(Object.entries(raw.nodes).filter(([, n]) => n.type === "Asia")),
+    });
+    const regional = buildSpatialStage({ dag: filtered, colorSourceDag: dag });
+    for (const n of regional.nodes) {
+      const before = stage.nodeMap[n.key].spatial!;
+      assert.equal(n.spatial!.radius, before.radius);
+      assert.equal(n.spatial!.opacity, before.opacity);
+      assert.equal(n.spatial!.color, before.color);
+    }
+    assert.deepEqual(
+      stage.spatial!.legend!.items.map((item) => item.label),
+      ["100M", "10B", "1T+", "Unavailable"],
+    );
+    assert.equal(stage.spatial!.legend!.items[3].hollow, true);
+    const asiaView = buildSpatialStage({
+      dag,
+      spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), yaw: -110, hideBackPoints: true },
+    });
+    const beijing = nodes.find((n) => n.name_en === "Beijing")!;
+    assert.equal(asiaView.nodeMap[beijing.key].spatial!.showLabel, true);
   }),
   defineTest("Beijing metro covers every service route, current openings, closures and transfer links", async () => {
     const dag = normalizeDagInput(

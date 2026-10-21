@@ -110,51 +110,7 @@ sky["metadata"]["space"].update(axes=["Radius", "Right ascension (degrees)", "De
 save("all-sky.json", sky)
 print("Unassigned catalog stars:", unassigned)
 
-countries = data("countries", EARTH + "ne_110m_admin_0_countries.geojson")["features"]
-continents = {}
-for feature in countries:
-    p = feature["properties"]
-    for field in ["ADM0_A3", "SOV_A3", "ISO_A3"]:
-        continents[p[field]] = p["CONTINENT"]
-cities = data("cities", EARTH + "ne_110m_populated_places.geojson")["features"]
-city_nodes = {}
-native_config = json.loads((ROOT / "scripts/spatial-city-names.json").read_text(encoding="utf-8"))
-for index, feature in enumerate(cities):
-    p = feature["properties"]
-    lon, lat = feature["geometry"]["coordinates"]
-    continent = continents.get(p["ADM0_A3"]) or continents.get(p["SOV_A3"])
-    # Small states absent from Natural Earth's 110m country layer.
-    if not continent:
-        zone = (p.get("TIMEZONE") or "").split("/")[0]
-        continent = {"Pacific": "Oceania", "Indian": "Africa", "America": "North America", "Atlantic": "Africa"}.get(zone, zone or "Other")
-    key = "city:" + str(index)
-    language = native_config["countryLanguages"][p["ADM0_A3"]]
-    field = "NAME_ZHT" if language == "zh-Hant" else "NAME_" + language.upper()
-    native = native_config["cityOverrides"].get(p["NAME"]) or {language: p.get(field) or p["NAME"]}
-    title = next(iter(native.values()))
-    city_nodes[key] = {"title": title, "name_native": native, "name_en": p["NAME"], "name_source": "https://www.wikidata.org/wiki/" + p["WIKIDATAID"] if p["NAME"] in native_config["cityOverrides"] else "Natural Earth NAME fields", "type": continent,
-                       "space": [6371, round(lon, 6), round(lat, 6)], "country": p["ADM0NAME"],
-                       "define": f"{p['NAME']}, {p['ADM0NAME']}. Natural Earth reference location on a sphere of radius 6371 km."}
-# A deterministic nearest-neighbor graph demonstrates geometry without claiming airline services.
-city_edges = []
-pairs = set()
-def haversine(a, b):
-    x1, y1 = map(math.radians, a[1:])
-    x2, y2 = map(math.radians, b[1:])
-    return 2 * 6371 * math.asin(min(1, math.sqrt(math.sin((y2-y1)/2)**2 + math.cos(y1)*math.cos(y2)*math.sin((x2-x1)/2)**2)))
-for key, node in city_nodes.items():
-    peers = [(haversine(node["space"], n["space"]), k) for k, n in city_nodes.items() if k != key and n["type"] == node["type"]]
-    for distance, other in sorted(peers)[:2]:
-        pair = tuple(sorted((key, other)))
-        if pair in pairs:
-            continue
-        pairs.add(pair)
-        city_edges.append({"id": f"near:{len(city_edges)}", "source": key, "target": other, "value": "nearby reference city", "metadata": {"distanceKm": round(distance), "kind": "illustrative proximity", "isTransportRoute": False}})
-earth = graph("地球重要城市 · World cities", 3, "spherical", city_nodes, city_edges,
-              source="https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-populated-places/",
-              note="243 reference cities. Type = source continent (country-level grouping). Edges connect two nearby cities in each region, not actual travel routes.")
-earth["metadata"]["space"].update(axes=["Radius", "Longitude", "Latitude"], unit="km")
-save("world-cities.json", earth)
+runpy.run_path(str(ROOT / "scripts/build-world-cities.py"), run_name="__main__")
 
 runpy.run_path(str(ROOT / "scripts/build-beijing-metro.py"), run_name="__main__")
 

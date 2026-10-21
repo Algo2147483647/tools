@@ -57,7 +57,7 @@ Angles default to degrees; `angleUnit: "radians"` changes all angular inputs. Sp
 **Spatial Atlas** contains nine graph documents, including:
 
 - All-sky: 5,044 catalog stars to magnitude 6 plus three constellation-line endpoints; 743 constellation segments. Type identifies 88 constellation regions. Positions are J2000 sky directions on a unit sphere, not measured stellar distances.
-- World cities: 243 Natural Earth reference cities with local-language titles and spherical `[6371, longitude, latitude]`, Type by continent, with 319 explicitly illustrative nearby-city links. These are not flight routes.
+- World cities: 8,097 cities across 245 countries/territories, including every 3,708 national/first-order capital record from the GeoNames snapshot without a population cutoff. Spherical `[6371, longitude, latitude]`, local-language titles, continent Types, and 2020 urban-centre GDP (PPP) encoded as logarithmic point area/intensity. Missing GDP stays visible as a hollow point. See the atlas SOURCES.md for matching, coverage and name fallbacks.
 - Beijing metro: the 2026-10-22 service snapshot, with 28 through-service routes (30 named lines), 423 stations at sourced WGS84 longitude/latitude points, 515 rail segments and 106 shared interchange nodes. Includes both airport lines, S1, Xijiao and Yizhuang T1. Type filters complete lines and their own edges; station coordinates are never jittered or compressed. Flat maps fit their actual point and label bounds. See the source notes for coordinate provenance and closures.
 - 0D points, a 1D line, a polar circle, a cylindrical helix, a 4D tesseract and 5D basis vectors.
 
@@ -66,3 +66,5 @@ See [example source notes](../public/examples/spatial-atlas/SOURCES.md). Rebuild
 Spatial data may supply `spatialStyle` on nodes (`color`: six-digit hex, `radius`: 1–12, `label`: request labels on dense maps) and `metadata.spatialStyle` on edges (`color`, `width`: 0.5–8, `dashed`, `directed`). These affect only Spatial rendering; labels still respect the Labels toggle and overlap suppression. Defaults are unchanged when these optional fields are absent.
 
 For shared station nodes, `metadata.space.typeField: "lines"` reads each node’s category memberships from `lines: string[]`; `edgeTypeField: "line"` filters edges by `metadata.line`. This prevents another service between the same pair of interchange stations from leaking into a line filter. Without these fields, ordinary single-Type behavior is preserved.
+
+Point styles also accept `opacity` (0.1–1), `hollow` (boolean), and finite `labelPriority` (higher values keep labels first). Optional `metadata.spatialLegend` contains a `title`, `description`, and `items` with `label`, `radius`, `opacity`, and `hollow`; it appears inside the collapsible Spatial workbench. Labels prefer larger points when they overlap.

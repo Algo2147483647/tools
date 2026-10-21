@@ -25,6 +25,13 @@ function spatialStyle(value: unknown) {
     width:
       typeof style.width === "number" && Number.isFinite(style.width) ? Math.min(8, Math.max(0.5, style.width)) : 1,
     label: style.label === true,
+    opacity:
+      typeof style.opacity === "number" && Number.isFinite(style.opacity)
+        ? Math.min(1, Math.max(0.1, style.opacity))
+        : undefined,
+    hollow: style.hollow === true,
+    labelPriority:
+      typeof style.labelPriority === "number" && Number.isFinite(style.labelPriority) ? style.labelPriority : 0,
     dashed: style.dashed === true,
     directed: style.directed === true,
   };
@@ -38,6 +45,20 @@ export function buildSpatialStage(input: {
 }): StageData {
   const { dag } = input;
   const source = input.colorSourceDag ?? dag;
+  const rawLegend = source.metadata?.spatialLegend;
+  const legend =
+    isRecord(rawLegend) && typeof rawLegend.title === "string" && Array.isArray(rawLegend.items)
+      ? {
+          title: rawLegend.title,
+          description: typeof rawLegend.description === "string" ? rawLegend.description : "",
+          items: rawLegend.items.filter(isRecord).flatMap((item) => {
+            const style = spatialStyle(item);
+            return typeof item.label === "string" && style.radius !== undefined
+              ? [{ label: item.label, radius: style.radius, opacity: style.opacity ?? 1, hollow: style.hollow }]
+              : [];
+          }),
+        }
+      : undefined;
   const metadata = getSpaceMetadata(dag);
   const view = input.spaceView ?? defaultSpaceView(metadata);
   const sphere = metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem);
@@ -157,6 +178,9 @@ export function buildSpatialStage(input: {
           depth: point[2],
           radius,
           color,
+          opacity: style.opacity,
+          hollow: style.hollow,
+          labelPriority: style.labelPriority,
           labelSide: point[0] > width / 2 + 160 * unitScale ? "left" : "right",
           showLabel: view.labels && (style.label || visibleCount < 350 || (magnitude !== undefined && magnitude < 2)),
         },
@@ -170,7 +194,13 @@ export function buildSpatialStage(input: {
     .sort((a, b) => {
       const mag = (key: string) =>
         typeof dag.nodes[key].magnitude === "number" ? (dag.nodes[key].magnitude as number) : 6;
-      return mag(a.key) - mag(b.key) || b.spatial!.depth - a.spatial!.depth || a.key.localeCompare(b.key);
+      return (
+        (b.spatial!.labelPriority ?? 0) - (a.spatial!.labelPriority ?? 0) ||
+        mag(a.key) - mag(b.key) ||
+        b.spatial!.radius - a.spatial!.radius ||
+        b.spatial!.depth - a.spatial!.depth ||
+        a.key.localeCompare(b.key)
+      );
     });
   for (const node of candidates) {
     const labelWidth = Array.from(node.title).reduce((sum, char) => sum + (char.codePointAt(0)! > 255 ? 12 : 8), 12);
@@ -369,6 +399,7 @@ export function buildSpatialStage(input: {
     warnings,
     spatial: {
       metadata,
+      legend,
       view,
       guides,
       unitScale,

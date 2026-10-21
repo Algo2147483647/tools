@@ -106,6 +106,9 @@ export interface StageNode {
     depth: number;
     radius: number;
     color: string;
+    opacity?: number;
+    hollow?: boolean;
+    labelPriority?: number;
     showLabel: boolean;
     labelSide: "left" | "right";
   };
@@ -210,6 +213,11 @@ export interface StageData {
     unitScale: number;
     pixelsPerUnit: number;
     displayUnit: string;
+    legend?: {
+      title: string;
+      description: string;
+      items: { label: string; radius: number; opacity: number; hollow: boolean }[];
+    };
   };
   timeline?: StageTimelineData;
   groups?: StageGroup[];
