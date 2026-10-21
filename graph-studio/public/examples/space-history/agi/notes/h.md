@@ -29,3 +29,9 @@ Agentic deployment changes the unit of concern from a written answer to actions,
 - **2026-10-09 — Unintended agent actions become a documented research object**. Evaluation. [Source](https://www.anthropic.com/research/investigating-unintended-model-actions).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **2016 to 2026-10-09 — Alignment and oversight become experimental programs**. Research phase. Alignment becomes a sustained collection of technical problems coupled to the systems being trained and deployed.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

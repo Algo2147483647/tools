@@ -34,6 +34,7 @@ export default function App() {
     {
       state,
       dispatch,
+      homeVisible: files.homeVisible,
       showNodeDetail: charts.showNodeDetail,
       alignNodeWidthsToMax: charts.alignNodeWidthsToMax,
       closeContextMenu: ui.closeContextMenu,

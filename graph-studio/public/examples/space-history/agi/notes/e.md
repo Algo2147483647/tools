@@ -22,3 +22,9 @@ Program-learning systems add reusable abstractions, and AlphaEvolve combines gen
 - **2025-05-14 — AlphaEvolve combines language models and evolutionary evaluation**. System. [Source](https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1975 to 2019 — Evolutionary search and learning to learn**. Research phase. The interval connects a long-standing search for adaptation mechanisms with later work on generated curricula and open-ended environments.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

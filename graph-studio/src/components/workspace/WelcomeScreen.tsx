@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import Icon from "../ui/Icon";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
 import ExampleGallery from "./ExampleGallery";
@@ -12,15 +13,78 @@ export default function WelcomeScreen({
   onNew: () => void;
   hasDocument: boolean;
 }) {
+  const [creating, setCreating] = useState(false);
+  const [name, setName] = useState("");
+  const createButton = useRef<HTMLButtonElement>(null);
+  function cancelCreate() {
+    setCreating(false);
+    files.setNotice("");
+    createButton.current?.focus();
+  }
   return (
     <main className="welcome-screen">
       <div className="welcome-inner">
         <RecentProjects files={files} />
         <section className="welcome-actions" aria-labelledby="welcome-open-title">
           <div className="welcome-section-heading">
-            <h2 id="welcome-open-title">Open</h2>
+            <h2 id="welcome-open-title">Get started</h2>
           </div>
-          <button className="welcome-action primary" disabled={files.busy} onClick={files.openWorkspace}>
+          <button
+            ref={createButton}
+            className="welcome-action primary"
+            disabled={files.busy}
+            aria-expanded={creating}
+            aria-controls="welcome-create-workspace"
+            onClick={() => setCreating((value) => !value)}
+          >
+            <Icon name="plus" size={25} />
+            <span>
+              <strong>Create workspace</strong>
+              <small>Start a new folder with your first graph</small>
+            </span>
+            <span aria-hidden="true">+</span>
+          </button>
+          {creating && (
+            <form
+              id="welcome-create-workspace"
+              className="welcome-create-workspace"
+              aria-label="Create workspace"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (!files.busy && name.trim() && (await files.createWorkspace(name))) setCreating(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && !files.busy) {
+                  event.preventDefault();
+                  cancelCreate();
+                }
+              }}
+            >
+              <label htmlFor="workspace-name">Workspace name</label>
+              <input
+                id="workspace-name"
+                className="inline-input"
+                autoFocus
+                required
+                maxLength={255}
+                placeholder="My workspace"
+                aria-describedby="workspace-create-help"
+                value={name}
+                disabled={files.busy}
+                onChange={(event) => setName(event.target.value)}
+              />
+              <p id="workspace-create-help">Choose a location to create a new folder with this name.</p>
+              <div className="welcome-create-actions">
+                <button className="studio-button primary" type="submit" disabled={files.busy || !name.trim()}>
+                  Choose location & create
+                </button>
+                <button className="studio-button" type="button" disabled={files.busy} onClick={cancelCreate}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+          <button className="welcome-action" disabled={files.busy} onClick={files.openWorkspace}>
             <Icon name="folder" size={25} />
             <span>
               <strong>Open workspace</strong>

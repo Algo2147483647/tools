@@ -30,7 +30,6 @@ function groupBackgroundFill(familyIndex: number, depth: number): string {
 }
 
 interface GraphStageProps {
-  onSpaceOrbit?: (dx: number, dy: number) => void;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
   stage: StageData;
@@ -53,7 +52,6 @@ export default function GraphStage({
   appearance,
   svgRef,
   onTimelineNodePin,
-  onSpaceOrbit,
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
@@ -62,7 +60,6 @@ export default function GraphStage({
   onGroupToggle,
   onGroupEnter,
 }: GraphStageProps) {
-  const orbitRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const hoveredKeyRef = useRef<string | null>(null);
   const focusedKeyRef = useRef<string | null>(focusedKey);
   const appliedInteractiveKeyRef = useRef<string | null>(null);
@@ -234,6 +231,7 @@ export default function GraphStage({
     };
 
     const handlePointerOver = (event: PointerEvent) => {
+      if (event.pointerType === "touch" || svgElement.closest("[data-gesturing=true]")) return;
       scheduleInteractiveKey(resolveNodeKey(event.target));
     };
 
@@ -283,36 +281,6 @@ export default function GraphStage({
           : "img"
       }
       aria-label={`${stage.layoutMode === "spatial" ? "Spatial" : stage.layoutMode === "timeline" ? "Timeline" : stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
-      onPointerDown={(event) => {
-        if (
-          !event.shiftKey ||
-          event.button !== 0 ||
-          !onSpaceOrbit ||
-          !stage.spatial ||
-          stage.spatial.view.projection === "map" ||
-          (stage.spatial.metadata?.coordinateSystem === "geographic" ? 3 : (stage.spatial.metadata?.dimensions ?? 0)) <
-            3
-        )
-          return;
-        event.preventDefault();
-        event.currentTarget.setPointerCapture(event.pointerId);
-        orbitRef.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
-      }}
-      onPointerMove={(event) => {
-        const orbit = orbitRef.current;
-        if (!orbit || orbit.pointerId !== event.pointerId) return;
-        onSpaceOrbit?.(event.clientX - orbit.x, event.clientY - orbit.y);
-        orbitRef.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
-      }}
-      onPointerUp={() => {
-        orbitRef.current = null;
-      }}
-      onPointerCancel={() => {
-        orbitRef.current = null;
-      }}
-      onLostPointerCapture={() => {
-        orbitRef.current = null;
-      }}
       onContextMenu={onBackgroundContextMenu}
     >
       <GraphDefs

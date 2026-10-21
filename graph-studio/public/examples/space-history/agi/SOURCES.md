@@ -501,3 +501,13 @@ Source lists on reference edges point to both endpoints. The relationship label 
 - **2026-04-09 — Agent governance focuses on consequential tool use**. Anthropic. [Record 1](https://www.anthropic.com/research/trustworthy-agents)
 
 - **2026-10-09 — Unintended agent actions become a documented research object**. Anthropic. [Record 1](https://www.anthropic.com/research/investigating-unintended-model-actions)
+
+## Sources for periods and programs
+
+Program boundaries use participant or institutional records. Phase boundaries are editorial syntheses of cited milestones; no source is claimed to certify one universal periodization. Full boundary notes and the source lists for all 25 bars are in [Periods and programs](./PERIODS.md).
+
+- **1956-06 to 1956-08 — Dartmouth summer research project**. [Source 1](https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html) · [Source 2](https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html)
+- **1966 to 1972 — Shakey research and development**. [Source 1](https://www.sri.com/case-study/the-man-the-myth-the-legend-meet-shakey-the-robot-the-worlds-first-ai-based-robot/)
+- **1982 to 1992 — Fifth Generation Computer Systems project**. [Source 1](https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html)
+- **1989 to 1997-05-11 — IBM chess research through the Deep Blue victory**. [Source 1](https://www.ibm.com/history/deep-blue)
+- **2003 to 2008 — CALO cognitive-assistant research program**. [Source 1](https://www.sri.com/75-years-of-innovation/75-years-of-innovation-calo-cognitive-assistant-that-learns-and-organizes/)

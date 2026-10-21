@@ -10,7 +10,7 @@ import type { GraphAppState } from "../state/initialState";
 import { createWorkspaceManifest, discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
 import { loadExampleWorkspace } from "../workspace/examples";
 import { documentIdentity, prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
-import { createWorkspaceGraph } from "../workspace/creation";
+import { createLocalWorkspace, createWorkspaceGraph, workspaceFolderName } from "../workspace/creation";
 import type { WorkspaceSession, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
 import { useRecentLocations } from "./useRecentLocations";
 import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
@@ -97,8 +97,13 @@ export function useWorkspaceController({
       ({ input }) => remember(input),
     );
   }
-  async function loadFolder(folder: WorkspaceFolder, recent: RecentLocation | undefined, context: OperationContext) {
-    await openPreparedDocument(
+  async function loadFolder(
+    folder: WorkspaceFolder,
+    recent: RecentLocation | undefined,
+    context: OperationContext,
+    canReplace = mayReplace,
+  ) {
+    return openPreparedDocument(
       context,
       async () => {
         const prepared = await prepareWorkspace(folder, recent?.lastGraph);
@@ -114,7 +119,7 @@ export function useWorkspaceController({
         const id = await identify(input);
         return { ...prepared, input: { ...input, id } };
       },
-      mayReplace,
+      canReplace,
       ({ workspace: found, entry, dag, input, ...style }) => {
         setWorkspace({ ...found, locationId: input.id });
         setExplorerOpen(true);
@@ -172,6 +177,35 @@ export function useWorkspaceController({
   }
   function openWorkspace() {
     selectWorkspace();
+  }
+  async function createWorkspace(input: string): Promise<boolean> {
+    if (operations.isBusy()) return false;
+    if (!window.showDirectoryPicker) {
+      setNotice(
+        "Creating a workspace folder requires Chrome or Edge with folder access. You can still create a graph or open existing files.",
+      );
+      return false;
+    }
+    let created = false;
+    await run(async (context) => {
+      const name = workspaceFolderName(input);
+      if (!mayReplace()) return;
+      const previousDag = stateRef.current.dag;
+      const parent = await window.showDirectoryPicker!({ mode: "readwrite", id: "graph-studio-create-workspace" });
+      if (!context.isCurrent() || (stateRef.current.dag !== previousDag && !mayReplace())) return;
+      const approvedDag = stateRef.current.dag;
+      const folder = await createLocalWorkspace(parent, name);
+      created = true;
+      const opened = await loadFolder(
+        folder,
+        undefined,
+        context,
+        () => stateRef.current.dag === approvedDag || mayReplace(),
+      );
+      if (!opened && context.isCurrent())
+        setNotice(`Created "${name}" in "${parent.name}". Use Open workspace to open it when ready.`);
+    });
+    return created;
   }
   function openExample(id: string, recent?: RecentLocation) {
     void run(async (context) => loadFolder(await loadExampleWorkspace(id, import.meta.env.BASE_URL), recent, context));
@@ -346,6 +380,7 @@ export function useWorkspaceController({
     onFolderChange,
     openFile,
     openWorkspace,
+    createWorkspace,
     openRecent,
     removeRecent,
     openWorkspaceGraph,

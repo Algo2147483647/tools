@@ -93,9 +93,11 @@ export function useGraphZoom({
       }
       const currentZoom = zoomStateRef.current;
       const fitScale = getFitZoomScale(container, topbarRef.current, stage);
-      const keepCompoundScale =
-        preserveCenter &&
-        (stage.layoutMode === "compound" || stage.layoutMode === "timeline" || stage.layoutMode === "spatial");
+      if (stage.layoutMode === "spatial") {
+        apply(preserveCenter ? currentZoom.scale : fitScale, preserveCenter, spatialMinScale(fitScale));
+        return;
+      }
+      const keepCompoundScale = preserveCenter && (stage.layoutMode === "compound" || stage.layoutMode === "timeline");
       const nextMinScale = keepCompoundScale ? Math.min(fitScale, currentZoom.scale) : fitScale;
       const nextScale =
         !keepCompoundScale && Math.abs(currentZoom.scale - currentZoom.minScale) < 0.001
@@ -150,7 +152,7 @@ export function useGraphZoom({
     }
 
     function handleWheel(event: WheelEvent) {
-      if (!event.ctrlKey && !event.metaKey) {
+      if (stage?.layoutMode !== "spatial" && !event.ctrlKey && !event.metaKey) {
         return;
       }
       event.preventDefault();
@@ -182,12 +184,18 @@ export function useGraphZoom({
 
   return useMemo(
     () => ({
+      zoomBy,
+      panBy: (dx: number, dy: number) => {
+        const svg = svgRef.current;
+        if (svg && stage?.layoutMode === "spatial")
+          setSpatialCamera(svg, Number(svg.dataset.cameraX || 0) + dx, Number(svg.dataset.cameraY || 0) + dy);
+      },
       zoomIn: () => zoomBy(ZOOM_STEP_FACTOR),
       zoomOut: () => zoomBy(1 / ZOOM_STEP_FACTOR),
       zoomFit: () => {
         if (containerRef.current && stage) {
           const fitScale = getFitZoomScale(containerRef.current, topbarRef.current, stage);
-          apply(fitScale, false, fitScale);
+          apply(fitScale, false, stage.layoutMode === "spatial" ? spatialMinScale(fitScale) : fitScale);
         }
       },
       locateNode: (id: string) => {
@@ -200,6 +208,14 @@ export function useGraphZoom({
         const metrics = getViewportMetrics(container, topbarRef.current);
         const appliedScale = getAppliedZoomScale(svg, current.scale);
         const point = getNodeLocatePoint(node);
+        if (stage.layoutMode === "spatial") {
+          setSpatialCamera(
+            svg,
+            metrics.safeLeft + metrics.availableWidth / 2 - point.x * appliedScale,
+            metrics.safeTop + metrics.availableHeight / 2 - point.y * appliedScale,
+          );
+          return;
+        }
         container.scrollLeft = Math.max(
           point.x * appliedScale + Number(svg.dataset.marginLeft || 0) - metrics.safeLeft - metrics.availableWidth / 2,
           0,
@@ -281,6 +297,29 @@ function applyGraphZoom(
   const anchorOffsetY = anchor
     ? anchor.clientY - containerRect.top
     : viewportMetrics.safeTop + viewportMetrics.availableHeight / 2;
+  if (stage.layoutMode === "spatial") {
+    const previousX = Number(svg.dataset.cameraX || 0);
+    const previousY = Number(svg.dataset.cameraY || 0);
+    const x =
+      preserveCenter || anchor
+        ? anchorOffsetX - ((anchorOffsetX - previousX) / previousScale) * scale
+        : viewportMetrics.safeLeft + (viewportMetrics.availableWidth - scaledWidth) / 2;
+    const y =
+      preserveCenter || anchor
+        ? anchorOffsetY - ((anchorOffsetY - previousY) / previousScale) * scale
+        : viewportMetrics.safeTop + (viewportMetrics.availableHeight - scaledHeight) / 2;
+    svg.style.width = `${scaledWidth}px`;
+    svg.style.height = `${scaledHeight}px`;
+    svg.style.marginLeft = svg.style.marginTop = "0px";
+    svg.dataset.zoomScale = String(scale);
+    svg.dataset.marginLeft = svg.dataset.marginTop = "0";
+    container.scrollLeft = container.scrollTop = 0;
+    setSpatialCamera(svg, x, y);
+    return;
+  }
+  svg.style.transform = "";
+  delete svg.dataset.cameraX;
+  delete svg.dataset.cameraY;
   const zoomOriginX =
     preserveCenter || anchor
       ? (container.scrollLeft + anchorOffsetX - previousMarginLeft) / previousScale
@@ -300,6 +339,16 @@ function applyGraphZoom(
 
   container.scrollLeft = Math.max(zoomOriginX * scale + marginLeft - anchorOffsetX, 0);
   container.scrollTop = Math.max(zoomOriginY * scale + marginTop - anchorOffsetY, 0);
+}
+
+function setSpatialCamera(svg: SVGSVGElement, x: number, y: number) {
+  svg.dataset.cameraX = String(x);
+  svg.dataset.cameraY = String(y);
+  svg.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function spatialMinScale(fit: number) {
+  return Math.max(MIN_ZOOM_FLOOR, fit * 0.1);
 }
 
 function getAppliedZoomScale(svg: SVGSVGElement | null, fallbackScale: number): number {

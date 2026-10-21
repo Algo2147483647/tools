@@ -28,3 +28,9 @@ Mathematical and algorithmic agents reveal the value of checkable outputs, but r
 - **2026-02-11 — Aletheia investigates research-level mathematical reasoning**. System. [Source](https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **2022-01-28 to 2026-10-09 — Reasoning and tool-using agents through the snapshot**. Research phase. The unit of analysis increasingly becomes a complete acting system with memory, evaluators and interfaces, rather than a model response alone.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

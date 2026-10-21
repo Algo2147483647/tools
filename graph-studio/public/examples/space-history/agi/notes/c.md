@@ -29,3 +29,11 @@ Compare three meanings of generality: architectural reuse, shared-model task bre
 - **2022-05-12 — Gato uses shared weights across diverse modalities and tasks**. System. [Source](https://arxiv.org/abs/2205.06175).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1964 to 2007 — Universal induction and ideal general agents**. Research phase. A long-running mathematical program supplies reference ideals against which computability and resource constraints can be made explicit.
+- **1983 to 2008-03-01 — Cognitive architectures and explicit AGI integration**. Research phase. The interval preserves a continuous integrative agenda that would be obscured by a history organized only around benchmark-winning predictors.
+- **2003 to 2008 — CALO cognitive-assistant research program**. Research program. A practical assistant becomes a testbed for combining cognitive capabilities and learning from a user over time, well before contemporary language-model agents.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

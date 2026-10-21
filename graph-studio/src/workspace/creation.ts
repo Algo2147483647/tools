@@ -18,6 +18,75 @@ export function graphFileName(input: string): string {
   return path;
 }
 
+export function workspaceFolderName(input: string): string {
+  const name = input.trim();
+  if (
+    !name ||
+    name.length > 255 ||
+    /[<>:"/\\|?*\u0000-\u001f]/.test(name) ||
+    /[. ]$/.test(name) ||
+    /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)
+  )
+    throw new Error("Enter a valid workspace name without folders or special characters.");
+  return name;
+}
+
+/** Create a new child folder; existing folders and files are never reused. */
+export async function createLocalWorkspace(parent: FileSystemDirectoryHandle, input: string) {
+  const name = workspaceFolderName(input);
+  if (!parent.getDirectoryHandle || !parent.entries || !parent.removeEntry)
+    throw new Error("This browser does not support creating workspace folders. Use Chrome or Edge.");
+  const permission = await parent.queryPermission?.({ mode: "readwrite" });
+  if (permission !== "granted") {
+    const requested = await parent.requestPermission?.({ mode: "readwrite" });
+    if (requested !== "granted" && (permission !== undefined || requested !== undefined))
+      throw new Error("Write access was not granted. No workspace was created.");
+  }
+  for await (const [existing] of parent.entries()) {
+    if (existing.toLowerCase() === name.toLowerCase())
+      throw new Error(`An item named "${name}" already exists. Choose another workspace name or location.`);
+  }
+  const directory = await parent.getDirectoryHandle(name, { create: true });
+  const createdFiles: string[] = [];
+  try {
+    if (!directory.entries || !directory.getFileHandle || !directory.removeEntry)
+      throw new Error("This browser does not support writing workspace files.");
+    // Recheck after creation in case another operation populated the folder.
+    for await (const _entry of directory.entries())
+      throw new Error(`The folder "${name}" is no longer empty. Choose another workspace name.`);
+    const dag = createInitialCanvasDag();
+    const manifest: WorkspaceManifest = {
+      format: "graph-studio-workspace",
+      version: 1,
+      name,
+      graphs: ["graph.json"],
+      defaultGraph: "graph.json",
+    };
+    const files = new Map<string, WorkspaceFile>();
+    for (const [path, content] of [
+      ["graph.json", serializeDagToJson(dag)],
+      [WORKSPACE_MANIFEST, JSON.stringify(manifest, null, 2)],
+    ]) {
+      const handle = await directory.getFileHandle(path, { create: true });
+      createdFiles.push(path);
+      await writeJsonToHandle(handle, content);
+      files.set(path, { path, handle });
+    }
+    return { name, handle: directory, files };
+  } catch (error) {
+    try {
+      for (const path of createdFiles.reverse()) await directory.removeEntry!(path);
+      // Non-recursive removal preserves anything added by another application.
+      await parent.removeEntry(name);
+    } catch {
+      throw new Error(
+        `Could not finish creating "${name}" or remove the incomplete folder. Check the folder before retrying.`,
+      );
+    }
+    throw error;
+  }
+}
+
 function isMissing(error: unknown): boolean {
   return error instanceof Error && error.name === "NotFoundError";
 }

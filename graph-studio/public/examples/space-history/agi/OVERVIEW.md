@@ -4,6 +4,8 @@ General machine intelligence is a research objective, not a single algorithm. It
 
 The timeline covers technical results, prototypes, theories, institutions, evaluations and critiques. These event types have different evidential roles. A theorem establishes a conditional mathematical result; a benchmark establishes performance under a protocol; a prototype establishes a working combination; a founding statement establishes an intention. None can simply substitute for the others.
 
+The canvas combines 231 point milestones with 25 duration bars. Five bars describe research programs or bounded development efforts; twenty show overlapping research phases. The [period guide](./PERIODS.md) explains each interval and its boundaries. A phase ending at a selected milestone does not imply that the field stopped there. The recent phase endpoints are the historical evidence cutoff, not forecasts or declared completion dates.
+
 ## 1666 to 1950: reasoning becomes a possible object of computation
 
 Leibniz's combinatorial project is an intellectual antecedent, not an early implementation of AI. Boole and Frege subsequently make logical structure more explicit. In the twentieth century, Church and Turing give effective computation precise formulations while Godel and computability theory establish limits. These limits make the question sharper: which reasoning processes can be represented, learned and executed with available resources?

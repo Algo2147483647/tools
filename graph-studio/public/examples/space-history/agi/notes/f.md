@@ -24,3 +24,9 @@ Follow the cross-links into neural networks, probabilistic learning and AGI theo
 - **1978 — Minimum description length links modeling and compression**. Theory. [Source](https://doi.org/10.1016/0005-1098(78)90005-5).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1931 to 1950 — Formal foundations of machine intelligence**. Research phase. The timeline displays the overlapping formation of a problem space, rather than presenting the imitation game without its intellectual background.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

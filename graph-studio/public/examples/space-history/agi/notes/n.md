@@ -37,3 +37,11 @@ Generative models add another branch: VAEs, GANs and diffusion learn distributio
 - **2023 — Mamba develops selective state-space sequence modeling**. Method. [Source](https://arxiv.org/abs/2312.00752).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1943 to 1969 — Early neural computation and learning**. Research phase. Neural learning appears as an extended research tradition with internal alternatives and constraints, not as an invention of the deep-learning era.
+- **1982 to 1998 — Connectionist revival and trainable representations**. Research phase. The interval shows repeated work on optimization, memory and inductive structure behind later large-scale learning.
+- **2006 to 2017-06-12 — Deep representation learning expands across tasks**. Research phase. Several interacting developments make deep learning a reusable research approach, connecting the 2006 revival to the Transformer milestone.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

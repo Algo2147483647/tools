@@ -3,7 +3,6 @@
   z-index: 4;
   bottom: 20px;
   right: 24px;
-  max-width: calc(100% - 48px);
   padding: 14px 18px;
   border: 1px solid #dce4ec;
   border-radius: 16px;
@@ -11,6 +10,32 @@
   box-shadow: 0 5px 25px #19344910;
   color: #34475d;
   font-size: 12px;
+  width: max-content;
+  max-width: min(640px, calc(100% - 48px));
+}
+#main-content[data-layout="spatial"] {
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  cursor: grab;
+}
+#main-content[data-layout="spatial"] > svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+#main-content[data-layout="spatial"][data-gesturing="true"],
+#main-content[data-layout="spatial"][data-gesturing="true"] * {
+  cursor: grabbing;
+}
+@media (pointer: coarse) {
+  .spatial-controls button,
+  .spatial-controls select,
+  .spatial-controls label {
+    min-height: 40px;
+  }
 }
 .spatial-controls-heading,
 .spatial-controls-fields {

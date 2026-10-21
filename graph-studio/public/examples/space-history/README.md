@@ -4,7 +4,7 @@ This workspace contains three independent canvases:
 
 - [World space history](./space-history.json) — 298 events and completed mission phases, 408 relationships, 1957–2025.
 - [History of Mathematics and Physics](./mathematics-physics/mathematics-physics.json) — one combined mathematics–physics canvas with 250 point events and 317 relationships, c. 1850 BCE–2024. [Reading guide, names and sources](./mathematics-physics/README.md).
-- [History of AGI Research](./agi/agi-history.json) — 233 point events and 368 relationships across 13 research strands, 1666–2026. [Reading guide](./agi/README.md), [historical overview](./agi/OVERVIEW.md), [event catalog](./agi/CATALOG.md), and [sources](./agi/SOURCES.md).
+- [History of AGI Research](./agi/agi-history.json) — 231 point milestones, 25 duration bars and 484 relationships across 13 research strands, 1666–2026. [Reading guide](./agi/README.md), [historical overview](./agi/OVERVIEW.md), [event catalog](./agi/CATALOG.md), and [sources](./agi/SOURCES.md).
 
 Select a canvas from the workspace graph list. Each opens in Timeline mode. Mathematics and physics share one canvas; spaceflight and AGI research each have their own. All exposition is in English. The mathematics–physics canvas also preserves original-language personal names.
 

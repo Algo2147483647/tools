@@ -133,7 +133,7 @@ export default function StudioView({
       />
       {(files.busy || files.notice) && (
         <div className={`source-notice${files.busy ? " is-busy" : ""}`} role={files.busy ? "status" : "alert"}>
-          <span>{files.busy ? "Opening your files…" : files.notice}</span>
+          <span>{files.busy ? "Preparing your workspace…" : files.notice}</span>
           {!files.busy && (
             <button aria-label="Dismiss message" onClick={() => files.setNotice("")}>
               ×
@@ -189,8 +189,11 @@ export default function StudioView({
         <WelcomeScreen files={files} onNew={onInitializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
-          spatialTools={state.chartType === "spatial" ? <SpatialControls spatial={viewport.spatialView} /> : undefined}
-          onSpaceOrbit={viewport.spatialView.orbit}
+          spatialTools={
+            state.chartType === "spatial" ? (
+              <SpatialControls spatial={viewport.spatialView} onReset={viewport.zoom.zoomFit} />
+            ) : undefined
+          }
           compoundTools={!files.workspace || !files.explorerOpen ? compoundPanel : undefined}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}

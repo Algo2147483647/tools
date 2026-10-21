@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { createWorkspaceGraph, graphFileName } from "../workspace/creation";
+import { createLocalWorkspace, createWorkspaceGraph, graphFileName, workspaceFolderName } from "../workspace/creation";
 import { discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
 import { readWorkspaceDirectory } from "../adapters/workspaceAccess";
 import { defineSuite, defineTest } from "./harness";
 
-function disk(initial: Record<string, unknown> = {}) {
+function disk(initial: Record<string, unknown> = {}, folderName = "Test workspace") {
   const contents = new Map(Object.entries(initial).map(([name, value]) => [name, JSON.stringify(value)]));
   const options = { permission: "granted" as PermissionState, failWrite: "", aborted: false };
   const file = (name: string): FileSystemFileHandle => ({
@@ -30,7 +30,7 @@ function disk(initial: Record<string, unknown> = {}) {
   });
   const handle: FileSystemDirectoryHandle = {
     kind: "directory",
-    name: "Test workspace",
+    name: folderName,
     isSameEntry: async (other) => other === handle,
     resolve: async () => null,
     queryPermission: async () => options.permission,
@@ -52,7 +52,97 @@ function disk(initial: Record<string, unknown> = {}) {
   return { contents, handle, options, open: async () => discoverWorkspace(await readWorkspaceDirectory(handle)) };
 }
 
+function parentDisk() {
+  const parent = disk();
+  const children = new Map<string, ReturnType<typeof disk>>();
+  const options = { failWrite: "", extraFileOnFailure: false };
+  const originalEntries = parent.handle.entries!;
+  parent.handle.entries = async function* () {
+    yield* originalEntries();
+    for (const [name, child] of children) yield [name, child.handle];
+  };
+  parent.handle.getDirectoryHandle = async (name, settings) => {
+    if (!children.has(name)) {
+      if (!settings?.create) throw new DOMException("Missing", "NotFoundError");
+      const child = disk({}, name);
+      child.options.failWrite = options.failWrite;
+      const removeFile = child.handle.removeEntry!;
+      child.handle.removeEntry = async (path) => {
+        await removeFile(path);
+        if (options.extraFileOnFailure) child.contents.set("external.txt", "keep");
+      };
+      children.set(name, child);
+    }
+    return children.get(name)!.handle;
+  };
+  parent.handle.removeEntry = async (name) => {
+    if (children.get(name)?.contents.size) throw new DOMException("Not empty", "InvalidModificationError");
+    children.delete(name);
+  };
+  return { ...parent, children, options: { parent: parent.options, creation: options } };
+}
+
 export const workspaceCreationSuite = defineSuite("Creating workspace graph files", [
+  defineTest("creates a named folder with a saved startup graph and manifest that reopen together", async () => {
+    const source = parentDisk();
+    const result = await createLocalWorkspace(source.handle, "  我的工作空间  ");
+    const reopened = await discoverWorkspace(await readWorkspaceDirectory(result.handle));
+    assert.equal(reopened.name, "我的工作空间");
+    assert.equal(reopened.activePath, "graph.json");
+    assert.equal(reopened.graphs[0].nodeCount, 1);
+    assert.deepEqual(reopened.manifest?.graphs, ["graph.json"]);
+    assert.equal(reopened.files.size, 2);
+    assert.equal(source.contents.size, 0);
+    const second = await createWorkspaceGraph(reopened, "second");
+    assert.deepEqual(second.workspace.manifest?.graphs, ["graph.json", "second.json"]);
+  }),
+  defineTest("refuses existing folders and files, including case variants, without overwriting", async () => {
+    const source = parentDisk();
+    await createLocalWorkspace(source.handle, "Existing");
+    const original = [...source.children.get("Existing")!.contents];
+    await assert.rejects(createLocalWorkspace(source.handle, "EXISTING"), /already exists/);
+    assert.deepEqual([...source.children.get("Existing")!.contents], original);
+    source.contents.set("notes", "untouched");
+    await assert.rejects(createLocalWorkspace(source.handle, "notes"), /already exists/);
+    assert.equal(source.contents.get("notes"), "untouched");
+    assert.equal(source.children.size, 1);
+  }),
+  defineTest("invalid workspace names, unavailable access and denied permission create nothing", async () => {
+    const source = parentDisk();
+    for (const name of [
+      "",
+      "..",
+      "../escape",
+      "sub/folder",
+      "sub\\folder",
+      "C:folder",
+      "NUL",
+      "CON.txt",
+      "graph.",
+      "a".repeat(256),
+    ])
+      assert.throws(() => workspaceFolderName(name));
+    await assert.rejects(createLocalWorkspace(source.handle, "../escape"), /valid workspace name/);
+    await assert.rejects(createLocalWorkspace({ ...source.handle, getDirectoryHandle: undefined }, "New"), /support/);
+    source.options.parent.permission = "denied";
+    await assert.rejects(createLocalWorkspace(source.handle, "New"), /Write access was not granted/);
+    assert.equal(source.children.size, 0);
+  }),
+  defineTest("a failed startup graph or manifest write rolls back the new workspace", async () => {
+    for (const failWrite of ["graph.json", WORKSPACE_MANIFEST]) {
+      const source = parentDisk();
+      source.options.creation.failWrite = failWrite;
+      await assert.rejects(createLocalWorkspace(source.handle, "New"), /Disk write failed/);
+      assert.equal(source.children.size, 0);
+    }
+  }),
+  defineTest("rollback preserves unrelated files added concurrently and reports the incomplete folder", async () => {
+    const source = parentDisk();
+    source.options.creation.failWrite = WORKSPACE_MANIFEST;
+    source.options.creation.extraFileOnFailure = true;
+    await assert.rejects(createLocalWorkspace(source.handle, "New"), /incomplete folder/);
+    assert.deepEqual([...source.children.get("New")!.contents], [["external.txt", "keep"]]);
+  }),
   defineTest("creates a real v3 graph in an empty workspace that survives reopening", async () => {
     const source = disk();
     const original = await source.open();

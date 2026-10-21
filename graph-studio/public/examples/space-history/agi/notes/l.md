@@ -35,3 +35,9 @@ Instruction tuning, dialogue interfaces and image-audio-text integration make br
 - **2024-05-13 — GPT-4o integrates real-time multimodal interaction**. System. [Source](https://openai.com/index/hello-gpt-4o/).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **2018 to 2023-03-14 — Pretraining scales into broad foundation models**. Research phase. The phase captures the accumulation of transfer mechanisms and infrastructure behind broad interfaces rather than attributing the change to a single release.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

@@ -32,3 +32,11 @@ Dyna and world-model methods reconnect planning with learned experience. Later l
 - **2021 — Decision Transformer casts control as sequence modeling**. Method. [Source](https://arxiv.org/abs/2106.01345).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1988 to 1999 — Reinforcement learning and temporal abstraction**. Research phase. The period links foundational updates to planning, self-play and hierarchical action over more than a decade of development.
+- **1989 to 1997-05-11 — IBM chess research through the Deep Blue victory**. Research program. The victory becomes the endpoint of a sustained engineering program rather than an isolated event, clarifying the role of search, domain knowledge and computing resources.
+- **2013 to 2017-12-05 — Deep reinforcement learning and self-play**. Research phase. Successive systems reveal how data, search, learned evaluation and known environment rules jointly support performance.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

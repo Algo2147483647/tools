@@ -11,7 +11,7 @@ The recent automation of parts of AI research returns to an old self-improvement
 ## Events in this strand
 
 - **1955-08-31 — The Dartmouth AI proposal is submitted**. Institution. [Source](https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html).
-- **1956 — The Dartmouth summer project takes place**. Institution. [Source](https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth).
+- **1956-06 to 1956-08 — Dartmouth summer research project**. Research program. [Boundary notes](../PERIODS.md).
 - **1982 — Japan launches the Fifth Generation project**. Institution. [Source](https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html).
 - **1993 — Symbolics enters Chapter 11**. Institution. [Source](https://smbx.org/symbolics-bancruptcy-filed/).
 - **2007 — CUDA broadens programmable GPU computing**. Infrastructure. [Source](https://developer.nvidia.com/cuda-toolkit-archive/).
@@ -27,3 +27,11 @@ The recent automation of parts of AI research returns to an old self-improvement
 - **2026-09-17 — AI-led research and development is measured separately**. Evaluation. [Source](https://www.anthropic.com/institute/measuring-pace-of-ai-development).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1956-06 to 1956-08 — Dartmouth summer research project**. Research program. The shared research agenda takes institutional form over weeks of discussion and work, rather than at one instantaneous founding ceremony.
+- **1982 to 1992 — Fifth Generation Computer Systems project**. Research program. Symbolic inference is pursued through a coordinated combination of hardware, programming language and application research.
+- **1984 to 1993 — Expert-system maintenance and commercial reassessment**. Research phase. The interval places the second AI-winter narrative within a mixed technical and institutional history instead of depicting a universal research shutdown.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

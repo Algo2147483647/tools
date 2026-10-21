@@ -40,8 +40,9 @@ Angles default to degrees; `angleUnit: "radians"` changes all angular inputs. Sp
 
 ## Viewing and editing
 
-- Drag the background to pan; scroll or use the existing zoom and fit controls.
-- For 3D, choose Orthographic or Perspective, then Shift-drag to orbit or use Rotate/Tilt. The camera and scale remain stable during rotation.
+- In 3D, drag with the left mouse button or one finger to rotate. Right-drag, middle-drag or Shift-drag pans. In a map or 0D–2D view, a normal drag pans. Gestures work across the full canvas, including over points.
+- Use the mouse wheel to zoom around the pointer without holding a modifier. On a touchscreen, pinch with two fingers to zoom and move both fingers to pan. The view can pan freely even at the fitted size. A tap selects a point; double-tap or double-click opens its details. Dragging does not select or open a point accidentally.
+- Rotate/Tilt sliders and the existing zoom controls remain available. **Reset view** resets both orientation and the pan/zoom camera. Rotation preserves the current zoom and pan.
 - Spherical/geographic documents also offer a complete equirectangular map. Edges crossing the ±180° seam split at the boundary instead of crossing the map. Globe views are transparent wireframes; rear points remain visible and are dimmer. Edges are straight chords, not surface geodesics.
 - Above 3D, select any three Cartesian dimensions as View X/Y/Z. Non-Cartesian coordinate prefixes are converted first; dimensions beyond the prefix remain available. Other coordinates remain in node data. Two points can overlap if their selected coordinates coincide; choosing another axis exposes the difference. This is explicit axis projection, not PCA or an invented spatial embedding.
 - 0D uses `[]`. All points represent the same location; an index tray separates them for selection and explicitly carries no spatial distance meaning. 1D places points on one measured line. All other Cartesian plots preserve aspect ratio.

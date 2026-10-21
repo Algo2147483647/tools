@@ -11,8 +11,8 @@
   "metadata": {
     "language": "en",
     "snapshotAsOf": "2026-10-21",
-    "nodeCount": 781,
-    "edgeCount": 1093,
+    "nodeCount": 804,
+    "edgeCount": 1209,
     "themeCount": 32,
     "missionPhaseCount": 75,
     "assets": [
@@ -57,7 +57,8 @@
       "agi/notes/v.md",
       "agi/OVERVIEW.md",
       "agi/README.md",
-      "agi/SOURCES.md"
+      "agi/SOURCES.md",
+      "agi/PERIODS.md"
     ],
     "graphStats": {
       "space-history.json": {
@@ -75,12 +76,15 @@
         "latestIncludedYear": 2024
       },
       "agi/agi-history.json": {
-        "nodeCount": 233,
-        "edgeCount": 368,
+        "nodeCount": 256,
+        "edgeCount": 484,
         "themeCount": 13,
-        "pointEventCount": 233,
+        "pointEventCount": 231,
         "snapshotAsOf": "2026-10-21",
-        "latestIncludedDate": "2026-10-09"
+        "latestIncludedDate": "2026-10-09",
+        "intervalCount": 25,
+        "researchProgramCount": 5,
+        "researchPhaseCount": 20
       }
     }
   }

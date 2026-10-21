@@ -42,3 +42,10 @@ Read the 2026 interactive ARC result together with its harness conditions. State
 - **2026-09-03 — ARC Prize reports strong harness-dependent Astra results**. Evaluation. [Source](https://arcprize.org/blog/astra).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1966 to 1973 — Translation and generality claims face sustained scrutiny**. Research phase. The interval shows how several distinct lines of criticism accumulate before later narratives group funding contractions into an AI winter.
+- **2019-11-05 to 2026-10-09 — Generality and agent evaluation diversify**. Research phase. The interval shows changing attempts to measure the research objective itself, including sensitivity to compute budgets and agent harnesses.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

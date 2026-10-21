@@ -88,7 +88,7 @@ The app starts on a welcome page. Open a graph file, open a folder as a workspac
 - **Mathematics:** 112 concepts, eight subject views, and linked English notes adapted from `math/studio`.
 - **Factorio production:** two demand-driven Space Age 2.0.65 Sankey plans: one complete launch-ready rocket per second, or all 12 science packs simultaneously at one of each per second. Both trace production back to raw resources.
 - **Commerce operations:** nested groups and relationships across order fulfillment and returns.
-- **History of Technology:** three timelines for spaceflight, mathematics and physics, and AGI research. Together they contain 781 events and phases and 1093 relationships. The English AGI canvas follows 233 events across 13 research strands from 1666 to 2026, with an overview, source index and strand guides. Filter by type, track or time range.
+- **History of Technology:** three timelines for spaceflight, mathematics and physics, and AGI research. Together they contain 804 events and phases and 1209 relationships. The English AGI canvas follows 231 point milestones and 25 duration bars across 13 research strands from 1666 to 2026, with an overview, source index and strand guides. Filter by type, track or time range.
 
 Examples open fresh editable copies and can be reopened from Recents without folder permissions. The canvas fills the window, with the `math/studio` glass toolbar and workspace panels floating above it. Fit uses the area visible beside the panels; panning can move the graph beneath them.
 

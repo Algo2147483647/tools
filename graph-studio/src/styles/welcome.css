@@ -60,6 +60,34 @@
   opacity: 0.5;
   cursor: wait;
 }
+.welcome-create-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid #dfe6f0;
+  border-radius: 12px;
+  background: #fafbfd;
+}
+.welcome-create-workspace label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.welcome-create-workspace input {
+  width: 100%;
+  min-width: 0;
+}
+.welcome-create-workspace p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--studio-muted);
+}
+.welcome-create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .welcome-quick {
   display: flex;
   justify-content: space-between;

@@ -4,12 +4,14 @@ import type { TimelineViewSettings } from "../graph/timelineSettings";
 import type { GraphAppState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";
 import { useGraphPan } from "../hooks/useGraphPan";
+import { useSpatialGestures } from "../hooks/useSpatialGestures";
 import { useGraphZoom } from "../hooks/useGraphZoom";
 import { useResizeObserver } from "../hooks/useResizeObserver";
 import { useGraphLayout } from "./useGraphLayout";
 import { useGraphNavigation } from "./useGraphNavigation";
 import { useGraphInteractions } from "./useGraphInteractions";
 interface ViewportInput {
+  homeVisible: boolean;
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;
   showNodeDetail: boolean;
@@ -18,12 +20,27 @@ interface ViewportInput {
   openNodeDetail(key: string): void;
 }
 export function useGraphViewport(
-  { state, dispatch, showNodeDetail, alignNodeWidthsToMax, closeContextMenu, openNodeDetail }: ViewportInput,
+  {
+    state,
+    dispatch,
+    homeVisible,
+    showNodeDetail,
+    alignNodeWidthsToMax,
+    closeContextMenu,
+    openNodeDetail,
+  }: ViewportInput,
   appearance: GraphAppearance,
 ) {
   const navigation = useGraphNavigation(state, dispatch, (key) => zoom.captureLayoutAnchor(key));
   const { compound, activeType, activeTrack, activeTimelineRange } = navigation;
-  const { stage, status, parentSelection, timelineView, compoundLayout, spatialView } = useGraphLayout({
+  const {
+    stage: computedStage,
+    status,
+    parentSelection,
+    timelineView,
+    compoundLayout,
+    spatialView,
+  } = useGraphLayout({
     state,
     appearance,
     compound,
@@ -33,6 +50,7 @@ export function useGraphViewport(
     showNodeDetail,
     alignNodeWidthsToMax,
   });
+  const stage = homeVisible ? null : computedStage;
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const topbarRef = useRef<HTMLElement>(null);
@@ -70,7 +88,23 @@ export function useGraphViewport(
     zoom.refresh(true);
   }, [zoom]);
   useResizeObserver(topbarRef, handleChromeResize);
-  useGraphPan({ containerRef, enabled: Boolean(stage), onPanStart: closeContextMenu });
+  useGraphPan({
+    containerRef,
+    enabled: Boolean(stage) && stage?.layoutMode !== "spatial",
+    onPanStart: closeContextMenu,
+  });
+  useSpatialGestures({
+    containerRef,
+    enabled: stage?.layoutMode === "spatial",
+    canOrbit:
+      spatialView.view.projection !== "map" &&
+      (spatialView.metadata?.coordinateSystem === "geographic" ? 3 : (spatialView.metadata?.dimensions ?? 0)) >= 3,
+    viewKey: `${state.document.generation}:${state.chartType}`,
+    onOrbit: spatialView.orbit,
+    onPan: zoom.panBy,
+    onZoom: zoom.zoomBy,
+    onStart: closeContextMenu,
+  });
 
   const interactions = useGraphInteractions({
     state,

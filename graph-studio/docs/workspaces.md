@@ -1,6 +1,8 @@
 # 工作区与打开方式
 
-Graph Studio 启动时显示首页，不加载示例，也不自动恢复上次图的内容。首页提供 **Open graph file**、**Open workspace**、**Recent workspaces** 和新建图入口。
+Graph Studio 启动时显示首页，不加载示例，也不自动恢复上次图的内容。首页提供 **Create workspace**、**Open graph file**、**Open workspace**、**Recent workspaces** 和新建图入口。
+
+点击 **Create workspace**，输入工作空间名称，再点击 **Choose location & create** 选择父文件夹。应用会在该位置新建同名文件夹，写入 `graph-studio.workspace.json` 和带起始节点的 `graph.json`，自动打开并加入最近列表。新图可以直接编辑和保存，也可从 Explorer 继续添加图。已有同名文件或文件夹不会被覆盖；取消选择不会创建文件。此操作需要支持文件夹写入的 Chrome / Edge；不支持时会显示提示，并保留打开文件和新建单图入口。
 
 ## 单文件与工作区
 

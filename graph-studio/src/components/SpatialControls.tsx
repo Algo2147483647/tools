@@ -1,6 +1,12 @@
 import type { useSpatialView } from "../controllers/useSpatialView";
 
-export default function SpatialControls({ spatial }: { spatial: ReturnType<typeof useSpatialView> }) {
+export default function SpatialControls({
+  spatial,
+  onReset,
+}: {
+  spatial: ReturnType<typeof useSpatialView>;
+  onReset(): void;
+}) {
   const { metadata, view, change } = spatial;
   if (!metadata)
     return <aside className="spatial-controls">Spatial · Add metadata.space to define the coordinate system.</aside>;
@@ -15,7 +21,13 @@ export default function SpatialControls({ spatial }: { spatial: ReturnType<typeo
           {metadata.dimensions}D · {metadata.coordinateSystem}
           {metadata.unit ? ` · ${metadata.unit}` : ""}
         </span>
-        <button type="button" onClick={spatial.reset}>
+        <button
+          type="button"
+          onClick={() => {
+            spatial.reset();
+            onReset();
+          }}
+        >
           Reset view
         </button>
       </div>
@@ -97,8 +109,10 @@ export default function SpatialControls({ spatial }: { spatial: ReturnType<typeo
         </label>
       </div>
       <small>
-        Drag to pan · Scroll to zoom{dimensions >= 3 && view.projection !== "map" ? " · Shift-drag to orbit" : ""} ·
-        Double-click a point to edit
+        {dimensions >= 3 && view.projection !== "map"
+          ? "Drag / one finger to rotate · Right-drag or Shift-drag to pan"
+          : "Drag / one finger to pan"}
+        {" · Wheel to zoom · Two fingers to pan & pinch · Double-click / double-tap a point to edit"}
       </small>
     </aside>
   );

@@ -9,7 +9,7 @@
     "compiledAsOf": "2026-10-21",
     "latestIncludedDate": "2026-10-09",
     "historicalScope": "1666-2026: intellectual antecedents and the principal research programs pursuing general machine intelligence.",
-    "description": "A connected research history, organized into thirteen parallel strands with sourced events, explicit limitations and qualified intellectual connections.",
+    "description": "A connected research history with dated milestones, documented project durations and explicitly editorial research phases across thirteen strands.",
     "coverage": "Systematic coverage of major research lineages and turning points, not a claim to enumerate every publication, institution or product release.",
     "timeline": {
       "timeZone": "UTC",
@@ -19,16 +19,26 @@
     "edgeSemantics": {
       "sequence": "Editorial reading order within a research strand, not causation, exclusive ancestry or finer ordering among year-dated events.",
       "dependency": "A concrete continuation, implementation, input or successor relationship described by the linked works.",
-      "reference": "An explicit historical connection, conceptual comparison, synthesis or debate; it need not indicate direct influence."
+      "reference": "An explicit historical connection, conceptual comparison, synthesis or debate; it need not indicate direct influence.",
+      "part-of": "The source interval groups the target milestone; the connector meets the bar at the milestone date when it lies inside. Membership need not be exclusive and does not imply causation."
     },
-    "nodeCount": 233,
-    "edgeCount": 368,
+    "nodeCount": 256,
+    "edgeCount": 484,
     "trackCount": 13,
     "guides": {
       "overview": "OVERVIEW.md",
       "catalog": "CATALOG.md",
       "sources": "SOURCES.md",
-      "reading": "README.md"
+      "reading": "README.md",
+      "periods": "PERIODS.md"
+    },
+    "pointEventCount": 231,
+    "intervalCount": 25,
+    "researchPhaseCount": 20,
+    "researchProgramCount": 5,
+    "intervalSemantics": {
+      "Research program": "A documented project or explicitly bounded development window; read the precision field for approximate boundaries.",
+      "Research phase": "An overlapping editorial synthesis anchored by selected works. Endpoints do not mean a field began or ceased; recent windows stop at the evidence cutoff."
     }
   },
   "nodes": {
@@ -127,6 +137,40 @@
       "notes": "[Research strand](./notes/f.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-formal-foundations": {
+      "title": "Formal foundations of machine intelligence",
+      "time": {
+        "start": "1931",
+        "end": "1950"
+      },
+      "track": "01 Logic computation and information",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Logic, computability, information theory and feedback provide distinct formal tools for thinking about mechanical reasoning and adaptive behavior. Turing connects these developments to an explicit question about machine intelligence.",
+      "significance": "The timeline displays the overlapping formation of a problem space, rather than presenting the imitation game without its intellectual background.",
+      "limitation": "These works do not constitute one institution or a single agreed theory of intelligence; this interval groups their complementary roles.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1007/BF01700692",
+        "https://doi.org/10.2307/2371045",
+        "https://doi.org/10.1112/plms/s2-42.1.230",
+        "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+        "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+        "https://doi.org/10.1093/mind/LIX.236.433"
+      ],
+      "milestones": [
+        "godel",
+        "church",
+        "turing-machine",
+        "shannon",
+        "wiener",
+        "turing-test"
+      ],
+      "notes": "[Research strand](./notes/f.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1007/BF01700692) · [Source 2](https://doi.org/10.2307/2371045) · [Source 3](https://doi.org/10.1112/plms/s2-42.1.230) · [Source 4](https://doi.org/10.1002/j.1538-7305.1948.tb01338.x) · [Source 5](https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/) · [Source 6](https://doi.org/10.1093/mind/LIX.236.433)"
+    },
     "church": {
       "title": "Church formalizes effective computation",
       "time": {
@@ -183,6 +227,40 @@
       "references": "[Source 1](https://doi.org/10.1007/BF02478259)",
       "notes": "[Research strand](./notes/n.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-early-neural": {
+      "title": "Early neural computation and learning",
+      "time": {
+        "start": "1943",
+        "end": "1969"
+      },
+      "track": "04 Neural networks and deep learning",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Formal networks, changing connections and trainable classifiers establish several approaches to adaptive computation. The later perceptron debate exposes limitations of particular model classes.",
+      "significance": "Neural learning appears as an extended research tradition with internal alternatives and constraints, not as an invention of the deep-learning era.",
+      "limitation": "A 1969 publication is the selected boundary, not a claim that neural research ended or that its later history followed from one book.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1007/BF02478259",
+        "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+        "https://doi.org/10.4324/9781410612403",
+        "https://doi.org/10.1037/h0042519",
+        "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+        "https://mitpress.mit.edu/9780262534772/perceptrons/"
+      ],
+      "milestones": [
+        "mcculloch-pitts",
+        "turing-unorganized",
+        "hebb",
+        "perceptron",
+        "adaline",
+        "perceptrons"
+      ],
+      "notes": "[Research strand](./notes/n.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1007/BF02478259) · [Source 2](https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9) · [Source 3](https://doi.org/10.4324/9781410612403) · [Source 4](https://doi.org/10.1037/h0042519) · [Source 5](https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf) · [Source 6](https://mitpress.mit.edu/9780262534772/perceptrons/)"
     },
     "ngram-foundation": {
       "title": "Shannon explores statistical structure in language",
@@ -355,25 +433,6 @@
       "notes": "[Research strand](./notes/i.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
-    "dartmouth-workshop": {
-      "title": "The Dartmouth summer project takes place",
-      "time": {
-        "at": "1956"
-      },
-      "track": "11 Data compute and research institutions",
-      "type": "Institution",
-      "contributors": "Dartmouth research participants",
-      "define": "The 1956 summer research project brings several approaches to machine intelligence together under the emerging AI label.",
-      "significance": "It becomes an organizational landmark for a field whose ambitions were already broader than isolated classification tasks.",
-      "limitation": "Earlier work remains essential, and the participants did not adopt one uniform theory of intelligence.",
-      "precision": "Summer 1956; the August 1955 proposal has its own node.",
-      "sources": [
-        "https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth"
-      ],
-      "references": "[Source 1](https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth)",
-      "notes": "[Research strand](./notes/i.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
-      "evidenceType": "Primary research or author account"
-    },
     "logic-theorist": {
       "title": "Logic Theorist searches for proofs",
       "time": {
@@ -392,6 +451,62 @@
       "references": "[Source 1](https://doi.org/10.1109/TIT.1956.1056797)",
       "notes": "[Research strand](./notes/s.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-early-symbolic": {
+      "title": "Heuristic search and symbolic microworlds",
+      "time": {
+        "start": "1956",
+        "end": "1973"
+      },
+      "track": "02 Symbolic reasoning planning and knowledge",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Theorem proving, goal-directed search, knowledge representation, language understanding and planning develop through deliberately constrained worlds and explicit representations.",
+      "significance": "A sustained attempt to generalize symbolic procedures links early demonstrations to the difficulties of common sense and combinatorial growth.",
+      "limitation": "The 1973 boundary marks a historiographical transition associated with evaluation debates; symbolic AI did not stop then.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1109/TIT.1956.1056797",
+        "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+        "https://www-formal.stanford.edu/jmc/mcc59.html",
+        "https://dspace.mit.edu/handle/1721.1/7095",
+        "https://doi.org/10.1016/0004-3702(71)90010-5",
+        "https://doi.org/10.1145/155360.155362"
+      ],
+      "milestones": [
+        "logic-theorist",
+        "gps",
+        "advice-taker",
+        "shrdlu",
+        "strips",
+        "prolog"
+      ],
+      "notes": "[Research strand](./notes/s.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1109/TIT.1956.1056797) · [Source 2](https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf) · [Source 3](https://www-formal.stanford.edu/jmc/mcc59.html) · [Source 4](https://dspace.mit.edu/handle/1721.1/7095) · [Source 5](https://doi.org/10.1016/0004-3702(71)90010-5) · [Source 6](https://doi.org/10.1145/155360.155362)"
+    },
+    "dartmouth-workshop": {
+      "title": "Dartmouth summer research project",
+      "time": {
+        "start": "1956-06",
+        "end": "1956-08"
+      },
+      "track": "11 Data compute and research institutions",
+      "type": "Research program",
+      "contributors": "John McCarthy; Marvin Minsky; Nathaniel Rochester; Claude Shannon; participating researchers",
+      "define": "An extended summer study brings changing groups of researchers together to explore machine intelligence. The 1955 proposal and the 1956 working period are separate historical objects.",
+      "significance": "The shared research agenda takes institutional form over weeks of discussion and work, rather than at one instantaneous founding ceremony.",
+      "limitation": "Attendance varied, and the participants did not agree on a finished architecture or solve general intelligence.",
+      "precision": "Approximate June-August 1956 window, at month precision. Solomonoff's archive contains notes from June through August; these are not exact opening and closing dates or a claim that everyone attended throughout.",
+      "sources": [
+        "https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html",
+        "https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html"
+      ],
+      "references": "[Source 1](https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html) · [Source 2](https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html)",
+      "notes": "[Research strand](./notes/i.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "evidenceType": "Project participant or institutional history",
+      "intervalBasis": "Documented project duration"
     },
     "bellman": {
       "title": "Dynamic programming organizes sequential decisions",
@@ -545,6 +660,38 @@
       "notes": "[Research strand](./notes/s.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-universal-agents": {
+      "title": "Universal induction and ideal general agents",
+      "time": {
+        "start": "1964",
+        "end": "2007"
+      },
+      "track": "03 Cognitive architectures and general intelligence",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Algorithmic probability and description complexity inform formal models of general prediction, sequential decision-making, self-rewriting and intelligence measurement.",
+      "significance": "A long-running mathematical program supplies reference ideals against which computability and resource constraints can be made explicit.",
+      "limitation": "Formal optimality under assumptions is not a practical implementation or experimental demonstration of human-level generality.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1016/S0019-9958(64)90223-2",
+        "https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper",
+        "https://arxiv.org/abs/cs/0004001",
+        "https://arxiv.org/abs/cs/0309048",
+        "https://arxiv.org/abs/0712.3329"
+      ],
+      "milestones": [
+        "solomonoff",
+        "kolmogorov",
+        "aixi",
+        "godel-machine",
+        "universal-intelligence"
+      ],
+      "notes": "[Research strand](./notes/c.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1016/S0019-9958(64)90223-2) · [Source 2](https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper) · [Source 3](https://arxiv.org/abs/cs/0004001) · [Source 4](https://arxiv.org/abs/cs/0309048) · [Source 5](https://arxiv.org/abs/0712.3329)"
+    },
     "solomonoff": {
       "title": "Algorithmic probability formalizes induction",
       "time": {
@@ -622,6 +769,38 @@
       "notes": "[Research strand](./notes/f.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-knowledge-engineering": {
+      "title": "Knowledge engineering and expert systems",
+      "time": {
+        "start": "1965",
+        "end": "1993"
+      },
+      "track": "02 Symbolic reasoning planning and knowledge",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Knowledge-intensive scientific inference develops into rule-based consultation and configuration. Common-sense projects expand the intended scope while operational experience reveals acquisition and maintenance costs.",
+      "significance": "The phase connects useful specialist performance, labor-intensive knowledge construction and the limits of transferring expertise across domains.",
+      "limitation": "The window includes uneven adoption and commercial contraction; it does not imply that every expert system failed or disappeared in 1993.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral",
+        "https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm",
+        "https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf",
+        "https://doi.org/10.1145/219717.219745",
+        "https://doi.org/10.1609/aimag.v5i3.445"
+      ],
+      "milestones": [
+        "dendral",
+        "mycin",
+        "r1",
+        "cyc",
+        "expert-maintenance"
+      ],
+      "notes": "[Research strand](./notes/s.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral) · [Source 2](https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm) · [Source 3](https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf) · [Source 4](https://doi.org/10.1145/219717.219745) · [Source 5](https://doi.org/10.1609/aimag.v5i3.445)"
+    },
     "robinson": {
       "title": "Resolution makes theorem proving systematic",
       "time": {
@@ -679,24 +858,56 @@
       "notes": "[Research strand](./notes/l.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
-    "shakey": {
-      "title": "Shakey integrates perception planning and action",
+    "phase-early-critique": {
+      "title": "Translation and generality claims face sustained scrutiny",
       "time": {
-        "at": "1966"
+        "start": "1966",
+        "end": "1973"
+      },
+      "track": "12 Definitions evaluations and debates",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Reports and critiques question translation progress, model limitations, formal accounts of expertise and generalization beyond restricted tasks.",
+      "significance": "The interval shows how several distinct lines of criticism accumulate before later narratives group funding contractions into an AI winter.",
+      "limitation": "This is an editorial scrutiny window, not a worldwide funding interval. Countries, funders and technical communities followed different trajectories.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics",
+        "https://mitpress.mit.edu/9780262534772/perceptrons/",
+        "https://mitpress.mit.edu/9780262540674/what-computers-still-cant-do/",
+        "https://www.chilton-computing.org.uk/inf/literature/reports/lighthill_report/p001.htm"
+      ],
+      "milestones": [
+        "alpac",
+        "perceptrons",
+        "dreyfus",
+        "lighthill"
+      ],
+      "notes": "[Research strand](./notes/v.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics) · [Source 2](https://mitpress.mit.edu/9780262534772/perceptrons/) · [Source 3](https://mitpress.mit.edu/9780262540674/what-computers-still-cant-do/) · [Source 4](https://www.chilton-computing.org.uk/inf/literature/reports/lighthill_report/p001.htm)"
+    },
+    "shakey": {
+      "title": "Shakey research and development",
+      "time": {
+        "start": "1966",
+        "end": "1972"
       },
       "track": "07 Embodiment and world models",
-      "type": "System",
-      "contributors": "SRI Artificial Intelligence Center",
-      "define": "The Shakey project brings sensing, world representation, planning and movement together in a mobile robot.",
-      "significance": "It establishes a major meeting point between symbolic reasoning and embodied activity.",
-      "limitation": "Capabilities emerge during a multiyear project in controlled settings, not all at its beginning.",
-      "precision": "1966 marks project initiation; development continued into the early 1970s.",
+      "type": "Research program",
+      "contributors": "Charles Rosen; Nils Nilsson; Peter Hart; the SRI team",
+      "define": "The SRI project integrates visual perception, world representation, planning and mobile action through repeated engineering and experiments. Search and planning methods develop within this sustained effort.",
+      "significance": "Embodied intelligence becomes an integration problem involving several interacting components, with identifiable technical results produced during the project.",
+      "limitation": "The controlled rooms and tasks differ substantially from open-world robotics; the project did not establish unrestricted general intelligence.",
+      "precision": "SRI dates Shakey development to 1966-1972. Both boundaries retain year precision; they are project dates, not the lifetime of the underlying research ideas.",
       "sources": [
-        "https://www.sri.com/hoi/shakey-the-robot/"
+        "https://www.sri.com/case-study/the-man-the-myth-the-legend-meet-shakey-the-robot-the-worlds-first-ai-based-robot/"
       ],
-      "references": "[Source 1](https://www.sri.com/hoi/shakey-the-robot/)",
-      "notes": "[Research strand](./notes/b.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
-      "evidenceType": "Primary research or author account"
+      "references": "[Source 1](https://www.sri.com/case-study/the-man-the-myth-the-legend-meet-shakey-the-robot-the-worlds-first-ai-based-robot/)",
+      "notes": "[Research strand](./notes/b.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "evidenceType": "Project participant or institutional history",
+      "intervalBasis": "Documented project duration"
     },
     "astar": {
       "title": "A-star formalizes heuristic path search",
@@ -964,6 +1175,40 @@
       "notes": "[Research strand](./notes/e.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-open-ended": {
+      "title": "Evolutionary search and learning to learn",
+      "time": {
+        "start": "1975",
+        "end": "2019"
+      },
+      "track": "10 Evolution meta-learning and open-ended learning",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Evolutionary adaptation, changing network structure, meta-learning and novelty-driven exploration develop alternatives to learning a single fixed task under a fixed objective.",
+      "significance": "The interval connects a long-standing search for adaptation mechanisms with later work on generated curricula and open-ended environments.",
+      "limitation": "The grouping is conceptual and overlapping, not evidence that every later method directly descends from each earlier one.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+        "https://people.idsia.ch/~juergen/diploma.html",
+        "https://doi.org/10.1162/106365602320169811",
+        "https://doi.org/10.1162/EVCO_a_00025",
+        "https://arxiv.org/abs/1703.03400",
+        "https://arxiv.org/abs/1901.01753"
+      ],
+      "milestones": [
+        "holland",
+        "schmidhuber-meta",
+        "neat",
+        "novelty-search",
+        "maml",
+        "poet"
+      ],
+      "notes": "[Research strand](./notes/e.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/) · [Source 2](https://people.idsia.ch/~juergen/diploma.html) · [Source 3](https://doi.org/10.1162/106365602320169811) · [Source 4](https://doi.org/10.1162/EVCO_a_00025) · [Source 5](https://arxiv.org/abs/1703.03400) · [Source 6](https://arxiv.org/abs/1901.01753)"
+    },
     "mycin": {
       "title": "MYCIN demonstrates rule-based expert consultation",
       "time": {
@@ -1155,6 +1400,63 @@
       "notes": "[Research strand](./notes/n.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-connectionism": {
+      "title": "Connectionist revival and trainable representations",
+      "time": {
+        "start": "1982",
+        "end": "1998"
+      },
+      "track": "04 Neural networks and deep learning",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Associative and probabilistic networks, gradient-trained internal representations, recurrence and convolution develop in parallel, producing increasingly practical learning systems.",
+      "significance": "The interval shows repeated work on optimization, memory and inductive structure behind later large-scale learning.",
+      "limitation": "The chosen milestones do not establish a single invention date for backpropagation or a period when other research traditions disappeared.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1073/pnas.79.8.2554",
+        "https://doi.org/10.1207/s15516709cog0901_7",
+        "https://doi.org/10.1038/323533a0",
+        "https://doi.org/10.1162/neco.1989.1.4.541",
+        "https://doi.org/10.1207/s15516709cog1402_1",
+        "https://doi.org/10.1162/neco.1997.9.8.1735",
+        "https://doi.org/10.1109/5.726791"
+      ],
+      "milestones": [
+        "hopfield",
+        "boltzmann",
+        "backprop",
+        "lenet-early",
+        "elman",
+        "lstm",
+        "lenet5"
+      ],
+      "notes": "[Research strand](./notes/n.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1073/pnas.79.8.2554) · [Source 2](https://doi.org/10.1207/s15516709cog0901_7) · [Source 3](https://doi.org/10.1038/323533a0) · [Source 4](https://doi.org/10.1162/neco.1989.1.4.541) · [Source 5](https://doi.org/10.1207/s15516709cog1402_1) · [Source 6](https://doi.org/10.1162/neco.1997.9.8.1735) · [Source 7](https://doi.org/10.1109/5.726791)"
+    },
+    "program-fgcs": {
+      "title": "Fifth Generation Computer Systems project",
+      "time": {
+        "start": "1982",
+        "end": "1992"
+      },
+      "track": "11 Data compute and research institutions",
+      "type": "Research program",
+      "contributors": "ICOT and participating Japanese and international researchers",
+      "define": "A decade-long national research program develops logic-programming-based parallel inference systems, associated architectures and software. Its 1982 launch remains a separate point event.",
+      "significance": "Symbolic inference is pursued through a coordinated combination of hardware, programming language and application research.",
+      "limitation": "Project completion does not establish general intelligence. The main project must be distinguished from the subsequent software-portability and dissemination work.",
+      "precision": "ICOT states that the main FGCS project ran from 1982 to its conclusion in 1992. The later follow-on effort and March 1995 closure are not folded into this bar.",
+      "sources": [
+        "https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html"
+      ],
+      "intervalBasis": "Documented project duration",
+      "evidenceType": "Project participant or institutional history",
+      "notes": "[Research strand](./notes/i.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html)"
+    },
     "act": {
       "title": "ACT systematizes a cognitive architecture",
       "time": {
@@ -1173,6 +1475,40 @@
       "references": "[Source 1](https://doi.org/10.4324/9781315799438)",
       "notes": "[Research strand](./notes/c.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-cognitive-integration": {
+      "title": "Cognitive architectures and explicit AGI integration",
+      "time": {
+        "start": "1983",
+        "end": "2008-03-01"
+      },
+      "track": "03 Cognitive architectures and general intelligence",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Integrated architectures pursue memory, reasoning, learning and action as interacting functions. Resource-bounded reasoning and the explicit AGI community add alternative formulations of generality.",
+      "significance": "The interval preserves a continuous integrative agenda that would be obscured by a history organized only around benchmark-winning predictors.",
+      "limitation": "The first AGI conference marks a community milestone, not the end of cognitive architecture work or agreement on one implementation.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.4324/9781315799438",
+        "https://doi.org/10.1016/0004-3702(87)90050-6",
+        "https://doi.org/10.4324/9781315806938",
+        "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+        "https://doi.org/10.1007/978-3-540-68677-4",
+        "https://agi-conf.org/2008/"
+      ],
+      "milestones": [
+        "act",
+        "soar",
+        "act-r",
+        "nars",
+        "agi-book",
+        "agi08"
+      ],
+      "notes": "[Research strand](./notes/c.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.4324/9781315799438) · [Source 2](https://doi.org/10.1016/0004-3702(87)90050-6) · [Source 3](https://doi.org/10.4324/9781315806938) · [Source 4](https://www.cis.temple.edu/~pwang/Publication/thesis.pdf) · [Source 5](https://doi.org/10.1007/978-3-540-68677-4) · [Source 6](https://agi-conf.org/2008/)"
     },
     "cyc": {
       "title": "Cyc begins large-scale common-sense knowledge engineering",
@@ -1230,6 +1566,67 @@
       "references": "[Source 1](https://doi.org/10.1145/1968.1972)",
       "notes": "[Research strand](./notes/p.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-commercial-reassessment": {
+      "title": "Expert-system maintenance and commercial reassessment",
+      "time": {
+        "start": "1984",
+        "end": "1993"
+      },
+      "track": "11 Data compute and research institutions",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Practical knowledge-maintenance experience and changing computing markets expose limits of scaling specialized AI businesses. Some large research programs continue while parts of the commercial ecosystem contract.",
+      "significance": "The interval places the second AI-winter narrative within a mixed technical and institutional history instead of depicting a universal research shutdown.",
+      "limitation": "The selected 1984-1993 evidence window is not a claim that every AI firm or research budget contracted for exactly these years.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1609/aimag.v5i3.445",
+        "https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html",
+        "https://smbx.org/symbolics-bancruptcy-filed/"
+      ],
+      "milestones": [
+        "expert-maintenance",
+        "symbolics-chapter11"
+      ],
+      "notes": "[Research strand](./notes/i.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1609/aimag.v5i3.445) · [Source 2](https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html) · [Source 3](https://smbx.org/symbolics-bancruptcy-filed/)"
+    },
+    "phase-statistical-learning": {
+      "title": "Statistical learning and probabilistic inference mature",
+      "time": {
+        "start": "1984",
+        "end": "2003"
+      },
+      "track": "05 Probability causality and statistical learning",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Formal learning guarantees, graphical models, latent-state inference, margin methods and learned language representations strengthen data-based approaches. Causal models distinguish intervention from prediction.",
+      "significance": "The duration makes visible the methodological groundwork that develops alongside cognitive architectures and neural research.",
+      "limitation": "This grouping brings together distinct theoretical commitments; probabilistic inference, causal reasoning and predictive learning are not interchangeable.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1145/1968.1972",
+        "https://doi.org/10.1016/C2009-0-27609-4",
+        "https://doi.org/10.1109/5.18626",
+        "https://doi.org/10.1007/BF00994018",
+        "https://doi.org/10.1017/CBO9780511803161",
+        "https://www.jmlr.org/papers/v3/bengio03a.html"
+      ],
+      "milestones": [
+        "pac",
+        "pearl",
+        "hmm-speech",
+        "svm",
+        "causality",
+        "bengio-lm"
+      ],
+      "notes": "[Research strand](./notes/p.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1145/1968.1972) · [Source 2](https://doi.org/10.1016/C2009-0-27609-4) · [Source 3](https://doi.org/10.1109/5.18626) · [Source 4](https://doi.org/10.1007/BF00994018) · [Source 5](https://doi.org/10.1017/CBO9780511803161) · [Source 6](https://www.jmlr.org/papers/v3/bengio03a.html)"
     },
     "boltzmann": {
       "title": "Boltzmann machines learn probabilistic representations",
@@ -1383,6 +1780,41 @@
       "notes": "[Research strand](./notes/p.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-rl-foundations": {
+      "title": "Reinforcement learning and temporal abstraction",
+      "time": {
+        "start": "1988",
+        "end": "1999"
+      },
+      "track": "06 Reinforcement learning search and self-play",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Prediction errors, action values, learned models, policy gradients and temporally extended skills become a connected toolkit for learning through interaction.",
+      "significance": "The period links foundational updates to planning, self-play and hierarchical action over more than a decade of development.",
+      "limitation": "Convergence guarantees and demonstrations retain their own assumptions; this is not one universal solution to exploration or long-horizon credit assignment.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1007/BF00115009",
+        "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+        "https://doi.org/10.1007/BF00992698",
+        "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+        "https://doi.org/10.1007/BF00992696",
+        "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+        "https://doi.org/10.1016/S0004-3702(99)00052-1"
+      ],
+      "milestones": [
+        "td",
+        "q-learning",
+        "dyna",
+        "reinforce",
+        "td-gammon",
+        "options"
+      ],
+      "notes": "[Research strand](./notes/r.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1007/BF00115009) · [Source 2](https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf) · [Source 3](https://doi.org/10.1007/BF00992698) · [Source 4](https://mlanthology.org/icml/1990/sutton1990icml-integrated/) · [Source 5](https://doi.org/10.1007/BF00992696) · [Source 6](https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning) · [Source 7](https://doi.org/10.1016/S0004-3702(99)00052-1)"
+    },
     "td": {
       "title": "Temporal-difference learning updates predictions",
       "time": {
@@ -1439,6 +1871,27 @@
       "references": "[Source 1](https://doi.org/10.1162/neco.1989.1.4.541)",
       "notes": "[Research strand](./notes/n.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "program-deep-blue": {
+      "title": "IBM chess research through the Deep Blue victory",
+      "time": {
+        "start": "1989",
+        "end": "1997-05-11"
+      },
+      "track": "06 Reinforcement learning search and self-play",
+      "type": "Research program",
+      "contributors": "Feng-hsiung Hsu; Murray Campbell; Joe Hoane; the IBM team",
+      "define": "After researchers join IBM in 1989, chess-specific search, evaluation and specialized computing develop through successive systems and matches, culminating in the May 1997 Kasparov rematch.",
+      "significance": "The victory becomes the endpoint of a sustained engineering program rather than an isolated event, clarifying the role of search, domain knowledge and computing resources.",
+      "limitation": "This is the IBM development-to-victory window. Earlier ChipTest and Deep Thought work predates it; chess strength alone does not establish general intelligence.",
+      "precision": "The start is the 1989 move to IBM described in its institutional history. The end is the final match day, not an asserted exact project shutdown date.",
+      "sources": [
+        "https://www.ibm.com/history/deep-blue"
+      ],
+      "intervalBasis": "Documented project duration",
+      "evidenceType": "Project participant or institutional history",
+      "notes": "[Research strand](./notes/r.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://www.ibm.com/history/deep-blue)"
     },
     "q-learning": {
       "title": "Q-learning estimates action values",
@@ -1898,6 +2351,27 @@
       "notes": "[Research strand](./notes/c.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "program-calo": {
+      "title": "CALO cognitive-assistant research program",
+      "time": {
+        "start": "2003",
+        "end": "2008"
+      },
+      "track": "03 Cognitive architectures and general intelligence",
+      "type": "Research program",
+      "contributors": "SRI International and collaborating research institutions; DARPA PAL",
+      "define": "The Cognitive Assistant that Learns and Organizes combines learning, reasoning, planning, interaction and personal information management in a sustained integration effort.",
+      "significance": "A practical assistant becomes a testbed for combining cognitive capabilities and learning from a user over time, well before contemporary language-model agents.",
+      "limitation": "Office-assistant tasks constrain its scope. Later Siri commercialization is a related transfer history, not evidence that the research assistant achieved AGI.",
+      "precision": "SRI describes five years of collaborative work beginning in 2003; 2003-2008 is the resulting year-level project window. Personnel, publication and commercialization timelines can extend beyond it.",
+      "sources": [
+        "https://www.sri.com/75-years-of-innovation/75-years-of-innovation-calo-cognitive-assistant-that-learns-and-organizes/"
+      ],
+      "intervalBasis": "Documented project duration",
+      "evidenceType": "Project participant or institutional history",
+      "notes": "[Research strand](./notes/c.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://www.sri.com/75-years-of-innovation/75-years-of-innovation-calo-cognitive-assistant-that-learns-and-organizes/)"
+    },
     "darpa-challenge": {
       "title": "Autonomous vehicles complete the DARPA desert challenge",
       "time": {
@@ -1935,6 +2409,40 @@
       "references": "[Source 1](https://doi.org/10.1162/neco.2006.18.7.1527)",
       "notes": "[Research strand](./notes/n.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-deep-representations": {
+      "title": "Deep representation learning expands across tasks",
+      "time": {
+        "start": "2006",
+        "end": "2017-06-12"
+      },
+      "track": "04 Neural networks and deep learning",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Training methods, large datasets, accelerators and architectural changes support deeper learned representations in recognition, generation and sequence modeling.",
+      "significance": "Several interacting developments make deep learning a reusable research approach, connecting the 2006 revival to the Transformer milestone.",
+      "limitation": "The Transformer is a selected transition point; convolutional, recurrent and other neural methods continue afterward.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1162/neco.2006.18.7.1527",
+        "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+        "https://arxiv.org/abs/1312.6114",
+        "https://arxiv.org/abs/1406.2661",
+        "https://arxiv.org/abs/1512.03385",
+        "https://arxiv.org/abs/1706.03762"
+      ],
+      "milestones": [
+        "dbn",
+        "alexnet",
+        "vae",
+        "gan",
+        "resnet",
+        "transformer"
+      ],
+      "notes": "[Research strand](./notes/n.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1162/neco.2006.18.7.1527) · [Source 2](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks) · [Source 3](https://arxiv.org/abs/1312.6114) · [Source 4](https://arxiv.org/abs/1406.2661) · [Source 5](https://arxiv.org/abs/1512.03385) · [Source 6](https://arxiv.org/abs/1706.03762)"
     },
     "uct": {
       "title": "UCT allocates Monte Carlo search effort",
@@ -2202,6 +2710,38 @@
       "notes": "[Research strand](./notes/r.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-deep-rl": {
+      "title": "Deep reinforcement learning and self-play",
+      "time": {
+        "start": "2013",
+        "end": "2017-12-05"
+      },
+      "track": "06 Reinforcement learning search and self-play",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Learned perception and value estimation combine with reinforcement learning and search, progressing from Atari experiments to strong game-playing systems and broader reuse of training procedures.",
+      "significance": "Successive systems reveal how data, search, learned evaluation and known environment rules jointly support performance.",
+      "limitation": "Common algorithms across games should not be confused with one continually learning agent that transfers every skill without retraining.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://arxiv.org/abs/1312.5602",
+        "https://doi.org/10.1038/nature14236",
+        "https://doi.org/10.1038/nature16961",
+        "https://doi.org/10.1038/nature24270",
+        "https://arxiv.org/abs/1712.01815"
+      ],
+      "milestones": [
+        "dqn-preprint",
+        "dqn-nature",
+        "alphago-paper",
+        "alphago-zero",
+        "alphazero"
+      ],
+      "notes": "[Research strand](./notes/r.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://arxiv.org/abs/1312.5602) · [Source 2](https://doi.org/10.1038/nature14236) · [Source 3](https://doi.org/10.1038/nature16961) · [Source 4](https://doi.org/10.1038/nature24270) · [Source 5](https://arxiv.org/abs/1712.01815)"
+    },
     "vae": {
       "title": "Variational autoencoders make latent modeling scalable",
       "time": {
@@ -2468,6 +3008,42 @@
       "notes": "[Research strand](./notes/c.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-technical-alignment": {
+      "title": "Alignment and oversight become experimental programs",
+      "time": {
+        "start": "2016",
+        "end": "2026-10-09"
+      },
+      "track": "13 Alignment interpretability and safety",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Reward design and human feedback develop alongside mechanistic analysis, controlled failure-mode experiments and evaluation of consequential agent actions.",
+      "significance": "Alignment becomes a sustained collection of technical problems coupled to the systems being trained and deployed.",
+      "limitation": "The 2016 boundary selects an influential technical agenda rather than the origin of all safety concerns; laboratory scenarios do not establish deployment prevalence.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. The right boundary is the October 9, 2026 evidence cutoff; it does not mean the research program has ended.",
+      "intervalBasis": "Editorial research phase; snapshot-bounded",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://arxiv.org/abs/1606.06565",
+        "https://arxiv.org/abs/1706.03741",
+        "https://arxiv.org/abs/2203.02155",
+        "https://arxiv.org/abs/2212.08073",
+        "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+        "https://arxiv.org/abs/2412.14093",
+        "https://www.anthropic.com/research/investigating-unintended-model-actions"
+      ],
+      "milestones": [
+        "concrete-safety",
+        "rlhf",
+        "instructgpt",
+        "constitutional",
+        "sae-features",
+        "alignment-faking",
+        "unintended-actions"
+      ],
+      "notes": "[Research strand](./notes/h.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://arxiv.org/abs/1606.06565) · [Source 2](https://arxiv.org/abs/1706.03741) · [Source 3](https://arxiv.org/abs/2203.02155) · [Source 4](https://arxiv.org/abs/2212.08073) · [Source 5](https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html) · [Source 6](https://arxiv.org/abs/2412.14093) · [Source 7](https://www.anthropic.com/research/investigating-unintended-model-actions)"
+    },
     "alphago-paper": {
       "title": "AlphaGo combines policy value and tree search",
       "time": {
@@ -2696,6 +3272,77 @@
       "notes": "[Research strand](./notes/l.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
     },
+    "phase-foundation-models": {
+      "title": "Pretraining scales into broad foundation models",
+      "time": {
+        "start": "2018",
+        "end": "2023-03-14"
+      },
+      "track": "08 Language and multimodal foundation models",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Reusable pretraining, in-context task specification, multimodal representations and post-training make shared models accessible across an expanding range of tasks.",
+      "significance": "The phase captures the accumulation of transfer mechanisms and infrastructure behind broad interfaces rather than attributing the change to a single release.",
+      "limitation": "GPT-4 is the selected boundary for this consolidation phase. Pretraining continues, and broad benchmark performance is not a definitive AGI certification.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. Year-only boundaries do not claim exact days. The tradition continues beyond this selected phase.",
+      "intervalBasis": "Editorial research phase",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+        "https://arxiv.org/abs/1810.04805",
+        "https://arxiv.org/abs/2005.14165",
+        "https://arxiv.org/abs/2103.00020",
+        "https://arxiv.org/abs/2203.15556",
+        "https://openai.com/index/chatgpt/",
+        "https://openai.com/index/gpt-4-research/",
+        "https://arxiv.org/abs/2303.08774"
+      ],
+      "milestones": [
+        "gpt1",
+        "bert",
+        "gpt3",
+        "clip",
+        "chinchilla",
+        "chatgpt",
+        "gpt4"
+      ],
+      "notes": "[Research strand](./notes/l.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf) · [Source 2](https://arxiv.org/abs/1810.04805) · [Source 3](https://arxiv.org/abs/2005.14165) · [Source 4](https://arxiv.org/abs/2103.00020) · [Source 5](https://arxiv.org/abs/2203.15556) · [Source 6](https://openai.com/index/chatgpt/) · [Source 7](https://openai.com/index/gpt-4-research/) · [Source 8](https://arxiv.org/abs/2303.08774)"
+    },
+    "phase-world-models": {
+      "title": "Learned world models and generalist embodiment",
+      "time": {
+        "start": "2018",
+        "end": "2026-10-09"
+      },
+      "track": "07 Embodiment and world models",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Predictive latent models, learned simulation, representation prediction and broad robot policies explore ways to connect perception, imagination and action.",
+      "significance": "The interval makes the coexistence of control-oriented prediction and interactive generation visible alongside language-centered work.",
+      "limitation": "Visual plausibility, representation quality and useful physical control are distinct tests. The cutoff is not an endpoint of embodiment research.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. The right boundary is the October 9, 2026 evidence cutoff; it does not mean the research program has ended.",
+      "intervalBasis": "Editorial research phase; snapshot-bounded",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://arxiv.org/abs/1803.10122",
+        "https://arxiv.org/abs/1912.01603",
+        "https://openreview.net/forum?id=BZ5a1r-kVsf",
+        "https://arxiv.org/abs/2307.15818",
+        "https://arxiv.org/abs/2506.09985",
+        "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+      ],
+      "milestones": [
+        "world-models",
+        "dreamer",
+        "lecun-jepa",
+        "rt2",
+        "v-jepa2",
+        "genie3"
+      ],
+      "notes": "[Research strand](./notes/b.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://arxiv.org/abs/1803.10122) · [Source 2](https://arxiv.org/abs/1912.01603) · [Source 3](https://openreview.net/forum?id=BZ5a1r-kVsf) · [Source 4](https://arxiv.org/abs/2307.15818) · [Source 5](https://arxiv.org/abs/2506.09985) · [Source 6](https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/)"
+    },
     "ulmfit": {
       "title": "ULMFiT makes language-model transfer practical",
       "time": {
@@ -2885,6 +3532,43 @@
       "references": "[Source 1](https://arxiv.org/abs/1911.01547)",
       "notes": "[Research strand](./notes/v.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-generality-evaluation": {
+      "title": "Generality and agent evaluation diversify",
+      "time": {
+        "start": "2019-11-05",
+        "end": "2026-10-09"
+      },
+      "track": "12 Definitions evaluations and debates",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Evaluation broadens from isolated answers to unfamiliar skill acquisition, software repair, sustained tasks and interactive rule discovery, while definitions separate capability breadth from autonomy.",
+      "significance": "The interval shows changing attempts to measure the research objective itself, including sensitivity to compute budgets and agent harnesses.",
+      "limitation": "No finite suite establishes unrestricted intelligence, and a result under one protocol cannot silently be transferred to another.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. The right boundary is the October 9, 2026 evidence cutoff; it does not mean the research program has ended.",
+      "intervalBasis": "Editorial research phase; snapshot-bounded",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://arxiv.org/abs/1911.01547",
+        "https://arxiv.org/abs/2311.02462",
+        "https://arxiv.org/abs/2310.06770",
+        "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+        "https://arxiv.org/abs/2503.14499",
+        "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+        "https://arcprize.org/blog/arc-agi-3-launch",
+        "https://arcprize.org/blog/astra"
+      ],
+      "milestones": [
+        "arc",
+        "levels-agi",
+        "swebench",
+        "metr-horizon",
+        "arc2",
+        "arc3",
+        "astra-arc3"
+      ],
+      "notes": "[Research strand](./notes/v.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://arxiv.org/abs/1911.01547) · [Source 2](https://arxiv.org/abs/2311.02462) · [Source 3](https://arxiv.org/abs/2310.06770) · [Source 4](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/) · [Source 5](https://arxiv.org/abs/2503.14499) · [Source 6](https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025) · [Source 7](https://arcprize.org/blog/arc-agi-3-launch) · [Source 8](https://arcprize.org/blog/astra)"
     },
     "alphafold2": {
       "title": "AlphaFold 2 achieves a CASP14 breakthrough",
@@ -3285,6 +3969,42 @@
       "references": "[Source 1](https://arxiv.org/abs/2201.11903)",
       "notes": "[Research strand](./notes/a.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-reasoning-agents": {
+      "title": "Reasoning and tool-using agents through the snapshot",
+      "time": {
+        "start": "2022-01-28",
+        "end": "2026-10-09"
+      },
+      "track": "09 Reasoning tools and autonomous agents",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Intermediate reasoning, retrieval, tools, persistent skills, inference-time search and reinforcement learning are assembled into systems that work through multiple actions and observations.",
+      "significance": "The unit of analysis increasingly becomes a complete acting system with memory, evaluators and interfaces, rather than a model response alone.",
+      "limitation": "The final boundary is a fixed observation cutoff. Reported long-task and research successes retain their supervision and evaluation conditions.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. The right boundary is the October 9, 2026 evidence cutoff; it does not mean the research program has ended.",
+      "intervalBasis": "Editorial research phase; snapshot-bounded",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://arxiv.org/abs/2201.11903",
+        "https://arxiv.org/abs/2210.03629",
+        "https://arxiv.org/abs/2305.16291",
+        "https://arxiv.org/abs/2408.03314",
+        "https://openai.com/index/learning-to-reason-with-llms/",
+        "https://arxiv.org/abs/2501.12948",
+        "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+      ],
+      "milestones": [
+        "cot",
+        "react",
+        "voyager",
+        "test-time-scaling",
+        "o1",
+        "deepseek-r1",
+        "aletheia"
+      ],
+      "notes": "[Research strand](./notes/a.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://arxiv.org/abs/2201.11903) · [Source 2](https://arxiv.org/abs/2210.03629) · [Source 3](https://arxiv.org/abs/2305.16291) · [Source 4](https://arxiv.org/abs/2408.03314) · [Source 5](https://openai.com/index/learning-to-reason-with-llms/) · [Source 6](https://arxiv.org/abs/2501.12948) · [Source 7](https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/)"
     },
     "instructgpt": {
       "title": "InstructGPT combines demonstrations and preference learning",
@@ -3989,6 +4709,34 @@
       "references": "[Source 1](https://doi.org/10.1038/s41586-023-06747-5)",
       "notes": "[Research strand](./notes/s.md) · [Historical overview](./OVERVIEW.md) · [Event catalog](./CATALOG.md)",
       "evidenceType": "Primary research or author account"
+    },
+    "phase-formal-neural": {
+      "title": "Neural proposals meet formal verification",
+      "time": {
+        "start": "2024-01-17",
+        "end": "2026-10-09"
+      },
+      "track": "02 Symbolic reasoning planning and knowledge",
+      "type": "Research phase",
+      "contributors": "Multiple research groups; individual attribution appears in the linked milestones.",
+      "define": "Learned proposal generation and search are combined with symbolic deduction or machine-checkable proof systems, extending the scale of mathematical reasoning experiments.",
+      "significance": "The phase reconnects longstanding automated reasoning with contemporary learned components and explicit verification.",
+      "limitation": "Formalizing a known result, solving a competition problem and discovering a new theorem are different achievements; provider reports retain their attributed status.",
+      "precision": "Editorial periodization anchored by the cited milestones. Boundaries identify a reading window, not a field-wide founding or termination date. The right boundary is the October 9, 2026 evidence cutoff; it does not mean the research program has ended.",
+      "intervalBasis": "Editorial research phase; snapshot-bounded",
+      "evidenceType": "Editorial synthesis of the linked primary works",
+      "sources": [
+        "https://doi.org/10.1038/s41586-023-06747-5",
+        "https://deepmind.google/blog/ai-solves-imo-problems-at-silver-medal-level/",
+        "https://www.anthropic.com/research/formalizing-fermats-last-theorem"
+      ],
+      "milestones": [
+        "alphageometry",
+        "alphaproof",
+        "flt-formalization"
+      ],
+      "notes": "[Research strand](./notes/s.md) · [Periods and programs](./PERIODS.md) · [Historical overview](./OVERVIEW.md)",
+      "references": "[Source 1](https://doi.org/10.1038/s41586-023-06747-5) · [Source 2](https://deepmind.google/blog/ai-solves-imo-problems-at-silver-medal-level/) · [Source 3](https://www.anthropic.com/research/formalizing-fermats-last-theorem)"
     },
     "sora": {
       "title": "Sora presents large-scale video generation",
@@ -6406,7 +7154,7 @@
           "targetAnchor": "start"
         },
         "sources": [
-          "https://www.sri.com/hoi/shakey-the-robot/",
+          "https://www.sri.com/case-study/the-man-the-myth-the-legend-meet-shakey-the-robot-the-worlds-first-ai-based-robot/",
           "https://doi.org/10.1109/JRA.1986.1087032"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
@@ -7409,7 +8157,7 @@
         },
         "sources": [
           "https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html",
-          "https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth"
+          "https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
       }
@@ -7428,7 +8176,8 @@
           "targetAnchor": "start"
         },
         "sources": [
-          "https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth",
+          "https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html",
+          "https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html",
           "https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
@@ -9015,7 +9764,8 @@
           "targetAnchor": "start"
         },
         "sources": [
-          "https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth",
+          "https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html",
+          "https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html",
           "https://doi.org/10.1109/TIT.1956.1056797"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
@@ -9035,7 +9785,8 @@
           "targetAnchor": "start"
         },
         "sources": [
-          "https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth",
+          "https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html",
+          "https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html",
           "https://doi.org/10.1037/h0042519"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
@@ -9233,10 +9984,11 @@
         "timeline": {
           "kind": "dependency",
           "sourceAnchor": "start",
-          "targetAnchor": "start"
+          "targetAnchor": "start",
+          "sourceTime": "1971"
         },
         "sources": [
-          "https://www.sri.com/hoi/shakey-the-robot/",
+          "https://www.sri.com/case-study/the-man-the-myth-the-legend-meet-shakey-the-robot-the-worlds-first-ai-based-robot/",
           "https://doi.org/10.1016/0004-3702(71)90010-5"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
@@ -11846,6 +12598,2910 @@
           "https://arxiv.org/abs/2311.02462"
         ],
         "interpretation": "Editorial synthesis grounded in the linked endpoint sources; this does not assert an exclusive lineage."
+      }
+    },
+    {
+      "id": "agi-period-edge-0369",
+      "source": "phase-formal-foundations",
+      "target": "godel",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1931",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF01700692",
+          "https://doi.org/10.2307/2371045",
+          "https://doi.org/10.1112/plms/s2-42.1.230",
+          "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+          "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+          "https://doi.org/10.1093/mind/LIX.236.433"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0370",
+      "source": "phase-formal-foundations",
+      "target": "church",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1936",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF01700692",
+          "https://doi.org/10.2307/2371045",
+          "https://doi.org/10.1112/plms/s2-42.1.230",
+          "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+          "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+          "https://doi.org/10.1093/mind/LIX.236.433"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0371",
+      "source": "phase-formal-foundations",
+      "target": "turing-machine",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1936",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF01700692",
+          "https://doi.org/10.2307/2371045",
+          "https://doi.org/10.1112/plms/s2-42.1.230",
+          "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+          "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+          "https://doi.org/10.1093/mind/LIX.236.433"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0372",
+      "source": "phase-formal-foundations",
+      "target": "shannon",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1948",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF01700692",
+          "https://doi.org/10.2307/2371045",
+          "https://doi.org/10.1112/plms/s2-42.1.230",
+          "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+          "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+          "https://doi.org/10.1093/mind/LIX.236.433"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0373",
+      "source": "phase-formal-foundations",
+      "target": "wiener",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1948",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF01700692",
+          "https://doi.org/10.2307/2371045",
+          "https://doi.org/10.1112/plms/s2-42.1.230",
+          "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+          "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+          "https://doi.org/10.1093/mind/LIX.236.433"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0374",
+      "source": "phase-formal-foundations",
+      "target": "turing-test",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1950",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF01700692",
+          "https://doi.org/10.2307/2371045",
+          "https://doi.org/10.1112/plms/s2-42.1.230",
+          "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+          "https://mitpress.mit.edu/9780262537841/cybernetics-or-control-and-communication-in-the-animal-and-the-machine/",
+          "https://doi.org/10.1093/mind/LIX.236.433"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0375",
+      "source": "phase-early-symbolic",
+      "target": "logic-theorist",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1956",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1109/TIT.1956.1056797",
+          "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+          "https://www-formal.stanford.edu/jmc/mcc59.html",
+          "https://dspace.mit.edu/handle/1721.1/7095",
+          "https://doi.org/10.1016/0004-3702(71)90010-5",
+          "https://doi.org/10.1145/155360.155362"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0376",
+      "source": "phase-early-symbolic",
+      "target": "gps",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1959",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1109/TIT.1956.1056797",
+          "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+          "https://www-formal.stanford.edu/jmc/mcc59.html",
+          "https://dspace.mit.edu/handle/1721.1/7095",
+          "https://doi.org/10.1016/0004-3702(71)90010-5",
+          "https://doi.org/10.1145/155360.155362"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0377",
+      "source": "phase-early-symbolic",
+      "target": "advice-taker",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1959",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1109/TIT.1956.1056797",
+          "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+          "https://www-formal.stanford.edu/jmc/mcc59.html",
+          "https://dspace.mit.edu/handle/1721.1/7095",
+          "https://doi.org/10.1016/0004-3702(71)90010-5",
+          "https://doi.org/10.1145/155360.155362"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0378",
+      "source": "phase-early-symbolic",
+      "target": "shrdlu",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1971",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1109/TIT.1956.1056797",
+          "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+          "https://www-formal.stanford.edu/jmc/mcc59.html",
+          "https://dspace.mit.edu/handle/1721.1/7095",
+          "https://doi.org/10.1016/0004-3702(71)90010-5",
+          "https://doi.org/10.1145/155360.155362"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0379",
+      "source": "phase-early-symbolic",
+      "target": "strips",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1971",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1109/TIT.1956.1056797",
+          "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+          "https://www-formal.stanford.edu/jmc/mcc59.html",
+          "https://dspace.mit.edu/handle/1721.1/7095",
+          "https://doi.org/10.1016/0004-3702(71)90010-5",
+          "https://doi.org/10.1145/155360.155362"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0380",
+      "source": "phase-early-symbolic",
+      "target": "prolog",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1972",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1109/TIT.1956.1056797",
+          "https://bitsavers.trailing-edge.com/pdf/rand/ipl/P-1584_Report_On_A_General_Problem-Solving_Program_Feb59.pdf",
+          "https://www-formal.stanford.edu/jmc/mcc59.html",
+          "https://dspace.mit.edu/handle/1721.1/7095",
+          "https://doi.org/10.1016/0004-3702(71)90010-5",
+          "https://doi.org/10.1145/155360.155362"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0381",
+      "source": "phase-knowledge-engineering",
+      "target": "dendral",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1965",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral",
+          "https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm",
+          "https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf",
+          "https://doi.org/10.1145/219717.219745",
+          "https://doi.org/10.1609/aimag.v5i3.445"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0382",
+      "source": "phase-knowledge-engineering",
+      "target": "mycin",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1976",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral",
+          "https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm",
+          "https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf",
+          "https://doi.org/10.1145/219717.219745",
+          "https://doi.org/10.1609/aimag.v5i3.445"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0383",
+      "source": "phase-knowledge-engineering",
+      "target": "r1",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1980",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral",
+          "https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm",
+          "https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf",
+          "https://doi.org/10.1145/219717.219745",
+          "https://doi.org/10.1609/aimag.v5i3.445"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0384",
+      "source": "phase-knowledge-engineering",
+      "target": "cyc",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1984",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral",
+          "https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm",
+          "https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf",
+          "https://doi.org/10.1145/219717.219745",
+          "https://doi.org/10.1609/aimag.v5i3.445"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0385",
+      "source": "phase-knowledge-engineering",
+      "target": "expert-maintenance",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1984",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://profiles.nlm.nih.gov/spotlight/bb/feature/dendral",
+          "https://www.shortliffe.net/Shortliffe-1976/MYCIN%20thesis%20Book.htm",
+          "https://cdn.aaai.org/AAAI/1980/AAAI80-076.pdf",
+          "https://doi.org/10.1145/219717.219745",
+          "https://doi.org/10.1609/aimag.v5i3.445"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0386",
+      "source": "phase-early-neural",
+      "target": "mcculloch-pitts",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1943",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF02478259",
+          "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+          "https://doi.org/10.4324/9781410612403",
+          "https://doi.org/10.1037/h0042519",
+          "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0387",
+      "source": "phase-early-neural",
+      "target": "turing-unorganized",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1948",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF02478259",
+          "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+          "https://doi.org/10.4324/9781410612403",
+          "https://doi.org/10.1037/h0042519",
+          "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0388",
+      "source": "phase-early-neural",
+      "target": "hebb",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1949",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF02478259",
+          "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+          "https://doi.org/10.4324/9781410612403",
+          "https://doi.org/10.1037/h0042519",
+          "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0389",
+      "source": "phase-early-neural",
+      "target": "perceptron",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1958",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF02478259",
+          "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+          "https://doi.org/10.4324/9781410612403",
+          "https://doi.org/10.1037/h0042519",
+          "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0390",
+      "source": "phase-early-neural",
+      "target": "adaline",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1960",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF02478259",
+          "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+          "https://doi.org/10.4324/9781410612403",
+          "https://doi.org/10.1037/h0042519",
+          "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0391",
+      "source": "phase-early-neural",
+      "target": "perceptrons",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1969",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF02478259",
+          "https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-9",
+          "https://doi.org/10.4324/9781410612403",
+          "https://doi.org/10.1037/h0042519",
+          "https://isl.stanford.edu/~widrow/papers/c1960adaptiveswitching.pdf",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0392",
+      "source": "phase-connectionism",
+      "target": "hopfield",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1982",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0393",
+      "source": "phase-connectionism",
+      "target": "boltzmann",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1985",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0394",
+      "source": "phase-connectionism",
+      "target": "backprop",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1986",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0395",
+      "source": "phase-connectionism",
+      "target": "lenet-early",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1989",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0396",
+      "source": "phase-connectionism",
+      "target": "elman",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1990",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0397",
+      "source": "phase-connectionism",
+      "target": "lstm",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1997",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0398",
+      "source": "phase-connectionism",
+      "target": "lenet5",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1998",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1073/pnas.79.8.2554",
+          "https://doi.org/10.1207/s15516709cog0901_7",
+          "https://doi.org/10.1038/323533a0",
+          "https://doi.org/10.1162/neco.1989.1.4.541",
+          "https://doi.org/10.1207/s15516709cog1402_1",
+          "https://doi.org/10.1162/neco.1997.9.8.1735",
+          "https://doi.org/10.1109/5.726791"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0399",
+      "source": "phase-deep-representations",
+      "target": "dbn",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2006",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1162/neco.2006.18.7.1527",
+          "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+          "https://arxiv.org/abs/1312.6114",
+          "https://arxiv.org/abs/1406.2661",
+          "https://arxiv.org/abs/1512.03385",
+          "https://arxiv.org/abs/1706.03762"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0400",
+      "source": "phase-deep-representations",
+      "target": "alexnet",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2012",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1162/neco.2006.18.7.1527",
+          "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+          "https://arxiv.org/abs/1312.6114",
+          "https://arxiv.org/abs/1406.2661",
+          "https://arxiv.org/abs/1512.03385",
+          "https://arxiv.org/abs/1706.03762"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0401",
+      "source": "phase-deep-representations",
+      "target": "vae",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2013",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1162/neco.2006.18.7.1527",
+          "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+          "https://arxiv.org/abs/1312.6114",
+          "https://arxiv.org/abs/1406.2661",
+          "https://arxiv.org/abs/1512.03385",
+          "https://arxiv.org/abs/1706.03762"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0402",
+      "source": "phase-deep-representations",
+      "target": "gan",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2014",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1162/neco.2006.18.7.1527",
+          "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+          "https://arxiv.org/abs/1312.6114",
+          "https://arxiv.org/abs/1406.2661",
+          "https://arxiv.org/abs/1512.03385",
+          "https://arxiv.org/abs/1706.03762"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0403",
+      "source": "phase-deep-representations",
+      "target": "resnet",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2015",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1162/neco.2006.18.7.1527",
+          "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+          "https://arxiv.org/abs/1312.6114",
+          "https://arxiv.org/abs/1406.2661",
+          "https://arxiv.org/abs/1512.03385",
+          "https://arxiv.org/abs/1706.03762"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0404",
+      "source": "phase-deep-representations",
+      "target": "transformer",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2017-06-12",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1162/neco.2006.18.7.1527",
+          "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks",
+          "https://arxiv.org/abs/1312.6114",
+          "https://arxiv.org/abs/1406.2661",
+          "https://arxiv.org/abs/1512.03385",
+          "https://arxiv.org/abs/1706.03762"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0405",
+      "source": "phase-statistical-learning",
+      "target": "pac",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1984",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1145/1968.1972",
+          "https://doi.org/10.1016/C2009-0-27609-4",
+          "https://doi.org/10.1109/5.18626",
+          "https://doi.org/10.1007/BF00994018",
+          "https://doi.org/10.1017/CBO9780511803161",
+          "https://www.jmlr.org/papers/v3/bengio03a.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0406",
+      "source": "phase-statistical-learning",
+      "target": "pearl",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1988",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1145/1968.1972",
+          "https://doi.org/10.1016/C2009-0-27609-4",
+          "https://doi.org/10.1109/5.18626",
+          "https://doi.org/10.1007/BF00994018",
+          "https://doi.org/10.1017/CBO9780511803161",
+          "https://www.jmlr.org/papers/v3/bengio03a.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0407",
+      "source": "phase-statistical-learning",
+      "target": "hmm-speech",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1989",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1145/1968.1972",
+          "https://doi.org/10.1016/C2009-0-27609-4",
+          "https://doi.org/10.1109/5.18626",
+          "https://doi.org/10.1007/BF00994018",
+          "https://doi.org/10.1017/CBO9780511803161",
+          "https://www.jmlr.org/papers/v3/bengio03a.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0408",
+      "source": "phase-statistical-learning",
+      "target": "svm",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1995",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1145/1968.1972",
+          "https://doi.org/10.1016/C2009-0-27609-4",
+          "https://doi.org/10.1109/5.18626",
+          "https://doi.org/10.1007/BF00994018",
+          "https://doi.org/10.1017/CBO9780511803161",
+          "https://www.jmlr.org/papers/v3/bengio03a.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0409",
+      "source": "phase-statistical-learning",
+      "target": "causality",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2000",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1145/1968.1972",
+          "https://doi.org/10.1016/C2009-0-27609-4",
+          "https://doi.org/10.1109/5.18626",
+          "https://doi.org/10.1007/BF00994018",
+          "https://doi.org/10.1017/CBO9780511803161",
+          "https://www.jmlr.org/papers/v3/bengio03a.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0410",
+      "source": "phase-statistical-learning",
+      "target": "bengio-lm",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2003",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1145/1968.1972",
+          "https://doi.org/10.1016/C2009-0-27609-4",
+          "https://doi.org/10.1109/5.18626",
+          "https://doi.org/10.1007/BF00994018",
+          "https://doi.org/10.1017/CBO9780511803161",
+          "https://www.jmlr.org/papers/v3/bengio03a.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0411",
+      "source": "phase-cognitive-integration",
+      "target": "act",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1983",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.4324/9781315799438",
+          "https://doi.org/10.1016/0004-3702(87)90050-6",
+          "https://doi.org/10.4324/9781315806938",
+          "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+          "https://doi.org/10.1007/978-3-540-68677-4",
+          "https://agi-conf.org/2008/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0412",
+      "source": "phase-cognitive-integration",
+      "target": "soar",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1987",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.4324/9781315799438",
+          "https://doi.org/10.1016/0004-3702(87)90050-6",
+          "https://doi.org/10.4324/9781315806938",
+          "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+          "https://doi.org/10.1007/978-3-540-68677-4",
+          "https://agi-conf.org/2008/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0413",
+      "source": "phase-cognitive-integration",
+      "target": "act-r",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1993",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.4324/9781315799438",
+          "https://doi.org/10.1016/0004-3702(87)90050-6",
+          "https://doi.org/10.4324/9781315806938",
+          "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+          "https://doi.org/10.1007/978-3-540-68677-4",
+          "https://agi-conf.org/2008/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0414",
+      "source": "phase-cognitive-integration",
+      "target": "nars",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1995",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.4324/9781315799438",
+          "https://doi.org/10.1016/0004-3702(87)90050-6",
+          "https://doi.org/10.4324/9781315806938",
+          "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+          "https://doi.org/10.1007/978-3-540-68677-4",
+          "https://agi-conf.org/2008/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0415",
+      "source": "phase-cognitive-integration",
+      "target": "agi-book",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2007",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.4324/9781315799438",
+          "https://doi.org/10.1016/0004-3702(87)90050-6",
+          "https://doi.org/10.4324/9781315806938",
+          "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+          "https://doi.org/10.1007/978-3-540-68677-4",
+          "https://agi-conf.org/2008/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0416",
+      "source": "phase-cognitive-integration",
+      "target": "agi08",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2008-03-01",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.4324/9781315799438",
+          "https://doi.org/10.1016/0004-3702(87)90050-6",
+          "https://doi.org/10.4324/9781315806938",
+          "https://www.cis.temple.edu/~pwang/Publication/thesis.pdf",
+          "https://doi.org/10.1007/978-3-540-68677-4",
+          "https://agi-conf.org/2008/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0417",
+      "source": "phase-universal-agents",
+      "target": "solomonoff",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1964",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1016/S0019-9958(64)90223-2",
+          "https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper",
+          "https://arxiv.org/abs/cs/0004001",
+          "https://arxiv.org/abs/cs/0309048",
+          "https://arxiv.org/abs/0712.3329"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0418",
+      "source": "phase-universal-agents",
+      "target": "kolmogorov",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1965",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1016/S0019-9958(64)90223-2",
+          "https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper",
+          "https://arxiv.org/abs/cs/0004001",
+          "https://arxiv.org/abs/cs/0309048",
+          "https://arxiv.org/abs/0712.3329"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0419",
+      "source": "phase-universal-agents",
+      "target": "aixi",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2000",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1016/S0019-9958(64)90223-2",
+          "https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper",
+          "https://arxiv.org/abs/cs/0004001",
+          "https://arxiv.org/abs/cs/0309048",
+          "https://arxiv.org/abs/0712.3329"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0420",
+      "source": "phase-universal-agents",
+      "target": "godel-machine",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2003",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1016/S0019-9958(64)90223-2",
+          "https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper",
+          "https://arxiv.org/abs/cs/0004001",
+          "https://arxiv.org/abs/cs/0309048",
+          "https://arxiv.org/abs/0712.3329"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0421",
+      "source": "phase-universal-agents",
+      "target": "universal-intelligence",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2007",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1016/S0019-9958(64)90223-2",
+          "https://www.mathnet.ru/php/archive.phtml?jrnid=ppi&option_lang=eng&paperid=68&wshow=paper",
+          "https://arxiv.org/abs/cs/0004001",
+          "https://arxiv.org/abs/cs/0309048",
+          "https://arxiv.org/abs/0712.3329"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0422",
+      "source": "phase-rl-foundations",
+      "target": "td",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1988",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF00115009",
+          "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+          "https://doi.org/10.1007/BF00992698",
+          "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+          "https://doi.org/10.1007/BF00992696",
+          "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+          "https://doi.org/10.1016/S0004-3702(99)00052-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0423",
+      "source": "phase-rl-foundations",
+      "target": "q-learning",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1989",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF00115009",
+          "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+          "https://doi.org/10.1007/BF00992698",
+          "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+          "https://doi.org/10.1007/BF00992696",
+          "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+          "https://doi.org/10.1016/S0004-3702(99)00052-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0424",
+      "source": "phase-rl-foundations",
+      "target": "dyna",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1990",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF00115009",
+          "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+          "https://doi.org/10.1007/BF00992698",
+          "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+          "https://doi.org/10.1007/BF00992696",
+          "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+          "https://doi.org/10.1016/S0004-3702(99)00052-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0425",
+      "source": "phase-rl-foundations",
+      "target": "reinforce",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1992",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF00115009",
+          "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+          "https://doi.org/10.1007/BF00992698",
+          "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+          "https://doi.org/10.1007/BF00992696",
+          "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+          "https://doi.org/10.1016/S0004-3702(99)00052-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0426",
+      "source": "phase-rl-foundations",
+      "target": "td-gammon",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1992",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF00115009",
+          "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+          "https://doi.org/10.1007/BF00992698",
+          "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+          "https://doi.org/10.1007/BF00992696",
+          "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+          "https://doi.org/10.1016/S0004-3702(99)00052-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0427",
+      "source": "phase-rl-foundations",
+      "target": "options",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1999",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1007/BF00115009",
+          "https://www.cs.rhul.ac.uk/~chrisw/new_thesis.pdf",
+          "https://doi.org/10.1007/BF00992698",
+          "https://mlanthology.org/icml/1990/sutton1990icml-integrated/",
+          "https://doi.org/10.1007/BF00992696",
+          "https://research.ibm.com/publications/practical-issues-in-temporal-difference-learning",
+          "https://doi.org/10.1016/S0004-3702(99)00052-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0428",
+      "source": "phase-deep-rl",
+      "target": "dqn-preprint",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2013",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1312.5602",
+          "https://doi.org/10.1038/nature14236",
+          "https://doi.org/10.1038/nature16961",
+          "https://doi.org/10.1038/nature24270",
+          "https://arxiv.org/abs/1712.01815"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0429",
+      "source": "phase-deep-rl",
+      "target": "dqn-nature",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2015-02-25",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1312.5602",
+          "https://doi.org/10.1038/nature14236",
+          "https://doi.org/10.1038/nature16961",
+          "https://doi.org/10.1038/nature24270",
+          "https://arxiv.org/abs/1712.01815"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0430",
+      "source": "phase-deep-rl",
+      "target": "alphago-paper",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2016-01-27",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1312.5602",
+          "https://doi.org/10.1038/nature14236",
+          "https://doi.org/10.1038/nature16961",
+          "https://doi.org/10.1038/nature24270",
+          "https://arxiv.org/abs/1712.01815"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0431",
+      "source": "phase-deep-rl",
+      "target": "alphago-zero",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2017-10-18",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1312.5602",
+          "https://doi.org/10.1038/nature14236",
+          "https://doi.org/10.1038/nature16961",
+          "https://doi.org/10.1038/nature24270",
+          "https://arxiv.org/abs/1712.01815"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0432",
+      "source": "phase-deep-rl",
+      "target": "alphazero",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2017-12-05",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1312.5602",
+          "https://doi.org/10.1038/nature14236",
+          "https://doi.org/10.1038/nature16961",
+          "https://doi.org/10.1038/nature24270",
+          "https://arxiv.org/abs/1712.01815"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0433",
+      "source": "phase-open-ended",
+      "target": "holland",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1975",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+          "https://people.idsia.ch/~juergen/diploma.html",
+          "https://doi.org/10.1162/106365602320169811",
+          "https://doi.org/10.1162/EVCO_a_00025",
+          "https://arxiv.org/abs/1703.03400",
+          "https://arxiv.org/abs/1901.01753"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0434",
+      "source": "phase-open-ended",
+      "target": "schmidhuber-meta",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1987",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+          "https://people.idsia.ch/~juergen/diploma.html",
+          "https://doi.org/10.1162/106365602320169811",
+          "https://doi.org/10.1162/EVCO_a_00025",
+          "https://arxiv.org/abs/1703.03400",
+          "https://arxiv.org/abs/1901.01753"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0435",
+      "source": "phase-open-ended",
+      "target": "neat",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2002",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+          "https://people.idsia.ch/~juergen/diploma.html",
+          "https://doi.org/10.1162/106365602320169811",
+          "https://doi.org/10.1162/EVCO_a_00025",
+          "https://arxiv.org/abs/1703.03400",
+          "https://arxiv.org/abs/1901.01753"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0436",
+      "source": "phase-open-ended",
+      "target": "novelty-search",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2011",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+          "https://people.idsia.ch/~juergen/diploma.html",
+          "https://doi.org/10.1162/106365602320169811",
+          "https://doi.org/10.1162/EVCO_a_00025",
+          "https://arxiv.org/abs/1703.03400",
+          "https://arxiv.org/abs/1901.01753"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0437",
+      "source": "phase-open-ended",
+      "target": "maml",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2017",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+          "https://people.idsia.ch/~juergen/diploma.html",
+          "https://doi.org/10.1162/106365602320169811",
+          "https://doi.org/10.1162/EVCO_a_00025",
+          "https://arxiv.org/abs/1703.03400",
+          "https://arxiv.org/abs/1901.01753"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0438",
+      "source": "phase-open-ended",
+      "target": "poet",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2019",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/",
+          "https://people.idsia.ch/~juergen/diploma.html",
+          "https://doi.org/10.1162/106365602320169811",
+          "https://doi.org/10.1162/EVCO_a_00025",
+          "https://arxiv.org/abs/1703.03400",
+          "https://arxiv.org/abs/1901.01753"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0439",
+      "source": "phase-foundation-models",
+      "target": "gpt1",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2018",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0440",
+      "source": "phase-foundation-models",
+      "target": "bert",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2018",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0441",
+      "source": "phase-foundation-models",
+      "target": "gpt3",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2020-05-28",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0442",
+      "source": "phase-foundation-models",
+      "target": "clip",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2021",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0443",
+      "source": "phase-foundation-models",
+      "target": "chinchilla",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022-03-29",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0444",
+      "source": "phase-foundation-models",
+      "target": "chatgpt",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022-11-30",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0445",
+      "source": "phase-foundation-models",
+      "target": "gpt4",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2023-03-14",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+          "https://arxiv.org/abs/1810.04805",
+          "https://arxiv.org/abs/2005.14165",
+          "https://arxiv.org/abs/2103.00020",
+          "https://arxiv.org/abs/2203.15556",
+          "https://openai.com/index/chatgpt/",
+          "https://openai.com/index/gpt-4-research/",
+          "https://arxiv.org/abs/2303.08774"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0446",
+      "source": "phase-reasoning-agents",
+      "target": "cot",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022-01-28",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0447",
+      "source": "phase-reasoning-agents",
+      "target": "react",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022-10-06",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0448",
+      "source": "phase-reasoning-agents",
+      "target": "voyager",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2023",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0449",
+      "source": "phase-reasoning-agents",
+      "target": "test-time-scaling",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2024",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0450",
+      "source": "phase-reasoning-agents",
+      "target": "o1",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2024-09-12",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0451",
+      "source": "phase-reasoning-agents",
+      "target": "deepseek-r1",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2025-01-22",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0452",
+      "source": "phase-reasoning-agents",
+      "target": "aletheia",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2026-02-11",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/2201.11903",
+          "https://arxiv.org/abs/2210.03629",
+          "https://arxiv.org/abs/2305.16291",
+          "https://arxiv.org/abs/2408.03314",
+          "https://openai.com/index/learning-to-reason-with-llms/",
+          "https://arxiv.org/abs/2501.12948",
+          "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0453",
+      "source": "phase-world-models",
+      "target": "world-models",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2018",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1803.10122",
+          "https://arxiv.org/abs/1912.01603",
+          "https://openreview.net/forum?id=BZ5a1r-kVsf",
+          "https://arxiv.org/abs/2307.15818",
+          "https://arxiv.org/abs/2506.09985",
+          "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0454",
+      "source": "phase-world-models",
+      "target": "dreamer",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2019",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1803.10122",
+          "https://arxiv.org/abs/1912.01603",
+          "https://openreview.net/forum?id=BZ5a1r-kVsf",
+          "https://arxiv.org/abs/2307.15818",
+          "https://arxiv.org/abs/2506.09985",
+          "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0455",
+      "source": "phase-world-models",
+      "target": "lecun-jepa",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1803.10122",
+          "https://arxiv.org/abs/1912.01603",
+          "https://openreview.net/forum?id=BZ5a1r-kVsf",
+          "https://arxiv.org/abs/2307.15818",
+          "https://arxiv.org/abs/2506.09985",
+          "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0456",
+      "source": "phase-world-models",
+      "target": "rt2",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2023",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1803.10122",
+          "https://arxiv.org/abs/1912.01603",
+          "https://openreview.net/forum?id=BZ5a1r-kVsf",
+          "https://arxiv.org/abs/2307.15818",
+          "https://arxiv.org/abs/2506.09985",
+          "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0457",
+      "source": "phase-world-models",
+      "target": "v-jepa2",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2025",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1803.10122",
+          "https://arxiv.org/abs/1912.01603",
+          "https://openreview.net/forum?id=BZ5a1r-kVsf",
+          "https://arxiv.org/abs/2307.15818",
+          "https://arxiv.org/abs/2506.09985",
+          "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0458",
+      "source": "phase-world-models",
+      "target": "genie3",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2025-08-05",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1803.10122",
+          "https://arxiv.org/abs/1912.01603",
+          "https://openreview.net/forum?id=BZ5a1r-kVsf",
+          "https://arxiv.org/abs/2307.15818",
+          "https://arxiv.org/abs/2506.09985",
+          "https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0459",
+      "source": "phase-formal-neural",
+      "target": "alphageometry",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2024-01-17",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1038/s41586-023-06747-5",
+          "https://deepmind.google/blog/ai-solves-imo-problems-at-silver-medal-level/",
+          "https://www.anthropic.com/research/formalizing-fermats-last-theorem"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0460",
+      "source": "phase-formal-neural",
+      "target": "alphaproof",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2024-07-25",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1038/s41586-023-06747-5",
+          "https://deepmind.google/blog/ai-solves-imo-problems-at-silver-medal-level/",
+          "https://www.anthropic.com/research/formalizing-fermats-last-theorem"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0461",
+      "source": "phase-formal-neural",
+      "target": "flt-formalization",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2026-09-04",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1038/s41586-023-06747-5",
+          "https://deepmind.google/blog/ai-solves-imo-problems-at-silver-medal-level/",
+          "https://www.anthropic.com/research/formalizing-fermats-last-theorem"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0462",
+      "source": "phase-generality-evaluation",
+      "target": "arc",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2019-11-05",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0463",
+      "source": "phase-generality-evaluation",
+      "target": "levels-agi",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2023-11-04",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0464",
+      "source": "phase-generality-evaluation",
+      "target": "swebench",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2023",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0465",
+      "source": "phase-generality-evaluation",
+      "target": "metr-horizon",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2025-03-19",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0466",
+      "source": "phase-generality-evaluation",
+      "target": "arc2",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2025-03-24",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0467",
+      "source": "phase-generality-evaluation",
+      "target": "arc3",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2026-03-25",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0468",
+      "source": "phase-generality-evaluation",
+      "target": "astra-arc3",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2026-09-03",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1911.01547",
+          "https://arxiv.org/abs/2311.02462",
+          "https://arxiv.org/abs/2310.06770",
+          "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+          "https://arxiv.org/abs/2503.14499",
+          "https://arcprize.org/blog/announcing-arc-agi-2-and-arc-prize-2025",
+          "https://arcprize.org/blog/arc-agi-3-launch",
+          "https://arcprize.org/blog/astra"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0469",
+      "source": "phase-technical-alignment",
+      "target": "concrete-safety",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2016",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0470",
+      "source": "phase-technical-alignment",
+      "target": "rlhf",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2017-06-12",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0471",
+      "source": "phase-technical-alignment",
+      "target": "instructgpt",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022-03-04",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0472",
+      "source": "phase-technical-alignment",
+      "target": "constitutional",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2022-12-15",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0473",
+      "source": "phase-technical-alignment",
+      "target": "sae-features",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2024-05-21",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0474",
+      "source": "phase-technical-alignment",
+      "target": "alignment-faking",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2024-12-18",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0475",
+      "source": "phase-technical-alignment",
+      "target": "unintended-actions",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "2026-10-09",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://arxiv.org/abs/1606.06565",
+          "https://arxiv.org/abs/1706.03741",
+          "https://arxiv.org/abs/2203.02155",
+          "https://arxiv.org/abs/2212.08073",
+          "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
+          "https://arxiv.org/abs/2412.14093",
+          "https://www.anthropic.com/research/investigating-unintended-model-actions"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0476",
+      "source": "phase-early-critique",
+      "target": "alpac",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1966",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/",
+          "https://mitpress.mit.edu/9780262540674/what-computers-still-cant-do/",
+          "https://www.chilton-computing.org.uk/inf/literature/reports/lighthill_report/p001.htm"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0477",
+      "source": "phase-early-critique",
+      "target": "perceptrons",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1969",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/",
+          "https://mitpress.mit.edu/9780262540674/what-computers-still-cant-do/",
+          "https://www.chilton-computing.org.uk/inf/literature/reports/lighthill_report/p001.htm"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0478",
+      "source": "phase-early-critique",
+      "target": "dreyfus",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1972",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/",
+          "https://mitpress.mit.edu/9780262540674/what-computers-still-cant-do/",
+          "https://www.chilton-computing.org.uk/inf/literature/reports/lighthill_report/p001.htm"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0479",
+      "source": "phase-early-critique",
+      "target": "lighthill",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1973",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics",
+          "https://mitpress.mit.edu/9780262534772/perceptrons/",
+          "https://mitpress.mit.edu/9780262540674/what-computers-still-cant-do/",
+          "https://www.chilton-computing.org.uk/inf/literature/reports/lighthill_report/p001.htm"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0480",
+      "source": "phase-commercial-reassessment",
+      "target": "expert-maintenance",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1984",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1609/aimag.v5i3.445",
+          "https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html",
+          "https://smbx.org/symbolics-bancruptcy-filed/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0482",
+      "source": "phase-commercial-reassessment",
+      "target": "symbolics-chapter11",
+      "value": "Milestone in this research phase",
+      "metadata": {
+        "label": "Milestone in this research phase",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1993",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://doi.org/10.1609/aimag.v5i3.445",
+          "https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html",
+          "https://smbx.org/symbolics-bancruptcy-filed/"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0483",
+      "source": "program-fgcs",
+      "target": "fifth-generation",
+      "value": "Launch milestone within the FGCS research program",
+      "metadata": {
+        "label": "Launch milestone within the FGCS research program",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1982",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://www.airc.aist.go.jp/aitec-icot/ICOT/Museum/ICRA/FGCSProject/mou_termination_inria_9411.html"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0484",
+      "source": "program-deep-blue",
+      "target": "deep-blue",
+      "value": "Match victory concludes the selected development window",
+      "metadata": {
+        "label": "Match victory concludes the selected development window",
+        "relation": "period membership",
+        "timeline": {
+          "kind": "part-of",
+          "sourceAnchor": "start",
+          "sourceTime": "1997-05-11",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://www.ibm.com/history/deep-blue",
+          "https://doi.org/10.1016/S0004-3702(01)00129-1"
+        ],
+        "interpretation": "The source interval groups the target milestone. Editorial membership is not a causal or exclusive ancestry claim."
+      }
+    },
+    {
+      "id": "agi-period-edge-0485",
+      "source": "program-calo",
+      "target": "bdi",
+      "value": "Earlier BDI architecture supplies context for assistant integration",
+      "metadata": {
+        "label": "Earlier BDI architecture supplies context for assistant integration",
+        "relation": "conceptual connection",
+        "timeline": {
+          "kind": "reference",
+          "sourceAnchor": "start",
+          "sourceTime": "2003",
+          "targetAnchor": "start"
+        },
+        "sources": [
+          "https://www.sri.com/75-years-of-innovation/75-years-of-innovation-calo-cognitive-assistant-that-learns-and-organizes/",
+          "https://cdn.aaai.org/ICMAS/1995/ICMAS95-042.pdf"
+        ],
+        "interpretation": "Comparison with an earlier agent architecture, not interval membership or an exclusive causal lineage."
       }
     }
   ]

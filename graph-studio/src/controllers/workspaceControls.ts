@@ -19,6 +19,7 @@ export interface WorkspaceControls {
   onFolderChange(event: ChangeEvent<HTMLInputElement>): Promise<void>;
   openFile(): void;
   openWorkspace(): void;
+  createWorkspace(name: string): Promise<boolean>;
   openRecent(item: RecentLocation): void;
   removeRecent(id: string | string[]): void;
   openWorkspaceGraph(path: string): void;

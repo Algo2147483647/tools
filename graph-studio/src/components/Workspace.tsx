@@ -8,7 +8,6 @@ import EmptyState from "./EmptyState";
 interface WorkspaceProps {
   compoundTools?: React.ReactNode;
   spatialTools?: React.ReactNode;
-  onSpaceOrbit?: (dx: number, dy: number) => void;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement>;
@@ -60,7 +59,6 @@ export default function Workspace({
   onSidebarResizeStart,
   compoundTools,
   spatialTools,
-  onSpaceOrbit,
   onGroupToggle,
   onGroupEnter,
 }: WorkspaceProps) {
@@ -106,6 +104,7 @@ export default function Workspace({
             id="main-content"
             ref={containerRef}
             className={stage ? "is-ready" : ""}
+            data-layout={stage?.layoutMode}
             aria-live="polite"
             onScroll={onScroll}
             onContextMenu={onBackgroundContextMenu}
@@ -134,7 +133,6 @@ export default function Workspace({
                 hideNodeBorders={hideNodeBorders}
                 appearance={appearance}
                 svgRef={svgRef}
-                onSpaceOrbit={onSpaceOrbit}
                 onTimelineNodePin={onTimelineNodePin}
                 onNodeClick={onNodeClick}
                 onNodeDoubleClick={onNodeDoubleClick}

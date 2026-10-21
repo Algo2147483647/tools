@@ -43,7 +43,7 @@ export const EXAMPLE_WORKSPACES = [
     kind: "Timeline",
     description:
       "Explore three timelines: spaceflight, mathematics and physics, and AGI research. Follow discoveries, research programs, debates and their connections.",
-    detail: "3 timelines · 781 events & phases · 1093 relationships · c. 1850 BCE–2026",
+    detail: "3 timelines · 804 events & phases · 1209 relationships · c. 1850 BCE–2026",
     accent: "#6675a8",
   },
   {

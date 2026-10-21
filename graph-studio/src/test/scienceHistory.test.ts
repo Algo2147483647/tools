@@ -20,11 +20,11 @@ export const scienceHistorySuite = defineSuite("Combined mathematics and physics
     assert.equal(graph.title, "History of Mathematics and Physics");
     assert.deepEqual(manifest.graphs, ["space-history.json", path, "agi/agi-history.json"]);
     assert.equal(manifest.defaultGraph, "space-history.json");
-    assert.equal(manifest.metadata.nodeCount, 781);
-    assert.equal(manifest.metadata.edgeCount, 1093);
+    assert.equal(manifest.metadata.nodeCount, 804);
+    assert.equal(manifest.metadata.edgeCount, 1209);
     assert.equal(manifest.metadata.graphStats[path].nodeCount, 250);
     assert.equal(manifest.metadata.graphStats[path].edgeCount, 317);
-    assert.match(EXAMPLE_WORKSPACES.find((item) => item.id === "space-history")!.detail, /781.*1093/);
+    assert.match(EXAMPLE_WORKSPACES.find((item) => item.id === "space-history")!.detail, /804.*1209/);
     const disciplines = new Set<string>();
     for (const [id, node] of Object.entries(graph.nodes) as [string, any][]) {
       disciplines.add(node.discipline);

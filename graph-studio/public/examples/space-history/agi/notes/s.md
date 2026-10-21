@@ -31,3 +31,11 @@ Read the modern convergence through two roles: a learned model proposes, while a
 - **2026-09-04 — Anthropic reports a machine-checked Fermat formalization**. System. [Source](https://www.anthropic.com/research/formalizing-fermats-last-theorem).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1956 to 1973 — Heuristic search and symbolic microworlds**. Research phase. A sustained attempt to generalize symbolic procedures links early demonstrations to the difficulties of common sense and combinatorial growth.
+- **1965 to 1993 — Knowledge engineering and expert systems**. Research phase. The phase connects useful specialist performance, labor-intensive knowledge construction and the limits of transferring expertise across domains.
+- **2024-01-17 to 2026-10-09 — Neural proposals meet formal verification**. Research phase. The phase reconnects longstanding automated reasoning with contemporary learned components and explicit verification.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

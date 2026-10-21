@@ -1,6 +1,6 @@
 # Chronological event catalog
 
-233 point events. Open the timeline and double-click an event for its full account, significance and limitations. Year-only dates preserve year precision; their order does not imply month-level sequencing.
+231 point milestones and 25 duration bars. Open the timeline and double-click an event for its full account, significance and limitations. Year-only dates preserve year precision; their order does not imply month-level sequencing.
 
 [Timeline](./agi-history.json) · [Overview](./OVERVIEW.md) · [Sources](./SOURCES.md)
 
@@ -30,7 +30,7 @@
 | 1950 | Turing proposes the imitation game | Definitions evaluations and debates | [Source 1](https://doi.org/10.1093/mind/LIX.236.433) |
 | 1951 | Stochastic approximation enables noisy optimization | Probability causality and statistical learning | [Source 1](https://doi.org/10.1214/aoms/1177729586) |
 | 1955-08-31 | The Dartmouth AI proposal is submitted | Data compute and research institutions | [Source 1](https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html) |
-| 1956 | The Dartmouth summer project takes place | Data compute and research institutions | [Source 1](https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth) |
+| 1956-06 to 1956-08 | Dartmouth summer research project | Data compute and research institutions | [Source 1](https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html) · [Source 2](https://raysolomonoff.com/dartmouth/boxbdart/boxbdart.html) |
 | 1956 | Logic Theorist searches for proofs | Symbolic reasoning planning and knowledge | [Source 1](https://doi.org/10.1109/TIT.1956.1056797) |
 | 1957 | Dynamic programming organizes sequential decisions | Reinforcement learning search and self-play | [Source 1](https://press.princeton.edu/books/paperback/9780691146683/dynamic-programming) |
 | 1957 | Syntactic Structures foregrounds generative structure | Language and multimodal foundation models | [Source 1](https://doi.org/10.1515/9783110218329) |
@@ -47,7 +47,7 @@
 | 1965 | Resolution makes theorem proving systematic | Symbolic reasoning planning and knowledge | [Source 1](https://doi.org/10.1145/321250.321253) |
 | 1966 | ALPAC evaluates machine translation progress | Definitions evaluations and debates | [Source 1](https://nap.nationalacademies.org/catalog/9547/language-and-machines-computers-in-translation-and-linguistics) |
 | 1966 | ELIZA exposes the appearance of understanding | Language and multimodal foundation models | [Source 1](https://doi.org/10.1145/365153.365168) |
-| 1966 | Shakey integrates perception planning and action | Embodiment and world models | [Source 1](https://www.sri.com/hoi/shakey-the-robot/) |
+| 1966 to 1972 | Shakey research and development | Embodiment and world models | [Source 1](https://www.sri.com/case-study/the-man-the-myth-the-legend-meet-shakey-the-robot-the-worlds-first-ai-based-robot/) |
 | 1968 | A-star formalizes heuristic path search | Symbolic reasoning planning and knowledge | [Source 1](https://doi.org/10.1109/TSSC.1968.300136) |
 | 1969 | The frame problem challenges action representation | Symbolic reasoning planning and knowledge | [Source 1](https://www-formal.stanford.edu/jmc/mcchay69/mcchay69.html) |
 | 1969 | Perceptron limitations become a major debate | Definitions evaluations and debates | [Source 1](https://mitpress.mit.edu/9780262534772/perceptrons/) |
@@ -276,3 +276,35 @@
 | 2026-09-04 | Anthropic reports a machine-checked Fermat formalization | Symbolic reasoning planning and knowledge | [Source 1](https://www.anthropic.com/research/formalizing-fermats-last-theorem) |
 | 2026-09-17 | AI-led research and development is measured separately | Data compute and research institutions | [Source 1](https://www.anthropic.com/institute/measuring-pace-of-ai-development) |
 | 2026-10-09 | Unintended agent actions become a documented research object | Alignment interpretability and safety | [Source 1](https://www.anthropic.com/research/investigating-unintended-model-actions) |
+
+## Research phases and project durations
+
+[Read the boundary conventions and full interval accounts](./PERIODS.md).
+
+| Period | Interval | Kind | Strand |
+| --- | --- | --- | --- |
+| 1931 to 1950 | Formal foundations of machine intelligence | Research phase | Logic computation and information |
+| 1943 to 1969 | Early neural computation and learning | Research phase | Neural networks and deep learning |
+| 1956 to 1973 | Heuristic search and symbolic microworlds | Research phase | Symbolic reasoning planning and knowledge |
+| 1956-06 to 1956-08 | Dartmouth summer research project | Research program | Data compute and research institutions |
+| 1964 to 2007 | Universal induction and ideal general agents | Research phase | Cognitive architectures and general intelligence |
+| 1965 to 1993 | Knowledge engineering and expert systems | Research phase | Symbolic reasoning planning and knowledge |
+| 1966 to 1973 | Translation and generality claims face sustained scrutiny | Research phase | Definitions evaluations and debates |
+| 1966 to 1972 | Shakey research and development | Research program | Embodiment and world models |
+| 1975 to 2019 | Evolutionary search and learning to learn | Research phase | Evolution meta-learning and open-ended learning |
+| 1982 to 1998 | Connectionist revival and trainable representations | Research phase | Neural networks and deep learning |
+| 1982 to 1992 | Fifth Generation Computer Systems project | Research program | Data compute and research institutions |
+| 1983 to 2008-03-01 | Cognitive architectures and explicit AGI integration | Research phase | Cognitive architectures and general intelligence |
+| 1984 to 1993 | Expert-system maintenance and commercial reassessment | Research phase | Data compute and research institutions |
+| 1984 to 2003 | Statistical learning and probabilistic inference mature | Research phase | Probability causality and statistical learning |
+| 1988 to 1999 | Reinforcement learning and temporal abstraction | Research phase | Reinforcement learning search and self-play |
+| 1989 to 1997-05-11 | IBM chess research through the Deep Blue victory | Research program | Reinforcement learning search and self-play |
+| 2003 to 2008 | CALO cognitive-assistant research program | Research program | Cognitive architectures and general intelligence |
+| 2006 to 2017-06-12 | Deep representation learning expands across tasks | Research phase | Neural networks and deep learning |
+| 2013 to 2017-12-05 | Deep reinforcement learning and self-play | Research phase | Reinforcement learning search and self-play |
+| 2016 to 2026-10-09 | Alignment and oversight become experimental programs | Research phase | Alignment interpretability and safety |
+| 2018 to 2023-03-14 | Pretraining scales into broad foundation models | Research phase | Language and multimodal foundation models |
+| 2018 to 2026-10-09 | Learned world models and generalist embodiment | Research phase | Embodiment and world models |
+| 2019-11-05 to 2026-10-09 | Generality and agent evaluation diversify | Research phase | Definitions evaluations and debates |
+| 2022-01-28 to 2026-10-09 | Reasoning and tool-using agents through the snapshot | Research phase | Reasoning tools and autonomous agents |
+| 2024-01-17 to 2026-10-09 | Neural proposals meet formal verification | Research phase | Symbolic reasoning planning and knowledge |

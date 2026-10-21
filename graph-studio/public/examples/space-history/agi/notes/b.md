@@ -10,7 +10,7 @@ SayCan explicitly connects linguistic suggestions with executable skills. RT-1, 
 
 ## Events in this strand
 
-- **1966 — Shakey integrates perception planning and action**. System. [Source](https://www.sri.com/hoi/shakey-the-robot/).
+- **1966 to 1972 — Shakey research and development**. Research program. [Boundary notes](../PERIODS.md).
 - **1986 — Subsumption organizes embodied behavior**. Theory. [Source](https://doi.org/10.1109/JRA.1986.1087032).
 - **1991 — Intelligence without representation challenges central models**. Debate. [Source](https://doi.org/10.1016/0004-3702(91)90053-M).
 - **2005 — Autonomous vehicles complete the DARPA desert challenge**. System. [Source](https://www.darpa.mil/about/innovation-timeline/grand-challenge).
@@ -32,3 +32,10 @@ SayCan explicitly connects linguistic suggestions with executable skills. RT-1, 
 - **2025-08-05 — Genie 3 expands interactive generated worlds**. System. [Source](https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1966 to 1972 — Shakey research and development**. Research program. Embodied intelligence becomes an integration problem involving several interacting components, with identifiable technical results produced during the project.
+- **2018 to 2026-10-09 — Learned world models and generalist embodiment**. Research phase. The interval makes the coexistence of control-oriented prediction and interactive generation visible alongside language-centered work.
+
+[Interval accounts and boundary conventions](../PERIODS.md).

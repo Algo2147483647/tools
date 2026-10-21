@@ -21,3 +21,9 @@ Bayesian program learning brings structured priors and compositional explanation
 - **2015 — Bayesian program learning supports one-shot concepts**. Method. [Source](https://doi.org/10.1126/science.aab3050).
 
 [Historical overview](../OVERVIEW.md) · [Complete timeline](../agi-history.json) · [All events](../CATALOG.md)
+
+## Duration bars in this strand
+
+- **1984 to 2003 — Statistical learning and probabilistic inference mature**. Research phase. The duration makes visible the methodological groundwork that develops alongside cognitive architectures and neural research.
+
+[Interval accounts and boundary conventions](../PERIODS.md).
