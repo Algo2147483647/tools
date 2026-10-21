@@ -6,15 +6,25 @@ import {
   supportsDisplayMode,
 } from "../components/nodeFields";
 import { parseRelationInput } from "../graph/relations";
-import { getSemanticFieldName, SYSTEM_FIELD_KEYS } from "../graph/fieldRoles";
+import { getCustomFieldNames } from "../graph/accessors";
 import { parseGraphPagePreferences } from "../state/preferences";
 import { defineSuite, defineTest } from "./harness";
 
 export const fieldRolesSuite = defineSuite("native field roles", [
   defineTest("v3 keeps fixed field roles and ignores obsolete mapping preferences", () => {
-    for (const field of SYSTEM_FIELD_KEYS) assert.equal(getSemanticFieldName(field), field);
-    assert.equal(getSemanticFieldName("next"), null);
-    assert.equal(getSemanticFieldName("metadata"), null);
+    assert.deepEqual(
+      getCustomFieldNames({
+        key: "A",
+        title: "",
+        define: "",
+        type: "",
+        parents: {},
+        children: {},
+        next: [],
+        metadata: {},
+      }),
+      ["next", "metadata"],
+    );
     assert.deepEqual(
       parseGraphPagePreferences(JSON.stringify({ fieldMapping: { children: "next" }, layoutMode: "dagre" })),
       { layoutMode: "dagre" },

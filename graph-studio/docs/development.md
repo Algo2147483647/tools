@@ -82,7 +82,7 @@ Text files use LF, with CRLF for Windows `.cmd` / `.ps1` files. Keep `.command` 
 The codebase is organized around a few clear responsibilities:
 
 - graph loading and normalization happen in the graph layer
-- v3 semantic fields are fixed in `graph/fieldRoles.ts`; UI, layout, console and AI use them directly without passing a mapping object
+- v3 semantic fields are fixed; `graph/accessors.ts` provides shared field access and custom-field discovery without passing a mapping object
 - descendant traversal is shared by graph commands and stage layout in `graph/traversal.ts`; layout-specific breadth-first ordering stays in the layout layer
 - type filters, timeline tracks and timeline readaptation share `projectGraphDocument` in `graph/serialize.ts`; projections clone only retained data, rebuild adjacency and leave source metadata and containment untouched
 - graph documents are validated as v3; edges are authoritative and graphIndex builds non-enumerable read-only adjacency projections
