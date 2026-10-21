@@ -79,6 +79,68 @@ const valueField: SchemaField = {
 };
 
 export const CHART_SCHEMAS: Record<GraphChartType, ChartSchema> = {
+  spatial: {
+    fields: [
+      ...commonFields,
+      valueField,
+      {
+        path: "metadata.space.dimensions",
+        type: "integer ≥ 0",
+        requirement: "Required",
+        description: "Coordinate count, including 0, 1, 2, 3, 4 and higher dimensions.",
+      },
+      {
+        path: "metadata.space.coordinateSystem",
+        type: "cartesian | polar | spherical | cylindrical | geographic",
+        requirement: "Required",
+        description:
+          "Cartesian [x,y,z,…]; polar [r,azimuth,…]; spherical [r,azimuth,elevation,…]; cylindrical [r,azimuth,z,…]; geographic [longitude,latitude,altitude?,…].",
+      },
+      {
+        path: "metadata.space.angleUnit",
+        type: "degrees | radians",
+        requirement: "Optional",
+        defaultValue: "degrees",
+        description: "Unit of angular coordinates. Spherical elevation and geographic latitude range from −90° to 90°.",
+      },
+      {
+        path: "metadata.space.axes",
+        type: "string[]",
+        requirement: "Optional",
+        description: "One label per input dimension. Extra dimensions can be selected as projection axes.",
+      },
+      {
+        path: "metadata.space.unit",
+        type: "string",
+        requirement: "Optional",
+        description: "Display unit for linear coordinates.",
+      },
+      {
+        path: "metadata.space.radius",
+        type: "number > 0",
+        requirement: "Optional",
+        defaultValue: "6371",
+        description: "Geographic sphere radius in the same unit as altitude; default kilometers.",
+      },
+      {
+        path: "nodes[id].space",
+        type: "number[]",
+        requirement: "For positioning",
+        description:
+          "Exactly dimensions finite coordinates. [] for 0D. Missing positions appear in an unpositioned tray.",
+      },
+    ],
+    example: {
+      format: "graph-studio",
+      version: 3,
+      metadata: { space: { dimensions: 3, coordinateSystem: "cartesian", axes: ["X", "Y", "Z"] } },
+      nodes: {
+        a: { title: "Origin", type: "A", space: [0, 0, 0] },
+        b: { title: "Point", type: "B", space: [1, 2, 3] },
+      },
+      edges: [{ id: "ab", source: "a", target: "b" }],
+    },
+  },
   "node-link": { fields: [...commonFields, valueField], example },
   compound: {
     fields: [

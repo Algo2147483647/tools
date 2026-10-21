@@ -36,7 +36,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     "chart",
     "Chart type",
     "Chart type",
-    "diagram node-link nested compound sankey timeline schema json example fields 图类型 嵌套 桑基 时间线 结构 字段 示例",
+    "diagram node-link nested compound sankey timeline spatial space coordinates 空间 坐标 schema json example fields 图类型 嵌套 桑基 时间线 结构 字段 示例",
   );
   if (chart === "node-link")
     add("engine", "layout", "Arrangement", "Layout engine", "algorithm sugiyama dagre bfs level 排布 算法 引擎");
@@ -119,14 +119,14 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     a("showNodeDots", "Nodes", "Node dots", "pins markers 节点 圆点");
     a("alignNodeWidthsToMax", "Nodes", "Equal node widths", "align width 对齐 等宽");
   }
-  if (chart !== "timeline") {
+  if (chart !== "timeline" && chart !== "spatial") {
     a("nodeShadow", "Nodes", "Soft shadows", "shadow elevation 阴影");
     a("shadowBlur", "Nodes", "Shadow softness", "shadow blur 阴影 模糊");
     a("shadowOffset", "Nodes", "Shadow distance", "shadow offset 阴影 偏移");
     a("shadowOpacity", "Nodes", "Shadow opacity", "shadow alpha 阴影 透明度");
     a("hideNodeBorders", "Nodes", "Node borders", "outline 边框");
   }
-  if (chart !== "sankey")
+  if (chart !== "sankey" && chart !== "spatial")
     a("showNodeDetail", chart === "timeline" ? "Text" : "Nodes", "Node descriptions", "detail visibility 描述 详情");
   if (chart === "compound")
     a("showGroupStats", "Nodes", "Group statistics", "internal edges nodes counts 分组 统计 数量");
@@ -141,17 +141,19 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   const colors =
     chart === "sankey"
       ? ["--dag-text-strong", "--dag-text-soft"]
-      : chart === "timeline"
-        ? ["--dag-node-fill", "--dag-edge", "--dag-text-strong", "--dag-text-soft"]
-        : [
-            "--dag-node-fill",
-            "--dag-node-border",
-            "--dag-node-border-strong",
-            "--dag-edge",
-            "--dag-edge-active",
-            "--dag-text-strong",
-            "--dag-text-soft",
-          ];
+      : chart === "spatial"
+        ? ["--dag-edge", "--dag-edge-active", "--dag-text-strong"]
+        : chart === "timeline"
+          ? ["--dag-node-fill", "--dag-edge", "--dag-text-strong", "--dag-text-soft"]
+          : [
+              "--dag-node-fill",
+              "--dag-node-border",
+              "--dag-node-border-strong",
+              "--dag-edge",
+              "--dag-edge-active",
+              "--dag-text-strong",
+              "--dag-text-soft",
+            ];
   const colorLabels: Record<string, string> = {
     "--dag-node-fill": "Node fill",
     "--dag-node-border": "Node border",

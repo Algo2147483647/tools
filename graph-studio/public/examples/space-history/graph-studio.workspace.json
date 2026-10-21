@@ -4,15 +4,16 @@
   "name": "History of Technology",
   "graphs": [
     "space-history.json",
-    "mathematics-physics/mathematics-physics.json"
+    "mathematics-physics/mathematics-physics.json",
+    "agi/agi-history.json"
   ],
   "defaultGraph": "space-history.json",
   "metadata": {
     "language": "en",
-    "snapshotAsOf": "2025-12-31",
-    "nodeCount": 548,
-    "edgeCount": 725,
-    "themeCount": 19,
+    "snapshotAsOf": "2026-10-21",
+    "nodeCount": 781,
+    "edgeCount": 1093,
+    "themeCount": 32,
     "missionPhaseCount": 75,
     "assets": [
       "README.md",
@@ -38,7 +39,25 @@
       "mathematics-physics/notes/foundations.md",
       "mathematics-physics/notes/nineteenth-catalog.md",
       "mathematics-physics/notes/nineteenth.md",
-      "mathematics-physics/mathematics-physics.style.json"
+      "mathematics-physics/mathematics-physics.style.json",
+      "agi/agi-history.style.json",
+      "agi/CATALOG.md",
+      "agi/notes/a.md",
+      "agi/notes/b.md",
+      "agi/notes/c.md",
+      "agi/notes/e.md",
+      "agi/notes/f.md",
+      "agi/notes/h.md",
+      "agi/notes/i.md",
+      "agi/notes/l.md",
+      "agi/notes/n.md",
+      "agi/notes/p.md",
+      "agi/notes/r.md",
+      "agi/notes/s.md",
+      "agi/notes/v.md",
+      "agi/OVERVIEW.md",
+      "agi/README.md",
+      "agi/SOURCES.md"
     ],
     "graphStats": {
       "space-history.json": {
@@ -54,6 +73,14 @@
         "themeCount": 11,
         "pointEventCount": 250,
         "latestIncludedYear": 2024
+      },
+      "agi/agi-history.json": {
+        "nodeCount": 233,
+        "edgeCount": 368,
+        "themeCount": 13,
+        "pointEventCount": 233,
+        "snapshotAsOf": "2026-10-21",
+        "latestIncludedDate": "2026-10-09"
       }
     }
   }

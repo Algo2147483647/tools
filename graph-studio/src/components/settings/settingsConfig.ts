@@ -64,6 +64,7 @@ export const LAYOUT_CONTROLS: LayoutControlDefinition[] = [
 ];
 
 export function getLayoutControls(chart: GraphChartType): LayoutControlDefinition[] {
+  if (chart === "spatial") return [];
   return LAYOUT_CONTROLS.filter((control) =>
     chart === "compound"
       ? control.key !== "edgeLaneGap"

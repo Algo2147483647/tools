@@ -1,4 +1,5 @@
 import { getNodeParentKeys } from "./accessors";
+import { isSpatialDocument } from "./space";
 import { isTimelineDocument } from "./timelineView";
 import type { GraphSelection, NodeKey, NormalizedDag } from "./types";
 
@@ -15,7 +16,7 @@ export function findRootsFromDag(dag: NormalizedDag): NodeKey[] {
 
 export function getInitialSelection(dag: NormalizedDag): GraphSelection {
   // A cyclic component can have no root even when another component has one.
-  if (dag.diagram === "sankey" || isTimelineDocument(dag)) return { type: "full" };
+  if (dag.diagram === "sankey" || isTimelineDocument(dag) || isSpatialDocument(dag)) return { type: "full" };
   const roots = findRootsFromDag(dag);
   if (roots.length === 1) {
     return { type: "node", key: roots[0] };

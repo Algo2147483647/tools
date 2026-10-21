@@ -11,6 +11,7 @@ import { useTimelineStage } from "../../controllers/useTimelineStage";
 import GraphStage from "../../rendering/GraphStage";
 import type { StageData } from "../../layout/types";
 import graphCss from "../../styles/graph.css?inline";
+import spatialCss from "../../styles/spatial.css?inline";
 import compoundCss from "../../styles/compound.css?inline";
 import {
   buildFlatPreviewStage,
@@ -194,7 +195,7 @@ export default function AppearancePreview({
         {frameRoot &&
           createPortal(
             <>
-              <style>{`${graphCss}\n${compoundCss}\n.preview-viewport{display:flex;width:100%;height:100%;overflow:auto;box-sizing:border-box}.preview-viewport>svg{display:block;flex:none;max-width:none;margin:auto}.dag-graph[data-preview-detail="true"] .timeline-floating{display:none}`}</style>
+              <style>{`${graphCss}\n${compoundCss}\n${spatialCss}\n.preview-viewport{display:flex;width:100%;height:100%;overflow:auto;box-sizing:border-box}.preview-viewport>svg{display:block;flex:none;max-width:none;margin:auto}.dag-graph[data-preview-detail="true"] .timeline-floating{display:none}`}</style>
               {stage && (
                 <PreviewCanvas
                   stage={stage}

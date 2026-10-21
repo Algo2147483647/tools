@@ -1,0 +1,24 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "Spatial Atlas",
+  "graphs": [
+    "all-sky.json",
+    "world-cities.json",
+    "beijing-roads.json",
+    "zero-dimensional.json",
+    "one-dimensional.json",
+    "polar.json",
+    "cylindrical.json",
+    "four-dimensional.json",
+    "five-dimensional.json"
+  ],
+  "defaultGraph": "all-sky.json",
+  "metadata": {
+    "assets": [
+      "README.md",
+      "SOURCES.md",
+      "CELESTIAL-LICENSE.txt"
+    ]
+  }
+}

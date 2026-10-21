@@ -1,3 +1,5 @@
+import { CHART_SCHEMAS } from "./chartSchemas";
+import { buildSpatialStage } from "../../layout/spatial-layout";
 import { sanitizeTimelineClock, type TimelineClock } from "../../graph/timelineClock";
 import { normalizeDagInput } from "../../graph/normalize";
 import type { CompoundView, GraphChartType, GraphLayoutMode } from "../../graph/types";
@@ -8,6 +10,7 @@ import { buildStageData } from "../../layout/stage-layout";
 import { buildTimelineStage } from "../../layout/timeline-layout";
 
 export const PREVIEW_GRAPHS = {
+  spatial: normalizeDagInput(CHART_SCHEMAS.spatial.example),
   "node-link": normalizeDagInput({
     format: "graph-studio",
     version: 3,
@@ -154,6 +157,7 @@ export function buildFlatPreviewStage(input: PreviewGeometry) {
     dag: input.chartType === "timeline" ? timelinePreviewGraph(input.timelineClock) : PREVIEW_GRAPHS[input.chartType],
     selection: { type: "full" as const },
   };
+  if (input.chartType === "spatial") return buildSpatialStage(shared);
   return input.chartType === "timeline"
     ? buildTimelineStage(shared)
     : buildStageData({

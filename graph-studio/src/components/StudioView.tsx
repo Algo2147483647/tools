@@ -16,6 +16,7 @@ import type { NodeActionsController } from "../controllers/useNodeActions";
 import { getSankeyError } from "../graph/sankey";
 import { getTimelineReferenceTime } from "../graph/timelineEditing";
 import ConsoleSidebar from "./ConsoleSidebar";
+import SpatialControls from "./SpatialControls";
 import CompoundPanel from "./CompoundPanel";
 import ContextMenu from "./ContextMenu";
 import HierarchyEditorModal from "./HierarchyEditorModal";
@@ -188,6 +189,8 @@ export default function StudioView({
         <WelcomeScreen files={files} onNew={onInitializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
+          spatialTools={state.chartType === "spatial" ? <SpatialControls spatial={viewport.spatialView} /> : undefined}
+          onSpaceOrbit={viewport.spatialView.orbit}
           compoundTools={!files.workspace || !files.explorerOpen ? compoundPanel : undefined}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}

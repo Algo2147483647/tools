@@ -115,3 +115,7 @@ Names can be provided or generated uniquely. Duplicate/reserved names block impo
 Document `id` / `title` conflicts require decisions; renamed incoming values are stored in document metadata. Renamed edge `value` / `metadata` fields are stored in that edge's metadata without overwriting original values.
 
 Merged results record source filenames, original IDs, titles and metadata in `metadata.importSources`. A unique suffix avoids overwriting an existing field. This is not a complete source backup. Merged results are saved as new files; sources are not rewritten automatically. Saving to an original single file requires its writable handle.
+
+## Spatial coordinates
+
+The fifth chart uses `nodes[id].space: number[]` and `metadata.space` to declare dimensions and coordinate system. See [Spatial](spatial.md) for the contract and examples. Legacy Timeline integer `space` values remain supported.

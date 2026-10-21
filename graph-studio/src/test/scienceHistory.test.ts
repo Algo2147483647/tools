@@ -18,13 +18,13 @@ export const scienceHistorySuite = defineSuite("Combined mathematics and physics
     const graph = await read();
     const manifest = await read("graph-studio.workspace.json");
     assert.equal(graph.title, "History of Mathematics and Physics");
-    assert.deepEqual(manifest.graphs, ["space-history.json", path]);
+    assert.deepEqual(manifest.graphs, ["space-history.json", path, "agi/agi-history.json"]);
     assert.equal(manifest.defaultGraph, "space-history.json");
-    assert.equal(manifest.metadata.nodeCount, 548);
-    assert.equal(manifest.metadata.edgeCount, 725);
+    assert.equal(manifest.metadata.nodeCount, 781);
+    assert.equal(manifest.metadata.edgeCount, 1093);
     assert.equal(manifest.metadata.graphStats[path].nodeCount, 250);
     assert.equal(manifest.metadata.graphStats[path].edgeCount, 317);
-    assert.match(EXAMPLE_WORKSPACES.find((item) => item.id === "space-history")!.detail, /548.*725/);
+    assert.match(EXAMPLE_WORKSPACES.find((item) => item.id === "space-history")!.detail, /781.*1093/);
     const disciplines = new Set<string>();
     for (const [id, node] of Object.entries(graph.nodes) as [string, any][]) {
       disciplines.add(node.discipline);
@@ -126,7 +126,7 @@ export const scienceHistorySuite = defineSuite("Combined mathematics and physics
     const folder = await loadExampleWorkspace("space-history", "/", fetcher);
     const workspace = await discoverWorkspace(folder, path);
     assert.equal(workspace.activePath, path);
-    assert.equal(workspace.graphs.length, 2);
+    assert.equal(workspace.graphs.length, 3);
     assert.ok(workspace.graphs.every((graph) => !graph.error));
     for (const section of ["ancient", "earlyModern", "nineteenth", "foundations", "contemporary"]) {
       assert.ok(folder.files.has(`mathematics-physics/notes/${section}.md`));

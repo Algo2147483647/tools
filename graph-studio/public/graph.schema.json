@@ -90,6 +90,90 @@
           "type": "string",
           "minLength": 1,
           "description": "Relative path to a graph-studio-style JSON file, resolved from this graph within the opened workspace. Appearance and layout settings belong in that file."
+        },
+        "space": {
+          "type": "object",
+          "required": [
+            "dimensions",
+            "coordinateSystem"
+          ],
+          "properties": {
+            "dimensions": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "coordinateSystem": {
+              "enum": [
+                "cartesian",
+                "polar",
+                "spherical",
+                "cylindrical",
+                "geographic"
+              ]
+            },
+            "angleUnit": {
+              "enum": [
+                "degrees",
+                "radians"
+              ],
+              "default": "degrees"
+            },
+            "axes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unit": {
+              "type": "string"
+            },
+            "radius": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 6371
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "coordinateSystem": {
+                    "enum": [
+                      "polar",
+                      "geographic"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "dimensions": {
+                    "minimum": 2
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "coordinateSystem": {
+                    "enum": [
+                      "spherical",
+                      "cylindrical"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "dimensions": {
+                    "minimum": 3
+                  }
+                }
+              }
+            }
+          ]
         }
       }
     },
@@ -165,6 +249,50 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "required": [
+              "space"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "nodes": {
+            "additionalProperties": {
+              "properties": {
+                "space": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "nodes": {
+            "additionalProperties": {
+              "properties": {
+                "space": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "$defs": {
@@ -192,10 +320,21 @@
           "$ref": "#/$defs/timelineTime"
         },
         "space": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 9007199254740991,
-          "description": "One-based row index for horizontal timelines, column index for vertical timelines. Layout spacing determines the pixel distance; automatic layout never changes or compacts this index. Equal indices remain on the same row/column."
+          "description": "Spatial coordinate array, with exactly metadata.space.dimensions entries; or the existing one-based Timeline row/column index.",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "description": "One-based row index for horizontal timelines, column index for vertical timelines. Layout spacing determines the pixel distance; automatic layout never changes or compacts this index. Equal indices remain on the same row/column."
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          ]
         },
         "track": {
           "type": "string",

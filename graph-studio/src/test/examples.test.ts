@@ -113,7 +113,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
         for (const entry of folder.files.values()) {
           assert.equal(entry.handle, null);
           const text = await (await readWorkspaceFile(entry)).text();
-          if (!["china-history", "europe-history"].includes(example.id)) {
+          if (!["china-history", "europe-history", "spatial-atlas"].includes(example.id)) {
             // Native personal names are an intentional exception in the English science history.
             let prose = text;
             if (example.id === "space-history" && entry.path.startsWith("mathematics-physics/")) {

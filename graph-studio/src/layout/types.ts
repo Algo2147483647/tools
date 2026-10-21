@@ -101,6 +101,14 @@ export interface StageNodeColorTokens {
 }
 
 export interface StageNode {
+  spatial?: {
+    coordinates: number[];
+    depth: number;
+    radius: number;
+    color: string;
+    showLabel: boolean;
+    labelSide: "left" | "right";
+  };
   contentLayout?: ReturnType<typeof cardContentLayout>;
   timeline?: StageTimelineNode;
   kind?: "node" | "group";
@@ -193,6 +201,11 @@ export interface ResolvedStageSelection {
 }
 
 export interface StageData {
+  spatial?: {
+    metadata: import("../graph/space").SpaceMetadata | null;
+    view: import("../graph/space").SpaceView;
+    guides: { path: string; label?: string; x?: number; y?: number }[];
+  };
   timeline?: StageTimelineData;
   groups?: StageGroup[];
   dag: Record<NodeKey, DagNode & { synthetic?: boolean }>;

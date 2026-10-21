@@ -1,3 +1,4 @@
+import { isSpatialDocument } from "../graph/space";
 import { isTimelineDocument } from "../graph/timelineView";
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 import { type GraphAppState, createInitialGraphState, type EditTransaction } from "./initialState";
@@ -33,19 +34,21 @@ export function replaceDocument(
         }
       : initial.source,
     selection: loaded
-      ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag)
+      ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag) || isSpatialDocument(action.dag)
         ? { type: "full" }
         : action.selection
       : null,
     editHistory: { ...initial.editHistory, savedRevision: isNew ? -1 : 0 },
     chartType: loaded
-      ? isTimelineDocument(action.dag)
-        ? "timeline"
-        : action.dag.hierarchy_edges?.length
-          ? "compound"
-          : action.dag.diagram === "sankey"
-            ? "sankey"
-            : "node-link"
+      ? isSpatialDocument(action.dag)
+        ? "spatial"
+        : isTimelineDocument(action.dag)
+          ? "timeline"
+          : action.dag.hierarchy_edges?.length
+            ? "compound"
+            : action.dag.diagram === "sankey"
+              ? "sankey"
+              : "node-link"
       : state.chartType,
     layout: state.layout,
     ui: {

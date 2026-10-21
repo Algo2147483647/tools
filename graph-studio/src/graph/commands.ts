@@ -1,3 +1,4 @@
+import { getSpaceMetadata } from "./space";
 import { getTimelineClock, type TimelineClock } from "./timelineClock";
 import { nextEdgeId } from "./relations";
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
@@ -113,7 +114,11 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
           ? nodes[command.sourceKey]
           : command.type === "addNodeFromFields"
             ? command.fields
-            : { define: "", type: "" };
+            : {
+                define: "",
+                type: "",
+                ...(getSpaceMetadata(document) ? { space: Array(getSpaceMetadata(document)!.dimensions).fill(0) } : {}),
+              };
       if (command.type === "addNodeFromFields")
         validateEventFields(undefined, fields, timelineReferenceTime, getTimelineClock(document.metadata));
       putNode(command.key, fields);

@@ -25,7 +25,8 @@ export function projectGraphByType(
   const visible = new Set(Object.keys(source.nodes).filter((key) => getNodeType(source.nodes[key]) === selectedType));
   const doc = projectGraphDocument(source, visible);
   // Filtering cannot imply new measured flows or new historical relationships.
-  if (source.diagram === "sankey" || chartType === "sankey" || chartType === "timeline") return doc;
+  if (source.diagram === "sankey" || chartType === "sankey" || chartType === "timeline" || chartType === "spatial")
+    return doc;
   const outgoing = new Map<string, string[]>();
   for (const edge of source.edges) {
     const targets = outgoing.get(edge.source);

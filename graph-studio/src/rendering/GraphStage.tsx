@@ -1,6 +1,7 @@
 import { type CSSProperties, useCallback, useEffect, useRef } from "react";
 import { type GraphAppearance, appearanceToStageStyle } from "../graph/appearance";
 import type { StageData } from "../layout/types";
+import SpatialNode from "./SpatialNode";
 import GraphBackdrop from "./GraphBackdrop";
 import GraphDefs from "./GraphDefs";
 import GraphEdge from "./GraphEdge";
@@ -29,6 +30,7 @@ function groupBackgroundFill(familyIndex: number, depth: number): string {
 }
 
 interface GraphStageProps {
+  onSpaceOrbit?: (dx: number, dy: number) => void;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
   stage: StageData;
@@ -51,6 +53,7 @@ export default function GraphStage({
   appearance,
   svgRef,
   onTimelineNodePin,
+  onSpaceOrbit,
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
@@ -59,6 +62,7 @@ export default function GraphStage({
   onGroupToggle,
   onGroupEnter,
 }: GraphStageProps) {
+  const orbitRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const hoveredKeyRef = useRef<string | null>(null);
   const focusedKeyRef = useRef<string | null>(focusedKey);
   const appliedInteractiveKeyRef = useRef<string | null>(null);
@@ -273,8 +277,42 @@ export default function GraphStage({
       width={stage.stageWidth}
       height={stage.stageHeight}
       style={stageStyle}
-      role={stage.layoutMode === "compound" || stage.layoutMode === "timeline" ? "group" : "img"}
-      aria-label={`${stage.layoutMode === "timeline" ? "Timeline" : stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
+      role={
+        stage.layoutMode === "spatial" || stage.layoutMode === "compound" || stage.layoutMode === "timeline"
+          ? "group"
+          : "img"
+      }
+      aria-label={`${stage.layoutMode === "spatial" ? "Spatial" : stage.layoutMode === "timeline" ? "Timeline" : stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
+      onPointerDown={(event) => {
+        if (
+          !event.shiftKey ||
+          event.button !== 0 ||
+          !onSpaceOrbit ||
+          !stage.spatial ||
+          stage.spatial.view.projection === "map" ||
+          (stage.spatial.metadata?.coordinateSystem === "geographic" ? 3 : (stage.spatial.metadata?.dimensions ?? 0)) <
+            3
+        )
+          return;
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        orbitRef.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+      }}
+      onPointerMove={(event) => {
+        const orbit = orbitRef.current;
+        if (!orbit || orbit.pointerId !== event.pointerId) return;
+        onSpaceOrbit?.(event.clientX - orbit.x, event.clientY - orbit.y);
+        orbitRef.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+      }}
+      onPointerUp={() => {
+        orbitRef.current = null;
+      }}
+      onPointerCancel={() => {
+        orbitRef.current = null;
+      }}
+      onLostPointerCapture={() => {
+        orbitRef.current = null;
+      }}
       onContextMenu={onBackgroundContextMenu}
     >
       <GraphDefs
@@ -284,7 +322,20 @@ export default function GraphStage({
           new Set(stage.edges.flatMap((edge) => (edge.timeline ? [edge.timeline.color] : []))),
         )}
       />
-      {stage.timeline ? (
+      {stage.spatial ? (
+        <g className="spatial-guides" aria-hidden="true" pointerEvents="none">
+          {stage.spatial.guides.map((guide, index) => (
+            <g key={index}>
+              <path d={guide.path} />
+              {guide.label && (
+                <text x={guide.x} y={guide.y}>
+                  {guide.label}
+                </text>
+              )}
+            </g>
+          ))}
+        </g>
+      ) : stage.timeline ? (
         <TimelineBackdrop stage={stage} />
       ) : (
         stage.layoutMode !== "sankey" && stage.layoutMode !== "compound" && <GraphBackdrop stage={stage} />
@@ -331,20 +382,31 @@ export default function GraphStage({
         ))}
       </g>
       <g className="dag-node-layer">
-        {stage.nodes.map((node) => (
-          <GraphNode
-            key={node.key}
-            node={node}
-            showGroupStats={appearance.display.showGroupStats}
-            nodeCornerRadius={appearance.display.nodeCornerRadius}
-            isActive={node.key === stage.root}
-            onTimelineNodePin={onTimelineNodePin}
-            onClick={onNodeClick}
-            onDoubleClick={onNodeDoubleClick}
-            onContextMenu={onNodeContextMenu}
-            onFocusChange={onFocusChange}
-          />
-        ))}
+        {stage.nodes.map((node) =>
+          node.spatial ? (
+            <SpatialNode
+              key={node.key}
+              node={node}
+              onClick={onNodeClick}
+              onDoubleClick={onNodeDoubleClick}
+              onContextMenu={onNodeContextMenu}
+              onFocusChange={onFocusChange}
+            />
+          ) : (
+            <GraphNode
+              key={node.key}
+              node={node}
+              showGroupStats={appearance.display.showGroupStats}
+              nodeCornerRadius={appearance.display.nodeCornerRadius}
+              isActive={node.key === stage.root}
+              onTimelineNodePin={onTimelineNodePin}
+              onClick={onNodeClick}
+              onDoubleClick={onNodeDoubleClick}
+              onContextMenu={onNodeContextMenu}
+              onFocusChange={onFocusChange}
+            />
+          ),
+        )}
       </g>
       <g className="dag-group-headers">
         {stage.groups?.map((group) => (

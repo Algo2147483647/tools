@@ -115,7 +115,8 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     parsed.chartType === "node-link" ||
     parsed.chartType === "sankey" ||
     parsed.chartType === "compound" ||
-    parsed.chartType === "timeline"
+    parsed.chartType === "timeline" ||
+    parsed.chartType === "spatial"
   ) {
     next.chartType = parsed.chartType;
   }

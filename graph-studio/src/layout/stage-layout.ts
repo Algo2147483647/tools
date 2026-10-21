@@ -1,3 +1,4 @@
+import { buildSpatialStage } from "./spatial-layout";
 import { buildCategoryColorMap, normalizeTypeLabel } from "../graph/categoryColors";
 import { cardContentLayout, minimumCardHeight, type TextFont } from "./typography";
 import { getNodeChildKeys, getNodeChildren, getNodeType } from "../graph/accessors";
@@ -39,6 +40,7 @@ export function buildStageData(input: {
     showNodeDetail = true,
     alignNodeWidthsToMax = false,
   } = input;
+  if (layoutMode === "spatial") return buildSpatialStage(input);
   const font = stageTitleFont(appearance);
   const theme = { ...appearance.layout };
   if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {

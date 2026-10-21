@@ -93,7 +93,9 @@ export function useGraphZoom({
       }
       const currentZoom = zoomStateRef.current;
       const fitScale = getFitZoomScale(container, topbarRef.current, stage);
-      const keepCompoundScale = preserveCenter && (stage.layoutMode === "compound" || stage.layoutMode === "timeline");
+      const keepCompoundScale =
+        preserveCenter &&
+        (stage.layoutMode === "compound" || stage.layoutMode === "timeline" || stage.layoutMode === "spatial");
       const nextMinScale = keepCompoundScale ? Math.min(fitScale, currentZoom.scale) : fitScale;
       const nextScale =
         !keepCompoundScale && Math.abs(currentZoom.scale - currentZoom.minScale) < 0.001
@@ -107,7 +109,7 @@ export function useGraphZoom({
   useLayoutEffect(() => {
     const previous = previousStageRef.current;
     const preserve =
-      (stage?.layoutMode === "compound" || stage?.layoutMode === "timeline") &&
+      (stage?.layoutMode === "compound" || stage?.layoutMode === "timeline" || stage?.layoutMode === "spatial") &&
       previous.stage?.layoutMode === stage.layoutMode &&
       previous.viewKey === viewKey;
     refresh(preserve);

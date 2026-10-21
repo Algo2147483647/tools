@@ -1,4 +1,5 @@
 import type { NormalizedDag } from "../graph/types";
+import { isSpatialDocument } from "../graph/space";
 import { isTimelineDocument } from "../graph/timelineView";
 import { parseChartStyleFile } from "../state/chartStyleFile";
 import type { ChartStyle } from "../state/chartStyles";
@@ -24,13 +25,15 @@ export async function readLinkedStyle(
     if (!entry) throw new Error(`Style file not found: ${path}`);
     const file = await readWorkspaceFile(entry);
     if (file.size > 16 * 1024 * 1024) throw new Error("Style JSON exceeds the 16 MB limit.");
-    const chartType = isTimelineDocument(dag)
-      ? "timeline"
-      : dag.hierarchy_edges?.length
-        ? "compound"
-        : dag.diagram === "sankey"
-          ? "sankey"
-          : "node-link";
+    const chartType = isSpatialDocument(dag)
+      ? "spatial"
+      : isTimelineDocument(dag)
+        ? "timeline"
+        : dag.hierarchy_edges?.length
+          ? "compound"
+          : dag.diagram === "sankey"
+            ? "sankey"
+            : "node-link";
     return { linkedStyle: parseChartStyleFile(JSON.parse(await file.text()), chartType) };
   } catch (error) {
     return { styleNotice: `Linked style unavailable: ${error instanceof Error ? error.message : String(error)}` };

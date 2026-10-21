@@ -8,7 +8,7 @@ Below Recent workspaces, the homepage includes five separate workspaces, includi
 | Commerce operations   | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes        |
 | Mathematics           | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography               |
 | Factorio production   | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes      |
-| History of Technology | Two timelines: space history (298 nodes, 408 relationships) and combined mathematics–physics history (250 point events, 317 relationships) |
+| History of Technology | Three timelines: space history (298 nodes, 408 relationships), mathematics–physics (250 points, 317 relationships), and AGI research (233 points, 368 relationships) |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
@@ -24,13 +24,17 @@ The graph, catalogs, names guide, bibliography and six handwritten guides are ch
 
 ## History of Technology
 
-The [Timeline guide](timeline.md) explains the date-aware chart type. History of Technology contains two separate canvases. The original space-history canvas covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion remain in the space-history graph.
+The [Timeline guide](timeline.md) explains the date-aware chart type. History of Technology contains three separate canvases, totaling 781 nodes and 1093 relationships. The original space-history canvas covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion remain in the space-history graph.
 
 The default **space-history.json** opens with the complete space corpus. Use the workspace graph list to switch to **mathematics-physics/mathematics-physics.json**, which combines mathematical and physical history in one canvas. Its 250 points span approximately 1850 BCE–2024 across 11 subjects, with 104 explicit connections among its 317 edges. English prose accompanies original-language personal names and separate lookup aliases. Five period guides, event catalogs, a names guide and a source index explain the selection. No long era bars are used in the new canvas.
 
 Use Type, Track and Time range to inspect a subject or period, and Show all events to restore the complete canvas. Chronology is not causality. The science canvas distinguishes approximate manuscript dates, lectures, publications, proposals, experiments and later verification. Its adaptive axis compresses quiet gaps; switch to a linear axis to compare elapsed durations. The space canvas retains its original completed-phase intervals and finer mission dates.
 
-The graph, reference files and five period guides are checked in under `public/examples/space-history/mathematics-physics/`; the workspace manifest is shared with space history. This checkout does not contain their original generator or input dataset. The example, space-history and science-history regression suites validate loading, local links, naming, chronology, cross-disciplinary junctions and timeline layout as part of `npm run check`.
+The third canvas, **agi/agi-history.json**, follows the history of AGI research through 233 point events, 368 distinct relationships and 13 research strands from 1666 to 2026. Its English accounts distinguish contributions, limitations, dates and sources. The overview connects eight periods; thirteen strand guides, a chronological catalog and a source index support deeper reading. The coverage includes symbolic and neural methods, cognitive architectures, probability, reinforcement learning, embodiment, foundation models, reasoning and agents, open-ended learning, institutions, evaluation and alignment. It is a systematic selection of principal lineages, not a claim to enumerate every AI publication. Research announcements retain their attributed and conditional status.
+
+The AGI graph opens in a vertical adaptive Timeline view. Reading-order edges are editorial chronology; dependencies indicate concrete continuations or components; reference edges describe conceptual connections without asserting direct influence. The snapshot was compiled on October 21, 2026 and includes events through October 9, 2026.
+
+Maintain the graphs and reading files directly under `public/examples/space-history/`, with their shared workspace manifest. The example, space-history, science-history and AGI-history regression suites validate loading, local links, language, chronology, connections and timeline layout as part of `npm run check`.
 
 ## Factorio data and interpretation
 

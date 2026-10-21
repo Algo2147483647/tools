@@ -33,6 +33,7 @@ export function mapChartTypes<T>(create: (type: GraphChartType) => T): Record<Gr
     sankey: create("sankey"),
     compound: create("compound"),
     timeline: create("timeline"),
+    spatial: create("spatial"),
   };
 }
 
@@ -54,6 +55,11 @@ export function createChartStyles(): ChartStyles {
 export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
   if (type === "node-link")
     return { appearance: structuredClone(NODE_LINK_DEFAULT_APPEARANCE), ...NODE_LINK_DEFAULT_DISPLAY };
+  if (type === "spatial") {
+    const style = sanitizeChartStyle({ showNodeDetail: false });
+    style.appearance.cssVars["--dag-title-font-size"] = "12px";
+    return style;
+  }
   if (type === "compound") {
     const style = getCompoundPreset2Style();
     style.appearance.layout.nodeHeight = 100;

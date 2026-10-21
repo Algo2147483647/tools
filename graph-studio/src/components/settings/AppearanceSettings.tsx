@@ -88,6 +88,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                 "Timeline",
                 "Position events and durations on a real time axis with branching relationships.",
               ],
+              ["spatial", "Spatial", "Explore coordinates in 0D, 1D, 2D, 3D and higher dimensions."],
             ] as const
           ).map(([value, label, description]) => (
             <button
@@ -116,6 +117,16 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   if (p.view === "layout")
     return (
       <>
+        {p.chartType === "spatial" && (
+          <section className="settings-section">
+            <h3>Coordinate projection</h3>
+            <p>
+              Positions come from each node’s space array. Use the Spatial controls on the canvas to choose projection
+              axes, rotate, and toggle the grid or labels. Define dimensions and the coordinate system in
+              metadata.space.
+            </p>
+          </section>
+        )}
         {p.chartType === "node-link" && visible("engine") && (
           <section className="settings-section">
             <h3>Node-link layout</h3>

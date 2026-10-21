@@ -1,3 +1,4 @@
+import { getSpaceMetadata, validateSpaceMetadata, validateSpaceCoordinates } from "./space";
 import { indexGraphDocument } from "./graphIndex";
 import { validateHierarchyEdges } from "./hierarchy";
 import { getSankeyError } from "./sankey";
@@ -22,9 +23,13 @@ export function validateNodeFields(value: unknown, path: string): asserts value 
   }
   if (
     value.space !== undefined &&
-    (typeof value.space !== "number" || !Number.isSafeInteger(value.space) || value.space < 1)
+    (Array.isArray(value.space)
+      ? value.space.some((v) => typeof v !== "number" || !Number.isFinite(v))
+      : typeof value.space !== "number" || !Number.isSafeInteger(value.space) || value.space < 1)
   )
-    throw new Error(`${path}/space must be a positive safe integer (rows start at 1).`);
+    throw new Error(
+      `${path}/space must be a finite coordinate array or a positive safe integer (timeline rows start at 1).`,
+    );
   validateJsonValue(value, path);
 }
 
@@ -76,10 +81,16 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
   }
   if (!isRecord(input.nodes)) throw new Error("/nodes must be an object keyed by node ID.");
   if (!Array.isArray(input.edges)) throw new Error("/edges must be an array.");
+  if (isRecord(input.metadata) && input.metadata.space !== undefined) validateSpaceMetadata(input.metadata.space);
+  const spatial = getSpaceMetadata(input as unknown as GraphDocument);
   const nodes = input.nodes;
   Object.entries(nodes).forEach(([key, node]) => {
     validateNodeKey(key, `/nodes/${key}`);
     validateNodeFields(node, `/nodes/${key}`);
+    if (Array.isArray(node.space)) {
+      if (!spatial) throw new Error(`/nodes/${key}/space requires metadata.space.`);
+      validateSpaceCoordinates(node.space, spatial, `/nodes/${key}/space`);
+    } else if (spatial && node.space !== undefined) throw new Error(`/nodes/${key}/space must be a coordinate array.`);
   });
   const ids = new Set<string>();
   const pairs = new Set<string>();

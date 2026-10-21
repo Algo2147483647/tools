@@ -23,7 +23,7 @@ export function useGraphViewport(
 ) {
   const navigation = useGraphNavigation(state, dispatch, (key) => zoom.captureLayoutAnchor(key));
   const { compound, activeType, activeTrack, activeTimelineRange } = navigation;
-  const { stage, status, parentSelection, timelineView, compoundLayout } = useGraphLayout({
+  const { stage, status, parentSelection, timelineView, compoundLayout, spatialView } = useGraphLayout({
     state,
     appearance,
     compound,
@@ -94,6 +94,7 @@ export function useGraphViewport(
     ...navigation,
     ...interactions,
     compoundLayout,
+    spatialView,
     containerRef,
     svgRef,
     topbarRef,

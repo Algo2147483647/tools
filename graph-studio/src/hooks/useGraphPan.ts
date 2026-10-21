@@ -20,6 +20,7 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
       panState.current.moved = false;
       if (
         event.button !== 0 ||
+        (event.shiftKey && event.target instanceof Element && Boolean(event.target.closest("[data-layout=spatial]"))) ||
         (event.target instanceof Element && event.target.closest(".dag-node, .dag-group-controls"))
       ) {
         return;

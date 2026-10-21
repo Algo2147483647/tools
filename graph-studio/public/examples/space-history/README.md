@@ -1,11 +1,18 @@
 # History of Technology
 
-This workspace contains two independent canvases:
+This workspace contains three independent canvases:
 
 - [World space history](./space-history.json) — 298 events and completed mission phases, 408 relationships, 1957–2025.
 - [History of Mathematics and Physics](./mathematics-physics/mathematics-physics.json) — one combined mathematics–physics canvas with 250 point events and 317 relationships, c. 1850 BCE–2024. [Reading guide, names and sources](./mathematics-physics/README.md).
+- [History of AGI Research](./agi/agi-history.json) — 233 point events and 368 relationships across 13 research strands, 1666–2026. [Reading guide](./agi/README.md), [historical overview](./agi/OVERVIEW.md), [event catalog](./agi/CATALOG.md), and [sources](./agi/SOURCES.md).
 
-Select a canvas from the workspace graph list. Mathematics and physics share the new canvas, while space history remains a separate graph. Personal names in the new canvas retain original-language forms; all other exposition is in English.
+Select a canvas from the workspace graph list. Each opens in Timeline mode. Mathematics and physics share one canvas; spaceflight and AGI research each have their own. All exposition is in English. The mathematics–physics canvas also preserves original-language personal names.
+
+## History of AGI Research
+
+Follow logic and computation, symbolic reasoning, cognitive architectures, neural networks, probability and causality, reinforcement learning, embodiment and world models, foundation models, reasoning and agents, open-ended learning, research infrastructure, evaluation, and alignment. Each event includes its historical account, significance, limitations, contributors, date precision and source links. Thirteen strand guides explain the interacting research programs; the overview connects them across eight historical periods.
+
+The AGI canvas uses an adaptive vertical axis to keep dense periods readable. Spacing is not proportional to elapsed time; choose a linear axis to compare durations. Filter with **Track**, **Type**, and **Time range**, and double-click events for details. Reading-order links, concrete dependencies and conceptual references have distinct meanings. This is a systematic selection of principal research lineages, with a snapshot compiled on October 21, 2026; the latest included event is October 9, 2026.
 
 ## World space history
 
@@ -13,7 +20,7 @@ Explore **298 nodes** and **408 relationships** in the space-history timeline, s
 
 **space-history.json** opens with the entire corpus. Use **Type**, **Track** and **Time range** to focus within this one graph, then **Show all events** to restore the full history. To inspect Apollo 11, select the crewed lunar theme and July 16–24, 1969; Eagle and Columbia retain their parallel activity and later docking.
 
-## Read the timeline
+## Read the spaceflight timeline
 
 - A dot is a dated milestone; a thick bar is one named continuous interval. Each remains a graph node.
 - Time spacing is proportional. Zoom into dense periods to read individual events, or filter by theme and date.
@@ -37,4 +44,4 @@ Explore **298 nodes** and **408 relationships** in the space-history timeline, s
 
 ## Maintaining the workspace
 
-The space-history corpus is maintained in space-history.json and its linked notes. The mathematics–physics source corpus and generator are documented in its [reading guide](./mathematics-physics/README.md). The generator updates workspace totals while preserving the separate space-history file. Historical and workspace regression tests check both canvases.
+Maintain the three graphs and their linked reading files directly. Their original authoring scripts are not required at runtime. Keep the shared manifest's asset list and per-graph counts consistent with the files. Run `npm run check` from Graph Studio to validate loading, local links, chronology, serialization and complete and filtered timeline layouts.

@@ -41,7 +41,22 @@ function ExampleArt({ kind, color }: { kind: (typeof EXAMPLE_WORKSPACES)[number]
         </pattern>
       </defs>
       <rect width="320" height="132" fill={`url(#dots-${kind})`} />
-      {kind === "china-history" ? (
+      {kind === "spatial-atlas" ? (
+        <g stroke={color}>
+          <ellipse cx="160" cy="66" rx="91" ry="47" strokeOpacity=".4" />
+          <ellipse cx="160" cy="66" rx="36" ry="47" strokeOpacity=".25" />
+          <path d="M69 66h182M85 39h150M85 93h150M113 37l24 36 57-29 31 39-56 13Z" strokeOpacity=".4" />
+          {[
+            [113, 37],
+            [137, 73],
+            [194, 44],
+            [225, 83],
+            [169, 96],
+          ].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="4" fill={color} stroke="white" strokeWidth="2" />
+          ))}
+        </g>
+      ) : kind === "china-history" ? (
         <>
           <g stroke={color} opacity=".13">
             <path d="M25 25H295M25 65H295M25 107H295" />

@@ -88,7 +88,7 @@ The app starts on a welcome page. Open a graph file, open a folder as a workspac
 - **Mathematics:** 112 concepts, eight subject views, and linked English notes adapted from `math/studio`.
 - **Factorio production:** two demand-driven Space Age 2.0.65 Sankey plans: one complete launch-ready rocket per second, or all 12 science packs simultaneously at one of each per second. Both trace production back to raw resources.
 - **Commerce operations:** nested groups and relationships across order fulfillment and returns.
-- **World space history:** one complete timeline with 298 sourced events and phases and 408 relationships, including Apollo 11's branching flights. Filter by theme, track or time range within the same graph.
+- **History of Technology:** three timelines for spaceflight, mathematics and physics, and AGI research. Together they contain 781 events and phases and 1093 relationships. The English AGI canvas follows 233 events across 13 research strands from 1666 to 2026, with an overview, source index and strand guides. Filter by type, track or time range.
 
 Examples open fresh editable copies and can be reopened from Recents without folder permissions. The canvas fills the window, with the `math/studio` glass toolbar and workspace panels floating above it. Fit uses the area visible beside the panels; panning can move the graph beneath them.
 
@@ -155,3 +155,7 @@ For the recommended data model and additional examples, see [Data Format Guide](
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+### Spatial coordinates
+
+The fifth Chart type, **Spatial**, renders `space: [x, y, z, …]` using dimensions and coordinate systems declared in `metadata.space`. Supports Cartesian, polar, spherical, cylindrical and geographic coordinates; 0D through arbitrary higher dimensions; Type colors/filtering; pan, zoom, orbit and projection-axis controls. Try **Spatial Atlas** for all-sky constellations, world cities, historical Beijing arterial roads and 0D–5D examples. See [Spatial guide](docs/spatial.md).

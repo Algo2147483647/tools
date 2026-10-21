@@ -1,3 +1,4 @@
+import { spatialSuite } from "./spatial.test";
 import { timelineRelativeSuite } from "./timelineRelative.test";
 import { stylePipelineSuite } from "./stylePipeline.test";
 import { timelineAxisSuite } from "./timelineAxis.test";
@@ -30,6 +31,7 @@ import { timelineSuite } from "./timeline.test";
 import { timelineRenderingSuite } from "./timelineRendering.test";
 import { spaceHistorySuite } from "./spaceHistory.test";
 import { scienceHistorySuite } from "./scienceHistory.test";
+import { agiHistorySuite } from "./agiHistory.test";
 import { nodeRelationsSuite } from "./nodeRelations.test";
 import { htmlExportSuite } from "./htmlExport.test";
 import { nodeLinkDefaultsSuite } from "./nodeLinkDefaults.test";
@@ -37,6 +39,7 @@ import { timelinePresetsSuite } from "./timelinePresets.test";
 
 async function main() {
   const suites = [
+    spatialSuite,
     stylePipelineSuite,
     compoundSuite,
     compoundLayoutSuite,
@@ -71,6 +74,7 @@ async function main() {
     timelineRenderingSuite,
     spaceHistorySuite,
     scienceHistorySuite,
+    agiHistorySuite,
     nodeRelationsSuite,
   ];
   const filters = process.argv.slice(2).map((filter) => filter.toLowerCase());

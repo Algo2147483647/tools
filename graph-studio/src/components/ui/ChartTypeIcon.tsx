@@ -12,7 +12,16 @@ export default function ChartTypeIcon({ type }: { type: GraphChartType }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {type === "node-link" ? (
+      {type === "spatial" ? (
+        <>
+          <ellipse cx="32" cy="32" rx="26" ry="13" transform="rotate(-25 32 32)" />
+          <ellipse cx="32" cy="32" rx="13" ry="26" transform="rotate(-25 32 32)" />
+          <path d="M7 53 55 11M9 18l45 30" opacity=".35" />
+          <circle cx="15" cy="43" r="4" fill="white" />
+          <circle cx="44" cy="18" r="4" fill="white" />
+          <circle cx="38" cy="45" r="4" fill="white" />
+        </>
+      ) : type === "node-link" ? (
         <>
           <path d="M18 32H25Q29 32 29 28V16Q29 12 34 12H44M29 29V48Q29 52 34 52H44" />
           <path d="m40 8 4 4-4 4m0 32 4 4-4 4" />

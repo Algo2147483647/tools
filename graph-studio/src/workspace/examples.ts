@@ -4,6 +4,14 @@ import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
 export const EXAMPLE_WORKSPACES = [
   {
+    id: "spatial-atlas",
+    title: "Spatial Atlas",
+    kind: "Spatial",
+    description: "全天星图、地球重要城市与北京主干路网；切换坐标投影，按 Type 探索星域和地理分区。",
+    detail: "All-sky stars · World cities · Beijing roads · 0D–5D",
+    accent: "#497fa5",
+  },
+  {
     id: "china-history",
     title: "Human History",
     kind: "Timeline",
@@ -34,8 +42,8 @@ export const EXAMPLE_WORKSPACES = [
     title: "History of Technology",
     kind: "Timeline",
     description:
-      "Explore spaceflight in one canvas and the intertwined histories of mathematics and physics in another. Follow discoveries, proofs, experiments and their connections.",
-    detail: "2 timelines · 548 events & phases · 725 relationships · c. 1850 BCE–2025",
+      "Explore three timelines: spaceflight, mathematics and physics, and AGI research. Follow discoveries, research programs, debates and their connections.",
+    detail: "3 timelines · 781 events & phases · 1093 relationships · c. 1850 BCE–2026",
     accent: "#6675a8",
   },
   {

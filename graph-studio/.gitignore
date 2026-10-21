@@ -49,3 +49,5 @@ Desktop.ini
 *.tmp
 *.temp
 *.bak
+
+.spatial-data/

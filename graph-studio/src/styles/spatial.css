@@ -1,0 +1,93 @@
+.spatial-controls {
+  position: absolute;
+  z-index: 4;
+  bottom: 20px;
+  right: 24px;
+  max-width: calc(100% - 48px);
+  padding: 14px 18px;
+  border: 1px solid #dce4ec;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 5px 25px #19344910;
+  color: #34475d;
+  font-size: 12px;
+}
+.spatial-controls-heading,
+.spatial-controls-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+.spatial-controls-heading {
+  margin-bottom: 10px;
+}
+.spatial-controls-heading strong {
+  font-size: 15px;
+}
+.spatial-controls-heading span,
+.spatial-controls small {
+  color: #728093;
+}
+.spatial-controls small {
+  display: block;
+  margin-top: 10px;
+}
+.spatial-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.spatial-controls select,
+.spatial-controls button {
+  border: 1px solid #dce4ec;
+  border-radius: 6px;
+  background: white;
+  color: inherit;
+  padding: 4px 7px;
+  font: inherit;
+}
+.spatial-controls input[type="range"] {
+  width: 90px;
+  accent-color: #467397;
+}
+.dag-graph .spatial-node {
+  cursor: pointer;
+}
+.dag-graph .spatial-selection {
+  opacity: 0;
+}
+.dag-graph .spatial-label {
+  font: var(--dag-title-font-size, 12px) var(--dag-title-font-family, sans-serif);
+  font-style: var(--dag-title-font-style);
+  font-weight: var(--dag-title-font-weight);
+  unicode-bidi: plaintext;
+  fill: var(--dag-text-strong, #34475d);
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.dag-graph .spatial-label--on-focus {
+  display: none;
+}
+.dag-graph .spatial-node:is([data-hovered="true"], [data-focused="true"], :focus) .spatial-label {
+  display: block;
+}
+.dag-graph .spatial-node:is([data-hovered="true"], [data-focused="true"], :focus) .spatial-selection {
+  opacity: 1;
+}
+.dag-graph[data-layout="spatial"] .dag-edge__path {
+  stroke-width: 1;
+  marker-end: none;
+}
+.spatial-guides path {
+  fill: none;
+  stroke: #c7d4e1;
+  stroke-width: 0.7;
+}
+.spatial-guides text {
+  fill: #8292a3;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}

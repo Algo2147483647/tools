@@ -1,3 +1,5 @@
+import { useSpatialView } from "./useSpatialView";
+import { buildSpatialStage } from "../layout/spatial-layout";
 import { useFontMetricsKey } from "./useFontMetricsKey";
 import { useMemo } from "react";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
@@ -33,6 +35,7 @@ export function useGraphLayout({
   showNodeDetail,
   alignNodeWidthsToMax,
 }: LayoutInput) {
+  const spatialView = useSpatialView(state.dag, state.document.generation);
   const typeFilteredDag = useMemo(
     () =>
       state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, activeType, state.chartType) : null,
@@ -62,15 +65,21 @@ export function useGraphLayout({
       displayDag
         ? state.chartType === "timeline"
           ? timelineView.stage
-          : buildStageData({
-              dag: displayDag,
-              colorSourceDag: state.dag ?? undefined,
-              selection: activeType ? { type: "full" } : state.selection,
-              layoutMode: renderMode,
-              appearance: geometryAppearance,
-              showNodeDetail,
-              alignNodeWidthsToMax,
-            })
+          : state.chartType === "spatial"
+            ? buildSpatialStage({
+                dag: displayDag,
+                colorSourceDag: state.dag ?? undefined,
+                spaceView: spatialView.view,
+              })
+            : buildStageData({
+                dag: displayDag,
+                colorSourceDag: state.dag ?? undefined,
+                selection: activeType ? { type: "full" } : state.selection,
+                layoutMode: renderMode,
+                appearance: geometryAppearance,
+                showNodeDetail,
+                alignNodeWidthsToMax,
+              })
         : null,
     [
       activeType,
@@ -84,6 +93,7 @@ export function useGraphLayout({
       state.chartType,
       activeTimelineRange,
       timelineView.stage,
+      spatialView.view,
     ],
   );
   const compoundInput = useMemo(
@@ -114,7 +124,12 @@ export function useGraphLayout({
   const stage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
   const parentSelection = useMemo(
     () =>
-      state.chartType !== "compound" && state.chartType !== "timeline" && !activeType && state.dag && stage
+      state.chartType !== "compound" &&
+      state.chartType !== "timeline" &&
+      state.chartType !== "spatial" &&
+      !activeType &&
+      state.dag &&
+      stage
         ? getParentLevelSelection(state.dag, stage.topLevelKeys)
         : null,
     [activeType, stage, state.dag, state.chartType],
@@ -134,6 +149,8 @@ export function useGraphLayout({
     }
     if (state.chartType === "timeline")
       return `Timeline · UTC. ${stage.nodes.length} events and ${stage.edges.length} relationships.${activeTrack ? ` Track: ${activeTrack}.` : ""} ${stage.warnings.join(" ")}`;
+    if (state.chartType === "spatial")
+      return `Spatial · ${spatialView.metadata?.dimensions ?? "?"}D · ${stage.nodes.length} nodes · ${stage.edges.length} links${activeType ? ` · ${activeType}` : ""}`;
     const focusNode = stage.dag[stage.root];
     const focusTitle = focusNode ? getNodeTitle(focusNode) : "";
     const focusLabel = focusNode?.synthetic
@@ -160,5 +177,5 @@ export function useGraphLayout({
     compoundLayout.error,
   ]);
 
-  return { stage, status, parentSelection, timelineView, compoundLayout };
+  return { stage, status, parentSelection, timelineView, compoundLayout, spatialView };
 }

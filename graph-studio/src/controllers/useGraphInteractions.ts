@@ -25,7 +25,7 @@ export function useGraphInteractions({
   useEffect(() => clearPendingNodeClick, [state.document.generation, state.chartType, activeType]);
   function handleNodeClick(nodeKey: string) {
     clearPendingNodeClick();
-    if (state.chartType === "compound" || state.chartType === "timeline") {
+    if (state.chartType === "compound" || state.chartType === "timeline" || state.chartType === "spatial") {
       setFocusedKey(nodeKey);
       return;
     }

@@ -1,0 +1,7434 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "title": "地球重要城市 · World cities",
+  "metadata": {
+    "space": {
+      "dimensions": 3,
+      "coordinateSystem": "spherical",
+      "angleUnit": "degrees",
+      "axes": [
+        "Radius",
+        "Longitude",
+        "Latitude"
+      ],
+      "unit": "km"
+    },
+    "source": "https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-populated-places/",
+    "note": "243 reference cities. Type = source continent (country-level grouping). Edges connect two nearby cities in each region, not actual travel routes."
+  },
+  "nodes": {
+    "city:0": {
+      "title": "Città del Vaticano",
+      "name_native": {
+        "it": "Città del Vaticano"
+      },
+      "name_en": "Vatican City",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        12.453387,
+        41.903282
+      ],
+      "country": "Vatican",
+      "define": "Vatican City, Vatican. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:1": {
+      "title": "Città di San Marino",
+      "name_native": {
+        "it": "Città di San Marino"
+      },
+      "name_en": "San Marino",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        12.44177,
+        43.936096
+      ],
+      "country": "San Marino",
+      "define": "San Marino, San Marino. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:2": {
+      "title": "Vaduz",
+      "name_native": {
+        "de": "Vaduz"
+      },
+      "name_en": "Vaduz",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        9.51667,
+        47.133724
+      ],
+      "country": "Liechtenstein",
+      "define": "Vaduz, Liechtenstein. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:3": {
+      "title": "Lobamba",
+      "name_native": {
+        "ss": "Lobamba"
+      },
+      "name_en": "Lobamba",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        31.199997,
+        -26.466667
+      ],
+      "country": "eSwatini",
+      "define": "Lobamba, eSwatini. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:4": {
+      "title": "Lëtzebuerg",
+      "name_native": {
+        "lb": "Lëtzebuerg",
+        "fr": "Luxembourg",
+        "de": "Luxemburg"
+      },
+      "name_en": "Luxembourg",
+      "name_source": "https://www.wikidata.org/wiki/Q1842",
+      "type": "Europe",
+      "space": [
+        6371,
+        6.130003,
+        49.61166
+      ],
+      "country": "Luxembourg",
+      "define": "Luxembourg, Luxembourg. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:5": {
+      "title": "Palikir",
+      "name_native": {
+        "en": "Palikir"
+      },
+      "name_en": "Palikir",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        158.149974,
+        6.916644
+      ],
+      "country": "Federated States of Micronesia",
+      "define": "Palikir, Federated States of Micronesia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:6": {
+      "title": "Majuro",
+      "name_native": {
+        "mh": "Majuro"
+      },
+      "name_en": "Majuro",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        171.38,
+        7.103004
+      ],
+      "country": "Marshall Islands",
+      "define": "Majuro, Marshall Islands. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:7": {
+      "title": "Funafuti",
+      "name_native": {
+        "tvl": "Funafuti"
+      },
+      "name_en": "Funafuti",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        179.216647,
+        -8.516652
+      ],
+      "country": "Tuvalu",
+      "define": "Funafuti, Tuvalu. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:8": {
+      "title": "Melekeok",
+      "name_native": {
+        "pau": "Melekeok"
+      },
+      "name_en": "Melekeok",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        134.626549,
+        7.487396
+      ],
+      "country": "Palau",
+      "define": "Melekeok, Palau. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:9": {
+      "title": "بئر لحلو",
+      "name_native": {
+        "ar": "بئر لحلو"
+      },
+      "name_en": "Bir Lehlou",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -9.652522,
+        26.119167
+      ],
+      "country": "Western Sahara",
+      "define": "Bir Lehlou, Western Sahara. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:10": {
+      "title": "Monaco",
+      "name_native": {
+        "fr": "Monaco"
+      },
+      "name_en": "Monaco",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        7.406913,
+        43.739646
+      ],
+      "country": "Monaco",
+      "define": "Monaco, Monaco. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:11": {
+      "title": "Tarawa",
+      "name_native": {
+        "gil": "Tarawa"
+      },
+      "name_en": "Tarawa",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        173.017571,
+        1.338188
+      ],
+      "country": "Kiribati",
+      "define": "Tarawa, Kiribati. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:12": {
+      "title": "Moroni",
+      "name_native": {
+        "sw": "Moroni"
+      },
+      "name_en": "Moroni",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        43.240244,
+        -11.704158
+      ],
+      "country": "Comoros",
+      "define": "Moroni, Comoros. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:13": {
+      "title": "Andorra la Vella",
+      "name_native": {
+        "ca": "Andorra la Vella"
+      },
+      "name_en": "Andorra",
+      "name_source": "https://www.wikidata.org/wiki/Q1863",
+      "type": "Europe",
+      "space": [
+        6371,
+        1.526594,
+        42.510753
+      ],
+      "country": "Andorra",
+      "define": "Andorra, Andorra. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:14": {
+      "title": "Port of Spain",
+      "name_native": {
+        "en": "Port of Spain"
+      },
+      "name_en": "Port-of-Spain",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -61.517031,
+        10.651997
+      ],
+      "country": "Trinidad and Tobago",
+      "define": "Port-of-Spain, Trinidad and Tobago. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:15": {
+      "title": "Kigali",
+      "name_native": {
+        "rw": "Kigali"
+      },
+      "name_en": "Kigali",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        30.058586,
+        -1.951644
+      ],
+      "country": "Rwanda",
+      "define": "Kigali, Rwanda. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:16": {
+      "title": "Mbabane",
+      "name_native": {
+        "ss": "Mbabane"
+      },
+      "name_en": "Mbabane",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        31.133335,
+        -26.316651
+      ],
+      "country": "eSwatini",
+      "define": "Mbabane, eSwatini. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:17": {
+      "title": "Juba",
+      "name_native": {
+        "en": "Juba"
+      },
+      "name_en": "Juba",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        31.580026,
+        4.829975
+      ],
+      "country": "South Sudan",
+      "define": "Juba, South Sudan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:18": {
+      "title": "Den Haag",
+      "name_native": {
+        "nl": "Den Haag"
+      },
+      "name_en": "The Hague",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        4.269961,
+        52.080037
+      ],
+      "country": "Netherlands",
+      "define": "The Hague, Netherlands. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:19": {
+      "title": "Ljubljana",
+      "name_native": {
+        "sl": "Ljubljana"
+      },
+      "name_en": "Ljubljana",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        14.514969,
+        46.055288
+      ],
+      "country": "Slovenia",
+      "define": "Ljubljana, Slovenia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:20": {
+      "title": "Bratislava",
+      "name_native": {
+        "sk": "Bratislava"
+      },
+      "name_en": "Bratislava",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        17.116981,
+        48.150018
+      ],
+      "country": "Slovakia",
+      "define": "Bratislava, Slovakia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:21": {
+      "title": "الدوحة",
+      "name_native": {
+        "ar": "الدوحة"
+      },
+      "name_en": "Doha",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        51.532968,
+        25.286556
+      ],
+      "country": "Qatar",
+      "define": "Doha, Qatar. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:22": {
+      "title": "Подгорица",
+      "name_native": {
+        "sr": "Подгорица"
+      },
+      "name_en": "Podgorica",
+      "name_source": "https://www.wikidata.org/wiki/Q23564",
+      "type": "Europe",
+      "space": [
+        6371,
+        19.266307,
+        42.465972
+      ],
+      "country": "Montenegro",
+      "define": "Podgorica, Montenegro. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:23": {
+      "title": "ශ්‍රී ජයවර්ධනපුර කෝට්ටේ",
+      "name_native": {
+        "si": "ශ්‍රී ජයවර්ධනපුර කෝට්ටේ",
+        "ta": "சிறீ ஜெயவர்தனபுர கோட்டே"
+      },
+      "name_en": "Sri Jayawardenepura Kotte",
+      "name_source": "https://www.wikidata.org/wiki/Q41963",
+      "type": "Asia",
+      "space": [
+        6371,
+        79.949993,
+        6.900004
+      ],
+      "country": "Sri Lanka",
+      "define": "Sri Jayawardenepura Kotte, Sri Lanka. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:24": {
+      "title": "Baguio",
+      "name_native": {
+        "fil": "Baguio"
+      },
+      "name_en": "Baguio",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        120.569943,
+        16.429991
+      ],
+      "country": "Philippines",
+      "define": "Baguio, Philippines. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:25": {
+      "title": "Dodoma",
+      "name_native": {
+        "sw": "Dodoma"
+      },
+      "name_en": "Dodoma",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        35.750004,
+        -6.183306
+      ],
+      "country": "Tanzania",
+      "define": "Dodoma, Tanzania. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:26": {
+      "title": "Bern",
+      "name_native": {
+        "de": "Bern"
+      },
+      "name_en": "Bern",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        7.466976,
+        46.916683
+      ],
+      "country": "Switzerland",
+      "define": "Bern, Switzerland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:27": {
+      "title": "العيون",
+      "name_native": {
+        "ar": "العيون"
+      },
+      "name_en": "Laayoune",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -13.200006,
+        27.149982
+      ],
+      "country": "Morocco",
+      "define": "Laayoune, Morocco. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:28": {
+      "title": "Prishtinë",
+      "name_native": {
+        "sq": "Prishtinë",
+        "sr": "Приштина"
+      },
+      "name_en": "Pristina",
+      "name_source": "https://www.wikidata.org/wiki/Q25270",
+      "type": "Europe",
+      "space": [
+        6371,
+        21.165984,
+        42.66671
+      ],
+      "country": "Kosovo",
+      "define": "Pristina, Kosovo. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:29": {
+      "title": "Roseau",
+      "name_native": {
+        "en": "Roseau"
+      },
+      "name_en": "Roseau",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -61.387013,
+        15.301016
+      ],
+      "country": "Dominica",
+      "define": "Roseau, Dominica. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:30": {
+      "title": "Djibouti",
+      "name_native": {
+        "fr": "Djibouti"
+      },
+      "name_en": "Djibouti",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        43.148002,
+        11.595014
+      ],
+      "country": "Djibouti",
+      "define": "Djibouti, Djibouti. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:31": {
+      "title": "Putrajaya",
+      "name_native": {
+        "ms": "Putrajaya"
+      },
+      "name_en": "Putrajaya",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        101.695037,
+        2.932515
+      ],
+      "country": "Malaysia",
+      "define": "Putrajaya, Malaysia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:32": {
+      "title": "京都市",
+      "name_native": {
+        "ja": "京都市"
+      },
+      "name_en": "Kyoto",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        135.748052,
+        35.031938
+      ],
+      "country": "Japan",
+      "define": "Kyoto, Japan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:33": {
+      "title": "Banjul",
+      "name_native": {
+        "en": "Banjul"
+      },
+      "name_en": "Banjul",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -16.591701,
+        13.453876
+      ],
+      "country": "The Gambia",
+      "define": "Banjul, The Gambia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:34": {
+      "title": "Скопје",
+      "name_native": {
+        "mk": "Скопје"
+      },
+      "name_en": "Skopje",
+      "name_source": "https://www.wikidata.org/wiki/Q384",
+      "type": "Europe",
+      "space": [
+        6371,
+        21.433461,
+        42.000006
+      ],
+      "country": "North Macedonia",
+      "define": "Skopje, North Macedonia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:35": {
+      "title": "Bridgetown",
+      "name_native": {
+        "en": "Bridgetown"
+      },
+      "name_en": "Bridgetown",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Australia",
+      "space": [
+        6371,
+        -59.616527,
+        13.102003
+      ],
+      "country": "Barbados",
+      "define": "Bridgetown, Barbados. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:36": {
+      "title": "Porto-Novo",
+      "name_native": {
+        "fr": "Porto-Novo"
+      },
+      "name_en": "Porto-Novo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        2.616626,
+        6.483311
+      ],
+      "country": "Benin",
+      "define": "Porto-Novo, Benin. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:37": {
+      "title": "Bujumbura",
+      "name_native": {
+        "rn": "Bujumbura"
+      },
+      "name_en": "Bujumbura",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        29.360006,
+        -3.376087
+      ],
+      "country": "Burundi",
+      "define": "Bujumbura, Burundi. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:38": {
+      "title": "Kingstown",
+      "name_native": {
+        "en": "Kingstown"
+      },
+      "name_en": "Kingstown",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -61.220236,
+        13.155756
+      ],
+      "country": "Saint Vincent and the Grenadines",
+      "define": "Kingstown, Saint Vincent and the Grenadines. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:39": {
+      "title": "Castries",
+      "name_native": {
+        "en": "Castries"
+      },
+      "name_en": "Castries",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        -60.992875,
+        14.007875
+      ],
+      "country": "Saint Lucia",
+      "define": "Castries, Saint Lucia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:40": {
+      "title": "Basseterre",
+      "name_native": {
+        "en": "Basseterre"
+      },
+      "name_en": "Basseterre",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -62.717009,
+        17.302031
+      ],
+      "country": "Saint Kitts and Nevis",
+      "define": "Basseterre, Saint Kitts and Nevis. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:41": {
+      "title": "Port-Louis",
+      "name_native": {
+        "fr": "Port-Louis"
+      },
+      "name_en": "Port Louis",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        57.499994,
+        -20.166639
+      ],
+      "country": "Mauritius",
+      "define": "Port Louis, Mauritius. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:42": {
+      "title": "St. George's",
+      "name_native": {
+        "en": "St. George's"
+      },
+      "name_en": "Saint George's",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -61.741643,
+        12.052633
+      ],
+      "country": "Grenada",
+      "define": "Saint George's, Grenada. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:43": {
+      "title": "المنامة",
+      "name_native": {
+        "ar": "المنامة"
+      },
+      "name_en": "Manama",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        50.583052,
+        26.236136
+      ],
+      "country": "Bahrain",
+      "define": "Manama, Bahrain. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:44": {
+      "title": "Saint John's",
+      "name_native": {
+        "en": "Saint John's"
+      },
+      "name_en": "Saint John's",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -61.850034,
+        17.118036
+      ],
+      "country": "Antigua and Barbuda",
+      "define": "Saint John's, Antigua and Barbuda. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:45": {
+      "title": "Montevideo",
+      "name_native": {
+        "es": "Montevideo"
+      },
+      "name_en": "Montevideo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -56.186823,
+        -34.905376
+      ],
+      "country": "Uruguay",
+      "define": "Montevideo, Uruguay. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:46": {
+      "title": "Lomé",
+      "name_native": {
+        "fr": "Lomé"
+      },
+      "name_en": "Lomé",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        1.220811,
+        6.133883
+      ],
+      "country": "Togo",
+      "define": "Lomé, Togo. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:47": {
+      "title": "تونس العاصمة",
+      "name_native": {
+        "ar": "تونس العاصمة"
+      },
+      "name_en": "Tunis",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        10.179678,
+        36.802778
+      ],
+      "country": "Tunisia",
+      "define": "Tunis, Tunisia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:48": {
+      "title": "أبو ظبي",
+      "name_native": {
+        "ar": "أبو ظبي"
+      },
+      "name_en": "Abu Dhabi",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        54.366593,
+        24.466684
+      ],
+      "country": "United Arab Emirates",
+      "define": "Abu Dhabi, United Arab Emirates. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:49": {
+      "title": "Aşgabat",
+      "name_native": {
+        "tk": "Aşgabat"
+      },
+      "name_en": "Ashgabat",
+      "name_source": "https://www.wikidata.org/wiki/Q23438",
+      "type": "Asia",
+      "space": [
+        6371,
+        58.383299,
+        37.949995
+      ],
+      "country": "Turkmenistan",
+      "define": "Ashgabat, Turkmenistan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:50": {
+      "title": "Lusaka",
+      "name_native": {
+        "en": "Lusaka"
+      },
+      "name_en": "Lusaka",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        28.281382,
+        -15.414698
+      ],
+      "country": "Zambia",
+      "define": "Lusaka, Zambia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:51": {
+      "title": "Harare",
+      "name_native": {
+        "en": "Harare"
+      },
+      "name_en": "Harare",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        31.042764,
+        -17.815844
+      ],
+      "country": "Zimbabwe",
+      "define": "Harare, Zimbabwe. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:52": {
+      "title": "Díli",
+      "name_native": {
+        "tet": "Díli"
+      },
+      "name_en": "Dili",
+      "name_source": "https://www.wikidata.org/wiki/Q9310",
+      "type": "Asia",
+      "space": [
+        6371,
+        125.579456,
+        -8.559388
+      ],
+      "country": "East Timor",
+      "define": "Dili, East Timor. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:53": {
+      "title": "Port Vila",
+      "name_native": {
+        "bi": "Port Vila"
+      },
+      "name_en": "Port Vila",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        168.316641,
+        -17.73335
+      ],
+      "country": "Vanuatu",
+      "define": "Port Vila, Vanuatu. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:54": {
+      "title": "Tegucigalpa",
+      "name_native": {
+        "es": "Tegucigalpa"
+      },
+      "name_en": "Tegucigalpa",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -87.219475,
+        14.103991
+      ],
+      "country": "Honduras",
+      "define": "Tegucigalpa, Honduras. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:55": {
+      "title": "Georgetown",
+      "name_native": {
+        "en": "Georgetown"
+      },
+      "name_en": "Georgetown",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -58.167029,
+        6.801974
+      ],
+      "country": "Guyana",
+      "define": "Georgetown, Guyana. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:56": {
+      "title": "Reykjavík",
+      "name_native": {
+        "is": "Reykjavík"
+      },
+      "name_en": "Reykjavík",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        -21.936546,
+        64.143459
+      ],
+      "country": "Iceland",
+      "define": "Reykjavík, Iceland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:57": {
+      "title": "Pòtoprens",
+      "name_native": {
+        "ht": "Pòtoprens",
+        "fr": "Port-au-Prince"
+      },
+      "name_en": "Port-au-Prince",
+      "name_source": "https://www.wikidata.org/wiki/Q34261",
+      "type": "North America",
+      "space": [
+        6371,
+        -72.33798,
+        18.54297
+      ],
+      "country": "Haiti",
+      "define": "Port-au-Prince, Haiti. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:58": {
+      "title": "Kampala",
+      "name_native": {
+        "en": "Kampala"
+      },
+      "name_en": "Kampala",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        32.581378,
+        0.318605
+      ],
+      "country": "Uganda",
+      "define": "Kampala, Uganda. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:59": {
+      "title": "Paramaribo",
+      "name_native": {
+        "nl": "Paramaribo"
+      },
+      "name_en": "Paramaribo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -55.167031,
+        5.83503
+      ],
+      "country": "Suriname",
+      "define": "Paramaribo, Suriname. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:60": {
+      "title": "Niamey",
+      "name_native": {
+        "fr": "Niamey"
+      },
+      "name_en": "Niamey",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        2.11471,
+        13.518652
+      ],
+      "country": "Niger",
+      "define": "Niamey, Niger. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:61": {
+      "title": "Душанбе",
+      "name_native": {
+        "tg": "Душанбе"
+      },
+      "name_en": "Dushanbe",
+      "name_source": "https://www.wikidata.org/wiki/Q9365",
+      "type": "Asia",
+      "space": [
+        6371,
+        68.773879,
+        38.560035
+      ],
+      "country": "Tajikistan",
+      "define": "Dushanbe, Tajikistan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:62": {
+      "title": "Asunción",
+      "name_native": {
+        "es": "Asunción"
+      },
+      "name_en": "Asunción",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -57.625834,
+        -25.290671
+      ],
+      "country": "Paraguay",
+      "define": "Asunción, Paraguay. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:63": {
+      "title": "Managua",
+      "name_native": {
+        "es": "Managua"
+      },
+      "name_en": "Managua",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -86.270437,
+        12.154962
+      ],
+      "country": "Nicaragua",
+      "define": "Managua, Nicaragua. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:64": {
+      "title": "Freetown",
+      "name_native": {
+        "en": "Freetown"
+      },
+      "name_en": "Freetown",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -13.236162,
+        8.471957
+      ],
+      "country": "Sierra Leone",
+      "define": "Freetown, Sierra Leone. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:65": {
+      "title": "اسلام آباد",
+      "name_native": {
+        "ur": "اسلام آباد"
+      },
+      "name_en": "Islamabad",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        73.08063,
+        33.689368
+      ],
+      "country": "Pakistan",
+      "define": "Islamabad, Pakistan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:66": {
+      "title": "काठमाडौं",
+      "name_native": {
+        "ne": "काठमाडौं"
+      },
+      "name_en": "Kathmandu",
+      "name_source": "https://www.wikidata.org/wiki/Q3037",
+      "type": "Asia",
+      "space": [
+        6371,
+        85.314696,
+        27.718638
+      ],
+      "country": "Nepal",
+      "define": "Kathmandu, Nepal. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:67": {
+      "title": "Bloemfontein",
+      "name_native": {
+        "en": "Bloemfontein"
+      },
+      "name_en": "Bloemfontein",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        26.229913,
+        -29.119994
+      ],
+      "country": "South Africa",
+      "define": "Bloemfontein, South Africa. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:68": {
+      "title": "Pretoria",
+      "name_native": {
+        "en": "Pretoria"
+      },
+      "name_en": "Pretoria",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        28.227483,
+        -25.704975
+      ],
+      "country": "South Africa",
+      "define": "Pretoria, South Africa. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:69": {
+      "title": "Port Moresby",
+      "name_native": {
+        "en": "Port Moresby"
+      },
+      "name_en": "Port Moresby",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        147.192504,
+        -9.464708
+      ],
+      "country": "Papua New Guinea",
+      "define": "Port Moresby, Papua New Guinea. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:70": {
+      "title": "Honiara",
+      "name_native": {
+        "en": "Honiara"
+      },
+      "name_en": "Honiara",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        159.949766,
+        -9.437994
+      ],
+      "country": "Solomon Islands",
+      "define": "Honiara, Solomon Islands. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:71": {
+      "title": "Ciudad de Panamá",
+      "name_native": {
+        "es": "Ciudad de Panamá"
+      },
+      "name_en": "Panama City",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -79.534983,
+        8.969963
+      ],
+      "country": "Panama",
+      "define": "Panama City, Panama. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:72": {
+      "title": "الرباط",
+      "name_native": {
+        "ar": "الرباط"
+      },
+      "name_en": "Rabat",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -6.836408,
+        34.025307
+      ],
+      "country": "Morocco",
+      "define": "Rabat, Morocco. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:73": {
+      "title": "Chișinău",
+      "name_native": {
+        "ro": "Chișinău"
+      },
+      "name_en": "Chișinău",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        28.857711,
+        47.005024
+      ],
+      "country": "Moldova",
+      "define": "Chișinău, Moldova. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:74": {
+      "title": "Maputo",
+      "name_native": {
+        "pt": "Maputo"
+      },
+      "name_en": "Maputo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        32.587217,
+        -25.953332
+      ],
+      "country": "Mozambique",
+      "define": "Maputo, Mozambique. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:75": {
+      "title": "Muqdisho",
+      "name_native": {
+        "so": "Muqdisho"
+      },
+      "name_en": "Mogadishu",
+      "name_source": "https://www.wikidata.org/wiki/Q2449",
+      "type": "Africa",
+      "space": [
+        6371,
+        45.364732,
+        2.068627
+      ],
+      "country": "Somalia",
+      "define": "Mogadishu, Somalia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:76": {
+      "title": "مسقط",
+      "name_native": {
+        "ar": "مسقط"
+      },
+      "name_en": "Muscat",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        58.378311,
+        23.585179
+      ],
+      "country": "Oman",
+      "define": "Muscat, Oman. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:77": {
+      "title": "කොළඹ",
+      "name_native": {
+        "si": "කොළඹ",
+        "ta": "கொழும்பு"
+      },
+      "name_en": "Colombo",
+      "name_source": "https://www.wikidata.org/wiki/Q35381",
+      "type": "Asia",
+      "space": [
+        6371,
+        79.857751,
+        6.931966
+      ],
+      "country": "Sri Lanka",
+      "define": "Colombo, Sri Lanka. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:78": {
+      "title": "Улаанбаатар",
+      "name_native": {
+        "mn": "Улаанбаатар"
+      },
+      "name_en": "Ulaanbaatar",
+      "name_source": "https://www.wikidata.org/wiki/Q23430",
+      "type": "Asia",
+      "space": [
+        6371,
+        106.91467,
+        47.918619
+      ],
+      "country": "Mongolia",
+      "define": "Ulaanbaatar, Mongolia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:79": {
+      "title": "Windhoek",
+      "name_native": {
+        "en": "Windhoek"
+      },
+      "name_en": "Windhoek",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        17.083546,
+        -22.570006
+      ],
+      "country": "Namibia",
+      "define": "Windhoek, Namibia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:80": {
+      "title": "Abuja",
+      "name_native": {
+        "en": "Abuja"
+      },
+      "name_en": "Abuja",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        7.489505,
+        9.05462
+      ],
+      "country": "Nigeria",
+      "define": "Abuja, Nigeria. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:81": {
+      "title": "Bissau",
+      "name_native": {
+        "pt": "Bissau"
+      },
+      "name_en": "Bissau",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -15.598361,
+        11.865024
+      ],
+      "country": "Guinea Bissau",
+      "define": "Bissau, Guinea Bissau. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:82": {
+      "title": "عمان",
+      "name_native": {
+        "ar": "عمان"
+      },
+      "name_en": "Amman",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        35.931354,
+        31.951971
+      ],
+      "country": "Jordan",
+      "define": "Amman, Jordan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:83": {
+      "title": "Vilnius",
+      "name_native": {
+        "lt": "Vilnius"
+      },
+      "name_en": "Vilnius",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        25.316635,
+        54.683366
+      ],
+      "country": "Lithuania",
+      "define": "Vilnius, Lithuania. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:84": {
+      "title": "Rīga",
+      "name_native": {
+        "lv": "Rīga"
+      },
+      "name_en": "Riga",
+      "name_source": "https://www.wikidata.org/wiki/Q1773",
+      "type": "Europe",
+      "space": [
+        6371,
+        24.099965,
+        56.950024
+      ],
+      "country": "Latvia",
+      "define": "Riga, Latvia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:85": {
+      "title": "Бишкек",
+      "name_native": {
+        "ky": "Бишкек"
+      },
+      "name_en": "Bishkek",
+      "name_source": "https://www.wikidata.org/wiki/Q9361",
+      "type": "Asia",
+      "space": [
+        6371,
+        74.583258,
+        42.875025
+      ],
+      "country": "Kyrgyzstan",
+      "define": "Bishkek, Kyrgyzstan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:86": {
+      "title": "Maseru",
+      "name_native": {
+        "st": "Maseru"
+      },
+      "name_en": "Maseru",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        27.483273,
+        -29.316674
+      ],
+      "country": "Lesotho",
+      "define": "Maseru, Lesotho. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:87": {
+      "title": "Antananarivo",
+      "name_native": {
+        "mg": "Antananarivo"
+      },
+      "name_en": "Antananarivo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        47.514678,
+        -18.914691
+      ],
+      "country": "Madagascar",
+      "define": "Antananarivo, Madagascar. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:88": {
+      "title": "Quito",
+      "name_native": {
+        "es": "Quito"
+      },
+      "name_en": "Quito",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -78.501997,
+        -0.213042
+      ],
+      "country": "Ecuador",
+      "define": "Quito, Ecuador. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:89": {
+      "title": "San José",
+      "name_native": {
+        "es": "San José"
+      },
+      "name_en": "San José",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -84.078814,
+        9.930371
+      ],
+      "country": "Costa Rica",
+      "define": "San José, Costa Rica. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:90": {
+      "title": "San Salvador",
+      "name_native": {
+        "es": "San Salvador"
+      },
+      "name_en": "San Salvador",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -89.215576,
+        13.70328
+      ],
+      "country": "El Salvador",
+      "define": "San Salvador, El Salvador. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:91": {
+      "title": "Kingston",
+      "name_native": {
+        "en": "Kingston"
+      },
+      "name_en": "Kingston",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -76.767434,
+        17.977077
+      ],
+      "country": "Jamaica",
+      "define": "Kingston, Jamaica. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:92": {
+      "title": "N'Djaména",
+      "name_native": {
+        "fr": "N'Djaména"
+      },
+      "name_en": "N'Djamena",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        15.047202,
+        12.115042
+      ],
+      "country": "Chad",
+      "define": "N'Djamena, Chad. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:93": {
+      "title": "Malabo",
+      "name_native": {
+        "es": "Malabo"
+      },
+      "name_en": "Malabo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        8.783278,
+        3.750015
+      ],
+      "country": "Equatorial Guinea",
+      "define": "Malabo, Equatorial Guinea. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:94": {
+      "title": "ኣስመራ",
+      "name_native": {
+        "ti": "ኣስመራ"
+      },
+      "name_en": "Asmara",
+      "name_source": "https://www.wikidata.org/wiki/Q3642",
+      "type": "Africa",
+      "space": [
+        6371,
+        38.933324,
+        15.333339
+      ],
+      "country": "Eritrea",
+      "define": "Asmara, Eritrea. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:95": {
+      "title": "Zagreb",
+      "name_native": {
+        "hr": "Zagreb"
+      },
+      "name_en": "Zagreb",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        15.999995,
+        45.800007
+      ],
+      "country": "Croatia",
+      "define": "Zagreb, Croatia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:96": {
+      "title": "Tallinn",
+      "name_native": {
+        "et": "Tallinn"
+      },
+      "name_en": "Tallinn",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        24.728041,
+        59.433877
+      ],
+      "country": "Estonia",
+      "define": "Tallinn, Estonia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:97": {
+      "title": "Lilongwe",
+      "name_native": {
+        "ny": "Lilongwe"
+      },
+      "name_en": "Lilongwe",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        33.783302,
+        -13.983295
+      ],
+      "country": "Malawi",
+      "define": "Lilongwe, Malawi. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:98": {
+      "title": "Ciudad de Guatemala",
+      "name_native": {
+        "es": "Ciudad de Guatemala"
+      },
+      "name_en": "Guatemala City",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -90.528911,
+        14.623081
+      ],
+      "country": "Guatemala",
+      "define": "Guatemala City, Guatemala. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:99": {
+      "title": "Libreville",
+      "name_native": {
+        "fr": "Libreville"
+      },
+      "name_en": "Libreville",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        9.457965,
+        0.385389
+      ],
+      "country": "Gabon",
+      "define": "Libreville, Gabon. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:100": {
+      "title": "Suva",
+      "name_native": {
+        "fj": "Suva"
+      },
+      "name_en": "Suva",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        178.441707,
+        -18.133016
+      ],
+      "country": "Fiji",
+      "define": "Suva, Fiji. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:101": {
+      "title": "Valparaíso",
+      "name_native": {
+        "es": "Valparaíso"
+      },
+      "name_en": "Valparaíso",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -71.617026,
+        -33.047739
+      ],
+      "country": "Chile",
+      "define": "Valparaíso, Chile. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:102": {
+      "title": "نواكشوط",
+      "name_native": {
+        "ar": "نواكشوط"
+      },
+      "name_en": "Nouakchott",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -15.97534,
+        18.086427
+      ],
+      "country": "Mauritania",
+      "define": "Nouakchott, Mauritania. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:103": {
+      "title": "Bamako",
+      "name_native": {
+        "fr": "Bamako"
+      },
+      "name_en": "Bamako",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -8.001985,
+        12.65196
+      ],
+      "country": "Mali",
+      "define": "Bamako, Mali. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:104": {
+      "title": "بيروت",
+      "name_native": {
+        "ar": "بيروت"
+      },
+      "name_en": "Beirut",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        35.507762,
+        33.873921
+      ],
+      "country": "Lebanon",
+      "define": "Beirut, Lebanon. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:105": {
+      "title": "თბილისი",
+      "name_native": {
+        "ka": "თბილისი"
+      },
+      "name_en": "Tbilisi",
+      "name_source": "https://www.wikidata.org/wiki/Q994",
+      "type": "Asia",
+      "space": [
+        6371,
+        44.78885,
+        41.726956
+      ],
+      "country": "Georgia",
+      "define": "Tbilisi, Georgia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:106": {
+      "title": "Астана",
+      "name_native": {
+        "kk": "Астана"
+      },
+      "name_en": "Nur-Sultan",
+      "name_source": "https://www.wikidata.org/wiki/Q1520",
+      "type": "Asia",
+      "space": [
+        6371,
+        71.427774,
+        51.181125
+      ],
+      "country": "Kazakhstan",
+      "define": "Nur-Sultan, Kazakhstan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:107": {
+      "title": "ວຽງຈັນ",
+      "name_native": {
+        "lo": "ວຽງຈັນ"
+      },
+      "name_en": "Vientiane",
+      "name_source": "https://www.wikidata.org/wiki/Q9326",
+      "type": "Asia",
+      "space": [
+        6371,
+        102.59998,
+        17.966693
+      ],
+      "country": "Laos",
+      "define": "Vientiane, Laos. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:108": {
+      "title": "Brazzaville",
+      "name_native": {
+        "fr": "Brazzaville"
+      },
+      "name_en": "Brazzaville",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        15.282744,
+        -4.25724
+      ],
+      "country": "Congo (Brazzaville)",
+      "define": "Brazzaville, Congo (Brazzaville). Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:109": {
+      "title": "Conakry",
+      "name_native": {
+        "fr": "Conakry"
+      },
+      "name_en": "Conakry",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -13.682181,
+        9.533469
+      ],
+      "country": "Guinea",
+      "define": "Conakry, Guinea. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:110": {
+      "title": "Yamoussoukro",
+      "name_native": {
+        "fr": "Yamoussoukro"
+      },
+      "name_en": "Yamoussoukro",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -5.275503,
+        6.818381
+      ],
+      "country": "Ivory Coast",
+      "define": "Yamoussoukro, Ivory Coast. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:111": {
+      "title": "Ottawa",
+      "name_native": {
+        "en": "Ottawa"
+      },
+      "name_en": "Ottawa",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -75.701961,
+        45.418643
+      ],
+      "country": "Canada",
+      "define": "Ottawa, Canada. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:112": {
+      "title": "Београд",
+      "name_native": {
+        "sr": "Београд"
+      },
+      "name_en": "Belgrade",
+      "name_source": "https://www.wikidata.org/wiki/Q3711",
+      "type": "Europe",
+      "space": [
+        6371,
+        20.466045,
+        44.820591
+      ],
+      "country": "Serbia",
+      "define": "Belgrade, Serbia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:113": {
+      "title": "Bandar Seri Begawan",
+      "name_native": {
+        "ms": "Bandar Seri Begawan"
+      },
+      "name_en": "Bandar Seri Begawan",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        114.933284,
+        4.883331
+      ],
+      "country": "Brunei",
+      "define": "Bandar Seri Begawan, Brunei. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:114": {
+      "title": "Sucre",
+      "name_native": {
+        "es": "Sucre"
+      },
+      "name_en": "Sucre",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -65.259516,
+        -19.040971
+      ],
+      "country": "Bolivia",
+      "define": "Sucre, Bolivia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:115": {
+      "title": "Belmopan",
+      "name_native": {
+        "en": "Belmopan"
+      },
+      "name_en": "Belmopan",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -88.767073,
+        17.252033
+      ],
+      "country": "Belize",
+      "define": "Belmopan, Belize. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:116": {
+      "title": "Bangui",
+      "name_native": {
+        "fr": "Bangui"
+      },
+      "name_en": "Bangui",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        18.558288,
+        4.366644
+      ],
+      "country": "Central African Republic",
+      "define": "Bangui, Central African Republic. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:117": {
+      "title": "Yaoundé",
+      "name_native": {
+        "fr": "Yaoundé"
+      },
+      "name_en": "Yaoundé",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        11.514705,
+        3.868647
+      ],
+      "country": "Cameroon",
+      "define": "Yaoundé, Cameroon. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:118": {
+      "title": "Tiranë",
+      "name_native": {
+        "sq": "Tiranë"
+      },
+      "name_en": "Tirana",
+      "name_source": "https://www.wikidata.org/wiki/Q19689",
+      "type": "Europe",
+      "space": [
+        6371,
+        19.818883,
+        41.327541
+      ],
+      "country": "Albania",
+      "define": "Tirana, Albania. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:119": {
+      "title": "Երևան",
+      "name_native": {
+        "hy": "Երևան"
+      },
+      "name_en": "Yerevan",
+      "name_source": "https://www.wikidata.org/wiki/Q1953",
+      "type": "Asia",
+      "space": [
+        6371,
+        44.511606,
+        40.183097
+      ],
+      "country": "Armenia",
+      "define": "Yerevan, Armenia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:120": {
+      "title": "Bakı",
+      "name_native": {
+        "az": "Bakı"
+      },
+      "name_en": "Baku",
+      "name_source": "https://www.wikidata.org/wiki/Q9248",
+      "type": "Asia",
+      "space": [
+        6371,
+        49.860271,
+        40.397218
+      ],
+      "country": "Azerbaijan",
+      "define": "Baku, Azerbaijan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:121": {
+      "title": "ភ្នំពេញ",
+      "name_native": {
+        "km": "ភ្នំពេញ"
+      },
+      "name_en": "Phnom Penh",
+      "name_source": "https://www.wikidata.org/wiki/Q1850",
+      "type": "Asia",
+      "space": [
+        6371,
+        104.914689,
+        11.551976
+      ],
+      "country": "Cambodia",
+      "define": "Phnom Penh, Cambodia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:122": {
+      "title": "La Paz",
+      "name_native": {
+        "es": "La Paz"
+      },
+      "name_en": "La Paz",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -68.151931,
+        -16.496028
+      ],
+      "country": "Bolivia",
+      "define": "La Paz, Bolivia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:123": {
+      "title": "Cotonou",
+      "name_native": {
+        "fr": "Cotonou"
+      },
+      "name_en": "Cotonou",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        2.404355,
+        6.36298
+      ],
+      "country": "Benin",
+      "define": "Cotonou, Benin. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:124": {
+      "title": "София",
+      "name_native": {
+        "bg": "София"
+      },
+      "name_en": "Sofia",
+      "name_source": "https://www.wikidata.org/wiki/Q472",
+      "type": "Europe",
+      "space": [
+        6371,
+        23.314708,
+        42.685295
+      ],
+      "country": "Bulgaria",
+      "define": "Sofia, Bulgaria. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:125": {
+      "title": "Мінск",
+      "name_native": {
+        "be": "Мінск",
+        "ru": "Минск"
+      },
+      "name_en": "Minsk",
+      "name_source": "https://www.wikidata.org/wiki/Q2280",
+      "type": "Europe",
+      "space": [
+        6371,
+        27.564681,
+        53.901923
+      ],
+      "country": "Belarus",
+      "define": "Minsk, Belarus. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:126": {
+      "title": "ཐིམ་ཕུ་",
+      "name_native": {
+        "dz": "ཐིམ་ཕུ་"
+      },
+      "name_en": "Thimphu",
+      "name_source": "https://www.wikidata.org/wiki/Q9270",
+      "type": "Asia",
+      "space": [
+        6371,
+        89.639014,
+        27.472986
+      ],
+      "country": "Bhutan",
+      "define": "Thimphu, Bhutan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:127": {
+      "title": "Gaborone",
+      "name_native": {
+        "tn": "Gaborone"
+      },
+      "name_en": "Gaborone",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        25.911948,
+        -24.646314
+      ],
+      "country": "Botswana",
+      "define": "Gaborone, Botswana. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:128": {
+      "title": "Canberra",
+      "name_native": {
+        "en": "Canberra"
+      },
+      "name_en": "Canberra",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        149.129026,
+        -35.283029
+      ],
+      "country": "Australia",
+      "define": "Canberra, Australia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:129": {
+      "title": "Ouagadougou",
+      "name_native": {
+        "fr": "Ouagadougou"
+      },
+      "name_en": "Ouagadougou",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -1.52667,
+        12.372262
+      ],
+      "country": "Burkina Faso",
+      "define": "Ouagadougou, Burkina Faso. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:130": {
+      "title": "Sarajevo",
+      "name_native": {
+        "bs": "Sarajevo"
+      },
+      "name_en": "Sarajevo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        18.383002,
+        43.850022
+      ],
+      "country": "Bosnia and Herzegovina",
+      "define": "Sarajevo, Bosnia and Herzegovina. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:131": {
+      "title": "နေပြည်တော်",
+      "name_native": {
+        "my": "နေပြည်တော်"
+      },
+      "name_en": "Naypyidaw",
+      "name_source": "https://www.wikidata.org/wiki/Q37400",
+      "type": "Asia",
+      "space": [
+        6371,
+        96.116673,
+        19.768503
+      ],
+      "country": "Myanmar",
+      "define": "Naypyidaw, Myanmar. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:132": {
+      "title": "Nukuʻalofa",
+      "name_native": {
+        "to": "Nukuʻalofa"
+      },
+      "name_en": "Nuku'alofa",
+      "name_source": "https://www.wikidata.org/wiki/Q38834",
+      "type": "Oceania",
+      "space": [
+        6371,
+        -175.220564,
+        -21.138512
+      ],
+      "country": "Tonga",
+      "define": "Nuku'alofa, Tonga. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:133": {
+      "title": "Hargeysa",
+      "name_native": {
+        "so": "Hargeysa"
+      },
+      "name_en": "Hargeisa",
+      "name_source": "https://www.wikidata.org/wiki/Q168652",
+      "type": "Africa",
+      "space": [
+        6371,
+        44.06531,
+        9.560022
+      ],
+      "country": "Somaliland",
+      "define": "Hargeisa, Somaliland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:134": {
+      "title": "Victoria",
+      "name_native": {
+        "fr": "Victoria"
+      },
+      "name_en": "Victoria",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        55.44999,
+        -4.616632
+      ],
+      "country": "Seychelles",
+      "define": "Victoria, Seychelles. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:135": {
+      "title": "São Tomé",
+      "name_native": {
+        "pt": "São Tomé"
+      },
+      "name_en": "São Tomé",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        6.72965,
+        0.337466
+      ],
+      "country": "Sao Tome and Principe",
+      "define": "São Tomé, Sao Tome and Principe. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:136": {
+      "title": "Apia",
+      "name_native": {
+        "sm": "Apia"
+      },
+      "name_en": "Apia",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -171.768599,
+        -13.835715
+      ],
+      "country": "Samoa",
+      "define": "Apia, Samoa. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:137": {
+      "title": "Il-Belt Valletta",
+      "name_native": {
+        "mt": "Il-Belt Valletta"
+      },
+      "name_en": "Valletta",
+      "name_source": "https://www.wikidata.org/wiki/Q23800",
+      "type": "Europe",
+      "space": [
+        6371,
+        14.514711,
+        35.899732
+      ],
+      "country": "Malta",
+      "define": "Valletta, Malta. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:138": {
+      "title": "މާލެ",
+      "name_native": {
+        "dv": "މާލެ"
+      },
+      "name_en": "Malé",
+      "name_source": "https://www.wikidata.org/wiki/Q9347",
+      "type": "Europe",
+      "space": [
+        6371,
+        73.508901,
+        4.172037
+      ],
+      "country": "Maldives",
+      "define": "Malé, Maldives. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:139": {
+      "title": "ירושלים",
+      "name_native": {
+        "he": "ירושלים"
+      },
+      "name_en": "Jerusalem",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        35.206626,
+        31.778408
+      ],
+      "country": "Israel",
+      "define": "Jerusalem, Israel. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:140": {
+      "title": "Praia",
+      "name_native": {
+        "pt": "Praia"
+      },
+      "name_en": "Praia",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -23.516689,
+        14.916698
+      ],
+      "country": "Cape Verde",
+      "define": "Praia, Cape Verde. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:141": {
+      "title": "Nassau",
+      "name_native": {
+        "en": "Nassau"
+      },
+      "name_en": "Nassau",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -77.350044,
+        25.08339
+      ],
+      "country": "The Bahamas",
+      "define": "Nassau, The Bahamas. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:142": {
+      "title": "Λευκωσία",
+      "name_native": {
+        "el": "Λευκωσία",
+        "tr": "Lefkoşa"
+      },
+      "name_en": "Nicosia",
+      "name_source": "https://www.wikidata.org/wiki/Q3856",
+      "type": "Asia",
+      "space": [
+        6371,
+        33.366635,
+        35.166677
+      ],
+      "country": "Cyprus",
+      "define": "Nicosia, Cyprus. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:143": {
+      "title": "Wellington",
+      "name_native": {
+        "en": "Wellington"
+      },
+      "name_en": "Wellington",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        174.777201,
+        -41.292068
+      ],
+      "country": "New Zealand",
+      "define": "Wellington, New Zealand. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:144": {
+      "title": "Hà Nội",
+      "name_native": {
+        "vi": "Hà Nội"
+      },
+      "name_en": "Hanoi",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        105.848068,
+        21.035273
+      ],
+      "country": "Vietnam",
+      "define": "Hanoi, Vietnam. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:145": {
+      "title": "Ankara",
+      "name_native": {
+        "tr": "Ankara"
+      },
+      "name_en": "Ankara",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        32.862446,
+        39.929184
+      ],
+      "country": "Turkey",
+      "define": "Ankara, Turkey. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:146": {
+      "title": "Budapest",
+      "name_native": {
+        "hu": "Budapest"
+      },
+      "name_en": "Budapest",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        19.081375,
+        47.501952
+      ],
+      "country": "Hungary",
+      "define": "Budapest, Hungary. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:147": {
+      "title": "صنعاء",
+      "name_native": {
+        "ar": "صنعاء"
+      },
+      "name_en": "Sanaa",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        44.204648,
+        15.356679
+      ],
+      "country": "Yemen",
+      "define": "Sanaa, Yemen. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:148": {
+      "title": "București",
+      "name_native": {
+        "ro": "București"
+      },
+      "name_en": "Bucharest",
+      "name_source": "https://www.wikidata.org/wiki/Q19660",
+      "type": "Europe",
+      "space": [
+        6371,
+        26.098001,
+        44.435318
+      ],
+      "country": "Romania",
+      "define": "Bucharest, Romania. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:149": {
+      "title": "دمشق",
+      "name_native": {
+        "ar": "دمشق"
+      },
+      "name_en": "Damascus",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        36.29805,
+        33.50198
+      ],
+      "country": "Syria",
+      "define": "Damascus, Syria. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:150": {
+      "title": "Lisboa",
+      "name_native": {
+        "pt": "Lisboa"
+      },
+      "name_en": "Lisbon",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        -9.146812,
+        38.724669
+      ],
+      "country": "Portugal",
+      "define": "Lisbon, Portugal. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:151": {
+      "title": "الخرطوم",
+      "name_native": {
+        "ar": "الخرطوم"
+      },
+      "name_en": "Khartoum",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        32.532233,
+        15.590024
+      ],
+      "country": "Sudan",
+      "define": "Khartoum, Sudan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:152": {
+      "title": "Oslo",
+      "name_native": {
+        "no": "Oslo"
+      },
+      "name_en": "Oslo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        10.748033,
+        59.918636
+      ],
+      "country": "Norway",
+      "define": "Oslo, Norway. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:153": {
+      "title": "Warszawa",
+      "name_native": {
+        "pl": "Warszawa"
+      },
+      "name_en": "Warsaw",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        21.005347,
+        52.230872
+      ],
+      "country": "Poland",
+      "define": "Warsaw, Poland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:154": {
+      "title": "평양직할시",
+      "name_native": {
+        "ko": "평양직할시"
+      },
+      "name_en": "Pyongyang",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        125.752745,
+        39.021385
+      ],
+      "country": "North Korea",
+      "define": "Pyongyang, North Korea. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:155": {
+      "title": "Dar es Salaam",
+      "name_native": {
+        "sw": "Dar es Salaam"
+      },
+      "name_en": "Dar es Salaam",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        39.266396,
+        -6.798067
+      ],
+      "country": "Tanzania",
+      "define": "Dar es Salaam, Tanzania. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:156": {
+      "title": "Baile Átha Cliath",
+      "name_native": {
+        "ga": "Baile Átha Cliath",
+        "en": "Dublin"
+      },
+      "name_en": "Dublin",
+      "name_source": "https://www.wikidata.org/wiki/Q1761",
+      "type": "Europe",
+      "space": [
+        6371,
+        -6.25698,
+        53.346731
+      ],
+      "country": "Ireland",
+      "define": "Dublin, Ireland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:157": {
+      "title": "Monrovia",
+      "name_native": {
+        "en": "Monrovia"
+      },
+      "name_en": "Monrovia",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -10.79966,
+        6.314582
+      ],
+      "country": "Liberia",
+      "define": "Monrovia, Liberia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:158": {
+      "title": "Kuala Lumpur",
+      "name_native": {
+        "ms": "Kuala Lumpur"
+      },
+      "name_en": "Kuala Lumpur",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        101.688699,
+        3.139797
+      ],
+      "country": "Malaysia",
+      "define": "Kuala Lumpur, Malaysia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:159": {
+      "title": "La Habana",
+      "name_native": {
+        "es": "La Habana"
+      },
+      "name_en": "Havana",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -82.366128,
+        23.133905
+      ],
+      "country": "Cuba",
+      "define": "Havana, Cuba. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:160": {
+      "title": "Praha",
+      "name_native": {
+        "cs": "Praha"
+      },
+      "name_en": "Prague",
+      "name_source": "https://www.wikidata.org/wiki/Q1085",
+      "type": "Europe",
+      "space": [
+        6371,
+        14.422939,
+        50.086967
+      ],
+      "country": "Czechia",
+      "define": "Prague, Czechia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:161": {
+      "title": "مدينة الكويت",
+      "name_native": {
+        "ar": "مدينة الكويت"
+      },
+      "name_en": "Kuwait City",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        47.976355,
+        29.371664
+      ],
+      "country": "Kuwait",
+      "define": "Kuwait City, Kuwait. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:162": {
+      "title": "Santo Domingo",
+      "name_native": {
+        "es": "Santo Domingo"
+      },
+      "name_en": "Santo Domingo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -69.929742,
+        18.470745
+      ],
+      "country": "Dominican Republic",
+      "define": "Santo Domingo, Dominican Republic. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:163": {
+      "title": "Accra",
+      "name_native": {
+        "en": "Accra"
+      },
+      "name_en": "Accra",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -0.218662,
+        5.55198
+      ],
+      "country": "Ghana",
+      "define": "Accra, Ghana. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:164": {
+      "title": "طرابلس",
+      "name_native": {
+        "ar": "طرابلس"
+      },
+      "name_en": "Tripoli",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        13.180012,
+        32.8925
+      ],
+      "country": "Libya",
+      "define": "Tripoli, Libya. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:165": {
+      "title": "תל אביב-יפו",
+      "name_native": {
+        "he": "תל אביב-יפו"
+      },
+      "name_en": "Tel Aviv",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        34.768066,
+        32.081937
+      ],
+      "country": "Israel",
+      "define": "Tel Aviv, Israel. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:166": {
+      "title": "Helsinki",
+      "name_native": {
+        "fi": "Helsinki"
+      },
+      "name_en": "Helsinki",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        24.932457,
+        60.163804
+      ],
+      "country": "Finland",
+      "define": "Helsinki, Finland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:167": {
+      "title": "København",
+      "name_native": {
+        "da": "København"
+      },
+      "name_en": "København",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        12.56154,
+        55.68051
+      ],
+      "country": "Denmark",
+      "define": "København, Denmark. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:168": {
+      "title": "Abidjan",
+      "name_native": {
+        "fr": "Abidjan"
+      },
+      "name_en": "Abidjan",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -4.020207,
+        5.323126
+      ],
+      "country": "Ivory Coast",
+      "define": "Abidjan, Ivory Coast. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:169": {
+      "title": "Brasília",
+      "name_native": {
+        "pt": "Brasília"
+      },
+      "name_en": "Brasília",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -47.917998,
+        -15.781394
+      ],
+      "country": "Brazil",
+      "define": "Brasília, Brazil. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:170": {
+      "title": "Bruxelles",
+      "name_native": {
+        "fr": "Bruxelles",
+        "nl": "Brussel"
+      },
+      "name_en": "Brussels",
+      "name_source": "https://www.wikidata.org/wiki/Q239",
+      "type": "Europe",
+      "space": [
+        6371,
+        4.331371,
+        50.835263
+      ],
+      "country": "Belgium",
+      "define": "Brussels, Belgium. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:171": {
+      "title": "ঢাকা",
+      "name_native": {
+        "bn": "ঢাকা"
+      },
+      "name_en": "Dhaka",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        90.406634,
+        23.725006
+      ],
+      "country": "Bangladesh",
+      "define": "Dhaka, Bangladesh. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:172": {
+      "title": "Luanda",
+      "name_native": {
+        "pt": "Luanda"
+      },
+      "name_en": "Luanda",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        13.232481,
+        -8.83634
+      ],
+      "country": "Angola",
+      "define": "Luanda, Angola. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:173": {
+      "title": "الجزائر",
+      "name_native": {
+        "ar": "الجزائر"
+      },
+      "name_en": "Algiers",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        3.048607,
+        36.765011
+      ],
+      "country": "Algeria",
+      "define": "Algiers, Algeria. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:174": {
+      "title": "ရန်ကုန်",
+      "name_native": {
+        "my": "ရန်ကုန်"
+      },
+      "name_en": "Yangon",
+      "name_source": "https://www.wikidata.org/wiki/Q37995",
+      "type": "Asia",
+      "space": [
+        6371,
+        96.164732,
+        16.7853
+      ],
+      "country": "Myanmar",
+      "define": "Yangon, Myanmar. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:175": {
+      "title": "San Francisco",
+      "name_native": {
+        "en": "San Francisco"
+      },
+      "name_en": "San Francisco",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -122.3996,
+        37.784263
+      ],
+      "country": "United States of America",
+      "define": "San Francisco, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:176": {
+      "title": "Denver",
+      "name_native": {
+        "en": "Denver"
+      },
+      "name_en": "Denver",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -104.985962,
+        39.741134
+      ],
+      "country": "United States of America",
+      "define": "Denver, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:177": {
+      "title": "Houston",
+      "name_native": {
+        "en": "Houston"
+      },
+      "name_en": "Houston",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -95.348436,
+        29.741273
+      ],
+      "country": "United States of America",
+      "define": "Houston, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:178": {
+      "title": "Miami",
+      "name_native": {
+        "en": "Miami"
+      },
+      "name_en": "Miami",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -80.226052,
+        25.789557
+      ],
+      "country": "United States of America",
+      "define": "Miami, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:179": {
+      "title": "Atlanta",
+      "name_native": {
+        "en": "Atlanta"
+      },
+      "name_en": "Atlanta",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -84.367642,
+        33.739457
+      ],
+      "country": "United States of America",
+      "define": "Atlanta, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:180": {
+      "title": "Chicago",
+      "name_native": {
+        "en": "Chicago"
+      },
+      "name_en": "Chicago",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -87.635237,
+        41.847961
+      ],
+      "country": "United States of America",
+      "define": "Chicago, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:181": {
+      "title": "Caracas",
+      "name_native": {
+        "es": "Caracas"
+      },
+      "name_en": "Caracas",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -66.918983,
+        10.502944
+      ],
+      "country": "Venezuela",
+      "define": "Caracas, Venezuela. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:182": {
+      "title": "Київ",
+      "name_native": {
+        "uk": "Київ"
+      },
+      "name_en": "Kyiv",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        30.514682,
+        50.435313
+      ],
+      "country": "Ukraine",
+      "define": "Kyiv, Ukraine. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:183": {
+      "title": "دبي",
+      "name_native": {
+        "ar": "دبي"
+      },
+      "name_en": "Dubai",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        55.286946,
+        25.214912
+      ],
+      "country": "United Arab Emirates",
+      "define": "Dubai, United Arab Emirates. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:184": {
+      "title": "Toshkent",
+      "name_native": {
+        "uz": "Toshkent"
+      },
+      "name_en": "Tashkent",
+      "name_source": "https://www.wikidata.org/wiki/Q269",
+      "type": "Asia",
+      "space": [
+        6371,
+        69.268823,
+        41.303828
+      ],
+      "country": "Uzbekistan",
+      "define": "Tashkent, Uzbekistan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:185": {
+      "title": "Madrid",
+      "name_native": {
+        "es": "Madrid"
+      },
+      "name_en": "Madrid",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        -3.685297,
+        40.401972
+      ],
+      "country": "Spain",
+      "define": "Madrid, Spain. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:186": {
+      "title": "Genève",
+      "name_native": {
+        "fr": "Genève"
+      },
+      "name_en": "Geneva",
+      "name_source": "https://www.wikidata.org/wiki/Q71",
+      "type": "Europe",
+      "space": [
+        6371,
+        6.140028,
+        46.210008
+      ],
+      "country": "Switzerland",
+      "define": "Geneva, Switzerland. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:187": {
+      "title": "Stockholm",
+      "name_native": {
+        "sv": "Stockholm"
+      },
+      "name_en": "Stockholm",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        18.0663,
+        59.324127
+      ],
+      "country": "Sweden",
+      "define": "Stockholm, Sweden. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:188": {
+      "title": "กรุงเทพมหานคร",
+      "name_native": {
+        "th": "กรุงเทพมหานคร"
+      },
+      "name_en": "Bangkok",
+      "name_source": "https://www.wikidata.org/wiki/Q1861",
+      "type": "Asia",
+      "space": [
+        6371,
+        100.514699,
+        13.751945
+      ],
+      "country": "Thailand",
+      "define": "Bangkok, Thailand. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:189": {
+      "title": "Lima",
+      "name_native": {
+        "es": "Lima"
+      },
+      "name_en": "Lima",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -77.052008,
+        -12.046067
+      ],
+      "country": "Peru",
+      "define": "Lima, Peru. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:190": {
+      "title": "Dakar",
+      "name_native": {
+        "fr": "Dakar"
+      },
+      "name_en": "Dakar",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -17.475076,
+        14.717778
+      ],
+      "country": "Senegal",
+      "define": "Dakar, Senegal. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:191": {
+      "title": "Johannesburg",
+      "name_native": {
+        "en": "Johannesburg"
+      },
+      "name_en": "Johannesburg",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        28.028064,
+        -26.168099
+      ],
+      "country": "South Africa",
+      "define": "Johannesburg, South Africa. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:192": {
+      "title": "Amsterdam",
+      "name_native": {
+        "nl": "Amsterdam"
+      },
+      "name_en": "Amsterdam",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        4.914694,
+        52.351914
+      ],
+      "country": "Netherlands",
+      "define": "Amsterdam, Netherlands. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:193": {
+      "title": "الدار البيضاء",
+      "name_native": {
+        "ar": "الدار البيضاء"
+      },
+      "name_en": "Casablanca",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        -7.618313,
+        33.601922
+      ],
+      "country": "Morocco",
+      "define": "Casablanca, Morocco. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:194": {
+      "title": "서울특별시",
+      "name_native": {
+        "ko": "서울특별시"
+      },
+      "name_en": "Seoul",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        126.997785,
+        37.568295
+      ],
+      "country": "South Korea",
+      "define": "Seoul, South Korea. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:195": {
+      "title": "Maynila",
+      "name_native": {
+        "fil": "Maynila"
+      },
+      "name_en": "Manila",
+      "name_source": "https://www.wikidata.org/wiki/Q1461",
+      "type": "Asia",
+      "space": [
+        6371,
+        120.980271,
+        14.606105
+      ],
+      "country": "Philippines",
+      "define": "Manila, Philippines. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:196": {
+      "title": "Monterrey",
+      "name_native": {
+        "es": "Monterrey"
+      },
+      "name_en": "Monterrey",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -100.331931,
+        25.671941
+      ],
+      "country": "Mexico",
+      "define": "Monterrey, Mexico. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:197": {
+      "title": "Berlin",
+      "name_native": {
+        "de": "Berlin"
+      },
+      "name_en": "Berlin",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        13.399603,
+        52.523764
+      ],
+      "country": "Germany",
+      "define": "Berlin, Germany. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:198": {
+      "title": "乌鲁木齐",
+      "name_native": {
+        "zh": "乌鲁木齐"
+      },
+      "name_en": "Ürümqi",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        87.57306,
+        43.806958
+      ],
+      "country": "China",
+      "define": "Ürümqi, China. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:199": {
+      "title": "成都",
+      "name_native": {
+        "zh": "成都"
+      },
+      "name_en": "Chengdu",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        104.068074,
+        30.671946
+      ],
+      "country": "China",
+      "define": "Chengdu, China. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:200": {
+      "title": "大阪市",
+      "name_native": {
+        "ja": "大阪市"
+      },
+      "name_en": "Ōsaka",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        135.503754,
+        34.691095
+      ],
+      "country": "Japan",
+      "define": "Ōsaka, Japan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:201": {
+      "title": "Kinshasa",
+      "name_native": {
+        "fr": "Kinshasa"
+      },
+      "name_en": "Kinshasa",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        15.313026,
+        -4.327778
+      ],
+      "country": "Congo (Kinshasa)",
+      "define": "Kinshasa, Congo (Kinshasa). Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:202": {
+      "title": "नई दिल्ली",
+      "name_native": {
+        "hi": "नई दिल्ली"
+      },
+      "name_en": "New Delhi",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        77.19998,
+        28.600023
+      ],
+      "country": "India",
+      "define": "New Delhi, India. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:203": {
+      "title": "ಬೆಂಗಳೂರು",
+      "name_native": {
+        "kn": "ಬೆಂಗಳೂರು"
+      },
+      "name_en": "Bengaluru",
+      "name_source": "https://www.wikidata.org/wiki/Q1355",
+      "type": "Asia",
+      "space": [
+        6371,
+        77.558064,
+        12.971941
+      ],
+      "country": "India",
+      "define": "Bengaluru, India. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:204": {
+      "title": "Αθήνα",
+      "name_native": {
+        "el": "Αθήνα"
+      },
+      "name_en": "Athens",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        23.731375,
+        37.985272
+      ],
+      "country": "Greece",
+      "define": "Athens, Greece. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:205": {
+      "title": "بغداد",
+      "name_native": {
+        "ar": "بغداد"
+      },
+      "name_en": "Baghdad",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        44.391923,
+        33.340594
+      ],
+      "country": "Iraq",
+      "define": "Baghdad, Iraq. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:206": {
+      "title": "አዲስ አበባ",
+      "name_native": {
+        "am": "አዲስ አበባ"
+      },
+      "name_en": "Addis Ababa",
+      "name_source": "https://www.wikidata.org/wiki/Q3624",
+      "type": "Africa",
+      "space": [
+        6371,
+        38.698059,
+        9.035256
+      ],
+      "country": "Ethiopia",
+      "define": "Addis Ababa, Ethiopia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:207": {
+      "title": "تهران",
+      "name_native": {
+        "fa": "تهران"
+      },
+      "name_en": "Tehran",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        51.422398,
+        35.673889
+      ],
+      "country": "Iran",
+      "define": "Tehran, Iran. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:208": {
+      "title": "Vancouver",
+      "name_native": {
+        "en": "Vancouver"
+      },
+      "name_en": "Vancouver",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -123.12359,
+        49.275362
+      ],
+      "country": "Canada",
+      "define": "Vancouver, Canada. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:209": {
+      "title": "Toronto",
+      "name_native": {
+        "en": "Toronto"
+      },
+      "name_en": "Toronto",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -79.389459,
+        43.664645
+      ],
+      "country": "Canada",
+      "define": "Toronto, Canada. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:210": {
+      "title": "Buenos Aires",
+      "name_native": {
+        "es": "Buenos Aires"
+      },
+      "name_en": "Buenos Aires",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -58.432513,
+        -34.610715
+      ],
+      "country": "Argentina",
+      "define": "Buenos Aires, Argentina. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:211": {
+      "title": "کابل",
+      "name_native": {
+        "fa": "کابل"
+      },
+      "name_en": "Kabul",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        69.181314,
+        34.518636
+      ],
+      "country": "Afghanistan",
+      "define": "Kabul, Afghanistan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:212": {
+      "title": "Wien",
+      "name_native": {
+        "de": "Wien"
+      },
+      "name_en": "Vienna",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        16.364693,
+        48.201961
+      ],
+      "country": "Austria",
+      "define": "Vienna, Austria. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:213": {
+      "title": "Melbourne",
+      "name_native": {
+        "en": "Melbourne"
+      },
+      "name_en": "Melbourne",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        144.97307,
+        -37.818086
+      ],
+      "country": "Australia",
+      "define": "Melbourne, Australia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:214": {
+      "title": "臺北市",
+      "name_native": {
+        "zh-Hant": "臺北市"
+      },
+      "name_en": "Taipei",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        121.568333,
+        25.035833
+      ],
+      "country": "Taiwan",
+      "define": "Taipei, Taiwan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:215": {
+      "title": "Auckland",
+      "name_native": {
+        "en": "Auckland"
+      },
+      "name_en": "Auckland",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        174.763027,
+        -36.848055
+      ],
+      "country": "New Zealand",
+      "define": "Auckland, New Zealand. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:216": {
+      "title": "Los Angeles",
+      "name_native": {
+        "en": "Los Angeles"
+      },
+      "name_en": "Los Angeles",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -118.231986,
+        34.049219
+      ],
+      "country": "United States of America",
+      "define": "Los Angeles, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:217": {
+      "title": "Washington",
+      "name_native": {
+        "en": "Washington"
+      },
+      "name_en": "Washington,  D.C.",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -77.011364,
+        38.901495
+      ],
+      "country": "United States of America",
+      "define": "Washington,  D.C., United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:218": {
+      "title": "New York City",
+      "name_native": {
+        "en": "New York City"
+      },
+      "name_en": "New York",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -73.995718,
+        40.721562
+      ],
+      "country": "United States of America",
+      "define": "New York, United States of America. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:219": {
+      "title": "London",
+      "name_native": {
+        "en": "London"
+      },
+      "name_en": "London",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        -0.118668,
+        51.501941
+      ],
+      "country": "United Kingdom",
+      "define": "London, United Kingdom. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:220": {
+      "title": "İstanbul",
+      "name_native": {
+        "tr": "İstanbul"
+      },
+      "name_en": "Istanbul",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        28.974277,
+        41.017602
+      ],
+      "country": "Turkey",
+      "define": "Istanbul, Turkey. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:221": {
+      "title": "الرياض",
+      "name_native": {
+        "ar": "الرياض"
+      },
+      "name_en": "Riyadh",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        46.720487,
+        24.634497
+      ],
+      "country": "Saudi Arabia",
+      "define": "Riyadh, Saudi Arabia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:222": {
+      "title": "Cape Town",
+      "name_native": {
+        "en": "Cape Town"
+      },
+      "name_en": "Cape Town",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        18.433042,
+        -33.918065
+      ],
+      "country": "South Africa",
+      "define": "Cape Town, South Africa. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:223": {
+      "title": "Москва",
+      "name_native": {
+        "ru": "Москва"
+      },
+      "name_en": "Moscow",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        37.613577,
+        55.75411
+      ],
+      "country": "Russia",
+      "define": "Moscow, Russia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:224": {
+      "title": "Ciudad de México",
+      "name_native": {
+        "es": "Ciudad de México"
+      },
+      "name_en": "Mexico City",
+      "name_source": "Natural Earth NAME fields",
+      "type": "North America",
+      "space": [
+        6371,
+        -99.132934,
+        19.444388
+      ],
+      "country": "Mexico",
+      "define": "Mexico City, Mexico. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:225": {
+      "title": "Lagos",
+      "name_native": {
+        "en": "Lagos"
+      },
+      "name_en": "Lagos",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        3.389585,
+        6.445208
+      ],
+      "country": "Nigeria",
+      "define": "Lagos, Nigeria. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:226": {
+      "title": "Roma",
+      "name_native": {
+        "it": "Roma"
+      },
+      "name_en": "Rome",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        12.481313,
+        41.897902
+      ],
+      "country": "Italy",
+      "define": "Rome, Italy. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:227": {
+      "title": "北京",
+      "name_native": {
+        "zh": "北京"
+      },
+      "name_en": "Beijing",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        116.394201,
+        39.90172
+      ],
+      "country": "China",
+      "define": "Beijing, China. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:228": {
+      "title": "Nairobi",
+      "name_native": {
+        "sw": "Nairobi"
+      },
+      "name_en": "Nairobi",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        36.814711,
+        -1.281401
+      ],
+      "country": "Kenya",
+      "define": "Nairobi, Kenya. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:229": {
+      "title": "Jakarta",
+      "name_native": {
+        "id": "Jakarta"
+      },
+      "name_en": "Jakarta",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        106.827492,
+        -6.172472
+      ],
+      "country": "Indonesia",
+      "define": "Jakarta, Indonesia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:230": {
+      "title": "Bogotá",
+      "name_native": {
+        "es": "Bogotá"
+      },
+      "name_en": "Bogota",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -74.08529,
+        4.598369
+      ],
+      "country": "Colombia",
+      "define": "Bogota, Colombia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:231": {
+      "title": "القاهرة",
+      "name_native": {
+        "ar": "القاهرة"
+      },
+      "name_en": "Cairo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Africa",
+      "space": [
+        6371,
+        31.248022,
+        30.051906
+      ],
+      "country": "Egypt",
+      "define": "Cairo, Egypt. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:232": {
+      "title": "上海",
+      "name_native": {
+        "zh": "上海"
+      },
+      "name_en": "Shanghai",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        121.434559,
+        31.218398
+      ],
+      "country": "China",
+      "define": "Shanghai, China. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:233": {
+      "title": "東京都",
+      "name_native": {
+        "ja": "東京都"
+      },
+      "name_en": "Tokyo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        139.749462,
+        35.686963
+      ],
+      "country": "Japan",
+      "define": "Tokyo, Japan. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:234": {
+      "title": "मुंबई",
+      "name_native": {
+        "mr": "मुंबई"
+      },
+      "name_en": "Mumbai",
+      "name_source": "https://www.wikidata.org/wiki/Q1156",
+      "type": "Asia",
+      "space": [
+        6371,
+        72.875839,
+        19.068408
+      ],
+      "country": "India",
+      "define": "Mumbai, India. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:235": {
+      "title": "Paris",
+      "name_native": {
+        "fr": "Paris"
+      },
+      "name_en": "Paris",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Europe",
+      "space": [
+        6371,
+        2.352992,
+        48.858092
+      ],
+      "country": "France",
+      "define": "Paris, France. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:236": {
+      "title": "Santiago de Chile",
+      "name_native": {
+        "es": "Santiago de Chile"
+      },
+      "name_en": "Santiago",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -70.650504,
+        -33.440205
+      ],
+      "country": "Chile",
+      "define": "Santiago, Chile. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:237": {
+      "title": "কলকাতা",
+      "name_native": {
+        "bn": "কলকাতা"
+      },
+      "name_en": "Kolkata",
+      "name_source": "https://www.wikidata.org/wiki/Q1348",
+      "type": "Asia",
+      "space": [
+        6371,
+        88.369126,
+        22.569579
+      ],
+      "country": "India",
+      "define": "Kolkata, India. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:238": {
+      "title": "Rio de Janeiro",
+      "name_native": {
+        "pt": "Rio de Janeiro"
+      },
+      "name_en": "Rio de Janeiro",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -43.212117,
+        -22.907308
+      ],
+      "country": "Brazil",
+      "define": "Rio de Janeiro, Brazil. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:239": {
+      "title": "São Paulo",
+      "name_native": {
+        "pt": "São Paulo"
+      },
+      "name_en": "São Paulo",
+      "name_source": "Natural Earth NAME fields",
+      "type": "South America",
+      "space": [
+        6371,
+        -46.626966,
+        -23.556734
+      ],
+      "country": "Brazil",
+      "define": "São Paulo, Brazil. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:240": {
+      "title": "Sydney",
+      "name_native": {
+        "en": "Sydney"
+      },
+      "name_en": "Sydney",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Oceania",
+      "space": [
+        6371,
+        151.212548,
+        -33.871373
+      ],
+      "country": "Australia",
+      "define": "Sydney, Australia. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:241": {
+      "title": "Singapore",
+      "name_native": {
+        "en": "Singapore",
+        "ms": "Singapura",
+        "zh": "新加坡",
+        "ta": "சிங்கப்பூர்"
+      },
+      "name_en": "Singapore",
+      "name_source": "https://www.wikidata.org/wiki/Q334",
+      "type": "Asia",
+      "space": [
+        6371,
+        103.853875,
+        1.294979
+      ],
+      "country": "Singapore",
+      "define": "Singapore, Singapore. Natural Earth reference location on a sphere of radius 6371 km."
+    },
+    "city:242": {
+      "title": "香港",
+      "name_native": {
+        "zh-Hant": "香港"
+      },
+      "name_en": "Hong Kong",
+      "name_source": "Natural Earth NAME fields",
+      "type": "Asia",
+      "space": [
+        6371,
+        114.183064,
+        22.306927
+      ],
+      "country": "Hong Kong S.A.R.",
+      "define": "Hong Kong, Hong Kong S.A.R.. Natural Earth reference location on a sphere of radius 6371 km."
+    }
+  },
+  "edges": [
+    {
+      "id": "near:0",
+      "source": "city:0",
+      "target": "city:226",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 2,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:1",
+      "source": "city:0",
+      "target": "city:1",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 226,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:2",
+      "source": "city:1",
+      "target": "city:226",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 227,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:3",
+      "source": "city:2",
+      "target": "city:26",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 157,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:4",
+      "source": "city:2",
+      "target": "city:186",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 277,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:5",
+      "source": "city:3",
+      "target": "city:16",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 18,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:6",
+      "source": "city:3",
+      "target": "city:74",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 150,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:7",
+      "source": "city:4",
+      "target": "city:170",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 187,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:8",
+      "source": "city:4",
+      "target": "city:235",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 287,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:9",
+      "source": "city:5",
+      "target": "city:6",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1460,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:10",
+      "source": "city:5",
+      "target": "city:11",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1761,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:11",
+      "source": "city:6",
+      "target": "city:11",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 666,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:12",
+      "source": "city:7",
+      "target": "city:100",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1073,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:13",
+      "source": "city:7",
+      "target": "city:11",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1293,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:14",
+      "source": "city:8",
+      "target": "city:69",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 2343,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:15",
+      "source": "city:8",
+      "target": "city:5",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 2596,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:16",
+      "source": "city:9",
+      "target": "city:27",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 371,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:17",
+      "source": "city:9",
+      "target": "city:193",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 855,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:18",
+      "source": "city:10",
+      "target": "city:186",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 292,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:19",
+      "source": "city:10",
+      "target": "city:26",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 353,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:20",
+      "source": "city:12",
+      "target": "city:155",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 698,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:21",
+      "source": "city:12",
+      "target": "city:87",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 923,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:22",
+      "source": "city:13",
+      "target": "city:185",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 493,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:23",
+      "source": "city:13",
+      "target": "city:10",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 496,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:24",
+      "source": "city:14",
+      "target": "city:42",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 158,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:25",
+      "source": "city:14",
+      "target": "city:38",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 280,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:26",
+      "source": "city:15",
+      "target": "city:37",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 176,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:27",
+      "source": "city:15",
+      "target": "city:58",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 377,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:28",
+      "source": "city:16",
+      "target": "city:74",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 151,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:29",
+      "source": "city:17",
+      "target": "city:58",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 514,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:30",
+      "source": "city:17",
+      "target": "city:15",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 773,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:31",
+      "source": "city:18",
+      "target": "city:192",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 53,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:32",
+      "source": "city:18",
+      "target": "city:170",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 138,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:33",
+      "source": "city:19",
+      "target": "city:95",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 118,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:34",
+      "source": "city:19",
+      "target": "city:212",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 277,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:35",
+      "source": "city:20",
+      "target": "city:212",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 56,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:36",
+      "source": "city:20",
+      "target": "city:146",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 163,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:37",
+      "source": "city:21",
+      "target": "city:43",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 142,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:38",
+      "source": "city:21",
+      "target": "city:48",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 300,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:39",
+      "source": "city:22",
+      "target": "city:118",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 135,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:40",
+      "source": "city:22",
+      "target": "city:28",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 157,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:41",
+      "source": "city:23",
+      "target": "city:77",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 11,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:42",
+      "source": "city:23",
+      "target": "city:203",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 724,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:43",
+      "source": "city:24",
+      "target": "city:195",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 208,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:44",
+      "source": "city:24",
+      "target": "city:242",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 936,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:45",
+      "source": "city:25",
+      "target": "city:155",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 394,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:46",
+      "source": "city:25",
+      "target": "city:228",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 558,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:47",
+      "source": "city:26",
+      "target": "city:186",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 128,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:48",
+      "source": "city:27",
+      "target": "city:193",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 895,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:49",
+      "source": "city:28",
+      "target": "city:34",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 77,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:50",
+      "source": "city:29",
+      "target": "city:44",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 208,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:51",
+      "source": "city:29",
+      "target": "city:38",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 239,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:52",
+      "source": "city:30",
+      "target": "city:133",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 247,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:53",
+      "source": "city:30",
+      "target": "city:206",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 564,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:54",
+      "source": "city:31",
+      "target": "city:158",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 23,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:55",
+      "source": "city:31",
+      "target": "city:241",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 301,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:56",
+      "source": "city:32",
+      "target": "city:200",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 44,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:57",
+      "source": "city:32",
+      "target": "city:233",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 370,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:58",
+      "source": "city:33",
+      "target": "city:190",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 170,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:59",
+      "source": "city:33",
+      "target": "city:81",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 207,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:60",
+      "source": "city:34",
+      "target": "city:118",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 154,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:61",
+      "source": "city:36",
+      "target": "city:123",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 27,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:62",
+      "source": "city:36",
+      "target": "city:225",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 86,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:63",
+      "source": "city:37",
+      "target": "city:58",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 545,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:64",
+      "source": "city:38",
+      "target": "city:42",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 135,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:65",
+      "source": "city:39",
+      "target": "city:150",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 5755,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:66",
+      "source": "city:39",
+      "target": "city:185",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 6252,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:67",
+      "source": "city:40",
+      "target": "city:44",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 94,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:68",
+      "source": "city:40",
+      "target": "city:29",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 264,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:69",
+      "source": "city:41",
+      "target": "city:87",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1055,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:70",
+      "source": "city:41",
+      "target": "city:134",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1743,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:71",
+      "source": "city:43",
+      "target": "city:221",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 427,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:72",
+      "source": "city:45",
+      "target": "city:210",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 208,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:73",
+      "source": "city:45",
+      "target": "city:62",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1078,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:74",
+      "source": "city:46",
+      "target": "city:123",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 133,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:75",
+      "source": "city:46",
+      "target": "city:36",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 159,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:76",
+      "source": "city:47",
+      "target": "city:164",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 514,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:77",
+      "source": "city:47",
+      "target": "city:173",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 635,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:78",
+      "source": "city:48",
+      "target": "city:183",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 125,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:79",
+      "source": "city:49",
+      "target": "city:207",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 669,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:80",
+      "source": "city:49",
+      "target": "city:120",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 783,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:81",
+      "source": "city:50",
+      "target": "city:51",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 397,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:82",
+      "source": "city:50",
+      "target": "city:97",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 613,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:83",
+      "source": "city:51",
+      "target": "city:97",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 517,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:84",
+      "source": "city:52",
+      "target": "city:113",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1905,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:85",
+      "source": "city:52",
+      "target": "city:229",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 2085,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:86",
+      "source": "city:53",
+      "target": "city:100",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1072,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:87",
+      "source": "city:53",
+      "target": "city:70",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1291,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:88",
+      "source": "city:54",
+      "target": "city:90",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 220,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:89",
+      "source": "city:54",
+      "target": "city:63",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 240,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:90",
+      "source": "city:55",
+      "target": "city:59",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 349,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:91",
+      "source": "city:55",
+      "target": "city:181",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1046,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:92",
+      "source": "city:56",
+      "target": "city:156",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1495,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:93",
+      "source": "city:56",
+      "target": "city:152",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1746,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:94",
+      "source": "city:57",
+      "target": "city:162",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 254,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:95",
+      "source": "city:57",
+      "target": "city:91",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 472,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:96",
+      "source": "city:58",
+      "target": "city:228",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 503,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:97",
+      "source": "city:59",
+      "target": "city:181",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1393,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:98",
+      "source": "city:60",
+      "target": "city:129",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 415,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:99",
+      "source": "city:60",
+      "target": "city:80",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 768,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:100",
+      "source": "city:61",
+      "target": "city:184",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 308,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:101",
+      "source": "city:61",
+      "target": "city:211",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 451,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:102",
+      "source": "city:62",
+      "target": "city:210",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1039,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:103",
+      "source": "city:62",
+      "target": "city:114",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1049,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:104",
+      "source": "city:63",
+      "target": "city:89",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 344,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:105",
+      "source": "city:64",
+      "target": "city:109",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 128,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:106",
+      "source": "city:64",
+      "target": "city:157",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 360,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:107",
+      "source": "city:65",
+      "target": "city:211",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 371,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:108",
+      "source": "city:65",
+      "target": "city:61",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 665,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:109",
+      "source": "city:66",
+      "target": "city:126",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 427,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:110",
+      "source": "city:66",
+      "target": "city:237",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 650,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:111",
+      "source": "city:67",
+      "target": "city:86",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 124,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:112",
+      "source": "city:67",
+      "target": "city:191",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 373,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:113",
+      "source": "city:68",
+      "target": "city:191",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 55,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:114",
+      "source": "city:68",
+      "target": "city:127",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 261,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:115",
+      "source": "city:69",
+      "target": "city:70",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1399,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:116",
+      "source": "city:69",
+      "target": "city:5",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 2189,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:117",
+      "source": "city:71",
+      "target": "city:89",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 510,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:118",
+      "source": "city:71",
+      "target": "city:63",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 817,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:119",
+      "source": "city:72",
+      "target": "city:193",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 86,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:120",
+      "source": "city:72",
+      "target": "city:9",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 920,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:121",
+      "source": "city:73",
+      "target": "city:148",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 357,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:122",
+      "source": "city:73",
+      "target": "city:182",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 400,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:123",
+      "source": "city:75",
+      "target": "city:133",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 845,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:124",
+      "source": "city:75",
+      "target": "city:228",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1021,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:125",
+      "source": "city:76",
+      "target": "city:183",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 362,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:126",
+      "source": "city:76",
+      "target": "city:48",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 419,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:127",
+      "source": "city:77",
+      "target": "city:203",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 717,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:128",
+      "source": "city:78",
+      "target": "city:227",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1169,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:129",
+      "source": "city:78",
+      "target": "city:198",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1561,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:130",
+      "source": "city:79",
+      "target": "city:127",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 928,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:131",
+      "source": "city:79",
+      "target": "city:67",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1169,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:132",
+      "source": "city:80",
+      "target": "city:225",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 537,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:133",
+      "source": "city:80",
+      "target": "city:93",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 607,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:134",
+      "source": "city:81",
+      "target": "city:109",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 333,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:135",
+      "source": "city:82",
+      "target": "city:139",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 71,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:136",
+      "source": "city:82",
+      "target": "city:165",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 111,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:137",
+      "source": "city:83",
+      "target": "city:125",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 170,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:138",
+      "source": "city:83",
+      "target": "city:84",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 263,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:139",
+      "source": "city:84",
+      "target": "city:96",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 279,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:140",
+      "source": "city:85",
+      "target": "city:184",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 472,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:141",
+      "source": "city:85",
+      "target": "city:61",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 685,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:142",
+      "source": "city:86",
+      "target": "city:191",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 354,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:143",
+      "source": "city:88",
+      "target": "city:230",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 726,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:144",
+      "source": "city:88",
+      "target": "city:189",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1325,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:145",
+      "source": "city:90",
+      "target": "city:98",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 175,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:146",
+      "source": "city:91",
+      "target": "city:162",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 724,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:147",
+      "source": "city:92",
+      "target": "city:80",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 893,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:148",
+      "source": "city:92",
+      "target": "city:116",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 944,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:149",
+      "source": "city:93",
+      "target": "city:117",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 303,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:150",
+      "source": "city:93",
+      "target": "city:99",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 382,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:151",
+      "source": "city:94",
+      "target": "city:30",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 617,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:152",
+      "source": "city:94",
+      "target": "city:151",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 687,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:153",
+      "source": "city:95",
+      "target": "city:212",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 269,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:154",
+      "source": "city:96",
+      "target": "city:166",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 82,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:155",
+      "source": "city:98",
+      "target": "city:115",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 348,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:156",
+      "source": "city:99",
+      "target": "city:117",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 450,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:157",
+      "source": "city:100",
+      "target": "city:132",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 743,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:158",
+      "source": "city:101",
+      "target": "city:236",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 100,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:159",
+      "source": "city:101",
+      "target": "city:210",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1229,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:160",
+      "source": "city:102",
+      "target": "city:190",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 407,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:161",
+      "source": "city:102",
+      "target": "city:33",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 519,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:162",
+      "source": "city:103",
+      "target": "city:129",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 704,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:163",
+      "source": "city:103",
+      "target": "city:109",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 710,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:164",
+      "source": "city:104",
+      "target": "city:149",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 84,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:165",
+      "source": "city:104",
+      "target": "city:165",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 211,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:166",
+      "source": "city:105",
+      "target": "city:119",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 173,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:167",
+      "source": "city:105",
+      "target": "city:120",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 450,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:168",
+      "source": "city:106",
+      "target": "city:85",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 954,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:169",
+      "source": "city:106",
+      "target": "city:184",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1111,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:170",
+      "source": "city:107",
+      "target": "city:144",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 482,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:171",
+      "source": "city:107",
+      "target": "city:188",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 519,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:172",
+      "source": "city:108",
+      "target": "city:201",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 9,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:173",
+      "source": "city:108",
+      "target": "city:172",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 557,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:174",
+      "source": "city:110",
+      "target": "city:168",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 217,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:175",
+      "source": "city:110",
+      "target": "city:163",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 576,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:176",
+      "source": "city:111",
+      "target": "city:209",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 351,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:177",
+      "source": "city:111",
+      "target": "city:218",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 540,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:178",
+      "source": "city:112",
+      "target": "city:130",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 198,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:179",
+      "source": "city:112",
+      "target": "city:28",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 246,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:180",
+      "source": "city:113",
+      "target": "city:195",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1268,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:181",
+      "source": "city:113",
+      "target": "city:241",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1293,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:182",
+      "source": "city:114",
+      "target": "city:122",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 417,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:183",
+      "source": "city:115",
+      "target": "city:54",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 387,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:184",
+      "source": "city:116",
+      "target": "city:117",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 783,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:185",
+      "source": "city:119",
+      "target": "city:120",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 454,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:186",
+      "source": "city:121",
+      "target": "city:188",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 536,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:187",
+      "source": "city:121",
+      "target": "city:107",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 755,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:188",
+      "source": "city:122",
+      "target": "city:189",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1079,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:189",
+      "source": "city:123",
+      "target": "city:225",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 109,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:190",
+      "source": "city:124",
+      "target": "city:34",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 172,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:191",
+      "source": "city:124",
+      "target": "city:28",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 176,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:192",
+      "source": "city:125",
+      "target": "city:84",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 403,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:193",
+      "source": "city:126",
+      "target": "city:171",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 424,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:194",
+      "source": "city:127",
+      "target": "city:191",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 272,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:195",
+      "source": "city:128",
+      "target": "city:240",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 247,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:196",
+      "source": "city:128",
+      "target": "city:213",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 466,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:197",
+      "source": "city:130",
+      "target": "city:22",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 170,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:198",
+      "source": "city:131",
+      "target": "city:174",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 332,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:199",
+      "source": "city:131",
+      "target": "city:107",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 711,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:200",
+      "source": "city:132",
+      "target": "city:7",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1525,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:201",
+      "source": "city:133",
+      "target": "city:206",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 592,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:202",
+      "source": "city:134",
+      "target": "city:75",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1345,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:203",
+      "source": "city:134",
+      "target": "city:12",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1557,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:204",
+      "source": "city:135",
+      "target": "city:38",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 7614,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:205",
+      "source": "city:135",
+      "target": "city:14",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 7625,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:206",
+      "source": "city:136",
+      "target": "city:175",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 7708,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:207",
+      "source": "city:136",
+      "target": "city:216",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 7769,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:208",
+      "source": "city:137",
+      "target": "city:226",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 690,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:209",
+      "source": "city:137",
+      "target": "city:0",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 691,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:210",
+      "source": "city:138",
+      "target": "city:204",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 6279,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:211",
+      "source": "city:138",
+      "target": "city:73",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 6396,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:212",
+      "source": "city:139",
+      "target": "city:165",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 53,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:213",
+      "source": "city:140",
+      "target": "city:190",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 650,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:214",
+      "source": "city:140",
+      "target": "city:33",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 764,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:215",
+      "source": "city:141",
+      "target": "city:178",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 299,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:216",
+      "source": "city:141",
+      "target": "city:159",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 553,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:217",
+      "source": "city:142",
+      "target": "city:104",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 243,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:218",
+      "source": "city:142",
+      "target": "city:149",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 327,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:219",
+      "source": "city:143",
+      "target": "city:215",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 494,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:220",
+      "source": "city:143",
+      "target": "city:240",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 2226,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:221",
+      "source": "city:144",
+      "target": "city:242",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 873,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:222",
+      "source": "city:145",
+      "target": "city:220",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 350,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:223",
+      "source": "city:145",
+      "target": "city:142",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 531,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:224",
+      "source": "city:146",
+      "target": "city:212",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 217,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:225",
+      "source": "city:147",
+      "target": "city:221",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1065,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:226",
+      "source": "city:147",
+      "target": "city:21",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1342,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:227",
+      "source": "city:148",
+      "target": "city:124",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 297,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:228",
+      "source": "city:149",
+      "target": "city:82",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 176,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:229",
+      "source": "city:150",
+      "target": "city:185",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 504,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:230",
+      "source": "city:150",
+      "target": "city:13",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 993,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:231",
+      "source": "city:151",
+      "target": "city:206",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 990,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:232",
+      "source": "city:152",
+      "target": "city:187",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 417,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:233",
+      "source": "city:152",
+      "target": "city:167",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 483,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:234",
+      "source": "city:153",
+      "target": "city:83",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 395,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:235",
+      "source": "city:153",
+      "target": "city:125",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 476,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:236",
+      "source": "city:154",
+      "target": "city:194",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 195,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:237",
+      "source": "city:154",
+      "target": "city:227",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 809,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:238",
+      "source": "city:155",
+      "target": "city:228",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 671,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:239",
+      "source": "city:156",
+      "target": "city:219",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 464,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:240",
+      "source": "city:156",
+      "target": "city:18",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 722,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:241",
+      "source": "city:157",
+      "target": "city:109",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 478,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:242",
+      "source": "city:158",
+      "target": "city:241",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 316,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:243",
+      "source": "city:159",
+      "target": "city:178",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 366,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:244",
+      "source": "city:160",
+      "target": "city:212",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 253,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:245",
+      "source": "city:160",
+      "target": "city:197",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 280,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:246",
+      "source": "city:161",
+      "target": "city:43",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 433,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:247",
+      "source": "city:161",
+      "target": "city:221",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 541,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:248",
+      "source": "city:163",
+      "target": "city:46",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 172,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:249",
+      "source": "city:163",
+      "target": "city:123",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 304,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:250",
+      "source": "city:164",
+      "target": "city:173",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1019,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:251",
+      "source": "city:166",
+      "target": "city:84",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 361,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:252",
+      "source": "city:167",
+      "target": "city:197",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 355,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:253",
+      "source": "city:168",
+      "target": "city:163",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 422,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:254",
+      "source": "city:169",
+      "target": "city:239",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 875,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:255",
+      "source": "city:169",
+      "target": "city:238",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 933,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:256",
+      "source": "city:170",
+      "target": "city:192",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 173,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:257",
+      "source": "city:171",
+      "target": "city:237",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 245,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:258",
+      "source": "city:172",
+      "target": "city:201",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 551,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:259",
+      "source": "city:173",
+      "target": "city:72",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 946,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:260",
+      "source": "city:174",
+      "target": "city:188",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 576,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:261",
+      "source": "city:175",
+      "target": "city:216",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 560,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:262",
+      "source": "city:175",
+      "target": "city:208",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1279,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:263",
+      "source": "city:176",
+      "target": "city:216",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1335,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:264",
+      "source": "city:176",
+      "target": "city:177",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1416,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:265",
+      "source": "city:177",
+      "target": "city:196",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 667,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:266",
+      "source": "city:177",
+      "target": "city:179",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1129,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:267",
+      "source": "city:179",
+      "target": "city:217",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 873,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:268",
+      "source": "city:179",
+      "target": "city:180",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 946,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:269",
+      "source": "city:180",
+      "target": "city:209",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 703,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:270",
+      "source": "city:181",
+      "target": "city:230",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1027,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:271",
+      "source": "city:182",
+      "target": "city:125",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 435,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:272",
+      "source": "city:187",
+      "target": "city:96",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 377,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:273",
+      "source": "city:187",
+      "target": "city:166",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 396,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:274",
+      "source": "city:190",
+      "target": "city:81",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 377,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:275",
+      "source": "city:194",
+      "target": "city:200",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 828,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:276",
+      "source": "city:195",
+      "target": "city:242",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1116,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:277",
+      "source": "city:196",
+      "target": "city:224",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 703,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:278",
+      "source": "city:198",
+      "target": "city:85",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1054,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:279",
+      "source": "city:198",
+      "target": "city:106",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1459,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:280",
+      "source": "city:199",
+      "target": "city:144",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1086,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:281",
+      "source": "city:199",
+      "target": "city:242",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1369,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:282",
+      "source": "city:200",
+      "target": "city:233",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 401,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:283",
+      "source": "city:202",
+      "target": "city:65",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 688,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:284",
+      "source": "city:202",
+      "target": "city:66",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 801,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:285",
+      "source": "city:204",
+      "target": "city:34",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 487,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:286",
+      "source": "city:204",
+      "target": "city:118",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 500,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:287",
+      "source": "city:205",
+      "target": "city:161",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 557,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:288",
+      "source": "city:205",
+      "target": "city:207",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 694,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:289",
+      "source": "city:207",
+      "target": "city:120",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 543,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:290",
+      "source": "city:208",
+      "target": "city:216",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1740,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:291",
+      "source": "city:209",
+      "target": "city:218",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 552,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:292",
+      "source": "city:213",
+      "target": "city:240",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 713,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:293",
+      "source": "city:214",
+      "target": "city:232",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 688,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:294",
+      "source": "city:214",
+      "target": "city:242",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 811,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:295",
+      "source": "city:215",
+      "target": "city:132",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1997,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:296",
+      "source": "city:217",
+      "target": "city:218",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 328,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:297",
+      "source": "city:217",
+      "target": "city:209",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 566,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:298",
+      "source": "city:219",
+      "target": "city:18",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 309,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:299",
+      "source": "city:219",
+      "target": "city:170",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 319,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:300",
+      "source": "city:220",
+      "target": "city:142",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 755,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:301",
+      "source": "city:221",
+      "target": "city:21",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 491,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:302",
+      "source": "city:222",
+      "target": "city:67",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 911,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:303",
+      "source": "city:222",
+      "target": "city:86",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 997,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:304",
+      "source": "city:223",
+      "target": "city:125",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 675,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:305",
+      "source": "city:223",
+      "target": "city:182",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 757,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:306",
+      "source": "city:224",
+      "target": "city:98",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1060,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:307",
+      "source": "city:227",
+      "target": "city:194",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 955,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:308",
+      "source": "city:229",
+      "target": "city:241",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 894,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:309",
+      "source": "city:229",
+      "target": "city:31",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1162,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:310",
+      "source": "city:231",
+      "target": "city:151",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1613,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:311",
+      "source": "city:231",
+      "target": "city:164",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1740,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:312",
+      "source": "city:232",
+      "target": "city:194",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 871,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:313",
+      "source": "city:234",
+      "target": "city:203",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 842,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:314",
+      "source": "city:234",
+      "target": "city:202",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1147,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:315",
+      "source": "city:235",
+      "target": "city:170",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 262,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:316",
+      "source": "city:236",
+      "target": "city:210",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 1133,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:317",
+      "source": "city:237",
+      "target": "city:126",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 560,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    },
+    {
+      "id": "near:318",
+      "source": "city:238",
+      "target": "city:239",
+      "value": "nearby reference city",
+      "metadata": {
+        "distanceKm": 356,
+        "kind": "illustrative proximity",
+        "isTransportRoute": false
+      }
+    }
+  ]
+}
