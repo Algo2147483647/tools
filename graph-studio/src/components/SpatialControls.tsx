@@ -1,8 +1,16 @@
 import { useState } from "react";
 import type { useSpatialView } from "../controllers/useSpatialView";
 import Icon from "./ui/Icon";
+import type { StageData } from "../layout/types";
+import { spatialUnitScale } from "../graph/space";
 
-export default function SpatialControls({ spatial }: { spatial: ReturnType<typeof useSpatialView> }) {
+export default function SpatialControls({
+  spatial,
+  layout,
+}: {
+  spatial: ReturnType<typeof useSpatialView>;
+  layout?: StageData["spatial"];
+}) {
   const { metadata, view, change } = spatial;
   const [collapsed, setCollapsed] = useState(false);
   if (!metadata)
@@ -38,6 +46,9 @@ export default function SpatialControls({ spatial }: { spatial: ReturnType<typeo
       </div>
       {!collapsed && (
         <div id="spatial-controls-fields" className="spatial-controls-fields">
+          {metadata.dimensions > 0 && layout && Number.isFinite(layout.pixelsPerUnit) && layout.pixelsPerUnit > 0 && (
+            <DisplayUnits layout={layout} onChange={(unitScale) => change({ unitScale })} />
+          )}
           {dimensions >= 3 && (
             <label>
               Projection
@@ -123,6 +134,73 @@ export default function SpatialControls({ spatial }: { spatial: ReturnType<typeo
         </div>
       )}
     </aside>
+  );
+}
+
+function DisplayUnits({
+  layout,
+  onChange,
+}: {
+  layout: NonNullable<StageData["spatial"]>;
+  onChange(value: number): void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const base = layout.pixelsPerUnit / layout.unitScale;
+  const display = String(Number(layout.pixelsPerUnit.toPrecision(6)));
+  return (
+    <div className="spatial-display-units">
+      <label title="Coordinate spacing at 100% zoom. Increase to spread points apart. Zoom still scales labels, points and lines together.">
+        Display units
+        <span className="spatial-angle-input">
+          <input
+            aria-label="Pixels per coordinate unit"
+            type="number"
+            min={base * 0.1}
+            max={base * 100}
+            step="any"
+            value={draft ?? display}
+            onChange={(event) => setDraft(event.target.value)}
+            onBlur={(event) => {
+              const next = event.currentTarget.valueAsNumber;
+              if (Number.isFinite(next) && next > 0 && draft !== null) onChange(spatialUnitScale(next / base));
+              setDraft(null);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                event.currentTarget.value = "";
+                setDraft(null);
+                event.currentTarget.blur();
+              } else if (event.key === "Enter") {
+                event.preventDefault();
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          <span>px / {layout.displayUnit}</span>
+        </span>
+      </label>
+      <button
+        type="button"
+        aria-label="Halve coordinate spacing"
+        disabled={layout.unitScale <= 0.1}
+        onClick={() => onChange(spatialUnitScale(layout.unitScale / 2))}
+      >
+        ÷2
+      </button>
+      <button
+        type="button"
+        aria-label="Double coordinate spacing"
+        disabled={layout.unitScale >= 100}
+        onClick={() => onChange(spatialUnitScale(layout.unitScale * 2))}
+      >
+        ×2
+      </button>
+      <button type="button" onClick={() => onChange(1)}>
+        Auto
+      </button>
+      <span className="spatial-units-hint">At 100% zoom · larger values spread points apart</span>
+    </div>
   );
 }
 

@@ -189,7 +189,11 @@ export default function StudioView({
         <WelcomeScreen files={files} onNew={onInitializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
-          spatialTools={state.chartType === "spatial" ? <SpatialControls spatial={viewport.spatialView} /> : undefined}
+          spatialTools={
+            state.chartType === "spatial" ? (
+              <SpatialControls spatial={viewport.spatialView} layout={viewport.stage?.spatial} />
+            ) : undefined
+          }
           compoundTools={!files.workspace || !files.explorerOpen ? compoundPanel : undefined}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}

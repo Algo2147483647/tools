@@ -3,7 +3,7 @@
 Run from graph-studio: python scripts/build-spatial-examples.py
 Downloads are cached in .spatial-data; the shipped workspace works entirely offline.
 """
-import csv
+import runpy
 import json
 import math
 from pathlib import Path
@@ -16,7 +16,6 @@ CACHE.mkdir(exist_ok=True)
 OUT.mkdir(parents=True, exist_ok=True)
 CELESTIAL = "https://raw.githubusercontent.com/ofrohn/d3-celestial/master/"
 EARTH = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/"
-ROADS = "https://raw.githubusercontent.com/zhanzxy5/VSR-dataset/master/Road%20network%20data/"
 
 
 def read(name, url):
@@ -157,35 +156,7 @@ earth = graph("地球重要城市 · World cities", 3, "spherical", city_nodes, 
 earth["metadata"]["space"].update(axes=["Radius", "Longitude", "Latitude"], unit="km")
 save("world-cities.json", earth)
 
-road_nodes_raw = list(csv.DictReader(read("beijing-node.csv", ROADS + "Beijing_simplified_node.csv").splitlines()))
-road_edges_raw = list(csv.DictReader(read("beijing-edge.csv", ROADS + "Beijing_simplified_edge.csv").splitlines()))
-arterials = ["huan", "chang an", "jian guo", "fu xing", "zhong guan cun", "dong zhi men", "xi zhi men", "xue yuan", "jing kai", "jing cheng", "jing zang", "de sheng men", "fu shi"]
-chosen = [e for e in road_edges_raw if any(name in e["PATHPY"].lower() for name in arterials)]
-needed = {e[field] for e in chosen for field in ["From Node", "To Node"]}
-road_nodes = {}
-lon0, lat0 = 116.397, 39.908
-for n in road_nodes_raw:
-    if n["Node ID"] not in needed:
-        continue
-    lon, lat = float(n["X"]), float(n["Y"])
-    region = ("North" if lat >= lat0 else "South") + ("east" if lon >= lon0 else "west")
-    road_nodes["junction:" + n["Node ID"]] = {"title": "J" + n["Node ID"], "type": region, "space": [round(6371 * math.radians(lon-lon0) * math.cos(math.radians(lat0)), 6), round(6371 * math.radians(lat-lat0), 6)], "sourceXY": [lon, lat], "define": "Published junction from the Beijing simplified road network. Type is a geometric city sector, not an administrative district."}
-road_edges = {}
-for e in chosen:
-    a, b = "junction:" + e["From Node"], "junction:" + e["To Node"]
-    if a == b:
-        continue
-    pair = (a, b)
-    if pair not in road_edges:
-        road_edges[pair] = {"id": "road:" + e["Link ID"], "source": a, "target": b, "value": e["PATHPY"], "metadata": {"sourceLinkIds": [], "sourceLength": float(e["LENGTH"]), "sourceDirection": e["DIRECTION"], "sourceOneway": e["ONEWAY"]}}
-    road_edges[pair]["metadata"]["sourceLinkIds"].append(e["Link ID"])
-roads = graph("北京市主干路网 · Beijing arterial roads", 2, "cartesian", road_nodes, list(road_edges.values()),
-              source="https://github.com/zhanzxy5/VSR-dataset", sourcePaper="https://doi.org/10.1103/PhysRevE.96.052301",
-              scope="Named ring roads and selected radial arterials from the published simplified Beijing network. Historic reference, not a complete or current routing map.",
-              sourceCoordinateReference="Source CSV publishes X/Y without a datum declaration. Original values retained as sourceXY; the local display applies an approximate equirectangular conversion, not a datum transformation.",
-              origin=[lon0, lat0], selectionKeywords=arterials)
-roads["metadata"]["space"].update(axes=["East", "North"], unit="km")
-save("beijing-roads.json", roads)
+runpy.run_path(str(ROOT / "scripts/build-beijing-metro.py"), run_name="__main__")
 
 save("zero-dimensional.json", graph("0D · Coincident points", 0, "cartesian", {str(i): {"title": f"Point {i}", "space": [], "type": "Origin"} for i in range(6)}))
 save("one-dimensional.json", graph("1D · A measured line", 1, "cartesian", {str(i): {"title": f"x = {i}", "space": [i], "type": "Negative" if i < 0 else "Non-negative"} for i in [-5, -2, 0, 1, 4, 8]}))
@@ -196,4 +167,4 @@ edges = [{"id": f"{i}:{bit}", "source": str(i), "target": str(i ^ (1 << bit))} f
 save("four-dimensional.json", graph("4D · Tesseract", 4, "cartesian", nodes, edges))
 save("five-dimensional.json", graph("5D · Basis vectors", 5, "cartesian", {str(i): {"title": f"e{i+1}", "space": [int(i == j) for j in range(5)], "type": f"Axis {i+1}"} for i in range(5)}))
 (OUT / "CELESTIAL-LICENSE.txt").write_text(read("license.txt", CELESTIAL + "LICENSE"), encoding="utf-8")
-save("graph-studio.workspace.json", {"format": "graph-studio-workspace", "version": 1, "name": "Spatial Atlas", "graphs": ["all-sky.json", "world-cities.json", "beijing-roads.json", "zero-dimensional.json", "one-dimensional.json", "polar.json", "cylindrical.json", "four-dimensional.json", "five-dimensional.json"], "defaultGraph": "all-sky.json", "metadata": {"assets": ["README.md", "SOURCES.md", "CELESTIAL-LICENSE.txt"]}})
+save("graph-studio.workspace.json", {"format": "graph-studio-workspace", "version": 1, "name": "Spatial Atlas", "graphs": ["all-sky.json", "world-cities.json", "beijing-metro.json", "zero-dimensional.json", "one-dimensional.json", "polar.json", "cylindrical.json", "four-dimensional.json", "five-dimensional.json"], "defaultGraph": "all-sky.json", "metadata": {"assets": ["README.md", "SOURCES.md", "CELESTIAL-LICENSE.txt"]}})

@@ -46,6 +46,7 @@ export function chooseWorkspaceGraph(
   return valid("graph.json") || (graphs.length === 1 && !graphs[0].error ? graphs[0].path : null);
 }
 export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: string): Promise<GraphWorkspace> {
+  if (folder.exampleId === "spatial-atlas" && lastPath === "beijing-roads.json") lastPath = "beijing-metro.json";
   const manifestEntry = folder.files.get(WORKSPACE_MANIFEST);
   let manifest: WorkspaceManifest | null = null;
   if (manifestEntry) {

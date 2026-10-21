@@ -7,8 +7,8 @@ export const EXAMPLE_WORKSPACES = [
     id: "spatial-atlas",
     title: "Spatial Atlas",
     kind: "Spatial",
-    description: "全天星图、地球重要城市与北京主干路网；切换坐标投影，按 Type 探索星域和地理分区。",
-    detail: "All-sky stars · World cities · Beijing roads · 0D–5D",
+    description: "全天星图、地球重要城市与北京地铁全线网；切换坐标投影，按 Type 探索星域、洲别和地铁线路。",
+    detail: "All-sky stars · World cities · Beijing metro · 0D–5D",
     accent: "#497fa5",
   },
   {

@@ -10,6 +10,9 @@ export interface SpaceMetadata {
   axes?: string[];
   unit?: string;
   radius?: number;
+  /** Optional multi-category node field and corresponding edge metadata field. */
+  typeField?: string;
+  edgeTypeField?: string;
 }
 export interface SpaceView {
   axes: [number, number, number];
@@ -19,6 +22,11 @@ export interface SpaceView {
   labels: boolean;
   grid: boolean;
   hideBackPoints: boolean;
+  /** Coordinate spacing relative to the automatic layout, independent of camera zoom. */
+  unitScale?: number;
+}
+export function spatialUnitScale(value = 1): number {
+  return Number.isFinite(value) && value > 0 ? Math.max(0.1, Math.min(100, value)) : 1;
 }
 export function isSpatialDocument(dag: Pick<GraphDocument, "metadata">): boolean {
   return isRecord(dag.metadata?.space);
@@ -28,7 +36,10 @@ export function getSpaceMetadata(dag: Pick<GraphDocument, "metadata">): SpaceMet
 }
 export function defaultSpaceView(metadata: SpaceMetadata | null): SpaceView {
   return {
-    axes: metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem) ? [0, 2, 1] : [0, 1, 2],
+    // A cyclic permutation preserves handedness: east (+Y) is screen-right,
+    // north (+Z) is up, and the zero meridian (+X) faces the camera.
+    // Swapping only Y/Z would reflect the globe instead of rotating it.
+    axes: metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem) ? [1, 2, 0] : [0, 1, 2],
     projection: "orthographic",
     yaw: 0,
     pitch: 0,
@@ -62,6 +73,9 @@ export function validateSpaceMetadata(value: unknown): asserts value is SpaceMet
   )
     throw new Error(`${path}/axes must contain one string per dimension.`);
   if (value.unit !== undefined && typeof value.unit !== "string") throw new Error(`${path}/unit must be a string.`);
+  for (const field of ["typeField", "edgeTypeField"])
+    if (value[field] !== undefined && (typeof value[field] !== "string" || !(value[field] as string).trim()))
+      throw new Error(`${path}/${field} must be a non-empty field name.`);
   if (
     value.radius !== undefined &&
     (typeof value.radius !== "number" || !Number.isFinite(value.radius) || value.radius <= 0)

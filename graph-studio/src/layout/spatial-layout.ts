@@ -6,10 +6,29 @@ import {
   rotateSpacePoint,
   spaceMapPoint,
   spaceToCartesian,
+  spatialUnitScale,
   type SpaceView,
 } from "../graph/space";
 import type { NormalizedDag } from "../graph/types";
 import type { StageData, StageNode } from "./types";
+import { isRecord } from "../utils/json";
+
+// Spatial datasets can retain source line colors without changing other chart palettes.
+function spatialStyle(value: unknown) {
+  const style = isRecord(value) ? value : {};
+  return {
+    color: typeof style.color === "string" && /^#[0-9a-f]{6}$/i.test(style.color) ? style.color : undefined,
+    radius:
+      typeof style.radius === "number" && Number.isFinite(style.radius)
+        ? Math.min(12, Math.max(1, style.radius))
+        : undefined,
+    width:
+      typeof style.width === "number" && Number.isFinite(style.width) ? Math.min(8, Math.max(0.5, style.width)) : 1,
+    label: style.label === true,
+    dashed: style.dashed === true,
+    directed: style.directed === true,
+  };
+}
 
 /** Orthogonal axis selection is explicit: higher coordinates are never silently summed or discarded from data. */
 export function buildSpatialStage(input: {
@@ -23,9 +42,10 @@ export function buildSpatialStage(input: {
   const view = input.spaceView ?? defaultSpaceView(metadata);
   const sphere = metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem);
   const map = sphere && view.projection === "map";
-  const width = 1440,
-    height = map ? 840 : 1040;
-  const padding = 100;
+  const unitScale = spatialUnitScale(view.unitScale);
+  const width = 1440 * unitScale,
+    height = (map ? 840 : 1040) * unitScale;
+  const padding = 100 * unitScale;
   const warnings: string[] = [];
   if (!metadata)
     warnings.push(
@@ -110,9 +130,12 @@ export function buildSpatialStage(input: {
       if (point[2] < horizon - 1e-10) return [];
     }
     const typeLabel = getNodeType(node).trim();
-    const color = colors.get(typeLabel)?.pinCore ?? "#557fa6";
+    const style = spatialStyle(node.spatialStyle);
+    const color = style.color ?? colors.get(typeLabel)?.pinCore ?? "#557fa6";
     const magnitude = typeof node.magnitude === "number" ? node.magnitude : undefined;
-    const radius = magnitude === undefined ? (valid.length > 1000 ? 2.2 : 4.5) : Math.max(1, 4.8 - magnitude * 0.65);
+    const radius =
+      style.radius ??
+      (magnitude === undefined ? (valid.length > 1000 ? 2.2 : 4.5) : Math.max(1, 4.8 - magnitude * 0.65));
     return [
       {
         key: node.key,
@@ -134,8 +157,8 @@ export function buildSpatialStage(input: {
           depth: point[2],
           radius,
           color,
-          labelSide: point[0] > width / 2 + 160 ? "left" : "right",
-          showLabel: view.labels && (visibleCount < 350 || (magnitude !== undefined && magnitude < 2)),
+          labelSide: point[0] > width / 2 + 160 * unitScale ? "left" : "right",
+          showLabel: view.labels && (style.label || visibleCount < 350 || (magnitude !== undefined && magnitude < 2)),
         },
       },
     ];
@@ -150,7 +173,7 @@ export function buildSpatialStage(input: {
       return mag(a.key) - mag(b.key) || b.spatial!.depth - a.spatial!.depth || a.key.localeCompare(b.key);
     });
   for (const node of candidates) {
-    const labelWidth = Array.from(node.title).length * 8 + 12;
+    const labelWidth = Array.from(node.title).reduce((sum, char) => sum + (char.codePointAt(0)! > 255 ? 12 : 8), 12);
     const box = {
       x:
         node.x +
@@ -165,10 +188,15 @@ export function buildSpatialStage(input: {
   nodes.sort((a, b) => a.spatial!.depth - b.spatial!.depth);
   const nodeMap = Object.fromEntries(nodes.map((n) => [n.key, n]));
   const connected = new Map<string, Set<string>>(nodes.map((n) => [n.key, new Set<string>()]));
+  const coloredPairs = new Set<string>();
   const edges = dag.edges.flatMap((edge) => {
     const a = nodeMap[edge.source],
       b = nodeMap[edge.target];
     if (!a || !b) return [];
+    const style = spatialStyle(edge.metadata?.spatialStyle);
+    const pair = JSON.stringify([edge.source, edge.target].sort());
+    const overlapsColoredEdge = Boolean(style.color && coloredPairs.has(pair));
+    if (style.color) coloredPairs.add(pair);
     connected.get(a.key)!.add(b.key);
     connected.get(b.key)!.add(a.key);
     let path = `M${a.x},${a.y}L${b.x},${b.y}`;
@@ -191,6 +219,16 @@ export function buildSpatialStage(input: {
         label: edge.value === undefined ? "" : String(edge.value),
         path,
         labelPosition,
+        ...(style.color
+          ? {
+              spatial: {
+                color: style.color,
+                width: style.width,
+                dashed: style.dashed || overlapsColoredEdge,
+                directed: style.directed,
+              },
+            }
+          : {}),
       },
     ];
   });
@@ -282,6 +320,29 @@ export function buildSpatialStage(input: {
       "0D: every coordinate is []. Nodes are separated in an index tray for selection; tray spacing has no spatial meaning.",
     );
   const label = dag.title ?? "Spatial graph";
+  // Flat maps fit their actual points and labels. The fixed orbit sphere is only
+  // needed for 3D views; fitting its empty margins makes regional maps too small.
+  let fitBounds: NonNullable<StageData["spatial"]>["fitBounds"];
+  if (!sphere && metadata && metadata.dimensions > 0 && metadata.dimensions <= 2 && nodes.length) {
+    let left = Infinity,
+      right = -Infinity,
+      top = Infinity,
+      bottom = -Infinity;
+    for (const node of nodes) {
+      const radius = node.spatial!.radius + 8;
+      left = Math.min(left, node.x - radius);
+      right = Math.max(right, node.x + radius);
+      top = Math.min(top, node.y - radius);
+      bottom = Math.max(bottom, node.y + radius);
+    }
+    for (const box of labelBoxes) {
+      left = Math.min(left, box.x);
+      right = Math.max(right, box.x + box.width);
+      top = Math.min(top, box.y - 12);
+      bottom = Math.max(bottom, box.y + 12);
+    }
+    fitBounds = { x: left - 24, y: top - 24, width: right - left + 48, height: bottom - top + 48 };
+  }
   return {
     dag: dag.nodes,
     layoutMode: "spatial",
@@ -306,6 +367,18 @@ export function buildSpatialStage(input: {
       metadata?.dimensions === 0 ? 300 + Math.ceil(nodes.length / 10) * 64 : 0,
     ),
     warnings,
-    spatial: { metadata, view, guides },
+    spatial: {
+      metadata,
+      view,
+      guides,
+      unitScale,
+      pixelsPerUnit: map ? mapScale : scale / coordinateScale,
+      displayUnit: map
+        ? "degree"
+        : metadata?.coordinateSystem === "geographic"
+          ? "radius unit"
+          : metadata?.unit || "unit",
+      ...(fitBounds ? { fitBounds } : {}),
+    },
   };
 }

@@ -28,6 +28,17 @@ const GraphEdge = memo(function GraphEdge({ edge, showLabel }: GraphEdgeProps) {
           stroke={edge.timeline.color}
           markerEnd={`url(#${timelineMarkerId(edge.timeline.color)})`}
         />
+      ) : edge.spatial ? (
+        <path
+          className="dag-edge__path"
+          d={edge.path}
+          style={{
+            stroke: edge.spatial.color,
+            strokeWidth: edge.spatial.width,
+            strokeDasharray: edge.spatial.dashed ? "3 3" : undefined,
+            markerEnd: edge.spatial.directed ? "url(#arrowhead)" : "none",
+          }}
+        />
       ) : edge.flow ? (
         <path className="dag-edge__flow" d={edge.path} stroke={edge.flow.color} strokeWidth={edge.flow.width} />
       ) : (

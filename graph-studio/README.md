@@ -158,4 +158,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ### Spatial coordinates
 
-The fifth Chart type, **Spatial**, renders `space: [x, y, z, …]` using dimensions and coordinate systems declared in `metadata.space`. Supports Cartesian, polar, spherical, cylindrical and geographic coordinates; 0D through arbitrary higher dimensions; Type colors/filtering; pan, zoom, orbit and projection-axis controls. Try **Spatial Atlas** for all-sky constellations, world cities, historical Beijing arterial roads and 0D–5D examples. See [Spatial guide](docs/spatial.md).
+The fifth Chart type, **Spatial**, renders `space: [x, y, z, …]` using dimensions and coordinate systems declared in `metadata.space`. Supports Cartesian, polar, spherical, cylindrical and geographic coordinates; 0D through arbitrary higher dimensions; Type colors/filtering; pan, zoom, orbit and projection-axis controls. Try **Spatial Atlas** for all-sky constellations, world cities, the complete Beijing rail network (2026-10-22 snapshot) and 0D–5D examples. See [Spatial guide](docs/spatial.md).

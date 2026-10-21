@@ -5,7 +5,7 @@
   "graphs": [
     "all-sky.json",
     "world-cities.json",
-    "beijing-roads.json",
+    "beijing-metro.json",
     "zero-dimensional.json",
     "one-dimensional.json",
     "polar.json",

@@ -6,7 +6,7 @@ import { applyGraphCommand } from "../graph/commands";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultSpaceView, getSpaceMetadata, spaceToCartesian, type SpaceMetadata } from "../graph/space";
-import { projectGraphByType } from "../graph/typeFilter";
+import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
 import { buildSpatialStage } from "../layout/spatial-layout";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import GraphStage from "../rendering/GraphStage";
@@ -39,6 +39,50 @@ function finite(stage: ReturnType<typeof buildSpatialStage>) {
   for (const item of [...stage.edges, ...stage.spatial!.guides]) assert.doesNotMatch(item.path, /NaN|Infinity/);
 }
 export const spatialSuite = defineSuite("Spatial coordinate charts", [
+  defineTest("display units spread coordinates without resizing glyphs or rewriting source data", async () => {
+    const dag = normalizeDagInput(
+      JSON.parse(
+        await readFile(new URL("../../public/examples/spatial-atlas/beijing-metro.json", import.meta.url), "utf8"),
+      ),
+    );
+    const snapshot = serializeDag(dag);
+    const normal = buildSpatialStage({ dag });
+    const expanded = buildSpatialStage({
+      dag,
+      spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), unitScale: 4 },
+    });
+    for (const node of normal.nodes) {
+      const after = expanded.nodeMap[node.key];
+      close([after.x, after.y], [node.x * 4, node.y * 4]);
+      assert.equal(after.spatial!.radius, node.spatial!.radius);
+      assert.deepEqual(after.spatial!.coordinates, node.spatial!.coordinates);
+      assert.equal(after.spatial!.labelSide, node.spatial!.labelSide);
+    }
+    assert.deepEqual(
+      expanded.edges.map((e) => e.spatial),
+      normal.edges.map((e) => e.spatial),
+    );
+    assert.ok(
+      expanded.nodes.filter((n) => n.spatial!.showLabel).length >
+        normal.nodes.filter((n) => n.spatial!.showLabel).length,
+    );
+    close([expanded.spatial!.pixelsPerUnit], [normal.spatial!.pixelsPerUnit * 4]);
+    const [a, b] = normal.nodes;
+    const expectedDistance =
+      Math.hypot(
+        a.spatial!.coordinates[0] - b.spatial!.coordinates[0],
+        a.spatial!.coordinates[1] - b.spatial!.coordinates[1],
+      ) * normal.spatial!.pixelsPerUnit;
+    close([Math.hypot(a.x - b.x, a.y - b.y)], [expectedDistance]);
+    const filtered = buildSpatialStage({
+      dag: projectGraphByType(dag, getGraphTypeOptions(dag)[0], "spatial"),
+      colorSourceDag: dag,
+      spaceView: expanded.spatial!.view,
+    });
+    for (const node of filtered.nodes)
+      close([node.x, node.y], [expanded.nodeMap[node.key].x, expanded.nodeMap[node.key].y]);
+    assert.deepEqual(serializeDag(dag), snapshot);
+  }),
   defineTest("metadata selects the fifth chart and preferences preserve independent styles", () => {
     const dag = graph(3);
     const state = graphReducer(initialGraphAppState, {
@@ -83,6 +127,41 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     close(spaceToCartesian([2, 0, Math.PI / 2], { ...metadata("spherical", 3), angleUnit: "radians" }), [0, 0, 2]);
     close(spaceToCartesian([0, 90], metadata("geographic", 2)), [0, 0, 6371]);
     close(spaceToCartesian([0, 0, 10, 4], { ...metadata("geographic"), radius: 100 }), [110, 0, 0, 4]);
+  }),
+  defineTest("globe views keep east right, north up and the central meridian in front without mirroring", () => {
+    for (const system of ["spherical", "geographic"] as const) {
+      const coordinates = (lon: number, lat: number) => (system === "spherical" ? [1, lon, lat] : [lon, lat]);
+      const dag = graph(system === "spherical" ? 3 : 2, system, {
+        center: { space: coordinates(0, 0) },
+        east: { space: coordinates(45, 0) },
+        west: { space: coordinates(-45, 0) },
+        north: { space: coordinates(0, 45) },
+        south: { space: coordinates(0, -45) },
+        farEast: { space: coordinates(90, 0) },
+        back: { space: coordinates(180, 0) },
+      });
+      const view = defaultSpaceView(getSpaceMetadata(dag));
+      for (const projection of ["orthographic", "perspective", "map"] as const) {
+        const stage = buildSpatialStage({ dag, spaceView: { ...view, projection } });
+        const { center, east, west, north, south, back } = stage.nodeMap;
+        close([center.x, center.y], [stage.stageWidth / 2, stage.stageHeight / 2]);
+        assert.ok(east.x > center.x && west.x < center.x, `${system}/${projection}: east must be right of west`);
+        assert.ok(north.y < center.y && south.y > center.y, `${system}/${projection}: north must be above south`);
+        if (projection !== "map") {
+          assert.ok(center.spatial!.depth > back.spatial!.depth);
+          const hidden = buildSpatialStage({ dag, spaceView: { ...view, projection, hideBackPoints: true } });
+          assert.ok(hidden.nodeMap.center);
+          assert.equal(hidden.nodeMap.back, undefined);
+        }
+      }
+      const eastFacing = buildSpatialStage({ dag, spaceView: { ...view, yaw: -90, hideBackPoints: true } });
+      close(
+        [eastFacing.nodeMap.farEast.x, eastFacing.nodeMap.farEast.y],
+        [eastFacing.stageWidth / 2, eastFacing.stageHeight / 2],
+      );
+      assert.ok(eastFacing.nodeMap.farEast.spatial!.depth > 0.99);
+      assert.ok(eastFacing.nodeMap.east.x < eastFacing.nodeMap.farEast.x);
+    }
   }),
   defineTest("0D through 32D stay finite and higher axes visibly change the projection", () => {
     for (const dimensions of [0, 1, 2, 3, 4, 5, 32]) finite(buildSpatialStage({ dag: graph(dimensions) }));
@@ -159,10 +238,10 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     const dag = normalizeDagInput({
       ...serializeDag(
         graph(3, "spherical", {
-          front: { space: [1, 90, 0], type: "Keep" },
-          back: { space: [1, -90, 0], type: "Keep" },
-          frontNorth: { space: [1, 90, 45], type: "Keep" },
-          limb: { space: [1, 180, 0], type: "Other" },
+          front: { space: [1, 0, 0], type: "Keep" },
+          back: { space: [1, 180, 0], type: "Keep" },
+          frontNorth: { space: [1, 0, 45], type: "Keep" },
+          limb: { space: [1, 90, 0], type: "Other" },
           missing: {},
         }),
       ),
@@ -207,12 +286,12 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
   }),
   defineTest("sphere hiding respects perspective tangency and keeps the origin and near points", () => {
     const dag = graph(3, "spherical", {
-      front: { space: [1, 90, 0] },
-      nearLimb: { space: [1, 10, 0] },
-      tangent: { space: [1, (Math.asin(1 / 3) * 180) / Math.PI, 0] },
-      inner: { space: [0.1, 90, 0] },
+      front: { space: [1, 0, 0] },
+      nearLimb: { space: [1, 80, 0] },
+      tangent: { space: [1, (Math.acos(1 / 3) * 180) / Math.PI, 0] },
+      inner: { space: [0.1, 0, 0] },
       origin: { space: [0, 0, 0] },
-      back: { space: [1, -90, 0] },
+      back: { space: [1, 180, 0] },
     });
     const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
     assert.ok(buildSpatialStage({ dag, spaceView: view }).nodeMap.nearLimb);
@@ -277,7 +356,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.match(html, /role="button"/);
     assert.match(html, /\[0, 0\]/);
   }),
-  defineTest("Spatial Atlas contains complete sky coverage and sourced city and road samples", async () => {
+  defineTest("Spatial Atlas contains complete sky coverage and sourced city and metro networks", async () => {
     const read = async (name: string) =>
       normalizeDagInput(JSON.parse(await readFile(`public/examples/spatial-atlas/${name}.json`, "utf8")));
     const sky = await read("all-sky");
@@ -288,7 +367,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     for (const name of [
       "all-sky",
       "world-cities",
-      "beijing-roads",
+      "beijing-metro",
       "zero-dimensional",
       "one-dimensional",
       "polar",
@@ -315,8 +394,140 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.equal(city("Bengaluru").title, "ಬೆಂಗಳೂರು");
     assert.match(city("Tokyo").title as string, /東京/);
     assert.ok(cities.edges.every((e) => e.metadata?.isTransportRoute === false));
-    const roads = await read("beijing-roads");
-    assert.ok(roads.edges.length > 4000);
-    assert.ok(Object.values(roads.nodes).every((n) => Array.isArray(n.sourceXY)));
+    const metro = await read("beijing-metro");
+    assert.equal(Object.keys(metro.nodes).length, 423);
+    assert.ok(Object.values(metro.nodes).every((n) => n.coordinateReference === "WGS84 / EPSG:4326"));
+  }),
+  defineTest("Beijing metro covers every service route, current openings, closures and transfer links", async () => {
+    const dag = normalizeDagInput(
+      JSON.parse(await readFile("public/examples/spatial-atlas/beijing-metro.json", "utf8")),
+    );
+    const expected: Record<string, number> = {
+      "1号线八通线": 35,
+      "2号线": 18,
+      "3号线": 10,
+      "4号线大兴线": 35,
+      "5号线": 23,
+      "6号线": 36,
+      "7号线": 30,
+      "8号线": 35,
+      "9号线": 13,
+      "10号线": 45,
+      "11号线": 4,
+      "12号线": 20,
+      "13号线": 17,
+      "14号线": 33,
+      "15号线": 20,
+      "16号线": 30,
+      "17号线": 20,
+      "18号线": 11,
+      "19号线": 10,
+      S1线: 8,
+      西郊线: 6,
+      房山线: 16,
+      昌平线: 20,
+      亦庄线: 14,
+      燕房线: 9,
+      首都机场线: 5,
+      大兴机场线: 3,
+      亦庄T1线: 14,
+    };
+    assert.equal(dag.metadata?.asOf, "2026-10-22");
+    assert.equal(new Set(Object.values(dag.nodes).map((n) => n.stationId)).size, 423);
+    assert.deepEqual(new Set(getGraphTypeOptions(dag)), new Set(Object.keys(expected)));
+    for (const [line, count] of Object.entries(expected)) {
+      const filtered = projectGraphByType(dag, line, "spatial");
+      assert.equal(Object.keys(filtered.nodes).length, count, line);
+      assert.ok(filtered.edges.every((e) => e.metadata?.kind === "rail" && e.metadata.line === line));
+      const ring = line === "2号线" || line === "10号线" || line === "首都机场线";
+      assert.equal(filtered.edges.length, ring ? count : count - 1, line);
+      // Every line must stay connected after filtering, including its interchange stops.
+      const seen = new Set<string>();
+      const stack = [Object.keys(filtered.nodes)[0]];
+      while (stack.length) {
+        const key = stack.pop()!;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        for (const e of filtered.edges) {
+          if (e.source === key) stack.push(e.target);
+          if (e.target === key) stack.push(e.source);
+        }
+      }
+      assert.equal(seen.size, count, line);
+    }
+    const station = (line: string, name: string) =>
+      Object.values(dag.nodes).find((n) => Array.isArray(n.lines) && n.lines.includes(line) && n.title === name);
+    for (const [line, name] of [
+      ["6号线", "通运门"],
+      ["6号线", "潞阳"],
+      ["17号线", "望京西"],
+      ["17号线", "永安里"],
+      ["18号线", "天通苑东"],
+      ["1号线八通线", "木樨地"],
+      ["12号线", "大钟寺"],
+      ["13号线", "大钟寺"],
+    ])
+      assert.ok(station(line, name), `${line} ${name}`);
+    for (const [line, name] of [
+      ["1号线八通线", "八角游乐园"],
+      ["14号线", "陶然桥"],
+      ["14号线", "高家园"],
+      ["17号线", "广渠门外"],
+      ["亦庄T1线", "老观里"],
+    ])
+      assert.equal(station(line, name), undefined);
+    assert.ok(station("7号线", "广渠门外"));
+    assert.ok(station("12号线", "高家园"));
+    const airport = dag.edges.filter((e) => e.metadata?.direction === "forward");
+    assert.deepEqual(
+      airport.map((e) => [dag.nodes[e.source].title, dag.nodes[e.target].title]),
+      [
+        ["三元桥", "3号航站楼"],
+        ["3号航站楼", "2号航站楼"],
+        ["2号航站楼", "三元桥"],
+      ],
+    );
+    const stations = Object.values(dag.nodes);
+    const interchanges = stations.filter((n) => (n.lines as string[]).length > 1);
+    assert.equal(interchanges.length, 106);
+    assert.deepEqual(
+      new Set(stations.filter((n) => n.transferMode === "out-of-station").map((n) => n.title)),
+      new Set(["木樨地", "大钟寺", "巴沟", "荣昌东街"]),
+    );
+    const coordinates = JSON.parse(await readFile("scripts/beijing-metro-coordinates.json", "utf8"));
+    for (const node of stations) {
+      const point = coordinates.stations[node.title as string];
+      assert.deepEqual(
+        node.space,
+        [point.longitude, point.latitude],
+        `${node.title}: source coordinates must not be moved`,
+      );
+      assert.equal(node.coordinateSource, point.source);
+    }
+    assert.equal(new Set(stations.map((n) => n.stationId)).size, stations.length);
+    const stage = buildSpatialStage({ dag });
+    assert.equal(stage.edges.length, 515);
+    assert.ok(stage.edges.every((e) => e.spatial && /^#[0-9A-F]{6}$/i.test(e.spatial.color)));
+    assert.equal(stage.edges.filter((e) => e.spatial?.directed).length, 3);
+    assert.equal(
+      stage.edges.filter((e) => e.spatial?.dashed).length,
+      3,
+      "Both overlapping service colors stay visible",
+    );
+    assert.equal(stage.nodeMap[station("1号线八通线", "古城")!.key].spatial!.color, "#C23A30");
+    const bounds = stage.spatial!.fitBounds!;
+    assert.ok(bounds.width < stage.stageWidth * 0.8 && bounds.height < stage.stageHeight * 0.8);
+    for (const node of stage.nodes) {
+      assert.ok(node.x >= bounds.x && node.x <= bounds.x + bounds.width);
+      assert.ok(node.y >= bounds.y && node.y <= bounds.y + bounds.height);
+    }
+    // Parallel services sharing two consecutive interchange stations must not leak
+    // into the selected line (Line 13/Changping and Line 1/Line 7).
+    for (const line of ["13号线", "昌平线", "1号线八通线", "7号线"]) {
+      const filtered = projectGraphByType(dag, line, "spatial");
+      assert.ok(filtered.edges.every((e) => e.metadata?.line === line));
+      assert.ok(buildSpatialStage({ dag: filtered, colorSourceDag: dag }).edges.every((e) => !e.spatial?.dashed));
+    }
+    finite(stage);
   }),
 ]);

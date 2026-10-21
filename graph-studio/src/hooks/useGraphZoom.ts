@@ -269,7 +269,12 @@ function getFitZoomScale(container: HTMLElement, topbar: HTMLElement | null, sta
   const viewportMetrics = getViewportMetrics(container, topbar);
   const availableWidth = Math.max(viewportMetrics.availableWidth, 1);
   const availableHeight = Math.max(viewportMetrics.availableHeight, 1);
-  const fitScale = Math.min(availableWidth / stage.stageWidth, availableHeight / stage.stageHeight, 1);
+  const bounds = stage.spatial?.fitBounds;
+  const fitScale = Math.min(
+    availableWidth / (bounds?.width ?? stage.stageWidth),
+    availableHeight / (bounds?.height ?? stage.stageHeight),
+    bounds ? 2 : 1,
+  );
   return Math.max(fitScale, MIN_ZOOM_FLOOR);
 }
 
@@ -298,20 +303,27 @@ function applyGraphZoom(
     ? anchor.clientY - containerRect.top
     : viewportMetrics.safeTop + viewportMetrics.availableHeight / 2;
   if (stage.layoutMode === "spatial") {
+    const bounds = stage.spatial?.fitBounds;
+    const centerX = bounds ? bounds.x + bounds.width / 2 : stage.stageWidth / 2;
+    const centerY = bounds ? bounds.y + bounds.height / 2 : stage.stageHeight / 2;
     const previousX = Number(svg.dataset.cameraX || 0);
     const previousY = Number(svg.dataset.cameraY || 0);
+    // Keep the same coordinate under the viewport center when display units change.
+    const unitScale = stage.spatial?.unitScale ?? 1;
+    const unitRatio = unitScale / Number(svg.dataset.spatialUnitScale || unitScale);
     const x =
       preserveCenter || anchor
-        ? anchorOffsetX - ((anchorOffsetX - previousX) / previousScale) * scale
-        : viewportMetrics.safeLeft + (viewportMetrics.availableWidth - scaledWidth) / 2;
+        ? anchorOffsetX - ((anchorOffsetX - previousX) / previousScale) * scale * unitRatio
+        : viewportMetrics.safeLeft + viewportMetrics.availableWidth / 2 - centerX * scale;
     const y =
       preserveCenter || anchor
-        ? anchorOffsetY - ((anchorOffsetY - previousY) / previousScale) * scale
-        : viewportMetrics.safeTop + (viewportMetrics.availableHeight - scaledHeight) / 2;
+        ? anchorOffsetY - ((anchorOffsetY - previousY) / previousScale) * scale * unitRatio
+        : viewportMetrics.safeTop + viewportMetrics.availableHeight / 2 - centerY * scale;
     svg.style.width = `${scaledWidth}px`;
     svg.style.height = `${scaledHeight}px`;
     svg.style.marginLeft = svg.style.marginTop = "0px";
     svg.dataset.zoomScale = String(scale);
+    svg.dataset.spatialUnitScale = String(unitScale);
     svg.dataset.marginLeft = svg.dataset.marginTop = "0";
     container.scrollLeft = container.scrollTop = 0;
     setSpatialCamera(svg, x, y);
@@ -320,6 +332,7 @@ function applyGraphZoom(
   svg.style.transform = "";
   delete svg.dataset.cameraX;
   delete svg.dataset.cameraY;
+  delete svg.dataset.spatialUnitScale;
   const zoomOriginX =
     preserveCenter || anchor
       ? (container.scrollLeft + anchorOffsetX - previousMarginLeft) / previousScale

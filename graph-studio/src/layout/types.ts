@@ -140,6 +140,7 @@ export interface StageNode {
 }
 
 export interface StageEdge {
+  spatial?: { color: string; width: number; dashed: boolean; directed: boolean };
   timeline?: StageTimelineEdge;
   originalEdgeIds?: string[];
   description?: string;
@@ -205,6 +206,10 @@ export interface StageData {
     metadata: import("../graph/space").SpaceMetadata | null;
     view: import("../graph/space").SpaceView;
     guides: { path: string; label?: string; x?: number; y?: number }[];
+    fitBounds?: { x: number; y: number; width: number; height: number };
+    unitScale: number;
+    pixelsPerUnit: number;
+    displayUnit: string;
   };
   timeline?: StageTimelineData;
   groups?: StageGroup[];

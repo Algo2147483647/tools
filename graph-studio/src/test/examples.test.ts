@@ -37,6 +37,14 @@ const localFetch = (async (url: string) => {
 }) as typeof fetch;
 
 export const examplesSuite = defineSuite("Bundled example workspaces", [
+  defineTest("Beijing road recent entries reopen the replacement metro network", async () => {
+    const folder = await loadExampleWorkspace("spatial-atlas", "/", localFetch);
+    const workspace = await discoverWorkspace(folder, "beijing-roads.json");
+    assert.equal(workspace.activePath, "beijing-metro.json");
+    assert.ok(!folder.files.has("beijing-roads.json"));
+    const local = await discoverWorkspace({ ...folder, exampleId: undefined }, "beijing-roads.json");
+    assert.equal(local.activePath, "all-sky.json");
+  }),
   defineTest("history workspaces merge without breaking old European recent entries or note paths", async () => {
     const folder = await loadExampleWorkspace("china-history", "/", localFetch);
     const workspace = await discoverWorkspace(folder);

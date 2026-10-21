@@ -3,14 +3,23 @@ import { nextEdgeId } from "./relations";
 import { indexGraphDocument } from "./graphIndex";
 import { projectGraphDocument } from "./serialize";
 import type { GraphChartType, NormalizedDag } from "./types";
+import { getSpaceMetadata } from "./space";
 
 const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";
+
+function nodeTypes(dag: NormalizedDag, key: string): string[] {
+  const field = getSpaceMetadata(dag)?.typeField;
+  const value = field ? dag.nodes[key][field] : getNodeType(dag.nodes[key]);
+  return (Array.isArray(value) ? value : [value]).filter(
+    (v): v is string => typeof v === "string" && Boolean(v.trim()),
+  );
+}
 
 export function getGraphTypeOptions(dag: NormalizedDag): string[] {
   return [
     ...new Set(
-      Object.values(dag.nodes)
-        .map((node) => getNodeType(node))
+      Object.keys(dag.nodes)
+        .flatMap((key) => nodeTypes(dag, key))
         .filter(Boolean),
     ),
   ].sort((a, b) => a.localeCompare(b));
@@ -22,8 +31,13 @@ export function projectGraphByType(
   chartType: GraphChartType = "node-link",
 ): NormalizedDag {
   if (!selectedType) return source;
-  const visible = new Set(Object.keys(source.nodes).filter((key) => getNodeType(source.nodes[key]) === selectedType));
+  const visible = new Set(Object.keys(source.nodes).filter((key) => nodeTypes(source, key).includes(selectedType)));
   const doc = projectGraphDocument(source, visible);
+  const edgeTypeField = chartType === "spatial" ? getSpaceMetadata(source)?.edgeTypeField : undefined;
+  if (edgeTypeField) {
+    doc.edges = doc.edges.filter((edge) => edge.metadata?.[edgeTypeField] === selectedType);
+    return indexGraphDocument(doc);
+  }
   // Filtering cannot imply new measured flows or new historical relationships.
   if (source.diagram === "sankey" || chartType === "sankey" || chartType === "timeline" || chartType === "spatial")
     return doc;

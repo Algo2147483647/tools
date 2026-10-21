@@ -1,0 +1,5090 @@
+{
+  "retrieved": "2026-10-22",
+  "source": "https://map.bjsubway.com/subwaymap/beijing.xml?v=20260630",
+  "coordinateReference": "Operator schematic pixels, x right and y down; not geographic coordinates.",
+  "lines": [
+    {
+      "name": "1号线八通线",
+      "code": "01",
+      "color": "#C23A30",
+      "stations": [
+        {
+          "name": "苹果园",
+          "code": "103",
+          "xy": [
+            339,
+            632
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "古城",
+          "code": "104",
+          "xy": [
+            380,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "八角游乐园",
+          "code": "105",
+          "xy": [
+            420,
+            666
+          ],
+          "sourceInUse": false
+        },
+        {
+          "name": "八宝山",
+          "code": "106",
+          "xy": [
+            460,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "玉泉路",
+          "code": "107",
+          "xy": [
+            500,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "五棵松",
+          "code": "108",
+          "xy": [
+            543,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万寿路",
+          "code": "109",
+          "xy": [
+            583,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "公主坟",
+          "code": "110",
+          "xy": [
+            624,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "军事博物馆",
+          "code": "111",
+          "xy": [
+            671,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "木樨地",
+          "code": "112",
+          "xy": [
+            740,
+            666
+          ],
+          "sourceInUse": false
+        },
+        {
+          "name": "南礼士路",
+          "code": "113",
+          "xy": [
+            777,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "复兴门",
+          "code": "114",
+          "xy": [
+            812,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西单",
+          "code": "115",
+          "xy": [
+            886,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天安门西",
+          "code": "116",
+          "xy": [
+            952,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天安门东",
+          "code": "117",
+          "xy": [
+            1006,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "王府井",
+          "code": "118",
+          "xy": [
+            1029,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东单",
+          "code": "119",
+          "xy": [
+            1076,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "建国门",
+          "code": "120",
+          "xy": [
+            1148,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永安里",
+          "code": "121",
+          "xy": [
+            1215,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "国贸",
+          "code": "122",
+          "xy": [
+            1272,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大望路",
+          "code": "123",
+          "xy": [
+            1330,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "四惠",
+          "code": "124",
+          "xy": [
+            1360,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "四惠东",
+          "code": "125",
+          "xy": [
+            1396,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "高碑店",
+          "code": "9703",
+          "xy": [
+            1434,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "传媒大学",
+          "code": "9704",
+          "xy": [
+            1468,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "双桥",
+          "code": "9705",
+          "xy": [
+            1505,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "管庄",
+          "code": "9706",
+          "xy": [
+            1540,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "八里桥",
+          "code": "9707",
+          "xy": [
+            1570,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "通州北苑",
+          "code": "9708",
+          "xy": [
+            1604,
+            675
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "果园",
+          "code": "9709",
+          "xy": [
+            1622,
+            693
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "九棵树",
+          "code": "9710",
+          "xy": [
+            1640,
+            710
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "梨园",
+          "code": "9711",
+          "xy": [
+            1658,
+            729
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "临河里",
+          "code": "9712",
+          "xy": [
+            1677,
+            748
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "土桥",
+          "code": "9713",
+          "xy": [
+            1695,
+            766
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "花庄",
+          "code": "9715",
+          "xy": [
+            1725,
+            848
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "环球度假区",
+          "code": "9716",
+          "xy": [
+            1683,
+            874
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "2号线",
+      "code": "02",
+      "color": "#006098",
+      "stations": [
+        {
+          "name": "西直门",
+          "code": "201",
+          "xy": [
+            813,
+            542
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "积水潭",
+          "code": "218",
+          "xy": [
+            896,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "鼓楼大街",
+          "code": "217",
+          "xy": [
+            979,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安定门",
+          "code": "216",
+          "xy": [
+            1026,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "雍和宫",
+          "code": "215",
+          "xy": [
+            1076,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东直门",
+          "code": "214",
+          "xy": [
+            1148,
+            546
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东四十条",
+          "code": "213",
+          "xy": [
+            1148,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朝阳门",
+          "code": "212",
+          "xy": [
+            1148,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "建国门",
+          "code": "211",
+          "xy": [
+            1148,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北京站",
+          "code": "210",
+          "xy": [
+            1142,
+            710
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "崇文门",
+          "code": "209",
+          "xy": [
+            1076,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "前门",
+          "code": "208",
+          "xy": [
+            997,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "和平门",
+          "code": "207",
+          "xy": [
+            920,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "宣武门",
+          "code": "206",
+          "xy": [
+            886,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "长椿街",
+          "code": "205",
+          "xy": [
+            826,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "复兴门",
+          "code": "204",
+          "xy": [
+            812,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "阜成门",
+          "code": "203",
+          "xy": [
+            812,
+            627
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "车公庄",
+          "code": "202",
+          "xy": [
+            812,
+            593
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "3号线",
+      "code": "03",
+      "color": "#CE093D",
+      "stations": [
+        {
+          "name": "东四十条",
+          "code": "321",
+          "xy": [
+            1148,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "工人体育场",
+          "code": "323",
+          "xy": [
+            1215,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "团结湖",
+          "code": "325",
+          "xy": [
+            1272,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朝阳公园",
+          "code": "327",
+          "xy": [
+            1330,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "石佛营",
+          "code": "329",
+          "xy": [
+            1360,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朝阳站",
+          "code": "331",
+          "xy": [
+            1385,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "姚家园",
+          "code": "333",
+          "xy": [
+            1400,
+            555
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东坝南",
+          "code": "335",
+          "xy": [
+            1400,
+            529
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东坝",
+          "code": "337",
+          "xy": [
+            1400,
+            508
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东坝北",
+          "code": "339",
+          "xy": [
+            1428,
+            478
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "4号线大兴线",
+      "code": "04",
+      "color": "#008E9C",
+      "stations": [
+        {
+          "name": "安河桥北",
+          "code": "421",
+          "xy": [
+            537,
+            310
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北宫门",
+          "code": "423",
+          "xy": [
+            583,
+            310
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西苑",
+          "code": "425",
+          "xy": [
+            632,
+            310
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "圆明园",
+          "code": "427",
+          "xy": [
+            671,
+            338
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北京大学东门",
+          "code": "429",
+          "xy": [
+            671,
+            371
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "中关村",
+          "code": "431",
+          "xy": [
+            671,
+            399
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "海淀黄庄",
+          "code": "433",
+          "xy": [
+            671,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "人民大学",
+          "code": "435",
+          "xy": [
+            671,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "魏公村",
+          "code": "437",
+          "xy": [
+            671,
+            500
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "国家图书馆",
+          "code": "439",
+          "xy": [
+            671,
+            527
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "动物园",
+          "code": "441",
+          "xy": [
+            754,
+            542
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西直门",
+          "code": "443",
+          "xy": [
+            813,
+            542
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "新街口",
+          "code": "445",
+          "xy": [
+            871,
+            542
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "平安里",
+          "code": "447",
+          "xy": [
+            886,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西四",
+          "code": "449",
+          "xy": [
+            886,
+            619
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "灵境胡同",
+          "code": "451",
+          "xy": [
+            886,
+            640
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西单",
+          "code": "453",
+          "xy": [
+            886,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "宣武门",
+          "code": "455",
+          "xy": [
+            886,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "菜市口",
+          "code": "457",
+          "xy": [
+            886,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "陶然亭",
+          "code": "459",
+          "xy": [
+            886,
+            780
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北京南站",
+          "code": "461",
+          "xy": [
+            886,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "马家堡",
+          "code": "463",
+          "xy": [
+            886,
+            842
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "角门西",
+          "code": "465",
+          "xy": [
+            886,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "公益西桥",
+          "code": "467",
+          "xy": [
+            886,
+            904
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "新宫",
+          "code": "469",
+          "xy": [
+            886,
+            928
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西红门",
+          "code": "471",
+          "xy": [
+            774,
+            977
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "高米店北",
+          "code": "473",
+          "xy": [
+            774,
+            1020
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "高米店南",
+          "code": "475",
+          "xy": [
+            774,
+            1043
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "枣园",
+          "code": "477",
+          "xy": [
+            774,
+            1067
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "清源路",
+          "code": "479",
+          "xy": [
+            774,
+            1090
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "黄村西大街",
+          "code": "481",
+          "xy": [
+            774,
+            1113
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "黄村火车站",
+          "code": "483",
+          "xy": [
+            774,
+            1136
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "义和庄",
+          "code": "485",
+          "xy": [
+            774,
+            1159
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "生物医药基地",
+          "code": "487",
+          "xy": [
+            774,
+            1182
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天宫院",
+          "code": "489",
+          "xy": [
+            774,
+            1206
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "5号线",
+      "code": "05",
+      "color": "#A6217F",
+      "stations": [
+        {
+          "name": "天通苑北",
+          "code": "521",
+          "xy": [
+            1076,
+            193
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天通苑",
+          "code": "523",
+          "xy": [
+            1076,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天通苑南",
+          "code": "525",
+          "xy": [
+            1076,
+            245
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "立水桥",
+          "code": "527",
+          "xy": [
+            1076,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "立水桥南",
+          "code": "529",
+          "xy": [
+            1076,
+            304
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北苑路北",
+          "code": "531",
+          "xy": [
+            1076,
+            334
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大屯路东",
+          "code": "533",
+          "xy": [
+            1076,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "惠新西街北口",
+          "code": "535",
+          "xy": [
+            1076,
+            404
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "惠新西街南口",
+          "code": "537",
+          "xy": [
+            1076,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "和平西桥",
+          "code": "539",
+          "xy": [
+            1076,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "和平里北街",
+          "code": "541",
+          "xy": [
+            1076,
+            495
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "雍和宫",
+          "code": "543",
+          "xy": [
+            1076,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北新桥",
+          "code": "545",
+          "xy": [
+            1076,
+            547
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "张自忠路",
+          "code": "547",
+          "xy": [
+            1076,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东四",
+          "code": "549",
+          "xy": [
+            1076,
+            619
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "灯市口",
+          "code": "551",
+          "xy": [
+            1076,
+            642
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东单",
+          "code": "553",
+          "xy": [
+            1076,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "崇文门",
+          "code": "555",
+          "xy": [
+            1076,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "磁器口",
+          "code": "557",
+          "xy": [
+            1076,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天坛东门",
+          "code": "559",
+          "xy": [
+            1076,
+            780
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "蒲黄榆",
+          "code": "561",
+          "xy": [
+            1076,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "刘家窑",
+          "code": "563",
+          "xy": [
+            1076,
+            838
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "宋家庄",
+          "code": "565",
+          "xy": [
+            1076,
+            880
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "6号线",
+      "code": "06",
+      "color": "#D29700",
+      "stations": [
+        {
+          "name": "金安桥",
+          "code": "609",
+          "xy": [
+            291,
+            623
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苹果园",
+          "code": "611",
+          "xy": [
+            339,
+            623
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "杨庄",
+          "code": "613",
+          "xy": [
+            369,
+            610
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西黄村",
+          "code": "615",
+          "xy": [
+            402,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "廖公庄",
+          "code": "617",
+          "xy": [
+            449,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "田村",
+          "code": "619",
+          "xy": [
+            496,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "海淀五路居",
+          "code": "621",
+          "xy": [
+            542,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "慈寿寺",
+          "code": "623",
+          "xy": [
+            582,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "花园桥",
+          "code": "625",
+          "xy": [
+            627,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "白石桥南",
+          "code": "627",
+          "xy": [
+            671,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "二里沟",
+          "code": "629",
+          "xy": [
+            740,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "车公庄西",
+          "code": "631",
+          "xy": [
+            777,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "车公庄",
+          "code": "633",
+          "xy": [
+            812,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "平安里",
+          "code": "635",
+          "xy": [
+            886,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北海北",
+          "code": "637",
+          "xy": [
+            940,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "南锣鼓巷",
+          "code": "639",
+          "xy": [
+            1000,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东四",
+          "code": "641",
+          "xy": [
+            1076,
+            619
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朝阳门",
+          "code": "643",
+          "xy": [
+            1148,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东大桥",
+          "code": "645",
+          "xy": [
+            1215,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "呼家楼",
+          "code": "647",
+          "xy": [
+            1272,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "金台路",
+          "code": "649",
+          "xy": [
+            1330,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "十里堡",
+          "code": "651",
+          "xy": [
+            1362,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "青年路",
+          "code": "653",
+          "xy": [
+            1400,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "褡裢坡",
+          "code": "655",
+          "xy": [
+            1483,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "黄渠",
+          "code": "657",
+          "xy": [
+            1512,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "常营",
+          "code": "659",
+          "xy": [
+            1540,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "草房",
+          "code": "661",
+          "xy": [
+            1577,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "物资学院路",
+          "code": "663",
+          "xy": [
+            1610,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "通州北关",
+          "code": "665",
+          "xy": [
+            1652,
+            628
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "通运门",
+          "code": "667",
+          "xy": [
+            1680,
+            655
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北运河西",
+          "code": "669",
+          "xy": [
+            1715,
+            684
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北运河东",
+          "code": "671",
+          "xy": [
+            1745,
+            684
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "郝家府",
+          "code": "673",
+          "xy": [
+            1775,
+            684
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东夏园",
+          "code": "675",
+          "xy": [
+            1805,
+            684
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "潞城",
+          "code": "677",
+          "xy": [
+            1832,
+            684
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "潞阳",
+          "code": "679",
+          "xy": [
+            1862,
+            714
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "7号线",
+      "code": "07",
+      "color": "#F6C582",
+      "stations": [
+        {
+          "name": "北京西站",
+          "code": "721",
+          "xy": [
+            671,
+            723
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "湾子",
+          "code": "723",
+          "xy": [
+            715,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "达官营",
+          "code": "725",
+          "xy": [
+            740,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "广安门内",
+          "code": "727",
+          "xy": [
+            812,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "菜市口",
+          "code": "729",
+          "xy": [
+            886,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "虎坊桥",
+          "code": "731",
+          "xy": [
+            935,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "珠市口",
+          "code": "733",
+          "xy": [
+            979,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "桥湾",
+          "code": "735",
+          "xy": [
+            1028,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "磁器口",
+          "code": "737",
+          "xy": [
+            1076,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "广渠门内",
+          "code": "739",
+          "xy": [
+            1133,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "广渠门外",
+          "code": "741",
+          "xy": [
+            1186,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "双井",
+          "code": "743",
+          "xy": [
+            1272,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "九龙山",
+          "code": "745",
+          "xy": [
+            1330,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大郊亭",
+          "code": "747",
+          "xy": [
+            1365,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "百子湾",
+          "code": "749",
+          "xy": [
+            1396,
+            756
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "化工",
+          "code": "751",
+          "xy": [
+            1409,
+            772
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "南楼梓庄",
+          "code": "753",
+          "xy": [
+            1409,
+            791
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "欢乐谷景区",
+          "code": "755",
+          "xy": [
+            1409,
+            810
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "垡头",
+          "code": "757",
+          "xy": [
+            1423,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "双合",
+          "code": "759",
+          "xy": [
+            1457,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "焦化厂",
+          "code": "761",
+          "xy": [
+            1491,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "黄厂",
+          "code": "763",
+          "xy": [
+            1521,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "郎辛庄",
+          "code": "765",
+          "xy": [
+            1549,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "黑庄户",
+          "code": "767",
+          "xy": [
+            1579,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万盛西",
+          "code": "769",
+          "xy": [
+            1608,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万盛东",
+          "code": "771",
+          "xy": [
+            1637,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "群芳",
+          "code": "773",
+          "xy": [
+            1666,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "高楼金",
+          "code": "775",
+          "xy": [
+            1695,
+            826
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "花庄",
+          "code": "777",
+          "xy": [
+            1716,
+            848
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "环球度假区",
+          "code": "779",
+          "xy": [
+            1683,
+            865
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "8号线",
+      "code": "08",
+      "color": "#009B6B",
+      "stations": [
+        {
+          "name": "朱辛庄",
+          "code": "805",
+          "xy": [
+            781,
+            188
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "育知路",
+          "code": "807",
+          "xy": [
+            858,
+            188
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "平西府",
+          "code": "809",
+          "xy": [
+            913,
+            188
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "回龙观东大街",
+          "code": "811",
+          "xy": [
+            948,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "霍营",
+          "code": "813",
+          "xy": [
+            948,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "育新",
+          "code": "815",
+          "xy": [
+            948,
+            288
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西小口",
+          "code": "817",
+          "xy": [
+            948,
+            304
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永泰庄",
+          "code": "819",
+          "xy": [
+            948,
+            319
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "林萃桥",
+          "code": "821",
+          "xy": [
+            961,
+            337
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "森林公园南门",
+          "code": "823",
+          "xy": [
+            974,
+            351
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "奥林匹克公园",
+          "code": "825",
+          "xy": [
+            979,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "奥体中心",
+          "code": "827",
+          "xy": [
+            979,
+            403
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北土城",
+          "code": "829",
+          "xy": [
+            979,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安华桥",
+          "code": "831",
+          "xy": [
+            979,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安德里北街",
+          "code": "833",
+          "xy": [
+            979,
+            497
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "鼓楼大街",
+          "code": "835",
+          "xy": [
+            979,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "什刹海",
+          "code": "837",
+          "xy": [
+            979,
+            554
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "南锣鼓巷",
+          "code": "839",
+          "xy": [
+            1000,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "中国美术馆",
+          "code": "841",
+          "xy": [
+            1020,
+            613
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "金鱼胡同",
+          "code": "843",
+          "xy": [
+            1029,
+            642
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "王府井",
+          "code": "845",
+          "xy": [
+            1029,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "前门",
+          "code": "847",
+          "xy": [
+            997,
+            717
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "珠市口",
+          "code": "849",
+          "xy": [
+            979,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天桥",
+          "code": "851",
+          "xy": [
+            979,
+            780
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永定门外",
+          "code": "853",
+          "xy": [
+            979,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "木樨园",
+          "code": "855",
+          "xy": [
+            979,
+            837
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "海户屯",
+          "code": "857",
+          "xy": [
+            979,
+            858
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大红门",
+          "code": "859",
+          "xy": [
+            979,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大红门南",
+          "code": "861",
+          "xy": [
+            979,
+            910
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "和义",
+          "code": "863",
+          "xy": [
+            979,
+            948
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东高地",
+          "code": "865",
+          "xy": [
+            990,
+            986
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "火箭万源",
+          "code": "867",
+          "xy": [
+            1013,
+            1010
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "五福堂",
+          "code": "869",
+          "xy": [
+            1037,
+            1034
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "德茂",
+          "code": "871",
+          "xy": [
+            1061,
+            1057
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "瀛海",
+          "code": "873",
+          "xy": [
+            1085,
+            1081
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "9号线",
+      "code": "09",
+      "color": "#8FC31F",
+      "stations": [
+        {
+          "name": "国家图书馆",
+          "code": "921",
+          "xy": [
+            671,
+            527
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "白石桥南",
+          "code": "923",
+          "xy": [
+            671,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "白堆子",
+          "code": "925",
+          "xy": [
+            671,
+            630
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "军事博物馆",
+          "code": "927",
+          "xy": [
+            671,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北京西站",
+          "code": "929",
+          "xy": [
+            671,
+            723
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "六里桥东",
+          "code": "931",
+          "xy": [
+            643,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "六里桥",
+          "code": "933",
+          "xy": [
+            624,
+            776
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "七里庄",
+          "code": "935",
+          "xy": [
+            590,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丰台东大街",
+          "code": "937",
+          "xy": [
+            584,
+            839
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丰台南路",
+          "code": "939",
+          "xy": [
+            584,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "科怡路",
+          "code": "941",
+          "xy": [
+            584,
+            900
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丰台科技园",
+          "code": "943",
+          "xy": [
+            584,
+            932
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "郭公庄",
+          "code": "945",
+          "xy": [
+            584,
+            969
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "10号线",
+      "code": "10",
+      "color": "#009BC0",
+      "stations": [
+        {
+          "name": "丰台站",
+          "code": "1069",
+          "xy": [
+            624,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "泥洼",
+          "code": "1071",
+          "xy": [
+            624,
+            839
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西局",
+          "code": "1073",
+          "xy": [
+            624,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "六里桥",
+          "code": "1075",
+          "xy": [
+            624,
+            776
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "莲花桥",
+          "code": "1079",
+          "xy": [
+            624,
+            722
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "公主坟",
+          "code": "1081",
+          "xy": [
+            624,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西钓鱼台",
+          "code": "1083",
+          "xy": [
+            598,
+            630
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "慈寿寺",
+          "code": "1085",
+          "xy": [
+            582,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "车道沟",
+          "code": "1087",
+          "xy": [
+            582,
+            546
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "长春桥",
+          "code": "1089",
+          "xy": [
+            582,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "火器营",
+          "code": "1091",
+          "xy": [
+            582,
+            451
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "巴沟",
+          "code": "1001",
+          "xy": [
+            596,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苏州街",
+          "code": "1003",
+          "xy": [
+            632,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "海淀黄庄",
+          "code": "1005",
+          "xy": [
+            671,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "知春里",
+          "code": "1007",
+          "xy": [
+            716,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "知春路",
+          "code": "1009",
+          "xy": [
+            790,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西土城",
+          "code": "1011",
+          "xy": [
+            855,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "牡丹园",
+          "code": "1013",
+          "xy": [
+            896,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "健德门",
+          "code": "1015",
+          "xy": [
+            938,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北土城",
+          "code": "1017",
+          "xy": [
+            979,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安贞门",
+          "code": "1019",
+          "xy": [
+            1026,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "惠新西街南口",
+          "code": "1021",
+          "xy": [
+            1076,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "芍药居",
+          "code": "1023",
+          "xy": [
+            1167,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "太阳宫",
+          "code": "1025",
+          "xy": [
+            1215,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "三元桥",
+          "code": "1027",
+          "xy": [
+            1272,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "亮马桥",
+          "code": "1029",
+          "xy": [
+            1272,
+            529
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "农业展览馆",
+          "code": "1031",
+          "xy": [
+            1272,
+            555
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "团结湖",
+          "code": "1033",
+          "xy": [
+            1272,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "呼家楼",
+          "code": "1035",
+          "xy": [
+            1272,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "金台夕照",
+          "code": "1037",
+          "xy": [
+            1272,
+            641
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "国贸",
+          "code": "1039",
+          "xy": [
+            1272,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "双井",
+          "code": "1041",
+          "xy": [
+            1272,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "劲松",
+          "code": "1043",
+          "xy": [
+            1272,
+            774
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "潘家园",
+          "code": "1045",
+          "xy": [
+            1272,
+            791
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "十里河",
+          "code": "1047",
+          "xy": [
+            1272,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "分钟寺",
+          "code": "1049",
+          "xy": [
+            1268,
+            876
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "成寿寺",
+          "code": "1051",
+          "xy": [
+            1200,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "宋家庄",
+          "code": "1053",
+          "xy": [
+            1076,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "石榴庄",
+          "code": "1055",
+          "xy": [
+            1028,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大红门",
+          "code": "1057",
+          "xy": [
+            979,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "角门东",
+          "code": "1059",
+          "xy": [
+            932,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "角门西",
+          "code": "1061",
+          "xy": [
+            886,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "草桥",
+          "code": "1063",
+          "xy": [
+            800,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "纪家庙",
+          "code": "1065",
+          "xy": [
+            755,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "首经贸",
+          "code": "1067",
+          "xy": [
+            672,
+            880
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "11号线",
+      "code": "11",
+      "color": "#ED796B",
+      "stations": [
+        {
+          "name": "模式口",
+          "code": "1121",
+          "xy": [
+            291,
+            580
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "金安桥",
+          "code": "1123",
+          "xy": [
+            291,
+            623
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北辛安",
+          "code": "1125",
+          "xy": [
+            291,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "新首钢",
+          "code": "1127",
+          "xy": [
+            291,
+            692
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "12号线",
+      "code": "12",
+      "color": "#BD6F16",
+      "stations": [
+        {
+          "name": "四季青桥",
+          "code": "1221",
+          "xy": [
+            520,
+            526
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "蓝靛厂",
+          "code": "1223",
+          "xy": [
+            520,
+            499
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "长春桥",
+          "code": "1225",
+          "xy": [
+            582,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苏州桥",
+          "code": "1227",
+          "xy": [
+            632,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "人民大学",
+          "code": "1229",
+          "xy": [
+            671,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大钟寺",
+          "code": "1231",
+          "xy": [
+            790,
+            472
+          ],
+          "sourceInUse": false
+        },
+        {
+          "name": "蓟门桥",
+          "code": "1233",
+          "xy": [
+            855,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北太平庄",
+          "code": "1235",
+          "xy": [
+            896,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "马甸桥",
+          "code": "1237",
+          "xy": [
+            938,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安华桥",
+          "code": "1239",
+          "xy": [
+            979,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安贞桥",
+          "code": "1241",
+          "xy": [
+            1026,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "和平西桥",
+          "code": "1243",
+          "xy": [
+            1076,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "光熙门",
+          "code": "1245",
+          "xy": [
+            1167,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西坝河",
+          "code": "1247",
+          "xy": [
+            1215,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "三元桥",
+          "code": "1249",
+          "xy": [
+            1272,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "将台西",
+          "code": "1251",
+          "xy": [
+            1301,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "高家园",
+          "code": "1253",
+          "xy": [
+            1340,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "驼房营",
+          "code": "1255",
+          "xy": [
+            1372,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东坝西",
+          "code": "1257",
+          "xy": [
+            1400,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东坝北",
+          "code": "1259",
+          "xy": [
+            1428,
+            472
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "13号线",
+      "code": "13",
+      "color": "#F9E700",
+      "stations": [
+        {
+          "name": "西直门",
+          "code": "1321",
+          "xy": [
+            813,
+            542
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大钟寺",
+          "code": "1323",
+          "xy": [
+            790,
+            472
+          ],
+          "sourceInUse": false
+        },
+        {
+          "name": "知春路",
+          "code": "1325",
+          "xy": [
+            790,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "五道口",
+          "code": "1327",
+          "xy": [
+            790,
+            395
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "上地",
+          "code": "1329",
+          "xy": [
+            790,
+            336
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "清河站",
+          "code": "1330",
+          "xy": [
+            790,
+            307
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西二旗",
+          "code": "1331",
+          "xy": [
+            790,
+            284
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "龙泽",
+          "code": "1333",
+          "xy": [
+            824,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "回龙观",
+          "code": "1335",
+          "xy": [
+            872,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "霍营",
+          "code": "1337",
+          "xy": [
+            948,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "立水桥",
+          "code": "1339",
+          "xy": [
+            1076,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北苑",
+          "code": "1341",
+          "xy": [
+            1129,
+            267
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京西",
+          "code": "1343",
+          "xy": [
+            1167,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "芍药居",
+          "code": "1345",
+          "xy": [
+            1167,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "光熙门",
+          "code": "1347",
+          "xy": [
+            1167,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "柳芳",
+          "code": "1349",
+          "xy": [
+            1167,
+            508
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东直门",
+          "code": "1351",
+          "xy": [
+            1148,
+            546
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "14号线",
+      "code": "14",
+      "color": "#D5A7A1",
+      "stations": [
+        {
+          "name": "善各庄",
+          "code": "1493",
+          "xy": [
+            1283,
+            285
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "来广营",
+          "code": "1491",
+          "xy": [
+            1283,
+            314
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东湖渠",
+          "code": "1489",
+          "xy": [
+            1283,
+            338
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京",
+          "code": "1487",
+          "xy": [
+            1283,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "阜通",
+          "code": "1485",
+          "xy": [
+            1288,
+            402
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京南",
+          "code": "1483",
+          "xy": [
+            1310,
+            425
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "将台",
+          "code": "1479",
+          "xy": [
+            1330,
+            488
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东风北桥",
+          "code": "1477",
+          "xy": [
+            1330,
+            509
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "枣营",
+          "code": "1475",
+          "xy": [
+            1330,
+            535
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朝阳公园",
+          "code": "1473",
+          "xy": [
+            1330,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "金台路",
+          "code": "1471",
+          "xy": [
+            1330,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大望路",
+          "code": "1467",
+          "xy": [
+            1330,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "九龙山",
+          "code": "1465",
+          "xy": [
+            1330,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "平乐园",
+          "code": "1463",
+          "xy": [
+            1330,
+            778
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北工大西门",
+          "code": "1461",
+          "xy": [
+            1325,
+            810
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "十里河",
+          "code": "1457",
+          "xy": [
+            1272,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "方庄",
+          "code": "1455",
+          "xy": [
+            1165,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "蒲黄榆",
+          "code": "1453",
+          "xy": [
+            1076,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "景泰",
+          "code": "1451",
+          "xy": [
+            1028,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永定门外",
+          "code": "1449",
+          "xy": [
+            979,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "陶然桥",
+          "code": "1447",
+          "xy": [
+            933,
+            815
+          ],
+          "sourceInUse": false
+        },
+        {
+          "name": "北京南站",
+          "code": "1445",
+          "xy": [
+            886,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "景风门",
+          "code": "1443",
+          "xy": [
+            839,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西铁营",
+          "code": "1441",
+          "xy": [
+            805,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "菜户营",
+          "code": "1439",
+          "xy": [
+            775,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丽泽商务区",
+          "code": "1437",
+          "xy": [
+            740,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东管头",
+          "code": "1435",
+          "xy": [
+            688,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西局",
+          "code": "1433",
+          "xy": [
+            624,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "七里庄",
+          "code": "1431",
+          "xy": [
+            590,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大井",
+          "code": "1429",
+          "xy": [
+            530,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "郭庄子",
+          "code": "1427",
+          "xy": [
+            483,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大瓦窑",
+          "code": "1425",
+          "xy": [
+            437,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "园博园",
+          "code": "1423",
+          "xy": [
+            391,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "张郭庄",
+          "code": "1421",
+          "xy": [
+            345,
+            815
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "15号线",
+      "code": "15",
+      "color": "#5B2C68",
+      "stations": [
+        {
+          "name": "清华东路西口",
+          "code": "1525",
+          "xy": [
+            819,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "六道口",
+          "code": "1527",
+          "xy": [
+            855,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北沙滩",
+          "code": "1529",
+          "xy": [
+            896,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "奥林匹克公园",
+          "code": "1531",
+          "xy": [
+            979,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "安立路",
+          "code": "1533",
+          "xy": [
+            1026,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大屯路东",
+          "code": "1535",
+          "xy": [
+            1076,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "关庄",
+          "code": "1537",
+          "xy": [
+            1122,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京西",
+          "code": "1539",
+          "xy": [
+            1167,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京",
+          "code": "1541",
+          "xy": [
+            1283,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京东",
+          "code": "1543",
+          "xy": [
+            1314,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "崔各庄",
+          "code": "1545",
+          "xy": [
+            1364,
+            331
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "马泉营",
+          "code": "1547",
+          "xy": [
+            1364,
+            305
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "孙河",
+          "code": "1549",
+          "xy": [
+            1364,
+            280
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "国展",
+          "code": "1551",
+          "xy": [
+            1364,
+            255
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "花梨坎",
+          "code": "1553",
+          "xy": [
+            1364,
+            230
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "后沙峪",
+          "code": "1555",
+          "xy": [
+            1364,
+            204
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "南法信",
+          "code": "1557",
+          "xy": [
+            1415,
+            178
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "石门",
+          "code": "1559",
+          "xy": [
+            1481,
+            178
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "顺义",
+          "code": "1561",
+          "xy": [
+            1546,
+            178
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "俸伯",
+          "code": "1563",
+          "xy": [
+            1612,
+            178
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "16号线",
+      "code": "16",
+      "color": "#76A32E",
+      "stations": [
+        {
+          "name": "宛平城",
+          "code": "1679",
+          "xy": [
+            405,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "洪泰庄",
+          "code": "1677",
+          "xy": [
+            433,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "榆树庄",
+          "code": "1675",
+          "xy": [
+            461,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "看丹",
+          "code": "1673",
+          "xy": [
+            488,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "富丰桥",
+          "code": "1671",
+          "xy": [
+            516,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丰台南路",
+          "code": "1669",
+          "xy": [
+            584,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丰台站",
+          "code": "1667",
+          "xy": [
+            624,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东管头南",
+          "code": "1665",
+          "xy": [
+            688,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "丽泽商务区",
+          "code": "1663",
+          "xy": [
+            740,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "红莲南路",
+          "code": "1661",
+          "xy": [
+            740,
+            780
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "达官营",
+          "code": "1659",
+          "xy": [
+            740,
+            754
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "木樨地",
+          "code": "1657",
+          "xy": [
+            740,
+            666
+          ],
+          "sourceInUse": false
+        },
+        {
+          "name": "玉渊潭东门",
+          "code": "1655",
+          "xy": [
+            740,
+            640
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "甘家口",
+          "code": "1653",
+          "xy": [
+            740,
+            619
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "二里沟",
+          "code": "1651",
+          "xy": [
+            740,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "国家图书馆",
+          "code": "1649",
+          "xy": [
+            671,
+            527
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万寿寺",
+          "code": "1647",
+          "xy": [
+            632,
+            500
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苏州桥",
+          "code": "1645",
+          "xy": [
+            632,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苏州街",
+          "code": "1643",
+          "xy": [
+            632,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万泉河桥",
+          "code": "1641",
+          "xy": [
+            632,
+            377
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西苑",
+          "code": "1639",
+          "xy": [
+            632,
+            310
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "农大南路",
+          "code": "1637",
+          "xy": [
+            632,
+            285
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "马连洼",
+          "code": "1635",
+          "xy": [
+            632,
+            260
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西北旺",
+          "code": "1633",
+          "xy": [
+            632,
+            226
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永丰南",
+          "code": "1631",
+          "xy": [
+            632,
+            198
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永丰",
+          "code": "1629",
+          "xy": [
+            595,
+            171
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "屯佃",
+          "code": "1627",
+          "xy": [
+            552,
+            171
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "稻香湖路",
+          "code": "1625",
+          "xy": [
+            508,
+            171
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "温阳路",
+          "code": "1623",
+          "xy": [
+            465,
+            171
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北安河",
+          "code": "1621",
+          "xy": [
+            421,
+            171
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "17号线",
+      "code": "17",
+      "color": "#00A9A9",
+      "stations": [
+        {
+          "name": "未来科学城北",
+          "code": "1721",
+          "xy": [
+            1150,
+            150
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "未来科学城",
+          "code": "1723",
+          "xy": [
+            1150,
+            174
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天通苑东",
+          "code": "1725",
+          "xy": [
+            1150,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "清河营",
+          "code": "1727",
+          "xy": [
+            1150,
+            245
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "红军营",
+          "code": "1729",
+          "xy": [
+            1150,
+            317
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "望京西",
+          "code": "1731",
+          "xy": [
+            1167,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "太阳宫",
+          "code": "1733",
+          "xy": [
+            1215,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西坝河",
+          "code": "1735",
+          "xy": [
+            1215,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "左家庄",
+          "code": "1737",
+          "xy": [
+            1215,
+            538
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "工人体育场",
+          "code": "1739",
+          "xy": [
+            1215,
+            582
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东大桥",
+          "code": "1741",
+          "xy": [
+            1215,
+            620
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "永安里",
+          "code": "1743",
+          "xy": [
+            1215,
+            666
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "潘家园西",
+          "code": "1747",
+          "xy": [
+            1242,
+            785
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "十里河",
+          "code": "1749",
+          "xy": [
+            1272,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "周家庄",
+          "code": "1751",
+          "xy": [
+            1323,
+            864
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "十八里店",
+          "code": "1753",
+          "xy": [
+            1370,
+            911
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北神树",
+          "code": "1755",
+          "xy": [
+            1417,
+            958
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "次渠北",
+          "code": "1757",
+          "xy": [
+            1464,
+            1005
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "次渠",
+          "code": "1759",
+          "xy": [
+            1515,
+            1055
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "嘉会湖",
+          "code": "1761",
+          "xy": [
+            1557,
+            1098
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "18号线",
+      "code": "73",
+      "color": "#665794",
+      "stations": [
+        {
+          "name": "马连洼",
+          "code": "7321",
+          "xy": [
+            632,
+            260
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "上地软件园",
+          "code": "7319",
+          "xy": [
+            690,
+            260
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东北旺",
+          "code": "7317",
+          "xy": [
+            742,
+            260
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "龙泽西",
+          "code": "7315",
+          "xy": [
+            810,
+            239
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "回龙观西大街",
+          "code": "7313",
+          "xy": [
+            868,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "文华路",
+          "code": "7311",
+          "xy": [
+            908,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "回龙观东大街",
+          "code": "7309",
+          "xy": [
+            948,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "霍营东",
+          "code": "7307",
+          "xy": [
+            1008,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天通苑",
+          "code": "7305",
+          "xy": [
+            1076,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "太平庄",
+          "code": "7303",
+          "xy": [
+            1116,
+            224
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "天通苑东",
+          "code": "7301",
+          "xy": [
+            1150,
+            224
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "19号线",
+      "code": "19",
+      "color": "#D6ABC1",
+      "stations": [
+        {
+          "name": "牡丹园",
+          "code": "1921",
+          "xy": [
+            896,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北太平庄",
+          "code": "1923",
+          "xy": [
+            896,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "积水潭",
+          "code": "1925",
+          "xy": [
+            896,
+            517
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "平安里",
+          "code": "1927",
+          "xy": [
+            886,
+            593
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "太平桥",
+          "code": "1929",
+          "xy": [
+            839,
+            654
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "牛街",
+          "code": "1931",
+          "xy": [
+            839,
+            743
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "景风门",
+          "code": "1933",
+          "xy": [
+            839,
+            815
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "草桥",
+          "code": "1935",
+          "xy": [
+            809,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "新发地",
+          "code": "1937",
+          "xy": [
+            809,
+            918
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "新宫",
+          "code": "1939",
+          "xy": [
+            886,
+            928
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "S1线",
+      "code": "91",
+      "color": "#B35A20",
+      "stations": [
+        {
+          "name": "石厂",
+          "code": "9121",
+          "xy": [
+            135,
+            708
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "小园",
+          "code": "9123",
+          "xy": [
+            165,
+            708
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "栗园庄",
+          "code": "9125",
+          "xy": [
+            192,
+            685
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "上岸",
+          "code": "9127",
+          "xy": [
+            192,
+            662
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "桥户营",
+          "code": "9129",
+          "xy": [
+            222,
+            632
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "四道桥",
+          "code": "9131",
+          "xy": [
+            255,
+            632
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "金安桥",
+          "code": "9133",
+          "xy": [
+            291,
+            632
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苹果园",
+          "code": "9135",
+          "xy": [
+            339,
+            632
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "西郊线",
+      "code": "89",
+      "color": "#E50619",
+      "stations": [
+        {
+          "name": "香山",
+          "code": "8921",
+          "xy": [
+            401,
+            347
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "国家植物园",
+          "code": "8923",
+          "xy": [
+            445,
+            347
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万安",
+          "code": "8925",
+          "xy": [
+            464,
+            374
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "茶棚",
+          "code": "8927",
+          "xy": [
+            496,
+            394
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "颐和园西门",
+          "code": "8929",
+          "xy": [
+            545,
+            394
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "巴沟",
+          "code": "8931",
+          "xy": [
+            596,
+            435
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "房山线",
+      "code": "95",
+      "color": "#E46022",
+      "stations": [
+        {
+          "name": "东管头南",
+          "code": "9513",
+          "xy": [
+            688,
+            865
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "首经贸",
+          "code": "9515",
+          "xy": [
+            672,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "花乡东桥",
+          "code": "9517",
+          "xy": [
+            640,
+            912
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "白盆窑",
+          "code": "9519",
+          "xy": [
+            614,
+            938
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "郭公庄",
+          "code": "9521",
+          "xy": [
+            584,
+            969
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大葆台",
+          "code": "9523",
+          "xy": [
+            567,
+            986
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "稻田",
+          "code": "9525",
+          "xy": [
+            550,
+            1002
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "长阳",
+          "code": "9527",
+          "xy": [
+            533,
+            1020
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "篱笆房",
+          "code": "9529",
+          "xy": [
+            516,
+            1037
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "广阳城",
+          "code": "9531",
+          "xy": [
+            499,
+            1053
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "良乡大学城北",
+          "code": "9533",
+          "xy": [
+            482,
+            1071
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "良乡大学城",
+          "code": "9535",
+          "xy": [
+            463,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "良乡大学城西",
+          "code": "9537",
+          "xy": [
+            430,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "良乡南关",
+          "code": "9539",
+          "xy": [
+            399,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "苏庄",
+          "code": "9541",
+          "xy": [
+            367,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "阎村东",
+          "code": "9543",
+          "xy": [
+            332,
+            1089
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "昌平线",
+      "code": "94",
+      "color": "#DE82B2",
+      "stations": [
+        {
+          "name": "蓟门桥",
+          "code": "9457",
+          "xy": [
+            855,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西土城",
+          "code": "9455",
+          "xy": [
+            855,
+            435
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "学院桥",
+          "code": "9453",
+          "xy": [
+            855,
+            411
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "六道口",
+          "code": "9451",
+          "xy": [
+            855,
+            372
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "学知园",
+          "code": "9449",
+          "xy": [
+            855,
+            348
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "清河小营桥",
+          "code": "9447",
+          "xy": [
+            855,
+            326
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朱房北",
+          "code": "9445",
+          "xy": [
+            824,
+            307
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "清河站",
+          "code": "9443",
+          "xy": [
+            781,
+            307
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "西二旗",
+          "code": "9441",
+          "xy": [
+            781,
+            284
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "生命科学园",
+          "code": "9439",
+          "xy": [
+            781,
+            217
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "朱辛庄",
+          "code": "9437",
+          "xy": [
+            781,
+            188
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "巩华城",
+          "code": "9435",
+          "xy": [
+            781,
+            156
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "沙河",
+          "code": "9433",
+          "xy": [
+            781,
+            130
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "沙河高教园",
+          "code": "9431",
+          "xy": [
+            781,
+            104
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "南邵",
+          "code": "9429",
+          "xy": [
+            781,
+            70
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "北邵洼",
+          "code": "9427",
+          "xy": [
+            750,
+            41
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "昌平东关",
+          "code": "9425",
+          "xy": [
+            694,
+            41
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "昌平",
+          "code": "9423",
+          "xy": [
+            636,
+            41
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "十三陵景区",
+          "code": "9421",
+          "xy": [
+            573,
+            41
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "昌平西山口",
+          "code": "9419",
+          "xy": [
+            540,
+            41
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "亦庄线",
+      "code": "96",
+      "color": "#E40077",
+      "stations": [
+        {
+          "name": "宋家庄",
+          "code": "9621",
+          "xy": [
+            1076,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "肖村",
+          "code": "9623",
+          "xy": [
+            1076,
+            916
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "小红门",
+          "code": "9625",
+          "xy": [
+            1095,
+            935
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "旧宫",
+          "code": "9627",
+          "xy": [
+            1110,
+            949
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "亦庄桥",
+          "code": "9629",
+          "xy": [
+            1124,
+            964
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "亦庄文化园",
+          "code": "9631",
+          "xy": [
+            1139,
+            979
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "万源街",
+          "code": "9633",
+          "xy": [
+            1154,
+            993
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "荣京东街",
+          "code": "9635",
+          "xy": [
+            1168,
+            1008
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "荣昌东街",
+          "code": "9637",
+          "xy": [
+            1185,
+            1025
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "同济南路",
+          "code": "9639",
+          "xy": [
+            1256,
+            1055
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "经海路",
+          "code": "9641",
+          "xy": [
+            1330,
+            1055
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "次渠南",
+          "code": "9643",
+          "xy": [
+            1406,
+            1055
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "次渠",
+          "code": "9645",
+          "xy": [
+            1515,
+            1055
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "亦庄火车站",
+          "code": "9647",
+          "xy": [
+            1569,
+            1055
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "燕房线",
+      "code": "92",
+      "color": "#E46022",
+      "stations": [
+        {
+          "name": "燕山",
+          "code": "9221",
+          "xy": [
+            91,
+            1049
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "房山城关",
+          "code": "9223",
+          "xy": [
+            113,
+            1068
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "饶乐府",
+          "code": "9225",
+          "xy": [
+            140,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "马各庄",
+          "code": "9227",
+          "xy": [
+            172,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大石河东",
+          "code": "9229",
+          "xy": [
+            203,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "星城",
+          "code": "9231",
+          "xy": [
+            235,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "阎村",
+          "code": "9233",
+          "xy": [
+            266,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "紫草坞",
+          "code": "9235",
+          "xy": [
+            298,
+            1089
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "阎村东",
+          "code": "9237",
+          "xy": [
+            332,
+            1089
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "首都机场线",
+      "code": "98",
+      "color": "#A29BBB",
+      "stations": [
+        {
+          "name": "北新桥",
+          "code": "9819",
+          "xy": [
+            1076,
+            547
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "东直门",
+          "code": "9821",
+          "xy": [
+            1148,
+            546
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "三元桥",
+          "code": "9823",
+          "xy": [
+            1272,
+            472
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "3号航站楼",
+          "code": "9827",
+          "xy": [
+            1545,
+            276
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "2号航站楼",
+          "code": "9825",
+          "xy": [
+            1468,
+            276
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "大兴机场线",
+      "code": "88",
+      "color": "#004A9F",
+      "stations": [
+        {
+          "name": "草桥",
+          "code": "8823",
+          "xy": [
+            800,
+            880
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大兴新城",
+          "code": "8825",
+          "xy": [
+            901,
+            1031
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "大兴机场",
+          "code": "8827",
+          "xy": [
+            979,
+            1212
+          ],
+          "sourceInUse": true
+        }
+      ]
+    },
+    {
+      "name": "亦庄T1线",
+      "code": "79",
+      "color": "#E5061B",
+      "stations": [
+        {
+          "name": "定海园",
+          "code": "7921",
+          "xy": [
+            1269,
+            941
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "定海园西",
+          "code": "7923",
+          "xy": [
+            1250,
+            959
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "经海一路",
+          "code": "7925",
+          "xy": [
+            1232,
+            978
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "亦创会展中心",
+          "code": "7927",
+          "xy": [
+            1204,
+            1006
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "荣昌东街",
+          "code": "7929",
+          "xy": [
+            1185,
+            1025
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "亦庄同仁",
+          "code": "7931",
+          "xy": [
+            1166,
+            1050
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "鹿圈东",
+          "code": "7933",
+          "xy": [
+            1166,
+            1065
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "泰河路",
+          "code": "7935",
+          "xy": [
+            1166,
+            1080
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "九号村",
+          "code": "7937",
+          "xy": [
+            1166,
+            1095
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "四海庄",
+          "code": "7939",
+          "xy": [
+            1166,
+            1109
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "太和桥北",
+          "code": "7941",
+          "xy": [
+            1166,
+            1124
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "瑞合庄",
+          "code": "7943",
+          "xy": [
+            1166,
+            1139
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "融兴街",
+          "code": "7945",
+          "xy": [
+            1166,
+            1153
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "屈庄",
+          "code": "7947",
+          "xy": [
+            1166,
+            1168
+          ],
+          "sourceInUse": true
+        },
+        {
+          "name": "老观里",
+          "code": "",
+          "xy": [
+            1166,
+            1183
+          ],
+          "sourceInUse": false
+        }
+      ]
+    }
+  ]
+}

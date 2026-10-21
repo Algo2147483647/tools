@@ -95,6 +95,18 @@
   background: #ffffff66;
   padding: 4px 7px;
 }
+.spatial-display-units {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex-basis: 100%;
+}
+.spatial-units-hint {
+  flex-basis: 100%;
+  color: #728093;
+  font-size: 11px;
+}
 .spatial-angle-input:focus-within {
   outline: 2px solid var(--studio-accent);
   outline-offset: 1px;
