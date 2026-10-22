@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "revision": 284,
-  "updatedAt": "2026-10-22T17:52:00.215Z",
+  "revision": 288,
+  "updatedAt": "2026-10-22T17:53:36.358Z",
   "warehouses": [
     {
       "id": "basic",
@@ -898,7 +898,7 @@
         {
           "id": "basic-65",
           "name": "ID Card & Documents",
-          "type": "Miscellaneous / Personal",
+          "type": "Work / Stationery",
           "unit": "set",
           "mode": "fixed",
           "amount": 1,
@@ -912,7 +912,7 @@
         {
           "id": "basic-66",
           "name": "Cash",
-          "type": "Miscellaneous / Personal",
+          "type": "Work / Stationery",
           "unit": "bundle",
           "mode": "fixed",
           "amount": 1,
@@ -926,7 +926,7 @@
         {
           "id": "basic-67",
           "name": "Rope",
-          "type": "Miscellaneous / Personal",
+          "type": "Work / Stationery",
           "unit": "pcs",
           "mode": "fixed",
           "amount": 1,
@@ -940,7 +940,7 @@
         {
           "id": "basic-68",
           "name": "Bag",
-          "type": "Miscellaneous / Personal",
+          "type": "Work / Stationery",
           "unit": "pcs",
           "mode": "fixed",
           "amount": 1,
