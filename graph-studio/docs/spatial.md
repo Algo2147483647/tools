@@ -54,12 +54,12 @@ Angles default to degrees; `angleUnit: "radians"` changes all angular inputs. Sp
 
 ## Bundled examples
 
-**Spatial Atlas** contains nine graph documents, including:
+**Spatial Atlas** contains four graph documents:
 
 - All-sky: 5,044 catalog stars to magnitude 6 plus three constellation-line endpoints; 743 constellation segments. Type identifies 88 constellation regions. Positions are J2000 sky directions on a unit sphere, not measured stellar distances.
 - World cities: 8,097 cities across 245 countries/territories, including every 3,708 national/first-order capital record from the GeoNames snapshot without a population cutoff. Spherical `[6371, longitude, latitude]`, local-language titles, continent Types, and 2020 urban-centre GDP (PPP) encoded as logarithmic point area/intensity. Missing GDP stays visible as a hollow point. See the atlas SOURCES.md for matching, coverage and name fallbacks.
 - Beijing metro: the 2026-10-22 service snapshot, with 28 through-service routes (30 named lines), 423 stations at sourced WGS84 longitude/latitude points, 515 rail segments and 106 shared interchange nodes. Includes both airport lines, S1, Xijiao and Yizhuang T1. Type filters complete lines and their own edges; station coordinates are never jittered or compressed. Flat maps fit their actual point and label bounds. See the source notes for coordinate provenance and closures.
-- 0D points, a 1D line, a polar circle, a cylindrical helix, a 4D tesseract and 5D basis vectors.
+- Shanghai metro: the 2026-10-22 snapshot of Lines 1–18, Pujiang, Maglev and Airport Link (21 lines, 24 branch paths), with 418 sourced WGS84 station points, 512 rail segments and 90 shared interchange nodes. Keeps the Line 4 ring, Lines 5/10/11 branches and separate same-named sites at National Exhibition and Convention Center and Pudong South Road. Uses the same Display units controls and line filtering as Beijing. The six synthetic 0D–5D example files have been removed; dimensional chart support remains available.
 
 See [example source notes](../public/examples/spatial-atlas/SOURCES.md). Rebuild data with `python scripts/build-spatial-examples.py`; downloads are cached in `.spatial-data/` and are unnecessary at runtime.
 

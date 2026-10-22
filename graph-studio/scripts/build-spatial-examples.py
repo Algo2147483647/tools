@@ -114,13 +114,6 @@ runpy.run_path(str(ROOT / "scripts/build-world-cities.py"), run_name="__main__")
 
 runpy.run_path(str(ROOT / "scripts/build-beijing-metro.py"), run_name="__main__")
 
-save("zero-dimensional.json", graph("0D · Coincident points", 0, "cartesian", {str(i): {"title": f"Point {i}", "space": [], "type": "Origin"} for i in range(6)}))
-save("one-dimensional.json", graph("1D · A measured line", 1, "cartesian", {str(i): {"title": f"x = {i}", "space": [i], "type": "Negative" if i < 0 else "Non-negative"} for i in [-5, -2, 0, 1, 4, 8]}))
-save("polar.json", graph("2D · Polar orbit", 2, "polar", {str(i): {"title": f"{i*30} degrees", "space": [1, i*30], "type": "Orbit"} for i in range(12)}, [{"id": str(i), "source": str(i), "target": str((i+1)%12)} for i in range(12)]))
-save("cylindrical.json", graph("3D · Cylindrical helix", 3, "cylindrical", {str(i): {"title": f"Helix {i}", "space": [1, i*30, i/12], "type": f"Turn {i//12+1}"} for i in range(48)}, [{"id": str(i), "source": str(i), "target": str(i+1)} for i in range(47)]))
-nodes = {str(i): {"title": format(i, "04b"), "space": [1 if i & (1 << bit) else -1 for bit in range(4)], "type": "W = +1" if i & 8 else "W = -1"} for i in range(16)}
-edges = [{"id": f"{i}:{bit}", "source": str(i), "target": str(i ^ (1 << bit))} for i in range(16) for bit in range(4) if not i & (1 << bit)]
-save("four-dimensional.json", graph("4D · Tesseract", 4, "cartesian", nodes, edges))
-save("five-dimensional.json", graph("5D · Basis vectors", 5, "cartesian", {str(i): {"title": f"e{i+1}", "space": [int(i == j) for j in range(5)], "type": f"Axis {i+1}"} for i in range(5)}))
+runpy.run_path(str(ROOT / "scripts/build-shanghai-metro.py"), run_name="__main__")
 (OUT / "CELESTIAL-LICENSE.txt").write_text(read("license.txt", CELESTIAL + "LICENSE"), encoding="utf-8")
-save("graph-studio.workspace.json", {"format": "graph-studio-workspace", "version": 1, "name": "Spatial Atlas", "graphs": ["all-sky.json", "world-cities.json", "beijing-metro.json", "zero-dimensional.json", "one-dimensional.json", "polar.json", "cylindrical.json", "four-dimensional.json", "five-dimensional.json"], "defaultGraph": "all-sky.json", "metadata": {"assets": ["README.md", "SOURCES.md", "CELESTIAL-LICENSE.txt"]}})
+save("graph-studio.workspace.json", {"format": "graph-studio-workspace", "version": 1, "name": "Spatial Atlas", "graphs": ["all-sky.json", "world-cities.json", "beijing-metro.json", "shanghai-metro.json"], "defaultGraph": "all-sky.json", "metadata": {"assets": ["README.md", "SOURCES.md", "CELESTIAL-LICENSE.txt"]}})

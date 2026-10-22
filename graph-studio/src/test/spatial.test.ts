@@ -364,17 +364,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.equal(new Set(Object.values(sky.nodes).map((n) => n.type)).size, 88);
     const declinations = Object.values(sky.nodes).map((n) => (n.space as number[])[2]);
     assert.ok(Math.min(...declinations) < -85 && Math.max(...declinations) > 85);
-    for (const name of [
-      "all-sky",
-      "world-cities",
-      "beijing-metro",
-      "zero-dimensional",
-      "one-dimensional",
-      "polar",
-      "cylindrical",
-      "four-dimensional",
-      "five-dimensional",
-    ]) {
+    for (const name of ["all-sky", "world-cities", "beijing-metro", "shanghai-metro"]) {
       const dag = await read(name);
       finite(buildSpatialStage({ dag }));
       assert.deepEqual(normalizeDagInput(serializeDag(dag)), dag);
@@ -397,6 +387,79 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     const metro = await read("beijing-metro");
     assert.equal(Object.keys(metro.nodes).length, 423);
     assert.ok(Object.values(metro.nodes).every((n) => n.coordinateReference === "WGS84 / EPSG:4326"));
+  }),
+  defineTest("Shanghai keeps sourced coordinates, all services, real branches and distinct station sites", async () => {
+    const raw = JSON.parse(await readFile("public/examples/spatial-atlas/shanghai-metro.json", "utf8"));
+    const snapshot = JSON.parse(await readFile("scripts/shanghai-metro-source.json", "utf8"));
+    const dag = normalizeDagInput(raw);
+    assert.equal(Object.keys(dag.nodes).length, 418);
+    assert.equal(dag.edges.length, 512);
+    assert.equal(getGraphTypeOptions(dag).length, 21);
+    const key = (name: string) => `station:${name}`;
+    for (const node of Object.values(dag.nodes)) {
+      const point = snapshot.stations[node.stationId as string];
+      assert.deepEqual(node.space, [point.longitude, point.latitude]);
+      assert.equal(node.coordinateSource, point.source);
+      assert.equal(node.coordinateSourceVersion, point.osmVersion);
+      assert.equal(node.coordinateReference, "WGS84 / EPSG:4326");
+      assert.match(node.coordinateSource as string, /^https:\/\/www.openstreetmap.org\/node\/\d+$/);
+    }
+    for (const line of raw.metadata.lines) {
+      const selected = projectGraphByType(dag, line.name, "spatial");
+      assert.equal(Object.keys(selected.nodes).length, line.stationCount);
+      assert.deepEqual(new Set(selected.edges.map((edge) => edge.id)), new Set(line.edgeIds));
+      const adjacency = new Map<string, Set<string>>(line.stationKeys.map((id: string) => [id, new Set<string>()]));
+      for (const edge of selected.edges) {
+        assert.equal(edge.metadata?.line, line.name);
+        adjacency.get(edge.source)!.add(edge.target);
+        adjacency.get(edge.target)!.add(edge.source);
+      }
+      const visited = new Set<string>();
+      const visit = (id: string) => {
+        if (visited.has(id)) return;
+        visited.add(id);
+        adjacency.get(id)!.forEach(visit);
+      };
+      visit(line.stationKeys[0]);
+      assert.equal(visited.size, line.stationCount, `disconnected ${line.name}`);
+      const junction = { "5号线": "东川路", "10号线": "龙溪路", "11号线": "嘉定新城" }[line.name as string];
+      if (junction) {
+        assert.equal(adjacency.get(key(junction))!.size, 3);
+        assert.equal([...adjacency.values()].filter((neighbors) => neighbors.size === 1).length, 3);
+      } else if (line.name === "4号线") {
+        assert.equal(selected.edges.length, 26);
+        assert.ok([...adjacency.values()].every((neighbors) => neighbors.size === 2));
+      } else {
+        assert.equal(selected.edges.length, line.stationCount - 1);
+      }
+    }
+    for (const name of ["康文路", "蟠祥路·国家会计学院", "西岑", "康恒路", "花桥", "奉贤新城", "滴水湖", "三林南"])
+      assert.ok(dag.nodes[key(name)], `missing operating stop ${name}`);
+    for (const name of ["江杨南路", "浦东3号航站楼", "上海东站"]) assert.equal(dag.nodes[key(name)], undefined);
+    for (const sites of raw.metadata.separateStationSites) {
+      const [a, b] = sites.stationKeys.map((id: string) => dag.nodes[id]);
+      assert.notDeepEqual(a.space, b.space);
+      assert.equal((a.lines as string[]).length, 1);
+      assert.equal((b.lines as string[]).length, 1);
+    }
+    const stage = buildSpatialStage({ dag });
+    const expanded = buildSpatialStage({
+      dag,
+      spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), unitScale: 4 },
+    });
+    for (const name of ["花桥", "西岑", "滴水湖", "奉贤新城"]) {
+      const before = stage.nodeMap[key(name)],
+        after = expanded.nodeMap[key(name)];
+      close([after.x, after.y], [before.x * 4, before.y * 4]);
+      assert.equal(after.spatial!.radius, before.spatial!.radius);
+    }
+    const manifest = JSON.parse(await readFile("public/examples/spatial-atlas/graph-studio.workspace.json", "utf8"));
+    assert.deepEqual(manifest.graphs, [
+      "all-sky.json",
+      "world-cities.json",
+      "beijing-metro.json",
+      "shanghai-metro.json",
+    ]);
   }),
   defineTest("world cities retain every global source capital, including small regional seats", async () => {
     const dag = normalizeDagInput(
