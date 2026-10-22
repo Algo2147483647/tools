@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "revision": 234,
-  "updatedAt": "2026-10-22T17:44:50.746Z",
+  "revision": 284,
+  "updatedAt": "2026-10-22T17:52:00.215Z",
   "warehouses": [
     {
       "id": "basic",
@@ -44,7 +44,7 @@
         {
           "id": "basic-4",
           "name": "Salt NaCl",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "g",
           "mode": "rate",
           "amount": 5,
@@ -58,7 +58,7 @@
         {
           "id": "basic-5",
           "name": "Sucrose C₁₂H₂₂O₁₁",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "g",
           "mode": "rate",
           "amount": 25,
@@ -72,7 +72,7 @@
         {
           "id": "basic-6",
           "name": "Proteins (milk powder)",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "g",
           "mode": "rate",
           "amount": 60,
@@ -86,7 +86,7 @@
         {
           "id": "basic-7",
           "name": "Lipids",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "ml",
           "mode": "rate",
           "amount": 30,
@@ -100,7 +100,7 @@
         {
           "id": "basic-8",
           "name": "Vitamins",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "pack",
           "mode": "rate",
           "amount": 1,
@@ -170,13 +170,13 @@
         {
           "id": "basic-13",
           "name": "Computer",
-          "type": "Information & Communication",
+          "type": "Base / Information",
           "unit": "pcs",
           "mode": "fixed",
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -184,13 +184,13 @@
         {
           "id": "basic-14",
           "name": "Mobile Phone",
-          "type": "Information & Communication",
+          "type": "Base / Information",
           "unit": "pcs",
           "mode": "fixed",
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -198,13 +198,13 @@
         {
           "id": "basic-15",
           "name": "Light",
-          "type": "Information & Communication",
+          "type": "Base / Information",
           "unit": "pcs",
           "mode": "fixed",
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 2,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -408,7 +408,7 @@
         {
           "id": "basic-42",
           "name": "Vinegar CH₃COOH",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "ml",
           "mode": "rate",
           "amount": 5,
@@ -422,7 +422,7 @@
         {
           "id": "basic-43",
           "name": "Monosodium Glutamate",
-          "type": "Cooking / Seasoning",
+          "type": "Cooking / Base",
           "unit": "g",
           "mode": "rate",
           "amount": 0.5,
@@ -610,7 +610,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -624,7 +624,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -638,7 +638,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 2,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -652,7 +652,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -666,21 +666,21 @@
           "amount": 3,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 4,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
         },
         {
           "id": "basic-49",
-          "name": "Socks / Gloves / Shoes",
+          "name": "Socks, Gloves, Shoes",
           "type": "Textiles & Living / Clothing",
           "unit": "set",
           "mode": "fixed",
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 2,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -694,7 +694,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -708,7 +708,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 2,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -722,7 +722,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -736,7 +736,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -750,7 +750,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -764,7 +764,7 @@
           "amount": 50,
           "rateUnit": "week",
           "note": "",
-          "stock": 0,
+          "stock": 5000,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -778,7 +778,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -792,7 +792,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -806,7 +806,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -820,7 +820,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -834,7 +834,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -848,7 +848,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -862,7 +862,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 5,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -876,7 +876,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -890,7 +890,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 3,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
