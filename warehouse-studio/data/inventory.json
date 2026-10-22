@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "revision": 288,
-  "updatedAt": "2026-10-22T17:53:36.358Z",
+  "revision": 385,
+  "updatedAt": "2026-10-22T18:09:32.868Z",
   "warehouses": [
     {
       "id": "basic",
@@ -13,6 +13,62 @@
         "durationUnit": "day"
       },
       "items": [
+        {
+          "id": "43760f01-016e-4bfc-aa0c-2a58660cd951",
+          "name": "Flour",
+          "type": "Cooking / Ingredients",
+          "unit": "g",
+          "stock": 8000,
+          "mode": "rate",
+          "amount": 250,
+          "rateUnit": "day",
+          "supplyMode": "fixed",
+          "supplyAmount": 0,
+          "supplyRateUnit": "day",
+          "note": ""
+        },
+        {
+          "id": "400d3309-c261-4580-8dfe-e30c474929b7",
+          "name": "Rice",
+          "type": "Cooking / Ingredients",
+          "unit": "g",
+          "stock": 8000,
+          "mode": "rate",
+          "amount": 250,
+          "rateUnit": "day",
+          "supplyMode": "fixed",
+          "supplyAmount": 0,
+          "supplyRateUnit": "day",
+          "note": ""
+        },
+        {
+          "id": "580f43d0-6fb6-4a6e-b9c5-2fc1494c7392",
+          "name": "Beef",
+          "type": "Cooking / Ingredients",
+          "unit": "g",
+          "stock": 5000,
+          "mode": "rate",
+          "amount": 100,
+          "rateUnit": "day",
+          "supplyMode": "fixed",
+          "supplyAmount": 0,
+          "supplyRateUnit": "day",
+          "note": ""
+        },
+        {
+          "id": "470b568b-c756-443a-9d13-65176cb910d4",
+          "name": "Egg",
+          "type": "Cooking / Ingredients",
+          "unit": "pcs",
+          "stock": 100,
+          "mode": "rate",
+          "amount": 3,
+          "rateUnit": "day",
+          "supplyMode": "fixed",
+          "supplyAmount": 0,
+          "supplyRateUnit": "day",
+          "note": ""
+        },
         {
           "id": "basic-2",
           "name": "Oxygen O₂",
@@ -56,6 +112,20 @@
           "supplyRateUnit": "day"
         },
         {
+          "id": "d94a59ff-c950-4410-be2b-a9c4da17303a",
+          "name": "Electrolyte",
+          "type": "Cooking / Base",
+          "unit": "mg",
+          "stock": 50000,
+          "mode": "rate",
+          "amount": 1500,
+          "rateUnit": "day",
+          "supplyMode": "fixed",
+          "supplyAmount": 0,
+          "supplyRateUnit": "day",
+          "note": ""
+        },
+        {
           "id": "basic-5",
           "name": "Sucrose C₁₂H₂₂O₁₁",
           "type": "Cooking / Base",
@@ -92,7 +162,7 @@
           "amount": 30,
           "rateUnit": "day",
           "note": "",
-          "stock": 2100,
+          "stock": 2500,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -232,7 +302,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -358,7 +428,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -369,10 +439,10 @@
           "type": "Medical / Protection & Instruments",
           "unit": "pcs",
           "mode": "fixed",
-          "amount": 0,
+          "amount": 5,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 20,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -386,7 +456,7 @@
           "amount": 2,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 2,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -400,7 +470,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -904,7 +974,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -913,12 +983,12 @@
           "id": "basic-66",
           "name": "Cash",
           "type": "Work / Stationery",
-          "unit": "bundle",
+          "unit": "dollar",
           "mode": "fixed",
-          "amount": 1,
+          "amount": 100,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 100,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -932,7 +1002,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 1,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
@@ -946,7 +1016,7 @@
           "amount": 1,
           "rateUnit": "day",
           "note": "",
-          "stock": 0,
+          "stock": 3,
           "supplyMode": "fixed",
           "supplyAmount": 0,
           "supplyRateUnit": "day"
