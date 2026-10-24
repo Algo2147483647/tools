@@ -1,9 +1,9 @@
 import { getSankeyError } from "../graph/sankey";
 import { serializeDag } from "../graph/serialize";
 import { normalizeDagInput } from "../graph/normalize";
-import { COMPOUND_LAYOUT_VERSION, writeLayoutData } from "../layout/compound-layout-plan";
-import { validateLayoutGeometry } from "../layout/compound-layout-quality";
-import { validateLayoutConstraints } from "../layout/compound-layout-solver";
+import { COMPOUND_LAYOUT_VERSION, writeLayoutData } from "../layout/compound/layout-plan";
+import { validateLayoutGeometry } from "../layout/compound/layout-quality";
+import { validateLayoutConstraints } from "../layout/compound/layout-solver";
 import { prepareGraphTransaction } from "./graphTransactions";
 import { areSelectionsEqual } from "../graph/selectors";
 import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";

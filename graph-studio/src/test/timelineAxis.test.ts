@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { formatTimelineDate, parseTimelineDate, parseTimelineTime } from "../graph/timeline";
 import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timelineRange";
-import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, timelineYToTime } from "../layout/timeline-axis";
-import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline-ticks";
+import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, timelineYToTime } from "../layout/timeline/axis";
+import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline/ticks";
 import { defineSuite, defineTest } from "./harness";
 
 const DAY = 86_400_000;

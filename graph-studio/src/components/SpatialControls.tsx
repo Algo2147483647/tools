@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { useSpatialView } from "../controllers/useSpatialView";
 import Icon from "./ui/Icon";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import { spatialUnitScale } from "../graph/space";
 
 export default function SpatialControls({

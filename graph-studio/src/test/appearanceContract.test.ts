@@ -8,10 +8,10 @@ import { createStyleDocument, parseStyleDocument, updateAppearanceSchemaValue } 
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 import { sanitizeGraphAppearance } from "../graph/appearance";
 import { normalizeDagInput } from "../graph/normalize";
-import { buildTimelineStage } from "../layout/timeline-layout";
-import { buildSpatialStage } from "../layout/spatial-layout";
-import { buildStageData } from "../layout/stage-layout";
-import { getStageAppearance } from "../layout/appearance";
+import { buildTimelineStage } from "../layout/timeline/layout";
+import { buildSpatialStage } from "../layout/spatial/layout";
+import { buildStageData } from "../layout/node-link/layout";
+import { getStageAppearance } from "../layout/shared/appearance";
 import { buildCategoryColorMap } from "../graph/categoryColors";
 import GraphDefs from "../rendering/GraphDefs";
 import TimelineNode from "../rendering/TimelineNode";

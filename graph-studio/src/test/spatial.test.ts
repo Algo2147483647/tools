@@ -7,7 +7,7 @@ import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultSpaceView, getSpaceMetadata, spaceToCartesian, type SpaceMetadata } from "../graph/space";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
-import { buildSpatialStage } from "../layout/spatial-layout";
+import { buildSpatialStage } from "../layout/spatial/layout";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import GraphStage from "../rendering/GraphStage";
 import { graphReducer } from "../state/graphReducer";

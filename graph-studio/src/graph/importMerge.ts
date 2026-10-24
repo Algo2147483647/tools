@@ -1,7 +1,7 @@
 import { normalizeDagInput, validateNodeKey } from "./normalize";
 import { isRecord } from "../utils/json";
 import { serializeDag } from "./serialize";
-import { remapImportedLayoutData, repairLayoutData } from "../layout/compound-layout-plan";
+import { remapImportedLayoutData, repairLayoutData } from "../layout/compound/layout-plan";
 import { remapImportedTimelineLayout, repairTimelineLayout } from "./timelineLayout";
 import type { GraphEdge, HierarchyEdge, NormalizedDag } from "./types";
 

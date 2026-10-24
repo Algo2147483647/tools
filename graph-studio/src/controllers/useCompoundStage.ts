@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { buildCompoundStage } from "../layout/compound-layout";
-import type { StageData } from "../layout/types";
+import type { buildCompoundStage } from "../layout/compound/layout";
+import type { StageData } from "../layout/shared/types";
 
 type Input = Parameters<typeof buildCompoundStage>[0];
 const cache = new WeakMap<Input["dag"], Map<string, StageData>>();
@@ -23,7 +23,7 @@ export function useCompoundStage(input: Input | null) {
       setResult({ input, stage: cached, error: "" });
       return;
     }
-    void import("../layout/compound-layout")
+    void import("../layout/compound/layout")
       .then(async ({ buildCompoundStage }) => {
         if (cancelled) return;
         const stage = await buildCompoundStage(input);

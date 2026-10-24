@@ -6,7 +6,7 @@ import {
   type LayoutFeedback,
 } from "../ai/layoutWorkflow";
 import { routingHotspots } from "../ai/layoutDiagnostics";
-import { defaultLayoutIntent, type LayoutMetrics } from "../layout/compound-layout-plan";
+import { defaultLayoutIntent, type LayoutMetrics } from "../layout/compound/layout-plan";
 import type { AiResponse } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
 import { layoutFixture } from "./compoundLayout.test";

@@ -22,6 +22,7 @@ Start with [Chart types and the shared data protocol](chart-types.md), then read
 
 ## Source of truth
 
+- [Layout architecture](layout-architecture.md) maps chart-specific layout pipelines, shared types, text measurement and Worker boundaries to the source tree.
 - [Graph JSON Schema](../public/graph.schema.json) documents graph structure; runtime validation performs additional semantic checks.
 - [Graph types](../src/graph/types.ts) define chart IDs and document types.
 - [Style protocol](../src/schema/styleProtocol.ts) validates the canonical appearance document for imports, exports, presets, and storage.

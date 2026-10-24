@@ -1,5 +1,5 @@
-import type { LayoutIntent, LayoutMetrics } from "../layout/compound-layout-plan";
-import { compareLayoutMetrics } from "../layout/compound-layout-quality";
+import type { LayoutIntent, LayoutMetrics } from "../layout/compound/layout-plan";
+import { compareLayoutMetrics } from "../layout/compound/layout-quality";
 import type { AiResponse } from "./types";
 
 export interface LayoutFeedback {

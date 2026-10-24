@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import { clamp, ZOOM_STEP_FACTOR, type ZoomAnchor } from "./zoomGeometry";
 
 const WHEEL_ZOOM_SENSITIVITY = Math.log(ZOOM_STEP_FACTOR) / 120;

@@ -1,4 +1,4 @@
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 
 interface GraphBackdropProps {
   stage: StageData;

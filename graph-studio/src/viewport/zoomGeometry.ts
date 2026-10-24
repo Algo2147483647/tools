@@ -1,5 +1,5 @@
-import { timelineBarBox } from "../layout/timeline-orientation";
-import type { StageData, StageNode } from "../layout/types";
+import { timelineBarBox } from "../layout/timeline/orientation";
+import type { StageData, StageNode } from "../layout/shared/types";
 
 // Complete production networks can be much wider/taller than a small diagram.
 export const MIN_ZOOM_FLOOR = 0.001;

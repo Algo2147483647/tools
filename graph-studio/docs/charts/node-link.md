@@ -61,4 +61,4 @@ The [Node-link appearance reference](../appearance/node-link.md) documents exact
 - A numeric relation label does not automatically make a Sankey document. Use explicit flow semantics when quantities are intended.
 - SVG and HTML capture the current visible arrangement; graph JSON remains the full document.
 
-Implementation: [chart and engine types](../../src/graph/types.ts), [stage layout](../../src/layout/stage-layout.ts), [node renderer](../../src/rendering/GraphNode.tsx), [default appearance](../../src/graph/nodeLinkAppearance.ts).
+Implementation: [chart and engine types](../../src/graph/types.ts), [stage layout](../../src/layout/node-link/layout.ts), [node renderer](../../src/rendering/GraphNode.tsx), [default appearance](../../src/graph/nodeLinkAppearance.ts).

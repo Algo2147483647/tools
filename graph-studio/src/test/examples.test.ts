@@ -3,7 +3,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { readRecentMetadata } from "../adapters/recentStorage";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import { buildStageData } from "../layout/stage-layout";
+import { buildStageData } from "../layout/node-link/layout";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 import { discoverWorkspace, readGraphFile } from "../workspace/discovery";

@@ -6,10 +6,10 @@ import type { NormalizedDag } from "../graph/types";
 import { projectGraphDocument } from "../graph/serialize";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import type { TimelineTimeRange } from "../graph/timelineRange";
-import type { StageAppearance } from "../layout/appearance";
-import { buildTimelineStage } from "../layout/timeline-layout";
-import { projectTimelineStage } from "../layout/timeline-project";
-import type { StageData } from "../layout/types";
+import type { StageAppearance } from "../layout/shared/appearance";
+import { buildTimelineStage } from "../layout/timeline/layout";
+import { projectTimelineStage } from "../layout/timeline/project";
+import type { StageData } from "../layout/shared/types";
 
 /** Filters project an existing layout. Only an explicit readapt changes its scope. */
 export function useTimelineStage(input: {

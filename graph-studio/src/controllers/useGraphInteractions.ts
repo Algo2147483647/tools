@@ -2,7 +2,7 @@ import { getGroupNodes } from "../graph/hierarchy";
 import { type Dispatch, useEffect, useRef } from "react";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 interface InteractionInput {
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;

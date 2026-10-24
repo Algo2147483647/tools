@@ -1,3 +1,4 @@
+import type { CompoundWorkerResponse, CompoundWorkerInput, LayoutWorkerRequest } from "../layout/workers/protocol";
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from "react";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
@@ -9,13 +10,13 @@ import {
   type LayoutIntent,
   type LayoutProblem,
   type LayoutSolveResult,
-} from "../layout/compound-layout-plan";
-import { compareLayoutMetrics, validateLayoutGeometry } from "../layout/compound-layout-quality";
+} from "../layout/compound/layout-plan";
+import { compareLayoutMetrics, validateLayoutGeometry } from "../layout/compound/layout-quality";
 import type { LayoutFeedback } from "../ai/layoutWorkflow";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../ai/layoutContext";
-import { validateLayoutConstraints } from "../layout/compound-layout-solver";
-import { applyLayoutSnapshot } from "../layout/compound-layout-stage";
-import type { StageData } from "../layout/types";
+import { validateLayoutConstraints } from "../layout/compound/layout-solver";
+import { applyLayoutSnapshot } from "../layout/compound/layout-stage";
+import type { StageData } from "../layout/shared/types";
 
 interface LayoutReview {
   key: string;
@@ -159,7 +160,7 @@ export function useCompoundLayoutPlan(
       const jobId = crypto.randomUUID();
       try {
         const result = await new Promise<LayoutSolveResult>((resolve, reject) => {
-          const worker = new Worker(new URL("../layout/compound-layout.worker.ts", import.meta.url), {
+          const worker = new Worker(new URL("../layout/workers/compound.worker.ts", import.meta.url), {
             type: "module",
           });
           const finish = () => {
@@ -178,14 +179,17 @@ export function useCompoundLayoutPlan(
             finish();
             reject(new Error(event.message || "Layout worker failed."));
           };
-          worker.onmessage = (event: MessageEvent<{ jobId: string; result?: LayoutSolveResult; error?: string }>) => {
+          worker.onmessage = (event: MessageEvent<CompoundWorkerResponse>) => {
             if (event.data.jobId !== jobId) return;
             finish();
-            if (event.data.error || !event.data.result)
-              reject(new Error(event.data.error || "Invalid layout worker response."));
+            if (!event.data.ok) reject(new Error(event.data.error));
+            else if (!event.data.result) reject(new Error("Invalid layout worker response."));
             else resolve(event.data.result);
           };
-          worker.postMessage({ jobId, problem: initial.problem, intent });
+          worker.postMessage({
+            jobId,
+            payload: { problem: initial.problem!, intent },
+          } satisfies LayoutWorkerRequest<CompoundWorkerInput>);
         });
         if (requestSequence !== sequence.current || current.current.key !== initial.key || !current.current.ready)
           return "Layout result discarded because its graph or view changed.";

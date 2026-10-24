@@ -1,5 +1,5 @@
-import type { StageGroup } from "../layout/types";
-import { truncateTitleToWidth } from "../layout/text";
+import type { StageGroup } from "../layout/shared/types";
+import { truncateTitleToWidth } from "../layout/shared/text";
 
 export function GroupControls({
   id,

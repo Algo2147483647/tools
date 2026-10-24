@@ -17,7 +17,7 @@ export type AiResponse =
       kind: "propose_layout";
       answer: string;
       layoutProtocolVersion: 1;
-      intent: import("../layout/compound-layout-plan").LayoutIntent;
+      intent: import("../layout/compound/layout-plan").LayoutIntent;
     }
   | { kind: "inspect_layout"; answer: string; scopeId?: string | null }
   | { kind: "answer"; answer: string; memoryPatch?: Partial<WorkingMemory> }

@@ -4,7 +4,7 @@ import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { parseNodeTimeline, parseTimelineDate } from "../graph/timeline";
 import { projectGraphByTimelineTrack } from "../graph/timelineView";
-import { buildTimelineStage } from "../layout/timeline-layout";
+import { buildTimelineStage } from "../layout/timeline/layout";
 import { discoverWorkspace } from "../workspace/discovery";
 import { loadExampleWorkspace, EXAMPLE_WORKSPACES } from "../workspace/examples";
 import { defineSuite, defineTest } from "./harness";

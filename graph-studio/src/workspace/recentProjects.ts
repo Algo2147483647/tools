@@ -1,4 +1,4 @@
-import type { RecentLocation } from "../workspace/locations";
+import type { RecentLocation } from "./locations";
 
 export interface RecentProject {
   location: RecentLocation;

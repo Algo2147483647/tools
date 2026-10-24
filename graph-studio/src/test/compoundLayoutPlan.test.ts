@@ -12,10 +12,10 @@ import {
   readLayoutData,
   writeLayoutData,
   type LayoutIntent,
-} from "../layout/compound-layout-plan";
-import { solveCompoundLayout, validateLayoutConstraints } from "../layout/compound-layout-solver";
-import { validateLayoutGeometry } from "../layout/compound-layout-quality";
-import { applyLayoutSnapshot } from "../layout/compound-layout-stage";
+} from "../layout/compound/layout-plan";
+import { solveCompoundLayout, validateLayoutConstraints } from "../layout/compound/layout-solver";
+import { validateLayoutGeometry } from "../layout/compound/layout-quality";
+import { applyLayoutSnapshot } from "../layout/compound/layout-stage";
 import { graphReducer } from "../state/graphReducer";
 import { createInitialGraphState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";

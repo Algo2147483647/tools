@@ -1,4 +1,4 @@
-import { parseLayoutIntent, type LayoutIntent } from "../layout/compound-layout-plan";
+import { parseLayoutIntent, type LayoutIntent } from "../layout/compound/layout-plan";
 
 export type CompoundLayoutInstruction =
   | { type: "inspect" | "diagnose"; groupId?: string | null }

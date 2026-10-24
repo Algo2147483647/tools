@@ -18,9 +18,9 @@ import { cloneGraphDocument, projectGraphDocument, serializeDag } from "../graph
 import { collectDescendantKeys } from "../graph/traversal";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
 import { projectGraphByTimelineTrack } from "../graph/timelineView";
-import { buildLevelLayout } from "../layout/algorithms/level";
-import { buildVisibleGraph } from "../layout/algorithms/shared";
-import { buildStageData } from "../layout/stage-layout";
+import { buildLevelLayout } from "../layout/node-link/algorithms/level";
+import { buildVisibleGraph } from "../layout/node-link/algorithms/shared";
+import { buildStageData } from "../layout/node-link/layout";
 import { createForestDag, createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 

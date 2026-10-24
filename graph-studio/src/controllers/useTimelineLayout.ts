@@ -1,12 +1,13 @@
+import type { TimelineWorkerResponse, TimelineWorkerInput, LayoutWorkerRequest } from "../layout/workers/protocol";
 import { useCallback, useEffect, useRef, useState, type Dispatch } from "react";
 import type { GraphAppState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";
 import type { AiSettings } from "../ai/types";
 import { readTimelineLayout, type TimelineLayoutData } from "../graph/timelineLayout";
 import { requestTimelineLayout, timelineLayoutContext } from "../ai/timelineLayout";
-import type { StageData } from "../layout/types";
-import type { TimelineLayoutCandidate, TimelineLayoutInput } from "../layout/timeline-layout-candidate";
-import { validateTimelineArrangement } from "../layout/timeline-layout-quality";
+import type { StageData } from "../layout/shared/types";
+import type { TimelineLayoutCandidate, TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
 
 type Review = TimelineLayoutCandidate & { key: number; baseline: StageData; explanation: string };
 export function useTimelineLayout(
@@ -132,8 +133,10 @@ export function useTimelineLayout(
       if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
       clearTimeout(timeout);
       setMessage("Calculating preview…");
+      const jobId = crypto.randomUUID();
+      const payload: TimelineWorkerInput = { input: initial.input, baseline: initial.baseline, plan: response.plan };
       const candidate = await new Promise<TimelineLayoutCandidate>((resolve, reject) => {
-        const worker = new Worker(new URL("../layout/timeline-layout.worker.ts", import.meta.url), { type: "module" });
+        const worker = new Worker(new URL("../layout/workers/timeline.worker.ts", import.meta.url), { type: "module" });
         pending.worker = worker;
         pending.reject = reject;
         pending.timer = setTimeout(() => {
@@ -148,13 +151,14 @@ export function useTimelineLayout(
           finish();
           reject(new Error(event.message || "Timeline worker failed."));
         };
-        worker.onmessage = (event: MessageEvent<{ result?: TimelineLayoutCandidate; error?: string }>) => {
+        worker.onmessage = (event: MessageEvent<TimelineWorkerResponse>) => {
+          if (event.data.jobId !== jobId) return;
           finish();
-          if (!event.data.result || event.data.error)
-            reject(new Error(event.data.error || "Invalid timeline preview."));
+          if (!event.data.ok) reject(new Error(event.data.error));
+          else if (!event.data.result) reject(new Error("Invalid timeline preview."));
           else resolve(event.data.result);
         };
-        worker.postMessage([initial.input, initial.baseline, response.plan]);
+        worker.postMessage({ jobId, payload } satisfies LayoutWorkerRequest<TimelineWorkerInput>);
       });
       if (sequence.current !== id || current.current.key !== initial.key || !current.current.ready) return;
       setReview({ ...candidate, key: initial.key, baseline: initial.baseline, explanation: response.explanation });

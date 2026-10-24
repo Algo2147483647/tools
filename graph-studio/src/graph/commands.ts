@@ -1,5 +1,5 @@
 import { getSpaceMetadata } from "./space";
-import { repairLayoutData } from "../layout/compound-layout-plan";
+import { repairLayoutData } from "../layout/compound/layout-plan";
 import { repairTimelineLayout } from "./timelineLayout";
 import { getTimelineClock, type TimelineClock } from "./timelineClock";
 import { nextEdgeId } from "./relations";

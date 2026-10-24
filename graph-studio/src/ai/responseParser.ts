@@ -1,6 +1,6 @@
 import type { AiResponse, LegacyAiPlan, ProposedChange } from "./types";
 import { isRecord } from "../utils/json";
-import { parseLayoutIntent } from "../layout/compound-layout-plan";
+import { parseLayoutIntent } from "../layout/compound/layout-plan";
 export function parseAiResponse(raw: string): AiResponse {
   const jsonSource = extractJsonObject(raw);
   let parsed: unknown;

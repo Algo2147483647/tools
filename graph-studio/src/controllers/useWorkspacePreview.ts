@@ -1,5 +1,5 @@
 import { type Dispatch, useMemo } from "react";
-import { useFilePreview } from "../controllers/useFilePreview";
+import { useFilePreview } from "./useFilePreview";
 import type { GraphAction } from "../state/graphActions";
 import type { WorkspaceControls } from "./workspaceControls";
 

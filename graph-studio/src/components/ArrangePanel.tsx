@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
 import type { AiController } from "../controllers/useAiController";
-import type { LayoutDirection, LayoutIntent, LayoutObjective } from "../layout/compound-layout-plan";
+import type { LayoutDirection, LayoutIntent, LayoutObjective } from "../layout/compound/layout-plan";
 import CompoundLayoutReview from "./CompoundLayoutReview";
 
 export default function ArrangePanel({

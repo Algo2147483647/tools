@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../graph/appearance";
 import { createChartStyles } from "../state/chartStyles";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { buildCompoundStage } from "../layout/compound-layout";
+import { buildCompoundStage } from "../layout/compound/layout";
 import {
   buildFlatPreviewStage,
   compoundPreviewInput,
@@ -15,7 +15,7 @@ import {
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import GraphStage from "../rendering/GraphStage";
 import type { GraphChartType } from "../graph/types";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import { assertCompoundGeometry } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 

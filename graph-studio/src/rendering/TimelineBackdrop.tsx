@@ -1,8 +1,8 @@
 import { sanitizeTimelineClock, timelineClockCaption } from "../graph/timelineClock";
 import { useLayoutEffect, useState, type RefObject } from "react";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 
-import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline-ticks";
+import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline/ticks";
 
 export default function TimelineBackdrop({ stage }: { stage: StageData }) {
   const timeline = stage.timeline!;

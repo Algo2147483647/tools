@@ -5,7 +5,7 @@ import { getGraphTypeOptions } from "../graph/typeFilter";
 import { getTimelineTrackOptions } from "../graph/timelineView";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import type { CompoundView, GraphSelection } from "../graph/types";
-import { useCompoundView } from "../controllers/useCompoundView";
+import { useCompoundView } from "./useCompoundView";
 import type { GraphAppState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";
 export function useGraphNavigation(

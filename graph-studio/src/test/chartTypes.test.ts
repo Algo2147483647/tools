@@ -10,8 +10,8 @@ import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timelineRa
 import { projectGraphByType } from "../graph/typeFilter";
 import { getGraphRenderMode } from "../graph/types";
 import { getNodeLocatePoint } from "../viewport/zoomGeometry";
-import { buildStageData } from "../layout/stage-layout";
-import { buildTimelineStage } from "../layout/timeline-layout";
+import { buildStageData } from "../layout/node-link/layout";
+import { buildTimelineStage } from "../layout/timeline/layout";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { createChartStyles, getDefaultChartStyle } from "../state/chartStyles";
 import { graphReducer } from "../state/graphReducer";

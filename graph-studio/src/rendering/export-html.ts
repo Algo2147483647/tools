@@ -7,7 +7,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { downloadTextFile } from "../adapters/download";
 import type { NormalizedDag } from "../graph/types";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import { startHtmlViewer } from "./html-viewer";
 import { HTML_VIEWER_CSS } from "./html-viewer-style";
 

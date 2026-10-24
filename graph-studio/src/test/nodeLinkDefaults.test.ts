@@ -8,7 +8,7 @@ import { parseGraphPagePreferences } from "../state/preferences";
 import { createStyleDocument } from "../schema/styleProtocol";
 import { createChartPreferences, chartPreferencesReducer, getChartStyles } from "../state/chartPreferences";
 import { resetAppearanceSection } from "../components/settings/appearanceSections";
-import { buildStageData } from "../layout/stage-layout";
+import { buildStageData } from "../layout/node-link/layout";
 import GraphStage from "../rendering/GraphStage";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";

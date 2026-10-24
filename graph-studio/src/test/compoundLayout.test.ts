@@ -10,14 +10,14 @@ import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, GraphDocument, NormalizedDag } from "../graph/types";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getDefaultChartStyle } from "../state/chartStyles";
-import { layoutCompoundHierarchy } from "../layout/compound-hierarchy-layout";
-import { arrangeTopology } from "../layout/compound-topology-layout";
-import { compactFlow } from "../layout/compound-rectangle-packing";
-import { refineLocalPlacement } from "../layout/compound-local-refinement";
-import { getStageAppearance } from "../layout/appearance";
-import { buildCompoundStage } from "../layout/compound-layout";
-import type { StageData } from "../layout/types";
-import { routeCompoundEdges } from "../layout/compound-orthogonal-router";
+import { layoutCompoundHierarchy } from "../layout/compound/hierarchy-layout";
+import { arrangeTopology } from "../layout/compound/topology-layout";
+import { compactFlow } from "../layout/compound/rectangle-packing";
+import { refineLocalPlacement } from "../layout/compound/local-refinement";
+import { getStageAppearance } from "../layout/shared/appearance";
+import { buildCompoundStage } from "../layout/compound/layout";
+import type { StageData } from "../layout/shared/types";
+import { routeCompoundEdges } from "../layout/compound/routing/router";
 import { defineSuite, defineTest } from "./harness";
 
 export function nestedChainFixture(): NormalizedDag {

@@ -1,5 +1,5 @@
-import type { LayoutProblem } from "../layout/compound-layout-plan";
-import { measureLayout, validateLayoutGeometry } from "../layout/compound-layout-quality";
+import type { LayoutProblem } from "../layout/compound/layout-plan";
+import { measureLayout, validateLayoutGeometry } from "../layout/compound/layout-quality";
 import { routingHotspots } from "./layoutDiagnostics";
 
 export function inspectCompoundLayout(problem: LayoutProblem, scopeId: string | null) {

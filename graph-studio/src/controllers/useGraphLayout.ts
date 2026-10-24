@@ -1,5 +1,5 @@
 import { useSpatialView } from "./useSpatialView";
-import { buildSpatialStage } from "../layout/spatial-layout";
+import { buildSpatialStage } from "../layout/spatial/layout";
 import { useFontMetricsKey } from "./useFontMetricsKey";
 import { useMemo } from "react";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
@@ -10,10 +10,10 @@ import { projectGraphByType } from "../graph/typeFilter";
 import { projectGraphByTimelineTrack } from "../graph/timelineView";
 import type { TimelineTimeRange } from "../graph/timelineRange";
 import { getGraphLayoutLabel, getGraphRenderMode, type CompoundView } from "../graph/types";
-import { useCompoundStage } from "../controllers/useCompoundStage";
-import { useTimelineStage } from "../controllers/useTimelineStage";
-import { type StageAppearance, getStageAppearance } from "../layout/appearance";
-import { buildStageData } from "../layout/stage-layout";
+import { useCompoundStage } from "./useCompoundStage";
+import { useTimelineStage } from "./useTimelineStage";
+import { type StageAppearance, getStageAppearance } from "../layout/shared/appearance";
+import { buildStageData } from "../layout/node-link/layout";
 import type { GraphAppState } from "../state/initialState";
 interface LayoutInput {
   state: GraphAppState;

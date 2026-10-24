@@ -1,4 +1,4 @@
-import type { StageNode } from "../layout/types";
+import type { StageNode } from "../layout/shared/types";
 
 export default function SpatialNode({
   node,

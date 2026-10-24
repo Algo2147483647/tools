@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
-import type { LayoutMetrics } from "../layout/compound-layout-plan";
-import type { StageData } from "../layout/types";
+import type { LayoutMetrics } from "../layout/compound/layout-plan";
+import type { StageData } from "../layout/shared/types";
 
 export default function CompoundLayoutReview({ controller: c }: { controller: CompoundLayoutController }) {
   const [open, setOpen] = useState(false);

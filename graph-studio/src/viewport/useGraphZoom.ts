@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import {
   clamp,
   getItemOrigin,

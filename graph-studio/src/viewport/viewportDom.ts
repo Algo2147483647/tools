@@ -1,4 +1,4 @@
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import { calculateFitZoomScale, type ZoomAnchor } from "./zoomGeometry";
 
 export function getFitZoomScale(container: HTMLElement, topbar: HTMLElement | null, stage: StageData): number {

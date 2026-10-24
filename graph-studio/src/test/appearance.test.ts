@@ -7,8 +7,8 @@ import {
   DEFAULT_GRAPH_CSS,
   sanitizeGraphAppearance,
 } from "../graph/appearance";
-import { getStageAppearance } from "../layout/appearance";
-import { buildStageData } from "../layout/stage-layout";
+import { getStageAppearance } from "../layout/shared/appearance";
+import { buildStageData } from "../layout/node-link/layout";
 import GraphStage from "../rendering/GraphStage";
 import { parseGraphPagePreferences } from "../state/preferences";
 import { createStyleDocument } from "../schema/styleProtocol";

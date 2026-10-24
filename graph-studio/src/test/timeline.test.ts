@@ -9,7 +9,7 @@ import {
   validateTimelineTime,
 } from "../graph/timeline";
 import type { GraphSelection } from "../graph/types";
-import { buildTimelineStage, routeTimelineEdge } from "../layout/timeline-layout";
+import { buildTimelineStage, routeTimelineEdge } from "../layout/timeline/layout";
 import { defineSuite, defineTest } from "./harness";
 
 const now = Date.parse("2026-10-14T00:00:00Z");

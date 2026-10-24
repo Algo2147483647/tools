@@ -1,10 +1,10 @@
 import { type CSSProperties, type KeyboardEvent, memo } from "react";
 import { formatFlow } from "../graph/sankey";
-import type { StageNode } from "../layout/types";
-import { estimateTextWidth } from "../layout/text";
+import type { StageNode } from "../layout/shared/types";
+import { estimateTextWidth } from "../layout/shared/text";
 import TimelineNode from "./TimelineNode";
 
-import { cardContentLayout, DEFAULT_TITLE_FONT, CARD_BADGE_HEIGHT } from "../layout/typography";
+import { cardContentLayout, DEFAULT_TITLE_FONT, CARD_BADGE_HEIGHT } from "../layout/shared/typography";
 const AFFORDANCE_HORIZONTAL_PADDING = 6;
 const AFFORDANCE_MIN_WIDTH = 24;
 const AFFORDANCE_MAX_WIDTH = 100;

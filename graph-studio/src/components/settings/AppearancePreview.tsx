@@ -9,7 +9,7 @@ import { useCompoundStage } from "../../controllers/useCompoundStage";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useTimelineStage } from "../../controllers/useTimelineStage";
 import GraphStage from "../../rendering/GraphStage";
-import type { StageData } from "../../layout/types";
+import type { StageData } from "../../layout/shared/types";
 import graphCss from "../../styles/graph.css?inline";
 import spatialCss from "../../styles/spatial.css?inline";
 import compoundCss from "../../styles/compound.css?inline";

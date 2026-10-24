@@ -84,4 +84,4 @@ Filtering keeps original edges between visible endpoints. Color assignment and c
 
 Graph JSON retains source coordinates, not their projected screen positions. SVG captures the current projection. Interactive HTML preserves the rendered snapshot with pan/zoom/details, but does not include Spatial camera rotation controls.
 
-Implementation: [coordinate metadata and conversion](../../src/graph/space.ts), [spatial layout](../../src/layout/spatial-layout.ts), [session view controller](../../src/controllers/useSpatialView.ts).
+Implementation: [coordinate metadata and conversion](../../src/graph/space.ts), [spatial layout](../../src/layout/spatial/layout.ts), [session view controller](../../src/controllers/useSpatialView.ts).

@@ -6,7 +6,7 @@ import { normalizeDagInput } from "../graph/normalize";
 import { getInitialSelection } from "../graph/selectors";
 import { serializeDag } from "../graph/serialize";
 import { projectGraphByType } from "../graph/typeFilter";
-import { buildStageData } from "../layout/stage-layout";
+import { buildStageData } from "../layout/node-link/layout";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 import { parseGraphPagePreferences } from "../state/preferences";

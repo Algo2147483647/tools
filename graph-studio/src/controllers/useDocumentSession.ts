@@ -2,7 +2,7 @@ import { useCallback, useMemo, useReducer } from "react";
 import { createInitialCanvasDag, INITIAL_CANVAS_FILE_NAME } from "../graph/initialCanvas";
 import { createGraphDocument } from "../graph/normalize";
 import { getInitialSelection } from "../graph/selectors";
-import { useDocumentSave } from "../controllers/useDocumentSave";
+import { useDocumentSave } from "./useDocumentSave";
 import { serializeDagToJson } from "../state/documentSerialization";
 import { graphReducer } from "../state/graphReducer";
 import { createInitialGraphState } from "../state/initialState";

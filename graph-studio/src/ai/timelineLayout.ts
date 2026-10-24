@@ -5,8 +5,8 @@ import { getNodeTitle } from "../graph/accessors";
 import { isRecord } from "../utils/json";
 import { requestProviderText } from "./providerTransport";
 import type { AiSettings } from "./types";
-import type { TimelineLayoutInput } from "../layout/timeline-layout-candidate";
-import type { StageData } from "../layout/types";
+import type { TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import type { StageData } from "../layout/shared/types";
 
 export const TIMELINE_LAYOUT_PROMPT = [
   'You arrange a timeline in Graph Studio. Return only JSON: {"version":1,"explanation":"...","plan":{"trackOrder":["existing track"],"eventOrder":["existing event ID"],"edgeRouting":"avoid"}}.',

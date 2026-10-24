@@ -11,14 +11,14 @@ import {
 } from "../graph/timelineLayout";
 import { parseTimelineLayoutResponse, timelineLayoutContext, requestTimelineLayout } from "../ai/timelineLayout";
 import { getDefaultChartStyle } from "../state/chartStyles";
-import { getStageAppearance } from "../layout/appearance";
-import { buildTimelineStage } from "../layout/timeline-layout";
-import { evaluateTimelineLayout, type TimelineLayoutInput } from "../layout/timeline-layout-candidate";
-import { validateTimelineArrangement } from "../layout/timeline-layout-quality";
+import { getStageAppearance } from "../layout/shared/appearance";
+import { buildTimelineStage } from "../layout/timeline/layout";
+import { evaluateTimelineLayout, type TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
 import { graphReducer } from "../state/graphReducer";
 import { createInitialGraphState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import { defineSuite, defineTest } from "./harness";
 
 function graph(relative = false) {

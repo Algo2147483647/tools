@@ -1,5 +1,5 @@
 import { memo } from "react";
-import type { StageEdge } from "../layout/types";
+import type { StageEdge } from "../layout/shared/types";
 import { timelineMarkerId } from "./timelineStyles";
 
 interface GraphEdgeProps {

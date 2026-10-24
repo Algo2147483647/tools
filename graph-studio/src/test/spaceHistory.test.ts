@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { normalizeDagInput } from "../graph/normalize";
 import { projectGraphByTimelineTrack } from "../graph/timelineView";
-import { buildTimelineStage } from "../layout/timeline-layout";
+import { buildTimelineStage } from "../layout/timeline/layout";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
 import { discoverWorkspace } from "../workspace/discovery";
 import { defineSuite, defineTest } from "./harness";

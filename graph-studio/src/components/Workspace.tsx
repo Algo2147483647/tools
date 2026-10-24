@@ -1,7 +1,7 @@
 import Icon from "./ui/Icon";
 import { useState } from "react";
 import type { GraphAppearance } from "../graph/appearance";
-import type { StageData } from "../layout/types";
+import type { StageData } from "../layout/shared/types";
 import GraphStage from "../rendering/GraphStage";
 import EmptyState from "./EmptyState";
 

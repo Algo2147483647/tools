@@ -19,9 +19,9 @@ export type GraphAction =
       revision: number;
       beforeDag: NormalizedDag;
       historyBase: import("./initialState").GraphAppState["editHistory"];
-      problem: import("../layout/compound-layout-plan").LayoutProblem;
-      intent: import("../layout/compound-layout-plan").LayoutIntent;
-      candidate: import("../layout/compound-layout-plan").LayoutCandidate;
+      problem: import("../layout/compound/layout-plan").LayoutProblem;
+      intent: import("../layout/compound/layout-plan").LayoutIntent;
+      candidate: import("../layout/compound/layout-plan").LayoutCandidate;
     }
   | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }
   | { type: "graphClosed"; status: string }

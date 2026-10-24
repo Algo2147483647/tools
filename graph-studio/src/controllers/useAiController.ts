@@ -22,7 +22,7 @@ import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
 import type { ConsoleController } from "./useConsoleController";
 import type { CompoundLayoutController } from "./useCompoundLayoutPlan";
-import type { LayoutIntent } from "../layout/compound-layout-plan";
+import type { LayoutIntent } from "../layout/compound/layout-plan";
 import { formatLayoutFeedback, runLayoutWorkflow } from "../ai/layoutWorkflow";
 
 type AiConsole = Pick<
