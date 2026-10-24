@@ -11,21 +11,8 @@ import TimelineBackdrop, { TimelineRuler } from "./TimelineBackdrop";
 import TimelineNode from "./TimelineNode";
 
 const EMPTY_CONNECTED_KEYS = new Set<string>();
-const DENSE_STAGE_NODE_THRESHOLD = 220;
-const DENSE_STAGE_EDGE_THRESHOLD = 440;
-const DENSE_STAGE_AREA_THRESHOLD = 20_000_000;
-
-// Clear, near-white pastels without gray-blue or purple undertones.
-// Cap the ramp so deeply nested containers never become visually dominant.
-const GROUP_BACKGROUND_PALETTES = [
-  ["#fffdf5", "#fffbea", "#fff7df", "#fff4d5"], // Cream yellow
-  ["#f5fdf9", "#edfdf5", "#e5fbf0", "#dcf8e9"], // Fresh mint
-  ["#fff9f5", "#fff3eb", "#ffede1", "#ffe7d8"], // Light apricot
-  ["#f5fcff", "#edf9ff", "#e4f6ff", "#daf2ff"], // Clear sky blue
-] as const;
-
-function groupBackgroundFill(familyIndex: number, depth: number): string {
-  const palette = GROUP_BACKGROUND_PALETTES[familyIndex % GROUP_BACKGROUND_PALETTES.length];
+function groupBackgroundFill(palettes: string[][], familyIndex: number, depth: number): string {
+  const palette = palettes[familyIndex % palettes.length];
   return palette[Math.min(palette.length - 1, Math.max(0, depth))];
 }
 
@@ -69,9 +56,9 @@ export default function GraphStage({
   const activeEdgeElementsRef = useRef(new Set<SVGGElement>());
   const currentNodeElementRef = useRef<SVGGElement[]>([]);
   const isDenseStage =
-    stage.nodes.length >= DENSE_STAGE_NODE_THRESHOLD ||
-    stage.edges.length >= DENSE_STAGE_EDGE_THRESHOLD ||
-    stage.stageWidth * stage.stageHeight >= DENSE_STAGE_AREA_THRESHOLD;
+    stage.nodes.length >= appearance.performance.denseThresholds[0] ||
+    stage.edges.length >= appearance.performance.denseThresholds[1] ||
+    stage.stageWidth * stage.stageHeight >= appearance.performance.denseThresholds[2];
   const stageStyle = appearanceToStageStyle(appearance) as CSSProperties;
 
   const clearInteractiveClasses = useCallback(() => {
@@ -267,6 +254,7 @@ export default function GraphStage({
     <svg
       className="dag-graph"
       data-layout={stage.layoutMode}
+      data-dense-shadows={appearance.performance.denseShadows}
       data-density={isDenseStage ? "dense" : "normal"}
       data-borderless={hideNodeBorders ? "true" : "false"}
       data-has-interactive-node="false"
@@ -317,7 +305,7 @@ export default function GraphStage({
             className="dag-group-background"
             style={
               {
-                "--dag-group-fill": groupBackgroundFill(group.colorFamilyIndex, group.depth),
+                "--dag-group-fill": groupBackgroundFill(appearance.palette.groups, group.colorFamilyIndex, group.depth),
                 ...(appearance.display.showGroupBorders ? {} : { stroke: "none" }),
               } as CSSProperties
             }

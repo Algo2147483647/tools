@@ -1,42 +1,100 @@
 # Sankey Appearance
 
-Portable files use `chartType: "sankey"`. Read the [shared style protocol](../appearance.md) and [flow data protocol](../charts/sankey.md).
+Generated from the canonical field definitions. Required fields are marked with an asterisk. Numeric font sizes use explicit pixel units. Unsupported shared fields are read-only for this chart; the document retains a common appearance shape.
 
-## Visual model and ownership
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| format * | graph-studio-style | "graph-studio-style" | Style document format. |
+| version * | 1 | 1 | Style protocol version. |
+| chartType * | sankey | "sankey" | Chart renderer. |
+| style * | object | — | Complete chart style. |
+| style.showNodeDetail * | boolean | true | Show node descriptions. Not used by sankey. |
+| style.hideNodeBorders * | boolean | true | Hide ordinary node borders. |
+| style.alignNodeWidthsToMax * | boolean | false | Align card widths to the configured maximum. Not used by sankey. |
+| style.appearance * | object | — | Shared appearance object; includes stored fields unused by some charts. |
+| style.appearance.version * | 1 | 1 | Nested appearance protocol version. |
+| style.appearance.layout * | object | — | Stored geometry values; renderer support varies by chart. |
+| style.appearance.layout.stagePadding | [number, number] | [108,88] | Horizontal and vertical stage padding [x, y] in logical pixels. |
+| style.appearance.layout.columnGap | number | 116 | Layer separation in logical pixels. |
+| style.appearance.layout.rowGap | number | 22 | Node or label separation in logical pixels. |
+| style.appearance.layout.edgeLaneGap | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by sankey. |
+| style.appearance.layout.nodeHeight | number | 74 | Base card height or chart-specific vertical-space input. |
+| style.appearance.layout.nodeWidthRange | [number, number] | [188,280] | Node width bounds [min, max]; max sets the event label width. |
+| style.appearance.layout.stageMinSize | [number, number] | [980,600] | Minimum stage dimensions [width, height] in logical pixels. |
+| style.appearance.display * | object | — | Display flags and visual dimensions; unsupported fields remain stored. |
+| style.appearance.display.titleAlign | left \| center | "left" | Nested node-link card-title alignment. Not used by sankey. |
+| style.appearance.display.titleOverflow | ellipsis \| clip \| visible | "ellipsis" | Nested node-link title overflow treatment. Not used by sankey. |
+| style.appearance.display.titleWrap | boolean | false | Enables two-line titles in Nested node-link. Not used by sankey. |
+| style.appearance.display.edgeArrowStyle | filled \| open | "filled" | Shape of the shared ordinary-edge arrowhead. |
+| style.appearance.display.showNodeDots | boolean | true | Card dots and corresponding content offset. Not used by sankey. |
+| style.appearance.display.showEdgeLabels | boolean | false | Enables relation-label geometry; Timeline reveals labels on active edges. |
+| style.appearance.display.showGroupStats | boolean | true | Nested node-link group statistics. Not used by sankey. |
+| style.appearance.display.showGroupBorders | boolean | true | Expanded Nested node-link container borders. Not used by sankey. |
+| style.appearance.display.nodeCornerRadius | number | 24 | Ordinary/collapsed card radius, capped at half the smaller rendered dimension. Not used by sankey. |
+| style.appearance.display.nodeShadow | boolean | true | Shared node-shape shadows; dense scenes suppress them. |
+| style.appearance.display.shadowBlur | number | 8 | Shadow softness in logical pixels. |
+| style.appearance.display.shadowOffset | number | 3 | Vertical shadow distance in logical pixels. |
+| style.appearance.display.shadowOpacity | number | 12 | Shadow opacity as a percentage, not a 0–1 fraction. |
+| style.appearance.display.sankeyNodeWidth | number | 20 | Sankey bar width in logical pixels; exposed under Layout. |
+| style.appearance.display.sankeyLinkOpacity | number | 32 | Sankey normal-band opacity as a percentage; interaction has separate opacity rules. |
+| style.appearance.cssVars * | object | — | SVG root CSS variables; only --dag- names with string values are accepted. |
+| style.appearance.cssVars[--dag-text-strong] | string | "#162033" | Primary text color. |
+| style.appearance.cssVars[--dag-text-soft] | string | "#8792a2" | Secondary text color. |
+| style.appearance.cssVars[--dag-edge] | string | "rgba(76, 96, 132, 0.24)" | Default ordinary-edge or axis/grid color where consumed. |
+| style.appearance.cssVars[--dag-edge-active] | string | "rgba(41, 92, 207, 0.72)" | Active ordinary-edge color; explicit data strokes can take precedence. |
+| style.appearance.cssVars[--dag-node-fill] | string | "#ffffff" | Card/background fill; does not replace Sankey or Spatial data colors. |
+| style.appearance.cssVars[--dag-node-border] | string | "rgba(91, 109, 142, 0.17)" | Ordinary card outline; per-node category tokens can override it. Not used by sankey. |
+| style.appearance.cssVars[--dag-node-border-strong] | string | "rgba(50, 79, 132, 0.35)" | Emphasized/root card outline. Not used by sankey. |
+| style.appearance.cssVars[--dag-title-font-family] | string | "\"Georgia\", serif" | Title font stack; installed fonts determine rendering. |
+| style.appearance.cssVars[--dag-title-font-size] | string | "15px" | Title size in logical pixels, shared by measurement and rendering. |
+| style.appearance.cssVars[--dag-title-font-style] | string | "normal" | Title font style as a CSS string. |
+| style.appearance.cssVars[--dag-title-font-weight] | string | "400" | Title font weight as a CSS string. |
+| style.appearance.cssVars[--dag-detail-font-size] | string | "10px" | Detail font size. |
+| style.appearance.cssVars[--dag-detail-font-family] | string | "\"IBM Plex Sans\", \"Segoe UI\", sans-serif" | Detail font family. |
+| style.appearance.cssVars[--dag-detail-font-weight] | string | "400" | Detail font weight. |
+| style.appearance.cssVars[--dag-detail-font-style] | string | "normal" | Detail font style. |
+| style.appearance.cssVars[--dag-date-font-size] | string | "10px" | Date font size. Not used by sankey. |
+| style.appearance.cssVars[--dag-date-font-family] | string | "\"IBM Plex Mono\", Consolas, monospace" | Date font family. Not used by sankey. |
+| style.appearance.cssVars[--dag-date-font-weight] | string | "400" | Date font weight. Not used by sankey. |
+| style.appearance.cssVars[--dag-date-font-style] | string | "normal" | Date font style. Not used by sankey. |
+| style.appearance.cssVars[--dag-axis-font-size] | string | "11px" | Axis font size. Not used by sankey. |
+| style.appearance.cssVars[--dag-axis-font-family] | string | "\"IBM Plex Mono\", Consolas, monospace" | Axis font family. Not used by sankey. |
+| style.appearance.cssVars[--dag-axis-font-weight] | string | "400" | Axis font weight. Not used by sankey. |
+| style.appearance.cssVars[--dag-axis-font-style] | string | "normal" | Axis font style. Not used by sankey. |
+| style.appearance.cssVars[--dag-track-font-size] | string | "12px" | Track font size. Not used by sankey. |
+| style.appearance.cssVars[--dag-track-font-family] | string | "\"IBM Plex Sans\", \"Segoe UI\", sans-serif" | Track font family. Not used by sankey. |
+| style.appearance.cssVars[--dag-track-font-weight] | string | "600" | Track font weight. Not used by sankey. |
+| style.appearance.cssVars[--dag-track-font-style] | string | "normal" | Track font style. Not used by sankey. |
+| style.appearance.cssVars[--dag-flow-active-opacity] | string | "0.8" | Flow active opacity. |
+| style.appearance.cssVars[--dag-flow-muted-opacity] | string | "0.12" | Flow muted opacity. |
+| style.appearance.cssVars[--dag-timeline-muted-opacity] | string | "0.28" | Timeline muted opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-soft-opacity] | string | "0.24" | Timeline soft opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-hover-opacity] | string | "0.38" | Timeline hover opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-label-opacity] | string | "0.65" | Timeline label opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-edge-opacity] | string | "0.55" | Timeline edge opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-edge-muted-opacity] | string | "0.07" | Timeline edge muted opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-edge-active-opacity] | string | "1" | Timeline edge active opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-edge-width] | string | "1.7px" | Timeline edge width. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-edge-active-width] | string | "2.4px" | Timeline edge active width. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-selection-width] | string | "2.5px" | Timeline selection width. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-dash] | string | "6 4" | Timeline dash. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-reference-dash] | string | "3 5" | Timeline reference dash. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-backward-dash] | string | "6 3" | Timeline backward dash. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-reference-opacity] | string | "0.25" | Timeline reference opacity. Not used by sankey. |
+| style.appearance.cssVars[--dag-timeline-leader-dash] | string | "4 3" | Timeline leader dash. Not used by sankey. |
+| style.appearance.cssVars[--dag-shadow-color] | string | "24, 39, 64" | Shadow color. |
+| style.appearance.cssVars[--dag-shadow-active-offset-scale] | string | "1.5" | Shadow active offset scale. |
+| style.appearance.cssVars[--dag-shadow-active-blur-scale] | string | "1.25" | Shadow active blur scale. |
+| style.appearance.cssVars[--dag-*] | string | — | Additional map entry. |
+| style.appearance.css * | string | "" | Saved CSS; at most 50,000 characters; @import is rejected; custom CSS uses the final graph-custom cascade layer. |
+| style.appearance.palette | object | — | Category and nested-group color palettes. |
+| style.appearance.palette.categories | [number, number, number][] | [[356,58,47],[214,62,44],[145,52,40],[32,66,47],[188,54,42],[265,48,48],[325,48,48],[210,24,44]] | Category HSL swatches [hue, saturation, lightness]. |
+| style.appearance.palette.groups | string[][] | [["#fffdf5","#fffbea","#fff7df","#fff4d5"],["#f5fdf9","#edfdf5","#e5fbf0","#dcf8e9"],["#fff9f5","#fff3eb","#ffede1","#ffe7d8"],["#f5fcff","#edf9ff","#e4f6ff","#daf2ff"]] | Group color ramps, indexed by family and nesting depth. Not used by sankey. |
+| style.appearance.performance | object | — | performance |
+| style.appearance.performance.denseThresholds | [number, number, number] | [220,440,20000000] | Dense-scene thresholds [nodes, edges, area]. |
+| style.appearance.performance.denseShadows | preserve \| disable | "disable" | Shadow policy in dense scenes. |
 
-Sankey renders flow bars, quantity-scaled bands, node names, totals, and return-flow indicators. The quantities control band thickness and bar height. Style controls bar width, band opacity, typography, and shared effects.
-
-| Visual property             | Current source                                                        |
-| --------------------------- | --------------------------------------------------------------------- |
-| Bar height / band thickness | Graph flow quantities and computed layout.                            |
-| Bar / outgoing-band color   | `nodes[id].color`, or generated category/identity color.              |
-| Bar width                   | `style.appearance.display.sankeyNodeWidth`.                           |
-| Normal band opacity         | `style.appearance.display.sankeyLinkOpacity`.                         |
-| Name / value text           | Shared primary/secondary text tokens.                                 |
-| Label font                  | Shared title font tokens; value labels retain their own smaller type. |
-
-Do not use ordinary edge stroke width to style quantitative bands. It would change the visual meaning without changing the data.
-
-## Fields and defaults
-
-| Path relative to `style`               | Default | Meaning                                                 |
-| -------------------------------------- | ------- | ------------------------------------------------------- |
-| `appearance.display.sankeyNodeWidth`   | 20 px   | Bar width; slider 0-48, located under Layout.           |
-| `appearance.display.sankeyLinkOpacity` | 32%     | Normal band opacity; slider 0-90%.                      |
-| `appearance.display.showEdgeLabels`    | false   | Enables relationship/flow label geometry.               |
-| `appearance.display.nodeShadow`        | true    | Shared shape shadow effect.                             |
-| `appearance.display.shadowBlur`        | 8 px    | Shared shadow softness.                                 |
-| `appearance.display.shadowOffset`      | 3 px    | Shared shadow distance.                                 |
-| `appearance.display.shadowOpacity`     | 12%     | Shared shadow opacity.                                  |
-| `appearance.layout.nodeHeight`         | 74 px   | Available vertical-space input, not a fixed bar height. |
-| `appearance.layout.rowGap`             | 22 px   | Node separation.                                        |
-| `appearance.layout.maxNodeWidth`       | 280 px  | Label room.                                             |
-
-Settings exposes node shadows and the shared border toggle, but bar paint uses explicit data-derived fill/stroke, so a generic card border/fill setting does not provide an independent Sankey palette. Card radius, node dots, equal widths, and description controls are not exposed as Sankey card settings.
-
-Sankey has one built-in preset, Default. Unlike Node-link, it uses the generic base appearance defaults. Ordinary title defaults are Georgia, 15 px, normal style, weight 400.
-
-## Complete style example
+## Complete example
 
 ```json
 {
@@ -49,31 +107,170 @@ Sankey has one built-in preset, Default. Unlike Node-link, it uses the generic b
     "alignNodeWidthsToMax": false,
     "appearance": {
       "version": 1,
-      "layout": { "nodeHeight": 90, "rowGap": 24, "maxNodeWidth": 300 },
-      "display": { "sankeyNodeWidth": 24, "sankeyLinkOpacity": 45, "showEdgeLabels": true, "nodeShadow": false },
-      "cssVars": {
-        "--dag-title-font-family": "Inter, sans-serif",
-        "--dag-title-font-size": "14px",
-        "--dag-text-soft": "#64748b"
+      "layout": {
+        "stagePadding": [
+          108,
+          88
+        ],
+        "columnGap": 116,
+        "rowGap": 22,
+        "edgeLaneGap": 28,
+        "nodeHeight": 74,
+        "nodeWidthRange": [
+          188,
+          280
+        ],
+        "stageMinSize": [
+          980,
+          600
+        ]
       },
-      "css": ""
+      "display": {
+        "titleAlign": "left",
+        "titleOverflow": "ellipsis",
+        "titleWrap": false,
+        "edgeArrowStyle": "filled",
+        "showNodeDots": true,
+        "showEdgeLabels": false,
+        "showGroupStats": true,
+        "showGroupBorders": true,
+        "nodeCornerRadius": 24,
+        "nodeShadow": true,
+        "shadowBlur": 8,
+        "shadowOffset": 3,
+        "shadowOpacity": 12,
+        "sankeyNodeWidth": 20,
+        "sankeyLinkOpacity": 32
+      },
+      "cssVars": {
+        "--dag-text-strong": "#162033",
+        "--dag-text-soft": "#8792a2",
+        "--dag-edge": "rgba(76, 96, 132, 0.24)",
+        "--dag-edge-active": "rgba(41, 92, 207, 0.72)",
+        "--dag-node-fill": "#ffffff",
+        "--dag-node-border": "rgba(91, 109, 142, 0.17)",
+        "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
+        "--dag-title-font-family": "\"Georgia\", serif",
+        "--dag-title-font-size": "15px",
+        "--dag-title-font-style": "normal",
+        "--dag-title-font-weight": "400",
+        "--dag-detail-font-size": "10px",
+        "--dag-detail-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-detail-font-weight": "400",
+        "--dag-detail-font-style": "normal",
+        "--dag-date-font-size": "10px",
+        "--dag-date-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-date-font-weight": "400",
+        "--dag-date-font-style": "normal",
+        "--dag-axis-font-size": "11px",
+        "--dag-axis-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-axis-font-weight": "400",
+        "--dag-axis-font-style": "normal",
+        "--dag-track-font-size": "12px",
+        "--dag-track-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-track-font-weight": "600",
+        "--dag-track-font-style": "normal",
+        "--dag-flow-active-opacity": "0.8",
+        "--dag-flow-muted-opacity": "0.12",
+        "--dag-timeline-muted-opacity": "0.28",
+        "--dag-timeline-soft-opacity": "0.24",
+        "--dag-timeline-hover-opacity": "0.38",
+        "--dag-timeline-label-opacity": "0.65",
+        "--dag-timeline-edge-opacity": "0.55",
+        "--dag-timeline-edge-muted-opacity": "0.07",
+        "--dag-timeline-edge-active-opacity": "1",
+        "--dag-timeline-edge-width": "1.7px",
+        "--dag-timeline-edge-active-width": "2.4px",
+        "--dag-timeline-selection-width": "2.5px",
+        "--dag-timeline-dash": "6 4",
+        "--dag-timeline-reference-dash": "3 5",
+        "--dag-timeline-backward-dash": "6 3",
+        "--dag-timeline-reference-opacity": "0.25",
+        "--dag-timeline-leader-dash": "4 3",
+        "--dag-shadow-color": "24, 39, 64",
+        "--dag-shadow-active-offset-scale": "1.5",
+        "--dag-shadow-active-blur-scale": "1.25"
+      },
+      "css": "",
+      "palette": {
+        "categories": [
+          [
+            356,
+            58,
+            47
+          ],
+          [
+            214,
+            62,
+            44
+          ],
+          [
+            145,
+            52,
+            40
+          ],
+          [
+            32,
+            66,
+            47
+          ],
+          [
+            188,
+            54,
+            42
+          ],
+          [
+            265,
+            48,
+            48
+          ],
+          [
+            325,
+            48,
+            48
+          ],
+          [
+            210,
+            24,
+            44
+          ]
+        ],
+        "groups": [
+          [
+            "#fffdf5",
+            "#fffbea",
+            "#fff7df",
+            "#fff4d5"
+          ],
+          [
+            "#f5fdf9",
+            "#edfdf5",
+            "#e5fbf0",
+            "#dcf8e9"
+          ],
+          [
+            "#fff9f5",
+            "#fff3eb",
+            "#ffede1",
+            "#ffe7d8"
+          ],
+          [
+            "#f5fcff",
+            "#edf9ff",
+            "#e4f6ff",
+            "#daf2ff"
+          ]
+        ]
+      },
+      "performance": {
+        "denseThresholds": [
+          220,
+          440,
+          20000000
+        ],
+        "denseShadows": "disable"
+      }
     }
   }
 }
 ```
-
-The outer booleans are required by the shared file envelope even where the renderer does not consume them as card controls. `45` means 45% opacity in v1; `0.45` would mean 0.45% before any renderer-specific handling.
-
-## Interaction and CSS
-
-The renderer converts the opacity percentage to `--dag-sankey-opacity`. Built-in interaction rules use opacity 0.8 for hovered/active bands and 0.12 for unrelated bands during interaction. These are state rules, not additional saved opacity fields.
-
-Useful selectors include `.dag-edge__flow`, `.dag-node__flow-label`, and `.dag-node__flow-value`, scoped under `.dag-graph[data-layout="sankey"]`. The node shape has data-derived inline fill/stroke; bands use the source color and calculated width. Generic `--dag-edge` and `--dag-node-fill` therefore do not recolor all flow marks.
-
-## Reset and export
-
-Layout reset includes `sankeyNodeWidth`, despite its storage under `appearance.display`. Edges reset includes `sankeyLinkOpacity`. These are current v1 grouping rules, not evidence that bar width is a paint-only setting. Whole-style reset restores the Sankey Default profile; custom CSS survives section resets.
-
-Style export does not contain quantities or node-specific colors. Those remain in graph JSON. SVG/HTML captures the active layout, quantitative scale, and styles, including return bands.
-
-Sources: [appearance effects](../../src/graph/appearance.ts), [node rendering](../../src/rendering/GraphNode.tsx), [edge rendering](../../src/rendering/GraphEdge.tsx), [layout](../../src/layout/algorithms/sankey.ts).

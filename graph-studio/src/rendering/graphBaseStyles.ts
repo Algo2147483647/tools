@@ -69,4 +69,45 @@ export const GRAPH_BASE_CSS = `
 .dag-graph[data-layout="compound"] .dag-node[data-type="External"] .dag-node__shape {
   stroke-dasharray: 5 3;
 }
+.dag-graph .spatial-node {
+  cursor: pointer;
+}
+.dag-graph .spatial-selection {
+  opacity: 0;
+}
+.dag-graph .spatial-label {
+  font: var(--dag-title-font-size, 12px) var(--dag-title-font-family, sans-serif);
+  font-style: var(--dag-title-font-style);
+  font-weight: var(--dag-title-font-weight);
+  unicode-bidi: plaintext;
+  fill: var(--dag-text-strong, #34475d);
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.dag-graph .spatial-label--on-focus {
+  display: none;
+}
+.dag-graph .spatial-node:is([data-hovered="true"], [data-focused="true"], :focus) .spatial-label {
+  display: block;
+}
+.dag-graph .spatial-node:is([data-hovered="true"], [data-focused="true"], :focus) .spatial-selection {
+  opacity: 1;
+}
+.dag-graph[data-layout="spatial"] .dag-edge__path {
+  stroke-width: 1;
+  marker-end: none;
+}
+.spatial-guides path {
+  fill: none;
+  stroke: #c7d4e1;
+  stroke-width: 0.7;
+}
+.spatial-guides text {
+  fill: #8292a3;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
 `;

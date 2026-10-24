@@ -70,6 +70,7 @@ export function useGraphLayout({
                 dag: displayDag,
                 colorSourceDag: state.dag ?? undefined,
                 spaceView: spatialView.view,
+                appearance: geometryAppearance,
               })
             : buildStageData({
                 dag: displayDag,

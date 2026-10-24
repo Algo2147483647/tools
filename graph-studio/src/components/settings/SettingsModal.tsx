@@ -3,7 +3,7 @@ import type { TimelineControlsProps } from "../TimelineControls";
 import { type ChangeEvent, type MouseEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { AiSettings } from "../../ai/types";
-import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
+import type { GraphAppearance } from "../../graph/appearance";
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import type { ChartStyle } from "../../state/chartStyles";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
@@ -13,9 +13,8 @@ import AppearanceSettings from "./AppearanceSettings";
 import AppearancePreview from "./AppearancePreview";
 import FilesSettings from "./FilesSettings";
 import { type SettingsChapter, SETTINGS_CHAPTERS } from "./settingsConfig";
-import { parseCssPixelValue } from "./settingsUtils";
 import { getGraphChartLabel } from "../../graph/types";
-import { getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
+import { getSettingsCatalog, matchesSetting } from "./settingsCatalog";
 
 interface SettingsModalProps {
   open: boolean;
@@ -36,30 +35,20 @@ interface SettingsModalProps {
   aiBusy: boolean;
   onClose: () => void;
   onLayoutModeChange: (mode: GraphLayoutMode) => void;
-  onLayoutAppearanceChange: <K extends keyof GraphLayoutAppearance>(key: K, value: GraphLayoutAppearance[K]) => void;
-  onAppearanceCssVarChange: (key: string, value: string) => void;
   onAppearanceCssChange: (css: string) => void;
   onAppearanceAdjustmentStart: () => void;
   onAppearanceAdjustmentEnd: () => void;
-  onSectionReset: (group: AppearanceGroup | "layout") => void;
   onAppearanceUndo: () => void;
   onAppearanceRedo: () => void;
   canUndoAppearance: boolean;
   canRedoAppearance: boolean;
   preferencesSaved: boolean;
-  onAppearanceDisplayChange: <K extends keyof GraphAppearance["display"]>(
-    key: K,
-    value: GraphAppearance["display"][K],
-  ) => void;
   onAppearancePresetChange: (presetId: GraphAppearancePresetId) => void;
   onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
   onAppearanceExport: () => void;
   onAppearanceImportClick: (event: MouseEvent<HTMLInputElement>) => void;
   onAppearanceImportChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onNodeDetailToggle: () => void;
-  onNodeBordersToggle: () => void;
-  onNodeWidthAlignToggle: () => void;
   onConsoleSidebarToggle: () => void;
   onInitializeCanvas: () => void;
   onExport: () => void;
@@ -88,27 +77,20 @@ export default function SettingsModal({
   aiBusy,
   onClose,
   onLayoutModeChange,
-  onLayoutAppearanceChange,
-  onAppearanceCssVarChange,
   onAppearanceCssChange,
   onAppearanceAdjustmentStart,
   onAppearanceAdjustmentEnd,
-  onSectionReset,
   onAppearanceUndo,
   onAppearanceRedo,
   canUndoAppearance,
   canRedoAppearance,
   preferencesSaved,
-  onAppearanceDisplayChange,
   onAppearancePresetChange,
   onAppearanceSchemaChange,
   onAppearanceReset,
   onAppearanceExport,
   onAppearanceImportClick,
   onAppearanceImportChange,
-  onNodeDetailToggle,
-  onNodeBordersToggle,
-  onNodeWidthAlignToggle,
   onConsoleSidebarToggle,
   onInitializeCanvas,
   onExport,
@@ -147,7 +129,6 @@ export default function SettingsModal({
       document.documentElement.style.overflow = rootOverflow;
     };
   }, [open]);
-  const titleFontSize = parseCssPixelValue(appearance.cssVars["--dag-title-font-size"], 15);
   useEffect(() => {
     if (!open) return;
     const finish = () => onAppearanceAdjustmentEnd();
@@ -383,24 +364,20 @@ export default function SettingsModal({
                   hideNodeBorders={hideNodeBorders}
                   alignNodeWidthsToMax={alignNodeWidthsToMax}
                   appearanceCssDraft={appearanceCssDraft}
-                  titleFontSize={titleFontSize}
+
                   onAppearanceCssDraftChange={setAppearanceCssDraft}
                   timelineControls={timelineControls}
                   onLayoutModeChange={onLayoutModeChange}
-                  onLayoutAppearanceChange={onLayoutAppearanceChange}
-                  onAppearanceCssVarChange={onAppearanceCssVarChange}
+
                   onAppearanceCssChange={onAppearanceCssChange}
-                  onAppearanceDisplayChange={onAppearanceDisplayChange}
+
                   onAppearancePresetChange={onAppearancePresetChange}
                   onAppearanceSchemaChange={onAppearanceSchemaChange}
                   onAppearanceReset={onAppearanceReset}
                   onAppearanceExport={onAppearanceExport}
                   onAppearanceImportClick={onAppearanceImportClick}
                   onAppearanceImportChange={onAppearanceImportChange}
-                  onNodeDetailToggle={onNodeDetailToggle}
-                  onNodeBordersToggle={onNodeBordersToggle}
-                  onNodeWidthAlignToggle={onNodeWidthAlignToggle}
-                  onSectionReset={onSectionReset}
+
                   onPreviewModeChange={setPreviewMode}
                 />
               ) : null}

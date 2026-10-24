@@ -1,25 +1,100 @@
 # Spatial Appearance
 
-Portable files use `chartType: "spatial"`. Spatial appearance currently has three owners: the shared style profile, graph-level per-element visual data, and session view controls. Read the [shared style protocol](../appearance.md) and [Spatial coordinate protocol](../charts/spatial.md).
+Generated from the canonical field definitions. Required fields are marked with an asterisk. Numeric font sizes use explicit pixel units. Unsupported shared fields are read-only for this chart; the document retains a common appearance shape.
 
-## Ownership map
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| format * | graph-studio-style | "graph-studio-style" | Style document format. |
+| version * | 1 | 1 | Style protocol version. |
+| chartType * | spatial | "spatial" | Chart renderer. |
+| style * | object | — | Complete chart style. |
+| style.showNodeDetail * | boolean | false | Show node descriptions. Not used by spatial. |
+| style.hideNodeBorders * | boolean | true | Hide ordinary node borders. Not used by spatial. |
+| style.alignNodeWidthsToMax * | boolean | false | Align card widths to the configured maximum. Not used by spatial. |
+| style.appearance * | object | — | Shared appearance object; includes stored fields unused by some charts. |
+| style.appearance.version * | 1 | 1 | Nested appearance protocol version. |
+| style.appearance.layout * | object | — | Stored geometry values; renderer support varies by chart. |
+| style.appearance.layout.stagePadding | [number, number] | [108,88] | Horizontal and vertical stage padding [x, y] in logical pixels. |
+| style.appearance.layout.columnGap | number | 116 | Layer separation in logical pixels. Not used by spatial. |
+| style.appearance.layout.rowGap | number | 22 | Node or label separation in logical pixels. Not used by spatial. |
+| style.appearance.layout.edgeLaneGap | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by spatial. |
+| style.appearance.layout.nodeHeight | number | 74 | Base card height or chart-specific vertical-space input. Not used by spatial. |
+| style.appearance.layout.nodeWidthRange | [number, number] | [188,280] | Node width bounds [min, max]; max sets the event label width. Not used by spatial. |
+| style.appearance.layout.stageMinSize | [number, number] | [980,600] | Minimum stage dimensions [width, height] in logical pixels. |
+| style.appearance.display * | object | — | Display flags and visual dimensions; unsupported fields remain stored. |
+| style.appearance.display.titleAlign | left \| center | "left" | Nested node-link card-title alignment. Not used by spatial. |
+| style.appearance.display.titleOverflow | ellipsis \| clip \| visible | "ellipsis" | Nested node-link title overflow treatment. Not used by spatial. |
+| style.appearance.display.titleWrap | boolean | false | Enables two-line titles in Nested node-link. Not used by spatial. |
+| style.appearance.display.edgeArrowStyle | filled \| open | "filled" | Shape of the shared ordinary-edge arrowhead. |
+| style.appearance.display.showNodeDots | boolean | true | Card dots and corresponding content offset. Not used by spatial. |
+| style.appearance.display.showEdgeLabels | boolean | false | Enables relation-label geometry; Timeline reveals labels on active edges. |
+| style.appearance.display.showGroupStats | boolean | true | Nested node-link group statistics. Not used by spatial. |
+| style.appearance.display.showGroupBorders | boolean | true | Expanded Nested node-link container borders. Not used by spatial. |
+| style.appearance.display.nodeCornerRadius | number | 24 | Ordinary/collapsed card radius, capped at half the smaller rendered dimension. Not used by spatial. |
+| style.appearance.display.nodeShadow | boolean | true | Shared node-shape shadows; dense scenes suppress them. Not used by spatial. |
+| style.appearance.display.shadowBlur | number | 8 | Shadow softness in logical pixels. Not used by spatial. |
+| style.appearance.display.shadowOffset | number | 3 | Vertical shadow distance in logical pixels. Not used by spatial. |
+| style.appearance.display.shadowOpacity | number | 12 | Shadow opacity as a percentage, not a 0–1 fraction. Not used by spatial. |
+| style.appearance.display.sankeyNodeWidth | number | 20 | Sankey bar width in logical pixels; exposed under Layout. Not used by spatial. |
+| style.appearance.display.sankeyLinkOpacity | number | 32 | Sankey normal-band opacity as a percentage; interaction has separate opacity rules. Not used by spatial. |
+| style.appearance.cssVars * | object | — | SVG root CSS variables; only --dag- names with string values are accepted. |
+| style.appearance.cssVars[--dag-text-strong] | string | "#162033" | Primary text color. |
+| style.appearance.cssVars[--dag-text-soft] | string | "#8792a2" | Secondary text color. |
+| style.appearance.cssVars[--dag-edge] | string | "rgba(76, 96, 132, 0.24)" | Default ordinary-edge or axis/grid color where consumed. |
+| style.appearance.cssVars[--dag-edge-active] | string | "rgba(41, 92, 207, 0.72)" | Active ordinary-edge color; explicit data strokes can take precedence. |
+| style.appearance.cssVars[--dag-node-fill] | string | "#ffffff" | Card/background fill; does not replace Sankey or Spatial data colors. |
+| style.appearance.cssVars[--dag-node-border] | string | "rgba(91, 109, 142, 0.17)" | Ordinary card outline; per-node category tokens can override it. Not used by spatial. |
+| style.appearance.cssVars[--dag-node-border-strong] | string | "rgba(50, 79, 132, 0.35)" | Emphasized/root card outline. Not used by spatial. |
+| style.appearance.cssVars[--dag-title-font-family] | string | "\"Georgia\", serif" | Title font stack; installed fonts determine rendering. |
+| style.appearance.cssVars[--dag-title-font-size] | string | "12px" | Title size in logical pixels, shared by measurement and rendering. |
+| style.appearance.cssVars[--dag-title-font-style] | string | "normal" | Title font style as a CSS string. |
+| style.appearance.cssVars[--dag-title-font-weight] | string | "400" | Title font weight as a CSS string. |
+| style.appearance.cssVars[--dag-detail-font-size] | string | "10px" | Detail font size. Not used by spatial. |
+| style.appearance.cssVars[--dag-detail-font-family] | string | "\"IBM Plex Sans\", \"Segoe UI\", sans-serif" | Detail font family. Not used by spatial. |
+| style.appearance.cssVars[--dag-detail-font-weight] | string | "400" | Detail font weight. Not used by spatial. |
+| style.appearance.cssVars[--dag-detail-font-style] | string | "normal" | Detail font style. Not used by spatial. |
+| style.appearance.cssVars[--dag-date-font-size] | string | "10px" | Date font size. Not used by spatial. |
+| style.appearance.cssVars[--dag-date-font-family] | string | "\"IBM Plex Mono\", Consolas, monospace" | Date font family. Not used by spatial. |
+| style.appearance.cssVars[--dag-date-font-weight] | string | "400" | Date font weight. Not used by spatial. |
+| style.appearance.cssVars[--dag-date-font-style] | string | "normal" | Date font style. Not used by spatial. |
+| style.appearance.cssVars[--dag-axis-font-size] | string | "11px" | Axis font size. Not used by spatial. |
+| style.appearance.cssVars[--dag-axis-font-family] | string | "\"IBM Plex Mono\", Consolas, monospace" | Axis font family. Not used by spatial. |
+| style.appearance.cssVars[--dag-axis-font-weight] | string | "400" | Axis font weight. Not used by spatial. |
+| style.appearance.cssVars[--dag-axis-font-style] | string | "normal" | Axis font style. Not used by spatial. |
+| style.appearance.cssVars[--dag-track-font-size] | string | "12px" | Track font size. Not used by spatial. |
+| style.appearance.cssVars[--dag-track-font-family] | string | "\"IBM Plex Sans\", \"Segoe UI\", sans-serif" | Track font family. Not used by spatial. |
+| style.appearance.cssVars[--dag-track-font-weight] | string | "600" | Track font weight. Not used by spatial. |
+| style.appearance.cssVars[--dag-track-font-style] | string | "normal" | Track font style. Not used by spatial. |
+| style.appearance.cssVars[--dag-flow-active-opacity] | string | "0.8" | Flow active opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-flow-muted-opacity] | string | "0.12" | Flow muted opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-muted-opacity] | string | "0.28" | Timeline muted opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-soft-opacity] | string | "0.24" | Timeline soft opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-hover-opacity] | string | "0.38" | Timeline hover opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-label-opacity] | string | "0.65" | Timeline label opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-edge-opacity] | string | "0.55" | Timeline edge opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-edge-muted-opacity] | string | "0.07" | Timeline edge muted opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-edge-active-opacity] | string | "1" | Timeline edge active opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-edge-width] | string | "1.7px" | Timeline edge width. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-edge-active-width] | string | "2.4px" | Timeline edge active width. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-selection-width] | string | "2.5px" | Timeline selection width. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-dash] | string | "6 4" | Timeline dash. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-reference-dash] | string | "3 5" | Timeline reference dash. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-backward-dash] | string | "6 3" | Timeline backward dash. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-reference-opacity] | string | "0.25" | Timeline reference opacity. Not used by spatial. |
+| style.appearance.cssVars[--dag-timeline-leader-dash] | string | "4 3" | Timeline leader dash. Not used by spatial. |
+| style.appearance.cssVars[--dag-shadow-color] | string | "24, 39, 64" | Shadow color. Not used by spatial. |
+| style.appearance.cssVars[--dag-shadow-active-offset-scale] | string | "1.5" | Shadow active offset scale. Not used by spatial. |
+| style.appearance.cssVars[--dag-shadow-active-blur-scale] | string | "1.25" | Shadow active blur scale. Not used by spatial. |
+| style.appearance.cssVars[--dag-*] | string | — | Additional map entry. |
+| style.appearance.css * | string | "" | Saved CSS; at most 50,000 characters; @import is rejected; custom CSS uses the final graph-custom cascade layer. |
+| style.appearance.palette | object | — | Category and nested-group color palettes. |
+| style.appearance.palette.categories | [number, number, number][] | [[356,58,47],[214,62,44],[145,52,40],[32,66,47],[188,54,42],[265,48,48],[325,48,48],[210,24,44]] | Category HSL swatches [hue, saturation, lightness]. |
+| style.appearance.palette.groups | string[][] | [["#fffdf5","#fffbea","#fff7df","#fff4d5"],["#f5fdf9","#edfdf5","#e5fbf0","#dcf8e9"],["#fff9f5","#fff3eb","#ffede1","#ffe7d8"],["#f5fcff","#edf9ff","#e4f6ff","#daf2ff"]] | Group color ramps, indexed by family and nesting depth. Not used by spatial. |
+| style.appearance.performance | object | — | performance |
+| style.appearance.performance.denseThresholds | [number, number, number] | [220,440,20000000] | Dense-scene thresholds [nodes, edges, area]. |
+| style.appearance.performance.denseShadows | preserve \| disable | "disable" | Shadow policy in dense scenes. |
 
-| Concern                                                                      | Current location                | Saved by style export?  |
-| ---------------------------------------------------------------------------- | ------------------------------- | ----------------------- |
-| Shared text/edge tokens and CSS                                              | `style.appearance`              | Yes                     |
-| Point color, radius, opacity, hollow state, label priority                   | `nodes[id].spatialStyle`        | No; saved in graph JSON |
-| Edge color, width, dash, arrow visibility                                    | `edges[].metadata.spatialStyle` | No; saved in graph JSON |
-| Legend                                                                       | `metadata.spatialLegend`        | No; saved in graph JSON |
-| Coordinates and category membership                                          | Node data and `metadata.space`  | No; saved in graph JSON |
-| Projection, camera, axes, labels, grid, back-point visibility, display units | `SpaceView` session state       | No                      |
-
-## Shared profile
-
-Settings exposes primary text color, default/active edge tokens, font family/size/weight/style, edge labels, presets, and custom CSS. Some per-edge inline styles take precedence over shared edge tokens. The Spatial default title size is 12 px, descriptions default to hidden, and the only built-in preset is Default.
-
-Cards, card shadows, equal card widths, rounded corners, and ordinary card border settings are not Spatial point controls. The shared file still carries their fields for compatibility. Spatial also omits the ordinary layout-dimension sliders because coordinate projection supplies geometry.
-
-The following is a complete portable style file:
+## Complete example
 
 ```json
 {
@@ -32,97 +107,170 @@ The following is a complete portable style file:
     "alignNodeWidthsToMax": false,
     "appearance": {
       "version": 1,
-      "layout": {},
-      "display": { "showEdgeLabels": false },
-      "cssVars": {
-        "--dag-title-font-size": "12px",
-        "--dag-title-font-family": "Inter, sans-serif",
-        "--dag-text-strong": "#334155"
+      "layout": {
+        "stagePadding": [
+          108,
+          88
+        ],
+        "columnGap": 116,
+        "rowGap": 22,
+        "edgeLaneGap": 28,
+        "nodeHeight": 74,
+        "nodeWidthRange": [
+          188,
+          280
+        ],
+        "stageMinSize": [
+          980,
+          600
+        ]
       },
-      "css": ".dag-graph[data-layout=\"spatial\"] .spatial-label { stroke-width: 2px; }"
+      "display": {
+        "titleAlign": "left",
+        "titleOverflow": "ellipsis",
+        "titleWrap": false,
+        "edgeArrowStyle": "filled",
+        "showNodeDots": true,
+        "showEdgeLabels": false,
+        "showGroupStats": true,
+        "showGroupBorders": true,
+        "nodeCornerRadius": 24,
+        "nodeShadow": true,
+        "shadowBlur": 8,
+        "shadowOffset": 3,
+        "shadowOpacity": 12,
+        "sankeyNodeWidth": 20,
+        "sankeyLinkOpacity": 32
+      },
+      "cssVars": {
+        "--dag-text-strong": "#162033",
+        "--dag-text-soft": "#8792a2",
+        "--dag-edge": "rgba(76, 96, 132, 0.24)",
+        "--dag-edge-active": "rgba(41, 92, 207, 0.72)",
+        "--dag-node-fill": "#ffffff",
+        "--dag-node-border": "rgba(91, 109, 142, 0.17)",
+        "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
+        "--dag-title-font-family": "\"Georgia\", serif",
+        "--dag-title-font-size": "12px",
+        "--dag-title-font-style": "normal",
+        "--dag-title-font-weight": "400",
+        "--dag-detail-font-size": "10px",
+        "--dag-detail-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-detail-font-weight": "400",
+        "--dag-detail-font-style": "normal",
+        "--dag-date-font-size": "10px",
+        "--dag-date-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-date-font-weight": "400",
+        "--dag-date-font-style": "normal",
+        "--dag-axis-font-size": "11px",
+        "--dag-axis-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-axis-font-weight": "400",
+        "--dag-axis-font-style": "normal",
+        "--dag-track-font-size": "12px",
+        "--dag-track-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-track-font-weight": "600",
+        "--dag-track-font-style": "normal",
+        "--dag-flow-active-opacity": "0.8",
+        "--dag-flow-muted-opacity": "0.12",
+        "--dag-timeline-muted-opacity": "0.28",
+        "--dag-timeline-soft-opacity": "0.24",
+        "--dag-timeline-hover-opacity": "0.38",
+        "--dag-timeline-label-opacity": "0.65",
+        "--dag-timeline-edge-opacity": "0.55",
+        "--dag-timeline-edge-muted-opacity": "0.07",
+        "--dag-timeline-edge-active-opacity": "1",
+        "--dag-timeline-edge-width": "1.7px",
+        "--dag-timeline-edge-active-width": "2.4px",
+        "--dag-timeline-selection-width": "2.5px",
+        "--dag-timeline-dash": "6 4",
+        "--dag-timeline-reference-dash": "3 5",
+        "--dag-timeline-backward-dash": "6 3",
+        "--dag-timeline-reference-opacity": "0.25",
+        "--dag-timeline-leader-dash": "4 3",
+        "--dag-shadow-color": "24, 39, 64",
+        "--dag-shadow-active-offset-scale": "1.5",
+        "--dag-shadow-active-blur-scale": "1.25"
+      },
+      "css": "",
+      "palette": {
+        "categories": [
+          [
+            356,
+            58,
+            47
+          ],
+          [
+            214,
+            62,
+            44
+          ],
+          [
+            145,
+            52,
+            40
+          ],
+          [
+            32,
+            66,
+            47
+          ],
+          [
+            188,
+            54,
+            42
+          ],
+          [
+            265,
+            48,
+            48
+          ],
+          [
+            325,
+            48,
+            48
+          ],
+          [
+            210,
+            24,
+            44
+          ]
+        ],
+        "groups": [
+          [
+            "#fffdf5",
+            "#fffbea",
+            "#fff7df",
+            "#fff4d5"
+          ],
+          [
+            "#f5fdf9",
+            "#edfdf5",
+            "#e5fbf0",
+            "#dcf8e9"
+          ],
+          [
+            "#fff9f5",
+            "#fff3eb",
+            "#ffede1",
+            "#ffe7d8"
+          ],
+          [
+            "#f5fcff",
+            "#edf9ff",
+            "#e4f6ff",
+            "#daf2ff"
+          ]
+        ]
+      },
+      "performance": {
+        "denseThresholds": [
+          220,
+          440,
+          20000000
+        ],
+        "denseShadows": "disable"
+      }
     }
   }
 }
 ```
-
-## Point style protocol
-
-Fields below live in `nodes[id].spatialStyle`. Optional invalid values fall back or are clamped by the rendering helper; this is not the strict coordinate validation contract.
-
-| Field           | Accepted value                  | Behavior                                                                                             |
-| --------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `color`         | Six-digit hex string            | Overrides the generated category point color.                                                        |
-| `radius`        | Finite number, clamped to 1-12  | Logical point radius. Absent values use automatic sizing.                                            |
-| `opacity`       | Finite number, clamped to 0.1-1 | Base opacity, further modulated by depth.                                                            |
-| `hollow`        | Boolean                         | Draws an outline rather than a filled point.                                                         |
-| `label`         | Boolean                         | Requests ordinary label display in dense scenes, subject to view settings and collision suppression. |
-| `labelPriority` | Finite number; fallback 0       | Larger values receive earlier consideration during label placement.                                  |
-
-Category colors derive from the full source graph for stability under filtering. Larger points also receive priority during collision handling. The Labels switch governs ordinary labels; focused/hovered points can reveal their labels through interaction CSS even when the normal label is suppressed.
-
-## Edge style protocol
-
-Fields below live in `edges[].metadata.spatialStyle`:
-
-| Field      | Accepted value                             | Behavior                  |
-| ---------- | ------------------------------------------ | ------------------------- |
-| `color`    | Six-digit hex string                       | Explicit edge color.      |
-| `width`    | Finite number, clamped to 0.5-8; default 1 | Logical stroke width.     |
-| `dashed`   | Boolean; false                             | Dashed path.              |
-| `directed` | Boolean; false                             | Displays an arrow marker. |
-
-Edges remain directed graph relationships even when their Spatial arrow is hidden. Per-edge stroke values are supplied inline; shared edge CSS tokens do not necessarily override them. Line thickness here is decorative, unlike quantitative Sankey band width.
-
-## Legend protocol and complete graph example
-
-`metadata.spatialLegend` requires a string `title` and an `items` array to be displayed. `description` is optional. Each usable item has a string `label` and finite `radius`, with optional `opacity` and `hollow`. The same radius/opacity clamping applies. The legend is descriptive metadata; it does not compute styles or enforce a data encoding.
-
-```json
-{
-  "format": "graph-studio",
-  "version": 3,
-  "metadata": {
-    "space": { "dimensions": 2, "coordinateSystem": "cartesian" },
-    "spatialLegend": {
-      "title": "Measurements",
-      "description": "Hollow points indicate missing measurements.",
-      "items": [
-        { "label": "Measured", "radius": 5, "opacity": 0.8, "hollow": false },
-        { "label": "Missing", "radius": 3, "opacity": 1, "hollow": true }
-      ]
-    }
-  },
-  "nodes": {
-    "a": {
-      "title": "A",
-      "space": [0, 0],
-      "spatialStyle": { "color": "#2563eb", "radius": 5, "opacity": 0.8, "label": true, "labelPriority": 10 }
-    },
-    "b": { "title": "B", "space": [2, 1], "spatialStyle": { "radius": 3, "hollow": true } }
-  },
-  "edges": [
-    {
-      "id": "ab",
-      "source": "a",
-      "target": "b",
-      "metadata": { "spatialStyle": { "color": "#64748b", "width": 2, "dashed": true, "directed": true } }
-    }
-  ]
-}
-```
-
-## Session view model
-
-The internal `SpaceView` has `axes: [number, number, number]`, `projection: "orthographic" | "perspective" | "map"`, `yaw`, `pitch`, `labels`, `grid`, `hideBackPoints`, and optional `unitScale`. Axis indices are zero-based converted coordinate dimensions. Map projection is available for spherical/geographic coordinates.
-
-Defaults are orthographic projection, zero yaw/pitch, labels/grid on, and back points visible. Axis defaults are `[0, 1, 2]`, or `[1, 2, 0]` for spherical/geographic outside-globe orientation. `unitScale` is limited to 0.1-100 relative to automatic coordinate spacing.
-
-These fields are documented to explain behavior, not as accepted fields in a portable style file. Reset view changes session state; resetting Appearance does not reset the camera or rewrite data styles.
-
-## CSS and export
-
-Use `.dag-graph[data-layout="spatial"]` with `.spatial-point`, `.spatial-label`, `.spatial-selection`, `.spatial-guides`, or ordinary edge selectors. Labels use shared title tokens and a white stroke halo. Guides currently use dedicated CSS rather than a public JSON grid-style object.
-
-Style export alone is insufficient to recreate point/edge styling that lives in graph data. Share both graph and style when required. SVG/HTML capture the current projection and visual marks; interactive HTML does not add the editor's 3D camera controls.
-
-Sources: [style interpretation and legend](../../src/layout/spatial-layout.ts), [point renderer](../../src/rendering/SpatialNode.tsx), [edge renderer](../../src/rendering/GraphEdge.tsx), [session defaults](../../src/graph/space.ts), [Spatial CSS](../../src/styles/spatial.css).

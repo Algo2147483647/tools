@@ -12,7 +12,7 @@ import { buildDagreLayout } from "./algorithms/dagre";
 import { buildLevelLayout } from "./algorithms/level";
 import { buildSankeyStage } from "./algorithms/sankey";
 import { buildSugiyamaLayout } from "./algorithms/sugiyama";
-import { stageTitleFont, type StageAppearance } from "./appearance";
+import { stageRoleFont, stageTitleFont, type StageAppearance } from "./appearance";
 import { resolveStageEdgeGeometry } from "./edgeGeometry";
 import { resolveStageSelection, withSyntheticSelectionRoot } from "./selection";
 import { buildSugiyamaStageRoutes, buildSugiyamaVerticalPlanner } from "./sugiyama-edge-routing";
@@ -42,6 +42,8 @@ export function buildStageData(input: {
   } = input;
   if (layoutMode === "spatial") return buildSpatialStage(input);
   const font = stageTitleFont(appearance);
+  const detailFont = stageRoleFont(appearance, "detail"),
+    detailLineHeight = Math.ceil(detailFont.size * 1.2);
   const theme = { ...appearance.layout };
   if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {
     return null;
@@ -56,9 +58,20 @@ export function buildStageData(input: {
     layoutMode === "sankey" && selection.appSelection.type === "full"
       ? new Set(Object.keys(sourceDag.nodes))
       : new Set(collectDescendantKeys(layoutDag, layoutRoots));
-  const typeColorMap = buildCategoryColorMap(Object.values((input.colorSourceDag ?? sourceDag).nodes).map(getNodeType));
+  const typeColorMap = buildCategoryColorMap(
+    Object.values((input.colorSourceDag ?? sourceDag).nodes).map(getNodeType),
+    appearance.palette?.categories,
+  );
   const edgeIds = new Map(sourceDag.edges.map((edge) => [JSON.stringify([edge.source, edge.target]), edge.id]));
-  const visualByKey = buildNodeVisualMap(layoutDag, reachable, theme, showNodeDetail, alignNodeWidthsToMax, font);
+  const visualByKey = buildNodeVisualMap(
+    layoutDag,
+    reachable,
+    theme,
+    showNodeDetail,
+    alignNodeWidthsToMax,
+    font,
+    detailFont,
+  );
   if (layoutMode === "sankey") {
     const error = getSankeyError(sourceDag.nodes, sourceDag.edges);
     if (error) {
@@ -69,8 +82,13 @@ export function buildStageData(input: {
     return buildSankeyStage(sourceDag, reachable, selection, visualByKey, appearance);
   }
   for (const [key, visual] of visualByKey) {
-    const detailCount = visual.detail ? wrapDetailText(visual.detail, Math.max(visual.width - 74, 72), 2).length : 0;
-    theme.nodeHeight = Math.max(theme.nodeHeight, minimumCardHeight(font, detailCount, !!getNodeType(layoutDag[key]!)));
+    const detailCount = visual.detail
+      ? wrapDetailText(visual.detail, Math.max(visual.width - 74, 72), 2, detailFont).length
+      : 0;
+    theme.nodeHeight = Math.max(
+      theme.nodeHeight,
+      minimumCardHeight(font, detailCount, !!getNodeType(layoutDag[key]!), 1, detailLineHeight),
+    );
   }
   const layoutResult = resolveLayout(layoutMode, layoutDag, layoutRoots, visualByKey, theme);
   const coordinates = layoutResult.coordinates;
@@ -102,6 +120,7 @@ export function buildStageData(input: {
             visual.detail,
             Math.max(visual.width - DETAIL_HORIZONTAL_INSET, DETAIL_MIN_LINE_WIDTH),
             DETAIL_MAX_LINES,
+            detailFont,
           )
         : [],
       typeLabel,
@@ -113,7 +132,14 @@ export function buildStageData(input: {
       y: 0,
     };
 
-    nodeData.contentLayout = cardContentLayout(nodeData.height, font, nodeData.detailLines.length, !!typeLabel);
+    nodeData.contentLayout = cardContentLayout(
+      nodeData.height,
+      font,
+      nodeData.detailLines.length,
+      !!typeLabel,
+      1,
+      detailLineHeight,
+    );
 
     if (!nodesByLayer.has(layer)) {
       nodesByLayer.set(layer, []);
@@ -206,7 +232,7 @@ export function buildStageData(input: {
 
     const columnWidths = sortedLayers.map((layer) => {
       const layerNodes = nodesByLayer.get(layer) || [];
-      return layerNodes.length ? Math.max(...layerNodes.map((node) => node.width)) : theme.minNodeWidth;
+      return layerNodes.length ? Math.max(...layerNodes.map((node) => node.width)) : theme.nodeWidthRange[0];
     });
     let cursorX = theme.stagePadding[0];
 
@@ -301,8 +327,8 @@ export function buildStageData(input: {
     edges,
     connectedKeysByNode,
     lanes,
-    stageWidth: Math.max(stageWidth, theme.stageMinWidth),
-    stageHeight: Math.max(stageHeight, theme.stageMinHeight),
+    stageWidth: Math.max(stageWidth, theme.stageMinSize[0]),
+    stageHeight: Math.max(stageHeight, theme.stageMinSize[1]),
     warnings: layoutResult.warnings,
   };
 }
@@ -334,6 +360,7 @@ function buildNodeVisualMap(
   showNodeDetail: boolean,
   alignNodeWidthsToMax: boolean,
   font: TextFont,
+  detailFont: TextFont,
 ): Map<NodeKey, ReturnType<typeof getNodeVisual>> {
   const visuals = new Map<NodeKey, ReturnType<typeof getNodeVisual>>();
   nodeKeys.forEach((nodeKey) => {
@@ -343,7 +370,7 @@ function buildNodeVisualMap(
     }
     visuals.set(
       nodeKey,
-      getNodeVisual(nodeKey, node, theme.minNodeWidth, theme.maxNodeWidth, showNodeDetail, alignNodeWidthsToMax, font),
+      getNodeVisual(nodeKey, node, theme.nodeWidthRange, showNodeDetail, alignNodeWidthsToMax, font, detailFont),
     );
   });
   return visuals;
@@ -437,7 +464,7 @@ function applyAbsoluteLayoutGeometry(input: {
   ) {
     minLeft = 0;
     minTop = 0;
-    maxRight = theme.minNodeWidth;
+    maxRight = theme.nodeWidthRange[0];
     maxBottom = theme.nodeHeight * 2;
   }
 

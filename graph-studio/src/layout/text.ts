@@ -1,4 +1,4 @@
-import { DEFAULT_TITLE_FONT, type TextFont } from "./typography";
+import { getRoleFont, DEFAULT_TITLE_FONT, type TextFont } from "./typography";
 import { getNodeDefine, getNodeTitle } from "../graph/accessors";
 import { sanitizeNodeLabel } from "../graph/selectors";
 import type { DagNode, NodeKey } from "../graph/types";
@@ -6,25 +6,25 @@ import type { DagNode, NodeKey } from "../graph/types";
 export function getNodeVisual(
   nodeKey: NodeKey,
   node: DagNode & { synthetic?: boolean },
-  minNodeWidth: number,
-  maxNodeWidth: number,
+  [minimumWidth, maximumWidth]: [number, number],
   showDetail: boolean,
   alignToMaxWidth = false,
   titleFont: TextFont = DEFAULT_TITLE_FONT,
+  detailFont: TextFont = getRoleFont({ cssVars: {} }, "detail"),
 ): { title: string; detail: string; width: number } {
   if (node.synthetic) {
     const syntheticTitle = getNodeTitle(node) || "Selected roots";
     return {
       title: syntheticTitle,
       detail: showDetail ? "Combined entry point for every detected root branch." : "",
-      width: alignToMaxWidth ? maxNodeWidth : clamp(232, minNodeWidth, maxNodeWidth),
+      width: alignToMaxWidth ? maximumWidth : clamp(232, minimumWidth, maximumWidth),
     };
   }
 
   const title = sanitizeNodeLabel(getNodeTitle(node) || nodeKey);
   const detail = showDetail ? getNodeDetail(node, title) : "";
-  const estimatedContentWidth = Math.max(measureText(title, titleFont), estimateTextWidth(detail, 10) * 0.76);
-  const width = alignToMaxWidth ? maxNodeWidth : clamp(132 + estimatedContentWidth, minNodeWidth, maxNodeWidth);
+  const estimatedContentWidth = Math.max(measureText(title, titleFont), measureText(detail, detailFont) * 0.76);
+  const width = alignToMaxWidth ? maximumWidth : clamp(132 + estimatedContentWidth, minimumWidth, maximumWidth);
   return { title: title || nodeKey, detail, width };
 }
 
@@ -89,7 +89,12 @@ export function measureText(text: string, font: TextFont): number {
   return estimateTextWidth(text, font.size);
 }
 
-export function wrapDetailText(text: string, maxLineWidth: number, maxLines: number): string[] {
+export function wrapDetailText(
+  text: string,
+  maxLineWidth: number,
+  maxLines: number,
+  font: TextFont = getRoleFont({ cssVars: {} }, "detail"),
+): string[] {
   const normalized = String(text || "")
     .replace(/\s+/g, " ")
     .trim();
@@ -100,20 +105,20 @@ export function wrapDetailText(text: string, maxLineWidth: number, maxLines: num
   const lines: string[] = [];
   let remaining = normalized;
   while (remaining && lines.length < maxLines) {
-    if (estimateTextWidth(remaining, 10) <= maxLineWidth) {
+    if (measureText(remaining, font) <= maxLineWidth) {
       lines.push(remaining);
       remaining = "";
       break;
     }
 
-    const breakAt = findWrapIndex(remaining, maxLineWidth);
+    const breakAt = findWrapIndex(remaining, maxLineWidth, font);
     lines.push(remaining.slice(0, breakAt).trim());
     remaining = remaining.slice(breakAt).trimStart();
   }
 
   if (remaining) {
     const lastLine = lines[lines.length - 1] || "";
-    lines[lines.length - 1] = fitTextWithEllipsis(lastLine, maxLineWidth);
+    lines[lines.length - 1] = fitTextWithEllipsis(lastLine, maxLineWidth, font);
   }
 
   return lines.slice(0, maxLines);
@@ -126,7 +131,7 @@ export function estimateTextWidth(text: string, fontSize: number): number {
   );
 }
 
-function findWrapIndex(text: string, maxLineWidth: number): number {
+function findWrapIndex(text: string, maxLineWidth: number, font: TextFont): number {
   const characters = Array.from(text);
   let width = 0;
   let consumedCodeUnits = 0;
@@ -134,7 +139,7 @@ function findWrapIndex(text: string, maxLineWidth: number): number {
   let lastBreakWidth = 0;
 
   for (const character of characters) {
-    const nextWidth = width + getCharacterEmWidth(character) * 10;
+    const nextWidth = width + measureText(character, font);
     const nextConsumedCodeUnits = consumedCodeUnits + character.length;
     if (nextWidth > maxLineWidth) {
       if (lastBreakCodeUnits > 0 && lastBreakWidth >= maxLineWidth * 0.42) {
@@ -154,15 +159,15 @@ function findWrapIndex(text: string, maxLineWidth: number): number {
   return text.length;
 }
 
-function fitTextWithEllipsis(text: string, maxLineWidth: number): string {
+function fitTextWithEllipsis(text: string, maxLineWidth: number, font: TextFont): string {
   const ellipsis = "...";
-  const ellipsisWidth = estimateTextWidth(ellipsis, 10);
+  const ellipsisWidth = measureText(ellipsis, font);
   const availableWidth = Math.max(maxLineWidth - ellipsisWidth, 0);
   let width = 0;
   let result = "";
 
   for (const character of Array.from(text.trimEnd())) {
-    const nextWidth = width + getCharacterEmWidth(character) * 10;
+    const nextWidth = width + measureText(character, font);
     if (nextWidth > availableWidth) {
       break;
     }

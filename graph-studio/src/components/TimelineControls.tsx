@@ -1,3 +1,4 @@
+import { getDefaultChartStyle } from "../state/chartStyles";
 import { sanitizeTimelineClock, type TimelineClock } from "../graph/timelineClock";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import NumericSetting from "./settings/NumericSetting";
@@ -31,6 +32,7 @@ export default function TimelineControls({
           <div className="timeline-control-row">
             <span>Direction</span>
             <TimelineChoices
+              schemaPath="orientation"
               label="Timeline orientation"
               value={settings.orientation}
               options={[
@@ -69,7 +71,7 @@ export default function TimelineControls({
                   ),
                 },
               ]}
-              onChange={(orientation) => onChange({ orientation, pins: {} })}
+              onChange={(orientation) => onChange({ orientation })}
             />
           </div>
           <div className="layout-engine-grid" role="group" aria-label="Timeline arrangement">
@@ -128,7 +130,7 @@ export default function TimelineControls({
             step={10}
             unit="%"
             value={settings.horizontalSpread * 100}
-            defaultValue={100}
+            defaultValue={timelineDefaults.horizontalSpread * 100}
             onChange={(value) => onChange({ horizontalSpread: value / 100 })}
           />
           {settings.layout === "flow" && Object.keys(settings.pins).length > 0 && (
@@ -144,6 +146,7 @@ export default function TimelineControls({
           <div className="timeline-control-row">
             <span>Routing</span>
             <TimelineChoices
+              schemaPath="edgeRouting"
               label="Timeline edge routing"
               value={settings.edgeRouting}
               options={[
@@ -171,7 +174,7 @@ export default function TimelineControls({
                 type="button"
                 className={settings.axis === value ? "is-selected" : ""}
                 aria-pressed={settings.axis === value}
-                onClick={() => onChange({ axis: value, locked: false })}
+                onClick={() => onChange({ axis: value })}
               >
                 <svg
                   width="64"
@@ -223,7 +226,7 @@ export default function TimelineControls({
               step={5}
               unit="%"
               value={settings.compactness * 100}
-              defaultValue={50}
+              defaultValue={timelineDefaults.compactness * 100}
               disabled={settings.locked}
               onChange={(value) => onChange({ compactness: value / 100 })}
             />
@@ -232,6 +235,7 @@ export default function TimelineControls({
             <label>
               <input
                 type="checkbox"
+                role="switch"
                 aria-label="Lock time axis"
                 checked={settings.locked}
                 onChange={(e) => onChange({ locked: e.target.checked })}
@@ -247,3 +251,5 @@ export default function TimelineControls({
     </>
   );
 }
+
+const timelineDefaults = getDefaultChartStyle("timeline").timeline!;

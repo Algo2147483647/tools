@@ -1,5 +1,5 @@
 import { GRAPH_BASE_CSS } from "./graphBaseStyles";
-import { GRAPH_EFFECTS_CSS } from "../graph/appearance";
+import { GRAPH_EFFECTS_CSS, DEFAULT_GRAPH_CSS } from "../graph/appearance";
 import { TIMELINE_CSS, timelineMarkerId } from "./timelineStyles";
 
 const ARROW_MARKER_WIDTH = 10;
@@ -14,7 +14,7 @@ interface GraphDefsProps {
 export default function GraphDefs({ appearanceCss, timelineColors = [], edgeArrowStyle = "filled" }: GraphDefsProps) {
   return (
     <defs>
-      <style>{`${GRAPH_BASE_CSS}\n${appearanceCss}\n${GRAPH_EFFECTS_CSS}\n${TIMELINE_CSS}`}</style>
+      <style>{`@layer graph-base, graph-theme, graph-custom;\n@layer graph-base {${GRAPH_BASE_CSS}\n${DEFAULT_GRAPH_CSS}}\n@layer graph-theme {${GRAPH_EFFECTS_CSS}\n${TIMELINE_CSS}}\n@layer graph-custom {${appearanceCss}}`}</style>
       {timelineColors.map((color) => (
         <marker
           key={color}

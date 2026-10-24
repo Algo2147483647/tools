@@ -3,18 +3,28 @@
   "version": 1,
   "chartType": "timeline",
   "style": {
+    "showNodeDetail": false,
+    "hideNodeBorders": true,
+    "alignNodeWidthsToMax": false,
     "appearance": {
       "version": 1,
       "layout": {
-        "stagePadding": [108, 88],
+        "stagePadding": [
+          108,
+          88
+        ],
         "columnGap": 116,
         "rowGap": 22,
         "edgeLaneGap": 28,
         "nodeHeight": 74,
-        "minNodeWidth": 188,
-        "maxNodeWidth": 280,
-        "stageMinWidth": 980,
-        "stageMinHeight": 600
+        "nodeWidthRange": [
+          188,
+          280
+        ],
+        "stageMinSize": [
+          980,
+          600
+        ]
       },
       "display": {
         "titleAlign": "left",
@@ -44,13 +54,124 @@
         "--dag-title-font-family": "\"Georgia\", serif",
         "--dag-title-font-size": "15px",
         "--dag-title-font-style": "normal",
-        "--dag-title-font-weight": "400"
+        "--dag-title-font-weight": "400",
+        "--dag-detail-font-size": "10px",
+        "--dag-detail-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-detail-font-weight": "400",
+        "--dag-detail-font-style": "normal",
+        "--dag-date-font-size": "10px",
+        "--dag-date-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-date-font-weight": "400",
+        "--dag-date-font-style": "normal",
+        "--dag-axis-font-size": "11px",
+        "--dag-axis-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-axis-font-weight": "400",
+        "--dag-axis-font-style": "normal",
+        "--dag-track-font-size": "12px",
+        "--dag-track-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-track-font-weight": "600",
+        "--dag-track-font-style": "normal",
+        "--dag-flow-active-opacity": "0.8",
+        "--dag-flow-muted-opacity": "0.12",
+        "--dag-timeline-muted-opacity": "0.28",
+        "--dag-timeline-soft-opacity": "0.24",
+        "--dag-timeline-hover-opacity": "0.38",
+        "--dag-timeline-label-opacity": "0.65",
+        "--dag-timeline-edge-opacity": "0.55",
+        "--dag-timeline-edge-muted-opacity": "0.07",
+        "--dag-timeline-edge-active-opacity": "1",
+        "--dag-timeline-edge-width": "1.7px",
+        "--dag-timeline-edge-active-width": "2.4px",
+        "--dag-timeline-selection-width": "2.5px",
+        "--dag-timeline-dash": "6 4",
+        "--dag-timeline-reference-dash": "3 5",
+        "--dag-timeline-backward-dash": "6 3",
+        "--dag-timeline-reference-opacity": "0.25",
+        "--dag-timeline-leader-dash": "4 3",
+        "--dag-shadow-color": "24, 39, 64",
+        "--dag-shadow-active-offset-scale": "1.5",
+        "--dag-shadow-active-blur-scale": "1.25"
       },
-      "css": ".dag-graph,\n.dag-backdrop {\n  fill: none;\n}\n\n.dag-graph[data-density=\"dense\"] .dag-edge__path,\n.dag-graph[data-density=\"dense\"] .dag-node,\n.dag-graph[data-density=\"dense\"] .dag-node__glow,\n.dag-graph[data-density=\"dense\"] .dag-node__shape,\n.dag-graph[data-density=\"dense\"] .dag-node__affordance {\n  transition: none;\n}\n\n.dag-stage__halo {\n  fill: rgba(255, 255, 255, 0.8);\n  pointer-events: none;\n}\n\n.dag-stage__lane {\n  stroke: rgba(89, 107, 139, 0.12);\n  stroke-width: 1;\n  stroke-dasharray: 2 12;\n  pointer-events: none;\n}\n\n.dag-stage__lane-label {\n  fill: rgba(102, 117, 144, 0.58);\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 0.14em;\n  text-transform: uppercase;\n  pointer-events: none;\n}\n\n.dag-edge {\n  pointer-events: none;\n}\n\n.dag-edge__path {\n  fill: none;\n  stroke: var(--dag-edge);\n  stroke-linecap: round;\n  stroke-linejoin: round;\n  stroke-width: 1.65;\n  transition: stroke 0.18s ease, stroke-width 0.18s ease, opacity 0.18s ease;\n}\n\n.dag-edge[data-active=\"true\"] .dag-edge__path {\n  stroke: var(--dag-edge-active);\n  stroke-width: 2.35;\n  opacity: 1;\n}\n\n.dag-edge__label-text {\n  fill: var(--dag-text-soft);\n  font-size: 10px;\n  font-weight: 700;\n}\n\n.dag-edge__label-bg {\n  fill: rgba(255, 255, 255, 0.84);\n  stroke: rgba(99, 118, 148, 0.12);\n  stroke-width: 1;\n}\n\n.dag-node {\n  cursor: pointer;\n  outline: none;\n  transition: transform 0.18s ease, opacity 0.18s ease;\n}\n\n.dag-node__glow {\n  fill: var(--dag-node-glow, rgba(44, 83, 166, 0.08));\n  opacity: 0;\n  transition: opacity 0.18s ease;\n}\n\n.dag-node__shape {\n  fill: var(--dag-node-fill);\n  stroke: var(--dag-node-border);\n  stroke-width: 1.25;\n  filter: drop-shadow(0 10px 18px rgba(24, 39, 64, 0.06));\n  transition: fill 0.18s ease, stroke 0.18s ease, transform 0.18s ease, filter 0.18s ease;\n}\n\n.dag-node__pin {\n  fill: var(--dag-node-pin-fill, rgba(40, 95, 223, 0.14));\n  stroke: var(--dag-node-pin-stroke, rgba(40, 95, 223, 0.24));\n  stroke-width: 0.75;\n}\n\n.dag-node__pin-core {\n  fill: var(--dag-node-pin-core, rgba(40, 95, 223, 0.78));\n}\n\n.dag-node__title {\n  fill: var(--dag-text-strong);\n  font-family: var(--dag-title-font-family);\n  font-size: var(--dag-title-font-size);\n  font-style: var(--dag-title-font-style);\n  font-weight: var(--dag-title-font-weight);\n  letter-spacing: 0;\n}\n\n.dag-node__detail {\n  fill: rgba(67, 79, 100, 0.88);\n  font-size: 10px;\n}\n\n.dag-node__affordance {\n  opacity: 0;\n  transform: translateY(4px);\n  transform-origin: center;\n  transition: opacity 0.18s ease, transform 0.18s ease;\n}\n\n.dag-node__affordance-bg {\n  fill: var(--dag-node-affordance-bg, rgba(235, 241, 251, 0.94));\n  stroke: rgba(70, 96, 148, 0.16);\n  stroke-width: 1;\n}\n\n.dag-node__affordance-text {\n  fill: var(--dag-node-affordance-text, rgba(46, 82, 152, 0.76));\n  font-size: 8px;\n  font-weight: 700;\n}\n\n.dag-node[data-root=\"true\"] .dag-node__shape {\n  stroke: var(--dag-node-border-strong);\n  stroke-width: 1.7;\n  fill: var(--dag-node-root-fill, var(--dag-node-fill));\n}\n\n.dag-node[data-root=\"true\"] .dag-node__glow {\n  opacity: 1;\n}\n\n.dag-node:hover .dag-node__shape,\n.dag-node[data-hovered=\"true\"] .dag-node__shape,\n.dag-node[data-focused=\"true\"] .dag-node__shape,\n.dag-node[data-selected=\"true\"] .dag-node__shape {\n  stroke: var(--dag-node-active-border, rgba(39, 79, 152, 0.48));\n  fill: var(--dag-node-active-fill, var(--dag-node-fill));\n  filter: drop-shadow(0 14px 26px rgba(29, 52, 97, 0.1));\n}\n\n.dag-node:hover .dag-node__glow,\n.dag-node[data-hovered=\"true\"] .dag-node__glow,\n.dag-node[data-focused=\"true\"] .dag-node__glow {\n  opacity: 1;\n}\n\n.dag-node:hover .dag-node__affordance,\n.dag-node[data-hovered=\"true\"] .dag-node__affordance,\n.dag-node[data-focused=\"true\"] .dag-node__affordance {\n  opacity: 1;\n  transform: translateY(0);\n}\n\n.dag-node:hover .dag-node__pin,\n.dag-node[data-selected=\"true\"] .dag-node__pin,\n.dag-node[data-hovered=\"true\"] .dag-node__pin,\n.dag-node[data-focused=\"true\"] .dag-node__pin {\n  fill: var(--dag-node-pin-fill, rgba(40, 95, 223, 0.18));\n}\n\n.dag-graph[data-has-interactive-node=\"true\"] .dag-edge__path {\n  opacity: 0.3;\n}\n\n.dag-graph[data-has-interactive-node=\"true\"] .dag-edge[data-active=\"true\"] .dag-edge__path {\n  opacity: 1;\n}\n\n.dag-graph[data-has-interactive-node=\"true\"] .dag-node {\n  opacity: 0.48;\n}\n\n.dag-graph[data-has-interactive-node=\"true\"] .dag-node[data-connected=\"true\"],\n.dag-graph[data-has-interactive-node=\"true\"] .dag-node[data-hovered=\"true\"],\n.dag-graph[data-has-interactive-node=\"true\"] .dag-node[data-focused=\"true\"] {\n  opacity: 1;\n}\n\n.dag-graph[data-borderless=\"true\"] .dag-node__shape {\n  stroke: transparent;\n}\n\n.dag-graph[data-density=\"dense\"] .dag-node__shape,\n.dag-graph[data-density=\"dense\"] .dag-node:hover .dag-node__shape,\n.dag-graph[data-density=\"dense\"] .dag-node[data-hovered=\"true\"] .dag-node__shape,\n.dag-graph[data-density=\"dense\"] .dag-node[data-focused=\"true\"] .dag-node__shape,\n.dag-graph[data-density=\"dense\"] .dag-node[data-selected=\"true\"] .dag-node__shape {\n  filter: none;\n}"
+      "css": "",
+      "palette": {
+        "categories": [
+          [
+            356,
+            58,
+            47
+          ],
+          [
+            214,
+            62,
+            44
+          ],
+          [
+            145,
+            52,
+            40
+          ],
+          [
+            32,
+            66,
+            47
+          ],
+          [
+            188,
+            54,
+            42
+          ],
+          [
+            265,
+            48,
+            48
+          ],
+          [
+            325,
+            48,
+            48
+          ],
+          [
+            210,
+            24,
+            44
+          ]
+        ],
+        "groups": [
+          [
+            "#fffdf5",
+            "#fffbea",
+            "#fff7df",
+            "#fff4d5"
+          ],
+          [
+            "#f5fdf9",
+            "#edfdf5",
+            "#e5fbf0",
+            "#dcf8e9"
+          ],
+          [
+            "#fff9f5",
+            "#fff3eb",
+            "#ffede1",
+            "#ffe7d8"
+          ],
+          [
+            "#f5fcff",
+            "#edf9ff",
+            "#e4f6ff",
+            "#daf2ff"
+          ]
+        ]
+      },
+      "performance": {
+        "denseThresholds": [
+          220,
+          440,
+          20000000
+        ],
+        "denseShadows": "disable"
+      }
     },
-    "showNodeDetail": false,
-    "hideNodeBorders": true,
-    "alignNodeWidthsToMax": false,
     "timeline": {
       "layout": "flow",
       "orientation": "horizontal",

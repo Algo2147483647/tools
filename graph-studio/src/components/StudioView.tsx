@@ -347,13 +347,12 @@ export default function StudioView({
         aiBusy={ai.busy}
         onClose={ui.toggleSettings}
         onLayoutModeChange={ui.changeLayout}
-        onLayoutAppearanceChange={appearanceHistory.handleLayoutAppearanceChange}
-        onAppearanceCssVarChange={appearanceHistory.handleAppearanceCssVarChange}
+
         onAppearanceCssChange={appearanceHistory.handleAppearanceCssChange}
-        onAppearanceDisplayChange={appearanceHistory.handleAppearanceDisplayChange}
+
         onAppearanceAdjustmentStart={appearanceHistory.beginAdjustment}
         onAppearanceAdjustmentEnd={appearanceHistory.endAdjustment}
-        onSectionReset={appearanceHistory.resetSection}
+
         onAppearanceUndo={appearanceHistory.undo}
         onAppearanceRedo={appearanceHistory.redo}
         canUndoAppearance={appearanceHistory.canUndo}
@@ -365,9 +364,7 @@ export default function StudioView({
         onAppearanceExport={appearanceHistory.handleAppearanceExport}
         onAppearanceImportClick={appearanceHistory.handleAppearanceImportClick}
         onAppearanceImportChange={appearanceHistory.handleAppearanceImportChange}
-        onNodeDetailToggle={appearanceHistory.toggleNodeDetail}
-        onNodeBordersToggle={appearanceHistory.toggleNodeBorders}
-        onNodeWidthAlignToggle={appearanceHistory.toggleNodeWidthAlign}
+
         onConsoleSidebarToggle={ui.toggleConsole}
         onInitializeCanvas={onInitializeCanvas}
         onExport={exportSvg}

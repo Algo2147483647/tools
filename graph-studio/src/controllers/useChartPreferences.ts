@@ -1,7 +1,7 @@
 import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
 import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
-import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "../graph/appearance";
+import { type GraphAppearance } from "../graph/appearance";
 import { type GraphAppearancePresetId, applyAppearanceCommand, getGraphPresetStyle } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
@@ -10,8 +10,6 @@ import { getDefaultChartStyle, mapChartTypes, type ChartStyle } from "../state/c
 import type { ChartStyleDocuments } from "../schema/appearanceModel";
 import { createStyleDocument } from "../schema/styleProtocol";
 import type { GraphAction } from "../state/graphActions";
-import { resetChartStyleSection } from "../components/settings/appearanceSections";
-import type { AppearanceGroup } from "../components/settings/settingsCatalog";
 import type { GraphAppState } from "../state/initialState";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 
@@ -46,8 +44,6 @@ export function useChartPreferences(
     const current = getChartStyles(histories);
     return mapChartTypes((type) => createStyleDocument(type, current[type]));
   }, [histories]);
-  const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") =>
-    updateHistories({ chartType, action: { type: "toggleDisplay", key } });
   const { appearance } = history;
   const beginAdjustment = useCallback(
     () => updateHistories({ chartType, action: { type: "beginAdjustment" } }),
@@ -90,45 +86,6 @@ export function useChartPreferences(
       dispatch({ type: "timelineSettingsChanged", patch: transaction.afterTimeline });
     dispatch({ type: "statusChanged", status: `Redid: ${transaction.label}` });
   }, [chartType, dispatch, history.redoStack]);
-  function handleLayoutAppearanceChange<K extends keyof GraphLayoutAppearance>(
-    key: K,
-    value: GraphLayoutAppearance[K],
-  ) {
-    const nextAppearance = sanitizeGraphAppearance({
-      ...appearance,
-      layout: {
-        ...appearance.layout,
-        [key]: value,
-      },
-    });
-    commitAppearance(nextAppearance, `Set layout ${String(key)}.`);
-  }
-
-  function handleAppearanceCssVarChange(key: string, value: string) {
-    const nextAppearance = sanitizeGraphAppearance({
-      ...appearance,
-      cssVars: {
-        ...appearance.cssVars,
-        [key]: value,
-      },
-    });
-    commitAppearance(nextAppearance, `Set ${key}.`);
-  }
-
-  function handleAppearanceDisplayChange<K extends keyof GraphAppearance["display"]>(
-    key: K,
-    value: GraphAppearance["display"][K],
-  ) {
-    const nextAppearance = sanitizeGraphAppearance({
-      ...appearance,
-      display: {
-        ...appearance.display,
-        [key]: value,
-      },
-    });
-    commitAppearance(nextAppearance, `Set display ${String(key)}.`);
-  }
-
   function handleAppearanceCssChange(css: string) {
     commitAppearance(applyAppearanceCommand(appearance, { type: "replaceCss", css }).appearance, "Replaced graph CSS.");
   }
@@ -221,33 +178,15 @@ export function useChartPreferences(
     showNodeDetail: history.showNodeDetail,
     hideNodeBorders: history.hideNodeBorders,
     alignNodeWidthsToMax: history.alignNodeWidthsToMax,
-    toggleNodeDetail: () => toggleDisplay("showNodeDetail"),
-    toggleNodeBorders: () => toggleDisplay("hideNodeBorders"),
-    toggleNodeWidthAlign: () => toggleDisplay("alignNodeWidthsToMax"),
     commitAppearance,
     undo,
     redo,
     canUndo: history.undoStack.length > 0,
     canRedo: history.redoStack.length > 0,
-    handleLayoutAppearanceChange,
-    handleAppearanceCssVarChange,
-    handleAppearanceDisplayChange,
     handleAppearanceCssChange,
     handleAppearancePresetChange,
     handleAppearanceSchemaChange: (style: ChartStyle) => commitStyle(style, "Edited appearance schema."),
     handleAppearanceReset,
-    resetSection: (group: AppearanceGroup | "layout") =>
-      commitStyle(
-        resetChartStyleSection(
-          {
-            ...chartStyles[chartType].style,
-            ...(chartType === "timeline" ? { timeline: state.timelineSettings } : {}),
-          },
-          chartType,
-          group,
-        ),
-        `Reset ${group} style.`,
-      ),
     handleAppearanceExport,
     handleAppearanceImportClick,
     handleAppearanceImportChange,

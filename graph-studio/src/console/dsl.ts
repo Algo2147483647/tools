@@ -494,7 +494,7 @@ function parseUnsetInstruction(tokens: ConsoleToken[], line: number) {
 
 function parseLayoutInstruction(tokens: ConsoleToken[], line: number) {
   const key = parseLiteralToken(tokens[1]);
-  if (key === "stagePadding") {
+  if (key === "stagePadding" || key === "stageMinSize" || key === "nodeWidthRange") {
     const parsed = parseSetValueTokens(tokens.slice(2));
     if (
       !parsed.ok ||
@@ -502,7 +502,7 @@ function parseLayoutInstruction(tokens: ConsoleToken[], line: number) {
       parsed.value.length !== 2 ||
       !parsed.value.every((entry) => typeof entry === "number" && Number.isFinite(entry))
     )
-      return { ok: false, error: { line, message: "layout stagePadding expects [x, y]." } } as const;
+      return { ok: false, error: { line, message: `layout ${key} expects two finite numbers in an array.` } } as const;
     return {
       ok: true,
       instruction: {
@@ -749,15 +749,8 @@ function isDagCssVarName(value: string | null): value is `--dag-${string}` {
   return typeof value === "string" && value.startsWith("--dag-");
 }
 
-function isLayoutKey(value: string | null): value is Exclude<keyof GraphLayoutAppearance, "stagePadding"> {
-  return (
-    value === "columnGap" ||
-    value === "rowGap" ||
-    value === "edgeLaneGap" ||
-    value === "nodeHeight" ||
-    value === "minNodeWidth" ||
-    value === "maxNodeWidth" ||
-    value === "stageMinWidth" ||
-    value === "stageMinHeight"
-  );
+function isLayoutKey(
+  value: string | null,
+): value is Exclude<keyof GraphLayoutAppearance, "stagePadding" | "stageMinSize" | "nodeWidthRange"> {
+  return value === "columnGap" || value === "rowGap" || value === "edgeLaneGap" || value === "nodeHeight";
 }

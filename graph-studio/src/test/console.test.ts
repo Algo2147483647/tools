@@ -8,7 +8,7 @@ import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 
 export const consoleSuite = defineSuite("console", [
-  defineTest("layout padding uses the schema tuple and rejects obsolete scalar fields", () => {
+  defineTest("layout padding uses the schema tuple and rejects undeclared fields", () => {
     const parsed = parseConsoleSource("/layout stagePadding [32, 48]");
     assert.equal(parsed.ok, true);
     if (parsed.ok)
@@ -17,8 +17,11 @@ export const consoleSuite = defineSuite("console", [
         command: { type: "setLayout", key: "stagePadding", value: [32, 48] },
         line: 1,
       });
-    assert.equal(parseConsoleSource("/layout stagePaddingX 32").ok, false);
-    assert.equal(parseConsoleSource("/layout stagePadding [32]").ok, false);
+    for (const key of ["stagePadding", "stageMinSize", "nodeWidthRange"]) {
+      assert.equal(parseConsoleSource(`/layout ${key} [320, 640]`).ok, true);
+      assert.equal(parseConsoleSource(`/layout ${key} [32]`).ok, false);
+    }
+    assert.equal(parseConsoleSource("/layout undeclaredField 32").ok, false);
   }),
   defineTest("parser accepts comments, quoted strings, and create-missing edges", () => {
     const parsed = parseConsoleSource(
@@ -177,7 +180,7 @@ export const consoleSuite = defineSuite("console", [
 
     assert.equal(executed.mutationCount, 0);
     assert.equal(executed.appearanceMutationCount, 0);
-    assert.match(executed.outputMessages[0], /\.dag-node__shape/);
+    assert.equal(executed.outputMessages[0], "(empty CSS)");
   }),
 
   defineTest("executor applies batch mutations and tracks ui effects", () => {

@@ -1,3 +1,4 @@
+import { getRoleFont } from "./typography";
 import { getTimelineClock } from "../graph/timelineClock";
 import { readTimelineLayout, type TimelineLayoutPlan } from "../graph/timelineLayout";
 import { orientTimelineStage } from "./timeline-orientation";
@@ -10,7 +11,7 @@ import { collectDescendantKeys } from "../graph/traversal";
 import type { GraphEdge, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import { stageTitleFont, type StageAppearance } from "./appearance";
 import { resolveStageSelection } from "./selection";
-import { estimateTextWidth, getNodeVisual, wrapDetailText, measureText, fitMeasuredText } from "./text";
+import { estimateTextWidth, getNodeVisual, measureText, fitMeasuredText } from "./text";
 import type { StageData, StageEdge, StageNode, StageRoutePoint, StageTimelineData } from "./types";
 import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
 import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, type TimelineAxisMap } from "./timeline-axis";
@@ -63,11 +64,12 @@ export function buildTimelineStage(input: {
   });
   const clock = getTimelineClock(dag.metadata);
   const colorSource = Object.values((input.axisSource ?? dag).nodes);
-  const typePalette = buildCategoryColorMap(colorSource.map(getNodeType));
+  const typePalette = buildCategoryColorMap(colorSource.map(getNodeType), appearance.palette?.categories);
   const trackPalette = buildCategoryColorMap(
     colorSource.map((node) =>
       settings.layout === "flow" ? getNodeType(node) || "Events" : String(node.track || "Events"),
     ),
+    appearance.palette?.categories,
   );
   const relative = clock.mode === "relative";
   const baseSpan = relative ? Math.max(1, settings.relativeTickStep) : DAY;
@@ -91,7 +93,18 @@ export function buildTimelineStage(input: {
     return null;
   const filtered = rangeStart !== undefined || rangeEnd !== undefined;
   const theme = appearance.layout;
-  const titleFont = { ...stageTitleFont(appearance), size: 13 };
+  const titleFont = stageTitleFont(appearance);
+  const dateFont = (appearance as StageAppearance).fonts?.date ?? getRoleFont(DEFAULT_GRAPH_APPEARANCE, "date");
+  const detailFont = (appearance as StageAppearance).fonts?.detail ?? getRoleFont(DEFAULT_GRAPH_APPEARANCE, "detail");
+  const labelMetrics = {
+    top: Math.ceil(titleFont.size * 1.2),
+    dateOffset: Math.ceil(titleFont.size * 0.4 + dateFont.size * 1.2),
+    detailOffset: Math.ceil(titleFont.size * 0.4 + dateFont.size * 1.2 + detailFont.size * 1.5),
+    bottom: 0,
+  };
+  labelMetrics.bottom = showNodeDetail
+    ? labelMetrics.detailOffset + detailFont.size * 0.7
+    : labelMetrics.dateOffset + dateFont.size * 0.7;
   const selection = resolveStageSelection(
     {
       ...dag,
@@ -187,8 +200,8 @@ export function buildTimelineStage(input: {
     start -= baseSpan / 2;
     end += baseSpan / 2;
   }
-  const labelWidth = Math.max(0, theme.maxNodeWidth);
-  const labelStep = Math.max(showNodeDetail ? 60 : 44, theme.nodeHeight * 0.58 + theme.rowGap * 0.2);
+  const labelWidth = Math.max(0, theme.nodeWidthRange[1]);
+  const labelStep = Math.max(labelMetrics.top + labelMetrics.bottom + 4, theme.nodeHeight * 0.58 + theme.rowGap * 0.2);
   const trackCounts = new Map<string, number>();
   for (const node of Object.values(input.axisSource?.nodes ?? dag.nodes)) {
     if (parseNodeTimeline(node, now, clock).status !== "dated") continue;
@@ -413,7 +426,7 @@ export function buildTimelineStage(input: {
     connectedKeysByNode.get(edge.source)!.add(edge.target);
     connectedKeysByNode.get(edge.target)!.add(edge.source);
   });
-  return orientTimelineStage(
+  const stage = orientTimelineStage(
     {
       dag: dag.nodes,
       layoutMode: "timeline",
@@ -465,6 +478,9 @@ export function buildTimelineStage(input: {
     },
     settings.orientation,
   );
+  stage.stageWidth = Math.max(stage.stageWidth, theme.stageMinSize[0]);
+  stage.stageHeight = Math.max(stage.stageHeight, theme.stageMinSize[1]);
+  return stage;
 
   function createNode(entry: TimelineEntry, x: number, labelX: number, labelY: number, color: string): StageNode {
     const type = getNodeType(dag.nodes[entry.key]);
@@ -481,8 +497,7 @@ export function buildTimelineStage(input: {
     const visual = getNodeVisual(
       entry.key,
       dag.nodes[entry.key],
-      theme.minNodeWidth,
-      labelWidth,
+      [theme.nodeWidthRange[0], labelWidth],
       showNodeDetail,
       false,
       titleFont,
@@ -496,7 +511,10 @@ export function buildTimelineStage(input: {
     const contentWidth =
       input.nodeLabels?.[entry.key]?.width ??
       (!showNodeDetail
-        ? Math.min(labelWidth, Math.max(110, measureText(visual.title, titleFont) + 16, time.label.length * 6.1 + 12))
+        ? Math.min(
+            labelWidth,
+            Math.max(110, measureText(visual.title, titleFont) + 16, measureText(time.label, dateFont) + 12),
+          )
         : labelWidth);
     const inside = time.kind === "range" && settings.intervalTitle === "inside";
     const insideWidth = settings.orientation === "horizontal" ? entry.endY - entry.startY : intervalWidth;
@@ -511,7 +529,7 @@ export function buildTimelineStage(input: {
       title: visual.title,
       displayTitle,
       detail: visual.detail,
-      detailLines: showNodeDetail && visual.detail ? wrapDetailText(visual.detail, labelWidth, 1) : [],
+      detailLines: showNodeDetail && visual.detail ? [fitMeasuredText(visual.detail, labelWidth, detailFont)] : [],
       typeLabel: getNodeType(dag.nodes[entry.key]) || undefined,
       colorTokens,
       width: contentWidth,
@@ -520,6 +538,8 @@ export function buildTimelineStage(input: {
       x,
       y: entry.startY,
       timeline: {
+        labelMetrics,
+        displayDate: fitMeasuredText(time.label, contentWidth, dateFont),
         intervalTitle: settings.intervalTitle,
         intervalAlign: settings.intervalAlign,
         intervalStyle: settings.intervalStyle,

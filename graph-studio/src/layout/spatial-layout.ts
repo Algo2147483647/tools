@@ -1,3 +1,5 @@
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import type { StageAppearance } from "./appearance";
 import { getNodeTitle, getNodeType } from "../graph/accessors";
 import { buildCategoryColorMap } from "../graph/categoryColors";
 import {
@@ -42,6 +44,7 @@ export function buildSpatialStage(input: {
   dag: NormalizedDag;
   colorSourceDag?: NormalizedDag;
   spaceView?: SpaceView;
+  appearance?: StageAppearance;
 }): StageData {
   const { dag } = input;
   const source = input.colorSourceDag ?? dag;
@@ -64,9 +67,11 @@ export function buildSpatialStage(input: {
   const sphere = metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem);
   const map = sphere && view.projection === "map";
   const unitScale = spatialUnitScale(view.unitScale);
-  const width = 1440 * unitScale,
-    height = (map ? 840 : 1040) * unitScale;
-  const padding = 100 * unitScale;
+  const theme = input.appearance?.layout ?? DEFAULT_GRAPH_APPEARANCE.layout;
+  const width = Math.max(1440 * unitScale, theme.stageMinSize[0]),
+    height = Math.max((map ? 840 : 1040) * unitScale, theme.stageMinSize[1]);
+  const padding = theme.stagePadding[0] * unitScale,
+    paddingY = theme.stagePadding[1] * unitScale;
   const warnings: string[] = [];
   if (!metadata)
     warnings.push(
@@ -115,7 +120,7 @@ export function buildSpatialStage(input: {
     extent ||= 1;
   }
   // A fixed sphere bound prevents the canvas breathing while orbiting or filtering.
-  const scale = (Math.min(width, height) / 2 - padding) / extent;
+  const scale = Math.max(0, Math.min(width / 2 - padding, height / 2 - paddingY)) / extent;
   function screen(normalized: number[]): [number, number, number] {
     const [x, y, z] = rotateSpacePoint(normalized, view.yaw, view.pitch);
     const perspective = view.projection === "perspective" ? 3 / (3 - z) : 1;
@@ -124,13 +129,16 @@ export function buildSpatialStage(input: {
   function project(v: number[]): [number, number, number] {
     return screen(selected(v).map((x, i) => (x - center[i]) / extent));
   }
-  const mapScale = (width - padding * 2) / 360;
+  const mapScale = Math.max(0, Math.min((width - padding * 2) / 360, (height - paddingY * 2) / 180));
   const mapProject = ([lon, lat]: readonly number[]): [number, number, number] => [
     width / 2 + lon * mapScale,
     height / 2 - lat * mapScale,
     0,
   ];
-  const colors = buildCategoryColorMap(Object.values(source.nodes).map(getNodeType));
+  const colors = buildCategoryColorMap(
+    Object.values(source.nodes).map(getNodeType),
+    input.appearance?.palette?.categories,
+  );
   let tray = 0;
   const visibleCount = Object.keys(dag.nodes).length;
   const nodes = Object.values(dag.nodes).flatMap((node, order): StageNode[] => {

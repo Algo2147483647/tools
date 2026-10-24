@@ -193,20 +193,15 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
       parseGraphPagePreferences(JSON.stringify(prefs))!.chartStyles!.timeline.style.timeline,
       prefs.chartStyles.timeline.style.timeline,
     );
-    const invalid = sanitizeTimelineSettings({
-      layout: "bad",
-      axis: "bad",
-      tickStep: NaN,
-      compactness: -10,
-      horizontalSpread: -2,
-      pins: { a: Infinity, b: 200 },
-    });
-    assert.equal(invalid.layout, "tracks");
-    assert.equal(invalid.axis, "adaptive");
-    assert.equal(invalid.compactness, -10);
-    assert.equal(invalid.horizontalSpread, -2);
-    assert.equal(sanitizeTimelineSettings({ horizontalSpread: Infinity }).horizontalSpread, 1);
+    for (const invalid of [
+      { layout: "bad" },
+      { axis: "bad" },
+      { tickStep: NaN },
+      { horizontalSpread: Infinity },
+      { pins: { a: Infinity } },
+    ])
+      assert.throws(() => sanitizeTimelineSettings(invalid));
+    assert.equal(sanitizeTimelineSettings({ compactness: -10 }).compactness, -10);
     assert.equal(sanitizeTimelineSettings(null).horizontalSpread, 1);
-    assert.deepEqual(invalid.pins, { b: 200 });
   }),
 ]);

@@ -1,90 +1,52 @@
 import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../../graph/appearance";
 import type { AppearanceGroup } from "./settingsCatalog";
-import { sanitizeTimelineSettings, type TimelineViewSettings } from "../../graph/timelineSettings";
 import { getDefaultChartStyle, type ChartStyle } from "../../state/chartStyles";
+import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { APPEARANCE_DEFINITION } from "../../schema/appearanceDefinition";
+import type { AppearanceFieldDefinition } from "../../schema/definition";
 import type { GraphChartType } from "../../graph/types";
-
-const timelineKeys = {
-  nodes: [
-    "colorBy",
-    "typeColors",
-    "pointMarker",
-    "intervalWidth",
-    "intervalStyle",
-    "intervalBorder",
-    "intervalBorderWidth",
-    "intervalBorderColor",
-    "intervalRadius",
-  ],
-  edges: ["anchorMarker", "leaderStyle", "leaderColor", "leaderWidth"],
-  text: [
-    "intervalTitle",
-    "intervalAlign",
-    "intervalTextColor",
-    "intervalTextColorMode",
-    "pointTextColor",
-    "pointDateVisible",
-    "pointDateColor",
-  ],
-} as const satisfies Record<"nodes" | "edges" | "text", readonly (keyof TimelineViewSettings)[]>;
 
 export function resetChartStyleSection(
   style: ChartStyle,
   chartType: GraphChartType,
   group: AppearanceGroup | "layout",
 ): ChartStyle {
-  const defaults = getDefaultChartStyle(chartType);
-  const next = { ...style, appearance: resetAppearanceSection(style.appearance, group, defaults.appearance) };
-  if (group === "nodes" && chartType !== "timeline") {
-    next.showNodeDetail = defaults.showNodeDetail;
-    next.hideNodeBorders = defaults.hideNodeBorders;
-    next.alignNodeWidthsToMax = defaults.alignNodeWidthsToMax;
-  }
-  if (chartType === "timeline" && (group === "nodes" || group === "edges" || group === "text")) {
-    const timeline = { ...(style.timeline ?? sanitizeTimelineSettings(null)) };
-    const defaultTimeline = defaults.timeline!;
-    for (const key of timelineKeys[group]) Object.assign(timeline, { [key]: structuredClone(defaultTimeline[key]) });
-    next.timeline = timeline;
-    if (group === "text") next.showNodeDetail = defaults.showNodeDetail;
+  const next = structuredClone(style);
+  const schema = getAppearanceSchema(chartType, next),
+    defaults = getAppearanceSchema(chartType, getDefaultChartStyle(chartType));
+  for (const [path, entry] of schema.entries) {
+    if (!entry.editable || entry.definition.group !== group) continue;
+    let target = { style: next } as unknown as Record<string, unknown>;
+    for (const key of entry.keys.slice(0, -1)) target = target[key] as Record<string, unknown>;
+    const value = defaults.entries.get(path)?.value;
+    if (value === undefined) delete target[entry.keys.at(-1)!];
+    else target[entry.keys.at(-1)!] = structuredClone(value);
   }
   return next;
 }
-
-const displayKeys = {
-  nodes: [
-    "nodeCornerRadius",
-    "showNodeDots",
-    "nodeShadow",
-    "shadowBlur",
-    "shadowOffset",
-    "shadowOpacity",
-    "showGroupStats",
-    "showGroupBorders",
-  ],
-  edges: ["showEdgeLabels", "sankeyLinkOpacity", "edgeArrowStyle"],
-  text: ["titleAlign", "titleOverflow", "titleWrap"],
-} as const;
 export function resetAppearanceSection(
   appearance: GraphAppearance,
   group: AppearanceGroup | "layout",
   defaults = DEFAULT_GRAPH_APPEARANCE,
 ): GraphAppearance {
-  if (group === "layout")
-    return {
-      ...appearance,
-      layout: { ...defaults.layout },
-      display: { ...appearance.display, sankeyNodeWidth: defaults.display.sankeyNodeWidth },
-    };
-  if (group !== "nodes" && group !== "edges" && group !== "text") return appearance;
-  const display = { ...appearance.display };
-  for (const key of displayKeys[group]) Object.assign(display, { [key]: defaults.display[key] });
-  const cssVars = { ...appearance.cssVars };
-  const prefix = group === "nodes" ? "--dag-node-" : group === "edges" ? "--dag-edge" : "--dag-text-";
-  for (const key of Object.keys(cssVars)) {
-    if (key.startsWith(prefix) || (group === "text" && key.startsWith("--dag-title-"))) {
-      if (key in defaults.cssVars) cssVars[key] = defaults.cssVars[key];
-      else delete cssVars[key];
+  const next = structuredClone(appearance);
+  function visit(
+    field: AppearanceFieldDefinition,
+    target: Record<string, unknown>,
+    original: Record<string, unknown>,
+    inherited?: string,
+  ) {
+    for (const [key, child] of Object.entries(field.properties ?? {})) {
+      const section = child.group ?? inherited;
+      if (child.kind === "object" || child.kind === "map")
+        visit(child, target[key] as Record<string, unknown>, original[key] as Record<string, unknown>, section);
+      else if (section === group) target[key] = structuredClone(original[key]);
     }
   }
-  return { ...appearance, display, cssVars };
+  visit(
+    APPEARANCE_DEFINITION,
+    next as unknown as Record<string, unknown>,
+    defaults as unknown as Record<string, unknown>,
+  );
+  return next;
 }

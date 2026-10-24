@@ -1,3 +1,4 @@
+import { getDefaultChartStyle } from "../state/chartStyles";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import ColorSetting from "./settings/ColorSetting";
 import { TimelineAlignmentIcon, TimelineChoices } from "./TimelineSettingFields";
@@ -16,13 +17,14 @@ export function TimelinePointTextSettings({ settings, onChange }: TimelineTextSe
         <ColorSetting
           label="Point title color"
           value={settings.pointTextColor}
-          defaultValue=""
+          defaultValue={timelineDefaults.pointTextColor}
           automatic={{ color: "#18212f", description: "Uses the theme title color." }}
           onChange={(pointTextColor) => onChange({ pointTextColor })}
         />
         <label className="timeline-check">
           <input
             type="checkbox"
+            role="switch"
             checked={settings.pointDateVisible}
             onChange={(e) => onChange({ pointDateVisible: e.target.checked })}
           />
@@ -32,7 +34,7 @@ export function TimelinePointTextSettings({ settings, onChange }: TimelineTextSe
           <ColorSetting
             label="Point time color"
             value={settings.pointDateColor}
-            defaultValue=""
+            defaultValue={timelineDefaults.pointDateColor}
             automatic={{ color: "#64748b", description: "Uses the theme secondary text color." }}
             onChange={(pointDateColor) => onChange({ pointDateColor })}
           />
@@ -52,6 +54,7 @@ export function TimelineIntervalTextSettings({ settings, onChange }: TimelineTex
         <div className="timeline-control-row">
           <span>Placement</span>
           <TimelineChoices
+            schemaPath="intervalTitle"
             label="Interval title placement"
             value={settings.intervalTitle}
             options={[
@@ -66,6 +69,7 @@ export function TimelineIntervalTextSettings({ settings, onChange }: TimelineTex
           <div className="timeline-control-row">
             <span>Alignment</span>
             <TimelineChoices
+              schemaPath="intervalAlign"
               label="Interval title alignment"
               value={settings.intervalAlign}
               options={(["start", "center", "end"] as const).map((value, i) => ({
@@ -82,6 +86,7 @@ export function TimelineIntervalTextSettings({ settings, onChange }: TimelineTex
             <div className="timeline-control-row">
               <span>Font color</span>
               <TimelineChoices
+                schemaPath="intervalTextColorMode"
                 label="Interval title color source"
                 value={settings.intervalTextColorMode}
                 options={[
@@ -99,7 +104,7 @@ export function TimelineIntervalTextSettings({ settings, onChange }: TimelineTex
               <ColorSetting
                 label="Font color"
                 value={settings.intervalTextColor || "#18212f"}
-                defaultValue="#18212f"
+                defaultValue={timelineDefaults.intervalTextColor}
                 onChange={(intervalTextColor) => onChange({ intervalTextColor })}
               />
             )}
@@ -109,3 +114,5 @@ export function TimelineIntervalTextSettings({ settings, onChange }: TimelineTex
     </section>
   );
 }
+
+const timelineDefaults = getDefaultChartStyle("timeline").timeline!;

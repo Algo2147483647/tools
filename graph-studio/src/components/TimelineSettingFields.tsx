@@ -1,19 +1,28 @@
+import { getAppearanceSchema } from "../schema/appearanceSchema";
 import { useEffect, useState, type ReactNode } from "react";
 
 export function TimelineChoices<T extends string>({
   label,
+  schemaPath,
   value,
   options,
   onChange,
 }: {
   label: string;
+  schemaPath: string;
   value: T;
   options: readonly { value: T; label: string; icon?: ReactNode }[];
   onChange: (value: T) => void;
 }) {
+  const field = getAppearanceSchema("timeline").entries.get(`style.timeline.${schemaPath}`);
+  if (!field?.definition.enum) throw new Error(`Expected enum schema: ${schemaPath}`);
+  const choices = field.definition.enum.map(
+    (value) =>
+      options.find((option) => option.value === value) ?? { value: value as T, label: String(value), icon: undefined },
+  );
   return (
     <div className="timeline-choice" role="group" aria-label={label}>
-      {options.map((option) => (
+      {choices.map((option) => (
         <button
           type="button"
           key={option.value}

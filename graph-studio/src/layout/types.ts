@@ -23,6 +23,8 @@ export interface StageTimelineNode {
   anchorMarker?: TimelineViewSettings["anchorMarker"];
   pointTextColor?: string;
   pointDateVisible?: boolean;
+  displayDate?: string;
+  labelMetrics?: { top: number; bottom: number; dateOffset: number; detailOffset: number };
   pointDateColor?: string;
   leaderStyle?: TimelineViewSettings["leaderStyle"];
   leaderColor?: string;

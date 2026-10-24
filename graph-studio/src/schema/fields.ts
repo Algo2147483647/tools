@@ -1,4 +1,7 @@
+import type { AppearanceFieldDefinition } from "./definition";
 export interface SchemaField {
+  definition?: AppearanceFieldDefinition;
+  supported?: boolean;
   path: string;
   type: string;
   requirement: "Required" | "Optional";

@@ -62,9 +62,16 @@ export default function TimelineNode({
   const minimumCross = time.minimumCross ?? 214;
   const canPin = !readOnly && Boolean(onPin) && time.space === undefined;
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
-  const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
+  const dateLabel =
+    time.displayDate ?? (time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label);
+  const metrics = time.labelMetrics ?? {
+    top: 16,
+    bottom: node.detailLines.length ? 39 : 24,
+    dateOffset: 17,
+    detailOffset: 32,
+  };
   const labelEdgeX = Math.max(labelX - 7, Math.min(anchor.x, labelX + node.width + 7));
-  const labelEdgeY = Math.max(labelY - 17, Math.min(anchor.y, labelY + (node.detailLines.length ? 40 : 25)));
+  const labelEdgeY = Math.max(labelY - metrics.top - 1, Math.min(anchor.y, labelY + metrics.bottom + 1));
   const leader = `M ${anchor.x} ${anchor.y} L ${labelEdgeX} ${labelEdgeY}`;
   function preview(element: SVGGElement, delta?: number) {
     element.ownerSVGElement?.querySelectorAll<SVGGElement>(".timeline-node").forEach((part) => {
@@ -121,7 +128,7 @@ export default function TimelineNode({
         {
           "--dag-timeline-color": time.color,
           "--timeline-soft-fill": node.colorTokens?.pinFill || time.color,
-          "--timeline-soft-opacity": node.colorTokens ? 1 : 0.24,
+          "--timeline-soft-opacity": node.colorTokens ? 1 : "var(--dag-timeline-soft-opacity)",
           "--timeline-border-color": time.intervalBorderColor || node.colorTokens?.borderStrong || time.color,
           "--timeline-border-width": time.intervalBorderWidth ?? 1.5,
           "--timeline-text-color": range
@@ -135,7 +142,7 @@ export default function TimelineNode({
           "--timeline-leader-color": time.leaderColor || undefined,
           "--timeline-leader-opacity": time.leaderColor ? 1 : undefined,
           "--timeline-leader-width": time.leaderWidth ?? 0.7,
-          "--timeline-leader-dash": time.leaderStyle === "dashed" ? "4 3" : "none",
+          "--timeline-leader-dash": time.leaderStyle === "dashed" ? "var(--dag-timeline-leader-dash)" : "none",
         } as CSSProperties
       }
       pointerEvents={readOnly ? "none" : undefined}
@@ -267,21 +274,21 @@ export default function TimelineNode({
           <rect
             className="timeline-node__label-bg"
             x={labelX - 6}
-            y={labelY - 16}
+            y={labelY - metrics.top}
             width={node.width + 12}
-            height={node.detailLines.length ? 55 : 40}
+            height={metrics.top + metrics.bottom}
             rx={7}
           />
           <text className="timeline-node__title" x={labelX} y={labelY}>
             {node.displayTitle}
           </text>
           {(range || time.pointDateVisible !== false) && (
-            <text className="timeline-node__date" x={labelX} y={labelY + 17}>
+            <text className="timeline-node__date" x={labelX} y={labelY + metrics.dateOffset}>
               {dateLabel}
             </text>
           )}
           {node.detailLines.length > 0 && (
-            <text className="timeline-node__detail" x={labelX} y={labelY + 32}>
+            <text className="timeline-node__detail" x={labelX} y={labelY + metrics.detailOffset}>
               {node.detailLines[0]}
             </text>
           )}

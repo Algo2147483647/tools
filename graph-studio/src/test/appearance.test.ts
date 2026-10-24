@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { appearanceToStageStyle, DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
+import {
+  appearanceToStageStyle,
+  DEFAULT_GRAPH_APPEARANCE,
+  DEFAULT_GRAPH_CSS,
+  sanitizeGraphAppearance,
+} from "../graph/appearance";
 import { getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
 import GraphStage from "../rendering/GraphStage";
@@ -20,7 +25,6 @@ export const appearanceSuite = defineSuite("appearance", [
       [0, 0],
       [16, 16],
       [999, 999],
-      [NaN, 24],
     ]) {
       const appearance = sanitizeGraphAppearance({ display: { nodeCornerRadius: input } });
       const restored = parseGraphPagePreferences(
@@ -96,18 +100,17 @@ export const appearanceSuite = defineSuite("appearance", [
       layout: {
         columnGap: -1,
         rowGap: 999,
-        minNodeWidth: 999,
-        maxNodeWidth: 10,
-        stageMinWidth: 10_000,
+        nodeWidthRange: [999, 10],
+        stageMinSize: [10_000, 600],
       },
     });
 
     assert.equal(appearance.version, 1);
     assert.equal(appearance.layout.columnGap, -1);
     assert.equal(appearance.layout.rowGap, 999);
-    assert.equal(appearance.layout.minNodeWidth, 999);
-    assert.equal(appearance.layout.maxNodeWidth, 10);
-    assert.equal(appearance.layout.stageMinWidth, 10_000);
+    assert.equal(appearance.layout.nodeWidthRange[0], 999);
+    assert.equal(appearance.layout.nodeWidthRange[1], 10);
+    assert.equal(appearance.layout.stageMinSize[0], 10_000);
     assert.equal(appearance.display.showEdgeLabels, false);
     assert.equal(appearance.css, DEFAULT_GRAPH_APPEARANCE.css);
   }),
@@ -115,29 +118,24 @@ export const appearanceSuite = defineSuite("appearance", [
   defineTest("sanitizeGraphAppearance preserves edge label display preference", () => {
     assert.equal(sanitizeGraphAppearance({ display: { showEdgeLabels: true } }).display.showEdgeLabels, true);
     assert.equal(sanitizeGraphAppearance({ display: { showEdgeLabels: false } }).display.showEdgeLabels, false);
-    assert.equal(sanitizeGraphAppearance({ display: { showEdgeLabels: "false" } }).display.showEdgeLabels, false);
+    assert.throws(() => sanitizeGraphAppearance({ display: { showEdgeLabels: "false" } }), /expected boolean/);
     assert.equal(sanitizeGraphAppearance({ display: {} }).display.showEdgeLabels, false);
   }),
 
-  defineTest("sanitizeGraphAppearance only accepts dag css vars and removes imports", () => {
-    const appearance = sanitizeGraphAppearance({
-      cssVars: {
-        "--dag-node-fill": "#fff",
-        "--graph-node-fill": "#000",
-      },
-      css: "@import url('https://example.test/style.css');\n.dag-node__shape { fill: red; }",
-    });
-
-    assert.equal(appearance.cssVars["--dag-node-fill"], "#fff");
-    assert.equal(Object.prototype.hasOwnProperty.call(appearance.cssVars, "--graph-node-fill"), false);
-    assert.match(appearance.css, /\.dag-node__shape/);
-    assert.doesNotMatch(appearance.css, /@import/i);
+  defineTest("appearance input rejects unsupported variables and imports without rewriting", () => {
+    assert.throws(() => sanitizeGraphAppearance({ cssVars: { "--graph-node-fill": "#000" } }), /--dag-/);
+    assert.throws(() => sanitizeGraphAppearance({ css: "@import url(test);" }), /@import/);
+    assert.throws(() => sanitizeGraphAppearance({ display: { nodeCornerRadius: NaN } }), /expected number/);
+    assert.equal(
+      sanitizeGraphAppearance({ css: ".dag-node__shape { fill: red; }" }).css,
+      ".dag-node__shape { fill: red; }",
+    );
   }),
 
   defineTest("default root and active node fills follow the configured node fill", () => {
     assert.equal(DEFAULT_GRAPH_APPEARANCE.cssVars["--dag-node-fill"], "#ffffff");
-    assert.match(DEFAULT_GRAPH_APPEARANCE.css, /fill:\s*var\(--dag-node-root-fill,\s*var\(--dag-node-fill\)\)/);
-    assert.match(DEFAULT_GRAPH_APPEARANCE.css, /fill:\s*var\(--dag-node-active-fill,\s*var\(--dag-node-fill\)\)/);
+    assert.match(DEFAULT_GRAPH_CSS, /fill:\s*var\(--dag-node-root-fill,\s*var\(--dag-node-fill\)\)/);
+    assert.match(DEFAULT_GRAPH_CSS, /fill:\s*var\(--dag-node-active-fill,\s*var\(--dag-node-fill\)\)/);
   }),
 
   defineTest("explicit translucent fills are preserved without legacy rewriting", () => {
@@ -197,8 +195,7 @@ export const appearanceSuite = defineSuite("appearance", [
         ...DEFAULT_GRAPH_APPEARANCE,
         layout: {
           ...DEFAULT_GRAPH_APPEARANCE.layout,
-          stageMinWidth: 1234,
-          stageMinHeight: 789,
+          stageMinSize: [1234, 789],
         },
       },
     });

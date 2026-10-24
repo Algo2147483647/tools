@@ -68,7 +68,7 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
         assert.match(point, /--timeline-marker-fill:#112233/);
         assert.match(point, /--timeline-text-color:#135790/);
         assert.doesNotMatch(point, /<text class="timeline-node__date"/);
-        assert.match(point, /--timeline-leader-dash:4 3/);
+        assert.match(point, /--timeline-leader-dash:var\(--dag-timeline-leader-dash\)/);
         assert.equal((bar.match(/timeline-node__point timeline-node__anchor/g) || []).length, 3);
         assert.match(bar, /--timeline-marker-fill:#456789/);
         assert.ok(bar.includes(`--timeline-text-color:${stage.nodeMap.bar.timeline!.color}`));
@@ -97,7 +97,9 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
         assert.equal(hidden.nodeMap.point.timeline!.start, 5);
       }
       assert.match(TIMELINE_CSS, /font-style: var\(--dag-title-font-style/);
-      assert(getSettingsCatalog("timeline").some((item) => item.id === "fontStyle"));
+      assert(
+        getSettingsCatalog("timeline").some((item) => item.id === "style.appearance.cssVars[--dag-title-font-style]"),
+      );
       const menu = renderToStaticMarkup(createElement(TimelinePointSettings, { settings, onChange() {} }));
       assert.match(menu, /Point marker shape/);
       assert.doesNotMatch(menu, /Point title color|Show point time label|Label leaders/);
@@ -196,7 +198,7 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
       }
       assert.equal(projected.timeline!.edgeRouting, "direct");
     }
-    assert.equal(sanitizeTimelineSettings({ edgeRouting: "invalid" }).edgeRouting, "avoid");
+    assert.throws(() => sanitizeTimelineSettings({ edgeRouting: "invalid" }), /expected/);
   }),
   defineTest("Timeline uses the same Type tokens as Node-link before and after filtering", () => {
     const dag = normalizeDagInput({
@@ -235,11 +237,11 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
       JSON.parse(
         JSON.stringify({
           colorBy: "type",
-          typeColors: { Period: "#6c8ebf", Other: "rgba(10, 20, 30, 0.5)", invalid: "url(evil)" },
+          typeColors: { Period: "#6c8ebf", Other: "rgba(10, 20, 30, 0.5)" },
         }),
       ),
     );
-    assert.equal(settings.typeColors.invalid, undefined);
+    assert.throws(() => sanitizeTimelineSettings({ typeColors: { invalid: "url(evil)" } }), /color/);
     for (const orientation of ["horizontal", "vertical"] as const) {
       for (const layout of ["tracks", "flow"] as const) {
         const stage = buildTimelineStage({
@@ -274,7 +276,7 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
     }
     assert.equal(timelineTypeColor("Period", {}), timelineTypeColor("Period", { Other: "#000000" }));
     assert.match(timelineTypeColor("__proto__", {}), /^hsla\(/);
-    assert.equal(sanitizeTimelineSettings({ colorBy: "invalid", typeColors: [] }).colorBy, "track");
+    assert.throws(() => sanitizeTimelineSettings({ colorBy: "invalid", typeColors: [] }), /expected/);
   }),
   defineTest("interval appearance survives sanitizing and stays separate from instant text", () => {
     const settings = sanitizeTimelineSettings(
@@ -285,6 +287,7 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
           intervalBorderColor: "#123456",
           intervalRadius: 0,
           intervalTextColor: "#abcdef",
+          intervalTextColorMode: "custom",
         }),
       ),
     );
@@ -317,14 +320,8 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
       assert.match(render("a"), /class="timeline-node__duration"[^>]*rx="0"/);
       assert.doesNotMatch(render("b"), /--timeline-text-color:/);
     }
-    const invalid = sanitizeTimelineSettings({
-      intervalRadius: -2,
-      intervalBorderWidth: Infinity,
-      intervalTextColor: "url(evil)",
-    });
-    assert.equal(invalid.intervalRadius, 0);
-    assert.equal(invalid.intervalBorderWidth, 1.5);
-    assert.equal(invalid.intervalTextColor, "");
+    for (const invalid of [{ intervalRadius: -1 }, { intervalBorderWidth: NaN }, { intervalTextColor: "url(evil)" }])
+      assert.throws(() => sanitizeTimelineSettings(invalid));
   }),
   defineTest("track headings follow explicit rows instead of allocated track positions", () => {
     const dag = normalizeDagInput({
@@ -372,7 +369,8 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
     assert.ok(html.indexOf('class="dag-edge-layer"') > html.indexOf('class="timeline-leader-layer"'));
     assert.equal((html.match(/role="button"/g) || []).length, 1);
     assert.equal((html.match(/class="timeline-node__title"/g) || []).length, 1);
-    assert.match(html, /fill-opacity: .65/);
+    assert.match(html, /fill-opacity: var\(--dag-timeline-label-opacity\)/);
+    assert.match(html, /--dag-timeline-label-opacity:0.65/);
     assert.match(html, /class="timeline-node__leader" d="M [\d. -]+ L [\d. -]+"/);
   }),
   defineTest("details are hidden by default and can be enabled", () => {

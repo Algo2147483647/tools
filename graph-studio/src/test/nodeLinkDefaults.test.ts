@@ -49,7 +49,7 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     assert.equal(parseConsoleSource("/style-preset preset-2").ok, true);
     assert.equal(
       applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "preset-2" }, "compound").appearance
-        .layout.maxNodeWidth,
+        .layout.nodeWidthRange[1],
       240,
     );
     assert.throws(

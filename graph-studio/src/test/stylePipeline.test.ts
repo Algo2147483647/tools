@@ -172,7 +172,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.equal(customer.titleLayout!.x, 100);
     assert.equal(customer.contentLayout!.titleY, 50);
     const previous = getCompoundPreset2Style();
-    assert.equal(previous.appearance.layout.maxNodeWidth, 240);
+    assert.equal(previous.appearance.layout.nodeWidthRange[1], 240);
     assert.equal(previous.appearance.layout.nodeHeight, 48);
     assert.equal(previous.appearance.display.nodeCornerRadius, 16);
     assert.equal(previous.appearance.display.showNodeDots, true);

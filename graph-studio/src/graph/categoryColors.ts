@@ -1,3 +1,4 @@
+import { DEFAULT_GRAPH_APPEARANCE } from "./appearance";
 export interface CategoryColorTokens {
   glow: string;
   border: string;
@@ -15,19 +16,12 @@ type TypeColorSwatch = {
   lightness: number;
 };
 
-const TYPE_COLOR_SWATCHES = [
-  { hue: 356, saturation: 58, lightness: 47 },
-  { hue: 214, saturation: 62, lightness: 44 },
-  { hue: 145, saturation: 52, lightness: 40 },
-  { hue: 32, saturation: 66, lightness: 47 },
-  { hue: 188, saturation: 54, lightness: 42 },
-  { hue: 265, saturation: 48, lightness: 48 },
-  { hue: 325, saturation: 48, lightness: 48 },
-  { hue: 210, saturation: 24, lightness: 44 },
-] satisfies TypeColorSwatch[];
-
 /** Shared by Node-link and Timeline. Build from the full document before filtering. */
-export function buildCategoryColorMap(labels: readonly string[]): Map<string, CategoryColorTokens> {
+export function buildCategoryColorMap(
+  labels: readonly string[],
+  swatches = DEFAULT_GRAPH_APPEARANCE.palette.categories,
+): Map<string, CategoryColorTokens> {
+  const palette = swatches.map(([hue, saturation, lightness]) => ({ hue, saturation, lightness }));
   const names = [...new Set(labels.map(normalizeTypeLabel).filter((v): v is string => Boolean(v)))].sort((a, b) =>
     a.localeCompare(b),
   );
@@ -35,10 +29,10 @@ export function buildCategoryColorMap(labels: readonly string[]): Map<string, Ca
     names.map((name, index) => [
       name,
       createNodeColorTokens(
-        names.length <= TYPE_COLOR_SWATCHES.length
-          ? TYPE_COLOR_SWATCHES[index]
+        names.length <= palette.length
+          ? palette[index]
           : {
-              hue: ((index * 360) / names.length + TYPE_COLOR_SWATCHES[0].hue) % 360,
+              hue: ((index * 360) / names.length + palette[0].hue) % 360,
               saturation: 58,
               lightness: 45,
             },

@@ -2,12 +2,8 @@ import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearan
 import type { GraphChartType } from "./types";
 import type { ChartStyleDocument } from "../schema/appearanceModel";
 import { createStyleDocument } from "../schema/styleProtocol";
-import {
-  getDefaultChartStyle,
-  getCompoundPreset2Style,
-  getTimelinePreset2Style,
-  type ChartStyle,
-} from "../state/chartStyles";
+import { getDefaultChartStyle, getManifestPresetStyle, type ChartStyle } from "../state/chartStyles";
+import { PRESET_MANIFEST } from "../schema/presetManifest";
 
 export type AppearanceCommand =
   | {
@@ -20,7 +16,7 @@ export type AppearanceCommand =
   | { type: "resetAppearance" }
   | { type: "applyPreset"; presetId: GraphAppearancePresetId };
 
-export type GraphAppearancePresetId = "default" | "preset-2";
+export type GraphAppearancePresetId = string;
 
 interface GraphAppearancePreset {
   id: GraphAppearancePresetId;
@@ -36,18 +32,11 @@ export interface AppearanceCommandResult {
 
 export function getGraphAppearancePresets(chartType?: GraphChartType): GraphAppearancePreset[] {
   const type = chartType ?? "compound";
-  return [
-    { id: "default" as const, label: "Default", style: getDefaultChartStyle(type) },
-    ...(type === "compound" || type === "timeline"
-      ? [
-          {
-            id: "preset-2" as const,
-            label: "Preset 2",
-            style: type === "timeline" ? getTimelinePreset2Style() : getCompoundPreset2Style(),
-          },
-        ]
-      : []),
-  ].map((preset) => ({ id: preset.id, label: preset.label, document: createStyleDocument(type, preset.style) }));
+  return PRESET_MANIFEST[type].presets.map((preset) => ({
+    id: preset.id,
+    label: preset.label,
+    document: createStyleDocument(type, getManifestPresetStyle(type, preset.id)),
+  }));
 }
 
 export function getGraphPresetStyle(chartType: GraphChartType, presetId: GraphAppearancePresetId): ChartStyle {
@@ -140,8 +129,8 @@ function buildAppearanceCommandMessage(command: AppearanceCommand): string {
 function buildAppearanceDiff(before: GraphAppearance, after: GraphAppearance): string[] {
   const lines: string[] = [];
   (Object.keys(after.layout) as Array<keyof GraphLayoutAppearance>).forEach((key) => {
-    if (before.layout[key] !== after.layout[key]) {
-      lines.push(`~ layout.${key}: ${before.layout[key]} -> ${after.layout[key]}`);
+    if (JSON.stringify(before.layout[key]) !== JSON.stringify(after.layout[key])) {
+      lines.push(`~ layout.${key}: ${JSON.stringify(before.layout[key])} -> ${JSON.stringify(after.layout[key])}`);
     }
   });
   (Object.keys(after.display) as Array<keyof GraphAppearance["display"]>).forEach((key) => {

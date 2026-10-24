@@ -25,8 +25,8 @@ export function timelineLabelBox(node: StageNode): TimelineLabelBox {
   return {
     left: time.labelX - 6,
     right: time.labelX + node.width + 6,
-    top: time.labelY - 16,
-    bottom: time.labelY + (node.detailLines.length ? 39 : 24),
+    top: time.labelY - (time.labelMetrics?.top ?? 16),
+    bottom: time.labelY + (time.labelMetrics?.bottom ?? (node.detailLines.length ? 39 : 24)),
   };
 }
 
@@ -38,10 +38,11 @@ export function findFreeTimelineLabelPosition(
   minimumY = 48,
 ): { x: number; y: number } {
   const { labelX: desiredX, labelY: desiredY } = node.timeline!;
-  const height = node.detailLines.length ? 39 : 24;
+  const height = node.timeline!.labelMetrics?.bottom ?? (node.detailLines.length ? 39 : 24);
+  const top = node.timeline!.labelMetrics?.top ?? 16;
   const candidates = [
     ...new Set(
-      [desiredY, minimumY, ...occupied.flatMap((box) => [box.top - height - 7, box.bottom + 23])].map((y) =>
+      [desiredY, minimumY, ...occupied.flatMap((box) => [box.top - height - 7, box.bottom + top + 7])].map((y) =>
         Math.max(minimumY, y),
       ),
     ),
@@ -52,7 +53,7 @@ export function findFreeTimelineLabelPosition(
     const verticalCost = Math.abs(y - desiredY) * 1.15;
     if (verticalCost > cost) break;
     const intervals = occupied
-      .filter((box) => y - 16 < box.bottom + 7 && y + height + 7 > box.top)
+      .filter((box) => y - top < box.bottom + 7 && y + height + 7 > box.top)
       .map((box) => [box.left - node.width - 13, box.right + 13])
       .sort((a, b) => a[0] - b[0]);
     const merged: number[][] = [];

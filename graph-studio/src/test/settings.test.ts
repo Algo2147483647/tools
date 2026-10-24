@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import NumericSetting from "../components/settings/NumericSetting";
-import { LAYOUT_CONTROLS } from "../components/settings/settingsConfig";
+import { APPEARANCE_UI } from "../components/settings/appearanceUIConfig";
 import { sanitizeGraphAppearance } from "../graph/appearance";
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 import { parseGraphPagePreferences } from "../state/preferences";
@@ -38,6 +38,39 @@ import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
 import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("layout tuples remain canonical through editing, export and preferences", () => {
+    for (const key of ["stagePadding", "stageMinSize", "nodeWidthRange"] as const) {
+      const style = updateAppearanceSchemaValue(
+        "timeline",
+        getDefaultChartStyle("timeline"),
+        `style.appearance.layout.${key}`,
+        [320, 640],
+      );
+      const document = JSON.parse(serializeChartStyle("timeline", style));
+      assert.deepEqual(parseStyleDocument(document, "timeline").style.appearance.layout[key], [320, 640]);
+      assert.deepEqual(
+        getAppearanceSchema("timeline", style).entries.get(`style.appearance.layout.${key}`)?.value,
+        [320, 640],
+      );
+      const preferences = getInitialGraphPagePreferences();
+      preferences.chartStyles.timeline = document;
+      assert.deepEqual(
+        parseGraphPagePreferences(JSON.stringify(preferences))?.chartStyles?.timeline.style.appearance.layout[key],
+        [320, 640],
+      );
+      assert.throws(() => updateAppearanceSchemaValue("timeline", style, `style.appearance.layout.${key}`, [320]));
+    }
+    const document = createStyleDocument("timeline", getDefaultChartStyle("timeline"));
+    for (const branch of [
+      document.style.appearance.layout,
+      document.style.appearance.display,
+      document.style.timeline!.pointMarker,
+    ]) {
+      Object.assign(branch, { undeclaredField: 100 });
+      assert.throws(() => parseStyleDocument(document, "timeline"), /unknown field undeclaredField/);
+      delete (branch as Record<string, unknown>).undeclaredField;
+    }
+  }),
   defineTest("presets, persistence, examples and model share the canonical schema document", () => {
     const preferences = getInitialGraphPagePreferences();
     let stored = "";
@@ -72,7 +105,7 @@ export const settingsSuite = defineSuite("Settings controls", [
       assert.deepEqual(parseStyleDocument(document, document.chartType), document, file);
     }
     const invalid = structuredClone(preferences.chartStyles.timeline);
-    Object.assign(invalid.style.appearance.layout, { stagePaddingX: 10 });
+    Object.assign(invalid.style.appearance.layout, { undeclaredField: 10 });
     assert.throws(() => parseStyleDocument(invalid, "timeline"), /unknown field/);
     const old = parseGraphPagePreferences(JSON.stringify({ chartStyles: { timeline: invalid.style } }));
     assert.deepEqual(old!.chartStyles!.timeline, preferences.chartStyles.timeline);
@@ -80,24 +113,24 @@ export const settingsSuite = defineSuite("Settings controls", [
     getDefaultChartStyle("spatial");
     assert.deepEqual(getDefaultChartStyle("timeline"), before);
   }),
-  defineTest("appearance schema edits canonical values and rejects old fields", () => {
+  defineTest("appearance schema edits canonical values and rejects undeclared fields", () => {
     const original = getDefaultChartStyle("timeline");
     const updated = updateAppearanceSchemaValue("timeline", original, "style.appearance.layout.stagePadding", [32, 48]);
     assert.deepEqual(updated.appearance.layout.stagePadding, [32, 48]);
     assert.notDeepEqual(updated.appearance.layout, original.appearance.layout);
     const schema = getAppearanceSchema("timeline", updated);
     assert.deepEqual(schema.entries.get("style.appearance.layout.stagePadding")?.value, [32, 48]);
-    assert.equal(schema.entries.has("style.appearance.layout.stagePaddingX"), false);
+    assert.equal(schema.entries.has("style.appearance.layout.undeclaredField"), false);
     assert.deepEqual(parseChartStyleFile(schema.example, "timeline"), updated);
-    const legacyNegative = structuredClone(original);
-    legacyNegative.appearance.layout.stagePadding[0] = -12.5;
+    const negativePadding = structuredClone(original);
+    negativePadding.appearance.layout.stagePadding[0] = -12.5;
     assert.deepEqual(
-      parseChartStyleFile(JSON.parse(serializeChartStyle("timeline", legacyNegative)), "timeline"),
-      legacyNegative,
+      parseChartStyleFile(JSON.parse(serializeChartStyle("timeline", negativePadding)), "timeline"),
+      negativePadding,
     );
     const mixed = structuredClone(schema.example);
-    Object.assign(mixed.style.appearance.layout, { stagePaddingX: 999 });
-    assert.throws(() => parseChartStyleFile(mixed, "timeline"), /unknown field stagePaddingX/);
+    Object.assign(mixed.style.appearance.layout, { undeclaredField: 999 });
+    assert.throws(() => parseChartStyleFile(mixed, "timeline"), /unknown field undeclaredField/);
     assert.deepEqual(
       parseChartStyleFile(
         { format: "graph-studio-style", version: 1, chartType: "timeline", style: original },
@@ -251,7 +284,7 @@ export const settingsSuite = defineSuite("Settings controls", [
         onChange() {},
       }),
     );
-    assert.doesNotMatch(controls, /ExampleCategory|palette|Edit colors/);
+    assert.doesNotMatch(controls, /ExampleCategory/);
     const document = () =>
       normalizeDagInput({
         format: "graph-studio",
@@ -278,7 +311,8 @@ export const settingsSuite = defineSuite("Settings controls", [
     assert.equal(parseGraphPagePreferences(JSON.stringify({ timelineSettings: view })), null);
   }),
   defineTest("sliders start at zero while numeric inputs retain values outside their range", () => {
-    for (const control of LAYOUT_CONTROLS) {
+    for (const node of APPEARANCE_UI.dimensions.children!) {
+      const control = { label: node.label ?? node.id, min: node.options?.min ?? 0, max: node.options?.max ?? 100 };
       assert.equal(control.min, 0);
       for (const value of [-12.3456789, 0, 10000.125]) {
         const html = renderToStaticMarkup(
@@ -302,7 +336,7 @@ export const settingsSuite = defineSuite("Settings controls", [
   defineTest("finite numeric settings survive sanitizing and preference reload without rounding or bounds", () => {
     for (const value of [-12.3456789, 0, 10000.125]) {
       const appearance = sanitizeGraphAppearance({
-        layout: { columnGap: value, rowGap: value, nodeHeight: value, maxNodeWidth: value },
+        layout: { columnGap: value, rowGap: value, nodeHeight: value, nodeWidthRange: [188, value] },
         display: { nodeCornerRadius: value, shadowOpacity: value, sankeyNodeWidth: value },
       });
       const restored = parseGraphPagePreferences(
@@ -316,7 +350,7 @@ export const settingsSuite = defineSuite("Settings controls", [
       assert.equal(restored.layout.columnGap, value);
       assert.equal(restored.layout.rowGap, value);
       assert.equal(restored.layout.nodeHeight, value);
-      assert.equal(restored.layout.maxNodeWidth, value);
+      assert.equal(restored.layout.nodeWidthRange[1], value);
       assert.equal(restored.display.nodeCornerRadius, value);
       assert.equal(restored.display.shadowOpacity, value);
       assert.equal(restored.display.sankeyNodeWidth, value);
@@ -340,24 +374,26 @@ export const settingsSuite = defineSuite("Settings controls", [
     for (const node of Object.values(CHART_SCHEMAS.timeline.example.nodes))
       assert.equal(parseNodeTimeline(node).status, "dated");
   }),
-  defineTest("search targets individual controls, supports Chinese and respects chart capabilities", () => {
+  defineTest("search is generated from field metadata and respects chart capabilities", () => {
     const catalog = getSettingsCatalog("compound");
-    const ids = (q: string) => catalog.filter((item) => matchesSetting(item, q)).map((item) => item.id);
-    assert.deepEqual(ids("radius"), ["nodeCornerRadius"]);
-    assert.deepEqual(ids("圆角"), ["nodeCornerRadius"]);
-    assert.deepEqual(ids("node height"), ["nodeHeight"]);
-    assert.deepEqual(ids("node fill"), ["--dag-node-fill"]);
-    assert.deepEqual(ids("unknown-setting-xyz"), []);
-    const timelineColors = getSettingsCatalog("timeline").find((item) => item.id === "timeline-colors")!;
-    assert.equal(timelineColors.chapter, "appearance");
-    assert.equal(timelineColors.group, "Nodes");
-    assert.ok(matchesSetting(timelineColors, "按 类型 着色"));
-    for (const type of ["node-link", "compound", "timeline", "sankey"] as const) {
+    assert.ok(
+      catalog.some((item) => item.id === "style.appearance.display.nodeCornerRadius" && matchesSetting(item, "圆角")),
+    );
+    assert.ok(
+      catalog.some((item) => item.id === "style.appearance.layout.nodeHeight" && matchesSetting(item, "node height")),
+    );
+    assert.deepEqual(
+      catalog.filter((item) => matchesSetting(item, "unknown-setting-xyz")),
+      [],
+    );
+    for (const type of ["node-link", "compound", "timeline", "sankey", "spatial"] as const) {
       const items = getSettingsCatalog(type);
       assert.equal(new Set(items.map((item) => item.id)).size, items.length);
-      if (type === "timeline" || type === "sankey") assert.ok(!items.some((item) => item.id === "nodeCornerRadius"));
+      if (type === "timeline" || type === "spatial")
+        assert.ok(!items.some((item) => item.id === "style.appearance.display.nodeCornerRadius"));
     }
   }),
+
   defineTest("color editing preserves alpha and rejects invalid values", () => {
     assert.deepEqual(parseColorValue("#abc"), { hex: "#aabbcc", alpha: 1 });
     assert.equal(parseColorValue("#00000080")!.alpha, 128 / 255);
@@ -365,25 +401,20 @@ export const settingsSuite = defineSuite("Settings controls", [
     assert.equal(formatColorValue({ hex: "#5b6d8e", alpha: 0.17 }), "rgba(91, 109, 142, 0.17)");
     for (const value of ["", "#xxffff", "rgb(256,0,0)", "url(example)"]) assert.equal(parseColorValue(value), null);
   }),
-  defineTest("Timeline appearance search separates event shapes, connections and text", () => {
+  defineTest("Timeline search and groups use the same field definitions as the editors", () => {
     const catalog = getSettingsCatalog("timeline");
-    for (const [query, id, group] of [
-      ["时间点 标记", "timeline-points", "Nodes"],
-      ["区间 厚度", "timeline-intervals", "Nodes"],
-      ["引导线", "timeline-anchors", "Edges"],
-      ["时间点 标题", "timeline-point-text", "Text"],
-      ["区间 对齐", "timeline-interval-text", "Text"],
-      ["描述", "showNodeDetail", "Text"],
-    ]) {
-      const matches = catalog.filter((item) => matchesSetting(item, query));
-      assert.deepEqual(
-        matches.map((item) => item.id),
-        [id],
-      );
-      assert.equal(matches[0].group, group);
-    }
-    assert.equal(catalog.find((item) => item.id === "timeline-routing")!.chapter, "layout");
+    for (const [path, group] of [
+      ["pointMarker.size", "Nodes"],
+      ["intervalWidth", "Nodes"],
+      ["leaderWidth", "Edges"],
+      ["pointTextColor", "Text"],
+      ["intervalAlign", "Text"],
+    ])
+      assert.equal(catalog.find((item) => item.id === `style.timeline.${path}`)?.group, group);
+    assert.equal(catalog.find((item) => item.id === "style.timeline.edgeRouting")?.chapter, "layout");
+    assert.ok(catalog.some((item) => matchesSetting(item, "区间 厚度")));
   }),
+
   defineTest("Timeline section reset preserves other groups and can be undone in one step", () => {
     const original = {
       ...getDefaultChartStyle("timeline"),

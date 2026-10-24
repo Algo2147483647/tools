@@ -12,7 +12,7 @@ import {
   PREVIEW_GRAPHS,
   previewGeometry,
 } from "../components/settings/previewModel";
-import { getLayoutControls } from "../components/settings/settingsConfig";
+import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import GraphStage from "../rendering/GraphStage";
 import type { GraphChartType } from "../graph/types";
 import type { StageData } from "../layout/types";
@@ -140,13 +140,15 @@ export const previewSuite = defineSuite("Shared live preview", [
     );
   }),
   defineTest("settings omit controls unused by the selected layout", () => {
-    assert.ok(getLayoutControls("node-link").some((control) => control.key === "edgeLaneGap"));
-    assert.ok(!getLayoutControls("compound").some((control) => control.key === "edgeLaneGap"));
+    const has = (chart: GraphChartType, key: string) =>
+      getSettingsCatalog(chart).some((item) => item.id === `style.appearance.layout.${key}`);
+    assert.ok(has("node-link", "edgeLaneGap"));
+    assert.ok(!has("compound", "edgeLaneGap"));
+    assert.ok(!has("timeline", "columnGap"));
+    assert.ok(has("sankey", "columnGap"));
     for (const chart of ["timeline", "sankey"] as const)
-      assert.deepEqual(
-        getLayoutControls(chart).map((control) => control.key),
-        ["rowGap", "nodeHeight", "maxNodeWidth"],
-      );
+      for (const key of ["rowGap", "nodeHeight", "nodeWidthRange", "stagePadding", "stageMinSize"])
+        assert.ok(has(chart, key));
   }),
   defineTest("a slider gesture becomes one undo step and transient state never enters preferences", () => {
     let state = createChartPreferences(createChartStyles());

@@ -79,7 +79,7 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   {
     label: "/layout <key> <number>",
     insertText: "/layout ",
-    help: "Update graph layout appearance, such as rowGap, columnGap, nodeHeight, or stageMinWidth.",
+    help: "Update layout scalars or pairs: stagePadding [x,y], stageMinSize [width,height], nodeWidthRange [min,max].",
   },
   {
     label: "/style-var <var> <value>",
@@ -138,7 +138,7 @@ export function buildConsoleHelpText(): string {
     "- /children <node> = A,B,...: Replace the full child relation set for a node. Use an empty assignment to clear it.",
     "- /set <node> <field> <value>: Set a non-relation field value as string, number, boolean, null, or JSON.",
     "- /unset <node> <field>: Remove a non-relation field from a node.",
-    "- /layout <key> <number>: Update layout appearance. Keys include columnGap, rowGap, edgeLaneGap, nodeHeight, minNodeWidth, maxNodeWidth, stageMinWidth, and stageMinHeight.",
+    "- /layout <key> <value>: Set columnGap, rowGap, edgeLaneGap or nodeHeight to a number; set stagePadding [x,y], stageMinSize [width,height] or nodeWidthRange [min,max] to a pair.",
     "- /style-var <var> <value>: Set a --dag-* CSS variable for graph appearance.",
     "- /style-var --unset <var>: Remove a --dag-* CSS variable override.",
     "- /style-css show|append|replace: Show, append to, or replace graph CSS using stable .dag-* selectors.",

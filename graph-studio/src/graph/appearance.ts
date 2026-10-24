@@ -1,28 +1,29 @@
+import { resolveAppearance } from "../schema/appearanceContract";
 import type { GraphAppearance } from "../schema/appearanceModel";
 export type { GraphAppearance, GraphLayoutAppearance } from "../schema/appearanceModel";
 import type { CSSProperties } from "react";
 
-// Keep core rendering rules outside saved custom CSS so older preferences gain new features.
+// Built-in styles are rendered independently of user-authored custom CSS.
 export const GRAPH_EFFECTS_CSS = `
-.dag-graph .dag-node__pin, .dag-graph .dag-node__pin-core { display: var(--dag-node-pin-display, inline) !important; }
+.dag-graph .dag-node__pin, .dag-graph .dag-node__pin-core { display: var(--dag-node-pin-display, inline); }
 .dag-graph .dag-node__content { transform: translateX(var(--dag-node-content-shift, 0px)); }
-.dag-graph .dag-node__shape { filter: var(--dag-node-shadow) !important; }
+.dag-graph .dag-node__shape { filter: var(--dag-node-shadow); }
 .dag-graph .dag-node:hover .dag-node__shape,
 .dag-graph .dag-node[data-hovered="true"] .dag-node__shape,
 .dag-graph .dag-node[data-focused="true"] .dag-node__shape,
-.dag-graph .dag-node[data-selected="true"] .dag-node__shape { filter: var(--dag-node-shadow-active) !important; }
-.dag-graph[data-density="dense"] .dag-node .dag-node__shape { filter: none !important; }
+.dag-graph .dag-node[data-selected="true"] .dag-node__shape { filter: var(--dag-node-shadow-active); }
+.dag-graph[data-density="dense"][data-dense-shadows="disable"] .dag-node .dag-node__shape { filter: none; }
 .dag-edge__flow { fill: none; stroke-linecap: butt; opacity: var(--dag-sankey-opacity); transition: opacity .18s ease; pointer-events: stroke; }
-.dag-edge__flow:hover, .dag-edge[data-active="true"] .dag-edge__flow { opacity: .8; }
-.dag-graph[data-has-interactive-node="true"] .dag-edge__flow { opacity: .12; }
-.dag-graph[data-has-interactive-node="true"] .dag-edge[data-active="true"] .dag-edge__flow { opacity: .8; }
+.dag-edge__flow:hover, .dag-edge[data-active="true"] .dag-edge__flow { opacity: var(--dag-flow-active-opacity); }
+.dag-graph[data-has-interactive-node="true"] .dag-edge__flow { opacity: var(--dag-flow-muted-opacity); }
+.dag-graph[data-has-interactive-node="true"] .dag-edge[data-active="true"] .dag-edge__flow { opacity: var(--dag-flow-active-opacity); }
 .dag-node__flow-label { fill: var(--dag-text-strong); font-family: var(--dag-title-font-family); font-size: var(--dag-title-font-size); font-style: var(--dag-title-font-style); font-weight: var(--dag-title-font-weight); paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; }
-.dag-node__flow-value { fill: var(--dag-text-soft); font-size: 11px; font-style: normal; font-weight: 500; }
+.dag-node__flow-value { fill: var(--dag-text-soft); font: var(--dag-detail-font-style) var(--dag-detail-font-weight) var(--dag-detail-font-size) var(--dag-detail-font-family); }
 .dag-node[data-flow="true"]:focus-visible .dag-node__shape { stroke: var(--dag-edge-active); stroke-width: 3; }
 @media (prefers-reduced-motion: reduce) { .dag-graph * { transition: none !important; } }
 `.trim();
 
-const DEFAULT_GRAPH_CSS = `
+export const DEFAULT_GRAPH_CSS = `
 .dag-graph,
 .dag-backdrop {
   fill: none;
@@ -212,125 +213,11 @@ const DEFAULT_GRAPH_CSS = `
   stroke: transparent;
 }
 
-.dag-graph[data-density="dense"] .dag-node__shape,
-.dag-graph[data-density="dense"] .dag-node:hover .dag-node__shape,
-.dag-graph[data-density="dense"] .dag-node[data-hovered="true"] .dag-node__shape,
-.dag-graph[data-density="dense"] .dag-node[data-focused="true"] .dag-node__shape,
-.dag-graph[data-density="dense"] .dag-node[data-selected="true"] .dag-node__shape {
-  filter: none;
-}
 `.trim();
 
-export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
-  version: 1,
-  layout: {
-    stagePadding: [108, 88],
-    columnGap: 116,
-    rowGap: 22,
-    edgeLaneGap: 28,
-    nodeHeight: 74,
-    minNodeWidth: 188,
-    maxNodeWidth: 280,
-    stageMinWidth: 980,
-    stageMinHeight: 600,
-  },
-  display: {
-    titleAlign: "left",
-    titleOverflow: "ellipsis",
-    titleWrap: false,
-    edgeArrowStyle: "filled",
-    showNodeDots: true,
-    showEdgeLabels: false,
-    showGroupStats: true,
-    showGroupBorders: true,
-    nodeCornerRadius: 24,
-    nodeShadow: true,
-    shadowBlur: 8,
-    shadowOffset: 3,
-    shadowOpacity: 12,
-    sankeyNodeWidth: 20,
-    sankeyLinkOpacity: 32,
-  },
-  cssVars: {
-    "--dag-text-strong": "#162033",
-    "--dag-text-soft": "#8792a2",
-    "--dag-edge": "rgba(76, 96, 132, 0.24)",
-    "--dag-edge-active": "rgba(41, 92, 207, 0.72)",
-    "--dag-node-fill": "#ffffff",
-    "--dag-node-border": "rgba(91, 109, 142, 0.17)",
-    "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
-    "--dag-title-font-family": '"Georgia", serif',
-    "--dag-title-font-size": "15px",
-    "--dag-title-font-style": "normal",
-    "--dag-title-font-weight": "400",
-  },
-  css: DEFAULT_GRAPH_CSS,
-};
-
+export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = resolveAppearance(undefined);
 export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
-  if (!input || typeof input !== "object" || Array.isArray(input)) {
-    return structuredClone(DEFAULT_GRAPH_APPEARANCE);
-  }
-
-  const record = input as Record<string, unknown>;
-  const defaultLayout = DEFAULT_GRAPH_APPEARANCE.layout;
-  const layoutInput =
-    record.layout && typeof record.layout === "object" && !Array.isArray(record.layout)
-      ? (record.layout as Record<string, unknown>)
-      : {};
-  const displayInput =
-    record.display && typeof record.display === "object" && !Array.isArray(record.display)
-      ? (record.display as Record<string, unknown>)
-      : {};
-  const minNodeWidth = finiteNumeric(layoutInput.minNodeWidth, defaultLayout.minNodeWidth);
-  const padding =
-    Array.isArray(layoutInput.stagePadding) && layoutInput.stagePadding.length === 2
-      ? layoutInput.stagePadding
-      : defaultLayout.stagePadding;
-  const maxNodeWidth = finiteNumeric(layoutInput.maxNodeWidth, defaultLayout.maxNodeWidth);
-
-  return {
-    version: 1,
-    layout: {
-      stagePadding: [
-        finiteNumeric(padding[0], defaultLayout.stagePadding[0]),
-        finiteNumeric(padding[1], defaultLayout.stagePadding[1]),
-      ],
-      columnGap: finiteNumeric(layoutInput.columnGap, defaultLayout.columnGap),
-      rowGap: finiteNumeric(layoutInput.rowGap, defaultLayout.rowGap),
-      edgeLaneGap: finiteNumeric(layoutInput.edgeLaneGap, defaultLayout.edgeLaneGap),
-      nodeHeight: finiteNumeric(layoutInput.nodeHeight, defaultLayout.nodeHeight),
-      minNodeWidth,
-      maxNodeWidth,
-      stageMinWidth: finiteNumeric(layoutInput.stageMinWidth, defaultLayout.stageMinWidth),
-      stageMinHeight: finiteNumeric(layoutInput.stageMinHeight, defaultLayout.stageMinHeight),
-    },
-    display: {
-      titleAlign: displayInput.titleAlign === "center" ? "center" : "left",
-      titleOverflow:
-        displayInput.titleOverflow === "clip" || displayInput.titleOverflow === "visible"
-          ? displayInput.titleOverflow
-          : "ellipsis",
-      titleWrap: displayInput.titleWrap === true,
-      edgeArrowStyle: displayInput.edgeArrowStyle === "open" ? "open" : "filled",
-      showNodeDots: typeof displayInput.showNodeDots === "boolean" ? displayInput.showNodeDots : true,
-      showEdgeLabels:
-        displayInput.showEdgeLabels === undefined
-          ? DEFAULT_GRAPH_APPEARANCE.display.showEdgeLabels
-          : displayInput.showEdgeLabels === true,
-      nodeShadow: typeof displayInput.nodeShadow === "boolean" ? displayInput.nodeShadow : true,
-      showGroupBorders: typeof displayInput.showGroupBorders === "boolean" ? displayInput.showGroupBorders : true,
-      showGroupStats: typeof displayInput.showGroupStats === "boolean" ? displayInput.showGroupStats : true,
-      nodeCornerRadius: finiteNumeric(displayInput.nodeCornerRadius, 24),
-      shadowBlur: finiteNumeric(displayInput.shadowBlur, 8),
-      shadowOffset: finiteNumeric(displayInput.shadowOffset, 3),
-      shadowOpacity: finiteNumeric(displayInput.shadowOpacity, 12),
-      sankeyNodeWidth: finiteNumeric(displayInput.sankeyNodeWidth, 20),
-      sankeyLinkOpacity: finiteNumeric(displayInput.sankeyLinkOpacity, 32),
-    },
-    cssVars: sanitizeCssVars(record.cssVars),
-    css: sanitizeCss(record.css),
-  };
+  return resolveAppearance(input ?? undefined);
 }
 
 export function appearanceToStageStyle(appearance: GraphAppearance): CSSProperties {
@@ -338,7 +225,7 @@ export function appearanceToStageStyle(appearance: GraphAppearance): CSSProperti
   const shadow = (active: boolean) =>
     !nodeShadow
       ? "none"
-      : `drop-shadow(0 1px 1px rgba(24, 39, 64, ${shadowOpacity / 200})) drop-shadow(0 ${shadowOffset * (active ? 1.5 : 1)}px ${shadowBlur * (active ? 1.25 : 1)}px rgba(24, 39, 64, ${shadowOpacity / 100}))`;
+      : `drop-shadow(0 1px 1px rgba(${appearance.cssVars["--dag-shadow-color"]}, ${shadowOpacity / 200})) drop-shadow(0 ${shadowOffset * (active ? Number(appearance.cssVars["--dag-shadow-active-offset-scale"]) : 1)}px ${shadowBlur * (active ? Number(appearance.cssVars["--dag-shadow-active-blur-scale"]) : 1)}px rgba(${appearance.cssVars["--dag-shadow-color"]}, ${shadowOpacity / 100}))`;
   return {
     ...appearance.cssVars,
     "--dag-node-pin-display": appearance.display.showNodeDots ? "inline" : "none",
@@ -347,34 +234,4 @@ export function appearanceToStageStyle(appearance: GraphAppearance): CSSProperti
     "--dag-node-shadow-active": shadow(true),
     "--dag-sankey-opacity": sankeyLinkOpacity / 100,
   } as CSSProperties;
-}
-
-function sanitizeCss(css: unknown): string {
-  if (typeof css !== "string") {
-    return DEFAULT_GRAPH_CSS;
-  }
-  return css.slice(0, 50_000).replace(/@import\s+[^;]+;/gi, "");
-}
-
-function sanitizeCssVars(input: unknown): Record<string, string> {
-  const defaults = DEFAULT_GRAPH_APPEARANCE.cssVars;
-  if (!input || typeof input !== "object" || Array.isArray(input)) {
-    return { ...defaults };
-  }
-
-  const vars: Record<string, string> = { ...defaults };
-  Object.entries(input as Record<string, unknown>).forEach(([key, value]) => {
-    if (!key.startsWith("--dag-") || typeof value !== "string") {
-      return;
-    }
-    vars[key] = value.slice(0, 500);
-  });
-  return vars;
-}
-
-function finiteNumeric(value: unknown, fallback: number): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return fallback;
-  }
-  return value;
 }

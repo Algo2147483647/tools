@@ -3,7 +3,7 @@ import { getGroupNodes } from "../graph/hierarchy";
 import { cardContentLayout, minimumCardHeight } from "./typography";
 import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, NormalizedDag } from "../graph/types";
-import { stageTitleFont, type StageAppearance } from "./appearance";
+import { stageRoleFont, stageTitleFont, type StageAppearance } from "./appearance";
 import { getNodeVisual, layoutCardTitle, wrapDetailText, measureText, estimateTextWidth } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
 import { roundedPolylinePath } from "./rounded-path";
@@ -41,6 +41,8 @@ export async function buildCompoundStage(input: {
   );
   const theme = appearance.layout;
   const font = stageTitleFont(appearance);
+  const detailFont = stageRoleFont(appearance, "detail"),
+    detailLineHeight = Math.ceil(detailFont.size * 1.2);
   const visuals = new Map<string, { title: string; detail: string; width: number }>();
   for (const item of projection.items) {
     const internalEdgeCount = item.internalEdgeIds.length;
@@ -48,11 +50,11 @@ export async function buildCompoundStage(input: {
     const visual = getNodeVisual(
       item.id,
       dag.nodes[item.id],
-      theme.minNodeWidth,
-      theme.maxNodeWidth,
+      theme.nodeWidthRange,
       showNodeDetail,
       alignNodeWidthsToMax,
       font,
+      detailFont,
     );
     if (item.kind === "group" && !getNodeDefine(dag.nodes[item.id])) visual.detail = "";
     if (item.kind === "group" && appearance.display.showGroupStats !== false)
@@ -65,13 +67,23 @@ export async function buildCompoundStage(input: {
     external: boolean,
     fixedHeight?: number,
   ) {
-    const detailLines = visual.detail ? wrapDetailText(visual.detail, visual.width - 60, 2) : [];
+    const detailLines = visual.detail ? wrapDetailText(visual.detail, visual.width - 60, 2, detailFont) : [];
     const hasBadge = external || kind === "group";
     const titleLayout = layoutCardTitle(visual.title, visual.width, font, appearance.display);
     const height =
       fixedHeight ??
-      Math.max(theme.nodeHeight, minimumCardHeight(font, detailLines.length, hasBadge, titleLayout.lines.length));
-    const contentLayout = cardContentLayout(height, font, detailLines.length, hasBadge, titleLayout.lines.length);
+      Math.max(
+        theme.nodeHeight,
+        minimumCardHeight(font, detailLines.length, hasBadge, titleLayout.lines.length, detailLineHeight),
+      );
+    const contentLayout = cardContentLayout(
+      height,
+      font,
+      detailLines.length,
+      hasBadge,
+      titleLayout.lines.length,
+      detailLineHeight,
+    );
     return { titleLayout, height, contentLayout, detailLines };
   }
 
@@ -124,8 +136,8 @@ export async function buildCompoundStage(input: {
     baseline: {
       boxes: Object.fromEntries(placement.boxes),
       routes: {},
-      width: Math.max(placement.width, theme.stageMinWidth),
-      height: Math.max(placement.height, theme.stageMinHeight),
+      width: Math.max(placement.width, theme.stageMinSize[0]),
+      height: Math.max(placement.height, theme.stageMinSize[1]),
     },
   };
   let snapshot: LayoutSnapshot | undefined;
@@ -146,8 +158,8 @@ export async function buildCompoundStage(input: {
     snapshot = {
       boxes: Object.fromEntries(placement.boxes),
       routes: Object.fromEntries(routing.routes),
-      width: Math.max(routing.width, theme.stageMinWidth),
-      height: Math.max(routing.height, theme.stageMinHeight),
+      width: Math.max(routing.width, theme.stageMinSize[0]),
+      height: Math.max(routing.height, theme.stageMinSize[1]),
     };
     problem.baseline = snapshot;
     if (read.data.constraints.length || read.data.pins.length) {
@@ -223,7 +235,7 @@ export async function buildCompoundStage(input: {
         displayTitle: geometry.titleLayout.lines.join("\n"),
         titleLayout: geometry.titleLayout,
         detail: visual.detail,
-        detailLines: visual.detail ? wrapDetailText(visual.detail, width - 60, 2) : [],
+        detailLines: visual.detail ? wrapDetailText(visual.detail, width - 60, 2, detailFont) : [],
         typeLabel: item.external ? "External" : item.kind === "group" ? "Subgraph" : undefined,
         width,
         height,
@@ -281,8 +293,8 @@ export async function buildCompoundStage(input: {
     edges,
     connectedKeysByNode,
     lanes: [],
-    stageWidth: Math.max(result.width ?? 0, theme.stageMinWidth),
-    stageHeight: Math.max(result.height ?? 0, theme.stageMinHeight),
+    stageWidth: Math.max(result.width ?? 0, theme.stageMinSize[0]),
+    stageHeight: Math.max(result.height ?? 0, theme.stageMinSize[1]),
     warnings,
   };
 }

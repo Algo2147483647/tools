@@ -442,7 +442,10 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
     const stage = buildTimelineStage({
       dag,
       selection: { type: "full" },
-      appearance: { ...DEFAULT_GRAPH_APPEARANCE, layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, maxNodeWidth: 400 } },
+      appearance: {
+        ...DEFAULT_GRAPH_APPEARANCE,
+        layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, nodeWidthRange: [188, 400] },
+      },
     })!;
     assert.equal(stage.nodeMap.a.timeline!.end, Date.parse("2025-01-01T00:00:00Z"));
     assert.ok(stage.nodeMap.a.width > 0 && stage.nodeMap.a.width <= 400);

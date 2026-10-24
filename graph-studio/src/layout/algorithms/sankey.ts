@@ -1,3 +1,4 @@
+import { buildCategoryColorMap } from "../../graph/categoryColors";
 import { sankey } from "d3-sankey";
 import { findFeedbackEdges, formatFlow } from "../../graph/sankey";
 import type { GraphEdge, NormalizedDag } from "../../graph/types";
@@ -11,7 +12,6 @@ interface FlowNode {
 interface FlowLink {
   id: string;
 }
-const COLORS = ["#5386ce", "#54a89c", "#cf9b4e", "#9775c6", "#cd7997", "#6f9fac", "#a59467"];
 
 export function buildSankeyStage(
   dag: NormalizedDag,
@@ -21,6 +21,10 @@ export function buildSankeyStage(
   appearance: StageAppearance,
 ): StageData {
   const theme = appearance.layout;
+  const palette = buildCategoryColorMap(
+    [...keys].map((key) => String(dag.nodes[key].type || key)),
+    appearance.palette?.categories,
+  );
   const font = stageTitleFont(appearance);
   const edges = dag.edges.filter((edge) => keys.has(edge.source) && keys.has(edge.target));
   const positiveEdges = edges.filter((edge) => Number(edge.value) > 0);
@@ -61,7 +65,7 @@ export function buildSankeyStage(
   activeKeys.forEach((key) => columns.set(layerOf(key), [...(columns.get(layerOf(key)) ?? []), key]));
   const padding = theme.rowGap;
   const innerHeight = Math.max(
-    theme.stageMinHeight - 2 * theme.stagePadding[1],
+    theme.stageMinSize[1] - 2 * theme.stagePadding[1],
     Math.max(1, ...[...columns.values()].map((column) => column.length)) * (Math.max(48, theme.nodeHeight) + padding),
   );
   const maximum = Math.max(1e-300, ...positiveEdges.map((edge) => Number(edge.value)));
@@ -83,7 +87,7 @@ export function buildSankeyStage(
   const returnWidth = Math.max(0, ...returnEdges.map(widthOf));
   const gutter = returnEdges.length ? returnWidth / 2 + 32 : 0;
   const nodeWidth = appearance.display.sankeyNodeWidth;
-  const columnStep = nodeWidth + Math.max(theme.columnGap, theme.maxNodeWidth + 32, gutter * 2 + returnWidth + 32);
+  const columnStep = nodeWidth + Math.max(theme.columnGap, theme.nodeWidthRange[1] + 32, gutter * 2 + returnWidth + 32);
   const left = theme.stagePadding[0] + gutter + returnWidth / 2;
   const right = left + lastLayer * columnStep + nodeWidth;
   const nodeMap: Record<string, StageNode> = Object.create(null);
@@ -93,7 +97,9 @@ export function buildSankeyStage(
     const total = totals.get(key)!;
     const raw = dag.nodes[key];
     const color =
-      typeof raw.color === "string" && /^#[\da-f]{6}$/i.test(raw.color) ? raw.color : colorFor(String(raw.type || key));
+      typeof raw.color === "string" && /^#[\da-f]{6}$/i.test(raw.color)
+        ? raw.color
+        : palette.get(String(raw.type || key).trim())!.pinCore;
     nodeMap[key] = {
       key,
       x,
@@ -103,7 +109,7 @@ export function buildSankeyStage(
       width: nodeWidth,
       height,
       title: visual.title,
-      displayTitle: truncateTitleToWidth(visual.title, theme.maxNodeWidth, font),
+      displayTitle: truncateTitleToWidth(visual.title, theme.nodeWidthRange[1], font),
       detail: visual.detail,
       detailLines: [],
       typeLabel: typeof raw.type === "string" ? raw.type : undefined,
@@ -281,16 +287,10 @@ export function buildSankeyStage(
     connectedKeysByNode,
     lanes: [],
     stageWidth: Math.max(
-      theme.stageMinWidth,
-      right + Math.max(theme.maxNodeWidth, gutter + returnWidth / 2) + theme.stagePadding[0],
+      theme.stageMinSize[0],
+      right + Math.max(theme.nodeWidthRange[1], gutter + returnWidth / 2) + theme.stagePadding[0],
     ),
-    stageHeight: Math.max(theme.stageMinHeight, (lanes.length ? laneBottom : bottom) + theme.stagePadding[1]),
+    stageHeight: Math.max(theme.stageMinSize[1], (lanes.length ? laneBottom : bottom) + theme.stagePadding[1]),
     warnings,
   };
-}
-
-function colorFor(key: string): string {
-  let hash = 0;
-  for (const char of key) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) | 0;
-  return COLORS[(hash >>> 0) % COLORS.length];
 }

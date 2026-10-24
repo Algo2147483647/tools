@@ -23,10 +23,16 @@ export const DEFAULT_TITLE_FONT = getTitleFont(DEFAULT_GRAPH_APPEARANCE);
 export const CARD_DETAIL_LINE_HEIGHT = 12;
 export const CARD_BADGE_HEIGHT = 10;
 
-export function minimumCardHeight(font: TextFont, detailCount: number, hasBadge: boolean, titleLines = 1): number {
+export function minimumCardHeight(
+  font: TextFont,
+  detailCount: number,
+  hasBadge: boolean,
+  titleLines = 1,
+  detailLineHeight = CARD_DETAIL_LINE_HEIGHT,
+): number {
   const titleHeight = Math.ceil(font.size * 1.2) * titleLines;
   return detailCount
-    ? 16 + titleHeight + 4 + detailCount * CARD_DETAIL_LINE_HEIGHT + (hasBadge ? 4 + CARD_BADGE_HEIGHT : 0)
+    ? 16 + titleHeight + 4 + detailCount * detailLineHeight + (hasBadge ? 4 + CARD_BADGE_HEIGHT : 0)
     : titleHeight + (hasBadge ? 30 : 16);
 }
 
@@ -36,13 +42,26 @@ export function cardContentLayout(
   detailCount: number,
   hasBadge: boolean,
   titleLines = 1,
+  detailLineHeight = CARD_DETAIL_LINE_HEIGHT,
 ) {
   const titleHeight = Math.ceil(font.size * 1.2) * titleLines;
-  const top = (height - minimumCardHeight(font, detailCount, hasBadge, titleLines)) / 2 + 8;
+  const top = (height - minimumCardHeight(font, detailCount, hasBadge, titleLines, detailLineHeight)) / 2 + 8;
   return {
     titleY: detailCount ? top + titleHeight / 2 : height / 2,
-    detailY: top + titleHeight + 4 + CARD_DETAIL_LINE_HEIGHT / 2,
-    detailLineHeight: CARD_DETAIL_LINE_HEIGHT,
+    detailY: top + titleHeight + 4 + detailLineHeight / 2,
+    detailLineHeight,
     badgeY: height - CARD_BADGE_HEIGHT - (detailCount ? 8 : 3),
+  };
+}
+
+export type FontRole = "title" | "detail" | "date" | "axis" | "track";
+export function getRoleFont(appearance: Pick<GraphAppearance, "cssVars">, role: FontRole): TextFont {
+  const vars = { ...DEFAULT_GRAPH_APPEARANCE.cssVars, ...appearance.cssVars };
+  const prefix = `--dag-${role}-font-`;
+  return {
+    size: Number(vars[prefix + "size"].slice(0, -2)),
+    family: vars[prefix + "family"],
+    weight: vars[prefix + "weight"],
+    style: vars[prefix + "style"],
   };
 }

@@ -1,3 +1,4 @@
+import { appearanceContractSuite } from "./appearanceContract.test";
 import { spatialSuite } from "./spatial.test";
 import { compoundLayoutPlanSuite } from "./compoundLayoutPlan.test";
 import { compoundRoutingSuite } from "./compoundRouting.test";
@@ -42,6 +43,7 @@ import { timelinePresetsSuite } from "./timelinePresets.test";
 
 async function main() {
   const suites = [
+    appearanceContractSuite,
     timelineLayoutSuite,
     layoutWorkflowSuite,
     compoundLayoutPlanSuite,

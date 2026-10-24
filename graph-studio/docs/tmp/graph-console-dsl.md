@@ -800,17 +800,15 @@ Sets one numeric layout appearance value. Layout appearance controls graph spaci
 
 ### Supported Keys
 
-| Key               | Meaning                            |
-| ----------------- | ---------------------------------- |
-| `stagePadding` | Horizontal and vertical graph padding `[x, y]`; use `/layout stagePadding [32, 48]`. |
-| `columnGap`       | Horizontal distance between layers |
-| `rowGap`          | Vertical distance between rows     |
-| `edgeLaneGap`     | Spacing between edge lanes         |
-| `nodeHeight`      | Base node height                   |
-| `minNodeWidth`    | Minimum node width                 |
-| `maxNodeWidth`    | Maximum node width                 |
-| `stageMinWidth`   | Minimum SVG stage width            |
-| `stageMinHeight`  | Minimum SVG stage height           |
+| Key              | Meaning                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| `stagePadding`   | Horizontal and vertical graph padding `[x, y]`; use `/layout stagePadding [32, 48]`. |
+| `columnGap`      | Horizontal distance between layers                                                   |
+| `rowGap`         | Vertical distance between rows                                                       |
+| `edgeLaneGap`    | Spacing between edge lanes                                                           |
+| `nodeHeight`     | Base node height                                                                     |
+| `nodeWidthRange` | Node width bounds `[min, max]`.                                                      |
+| `stageMinSize`   | Minimum stage size `[width, height]`.                                                |
 
 ### Behavioral Notes
 
@@ -826,7 +824,7 @@ Sets one numeric layout appearance value. Layout appearance controls graph spaci
 ```sh
 /layout rowGap 28
 /layout columnGap 260
-/layout maxNodeWidth 420
+/layout nodeWidthRange [188, 420]
 ```
 
 ---

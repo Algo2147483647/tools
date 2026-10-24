@@ -14,6 +14,7 @@ export default function TimelineColorSettings({
       <div className="timeline-control-row">
         <span>Color by</span>
         <TimelineChoices
+          schemaPath="colorBy"
           label="Timeline color by"
           value={settings.colorBy}
           options={[

@@ -1,3 +1,4 @@
+import { getDefaultChartStyle } from "../state/chartStyles";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 import ColorSetting from "./settings/ColorSetting";
 import NumericSetting from "./settings/NumericSetting";
@@ -23,6 +24,7 @@ export default function TimelineIntervalSettings({
         <div className="timeline-control-row">
           <span>Fill</span>
           <TimelineChoices
+            schemaPath="intervalStyle"
             label="Interval fill style"
             value={settings.intervalStyle}
             options={[
@@ -36,7 +38,7 @@ export default function TimelineIntervalSettings({
         <NumericSetting
           label="Thickness"
           value={settings.intervalWidth}
-          defaultValue={36}
+          defaultValue={timelineDefaults.intervalWidth}
           min={0}
           max={240}
           step={1}
@@ -46,7 +48,7 @@ export default function TimelineIntervalSettings({
         <NumericSetting
           label="Corner radius"
           value={settings.intervalRadius}
-          defaultValue={6}
+          defaultValue={timelineDefaults.intervalRadius}
           min={0}
           max={120}
           step={1}
@@ -59,6 +61,7 @@ export default function TimelineIntervalSettings({
         <div className="timeline-control-row">
           <span>Style</span>
           <TimelineChoices
+            schemaPath="intervalBorder"
             label="Interval border style"
             value={settings.intervalBorder}
             options={[
@@ -78,7 +81,7 @@ export default function TimelineIntervalSettings({
             <NumericSetting
               label="Stroke width"
               value={settings.intervalBorderWidth}
-              defaultValue={1.5}
+              defaultValue={timelineDefaults.intervalBorderWidth}
               min={0}
               max={20}
               step={0.5}
@@ -88,7 +91,7 @@ export default function TimelineIntervalSettings({
             <ColorSetting
               label="Border color"
               value={settings.intervalBorderColor}
-              defaultValue=""
+              defaultValue={timelineDefaults.intervalBorderColor}
               automatic={{ color: "#64748b", description: "Uses the event color from Color by." }}
               onChange={(intervalBorderColor) => onChange({ intervalBorderColor })}
             />
@@ -98,3 +101,5 @@ export default function TimelineIntervalSettings({
     </section>
   );
 }
+
+const timelineDefaults = getDefaultChartStyle("timeline").timeline!;

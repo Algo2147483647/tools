@@ -55,7 +55,7 @@ export default function AppearanceSchema({
               key={`${field.path}:${JSON.stringify(entry.value)}`}
               path={field.path}
               value={entry.value}
-              options={field.type.includes(" | ") ? field.type.split(" | ") : undefined}
+              options={field.definition?.enum?.map(String)}
               onCommit={(value) => {
                 const next = updateAppearanceSchemaValue(chartType, style, field.path, value);
                 onChange(next);
@@ -69,7 +69,7 @@ export default function AppearanceSchema({
   );
 }
 
-function SchemaValueEditor({
+export function SchemaValueEditor({
   path,
   value,
   options,
