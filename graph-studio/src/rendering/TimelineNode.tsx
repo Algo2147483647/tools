@@ -5,6 +5,7 @@ import { sanitizeTimelineMarker } from "../graph/timelineSettings";
 import TimelineMarker, { timelineMarkerStyle } from "./TimelineMarker";
 
 interface TimelineNodeProps {
+  readOnly?: boolean;
   layer?: "leader" | "marker" | "label" | "all";
   node: StageNode;
   isActive: boolean;
@@ -16,6 +17,7 @@ interface TimelineNodeProps {
 }
 
 export default function TimelineNode({
+  readOnly = false,
   layer = "all",
   node,
   isActive,
@@ -58,7 +60,7 @@ export default function TimelineNode({
         : bar.y + bar.height / 2;
   const cross = horizontal ? node.y : node.x;
   const minimumCross = time.minimumCross ?? 214;
-  const canPin = Boolean(onPin) && time.space === undefined;
+  const canPin = !readOnly && Boolean(onPin) && time.space === undefined;
   const dateLimit = Math.max(16, Math.floor(node.width / 6.1));
   const dateLabel = time.label.length > dateLimit ? `${time.label.slice(0, dateLimit - 1)}…` : time.label;
   const labelEdgeX = Math.max(labelX - 7, Math.min(anchor.x, labelX + node.width + 7));
@@ -136,10 +138,11 @@ export default function TimelineNode({
           "--timeline-leader-dash": time.leaderStyle === "dashed" ? "4 3" : "none",
         } as CSSProperties
       }
-      tabIndex={layer === "leader" ? undefined : layer === "marker" ? -1 : 0}
-      role={layer === "marker" || layer === "leader" ? undefined : "button"}
+      pointerEvents={readOnly ? "none" : undefined}
+      tabIndex={readOnly || layer === "leader" ? undefined : layer === "marker" ? -1 : 0}
+      role={readOnly || layer === "marker" || layer === "leader" ? undefined : "button"}
       aria-hidden={layer === "marker" || layer === "leader" || undefined}
-      aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}. Select event; press Enter or double-click for details.`}
+      aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}.${readOnly ? "" : " Select event; press Enter or double-click for details."}`}
       onPointerDown={(event) => {
         if (!canPin || event.button !== 0) return;
         const scale = event.currentTarget.ownerSVGElement?.getScreenCTM()?.a || 1;

@@ -14,6 +14,10 @@ import { resetAppearanceSection, resetChartStyleSection } from "../components/se
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getInitialGraphPagePreferences, saveGraphPagePreferences } from "../state/preferences";
 import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
+import { getAppearanceSchema } from "../components/settings/appearanceSchemas";
+import { APPEARANCE_GROUPS } from "../components/settings/settingsCatalog";
+import { orderSchemaFields, type SchemaField } from "../components/settings/schemaModel";
+import ProtocolSchema from "../components/settings/ProtocolSchema";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
 import { parseNodeTimeline } from "../graph/timeline";
@@ -26,6 +30,72 @@ import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
 import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("protocol tables keep parent branches contiguous and requirements in their own column", () => {
+    const schemas = Object.entries(CHART_SCHEMAS).flatMap(([type, schema]) => [
+      schema,
+      getAppearanceSchema(type as keyof typeof CHART_SCHEMAS),
+    ]);
+    for (const schema of schemas) {
+      const fields: SchemaField[] = schema.fields;
+      assert.equal(new Set(fields.map((field) => field.path)).size, fields.length);
+      assert.deepEqual(orderSchemaFields(fields), fields);
+      for (const [index, field] of fields.entries()) {
+        assert.match(field.requirement, /^(Required|Optional)$/);
+        assert.ok(field.description);
+        assert.doesNotMatch(field.description, /[\r\n]/);
+        const descendants = fields.flatMap((candidate, i) =>
+          candidate.path.startsWith(`${field.path}.`) || candidate.path.startsWith(`${field.path}[`) ? [i] : [],
+        );
+        if (descendants.length)
+          assert.deepEqual(
+            descendants,
+            descendants.map((_, i) => index + i + 1),
+          );
+      }
+    }
+    const timeline = CHART_SCHEMAS.timeline;
+    const markup = renderToStaticMarkup(
+      createElement(ProtocolSchema, {
+        label: "Timeline",
+        version: "v3",
+        fields: timeline.fields,
+        example: timeline.example,
+        fileName: "timeline-example.json",
+        note: "Required children apply when their parent is present.",
+      }),
+    );
+    assert.equal((markup.match(/<table\b/g) ?? []).length, 1);
+    assert.match(markup, /scope="col">Required \/ Optional/);
+    assert.match(markup, /scope="col">Description/);
+    assert.doesNotMatch(markup, /<dl|chart-schema-field-group/);
+  }),
+  defineTest("appearance schema examples are complete chart defaults and pair with graph examples", () => {
+    assert.deepEqual(
+      APPEARANCE_GROUPS.slice(0, 2).map((group) => group.id),
+      ["schema", "presets"],
+    );
+    for (const type of Object.keys(CHART_SCHEMAS) as (keyof typeof CHART_SCHEMAS)[]) {
+      const schema = getAppearanceSchema(type);
+      const imported = parseChartStyleFile(schema.example, type);
+      assert.deepEqual(imported, getDefaultChartStyle(type));
+      assert.equal(CHART_SCHEMAS[type].example.metadata?.style, `${type}.style.json`);
+      assert.ok(
+        schema.fields.some((field) => field.path === "style.appearance.css" && field.requirement === "Required"),
+      );
+      if (type === "timeline") {
+        assert.deepEqual(imported.timeline?.pins, {});
+        for (const key of Object.keys(imported.timeline!))
+          assert.ok(schema.fields.some((field) => field.path === `style.timeline.${key}`));
+      }
+    }
+    assert.ok(CHART_SCHEMAS.sankey.example.edges.some((edge) => edge.metadata?.feedback === true));
+    assert.ok(
+      CHART_SCHEMAS.timeline.example.edges.some(
+        (edge) => (edge.metadata?.timeline as Record<string, unknown>)?.sourceTime,
+      ),
+    );
+    assert.ok(Object.values(CHART_SCHEMAS.spatial.example.nodes).some((node) => node.spatialStyle));
+  }),
   defineTest("Graph schema references a separate style; all Timeline options round-trip through that file", () => {
     const schema = JSON.parse(fs.readFileSync(new URL("../../public/graph.schema.json", import.meta.url), "utf8"));
     assert.equal(schema.properties.metadata.properties.timeline.properties.view, undefined);

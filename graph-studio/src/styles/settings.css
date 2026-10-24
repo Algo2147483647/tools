@@ -706,9 +706,7 @@
 }
 .chart-schema {
   margin-top: 24px;
-  border: 1px solid #dce3ee;
-  border-radius: 10px;
-  overflow: hidden;
+  min-width: 0;
 }
 .chart-schema-heading {
   display: flex;
@@ -716,9 +714,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 14px;
-  padding: 16px 18px;
-  background: #f7f9fc;
-  border-bottom: 1px solid #e3e8f0;
+  padding: 12px 0;
 }
 .chart-schema-heading h3 span {
   margin-left: 8px;
@@ -758,42 +754,72 @@
   outline: 2px solid #5378b8;
   outline-offset: 2px;
 }
-.chart-schema-fields {
-  margin: 0;
-  padding: 0 18px;
-}
-.chart-schema-fields > div {
-  display: grid;
-  grid-template-columns: minmax(150px, 0.9fr) minmax(0, 1.4fr);
-  gap: 18px;
-  padding: 13px 0;
-}
-.chart-schema-fields > div + div {
-  border-top: 1px solid #edf0f5;
-}
-.chart-schema-fields dt,
-.chart-schema-fields dd {
-  margin: 0;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.chart-schema-fields code {
-  font:
-    11px/1.6 Consolas,
-    monospace;
-  color: #334b6d;
-}
-.chart-schema-fields dt > span {
-  display: block;
-  margin-top: 3px;
-  font-size: 10px;
-  color: #748198;
-}
-.chart-schema-fields dd > p {
-  margin: 3px 0 0;
-  font-size: 12px;
+.chart-schema-note {
+  margin: 12px 0;
   color: #68788e;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.schema-table-scroll {
+  max-width: 100%;
+  max-height: max(240px, calc(100dvh - 370px));
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 8px;
+}
+.schema-table-scroll:focus-visible {
+  outline: 2px solid #5378b8;
+  outline-offset: 3px;
+}
+.schema-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  border-top: 2px solid #40516a;
+  border-bottom: 2px solid #40516a;
+  font-size: 12px;
+  color: #40516a;
+}
+.schema-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.schema-table th,
+.schema-table td {
+  padding: 10px 16px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
   line-height: 1.5;
+  border: 0;
+}
+.schema-table thead {
+  border-bottom: 1px solid #40516a;
+}
+.schema-table thead th {
+  font-weight: 600;
+  color: #24354e;
+}
+.schema-table tbody th {
+  font-weight: 400;
+}
+.schema-table tbody tr:hover {
+  background: #f7f9fc;
+}
+.schema-table code {
+  color: inherit;
+  font:
+    11px/1.5 Consolas,
+    monospace;
+}
+.chart-schema-code-actions {
+  display: flex;
+  gap: 8px;
 }
 .chart-schema-code-toolbar {
   display: flex;
@@ -823,16 +849,6 @@
   padding: 0 18px 10px;
   color: #5378b8;
   font-size: 12px;
-}
-@media (max-width: 600px) {
-  .chart-schema-fields > div {
-    grid-template-columns: 1fr;
-    gap: 5px;
-  }
-  .chart-schema-fields dt > span {
-    display: inline;
-    margin-left: 8px;
-  }
 }
 .layout-mini {
   display: none;
@@ -1403,18 +1419,6 @@
 .timeline-settings-section {
   container-type: inline-size;
 }
-.chart-schema-field-group > h4 {
-  margin: 18px 0 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #e3e8ef;
-  color: #40516a;
-  font-size: 12px;
-}
-.chart-schema-default {
-  margin: 5px 0;
-  color: #627187;
-  font-size: 11px;
-}
 .timeline-style-group {
   min-width: 0;
   margin: 16px 0 0;
@@ -1674,4 +1678,26 @@
   .timeline-choice button {
     min-height: 32px;
   }
+}
+
+/* The protocol uses the full reading width; a sample graph is not needed here. */
+.studio-settings .settings-content:has(.appearance-schema-view) {
+  display: flex;
+}
+.studio-settings .settings-content:has(.appearance-schema-view) > .settings-preview-card {
+  display: none;
+}
+.studio-settings .settings-content:has(.appearance-schema-view) > .settings-page {
+  display: block;
+}
+.appearance-schema-view .chart-schema {
+  margin-top: 16px;
+}
+.appearance-schema-view {
+  min-width: 0;
+}
+.chart-schema-example pre {
+  overflow-x: auto;
+  white-space: pre;
+  overflow-wrap: normal;
 }

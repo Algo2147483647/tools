@@ -2,6 +2,7 @@ import { normalizeDagInput, validateNodeKey } from "./normalize";
 import { isRecord } from "../utils/json";
 import { serializeDag } from "./serialize";
 import { remapImportedLayoutData, repairLayoutData } from "../layout/compound-layout-plan";
+import { remapImportedTimelineLayout, repairTimelineLayout } from "./timelineLayout";
 import type { GraphEdge, HierarchyEdge, NormalizedDag } from "./types";
 
 export interface ImportGraphDocument {
@@ -269,6 +270,7 @@ export function analyzeGraphImport(
     }
     if (incoming.metadata) {
       remapImportedLayoutData(incoming, renameMap, edgeRenameMap);
+      remapImportedTimelineLayout(incoming, renameMap);
       output.metadata ??= {};
       mergeObject(output.metadata, incoming.metadata, index, "/metadata");
     }
@@ -290,6 +292,7 @@ export function analyzeGraphImport(
   }
   if (parsed.length > 1) {
     repairLayoutData(output, parsed[0]);
+    repairTimelineLayout(output);
     output.metadata ??= {};
     // Preserve all original document headers and metadata, even when a user chooses the existing merged value.
     const archiveKey = unique("importSources", Object.keys(output.metadata));

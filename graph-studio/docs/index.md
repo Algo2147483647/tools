@@ -1,30 +1,30 @@
-# Documentation Index
+# Graph Studio Documentation
 
-This directory contains the main user and developer documentation for Graph Studio.
+This reference describes the behavior and file formats implemented in the current source tree. Graph data uses **Graph Studio v3**. Portable appearance files use **graph-studio-style v1** and contain **GraphAppearance v1**. These version numbers identify different contracts.
 
-## Start Here
+## Chart types
 
-- [Workspace Guide](workspaces.md): single files, folders, recent locations, manifest protocol and local links
-- [Usage Guide](usage.md): how to navigate, edit, and save graphs in the UI
-- [Data Format Guide](data-format.md): how graph JSON is shaped, mapped, and preserved
-- [Nested node-link](compound.md): independent G/H protocol, subgraph editing, folding, containment layout and the commerce workspace
-- [Spatial](spatial.md): 0D and higher-dimensional coordinates, coordinate systems, projection controls and Spatial Atlas
-- [Timeline](timeline.md): UTC time coordinates, event intervals, branch tracks, time editing, and the space history workspace
-- [Graph Console DSL](graph-console-dsl.md): command reference for batch edits in the console sidebar
-- [Graph Appearance System](graph-appearance.md): CSS-first graph UI configuration, presets, import, export, reset, and AI-driven style edits
-- [Development Guide](development.md): scripts, source layout, and implementation notes
+Start with [Chart types and the shared data protocol](chart-types.md), then read the guide for the selected chart.
 
-## Technical Designs
+| Chart                         | Data and behavior                      | Appearance and style protocol                         |
+| ----------------------------- | -------------------------------------- | ----------------------------------------------------- |
+| Node-link                     | [Node-link](charts/node-link.md)       | [Node-link appearance](appearance/node-link.md)       |
+| Nested node-link (`compound`) | [Nested node-link](charts/compound.md) | [Nested node-link appearance](appearance/compound.md) |
+| Sankey                        | [Sankey](charts/sankey.md)             | [Sankey appearance](appearance/sankey.md)             |
+| Timeline                      | [Timeline](charts/timeline.md)         | [Timeline appearance](appearance/timeline.md)         |
+| Spatial                       | [Spatial](charts/spatial.md)           | [Spatial appearance](appearance/spatial.md)           |
 
-- [AI Assisted Nested Layout and Routing](ai-compound-layout.md): constraints, geometry validation, candidate previews, persistence, AI integration, and further development
+## Appearance
 
-## Which Document To Read
+[Appearance and the shared style protocol](appearance.md) defines the current file envelope, shared fields, CSS integration, defaults, validation, persistence, and export behavior. Chart-specific pages explain which fields actually affect each renderer.
 
-- If you want to try the app quickly, start from the repository [README](../README.md).
-- If you want to use the interface effectively, read [Usage Guide](usage.md).
-- If you are preparing or generating graph data, read [Data Format Guide](data-format.md).
-  It also explains strict v3 validation, independent edges, metadata preservation, and explicit import conflict decisions.
-- If you are changing graph UI, presets, layout tuning, or custom CSS, read [Graph Appearance System](graph-appearance.md).
-- If you are working on text-based graph or appearance mutations, read [Graph Console DSL](graph-console-dsl.md).
-- If you are modifying the codebase, read [Development Guide](development.md).
-- If you are using or extending AI-assisted nested layout and routing, read the [technical design](ai-compound-layout.md).
+[Appearance protocol v2 proposal](appearance-protocol-v2.md) records the proposed JSON-first standardization. It is a design document, not an accepted import format. Do not use its proposed field names in current style files.
+
+## Source of truth
+
+- [Graph JSON Schema](../public/graph.schema.json) documents graph structure; runtime validation performs additional semantic checks.
+- [Graph types](../src/graph/types.ts) define chart IDs and document types.
+- [Style file parser](../src/state/chartStyleFile.ts) defines the accepted appearance file envelope.
+- [Chart defaults](../src/state/chartStyles.ts) define chart-specific initial styles.
+
+Older guides are retained in `docs/tmp` during documentation reorganization. The chart and appearance references above replace their overlapping material; archived defaults and relative links may be outdated.

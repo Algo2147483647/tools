@@ -27,7 +27,7 @@ Timeline uses the existing graph document. `diagram` remains `dag` or `sankey`; 
 
 An ordinary graph can be switched to Timeline without this hint. Nodes without time will be visible as undated events.
 
-For a historical snapshot, optional `metadata.timeline.asOf` accepts a date or explicit-offset date-time. Ongoing bars extend to that saved reference time instead of today. Without it they extend to the time the view is built.
+For a historical snapshot, optional `metadata.timeline.asOf` accepts a date or explicit-offset date-time. Ongoing bars extend to that saved reference time instead of today. Without it, the view captures a reference time when the document opens and retains it through layout previews and mode switches.
 
 ```json
 {
@@ -80,6 +80,46 @@ The node editor includes **Event time & track** in Timeline and for nodes that a
 The JSON schema documents valid event-time data. Opening a document remains tolerant of malformed time fields so they can be inspected and corrected in the undated area. Editing a time through graph commands validates newly supplied dates; unrelated edits do not remove imported evidence.
 
 ## Layout and axis
+
+### Algorithm and AI
+
+Open **Arrange** in the timeline toolbar. Its floating panel uses the same translucent surface as the toolbar and switches between **Algorithm** and **AI**.
+
+- **Algorithm** uses the existing Tracks or Flow arrangement and connection routing settings. **Readapt** rebuilds from the current visible events and time range.
+- **AI** uses the provider, endpoint, and model configured in **Settings → AI**. Describe the arrangement, select **Generate preview**, compare Current and AI proposal, then **Apply AI layout**. Use the preview's zoom selector and scroll each diagram to inspect details. The review includes measured crossings, outside-label overlaps, route length, canvas size, and moved events. A proposal can trade one metric for another; improvement is not assumed.
+- Switching back to Algorithm restores its settings without discarding the saved AI profile. Switching to AI reuses that profile without another model request. Before the first proposal is applied, AI mode displays the algorithm result.
+
+AI suggests track order, independent-chain placement priority, spacing, and routing mode. The local algorithm computes actual positions and paths. Event dates, durations, chronology, relationship anchors, orientation, track membership, manual pins, and explicit `space` row indices remain intact. This works for vertical and horizontal timelines, calendar and relative clocks, dated and undated events. **Lock time axis** retains its meaning: AI can rearrange channels while the time mapping remains fixed.
+
+Ordinary filters retain the existing layout scope. Use **Readapt** after filtering to narrow the arrangement scope. The Events count in Arrange reports that scope. Changing the document, filters, layout settings, or AI settings invalidates an existing preview and cancels pending work. Closing Arrange cancels a pending request. Preview generation never applies automatically, including when the console uses Auto-edit.
+
+Mode changes and applied profiles are graph edits with Undo/Redo and dirty tracking. Save the graph JSON to retain them across sessions. The profile is stored separately from event data and portable style settings:
+
+```json
+"metadata": {
+  "layout": {
+    "timeline": {
+      "version": 1,
+      "mode": "ai",
+      "plan": {
+        "trackOrder": ["Research", "Engineering", "Operations"],
+        "eventOrder": ["discovery", "prototype", "delivery"],
+        "nodeGap": 40,
+        "horizontalSpread": 1.2,
+        "edgeRouting": "avoid"
+      }
+    }
+  }
+}
+```
+
+`mode` is `algorithm` or `ai`; `plan` is optional. Plan fields are optional, with omitted orders treated as empty. Track names and event IDs must exist in the layout scope. Unlisted items keep deterministic algorithmic order. In Flow, use `eventOrder` to prioritize independent chains; it does not split continuous sequences. Spacing bounds are `nodeGap: 8..160` and `horizontalSpread: 0.5..3`; routing is `avoid` or `direct`. Node renames, deletions, and import conflict renames repair saved references. Unsupported saved versions fall back to Algorithm with a warning, preserving the source metadata until a new mode/profile is saved.
+
+The dedicated AI response is `{ "version": 1, "explanation": "…", "plan": { … } }`. Arbitrary commands, coordinates, date changes, unsupported fields, and unknown references are rejected. The prompt sends layout data: at most 160 sampled events, 240 sampled relationships, full track counts, and up to 240 aggregate track connections. Focused events are sampled first. Graph text is treated as data; full node properties and console history are not included. One JSON repair request is permitted. The model request times out after 90 seconds; Worker evaluation after 20 seconds. Preview evaluation is limited to 2,000 events and 4,000 relationships. Metric comparisons are capped and explicitly marked as sampled when necessary. Large graphs should be filtered and readapted first.
+
+Implementation: `src/ai/timelineLayout.ts` contains the prompt and provider call; `src/controllers/useTimelineLayout.ts` manages cancellation, previews and history; `src/layout/timeline-layout-candidate.ts` validates geometry; `src/graph/timelineLayout.ts` handles persisted profiles. Browser integration checks live at `/browser-tests/timeline-layout.html`, using mock model responses with real Workers.
+
+### Arrangement and time mapping
 
 In **Settings → Layout**, choose the arrangement independently of the time axis:
 

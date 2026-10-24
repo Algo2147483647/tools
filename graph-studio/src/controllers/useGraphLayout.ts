@@ -177,5 +177,15 @@ export function useGraphLayout({
     compoundLayout.error,
   ]);
 
-  return { stage, status, parentSelection, timelineView, compoundLayout, spatialView };
+  return {
+    stage,
+    status,
+    parentSelection,
+    timelineView: {
+      ...timelineView,
+      ready: timelineSettings === state.timelineSettings && requestedGeometry === geometryAppearance,
+    },
+    compoundLayout,
+    spatialView,
+  };
 }

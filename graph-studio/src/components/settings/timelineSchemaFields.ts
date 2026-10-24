@@ -1,118 +1,109 @@
-import type { SchemaField } from "./chartSchemas";
-
-const field = (group: string, path: string, type: string, description: string, defaultValue?: string): SchemaField => ({
-  group,
-  path,
-  type,
-  requirement: "Optional",
-  description,
-  defaultValue,
-});
-const clock = (key: string, type: string, fallback: string, description: string) =>
-  field("Clock", `metadata.timeline.clock.${key}`, type, description, fallback);
-const relation = (key: string, type: string, description: string, fallback?: string) =>
-  field("Time anchors", `edges[].metadata.timeline.${key}`, type, description, fallback);
+import { schemaField as f, type SchemaField } from "./schemaModel";
 
 export const TIMELINE_SCHEMA_FIELDS: SchemaField[] = [
-  field(
-    "Timeline",
+  f(
     "metadata.timeline",
     "object",
-    "Enables Timeline view. The enclosing document uses protocol version 3; diagram must be dag or omitted.",
+    "Optional",
+    "Selects Timeline on open; appearance belongs in the linked style file.",
   ),
-  field(
-    "Timeline",
+  f(
     "metadata.timeline.timeZone",
     '"UTC"',
-    "Calendar values are normalized to UTC. Relative values are never converted to dates.",
+    "Optional",
+    "Normalizes calendar times to UTC without converting relative values.",
     '"UTC"',
   ),
-  field(
-    "Timeline",
+  f(
     "metadata.timeline.asOf",
-    "calendar date string",
-    "Snapshot used as the end of calendar intervals whose end is null. Ignored for relative time.",
-    "Current time",
+    "calendar string",
+    "Optional",
+    "Snapshot endpoint for ongoing calendar intervals; ignored for relative time.",
+    "Opening time",
   ),
-  field(
-    "Event time",
+  f("metadata.timeline.clock", "object", "Optional", "Declares one calendar or relative clock for the document."),
+  f(
+    "metadata.timeline.clock.mode",
+    '"calendar" | "relative"',
+    "Required",
+    "Chooses calendar strings or finite numeric offsets.",
+    '"calendar"',
+  ),
+  f(
+    "metadata.timeline.clock.unit",
+    "unit | second | minute | hour | day | week | cycle",
+    "Optional",
+    "Relative display unit; changing it does not rescale values.",
+    '"unit"',
+  ),
+  f("metadata.timeline.clock.origin", "string", "Optional", "Nonempty label for relative zero.", '"T0"'),
+  f("metadata.timeline.clock.format", "offset | elapsed", "Optional", "Relative time label format.", '"offset"'),
+  f(
+    "metadata.timeline.clock.precision",
+    "integer, 0–12",
+    "Optional",
+    "Relative decimal display places; stored values remain unchanged.",
+    "2",
+  ),
+  f(
     "nodes[id].time",
     "{ at } | { start, end }",
-    "Use exactly one form. Calendar values accept YYYY, YYYY-MM, YYYY-MM-DD, or an ISO timestamp with an explicit timezone. Relative values must be finite numbers. Missing or invalid time leaves the event unplaced.",
+    "Optional",
+    "Use exactly one form; missing or invalid imported time remains undated.",
   ),
-  field(
-    "Event time",
-    "nodes[id].time.at",
-    "string | number",
-    "Position of one instant. Must not coexist with start or end.",
-  ),
-  field(
-    "Event time",
+  f("nodes[id].time.at", "string | number", "Optional", "Required for an instant; cannot coexist with start or end."),
+  f(
     "nodes[id].time.start",
     "string | number",
-    "Inclusive start of a duration; required when using the duration form.",
+    "Optional",
+    "Required for an interval; calendar date or finite relative offset.",
   ),
-  field(
-    "Event time",
+  f(
     "nodes[id].time.end",
     "string | number | null",
-    "Inclusive end, no earlier than start. Calendar-only null means ongoing. Relative durations require an explicit finite end.",
+    "Optional",
+    "Required for an interval; no earlier than start; null is calendar-only ongoing time.",
   ),
-  field(
-    "Event time",
-    "nodes[id].track",
-    "string",
-    "Track membership in Tracks layout. Independent of Type-based coloring.",
-    '"Events"',
-  ),
-  field(
-    "Event time",
+  f("nodes[id].track", "string", "Optional", "Track membership, independent of Type coloring.", '"Events"'),
+  f(
     "nodes[id].space",
     "integer ≥ 1",
-    "Fixed one-based row in horizontal orientation, or column in vertical orientation. Automatic placement and pins do not override this index.",
-    "Automatic placement",
+    "Optional",
+    "Fixed row horizontally or column vertically; takes precedence over pins.",
+    "Automatic",
   ),
-  clock(
-    "mode",
-    '"calendar" | "relative"',
-    '"calendar"',
-    "Selects string-based calendar time or numeric relative time for all events.",
-  ),
-  clock(
-    "unit",
-    '"unit" | "second" | "minute" | "hour" | "day" | "week" | "cycle"',
-    '"unit"',
-    "Relative display unit. unit is schematic; changing it does not rescale stored values.",
-  ),
-  clock("origin", "non-empty string", '"T0"', "Label for relative zero."),
-  clock(
-    "format",
-    '"offset" | "elapsed"',
-    '"offset"',
-    "Displays relative values as signed offsets or elapsed values with the unit.",
-  ),
-  clock("precision", "integer, 0–12", "2", "Relative display decimal places; stored values remain unchanged."),
-  relation(
-    "kind",
-    '"sequence" | "dependency" | "reference" | "rendezvous" | "part-of"',
-    "Relationship semantics; does not replace source and target node IDs.",
+  f("edges[].metadata.timeline", "object", "Optional", "Time-aware relationship kind and attachment points."),
+  f(
+    "edges[].metadata.timeline.kind",
+    "sequence | dependency | reference | rendezvous | part-of",
+    "Optional",
+    "Relationship semantics; keeps original endpoint IDs and direction.",
     '"reference"',
   ),
-  relation(
-    "sourceAnchor",
-    '"start" | "end"',
+  f(
+    "edges[].metadata.timeline.sourceAnchor",
+    "start | end",
+    "Optional",
     "Source boundary when no valid sourceTime is supplied.",
-    '"end" for dependency; otherwise "start"',
+    "dependency: end; otherwise: start",
   ),
-  relation("targetAnchor", '"start" | "end"', "Target boundary when no valid targetTime is supplied.", '"start"'),
-  relation(
-    "sourceTime",
-    "calendar string | relative number",
-    "Optional point within the source event, inclusive of its endpoints. Out-of-range values fall back to sourceAnchor with a warning.",
+  f(
+    "edges[].metadata.timeline.targetAnchor",
+    "start | end",
+    "Optional",
+    "Target boundary when no valid targetTime is supplied.",
+    '"start"',
   ),
-  relation(
-    "targetTime",
-    "calendar string | relative number",
-    "Optional point within the target event, inclusive of its endpoints. Out-of-range values fall back to targetAnchor with a warning.",
+  f(
+    "edges[].metadata.timeline.sourceTime",
+    "string | number",
+    "Optional",
+    "Inclusive time within the source event; invalid values fall back to its boundary.",
+  ),
+  f(
+    "edges[].metadata.timeline.targetTime",
+    "string | number",
+    "Optional",
+    "Inclusive time within the target event; invalid values fall back to its boundary.",
   ),
 ];

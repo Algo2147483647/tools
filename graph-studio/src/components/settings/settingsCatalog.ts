@@ -2,6 +2,7 @@ import type { GraphChartType } from "../../graph/types";
 import { getLayoutControls, type SettingsChapter } from "./settingsConfig";
 
 export const APPEARANCE_GROUPS = [
+  { id: "schema", label: "Schema" },
   { id: "presets", label: "Presets" },
   { id: "nodes", label: "Nodes" },
   { id: "edges", label: "Edges" },
@@ -113,6 +114,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
         maxNodeWidth: "node width 节点 宽度",
       }[c.key],
     );
+  a("appearance-schema", "Schema", "Style schema", "protocol json example fields required optional 协议 示例 字段");
   a("presets", "Presets", "Style presets", "theme default 预设 默认 主题");
   if (chart === "node-link" || chart === "compound") {
     a("nodeCornerRadius", "Nodes", "Corner radius", "node shape rounded 圆角 节点 形状");

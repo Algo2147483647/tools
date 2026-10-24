@@ -11,6 +11,7 @@ import type { GraphAction } from "./graphActions";
 import type { GraphAppState } from "./initialState";
 import { clampConsoleSidebarWidth } from "./preferences";
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { parseTimelineLayoutPlan, writeTimelineLayout } from "../graph/timelineLayout";
 
 import { replaceDocument, traverseEditHistory, pushEditTransaction } from "./documentTransitions";
 
@@ -26,6 +27,37 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
 
 function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
+    case "timelineLayoutCommitted": {
+      if (
+        state.chartType !== "timeline" ||
+        !state.dag ||
+        action.generation !== state.document.generation ||
+        action.revision !== state.editHistory.revision ||
+        action.beforeDag !== state.dag ||
+        action.historyBase !== state.editHistory
+      )
+        return { ...state, ui: { ...state.ui, status: "Timeline layout is stale. Generate a new preview." } };
+      try {
+        if (action.data.version !== 1 || !["ai", "algorithm"].includes(action.data.mode))
+          throw new Error("Invalid layout mode.");
+        const plan = action.data.plan ? parseTimelineLayoutPlan(action.data.plan) : undefined;
+        if (plan?.eventOrder.some((id) => !Object.prototype.hasOwnProperty.call(state.dag!.nodes, id)))
+          throw new Error("Timeline layout references an unknown event.");
+        const document = serializeDag(state.dag);
+        writeTimelineLayout(document, { version: 1, mode: action.data.mode, ...(plan ? { plan } : {}) });
+        const transaction = prepareGraphTransaction(
+          state,
+          [{ dag: normalizeDagInput(document), changedKeys: [] }],
+          action.data.mode === "ai" ? "Using AI timeline layout." : "Using Algorithm timeline layout.",
+        );
+        return transaction ? reduceGraphState(state, transaction) : state;
+      } catch (error) {
+        return {
+          ...state,
+          ui: { ...state.ui, status: error instanceof Error ? error.message : "Invalid timeline layout." },
+        };
+      }
+    }
     case "compoundLayoutCommitted": {
       if (
         state.chartType !== "compound" ||

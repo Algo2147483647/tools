@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useCompoundLayoutPlan } from "./controllers/useCompoundLayoutPlan";
+import { useTimelineLayout } from "./controllers/useTimelineLayout";
 import { parseCompoundLayoutCommand } from "./console/compoundLayout";
 import StudioView from "./components/StudioView";
 import { useAiController } from "./controllers/useAiController";
@@ -47,6 +48,7 @@ export default function App() {
     appearance,
   );
   const compoundLayoutPlan = useCompoundLayoutPlan(state, dispatch, viewport);
+  const timelineLayoutPlan = useTimelineLayout(state, dispatch, preferences.aiSettings, viewport);
   layoutCommandRef.current = (source: string) => {
     try {
       const instruction = parseCompoundLayoutCommand(source);
@@ -123,6 +125,7 @@ export default function App() {
       consoleController={consoleController}
       ai={ai}
       compoundLayoutPlan={compoundLayoutPlan}
+      timelineLayoutPlan={timelineLayoutPlan}
       viewport={viewport}
       nodeActions={nodeActions}
     />

@@ -121,6 +121,7 @@ export function useGraphViewport(
     changeTimelineSettings: (patch: Partial<TimelineViewSettings>) =>
       dispatch({ type: "timelineSettingsChanged", patch }),
     readaptTimeline: timelineView.readapt,
+    timelineLayout: timelineView,
     pinTimelineNode:
       state.chartType === "timeline" && state.timelineSettings.layout === "flow"
         ? (key: string, x: number) =>

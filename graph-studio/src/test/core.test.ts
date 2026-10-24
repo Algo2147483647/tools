@@ -5,6 +5,7 @@ import { timelineRelativeSuite } from "./timelineRelative.test";
 import { stylePipelineSuite } from "./stylePipeline.test";
 import { timelineAxisSuite } from "./timelineAxis.test";
 import { timelineFlowSuite } from "./timelineFlow.test";
+import { timelineLayoutSuite } from "./timelineLayout.test";
 import { timelineViewSuite } from "./timelineView.test";
 import { chinaHistorySuite } from "./chinaHistory.test";
 import { europeHistorySuite } from "./europeHistory.test";
@@ -41,6 +42,7 @@ import { timelinePresetsSuite } from "./timelinePresets.test";
 
 async function main() {
   const suites = [
+    timelineLayoutSuite,
     layoutWorkflowSuite,
     compoundLayoutPlanSuite,
     compoundRoutingSuite,

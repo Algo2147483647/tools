@@ -8,6 +8,7 @@ import IconButton from "./ui/IconButton";
 import ZoomInput from "./ui/ZoomInput";
 
 interface TopbarProps {
+  timelineArrange?: { open: boolean; toggle(): void };
   subgraphs?: { open: boolean; toggle(): void };
   topbarRef: RefObject<HTMLElement>;
   files: WorkspaceControls;
@@ -47,6 +48,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({
+  timelineArrange,
   subgraphs,
   topbarRef,
   files,
@@ -139,6 +141,17 @@ export default function Topbar({
                   }
                 />
               </>
+            )}
+            {timelineArrange && (
+              <button
+                id="timeline-arrange-toggle"
+                className="arrange-toggle"
+                aria-expanded={timelineArrange.open}
+                aria-controls="timeline-arrange-panel"
+                onClick={timelineArrange.toggle}
+              >
+                Arrange
+              </button>
             )}
             {subgraphs && (
               <button

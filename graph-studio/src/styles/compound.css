@@ -77,7 +77,8 @@
   border-color: transparent;
   color: var(--studio-muted);
 }
-.subgraph-tabs button[aria-selected="true"] {
+.subgraph-tabs button[aria-selected="true"],
+.subgraph-tabs button[aria-pressed="true"] {
   background: #ffffffb0;
   color: var(--studio-accent);
   box-shadow: 0 1px 4px #21385712;
@@ -98,6 +99,28 @@
 }
 .subgraphs-floating-panel[hidden] {
   display: none;
+}
+.timeline-arrange-panel[hidden] {
+  display: none;
+}
+.timeline-cancel {
+  margin-top: 12px;
+}
+.timeline-preview-tools {
+  display: flex;
+  gap: 8px;
+}
+.timeline-layout-preview {
+  height: 280px;
+  overflow: auto;
+  border: 1px solid var(--studio-border);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.compound-layout-previews .timeline-layout-preview > svg {
+  border: 0;
+  border-radius: 0;
+  max-width: none;
 }
 .arrange-assessment {
   margin-top: 12px;

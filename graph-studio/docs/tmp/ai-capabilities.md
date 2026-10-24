@@ -8,6 +8,8 @@ For console command syntax, see [Graph Console DSL](graph-console-dsl.md). For g
 
 Nested layout and routing support typed `inspect_layout` and `propose_layout` responses. The assistant receives scoped containment and geometry, generates a constrained Worker preview, and applies accepted layouts through document history. See [AI Assisted Nested Layout and Routing](ai-compound-layout.md) for the implemented workflow and execution policy. Current execution modes in code are `ask`, `review`, and `auto-edit`; older `auto-readonly` settings normalize to `ask`.
 
+Timeline has a dedicated **Arrange → Algorithm / AI** workflow using the same configured provider and model. AI returns a typed arrangement profile; a local Worker computes positions, checks immutable time semantics, and measures the proposal. Application always requires the preview's **Apply AI layout** action, independently of console execution mode. Switching engines preserves the saved AI profile and does not call the model. See [Timeline: Algorithm and AI](timeline.md#algorithm-and-ai) for scope, limits, persistence, and the response schema.
+
 Graph Studio's AI layer is a graph and appearance assistant built on top of the existing console DSL. The model does not mutate graph data or graph UI directly. Instead, it receives a structured context packet, returns a structured JSON response, and the application converts that response into answers, inspection commands, proposed plans, or validated command batches.
 
 The system supports these high-level capabilities:
@@ -19,6 +21,7 @@ The system supports these high-level capabilities:
 | Edit planning | Produce a named plan with assumptions, affected nodes, proposed changes, rationales, and draft console commands. |
 | Command drafting | Convert natural-language graph edits into console command batches. |
 | Appearance editing | Convert natural-language UI requests into `/layout`, `/style-var`, `/style-css`, `/style-preset`, and `/style-reset` command batches. |
+| Timeline arrangement | Suggest track and chain ordering, spacing and routing; compare and apply a validated preview without changing event dates. |
 | Preflight validation | Parse and simulate command batches before execution, including syntax checks, graph existence checks, risk classification, and diff preview generation. |
 | Review cards | Show AI-generated plans in the console with command text, risk level, validation summary, and diff preview. |
 | Controlled execution | Apply validated command batches only when the active execution mode and risk checks allow it. |

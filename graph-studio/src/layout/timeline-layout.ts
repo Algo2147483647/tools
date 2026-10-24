@@ -1,4 +1,5 @@
 import { getTimelineClock } from "../graph/timelineClock";
+import { readTimelineLayout, type TimelineLayoutPlan } from "../graph/timelineLayout";
 import { orientTimelineStage } from "./timeline-orientation";
 import { getNodeType } from "../graph/accessors";
 import { timelineTypeColor } from "../graph/timelineColors";
@@ -42,10 +43,23 @@ export function buildTimelineStage(input: {
   timelineSettings?: Partial<TimelineViewSettings>;
   timelineAxis?: TimelineAxisMap;
   axisSource?: NormalizedDag;
+  /** Null explicitly selects the unmodified algorithm; undefined reads saved mode. */
+  arrangement?: TimelineLayoutPlan | null;
+  nodeLabels?: Record<string, { width: number; displayTitle: string }>;
 }): StageData | null {
   const { dag, appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = false } = input;
+  const savedLayout = readTimelineLayout(dag);
+  const arrangement =
+    input.arrangement === undefined
+      ? savedLayout.data.mode === "ai"
+        ? savedLayout.data.plan
+        : undefined
+      : input.arrangement;
   const settings = sanitizeTimelineSettings({
     ...input.timelineSettings,
+    ...(arrangement?.nodeGap !== undefined ? { nodeGap: arrangement.nodeGap } : {}),
+    ...(arrangement?.horizontalSpread !== undefined ? { horizontalSpread: arrangement.horizontalSpread } : {}),
+    ...(arrangement?.edgeRouting ? { edgeRouting: arrangement.edgeRouting } : {}),
   });
   const clock = getTimelineClock(dag.metadata);
   const colorSource = Object.values((input.axisSource ?? dag).nodes);
@@ -129,6 +143,7 @@ export function buildTimelineStage(input: {
   const warnings = entries
     .filter((entry) => entry.time.status === "invalid")
     .map((entry) => `${entry.key}: ${entry.time.status === "invalid" ? entry.time.message : ""}`);
+  if (savedLayout.warning) warnings.push(savedLayout.warning);
   const missingCount = entries.filter((entry) => entry.time.status === "missing").length;
   if (missingCount)
     warnings.push(
@@ -139,8 +154,12 @@ export function buildTimelineStage(input: {
     const firstTime = entry.time.status === "dated" ? entry.time.start : Infinity;
     trackStartTimes.set(entry.track, Math.min(trackStartTimes.get(entry.track) ?? Infinity, firstTime));
   });
+  const trackRanks = new Map((arrangement?.trackOrder ?? []).map((track, index) => [track, index]));
   const tracks = [...trackStartTimes.keys()].sort(
-    (a, b) => trackStartTimes.get(a)! - trackStartTimes.get(b)! || compareKeys(a, b),
+    (a, b) =>
+      (trackRanks.get(a) ?? Infinity) - (trackRanks.get(b) ?? Infinity) ||
+      trackStartTimes.get(a)! - trackStartTimes.get(b)! ||
+      compareKeys(a, b),
   );
   const dated = entries.filter((entry) => entry.time.status === "dated");
   const undated = entries.filter((entry) => entry.time.status !== "dated");
@@ -220,6 +239,7 @@ export function buildTimelineStage(input: {
         edges: sourceEdges,
         minimum: 0,
         step: 1,
+        order: arrangement?.eventOrder,
       });
       for (const event of events) event.lane = positions.get(event.key)!;
       channelCounts.set(track, Math.max(0, ...positions.values()) + 1);
@@ -260,6 +280,7 @@ export function buildTimelineStage(input: {
             minimum: trackX + 10,
             step: channelStep,
             fixedPositions,
+            order: arrangement?.eventOrder,
           })
         : undefined;
     const labelX = Math.max(
@@ -302,6 +323,7 @@ export function buildTimelineStage(input: {
       gap: settings.nodeGap,
       spread: settings.horizontalSpread,
       pins: settings.pins,
+      order: arrangement?.eventOrder,
       packLabels: settings.orientation !== "horizontal",
     });
     flowWidth = arranged.width;
@@ -348,6 +370,7 @@ export function buildTimelineStage(input: {
       gap: settings.nodeGap,
       spread: settings.horizontalSpread,
       pins: settings.pins,
+      order: arrangement?.eventOrder,
       packLabels: settings.orientation !== "horizontal",
     });
     flowWidth = Math.max(flowWidth, arranged.width);
@@ -470,16 +493,16 @@ export function buildTimelineStage(input: {
       x = fixedPositions[entry.key];
       labelX = x + 22;
     }
-    const contentWidth = !showNodeDetail
-      ? Math.min(labelWidth, Math.max(110, measureText(visual.title, titleFont) + 16, time.label.length * 6.1 + 12))
-      : labelWidth;
+    const contentWidth =
+      input.nodeLabels?.[entry.key]?.width ??
+      (!showNodeDetail
+        ? Math.min(labelWidth, Math.max(110, measureText(visual.title, titleFont) + 16, time.label.length * 6.1 + 12))
+        : labelWidth);
     const inside = time.kind === "range" && settings.intervalTitle === "inside";
     const insideWidth = settings.orientation === "horizontal" ? entry.endY - entry.startY : intervalWidth;
-    const displayTitle = fitMeasuredText(
-      visual.title,
-      inside ? Math.max(0, insideWidth - 16) : contentWidth - 6,
-      titleFont,
-    );
+    const displayTitle =
+      input.nodeLabels?.[entry.key]?.displayTitle ??
+      fitMeasuredText(visual.title, inside ? Math.max(0, insideWidth - 16) : contentWidth - 6, titleFont);
     const isDated = time.status === "dated";
     return {
       key: entry.key,

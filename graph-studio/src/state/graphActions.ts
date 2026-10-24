@@ -6,6 +6,14 @@ import type { ChartStyle } from "./chartStyles";
 
 export type GraphAction =
   | {
+      type: "timelineLayoutCommitted";
+      generation: number;
+      revision: number;
+      beforeDag: NormalizedDag;
+      historyBase: import("./initialState").GraphAppState["editHistory"];
+      data: import("../graph/timelineLayout").TimelineLayoutData;
+    }
+  | {
       type: "compoundLayoutCommitted";
       generation: number;
       revision: number;

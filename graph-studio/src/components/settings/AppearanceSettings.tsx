@@ -1,6 +1,7 @@
 import Icon from "../ui/Icon";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import ChartSchema from "./ChartSchema";
+import AppearanceSchema from "./AppearanceSchema";
 import TimelineControls, { type TimelineControlsProps } from "../TimelineControls";
 import TimelineIntervalSettings from "../TimelineIntervalSettings";
 import TimelinePointSettings from "../TimelinePointSettings";
@@ -242,6 +243,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const renderGroup = (id: AppearanceGroup, label: string) => {
     const items = catalog.filter((item) => item.chapter === "appearance" && item.group === label && visible(item.id));
     if (!items.length) return null;
+    if (id === "schema") return <AppearanceSchema key={id} chartType={p.chartType} />;
     const has = (key: string) => items.some((item) => item.id === key);
     const slider = ([key, min, max, unit]: (typeof sliders)[number]) => (
       <NumericSetting

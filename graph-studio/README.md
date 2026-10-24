@@ -1,14 +1,14 @@
 # Graph Studio
 
-Graph Studio is a browser-based graph viewer and lightweight JSON editor for directed graphs, nested graphs, Sankey diagrams, and event timelines.
+Graph Studio is a browser-based graph viewer and lightweight JSON editor for directed graphs, nested graphs, Sankey diagrams, event timelines, and spatial coordinates.
 
 It is built for fast graph inspection and editing in the browser:
 
 - load a JSON graph and render it immediately
 - validate versioned graph documents before opening
 - navigate by root, subtree, or parent level
-- explore and edit arbitrarily nested subgraphs with the independent Nested node-link chart type ([guide](docs/compound.md))
-- explore events on a true UTC time axis, with Git-style branching, duration bars, track filtering, and editable event times ([guide](docs/timeline.md))
+- explore and edit arbitrarily nested subgraphs with the independent Nested node-link chart type ([guide](docs/charts/compound.md))
+- explore events on calendar or relative time axes, with branching, duration bars, track filtering, and editable event times ([guide](docs/charts/timeline.md))
 - edit nodes and relationships directly in the UI
 - batch graph edits from a text console in `Edit` mode
 - undo and redo graph mutations without losing navigation history
@@ -92,7 +92,7 @@ The app starts on a welcome page. Open a graph file, open a folder as a workspac
 
 Examples open fresh editable copies and can be reopened from Recents without folder permissions. The canvas fills the window, with the `math/studio` glass toolbar and workspace panels floating above it. Fit uses the area visible beside the panels; panning can move the graph beneath them.
 
-Factorio values are calculated per-second material flows, including batch yields, built-in machine productivity, biological fuel, credited coproducts and catalyst/coolant returns. Surplus output is explicit. These aggregate material plans exclude power, heating, transport, spoilage in transit, construction and launch scheduling. See [Example workspaces](docs/examples.md) for sources, assumptions and regeneration.
+Factorio values are calculated per-second material flows, including batch yields, built-in machine productivity, biological fuel, credited coproducts and catalyst/coolant returns. Surplus output is explicit. These aggregate material plans exclude power, heating, transport, spoilage in transit, construction and launch scheduling. See the [Factorio example guide](public/examples/factorio/README.md) for sources, assumptions and regeneration.
 
 Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `nodes`, and `edges`. Custom document and edge fields live in `metadata`; node fields retain arbitrary JSON values. Legacy formats and field aliases are rejected.
 
@@ -102,7 +102,7 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
 - initialize a blank canvas with one starter node
 - focus a node, move back through focus history, or move up to parent levels
 - work with multiple roots as a forest
-- switch chart type between `Node-link`, `Nested node-link`, `Sankey`, and `Timeline`, each with its own saved appearance
+- switch chart type between `Node-link`, `Nested node-link`, `Sankey`, `Timeline`, and `Spatial`, each with its own saved appearance
 - arrange Node-link charts with `BFS`, `Sugiyama` or `Dagre`; Sankey uses automatic flow layout
 - configure node shadows in Appearance settings, with live preview and SVG export
 - visualize numeric flows using the optional v3 `diagram: "sankey"` protocol ([example](public/sankey-example.json))
@@ -113,12 +113,14 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
 
 ## Documentation
 
-- [Documentation Index](docs/index.md): overview of the available project docs
-- [Workspace Guide](docs/workspaces.md): opening modes, recent locations, discovery manifest, and local links
-- [Usage Guide](docs/usage.md): UI workflows, navigation, editing, saving, and layouts
-- [Data Format Guide](docs/data-format.md): v3 document contract, metadata, validation, and import conflict strategies
-- [Graph Console DSL](docs/graph-console-dsl.md): command reference for the edit-mode console
-- [Development Guide](docs/development.md): local scripts, source layout, and implementation notes
+- [Documentation Index](docs/index.md): chart and appearance reference library
+- [Chart Types and Data Protocol](docs/chart-types.md): shared v3 contract and detailed guides for all five charts
+- [Appearance and Style Protocol](docs/appearance.md): current v1 style format and chart-specific field references
+- [Appearance Protocol v2 Proposal](docs/appearance-protocol-v2.md): proposed JSON-first standardization, explicitly separate from current formats
+- [Workspace Guide](docs/tmp/workspaces.md): retained guide to opening modes, recent locations, discovery, and local links
+- [Usage Guide](docs/tmp/usage.md): retained guide to UI workflows and editing
+- [Graph Console DSL](docs/tmp/graph-console-dsl.md): retained command reference
+- [Development Guide](docs/tmp/development.md): retained guide to scripts and implementation
 
 ## Minimal Example
 
@@ -136,7 +138,7 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
 }
 ```
 
-For the recommended data model and additional examples, see [Data Format Guide](docs/data-format.md).
+For the data model and chart-specific examples, see [Chart Types and Data Protocol](docs/chart-types.md).
 
 ## Project Structure
 
@@ -150,7 +152,7 @@ For the recommended data model and additional examples, see [Data Format Guide](
 | [`docs/`](docs/) | User/developer documentation and documentation images |
 | Root configuration files | npm lockfile, TypeScript, Vite, formatting, and line-ending rules |
 
-`node_modules/`, `dist/`, caches, test output, and logs are generated files and are ignored by Git. Run `npm run clean` to remove build/test output and root diagnostic logs; use `npm run clean -- --cache` to also remove local npm/example-source caches. Cleanup preserves dependencies, source, documentation, and example workspaces. See the [Development Guide](docs/development.md) for details.
+`node_modules/`, `dist/`, caches, test output, and logs are generated files and are ignored by Git. Run `npm run clean` to remove build/test output and root diagnostic logs; use `npm run clean -- --cache` to also remove local npm/example-source caches. Cleanup preserves dependencies, source, documentation, and example workspaces. See the [Development Guide](docs/tmp/development.md) for details.
 
 ## License
 
@@ -158,4 +160,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ### Spatial coordinates
 
-The fifth Chart type, **Spatial**, renders `space: [x, y, z, …]` using dimensions and coordinate systems declared in `metadata.space`. Supports Cartesian, polar, spherical, cylindrical and geographic coordinates; 0D through arbitrary higher dimensions; Type colors/filtering; pan, zoom, orbit and projection-axis controls. Try **Spatial Atlas** for all-sky constellations, world cities, and the Beijing and Shanghai rail networks (2026-10-22 snapshots). See [Spatial guide](docs/spatial.md).
+The fifth Chart type, **Spatial**, renders `space: [x, y, z, …]` using dimensions and coordinate systems declared in `metadata.space`. Supports Cartesian, polar, spherical, cylindrical and geographic coordinates; 0D through arbitrary higher dimensions; Type colors/filtering; pan, zoom, orbit and projection-axis controls. Try **Spatial Atlas** for all-sky constellations, world cities, and the Beijing and Shanghai rail networks (2026-10-22 snapshots). See [Spatial guide](docs/charts/spatial.md).

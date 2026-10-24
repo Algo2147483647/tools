@@ -34,8 +34,10 @@ export function assignTimelineChannels(input: {
   step: number;
   pins?: Record<string, number>;
   fixedPositions?: Record<string, number>;
+  order?: readonly string[];
 }): Map<string, number> {
   const { events, edges, minimum, step, pins = {}, fixedPositions = {} } = input;
+  const ranks = new Map((input.order ?? []).map((key, index) => [key, index]));
   const sorted = events.slice().sort(compareEvents);
   const byKey = new Map(events.map((event) => [event.key, event]));
   const incoming = new Map<string, Connection[]>();
@@ -106,6 +108,7 @@ export function assignTimelineChannels(input: {
     neighbours.get(target)!.push({ chain: source, priority: connection.priority });
   }
   const positioned = new Map<Chain, number>();
+  const rank = (chain: Chain) => Math.min(Infinity, ...chain.events.map((event) => ranks.get(event.key) ?? Infinity));
   const positions = new Map<string, number>();
   const pending = new Set(chains);
   while (pending.size) {
@@ -121,7 +124,9 @@ export function assignTimelineChannels(input: {
               .filter((item) => positioned.has(item.chain))
               .map((item) => item.priority),
           );
-    const chain = [...pending].sort((a, b) => priority(a) - priority(b) || compareEvents(a.events[0], b.events[0]))[0];
+    const chain = [...pending].sort(
+      (a, b) => priority(a) - priority(b) || rank(a) - rank(b) || compareEvents(a.events[0], b.events[0]),
+    )[0];
     pending.delete(chain);
     const adjacent = neighbours.get(chain)!.filter((item) => positioned.has(item.chain));
     adjacent.sort(

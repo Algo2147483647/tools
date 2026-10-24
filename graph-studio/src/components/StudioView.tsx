@@ -20,6 +20,8 @@ import SpatialControls from "./SpatialControls";
 import CompoundPanel from "./CompoundPanel";
 import ArrangePanel from "./ArrangePanel";
 import SubgraphsPanel from "./SubgraphsPanel";
+import TimelineArrangePanel from "./TimelineArrangePanel";
+import type { TimelineLayoutController } from "../controllers/useTimelineLayout";
 import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
 import ContextMenu from "./ContextMenu";
 import HierarchyEditorModal from "./HierarchyEditorModal";
@@ -44,6 +46,7 @@ interface StudioViewProps {
   consoleController: ConsoleController;
   ai: AiController;
   compoundLayoutPlan: CompoundLayoutController;
+  timelineLayoutPlan: TimelineLayoutController;
   viewport: GraphViewportController;
   nodeActions: NodeActionsController;
 }
@@ -58,11 +61,13 @@ export default function StudioView({
   consoleController,
   ai,
   compoundLayoutPlan,
+  timelineLayoutPlan,
   viewport,
   nodeActions,
 }: StudioViewProps) {
   const { state, dispatch } = session;
   const [graphTools, setGraphTools] = useState<"arrange" | "subgraphs" | null>(null);
+  const [timelineArrangeOpen, setTimelineArrangeOpen] = useState(false);
   const preview = useWorkspacePreview(files, dispatch);
   const { filePreview, relativeLinkRoot } = preview;
   const { charts: appearanceHistory } = preferences;
@@ -148,6 +153,20 @@ export default function StudioView({
         </div>
       )}
       <Topbar
+        timelineArrange={
+          state.chartType === "timeline" && state.dag && !files.homeVisible
+            ? {
+                open: timelineArrangeOpen,
+                toggle: () => {
+                  if (timelineArrangeOpen) {
+                    timelineLayoutPlan.cancel();
+                    timelineLayoutPlan.dismiss();
+                  }
+                  setTimelineArrangeOpen((value) => !value);
+                },
+              }
+            : undefined
+        }
         topbarRef={viewport.topbarRef}
         files={files}
         hasGraph={Boolean(state.dag)}
@@ -289,6 +308,19 @@ export default function StudioView({
           onTabChange={(tab) => setGraphTools(tab === "arrange" ? "arrange" : "subgraphs")}
           structure={compoundPanel}
           arrange={<ArrangePanel controller={compoundLayoutPlan} ai={ai} model={preferences.aiSettings.model} />}
+        />
+      )}
+      {state.chartType === "timeline" && state.dag && !files.homeVisible && (
+        <TimelineArrangePanel
+          appearance={appearance}
+          key={state.document.generation}
+          open={timelineArrangeOpen}
+          onClose={() => setTimelineArrangeOpen(false)}
+          controller={timelineLayoutPlan}
+          settings={viewport.timelineSettings}
+          onSettingsChange={viewport.changeTimelineSettings}
+          onReadapt={viewport.readaptTimeline}
+          model={preferences.aiSettings.model}
         />
       )}
       <SettingsModal

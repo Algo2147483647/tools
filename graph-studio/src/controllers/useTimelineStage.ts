@@ -31,18 +31,23 @@ export function useTimelineStage(input: {
   const retained = useRef<{ generation: number; revision: number; clock: string; stage: StageData | null }>();
   const activeScope = scope?.generation === generation ? scope : null;
   const asOf = getTimelineReferenceTime(dag);
+  const clockMode = getTimelineClock(dag?.metadata).mode;
+  const referenceTime = useMemo(
+    () => asOf ?? (clockMode === "relative" ? 0 : Date.now()),
+    [asOf, clockMode, generation],
+  );
   const currentKeys = useMemo(
     () =>
       Object.entries(visibleDag?.nodes ?? {})
         .filter(([, node]) => {
           if (!range) return true;
-          const time = parseNodeTimeline(node, asOf, getTimelineClock(dag?.metadata));
+          const time = parseNodeTimeline(node, referenceTime, getTimelineClock(dag?.metadata));
           return (
             time.status === "dated" && time.end >= (range.start ?? -Infinity) && time.start <= (range.end ?? Infinity)
           );
         })
         .map(([key]) => key),
-    [visibleDag, range, asOf, dag?.metadata],
+    [visibleDag, range, referenceTime, dag?.metadata],
   );
   const clock = JSON.stringify([settings.axis, settings.compactness, getTimelineClock(dag?.metadata)]);
   const scopeKeys = activeScope ? JSON.stringify([...new Set([...activeScope.keys, ...currentKeys])].sort()) : "";
@@ -60,7 +65,7 @@ export function useTimelineStage(input: {
         })
       : "";
   const revision = activeScope?.revision ?? 0;
-  const base = useMemo(() => {
+  const layoutInput = useMemo(() => {
     if (!dag) return null;
     let source = dag;
     if (scopeKeys) {
@@ -73,16 +78,18 @@ export function useTimelineStage(input: {
       previous.revision === revision &&
       previous.clock === clock &&
       (settings.locked || activeScope);
-    return buildTimelineStage({
+    return {
       dag: source,
-      selection: { type: "full" },
+      selection: { type: "full" as const },
       appearance,
       showNodeDetail,
+      now: referenceTime,
       timelineSettings: settings,
       timelineAxis: keep ? previous.stage?.timeline?.axisMap : undefined,
       timeRange: scopeRange ? JSON.parse(scopeRange) : undefined,
-    });
-  }, [dag, generation, settings, appearance, showNodeDetail, scopeKeys, scopeRange, revision]);
+    };
+  }, [dag, generation, settings, appearance, showNodeDetail, scopeKeys, scopeRange, revision, referenceTime]);
+  const base = useMemo(() => (layoutInput ? buildTimelineStage(layoutInput) : null), [layoutInput]);
   useEffect(() => {
     retained.current = { generation, revision, clock, stage: base };
   }, [base, generation, revision, clock]);
@@ -90,6 +97,8 @@ export function useTimelineStage(input: {
   const stage = useMemo(() => projectTimelineStage(base, visibleKeys, range), [base, visibleKeys, range]);
   return {
     stage,
+    base,
+    layoutInput,
     readapt: () => {
       if (!settings.locked && stage)
         setScope({
