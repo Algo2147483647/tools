@@ -1,0 +1,76 @@
+.layout-mini {
+  display: none;
+}
+.studio-settings .settings-slider-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+}
+.settings-inline-actions,
+.settings-footer-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.settings-inline-actions {
+  margin-top: 12px;
+}
+.studio-settings .studio-button {
+  font:
+    13px "Segoe UI",
+    sans-serif;
+  padding: 7px 12px;
+  min-height: 32px;
+  border-radius: 6px;
+}
+.settings-footer {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid #e3e8ef;
+  background: #fff;
+}
+.settings-status-stack {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  font-size: 11px;
+  color: #5e6e83;
+}
+.settings-status-stack .setting-error {
+  margin: 0;
+}
+.settings-pending-status {
+  color: #855b17;
+}
+.settings-pending-status::before {
+  content: "●";
+  margin-right: 6px;
+}
+.settings-save-status::before {
+  content: "✓";
+  margin-right: 6px;
+  color: #34745a;
+}
+.studio-settings button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.studio-settings :is(button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #6086da;
+  outline-offset: 2px;
+}
+.settings-no-results {
+  text-align: center;
+  color: #5e6e83;
+  padding: 50px 12px;
+}
+.settings-no-results h3 {
+  color: #33435b;
+}

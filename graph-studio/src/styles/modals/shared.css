@@ -1,0 +1,154 @@
+.relation-editor-modal,
+.save-json-modal,
+.file-preview-modal,
+.relation-editor-dialog,
+.save-json-dialog,
+.file-preview-dialog,
+.relation-editor-table-wrap,
+.file-preview-body,
+.file-preview-text,
+.node-detail-body,
+.node-detail-pre,
+.node-detail-json,
+.node-detail-markdown pre,
+.node-detail-markdown .katex-display {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.relation-editor-modal::-webkit-scrollbar,
+.save-json-modal::-webkit-scrollbar,
+.file-preview-modal::-webkit-scrollbar,
+.relation-editor-dialog::-webkit-scrollbar,
+.save-json-dialog::-webkit-scrollbar,
+.file-preview-dialog::-webkit-scrollbar,
+.relation-editor-table-wrap::-webkit-scrollbar,
+.file-preview-body::-webkit-scrollbar,
+.file-preview-text::-webkit-scrollbar,
+.node-detail-body::-webkit-scrollbar,
+.node-detail-pre::-webkit-scrollbar,
+.node-detail-json::-webkit-scrollbar,
+.node-detail-markdown pre::-webkit-scrollbar,
+.node-detail-markdown .katex-display::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.relation-editor-modal::-webkit-scrollbar-track,
+.save-json-modal::-webkit-scrollbar-track,
+.file-preview-modal::-webkit-scrollbar-track,
+.relation-editor-dialog::-webkit-scrollbar-track,
+.save-json-dialog::-webkit-scrollbar-track,
+.file-preview-dialog::-webkit-scrollbar-track,
+.relation-editor-table-wrap::-webkit-scrollbar-track,
+.file-preview-body::-webkit-scrollbar-track,
+.file-preview-text::-webkit-scrollbar-track,
+.node-detail-body::-webkit-scrollbar-track,
+.node-detail-pre::-webkit-scrollbar-track,
+.node-detail-json::-webkit-scrollbar-track,
+.node-detail-markdown pre::-webkit-scrollbar-track,
+.node-detail-markdown .katex-display::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.relation-editor-modal::-webkit-scrollbar-thumb,
+.save-json-modal::-webkit-scrollbar-thumb,
+.file-preview-modal::-webkit-scrollbar-thumb,
+.relation-editor-dialog::-webkit-scrollbar-thumb,
+.save-json-dialog::-webkit-scrollbar-thumb,
+.file-preview-dialog::-webkit-scrollbar-thumb,
+.relation-editor-table-wrap::-webkit-scrollbar-thumb,
+.file-preview-body::-webkit-scrollbar-thumb,
+.file-preview-text::-webkit-scrollbar-thumb,
+.node-detail-body::-webkit-scrollbar-thumb,
+.node-detail-pre::-webkit-scrollbar-thumb,
+.node-detail-json::-webkit-scrollbar-thumb,
+.node-detail-markdown pre::-webkit-scrollbar-thumb,
+.node-detail-markdown .katex-display::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--scrollbar-thumb);
+  background-clip: padding-box;
+}
+
+.relation-editor-modal::-webkit-scrollbar-thumb:hover,
+.save-json-modal::-webkit-scrollbar-thumb:hover,
+.file-preview-modal::-webkit-scrollbar-thumb:hover,
+.relation-editor-dialog::-webkit-scrollbar-thumb:hover,
+.save-json-dialog::-webkit-scrollbar-thumb:hover,
+.file-preview-dialog::-webkit-scrollbar-thumb:hover,
+.relation-editor-table-wrap::-webkit-scrollbar-thumb:hover,
+.file-preview-body::-webkit-scrollbar-thumb:hover,
+.file-preview-text::-webkit-scrollbar-thumb:hover,
+.node-detail-body::-webkit-scrollbar-thumb:hover,
+.node-detail-pre::-webkit-scrollbar-thumb:hover,
+.node-detail-json::-webkit-scrollbar-thumb:hover,
+.node-detail-markdown pre::-webkit-scrollbar-thumb:hover,
+.node-detail-markdown .katex-display::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+.relation-editor-modal::-webkit-scrollbar-corner,
+.save-json-modal::-webkit-scrollbar-corner,
+.file-preview-modal::-webkit-scrollbar-corner,
+.relation-editor-dialog::-webkit-scrollbar-corner,
+.save-json-dialog::-webkit-scrollbar-corner,
+.file-preview-dialog::-webkit-scrollbar-corner,
+.relation-editor-table-wrap::-webkit-scrollbar-corner,
+.file-preview-body::-webkit-scrollbar-corner,
+.file-preview-text::-webkit-scrollbar-corner,
+.node-detail-body::-webkit-scrollbar-corner,
+.node-detail-pre::-webkit-scrollbar-corner,
+.node-detail-json::-webkit-scrollbar-corner,
+.node-detail-markdown pre::-webkit-scrollbar-corner,
+.node-detail-markdown .katex-display::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.relation-editor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+  background: rgba(18, 28, 43, 0.28);
+}
+
+.relation-editor-modal.is-visible,
+.save-json-modal.is-visible {
+  display: flex;
+}
+
+.relation-editor-dialog,
+.save-json-dialog {
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid rgba(66, 86, 119, 0.14);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 36px rgba(26, 39, 63, 0.18);
+}
+
+.relation-editor-dialog {
+  border-radius: 18px;
+  width: min(760px, calc(100vw - 32px));
+}
+
+.relation-editor-dialog h3,
+.save-json-dialog h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.relation-editor-description {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}

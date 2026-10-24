@@ -1,3 +1,4 @@
+import { getBrowserStorage, readStoredText, writeStoredText, type StorageLike } from "./browserStorage";
 import { parseRecentMetadata, type RecentLocation } from "../workspace/locations";
 import type { RecentLocationPorts } from "../workspace/recentLocationsStore";
 const DB_NAME = "graph-studio-open-recent";
@@ -6,27 +7,16 @@ const STORE = "locations";
 const STORAGE_KEY = "graph-studio:recent-locations";
 const STORAGE_TIMEOUT_MS = 1000;
 let pendingWrites: Promise<void> = Promise.resolve();
-interface StorageLike {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-}
-function browserStorage(): StorageLike | null {
+export function readRecentMetadata(storage: StorageLike | null = getBrowserStorage()): RecentLocation[] {
   try {
-    return typeof window === "undefined" ? null : window.localStorage;
-  } catch {
-    return null;
-  }
-}
-export function readRecentMetadata(storage: StorageLike | null = browserStorage()): RecentLocation[] {
-  try {
-    return parseRecentMetadata(storage?.getItem(STORAGE_KEY) ?? null);
+    return parseRecentMetadata(readStoredText(STORAGE_KEY, storage));
   } catch {
     return [];
   }
 }
 export function writeRecentMetadata(items: RecentLocation[]) {
   try {
-    browserStorage()?.setItem(STORAGE_KEY, JSON.stringify(items.map(({ handle: _handle, ...item }) => item)));
+    writeStoredText(STORAGE_KEY, JSON.stringify(items.map(({ handle: _handle, ...item }) => item)));
   } catch {
     /* Recent history is optional. */
   }

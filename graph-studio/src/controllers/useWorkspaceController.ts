@@ -1,3 +1,9 @@
+import {
+  supportsFilePicker,
+  supportsDirectoryPicker,
+  pickJsonFileHandle,
+  pickDirectoryHandle,
+} from "../adapters/fileAccess";
 import type { WorkspaceControls } from "./workspaceControls";
 import { type ChangeEvent, type Dispatch, useEffect, useRef, useState } from "react";
 import { downloadJsonFile } from "../adapters/download";
@@ -138,33 +144,31 @@ export function useWorkspaceController({
   }
   function selectFile(recent?: RecentLocation) {
     if (operations.isBusy()) return;
-    if (!window.showOpenFilePicker) {
+    if (!supportsFilePicker()) {
       pendingFileRecent.current = recent;
       fileInputRef.current?.click();
       return;
     }
     void run(async (context) => {
-      const handles = await window.showOpenFilePicker!({
-        multiple: false,
-        types: [{ description: "Graph Studio graph", accept: { "application/json": [".json"] } }],
-      });
-      if (handles[0])
+      const handle = await pickJsonFileHandle("Graph Studio graph");
+      if (handle)
         await loadFile(
-          { path: handles[0].name, handle: handles[0] },
-          recent?.location === handles[0].name ? recent.id : undefined,
+          { path: handle.name, handle: handle },
+          recent?.location === handle.name ? recent.id : undefined,
           context,
         );
     });
   }
   function selectWorkspace(recent?: RecentLocation) {
     if (operations.isBusy()) return;
-    if (!window.showDirectoryPicker) {
+    if (!supportsDirectoryPicker()) {
       pendingFolderRecent.current = recent;
       folderInputRef.current?.click();
       return;
     }
     void run(async (context) => {
-      const handle = await window.showDirectoryPicker!({ mode: "read", id: "graph-studio-workspace" });
+      const handle = await pickDirectoryHandle({ mode: "read", id: "graph-studio-workspace" });
+      if (!handle) return;
       await loadFolder(
         await readWorkspaceDirectory(handle),
         recent?.location === handle.name ? recent : undefined,
@@ -180,7 +184,7 @@ export function useWorkspaceController({
   }
   async function createWorkspace(input: string): Promise<boolean> {
     if (operations.isBusy()) return false;
-    if (!window.showDirectoryPicker) {
+    if (!supportsDirectoryPicker()) {
       setNotice(
         "Creating a workspace folder requires Chrome or Edge with folder access. You can still create a graph or open existing files.",
       );
@@ -191,7 +195,8 @@ export function useWorkspaceController({
       const name = workspaceFolderName(input);
       if (!mayReplace()) return;
       const previousDag = stateRef.current.dag;
-      const parent = await window.showDirectoryPicker!({ mode: "readwrite", id: "graph-studio-create-workspace" });
+      const parent = await pickDirectoryHandle({ mode: "readwrite", id: "graph-studio-create-workspace" });
+      if (!parent) return;
       if (!context.isCurrent() || (stateRef.current.dag !== previousDag && !mayReplace())) return;
       const approvedDag = stateRef.current.dag;
       const folder = await createLocalWorkspace(parent, name);

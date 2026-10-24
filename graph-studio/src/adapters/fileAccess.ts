@@ -4,12 +4,33 @@ interface PickedJsonFile {
   path: string;
 }
 
-export async function openJsonFileWithAccess(): Promise<PickedJsonFile | null> {
-  if (typeof window.showOpenFilePicker !== "function") return null;
-  const [handle] = await window.showOpenFilePicker({
+export function supportsFilePicker(): boolean {
+  return typeof window !== "undefined" && typeof window.showOpenFilePicker === "function";
+}
+
+export function supportsDirectoryPicker(): boolean {
+  return typeof window !== "undefined" && typeof window.showDirectoryPicker === "function";
+}
+
+export async function pickJsonFileHandle(description = "JSON configuration"): Promise<FileSystemFileHandle | null> {
+  if (!supportsFilePicker()) return null;
+  const [handle] = await window.showOpenFilePicker!({
     multiple: false,
-    types: [{ accept: { "application/json": [".json"] }, description: "JSON configuration" }],
+    types: [{ accept: { "application/json": [".json"] }, description }],
   });
+  return handle ?? null;
+}
+
+export async function pickDirectoryHandle(options: {
+  mode: "read" | "readwrite";
+  id: string;
+}): Promise<FileSystemDirectoryHandle | null> {
+  if (!supportsDirectoryPicker()) return null;
+  return window.showDirectoryPicker!(options);
+}
+
+export async function openJsonFileWithAccess(): Promise<PickedJsonFile | null> {
+  const handle = await pickJsonFileHandle();
   return handle ? { file: await handle.getFile(), handle, path: handle.name } : null;
 }
 

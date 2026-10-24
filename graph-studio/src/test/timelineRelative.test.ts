@@ -14,7 +14,7 @@ import { projectTimelineStage } from "../layout/timeline-project";
 import { timelineTimeToY } from "../layout/timeline-axis";
 import { getTimelineAxisTicks } from "../layout/timeline-ticks";
 import { timelineBarBox } from "../layout/timeline-orientation";
-import { getNodeLocatePoint } from "../hooks/useGraphZoom";
+import { getNodeLocatePoint } from "../viewport/zoomGeometry";
 import TimelineNode from "../rendering/TimelineNode";
 import TimelineBackdrop from "../rendering/TimelineBackdrop";
 import TimelineControls from "../components/TimelineControls";

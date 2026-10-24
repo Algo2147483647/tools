@@ -1,0 +1,337 @@
+/* Settings uses opaque surfaces and one independently scrolling controls pane. */
+.topbar .settings-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #465268;
+  cursor: pointer;
+  box-shadow: none;
+}
+.settings-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #18243d4d;
+  backdrop-filter: none;
+}
+.settings-modal.studio-settings {
+  width: 100%;
+  height: 100dvh;
+  max-height: none;
+  display: grid;
+  grid-template-columns: 192px minmax(0, 1fr) 54px;
+  grid-template-rows: 64px minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: #fff;
+  color: #253247;
+  font:
+    13px/1.5 "Segoe UI",
+    sans-serif;
+  border: 1px solid #d8dfe9;
+  border-block: 0;
+  border-radius: 0;
+  box-shadow: 0 24px 80px #18243d35;
+  backdrop-filter: none;
+}
+.studio-settings .settings-modal-header {
+  grid-column: 1/-1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 0 24px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #e3e8ef;
+}
+.studio-settings .settings-modal-header h2 {
+  margin: 0;
+  font:
+    600 18px/1.4 "Segoe UI",
+    sans-serif;
+  letter-spacing: -0.3px;
+}
+.studio-settings .settings-modal-header button {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  color: #52627a;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+.settings-search {
+  grid-column: 2;
+  grid-row: 1;
+  z-index: 1;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(520px, calc(100% - 24px));
+  margin: 0 0 0 24px;
+  padding: 8px 10px;
+  background: #f4f6f9;
+  border: 1px solid #e1e6ee;
+  border-radius: 8px;
+  color: #63728a;
+}
+.settings-search:focus-within {
+  border-color: #6d91de;
+  box-shadow: 0 0 0 2px #315fce15;
+}
+.settings-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  color: #253247;
+}
+.settings-search kbd {
+  font:
+    11px "Segoe UI",
+    sans-serif;
+  color: #63728a;
+}
+.settings-search button {
+  border: 0;
+  background: none;
+  font-size: 17px;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 3px;
+}
+.studio-settings .settings-modal-body {
+  grid-column: 1/-1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 192px minmax(0, 1fr);
+  min-height: 0;
+  border: 0;
+  overflow: hidden;
+}
+.studio-settings .settings-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 12px;
+  background: #f5f7fa;
+  border-right: 1px solid #e3e8ef;
+  overflow: auto;
+}
+.studio-settings .settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: #53627a;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+}
+.studio-settings .settings-tab > svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.studio-settings .settings-tab strong {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.studio-settings .settings-tab:hover {
+  background: #eaf0f8;
+}
+.studio-settings .settings-tab.is-active {
+  color: #234fae;
+  background: #e5edfc;
+  box-shadow: inset 3px 0 #315fce;
+}
+.studio-settings .settings-tab.is-active strong {
+  font-weight: 600;
+}
+.settings-result-count {
+  margin-left: auto;
+  font-size: 11px;
+  border-radius: 4px;
+  padding: 0 5px;
+  background: #fff;
+}
+.studio-settings .settings-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.studio-settings .settings-page {
+  grid-template-columns: minmax(0, 1fr);
+  container-type: inline-size;
+  container-name: settings-controls;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 24px;
+  background: #fff;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  scroll-padding-top: 76px;
+}
+.settings-page-heading {
+  margin: 0 0 20px;
+}
+.settings-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.settings-page-heading h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.settings-page-heading p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #5c6c82;
+}
+.settings-chart-badge {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #3f5e90;
+  background: #eff3fa;
+  padding: 4px 7px;
+  border-radius: 5px;
+}
+.studio-settings .settings-section {
+  display: block;
+  padding: 0 0 20px;
+  margin: 0 0 20px;
+  border: 0;
+  border-bottom: 1px solid #e8ecf2;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+}
+.studio-settings .settings-section:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.studio-settings .settings-section h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.studio-settings .settings-section > p,
+.settings-section-header p {
+  margin: 6px 0 14px;
+  color: #5d6c81;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.settings-section-heading,
+.setting-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.settings-section-heading {
+  margin-bottom: 12px;
+}
+.appearance-group-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #e3e8ef;
+}
+.studio-settings .settings-page:has(> .appearance-tabs) {
+  row-gap: 0;
+}
+.setting-section-reset {
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  font:
+    12px "Segoe UI",
+    sans-serif;
+  color: #506a99;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.setting-section-reset:hover {
+  text-decoration: underline;
+}
+.appearance-tabs {
+  position: sticky;
+  top: -24px;
+  z-index: 2;
+  display: flex;
+  gap: 4px;
+  margin: -4px 0 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid #dfe6f0;
+  background: #fff;
+}
+.appearance-tabs button {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: none;
+  color: #5c6c82;
+  border-radius: 6px;
+  padding: 9px 6px;
+  font:
+    12px "Segoe UI",
+    sans-serif;
+  cursor: pointer;
+}
+.appearance-tabs button[aria-pressed="true"] {
+  background: #fff;
+  border-color: #cbd9f1;
+  box-shadow: 0 2px 4px #2030520a;
+  color: #234fae;
+  font-weight: 600;
+}
+.appearance-tabs button:hover:not([aria-pressed="true"]) {
+  background: #edf2f9;
+  color: #344d73;
+}
+.studio-settings .appearance-group > .timeline-settings-section {
+  margin: 0 0 16px;
+  padding: 18px;
+  border: 1px solid #e1e7ef;
+  border-radius: 10px;
+  background: #fff;
+}
+.studio-settings .appearance-group > .timeline-settings-section:last-child {
+  margin-bottom: 0;
+}
+.studio-settings .timeline-settings-section > h3 {
+  color: #293e5b;
+  font-size: 14px;
+}

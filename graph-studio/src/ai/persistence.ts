@@ -1,3 +1,4 @@
+import { getBrowserStorage, readStoredText, writeStoredText, type StorageLike } from "../adapters/browserStorage";
 import { normalizeAiExecutionMode } from "./executionPolicy";
 import { isRecord } from "../utils/json";
 import type {
@@ -13,12 +14,6 @@ import type {
 
 const AI_HARNESS_STORAGE_PREFIX = "graph-studio:ai-harness:";
 
-interface StorageLike {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-  removeItem(key: string): void;
-}
-
 export function loadPersistedAiHarnessState(
   graphId: string,
   mode: AiExecutionMode,
@@ -28,7 +23,7 @@ export function loadPersistedAiHarnessState(
     return null;
   }
   try {
-    const raw = storage.getItem(buildAiHarnessStorageKey(graphId));
+    const raw = readStoredText(buildAiHarnessStorageKey(graphId), storage);
     return parsePersistedAiHarnessState(raw, mode);
   } catch {
     return null;
@@ -43,7 +38,7 @@ export function savePersistedAiHarnessState(
     return;
   }
   try {
-    storage.setItem(buildAiHarnessStorageKey(harness.graphId), JSON.stringify(harness));
+    writeStoredText(buildAiHarnessStorageKey(harness.graphId), JSON.stringify(harness), storage);
   } catch {
     // Ignore storage failures so AI remains usable in locked-down contexts.
   }
@@ -83,13 +78,6 @@ export function parsePersistedAiHarnessState(raw: string | null, fallbackMode: A
 
 export function buildAiHarnessStorageKey(graphId: string): string {
   return `${AI_HARNESS_STORAGE_PREFIX}${encodeURIComponent(graphId || "local-graph")}`;
-}
-
-function getBrowserStorage(): StorageLike | null {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return null;
-  }
-  return window.localStorage;
 }
 
 function sanitizeActionPlan(value: unknown): ActionPlan | undefined {

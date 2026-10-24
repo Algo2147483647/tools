@@ -1,0 +1,91 @@
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.preset-grid button {
+  border: 1px solid #dce3ee;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+.preset-grid button.is-selected {
+  border-color: #315fce;
+  box-shadow: 0 0 0 1px #315fce;
+}
+.preset-grid strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #33435b;
+}
+.preset-sample {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid;
+  border-radius: 5px;
+  min-height: 40px;
+  font:
+    16px Georgia,
+    serif;
+}
+.preset-sample i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.chart-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.chart-type-grid button,
+.layout-engine-grid button {
+  border: 1px solid #dce3ee;
+  border-radius: 8px;
+  padding: 13px;
+  background: white;
+  text-align: left;
+  color: #5378b8;
+  cursor: pointer;
+}
+.chart-type-grid .is-selected,
+.layout-engine-grid .is-selected {
+  border-color: #6286ce;
+  background: #f0f5ff;
+  box-shadow: 0 0 0 1px #6286ce;
+}
+.chart-type-grid .chart-type-icon {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 5px auto 15px;
+}
+.chart-type-grid strong,
+.layout-engine-grid strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #33435b;
+}
+.chart-type-grid small,
+.layout-engine-grid small {
+  display: block;
+  font-size: 12px;
+  color: #5d6c81;
+  margin-top: 5px;
+  line-height: 1.6;
+}
+.layout-engine-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}

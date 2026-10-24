@@ -1,0 +1,157 @@
+.file-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 58;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(18, 28, 43, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.file-preview-modal.is-visible {
+  display: flex;
+}
+
+.file-preview-modal.is-fullscreen {
+  padding: 0;
+}
+
+.file-preview-dialog {
+  width: min(1040px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(66, 86, 119, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 24px 48px rgba(26, 39, 63, 0.2);
+}
+
+.file-preview-modal.is-fullscreen .file-preview-dialog {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+}
+
+.file-preview-dialog[data-preview-kind="markdown"] {
+  --text-strong: #000;
+  --text-muted: #000;
+  --text-soft: #000;
+  color: #000;
+  background: #fff;
+}
+
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown,
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown *,
+.file-preview-dialog[data-preview-kind="markdown"] .file-preview-header button {
+  color: #000;
+}
+
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown,
+.file-preview-dialog[data-preview-kind="markdown"] .node-detail-markdown :is(pre, code, th) {
+  background: #fff;
+}
+
+.file-preview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(96, 118, 151, 0.12);
+}
+
+.file-preview-header h3 {
+  margin: 2px 0 0;
+  color: var(--text-strong);
+  font-size: 16px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.file-preview-source {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.file-preview-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.file-preview-fullscreen-btn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.file-preview-body {
+  flex: 1 1 auto;
+  min-height: 280px;
+  overflow: auto;
+  padding: 16px 18px 18px;
+}
+
+.file-preview-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.file-preview-frame {
+  width: 100%;
+  height: min(70vh, 720px);
+  border: 1px solid rgba(96, 118, 151, 0.14);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.file-preview-text {
+  margin: 0;
+  overflow: auto;
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(246, 249, 253, 0.86);
+  color: var(--text-strong);
+  font:
+    12px/1.7 "IBM Plex Mono",
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.file-preview-unsupported {
+  display: grid;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.file-preview-unsupported p {
+  margin: 0;
+}
+
+.file-preview-unsupported a {
+  color: var(--accent-strong);
+  font-weight: 700;
+}

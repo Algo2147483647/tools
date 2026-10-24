@@ -1,8 +1,9 @@
+import { readStoredText, writeStoredText } from "./browserStorage";
 import type { CompoundView } from "../graph/types";
 
 export function loadCompoundView(key: string, defaultCollapsedGroupIds: string[]): CompoundView {
   try {
-    const raw = JSON.parse(localStorage.getItem(key) ?? "null");
+    const raw = JSON.parse(readStoredText(key) ?? "null");
     if (raw && Array.isArray(raw.collapsedGroupIds))
       return {
         collapsedGroupIds: raw.collapsedGroupIds.filter((id: unknown): id is string => typeof id === "string"),
@@ -16,7 +17,7 @@ export function loadCompoundView(key: string, defaultCollapsedGroupIds: string[]
 
 export function saveCompoundView(key: string, view: CompoundView) {
   try {
-    localStorage.setItem(key, JSON.stringify(view));
+    writeStoredText(key, JSON.stringify(view));
   } catch {
     /* The in-memory view remains usable. */
   }

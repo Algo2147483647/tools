@@ -1,6 +1,6 @@
 import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
-import { openJsonFileWithAccess, readJsonFile } from "../adapters/fileAccess";
+import { openJsonFileWithAccess, readJsonFile, supportsFilePicker } from "../adapters/fileAccess";
 import { type GraphAppearance } from "../graph/appearance";
 import { type GraphAppearancePresetId, applyAppearanceCommand, getGraphPresetStyle } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
@@ -124,7 +124,7 @@ export function useChartPreferences(
   }
 
   async function handleAppearanceImportClick(event: React.MouseEvent<HTMLInputElement>) {
-    if (typeof window.showOpenFilePicker !== "function") {
+    if (!supportsFilePicker()) {
       return;
     }
     event.preventDefault();

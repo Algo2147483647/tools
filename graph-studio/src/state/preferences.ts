@@ -1,3 +1,4 @@
+import { getBrowserStorage, readStoredText, writeStoredText, type StorageLike } from "../adapters/browserStorage";
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { AiProvider, AiSettings } from "../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
@@ -28,11 +29,6 @@ const DEFAULT_AI_SETTINGS: AiSettings = {
   executionMode: "ask",
 };
 
-interface StorageLike {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-}
-
 export function getInitialGraphPagePreferences(): GraphPagePreferences {
   return {
     mode: "edit",
@@ -52,7 +48,7 @@ export function loadGraphPagePreferences(storage: StorageLike | null = getBrowse
   }
 
   try {
-    const parsed = parseGraphPagePreferences(storage.getItem(GRAPH_PAGE_PREFERENCES_KEY));
+    const parsed = parseGraphPagePreferences(readStoredText(GRAPH_PAGE_PREFERENCES_KEY, storage));
     return parsed ? { ...defaults, ...parsed } : defaults;
   } catch {
     return defaults;
@@ -69,8 +65,7 @@ export function saveGraphPagePreferences(
 
   try {
     const chartStyles = mapChartTypes((type) => parseStyleDocument(preferences.chartStyles[type], type));
-    storage.setItem(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify({ ...preferences, chartStyles }));
-    return true;
+    return writeStoredText(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify({ ...preferences, chartStyles }), storage);
   } catch {
     return false;
   }
@@ -142,13 +137,6 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
 
 export function clampConsoleSidebarWidth(width: number): number {
   return Math.round(width);
-}
-
-function getBrowserStorage(): StorageLike | null {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return null;
-  }
-  return window.localStorage;
 }
 
 function clampNumericPreference(value: unknown, fallback: number, min: number, max: number): number {

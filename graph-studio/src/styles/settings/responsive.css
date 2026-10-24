@@ -1,0 +1,129 @@
+@media (max-width: 1050px) {
+  .chart-type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .studio-settings .settings-content:has(.settings-preview-card) {
+    display: flex;
+  }
+  .settings-preview-card {
+    flex: none;
+    padding: 12px 20px;
+    border: 0;
+    border-bottom: 1px solid #e3e8ef;
+  }
+  .preview-drawer-toggle {
+    display: block;
+    margin-left: auto;
+  }
+  .settings-preview-heading small {
+    display: none;
+  }
+  .settings-preview-card:not(.is-expanded):not(.is-open) > :not(.settings-preview-heading) {
+    display: none;
+  }
+  .settings-preview-card.is-open:not(.is-expanded) .settings-preview-frame-wrap {
+    height: 180px;
+    flex: none;
+  }
+  .settings-preview-card.is-expanded {
+    flex: 1;
+    min-height: 0;
+  }
+  .settings-preview-card.is-expanded .preview-drawer-toggle {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .settings-modal-backdrop {
+    padding: 0;
+  }
+  .settings-modal.studio-settings {
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    grid-template-columns: 96px minmax(0, 1fr) 44px;
+    grid-template-rows: 58px minmax(0, 1fr) auto;
+  }
+  .studio-settings .settings-modal-header {
+    padding: 0 12px;
+  }
+  .studio-settings .settings-modal-header h2 {
+    font-size: 16px;
+  }
+  .settings-search {
+    width: 100%;
+    margin: 0;
+    padding: 7px;
+  }
+  .settings-search kbd {
+    display: none;
+  }
+  .studio-settings .settings-modal-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .studio-settings .settings-tabs {
+    flex-direction: row;
+    padding: 8px;
+    gap: 4px;
+    border-right: 0;
+    border-bottom: 1px solid #e3e8ef;
+    overflow-x: auto;
+  }
+  .studio-settings .settings-tab {
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 8px 10px;
+    gap: 5px;
+  }
+  .studio-settings .settings-tab strong {
+    font-size: 12px;
+  }
+  .studio-settings .settings-tab > svg {
+    display: none;
+  }
+  .settings-result-count {
+    font-size: 10px;
+    padding: 0 3px;
+  }
+  .studio-settings .settings-page {
+    padding: 18px;
+  }
+  .appearance-tabs {
+    top: -18px;
+  }
+  .studio-settings .appearance-group > .timeline-settings-section {
+    padding: 14px;
+  }
+  .settings-preview-card {
+    padding: 10px 18px;
+  }
+  .settings-footer {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+  }
+  .settings-footer-actions {
+    margin-left: auto;
+  }
+  .settings-status-stack {
+    flex-basis: 100%;
+  }
+  .chart-type-grid,
+  .settings-open-grid {
+    grid-template-columns: 1fr;
+  }
+  .studio-settings .ai-settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .ai-settings-wide {
+    grid-column: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-settings * {
+    transition: none !important;
+  }
+}
+.studio-settings .settings-search input:focus-visible {
+  outline: none;
+}

@@ -9,7 +9,7 @@ import { getTimelineEditError, getTimelineReferenceTime } from "../graph/timelin
 import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timelineRange";
 import { projectGraphByType } from "../graph/typeFilter";
 import { getGraphRenderMode } from "../graph/types";
-import { getNodeLocatePoint } from "../hooks/useGraphZoom";
+import { getNodeLocatePoint } from "../viewport/zoomGeometry";
 import { buildStageData } from "../layout/stage-layout";
 import { buildTimelineStage } from "../layout/timeline-layout";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";

@@ -1,3 +1,4 @@
+import { copyTextToClipboard } from "../../adapters/clipboard";
 import { useId, useState, type ReactNode } from "react";
 import { downloadJsonFile } from "../../adapters/download";
 import { JsonSyntax } from "../NodeJsonView";
@@ -89,7 +90,7 @@ export default function ProtocolSchema({
                 type="button"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText(json);
+                    await copyTextToClipboard(json);
                     setCopyStatus("Copied");
                   } catch {
                     setCopyStatus("Copy unavailable. Select the JSON to copy manually.");

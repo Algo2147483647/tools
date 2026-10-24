@@ -1,0 +1,198 @@
+.node-detail-modal {
+  --node-content-width: 736px;
+  --node-paper: #fff;
+  --node-ink: #262626;
+  --node-muted: #707070;
+  --node-rule: #dedede;
+  --node-soft: #f5f5f5;
+  --node-mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --node-serif:
+    "Latin Modern Roman", "Computer Modern", "Times New Roman", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun",
+    Georgia, serif;
+  --scrollbar-thumb: #c4c4c4;
+  --scrollbar-track: #f5f5f5;
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #00000044;
+  color: var(--node-ink);
+  font-family: var(--node-serif);
+}
+
+.node-detail-modal.is-visible {
+  display: flex;
+}
+
+.node-detail-modal.is-fullscreen {
+  --node-content-width: 84%;
+  padding: 0;
+}
+
+.node-detail-page {
+  width: min(960px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid #bbb;
+  background: var(--node-paper);
+  box-shadow: 0 12px 55px #0000001a;
+}
+
+.node-detail-modal.is-fullscreen .node-detail-page {
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+}
+
+.node-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--node-rule);
+}
+
+.node-detail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.node-detail-save-btn,
+.node-detail-edit-btn,
+.node-detail-fullscreen-btn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 2px;
+}
+
+.node-detail-save-btn[hidden] {
+  display: none;
+}
+
+.node-detail-actions button {
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--node-muted);
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: none;
+}
+
+.node-detail-actions .ghost-btn:hover:not(:disabled) {
+  background: var(--node-soft);
+  color: var(--node-ink);
+  border-color: var(--node-rule);
+  box-shadow: none;
+  transform: none;
+}
+
+.node-detail-actions .node-detail-save-btn {
+  background: var(--node-ink);
+  color: var(--node-paper);
+}
+
+.node-detail-actions .node-detail-save-btn:hover {
+  background: #454545;
+  color: var(--node-paper);
+}
+
+.node-detail-page button:focus-visible {
+  outline: 2px solid var(--node-ink);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+.node-detail-body {
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 32px;
+  padding: 24px max(28px, calc((100% - var(--node-content-width)) / 2)) 64px;
+  counter-reset: node-section;
+}
+
+.node-detail-title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-detail-section {
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+  counter-increment: node-section;
+}
+
+.node-detail-tabs {
+  display: flex;
+  gap: clamp(16px, 3vw, 28px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--node-rule);
+}
+
+.node-detail-tab {
+  flex-shrink: 0;
+  margin-bottom: -1px;
+  padding: 10px 0 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--node-muted);
+  font: 18px/1.4 var(--node-serif);
+  cursor: pointer;
+}
+
+.node-detail-tab:hover {
+  color: var(--node-ink);
+}
+
+.node-detail-tab[aria-selected="true"] {
+  border-bottom-color: var(--node-ink);
+  color: var(--node-ink);
+}
+
+.node-detail-tab-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  gap: 28px;
+}
+
+.node-detail-tab-panel[hidden] {
+  display: none;
+}
+
+.node-detail-tab-panel:focus-visible {
+  outline: 1px solid var(--node-ink);
+  outline-offset: 6px;
+}
