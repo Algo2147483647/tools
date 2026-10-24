@@ -1,4 +1,4 @@
-import { type GraphGeometryAppearance } from "../../graph/appearance";
+import { type GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { GraphRenderMode, NodeKey, NormalizedDag } from "../../graph/types";
 import { buildDagreLayout } from "./algorithms/dagre";
 import { buildLevelLayout } from "./algorithms/level";

@@ -1,95 +1,105 @@
-# Graph, schema, viewport and AI modules
+# Source architecture
 
-These directories separate document operations, style contracts, viewport interaction and AI workflows. Layout algorithms and stage construction are described in [Layout architecture](layout-architecture.md).
-
-## Graph documents
+Graph Studio groups code by responsibility. React application orchestration lives in `app/`; document operations, layout algorithms and protocols remain usable without React. [Layout architecture](layout-architecture.md) describes the calculation pipelines in more detail.
 
 ```text
-src/graph/
-  types.ts, accessors.ts, normalize.ts, graphIndex.ts, serialize.ts
-  commands.ts                 Public graph-edit transaction
-  commands/
-    types.ts                  Command and result contracts
-    context.ts                Transaction-local helpers and change tracking
-    nodes.ts                  Node edits and timeline field validation
-    relations.ts              Relationship edits
-  imports/
-    merge.ts                  Document merging and ID remapping
-    conflicts.ts              Conflict IDs, decisions and unresolved records
-    fields.ts                 Recursive field merging
-    values.ts, types.ts       Merge primitives and contracts
-  compound/
-    hierarchy.ts, projection.ts
-    geometry.ts               Serializable boxes and routes
-    layoutData.ts             Saved constraints, snapshots and reference repair
-  timeline/
-    time.ts, clock.ts, range.ts, editing.ts
-    layoutData.ts, settings.ts, view.ts, colors.ts
+src/
+  app/
+    document/       Document state, transactions, save, export and node actions
+    workspace/      Opening, creation, preview and recent-location orchestration
+    preferences/    Chart preferences and persisted appearance state
+    viewport/       Wiring canvas interaction and chart-specific view state
+    layout/         Layout hooks, workers, candidate review and freshness checks
+    ai/             AI request lifecycle and session coordination
+    console/        Command execution commits, input history and completion
+    ui/             Page state, shortcuts and context-menu state
+  components/
+    studio/         Page composition, toolbar, settings and dialogs
+    canvas/         SVG stage rendering and local stage interaction
+    compound/       Nested structure, layout controls and candidate review
+    timeline/       Timeline controls, arrangement, review and miniature
+    spatial/        Spatial controls
+    workspace/      Home, explorer, file preview and save dialogs
+    settings/       Settings presentation and editors
+    nodes/          Node fields, relations, hierarchy and detail editors
+    menus/          Context-menu rendering and keyboard navigation
+    console/        Console presentation
+    content/        Markdown and rich content
+    ui/             Shared controls, tabs and layout-rule tables
+  schema/
+    document/       Chart field descriptions and examples in JSON
+    appearance/     Appearance definitions, defaults, presets and resolvers
+    definition.ts   Generic field-definition resolver
+    fields.ts       Shared schema-table field contracts and ordering
+    styleProtocol.ts  Style document envelope and validation
+  graph/            Graph contracts, normalization, serialization and edits
+  layout/           Chart-family algorithms, AI layout rules and workers
+  viewport/         Zoom, pan, camera geometry and DOM measurement
+  ai/               Provider transport, editing protocol, context and sessions
+  console/          Command grammar and execution
+  workspace/        File/workspace operations and persisted recent locations
+  shared/
+    browser/        Storage, clipboard, download and file-access primitives
+    hooks/          Reusable debounce, resize and outside-dismiss hooks
+    json.ts         Shared JSON value helpers
+  export/           SVG snapshots and standalone HTML export
+  styles/           Application CSS and SVG stylesheet sources
 ```
 
-`applyGraphCommand` serializes the source into an isolated document, dispatches edits, repairs durable layout references, then normalizes the result. Node and relationship handlers share one transaction context. The import pipeline similarly keeps node and edge rename maps together so metadata remapping observes the same decisions as graph merging.
+## Application state and components
 
-Saved compound layout data belongs to the document domain. Layout algorithms consume this contract; graph mutations no longer import the layout engine. `layout/compound/layout-plan.ts` owns calculation problems, metrics and candidates, and re-exports the durable contract for existing layout consumers. `graph/types.ts` remains the stable graph type entry.
+`app/` combines the former controller and state directories by feature. Hooks own React state and effect lifecycles; pure reducers and transaction helpers remain separate files beside their callers. `app/document/nodeActions.ts` holds action contracts shared with menus, so controllers do not import component implementations.
 
-## Style schema and configuration
+`StudioView` composes the page. `StudioDialogs`, `StudioSettings` and `StudioLayoutPanels` wire their respective surfaces. `ChartLayoutControls` is shared by Settings → Layout and the toolbar's single chart-controls panel. `MethodTabs` supplies accessible switching; `LayoutRules` renders three-line rule tables. Nested structure, timeline filters and spatial view controls use the same panel.
 
-`appearanceDefinition.json` defines the base field defaults and constraints. `chartDefaults.json` supplies per-chart overrides used for initialization and reset. The complete style snapshots in `presets/*.json` are selectable presets, not an additional source for initialization defaults. Existing preset values are retained.
+General contains current-view exports and current-session details. File opening, creation and recent locations belong to the home screen. Appearance text controls belong to Nodes or Edges; timeline axis and track typography belong to Canvas. Schema groups also determine search and section resets.
 
-`presetManifest.ts` imports the five JSON files, checks preset identities and validates the document envelopes through `styleProtocol.ts`. `chartStyles.ts` centralizes default-style construction, comparison and preset lookup; callers receive independent style values. `appearanceCommands.ts` owns appearance commands alongside these schema services. Neither module depends on React state.
+`nodes/useNodeDraft.ts` owns field/JSON draft synchronization and save validation. `nodeDraft.ts` contains draft conversion; the reusable node JSON codec lives in `graph/nodeJson.ts`. Settings navigation and chapter rendering stay separate from modal lifecycle. `menus/useContextMenuNavigation.ts` owns menu focus, keyboard navigation and submenu placement.
 
-`schema/appearance.ts` owns the base appearance value and resolver. `graph/appearance.ts` remains a thin compatibility entry. Built-in SVG CSS strings live in `styles/graphAppearance.ts`, `styles/graphBaseStyles.ts` and `styles/timelineStyles.ts`, preserving inline SVG/export use and cascade order. React style conversion lives in `rendering/appearanceStyle.ts`.
+## Document and appearance schemas
 
-The `schema-json-import` Vite compatibility plugin handles the JSON import attributes in all three schema loaders. Node-based tools continue to import the same JSON files directly; there is no configuration-generation step.
+[document/definition.json](../src/schema/document/definition.json) contains common field descriptions plus chart-specific fields and overrides. Each of the five chart types has a complete example under `document/examples/`. [document/definition.ts](../src/schema/document/definition.ts) imports these JSON files, checks field definitions, composes the field tables and validates examples at the import boundary. Settings only renders this data; it does not own document configuration.
 
-## Viewport interaction
+The field-description format is not standard JSON Schema. [public/graph.schema.json](../public/graph.schema.json) remains the machine-readable JSON Schema for external document tooling. `graph/normalize.ts` remains responsible for runtime document validation and graph semantics. Changes to the document format must update these contracts together; they are not automatically generated from the description table.
 
-`useGraphZoom.ts` coordinates zoom state, fit, node location and layout anchors. `useWheelZoom.ts`, `useGraphPan.ts` and `useSpatialGestures.ts` retain their input lifecycles.
+[appearance/definition.json](../src/schema/appearance/definition.json) defines appearance fields, defaults and constraints. `appearance/defaults.json` supplies chart-specific overrides. Complete snapshots under `appearance/presets/` are selectable presets. `appearance/presets.ts` validates their identities and envelopes through `styleProtocol.ts`; `appearance/styles.ts` owns default-style construction, comparison and lookup. These modules do not depend on React.
 
-`cameraGeometry.ts` computes scroll offsets and spatial camera translations without accessing DOM. `viewportDom.ts` measures elements and applies those results. The viewport controller passes an explicit `overlaysRef`, attached by `Workspace`, so viewport code does not search for workspace CSS classes. The same ref supplies the overlay measurement and resize observation.
+`appearance/defaults.ts` exposes the base appearance and resolver; `appearance/contract.ts` validates complete values; `appearance/commands.ts` owns appearance commands. Obsolete forwarding modules have been removed, and consumers import the owning modules directly. See [Appearance schema](appearance-schema.md) for the full contract.
 
-`useTimelineRulerViewport.ts` measures the floating timeline ruler using explicit topbar and overlay refs passed through `Workspace` and `GraphStage`. It shares element measurement with zoom while retaining the ruler's own padding rules. Preview canvases may omit those page refs.
+The `schema-json-import` Vite compatibility plugin handles JSON import attributes in modules directly under `schema/appearance/` and `schema/document/`. Node-based tools import the same JSON files. There is no configuration-generation step.
 
-## AI workflows
+## Graph documents and layout
 
-```text
-src/ai/
-  types.ts                    Type-only compatibility exports
-  transport/                  Provider requests, configuration and one-repair flow
-  protocol/                   Editing prompt, response parsing and legacy adaptation
-  context/                    Graph summaries and context packets
-  session/                    Plans, working memory, transitions, persistence and recovery
-  execution/                  Command policies, preflight validation and risk helpers
-```
+`graph/commands.ts` applies edits to an isolated serialized document, repairs durable layout references, then normalizes the result. `graph/commands/` separates node and relationship edits while sharing one transaction context. `graph/imports/` keeps conflict decisions and node/edge rename maps together so metadata remapping observes the same decisions as merging.
 
-AI layout behavior belongs to the chart family in `layout/`. `compound/ai/` owns context construction, prompt rules, proposal permissions and the bounded feedback workflow. `compound/inspection.ts`, `diagnostics.ts` and `feedback.ts` are reusable local inspection/evaluation modules. `timeline/ai/` owns its context, prompt, response parser and request. Both use generic provider transport from `ai/transport`; algorithm and worker modules do not import the AI request entry points. Durable layout data remains in `graph/compound/layoutData.ts` and `graph/timeline/layoutData.ts`.
+Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timeline/layoutData.ts`. Serializable compound geometry belongs to `graph/compound/geometry.ts`. Layout algorithms consume those contracts; graph mutations do not import layout engines. `graph/serialize.ts` owns both document serialization and formatted JSON output.
 
-`transport/requestWithRepair.ts` owns request → parse → one repair attempt. Editing and timeline requests supply their own prompts, parsers and error presentation. Transport failures are propagated without retries; cancellation prevents starting a repair request.
+`app/layout/workerJob.ts` owns request IDs, timeout, cancellation and worker cleanup. Compound and timeline hooks retain document/view freshness checks and application rules. `useCompoundReview.ts` owns candidate selection and preview state. Text measurement and its browser Canvas fallback are colocated under `layout/shared/` because layout owns the font contract.
 
-`session/persistence.ts` only handles storage access and serialization. `session/restore.ts` interprets stored state, retaining the previous fallback behavior. Both new sessions and recovered state use the same empty working-memory factory. Recovery sanitizers remain distinct from model-response parsers because their input contracts differ.
+## Browser access and viewport
 
-Response JSON extraction and error locations live in `protocol/jsonResponse.ts`; legacy response conversion remains explicit in `protocol/legacyResponse.ts`. Type definitions live with their owning responsibilities, while `ai/types.ts` provides the shared type entry. Prompts describe plans, command batches and console history without claiming a removed activity-event capability.
+`shared/browser/` contains generic browser capabilities. Domain-specific storage remains with its owner: recent locations in `workspace/recentStorage.ts`, compound view state in `viewport/compoundViewStorage.ts`, AI session persistence in `ai/session/persistence.ts`. `workspace/browserAccess.ts` and `relativeLinks.ts` implement workspace and linked-resource access using generic file primitives.
 
-## Console and controllers
+`workspace/opening.ts` prepares complete candidates including recent-location identity and linked style. `workspace/createFromPicker.ts` coordinates folder creation through explicit ports. `app/workspace/useWorkspaceController.ts` retains one operation lock, document replacement decisions and React commits.
 
-`console/dsl.ts` remains the parsing entry. `syntax/` owns tokens, operands and literals; `parsers/` groups query, node, relation and appearance grammar. `console/executor.ts` retains sequential batch evaluation on an isolated graph. `execution/` contains graph mutations, context remapping, queries and output formatting. React controllers still own committing successful results and applying UI effects. Compound layout commands remain separate asynchronous operations.
+`viewport/useGraphZoom.ts` coordinates zoom state, fit, location and layout anchors. Wheel, pan and spatial gesture hooks retain their input lifecycles. `cameraGeometry.ts` computes offsets without DOM access; `viewportDom.ts` measures elements and applies results. Explicit topbar and overlay refs supplied through `Workspace` and `GraphStage` support zoom and floating timeline-ruler measurements. Preview canvases may omit those page refs.
 
-`controllers/ai/useAiSession.ts` owns session recovery and persistence. `useAiLayout.ts` coordinates layout responses with the request generation and abort controller owned by `useAiController`; splitting UI state does not create independent concurrent request channels. A layout proposal supersedes pending graph-edit commands even if evaluation fails.
+## AI and console
 
-`controllers/layout/workerJob.ts` owns worker request IDs, timeout, cancellation and cleanup. Compound and timeline controllers retain document/view freshness checks and application rules. `useCompoundReview.ts` owns candidate selection and preview state. `controllers/console/useConsoleInput.ts` owns history, completion and keyboard/paste input; command execution remains in the console controller.
+`ai/transport/` owns provider requests and configuration. `protocol/` owns editing prompts, response parsing and legacy adaptation; `context/` owns summaries and packets; `session/` owns working memory, transitions and recovery; `execution/` owns command policies and preflight validation. `ai/types.ts` is the shared type entry.
 
-`workspace/opening.ts` prepares complete file/workspace candidates, including recent-location identity and linked style. `workspace/createFromPicker.ts` coordinates folder creation through explicit ports. `useWorkspaceController` retains one operation lock, document replacement decisions and React commits. `useGraphExport.ts` captures the document and SVG together before asynchronously loading the HTML exporter.
+AI layout rules belong to their chart family under `layout/compound/ai/` and `layout/timeline/ai/`. Compound context, proposal policy and bounded feedback are separate from local inspection and diagnostics. Timeline supplies context, prompts, parsing and requests. Both use generic provider transport; algorithm and worker modules do not import network request entry points.
 
-## Components, rendering and export
+`transport/requestWithRepair.ts` owns request → parse → one repair attempt. Transport failures propagate without retries; cancellation prevents starting a repair request. Session persistence handles storage and serialization, while recovery interprets stored state. Recovery sanitizers and model-response parsers have different contracts.
 
-Components are grouped into `studio/`, `nodes/`, `menus/`, `arrange/{compound,timeline}/`, `timeline/`, `spatial/`, `console/`, `files/`, `content/`, `settings/`, `workspace/` and `ui/`.
+`app/ai/useAiSession.ts` owns session recovery and persistence effects. `useAiLayout.ts` coordinates layout responses with the request generation and abort controller owned by `useAiController`. A layout proposal supersedes pending graph-edit commands even if evaluation fails.
 
-- `StudioView` composes the page; `StudioDialogs`, `StudioSettings` and `StudioLayoutPanels` own their respective wiring.
-- `ChartLayoutControls` is shared by Settings → Layout and the toolbar’s single chart-controls panel. `MethodTabs` owns accessible method switching; `LayoutRules` renders three-line rule tables. Nested structure, timeline view filters and spatial view controls use the same panel.
-- General owns current-view exports and current-session details. File opening, creation and recent locations stay on the home screen. Appearance text controls belong to Nodes or Edges; timeline axis and track typography belong to Canvas. Schema groups also determine search and section resets.
-- `nodes/useNodeDraft.ts` owns field/JSON draft synchronization and save validation. `nodeDraft.ts` contains draft conversion; the reusable node JSON codec lives in `graph/nodeJson.ts`.
-- `settings/SettingsNavigation.tsx` and `SettingsContent.tsx` separate navigation and chapter rendering from modal lifecycle. `PreviewCanvas.tsx` owns preview fitting. Timeline arrangement has separate request, review and miniature components.
-- `menus/useContextMenuNavigation.ts` owns focus, keyboard navigation and submenu placement. Shared action contracts live in `state/nodeActions.ts`, so controllers do not import component implementations.
+`console/dsl.ts` is the parsing entry. `syntax/` owns tokens and literals; `parsers/` groups command grammar. `console/executor.ts` evaluates batches sequentially on an isolated graph; `execution/` holds mutations, remapping, queries and output formatting. `app/console/` owns React commits, UI effects, history and completion. Compound layout commands remain separate asynchronous operations.
 
-`rendering/` turns stage data into SVG and is shared by the main canvas and previews. `interaction/useStageHighlight.ts` retains incremental DOM highlighting; `interaction/useTimelineNodeInteraction.ts` owns local drag previews and keyboard pinning. Geometry computation stays in `layout/`, and page viewport measurement stays in `viewport/`.
+## Rendering, export and styles
 
-`export/svg.ts` prepares SVG snapshots. `export/html.ts` creates standalone HTML with its viewer and stylesheet in the same directory. The viewer is serialized using `startHtmlViewer.toString()`, so its runtime helpers must remain inside that function. HTML export stays dynamically loaded.
+`components/canvas/` turns stage data into SVG for both the main canvas and previews. Its interaction hooks retain incremental highlighting, local drag previews and keyboard pinning. Geometry stays in `layout/`; page measurements stay in `viewport/`.
+
+`export/svg.ts` prepares snapshots. `app/document/useGraphExport.ts` captures the document and SVG together before dynamically loading `export/html.ts`. The standalone viewer is serialized with `startHtmlViewer.toString()`, so its runtime helpers stay inside that function.
+
+`styles/ui.css` owns shared tabs, fields and buttons. `styles/modals/shared.css` owns common dialog styles; chart-specific controls stay in `chart-controls.css`. Obsolete file-menu, slider and layout-card selectors have been removed. Built-in SVG CSS remains in `graphAppearance.ts`, `graphBaseStyles.ts` and `timelineStyles.ts` to preserve inline SVG/export behavior and cascade order. React style conversion lives in `components/canvas/appearanceStyle.ts`.

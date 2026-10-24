@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { parseConsoleSource } from "../console/dsl";
 import { buildConsoleMutationLabel, executeConsoleInstructions } from "../console/executor";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { collectBatchEffects } from "../graph/commandEffects";
 import { createGraphDocument } from "../graph/normalize";
 import { createSampleDag } from "./fixtures";

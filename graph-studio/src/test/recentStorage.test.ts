@@ -4,7 +4,7 @@ import {
   readRecentMetadata,
   readLocationIdentities,
   writeLocationIdentity,
-} from "../adapters/recentStorage";
+} from "../workspace/recentStorage";
 import { hydrateRecentLocations, type LocationInput, type RecentLocation } from "../workspace/locations";
 import { createRecentLocationsStore } from "../workspace/recentLocationsStore";
 async function rememberLocation(input: LocationInput, known: RecentLocation[]) {

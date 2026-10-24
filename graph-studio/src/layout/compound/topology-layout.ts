@@ -1,6 +1,6 @@
 import { refineLocalPlacement } from "./local-refinement";
 import { compactFlow, compareArrangements, packRectangles } from "./rectangle-packing";
-import type { CompoundBox } from "./routes";
+import type { CompoundBox } from "../../graph/compound/geometry";
 type Size = { width: number; height: number };
 type Arrangement = { boxes: Map<string, CompoundBox>; width: number; height: number };
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);

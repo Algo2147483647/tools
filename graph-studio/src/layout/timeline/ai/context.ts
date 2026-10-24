@@ -1,7 +1,7 @@
 import { getNodeTitle } from "../../../graph/accessors";
 import { getTimelineClock } from "../../../graph/timeline/clock";
 import { readTimelineLayout } from "../../../graph/timeline/layoutData";
-import { sanitizeTimelineSettings } from "../../../graph/timeline/settings";
+import { resolveTimeline as sanitizeTimelineSettings } from "../../../schema/appearance/contract";
 import type { StageData } from "../../shared/types";
 import type { TimelineLayoutInput } from "../layout-candidate";
 

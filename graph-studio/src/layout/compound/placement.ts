@@ -1,7 +1,7 @@
 import { activePins, buildScopes } from "./constraints";
 import { type CompoundLayoutData, type LayoutDirection, type LayoutIntent, type LayoutProblem } from "./layout-plan";
 import { boxesOverlap } from "./layout-quality";
-import type { CompoundBox } from "./routes";
+import type { CompoundBox } from "../../graph/compound/geometry";
 import { arrangeTopology, compoundTopology } from "./topology-layout";
 
 export function place(

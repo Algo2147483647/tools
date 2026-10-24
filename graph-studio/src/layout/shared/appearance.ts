@@ -1,4 +1,4 @@
-import type { GraphAppearance, GraphGeometryAppearance } from "../../graph/appearance";
+import type { GraphAppearance, GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { GraphChartType } from "../../graph/types";
 import { DEFAULT_TITLE_FONT, getRoleFont, getTitleFont, type TextFont } from "./typography";
 // Only geometry inputs belong in layout memoization; colors and CSS are rendered separately.

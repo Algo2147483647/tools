@@ -1,8 +1,8 @@
 import { indexHierarchy, isHierarchyDescendant } from "../../graph/compound/hierarchy";
 import type { CompoundView, GraphChartType, NormalizedDag } from "../../graph/types";
-import type { GraphContextTarget } from "../../state/contextMenu";
+import type { GraphContextTarget } from "../../app/ui/contextMenu";
 
-import type { ContextMenuAction } from "../../state/nodeActions";
+import type { ContextMenuAction } from "../../app/document/nodeActions";
 
 export interface MenuEntry {
   label: string;

@@ -4,8 +4,8 @@ import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import type { RelativeLinkRoot } from "../../adapters/relativeLinks";
-import { isExternalUrl, isRelativeLink, resolveRelativeFile, resolveRelativePath } from "../../adapters/relativeLinks";
+import type { RelativeLinkRoot } from "../../workspace/relativeLinks";
+import { isExternalUrl, isRelativeLink, resolveRelativeFile, resolveRelativePath } from "../../workspace/relativeLinks";
 
 export default function MarkdownContent({
   value,

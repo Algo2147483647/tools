@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
-import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { StageData } from "../../layout/shared/types";
-import GraphStage from "../../rendering/GraphStage";
+import GraphStage from "../canvas/GraphStage";
 
 const noop = () => {};
 

@@ -1,6 +1,6 @@
-import type { TimelineMarkerSettings, TimelineViewSettings } from "../../graph/timeline/settings";
-import { sanitizeTimelineMarker } from "../../graph/timeline/settings";
-import { getDefaultChartStyle } from "../../schema/chartStyles";
+import type { TimelineMarkerSettings, TimelineViewSettings } from "../../schema/appearance/types";
+import { resolveMarker as sanitizeTimelineMarker } from "../../schema/appearance/contract";
+import { getDefaultChartStyle } from "../../schema/appearance/styles";
 import ColorSetting from "../settings/ColorSetting";
 import NumericSetting from "../settings/NumericSetting";
 import { TimelineChoices } from "./TimelineSettingFields";

@@ -1,5 +1,5 @@
 import Icon from "../ui/Icon";
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 export default function WorkspaceOverview({ files }: { files: WorkspaceControls }) {
   const workspace = files.workspace!;
   return (

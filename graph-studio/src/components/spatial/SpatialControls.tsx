@@ -1,9 +1,9 @@
 import { useState } from "react";
-import type { useSpatialView } from "../../controllers/useSpatialView";
+import type { useSpatialView } from "../../app/viewport/useSpatialView";
 import { spatialUnitScale } from "../../graph/space";
 import type { StageData } from "../../layout/shared/types";
 import MethodTabs from "../ui/MethodTabs";
-import LayoutRules from "../arrange/LayoutRules";
+import LayoutRules from "../ui/LayoutRules";
 
 export default function SpatialControls({
   spatial,
@@ -57,6 +57,7 @@ export default function SpatialControls({
               <label key={slot}>
                 View {"XYZ"[slot]}
                 <select
+                  className="studio-field"
                   aria-label={`Project dimension ${"XYZ"[slot]}`}
                   value={axis}
                   onChange={(e) => {

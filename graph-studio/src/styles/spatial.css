@@ -38,7 +38,7 @@
   gap: 6px;
 }
 .spatial-controls select,
-.spatial-controls button {
+.spatial-controls button:not([role="tab"]) {
   border: 1px solid #dce4ec;
   border-radius: 6px;
   background: #ffffff66;

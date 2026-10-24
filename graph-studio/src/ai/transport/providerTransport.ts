@@ -1,4 +1,4 @@
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 import type { AiSettings } from "../types";
 export async function requestProviderText(
   settings: AiSettings,

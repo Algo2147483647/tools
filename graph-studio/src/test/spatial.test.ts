@@ -8,12 +8,12 @@ import { serializeDag } from "../graph/serialize";
 import { defaultSpaceView, getSpaceMetadata, spaceToCartesian, type SpaceMetadata } from "../graph/space";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
 import { buildSpatialStage } from "../layout/spatial/layout";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import GraphStage from "../rendering/GraphStage";
-import { graphReducer } from "../state/graphReducer";
-import { initialGraphAppState } from "../state/initialState";
-import { parseGraphPagePreferences } from "../state/preferences";
-import { createChartStyles } from "../schema/chartStyles";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
+import GraphStage from "../components/canvas/GraphStage";
+import { graphReducer } from "../app/document/graphReducer";
+import { initialGraphAppState } from "../app/document/initialState";
+import { parseGraphPagePreferences } from "../app/preferences/preferences";
+import { createChartStyles } from "../schema/appearance/styles";
 import { defineSuite, defineTest } from "./harness";
 
 function graph(

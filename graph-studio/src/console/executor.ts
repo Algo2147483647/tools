@@ -1,8 +1,8 @@
-import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { type CommandResult } from "../graph/commands";
 import { cloneGraphDocument } from "../graph/serialize";
 import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
-import { type AppearanceCommandResult, applyAppearanceCommand } from "../schema/appearanceCommands";
+import { type AppearanceCommandResult, applyAppearanceCommand } from "../schema/appearance/commands";
 import type { ConsoleInstruction } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
 

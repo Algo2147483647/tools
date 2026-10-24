@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { appearanceToStageStyle } from "../rendering/appearanceStyle";
-import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
+import { appearanceToStageStyle } from "../components/canvas/appearanceStyle";
+import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../schema/appearance/defaults";
 import { DEFAULT_GRAPH_CSS } from "../styles/graphAppearance";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { buildStageData } from "../layout/node-link/layout";
-import GraphStage from "../rendering/GraphStage";
-import { parseGraphPagePreferences } from "../state/preferences";
+import GraphStage from "../components/canvas/GraphStage";
+import { parseGraphPagePreferences } from "../app/preferences/preferences";
 import { createStyleDocument } from "../schema/styleProtocol";
-import { getDefaultChartStyle } from "../schema/chartStyles";
+import { getDefaultChartStyle } from "../schema/appearance/styles";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 

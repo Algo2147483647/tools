@@ -162,7 +162,6 @@
 .provider-select-button:focus-visible,
 .provider-option:focus-visible,
 .zoom-value-input:focus-visible,
-.layout-value-input:focus-visible,
 .settings-select-input:focus-visible,
 .settings-text-input:focus-visible {
   outline: none;
@@ -343,16 +342,6 @@
   padding: 0 10px;
 }
 
-.appearance-css-editor {
-  min-height: 170px;
-  padding: 10px;
-  resize: vertical;
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
 .provider-picker {
   position: relative;
   min-width: 0;
@@ -507,83 +496,9 @@
   grid-column: 1 / -1;
 }
 
-.settings-section-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .settings-slider-grid {
   display: grid;
   gap: 8px;
-}
-
-.layout-slider-control {
-  display: grid;
-  grid-template-columns: 102px minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-}
-
-.layout-slider-label {
-  color: var(--text-strong);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.layout-slider-inputs {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.layout-slider {
-  width: 100%;
-  margin: 0;
-  accent-color: rgba(40, 95, 223, 0.92);
-}
-
-.layout-value-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 74px;
-  min-height: 30px;
-  padding: 0 9px;
-  border: 1px solid rgba(96, 118, 151, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.84);
-  color: var(--text-strong);
-}
-
-.layout-value-input {
-  width: 38px;
-  border: none;
-  padding: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: right;
-  outline: none;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.layout-value-input::-webkit-outer-spin-button,
-.layout-value-input::-webkit-inner-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
-}
-
-.layout-value-unit {
-  color: var(--text-soft);
-  font-size: 11px;
-  font-weight: 600;
 }
 
 .settings-action-btn {
@@ -682,24 +597,6 @@
 
   .settings-tab {
     flex: 0 0 auto;
-  }
-
-  .settings-section-header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .layout-slider-control {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .layout-slider-inputs {
-    grid-template-columns: 1fr;
-  }
-
-  .layout-value-pill {
-    justify-self: start;
   }
 
   .ai-settings-grid {

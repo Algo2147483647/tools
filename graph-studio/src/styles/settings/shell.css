@@ -245,22 +245,17 @@
   font-weight: 600;
   line-height: 1.5;
 }
-.studio-settings .settings-section > p,
-.settings-section-header p {
+.studio-settings .settings-section > p {
   margin: 6px 0 14px;
   color: #5d6c81;
   font-size: 12px;
   line-height: 1.6;
 }
-.settings-section-heading,
 .setting-label-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-}
-.settings-section-heading {
-  margin-bottom: 12px;
 }
 .appearance-group-actions {
   display: flex;

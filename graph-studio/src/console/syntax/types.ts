@@ -1,4 +1,4 @@
-import type { AppearanceCommand } from "../../schema/appearanceCommands";
+import type { AppearanceCommand } from "../../schema/appearance/commands";
 export interface ConsoleLineError {
   line: number;
   message: string;

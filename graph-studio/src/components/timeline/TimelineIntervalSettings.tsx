@@ -1,5 +1,5 @@
-import type { TimelineViewSettings } from "../../graph/timeline/settings";
-import { getDefaultChartStyle } from "../../schema/chartStyles";
+import type { TimelineViewSettings } from "../../schema/appearance/types";
+import { getDefaultChartStyle } from "../../schema/appearance/styles";
 import ColorSetting from "../settings/ColorSetting";
 import NumericSetting from "../settings/NumericSetting";
 import { TimelineChoices } from "./TimelineSettingFields";

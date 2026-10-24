@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
-import { copyTextToClipboard } from "../../adapters/clipboard";
-import { downloadJsonFile } from "../../adapters/download";
+import { copyTextToClipboard } from "../../shared/browser/clipboard";
+import { downloadJsonFile } from "../../shared/browser/download";
 import type { SchemaField } from "../../schema/fields";
 import { JsonSyntax } from "../nodes/NodeJsonView";
 

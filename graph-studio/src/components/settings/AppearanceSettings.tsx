@@ -5,7 +5,7 @@ import { createAppearanceUIModel } from "./appearanceUIModel";
 import { APPEARANCE_RENDERERS } from "./AppearanceUIRenderers";
 import { resetChartStyleSection } from "./appearanceSections";
 import { createStyleDocument } from "../../schema/styleProtocol";
-import type { ChartStyle } from "../../schema/appearanceModel";
+import type { ChartStyle } from "../../schema/appearance/types";
 /** Every renderer, from a section to a tuple input, uses one Schema transaction boundary. */
 export default function AppearanceSettings(props: Omit<AppearanceSettingsProps, "onSectionReset">) {
   const [error, setError] = useState("");

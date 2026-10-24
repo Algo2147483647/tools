@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { readRecentMetadata } from "../adapters/recentStorage";
+import { readRecentMetadata } from "../workspace/recentStorage";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { buildStageData } from "../layout/node-link/layout";
-import { graphReducer } from "../state/graphReducer";
-import { initialGraphAppState } from "../state/initialState";
+import { graphReducer } from "../app/document/graphReducer";
+import { initialGraphAppState } from "../app/document/initialState";
 import { discoverWorkspace, readGraphFile } from "../workspace/discovery";
-import { readWorkspaceFile } from "../adapters/workspaceAccess";
+import { readWorkspaceFile } from "../workspace/browserAccess";
 import { EXAMPLE_WORKSPACES, loadExampleWorkspace } from "../workspace/examples";
 import { resolveWorkspacePath } from "../workspace/paths";
 import { parseRecentMetadata } from "../workspace/locations";

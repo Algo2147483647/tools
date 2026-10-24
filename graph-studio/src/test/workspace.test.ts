@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readRecentMetadata, browserRecentLocations } from "../adapters/recentStorage";
+import { readRecentMetadata, browserRecentLocations } from "../workspace/recentStorage";
 import { rankRecentLocations, type RecentLocation } from "../workspace/locations";
 import { createRecentLocationsStore } from "../workspace/recentLocationsStore";
-import { resolveRelativeFile } from "../adapters/relativeLinks";
-import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../adapters/workspaceAccess";
+import { resolveRelativeFile } from "../workspace/relativeLinks";
+import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../workspace/browserAccess";
 import {
   chooseWorkspaceGraph,
   createWorkspaceManifest,
@@ -17,8 +17,8 @@ import type { WorkspaceFolder, WorkspaceGraph } from "../workspace/types";
 import { defineSuite, defineTest } from "./harness";
 import { prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
 import { readLinkedStyle } from "../workspace/linkedStyle";
-import { getDefaultChartStyle } from "../schema/chartStyles";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
+import { getDefaultChartStyle } from "../schema/appearance/styles";
+import { resolveTimeline as sanitizeTimelineSettings } from "../schema/appearance/contract";
 import { serializeChartStyle } from "../schema/styleProtocol";
 import { normalizeDagInput } from "../graph/normalize";
 

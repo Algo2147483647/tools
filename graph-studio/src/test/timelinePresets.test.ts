@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { getGraphPresetStyle, getGraphAppearancePresets } from "../schema/appearanceCommands";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
-import { getDefaultChartStyle, createChartStyles, chartStylesEqual } from "../schema/chartStyles";
+import { getGraphPresetStyle, getGraphAppearancePresets } from "../schema/appearance/commands";
+import { resolveTimeline as sanitizeTimelineSettings } from "../schema/appearance/contract";
+import { getDefaultChartStyle, createChartStyles, chartStylesEqual } from "../schema/appearance/styles";
 import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
-import { createChartPreferences, chartPreferencesReducer, getChartStyles } from "../state/chartPreferences";
+import { createChartPreferences, chartPreferencesReducer, getChartStyles } from "../app/preferences/chartPreferences";
 import { defineSuite, defineTest } from "./harness";
 
 export const timelinePresetsSuite = defineSuite("Complete Timeline presets", [

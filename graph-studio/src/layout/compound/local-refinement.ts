@@ -1,5 +1,5 @@
 import type { RectangleArrangement } from "./rectangle-packing";
-import type { CompoundBox } from "./routes";
+import type { CompoundBox } from "../../graph/compound/geometry";
 
 type Edge = readonly [string, string];
 const EPSILON = 0.00001;

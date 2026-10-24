@@ -1,19 +1,19 @@
 import { useCallback, useRef, useState } from "react";
 import StudioView from "./components/studio/StudioView";
 import { parseCompoundLayoutCommand } from "./console/compoundLayout";
-import { useAiController } from "./controllers/useAiController";
-import { useCompoundLayoutPlan } from "./controllers/useCompoundLayoutPlan";
-import { useConsoleController } from "./controllers/useConsoleController";
-import { useDocumentSession } from "./controllers/useDocumentSession";
-import { useGraphTransactions } from "./controllers/useGraphTransactions";
-import { useGraphViewport } from "./controllers/useGraphViewport";
-import { useNodeActions } from "./controllers/useNodeActions";
-import { usePreferencesController } from "./controllers/usePreferencesController";
-import { useStudioShortcuts } from "./controllers/useStudioShortcuts";
-import { useStudioUi } from "./controllers/useStudioUi";
-import { useTimelineLayout } from "./controllers/useTimelineLayout";
-import { useWorkspaceController } from "./controllers/useWorkspaceController";
-import { loadGraphPagePreferences } from "./state/preferences";
+import { useAiController } from "./app/ai/useAiController";
+import { useCompoundLayoutPlan } from "./app/layout/useCompoundLayoutPlan";
+import { useConsoleController } from "./app/console/useConsoleController";
+import { useDocumentSession } from "./app/document/useDocumentSession";
+import { useGraphTransactions } from "./app/document/useGraphTransactions";
+import { useGraphViewport } from "./app/viewport/useGraphViewport";
+import { useNodeActions } from "./app/document/useNodeActions";
+import { usePreferencesController } from "./app/preferences/usePreferencesController";
+import { useStudioShortcuts } from "./app/ui/useStudioShortcuts";
+import { useStudioUi } from "./app/ui/useStudioUi";
+import { useTimelineLayout } from "./app/layout/useTimelineLayout";
+import { useWorkspaceController } from "./app/workspace/useWorkspaceController";
+import { loadGraphPagePreferences } from "./app/preferences/preferences";
 
 export default function App() {
   const [initialPreferences] = useState(loadGraphPagePreferences);

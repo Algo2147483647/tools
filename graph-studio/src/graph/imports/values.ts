@@ -1,4 +1,4 @@
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 export const has = (value: object, key: string) => Object.prototype.hasOwnProperty.call(value, key);
 export const equal = (a: unknown, b: unknown): boolean => {
   if (a === b) return true;

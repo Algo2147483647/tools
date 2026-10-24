@@ -1,5 +1,5 @@
-import type { GraphAppearancePresetId } from "../../schema/appearanceCommands";
-import { APPEARANCE_DEFINITION } from "../../schema/appearanceDefinition";
+import type { GraphAppearancePresetId } from "../../schema/appearance/commands";
+import { APPEARANCE_DEFINITION } from "../../schema/appearance/definition";
 import { definitionAt, resolveDefinition } from "../../schema/definition";
 import { expectWordToken, parseLiteralToken, parseSetValueTokens } from "../syntax/literals";
 import type { ConsoleInstruction, ConsoleToken } from "../syntax/types";

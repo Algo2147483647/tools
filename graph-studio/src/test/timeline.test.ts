@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { normalizeDagInput } from "../graph/normalize";
 import {
   getTimelineRelation,

@@ -1,4 +1,4 @@
-import { isRecord } from "../utils/json";
+import { isRecord } from "../shared/json";
 import { validateNodeFields, validateNodeKey } from "./normalize";
 import type { NodeKey } from "./types";
 

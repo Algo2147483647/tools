@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { sanitizeGraphAppearance } from "../graph/appearance";
+import { sanitizeGraphAppearance } from "../schema/appearance/defaults";
 import { applyGraphCommand } from "../graph/commands";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
@@ -12,17 +12,17 @@ import { getGraphRenderMode } from "../graph/types";
 import { getNodeLocatePoint } from "../viewport/zoomGeometry";
 import { buildStageData } from "../layout/node-link/layout";
 import { buildTimelineStage } from "../layout/timeline/layout";
-import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { createChartStyles, getDefaultChartStyle } from "../schema/chartStyles";
-import { graphReducer } from "../state/graphReducer";
-import { prepareGraphTransaction } from "../state/graphTransactions";
-import { initialGraphAppState } from "../state/initialState";
+import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../app/preferences/chartPreferences";
+import { createChartStyles, getDefaultChartStyle } from "../schema/appearance/styles";
+import { graphReducer } from "../app/document/graphReducer";
+import { prepareGraphTransaction } from "../app/document/graphTransactions";
+import { initialGraphAppState } from "../app/document/initialState";
 import {
   getInitialGraphPagePreferences,
   loadGraphPagePreferences,
   parseGraphPagePreferences,
   saveGraphPagePreferences,
-} from "../state/preferences";
+} from "../app/preferences/preferences";
 import { defineSuite, defineTest } from "./harness";
 
 const graph = (value: number | string = 10) =>

@@ -108,8 +108,7 @@
   .settings-status-stack {
     flex-basis: 100%;
   }
-  .chart-type-grid,
-  .settings-open-grid {
+  .chart-type-grid {
     grid-template-columns: 1fr;
   }
   .studio-settings .ai-settings-grid {

@@ -1,10 +1,10 @@
 import { type ReactNode, type ChangeEvent, type MouseEvent } from "react";
 import type { AiSettings } from "../../ai/types";
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
-import type { GraphAppearance } from "../../graph/appearance";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
+import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
-import type { GraphAppearancePresetId } from "../../schema/appearanceCommands";
-import type { ChartStyle } from "../../schema/chartStyles";
+import type { GraphAppearancePresetId } from "../../schema/appearance/commands";
+import type { ChartStyle } from "../../schema/appearance/styles";
 import type { TimelineControlsProps } from "../timeline/TimelineControls";
 
 export interface SettingsModalProps {

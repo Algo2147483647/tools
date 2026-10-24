@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getGraphChartLabel } from "../../graph/types";
-import CompoundPanel from "../arrange/compound/CompoundPanel";
+import CompoundPanel from "../compound/CompoundPanel";
 import TimelineViewControls from "../timeline/TimelineViewControls";
 import Icon from "../ui/Icon";
 import IconButton from "../ui/IconButton";

@@ -1,5 +1,5 @@
 import { estimateTextWidth } from "../../shared/text-estimate";
-import type { CompoundBox } from "../routes";
+import type { CompoundBox } from "../../../graph/compound/geometry";
 import { overlaps } from "./geometry";
 import type { Point } from "./types";
 

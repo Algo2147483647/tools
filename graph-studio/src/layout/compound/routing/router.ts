@@ -1,5 +1,5 @@
 import type { CompoundProjection } from "../../../graph/compound/projection";
-import type { CompoundBox, CompoundRoute } from "../routes";
+import type { CompoundBox, CompoundRoute } from "../../../graph/compound/geometry";
 import { crossingCost, parallelRouteCost, routeCost } from "./cost";
 import { crossesBox, inflate, inside, simplifyRoute } from "./geometry";
 import { labelBox, placeLabel } from "./labels";

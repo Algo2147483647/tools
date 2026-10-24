@@ -1,0 +1,54 @@
+import { type Dispatch, useEffect, useState } from "react";
+import type { GraphAction } from "../document/graphActions";
+import type { GraphAppState } from "../document/initialState";
+import { type GraphPagePreferences, saveGraphPagePreferences } from "./preferences";
+import { useChartPreferences } from "./useChartPreferences";
+export function usePreferencesController(
+  initial: GraphPagePreferences,
+  state: GraphAppState,
+  dispatch: Dispatch<GraphAction>,
+) {
+  const charts = useChartPreferences(initial.chartStyles, state.chartType, dispatch, state);
+  const [aiSettings, setAiSettings] = useState(initial.aiSettings);
+  const [saved, setSaved] = useState(false);
+  const linkedChartType = charts.linkedChartType ?? state.chartType;
+  useEffect(() => {
+    const chartStyles = state.document.linkedStyle
+      ? { ...charts.chartStyles, [linkedChartType]: initial.chartStyles[linkedChartType] }
+      : charts.chartStyles;
+    const timeline = state.document.linkedStyle ? chartStyles.timeline.style.timeline! : state.timelineSettings;
+    setSaved(
+      saveGraphPagePreferences({
+        mode: state.mode,
+        chartType: state.chartType,
+        layoutMode: state.layout.mode,
+        chartStyles: {
+          ...chartStyles,
+          timeline: {
+            ...chartStyles.timeline,
+            style: {
+              ...chartStyles.timeline.style,
+              timeline: { ...timeline, typeColors: {}, pins: {}, locked: false },
+            },
+          },
+        },
+        consoleSidebarOpen: state.ui.consoleSidebarOpen,
+        consoleSidebarWidth: state.ui.consoleSidebarWidth,
+        aiSettings,
+      }),
+    );
+  }, [
+    charts.chartStyles,
+    aiSettings,
+    state.timelineSettings,
+    state.document.linkedStyle,
+    linkedChartType,
+    state.mode,
+    state.chartType,
+    state.layout.mode,
+    state.ui.consoleSidebarOpen,
+    state.ui.consoleSidebarWidth,
+  ]);
+  return { charts, aiSettings, setAiSettings, saved };
+}
+export type PreferencesController = ReturnType<typeof usePreferencesController>;

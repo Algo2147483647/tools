@@ -1,0 +1,98 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "timeline-example",
+  "title": "Delivery timeline",
+  "metadata": {
+    "style": "timeline.style.json",
+    "timeline": {
+      "timeZone": "UTC",
+      "asOf": "2026-06-01",
+      "clock": {
+        "mode": "calendar"
+      }
+    }
+  },
+  "nodes": {
+    "kickoff": {
+      "title": "Kickoff",
+      "type": "Milestone",
+      "define": "Start the delivery.",
+      "time": {
+        "at": "2026-05-01"
+      },
+      "track": "Delivery",
+      "space": 1
+    },
+    "build": {
+      "title": "Build",
+      "type": "Phase",
+      "time": {
+        "start": "2026-05-02",
+        "end": "2026-05-10"
+      },
+      "track": "Delivery",
+      "space": 1
+    },
+    "review": {
+      "title": "Review",
+      "type": "Milestone",
+      "time": {
+        "at": "2026-05-07T10:00:00Z"
+      },
+      "track": "Quality",
+      "space": 2
+    },
+    "support": {
+      "title": "Support",
+      "type": "Phase",
+      "time": {
+        "start": "2026-05-11",
+        "end": null
+      },
+      "track": "Operations",
+      "space": 3
+    }
+  },
+  "edges": [
+    {
+      "id": "kickoff-build",
+      "source": "kickoff",
+      "target": "build",
+      "value": "starts",
+      "metadata": {
+        "timeline": {
+          "kind": "sequence",
+          "sourceAnchor": "start",
+          "targetAnchor": "start"
+        }
+      }
+    },
+    {
+      "id": "build-review",
+      "source": "build",
+      "target": "review",
+      "value": "review at checkpoint",
+      "metadata": {
+        "timeline": {
+          "kind": "reference",
+          "sourceTime": "2026-05-07T10:00:00Z",
+          "targetTime": "2026-05-07T10:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "build-support",
+      "source": "build",
+      "target": "support",
+      "value": "handover",
+      "metadata": {
+        "timeline": {
+          "kind": "dependency",
+          "sourceAnchor": "end",
+          "targetAnchor": "start"
+        }
+      }
+    }
+  ]
+}

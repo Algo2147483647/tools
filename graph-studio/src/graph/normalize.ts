@@ -3,7 +3,7 @@ import { indexGraphDocument } from "./graphIndex";
 import { validateHierarchyEdges } from "./compound/hierarchy";
 import { getSankeyError } from "./sankey";
 import type { GraphDocument, NormalizedDag, RawGraphNode } from "./types";
-import { isRecord } from "../utils/json";
+import { isRecord } from "../shared/json";
 
 export function validateNodeKey(key: unknown, path = "Node ID"): asserts key is string {
   if (typeof key !== "string" || !key || key.trim() !== key || /[\r\n,]/.test(key)) {

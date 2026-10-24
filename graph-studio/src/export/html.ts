@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { downloadTextFile } from "../adapters/download";
+import { downloadTextFile } from "../shared/browser/download";
 import { timelineClockCaption } from "../graph/timeline/clock";
 import type { NormalizedDag } from "../graph/types";
 import type { StageData } from "../layout/shared/types";

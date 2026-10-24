@@ -1,4 +1,9 @@
-import { getBrowserStorage, readStoredText, writeStoredText, type StorageLike } from "../../adapters/browserStorage";
+import {
+  getBrowserStorage,
+  readStoredText,
+  writeStoredText,
+  type StorageLike,
+} from "../../shared/browser/browserStorage";
 import type { AiExecutionMode, AiHarnessState } from "../types";
 import { parsePersistedAiHarnessState } from "./restore";
 

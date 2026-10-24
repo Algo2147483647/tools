@@ -1,7 +1,7 @@
 import { sanitizeTimelineClock, type TimelineClock } from "../../graph/timeline/clock";
-import type { TimelineViewSettings } from "../../graph/timeline/settings";
-import { getDefaultChartStyle } from "../../schema/chartStyles";
-import LayoutRules, { type LayoutRule } from "../arrange/LayoutRules";
+import type { TimelineViewSettings } from "../../schema/appearance/types";
+import { getDefaultChartStyle } from "../../schema/appearance/styles";
+import LayoutRules, { type LayoutRule } from "../ui/LayoutRules";
 import NumericSetting from "../settings/NumericSetting";
 import { TimelineNumberField } from "./TimelineSettingFields";
 
@@ -31,6 +31,7 @@ export default function TimelineControls({
       label: "Direction",
       value: (
         <select
+          className="studio-field"
           aria-label="Timeline orientation"
           value={settings.orientation}
           onChange={(e) => onChange({ orientation: e.target.value as TimelineViewSettings["orientation"] })}
@@ -45,6 +46,7 @@ export default function TimelineControls({
         label: "Arrangement",
         value: (
           <select
+            className="studio-field"
             aria-label="Timeline arrangement"
             value={settings.layout}
             onChange={(e) => onChange({ layout: e.target.value as TimelineViewSettings["layout"] })}
@@ -60,6 +62,7 @@ export default function TimelineControls({
       label: "Connections",
       value: (
         <select
+          className="studio-field"
           aria-label="Timeline edge routing"
           value={settings.edgeRouting}
           onChange={(e) => onChange({ edgeRouting: e.target.value as TimelineViewSettings["edgeRouting"] })}
@@ -74,6 +77,7 @@ export default function TimelineControls({
       label: "Time axis",
       value: (
         <select
+          className="studio-field"
           aria-label="Timeline axis mode"
           value={settings.axis}
           onChange={(e) => onChange({ axis: e.target.value as TimelineViewSettings["axis"] })}
@@ -102,6 +106,7 @@ export default function TimelineControls({
           label: "Tick unit",
           value: (
             <select
+              className="studio-field"
               aria-label="Timeline tick unit"
               value={settings.tickUnit}
               onChange={(e) => onChange({ tickUnit: e.target.value as TimelineViewSettings["tickUnit"] })}

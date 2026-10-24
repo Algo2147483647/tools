@@ -1,4 +1,4 @@
-import type { CompoundRoute } from "../routes";
+import type { CompoundRoute } from "../../../graph/compound/geometry";
 
 export type Point = { x: number; y: number };
 

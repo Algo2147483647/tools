@@ -7,7 +7,7 @@ import {
 } from "../components/settings/previewModel";
 import { buildHtmlDocument, buildHtmlPayload, serializeHtmlData } from "../export/html";
 import { startHtmlViewer } from "../export/html-viewer";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { defineSuite, defineTest } from "./harness";
 
 const stage = () =>

@@ -1,4 +1,4 @@
-import type { TimelineViewSettings } from "../../graph/timeline/settings";
+import type { TimelineViewSettings } from "../../schema/appearance/types";
 import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
 import TimelineColorSettings from "../timeline/TimelineColorSettings";
 import TimelineControls from "../timeline/TimelineControls";

@@ -1,13 +1,13 @@
-import { type GraphAppearance,DEFAULT_GRAPH_APPEARANCE } from "../../graph/appearance";
+import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../../schema/appearance/defaults";
 import type {
-GraphChartType,
-GraphLayoutMode,
-GraphMode,
-GraphSelection,
-NodeKey,
-NormalizedDag,
+  GraphChartType,
+  GraphLayoutMode,
+  GraphMode,
+  GraphSelection,
+  NodeKey,
+  NormalizedDag,
 } from "../../graph/types";
-import type { AiContextPacket,AiHarnessState } from "../types";
+import type { AiContextPacket, AiHarnessState } from "../types";
 import { buildAiGraphContext } from "./graph";
 
 interface ConsoleHistoryEntry {

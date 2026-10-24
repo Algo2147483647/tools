@@ -1,4 +1,4 @@
-import type { CompoundBox } from "../routes";
+import type { CompoundBox } from "../../../graph/compound/geometry";
 import { LANE_GAP, MIN_STRAIGHT, type Port } from "./types";
 
 /** Prefer the midpoint, then offer distinct ports clear of rounded card corners. */

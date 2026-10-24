@@ -1,6 +1,6 @@
 import { getTimelineClock } from "../../graph/timeline/clock";
 import type { StudioViewProps } from "../studio/types";
-import LayoutRules from "../arrange/LayoutRules";
+import LayoutRules from "../ui/LayoutRules";
 import TimelineRangeFilter from "./TimelineRangeFilter";
 export default function TimelineViewControls({ session, viewport }: Pick<StudioViewProps, "session" | "viewport">) {
   const canLocate = Boolean(viewport.focusedKey && viewport.stage?.nodeMap[viewport.focusedKey]);
@@ -13,6 +13,7 @@ export default function TimelineViewControls({ session, viewport }: Pick<StudioV
             label: "Track",
             value: (
               <select
+                className="studio-field"
                 aria-label="Filter timeline by track"
                 value={viewport.activeTrack}
                 onChange={(event) => viewport.changeTrack(event.target.value)}

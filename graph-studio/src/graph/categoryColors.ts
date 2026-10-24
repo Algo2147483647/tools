@@ -1,4 +1,4 @@
-import { DEFAULT_GRAPH_APPEARANCE } from "./appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 export interface CategoryColorTokens {
   glow: string;
   border: string;

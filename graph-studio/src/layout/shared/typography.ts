@@ -1,4 +1,4 @@
-import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../../schema/appearance/defaults";
 
 export interface TextFont {
   size: number;

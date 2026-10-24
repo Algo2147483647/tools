@@ -1,4 +1,4 @@
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 import type { ImportDecision } from "./conflicts";
 import { equal, has, segment, set, unique } from "./values";
 export function createFieldMerger(decide: ImportDecision) {

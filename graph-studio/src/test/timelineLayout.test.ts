@@ -17,10 +17,10 @@ import { requestTimelineLayout } from "../layout/timeline/ai/request";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import { evaluateTimelineLayout, type TimelineLayoutInput } from "../layout/timeline/layout-candidate";
 import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
-import { getDefaultChartStyle } from "../schema/chartStyles";
-import type { GraphAction } from "../state/graphActions";
-import { graphReducer } from "../state/graphReducer";
-import { createInitialGraphState } from "../state/initialState";
+import { getDefaultChartStyle } from "../schema/appearance/styles";
+import type { GraphAction } from "../app/document/graphActions";
+import { graphReducer } from "../app/document/graphReducer";
+import { createInitialGraphState } from "../app/document/initialState";
 import { defineSuite, defineTest } from "./harness";
 
 function graph(relative = false) {

@@ -7,7 +7,7 @@ import { createPlanFromAiResponse } from "../ai/session/plans";
 import { referencesPreviousWork } from "../ai/session/presentation";
 import { parseAiResponse } from "../ai/protocol/responseParser";
 import { validateCommandBatch } from "../ai/execution/validation";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 

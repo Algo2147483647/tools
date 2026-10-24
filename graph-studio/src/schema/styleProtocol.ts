@@ -1,8 +1,8 @@
-import { documentDefinition } from "./appearanceContract";
+import { documentDefinition } from "./appearance/contract";
 import { resolveDefinition } from "./definition";
 import type { GraphChartType } from "../graph/types";
-import type { ChartStyle, ChartStyleDocument } from "./appearanceModel";
-import { getAppearanceSchema } from "./appearanceSchema";
+import type { ChartStyle, ChartStyleDocument } from "./appearance/types";
+import { getAppearanceSchema } from "./appearance/schema";
 
 /** Every stored style and preset uses this envelope; rendering reads its style member directly. */
 export function createStyleDocument(chartType: GraphChartType, style: ChartStyle): ChartStyleDocument {

@@ -122,3 +122,76 @@ summary:focus-visible {
   outline: 2px solid #4779da;
   outline-offset: 3px;
 }
+.method-tabs :focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 3px;
+}
+.method-tabs {
+  min-width: 0;
+}
+.method-tabs-list {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--studio-border);
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+.method-tabs-list > button {
+  flex: 1;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--studio-muted);
+  padding: 10px 12px;
+  font:
+    500 13px/1.4 "Segoe UI",
+    sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.method-tabs-list > button:hover:not(:disabled) {
+  background: var(--studio-soft);
+  color: var(--studio-ink);
+}
+.method-tabs-list > button[aria-selected="true"] {
+  border-bottom-color: var(--studio-accent);
+  color: var(--studio-accent);
+  font-weight: 600;
+}
+.method-tabs-list > button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.method-tabs-content:focus {
+  outline: none;
+}
+.method-tabs-content:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 4px;
+}
+input.studio-field,
+select.studio-field,
+textarea.studio-field {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #dce3ed;
+  border-radius: 7px;
+  color: var(--studio-ink);
+  background: #f9fbfd;
+  padding: 8px 9px;
+  font: inherit;
+}
+.studio-button.primary:hover:not(:disabled) {
+  background: #264eae;
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .method-tabs-list > button {
+    padding-inline: 8px;
+  }
+}
+.spatial-controls .method-tabs-list > button {
+  padding-inline: 8px;
+}

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { getContextMenuPages } from "../components/menus/contextMenuModel";
 import { placeContextMenu, placeContextSubmenu } from "../components/menus/contextMenuPosition";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { applyGraphCommand } from "../graph/commands";
 import { getGroupNodes, indexHierarchy } from "../graph/compound/hierarchy";
 import { projectCompoundGraph } from "../graph/compound/projection";
@@ -14,9 +14,9 @@ import { buildCompoundStage } from "../layout/compound/layout";
 import { buildStageData } from "../layout/node-link/layout";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { roundedPolylinePath } from "../layout/shared/rounded-path";
-import { graphReducer } from "../state/graphReducer";
-import { prepareCommandTransaction, prepareGraphTransaction } from "../state/graphTransactions";
-import { createInitialGraphState } from "../state/initialState";
+import { graphReducer } from "../app/document/graphReducer";
+import { prepareCommandTransaction, prepareGraphTransaction } from "../app/document/graphTransactions";
+import { createInitialGraphState } from "../app/document/initialState";
 import { defineSuite, defineTest } from "./harness";
 
 export const compoundFixture = () =>

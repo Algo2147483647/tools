@@ -1,7 +1,7 @@
-import { type GraphAppearance } from "../../graph/appearance";
+import { type GraphAppearance } from "../../schema/appearance/defaults";
 import { type CommandResult } from "../../graph/commands";
 import type { NodeKey, NormalizedDag } from "../../graph/types";
-import { type AppearanceCommandResult } from "../../schema/appearanceCommands";
+import { type AppearanceCommandResult } from "../../schema/appearance/commands";
 
 export interface ConsoleUiEffect {
   type: "show" | "json";

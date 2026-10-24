@@ -73,58 +73,13 @@
 .chart-tools-panel .compound-members {
   max-height: none;
 }
-.chart-tools-panel :focus-visible,
-.method-tabs :focus-visible {
+.chart-tools-panel :focus-visible {
   outline: 2px solid var(--studio-accent);
   outline-offset: 3px;
 }
 #chart-tools-toggle[aria-expanded="true"] {
   color: var(--studio-accent);
   background: var(--accent-soft);
-}
-.method-tabs {
-  min-width: 0;
-}
-.method-tabs-list {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--studio-border);
-  margin-bottom: 18px;
-  overflow-x: auto;
-}
-.method-tabs-list > button {
-  flex: 1;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: var(--studio-muted);
-  padding: 10px 12px;
-  font:
-    500 13px/1.4 "Segoe UI",
-    sans-serif;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.method-tabs-list > button:hover:not(:disabled) {
-  background: var(--studio-soft);
-  color: var(--studio-ink);
-}
-.method-tabs-list > button[aria-selected="true"] {
-  border-bottom-color: var(--studio-accent);
-  color: var(--studio-accent);
-  font-weight: 600;
-}
-.method-tabs-list > button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.method-tabs-content:focus {
-  outline: none;
-}
-.method-tabs-content:focus-visible {
-  outline: 2px solid var(--studio-accent);
-  outline-offset: 4px;
 }
 .chart-tools-body > .method-tabs > .method-tabs-list {
   margin-bottom: 12px;
@@ -185,18 +140,6 @@
 .layout-rules strong {
   font-weight: 600;
 }
-.chart-layout-controls select,
-.layout-ai-form textarea {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  border: 1px solid #dce3ed;
-  border-radius: 7px;
-  color: var(--studio-ink);
-  background: #f9fbfd;
-  padding: 8px 9px;
-  font: inherit;
-}
 .chart-layout-controls select:disabled,
 .layout-rule-fields:disabled select {
   opacity: 0.5;
@@ -227,15 +170,6 @@
   padding: 7px 12px;
   border-radius: 7px;
   cursor: pointer;
-}
-.chart-layout-controls .layout-primary {
-  color: #fff;
-  background: var(--studio-accent);
-  border-color: var(--studio-accent);
-}
-.chart-layout-controls .layout-primary:hover:not(:disabled) {
-  background: #264eae;
-  color: #fff;
 }
 .chart-layout-controls button:disabled {
   opacity: 0.45;
@@ -333,17 +267,6 @@
 .chart-layout-controls .spatial-angle-input input {
   min-width: 0;
 }
-.chart-layout-controls .spatial-controls .method-tabs-list > button {
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  padding: 10px 8px;
-  background: transparent;
-}
-.chart-layout-controls .spatial-controls .method-tabs-list > button[aria-selected="true"] {
-  border-bottom-color: var(--studio-accent);
-  color: var(--studio-accent);
-}
 .timeline-view-controls .timeline-range-filter > summary {
   width: auto;
   height: auto;
@@ -381,8 +304,5 @@
   }
   .chart-tools-body {
     padding: 12px 14px 16px;
-  }
-  .method-tabs-list > button {
-    padding-inline: 8px;
   }
 }

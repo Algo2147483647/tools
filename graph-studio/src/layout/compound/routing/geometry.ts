@@ -1,4 +1,4 @@
-import type { CompoundBox } from "../routes";
+import type { CompoundBox } from "../../../graph/compound/geometry";
 import { EPSILON, type Point } from "./types";
 
 export const inside = (point: Point, box: CompoundBox) =>

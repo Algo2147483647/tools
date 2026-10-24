@@ -1,5 +1,5 @@
 import { getNodeChildren } from "../../graph/accessors";
-import { type GraphGeometryAppearance } from "../../graph/appearance";
+import { type GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import { getRelationKeys } from "../../graph/relations";
 import type { NodeKey, RelationValue } from "../../graph/types";
 import { resolveStageEdgeGeometry } from "../shared/edgeGeometry";

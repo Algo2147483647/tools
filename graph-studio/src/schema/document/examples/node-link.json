@@ -1,0 +1,49 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "node-link-example",
+  "title": "Request processing",
+  "metadata": {
+    "style": "node-link.style.json"
+  },
+  "nodes": {
+    "request": {
+      "title": "Request",
+      "define": "Receive and parse input.",
+      "type": "Input"
+    },
+    "validate": {
+      "title": "Validate",
+      "define": "Check required fields.",
+      "type": "Process"
+    },
+    "result": {
+      "title": "Result",
+      "define": "Return the accepted result.",
+      "type": "Output"
+    }
+  },
+  "edges": [
+    {
+      "id": "request-validate",
+      "source": "request",
+      "target": "validate",
+      "value": "submit",
+      "metadata": {
+        "note": "Primary path"
+      }
+    },
+    {
+      "id": "validate-result",
+      "source": "validate",
+      "target": "result",
+      "value": "accept"
+    },
+    {
+      "id": "validate-request",
+      "source": "validate",
+      "target": "request",
+      "value": "retry"
+    }
+  ]
+}

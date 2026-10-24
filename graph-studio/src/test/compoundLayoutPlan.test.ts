@@ -16,9 +16,9 @@ import {
 import { validateLayoutGeometry } from "../layout/compound/layout-quality";
 import { solveCompoundLayout, validateLayoutConstraints } from "../layout/compound/layout-solver";
 import { applyLayoutSnapshot } from "../layout/compound/layout-stage";
-import type { GraphAction } from "../state/graphActions";
-import { graphReducer } from "../state/graphReducer";
-import { createInitialGraphState } from "../state/initialState";
+import type { GraphAction } from "../app/document/graphActions";
+import { graphReducer } from "../app/document/graphReducer";
+import { createInitialGraphState } from "../app/document/initialState";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 

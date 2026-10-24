@@ -1,14 +1,14 @@
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 import { normalizeAiExecutionMode } from "../execution/policy";
 import type {
-ActionPlan,
-AiExecutionMode,
-AiHarnessState,
-AiRiskLevel,
-CommandBatch,
-ProposedChange,
-ValidationReport,
-WorkingMemory,
+  ActionPlan,
+  AiExecutionMode,
+  AiHarnessState,
+  AiRiskLevel,
+  CommandBatch,
+  ProposedChange,
+  ValidationReport,
+  WorkingMemory,
 } from "../types";
 import { createEmptyWorkingMemory } from "./workingMemory";
 

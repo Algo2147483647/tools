@@ -1,5 +1,5 @@
 import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
-import { CHART_SCHEMAS } from "./chartSchemas";
+import { CHART_SCHEMAS } from "../../schema/document/definition";
 import ProtocolSchema from "./ProtocolSchema";
 
 export default function ChartSchema({ chartType }: { chartType: GraphChartType }) {

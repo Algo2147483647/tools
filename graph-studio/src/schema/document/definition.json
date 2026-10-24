@@ -1,0 +1,544 @@
+{
+  "common": [
+    {
+      "path": "format",
+      "type": "\"graph-studio\"",
+      "requirement": "Required",
+      "description": "Graph document format."
+    },
+    {
+      "path": "version",
+      "type": "3",
+      "requirement": "Required",
+      "description": "Graph data protocol version."
+    },
+    {
+      "path": "diagram",
+      "type": "dag | sankey",
+      "requirement": "Optional",
+      "description": "Data semantics; chart selection does not rewrite this value.",
+      "defaultValue": "\"dag\""
+    },
+    {
+      "path": "id",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Document identifier."
+    },
+    {
+      "path": "title",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Document title."
+    },
+    {
+      "path": "metadata",
+      "type": "object",
+      "requirement": "Optional",
+      "description": "Document extensions; unknown top-level fields are rejected."
+    },
+    {
+      "path": "metadata.style",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Relative graph-studio-style JSON path, resolved inside the opened workspace."
+    },
+    {
+      "path": "nodes",
+      "type": "object",
+      "requirement": "Required",
+      "description": "Map of unique node IDs to node objects; may be empty."
+    },
+    {
+      "path": "nodes[id]",
+      "type": "object",
+      "requirement": "Required",
+      "description": "Node record; custom JSON fields are allowed, except key, parents and children."
+    },
+    {
+      "path": "nodes[id].title",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Visible title; the map key remains the stable node ID."
+    },
+    {
+      "path": "nodes[id].define",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Markdown description displayed in node details."
+    },
+    {
+      "path": "nodes[id].type",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Category used for Type filtering and coloring."
+    },
+    {
+      "path": "edges",
+      "type": "array",
+      "requirement": "Required",
+      "description": "Ordinary directed relationships; may be empty."
+    },
+    {
+      "path": "edges[]",
+      "type": "object",
+      "requirement": "Required",
+      "description": "One relationship; directed endpoint pairs must be unique."
+    },
+    {
+      "path": "edges[].id",
+      "type": "string",
+      "requirement": "Required",
+      "description": "Nonempty identifier unique within the edge collection."
+    },
+    {
+      "path": "edges[].source",
+      "type": "string",
+      "requirement": "Required",
+      "description": "Existing source node ID; must differ from target."
+    },
+    {
+      "path": "edges[].target",
+      "type": "string",
+      "requirement": "Required",
+      "description": "Existing target node ID."
+    },
+    {
+      "path": "edges[].value",
+      "type": "string | number | boolean | null",
+      "requirement": "Optional",
+      "description": "Relationship label; directed cycles are supported.",
+      "defaultValue": "\"related_to\" (display only)"
+    },
+    {
+      "path": "edges[].metadata",
+      "type": "object",
+      "requirement": "Optional",
+      "description": "Edge extensions; other edge fields are rejected."
+    }
+  ],
+  "charts": {
+    "node-link": {
+      "fields": [],
+      "overrides": []
+    },
+    "compound": {
+      "fields": [
+        {
+          "path": "hierarchy_edges",
+          "type": "array",
+          "requirement": "Optional",
+          "description": "Parent-to-child containment; nonempty membership selects Nested node-link."
+        },
+        {
+          "path": "hierarchy_edges[]",
+          "type": "object",
+          "requirement": "Required",
+          "description": "One membership; each child has at most one parent and containment is acyclic."
+        },
+        {
+          "path": "hierarchy_edges[].id",
+          "type": "string",
+          "requirement": "Required",
+          "description": "Identifier unique within the membership collection."
+        },
+        {
+          "path": "hierarchy_edges[].source",
+          "type": "string",
+          "requirement": "Required",
+          "description": "Existing parent node ID; groups are ordinary nodes."
+        },
+        {
+          "path": "hierarchy_edges[].target",
+          "type": "string",
+          "requirement": "Required",
+          "description": "Existing direct child node ID; cannot equal its parent."
+        }
+      ],
+      "overrides": []
+    },
+    "sankey": {
+      "fields": [
+        {
+          "path": "nodes[id].color",
+          "type": "\"#RRGGBB\"",
+          "requirement": "Optional",
+          "description": "Bar and outgoing-flow color."
+        },
+        {
+          "path": "edges[].metadata.label",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Text accompanying the displayed flow quantity."
+        },
+        {
+          "path": "edges[].metadata.feedback",
+          "type": "boolean",
+          "requirement": "Optional",
+          "description": "Explicitly routes this edge as a return flow.",
+          "defaultValue": "false"
+        }
+      ],
+      "overrides": [
+        {
+          "path": "diagram",
+          "type": "\"sankey\"",
+          "requirement": "Optional",
+          "description": "Declares flow semantics and selects Sankey on open."
+        },
+        {
+          "path": "edges[].value",
+          "type": "number ≥ 0",
+          "requirement": "Required",
+          "description": "Finite flow quantity; numeric strings and overflowing totals are invalid."
+        }
+      ]
+    },
+    "timeline": {
+      "fields": [
+        {
+          "path": "metadata.timeline",
+          "type": "object",
+          "requirement": "Optional",
+          "description": "Selects Timeline on open; appearance belongs in the linked style file."
+        },
+        {
+          "path": "metadata.timeline.timeZone",
+          "type": "\"UTC\"",
+          "requirement": "Optional",
+          "description": "Normalizes calendar times to UTC without converting relative values.",
+          "defaultValue": "\"UTC\""
+        },
+        {
+          "path": "metadata.timeline.asOf",
+          "type": "calendar string",
+          "requirement": "Optional",
+          "description": "Snapshot endpoint for ongoing calendar intervals; ignored for relative time.",
+          "defaultValue": "Opening time"
+        },
+        {
+          "path": "metadata.timeline.clock",
+          "type": "object",
+          "requirement": "Optional",
+          "description": "Declares one calendar or relative clock for the document."
+        },
+        {
+          "path": "metadata.timeline.clock.mode",
+          "type": "\"calendar\" | \"relative\"",
+          "requirement": "Required",
+          "description": "Chooses calendar strings or finite numeric offsets.",
+          "defaultValue": "\"calendar\""
+        },
+        {
+          "path": "metadata.timeline.clock.unit",
+          "type": "unit | second | minute | hour | day | week | cycle",
+          "requirement": "Optional",
+          "description": "Relative display unit; changing it does not rescale values.",
+          "defaultValue": "\"unit\""
+        },
+        {
+          "path": "metadata.timeline.clock.origin",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Nonempty label for relative zero.",
+          "defaultValue": "\"T0\""
+        },
+        {
+          "path": "metadata.timeline.clock.format",
+          "type": "offset | elapsed",
+          "requirement": "Optional",
+          "description": "Relative time label format.",
+          "defaultValue": "\"offset\""
+        },
+        {
+          "path": "metadata.timeline.clock.precision",
+          "type": "integer, 0–12",
+          "requirement": "Optional",
+          "description": "Relative decimal display places; stored values remain unchanged.",
+          "defaultValue": "2"
+        },
+        {
+          "path": "nodes[id].time",
+          "type": "{ at } | { start, end }",
+          "requirement": "Optional",
+          "description": "Use exactly one form; missing or invalid imported time remains undated."
+        },
+        {
+          "path": "nodes[id].time.at",
+          "type": "string | number",
+          "requirement": "Optional",
+          "description": "Required for an instant; cannot coexist with start or end."
+        },
+        {
+          "path": "nodes[id].time.start",
+          "type": "string | number",
+          "requirement": "Optional",
+          "description": "Required for an interval; calendar date or finite relative offset."
+        },
+        {
+          "path": "nodes[id].time.end",
+          "type": "string | number | null",
+          "requirement": "Optional",
+          "description": "Required for an interval; no earlier than start; null is calendar-only ongoing time."
+        },
+        {
+          "path": "nodes[id].track",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Track membership, independent of Type coloring.",
+          "defaultValue": "\"Events\""
+        },
+        {
+          "path": "nodes[id].space",
+          "type": "integer ≥ 1",
+          "requirement": "Optional",
+          "description": "Fixed row horizontally or column vertically; takes precedence over pins.",
+          "defaultValue": "Automatic"
+        },
+        {
+          "path": "edges[].metadata.timeline",
+          "type": "object",
+          "requirement": "Optional",
+          "description": "Time-aware relationship kind and attachment points."
+        },
+        {
+          "path": "edges[].metadata.timeline.kind",
+          "type": "sequence | dependency | reference | rendezvous | part-of",
+          "requirement": "Optional",
+          "description": "Relationship semantics; keeps original endpoint IDs and direction.",
+          "defaultValue": "\"reference\""
+        },
+        {
+          "path": "edges[].metadata.timeline.sourceAnchor",
+          "type": "start | end",
+          "requirement": "Optional",
+          "description": "Source boundary when no valid sourceTime is supplied.",
+          "defaultValue": "dependency: end; otherwise: start"
+        },
+        {
+          "path": "edges[].metadata.timeline.targetAnchor",
+          "type": "start | end",
+          "requirement": "Optional",
+          "description": "Target boundary when no valid targetTime is supplied.",
+          "defaultValue": "\"start\""
+        },
+        {
+          "path": "edges[].metadata.timeline.sourceTime",
+          "type": "string | number",
+          "requirement": "Optional",
+          "description": "Inclusive time within the source event; invalid values fall back to its boundary."
+        },
+        {
+          "path": "edges[].metadata.timeline.targetTime",
+          "type": "string | number",
+          "requirement": "Optional",
+          "description": "Inclusive time within the target event; invalid values fall back to its boundary."
+        }
+      ],
+      "overrides": []
+    },
+    "spatial": {
+      "fields": [
+        {
+          "path": "metadata.space",
+          "type": "object",
+          "requirement": "Required",
+          "description": "Declares coordinates and selects Spatial on open."
+        },
+        {
+          "path": "metadata.space.dimensions",
+          "type": "integer ≥ 0",
+          "requirement": "Required",
+          "description": "Exact coordinate count; supports zero and higher dimensions."
+        },
+        {
+          "path": "metadata.space.coordinateSystem",
+          "type": "cartesian | polar | spherical | cylindrical | geographic",
+          "requirement": "Required",
+          "description": "Coordinate order: Cartesian xyz; polar r/azimuth; spherical r/azimuth/elevation; geographic lon/lat/alt."
+        },
+        {
+          "path": "metadata.space.angleUnit",
+          "type": "degrees | radians",
+          "requirement": "Optional",
+          "description": "Angular coordinate units; latitude/elevation is bounded by ±90° or ±π/2.",
+          "defaultValue": "\"degrees\""
+        },
+        {
+          "path": "metadata.space.axes",
+          "type": "string[]",
+          "requirement": "Optional",
+          "description": "Exactly one axis label per input dimension."
+        },
+        {
+          "path": "metadata.space.unit",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Linear coordinate unit label."
+        },
+        {
+          "path": "metadata.space.radius",
+          "type": "number > 0",
+          "requirement": "Optional",
+          "description": "Geographic reference sphere radius in the same unit as altitude.",
+          "defaultValue": "6371"
+        },
+        {
+          "path": "metadata.space.typeField",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Node field containing multiple category names, such as lines."
+        },
+        {
+          "path": "metadata.space.edgeTypeField",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Edge metadata field used for category filtering, such as line."
+        },
+        {
+          "path": "metadata.spatialLegend",
+          "type": "object",
+          "requirement": "Optional",
+          "description": "Descriptive legend; does not calculate point styles."
+        },
+        {
+          "path": "metadata.spatialLegend.title",
+          "type": "string",
+          "requirement": "Required",
+          "description": "Legend heading."
+        },
+        {
+          "path": "metadata.spatialLegend.description",
+          "type": "string",
+          "requirement": "Optional",
+          "description": "Legend explanation."
+        },
+        {
+          "path": "metadata.spatialLegend.items",
+          "type": "array",
+          "requirement": "Required",
+          "description": "Legend entries."
+        },
+        {
+          "path": "metadata.spatialLegend.items[]",
+          "type": "object",
+          "requirement": "Required",
+          "description": "One illustrative point style."
+        },
+        {
+          "path": "metadata.spatialLegend.items[].label",
+          "type": "string",
+          "requirement": "Required",
+          "description": "Legend item label."
+        },
+        {
+          "path": "metadata.spatialLegend.items[].radius",
+          "type": "number, 1–12",
+          "requirement": "Required",
+          "description": "Point radius; finite values are clamped."
+        },
+        {
+          "path": "metadata.spatialLegend.items[].opacity",
+          "type": "number, 0.1–1",
+          "requirement": "Optional",
+          "description": "Point opacity.",
+          "defaultValue": "1"
+        },
+        {
+          "path": "metadata.spatialLegend.items[].hollow",
+          "type": "boolean",
+          "requirement": "Optional",
+          "description": "Draw an outline instead of a fill.",
+          "defaultValue": "false"
+        },
+        {
+          "path": "nodes[id].space",
+          "type": "number[]",
+          "requirement": "Optional",
+          "description": "Exactly dimensions finite coordinates; missing positions remain in the unpositioned tray."
+        },
+        {
+          "path": "nodes[id].spatialStyle",
+          "type": "object",
+          "requirement": "Optional",
+          "description": "Per-point visual data, saved with the graph."
+        },
+        {
+          "path": "nodes[id].spatialStyle.color",
+          "type": "\"#RRGGBB\"",
+          "requirement": "Optional",
+          "description": "Overrides the category color."
+        },
+        {
+          "path": "nodes[id].spatialStyle.radius",
+          "type": "number, 1–12",
+          "requirement": "Optional",
+          "description": "Point radius; finite values are clamped.",
+          "defaultValue": "Automatic"
+        },
+        {
+          "path": "nodes[id].spatialStyle.opacity",
+          "type": "number, 0.1–1",
+          "requirement": "Optional",
+          "description": "Base opacity, further modulated by depth.",
+          "defaultValue": "1"
+        },
+        {
+          "path": "nodes[id].spatialStyle.hollow",
+          "type": "boolean",
+          "requirement": "Optional",
+          "description": "Draw an outline instead of a fill.",
+          "defaultValue": "false"
+        },
+        {
+          "path": "nodes[id].spatialStyle.label",
+          "type": "boolean",
+          "requirement": "Optional",
+          "description": "Requests labels in dense views, subject to visibility and collision handling.",
+          "defaultValue": "false"
+        },
+        {
+          "path": "nodes[id].spatialStyle.labelPriority",
+          "type": "number",
+          "requirement": "Optional",
+          "description": "Higher values receive earlier label placement.",
+          "defaultValue": "0"
+        },
+        {
+          "path": "edges[].metadata.spatialStyle",
+          "type": "object",
+          "requirement": "Optional",
+          "description": "Per-edge visual data, saved with the graph."
+        },
+        {
+          "path": "edges[].metadata.spatialStyle.color",
+          "type": "\"#RRGGBB\"",
+          "requirement": "Optional",
+          "description": "Explicit edge color."
+        },
+        {
+          "path": "edges[].metadata.spatialStyle.width",
+          "type": "number, 0.5–8",
+          "requirement": "Optional",
+          "description": "Stroke width; finite values are clamped.",
+          "defaultValue": "1"
+        },
+        {
+          "path": "edges[].metadata.spatialStyle.dashed",
+          "type": "boolean",
+          "requirement": "Optional",
+          "description": "Dashed edge stroke.",
+          "defaultValue": "false"
+        },
+        {
+          "path": "edges[].metadata.spatialStyle.directed",
+          "type": "boolean",
+          "requirement": "Optional",
+          "description": "Shows an arrow; hiding it does not change edge direction.",
+          "defaultValue": "false"
+        }
+      ],
+      "overrides": []
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { getNodeType } from "../../graph/accessors";
-import { DEFAULT_GRAPH_APPEARANCE, type GraphGeometryAppearance } from "../../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE, type GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import { buildCategoryColorMap } from "../../graph/categoryColors";
 import { cloneGraphDocument } from "../../graph/serialize";
 import { collectDescendantKeys } from "../../graph/traversal";

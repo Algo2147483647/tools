@@ -1,4 +1,4 @@
-import type { CompoundBox } from "../routes";
+import type { CompoundBox } from "../../../graph/compound/geometry";
 import { crossesBox, inside, simplifyRoute } from "./geometry";
 import { BEND_COST, EPSILON, type Point, type Port } from "./types";
 

@@ -7,19 +7,19 @@ import NumericSetting from "../components/settings/NumericSetting";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
 import { resetAppearanceSection, resetChartStyleSection } from "../components/settings/appearanceSections";
 import { APPEARANCE_UI } from "../components/settings/appearanceUIConfig";
-import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
+import { CHART_SCHEMAS } from "../schema/document/definition";
 import { formatColorValue, parseColorValue } from "../components/settings/colorValue";
 import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting } from "../components/settings/settingsCatalog";
 import TimelineColorSettings from "../components/timeline/TimelineColorSettings";
-import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../schema/appearance/defaults";
 import { indexHierarchy } from "../graph/compound/hierarchy";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
+import { resolveTimeline as sanitizeTimelineSettings } from "../schema/appearance/contract";
 import { parseNodeTimeline } from "../graph/timeline/time";
-import { getGraphAppearancePresets } from "../schema/appearanceCommands";
-import { getAppearanceSchema } from "../schema/appearanceSchema";
-import { createChartStyles, getDefaultChartStyle } from "../schema/chartStyles";
+import { getGraphAppearancePresets } from "../schema/appearance/commands";
+import { getAppearanceSchema } from "../schema/appearance/schema";
+import { createChartStyles, getDefaultChartStyle } from "../schema/appearance/styles";
 import { orderSchemaFields, type SchemaField } from "../schema/fields";
 import {
   createStyleDocument,
@@ -28,14 +28,14 @@ import {
   serializeChartStyle,
   updateAppearanceSchemaValue,
 } from "../schema/styleProtocol";
-import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
-import { replaceDocument } from "../state/documentTransitions";
-import { createInitialGraphState } from "../state/initialState";
+import { chartPreferencesReducer, createChartPreferences } from "../app/preferences/chartPreferences";
+import { replaceDocument } from "../app/document/documentTransitions";
+import { createInitialGraphState } from "../app/document/initialState";
 import {
   getInitialGraphPagePreferences,
   parseGraphPagePreferences,
   saveGraphPagePreferences,
-} from "../state/preferences";
+} from "../app/preferences/preferences";
 import { defineSuite, defineTest } from "./harness";
 
 export const settingsSuite = defineSuite("Settings controls", [

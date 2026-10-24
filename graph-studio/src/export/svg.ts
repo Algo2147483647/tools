@@ -1,4 +1,4 @@
-import { downloadTextFile } from "../adapters/download";
+import { downloadTextFile } from "../shared/browser/download";
 
 const EXPORT_STYLE_PROPERTIES = [
   "fill",

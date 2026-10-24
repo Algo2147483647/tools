@@ -1,5 +1,5 @@
 import { getNodeTitle, getNodeType } from "../../graph/accessors";
-import { DEFAULT_GRAPH_APPEARANCE } from "../../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE } from "../../schema/appearance/defaults";
 import { buildCategoryColorMap } from "../../graph/categoryColors";
 import {
   defaultSpaceView,
@@ -11,7 +11,7 @@ import {
   type SpaceView,
 } from "../../graph/space";
 import type { NormalizedDag } from "../../graph/types";
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 import type { StageAppearance } from "../shared/appearance";
 import type { StageData, StageNode } from "../shared/types";
 

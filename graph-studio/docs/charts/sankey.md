@@ -61,4 +61,4 @@ The graph stores quantities and explicit colors. The style stores bar-width and 
 
 Flow layout is automatic; BFS, Sugiyama, and Dagre are Node-link choices. Edges are aggregated quantities, so a single chart should use compatible units. Mixing units can produce a technically valid file with a misleading visual scale.
 
-Implementation: [flow validation and feedback detection](../../src/graph/sankey.ts), [Sankey layout](../../src/layout/sankey/layout.ts), [edge renderer](../../src/rendering/GraphEdge.tsx).
+Implementation: [flow validation and feedback detection](../../src/graph/sankey.ts), [Sankey layout](../../src/layout/sankey/layout.ts), [edge renderer](../../src/components/canvas/GraphEdge.tsx).

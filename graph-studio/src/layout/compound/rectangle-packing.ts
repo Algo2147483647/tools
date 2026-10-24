@@ -1,4 +1,4 @@
-import type { CompoundBox } from "./routes";
+import type { CompoundBox } from "../../graph/compound/geometry";
 
 export type RectangleSize = Pick<CompoundBox, "width" | "height">;
 export interface RectangleArrangement extends RectangleSize {

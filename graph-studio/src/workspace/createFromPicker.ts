@@ -1,4 +1,4 @@
-import { pickDirectoryHandle } from "../adapters/fileAccess";
+import { pickDirectoryHandle } from "../shared/browser/fileAccess";
 import type { NormalizedDag } from "../graph/types";
 import { createLocalWorkspace, workspaceFolderName } from "./creation";
 import type { OperationContext } from "./operations";

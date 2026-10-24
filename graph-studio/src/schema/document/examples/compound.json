@@ -1,0 +1,70 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "compound-example",
+  "title": "Nested service architecture",
+  "metadata": {
+    "style": "compound.style.json"
+  },
+  "nodes": {
+    "platform": {
+      "title": "Platform",
+      "type": "System",
+      "define": "Contains the API service."
+    },
+    "api": {
+      "title": "API service",
+      "type": "Service"
+    },
+    "request": {
+      "title": "Request",
+      "type": "Input",
+      "define": "Receive input inside the API."
+    },
+    "validate": {
+      "title": "Validate",
+      "type": "Process"
+    },
+    "database": {
+      "title": "Database",
+      "type": "Storage"
+    }
+  },
+  "edges": [
+    {
+      "id": "request-validate",
+      "source": "request",
+      "target": "validate",
+      "value": "submit"
+    },
+    {
+      "id": "validate-database",
+      "source": "validate",
+      "target": "database",
+      "value": "writes"
+    },
+    {
+      "id": "api-database",
+      "source": "api",
+      "target": "database",
+      "value": "owns access"
+    }
+  ],
+  "hierarchy_edges": [
+    {
+      "id": "platform-api",
+      "source": "platform",
+      "target": "api"
+    },
+    {
+      "id": "api-request",
+      "source": "api",
+      "target": "request"
+    },
+    {
+      "id": "api-validate",
+      "source": "api",
+      "target": "validate"
+    }
+  ]
+}

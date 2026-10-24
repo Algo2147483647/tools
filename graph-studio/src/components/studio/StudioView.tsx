@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useWorkspacePreview } from "../../controllers/useWorkspacePreview";
-import { useSidebarResize } from "../../hooks/useSidebarResize";
+import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
+import { useSidebarResize } from "./useSidebarResize";
 import ConsoleSidebar from "../console/ConsoleSidebar";
 import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";

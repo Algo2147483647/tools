@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 import Icon from "../ui/Icon";
 import IconButton from "../ui/IconButton";
 import ZoomInput from "../ui/ZoomInput";

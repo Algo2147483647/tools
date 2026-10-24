@@ -1,9 +1,9 @@
 import type { ChangeEvent } from "react";
 import { useState } from "react";
-import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { GraphChartType } from "../../graph/types";
-import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearanceCommands";
-import { chartStylesEqual, type ChartStyle } from "../../schema/chartStyles";
+import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearance/commands";
+import { chartStylesEqual, type ChartStyle } from "../../schema/appearance/styles";
 import { type TimelineControlsProps } from "../timeline/TimelineControls";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import AppearanceSchema from "./AppearanceSchema";

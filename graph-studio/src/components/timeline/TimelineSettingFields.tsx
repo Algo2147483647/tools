@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { getAppearanceSchema } from "../../schema/appearance/schema";
 
 export function TimelineChoices<T extends string>({
   label,

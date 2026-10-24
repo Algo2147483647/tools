@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createLocalWorkspace, createWorkspaceGraph, graphFileName, workspaceFolderName } from "../workspace/creation";
 import { discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
-import { readWorkspaceDirectory } from "../adapters/workspaceAccess";
+import { readWorkspaceDirectory } from "../workspace/browserAccess";
 import { defineSuite, defineTest } from "./harness";
 
 function disk(initial: Record<string, unknown> = {}, folderName = "Test workspace") {

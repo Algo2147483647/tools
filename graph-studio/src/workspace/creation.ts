@@ -1,6 +1,6 @@
-import { writeJsonToHandle } from "../adapters/fileAccess";
+import { writeJsonToHandle } from "../shared/browser/fileAccess";
 import { createInitialCanvasDag } from "../graph/initialCanvas";
-import { serializeDagToJson } from "../state/documentSerialization";
+import { serializeDagToJson } from "../graph/serialize";
 import { parseWorkspaceManifest, WORKSPACE_MANIFEST } from "./discovery";
 import type { GraphWorkspace, WorkspaceFile, WorkspaceManifest } from "./types";
 

@@ -1,5 +1,5 @@
 import { parseTimelineLayoutPlan } from "../../../graph/timeline/layoutData";
-import { isRecord } from "../../../utils/json";
+import { isRecord } from "../../../shared/json";
 
 export function parseTimelineLayoutResponse(raw: string) {
   const text = raw

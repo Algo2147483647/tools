@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
-import { appearanceToStageStyle } from "../rendering/appearanceStyle";
+import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../schema/appearance/defaults";
+import { appearanceToStageStyle } from "../components/canvas/appearanceStyle";
 import { applyGraphCommand } from "../graph/commands";
 import { analyzeGraphImport } from "../graph/imports/merge";
 import { normalizeDagInput } from "../graph/normalize";
@@ -8,9 +8,9 @@ import { getInitialSelection } from "../graph/selectors";
 import { serializeDag } from "../graph/serialize";
 import { projectGraphByType } from "../graph/typeFilter";
 import { buildStageData } from "../layout/node-link/layout";
-import { graphReducer } from "../state/graphReducer";
-import { initialGraphAppState } from "../state/initialState";
-import { parseGraphPagePreferences } from "../state/preferences";
+import { graphReducer } from "../app/document/graphReducer";
+import { initialGraphAppState } from "../app/document/initialState";
+import { parseGraphPagePreferences } from "../app/preferences/preferences";
 import { defineSuite, defineTest } from "./harness";
 
 const document = () => ({

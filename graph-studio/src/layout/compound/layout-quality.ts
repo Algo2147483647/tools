@@ -1,5 +1,5 @@
 import type { LayoutMetrics, LayoutObjective, LayoutProblem, LayoutSnapshot, LayoutValidation } from "./layout-plan";
-import type { CompoundBox } from "./routes";
+import type { CompoundBox } from "../../graph/compound/geometry";
 
 export const GEOMETRY_EPSILON = 0.01;
 type Point = { x: number; y: number };

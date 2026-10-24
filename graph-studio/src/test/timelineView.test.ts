@@ -2,14 +2,14 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { normalizeDagInput } from "../graph/normalize";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
+import { resolveTimeline as sanitizeTimelineSettings } from "../schema/appearance/contract";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import { projectTimelineStage } from "../layout/timeline/project";
 import { getTimelineAxisTicks } from "../layout/timeline/ticks";
 import { timelineTimeToY } from "../layout/timeline/axis";
 import { parseTimelineDate } from "../graph/timeline/time";
-import TimelineBackdrop from "../rendering/TimelineBackdrop";
-import { getInitialGraphPagePreferences, parseGraphPagePreferences } from "../state/preferences";
+import TimelineBackdrop from "../components/canvas/TimelineBackdrop";
+import { getInitialGraphPagePreferences, parseGraphPagePreferences } from "../app/preferences/preferences";
 import { defineSuite, defineTest } from "./harness";
 
 const document = () =>

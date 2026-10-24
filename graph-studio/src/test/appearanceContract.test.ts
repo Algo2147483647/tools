@@ -2,27 +2,27 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { defineSuite, defineTest } from "./harness";
-import { getDefaultChartStyle } from "../schema/chartStyles";
-import { getAppearanceSchema } from "../schema/appearanceSchema";
+import { getDefaultChartStyle } from "../schema/appearance/styles";
+import { getAppearanceSchema } from "../schema/appearance/schema";
 import { createStyleDocument, parseStyleDocument, updateAppearanceSchemaValue } from "../schema/styleProtocol";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
-import { sanitizeGraphAppearance } from "../graph/appearance";
+import { resolveTimeline as sanitizeTimelineSettings } from "../schema/appearance/contract";
+import { sanitizeGraphAppearance } from "../schema/appearance/defaults";
 import { normalizeDagInput } from "../graph/normalize";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import { buildSpatialStage } from "../layout/spatial/layout";
 import { buildStageData } from "../layout/node-link/layout";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { buildCategoryColorMap } from "../graph/categoryColors";
-import GraphDefs from "../rendering/GraphDefs";
-import TimelineNode from "../rendering/TimelineNode";
+import GraphDefs from "../components/canvas/GraphDefs";
+import TimelineNode from "../components/canvas/TimelineNode";
 import { createAppearanceUIModel } from "../components/settings/appearanceUIModel";
 import { AppearanceUIContext, AppearanceUIOutlet } from "../components/settings/AppearanceUIContext";
 import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "../components/settings/appearanceUIConfig";
 import { APPEARANCE_RENDERERS } from "../components/settings/AppearanceUIRenderers";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import { resetChartStyleSection } from "../components/settings/appearanceSections";
-import { PRESET_MANIFEST } from "../schema/presetManifest";
-import { getGraphAppearancePresets } from "../schema/appearanceCommands";
+import { PRESET_MANIFEST } from "../schema/appearance/presets";
+import { getGraphAppearancePresets } from "../schema/appearance/commands";
 
 const dag = normalizeDagInput({
   format: "graph-studio",

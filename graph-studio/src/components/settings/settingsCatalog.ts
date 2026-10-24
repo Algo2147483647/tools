@@ -1,5 +1,5 @@
 import type { GraphChartType } from "../../graph/types";
-import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { getAppearanceSchema } from "../../schema/appearance/schema";
 import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
 import { type SettingsChapter } from "./settingsConfig";
 

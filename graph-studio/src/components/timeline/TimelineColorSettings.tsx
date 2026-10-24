@@ -1,4 +1,4 @@
-import type { TimelineViewSettings } from "../../graph/timeline/settings";
+import type { TimelineViewSettings } from "../../schema/appearance/types";
 import { TimelineChoices } from "./TimelineSettingFields";
 
 export default function TimelineColorSettings({

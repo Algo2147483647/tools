@@ -1,4 +1,4 @@
-import type { RelativeLinkRoot } from "../../adapters/relativeLinks";
+import type { RelativeLinkRoot } from "../../workspace/relativeLinks";
 import MarkdownValue from "../content/MarkdownValue";
 import { type EditableField, type FieldDisplayMode, supportsDisplayMode } from "./nodeFields";
 

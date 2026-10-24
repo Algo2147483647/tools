@@ -1,6 +1,6 @@
-import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { getAppearanceSchema } from "../../schema/appearance/schema";
 import { updateAppearanceSchemaValues } from "../../schema/styleProtocol";
-import type { ChartStyle } from "../../schema/appearanceModel";
+import type { ChartStyle } from "../../schema/appearance/types";
 import type { GraphChartType } from "../../graph/types";
 
 export function createAppearanceUIModel(chart: GraphChartType, style: ChartStyle) {

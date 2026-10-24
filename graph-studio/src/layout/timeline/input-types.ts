@@ -1,6 +1,6 @@
 import { type ParsedTimelineTime } from "../../graph/timeline/time";
 import { type TimelineLayoutPlan } from "../../graph/timeline/layoutData";
-import { type TimelineViewSettings } from "../../graph/timeline/settings";
+import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { GraphSelection, NodeKey, NormalizedDag } from "../../graph/types";
 import { type StageAppearance } from "../shared/appearance";
 import { type TimelineAxisMap } from "./axis";

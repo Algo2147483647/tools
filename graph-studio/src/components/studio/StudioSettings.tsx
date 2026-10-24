@@ -4,7 +4,7 @@ import { getTimelineClock } from "../../graph/timeline/clock";
 import ChartLayoutControls from "./ChartLayoutControls";
 import SettingsModal from "../settings/SettingsModal";
 
-import { useGraphExport } from "../../controllers/useGraphExport";
+import { useGraphExport } from "../../app/document/useGraphExport";
 import type { StudioViewProps } from "./types";
 export function StudioSettings({
   session,

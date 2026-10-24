@@ -1,5 +1,5 @@
 import { parseLayoutIntent } from "../../graph/compound/layoutData";
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 import type { AiResponse, ProposedChange } from "../types";
 import { extractJsonObject, formatJsonParseError } from "./jsonResponse";
 import { parseLegacyAiPlan } from "./legacyResponse";

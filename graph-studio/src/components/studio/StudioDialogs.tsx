@@ -1,8 +1,8 @@
-import { canOverwrite } from "../../adapters/fileAccess";
-import { useWorkspacePreview } from "../../controllers/useWorkspacePreview";
+import { canOverwrite } from "../../shared/browser/fileAccess";
+import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
 import { getTimelineReferenceTime } from "../../graph/timeline/editing";
-import FilePreviewModal from "../files/FilePreviewModal";
-import SaveJsonModal from "../files/SaveJsonModal";
+import FilePreviewModal from "../workspace/FilePreviewModal";
+import SaveJsonModal from "../workspace/SaveJsonModal";
 import ContextMenu from "../menus/ContextMenu";
 import HierarchyEditorModal from "../nodes/HierarchyEditorModal";
 import NodeDetailModal from "../nodes/NodeDetailModal";

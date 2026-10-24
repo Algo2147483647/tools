@@ -1,12 +1,12 @@
 import { parseConsoleSource } from "../../console/dsl";
 import { executeConsoleInstructions } from "../../console/executor";
-import { getNodeChildren,getNodeParents } from "../../graph/accessors";
-import { type GraphAppearance,DEFAULT_GRAPH_APPEARANCE } from "../../graph/appearance";
+import { getNodeChildren, getNodeParents } from "../../graph/accessors";
+import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../../schema/appearance/defaults";
 import { createGraphDocument } from "../../graph/normalize";
 import { getRelationKeys } from "../../graph/relations";
-import type { GraphChartType,NodeKey,NormalizedDag } from "../../graph/types";
-import type { CommandBatch,ValidationReport } from "../types";
-import { classifyCommandRisk,isDestructiveCommand } from "./policy";
+import type { GraphChartType, NodeKey, NormalizedDag } from "../../graph/types";
+import type { CommandBatch, ValidationReport } from "../types";
+import { classifyCommandRisk, isDestructiveCommand } from "./policy";
 import { maxRisk } from "./risk";
 
 interface ValidateInput {

@@ -2,9 +2,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getAppearanceSchema } from "../src/schema/appearanceSchema.ts";
+import { getAppearanceSchema } from "../src/schema/appearance/schema.ts";
 import { parseStyleDocument } from "../src/schema/styleProtocol.ts";
-import { PRESET_MANIFEST } from "../src/schema/presetManifest.ts";
+import { PRESET_MANIFEST } from "../src/schema/appearance/presets.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const names = {

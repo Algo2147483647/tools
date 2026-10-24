@@ -1,8 +1,8 @@
 import { useId, useRef, useState } from "react";
 import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
-import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearanceCommands";
-import { getAppearanceSchema } from "../../schema/appearanceSchema";
-import { chartStylesEqual, type ChartStyle } from "../../schema/chartStyles";
+import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearance/commands";
+import { getAppearanceSchema } from "../../schema/appearance/schema";
+import { chartStylesEqual, type ChartStyle } from "../../schema/appearance/styles";
 import { updateAppearanceSchemaValue } from "../../schema/styleProtocol";
 import ProtocolSchema from "./ProtocolSchema";
 

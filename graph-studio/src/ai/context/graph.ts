@@ -1,21 +1,21 @@
 import { CONSOLE_COMMAND_REFERENCE } from "../../console/reference";
 import {
-getCustomFieldNames,
-getNodeChildren,
-getNodeDefine,
-getNodeParents,
-getNodeTitle,
-getNodeType,
+  getCustomFieldNames,
+  getNodeChildren,
+  getNodeDefine,
+  getNodeParents,
+  getNodeTitle,
+  getNodeType,
 } from "../../graph/accessors";
-import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphAppearance } from "../../schema/appearance/defaults";
 import { getRelationKeys } from "../../graph/relations";
 import type {
-GraphChartType,
-GraphLayoutMode,
-GraphMode,
-GraphSelection,
-NodeKey,
-NormalizedDag,
+  GraphChartType,
+  GraphLayoutMode,
+  GraphMode,
+  GraphSelection,
+  NodeKey,
+  NormalizedDag,
 } from "../../graph/types";
 import type { AiGraphContext } from "../types";
 

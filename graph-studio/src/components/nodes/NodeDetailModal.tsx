@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { RelativeLinkRoot } from "../../adapters/relativeLinks";
+import type { RelativeLinkRoot } from "../../workspace/relativeLinks";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import type { DagNode, NodeKey, NormalizedDag } from "../../graph/types";
 import Icon from "../ui/Icon";

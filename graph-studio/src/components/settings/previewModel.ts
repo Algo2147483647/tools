@@ -1,13 +1,14 @@
-import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphAppearance } from "../../schema/appearance/defaults";
 import { normalizeDagInput } from "../../graph/normalize";
 import { sanitizeTimelineClock, type TimelineClock } from "../../graph/timeline/clock";
-import { sanitizeTimelineSettings, type TimelineViewSettings } from "../../graph/timeline/settings";
+import { resolveTimeline as sanitizeTimelineSettings } from "../../schema/appearance/contract";
+import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { CompoundView, GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { buildStageData } from "../../layout/node-link/layout";
 import { getStageAppearance } from "../../layout/shared/appearance";
 import { buildSpatialStage } from "../../layout/spatial/layout";
 import { buildTimelineStage } from "../../layout/timeline/layout";
-import { CHART_SCHEMAS } from "./chartSchemas";
+import { CHART_SCHEMAS } from "../../schema/document/definition";
 
 export const PREVIEW_GRAPHS = {
   spatial: normalizeDagInput(CHART_SCHEMAS.spatial.example),

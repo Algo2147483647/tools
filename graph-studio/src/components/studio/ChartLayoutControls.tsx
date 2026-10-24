@@ -1,7 +1,7 @@
 import { getTimelineClock } from "../../graph/timeline/clock";
-import ArrangePanel from "../arrange/ArrangePanel";
-import LayoutRules from "../arrange/LayoutRules";
-import TimelineArrangePanel from "../arrange/timeline/TimelineArrangePanel";
+import CompoundLayoutPanel from "../compound/LayoutPanel";
+import LayoutRules from "../ui/LayoutRules";
+import TimelineArrangePanel from "../timeline/TimelineArrangePanel";
 import SpatialControls from "../spatial/SpatialControls";
 import MethodTabs from "../ui/MethodTabs";
 import type { StudioViewProps } from "./types";
@@ -21,7 +21,7 @@ export default function ChartLayoutControls({
 }: ChartLayoutControlsProps) {
   const { state } = session;
   if (state.chartType === "compound")
-    return <ArrangePanel controller={compoundLayoutPlan} ai={ai} model={preferences.aiSettings.model} />;
+    return <CompoundLayoutPanel controller={compoundLayoutPlan} ai={ai} model={preferences.aiSettings.model} />;
   if (state.chartType === "timeline")
     return (
       <TimelineArrangePanel

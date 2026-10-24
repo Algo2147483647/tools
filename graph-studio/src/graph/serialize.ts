@@ -19,3 +19,7 @@ export function projectGraphDocument(source: NormalizedDag, visible: ReadonlySet
     edges: source.edges.filter((edge) => visible.has(edge.source) && visible.has(edge.target)),
   });
 }
+
+export function serializeDagToJson(dag: NormalizedDag): string {
+  return JSON.stringify(serializeDag(dag), null, 2);
+}

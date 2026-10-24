@@ -1,4 +1,4 @@
-import { type GraphGeometryAppearance } from "../../graph/appearance";
+import { type GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { NodeKey } from "../../graph/types";
 import type { StageData, StageNode } from "../shared/types";
 import type { PreparedNodeLink } from "./input";

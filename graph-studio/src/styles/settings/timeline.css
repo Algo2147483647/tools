@@ -151,11 +151,6 @@
 .timeline-choice svg {
   flex-shrink: 0;
 }
-.timeline-field-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 12px;
-}
 .timeline-field {
   display: flex;
   flex-direction: column;
@@ -196,44 +191,6 @@
   padding: 0 8px 0 2px;
   font-size: 11px;
   color: #8995a7;
-}
-.timeline-tick-fields {
-  margin-top: 14px;
-}
-.timeline-axis-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 16px;
-}
-.timeline-axis-actions label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: #627187;
-  cursor: pointer;
-}
-.timeline-axis-actions input {
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  accent-color: #315fce;
-}
-.timeline-text-action {
-  border: 0;
-  padding: 5px 0;
-  background: none;
-  color: #315fce;
-  font:
-    12px "Segoe UI",
-    sans-serif;
-  cursor: pointer;
-}
-.timeline-text-action:disabled {
-  color: #9aa5b5;
-  cursor: default;
 }
 .timeline-fill-swatch {
   display: inline-block;

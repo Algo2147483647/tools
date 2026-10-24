@@ -1,4 +1,4 @@
-import { isRecord } from "../../utils/json";
+import { isRecord } from "../../shared/json";
 import type { GraphDocument } from "../types";
 import type { CompoundBox, CompoundRoute } from "./geometry";
 

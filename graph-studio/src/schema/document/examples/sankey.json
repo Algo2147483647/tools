@@ -1,0 +1,76 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "diagram": "sankey",
+  "id": "sankey-example",
+  "title": "Material flow with recycling",
+  "metadata": {
+    "style": "sankey.style.json",
+    "unit": "kg/h"
+  },
+  "nodes": {
+    "supply": {
+      "title": "Supply",
+      "type": "Input",
+      "color": "#2563eb"
+    },
+    "process": {
+      "title": "Process",
+      "type": "Process",
+      "color": "#10b981"
+    },
+    "product": {
+      "title": "Product",
+      "type": "Output",
+      "color": "#f59e0b"
+    },
+    "recycle": {
+      "title": "Recycle",
+      "type": "Return",
+      "color": "#8b5cf6"
+    },
+    "loss": {
+      "title": "Loss",
+      "type": "Output"
+    }
+  },
+  "edges": [
+    {
+      "id": "supply-process",
+      "source": "supply",
+      "target": "process",
+      "value": 100
+    },
+    {
+      "id": "process-product",
+      "source": "process",
+      "target": "product",
+      "value": 90,
+      "metadata": {
+        "label": "Product"
+      }
+    },
+    {
+      "id": "process-recycle",
+      "source": "process",
+      "target": "recycle",
+      "value": 20
+    },
+    {
+      "id": "recycle-process",
+      "source": "recycle",
+      "target": "process",
+      "value": 20,
+      "metadata": {
+        "label": "Recycled",
+        "feedback": true
+      }
+    },
+    {
+      "id": "process-loss",
+      "source": "process",
+      "target": "loss",
+      "value": 10
+    }
+  ]
+}

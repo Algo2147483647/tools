@@ -2,7 +2,7 @@ import IconButton from "../ui/IconButton";
 import InlineNameForm from "../ui/InlineNameForm";
 import Icon from "../ui/Icon";
 import { type ReactNode, useMemo, useState } from "react";
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 export default function WorkspaceExplorer({
   files,
   onOpenAsset,

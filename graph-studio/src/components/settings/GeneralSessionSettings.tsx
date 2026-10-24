@@ -1,4 +1,4 @@
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 
 export default function GeneralSessionSettings({
   files,

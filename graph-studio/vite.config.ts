@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFile } from "node:fs/promises";
 
-const schemaJsonModule = /[\\/]schema[\\/](?:appearanceDefinition|chartDefaults|presetManifest)\.ts$/;
+const schemaJsonModule = /[\\/]schema[\\/](?:appearance|document)[\\/][^\\/]+\.ts$/;
 const browserJsonImport = (source: string) => source.replace(/\s+with\s*\{\s*type:\s*"json"\s*\}/g, "");
 
 export default defineConfig({

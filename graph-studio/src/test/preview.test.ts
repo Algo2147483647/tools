@@ -9,13 +9,13 @@ import {
   previewGeometry,
 } from "../components/settings/previewModel";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
-import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../schema/appearance/defaults";
 import type { GraphChartType } from "../graph/types";
 import { buildCompoundStage } from "../layout/compound/layout";
 import type { StageData } from "../layout/shared/types";
-import GraphStage from "../rendering/GraphStage";
-import { createChartStyles } from "../schema/chartStyles";
-import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
+import GraphStage from "../components/canvas/GraphStage";
+import { createChartStyles } from "../schema/appearance/styles";
+import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../app/preferences/chartPreferences";
 import { assertCompoundGeometry } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 

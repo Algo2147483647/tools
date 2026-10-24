@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { applyGraphCommand } from "../graph/commands";
-import { repairHistoryAfterCommand, repairSelectionAfterCommand } from "../state/derived";
-import { graphReducer } from "../state/graphReducer";
-import { type EditTransaction, type GraphAppState, initialGraphAppState } from "../state/initialState";
+import { repairHistoryAfterCommand, repairSelectionAfterCommand } from "../app/document/derived";
+import { graphReducer } from "../app/document/graphReducer";
+import { type EditTransaction, type GraphAppState, initialGraphAppState } from "../app/document/initialState";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 

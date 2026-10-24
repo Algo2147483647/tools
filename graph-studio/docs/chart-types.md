@@ -103,4 +103,4 @@ Saving graph JSON preserves original data and metadata, not a filtered or collap
 
 ## Implementation references
 
-[Types](../src/graph/types.ts), [normalization](../src/graph/normalize.ts), [serialization](../src/graph/serialize.ts), [chart schema shown in Settings](../src/components/settings/chartSchemas.ts), and [linked style resolution](../src/workspace/linkedStyle.ts).
+[Types](../src/graph/types.ts), [normalization](../src/graph/normalize.ts), [serialization](../src/graph/serialize.ts), [chart schema shown in Settings](../src/schema/document/definition.ts), and [linked style resolution](../src/workspace/linkedStyle.ts).

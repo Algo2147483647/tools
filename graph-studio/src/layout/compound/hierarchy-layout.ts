@@ -1,6 +1,6 @@
-import type { GraphGeometryAppearance } from "../../graph/appearance";
+import type { GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { CompoundProjection } from "../../graph/compound/projection";
-import type { CompoundBox } from "./routes";
+import type { CompoundBox } from "../../graph/compound/geometry";
 import { arrangeTopology } from "./topology-layout";
 
 interface Size {

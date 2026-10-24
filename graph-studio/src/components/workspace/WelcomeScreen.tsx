@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import Icon from "../ui/Icon";
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 import ExampleGallery from "./ExampleGallery";
 import RecentProjects from "./RecentProjects";
 

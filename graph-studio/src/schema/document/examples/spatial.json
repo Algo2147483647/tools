@@ -1,0 +1,79 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "spatial-example",
+  "title": "Spatial measurements",
+  "metadata": {
+    "style": "spatial.style.json",
+    "space": {
+      "dimensions": 3,
+      "coordinateSystem": "cartesian",
+      "angleUnit": "degrees",
+      "axes": ["X", "Y", "Z"],
+      "unit": "m"
+    },
+    "spatialLegend": {
+      "title": "Measurements",
+      "description": "Hollow points indicate a missing reading.",
+      "items": [
+        {
+          "label": "Measured",
+          "radius": 5,
+          "opacity": 0.8,
+          "hollow": false
+        },
+        {
+          "label": "Missing",
+          "radius": 3,
+          "opacity": 1,
+          "hollow": true
+        }
+      ]
+    }
+  },
+  "nodes": {
+    "origin": {
+      "title": "Origin",
+      "type": "Reference",
+      "define": "Reference coordinate.",
+      "space": [0, 0, 0],
+      "spatialStyle": {
+        "color": "#2563eb",
+        "radius": 5,
+        "opacity": 0.8,
+        "hollow": false,
+        "label": true,
+        "labelPriority": 10
+      }
+    },
+    "sample": {
+      "title": "Sample",
+      "type": "Measurement",
+      "space": [1, 2, 3],
+      "spatialStyle": {
+        "radius": 3,
+        "hollow": true
+      }
+    },
+    "pending": {
+      "title": "Unpositioned",
+      "type": "Measurement"
+    }
+  },
+  "edges": [
+    {
+      "id": "origin-sample",
+      "source": "origin",
+      "target": "sample",
+      "value": "measures",
+      "metadata": {
+        "spatialStyle": {
+          "color": "#64748b",
+          "width": 2,
+          "dashed": true,
+          "directed": true
+        }
+      }
+    }
+  ]
+}

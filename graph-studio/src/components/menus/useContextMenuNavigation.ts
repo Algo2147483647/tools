@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
-import type { GraphContextMenu } from "../../state/contextMenu";
+import type { GraphContextMenu } from "../../app/ui/contextMenu";
 import { placeContextMenu, placeContextSubmenu } from "./contextMenuPosition";
 const enabledItems = (element: HTMLElement | null) => [
   ...(element?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? []),

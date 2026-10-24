@@ -7,7 +7,7 @@ import {
 } from "../components/nodes/nodeFields";
 import { getCustomFieldNames } from "../graph/accessors";
 import { parseRelationInput } from "../graph/relations";
-import { parseGraphPagePreferences } from "../state/preferences";
+import { parseGraphPagePreferences } from "../app/preferences/preferences";
 import { defineSuite, defineTest } from "./harness";
 
 export const fieldRolesSuite = defineSuite("native field roles", [

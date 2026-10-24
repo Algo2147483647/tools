@@ -1,5 +1,5 @@
 import Icon from "../ui/Icon";
-import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 import { recentProjects, type RecentProject } from "../../workspace/recentProjects";
 
 function groupRecentProjects(recents: RecentProject[]) {
