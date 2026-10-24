@@ -1,4 +1,4 @@
-import { useEffect,useRef,useState,type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import type { TimelineLayoutController } from "../controllers/useTimelineLayout";
 import { type GraphAppearance } from "../graph/appearance";

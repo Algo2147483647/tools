@@ -7,8 +7,8 @@
 | Consumer                    | Source                                      | Behavior                                                                             |
 | --------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
 | TypeScript models           | `appearanceModel.ts`                        | Explicit data shapes matching JSON field structure, enum values and tuple lengths.   |
-| Chart defaults              | Field defaults and `chartDefaults.ts`       | Explicit per-chart default overrides.                                                |
-| Presets                     | `presetManifest.ts`                         | Full validated `ChartStyleDocument` records with identity outside the document.      |
+| Chart defaults              | Field defaults and `chartDefaults.json`     | Explicit per-chart default overrides, imported through a thin TypeScript loader.     |
+| Presets                     | `presets/*.json` and `presetManifest.ts`    | Full validated `ChartStyleDocument` records with identity outside the document.      |
 | Schema table                | Field definitions and current values        | Unsupported fields are read-only and identified in their description.                |
 | Ordinary controls           | Schema bindings and `appearanceUIConfig.ts` | Hierarchical UI templates retain sliders, color pickers, switches and button groups. |
 | Preferences and style files | `styleProtocol.ts`                          | Complete documents round-trip through the same validator.                            |
@@ -34,9 +34,9 @@ CSS requires `--dag-` variable names, at most 500 characters per variable, and a
 
 The document envelope is `{ format: "graph-studio-style", version: 1, chartType, style }`. Saved preferences store one complete document per chart. Session-specific Timeline pins, axis lock state, and document category overrides remain excluded from global browser preferences. Invalid imported documents are rejected; invalid stored documents reset to chart defaults.
 
-Edit defaults, bounds, labels, chart support and other configuration directly in `appearanceDefinition.json`; no configuration-generation step is needed. When adding or changing field structure, enum values or tuple lengths, also update `appearanceModel.ts` and implement the corresponding rendering behavior. Add presets as complete documents in the manifest without adding factory branches. Run the reference generator with the same TypeScript loader as the test runner, then run the contract and rendering tests. Validation tests cover actual geometry, typography, palettes, CSS precedence, editor support, presets, and round trips.
+Edit defaults, bounds, labels, chart support and other configuration directly in `appearanceDefinition.json`; no configuration-generation step is needed. Edit per-chart overrides in `chartDefaults.json`. When adding or changing field structure, enum values or tuple lengths, also update `appearanceModel.ts` and implement the corresponding rendering behavior. Add presets as complete documents in the corresponding `presets/<chart>.json` file without adding factory branches. Run the reference generator with the same TypeScript loader as the test runner, then run the contract and rendering tests. Validation tests cover actual geometry, typography, palettes, CSS precedence, editor support, presets, and round trips.
 
-The JSON import uses import attributes for the Node.js scripts. The `appearance-json-import` Vite plugin removes that attribute before Vite 4's older esbuild processes the module; Vite loads the same JSON through its built-in JSON support.
+The JSON imports use import attributes for Node.js scripts. The `schema-json-import` Vite plugin removes those attributes in `appearanceDefinition.ts`, `chartDefaults.ts` and `presetManifest.ts` before Vite 4's older esbuild processes the modules; Vite loads the same JSON through its built-in JSON support.
 
 ## Hierarchical Settings UI
 

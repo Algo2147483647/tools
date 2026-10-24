@@ -22,6 +22,7 @@ Start with [Chart types and the shared data protocol](chart-types.md), then read
 
 ## Source of truth
 
+- [Graph, schema, viewport and AI architecture](source-architecture.md) explains module ownership, configuration files and dependency boundaries.
 - [Layout architecture](layout-architecture.md) maps chart-specific layout pipelines, shared types, text measurement and Worker boundaries to the source tree.
 - [Graph JSON Schema](../public/graph.schema.json) documents graph structure; runtime validation performs additional semantic checks.
 - [Graph types](../src/graph/types.ts) define chart IDs and document types.

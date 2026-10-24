@@ -1,5 +1,5 @@
-import { indexHierarchy,isHierarchyDescendant } from "../graph/compound/hierarchy";
-import type { CompoundView,GraphChartType,NormalizedDag } from "../graph/types";
+import { indexHierarchy, isHierarchyDescendant } from "../graph/compound/hierarchy";
+import type { CompoundView, GraphChartType, NormalizedDag } from "../graph/types";
 import type { GraphContextTarget } from "../state/contextMenu";
 
 export type ContextMenuAction =

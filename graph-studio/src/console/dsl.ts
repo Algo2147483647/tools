@@ -1,6 +1,6 @@
-import type { AppearanceCommand,GraphAppearancePresetId } from "../schema/appearanceCommands";
+import type { AppearanceCommand, GraphAppearancePresetId } from "../schema/appearanceCommands";
 import { APPEARANCE_DEFINITION } from "../schema/appearanceDefinition";
-import { definitionAt,resolveDefinition } from "../schema/definition";
+import { definitionAt, resolveDefinition } from "../schema/definition";
 
 interface ConsoleLineError {
   line: number;

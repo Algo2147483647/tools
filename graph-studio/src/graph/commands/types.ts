@@ -1,5 +1,5 @@
 import { type HierarchyCommand } from "../compound/hierarchy";
-import { type NodeKey,type NormalizedDag,type RelationValue } from "../types";
+import { type NodeKey, type NormalizedDag, type RelationValue } from "../types";
 
 export type GraphCommand =
   | HierarchyCommand
@@ -24,4 +24,3 @@ export interface CommandResult {
   renamedKey?: { from: NodeKey; to: NodeKey };
   message?: string;
 }
-

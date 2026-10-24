@@ -1,11 +1,11 @@
 import type { CompoundProjection } from "../../../graph/compound/projection";
-import type { CompoundBox,CompoundRoute } from "../routes";
-import { crossingCost,parallelRouteCost,routeCost } from "./cost";
-import { crossesBox,inflate,inside,simplifyRoute } from "./geometry";
-import { labelBox,placeLabel } from "./labels";
+import type { CompoundBox, CompoundRoute } from "../routes";
+import { crossingCost, parallelRouteCost, routeCost } from "./cost";
+import { crossesBox, inflate, inside, simplifyRoute } from "./geometry";
+import { labelBox, placeLabel } from "./labels";
 import { sidePorts } from "./ports";
-import { findOrthogonalPath,simpleRoutes } from "./search";
-import { EPSILON,LANE_GAP,type CompoundRoutingOptions,type Point,type Port } from "./types";
+import { findOrthogonalPath, simpleRoutes } from "./search";
+import { EPSILON, LANE_GAP, type CompoundRoutingOptions, type Point, type Port } from "./types";
 
 /** Choose separated side ports after placement; routing never moves node rectangles. */
 export function routeCompoundEdges(

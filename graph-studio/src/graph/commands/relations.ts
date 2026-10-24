@@ -1,13 +1,12 @@
 import { type HierarchyCommand } from "../compound/hierarchy";
 
-
 import type { CommandContext } from "./context";
 import type { NodeCommand } from "./nodes";
 import type { GraphCommand } from "./types";
 type RelationCommand = Exclude<GraphCommand, NodeCommand | HierarchyCommand>;
 export function applyRelationCommand(context: CommandContext, command: RelationCommand): void {
-const { document, defaultRelationValue, result, requireNode, setEdge } = context;
-switch (command.type) {
+  const { document, defaultRelationValue, result, requireNode, setEdge } = context;
+  switch (command.type) {
     case "setEdge":
       setEdge(
         command.parentKey,

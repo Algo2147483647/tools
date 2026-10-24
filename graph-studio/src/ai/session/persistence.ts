@@ -1,8 +1,5 @@
-import { getBrowserStorage,readStoredText,writeStoredText,type StorageLike } from "../../adapters/browserStorage";
-import type {
-AiExecutionMode,
-AiHarnessState
-} from "../types";
+import { getBrowserStorage, readStoredText, writeStoredText, type StorageLike } from "../../adapters/browserStorage";
+import type { AiExecutionMode, AiHarnessState } from "../types";
 import { parsePersistedAiHarnessState } from "./restore";
 
 const AI_HARNESS_STORAGE_PREFIX = "graph-studio:ai-harness:";

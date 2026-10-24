@@ -1,5 +1,4 @@
-
-import { type AiRiskLevel,type CommandBatch,type ValidationReport } from "../execution/types";
+import { type AiRiskLevel, type CommandBatch, type ValidationReport } from "../execution/types";
 import { type ProposedChange } from "../protocol/types";
 
 export type AiExecutionMode = "ask" | "review" | "auto-edit";

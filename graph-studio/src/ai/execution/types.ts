@@ -1,5 +1,3 @@
-
-
 export type AiRiskLevel = "low" | "medium" | "high";
 
 export interface CommandBatch {

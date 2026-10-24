@@ -1,6 +1,5 @@
-
-import { type CommandBatch,type ValidationReport } from "../execution/types";
-import { type ActionPlan,type AiExecutionMode,type WorkingMemory } from "../session/types";
+import { type CommandBatch, type ValidationReport } from "../execution/types";
+import { type ActionPlan, type AiExecutionMode, type WorkingMemory } from "../session/types";
 import { type AiSettings } from "../transport/types";
 
 export interface AiGraphContext {

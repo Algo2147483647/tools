@@ -1,8 +1,8 @@
-import { sanitizeTimelineClock,type TimelineClock } from "../graph/timeline/clock";
+import { sanitizeTimelineClock, type TimelineClock } from "../graph/timeline/clock";
 import type { TimelineViewSettings } from "../graph/timeline/settings";
 import { getDefaultChartStyle } from "../schema/chartStyles";
 import NumericSetting from "./settings/NumericSetting";
-import { TimelineChoices,TimelineNumberField } from "./TimelineSettingFields";
+import { TimelineChoices, TimelineNumberField } from "./TimelineSettingFields";
 
 export interface TimelineControlsProps {
   settings: TimelineViewSettings;

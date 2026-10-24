@@ -1,4 +1,3 @@
-
 export const TIMELINE_LAYOUT_PROMPT = [
   'You arrange a timeline in Graph Studio. Return only JSON: {"version":1,"explanation":"...","plan":{"trackOrder":["existing track"],"eventOrder":["existing event ID"],"edgeRouting":"avoid"}}.',
   "All plan fields are optional. trackOrder is a preferred order of tracks. eventOrder prioritizes independent chains for cross-axis channel placement; it does not change chronology or break sequence chains. Unlisted items retain deterministic algorithmic order. In Flow mode use eventOrder, because tracks are not displayed.",

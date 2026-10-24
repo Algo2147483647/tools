@@ -6,7 +6,6 @@ import { applyHierarchyCommand } from "./compound/hierarchy";
 import { getTimelineReferenceTime } from "./timeline/editing";
 import type { NormalizedDag } from "./types";
 
-
 import type { GraphCommand, CommandResult } from "./commands/types";
 import { createCommandContext } from "./commands/context";
 import { applyNodeCommand, isNodeCommand } from "./commands/nodes";

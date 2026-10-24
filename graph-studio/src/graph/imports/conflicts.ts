@@ -1,4 +1,4 @@
-import type { ImportConflict,ImportGraphDocument,ImportResolutions } from "./types";
+import type { ImportConflict, ImportGraphDocument, ImportResolutions } from "./types";
 export function createImportDecisions(documents: ImportGraphDocument[], resolutions: ImportResolutions) {
   const conflicts: ImportConflict[] = [];
   const unresolved: ImportConflict[] = [];
@@ -39,6 +39,6 @@ export function createImportDecisions(documents: ImportGraphDocument[], resoluti
     }
     return resolution;
   };
-return { conflicts, unresolved, decide };
+  return { conflicts, unresolved, decide };
 }
 export type ImportDecision = ReturnType<typeof createImportDecisions>["decide"];

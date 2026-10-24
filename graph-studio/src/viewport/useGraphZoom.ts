@@ -1,20 +1,20 @@
-import { useCallback,useEffect,useLayoutEffect,useMemo,useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { StageData } from "../layout/shared/types";
 import { useWheelZoom } from "./useWheelZoom";
 import {
-applyGraphZoom,
-getAppliedZoomScale,
-getFitZoomScale,
-getViewportMetrics,
-setSpatialCamera,
+  applyGraphZoom,
+  getAppliedZoomScale,
+  getFitZoomScale,
+  getViewportMetrics,
+  setSpatialCamera,
 } from "./viewportDom";
 import {
-clamp,
-getItemOrigin,
-getNodeLocatePoint,
-spatialMinScale,
-ZOOM_STEP_FACTOR,
-type ZoomAnchor,
+  clamp,
+  getItemOrigin,
+  getNodeLocatePoint,
+  spatialMinScale,
+  ZOOM_STEP_FACTOR,
+  type ZoomAnchor,
 } from "./zoomGeometry";
 
 interface UseGraphZoomInput {
@@ -60,7 +60,16 @@ export function useGraphZoom({
       const currentZoom = zoomStateRef.current;
       const resolvedMinScale = nextMinScale ?? currentZoom.minScale;
       const clampedScale = clamp(nextScale, resolvedMinScale, currentZoom.maxScale);
-      applyGraphZoom(container, svg, topbarRef.current, stage, clampedScale, preserveCenter, anchor, overlaysRef.current);
+      applyGraphZoom(
+        container,
+        svg,
+        topbarRef.current,
+        stage,
+        clampedScale,
+        preserveCenter,
+        anchor,
+        overlaysRef.current,
+      );
       zoomStateRef.current = { ...currentZoom, scale: clampedScale, minScale: resolvedMinScale };
       if (
         Math.abs(currentZoom.scale - clampedScale) > 0.0001 ||

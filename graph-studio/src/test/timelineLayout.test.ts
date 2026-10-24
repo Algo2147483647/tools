@@ -9,7 +9,11 @@ import {
   validateTimelineLayoutPlan,
   writeTimelineLayout,
 } from "../graph/timeline/layoutData";
-import { parseTimelineLayoutResponse, timelineLayoutContext, requestTimelineLayout } from "../ai/layout/timelineRequest";
+import {
+  parseTimelineLayoutResponse,
+  timelineLayoutContext,
+  requestTimelineLayout,
+} from "../ai/layout/timelineRequest";
 import { getDefaultChartStyle } from "../schema/chartStyles";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { buildTimelineStage } from "../layout/timeline/layout";

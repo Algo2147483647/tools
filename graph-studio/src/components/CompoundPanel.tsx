@@ -1,8 +1,8 @@
-import { useMemo,useState } from "react";
+import { useMemo, useState } from "react";
 import { getNodeTitle } from "../graph/accessors";
 import type { GraphCommand } from "../graph/commands";
-import { getGroupNodes,indexHierarchy } from "../graph/compound/hierarchy";
-import type { CompoundView,NormalizedDag } from "../graph/types";
+import { getGroupNodes, indexHierarchy } from "../graph/compound/hierarchy";
+import type { CompoundView, NormalizedDag } from "../graph/types";
 const has = (value: object, id: string) => Object.prototype.hasOwnProperty.call(value, id);
 
 export default function CompoundPanel({

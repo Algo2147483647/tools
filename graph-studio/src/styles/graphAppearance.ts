@@ -1,4 +1,3 @@
-
 // Built-in styles are rendered independently of user-authored custom CSS.
 export const GRAPH_EFFECTS_CSS = `
 .dag-graph .dag-node__pin, .dag-graph .dag-node__pin-core { display: var(--dag-node-pin-display, inline); }

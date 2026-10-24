@@ -1,7 +1,6 @@
-import { validateNodeFields,validateNodeKey } from "../normalize";
+import { validateNodeFields, validateNodeKey } from "../normalize";
 import { nextEdgeId } from "../relations";
-import { DEFAULT_RELATION_VALUE,type NormalizedDag,type RelationValue } from "../types";
-
+import { DEFAULT_RELATION_VALUE, type NormalizedDag, type RelationValue } from "../types";
 
 import type { GraphDocument } from "../types";
 import type { CommandResult } from "./types";
@@ -50,6 +49,19 @@ export function createCommandContext(source: NormalizedDag, document: GraphDocum
     }
   };
 
-return { source, document, timelineReferenceTime, defaultRelationValue, nodes, result, exists, requireNode, requireNew, putNode, rename, setEdge };
+  return {
+    source,
+    document,
+    timelineReferenceTime,
+    defaultRelationValue,
+    nodes,
+    result,
+    exists,
+    requireNode,
+    requireNew,
+    putNode,
+    rename,
+    setEdge,
+  };
 }
 export type CommandContext = ReturnType<typeof createCommandContext>;

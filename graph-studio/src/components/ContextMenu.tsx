@@ -1,11 +1,11 @@
-import { useEffect,useLayoutEffect,useMemo,useRef,useState,type KeyboardEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { getNodeTitle } from "../graph/accessors";
 import { indexHierarchy } from "../graph/compound/hierarchy";
-import type { CompoundView,GraphChartType,NormalizedDag } from "../graph/types";
-import type { GraphContextMenu,GraphContextTarget } from "../state/contextMenu";
+import type { CompoundView, GraphChartType, NormalizedDag } from "../graph/types";
+import type { GraphContextMenu, GraphContextTarget } from "../state/contextMenu";
 import ContextMenuIcon from "./ContextMenuIcon";
-import { getContextMenuPages,type ContextMenuAction,type MenuPage } from "./contextMenuModel";
-import { placeContextMenu,placeContextSubmenu } from "./contextMenuPosition";
+import { getContextMenuPages, type ContextMenuAction, type MenuPage } from "./contextMenuModel";
+import { placeContextMenu, placeContextSubmenu } from "./contextMenuPosition";
 
 interface ContextMenuProps {
   menu: GraphContextMenu | null;

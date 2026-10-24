@@ -14,20 +14,11 @@
           "appearance": {
             "version": 1,
             "canvas": {
-              "padding": [
-                108,
-                88
-              ],
-              "minSize": [
-                980,
-                600
-              ]
+              "padding": [108, 88],
+              "minSize": [980, 600]
             },
             "nodes": {
-              "widths": [
-                200,
-                200
-              ],
+              "widths": [200, 200],
               "height": 100,
               "spacing": {
                 "column": 24,
@@ -108,80 +99,24 @@
             "css": ".dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }",
             "palette": {
               "categories": [
-                [
-                  356,
-                  58,
-                  47
-                ],
-                [
-                  214,
-                  62,
-                  44
-                ],
-                [
-                  145,
-                  52,
-                  40
-                ],
-                [
-                  32,
-                  66,
-                  47
-                ],
-                [
-                  188,
-                  54,
-                  42
-                ],
-                [
-                  265,
-                  48,
-                  48
-                ],
-                [
-                  325,
-                  48,
-                  48
-                ],
-                [
-                  210,
-                  24,
-                  44
-                ]
+                [356, 58, 47],
+                [214, 62, 44],
+                [145, 52, 40],
+                [32, 66, 47],
+                [188, 54, 42],
+                [265, 48, 48],
+                [325, 48, 48],
+                [210, 24, 44]
               ],
               "groups": [
-                [
-                  "#fffdf5",
-                  "#fffbea",
-                  "#fff7df",
-                  "#fff4d5"
-                ],
-                [
-                  "#f5fdf9",
-                  "#edfdf5",
-                  "#e5fbf0",
-                  "#dcf8e9"
-                ],
-                [
-                  "#fff9f5",
-                  "#fff3eb",
-                  "#ffede1",
-                  "#ffe7d8"
-                ],
-                [
-                  "#f5fcff",
-                  "#edf9ff",
-                  "#e4f6ff",
-                  "#daf2ff"
-                ]
+                ["#fffdf5", "#fffbea", "#fff7df", "#fff4d5"],
+                ["#f5fdf9", "#edfdf5", "#e5fbf0", "#dcf8e9"],
+                ["#fff9f5", "#fff3eb", "#ffede1", "#ffe7d8"],
+                ["#f5fcff", "#edf9ff", "#e4f6ff", "#daf2ff"]
               ]
             },
             "performance": {
-              "denseThresholds": [
-                220,
-                440,
-                20000000
-              ],
+              "denseThresholds": [220, 440, 20000000],
               "denseShadows": "disable"
             }
           }
@@ -202,20 +137,11 @@
           "appearance": {
             "version": 1,
             "canvas": {
-              "padding": [
-                108,
-                88
-              ],
-              "minSize": [
-                980,
-                600
-              ]
+              "padding": [108, 88],
+              "minSize": [980, 600]
             },
             "nodes": {
-              "widths": [
-                188,
-                240
-              ],
+              "widths": [188, 240],
               "height": 48,
               "spacing": {
                 "column": 24,
@@ -296,80 +222,24 @@
             "css": ".dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }",
             "palette": {
               "categories": [
-                [
-                  356,
-                  58,
-                  47
-                ],
-                [
-                  214,
-                  62,
-                  44
-                ],
-                [
-                  145,
-                  52,
-                  40
-                ],
-                [
-                  32,
-                  66,
-                  47
-                ],
-                [
-                  188,
-                  54,
-                  42
-                ],
-                [
-                  265,
-                  48,
-                  48
-                ],
-                [
-                  325,
-                  48,
-                  48
-                ],
-                [
-                  210,
-                  24,
-                  44
-                ]
+                [356, 58, 47],
+                [214, 62, 44],
+                [145, 52, 40],
+                [32, 66, 47],
+                [188, 54, 42],
+                [265, 48, 48],
+                [325, 48, 48],
+                [210, 24, 44]
               ],
               "groups": [
-                [
-                  "#fffdf5",
-                  "#fffbea",
-                  "#fff7df",
-                  "#fff4d5"
-                ],
-                [
-                  "#f5fdf9",
-                  "#edfdf5",
-                  "#e5fbf0",
-                  "#dcf8e9"
-                ],
-                [
-                  "#fff9f5",
-                  "#fff3eb",
-                  "#ffede1",
-                  "#ffe7d8"
-                ],
-                [
-                  "#f5fcff",
-                  "#edf9ff",
-                  "#e4f6ff",
-                  "#daf2ff"
-                ]
+                ["#fffdf5", "#fffbea", "#fff7df", "#fff4d5"],
+                ["#f5fdf9", "#edfdf5", "#e5fbf0", "#dcf8e9"],
+                ["#fff9f5", "#fff3eb", "#ffede1", "#ffe7d8"],
+                ["#f5fcff", "#edf9ff", "#e4f6ff", "#daf2ff"]
               ]
             },
             "performance": {
-              "denseThresholds": [
-                220,
-                440,
-                20000000
-              ],
+              "denseThresholds": [220, 440, 20000000],
               "denseShadows": "disable"
             }
           }

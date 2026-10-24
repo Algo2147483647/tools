@@ -1,6 +1,6 @@
 import { isRecord } from "../../utils/json";
 import type { ImportDecision } from "./conflicts";
-import { equal,has,segment,set,unique } from "./values";
+import { equal, has, segment, set, unique } from "./values";
 export function createFieldMerger(decide: ImportDecision) {
   const mergeObject = (
     target: Record<string, unknown>,
@@ -35,5 +35,5 @@ export function createFieldMerger(decide: ImportDecision) {
         set(target, key, [...previous, ...value.filter((item) => !previous.some((existing) => equal(existing, item)))]);
     }
   };
-return mergeObject;
+  return mergeObject;
 }

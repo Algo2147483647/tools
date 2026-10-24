@@ -1,4 +1,4 @@
-import { useMemo,useState } from "react";
+import { useMemo, useState } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
 import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
@@ -16,7 +16,7 @@ import { getSankeyError } from "../graph/sankey";
 import { getTimelineClock } from "../graph/timeline/clock";
 import { getTimelineReferenceTime } from "../graph/timeline/editing";
 import { useSidebarResize } from "../hooks/useSidebarResize";
-import { downloadSvg,prepareHtmlSvg } from "../rendering/export-svg";
+import { downloadSvg, prepareHtmlSvg } from "../rendering/export-svg";
 import ArrangePanel from "./ArrangePanel";
 import CompoundPanel from "./CompoundPanel";
 import ConsoleSidebar from "./ConsoleSidebar";
@@ -258,8 +258,8 @@ export default function StudioView({
               <WorkspaceOverview files={files} />
             ) : undefined
           }
-            containerRef={viewport.containerRef}
-            overlaysRef={viewport.overlaysRef}
+          containerRef={viewport.containerRef}
+          overlaysRef={viewport.overlaysRef}
           svgRef={viewport.svgRef}
           stage={viewport.stage}
           documentGeneration={state.document.generation}

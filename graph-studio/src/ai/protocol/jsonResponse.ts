@@ -1,4 +1,3 @@
-
 export function extractJsonObject(raw: string): string {
   const trimmed = stripJsonFence(raw.trim());
   if (trimmed.startsWith("{") && trimmed.endsWith("}")) {

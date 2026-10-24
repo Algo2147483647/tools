@@ -1,8 +1,8 @@
-import { DEFAULT_GRAPH_APPEARANCE,type GraphAppearance } from "../../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../../graph/appearance";
 import type { GraphChartType } from "../../graph/types";
 import { APPEARANCE_DEFINITION } from "../../schema/appearanceDefinition";
 import { getAppearanceSchema } from "../../schema/appearanceSchema";
-import { getDefaultChartStyle,type ChartStyle } from "../../schema/chartStyles";
+import { getDefaultChartStyle, type ChartStyle } from "../../schema/chartStyles";
 import type { AppearanceFieldDefinition } from "../../schema/definition";
 import type { AppearanceGroup } from "./settingsCatalog";
 

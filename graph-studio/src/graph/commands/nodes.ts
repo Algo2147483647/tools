@@ -1,17 +1,44 @@
 import { pruneHierarchyEdges } from "../compound/hierarchy";
 import { getSpaceMetadata } from "../space";
-import { getTimelineClock,type TimelineClock } from "../timeline/clock";
+import { getTimelineClock, type TimelineClock } from "../timeline/clock";
 import { getTimelineEditError } from "../timeline/editing";
 import { collectDescendantKeys } from "../traversal";
-import { type NodeKey,type NormalizedDag } from "../types";
-
+import { type NodeKey, type NormalizedDag } from "../types";
 
 import type { CommandContext } from "./context";
 import type { GraphCommand } from "./types";
-export type NodeCommand = Extract<GraphCommand, { type: "renameNode" | "deleteNode" | "deleteSubtree" | "addNode" | "addNodeFromFields" | "copyNode" | "updateNodeFields" }>;
-export function isNodeCommand(command: GraphCommand): command is NodeCommand { return ["renameNode", "deleteNode", "deleteSubtree", "addNode", "addNodeFromFields", "copyNode", "updateNodeFields"].includes(command.type); }
+export type NodeCommand = Extract<
+  GraphCommand,
+  {
+    type:
+      "renameNode" | "deleteNode" | "deleteSubtree" | "addNode" | "addNodeFromFields" | "copyNode" | "updateNodeFields";
+  }
+>;
+export function isNodeCommand(command: GraphCommand): command is NodeCommand {
+  return [
+    "renameNode",
+    "deleteNode",
+    "deleteSubtree",
+    "addNode",
+    "addNodeFromFields",
+    "copyNode",
+    "updateNodeFields",
+  ].includes(command.type);
+}
 export function applyNodeCommand(context: CommandContext, command: NodeCommand): void {
-const { source, document, timelineReferenceTime, defaultRelationValue, nodes, result, requireNode, requireNew, putNode, rename, setEdge } = context;
+  const {
+    source,
+    document,
+    timelineReferenceTime,
+    defaultRelationValue,
+    nodes,
+    result,
+    requireNode,
+    requireNew,
+    putNode,
+    rename,
+    setEdge,
+  } = context;
   switch (command.type) {
     case "renameNode":
       rename(command.oldKey, command.newKey);

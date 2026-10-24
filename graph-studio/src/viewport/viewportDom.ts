@@ -1,8 +1,13 @@
 import type { StageData } from "../layout/shared/types";
-import { calculateScrollZoom,calculateSpatialCamera,type ViewportMetrics } from "./cameraGeometry";
-import { calculateFitZoomScale,type ZoomAnchor } from "./zoomGeometry";
+import { calculateScrollZoom, calculateSpatialCamera, type ViewportMetrics } from "./cameraGeometry";
+import { calculateFitZoomScale, type ZoomAnchor } from "./zoomGeometry";
 
-export function getFitZoomScale(container: HTMLElement, topbar: HTMLElement | null, stage: StageData, overlays: HTMLElement | null = null): number {
+export function getFitZoomScale(
+  container: HTMLElement,
+  topbar: HTMLElement | null,
+  stage: StageData,
+  overlays: HTMLElement | null = null,
+): number {
   return calculateFitZoomScale(getViewportMetrics(container, topbar, overlays), stage);
 }
 
@@ -97,7 +102,11 @@ export function getAppliedZoomScale(svg: SVGSVGElement | null, fallbackScale: nu
   return Number.isFinite(appliedScale) && appliedScale > 0 ? appliedScale : fallbackScale;
 }
 
-export function getViewportMetrics(container: HTMLElement, topbar: HTMLElement | null, overlays: HTMLElement | null = null): ViewportMetrics {
+export function getViewportMetrics(
+  container: HTMLElement,
+  topbar: HTMLElement | null,
+  overlays: HTMLElement | null = null,
+): ViewportMetrics {
   const containerRect = container.getBoundingClientRect();
   const topbarRect = topbar ? topbar.getBoundingClientRect() : null;
   const safeTop = topbarRect ? Math.max(topbarRect.bottom - containerRect.top + 12, 0) : 0;

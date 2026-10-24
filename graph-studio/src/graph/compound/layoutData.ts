@@ -1,6 +1,6 @@
 import { isRecord } from "../../utils/json";
 import type { GraphDocument } from "../types";
-import type { CompoundBox,CompoundRoute } from "./geometry";
+import type { CompoundBox, CompoundRoute } from "./geometry";
 
 export type LayoutDirection = "AUTO" | "RIGHT" | "DOWN";
 

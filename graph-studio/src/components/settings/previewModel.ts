@@ -1,8 +1,8 @@
 import type { GraphAppearance } from "../../graph/appearance";
 import { normalizeDagInput } from "../../graph/normalize";
-import { sanitizeTimelineClock,type TimelineClock } from "../../graph/timeline/clock";
-import { sanitizeTimelineSettings,type TimelineViewSettings } from "../../graph/timeline/settings";
-import type { CompoundView,GraphChartType,GraphLayoutMode } from "../../graph/types";
+import { sanitizeTimelineClock, type TimelineClock } from "../../graph/timeline/clock";
+import { sanitizeTimelineSettings, type TimelineViewSettings } from "../../graph/timeline/settings";
+import type { CompoundView, GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { buildStageData } from "../../layout/node-link/layout";
 import { getStageAppearance } from "../../layout/shared/appearance";
 import { buildSpatialStage } from "../../layout/spatial/layout";

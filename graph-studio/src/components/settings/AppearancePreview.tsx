@@ -1,4 +1,4 @@
-import { useEffect,useLayoutEffect,useMemo,useRef,useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCompoundStage } from "../../controllers/useCompoundStage";
 import { useFontMetricsKey } from "../../controllers/useFontMetricsKey";
@@ -6,7 +6,7 @@ import { useTimelineStage } from "../../controllers/useTimelineStage";
 import type { GraphAppearance } from "../../graph/appearance";
 import type { TimelineClock } from "../../graph/timeline/clock";
 import type { TimelineViewSettings } from "../../graph/timeline/settings";
-import { getGraphChartLabel,type CompoundView,type GraphChartType,type GraphLayoutMode } from "../../graph/types";
+import { getGraphChartLabel, type CompoundView, type GraphChartType, type GraphLayoutMode } from "../../graph/types";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import type { StageData } from "../../layout/shared/types";
 import GraphStage from "../../rendering/GraphStage";
@@ -14,11 +14,11 @@ import compoundCss from "../../styles/compound.css?inline";
 import graphCss from "../../styles/graph.css?inline";
 import spatialCss from "../../styles/spatial.css?inline";
 import {
-buildFlatPreviewStage,
-compoundPreviewInput,
-INITIAL_PREVIEW_VIEW,
-previewGeometry,
-timelinePreviewGraph,
+  buildFlatPreviewStage,
+  compoundPreviewInput,
+  INITIAL_PREVIEW_VIEW,
+  previewGeometry,
+  timelinePreviewGraph,
 } from "./previewModel";
 
 const FRAME_DOCUMENT =

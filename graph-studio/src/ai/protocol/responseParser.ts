@@ -1,7 +1,7 @@
-import { parseLayoutIntent } from "../../layout/compound/layout-plan";
+import { parseLayoutIntent } from "../../graph/compound/layoutData";
 import { isRecord } from "../../utils/json";
-import type { AiResponse,ProposedChange } from "../types";
-import { extractJsonObject,formatJsonParseError } from "./jsonResponse";
+import type { AiResponse, ProposedChange } from "../types";
+import { extractJsonObject, formatJsonParseError } from "./jsonResponse";
 import { parseLegacyAiPlan } from "./legacyResponse";
 
 export function parseAiResponse(raw: string): AiResponse {

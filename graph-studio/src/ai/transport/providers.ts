@@ -1,6 +1,6 @@
-import { SYSTEM_PROMPT,buildRepairPrompt,buildUserPrompt } from "../protocol/editingPrompt";
+import { SYSTEM_PROMPT, buildRepairPrompt, buildUserPrompt } from "../protocol/editingPrompt";
 import { parseAiResponse } from "../protocol/responseParser";
-import type { AiRequest,AiResponse,AiSettings } from "../types";
+import type { AiRequest, AiResponse, AiSettings } from "../types";
 import { requestProviderText } from "./providerTransport";
 import { requestWithRepair } from "./requestWithRepair";
 
@@ -17,7 +17,9 @@ export async function requestAiPlan({ settings, context, message, signal }: AiRe
       const originalMessage = error instanceof Error ? error.message : "AI response could not be parsed.";
       const repairMessage =
         repairError instanceof Error ? repairError.message : "The repaired AI response could not be parsed.";
-      return new Error(`${originalMessage} Retried once, but the repaired response was still invalid: ${repairMessage}`);
+      return new Error(
+        `${originalMessage} Retried once, but the repaired response was still invalid: ${repairMessage}`,
+      );
     },
   });
 }

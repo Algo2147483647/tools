@@ -24,4 +24,3 @@ export function unique(base: string, used: Iterable<string>): string {
   while (names.has(key)) key = `${base}_${n++}`;
   return key;
 }
-

@@ -1,7 +1,7 @@
 import type { TimelineViewSettings } from "../graph/timeline/settings";
 import { getDefaultChartStyle } from "../schema/chartStyles";
 import ColorSetting from "./settings/ColorSetting";
-import { TimelineAlignmentIcon,TimelineChoices } from "./TimelineSettingFields";
+import { TimelineAlignmentIcon, TimelineChoices } from "./TimelineSettingFields";
 
 interface TimelineTextSettingsProps {
   settings: TimelineViewSettings;

@@ -1,4 +1,4 @@
-import type { TimelineMarkerSettings,TimelineViewSettings } from "../graph/timeline/settings";
+import type { TimelineMarkerSettings, TimelineViewSettings } from "../graph/timeline/settings";
 import { sanitizeTimelineMarker } from "../graph/timeline/settings";
 import { getDefaultChartStyle } from "../schema/chartStyles";
 import ColorSetting from "./settings/ColorSetting";

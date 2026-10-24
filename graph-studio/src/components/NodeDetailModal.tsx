@@ -1,19 +1,19 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../adapters/relativeLinks";
 import { getTimelineClock } from "../graph/timeline/clock";
 import { getTimelineEditError } from "../graph/timeline/editing";
-import type { DagNode,NodeKey,NormalizedDag } from "../graph/types";
+import type { DagNode, NodeKey, NormalizedDag } from "../graph/types";
 import MarkdownValue from "./MarkdownValue";
 import NodeFieldEditor from "./NodeFieldEditor";
 import {
-type EditableField,
-type FieldDisplayMode,
-buildEditableFields,
-buildRawNodeEditorValue,
-formatEditorValue,
-parseNodeFieldValue,
-parseRawNodeEditorValue,
-supportsDisplayMode,
+  type EditableField,
+  type FieldDisplayMode,
+  buildEditableFields,
+  buildRawNodeEditorValue,
+  formatEditorValue,
+  parseNodeFieldValue,
+  parseRawNodeEditorValue,
+  supportsDisplayMode,
 } from "./nodeFields";
 import NodeJsonView from "./NodeJsonView";
 import NodeRelationsPanel from "./NodeRelationsPanel";

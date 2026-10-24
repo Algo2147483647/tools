@@ -1,8 +1,8 @@
-import { AI_PROVIDER_ENTRIES,AI_PROVIDER_PRESETS } from "../../ai/transport/providerPresets";
-import type { AiExecutionMode,AiProvider,AiSettings } from "../../ai/types";
+import { AI_PROVIDER_ENTRIES, AI_PROVIDER_PRESETS } from "../../ai/transport/providerPresets";
+import type { AiExecutionMode, AiProvider, AiSettings } from "../../ai/types";
 import Icon from "../ui/Icon";
 import ProviderIcon from "./ProviderIcon";
-import { clampFloatInput,clampNumberInput } from "./settingsUtils";
+import { clampFloatInput, clampNumberInput } from "./settingsUtils";
 
 export type AiConnectionStatus = "idle" | "testing" | "success" | "error";
 
