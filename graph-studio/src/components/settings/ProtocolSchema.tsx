@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { downloadJsonFile } from "../../adapters/download";
+import { JsonSyntax } from "../NodeJsonView";
 import type { SchemaField } from "./schemaModel";
 
 export default function ProtocolSchema({
@@ -8,14 +9,12 @@ export default function ProtocolSchema({
   fields,
   example,
   fileName,
-  note,
 }: {
   label: string;
   version: string;
   fields: SchemaField[];
   example: unknown;
   fileName: string;
-  note: string;
 }) {
   const titleId = useId();
   const [view, setView] = useState<"fields" | "example">("fields");
@@ -39,7 +38,6 @@ export default function ProtocolSchema({
           </button>
         </div>
       </header>
-      <p className="chart-schema-note">{note}</p>
       {view === "fields" ? (
         <div className="schema-table-scroll" role="region" aria-label={`${label} protocol fields`} tabIndex={0}>
           <table className="schema-table">
@@ -98,7 +96,9 @@ export default function ProtocolSchema({
             </div>
           </div>
           <pre aria-label={`${label} JSON example`}>
-            <code>{json}</code>
+            <code>
+              <JsonSyntax value={json} />
+            </code>
           </pre>
           <span role="status" className="chart-schema-copy-status">
             {copyStatus}

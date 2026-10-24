@@ -183,6 +183,7 @@
   overflow: hidden;
 }
 .studio-settings .settings-page {
+  grid-template-columns: minmax(0, 1fr);
   container-type: inline-size;
   container-name: settings-controls;
   flex: 1;
@@ -718,15 +719,25 @@
 }
 .chart-schema-heading h3 span {
   margin-left: 8px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 400;
-  color: #66768c;
+  color: #595959;
+  font-style: italic;
+}
+.chart-schema-heading h3 {
+  font-family: Cambria, "Times New Roman", Times, serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #252525;
 }
 .chart-schema-heading small {
   display: block;
   margin-top: 4px;
-  font-size: 11px;
-  color: #66768c;
+  font-family: Cambria, "Times New Roman", Times, serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #595959;
 }
 .chart-schema-switch {
   display: flex;
@@ -754,13 +765,9 @@
   outline: 2px solid #5378b8;
   outline-offset: 2px;
 }
-.chart-schema-note {
-  margin: 12px 0;
-  color: #68788e;
-  font-size: 12px;
-  line-height: 1.6;
-}
 .schema-table-scroll {
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
   max-height: max(240px, calc(100dvh - 370px));
   overflow: auto;
@@ -775,10 +782,12 @@
   width: max-content;
   min-width: 100%;
   border-collapse: collapse;
-  border-top: 2px solid #40516a;
-  border-bottom: 2px solid #40516a;
-  font-size: 12px;
-  color: #40516a;
+  border-top: 2px solid #383838;
+  border-bottom: 2px solid #383838;
+  font-family: Cambria, "Times New Roman", Times, serif;
+  font-size: 14px;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: #303030;
 }
 .schema-table caption {
   position: absolute;
@@ -799,11 +808,11 @@
   border: 0;
 }
 .schema-table thead {
-  border-bottom: 1px solid #40516a;
+  border-bottom: 1px solid #383838;
 }
 .schema-table thead th {
-  font-weight: 600;
-  color: #24354e;
+  font-weight: 700;
+  color: #252525;
 }
 .schema-table tbody th {
   font-weight: 400;
@@ -814,12 +823,21 @@
 .schema-table code {
   color: inherit;
   font:
-    11px/1.5 Consolas,
+    12px/1.5 "Cascadia Mono",
+    Consolas,
+    "Liberation Mono",
     monospace;
+  font-variant-ligatures: none;
 }
 .chart-schema-code-actions {
   display: flex;
   gap: 8px;
+}
+.chart-schema-example {
+  overflow: hidden;
+  border: 1px solid #dce3ee;
+  border-radius: 8px;
+  background: #f8fafc;
 }
 .chart-schema-code-toolbar {
   display: flex;
@@ -829,6 +847,15 @@
   padding: 10px 18px;
   color: #6b7c93;
   font-size: 11px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f0f4f8;
+}
+.chart-schema-code-toolbar > span {
+  font:
+    12px/1.5 "Cascadia Mono",
+    Consolas,
+    "Liberation Mono",
+    monospace;
 }
 .chart-schema-code-toolbar button {
   border: 1px solid #dce3ee;
@@ -836,13 +863,35 @@
 }
 .chart-schema-example pre {
   margin: 0;
-  padding: 0 18px 16px;
-  color: #334b6d;
+  padding: 16px 18px;
+  color: #303030;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font:
-    12px/1.65 Consolas,
+    13px/1.7 "Cascadia Mono",
+    Consolas,
+    "Liberation Mono",
     monospace;
+  font-variant-ligatures: none;
+}
+.chart-schema-example pre code {
+  font: inherit;
+}
+.chart-schema-example .node-json-token--key {
+  color: #075985;
+}
+.chart-schema-example .node-json-token--string {
+  color: #166534;
+}
+.chart-schema-example .node-json-token--number {
+  color: #9a3412;
+}
+.chart-schema-example .node-json-token--boolean,
+.chart-schema-example .node-json-token--null {
+  color: #7e22ce;
+}
+.chart-schema-example .node-json-token--punctuation {
+  color: #64748b;
 }
 .chart-schema-copy-status {
   display: block;

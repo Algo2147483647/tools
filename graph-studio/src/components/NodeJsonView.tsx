@@ -52,7 +52,7 @@ export default function NodeJsonView({ value, editable, onChange }: NodeJsonView
   );
 }
 
-function JsonSyntax({ value }: { value: string }) {
+export function JsonSyntax({ value }: { value: string }) {
   const tokens = useMemo(() => {
     const result: ReactNode[] = [];
     // Highlight text without parsing it so incomplete drafts remain editable verbatim.

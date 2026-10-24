@@ -12,7 +12,6 @@ export default function ChartSchema({ chartType }: { chartType: GraphChartType }
       fields={schema.fields}
       example={schema.example}
       fileName={`${chartType}-example.json`}
-      note={`Required children apply when their parent is present; conditional time forms are explained per field. Save the matching Appearance example as ${chartType}.style.json beside this graph.`}
     />
   );
 }

@@ -61,7 +61,6 @@ export const settingsSuite = defineSuite("Settings controls", [
         fields: timeline.fields,
         example: timeline.example,
         fileName: "timeline-example.json",
-        note: "Required children apply when their parent is present.",
       }),
     );
     assert.equal((markup.match(/<table\b/g) ?? []).length, 1);

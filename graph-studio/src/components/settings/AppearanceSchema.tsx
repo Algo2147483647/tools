@@ -13,7 +13,6 @@ export default function AppearanceSchema({ chartType }: { chartType: GraphChartT
         fields={schema.fields}
         example={schema.example}
         fileName={`${chartType}.style.json`}
-        note="Defaults show this chart's Default preset; omitted appearance fields use generic fallbacks. Required children apply when their parent is present. This example is a complete importable style; layout engines and session cameras are stored separately."
       />
     </div>
   );
