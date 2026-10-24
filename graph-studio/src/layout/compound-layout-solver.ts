@@ -7,6 +7,7 @@ import {
   close,
   compareLayoutMetrics,
   measureLayout,
+  onPortSide,
   sameBox,
   validateLayoutGeometry,
 } from "./compound-layout-quality";
@@ -520,13 +521,7 @@ export function solveCompoundLayout(
           const box = boxes[edge[end]],
             points = snapshot.routes[edgeId].points,
             point = end === "source" ? points[0] : points.at(-1)!;
-          const expected = [
-            { x: box.x + box.width, y: box.y + box.height / 2 },
-            { x: box.x + box.width / 2, y: box.y + box.height },
-            { x: box.x, y: box.y + box.height / 2 },
-            { x: box.x + box.width / 2, y: box.y },
-          ][side];
-          if (!close(point.x, expected.x) || !close(point.y, expected.y))
+          if (!onPortSide(point, box, side))
             unmetPreferences.push(`Preferred ${end} port was unavailable for ${edge.originalEdgeIds.join(", ")}.`);
         }
       }

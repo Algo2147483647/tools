@@ -1,5 +1,6 @@
 import type { LayoutProblem } from "../layout/compound-layout-plan";
 import { measureLayout, validateLayoutGeometry } from "../layout/compound-layout-quality";
+import { routingHotspots } from "./layoutDiagnostics";
 
 export function inspectCompoundLayout(problem: LayoutProblem, scopeId: string | null) {
   const byId = new Map(problem.projection.items.map((i) => [i.id, i]));
@@ -52,7 +53,23 @@ export function inspectCompoundLayout(problem: LayoutProblem, scopeId: string | 
 }
 export function diagnoseCompoundLayout(problem: LayoutProblem) {
   return {
+    metricsScope: "visible-graph",
     metrics: measureLayout(problem, problem.baseline),
     validation: validateLayoutGeometry(problem, problem.baseline),
+    routingHotspots: routingHotspots(problem),
+    capabilities: {
+      supported: [
+        "scoped-layout",
+        "route-only",
+        "position-locks",
+        "direction",
+        "outer-route-preference",
+        "port-side-preference",
+        "multiple-ports-per-side",
+        "container-header-avoidance",
+        "unrelated-container-avoidance",
+      ],
+      unavailable: ["strict-container-gates", "reserved-routing-channels", "minimum-parallel-route-spacing"],
+    },
   };
 }

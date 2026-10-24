@@ -1,93 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
-import type { LayoutDirection, LayoutMetrics, LayoutObjective } from "../layout/compound-layout-plan";
+import type { LayoutMetrics } from "../layout/compound-layout-plan";
 import type { StageData } from "../layout/types";
 
 export default function CompoundLayoutReview({ controller: c }: { controller: CompoundLayoutController }) {
-  const [direction, setDirection] = useState<LayoutDirection>("AUTO");
-  const [objective, setObjective] = useState<LayoutObjective>("readability");
-  const [routesOnly, setRoutesOnly] = useState(false);
-  const [resize, setResize] = useState(false);
-  const [pin, setPin] = useState(false);
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDivElement>(null);
+  const closeReview = () => {
+    setOpen(false);
+    c.setShowCandidate(false);
+    document.getElementById("subgraphs-toggle")?.focus();
+  };
   useEffect(() => {
-    if (c.review?.status === "ready" && c.review.result.candidates.length && !c.stale) setOpen(true);
-  }, [c.review, c.stale]);
+    if (c.showCandidate && c.review?.status === "ready" && c.review.result.candidates.length && !c.stale) setOpen(true);
+  }, [c.review, c.stale, c.showCandidate]);
   useEffect(() => {
     if (open) dialog.current?.focus();
   }, [open]);
-  const generate = () => {
-    const intent = {
-      ...c.defaultIntent,
-      objective,
-      operation: routesOnly ? ("route-only" as const) : ("layout-and-route" as const),
-      boundaryPolicy: resize ? ("allow-ancestor-resize" as const) : ("strict" as const),
-      constraints: [...c.defaultIntent.constraints],
-    };
-    if (!routesOnly && direction !== "AUTO")
-      intent.constraints.push({ type: "direction", scopeId: intent.scope.groupId, value: direction, strength: "soft" });
-    if (pin && c.focusedKey)
-      intent.constraints.push({ type: "pin", nodeId: c.focusedKey, space: "canvas", strength: "hard" });
-    void c.propose(intent).catch(() => {});
-  };
   const baseline = c.review?.result.baselineMetrics,
     candidate = c.candidate;
   return (
-    <section className="compound-layout-tools" aria-label="Layout assistant">
-      <h3>Layout assistant</h3>
-      <p>
-        Scope: <strong>{c.defaultIntent.scope.groupId ?? "Current root"}</strong>. Use the console to describe a layout
-        in English.
-      </p>
-      <div className="compound-panel-actions">
-        <select
-          aria-label="Layout direction"
-          value={direction}
-          disabled={routesOnly}
-          onChange={(e) => setDirection(e.target.value as LayoutDirection)}
-        >
-          <option value="AUTO">Automatic direction</option>
-          <option value="RIGHT">Left to right</option>
-          <option value="DOWN">Top to bottom</option>
-        </select>
-        <select
-          aria-label="Layout objective"
-          value={objective}
-          onChange={(e) => setObjective(e.target.value as LayoutObjective)}
-        >
-          <option value="readability">Readability</option>
-          <option value="stability">Stability</option>
-          <option value="compact">Compactness</option>
-        </select>
-      </div>
-      <label>
-        <input type="checkbox" checked={routesOnly} onChange={(e) => setRoutesOnly(e.target.checked)} /> Only arrange
-        connections
-      </label>
-      <label>
-        <input type="checkbox" checked={resize} disabled={routesOnly} onChange={(e) => setResize(e.target.checked)} />{" "}
-        Allow surrounding groups to move and resize
-      </label>
-      <label>
-        <input type="checkbox" checked={pin} disabled={!c.focusedKey} onChange={(e) => setPin(e.target.checked)} /> Lock
-        selected node{c.focusedKey ? ` (${c.focusedKey})` : ""}
-      </label>
-      <div className="compound-panel-actions">
-        <button disabled={!c.ready || c.busy} onClick={generate}>
-          Preview layout
-        </button>
-        {c.busy && <button onClick={c.cancel}>Cancel</button>}
-        {candidate && c.review?.status === "ready" && <button onClick={() => setOpen(true)}>Review</button>}
-      </div>
-      {c.message && <p role="status">{c.message}</p>}
-      {c.stale && <p role="alert">The graph or view changed. Generate a new preview.</p>}
+    <>
       {open &&
         c.review &&
         typeof document !== "undefined" &&
         createPortal(
-          <div className="compound-layout-backdrop" onClick={() => setOpen(false)}>
+          <div className="compound-layout-backdrop" onClick={closeReview}>
             <div
               ref={dialog}
               className="compound-layout-dialog"
@@ -99,7 +38,7 @@ export default function CompoundLayoutReview({ controller: c }: { controller: Co
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
-                  setOpen(false);
+                  closeReview();
                 }
                 if (e.key === "Tab") {
                   const elements = Array.from(
@@ -128,7 +67,7 @@ export default function CompoundLayoutReview({ controller: c }: { controller: Co
                       : `Scope: ${c.review.intent.scope.groupId ?? "Current root"}`}
                   </p>
                 </div>
-                <button aria-label="Close layout review" onClick={() => setOpen(false)}>
+                <button aria-label="Close layout review" onClick={closeReview}>
                   Close
                 </button>
               </header>
@@ -185,6 +124,7 @@ export default function CompoundLayoutReview({ controller: c }: { controller: Co
                     {(
                       [
                         ["crossings", "Crossings"],
+                        ["sharedLength", "Overlapping route length"],
                         ["labelCollisions", "Label collisions"],
                         ["bends", "Bends"],
                         ["length", "Route length"],
@@ -243,7 +183,7 @@ export default function CompoundLayoutReview({ controller: c }: { controller: Co
           </div>,
           document.body,
         )}
-    </section>
+    </>
   );
 }
 

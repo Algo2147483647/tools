@@ -6,7 +6,6 @@ import GraphStage from "../rendering/GraphStage";
 import EmptyState from "./EmptyState";
 
 interface WorkspaceProps {
-  compoundTools?: React.ReactNode;
   spatialTools?: React.ReactNode;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
@@ -57,7 +56,6 @@ export default function Workspace({
   onFocusChange,
   onScroll,
   onSidebarResizeStart,
-  compoundTools,
   spatialTools,
   onGroupToggle,
   onGroupEnter,
@@ -67,7 +65,6 @@ export default function Workspace({
       <div className="workspace-split-shell">
         <div className="workspace-overlays">
           {explorer}
-          {compoundTools}
           {sidebarOpen ? (
             <>
               <aside className="workspace-sidebar-shell" style={{ width: sidebarWidth }}>

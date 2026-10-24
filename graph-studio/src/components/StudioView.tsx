@@ -1,5 +1,5 @@
 import { getTimelineClock } from "../graph/timelineClock";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
 import type { PreferencesController } from "../controllers/usePreferencesController";
@@ -18,7 +18,8 @@ import { getTimelineReferenceTime } from "../graph/timelineEditing";
 import ConsoleSidebar from "./ConsoleSidebar";
 import SpatialControls from "./SpatialControls";
 import CompoundPanel from "./CompoundPanel";
-import CompoundLayoutReview from "./CompoundLayoutReview";
+import ArrangePanel from "./ArrangePanel";
+import SubgraphsPanel from "./SubgraphsPanel";
 import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
 import ContextMenu from "./ContextMenu";
 import HierarchyEditorModal from "./HierarchyEditorModal";
@@ -61,6 +62,7 @@ export default function StudioView({
   nodeActions,
 }: StudioViewProps) {
   const { state, dispatch } = session;
+  const [graphTools, setGraphTools] = useState<"arrange" | "subgraphs" | null>(null);
   const preview = useWorkspacePreview(files, dispatch);
   const { filePreview, relativeLinkRoot } = preview;
   const { charts: appearanceHistory } = preferences;
@@ -115,7 +117,6 @@ export default function StudioView({
         onSelect={viewport.setFocusedKey}
         onOpenNode={ui.openNodeDetail}
         onMemberContextMenu={viewport.handleNodeContextMenu}
-        layoutTools={<CompoundLayoutReview controller={compoundLayoutPlan} />}
       />
     ) : null;
 
@@ -188,6 +189,14 @@ export default function StudioView({
         onZoomPercentCommit={viewport.zoom.setZoomPercent}
         onSettingsToggle={ui.toggleSettings}
         onSaveJson={session.requestSave}
+        subgraphs={
+          state.chartType === "compound" && state.dag && !files.homeVisible
+            ? {
+                open: graphTools !== null,
+                toggle: () => setGraphTools((value) => (value === null ? "subgraphs" : null)),
+              }
+            : undefined
+        }
       />
 
       {files.homeVisible ? (
@@ -199,7 +208,6 @@ export default function StudioView({
               <SpatialControls spatial={viewport.spatialView} layout={viewport.stage?.spatial} />
             ) : undefined
           }
-          compoundTools={!files.workspace || !files.explorerOpen ? compoundPanel : undefined}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}
           explorer={
@@ -209,9 +217,7 @@ export default function StudioView({
                 files={files}
                 dirty={state.source.dirty}
                 onOpenAsset={(path) => void preview.handleOpenRelativeLink(path, "")}
-              >
-                {compoundPanel}
-              </WorkspaceExplorer>
+              />
             ) : null
           }
           emptyContent={
@@ -274,6 +280,17 @@ export default function StudioView({
         />
       )}
 
+      {state.chartType === "compound" && state.dag && !files.homeVisible && (
+        <SubgraphsPanel
+          key={state.document.generation}
+          open={graphTools !== null}
+          onClose={() => setGraphTools(null)}
+          tab={graphTools === "arrange" ? "arrange" : "structure"}
+          onTabChange={(tab) => setGraphTools(tab === "arrange" ? "arrange" : "subgraphs")}
+          structure={compoundPanel}
+          arrange={<ArrangePanel controller={compoundLayoutPlan} ai={ai} model={preferences.aiSettings.model} />}
+        />
+      )}
       <SettingsModal
         open={state.ui.settingsOpen}
         chartType={state.chartType}

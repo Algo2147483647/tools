@@ -49,13 +49,13 @@ export function labelRect(problem: LayoutProblem, snapshot: LayoutSnapshot, edge
     ? { x: route.labelPosition.x - size.width / 2, y: route.labelPosition.y - 10, ...size }
     : null;
 }
-function midpoint(point: Point, b: CompoundBox) {
+export function onPortSide(point: Point, b: CompoundBox, side?: number) {
   return [
-    [b.x, b.y + b.height / 2],
-    [b.x + b.width, b.y + b.height / 2],
-    [b.x + b.width / 2, b.y],
-    [b.x + b.width / 2, b.y + b.height],
-  ].some(([x, y]) => close(point.x, x) && close(point.y, y));
+    close(point.x, b.x + b.width) && point.y > b.y && point.y < b.y + b.height,
+    close(point.y, b.y + b.height) && point.x > b.x && point.x < b.x + b.width,
+    close(point.x, b.x) && point.y > b.y && point.y < b.y + b.height,
+    close(point.y, b.y) && point.x > b.x && point.x < b.x + b.width,
+  ].some((onSide, index) => onSide && (side === undefined || side === index));
 }
 export function validateLayoutGeometry(problem: LayoutProblem, snapshot: LayoutSnapshot): LayoutValidation {
   const errors: string[] = [];
@@ -137,8 +137,8 @@ export function validateLayoutGeometry(problem: LayoutProblem, snapshot: LayoutS
     }
     if (!validBoxes.has(edge.source) || !validBoxes.has(edge.target)) continue;
     if (
-      !midpoint(r.points[0], snapshot.boxes[edge.source]) ||
-      !midpoint(r.points[r.points.length - 1], snapshot.boxes[edge.target])
+      !onPortSide(r.points[0], snapshot.boxes[edge.source]) ||
+      !onPortSide(r.points[r.points.length - 1], snapshot.boxes[edge.target])
     )
       fail(`Incorrect route endpoints: ${edge.id}.`);
     for (const [a, b] of routeSegments(r.points)) {

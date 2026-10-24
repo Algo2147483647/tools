@@ -8,6 +8,7 @@ import IconButton from "./ui/IconButton";
 import ZoomInput from "./ui/ZoomInput";
 
 interface TopbarProps {
+  subgraphs?: { open: boolean; toggle(): void };
   topbarRef: RefObject<HTMLElement>;
   files: WorkspaceControls;
   hasGraph: boolean;
@@ -46,6 +47,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({
+  subgraphs,
   topbarRef,
   files,
   hasGraph,
@@ -137,6 +139,17 @@ export default function Topbar({
                   }
                 />
               </>
+            )}
+            {subgraphs && (
+              <button
+                id="subgraphs-toggle"
+                className="arrange-toggle"
+                aria-expanded={subgraphs.open}
+                aria-controls="subgraphs-panel"
+                onClick={subgraphs.toggle}
+              >
+                Subgraphs
+              </button>
             )}
             <div className="topbar-group nav-controls" aria-label="Graph navigation controls">
               <IconButton

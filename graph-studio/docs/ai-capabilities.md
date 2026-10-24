@@ -268,3 +268,5 @@ Plain-text console input
 -> record validation/execution events
 -> persist harness state for the current graph
 ```
+
+Nested layout requests now receive routing hotspot diagnostics and one measured feedback turn, with at most one refinement. Subgraphs → Arrange always previews; console Auto Edit requires a measured improvement and satisfied strict-scope constraints. Unavailable routing features are explicitly advertised to the model.

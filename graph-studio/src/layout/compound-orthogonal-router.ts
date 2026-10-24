@@ -39,7 +39,7 @@ const overlaps = (a: CompoundBox, b: CompoundBox) =>
   a.y < b.y + b.height - EPSILON &&
   b.y < a.y + a.height - EPSILON;
 
-/** Final routes attach only to the four side midpoints, independently of placement direction. */
+/** Choose separated side ports after placement; routing never moves node rectangles. */
 export function routeCompoundEdges(
   projection: CompoundProjection,
   boxes: Map<string, CompoundBox>,
@@ -47,7 +47,19 @@ export function routeCompoundEdges(
   showLabels: boolean,
   options: CompoundRoutingOptions = {},
 ): { routes: Map<string, CompoundRoute>; width: number; height: number } {
-  // Expanded containers organize placement only; routing sees visible cards, including collapsed groups.
+  const items = new Map(projection.items.map((item) => [item.id, item]));
+  const ancestors = (id: string) => {
+    const result = new Set<string>([id]);
+    let parent = items.get(id)?.parentId;
+    while (parent && !result.has(parent)) {
+      result.add(parent);
+      parent = items.get(parent)?.parentId;
+    }
+    return result;
+  };
+  const degree = new Map<string, number>();
+  for (const edge of projection.edges)
+    for (const id of [edge.source, edge.target]) degree.set(id, (degree.get(id) ?? 0) + 1);
   const obstacles = projection.items
     .filter((item) => item.kind !== "group" || item.collapsed)
     .map((item) => boxes.get(item.id)!);
@@ -93,26 +105,32 @@ export function routeCompoundEdges(
     };
     const otherLabels = [...labelBoxes].filter(([id]) => id !== edge.id).map(([, box]) => box);
     const gap = clearance;
-    const padded = [...obstacles, ...otherLabels].map((box) => inflate(box, gap));
+    const related = new Set([...ancestors(edge.source), ...ancestors(edge.target)]);
+    const containers = projection.items
+      .filter((item) => item.kind === "group" && !item.collapsed && boxes.has(item.id))
+      .flatMap((item) => {
+        const box = boxes.get(item.id)!;
+        if (!related.has(item.id)) return [box];
+        // An expanded group can itself be an ordinary relationship endpoint.
+        if (item.id === edge.source || item.id === edge.target) return [];
+        return [{ ...box, height: Math.min(40, box.height) }];
+      });
+    const padded = [...obstacles, ...otherLabels, ...containers].map((box) => inflate(box, gap));
     const ports = (id: string): Port[] => {
       const box = boxes.get(id)!;
-      return midpointPorts(box, gap).filter(
+      return sidePorts(box, gap, degree.get(id) ?? 1).filter(
         (port) =>
           !padded.some((box) => inside(port.stub, box)) &&
+          !padded.some((box) => !inside(port.point, box) && crossesBox(port.point, port.stub, box)) &&
           port.stub.x >= extent.x &&
           port.stub.y >= extent.y &&
           port.stub.x <= extent.x + extent.width &&
           port.stub.y <= extent.y + extent.height,
       );
     };
-    const reverse = edges.find((other) => other.source === edge.target && other.target === edge.source);
-    const reverseRoute = reverse && result.get(reverse.id);
     const sharedCost = (a: Point, b: Point) =>
       [...result.values()].reduce(
-        (sum, route) =>
-          sum +
-          parallelRouteCost(a, b, route.points) * (route === reverseRoute ? 1 : 0.15) +
-          crossingCost(a, b, route.points),
+        (sum, route) => sum + parallelRouteCost(a, b, route.points) + crossingCost(a, b, route.points),
         0,
       );
     const attachmentCost = (id: string, point: Point) =>
@@ -124,8 +142,8 @@ export function routeCompoundEdges(
       const side = options.portSides?.get(edge.id)?.[id === edge.source ? "source" : "target"];
       if (side === undefined) return 0;
       const box = boxes.get(id)!;
-      const desired = midpointPorts(box, gap).find((port) => port.direction === side)!;
-      return Math.hypot(point.x - desired.point.x, point.y - desired.point.y) < EPSILON ? 0 : 200;
+      const onSide = [box.x + box.width, box.y + box.height, box.x, box.y][side];
+      return Math.abs((side % 2 ? point.y : point.x) - onSide) < EPSILON ? 0 : 200;
     }
     const cost = (points: Point[]) =>
       routeCost(points) +
@@ -154,7 +172,7 @@ export function routeCompoundEdges(
         height: Math.abs(point.y - route.points[i].y) + 8,
       })),
     );
-    if (!candidates.length) throw new Error(`Unable to route between side midpoints: ${edge.source} → ${edge.target}.`);
+    if (!candidates.length) throw new Error(`Unable to route between side ports: ${edge.source} → ${edge.target}.`);
     const middle = candidates[0].points[Math.floor(candidates[0].points.length / 2)];
     let chosen = { points: candidates[0].points, labelPosition: { x: middle.x, y: middle.y - 10 } };
     let labelPlaced = false;
@@ -164,7 +182,7 @@ export function routeCompoundEdges(
           ? placeLabel(
               edge.label,
               points,
-              [...obstacles, ...otherLabels, ...lineObstacles],
+              [...obstacles, ...containers, ...otherLabels, ...lineObstacles],
               extent,
               options.labelSizes?.[edge.id],
             )
@@ -224,45 +242,54 @@ function crossingCost(a: Point, b: Point, points: Point[]): number {
   for (let i = 1; i < points.length; i++) {
     const c = points[i - 1],
       d = points[i];
+    const horizontal = a.y === b.y;
+    if (horizontal === (c.y === d.y)) continue;
+    const along = horizontal ? c.x : c.y,
+      across = horizontal ? a.y : a.x;
+    const from = horizontal ? a.x : a.y,
+      to = horizontal ? b.x : b.y,
+      otherFrom = horizontal ? c.y : c.x,
+      otherTo = horizontal ? d.y : d.x;
     if (
-      a.y === b.y &&
-      c.x === d.x &&
-      c.x > Math.min(a.x, b.x) &&
-      c.x < Math.max(a.x, b.x) &&
-      a.y > Math.min(c.y, d.y) &&
-      a.y < Math.max(c.y, d.y)
-    )
-      cost += 40;
-    if (
-      a.x === b.x &&
-      c.y === d.y &&
-      c.y > Math.min(a.y, b.y) &&
-      c.y < Math.max(a.y, b.y) &&
-      a.x > Math.min(c.x, d.x) &&
-      a.x < Math.max(c.x, d.x)
-    )
-      cost += 40;
+      along >= Math.min(from, to) - EPSILON &&
+      along <= Math.max(from, to) + EPSILON &&
+      across >= Math.min(otherFrom, otherTo) - EPSILON &&
+      across <= Math.max(otherFrom, otherTo) + EPSILON
+    ) {
+      // The visibility grid splits segments at crossings. Two half charges at a grid
+      // vertex must equal one interior crossing, rather than making it free to cross.
+      const end = Math.abs(along - from) < EPSILON || Math.abs(along - to) < EPSILON;
+      const otherEnd = Math.abs(across - otherFrom) < EPSILON || Math.abs(across - otherTo) < EPSILON;
+      cost += 160 * (end ? 0.5 : 1) * (otherEnd ? 0.5 : 1);
+    }
   }
   return cost;
 }
 
-/** Two approach lengths per side share exactly the same midpoint; short stubs fit narrow gaps. */
-function midpointPorts(box: CompoundBox, clearance: number): Port[] {
-  return [
-    { x: box.x + box.width, y: box.y + box.height / 2 },
-    { x: box.x + box.width / 2, y: box.y + box.height },
-    { x: box.x, y: box.y + box.height / 2 },
-    { x: box.x + box.width / 2, y: box.y },
-  ].flatMap((point, direction) =>
-    [...new Set([MIN_STRAIGHT, clearance])].map((length) => ({
-      point,
-      direction,
-      stub: {
-        x: point.x + (direction === 0 ? length : direction === 2 ? -length : 0),
-        y: point.y + (direction === 1 ? length : direction === 3 ? -length : 0),
-      },
-    })),
-  );
+/** Prefer the midpoint, then offer distinct ports clear of rounded card corners. */
+function sidePorts(box: CompoundBox, clearance: number, degree: number): Port[] {
+  return [0, 1, 2, 3].flatMap((direction) => {
+    const sideLength = direction % 2 ? box.width : box.height;
+    const count = Math.min(2, degree - 1, Math.floor((sideLength / 2 - 12) / LANE_GAP));
+    const offsets = [0];
+    for (let i = 1; i <= count; i++) offsets.push(-i * LANE_GAP, i * LANE_GAP);
+    return offsets.flatMap((offset) => {
+      const point = [
+        { x: box.x + box.width, y: box.y + box.height / 2 + offset },
+        { x: box.x + box.width / 2 + offset, y: box.y + box.height },
+        { x: box.x, y: box.y + box.height / 2 + offset },
+        { x: box.x + box.width / 2 + offset, y: box.y },
+      ][direction];
+      return [...new Set([MIN_STRAIGHT, clearance])].map((length) => ({
+        point,
+        direction,
+        stub: {
+          x: point.x + (direction === 0 ? length : direction === 2 ? -length : 0),
+          y: point.y + (direction === 1 ? length : direction === 3 ? -length : 0),
+        },
+      }));
+    });
+  });
 }
 
 function crossesBox(a: Point, b: Point, box: CompoundBox): boolean {

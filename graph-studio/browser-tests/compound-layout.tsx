@@ -127,6 +127,8 @@ let response: AiResponse = {
   intent,
 };
 const originalFetch = window.fetch;
+let requestCount = 0;
+let holdAtRequest = -1;
 
 const tests: [string, () => Promise<void>][] = [
   [
@@ -183,14 +185,19 @@ const tests: [string, () => Promise<void>][] = [
     },
   ],
   [
-    "AI auto-edit applies a validated strict layout",
+    "AI auto-edit keeps an unimproved layout for review",
     async () => {
       fixture.setMode("auto-edit");
       await waitFor(() => fixture.ai.harness.mode === "auto-edit" && !fixture.ai.busy);
       const before = fixture.state.editHistory.undoStack.length;
       await fixture.ai.request("Arrange the graph vertically and apply it.");
-      await waitFor(() => !fixture.ai.busy && fixture.state.editHistory.undoStack.length === before + 1);
-      assert(fixture.layout.review?.status === "applied", "Auto-edit left the plan pending.");
+      await waitFor(() => !fixture.ai.busy);
+      assert(fixture.state.editHistory.undoStack.length === before, "An unimproved layout was auto-applied.");
+      assert(fixture.layout.review?.status === "ready", "The candidate was not retained for review.");
+      assert(
+        fixture.layout.getFeedback()?.retainedEarlierCandidate,
+        "Equal refinement replaced the earlier candidate.",
+      );
     },
   ],
   [
@@ -212,6 +219,66 @@ const tests: [string, () => Promise<void>][] = [
       );
     },
   ],
+  [
+    "Arrange uses a bounded feedback request and requires review even in auto-edit mode",
+    async () => {
+      response = { kind: "propose_layout", layoutProtocolVersion: 1, answer: "Arrange vertically.", intent };
+      const before = fixture.state.dag,
+        requests = requestCount;
+      await fixture.ai.request("Arrange vertically.", { layoutIntent: intent });
+      await waitFor(() => !fixture.ai.busy);
+      assert(requestCount - requests === 2, "Feedback exceeded its request budget.");
+      assert(fixture.state.dag === before, "The panel auto-applied a proposal.");
+      assert(
+        fixture.layout.review?.status === "ready" && fixture.layout.showCandidate,
+        "No final preview was revealed.",
+      );
+      assert(fixture.ai.layoutMessage.includes("Crossings:"), "Measured results were not shown in the panel.");
+    },
+  ],
+  [
+    "Arrange rejects a model that ignores routes-only permissions",
+    async () => {
+      fixture.layout.dismiss();
+      await waitFor(() => fixture.layout.review === null);
+      const before = fixture.state.dag;
+      await fixture.ai.request("Improve routing.", { layoutIntent: { ...intent, operation: "route-only" } });
+      await waitFor(() => !fixture.ai.busy);
+      assert(fixture.state.dag === before && fixture.layout.review === null, "A disallowed movement was evaluated.");
+      assert(fixture.ai.layoutMessage.includes("nodes fixed"), "Missing permissions diagnostic.");
+    },
+  ],
+  [
+    "Cancel aborts a pending layout model request",
+    async () => {
+      holdAtRequest = requestCount + 1;
+      const before = fixture.state.dag;
+      const pending = fixture.ai.request("Arrange vertically.", { layoutIntent: intent });
+      await waitFor(() => fixture.ai.layoutBusy);
+      fixture.ai.cancelLayout();
+      await pending;
+      await waitFor(() => !fixture.ai.busy && !fixture.ai.layoutBusy);
+      holdAtRequest = -1;
+      assert(fixture.state.dag === before, "Cancellation changed the document.");
+      assert(fixture.ai.layoutMessage.includes("cancelled"), "Cancellation feedback is missing.");
+    },
+  ],
+  [
+    "View changes abort the feedback turn and invalidate its candidate",
+    async () => {
+      holdAtRequest = requestCount + 2;
+      const before = fixture.state.dag;
+      const pending = fixture.ai.request("Arrange vertically.", { layoutIntent: intent });
+      await waitFor(() => requestCount === holdAtRequest);
+      fixture.setFilter("missing-fixture-type");
+      await pending;
+      await waitFor(() => !fixture.ai.busy && fixture.layout.stale);
+      holdAtRequest = -1;
+      assert(fixture.state.dag === before && !fixture.layout.apply(), "A stale feedback result could apply.");
+      fixture.setFilter("");
+      await waitFor(() => fixture.layout.ready);
+    },
+  ],
 ];
 
 document.getElementById("run-checks")!.addEventListener("click", async () => {
@@ -221,7 +288,14 @@ document.getElementById("run-checks")!.addEventListener("click", async () => {
   results.textContent = "Running…\n";
   window.fetch = async (input, init) => {
     if (String(input).startsWith("http://127.0.0.1:1/compound-layout-test/")) {
+      requestCount++;
       if (init?.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+      if (requestCount === holdAtRequest)
+        await new Promise((_, reject) =>
+          init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {
+            once: true,
+          }),
+        );
       return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(response) } }] }), {
         status: 200,
         headers: { "content-type": "application/json" },

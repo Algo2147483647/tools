@@ -1,5 +1,6 @@
 import { spatialSuite } from "./spatial.test";
 import { compoundLayoutPlanSuite } from "./compoundLayoutPlan.test";
+import { compoundRoutingSuite } from "./compoundRouting.test";
 import { timelineRelativeSuite } from "./timelineRelative.test";
 import { stylePipelineSuite } from "./stylePipeline.test";
 import { timelineAxisSuite } from "./timelineAxis.test";
@@ -40,7 +41,9 @@ import { timelinePresetsSuite } from "./timelinePresets.test";
 
 async function main() {
   const suites = [
+    layoutWorkflowSuite,
     compoundLayoutPlanSuite,
+    compoundRoutingSuite,
     spatialSuite,
     stylePipelineSuite,
     compoundSuite,
@@ -96,3 +99,4 @@ void main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+import { layoutWorkflowSuite } from "./layoutWorkflow.test";

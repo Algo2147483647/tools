@@ -72,16 +72,15 @@ interface Rect {
   height: number;
 }
 const epsilon = 0.02;
-function assertSideMidpoint(point: { x: number; y: number }, box: Rect) {
-  const midpoints = [
-    { x: box.x + box.width / 2, y: box.y },
-    { x: box.x + box.width / 2, y: box.y + box.height },
-    { x: box.x, y: box.y + box.height / 2 },
-    { x: box.x + box.width, y: box.y + box.height / 2 },
-  ];
+function assertSidePort(point: { x: number; y: number }, box: Rect) {
   assert.ok(
-    midpoints.some((mid) => Math.hypot(point.x - mid.x, point.y - mid.y) < epsilon),
-    "endpoint must be a side midpoint",
+    ((Math.abs(point.x - box.x) < epsilon || Math.abs(point.x - box.x - box.width) < epsilon) &&
+      point.y > box.y &&
+      point.y < box.y + box.height) ||
+      ((Math.abs(point.y - box.y) < epsilon || Math.abs(point.y - box.y - box.height) < epsilon) &&
+        point.x > box.x &&
+        point.x < box.x + box.width),
+    "endpoint must be on a card side, clear of corners",
   );
 }
 
@@ -146,7 +145,7 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
     siblings.set(item.parentId, [...(siblings.get(item.parentId) ?? []), box]);
   }
   const onBorder = (p: { x: number; y: number }, box: Rect) => {
-    assertSideMidpoint(p, box);
+    assertSidePort(p, box);
     const horizontal =
       p.x >= box.x - epsilon &&
       p.x <= box.x + box.width + epsilon &&
@@ -403,7 +402,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     for (const edge of stage.edges)
       for (const point of edge.points ?? []) assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y));
   }),
-  defineTest("routing ignores expanded containers and headers but avoids their children and collapsed cards", () => {
+  defineTest("routing avoids unrelated expanded containers and headers, allowing common parent interiors", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
@@ -431,12 +430,14 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       { x: 200, y: 140 },
       { x: 600, y: 140 },
     ];
-    assert.deepEqual(route(false), direct, "a route can cross an unrelated expanded group's header");
+    const detour = route(false);
+    assert.notDeepEqual(detour, direct);
+    for (let i = 1; i < detour.length; i++) assert.ok(!crossesInterior(detour[i - 1], detour[i], boxes.get("g")!));
     const group = boxes.get("g")!;
-    boxes.delete("g");
+    boxes.set("g", { x: 40, y: 40, width: 740, height: 420 });
     dag.hierarchy_edges!.push({ id: "ga", source: "g", target: "a" });
     dag.hierarchy_edges!.push({ id: "gb", source: "g", target: "b" });
-    assert.deepEqual(route(false), direct, "even a common parent box is irrelevant to routing");
+    assert.deepEqual(route(false), direct, "siblings can connect through their common parent's content area");
     dag.hierarchy_edges = dag.hierarchy_edges!.filter((edge) => edge.target !== "a");
     dag.hierarchy_edges = dag.hierarchy_edges!.filter((edge) => edge.target !== "b");
     boxes.set("g", group);
@@ -509,7 +510,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     const again = await layoutFixture(dag);
     assert.deepEqual(again, stage, "repeat layouts are deterministic");
   }),
-  defineTest("fixed midpoints route offset boxes and separate reverse directions without sliding", () => {
+  defineTest("side ports route offset boxes and separate reverse directions without moving boxes", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
@@ -547,10 +548,10 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
         const forward = routed.get(projection.edges[0].id)!.points;
         const reverse = routed.get(projection.edges[1].id)!.points;
         assert.ok(forward.length <= 4, "offset centers need at most two bends");
-        assertSideMidpoint(forward[0], boxes.get("a")!);
-        assertSideMidpoint(forward[forward.length - 1], boxes.get("b")!);
-        assertSideMidpoint(reverse[0], boxes.get("b")!);
-        assertSideMidpoint(reverse[reverse.length - 1], boxes.get("a")!);
+        assertSidePort(forward[0], boxes.get("a")!);
+        assertSidePort(forward[forward.length - 1], boxes.get("b")!);
+        assertSidePort(reverse[0], boxes.get("b")!);
+        assertSidePort(reverse[reverse.length - 1], boxes.get("a")!);
         assert.ok(reverse.length <= 4, "reverse edges use separate midpoint sides or lanes");
         assert.ok(
           Math.hypot(forward[0].x - reverse[reverse.length - 1].x, forward[0].y - reverse[reverse.length - 1].y) >=
@@ -610,7 +611,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       assert.equal(JSON.stringify(stage), before, "visibility does not move nodes or routes");
     }
   }),
-  defineTest("collapsed commerce routes use fixed midpoints and keep labels clear of other lines", async () => {
+  defineTest("collapsed commerce routes use side ports and keep labels clear of other lines", async () => {
     const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
     const view = { collapsedGroupIds: Object.keys(getGroupNodes(dag)), focusGroupId: null };
     const stage = await layoutFixture(dag, view, true);
@@ -741,8 +742,8 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
           const direct =
             Math.abs(points[0].x - points[points.length - 1].x) + Math.abs(points[0].y - points[points.length - 1].y);
           assert.ok(
-            Math.abs(length - direct) < 0.01,
-            `${source} → ${target} must not loop back through a remote boundary port`,
+            length <= direct * 1.2 + 16,
+            `${source} → ${target} may make a short detour for clearance, not a remote boundary loop`,
           );
         }
       }

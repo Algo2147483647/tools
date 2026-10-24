@@ -14,7 +14,6 @@ export default function CompoundPanel({
   onSelect,
   onOpenNode,
   onMemberContextMenu,
-  layoutTools,
 }: {
   dag: NormalizedDag;
   view: CompoundView;
@@ -23,7 +22,6 @@ export default function CompoundPanel({
   onSelect: (id: string) => void;
   onOpenNode: (id: string) => void;
   onMemberContextMenu: (event: React.MouseEvent<Element>, id: string) => void;
-  layoutTools?: React.ReactNode;
 }) {
   const index = useMemo(() => indexHierarchy(dag), [dag]);
   const groups = getGroupNodes(dag);
@@ -68,10 +66,8 @@ export default function CompoundPanel({
     }
   }
   return (
-    <details className="compound-panel" open>
-      <summary>
-        Subgraphs <span>{Object.keys(groups).length}</span>
-      </summary>
+    <section className="compound-panel" aria-label="Subgraph structure">
+      <p>{Object.keys(groups).length} subgraphs</p>
       <nav className="compound-breadcrumb" aria-label="Subgraph path">
         <button onClick={() => enter(null)}>All</button>
         {path.map((id) => (
@@ -92,8 +88,6 @@ export default function CompoundPanel({
           Collapse all
         </button>
       </div>
-      <p>Select members to group or move. Enter a subgraph to edit its members.</p>
-      {layoutTools}
       {error && <p role="alert">{error}</p>}
       <div className="compound-members" role="group" aria-label="Subgraph members">
         {children.map((id) => {
@@ -134,35 +128,39 @@ export default function CompoundPanel({
         })}
         {!children.length && <p>No members.</p>}
       </div>
-      <div className="compound-panel-actions">
-        <input
-          aria-label="New group name"
-          placeholder="Group name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <button disabled={!selected.length} onClick={createGroup}>
-          Group {selected.length || ""}
-        </button>
-      </div>
-      <div className="compound-panel-actions">
-        <select aria-label="Move members to" value={target} onChange={(event) => setTarget(event.target.value)}>
-          <option value="">Top level</option>
-          {Object.entries(dag.nodes).map(([id, group]) => (
-            <option key={id} value={id}>
-              {getNodeTitle(group) || id} ({id})
-            </option>
-          ))}
-        </select>
-        <button
-          disabled={!selected.length}
-          onClick={() => {
-            if (!runCommand({ type: "groupMove", memberIds: selected, parentId: target || null })) setChecked([]);
-          }}
-        >
-          Move
-        </button>
-      </div>
+      {selected.length > 0 && (
+        <>
+          <div className="compound-panel-actions">
+            <input
+              aria-label="New group name"
+              placeholder="Group name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+            <button disabled={!selected.length} onClick={createGroup}>
+              Group {selected.length || ""}
+            </button>
+          </div>
+          <div className="compound-panel-actions">
+            <select aria-label="Move members to" value={target} onChange={(event) => setTarget(event.target.value)}>
+              <option value="">Top level</option>
+              {Object.entries(dag.nodes).map(([id, group]) => (
+                <option key={id} value={id}>
+                  {getNodeTitle(group) || id} ({id})
+                </option>
+              ))}
+            </select>
+            <button
+              disabled={!selected.length}
+              onClick={() => {
+                if (!runCommand({ type: "groupMove", memberIds: selected, parentId: target || null })) setChecked([]);
+              }}
+            >
+              Move
+            </button>
+          </div>
+        </>
+      )}
       {selected.length === 1 && has(groups, selected[0]) && (
         <div className="compound-panel-actions">
           <button
@@ -182,6 +180,6 @@ export default function CompoundPanel({
           </button>
         </div>
       )}
-    </details>
+    </section>
   );
 }
