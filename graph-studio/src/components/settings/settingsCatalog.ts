@@ -1,6 +1,6 @@
-import { getAppearanceSchema } from "../../schema/appearanceSchema";
-import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
 import type { GraphChartType } from "../../graph/types";
+import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { APPEARANCE_UI,resolveUIPath,type AppearanceUINode } from "./appearanceUIConfig";
 import { type SettingsChapter } from "./settingsConfig";
 
 export const APPEARANCE_GROUPS = [
@@ -45,8 +45,6 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   );
   if (chart === "node-link")
     add("engine", "layout", "Arrangement", "Layout engine", "algorithm sugiyama dagre bfs level 排布 算法 引擎");
-  if (chart === "compound")
-    add("nested", "layout", "Arrangement", "Nested layout", "compound elk group subgraph 嵌套 分组 排布");
   if (chart === "sankey")
     add("flow-layout", "layout", "Arrangement", "Automatic flow layout", "flow direction rules sankey 桑基 流向 规则");
   if (chart === "spatial")

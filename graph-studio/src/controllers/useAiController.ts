@@ -1,27 +1,25 @@
-import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
+import { type Dispatch,useCallback,useEffect,useRef,useState } from "react";
 import { copyTextToClipboard } from "../adapters/clipboard";
 import { buildAiContextPacket } from "../ai/context/packet";
 import { shouldExecuteValidatedBatch } from "../ai/execution/policy";
 import { validateCommandBatch } from "../ai/execution/validation";
-import { formatLayoutFeedback, runLayoutWorkflow } from "../ai/layout/compoundWorkflow";
 import {
-  attachValidationToHarness,
-  createInitialAiHarnessState,
-  createTurnId,
-  installPlan,
-  markPendingBatchExecuted,
-  syncHarnessRuntime,
+attachValidationToHarness,
+createTurnId,
+installPlan,
+markPendingBatchExecuted
 } from "../ai/session/harness";
-import { loadPersistedAiHarnessState, savePersistedAiHarnessState } from "../ai/session/persistence";
 import { createPlanFromAiResponse } from "../ai/session/plans";
-import { formatReviewInstruction, formatValidationReport, referencesPreviousWork } from "../ai/session/presentation";
-import { requestAiPlan, testAiConnection } from "../ai/transport/providers";
-import type { AiHarnessState, AiSettings } from "../ai/types";
+import { formatReviewInstruction,formatValidationReport,referencesPreviousWork } from "../ai/session/presentation";
+import { requestAiPlan,testAiConnection } from "../ai/transport/providers";
+import type { AiHarnessState,AiSettings } from "../ai/types";
 import { buildConsoleReviewCard } from "../console/reviewCards";
 import type { GraphAppearance } from "../graph/appearance";
 import type { LayoutIntent } from "../layout/compound/layout-plan";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
+import { useAiLayout } from "./ai/useAiLayout";
+import { useAiSession } from "./ai/useAiSession";
 import type { CompoundLayoutController } from "./useCompoundLayoutPlan";
 import type { ConsoleController } from "./useConsoleController";
 
@@ -48,38 +46,14 @@ export function useAiController({
 }) {
   const { entries, contextNodeKey, appendMessage, recordInput, upsertReview, setReviewStatus, runSource } =
     consoleController;
-  const [harness, setHarness] = useState(() => createInitialAiHarnessState(settings.executionMode));
+  const { setHarness, graphRevision, runtimeHarness } = useAiSession(state, settings, upsertReview);
   const [busy, setBusy] = useState(false);
-  const [layoutBusy, setLayoutBusy] = useState(false);
-  const [layoutMessage, setLayoutMessage] = useState("");
-  const [layoutExplanation, setLayoutExplanation] = useState("");
-  const layoutActive = useRef(false);
-  const layoutRequestKey = useRef<string>();
   const busyRef = useRef(false);
-  const restoredGraph = useRef<string | null>(null);
-  const restoredReview = useRef<string | null>(null);
   const requestGeneration = useRef(0);
-  const [runtimeId] = useState(() => crypto.randomUUID());
   const requestAbort = useRef<AbortController | null>(null);
-  const graphId = state.document.id;
-  const cancelLayout = useCallback(() => {
-    if (!layoutActive.current) return;
-    layoutActive.current = false;
-    requestGeneration.current++;
-    requestAbort.current?.abort();
-    compoundLayout?.cancel();
-    busyRef.current = false;
-    setBusy(false);
-    setLayoutBusy(false);
-    setLayoutMessage("Layout request cancelled. The graph is unchanged.");
-  }, [compoundLayout?.cancel]);
-  useEffect(() => {
-    if (layoutActive.current && layoutRequestKey.current === compoundLayout?.key) return;
-    cancelLayout();
-    setLayoutMessage("");
-    setLayoutExplanation("");
-  }, [compoundLayout?.key, cancelLayout]);
-  const graphRevision = `${runtimeId}:${state.document.generation}:${state.editHistory.revision}`;
+  const layout = useAiLayout({compoundLayout, settings, appendMessage, requestGeneration, requestAbort, busyRef, setBusy});
+  const {layoutBusy, layoutMessage, layoutExplanation, layoutActive, layoutRequestKey, setLayoutBusy, setLayoutMessage, setLayoutExplanation, cancelLayout} = layout;
+
   const current = useRef({
     dag: state.dag,
     settings,
@@ -100,7 +74,6 @@ export function useAiController({
   useEffect(() => {
     requestGeneration.current += 1;
     requestAbort.current?.abort();
-    restoredReview.current = null;
     busyRef.current = false;
     setBusy(false);
     return () => {
@@ -108,53 +81,6 @@ export function useAiController({
       requestAbort.current?.abort();
     };
   }, [state.document.generation]);
-  useEffect(() => {
-    const graphChanged = restoredGraph.current !== graphId;
-    const restored = graphChanged && graphId ? loadPersistedAiHarnessState(graphId, settings.executionMode) : null;
-    const base = restored || (graphChanged ? createInitialAiHarnessState(settings.executionMode) : null);
-    restoredGraph.current = graphId;
-    setHarness((previous) =>
-      syncHarnessRuntime(base || previous, { graphId, graphRevision, mode: settings.executionMode }),
-    );
-  }, [graphId, graphRevision, settings.executionMode]);
-
-  useEffect(() => {
-    if (
-      graphId &&
-      harness.graphId === graphId &&
-      harness.graphRevision === graphRevision &&
-      harness.mode === settings.executionMode
-    ) {
-      savePersistedAiHarnessState(harness);
-    }
-  }, [graphId, graphRevision, harness, settings.executionMode]);
-
-  useEffect(() => {
-    const plan = harness.activePlan;
-    if (!plan || harness.graphId !== graphId || harness.graphRevision !== graphRevision) return;
-    const key = `${harness.graphId}:${plan.id}:${plan.status}`;
-    if (restoredReview.current === key) return;
-    if (
-      (plan.status === "ready" || plan.status === "failed" || plan.status === "superseded") &&
-      plan.commandBatch?.validation
-    ) {
-      upsertReview(
-        buildConsoleReviewCard(plan, plan.commandBatch.validation, plan.status === "superseded" ? "stale" : undefined),
-      );
-    }
-    restoredReview.current = key;
-  }, [harness.activePlan, harness.graphId, harness.graphRevision, graphId, graphRevision, upsertReview]);
-
-  const runtimeHarness = useCallback(
-    () =>
-      syncHarnessRuntime(harness, {
-        graphId,
-        graphRevision,
-        mode: settings.executionMode,
-      }),
-    [graphId, graphRevision, harness, settings.executionMode],
-  );
-
   // Every path (new plan, continued plan and Apply) shares validation and execution.
   const validateAndExecute = useCallback(
     (next: AiHarnessState, approved = false): AiHarnessState => {
@@ -264,11 +190,7 @@ export function useAiController({
           return;
         }
         if (options || response.kind === "propose_layout" || response.kind === "inspect_layout") {
-          if (!compoundLayout?.ready)
-            throw new Error("Open a rendered Nested node-link chart before requesting layout changes.");
-          layoutActive.current = true;
-          layoutRequestKey.current = compoundLayout.key;
-          setLayoutBusy(true);
+          if (!compoundLayout?.ready) throw new Error("Open a rendered Nested node-link chart before requesting layout changes.");
           // A geometry plan supersedes an old command batch; continuing must not execute unrelated edits.
           next = {
             ...next,
@@ -276,44 +198,9 @@ export function useAiController({
             pendingCommandBatch: undefined,
             workingMemory: { ...next.workingMemory, activePlanId: undefined, pendingCommandBatchId: undefined },
           };
-          const outcome = await runLayoutWorkflow({
-            response,
-            panelIntent: options?.layoutIntent,
-            inspect: compoundLayout.inspect,
-            isCurrent,
-            onProgress: setLayoutMessage,
-            evaluate: async (intent, retainBest) => {
-              await compoundLayout.propose(intent, false, { background: true, retainBest });
-              if (!isCurrent()) throw new Error("Layout context changed.");
-              const feedback = compoundLayout.getFeedback();
-              if (!feedback) throw new Error("No layout evaluation is available.");
-              return feedback;
-            },
-            ask: (feedback) =>
-              requestAiPlan({
-                settings,
-                context: { ...context, compoundLayout: { ...context.compoundLayout, feedback } },
-                message,
-                signal: abort.signal,
-              }),
-          });
-          if (!isCurrent()) return;
-          // End the request before a commit changes its graph revision.
-          layoutActive.current = false;
-          const applied = outcome.feedback
-            ? compoundLayout.finishAi(!options && outcome.allowAutoApply && settings.executionMode === "auto-edit")
-            : false;
-          const detail = [
-            applied ? "Layout applied. Undo restores the previous layout." : "",
-            outcome.feedback ? formatLayoutFeedback(outcome.feedback) : outcome.explanation,
-          ]
-            .filter(Boolean)
-            .join("\n");
-          setLayoutMessage(detail);
-          setLayoutExplanation(outcome.explanation);
-          if (outcome.explanation) appendMessage("ai", outcome.explanation);
-          appendMessage("ai-action", detail);
-          setHarness(next);
+
+          const layoutHarness = await layout.handleResponse({response, panelIntent: options?.layoutIntent, context, message, signal: abort.signal, isCurrent, next});
+          if (layoutHarness) setHarness(layoutHarness);
           return;
         }
         if (response.kind === "answer" || response.kind === "clarify") {
@@ -357,6 +244,7 @@ export function useAiController({
       appendMessage,
       contextNodeKey,
       compoundLayout,
+      layout,
       entries,
       recordInput,
       runtimeHarness,

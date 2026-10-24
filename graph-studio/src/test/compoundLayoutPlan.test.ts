@@ -1,26 +1,26 @@
 import assert from "node:assert/strict";
-import { normalizeDagInput } from "../graph/normalize";
-import { serializeDag } from "../graph/serialize";
-import { applyGraphCommand } from "../graph/commands";
-import { analyzeGraphImport } from "../graph/imports/merge";
 import { parseAiResponse } from "../ai/protocol/responseParser";
 import { parseCompoundLayoutCommand } from "../console/compoundLayout";
+import { applyGraphCommand } from "../graph/commands";
+import { analyzeGraphImport } from "../graph/imports/merge";
+import { normalizeDagInput } from "../graph/normalize";
+import { serializeDag } from "../graph/serialize";
 import {
-  defaultLayoutIntent,
-  parseLayoutIntent,
-  parseLayoutSnapshot,
-  readLayoutData,
-  writeLayoutData,
-  type LayoutIntent,
+defaultLayoutIntent,
+parseLayoutIntent,
+parseLayoutSnapshot,
+readLayoutData,
+writeLayoutData,
+type LayoutIntent,
 } from "../layout/compound/layout-plan";
-import { solveCompoundLayout, validateLayoutConstraints } from "../layout/compound/layout-solver";
 import { validateLayoutGeometry } from "../layout/compound/layout-quality";
+import { solveCompoundLayout,validateLayoutConstraints } from "../layout/compound/layout-solver";
 import { applyLayoutSnapshot } from "../layout/compound/layout-stage";
+import type { GraphAction } from "../state/graphActions";
 import { graphReducer } from "../state/graphReducer";
 import { createInitialGraphState } from "../state/initialState";
-import type { GraphAction } from "../state/graphActions";
 import { layoutFixture } from "./compoundLayout.test";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 function graph(nested = false) {
   return normalizeDagInput({

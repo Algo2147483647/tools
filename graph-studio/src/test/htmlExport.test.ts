@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
-import { buildHtmlDocument, buildHtmlPayload, serializeHtmlData } from "../rendering/export-html";
-import { startHtmlViewer } from "../rendering/html-viewer";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import {
-  buildFlatPreviewStage,
-  previewGeometry,
-  INITIAL_PREVIEW_VIEW,
-  PREVIEW_GRAPHS,
+buildFlatPreviewStage,
+INITIAL_PREVIEW_VIEW,
+PREVIEW_GRAPHS,
+previewGeometry,
 } from "../components/settings/previewModel";
-import { defineSuite, defineTest } from "./harness";
+import { buildHtmlDocument,buildHtmlPayload,serializeHtmlData } from "../export/html";
+import { startHtmlViewer } from "../export/html-viewer";
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { defineSuite,defineTest } from "./harness";
 
 const stage = () =>
   buildFlatPreviewStage(

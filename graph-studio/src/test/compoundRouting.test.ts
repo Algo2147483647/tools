@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { normalizeDagInput } from "../graph/normalize";
 import { projectCompoundGraph } from "../graph/compound/projection";
+import { normalizeDagInput } from "../graph/normalize";
+import { routingHotspots } from "../layout/compound/diagnostics";
+import { measureLayout,segmentCrossesBox,validateLayoutGeometry } from "../layout/compound/layout-quality";
 import { routeCompoundEdges } from "../layout/compound/routing/router";
-import { measureLayout, validateLayoutGeometry, segmentCrossesBox } from "../layout/compound/layout-quality";
-import { routingHotspots } from "../ai/layout/compoundDiagnostics";
 import { layoutFixture } from "./compoundLayout.test";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 export const compoundRoutingSuite = defineSuite("Compound routing clearance", [
   defineTest("fan-out uses separate ports without moving nodes or depending on input order", () => {

@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback,useEffect,useRef,useState } from "react";
 import { parseConsoleSource } from "../console/dsl";
-import { buildConsoleMutationLabel, executeConsoleInstructions } from "../console/executor";
+import { buildConsoleMutationLabel,executeConsoleInstructions } from "../console/executor";
 import {
-  buildConsolePrompt,
-  buildConsoleSuccessMessage,
-  getConsoleSuggestions,
-  requiresGraphForConsoleInstruction,
+buildConsolePrompt,
+buildConsoleSuccessMessage,
+requiresGraphForConsoleInstruction
 } from "../console/presentation";
-import type { ConsoleEntry, ConsoleReviewCard } from "../console/types";
+import type { ConsoleEntry,ConsoleReviewCard } from "../console/types";
 import type { GraphAppearance } from "../graph/appearance";
-import { buildAppearanceMutationLabel, getGraphPresetStyle } from "../schema/appearanceCommands";
-import type { TimelineViewSettings } from "../graph/timeline/settings";
 import { createGraphDocument } from "../graph/normalize";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import type { NodeKey } from "../graph/types";
+import { buildAppearanceMutationLabel,getGraphPresetStyle } from "../schema/appearanceCommands";
 import type { GraphAppState } from "../state/initialState";
+import { useConsoleInput } from "./console/useConsoleInput";
 import type { GraphTransactionsController } from "./useGraphTransactions";
 
 type Ask = (message: string) => Promise<void>;
@@ -39,22 +39,13 @@ export function useConsoleController({
   openNodeDetail: (key: NodeKey, focus?: "fields" | "raw") => void;
   runLayoutCommand?: (source: string) => boolean;
 }) {
-  const [input, setInput] = useState("");
   const [contextNodeKey, setContextNodeKey] = useState<NodeKey | null>(null);
   const [entries, setEntries] = useState<ConsoleEntry[]>([{ id: 1, tone: "info", text: "Graph console ready." }]);
-  const [history, setHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number | null>(null);
-  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const nextEntryId = useRef(2);
   useEffect(() => {
     setEntries([{ id: nextEntryId.current++, tone: "info", text: "Graph console ready." }]);
-    setInput("");
     setContextNodeKey(null);
-    setHistory([]);
-    setHistoryIndex(null);
-    setActiveSuggestionIndex(0);
   }, [state.document.generation]);
-  const suggestions = useMemo(() => getConsoleSuggestions(input), [input]);
 
   useEffect(() => {
     if (contextNodeKey && !state.dag?.nodes[contextNodeKey]) setContextNodeKey(null);
@@ -65,19 +56,8 @@ export function useConsoleController({
     setEntries((current) => [...current, entry]);
   }, []);
 
-  const recordInput = useCallback(
-    (prompt: string, source: string) => {
-      source
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .forEach((line) => appendMessage("input", `${prompt} ${line}`));
-      setHistory((current) => (current[current.length - 1] === source ? current : [...current, source]));
-      setHistoryIndex(null);
-    },
-    [appendMessage],
-  );
-
+  const inputState = useConsoleInput(state.document.generation, appendMessage);
+  const { input, suggestions, activeSuggestionIndex, recordInput, changeInput } = inputState;
   const upsertReview = useCallback((review: ConsoleReviewCard) => {
     const entry: ConsoleEntry = { id: nextEntryId.current++, tone: "ai-review", text: review.title, review };
     setEntries((current) =>
@@ -206,53 +186,6 @@ export function useConsoleController({
     ],
   );
 
-  const changeInput = useCallback((value: string) => {
-    setInput(value);
-    setHistoryIndex(null);
-    setActiveSuggestionIndex(0);
-  }, []);
-
-  function submit(source: string, ask: Ask) {
-    if (!source.trim()) return;
-    if (source.trimStart().startsWith("/")) runSource(source);
-    else void ask(source);
-    changeInput("");
-  }
-
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>, ask: Ask) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      submit(input, ask);
-    } else if (event.key === "Tab" && suggestions.length) {
-      event.preventDefault();
-      changeInput(suggestions[activeSuggestionIndex]?.insertText || input);
-    } else if (suggestions.length && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
-      event.preventDefault();
-      const step = event.key === "ArrowDown" ? 1 : -1;
-      setActiveSuggestionIndex((current) => (current + step + suggestions.length) % suggestions.length);
-    } else if (history.length && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
-      event.preventDefault();
-      if (event.key === "ArrowDown" && historyIndex === null) return;
-      const next =
-        event.key === "ArrowUp"
-          ? historyIndex === null
-            ? history.length - 1
-            : Math.max(0, historyIndex - 1)
-          : historyIndex! + 1;
-      setHistoryIndex(next >= history.length ? null : next);
-      setInput(history[next] || "");
-      setActiveSuggestionIndex(0);
-    }
-  }
-
-  function handlePaste(event: React.ClipboardEvent<HTMLInputElement>, ask: Ask) {
-    const pasted = event.clipboardData.getData("text");
-    if (!/\r?\n/.test(pasted)) return;
-    const { selectionStart, selectionEnd, value } = event.currentTarget;
-    const start = selectionStart ?? value.length;
-    event.preventDefault();
-    submit(`${value.slice(0, start)}${pasted}${value.slice(selectionEnd ?? start)}`, ask);
-  }
 
   return {
     entries,
@@ -266,8 +199,8 @@ export function useConsoleController({
     setReviewStatus,
     runSource,
     changeInput,
-    handleKeyDown,
-    handlePaste,
+    handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>, ask: Ask) => inputState.handleKeyDown(event, ask, runSource),
+    handlePaste: (event: React.ClipboardEvent<HTMLInputElement>, ask: Ask) => inputState.handlePaste(event, ask, runSource),
   };
 }
 

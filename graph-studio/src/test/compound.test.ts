@@ -1,24 +1,23 @@
-import { getGroupNodes } from "../graph/compound/hierarchy";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { getContextMenuPages } from "../components/menus/contextMenuModel";
+import { placeContextMenu,placeContextSubmenu } from "../components/menus/contextMenuPosition";
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { applyGraphCommand } from "../graph/commands";
+import { getGroupNodes,indexHierarchy } from "../graph/compound/hierarchy";
 import { projectCompoundGraph } from "../graph/compound/projection";
-import { indexHierarchy } from "../graph/compound/hierarchy";
 import { analyzeGraphImport } from "../graph/imports/merge";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { projectGraphByType } from "../graph/typeFilter";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import { getStageAppearance } from "../layout/shared/appearance";
 import { buildCompoundStage } from "../layout/compound/layout";
 import { buildStageData } from "../layout/node-link/layout";
-import { graphReducer } from "../state/graphReducer";
-import { prepareGraphTransaction, prepareCommandTransaction } from "../state/graphTransactions";
+import { getStageAppearance } from "../layout/shared/appearance";
 import { roundedPolylinePath } from "../layout/shared/rounded-path";
-import { getContextMenuPages } from "../components/contextMenuModel";
-import { placeContextMenu, placeContextSubmenu } from "../components/contextMenuPosition";
+import { graphReducer } from "../state/graphReducer";
+import { prepareCommandTransaction,prepareGraphTransaction } from "../state/graphTransactions";
 import { createInitialGraphState } from "../state/initialState";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 export const compoundFixture = () =>
   normalizeDagInput({

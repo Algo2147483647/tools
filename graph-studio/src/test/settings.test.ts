@@ -1,41 +1,32 @@
-import { updateAppearanceSchemaValue } from "../schema/styleProtocol";
-import { indexHierarchy } from "../graph/compound/hierarchy";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import NumericSetting from "../components/settings/NumericSetting";
-import { APPEARANCE_UI } from "../components/settings/appearanceUIConfig";
-import { sanitizeGraphAppearance } from "../graph/appearance";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
-import { parseGraphPagePreferences } from "../state/preferences";
-import { defineSuite, defineTest } from "./harness";
-import { getSettingsCatalog, matchesSetting } from "../components/settings/settingsCatalog";
-import { parseColorValue, formatColorValue } from "../components/settings/colorValue";
-import { resetAppearanceSection, resetChartStyleSection } from "../components/settings/appearanceSections";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import { getInitialGraphPagePreferences, saveGraphPagePreferences } from "../state/preferences";
-import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
-import { getAppearanceSchema } from "../schema/appearanceSchema";
-import { APPEARANCE_GROUPS } from "../components/settings/settingsCatalog";
-import { orderSchemaFields, type SchemaField } from "../schema/fields";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
+import { resetAppearanceSection,resetChartStyleSection } from "../components/settings/appearanceSections";
+import { APPEARANCE_UI } from "../components/settings/appearanceUIConfig";
+import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
+import { formatColorValue,parseColorValue } from "../components/settings/colorValue";
+import { APPEARANCE_GROUPS,getSettingsCatalog,matchesSetting } from "../components/settings/settingsCatalog";
+import TimelineColorSettings from "../components/timeline/TimelineColorSettings";
+import { DEFAULT_GRAPH_APPEARANCE,sanitizeGraphAppearance } from "../graph/appearance";
+import { indexHierarchy } from "../graph/compound/hierarchy";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
 import { parseNodeTimeline } from "../graph/timeline/time";
-import { createInitialGraphState } from "../state/initialState";
-import { replaceDocument } from "../state/documentTransitions";
-import TimelineColorSettings from "../components/TimelineColorSettings";
-import fs from "node:fs";
-import {
-  parseChartStyleFile,
-  serializeChartStyle,
-  createStyleDocument,
-  parseStyleDocument,
-} from "../schema/styleProtocol";
 import { getGraphAppearancePresets } from "../schema/appearanceCommands";
-import path from "node:path";
-import { getDefaultChartStyle, createChartStyles } from "../schema/chartStyles";
-import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
+import { getAppearanceSchema } from "../schema/appearanceSchema";
+import { createChartStyles,getDefaultChartStyle } from "../schema/chartStyles";
+import { orderSchemaFields,type SchemaField } from "../schema/fields";
+import { createStyleDocument,parseChartStyleFile,parseStyleDocument,serializeChartStyle,updateAppearanceSchemaValue } from "../schema/styleProtocol";
+import { chartPreferencesReducer,createChartPreferences } from "../state/chartPreferences";
+import { replaceDocument } from "../state/documentTransitions";
+import { createInitialGraphState } from "../state/initialState";
+import { getInitialGraphPagePreferences,parseGraphPagePreferences,saveGraphPagePreferences } from "../state/preferences";
+import { defineSuite,defineTest } from "./harness";
 
 export const settingsSuite = defineSuite("Settings controls", [
   defineTest("layout tuples remain canonical through editing, export and preferences", () => {

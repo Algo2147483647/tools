@@ -1,6 +1,6 @@
 import type { StageData } from "../layout/shared/types";
-import { calculateScrollZoom, calculateSpatialCamera, type ViewportMetrics } from "./cameraGeometry";
-import { calculateFitZoomScale, type ZoomAnchor } from "./zoomGeometry";
+import { calculateScrollZoom,calculateSpatialCamera,type ViewportMetrics } from "./cameraGeometry";
+import { calculateFitZoomScale,type ZoomAnchor } from "./zoomGeometry";
 
 export function getFitZoomScale(
   container: HTMLElement,
@@ -107,11 +107,9 @@ export function getViewportMetrics(
   topbar: HTMLElement | null,
   overlays: HTMLElement | null = null,
 ): ViewportMetrics {
-  const containerRect = container.getBoundingClientRect();
-  const topbarRect = topbar ? topbar.getBoundingClientRect() : null;
+  const {containerRect, topbarRect, overlayRect} = readViewportBounds(container, topbar, overlays);
   const safeTop = topbarRect ? Math.max(topbarRect.bottom - containerRect.top + 12, 0) : 0;
   const horizontalInset = 24;
-  const overlayRect = overlays?.getBoundingClientRect();
   // Fit into the visible area; the scrollable canvas itself still fills the page.
   const safeLeft =
     overlayRect && overlayRect.width > 0 && overlayRect.width < container.clientWidth * 0.75
@@ -124,4 +122,8 @@ export function getViewportMetrics(
     availableWidth: container.clientWidth - safeLeft - horizontalInset,
     availableHeight: container.clientHeight - safeTop - bottomInset,
   };
+}
+
+export function readViewportBounds(container: HTMLElement, topbar: HTMLElement | null, overlays: HTMLElement | null) {
+ return { containerRect: container.getBoundingClientRect(), topbarRect: topbar?.getBoundingClientRect() ?? null, overlayRect: overlays?.getBoundingClientRect() ?? null };
 }

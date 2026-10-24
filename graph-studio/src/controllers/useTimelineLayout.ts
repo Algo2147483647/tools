@@ -1,13 +1,14 @@
-import type { TimelineWorkerResponse, TimelineWorkerInput, LayoutWorkerRequest } from "../layout/workers/protocol";
-import { useCallback, useEffect, useRef, useState, type Dispatch } from "react";
-import type { GraphAppState } from "../state/initialState";
-import type { GraphAction } from "../state/graphActions";
+import { useCallback,useEffect,useRef,useState,type Dispatch } from "react";
 import type { AiSettings } from "../ai/types";
-import { readTimelineLayout, type TimelineLayoutData } from "../graph/timeline/layoutData";
-import { requestTimelineLayout, timelineLayoutContext } from "../ai/layout/timelineRequest";
+import { readTimelineLayout,type TimelineLayoutData } from "../graph/timeline/layoutData";
 import type { StageData } from "../layout/shared/types";
-import type { TimelineLayoutCandidate, TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import { requestTimelineLayout,timelineLayoutContext } from "../layout/timeline/ai/request";
+import type { TimelineLayoutCandidate,TimelineLayoutInput } from "../layout/timeline/layout-candidate";
 import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
+import type { TimelineWorkerInput } from "../layout/workers/protocol";
+import type { GraphAction } from "../state/graphActions";
+import type { GraphAppState } from "../state/initialState";
+import { startLayoutWorker,type LayoutWorkerJob } from "./layout/workerJob";
 
 type Review = TimelineLayoutCandidate & { key: number; baseline: StageData; explanation: string };
 export function useTimelineLayout(
@@ -42,9 +43,7 @@ export function useTimelineLayout(
   const active = useRef<{
     key: number;
     abort: AbortController;
-    worker?: Worker;
-    reject?: (error: Error) => void;
-    timer?: ReturnType<typeof setTimeout>;
+    job?: LayoutWorkerJob<TimelineLayoutCandidate>;
   } | null>(null);
   const sequence = useRef(0);
   const cancel = useCallback(() => {
@@ -53,9 +52,7 @@ export function useTimelineLayout(
     if (pending) {
       active.current = null;
       pending.abort.abort();
-      pending.worker?.terminate();
-      clearTimeout(pending.timer);
-      pending.reject?.(new Error("Timeline layout cancelled."));
+      pending.job?.cancel();
       setMessage("Timeline layout cancelled.");
     }
     setBusy(false);
@@ -73,9 +70,7 @@ export function useTimelineLayout(
       const pending = active.current;
       active.current = null;
       pending?.abort.abort();
-      pending?.worker?.terminate();
-      clearTimeout(pending?.timer);
-      pending?.reject?.(new Error("Timeline layout cancelled."));
+      pending?.job?.cancel();
     },
     [],
   );
@@ -133,33 +128,14 @@ export function useTimelineLayout(
       if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
       clearTimeout(timeout);
       setMessage("Calculating preview…");
-      const jobId = crypto.randomUUID();
       const payload: TimelineWorkerInput = { input: initial.input, baseline: initial.baseline, plan: response.plan };
-      const candidate = await new Promise<TimelineLayoutCandidate>((resolve, reject) => {
-        const worker = new Worker(new URL("../layout/workers/timeline.worker.ts", import.meta.url), { type: "module" });
-        pending.worker = worker;
-        pending.reject = reject;
-        pending.timer = setTimeout(() => {
-          worker.terminate();
-          reject(new Error("Layout exceeded 20 seconds. Filter the timeline and use Readapt."));
-        }, 20000);
-        const finish = () => {
-          clearTimeout(pending.timer);
-          worker.terminate();
-        };
-        worker.onerror = (event) => {
-          finish();
-          reject(new Error(event.message || "Timeline worker failed."));
-        };
-        worker.onmessage = (event: MessageEvent<TimelineWorkerResponse>) => {
-          if (event.data.jobId !== jobId) return;
-          finish();
-          if (!event.data.ok) reject(new Error(event.data.error));
-          else if (!event.data.result) reject(new Error("Invalid timeline preview."));
-          else resolve(event.data.result);
-        };
-        worker.postMessage({ jobId, payload } satisfies LayoutWorkerRequest<TimelineWorkerInput>);
+      pending.job = startLayoutWorker<TimelineWorkerInput, TimelineLayoutCandidate>({
+        createWorker: () => new Worker(new URL("../layout/workers/timeline.worker.ts", import.meta.url), {type: "module"}),
+        payload, timeoutMs: 20000,
+        timeoutMessage: "Layout exceeded 20 seconds. Filter the timeline and use Readapt.",
+        failureMessage: "Timeline worker failed.", invalidMessage: "Invalid timeline preview.", cancelMessage: "Timeline layout cancelled.",
       });
+      const candidate = await pending.job.result;
       if (sequence.current !== id || current.current.key !== initial.key || !current.current.ready) return;
       setReview({ ...candidate, key: initial.key, baseline: initial.baseline, explanation: response.explanation });
       setMessage("Preview ready.");
@@ -174,8 +150,7 @@ export function useTimelineLayout(
         );
     } finally {
       clearTimeout(timeout);
-      clearTimeout(pending.timer);
-      pending.worker?.terminate();
+      pending.job?.cancel();
       if (sequence.current === id) {
         active.current = null;
         setBusy(false);

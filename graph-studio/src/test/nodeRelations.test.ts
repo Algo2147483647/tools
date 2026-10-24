@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import NodeRelationsPanel from "../components/NodeRelationsPanel";
+import NodeRelationsPanel from "../components/nodes/NodeRelationsPanel";
 import { normalizeDagInput } from "../graph/normalize";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 export const nodeRelationsSuite = defineSuite("Node relations", [
   defineTest("separates incoming and outgoing edges and excludes unrelated edges", () => {

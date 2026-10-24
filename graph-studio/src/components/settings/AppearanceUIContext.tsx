@@ -1,7 +1,7 @@
-import { createContext, useContext, type ReactNode, type ComponentType } from "react";
-import type { AppearanceUIModel, AppearanceBinding } from "./appearanceUIModel";
-import { resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
-import type { TimelineControlsProps } from "../TimelineControls";
+import { createContext,useContext,type ComponentType,type ReactNode } from "react";
+import type { TimelineControlsProps } from "../timeline/TimelineControls";
+import { resolveUIPath,type AppearanceUINode } from "./appearanceUIConfig";
+import type { AppearanceBinding,AppearanceUIModel } from "./appearanceUIModel";
 
 export interface AppearanceRendererProps {
   node: AppearanceUINode;

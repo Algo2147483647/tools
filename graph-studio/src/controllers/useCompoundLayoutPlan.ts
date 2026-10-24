@@ -1,31 +1,23 @@
-import type { CompoundWorkerResponse, CompoundWorkerInput, LayoutWorkerRequest } from "../layout/workers/protocol";
-import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from "react";
+import { useCallback,useEffect,useMemo,useRef,useState,type Dispatch } from "react";
+import type { CompoundView } from "../graph/types";
+import { buildCompoundLayoutContext } from "../layout/compound/ai/context";
+import { diagnoseCompoundLayout,inspectCompoundLayout } from "../layout/compound/inspection";
+import {
+defaultLayoutIntent,
+layoutFingerprint,
+parseLayoutIntent,
+type LayoutSolveResult
+} from "../layout/compound/layout-plan";
+import { compareLayoutMetrics,validateLayoutGeometry } from "../layout/compound/layout-quality";
+import { validateLayoutConstraints } from "../layout/compound/layout-solver";
+import type { StageData } from "../layout/shared/types";
+import type { CompoundWorkerInput } from "../layout/workers/protocol";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import type { CompoundView } from "../graph/types";
-import {
-  defaultLayoutIntent,
-  layoutFingerprint,
-  parseLayoutIntent,
-  type LayoutIntent,
-  type LayoutProblem,
-  type LayoutSolveResult,
-} from "../layout/compound/layout-plan";
-import { compareLayoutMetrics, validateLayoutGeometry } from "../layout/compound/layout-quality";
-import type { LayoutFeedback } from "../ai/layout/compoundWorkflow";
-import { diagnoseCompoundLayout, inspectCompoundLayout } from "../ai/layout/compoundContext";
-import { validateLayoutConstraints } from "../layout/compound/layout-solver";
-import { applyLayoutSnapshot } from "../layout/compound/layout-stage";
-import type { StageData } from "../layout/shared/types";
+import { useCompoundReview,type LayoutReview } from "./layout/useCompoundReview";
+import { startLayoutWorker,type LayoutWorkerJob } from "./layout/workerJob";
 
-interface LayoutReview {
-  key: string;
-  intent: LayoutIntent;
-  problem: LayoutProblem;
-  stage: StageData;
-  result: LayoutSolveResult;
-  status: "ready" | "applied" | "dismissed";
-}
+
 export function useCompoundLayoutPlan(
   state: GraphAppState,
   dispatch: Dispatch<GraphAction>,
@@ -53,29 +45,17 @@ export function useCompoundLayoutPlan(
   const ready = state.chartType === "compound" && !!problem && !!state.dag && !viewport.compoundLayout.loading;
   const current = useRef({ state, key, ready, problem, stage: viewport.stage });
   current.current = { state, key, ready, problem, stage: viewport.stage };
-  const [review, setReview] = useState<LayoutReview | null>(null);
+  const {review, setReview, selected, setSelected, showCandidate, setShowCandidate, feedbackRef, reviewRef, stale, candidate, previewStage} = useCompoundReview(key, ready);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [selected, setSelected] = useState(0);
-  const [showCandidate, setShowCandidate] = useState(false);
-  const pending = useRef<{
-    key: string;
-    worker: Worker;
-    reject(error: Error): void;
-    timer: ReturnType<typeof setTimeout>;
-  } | null>(null);
+  const pending = useRef<{key: string; job: LayoutWorkerJob<LayoutSolveResult>} | null>(null);
   const sequence = useRef(0);
-  const feedbackRef = useRef<LayoutFeedback | null>(null);
-  const reviewRef = useRef(review);
-  reviewRef.current = review;
   const cancel = useCallback(() => {
     sequence.current++;
     const active = pending.current;
     if (active) {
       pending.current = null;
-      clearTimeout(active.timer);
-      active.worker.terminate();
-      active.reject(new Error("Layout calculation cancelled."));
+      active.job.cancel();
       setMessage("Layout calculation cancelled.");
     }
     setBusy(false);
@@ -88,9 +68,7 @@ export function useCompoundLayoutPlan(
     () => () => {
       const active = pending.current;
       if (active) {
-        clearTimeout(active.timer);
-        active.worker.terminate();
-        active.reject(new Error("Layout calculation cancelled."));
+        active.job.cancel();
         pending.current = null;
       }
     },
@@ -157,40 +135,17 @@ export function useCompoundLayoutPlan(
       setShowCandidate(false);
       setMessage("Calculating layout candidates…");
       setBusy(true);
-      const jobId = crypto.randomUUID();
       try {
-        const result = await new Promise<LayoutSolveResult>((resolve, reject) => {
-          const worker = new Worker(new URL("../layout/workers/compound.worker.ts", import.meta.url), {
-            type: "module",
-          });
-          const finish = () => {
-            if (pending.current?.worker === worker) {
-              clearTimeout(pending.current.timer);
-              pending.current = null;
-            }
-            worker.terminate();
-          };
-          const timer = setTimeout(() => {
-            finish();
-            reject(new Error("Layout search exceeded 15 seconds. Use a smaller scope or fewer visible nodes."));
-          }, 15000);
-          pending.current = { key: initial.key, worker, reject, timer };
-          worker.onerror = (event) => {
-            finish();
-            reject(new Error(event.message || "Layout worker failed."));
-          };
-          worker.onmessage = (event: MessageEvent<CompoundWorkerResponse>) => {
-            if (event.data.jobId !== jobId) return;
-            finish();
-            if (!event.data.ok) reject(new Error(event.data.error));
-            else if (!event.data.result) reject(new Error("Invalid layout worker response."));
-            else resolve(event.data.result);
-          };
-          worker.postMessage({
-            jobId,
-            payload: { problem: initial.problem!, intent },
-          } satisfies LayoutWorkerRequest<CompoundWorkerInput>);
+        const job = startLayoutWorker<CompoundWorkerInput, LayoutSolveResult>({
+          createWorker: () => new Worker(new URL("../layout/workers/compound.worker.ts", import.meta.url), { type: "module" }),
+          payload: { problem: initial.problem, intent }, timeoutMs: 15000,
+          timeoutMessage: "Layout search exceeded 15 seconds. Use a smaller scope or fewer visible nodes.",
+          failureMessage: "Layout worker failed.", invalidMessage: "Invalid layout worker response.", cancelMessage: "Layout calculation cancelled.",
         });
+        pending.current = {key: initial.key, job};
+        let result: LayoutSolveResult;
+        try { result = await job.result; }
+        finally { if (pending.current?.job === job) pending.current = null; }
         if (requestSequence !== sequence.current || current.current.key !== initial.key || !current.current.ready)
           return "Layout result discarded because its graph or view changed.";
         let next: LayoutReview = {
@@ -264,15 +219,6 @@ export function useCompoundLayoutPlan(
   const defaultIntent = useMemo(() => defaultLayoutIntent(scopeId), [scopeId]);
   const scopeTitle =
     problem?.projection.items.find((item) => item.id === scopeId)?.title ?? (scopeId || "Current root");
-  const stale = !!review && review.status === "ready" && (review.key !== key || !ready);
-  const candidate = review?.result.candidates[selected];
-  const previewStage = useMemo(
-    () =>
-      review && candidate && showCandidate && !stale && review.status === "ready"
-        ? applyLayoutSnapshot(review.stage, candidate.snapshot)
-        : null,
-    [review, candidate, showCandidate, stale],
-  );
   const dismiss = () => {
     cancel();
     setReview(null);
@@ -317,16 +263,10 @@ export function useCompoundLayoutPlan(
   const context = useMemo(
     () =>
       ready
-        ? {
-            protocolVersion: 1,
-            defaultIntent,
-            ...inspect(),
-            supportedConstraints: ["direction", "pin", "unpin", "prefer-outer-route", "port-side"],
-            pending:
+        ? buildCompoundLayoutContext(defaultIntent, inspect(),
               review && !stale && review.status === "ready"
                 ? { intent: review.intent, candidateIds: review.result.candidates.map((c) => c.id) }
-                : null,
-          }
+                : null)
         : undefined,
     [ready, defaultIntent, inspect, review, stale],
   );

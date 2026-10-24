@@ -1,8 +1,9 @@
-import { timelineBarBox, timelinePoint } from "../layout/timeline/orientation";
-import { useId, useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
-import type { StageNode } from "../layout/shared/types";
+import { useId,type CSSProperties,type MouseEvent as ReactMouseEvent } from "react";
 import { sanitizeTimelineMarker } from "../graph/timeline/settings";
-import TimelineMarker, { timelineMarkerStyle } from "./TimelineMarker";
+import type { StageNode } from "../layout/shared/types";
+import { timelineBarBox,timelinePoint } from "../layout/timeline/orientation";
+import { useTimelineNodeInteraction } from "./interaction/useTimelineNodeInteraction";
+import TimelineMarker,{ timelineMarkerStyle } from "./TimelineMarker";
 
 interface TimelineNodeProps {
   readOnly?: boolean;
@@ -27,8 +28,6 @@ export default function TimelineNode({
   onContextMenu,
   onFocusChange,
 }: TimelineNodeProps) {
-  const drag = useRef<{ clientX: number; scale: number; delta: number } | null>(null);
-  const dragged = useRef(false);
   const time = node.timeline!;
   const { startY, endY, labelX, labelY, anchorY } = time;
   const range = time.kind === "range";
@@ -73,39 +72,7 @@ export default function TimelineNode({
   const labelEdgeX = Math.max(labelX - 7, Math.min(anchor.x, labelX + node.width + 7));
   const labelEdgeY = Math.max(labelY - metrics.top - 1, Math.min(anchor.y, labelY + metrics.bottom + 1));
   const leader = `M ${anchor.x} ${anchor.y} L ${labelEdgeX} ${labelEdgeY}`;
-  function preview(element: SVGGElement, delta?: number) {
-    element.ownerSVGElement?.querySelectorAll<SVGGElement>(".timeline-node").forEach((part) => {
-      if (part.dataset.key !== node.key) return;
-      if (delta === undefined) part.removeAttribute("transform");
-      else part.setAttribute("transform", horizontal ? `translate(0,${delta})` : `translate(${delta},0)`);
-    });
-  }
-  function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
-    if (
-      canPin &&
-      event.altKey &&
-      (horizontal ? ["ArrowUp", "ArrowDown"] : ["ArrowLeft", "ArrowRight"]).includes(event.key)
-    ) {
-      event.preventDefault();
-      onPin!(node.key, Math.max(minimumCross, cross + (["ArrowLeft", "ArrowUp"].includes(event.key) ? -16 : 16)));
-      return;
-    }
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      if (event.key === "Enter" && onDoubleClick) onDoubleClick(node.key);
-      else onClick(node.key);
-    } else if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
-      event.preventDefault();
-      const rect = event.currentTarget.getBoundingClientRect();
-      event.currentTarget.dispatchEvent(
-        new MouseEvent("contextmenu", {
-          bubbles: true,
-          clientX: rect.left + rect.width / 2,
-          clientY: rect.top + rect.height / 2,
-        }),
-      );
-    }
-  }
+  const interaction = useTimelineNodeInteraction({ node, canPin, horizontal, cross, minimumCross, onPin, onClick, onDoubleClick });
   return (
     <g
       className="dag-node timeline-node"
@@ -150,46 +117,15 @@ export default function TimelineNode({
       role={readOnly || layer === "marker" || layer === "leader" ? undefined : "button"}
       aria-hidden={layer === "marker" || layer === "leader" || undefined}
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}.${readOnly ? "" : " Select event; press Enter or double-click for details."}`}
-      onPointerDown={(event) => {
-        if (!canPin || event.button !== 0) return;
-        const scale = event.currentTarget.ownerSVGElement?.getScreenCTM()?.a || 1;
-        drag.current = { clientX: horizontal ? event.clientY : event.clientX, scale, delta: 0 };
-        dragged.current = false;
-        event.currentTarget.setPointerCapture(event.pointerId);
-      }}
-      onPointerMove={(event) => {
-        if (!drag.current) return;
-        drag.current.delta = Math.max(
-          minimumCross - cross,
-          ((horizontal ? event.clientY : event.clientX) - drag.current.clientX) / drag.current.scale,
-        );
-        if (Math.abs((horizontal ? event.clientY : event.clientX) - drag.current.clientX) > 4) dragged.current = true;
-        if (dragged.current) {
-          event.preventDefault();
-          preview(event.currentTarget, drag.current.delta);
-        }
-      }}
-      onPointerUp={(event) => {
-        const delta = drag.current?.delta ?? 0;
-        drag.current = null;
-        preview(event.currentTarget);
-        if (event.currentTarget.hasPointerCapture(event.pointerId))
-          event.currentTarget.releasePointerCapture(event.pointerId);
-        if (dragged.current) onPin?.(node.key, cross + delta);
-      }}
-      onPointerCancel={(event) => {
-        drag.current = null;
-        dragged.current = false;
-        preview(event.currentTarget);
-      }}
-      onClick={() => {
-        if (!dragged.current) onClick(node.key);
-        dragged.current = false;
-      }}
+      
+      
+      
+      
+      
       onDoubleClick={() => onDoubleClick?.(node.key)}
       onContextMenu={(event) => onContextMenu(event, node.key)}
       onFocus={() => onFocusChange(node.key)}
-      onKeyDown={handleKeyDown}
+      {...interaction}
     >
       <title>
         {[

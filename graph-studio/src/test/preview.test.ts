@@ -1,23 +1,23 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../graph/appearance";
-import { createChartStyles } from "../schema/chartStyles";
-import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { buildCompoundStage } from "../layout/compound/layout";
 import {
-  buildFlatPreviewStage,
-  compoundPreviewInput,
-  INITIAL_PREVIEW_VIEW,
-  PREVIEW_GRAPHS,
-  previewGeometry,
+buildFlatPreviewStage,
+compoundPreviewInput,
+INITIAL_PREVIEW_VIEW,
+PREVIEW_GRAPHS,
+previewGeometry,
 } from "../components/settings/previewModel";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
-import GraphStage from "../rendering/GraphStage";
+import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
+import { buildCompoundStage } from "../layout/compound/layout";
 import type { StageData } from "../layout/shared/types";
+import GraphStage from "../rendering/GraphStage";
+import { createChartStyles } from "../schema/chartStyles";
+import { chartPreferencesReducer,createChartPreferences,getChartStyles } from "../state/chartPreferences";
 import { assertCompoundGeometry } from "./compoundLayout.test";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 const input = (chartType: GraphChartType) =>
   previewGeometry({

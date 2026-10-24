@@ -1,16 +1,16 @@
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 import type { GraphAppearance } from "../../graph/appearance";
-import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
-import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearanceCommands";
-import { chartStylesEqual, type ChartStyle } from "../../schema/chartStyles";
-import { type TimelineControlsProps } from "../TimelineControls";
+import type { GraphChartType,GraphLayoutMode } from "../../graph/types";
+import { getGraphAppearancePresets,type GraphAppearancePresetId } from "../../schema/appearanceCommands";
+import { chartStylesEqual,type ChartStyle } from "../../schema/chartStyles";
+import { type TimelineControlsProps } from "../timeline/TimelineControls";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import AppearanceSchema from "./AppearanceSchema";
 import { AppearanceUIOutlet } from "./AppearanceUIContext";
 import ChartSchema from "./ChartSchema";
 import { APPEARANCE_UI } from "./appearanceUIConfig";
-import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
+import { APPEARANCE_GROUPS,getSettingsCatalog,matchesSetting,type AppearanceGroup } from "./settingsCatalog";
 
 export interface AppearanceSettingsProps {
   view?: "chart" | "appearance" | "layout";
@@ -139,15 +139,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             </div>
           </section>
         )}
-        {p.chartType === "compound" && visible("nested") && (
-          <section className="settings-section">
-            <h3>Nested layout</h3>
-            <p>
-              Each subgraph keeps its internal arrangement when placed in its parent. Expand and collapse groups on the
-              canvas.
-            </p>
-          </section>
-        )}
         {isTimeline && p.timelineControls && <AppearanceUIOutlet node={APPEARANCE_UI.timelineLayout} />}
         {isSankey && visible("flow-layout") && (
           <section className="settings-section">
@@ -187,7 +178,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
         {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
         {has("presets") && (
           <>
-            <p>{selectedPreset ? `${selectedPreset.label} preset` : "Custom style"} · Choose a starting point.</p>
             <div className="preset-grid">
               {presets.map((preset) => (
                 <button
@@ -221,7 +211,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
         {(has("css") || has("style.appearance.css")) && (
           <div className="settings-css">
             <label htmlFor="setting-css">Custom graph CSS</label>
-            <p>Applies to the graph and SVG export.</p>
             <textarea
               id="setting-css"
               spellCheck={false}

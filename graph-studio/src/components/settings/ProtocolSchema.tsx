@@ -1,8 +1,8 @@
+import { useId,useState,type ReactNode } from "react";
 import { copyTextToClipboard } from "../../adapters/clipboard";
-import { useId, useState, type ReactNode } from "react";
 import { downloadJsonFile } from "../../adapters/download";
-import { JsonSyntax } from "../NodeJsonView";
 import type { SchemaField } from "../../schema/fields";
+import { JsonSyntax } from "../nodes/NodeJsonView";
 
 export default function ProtocolSchema({
   label,

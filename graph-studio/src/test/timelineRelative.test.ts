@@ -1,28 +1,28 @@
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import NodeTimeEditor from "../components/nodes/NodeTimeEditor";
+import TimelineControls from "../components/timeline/TimelineControls";
+import TimelineIntervalSettings from "../components/timeline/TimelineIntervalSettings";
+import { TimelineIntervalTextSettings } from "../components/timeline/TimelineTextSettings";
+import { buildHtmlPayload } from "../export/html";
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { applyGraphCommand } from "../graph/commands";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import { applyGraphCommand } from "../graph/commands";
-import { parseNodeTimeline, parseTimelineTime } from "../graph/timeline/time";
-import { formatRelativeTime, getTimelineClock, sanitizeTimelineClock } from "../graph/timeline/clock";
-import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timeline/range";
+import { formatRelativeTime,getTimelineClock,sanitizeTimelineClock } from "../graph/timeline/clock";
+import { parseTimelineRangeInput,timelineRangeDates } from "../graph/timeline/range";
 import { sanitizeTimelineSettings } from "../graph/timeline/settings";
-import { buildTimelineStage } from "../layout/timeline/layout";
-import { projectTimelineStage } from "../layout/timeline/project";
+import { parseNodeTimeline,parseTimelineTime } from "../graph/timeline/time";
 import { timelineTimeToY } from "../layout/timeline/axis";
-import { getTimelineAxisTicks } from "../layout/timeline/ticks";
+import { buildTimelineStage } from "../layout/timeline/layout";
 import { timelineBarBox } from "../layout/timeline/orientation";
-import { getNodeLocatePoint } from "../viewport/zoomGeometry";
-import TimelineNode from "../rendering/TimelineNode";
+import { projectTimelineStage } from "../layout/timeline/project";
+import { getTimelineAxisTicks } from "../layout/timeline/ticks";
 import TimelineBackdrop from "../rendering/TimelineBackdrop";
-import TimelineControls from "../components/TimelineControls";
-import TimelineIntervalSettings from "../components/TimelineIntervalSettings";
-import { TimelineIntervalTextSettings } from "../components/TimelineTextSettings";
-import NodeTimeEditor from "../components/NodeTimeEditor";
-import { buildHtmlPayload } from "../rendering/export-html";
-import { defineSuite, defineTest } from "./harness";
+import TimelineNode from "../rendering/TimelineNode";
+import { getNodeLocatePoint } from "../viewport/zoomGeometry";
+import { defineSuite,defineTest } from "./harness";
 
 const clock = sanitizeTimelineClock({
   mode: "relative",

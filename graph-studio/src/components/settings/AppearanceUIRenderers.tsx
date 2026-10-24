@@ -1,15 +1,15 @@
 import type { TimelineViewSettings } from "../../graph/timeline/settings";
 import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
-import TimelineColorSettings from "../TimelineColorSettings";
-import TimelineControls from "../TimelineControls";
-import TimelineIntervalSettings from "../TimelineIntervalSettings";
-import TimelinePointSettings, { TimelineMarkerEditor } from "../TimelinePointSettings";
-import { TimelineIntervalTextSettings, TimelinePointTextSettings } from "../TimelineTextSettings";
+import TimelineColorSettings from "../timeline/TimelineColorSettings";
+import TimelineControls from "../timeline/TimelineControls";
+import TimelineIntervalSettings from "../timeline/TimelineIntervalSettings";
+import TimelinePointSettings,{ TimelineMarkerEditor } from "../timeline/TimelinePointSettings";
+import { TimelineIntervalTextSettings,TimelinePointTextSettings } from "../timeline/TimelineTextSettings";
 import Icon from "../ui/Icon";
 import { SchemaValueEditor } from "./AppearanceSchema";
-import { useAppearanceUI, type AppearanceRendererProps } from "./AppearanceUIContext";
+import { useAppearanceUI,type AppearanceRendererProps } from "./AppearanceUIContext";
 import ColorSetting from "./ColorSetting";
-import NumericSetting, { ResetSetting } from "./NumericSetting";
+import NumericSetting,{ ResetSetting } from "./NumericSetting";
 
 function NumberControl({ node, binding }: AppearanceRendererProps) {
   const { commit, model } = useAppearanceUI();

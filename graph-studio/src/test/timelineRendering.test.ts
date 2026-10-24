@@ -1,24 +1,24 @@
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { getSettingsCatalog } from "../components/settings/settingsCatalog";
+import TimelineIntervalSettings from "../components/timeline/TimelineIntervalSettings";
+import TimelinePointSettings from "../components/timeline/TimelinePointSettings";
+import { TimelineIntervalTextSettings,TimelinePointTextSettings } from "../components/timeline/TimelineTextSettings";
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { normalizeDagInput } from "../graph/normalize";
+import { timelineTypeColor } from "../graph/timeline/colors";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
+import { buildStageData } from "../layout/node-link/layout";
 import { buildTimelineStage } from "../layout/timeline/layout";
-import TimelineNode from "../rendering/TimelineNode";
+import { timelineBarBox } from "../layout/timeline/orientation";
+import { projectTimelineStage } from "../layout/timeline/project";
+import { getVisibleTimeTicks } from "../layout/timeline/ticks";
 import GraphEdge from "../rendering/GraphEdge";
 import GraphStage from "../rendering/GraphStage";
-import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import { getVisibleTimeTicks } from "../layout/timeline/ticks";
-import { defineSuite, defineTest } from "./harness";
-import { sanitizeTimelineSettings } from "../graph/timeline/settings";
-import { timelineTypeColor } from "../graph/timeline/colors";
-import { projectTimelineStage } from "../layout/timeline/project";
-import { buildStageData } from "../layout/node-link/layout";
-import { timelineBarBox } from "../layout/timeline/orientation";
-import { TIMELINE_CSS } from "../rendering/timelineStyles";
-import TimelinePointSettings from "../components/TimelinePointSettings";
-import TimelineIntervalSettings from "../components/TimelineIntervalSettings";
-import { TimelinePointTextSettings, TimelineIntervalTextSettings } from "../components/TimelineTextSettings";
-import { getSettingsCatalog } from "../components/settings/settingsCatalog";
+import TimelineNode from "../rendering/TimelineNode";
+import { TIMELINE_CSS } from "../styles/timelineStyles";
+import { defineSuite,defineTest } from "./harness";
 
 export const timelineRenderingSuite = defineSuite("Timeline rendering", [
   defineTest(

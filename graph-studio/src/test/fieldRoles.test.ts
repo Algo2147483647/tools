@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import {
-  buildEditableFields,
-  formatEditorValue,
-  parseNodeFieldValue,
-  supportsDisplayMode,
-} from "../components/nodeFields";
-import { parseRelationInput } from "../graph/relations";
+buildEditableFields,
+formatEditorValue,
+parseNodeFieldValue,
+supportsDisplayMode,
+} from "../components/nodes/nodeFields";
 import { getCustomFieldNames } from "../graph/accessors";
+import { parseRelationInput } from "../graph/relations";
 import { parseGraphPagePreferences } from "../state/preferences";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 export const fieldRolesSuite = defineSuite("native field roles", [
   defineTest("v3 keeps fixed field roles and ignores obsolete mapping preferences", () => {

@@ -1,29 +1,29 @@
 import assert from "node:assert/strict";
-import { normalizeDagInput } from "../graph/normalize";
-import { serializeDag } from "../graph/serialize";
 import { applyGraphCommand } from "../graph/commands";
 import { analyzeGraphImport } from "../graph/imports/merge";
+import { normalizeDagInput } from "../graph/normalize";
+import { serializeDag } from "../graph/serialize";
 import {
-  parseTimelineLayoutPlan,
-  readTimelineLayout,
-  validateTimelineLayoutPlan,
-  writeTimelineLayout,
+parseTimelineLayoutPlan,
+readTimelineLayout,
+validateTimelineLayoutPlan,
+writeTimelineLayout,
 } from "../graph/timeline/layoutData";
-import {
-  parseTimelineLayoutResponse,
-  timelineLayoutContext,
-  requestTimelineLayout,
-} from "../ai/layout/timelineRequest";
-import { getDefaultChartStyle } from "../schema/chartStyles";
 import { getStageAppearance } from "../layout/shared/appearance";
+import type { StageData } from "../layout/shared/types";
+import {
+parseTimelineLayoutResponse,
+requestTimelineLayout,
+timelineLayoutContext,
+} from "../layout/timeline/ai/request";
 import { buildTimelineStage } from "../layout/timeline/layout";
-import { evaluateTimelineLayout, type TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import { evaluateTimelineLayout,type TimelineLayoutInput } from "../layout/timeline/layout-candidate";
 import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
+import { getDefaultChartStyle } from "../schema/chartStyles";
+import type { GraphAction } from "../state/graphActions";
 import { graphReducer } from "../state/graphReducer";
 import { createInitialGraphState } from "../state/initialState";
-import type { GraphAction } from "../state/graphActions";
-import type { StageData } from "../layout/shared/types";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 function graph(relative = false) {
   const date = (year: number) => (relative ? year - 2000 : String(year));

@@ -1,28 +1,28 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../components/nodeFields";
-import { getNodeChildren, getNodeParents, getNodeChildKeys, getNodeParentKeys } from "../graph/accessors";
-import { applyGraphCommand, collectSubtreeNodeKeys } from "../graph/commands";
+import { buildRawNodeEditorValue,parseRawNodeEditorValue } from "../components/nodes/nodeFields";
+import { getNodeChildKeys,getNodeChildren,getNodeParentKeys,getNodeParents } from "../graph/accessors";
+import { applyGraphCommand,collectSubtreeNodeKeys } from "../graph/commands";
 import { createInitialCanvasDag } from "../graph/initialCanvas";
-import { createGraphDocument, normalizeDagInput } from "../graph/normalize";
-import { formatRelationValue, parseRelationValue } from "../graph/relations";
+import { createGraphDocument,normalizeDagInput } from "../graph/normalize";
+import { formatRelationValue,parseRelationValue } from "../graph/relations";
 import {
-  findRootsFromDag,
-  getInitialSelection,
-  getParentLevelSelection,
-  remapSelectionKeys,
-  removeSelectionKeys,
-  sanitizeNodeLabel,
+findRootsFromDag,
+getInitialSelection,
+getParentLevelSelection,
+remapSelectionKeys,
+removeSelectionKeys,
+sanitizeNodeLabel,
 } from "../graph/selectors";
-import { cloneGraphDocument, projectGraphDocument, serializeDag } from "../graph/serialize";
-import { collectDescendantKeys } from "../graph/traversal";
-import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
+import { cloneGraphDocument,projectGraphDocument,serializeDag } from "../graph/serialize";
 import { projectGraphByTimelineTrack } from "../graph/timeline/view";
+import { collectDescendantKeys } from "../graph/traversal";
+import { getGraphTypeOptions,projectGraphByType } from "../graph/typeFilter";
 import { buildLevelLayout } from "../layout/node-link/algorithms/level";
 import { buildVisibleGraph } from "../layout/node-link/algorithms/shared";
 import { buildStageData } from "../layout/node-link/layout";
-import { createForestDag, createSampleDag } from "./fixtures";
-import { defineSuite, defineTest } from "./harness";
+import { createForestDag,createSampleDag } from "./fixtures";
+import { defineSuite,defineTest } from "./harness";
 
 export const graphSuite = defineSuite("v3 document and graph", [
   defineTest("shared traversal preserves depth-first order and handles cycles, duplicate and missing roots", () => {

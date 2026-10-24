@@ -9,7 +9,7 @@
 }
 
 .node-detail-section-title::before {
-  content: counter(node-section) ".";
+  content: counter(node-section) "../modals.css";
   display: inline-block;
   min-width: 1.6em;
   font-weight: 400;

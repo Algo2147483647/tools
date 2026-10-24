@@ -1,0 +1,51 @@
+import { type ChangeEvent,type MouseEvent } from "react";
+import type { AiSettings } from "../../ai/types";
+import type { WorkspaceControls } from "../../controllers/workspaceControls";
+import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphChartType,GraphLayoutMode } from "../../graph/types";
+import type { GraphAppearancePresetId } from "../../schema/appearanceCommands";
+import type { ChartStyle } from "../../schema/chartStyles";
+import type { TimelineControlsProps } from "../timeline/TimelineControls";
+
+
+export interface SettingsModalProps {
+  open: boolean;
+  chartType: GraphChartType;
+  sankeyUnavailableReason: string | null;
+  onChartTypeChange: (type: GraphChartType) => void;
+  timelineControls?: TimelineControlsProps;
+  layoutMode: GraphLayoutMode;
+  appearance: GraphAppearance;
+  showNodeDetail: boolean;
+  hideNodeBorders: boolean;
+  alignNodeWidthsToMax: boolean;
+  fileName: string;
+  files: WorkspaceControls;
+  hasGraph: boolean;
+  consoleSidebarOpen: boolean;
+  aiSettings: AiSettings;
+  aiBusy: boolean;
+  onClose: () => void;
+  onLayoutModeChange: (mode: GraphLayoutMode) => void;
+  onAppearanceCssChange: (css: string) => void;
+  onAppearanceAdjustmentStart: () => void;
+  onAppearanceAdjustmentEnd: () => void;
+  onAppearanceUndo: () => void;
+  onAppearanceRedo: () => void;
+  canUndoAppearance: boolean;
+  canRedoAppearance: boolean;
+  preferencesSaved: boolean;
+  onAppearancePresetChange: (presetId: GraphAppearancePresetId) => void;
+  onAppearanceSchemaChange: (style: ChartStyle) => void;
+  onAppearanceReset: () => void;
+  onAppearanceExport: () => void;
+  onAppearanceImportClick: (event: MouseEvent<HTMLInputElement>) => void;
+  onAppearanceImportChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onConsoleSidebarToggle: () => void;
+  onInitializeCanvas: () => void;
+  onExport: () => void;
+  onExportHtml: () => void;
+  canExportCanvas: boolean;
+  onAiSettingsChange: (settings: AiSettings) => void;
+  onAiConnectionTest: () => Promise<boolean>;
+}

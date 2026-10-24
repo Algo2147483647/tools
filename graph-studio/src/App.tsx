@@ -1,18 +1,18 @@
-import { useCallback, useRef, useState } from "react";
-import { useCompoundLayoutPlan } from "./controllers/useCompoundLayoutPlan";
-import { useTimelineLayout } from "./controllers/useTimelineLayout";
+import { useCallback,useRef,useState } from "react";
+import StudioView from "./components/studio/StudioView";
 import { parseCompoundLayoutCommand } from "./console/compoundLayout";
-import StudioView from "./components/StudioView";
 import { useAiController } from "./controllers/useAiController";
+import { useCompoundLayoutPlan } from "./controllers/useCompoundLayoutPlan";
 import { useConsoleController } from "./controllers/useConsoleController";
 import { useDocumentSession } from "./controllers/useDocumentSession";
 import { useGraphTransactions } from "./controllers/useGraphTransactions";
 import { useGraphViewport } from "./controllers/useGraphViewport";
 import { useNodeActions } from "./controllers/useNodeActions";
-import { useStudioShortcuts } from "./controllers/useStudioShortcuts";
-import { useWorkspaceController } from "./controllers/useWorkspaceController";
 import { usePreferencesController } from "./controllers/usePreferencesController";
+import { useStudioShortcuts } from "./controllers/useStudioShortcuts";
 import { useStudioUi } from "./controllers/useStudioUi";
+import { useTimelineLayout } from "./controllers/useTimelineLayout";
+import { useWorkspaceController } from "./controllers/useWorkspaceController";
 import { loadGraphPagePreferences } from "./state/preferences";
 
 export default function App() {

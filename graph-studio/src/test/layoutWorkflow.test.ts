@@ -1,16 +1,13 @@
 import assert from "node:assert/strict";
-import {
-  constrainLayoutProposal,
-  formatLayoutFeedback,
-  runLayoutWorkflow,
-  type LayoutFeedback,
-} from "../ai/layout/compoundWorkflow";
-import { routingHotspots } from "../ai/layout/compoundDiagnostics";
-import { defaultLayoutIntent, type LayoutMetrics } from "../layout/compound/layout-plan";
 import type { AiResponse } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
+import { constrainLayoutProposal } from "../layout/compound/ai/proposalPolicy";
+import { runLayoutWorkflow } from "../layout/compound/ai/workflow";
+import { routingHotspots } from "../layout/compound/diagnostics";
+import { formatLayoutFeedback,type LayoutFeedback } from "../layout/compound/feedback";
+import { defaultLayoutIntent,type LayoutMetrics } from "../layout/compound/layout-plan";
 import { layoutFixture } from "./compoundLayout.test";
-import { defineSuite, defineTest } from "./harness";
+import { defineSuite,defineTest } from "./harness";
 
 const intent = { ...defaultLayoutIntent(), operation: "route-only" as const };
 const proposal: AiResponse = { kind: "propose_layout", layoutProtocolVersion: 1, answer: "Try routes only.", intent };
