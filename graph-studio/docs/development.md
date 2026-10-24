@@ -79,6 +79,8 @@ Text files use LF, with CRLF for Windows `.cmd` / `.ps1` files. Keep `.command` 
 
 ## Architecture Notes
 
+AI-assisted compound layout uses typed intent parsing, independent geometry validation, a module Worker for candidate search, and one reducer-managed document transaction on acceptance. Constraints and the accepted snapshot live in `metadata.layout.compound`. See [AI Assisted Nested Layout and Routing](ai-compound-layout.md). `/browser-tests/compound-layout.html` runs isolated Worker lifecycle and mock AI integration checks through Vite without opening user files or contacting hosted providers.
+
 The codebase is organized around a few clear responsibilities:
 
 - graph loading and normalization happen in the graph layer

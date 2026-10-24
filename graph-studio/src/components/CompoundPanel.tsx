@@ -14,6 +14,7 @@ export default function CompoundPanel({
   onSelect,
   onOpenNode,
   onMemberContextMenu,
+  layoutTools,
 }: {
   dag: NormalizedDag;
   view: CompoundView;
@@ -22,6 +23,7 @@ export default function CompoundPanel({
   onSelect: (id: string) => void;
   onOpenNode: (id: string) => void;
   onMemberContextMenu: (event: React.MouseEvent<Element>, id: string) => void;
+  layoutTools?: React.ReactNode;
 }) {
   const index = useMemo(() => indexHierarchy(dag), [dag]);
   const groups = getGroupNodes(dag);
@@ -91,6 +93,7 @@ export default function CompoundPanel({
         </button>
       </div>
       <p>Select members to group or move. Enter a subgraph to edit its members.</p>
+      {layoutTools}
       {error && <p role="alert">{error}</p>}
       <div className="compound-members" role="group" aria-label="Subgraph members">
         {children.map((id) => {

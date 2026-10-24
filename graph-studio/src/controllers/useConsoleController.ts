@@ -24,6 +24,7 @@ export function useConsoleController({
   transactions,
   commitAppearance,
   openNodeDetail,
+  runLayoutCommand,
 }: {
   state: GraphAppState;
 
@@ -36,6 +37,7 @@ export function useConsoleController({
     timeline?: TimelineViewSettings,
   ) => void;
   openNodeDetail: (key: NodeKey, focus?: "fields" | "raw") => void;
+  runLayoutCommand?: (source: string) => boolean;
 }) {
   const [input, setInput] = useState("");
   const [contextNodeKey, setContextNodeKey] = useState<NodeKey | null>(null);
@@ -107,6 +109,11 @@ export function useConsoleController({
       const source = rawSource.trim();
       if (!source) return false;
       recordInput(buildConsolePrompt(contextNodeKey), source);
+      if (/^\/compound-layout(?:\s|$)/.test(source)) {
+        if (runLayoutCommand) return runLayoutCommand(source);
+        appendMessage("error", "Nested layout commands are unavailable.");
+        return false;
+      }
       if (source === "/clear" || source === "/cls") {
         clear();
         return true;
@@ -186,6 +193,7 @@ export function useConsoleController({
     },
     [
       appearance,
+      runLayoutCommand,
       appendMessage,
       clear,
       commitAppearance,

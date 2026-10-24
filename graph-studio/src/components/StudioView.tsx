@@ -18,6 +18,8 @@ import { getTimelineReferenceTime } from "../graph/timelineEditing";
 import ConsoleSidebar from "./ConsoleSidebar";
 import SpatialControls from "./SpatialControls";
 import CompoundPanel from "./CompoundPanel";
+import CompoundLayoutReview from "./CompoundLayoutReview";
+import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
 import ContextMenu from "./ContextMenu";
 import HierarchyEditorModal from "./HierarchyEditorModal";
 import FilePreviewModal from "./FilePreviewModal";
@@ -40,6 +42,7 @@ interface StudioViewProps {
   transactions: GraphTransactionsController;
   consoleController: ConsoleController;
   ai: AiController;
+  compoundLayoutPlan: CompoundLayoutController;
   viewport: GraphViewportController;
   nodeActions: NodeActionsController;
 }
@@ -53,6 +56,7 @@ export default function StudioView({
   transactions,
   consoleController,
   ai,
+  compoundLayoutPlan,
   viewport,
   nodeActions,
 }: StudioViewProps) {
@@ -111,6 +115,7 @@ export default function StudioView({
         onSelect={viewport.setFocusedKey}
         onOpenNode={ui.openNodeDetail}
         onMemberContextMenu={viewport.handleNodeContextMenu}
+        layoutTools={<CompoundLayoutReview controller={compoundLayoutPlan} />}
       />
     ) : null;
 

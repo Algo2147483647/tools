@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useCompoundLayoutPlan } from "./controllers/useCompoundLayoutPlan";
+import { parseCompoundLayoutCommand } from "./console/compoundLayout";
 import StudioView from "./components/StudioView";
 import { useAiController } from "./controllers/useAiController";
 import { useConsoleController } from "./controllers/useConsoleController";
@@ -22,14 +24,16 @@ export default function App() {
   const { charts } = preferences;
   const { appearance } = charts;
   const transactions = useGraphTransactions({ state, dispatch, appearanceHistory: charts });
+  const layoutCommandRef = useRef<(source: string) => boolean>(() => false);
+  const runLayoutCommand = useCallback((source: string) => layoutCommandRef.current(source), []);
   const consoleController = useConsoleController({
     state,
     appearance,
     transactions,
     commitAppearance: charts.commitAppearance,
     openNodeDetail: ui.openNodeDetail,
+    runLayoutCommand,
   });
-  const ai = useAiController({ state, dispatch, appearance, settings: preferences.aiSettings, consoleController });
   const viewport = useGraphViewport(
     {
       state,
@@ -42,6 +46,55 @@ export default function App() {
     },
     appearance,
   );
+  const compoundLayoutPlan = useCompoundLayoutPlan(state, dispatch, viewport);
+  layoutCommandRef.current = (source: string) => {
+    try {
+      const instruction = parseCompoundLayoutCommand(source);
+      if (instruction.type === "propose") {
+        void compoundLayoutPlan
+          .propose(instruction.intent)
+          .then((message) => consoleController.appendMessage("info", message))
+          .catch((error) =>
+            consoleController.appendMessage("error", error instanceof Error ? error.message : "Layout failed."),
+          );
+      } else if (instruction.type === "inspect" || instruction.type === "diagnose") {
+        consoleController.appendMessage(
+          "info",
+          JSON.stringify(compoundLayoutPlan.inspect(instruction.groupId), null, 2),
+        );
+      } else if (instruction.type === "apply") {
+        return compoundLayoutPlan.apply(instruction.candidateId);
+      } else if (instruction.type === "compare") {
+        const candidate = compoundLayoutPlan.review?.result.candidates.find((c) => c.id === instruction.candidateId);
+        if (!candidate || compoundLayoutPlan.stale) throw new Error("No current candidate with that ID.");
+        consoleController.appendMessage(
+          "info",
+          JSON.stringify(
+            {
+              baseline: compoundLayoutPlan.review?.result.baselineMetrics,
+              candidate: candidate.metrics,
+              movedNodes: candidate.changedNodeIds,
+              changedEdges: candidate.changedEdgeIds,
+            },
+            null,
+            2,
+          ),
+        );
+      } else compoundLayoutPlan.dismiss();
+      return true;
+    } catch (error) {
+      consoleController.appendMessage("error", error instanceof Error ? error.message : "Invalid layout command.");
+      return false;
+    }
+  };
+  const ai = useAiController({
+    state,
+    dispatch,
+    appearance,
+    settings: preferences.aiSettings,
+    consoleController,
+    compoundLayout: compoundLayoutPlan,
+  });
   const nodeActions = useNodeActions(
     { state, dispatch, openNodeDetail: ui.openNodeDetail, closeModals: ui.closeModals },
     transactions,
@@ -69,6 +122,7 @@ export default function App() {
       transactions={transactions}
       consoleController={consoleController}
       ai={ai}
+      compoundLayoutPlan={compoundLayoutPlan}
       viewport={viewport}
       nodeActions={nodeActions}
     />

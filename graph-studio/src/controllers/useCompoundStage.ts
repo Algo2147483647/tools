@@ -47,6 +47,16 @@ export function useCompoundStage(input: Input | null) {
     };
   }, [input]);
   return {
+    inputKey: input
+      ? JSON.stringify([
+          input.view,
+          input.selectedType,
+          input.appearance,
+          input.showNodeDetail,
+          input.alignNodeWidthsToMax,
+          input.showEdgeLabels,
+        ])
+      : "",
     stage: input && result && result.input.dag === input.dag ? result.stage : null,
     error: result?.input === input ? result.error : "",
     loading: Boolean(input && result?.input !== input),

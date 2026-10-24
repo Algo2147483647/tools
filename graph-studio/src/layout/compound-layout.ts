@@ -4,11 +4,21 @@ import { cardContentLayout, minimumCardHeight } from "./typography";
 import { projectCompoundGraph } from "../graph/compoundProjection";
 import type { CompoundView, NormalizedDag } from "../graph/types";
 import { stageTitleFont, type StageAppearance } from "./appearance";
-import { getNodeVisual, layoutCardTitle, wrapDetailText } from "./text";
+import { getNodeVisual, layoutCardTitle, wrapDetailText, measureText, estimateTextWidth } from "./text";
 import type { StageData, StageGroup, StageNode } from "./types";
 import { roundedPolylinePath } from "./rounded-path";
 import { layoutCompoundHierarchy } from "./compound-hierarchy-layout";
 import { routeCompoundEdges } from "./compound-orthogonal-router";
+import {
+  COMPOUND_LAYOUT_VERSION,
+  layoutFingerprint,
+  readLayoutData,
+  defaultLayoutIntent,
+  type LayoutProblem,
+  type LayoutSnapshot,
+} from "./compound-layout-plan";
+import { validateLayoutGeometry } from "./compound-layout-quality";
+import { solveCompoundLayout, validateLayoutConstraints } from "./compound-layout-solver";
 
 export async function buildCompoundStage(input: {
   dag: NormalizedDag;
@@ -73,13 +83,94 @@ export async function buildCompoundStage(input: {
     }),
   );
   const placement = layoutCompoundHierarchy(projection, sizes, theme);
-  const routing = routeCompoundEdges(
-    projection,
-    placement.boxes,
-    { x: 0, y: 0, width: placement.width, height: placement.height },
-    input.showEdgeLabels ?? false,
+  const labelSizes = Object.fromEntries(
+    projection.edges
+      .filter((e) => e.label)
+      .map((edge) => [
+        edge.id,
+        {
+          width: Math.max(
+            edge.label.length * 7 + 12,
+            estimateTextWidth(edge.label, 10) + 14,
+            measureText(edge.label, { size: 10, family: "Arial, sans-serif", weight: "400", style: "normal" }) + 14,
+          ),
+          height: 18,
+        },
+      ]),
   );
-  const result = { ...placement, ...routing };
+  const read = readLayoutData(dag);
+  const warnings: string[] = read.warning ? [read.warning] : [];
+  // Session font counters are excluded: measured dimensions and typography determine portability.
+  const fingerprint = layoutFingerprint({
+    engine: COMPOUND_LAYOUT_VERSION,
+    items: projection.items,
+    edges: projection.edges,
+    focus: projection.focusGroupId,
+    sizes: [...sizes],
+    labelSizes,
+    appearance: { ...appearance, fontMetricsKey: undefined },
+    showLabels: input.showEdgeLabels ?? false,
+  });
+  const problem: LayoutProblem = {
+    viewKey: JSON.stringify([view.focusGroupId, [...view.collapsedGroupIds].sort(), input.selectedType ?? ""]),
+    minimumSizes: Object.fromEntries(sizes),
+    projection,
+    fingerprint,
+    labelSizes,
+    showLabels: input.showEdgeLabels ?? false,
+    columnGap: theme.columnGap,
+    rowGap: theme.rowGap,
+    stored: { ...read.data, accepted: undefined },
+    baseline: {
+      boxes: Object.fromEntries(placement.boxes),
+      routes: {},
+      width: Math.max(placement.width, theme.stageMinWidth),
+      height: Math.max(placement.height, theme.stageMinHeight),
+    },
+  };
+  let snapshot: LayoutSnapshot | undefined;
+  const accepted = read.data.accepted;
+  if (accepted?.fingerprint === fingerprint && accepted.engineVersion === COMPOUND_LAYOUT_VERSION) {
+    const validation = validateLayoutGeometry(problem, accepted.snapshot);
+    if (validation.valid && !validateLayoutConstraints(problem, accepted.snapshot, read.data).length)
+      snapshot = accepted.snapshot;
+    else warnings.push("The saved layout failed geometry validation and was recalculated.");
+  }
+  if (!snapshot) {
+    const routing = routeCompoundEdges(
+      projection,
+      placement.boxes,
+      { x: 0, y: 0, width: placement.width, height: placement.height },
+      input.showEdgeLabels ?? false,
+    );
+    snapshot = {
+      boxes: Object.fromEntries(placement.boxes),
+      routes: Object.fromEntries(routing.routes),
+      width: Math.max(routing.width, theme.stageMinWidth),
+      height: Math.max(routing.height, theme.stageMinHeight),
+    };
+    problem.baseline = snapshot;
+    if (read.data.constraints.length || read.data.pins.length) {
+      const intent = {
+        ...defaultLayoutIntent(projection.focusGroupId),
+        boundaryPolicy: "allow-ancestor-resize" as const,
+      };
+      try {
+        const solved = solveCompoundLayout(problem, intent, 1);
+        if (solved.candidates.length) snapshot = solved.candidates[0].snapshot;
+        else warnings.push(...solved.diagnostics);
+      } catch (error) {
+        warnings.push(error instanceof Error ? error.message : "Saved constraints could not be reapplied.");
+      }
+    }
+  }
+  problem.baseline = snapshot;
+  const result = {
+    boxes: new Map(Object.entries(snapshot.boxes)),
+    routes: new Map(Object.entries(snapshot.routes)),
+    width: snapshot.width,
+    height: snapshot.height,
+  };
   const nodes: StageNode[] = [];
   const groups: StageGroup[] = [];
   const nodeMap: StageData["nodeMap"] = Object.create(null);
@@ -171,6 +262,7 @@ export async function buildCompoundStage(input: {
     connectedKeysByNode.get(edge.target)?.add(edge.source);
   });
   return {
+    compoundLayout: problem,
     dag: dag.nodes,
     layoutMode: "compound",
     root: "",
@@ -191,6 +283,6 @@ export async function buildCompoundStage(input: {
     lanes: [],
     stageWidth: Math.max(result.width ?? 0, theme.stageMinWidth),
     stageHeight: Math.max(result.height ?? 0, theme.stageMinHeight),
-    warnings: [],
+    warnings,
   };
 }

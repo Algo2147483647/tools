@@ -14,6 +14,10 @@ This directory contains the main user and developer documentation for Graph Stud
 - [Graph Appearance System](graph-appearance.md): CSS-first graph UI configuration, presets, import, export, reset, and AI-driven style edits
 - [Development Guide](development.md): scripts, source layout, and implementation notes
 
+## Technical Designs
+
+- [AI Assisted Nested Layout and Routing](ai-compound-layout.md): constraints, geometry validation, candidate previews, persistence, AI integration, and further development
+
 ## Which Document To Read
 
 - If you want to try the app quickly, start from the repository [README](../README.md).
@@ -23,3 +27,4 @@ This directory contains the main user and developer documentation for Graph Stud
 - If you are changing graph UI, presets, layout tuning, or custom CSS, read [Graph Appearance System](graph-appearance.md).
 - If you are working on text-based graph or appearance mutations, read [Graph Console DSL](graph-console-dsl.md).
 - If you are modifying the codebase, read [Development Guide](development.md).
+- If you are using or extending AI-assisted nested layout and routing, read the [technical design](ai-compound-layout.md).

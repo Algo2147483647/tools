@@ -13,6 +13,13 @@ export interface AiSettings {
 }
 
 export type AiResponse =
+  | {
+      kind: "propose_layout";
+      answer: string;
+      layoutProtocolVersion: 1;
+      intent: import("../layout/compound-layout-plan").LayoutIntent;
+    }
+  | { kind: "inspect_layout"; answer: string; scopeId?: string | null }
   | { kind: "answer"; answer: string; memoryPatch?: Partial<WorkingMemory> }
   | {
       kind: "propose_changes";
@@ -241,6 +248,7 @@ export interface AiRequest {
 }
 
 export interface AiContextPacket {
+  compoundLayout?: Record<string, unknown>;
   system: {
     role: "graph_editing_agent";
     language: "zh" | "en" | "auto";

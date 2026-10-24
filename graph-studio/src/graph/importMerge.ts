@@ -1,6 +1,7 @@
 import { normalizeDagInput, validateNodeKey } from "./normalize";
 import { isRecord } from "../utils/json";
 import { serializeDag } from "./serialize";
+import { remapImportedLayoutData, repairLayoutData } from "../layout/compound-layout-plan";
 import type { GraphEdge, HierarchyEdge, NormalizedDag } from "./types";
 
 export interface ImportGraphDocument {
@@ -150,6 +151,7 @@ export function analyzeGraphImport(
   for (let index = 1; index < parsed.length; index++) {
     const incoming = structuredClone(parsed[index]);
     const renameMap = new Map<string, string>();
+    const edgeRenameMap = new Map<string, string | null>();
     for (const [key, node] of Object.entries(incoming.nodes)) {
       if (!has(output.nodes, key)) {
         set(output.nodes, key, node);
@@ -230,6 +232,7 @@ export function analyzeGraphImport(
       if (equal(existing, edge)) continue;
       const samePair = existing.source === edge.source && existing.target === edge.target;
       const choice = decide(index, `/edges/${segment(edge.id)}`, "edge", existing, edge, samePair, !pair);
+      edgeRenameMap.set(edge.id, samePair ? existing.id : null);
       if (!choice || choice.strategy === "keep") continue;
       if (choice.strategy === "rename") {
         const id =
@@ -242,6 +245,7 @@ export function analyzeGraphImport(
         if (output.edges.some((e) => e.id === id) || incoming.edges.some((e) => e.id === id))
           throw new Error(`Edge rename target "${id}" already exists.`);
         output.edges.push({ ...edge, id });
+        edgeRenameMap.set(edge.id, id);
       } else {
         // Endpoint identity is fixed; all differing edge payloads go through explicit field decisions.
         const payload: Record<string, unknown> = {};
@@ -264,6 +268,7 @@ export function analyzeGraphImport(
       }
     }
     if (incoming.metadata) {
+      remapImportedLayoutData(incoming, renameMap, edgeRenameMap);
       output.metadata ??= {};
       mergeObject(output.metadata, incoming.metadata, index, "/metadata");
     }
@@ -284,6 +289,7 @@ export function analyzeGraphImport(
     }
   }
   if (parsed.length > 1) {
+    repairLayoutData(output, parsed[0]);
     output.metadata ??= {};
     // Preserve all original document headers and metadata, even when a user chooses the existing merged value.
     const archiveKey = unique("importSources", Object.keys(output.metadata));

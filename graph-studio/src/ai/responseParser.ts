@@ -1,5 +1,6 @@
 import type { AiResponse, LegacyAiPlan, ProposedChange } from "./types";
 import { isRecord } from "../utils/json";
+import { parseLayoutIntent } from "../layout/compound-layout-plan";
 export function parseAiResponse(raw: string): AiResponse {
   const jsonSource = extractJsonObject(raw);
   let parsed: unknown;
@@ -12,6 +13,24 @@ export function parseAiResponse(raw: string): AiResponse {
     throw new Error("AI response was not a JSON object.");
   }
   const record = parsed as Record<string, unknown>;
+  if (record.kind === "propose_layout") {
+    if (record.layoutProtocolVersion !== 1 || typeof record.answer !== "string")
+      throw new Error("Invalid compound layout response version or answer.");
+    return {
+      kind: "propose_layout",
+      answer: record.answer,
+      layoutProtocolVersion: 1,
+      intent: parseLayoutIntent(record.intent),
+    };
+  }
+  if (record.kind === "inspect_layout") {
+    if (
+      typeof record.answer !== "string" ||
+      (record.scopeId !== undefined && record.scopeId !== null && typeof record.scopeId !== "string")
+    )
+      throw new Error("Invalid layout inspection response.");
+    return { kind: "inspect_layout", answer: record.answer, scopeId: record.scopeId as string | null | undefined };
+  }
 
   if (record.kind === "answer" && typeof record.answer === "string") {
     return { kind: "answer", answer: record.answer };

@@ -1,4 +1,5 @@
 import { getSpaceMetadata } from "./space";
+import { repairLayoutData } from "../layout/compound-layout-plan";
 import { getTimelineClock, type TimelineClock } from "./timelineClock";
 import { nextEdgeId } from "./relations";
 import { normalizeDagInput, validateNodeFields, validateNodeKey } from "./normalize";
@@ -42,6 +43,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     command.type === "groupDissolve"
   ) {
     applyHierarchyCommand(document, command);
+    repairLayoutData(document, source);
     return { dag: normalizeDagInput(document), changedKeys: [], message: "Updated subgraph hierarchy." };
   }
   const defaultRelationValue = document.diagram === "sankey" ? 1 : DEFAULT_RELATION_VALUE;
@@ -188,6 +190,7 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
       result.message = `Updated ${parents ? "parents" : "children"} for ${command.key}.`;
     }
   }
+  repairLayoutData(document, source, result.renamedKey);
   const dag = normalizeDagInput(document);
   return { ...result, dag, changedKeys: Object.keys(dag.nodes) };
 }

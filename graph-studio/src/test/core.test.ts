@@ -1,4 +1,5 @@
 import { spatialSuite } from "./spatial.test";
+import { compoundLayoutPlanSuite } from "./compoundLayoutPlan.test";
 import { timelineRelativeSuite } from "./timelineRelative.test";
 import { stylePipelineSuite } from "./stylePipeline.test";
 import { timelineAxisSuite } from "./timelineAxis.test";
@@ -39,6 +40,7 @@ import { timelinePresetsSuite } from "./timelinePresets.test";
 
 async function main() {
   const suites = [
+    compoundLayoutPlanSuite,
     spatialSuite,
     stylePipelineSuite,
     compoundSuite,

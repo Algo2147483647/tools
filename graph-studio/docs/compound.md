@@ -47,6 +47,12 @@ This refinement uses node geometry and adjacency only; it does not select ports,
 
 Only after all node and container positions are fixed does the orthogonal router choose side-midpoint attachments and approach lengths. It avoids visible cards, reduces crossings/shared runs, and places labels without moving nodes. A label too wide for an existing segment receives an outer routing lane, which can enlarge the canvas. Expanded container rectangles remain excluded from collision detection. Ordinary node-link renders all nodes and ordinary edges without applying containment. SVG and HTML exports use the visible scene; HTML node details come from the same node records.
 
+## Layout assistant
+
+The Subgraphs panel includes a Layout assistant for scoped direction changes, selected-node locks, and route-only edits. Preview candidates before applying; accepted layouts are saved in `metadata.layout.compound` and create one undoable document edit. The existing canvas and exports continue to show the committed scene during preview.
+
+The AI console supports natural-language layout requests through typed `propose_layout` responses. Manual operations use `/compound-layout inspect`, `diagnose`, `propose`, `compare`, `apply`, and `cancel`. See [AI Assisted Nested Layout and Routing](ai-compound-layout.md) for scope semantics, the JSON intent protocol, saved locks, and validation rules.
+
 ## Defaults and examples
 
 The default collapsed-card style is 200 × 100 px, 20 px corners, centered titles with up to two lines, Times New Roman 22 px and no dots. Default column/row spacing is 24 px; expanded borders, node descriptions and group statistics are hidden. Preset 2 retains the previous larger-width card style. Text uses font measurements and its own content bounds independently of the upper-right controls.

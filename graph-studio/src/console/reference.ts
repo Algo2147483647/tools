@@ -5,6 +5,11 @@ interface ConsoleCommandReference {
 }
 
 export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
+  {
+    label: "/compound-layout <operation>",
+    insertText: "/compound-layout inspect",
+    help: "Nested layout assistant: inspect or diagnose [group ID], propose <intent JSON>, compare or apply <candidate ID>, cancel. Run separately from graph edit batches; AI should use propose_layout or inspect_layout responses.",
+  },
   { label: "/help", insertText: "/help", help: "Show this command reference." },
   { label: "/keys", insertText: "/keys", help: "List every node key in the current graph." },
   { label: "/graph", insertText: "/graph", help: "Print graph-level statistics, roots, leaves, and type counts." },

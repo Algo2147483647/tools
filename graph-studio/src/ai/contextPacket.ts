@@ -17,6 +17,7 @@ interface ConsoleHistoryEntry {
 }
 
 interface BuildContextInput {
+  layoutContext?: Record<string, unknown>;
   harness: AiHarnessState;
   dag: NormalizedDag | null;
   mode: GraphMode;
@@ -46,6 +47,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
     .map((entry, index) => createSyntheticConsoleEvent(input.harness, index, entry));
 
   return {
+    compoundLayout: input.layoutContext,
     system: {
       role: "graph_editing_agent",
       language: "auto",

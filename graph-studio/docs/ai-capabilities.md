@@ -6,6 +6,8 @@ For console command syntax, see [Graph Console DSL](graph-console-dsl.md). For g
 
 ## Capability Overview
 
+Nested layout and routing support typed `inspect_layout` and `propose_layout` responses. The assistant receives scoped containment and geometry, generates a constrained Worker preview, and applies accepted layouts through document history. See [AI Assisted Nested Layout and Routing](ai-compound-layout.md) for the implemented workflow and execution policy. Current execution modes in code are `ask`, `review`, and `auto-edit`; older `auto-readonly` settings normalize to `ask`.
+
 Graph Studio's AI layer is a graph and appearance assistant built on top of the existing console DSL. The model does not mutate graph data or graph UI directly. Instead, it receives a structured context packet, returns a structured JSON response, and the application converts that response into answers, inspection commands, proposed plans, or validated command batches.
 
 The system supports these high-level capabilities:

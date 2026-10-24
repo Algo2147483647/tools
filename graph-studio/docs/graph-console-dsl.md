@@ -1,5 +1,7 @@
 # Graph Studio Graph Console DSL
 
+Nested layout operations use a separate asynchronous `/compound-layout` namespace: `inspect [group-id]`, `diagnose [group-id]`, `propose <intent-json>`, `compare <candidate-id>`, `apply <candidate-id>`, and `cancel`. Run these independently of ordinary command batches. They share the Layout assistant preview and validated application path. See [Nested layout protocol](ai-compound-layout.md) for the JSON intent format; `/layout <key> <number>` retains its appearance-setting meaning.
+
 ## 1. Scope
 
 This document defines the **Graph Console DSL** used by `Graph Studio`.

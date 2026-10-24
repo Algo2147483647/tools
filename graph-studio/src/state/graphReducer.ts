@@ -1,4 +1,10 @@
 import { getSankeyError } from "../graph/sankey";
+import { serializeDag } from "../graph/serialize";
+import { normalizeDagInput } from "../graph/normalize";
+import { COMPOUND_LAYOUT_VERSION, writeLayoutData } from "../layout/compound-layout-plan";
+import { validateLayoutGeometry } from "../layout/compound-layout-quality";
+import { validateLayoutConstraints } from "../layout/compound-layout-solver";
+import { prepareGraphTransaction } from "./graphTransactions";
 import { areSelectionsEqual } from "../graph/selectors";
 import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";
 import type { GraphAction } from "./graphActions";
@@ -20,6 +26,37 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
 
 function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
+    case "compoundLayoutCommitted": {
+      if (
+        state.chartType !== "compound" ||
+        action.generation !== state.document.generation ||
+        action.revision !== state.editHistory.revision ||
+        action.beforeDag !== state.dag ||
+        action.historyBase !== state.editHistory
+      )
+        return { ...state, ui: { ...state.ui, status: "Layout candidate is stale. Generate a new preview." } };
+      const validation = validateLayoutGeometry(action.problem, action.candidate.snapshot);
+      const errors = [
+        ...validation.errors,
+        ...validateLayoutConstraints(action.problem, action.candidate.snapshot, action.candidate.data, action.intent),
+      ];
+      if (errors.length) return { ...state, ui: { ...state.ui, status: `Layout rejected: ${errors[0]}` } };
+      const document = serializeDag(state.dag!);
+      writeLayoutData(document, {
+        ...action.candidate.data,
+        accepted: {
+          fingerprint: action.problem.fingerprint,
+          engineVersion: COMPOUND_LAYOUT_VERSION,
+          snapshot: action.candidate.snapshot,
+        },
+      });
+      const transaction = prepareGraphTransaction(
+        state,
+        [{ dag: normalizeDagInput(document), changedKeys: [] }],
+        "Applied compound layout.",
+      );
+      return transaction ? reduceGraphState(state, transaction) : state;
+    }
     case "timelineSettingsChanged":
       return { ...state, timelineSettings: sanitizeTimelineSettings({ ...state.timelineSettings, ...action.patch }) };
     case "graphClosed":

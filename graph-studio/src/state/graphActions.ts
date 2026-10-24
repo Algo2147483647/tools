@@ -5,6 +5,16 @@ import type { TimelineViewSettings } from "../graph/timelineSettings";
 import type { ChartStyle } from "./chartStyles";
 
 export type GraphAction =
+  | {
+      type: "compoundLayoutCommitted";
+      generation: number;
+      revision: number;
+      beforeDag: NormalizedDag;
+      historyBase: import("./initialState").GraphAppState["editHistory"];
+      problem: import("../layout/compound-layout-plan").LayoutProblem;
+      intent: import("../layout/compound-layout-plan").LayoutIntent;
+      candidate: import("../layout/compound-layout-plan").LayoutCandidate;
+    }
   | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }
   | { type: "graphClosed"; status: string }
   | {

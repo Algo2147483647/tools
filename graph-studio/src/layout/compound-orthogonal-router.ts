@@ -14,6 +14,14 @@ const BEND_COST = 20;
 const MIN_STRAIGHT = 20;
 const LANE_GAP = 16;
 
+export interface CompoundRoutingOptions {
+  reverseOrder?: boolean;
+  fixedRoutes?: Map<string, CompoundRoute>;
+  outerEdges?: Set<string>;
+  portSides?: Map<string, { source?: number; target?: number }>;
+  labelSizes?: Record<string, { width: number; height: number }>;
+}
+
 const inside = (point: Point, box: CompoundBox) =>
   point.x > box.x + EPSILON &&
   point.x < box.x + box.width - EPSILON &&
@@ -37,6 +45,7 @@ export function routeCompoundEdges(
   boxes: Map<string, CompoundBox>,
   bounds: CompoundBox,
   showLabels: boolean,
+  options: CompoundRoutingOptions = {},
 ): { routes: Map<string, CompoundRoute>; width: number; height: number } {
   // Expanded containers organize placement only; routing sees visible cards, including collapsed groups.
   const obstacles = projection.items
@@ -53,10 +62,27 @@ export function routeCompoundEdges(
       clearance = Math.min(clearance, Math.hypot(dx, dy) / 3);
     }
   const edges = [...projection.edges].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  if (options.reverseOrder) edges.reverse();
   const attachments = new Map<string, Point[]>();
   const labelBoxes = new Map<string, CompoundBox>();
   const result = new Map<string, CompoundRoute>();
+  const edgeLabelBox = (id: string, label: string, position: Point) => {
+    const size = options.labelSizes?.[id];
+    return size ? { x: position.x - size.width / 2, y: position.y - 10, ...size } : labelBox(label, position);
+  };
   for (const edge of edges) {
+    const fixed = options.fixedRoutes?.get(edge.id);
+    if (!fixed) continue;
+    result.set(edge.id, fixed);
+    for (const [id, point] of [
+      [edge.source, fixed.points[0]],
+      [edge.target, fixed.points[fixed.points.length - 1]],
+    ] as const)
+      attachments.set(id, [...(attachments.get(id) ?? []), point]);
+    if (showLabels && edge.label) labelBoxes.set(edge.id, edgeLabelBox(edge.id, edge.label, fixed.labelPosition));
+  }
+  for (const edge of edges) {
+    if (options.fixedRoutes?.has(edge.id)) continue;
     const accept = (route: CompoundRoute) => {
       result.set(edge.id, route);
       for (const [id, point] of [
@@ -92,8 +118,15 @@ export function routeCompoundEdges(
     const attachmentCost = (id: string, point: Point) =>
       (attachments.get(id) ?? []).reduce(
         (sum, used) => sum + Math.max(0, LANE_GAP - Math.hypot(point.x - used.x, point.y - used.y)) * 4,
-        0,
+        portPreferenceCost(id, point),
       );
+    function portPreferenceCost(id: string, point: Point) {
+      const side = options.portSides?.get(edge.id)?.[id === edge.source ? "source" : "target"];
+      if (side === undefined) return 0;
+      const box = boxes.get(id)!;
+      const desired = midpointPorts(box, gap).find((port) => port.direction === side)!;
+      return Math.hypot(point.x - desired.point.x, point.y - desired.point.y) < EPSILON ? 0 : 200;
+    }
     const cost = (points: Point[]) =>
       routeCost(points) +
       attachmentCost(edge.source, points[0]) +
@@ -128,7 +161,13 @@ export function routeCompoundEdges(
     for (const { points } of candidates) {
       const labelPosition =
         showLabels && edge.label
-          ? placeLabel(edge.label, points, [...obstacles, ...otherLabels, ...lineObstacles], extent)
+          ? placeLabel(
+              edge.label,
+              points,
+              [...obstacles, ...otherLabels, ...lineObstacles],
+              extent,
+              options.labelSizes?.[edge.id],
+            )
           : chosen.labelPosition;
       if (labelPosition) {
         chosen = { points, labelPosition };
@@ -136,17 +175,20 @@ export function routeCompoundEdges(
         break;
       }
     }
-    if (showLabels && edge.label) {
-      if (!labelPlaced) {
+    if ((showLabels && edge.label) || options.outerEdges?.has(edge.id)) {
+      if (!labelPlaced || options.outerEdges?.has(edge.id)) {
         // Route through an outer label lane; only the canvas grows, never a node or container.
-        const size = labelBox(edge.label, { x: 0, y: 0 });
+        const size =
+          showLabels && edge.label
+            ? edgeLabelBox(edge.id, edge.label, { x: 0, y: 0 })
+            : { x: 0, y: 0, width: 32, height: 18 };
         const y = extent.y + extent.height + 36;
         const left = extent.x + 36,
           right = Math.max(left + size.width + 24, extent.x + extent.width - 36);
         extent.width = Math.max(extent.width, right - extent.x + 36);
         extent.height = y - extent.y + 36;
         const labelPosition = { x: (left + right) / 2, y };
-        const labelObstacle = inflate(labelBox(edge.label, labelPosition), gap);
+        const labelObstacle = inflate({ ...size, x: labelPosition.x - size.width / 2, y: labelPosition.y - 10 }, gap);
         const entry: Port = { point: { x: left, y }, stub: { x: left - 20, y }, direction: 2 };
         const exit: Port = { point: { x: right, y }, stub: { x: right + 20, y }, direction: 0 };
         const start = findOrthogonalPath(
@@ -170,7 +212,7 @@ export function routeCompoundEdges(
         if (!start || !end) throw new Error(`Unable to route label lane: ${edge.source} → ${edge.target}.`);
         chosen = { points: simplifyRoute([...start, ...end]) ?? [...start, ...end], labelPosition };
       }
-      labelBoxes.set(edge.id, labelBox(edge.label, chosen.labelPosition));
+      if (showLabels && edge.label) labelBoxes.set(edge.id, edgeLabelBox(edge.id, edge.label, chosen.labelPosition));
     }
     accept(chosen);
   }
@@ -318,7 +360,13 @@ function labelBox(label: string, position: Point): CompoundBox {
   return { x: position.x - width / 2, y: position.y - 10, width, height: 18 };
 }
 
-function placeLabel(label: string, points: Point[], obstacles: CompoundBox[], extent: CompoundBox): Point | null {
+function placeLabel(
+  label: string,
+  points: Point[],
+  obstacles: CompoundBox[],
+  extent: CompoundBox,
+  measuredSize?: { width: number; height: number },
+): Point | null {
   const segments = points
     .slice(1)
     .map((b, i) => ({ a: points[i], b, length: Math.abs(b.x - points[i].x) + Math.abs(b.y - points[i].y) }))
@@ -326,7 +374,9 @@ function placeLabel(label: string, points: Point[], obstacles: CompoundBox[], ex
   for (const { a, b } of segments)
     for (const fraction of [0.5, 0.25, 0.75]) {
       const position = { x: a.x + (b.x - a.x) * fraction, y: a.y + (b.y - a.y) * fraction };
-      const box = labelBox(label, position);
+      const box = measuredSize
+        ? { x: position.x - measuredSize.width / 2, y: position.y - 10, ...measuredSize }
+        : labelBox(label, position);
       if (
         box.x >= extent.x &&
         box.y >= extent.y &&

@@ -23,6 +23,7 @@ import type { GraphAppearance } from "../graph/appearance";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
 import type { ConsoleController } from "./useConsoleController";
+import type { CompoundLayoutController } from "./useCompoundLayoutPlan";
 
 type AiConsole = Pick<
   ConsoleController,
@@ -35,6 +36,7 @@ export function useAiController({
   appearance,
   settings,
   consoleController,
+  compoundLayout,
 }: {
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;
@@ -42,6 +44,7 @@ export function useAiController({
   appearance: GraphAppearance;
   settings: AiSettings;
   consoleController: AiConsole;
+  compoundLayout?: CompoundLayoutController;
 }) {
   const { entries, contextNodeKey, appendMessage, recordInput, upsertReview, setReviewStatus, runSource } =
     consoleController;
@@ -55,8 +58,22 @@ export function useAiController({
   const requestAbort = useRef<AbortController | null>(null);
   const graphId = state.document.id;
   const graphRevision = `${runtimeId}:${state.document.generation}:${state.editHistory.revision}`;
-  const current = useRef({ dag: state.dag, settings, appearance, contextNodeKey, graphRevision });
-  current.current = { dag: state.dag, settings, appearance, contextNodeKey, graphRevision };
+  const current = useRef({
+    dag: state.dag,
+    settings,
+    appearance,
+    contextNodeKey,
+    graphRevision,
+    layoutKey: compoundLayout?.key,
+  });
+  current.current = {
+    dag: state.dag,
+    settings,
+    appearance,
+    contextNodeKey,
+    graphRevision,
+    layoutKey: compoundLayout?.key,
+  };
 
   useEffect(() => {
     requestGeneration.current += 1;
@@ -198,6 +215,7 @@ export function useAiController({
         snapshot.dag === current.current.dag &&
         snapshot.settings === current.current.settings &&
         snapshot.appearance === current.current.appearance &&
+        snapshot.layoutKey === current.current.layoutKey &&
         snapshot.contextNodeKey === current.current.contextNodeKey;
       try {
         const context = buildAiContextPacket({
@@ -210,6 +228,7 @@ export function useAiController({
           contextNodeKey,
           appearance,
           consoleEntries: entries,
+          layoutContext: compoundLayout?.context,
         });
         const response = await requestAiPlan({ settings, context, message, signal: abort.signal });
         if (!isCurrent()) {
@@ -218,6 +237,30 @@ export function useAiController({
               "info",
               "AI response discarded because its document, context or settings changed. Please try again.",
             );
+          return;
+        }
+        if (response.kind === "propose_layout" || response.kind === "inspect_layout") {
+          if (!compoundLayout?.ready)
+            throw new Error("Open a rendered Nested node-link chart before requesting layout changes.");
+          appendMessage("ai", response.answer);
+          // A geometry plan supersedes an old command batch; continuing must not execute unrelated edits.
+          next = {
+            ...next,
+            activePlan: undefined,
+            pendingCommandBatch: undefined,
+            workingMemory: { ...next.workingMemory, activePlanId: undefined, pendingCommandBatchId: undefined },
+          };
+          const detail =
+            response.kind === "inspect_layout"
+              ? JSON.stringify(compoundLayout.inspect(response.scopeId), null, 2)
+              : await compoundLayout.propose(response.intent, settings.executionMode === "auto-edit");
+          if (generation !== requestGeneration.current) return;
+          appendMessage("ai-action", detail);
+          setHarness(
+            appendAiEvents(next, [
+              createAiEvent(next, turnId, "assistant.answer", { answer: response.answer, layout: detail }),
+            ]),
+          );
           return;
         }
         if (response.kind === "answer" || response.kind === "clarify") {
@@ -254,6 +297,7 @@ export function useAiController({
       appearance,
       appendMessage,
       contextNodeKey,
+      compoundLayout,
       entries,
       recordInput,
       runtimeHarness,

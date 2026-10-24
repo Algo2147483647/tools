@@ -205,6 +205,7 @@ export interface ResolvedStageSelection {
 }
 
 export interface StageData {
+  compoundLayout?: import("./compound-layout-plan").LayoutProblem;
   spatial?: {
     metadata: import("../graph/space").SpaceMetadata | null;
     view: import("../graph/space").SpaceView;

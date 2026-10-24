@@ -5,7 +5,7 @@ type Size = { width: number; height: number };
 type Arrangement = { boxes: Map<string, CompoundBox>; width: number; height: number };
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 /** Condense cycles before ranking. Every edge between components must point downstream. */
-function topology(ids: string[], edges: [string, string][]) {
+export function compoundTopology(ids: string[], edges: [string, string][]) {
   const outgoing = new Map(ids.map((id) => [id, new Set<string>()]));
   const incoming = new Map(ids.map((id) => [id, new Set<string>()]));
   for (const [a, b] of edges)
@@ -101,6 +101,7 @@ export function arrangeTopology(
   sizes: Map<string, Size>,
   columnGap: number,
   rowGap: number,
+  direction: "AUTO" | "RIGHT" | "DOWN" = "AUTO",
 ): Arrangement {
   columnGap = Math.max(0, columnGap);
   rowGap = Math.max(0, rowGap);
@@ -128,9 +129,9 @@ export function arrangeTopology(
     }
     const memberSet = new Set(members);
     const localEdges = edges.filter(([a, b]) => memberSet.has(a) && memberSet.has(b));
-    const { layers, forward } = topology(members.sort(compare), localEdges);
+    const { layers, forward } = compoundTopology(members.sort(compare), localEdges);
     const candidates: { layout: Arrangement; down: boolean }[] = [];
-    for (const down of [false, true]) {
+    for (const down of direction === "AUTO" ? [false, true] : [direction === "DOWN"]) {
       const oriented = new Map(
         members.map((id) => {
           const size = sizes.get(id)!;
