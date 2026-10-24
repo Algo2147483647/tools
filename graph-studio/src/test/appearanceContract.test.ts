@@ -19,6 +19,8 @@ import { createAppearanceUIModel } from "../components/settings/appearanceUIMode
 import { AppearanceUIContext, AppearanceUIOutlet } from "../components/settings/AppearanceUIContext";
 import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "../components/settings/appearanceUIConfig";
 import { APPEARANCE_RENDERERS } from "../components/settings/AppearanceUIRenderers";
+import AppearanceSettings from "../components/settings/AppearanceSettings";
+import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import { resetChartStyleSection } from "../components/settings/appearanceSections";
 import { PRESET_MANIFEST } from "../schema/presetManifest";
 import { getGraphAppearancePresets } from "../graph/appearanceCommands";
@@ -36,6 +38,65 @@ const dag = normalizeDagInput({
 const noop = () => {};
 
 export const appearanceContractSuite = defineSuite("Appearance contract", [
+  defineTest("visual parameters belong to their Appearance objects and resets preserve layout rules", () => {
+    for (const chart of ["node-link", "compound", "sankey", "timeline"] as const) {
+      const style = getDefaultChartStyle(chart),
+        catalog = getSettingsCatalog(chart);
+      for (const path of ["canvas.padding", "canvas.minSize", "nodes.widths", "nodes.height"])
+        assert.equal(catalog.find((item) => item.id === `style.appearance.${path}`)?.chapter, "appearance");
+      if (chart === "timeline") {
+        for (const path of ["nodes.spread", "nodes.spacing.channel"])
+          assert.equal(catalog.find((item) => item.id === `style.appearance.${path}`)?.group, "Nodes");
+        Object.assign(style.timeline!, {
+          orientation: "horizontal",
+          layout: "flow",
+          edgeRouting: "direct",
+          axis: "linear",
+          tickStep: 7,
+          locked: true,
+          pins: { a: 40 },
+        });
+        style.appearance.nodes.spread = 2;
+        style.appearance.nodes.spacing.channel = 90;
+      }
+      const html = renderToStaticMarkup(
+        createElement(AppearanceSettings, {
+          view: "layout",
+          chartType: chart,
+          appearance: style.appearance,
+          showNodeDetail: style.showNodeDetail,
+          hideNodeBorders: style.hideNodeBorders,
+          alignNodeWidthsToMax: style.alignNodeWidthsToMax,
+          layoutMode: "sugiyama",
+          sankeyUnavailableReason: null,
+          appearanceCssDraft: "",
+          onPreviewModeChange: noop,
+          onChartTypeChange: noop,
+          onAppearanceCssDraftChange: noop,
+          onLayoutModeChange: noop,
+          onAppearanceCssChange: noop,
+          onAppearancePresetChange: noop,
+          onAppearanceSchemaChange: noop,
+          onAppearanceReset: noop,
+          onAppearanceExport: noop,
+          onAppearanceImportClick: noop,
+          onAppearanceImportChange: noop,
+          ...(chart === "timeline"
+            ? { timelineControls: { settings: style.timeline!, onChange: noop, onReadapt: noop } }
+            : {}),
+        }),
+      );
+      assert.doesNotMatch(html, /Flow node width|Minimum width|Timeline horizontal spread|Timeline vertical spread/);
+      style.appearance.canvas.padding = [30, 40];
+      const reset = resetChartStyleSection(style, chart, "nodes");
+      assert.deepEqual(reset.appearance.nodes, getDefaultChartStyle(chart).appearance.nodes);
+      assert.deepEqual(reset.appearance.canvas, style.appearance.canvas);
+      assert.deepEqual(reset.timeline, style.timeline);
+      const canvasReset = resetChartStyleSection(style, chart, "canvas");
+      assert.deepEqual(canvasReset.appearance.canvas, getDefaultChartStyle(chart).appearance.canvas);
+      assert.deepEqual(canvasReset.appearance.nodes, style.appearance.nodes);
+    }
+  }),
   defineTest("UI trees bind every registered level to Schema and retain rich controls", () => {
     for (const chart of ["node-link", "compound", "timeline", "sankey", "spatial"] as const) {
       const model = createAppearanceUIModel(chart, getDefaultChartStyle(chart));
@@ -51,37 +112,33 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
         createElement(
           AppearanceUIContext.Provider,
           { value: { model, registry: APPEARANCE_RENDERERS, commit: noop, query: "" } },
-          createElement(AppearanceUIOutlet, { node: APPEARANCE_UI.dimensions }),
+          createElement(AppearanceUIOutlet, { node: APPEARANCE_UI.canvas }),
         ),
       );
-      assert.match(html, /Minimum stage width/);
+      assert.match(html, /Minimum canvas width/);
       assert.match(html, /Horizontal padding/);
-      if (chart !== "spatial") assert.match(html, /Minimum width/);
     }
   }),
   defineTest("parent and leaf edits share atomic validation, resets and independent tuple coordinates", () => {
     const style = getDefaultChartStyle("timeline");
     style.timeline!.pins = { a: 24 };
     const model = createAppearanceUIModel("timeline", style);
-    const widths = model.bind("style.appearance.layout").child("nodeWidthRange");
+    const widths = model.bind("style.appearance.nodes").child("widths");
     const changed = widths.set([100, 500]);
-    assert.deepEqual(changed.appearance.layout.nodeWidthRange, [100, 500]);
-    assert.deepEqual(style.appearance.layout.nodeWidthRange, widths.defaultValue);
+    assert.deepEqual(changed.appearance.nodes.widths, [100, 500]);
+    assert.deepEqual(style.appearance.nodes.widths, widths.defaultValue);
     assert.throws(() => widths.set([100]), /2 items/);
     const parent = model.bind("style.timeline").set({ ...style.timeline, orientation: "horizontal" });
     assert.deepEqual(parent.timeline!.pins, {});
     assert.deepEqual(parent, model.bind("style.timeline.orientation").set("horizontal"));
     assert.throws(() =>
       model.change([
-        { path: "style.appearance.layout.stagePadding", value: [20, 30] },
+        { path: "style.appearance.canvas.padding", value: [20, 30] },
         { path: "style.timeline.pointMarker.size", value: 200 },
       ]),
     );
     assert.deepEqual(style.timeline!.pins, { a: 24 });
-    assert.deepEqual(
-      style.appearance.layout.stagePadding,
-      model.bind("style.appearance.layout.stagePadding").defaultValue,
-    );
+    assert.deepEqual(style.appearance.canvas.padding, model.bind("style.appearance.canvas.padding").defaultValue);
   }),
   defineTest("all boundaries enforce the same marker constraints without rewriting valid values", () => {
     for (const patch of [{ size: 200 }, { fill: "red" }, { borderWidth: -1 }]) {
@@ -100,7 +157,7 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
   }),
   defineTest("minimum size and independent padding reach Timeline and Spatial geometry", () => {
     const style = getDefaultChartStyle("timeline");
-    style.appearance.layout.stageMinSize = [5000, 4000];
+    style.appearance.canvas.minSize = [5000, 4000];
     for (const orientation of ["vertical", "horizontal"] as const) {
       const stage = buildTimelineStage({
         dag,
@@ -118,7 +175,7 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
       edges: [],
     });
     const before = buildSpatialStage({ dag: spatialDag, appearance: getStageAppearance(style.appearance) });
-    style.appearance.layout.stagePadding = [700, 800];
+    style.appearance.canvas.padding = [700, 800];
     const after = buildSpatialStage({ dag: spatialDag, appearance: getStageAppearance(style.appearance) });
     assert.ok(after.stageWidth >= 5000 && after.stageHeight >= 4000);
     assert.notDeepEqual(
@@ -193,8 +250,8 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     assert.doesNotMatch(html, /style.appearance.display.nodeCornerRadius/);
     const reset = resetChartStyleSection(style, "timeline", "nodes");
     assert.equal(reset.appearance.cssVars["--dag-timeline-muted-opacity"], "0.28");
-    assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.layout.rowGap")?.editable, false);
-    assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.layout.stageMinSize")?.editable, true);
+    assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.nodes.spacing.row")?.editable, false);
+    assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.canvas.minSize")?.editable, true);
     style.timeline!.pins = { a: 123 };
     assert.deepEqual(
       updateAppearanceSchemaValue("timeline", style, "style.timeline.orientation", "horizontal").timeline!.pins,
@@ -206,12 +263,12 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     const added = structuredClone(presets[0]);
     added.id = "audit-preset";
     added.label = "Audit preset";
-    added.document.style.appearance.layout.stageMinSize = [1400, 900];
+    added.document.style.appearance.canvas.minSize = [1400, 900];
     presets.push(added);
     try {
       assert.deepEqual(
-        getGraphAppearancePresets("timeline").find((p) => p.id === "audit-preset")!.document.style.appearance.layout
-          .stageMinSize,
+        getGraphAppearancePresets("timeline").find((p) => p.id === "audit-preset")!.document.style.appearance.canvas
+          .minSize,
         [1400, 900],
       );
     } finally {

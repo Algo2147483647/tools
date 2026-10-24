@@ -154,7 +154,7 @@ function inferChangeKind(command: string): ProposedChange["kind"] {
   if (normalized.startsWith("/rm-edge ")) return "remove_edge";
   if (normalized.startsWith("/mv ")) return "rename_node";
   if (normalized.startsWith("/rm ")) return "remove_edge";
-  if (normalized.startsWith("/style-") || normalized.startsWith("/layout ")) return "set_property";
+  if (normalized.startsWith("/style-") || normalized.startsWith("/appearance-set ")) return "set_property";
   return "set_property";
 }
 

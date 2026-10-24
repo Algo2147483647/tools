@@ -14,14 +14,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: true,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 64,
-                rowGap: 28,
-                edgeLaneGap: 12,
-                nodeHeight: 48,
-                nodeWidthRange: [188, 240],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [188, 240],
+                height: 48,
+                spacing: {
+                  column: 64,
+                  row: 28,
+                  channel: 24,
+                },
+                spread: 1,
+                width: 20,
+              },
+              edges: {
+                spacing: 12,
               },
               display: {
                 titleAlign: "left",
@@ -37,7 +46,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 10,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {
@@ -133,14 +141,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: true,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 24,
-                rowGap: 24,
-                edgeLaneGap: 28,
-                nodeHeight: 100,
-                nodeWidthRange: [200, 200],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [200, 200],
+                height: 100,
+                spacing: {
+                  column: 24,
+                  row: 24,
+                  channel: 24,
+                },
+                spread: 1,
+                width: 20,
+              },
+              edges: {
+                spacing: 28,
               },
               display: {
                 titleAlign: "center",
@@ -156,7 +173,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 12,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {
@@ -248,14 +264,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: true,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 24,
-                rowGap: 24,
-                edgeLaneGap: 28,
-                nodeHeight: 48,
-                nodeWidthRange: [188, 240],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [188, 240],
+                height: 48,
+                spacing: {
+                  column: 24,
+                  row: 24,
+                  channel: 24,
+                },
+                spread: 1,
+                width: 20,
+              },
+              edges: {
+                spacing: 28,
               },
               display: {
                 titleAlign: "left",
@@ -271,7 +296,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 12,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {
@@ -367,14 +391,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: false,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 116,
-                rowGap: 22,
-                edgeLaneGap: 28,
-                nodeHeight: 74,
-                nodeWidthRange: [188, 280],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [188, 280],
+                height: 74,
+                spacing: {
+                  column: 116,
+                  row: 22,
+                  channel: 24,
+                },
+                spread: 1,
+                width: 20,
+              },
+              edges: {
+                spacing: 28,
               },
               display: {
                 titleAlign: "left",
@@ -390,7 +423,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 12,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {
@@ -508,8 +540,6 @@ export const PRESET_MANIFEST = {
               axis: "adaptive",
               tickStep: 10,
               tickUnit: "auto",
-              nodeGap: 24,
-              horizontalSpread: 1,
               compactness: 0.5,
               locked: false,
               pins: {},
@@ -530,14 +560,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: false,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 116,
-                rowGap: 22,
-                edgeLaneGap: 28,
-                nodeHeight: 74,
-                nodeWidthRange: [188, 280],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [188, 280],
+                height: 74,
+                spacing: {
+                  column: 116,
+                  row: 22,
+                  channel: 0,
+                },
+                spread: 0,
+                width: 20,
+              },
+              edges: {
+                spacing: 28,
               },
               display: {
                 titleAlign: "left",
@@ -553,7 +592,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 12,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {
@@ -671,8 +709,6 @@ export const PRESET_MANIFEST = {
               axis: "linear",
               tickStep: 1,
               tickUnit: "auto",
-              nodeGap: 0,
-              horizontalSpread: 0,
               compactness: 0.5,
               locked: false,
               pins: {},
@@ -697,14 +733,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: false,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 116,
-                rowGap: 22,
-                edgeLaneGap: 28,
-                nodeHeight: 74,
-                nodeWidthRange: [188, 280],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [188, 280],
+                height: 74,
+                spacing: {
+                  column: 116,
+                  row: 22,
+                  channel: 24,
+                },
+                spread: 1,
+                width: 20,
+              },
+              edges: {
+                spacing: 28,
               },
               display: {
                 titleAlign: "left",
@@ -720,7 +765,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 12,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {
@@ -816,14 +860,23 @@ export const PRESET_MANIFEST = {
             alignNodeWidthsToMax: false,
             appearance: {
               version: 1,
-              layout: {
-                stagePadding: [108, 88],
-                columnGap: 116,
-                rowGap: 22,
-                edgeLaneGap: 28,
-                nodeHeight: 74,
-                nodeWidthRange: [188, 280],
-                stageMinSize: [980, 600],
+              canvas: {
+                padding: [108, 88],
+                minSize: [980, 600],
+              },
+              nodes: {
+                widths: [188, 280],
+                height: 74,
+                spacing: {
+                  column: 116,
+                  row: 22,
+                  channel: 24,
+                },
+                spread: 1,
+                width: 20,
+              },
+              edges: {
+                spacing: 28,
               },
               display: {
                 titleAlign: "left",
@@ -839,7 +892,6 @@ export const PRESET_MANIFEST = {
                 shadowBlur: 8,
                 shadowOffset: 3,
                 shadowOpacity: 12,
-                sankeyNodeWidth: 20,
                 sankeyLinkOpacity: 32,
               },
               cssVars: {

@@ -137,10 +137,10 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
             const stage = buildTimelineStage({
               dag,
               selection: { type: "full" },
+              appearance: { ...DEFAULT_GRAPH_APPEARANCE, nodes: { ...DEFAULT_GRAPH_APPEARANCE.nodes, spread: 0 } },
               timelineSettings: {
                 orientation,
                 layout,
-                horizontalSpread: 0,
                 intervalWidth: width,
                 intervalTitle: "inside",
               },

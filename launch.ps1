@@ -1,11 +1,11 @@
 param(
-    [Parameter(Position = 0)][ValidateSet('graph-studio', 'svg-studio', 'service-flow-editor', 'form-studio', 'asset-dashboard', 'warehouse-studio', 'flightlab', 'json-studio')][string]$Project,
+    [Parameter(Position = 0)][ValidateSet('graph-studio', 'svg-studio', 'service-flow-editor', 'form-studio', 'asset-dashboard', 'warehouse-studio', 'flightlab', 'json-studio', 'ais-studio')][string]$Project,
     [switch]$Dev, [switch]$Preview, [switch]$InstallOnly, [switch]$BuildOnly, [switch]$NoBrowser
 )
 $ErrorActionPreference = 'Stop'
 if (-not $Project) {
     Write-Host 'Usage: .\launch.cmd <project> [-Dev] [-Preview] [-InstallOnly] [-BuildOnly] [-NoBrowser]'
-    Write-Host 'Projects: graph-studio, svg-studio, service-flow-editor, form-studio, asset-dashboard, warehouse-studio, flightlab, json-studio'
+    Write-Host 'Projects: graph-studio, svg-studio, service-flow-editor, form-studio, asset-dashboard, warehouse-studio, flightlab, json-studio, ais-studio'
     exit 0
 }
 $launcher = Join-Path $PSScriptRoot "$Project/launch.ps1"

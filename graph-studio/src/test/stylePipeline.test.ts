@@ -172,13 +172,13 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.equal(customer.titleLayout!.x, 100);
     assert.equal(customer.contentLayout!.titleY, 50);
     const previous = getCompoundPreset2Style();
-    assert.equal(previous.appearance.layout.nodeWidthRange[1], 240);
-    assert.equal(previous.appearance.layout.nodeHeight, 48);
+    assert.equal(previous.appearance.nodes.widths[1], 240);
+    assert.equal(previous.appearance.nodes.height, 48);
     assert.equal(previous.appearance.display.nodeCornerRadius, 16);
     assert.equal(previous.appearance.display.showNodeDots, true);
     assert.equal(style.appearance.display.showGroupBorders, false);
-    assert.equal(style.appearance.layout.columnGap, 24);
-    assert.equal(style.appearance.layout.rowGap, 24);
+    assert.equal(style.appearance.nodes.spacing.column, 24);
+    assert.equal(style.appearance.nodes.spacing.row, 24);
     assert.equal(style.appearance.display.edgeArrowStyle, "open");
     assert.equal(style.appearance.cssVars["--dag-edge"], "#cccccc");
     const expanded = await buildCompoundStage({ ...input, view: { collapsedGroupIds: [], focusGroupId: null } });

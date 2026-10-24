@@ -10,7 +10,7 @@ Appearance is a JSON protocol. CSS is a rendering extension inside the protocol.
 | Sankey | [Sankey Appearance](appearance/sankey.md) | Quantitative bands, bar width, label room, and shared palettes. |
 | Spatial | [Spatial Appearance](appearance/spatial.md) | Shared padding and minimum stage size around data coordinates. |
 
-Open **Settings → Appearance → Schema** to inspect or edit current protocol values. Select a preset above the table. **Nodes**, **Edges**, and **Text** show supported fields generated from the same definitions. **Layout** exposes geometry fields. **Advanced** contains custom CSS, density policy, import, export, and full reset.
+Open **Settings → Appearance → Schema** to inspect or edit current protocol values. Select a preset above the table. **Nodes**, **Edges**, and **Text** show supported fields generated from the same definitions. **Nodes** owns width ranges, height, spacing, Sankey bar width and Timeline cross-axis spread. **Edges** owns edge-lane spacing. **Canvas** owns padding and minimum canvas size. **Layout** contains arrangement rules: the Node-link algorithm, and Timeline direction, Tracks/Flow, routing and time-axis behavior. **Advanced** contains custom CSS, density policy, import, export, and full reset.
 
 Every field edit uses the same validation as importing a style file. Invalid values show an error and retain the previous value. Unsupported shared fields are read-only in Schema and omitted from ordinary controls. Boolean values use switches. Presets store full schema documents; their IDs and labels are external catalog metadata.
 

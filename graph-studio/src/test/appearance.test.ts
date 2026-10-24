@@ -97,20 +97,16 @@ export const appearanceSuite = defineSuite("appearance", [
   }),
   defineTest("sanitizeGraphAppearance fills defaults and preserves finite layout values", () => {
     const appearance = sanitizeGraphAppearance({
-      layout: {
-        columnGap: -1,
-        rowGap: 999,
-        nodeWidthRange: [999, 10],
-        stageMinSize: [10_000, 600],
-      },
+      nodes: { spacing: { column: -1, row: 999 }, widths: [999, 10] },
+      canvas: { minSize: [10_000, 600] },
     });
 
     assert.equal(appearance.version, 1);
-    assert.equal(appearance.layout.columnGap, -1);
-    assert.equal(appearance.layout.rowGap, 999);
-    assert.equal(appearance.layout.nodeWidthRange[0], 999);
-    assert.equal(appearance.layout.nodeWidthRange[1], 10);
-    assert.equal(appearance.layout.stageMinSize[0], 10_000);
+    assert.equal(appearance.nodes.spacing.column, -1);
+    assert.equal(appearance.nodes.spacing.row, 999);
+    assert.equal(appearance.nodes.widths[0], 999);
+    assert.equal(appearance.nodes.widths[1], 10);
+    assert.equal(appearance.canvas.minSize[0], 10_000);
     assert.equal(appearance.display.showEdgeLabels, false);
     assert.equal(appearance.css, DEFAULT_GRAPH_APPEARANCE.css);
   }),
@@ -167,9 +163,9 @@ export const appearanceSuite = defineSuite("appearance", [
               "--dag-title-font-size": "18px",
               "--dag-title-font-style": "normal",
             },
-            layout: {
-              ...DEFAULT_GRAPH_APPEARANCE.layout,
-              columnGap: 144,
+            nodes: {
+              ...DEFAULT_GRAPH_APPEARANCE.nodes,
+              spacing: { ...DEFAULT_GRAPH_APPEARANCE.nodes.spacing, column: 144 },
             },
             display: {
               ...DEFAULT_GRAPH_APPEARANCE.display,
@@ -181,7 +177,7 @@ export const appearanceSuite = defineSuite("appearance", [
     });
     const parsed = parseGraphPagePreferences(raw);
 
-    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.layout.columnGap, 144);
+    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.nodes.spacing.column, 144);
     assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.display.showEdgeLabels, false);
     assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.cssVars["--dag-title-font-size"], "18px");
     assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.cssVars["--dag-title-font-style"], "normal");
@@ -193,10 +189,7 @@ export const appearanceSuite = defineSuite("appearance", [
       selection: { type: "node", key: "A" },
       appearance: {
         ...DEFAULT_GRAPH_APPEARANCE,
-        layout: {
-          ...DEFAULT_GRAPH_APPEARANCE.layout,
-          stageMinSize: [1234, 789],
-        },
+        canvas: { ...DEFAULT_GRAPH_APPEARANCE.canvas, minSize: [1234, 789] },
       },
     });
 

@@ -1,3 +1,4 @@
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import assert from "node:assert/strict";
 import { normalizeDagInput } from "../graph/normalize";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
@@ -29,11 +30,12 @@ const example = () => ({
     metadata: { timeline: { kind: "sequence" } },
   })),
 });
-function stageFor(document: unknown, timelineSettings: Partial<TimelineViewSettings> = {}) {
+function stageFor(document: unknown, timelineSettings: Partial<TimelineViewSettings> = {}, spread = 1) {
   const stage = buildTimelineStage({
     dag: normalizeDagInput(document),
     selection: { type: "full" },
     timelineSettings: { layout: "flow", ...timelineSettings },
+    appearance: { ...DEFAULT_GRAPH_APPEARANCE, nodes: { ...DEFAULT_GRAPH_APPEARANCE.nodes, spread } },
   });
   assert.ok(stage);
   return stage;
@@ -137,10 +139,7 @@ export const timelineFlowSuite = defineSuite("Timeline relation flow", [
     nodes.h.time.at = nodes.g.time.at;
     for (const layout of ["flow", "tracks"] as const)
       for (const spread of [0.5, 1, 3]) {
-        const stage = stageFor(
-          { format: "graph-studio", version: 3, nodes, edges },
-          { layout, horizontalSpread: spread },
-        );
+        const stage = stageFor({ format: "graph-studio", version: 3, nodes, edges }, { layout }, spread);
         for (const key of ["b", "d", "f", "g"]) assert.equal(stage.nodeMap[key].x, stage.nodeMap.a.x);
         assert.equal(stage.nodeMap.c.x, stage.nodeMap.e.x);
         assert.notEqual(stage.nodeMap.c.x, stage.nodeMap.a.x);

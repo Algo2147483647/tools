@@ -13,14 +13,20 @@ Generated from the canonical field definitions. Required fields are marked with 
 | style.alignNodeWidthsToMax * | boolean | false | Align card widths to the configured maximum. Not used by timeline. |
 | style.appearance * | object | — | Shared appearance object; includes stored fields unused by some charts. |
 | style.appearance.version * | 1 | 1 | Nested appearance protocol version. |
-| style.appearance.layout * | object | — | Stored geometry values; renderer support varies by chart. |
-| style.appearance.layout.stagePadding | [number, number] | [108,88] | Horizontal and vertical stage padding [x, y] in logical pixels. |
-| style.appearance.layout.columnGap | number | 116 | Layer separation in logical pixels. Not used by timeline. |
-| style.appearance.layout.rowGap | number | 22 | Node or label separation in logical pixels. |
-| style.appearance.layout.edgeLaneGap | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by timeline. |
-| style.appearance.layout.nodeHeight | number | 74 | Base card height or chart-specific vertical-space input. |
-| style.appearance.layout.nodeWidthRange | [number, number] | [188,280] | Node width bounds [min, max]; max sets the event label width. |
-| style.appearance.layout.stageMinSize | [number, number] | [980,600] | Minimum stage dimensions [width, height] in logical pixels. |
+| style.appearance.canvas * | object | — | Canvas padding and minimum visible size. |
+| style.appearance.canvas.padding | [number, number] | [108,88] | Horizontal and vertical canvas padding [x, y] in logical pixels. |
+| style.appearance.canvas.minSize | [number, number] | [980,600] | Minimum canvas size [width, height] in logical pixels. |
+| style.appearance.nodes * | object | — | Node sizes and spacing; capabilities are declared per chart. |
+| style.appearance.nodes.widths | [number, number] | [188,280] | Node width bounds [min, max]; max sets the event label width. |
+| style.appearance.nodes.height | number | 74 | Base card height or chart-specific vertical-space input. |
+| style.appearance.nodes.spacing * | object | — | Spacing between columns, rows and Timeline channels. |
+| style.appearance.nodes.spacing.column | number | 116 | Layer separation in logical pixels. Not used by timeline. |
+| style.appearance.nodes.spacing.row | number | 22 | Node or label separation in logical pixels. |
+| style.appearance.nodes.spacing.channel | number | 24 | Channel spacing input in logical pixels. |
+| style.appearance.nodes.spread | number | 1 | Cross-time-axis spread multiplier, interpreted for the selected orientation. |
+| style.appearance.nodes.width | number | 20 | Sankey bar width in logical pixels. Not used by timeline. |
+| style.appearance.edges * | object | — | Spacing between edge lanes. |
+| style.appearance.edges.spacing | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by timeline. |
 | style.appearance.display * | object | — | Display flags and visual dimensions; unsupported fields remain stored. |
 | style.appearance.display.titleAlign | left \| center | "left" | Nested node-link card-title alignment. Not used by timeline. |
 | style.appearance.display.titleOverflow | ellipsis \| clip \| visible | "ellipsis" | Nested node-link title overflow treatment. Not used by timeline. |
@@ -35,7 +41,6 @@ Generated from the canonical field definitions. Required fields are marked with 
 | style.appearance.display.shadowBlur | number | 8 | Shadow softness in logical pixels. Not used by timeline. |
 | style.appearance.display.shadowOffset | number | 3 | Vertical shadow distance in logical pixels. Not used by timeline. |
 | style.appearance.display.shadowOpacity | number | 12 | Shadow opacity as a percentage, not a 0–1 fraction. Not used by timeline. |
-| style.appearance.display.sankeyNodeWidth | number | 20 | Sankey bar width in logical pixels; exposed under Layout. Not used by timeline. |
 | style.appearance.display.sankeyLinkOpacity | number | 32 | Sankey normal-band opacity as a percentage; interaction has separate opacity rules. Not used by timeline. |
 | style.appearance.cssVars * | object | — | SVG root CSS variables; only --dag- names with string values are accepted. |
 | style.appearance.cssVars[--dag-text-strong] | string | "#162033" | Primary text color. |
@@ -134,8 +139,6 @@ Generated from the canonical field definitions. Required fields are marked with 
 | style.timeline.axis | linear \| adaptive | "adaptive" | Linear preserves elapsed-time scale; adaptive compresses sparse periods. |
 | style.timeline.tickStep | number | 10 | Positive calendar tick interval; fixed intervals use integer steps. |
 | style.timeline.tickUnit | auto \| second \| minute \| hour \| day \| week \| month \| year | "auto" | Calendar tick unit; auto chooses a suitable unit. |
-| style.timeline.nodeGap | number | 24 | Channel spacing input in logical pixels. |
-| style.timeline.horizontalSpread | number | 1 | Cross-time-axis spread multiplier, interpreted for the selected orientation. |
 | style.timeline.compactness | number | 0.5 | Timeline layout compactness input. |
 | style.timeline.locked | boolean | false | Retains the current time-axis mapping where supported. |
 | style.timeline.pins | object | — | Node-to-position map; clear temporary pins before publishing a reusable style. |
@@ -154,23 +157,32 @@ Generated from the canonical field definitions. Required fields are marked with 
     "alignNodeWidthsToMax": false,
     "appearance": {
       "version": 1,
-      "layout": {
-        "stagePadding": [
+      "canvas": {
+        "padding": [
           108,
           88
         ],
-        "columnGap": 116,
-        "rowGap": 22,
-        "edgeLaneGap": 28,
-        "nodeHeight": 74,
-        "nodeWidthRange": [
-          188,
-          280
-        ],
-        "stageMinSize": [
+        "minSize": [
           980,
           600
         ]
+      },
+      "nodes": {
+        "widths": [
+          188,
+          280
+        ],
+        "height": 74,
+        "spacing": {
+          "column": 116,
+          "row": 22,
+          "channel": 24
+        },
+        "spread": 1,
+        "width": 20
+      },
+      "edges": {
+        "spacing": 28
       },
       "display": {
         "titleAlign": "left",
@@ -186,7 +198,6 @@ Generated from the canonical field definitions. Required fields are marked with 
         "shadowBlur": 8,
         "shadowOffset": 3,
         "shadowOpacity": 12,
-        "sankeyNodeWidth": 20,
         "sankeyLinkOpacity": 32
       },
       "cssVars": {
@@ -360,8 +371,6 @@ Generated from the canonical field definitions. Required fields are marked with 
       "axis": "adaptive",
       "tickStep": 10,
       "tickUnit": "auto",
-      "nodeGap": 24,
-      "horizontalSpread": 1,
       "compactness": 0.5,
       "locked": false,
       "pins": {}

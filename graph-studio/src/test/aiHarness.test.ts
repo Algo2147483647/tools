@@ -119,7 +119,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     assert.ok(diffPreview.some((line) => line === "+ Edge: A -> Subgroup"));
   }),
 
-  defineTest("validates appearance command batches and reports CSS/layout diffs", () => {
+  defineTest("validates appearance command batches and reports CSS/appearance-set diffs", () => {
     const harness = createInitialAiHarnessState("review");
     const turnId = createTurnId();
     const plan = createPlanFromAiResponse({
@@ -130,7 +130,11 @@ export const aiHarnessSuite = defineSuite("ai harness", [
         kind: "run_console",
         answer: "Applying the default UI style with custom spacing and edges.",
         commandBatch: {
-          commands: ["/style-preset default", "/layout rowGap 36", '/style-var --dag-edge "rgba(120, 160, 255, 0.45)"'],
+          commands: [
+            "/style-preset default",
+            "/appearance-set nodes.spacing.row 36",
+            '/style-var --dag-edge "rgba(120, 160, 255, 0.45)"',
+          ],
         },
       },
     });
@@ -147,7 +151,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     assert.equal(validation.allPassed, true);
     assert.equal(validation.riskLevel, "low");
     const diffPreview = validation.results.flatMap((result) => result.expectedDiff || []);
-    assert.ok(diffPreview.some((line) => line.includes("layout.rowGap")));
+    assert.ok(diffPreview.some((line) => line.includes("layout.nodes.spacing.row")));
     assert.ok(diffPreview.some((line) => line.includes("cssVars.--dag-edge")));
   }),
 

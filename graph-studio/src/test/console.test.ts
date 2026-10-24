@@ -9,19 +9,19 @@ import { defineSuite, defineTest } from "./harness";
 
 export const consoleSuite = defineSuite("console", [
   defineTest("layout padding uses the schema tuple and rejects undeclared fields", () => {
-    const parsed = parseConsoleSource("/layout stagePadding [32, 48]");
+    const parsed = parseConsoleSource("/appearance-set canvas.padding [32, 48]");
     assert.equal(parsed.ok, true);
     if (parsed.ok)
       assert.deepEqual(parsed.instructions[0], {
         type: "appearance",
-        command: { type: "setLayout", key: "stagePadding", value: [32, 48] },
+        command: { type: "setAppearanceField", path: "canvas.padding", value: [32, 48] },
         line: 1,
       });
-    for (const key of ["stagePadding", "stageMinSize", "nodeWidthRange"]) {
-      assert.equal(parseConsoleSource(`/layout ${key} [320, 640]`).ok, true);
-      assert.equal(parseConsoleSource(`/layout ${key} [32]`).ok, false);
+    for (const key of ["canvas.padding", "canvas.minSize", "nodes.widths"]) {
+      assert.equal(parseConsoleSource(`/appearance-set ${key} [320, 640]`).ok, true);
+      assert.equal(parseConsoleSource(`/appearance-set ${key} [32]`).ok, false);
     }
-    assert.equal(parseConsoleSource("/layout undeclaredField 32").ok, false);
+    assert.equal(parseConsoleSource("/appearance-set undeclaredField 32").ok, false);
   }),
   defineTest("parser accepts comments, quoted strings, and create-missing edges", () => {
     const parsed = parseConsoleSource(
@@ -136,7 +136,7 @@ export const consoleSuite = defineSuite("console", [
   defineTest("appearance commands update layout variables and CSS without graph mutations", () => {
     const parsed = parseConsoleSource(
       [
-        "/layout rowGap 44",
+        "/appearance-set nodes.spacing.row 44",
         '/style-var --dag-node-fill "#101827"',
         '/style-css append ".dag-node__shape { stroke-width: 2; }"',
       ].join("\n"),
@@ -155,7 +155,7 @@ export const consoleSuite = defineSuite("console", [
 
     assert.equal(executed.mutationCount, 0);
     assert.equal(executed.appearanceMutationCount, 3);
-    assert.equal(executed.appearance.layout.rowGap, 44);
+    assert.equal(executed.appearance.nodes.spacing.row, 44);
     assert.equal(executed.appearance.cssVars["--dag-node-fill"], "#101827");
     assert.match(executed.appearance.css, /stroke-width: 2/);
   }),

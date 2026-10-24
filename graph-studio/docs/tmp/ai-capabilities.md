@@ -20,7 +20,7 @@ The system supports these high-level capabilities:
 | Graph inspection | Request or automatically run read-only console commands such as `/find`, `/ls`, `/neighbors`, `/path`, `/keys`, and `/graph`. |
 | Edit planning | Produce a named plan with assumptions, affected nodes, proposed changes, rationales, and draft console commands. |
 | Command drafting | Convert natural-language graph edits into console command batches. |
-| Appearance editing | Convert natural-language UI requests into `/layout`, `/style-var`, `/style-css`, `/style-preset`, and `/style-reset` command batches. |
+| Appearance editing | Convert natural-language UI requests into `/appearance-set`, `/style-var`, `/style-css`, `/style-preset`, and `/style-reset` command batches. |
 | Timeline arrangement | Suggest track and chain ordering, spacing and routing; compare and apply a validated preview without changing event dates. |
 | Preflight validation | Parse and simulate command batches before execution, including syntax checks, graph existence checks, risk classification, and diff preview generation. |
 | Review cards | Show AI-generated plans in the console with command text, risk level, validation summary, and diff preview. |

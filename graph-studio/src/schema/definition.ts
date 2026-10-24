@@ -10,8 +10,8 @@ export interface AppearanceFieldDefinition {
   properties?: Record<string, AppearanceFieldDefinition>;
   format?: "color" | "pixels" | "css" | "opacity";
   description?: string;
-  group?: "nodes" | "edges" | "text" | "layout" | "advanced";
-  groups?: Record<string, "nodes" | "edges" | "text" | "layout" | "advanced">;
+  group?: "nodes" | "edges" | "text" | "canvas" | "layout" | "advanced";
+  groups?: Record<string, "nodes" | "edges" | "text" | "canvas" | "layout" | "advanced">;
   label?: string;
   keywords?: string;
   resets?: readonly string[];

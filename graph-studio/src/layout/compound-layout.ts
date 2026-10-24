@@ -39,7 +39,7 @@ export async function buildCompoundStage(input: {
       .sort()
       .map((id, index) => [id, index]),
   );
-  const theme = appearance.layout;
+  const theme = appearance;
   const font = stageTitleFont(appearance);
   const detailFont = stageRoleFont(appearance, "detail"),
     detailLineHeight = Math.ceil(detailFont.size * 1.2);
@@ -50,7 +50,7 @@ export async function buildCompoundStage(input: {
     const visual = getNodeVisual(
       item.id,
       dag.nodes[item.id],
-      theme.nodeWidthRange,
+      theme.nodes.widths,
       showNodeDetail,
       alignNodeWidthsToMax,
       font,
@@ -73,7 +73,7 @@ export async function buildCompoundStage(input: {
     const height =
       fixedHeight ??
       Math.max(
-        theme.nodeHeight,
+        theme.nodes.height,
         minimumCardHeight(font, detailLines.length, hasBadge, titleLayout.lines.length, detailLineHeight),
       );
     const contentLayout = cardContentLayout(
@@ -130,14 +130,14 @@ export async function buildCompoundStage(input: {
     fingerprint,
     labelSizes,
     showLabels: input.showEdgeLabels ?? false,
-    columnGap: theme.columnGap,
-    rowGap: theme.rowGap,
+    columnGap: theme.nodes.spacing.column,
+    rowGap: theme.nodes.spacing.row,
     stored: { ...read.data, accepted: undefined },
     baseline: {
       boxes: Object.fromEntries(placement.boxes),
       routes: {},
-      width: Math.max(placement.width, theme.stageMinSize[0]),
-      height: Math.max(placement.height, theme.stageMinSize[1]),
+      width: Math.max(placement.width, theme.canvas.minSize[0]),
+      height: Math.max(placement.height, theme.canvas.minSize[1]),
     },
   };
   let snapshot: LayoutSnapshot | undefined;
@@ -158,8 +158,8 @@ export async function buildCompoundStage(input: {
     snapshot = {
       boxes: Object.fromEntries(placement.boxes),
       routes: Object.fromEntries(routing.routes),
-      width: Math.max(routing.width, theme.stageMinSize[0]),
-      height: Math.max(routing.height, theme.stageMinSize[1]),
+      width: Math.max(routing.width, theme.canvas.minSize[0]),
+      height: Math.max(routing.height, theme.canvas.minSize[1]),
     };
     problem.baseline = snapshot;
     if (read.data.constraints.length || read.data.pins.length) {
@@ -293,8 +293,8 @@ export async function buildCompoundStage(input: {
     edges,
     connectedKeysByNode,
     lanes: [],
-    stageWidth: Math.max(result.width ?? 0, theme.stageMinSize[0]),
-    stageHeight: Math.max(result.height ?? 0, theme.stageMinSize[1]),
+    stageWidth: Math.max(result.width ?? 0, theme.canvas.minSize[0]),
+    stageHeight: Math.max(result.height ?? 0, theme.canvas.minSize[1]),
     warnings,
   };
 }

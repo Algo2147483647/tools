@@ -3,13 +3,6 @@ export const CHART_DEFAULTS = {
     showNodeDetail: false,
     alignNodeWidthsToMax: true,
     appearance: {
-      layout: {
-        columnGap: 64,
-        rowGap: 28,
-        edgeLaneGap: 12,
-        nodeHeight: 48,
-        nodeWidthRange: [188, 240],
-      },
       display: {
         edgeArrowStyle: "open",
         nodeCornerRadius: 16,
@@ -22,18 +15,23 @@ export const CHART_DEFAULTS = {
         "--dag-title-font-weight": "500",
       },
       css: ".dag-backdrop { display: none; }\n.dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }",
+      nodes: {
+        spacing: {
+          column: 64,
+          row: 28,
+        },
+        height: 48,
+        widths: [188, 240],
+      },
+      edges: {
+        spacing: 12,
+      },
     },
   },
   compound: {
     showNodeDetail: false,
     alignNodeWidthsToMax: true,
     appearance: {
-      layout: {
-        columnGap: 24,
-        rowGap: 24,
-        nodeHeight: 100,
-        nodeWidthRange: [200, 200],
-      },
       display: {
         titleAlign: "center",
         titleWrap: true,
@@ -50,6 +48,14 @@ export const CHART_DEFAULTS = {
         "--dag-title-font-size": "22px",
       },
       css: ".dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }",
+      nodes: {
+        spacing: {
+          column: 24,
+          row: 24,
+        },
+        height: 100,
+        widths: [200, 200],
+      },
     },
   },
   timeline: {

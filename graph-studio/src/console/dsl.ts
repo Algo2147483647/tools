@@ -1,4 +1,5 @@
-import type { GraphLayoutAppearance } from "../graph/appearance";
+import { APPEARANCE_DEFINITION } from "../schema/appearanceDefinition";
+import { definitionAt, resolveDefinition } from "../schema/definition";
 import type { AppearanceCommand, GraphAppearancePresetId } from "../graph/appearanceCommands";
 
 interface ConsoleLineError {
@@ -200,8 +201,8 @@ function parseInstruction(
       return parseSetInstruction(tokens, line);
     case "unset":
       return parseUnsetInstruction(tokens, line);
-    case "layout":
-      return parseLayoutInstruction(tokens, line);
+    case "appearance-set":
+      return parseAppearanceFieldInstruction(tokens, line);
     case "style-var":
       return parseStyleVarInstruction(tokens, line);
     case "style-css":
@@ -492,36 +493,31 @@ function parseUnsetInstruction(tokens: ConsoleToken[], line: number) {
   return { ok: true, instruction: { type: "unsetField", key, field, line } } as const;
 }
 
-function parseLayoutInstruction(tokens: ConsoleToken[], line: number) {
-  const key = parseLiteralToken(tokens[1]);
-  if (key === "stagePadding" || key === "stageMinSize" || key === "nodeWidthRange") {
-    const parsed = parseSetValueTokens(tokens.slice(2));
-    if (
-      !parsed.ok ||
-      !Array.isArray(parsed.value) ||
-      parsed.value.length !== 2 ||
-      !parsed.value.every((entry) => typeof entry === "number" && Number.isFinite(entry))
-    )
-      return { ok: false, error: { line, message: `layout ${key} expects two finite numbers in an array.` } } as const;
+function parseAppearanceFieldInstruction(tokens: ConsoleToken[], line: number) {
+  const path = parseLiteralToken(tokens[1]);
+  const field = typeof path === "string" ? definitionAt(APPEARANCE_DEFINITION, path.split(".")) : undefined;
+  const parsed = parseSetValueTokens(tokens.slice(2));
+  if (!path || !field || path === "version" || !parsed.ok)
+    return {
+      ok: false,
+      error: { line, message: "appearance-set expects a declared Appearance field path and JSON value." },
+    } as const;
+  try {
+    const value = resolveDefinition(field, parsed.value, `style.appearance.${path}`);
     return {
       ok: true,
       instruction: {
         type: "appearance",
-        command: { type: "setLayout", key, value: parsed.value as [number, number] },
+        command: { type: "setAppearanceField", path, value },
         line,
       } satisfies ConsoleInstruction,
     } as const;
+  } catch (error) {
+    return {
+      ok: false,
+      error: { line, message: error instanceof Error ? error.message : "Invalid appearance value." },
+    } as const;
   }
-  if (tokens.length !== 3)
-    return { ok: false, error: { line, message: "layout expects <layout-key> <number>." } } as const;
-  const value = Number(parseLiteralToken(tokens[2]));
-  if (!isLayoutKey(key) || !Number.isFinite(value)) {
-    return { ok: false, error: { line, message: "layout expects a valid layout key and finite number." } } as const;
-  }
-  return {
-    ok: true,
-    instruction: { type: "appearance", command: { type: "setLayout", key, value }, line } satisfies ConsoleInstruction,
-  } as const;
 }
 
 function parseStyleVarInstruction(tokens: ConsoleToken[], line: number) {
@@ -747,10 +743,4 @@ function expectWordToken(token: ConsoleToken | undefined): Extract<ConsoleToken,
 
 function isDagCssVarName(value: string | null): value is `--dag-${string}` {
   return typeof value === "string" && value.startsWith("--dag-");
-}
-
-function isLayoutKey(
-  value: string | null,
-): value is Exclude<keyof GraphLayoutAppearance, "stagePadding" | "stageMinSize" | "nodeWidthRange"> {
-  return value === "columnGap" || value === "rowGap" || value === "edgeLaneGap" || value === "nodeHeight";
 }

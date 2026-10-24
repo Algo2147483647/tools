@@ -1,14 +1,12 @@
-import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "./appearance";
+import { type GraphAppearance, sanitizeGraphAppearance } from "./appearance";
 import type { GraphChartType } from "./types";
 import type { ChartStyleDocument } from "../schema/appearanceModel";
-import { createStyleDocument } from "../schema/styleProtocol";
+import { createStyleDocument, updateAppearanceSchemaValue } from "../schema/styleProtocol";
 import { getDefaultChartStyle, getManifestPresetStyle, type ChartStyle } from "../state/chartStyles";
 import { PRESET_MANIFEST } from "../schema/presetManifest";
 
 export type AppearanceCommand =
-  | {
-      [K in keyof GraphLayoutAppearance]: { type: "setLayout"; key: K; value: GraphLayoutAppearance[K] };
-    }[keyof GraphLayoutAppearance]
+  | { type: "setAppearanceField"; path: string; value: unknown }
   | { type: "setCssVar"; key: string; value: string }
   | { type: "unsetCssVar"; key: string }
   | { type: "replaceCss"; css: string }
@@ -72,14 +70,15 @@ function applyRawAppearanceCommand(
   chartType?: GraphChartType,
 ): GraphAppearance {
   switch (command.type) {
-    case "setLayout":
-      return {
-        ...source,
-        layout: {
-          ...source.layout,
-          [command.key]: command.value,
-        },
-      };
+    case "setAppearanceField": {
+      const chart = chartType ?? "compound";
+      return updateAppearanceSchemaValue(
+        chart,
+        { ...getDefaultChartStyle(chart), appearance: source },
+        `style.appearance.${command.path}`,
+        command.value,
+      ).appearance;
+    }
     case "setCssVar":
       return {
         ...source,
@@ -109,8 +108,8 @@ function applyRawAppearanceCommand(
 
 function buildAppearanceCommandMessage(command: AppearanceCommand): string {
   switch (command.type) {
-    case "setLayout":
-      return `Set layout ${command.key} to ${command.value}.`;
+    case "setAppearanceField":
+      return `Set appearance ${command.path} to ${JSON.stringify(command.value)}.`;
     case "setCssVar":
       return `Set ${command.key}.`;
     case "unsetCssVar":
@@ -128,11 +127,10 @@ function buildAppearanceCommandMessage(command: AppearanceCommand): string {
 
 function buildAppearanceDiff(before: GraphAppearance, after: GraphAppearance): string[] {
   const lines: string[] = [];
-  (Object.keys(after.layout) as Array<keyof GraphLayoutAppearance>).forEach((key) => {
-    if (JSON.stringify(before.layout[key]) !== JSON.stringify(after.layout[key])) {
-      lines.push(`~ layout.${key}: ${JSON.stringify(before.layout[key])} -> ${JSON.stringify(after.layout[key])}`);
-    }
-  });
+  for (const key of ["canvas", "nodes", "edges"] as const) {
+    if (JSON.stringify(before[key]) !== JSON.stringify(after[key]))
+      lines.push(`~ ${key}: ${JSON.stringify(before[key])} -> ${JSON.stringify(after[key])}`);
+  }
   (Object.keys(after.display) as Array<keyof GraphAppearance["display"]>).forEach((key) => {
     if (before.display[key] !== after.display[key]) {
       lines.push(`~ display.${key}: ${before.display[key]} -> ${after.display[key]}`);

@@ -13,14 +13,20 @@ Generated from the canonical field definitions. Required fields are marked with 
 | style.alignNodeWidthsToMax * | boolean | true | Align card widths to the configured maximum. |
 | style.appearance * | object | — | Shared appearance object; includes stored fields unused by some charts. |
 | style.appearance.version * | 1 | 1 | Nested appearance protocol version. |
-| style.appearance.layout * | object | — | Stored geometry values; renderer support varies by chart. |
-| style.appearance.layout.stagePadding | [number, number] | [108,88] | Horizontal and vertical stage padding [x, y] in logical pixels. |
-| style.appearance.layout.columnGap | number | 24 | Layer separation in logical pixels. |
-| style.appearance.layout.rowGap | number | 24 | Node or label separation in logical pixels. |
-| style.appearance.layout.edgeLaneGap | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by compound. |
-| style.appearance.layout.nodeHeight | number | 100 | Base card height or chart-specific vertical-space input. |
-| style.appearance.layout.nodeWidthRange | [number, number] | [200,200] | Node width bounds [min, max]; max sets the event label width. |
-| style.appearance.layout.stageMinSize | [number, number] | [980,600] | Minimum stage dimensions [width, height] in logical pixels. |
+| style.appearance.canvas * | object | — | Canvas padding and minimum visible size. |
+| style.appearance.canvas.padding | [number, number] | [108,88] | Horizontal and vertical canvas padding [x, y] in logical pixels. |
+| style.appearance.canvas.minSize | [number, number] | [980,600] | Minimum canvas size [width, height] in logical pixels. |
+| style.appearance.nodes * | object | — | Node sizes and spacing; capabilities are declared per chart. |
+| style.appearance.nodes.widths | [number, number] | [200,200] | Node width bounds [min, max]; max sets the event label width. |
+| style.appearance.nodes.height | number | 100 | Base card height or chart-specific vertical-space input. |
+| style.appearance.nodes.spacing * | object | — | Spacing between columns, rows and Timeline channels. |
+| style.appearance.nodes.spacing.column | number | 24 | Layer separation in logical pixels. |
+| style.appearance.nodes.spacing.row | number | 24 | Node or label separation in logical pixels. |
+| style.appearance.nodes.spacing.channel | number | 24 | Channel spacing input in logical pixels. Not used by compound. |
+| style.appearance.nodes.spread | number | 1 | Cross-time-axis spread multiplier, interpreted for the selected orientation. Not used by compound. |
+| style.appearance.nodes.width | number | 20 | Sankey bar width in logical pixels. Not used by compound. |
+| style.appearance.edges * | object | — | Spacing between edge lanes. |
+| style.appearance.edges.spacing | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by compound. |
 | style.appearance.display * | object | — | Display flags and visual dimensions; unsupported fields remain stored. |
 | style.appearance.display.titleAlign | left \| center | "center" | Nested node-link card-title alignment. |
 | style.appearance.display.titleOverflow | ellipsis \| clip \| visible | "ellipsis" | Nested node-link title overflow treatment. |
@@ -35,7 +41,6 @@ Generated from the canonical field definitions. Required fields are marked with 
 | style.appearance.display.shadowBlur | number | 8 | Shadow softness in logical pixels. |
 | style.appearance.display.shadowOffset | number | 3 | Vertical shadow distance in logical pixels. |
 | style.appearance.display.shadowOpacity | number | 12 | Shadow opacity as a percentage, not a 0–1 fraction. |
-| style.appearance.display.sankeyNodeWidth | number | 20 | Sankey bar width in logical pixels; exposed under Layout. Not used by compound. |
 | style.appearance.display.sankeyLinkOpacity | number | 32 | Sankey normal-band opacity as a percentage; interaction has separate opacity rules. Not used by compound. |
 | style.appearance.cssVars * | object | — | SVG root CSS variables; only --dag- names with string values are accepted. |
 | style.appearance.cssVars[--dag-text-strong] | string | "#162033" | Primary text color. |
@@ -107,23 +112,32 @@ Generated from the canonical field definitions. Required fields are marked with 
     "alignNodeWidthsToMax": true,
     "appearance": {
       "version": 1,
-      "layout": {
-        "stagePadding": [
+      "canvas": {
+        "padding": [
           108,
           88
         ],
-        "columnGap": 24,
-        "rowGap": 24,
-        "edgeLaneGap": 28,
-        "nodeHeight": 100,
-        "nodeWidthRange": [
-          200,
-          200
-        ],
-        "stageMinSize": [
+        "minSize": [
           980,
           600
         ]
+      },
+      "nodes": {
+        "widths": [
+          200,
+          200
+        ],
+        "height": 100,
+        "spacing": {
+          "column": 24,
+          "row": 24,
+          "channel": 24
+        },
+        "spread": 1,
+        "width": 20
+      },
+      "edges": {
+        "spacing": 28
       },
       "display": {
         "titleAlign": "center",
@@ -139,7 +153,6 @@ Generated from the canonical field definitions. Required fields are marked with 
         "shadowBlur": 8,
         "shadowOffset": 3,
         "shadowOpacity": 12,
-        "sankeyNodeWidth": 20,
         "sankeyLinkOpacity": 32
       },
       "cssVars": {

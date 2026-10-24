@@ -1,17 +1,15 @@
 import type { GraphChartType } from "../graph/types";
-import type { GraphAppearance, GraphLayoutAppearance } from "../graph/appearance";
+import type { GraphAppearance, GraphGeometryAppearance } from "../graph/appearance";
 import { getRoleFont, getTitleFont, DEFAULT_TITLE_FONT, type TextFont } from "./typography";
 // Only geometry inputs belong in layout memoization; colors and CSS are rendered separately.
-export interface StageAppearance {
-  layout: GraphLayoutAppearance;
+export interface StageAppearance extends GraphGeometryAppearance {
   typography?: TextFont;
   fonts?: Record<"detail" | "date" | "axis" | "track", TextFont>;
   palette?: GraphAppearance["palette"];
   fontMetricsKey?: string;
-  display: Pick<GraphAppearance["display"], "sankeyNodeWidth"> &
-    Partial<
-      Pick<GraphAppearance["display"], "showGroupStats" | "titleAlign" | "titleOverflow" | "titleWrap" | "showNodeDots">
-    >;
+  display: Partial<
+    Pick<GraphAppearance["display"], "showGroupStats" | "titleAlign" | "titleOverflow" | "titleWrap" | "showNodeDots">
+  >;
 }
 export function getStageAppearance(
   appearance: GraphAppearance,
@@ -19,7 +17,9 @@ export function getStageAppearance(
   fontMetricsKey?: string,
 ): StageAppearance {
   return {
-    layout: appearance.layout,
+    canvas: appearance.canvas,
+    nodes: appearance.nodes,
+    edges: appearance.edges,
     typography: getTitleFont(appearance),
     fonts: Object.fromEntries(
       (["detail", "date", "axis", "track"] as const).map((role) => [role, getRoleFont(appearance, role)]),
@@ -27,7 +27,6 @@ export function getStageAppearance(
     palette: appearance.palette,
     ...(fontMetricsKey ? { fontMetricsKey } : {}),
     display: {
-      sankeyNodeWidth: appearance.display.sankeyNodeWidth,
       ...(chartType === undefined || chartType === "compound"
         ? {
             showGroupStats: appearance.display.showGroupStats,

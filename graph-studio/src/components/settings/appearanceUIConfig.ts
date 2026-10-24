@@ -6,8 +6,17 @@ export interface AppearanceUINode {
   path?: string;
   renderer?: string;
   label?: string;
+  labelBy?: { path: string; values: Record<string, string> };
   charts?: readonly GraphChartType[];
-  options?: { min?: number; max?: number; step?: number; unit?: string; invert?: boolean; labels?: string[] };
+  options?: {
+    min?: number;
+    max?: number;
+    step?: number;
+    unit?: string;
+    scale?: number;
+    invert?: boolean;
+    labels?: string[];
+  };
   children?: readonly AppearanceUINode[];
 }
 const field = (
@@ -22,10 +31,6 @@ const display = (id: string, renderer?: string, options?: AppearanceUINode["opti
 const color = (name: string) => field(name, `style.appearance.cssVars[${name}]`, "color");
 
 export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
-  sankeyWidth: {
-    ...display("sankeyNodeWidth", "number", { max: 48, unit: "px" }, "Flow node width"),
-    charts: ["sankey"],
-  },
   timelineLayout: {
     id: "timeline-layout",
     path: "style.timeline",
@@ -42,6 +47,39 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
     path: "style.appearance",
     renderer: "panel",
     children: [
+      {
+        id: "node-sizes",
+        path: "style.appearance.nodes",
+        renderer: "grid",
+        children: [
+          field(
+            "widths",
+            "widths",
+            "tuple",
+            { max: 480, step: 4, labels: ["Minimum width", "Maximum width"] },
+            "Node widths",
+          ),
+          field("height", "height", "number", { max: 160, step: 2, unit: "px" }, "Node height"),
+          field("width", "width", "number", { max: 48, unit: "px" }, "Flow node width"),
+          field("column", "spacing.column", "number", { max: 260, step: 2, unit: "px" }, "Column spacing"),
+          field("row", "spacing.row", "number", { max: 140, step: 2, unit: "px" }, "Row spacing"),
+          field("channel", "spacing.channel", "number", { max: 140, step: 2, unit: "px" }, "Timeline channel spacing"),
+          {
+            ...field(
+              "spread",
+              "spread",
+              "number",
+              { max: 300, step: 10, unit: "%", scale: 100 },
+              "Timeline horizontal spread",
+            ),
+            charts: ["timeline"],
+            labelBy: {
+              path: "style.timeline.orientation",
+              values: { horizontal: "Timeline vertical spread", vertical: "Timeline horizontal spread" },
+            },
+          },
+        ],
+      },
       { id: "timeline-colors", path: "style.timeline", renderer: "timeline-colors", charts: ["timeline"] },
       {
         id: "timeline-points",
@@ -75,6 +113,13 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
     path: "style.appearance",
     renderer: "panel",
     children: [
+      field(
+        "edge-spacing",
+        "style.appearance.edges.spacing",
+        "number",
+        { max: 96, step: 2, unit: "px" },
+        "Edge lane spacing",
+      ),
       {
         id: "timeline-anchors",
         path: "style.timeline",
@@ -127,35 +172,24 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
       ),
     ],
   },
-  dimensions: {
-    id: "dimensions",
-    path: "style.appearance.layout",
+  canvas: {
+    id: "canvas",
+    path: "style.appearance.canvas",
     renderer: "grid",
     children: [
-      field("columnGap", "columnGap", "number", { max: 260, step: 2, unit: "px" }),
-      field("rowGap", "rowGap", "number", { max: 140, step: 2, unit: "px" }),
-      field("edgeLaneGap", "edgeLaneGap", "number", { max: 96, step: 2, unit: "px" }),
-      field("nodeHeight", "nodeHeight", "number", { max: 160, step: 2, unit: "px" }),
       field(
-        "nodeWidthRange",
-        "nodeWidthRange",
-        "tuple",
-        { max: 480, step: 4, labels: ["Minimum width", "Maximum width"] },
-        "Node widths",
-      ),
-      field(
-        "stagePadding",
-        "stagePadding",
+        "padding",
+        "padding",
         "tuple",
         { max: 300, step: 2, labels: ["Horizontal padding", "Vertical padding"] },
-        "Stage padding",
+        "Canvas padding",
       ),
       field(
-        "stageMinSize",
-        "stageMinSize",
+        "minSize",
+        "minSize",
         "tuple",
-        { max: 2400, step: 20, labels: ["Minimum stage width", "Minimum stage height"] },
-        "Minimum stage size",
+        { max: 2400, step: 20, labels: ["Minimum canvas width", "Minimum canvas height"] },
+        "Minimum canvas size",
       ),
     ],
   },

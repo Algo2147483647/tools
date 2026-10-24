@@ -1,3 +1,4 @@
+import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -301,13 +302,19 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
               buildTimelineStage({
                 dag,
                 selection: { type: "full" },
+                appearance: {
+                  ...DEFAULT_GRAPH_APPEARANCE,
+                  nodes: {
+                    ...DEFAULT_GRAPH_APPEARANCE.nodes,
+                    spread,
+                    spacing: { ...DEFAULT_GRAPH_APPEARANCE.nodes.spacing, channel: 90 },
+                  },
+                },
                 timelineSettings: {
                   orientation,
                   layout,
                   axis,
                   intervalTitle: "inside",
-                  horizontalSpread: spread,
-                  nodeGap: 90,
                   pins: { a: 999, first: 999, far: 999, undated: 999 },
                 },
               })!;

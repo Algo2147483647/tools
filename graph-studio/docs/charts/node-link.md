@@ -51,7 +51,7 @@ Containment metadata is preserved when viewing a compound document as Node-link,
 
 Card dimensions, layer spacing, row spacing, and edge-lane spacing affect geometry. Fill, border colors, shadows, and rounded corners affect paint. Fonts can affect measured card geometry as well as paint.
 
-The [Node-link appearance reference](../appearance/node-link.md) documents exact paths, defaults, and CSS hooks. A card's radius does not change its edge endpoints. Equal widths is a display option outside `appearance.layout` in the current v1 style protocol.
+The [Node-link appearance reference](../appearance/node-link.md) documents exact paths, defaults, and CSS hooks. A card's radius does not change its edge endpoints. Equal widths is a display option outside `appearance` in the current v1 style protocol.
 
 ## Persistence and limitations
 

@@ -1,6 +1,6 @@
 import { resolveAppearance } from "../schema/appearanceContract";
 import type { GraphAppearance } from "../schema/appearanceModel";
-export type { GraphAppearance, GraphLayoutAppearance } from "../schema/appearanceModel";
+export type { GraphAppearance, GraphGeometryAppearance } from "../schema/appearanceModel";
 import type { CSSProperties } from "react";
 
 // Built-in styles are rendered independently of user-authored custom CSS.

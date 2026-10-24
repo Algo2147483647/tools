@@ -149,28 +149,13 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
           </section>
         )}
         {isTimeline && p.timelineControls && <AppearanceUIOutlet node={APPEARANCE_UI.timelineLayout} />}
-        {isSankey && visible("sankeyNodeWidth") && (
+        {isSankey && visible("flow-layout") && (
           <section className="settings-section">
             <h3>Automatic flow layout</h3>
             <p>
               Nodes follow the flow from left to right. Return flows run below the chart. Node heights and band widths
               share one flow scale.
             </p>
-            <div className="settings-slider-grid">
-              <AppearanceUIOutlet node={APPEARANCE_UI.sankeyWidth} />
-            </div>
-          </section>
-        )}
-        {(!p.query || catalog.some((item) => item.id.startsWith("style.appearance.layout.") && visible(item.id))) && (
-          <section className="settings-section">
-            <div className="settings-section-heading">
-              <h3>Spacing & dimensions</h3>
-              <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset("layout")}>
-                Reset dimensions
-              </button>
-            </div>
-            <p>Fine-tune graph density and label room.</p>
-            <AppearanceUIOutlet node={APPEARANCE_UI.dimensions} />
           </section>
         )}
       </>
@@ -198,6 +183,7 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
     const has = (key: string) => items.some((item) => item.id === key || item.uiId === key);
     return (
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
+        {id === "canvas" && <h3>Canvas</h3>}
         {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
         {has("presets") && (
           <>
@@ -255,10 +241,10 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             </div>
           </div>
         )}
-        {["nodes", "edges", "text"].includes(id) && (
+        {["nodes", "edges", "text", "canvas"].includes(id) && (
           <div className="appearance-group-actions">
             <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
-              Reset {label.toLowerCase()} style
+              {`Reset ${label.toLowerCase()} style`}
             </button>
           </div>
         )}

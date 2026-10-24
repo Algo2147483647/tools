@@ -78,7 +78,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     const doc = { ...graph(), metadata: { style: "../styles/timeline.json", timeline: {} } };
     const style = {
       ...getDefaultChartStyle("timeline"),
-      timeline: sanitizeTimelineSettings({ orientation: "horizontal", edgeRouting: "direct", horizontalSpread: 0 }),
+      timeline: sanitizeTimelineSettings({ orientation: "horizontal", edgeRouting: "direct" }),
     };
     const files = folder({
       [WORKSPACE_MANIFEST]: manifest(["graphs/example.json"]),

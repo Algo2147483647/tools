@@ -187,7 +187,6 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
       tickStep: 17,
       tickUnit: "year",
       compactness: 0.8,
-      horizontalSpread: 2.4,
     });
     assert.deepEqual(
       parseGraphPagePreferences(JSON.stringify(prefs))!.chartStyles!.timeline.style.timeline,
@@ -202,6 +201,6 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
     ])
       assert.throws(() => sanitizeTimelineSettings(invalid));
     assert.equal(sanitizeTimelineSettings({ compactness: -10 }).compactness, -10);
-    assert.equal(sanitizeTimelineSettings(null).horizontalSpread, 1);
+    assert.equal(getInitialGraphPagePreferences().chartStyles.timeline.style.appearance.nodes.spread, 1);
   }),
 ]);

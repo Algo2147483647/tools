@@ -10,6 +10,8 @@ import {
   writeTimelineLayout,
 } from "../graph/timelineLayout";
 import { parseTimelineLayoutResponse, timelineLayoutContext, requestTimelineLayout } from "../ai/timelineLayout";
+import { getDefaultChartStyle } from "../state/chartStyles";
+import { getStageAppearance } from "../layout/appearance";
 import { buildTimelineStage } from "../layout/timeline-layout";
 import { evaluateTimelineLayout, type TimelineLayoutInput } from "../layout/timeline-layout-candidate";
 import { validateTimelineArrangement } from "../layout/timeline-layout-quality";
@@ -53,8 +55,6 @@ function graph(relative = false) {
 const plan = {
   trackOrder: ["Operations", "Engineering", "Research"],
   eventOrder: ["c", "b", "a"],
-  nodeGap: 70,
-  horizontalSpread: 1.6,
   edgeRouting: "avoid" as const,
 };
 const geometry = (stage: StageData) => ({
@@ -127,16 +127,18 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       },
       edges: [{ id: "ab", source: "a", target: "b", metadata: { timeline: { kind: "sequence" } } }],
     });
+    const appearance = getDefaultChartStyle("timeline").appearance;
+    appearance.nodes.spacing.channel = 50;
+    appearance.nodes.spread = 1.5;
     const input: TimelineLayoutInput = {
       dag,
       selection: { type: "full" },
+      appearance: getStageAppearance(appearance, "timeline"),
       timelineSettings: { layout: "flow", pins: { pinned: 950 } },
     };
     const base = buildTimelineStage(input)!;
     const arranged = evaluateTimelineLayout(input, base, {
       eventOrder: ["c", "a"],
-      nodeGap: 50,
-      horizontalSpread: 1.5,
     }).stage;
     assert.notEqual(arranged.nodeMap.a.x, base.nodeMap.a.x);
     assert.equal(arranged.nodeMap.a.x, arranged.nodeMap.b.x);

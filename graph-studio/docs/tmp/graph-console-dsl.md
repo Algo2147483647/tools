@@ -1,6 +1,6 @@
 # Graph Studio Graph Console DSL
 
-Nested layout operations use a separate asynchronous `/compound-layout` namespace: `inspect [group-id]`, `diagnose [group-id]`, `propose <intent-json>`, `compare <candidate-id>`, `apply <candidate-id>`, and `cancel`. Run these independently of ordinary command batches. They share the Layout assistant preview and validated application path. See [Nested layout protocol](ai-compound-layout.md) for the JSON intent format; `/layout <key> <number>` retains its appearance-setting meaning.
+Nested layout operations use a separate asynchronous `/compound-layout` namespace: `inspect [group-id]`, `diagnose [group-id]`, `propose <intent-json>`, `compare <candidate-id>`, `apply <candidate-id>`, and `cancel`. Run these independently of ordinary command batches. They share the Layout assistant preview and validated application path. See [Nested layout protocol](ai-compound-layout.md) for the JSON intent format; `/appearance-set <path> <JSON>` retains its appearance-setting meaning.
 
 ## 1. Scope
 
@@ -157,7 +157,7 @@ The console maintains one implicit **current-node context register**.
 | `/set`           | Mutation   | Replace one node field with text, scalar, or JSON               |
 | `/unset`         | Mutation   | Remove one node field                                           |
 | `/json`          | UI         | Open raw node JSON editor                                       |
-| `/layout`        | Appearance | Set one layout appearance number                                |
+| `/appearance-set`        | Appearance | Set an Appearance Schema field                                |
 | `/style-var`     | Appearance | Set or unset one `--dag-*` CSS variable                         |
 | `/style-css`     | Appearance | Show, append, or replace custom graph CSS                       |
 | `/style-preset`  | Appearance | Apply a built-in appearance preset                              |
@@ -786,29 +786,34 @@ Opens the raw JSON editor for the target node.
 
 ---
 
-## 7.17 `layout`
+## 7.17 `appearance-set`
 
 ### Synopsis
 
 ```sh
-/layout <key> <number>
+/appearance-set <path> <JSON>
 ```
 
 ### Description
 
-Sets one numeric layout appearance value. Layout appearance controls graph spacing, node sizing, and minimum stage dimensions.
+Sets a field relative to `style.appearance`. Values are parsed and validated by the canonical Appearance Schema, including chart capabilities. Nodes, edges and canvas own their visual parameters; Layout selects algorithms and rules.
 
-### Supported Keys
+### Geometry Paths
 
-| Key              | Meaning                                                                              |
-| ---------------- | ------------------------------------------------------------------------------------ |
-| `stagePadding`   | Horizontal and vertical graph padding `[x, y]`; use `/layout stagePadding [32, 48]`. |
-| `columnGap`      | Horizontal distance between layers                                                   |
-| `rowGap`         | Vertical distance between rows                                                       |
-| `edgeLaneGap`    | Spacing between edge lanes                                                           |
-| `nodeHeight`     | Base node height                                                                     |
-| `nodeWidthRange` | Node width bounds `[min, max]`.                                                      |
-| `stageMinSize`   | Minimum stage size `[width, height]`.                                                |
+| Path | Meaning |
+| --- | --- |
+| `canvas.padding` | Horizontal and vertical canvas padding `[x, y]`. |
+| `canvas.minSize` | Minimum canvas size `[width, height]`. |
+| `nodes.widths` | Node width bounds `[min, max]`. |
+| `nodes.height` | Base node height. |
+| `nodes.spacing.column` | Distance between node columns. |
+| `nodes.spacing.row` | Distance between node rows or labels. |
+| `nodes.spacing.channel` | Timeline channel spacing. |
+| `nodes.spread` | Timeline cross-axis spread multiplier. |
+| `nodes.width` | Sankey bar width. |
+| `edges.spacing` | Node-link edge-lane spacing. |
+
+Other Appearance Schema paths use the same command. Fields unsupported by the active chart are rejected.
 
 ### Behavioral Notes
 
@@ -822,9 +827,9 @@ Sets one numeric layout appearance value. Layout appearance controls graph spaci
 ### Examples
 
 ```sh
-/layout rowGap 28
-/layout columnGap 260
-/layout nodeWidthRange [188, 420]
+/appearance-set nodes.spacing.row 28
+/appearance-set nodes.spacing.column 260
+/appearance-set nodes.widths [188, 420]
 ```
 
 ---
@@ -1036,7 +1041,7 @@ Appearance settings have matching console forms:
 
 | Settings Action        | Console Form                                            |
 | ---------------------- | ------------------------------------------------------- |
-| Layout tuning          | `/layout <key> <number>`                                |
+| Layout tuning          | `/appearance-set <path> <JSON>`                                |
 | Token editing          | `/style-var <var> <value>`                              |
 | Token removal          | `/style-var --unset <var>`                              |
 | Custom CSS editing     | `/style-css append <css>` or `/style-css replace <css>` |
@@ -1087,7 +1092,7 @@ type ConsoleInstruction =
   | { type: "setField"; key: string; field: string; value: string; line: number }
   | { type: "unsetField"; key: string; field: string; line: number }
   | { type: "json"; key: string; line: number }
-  | { type: "setLayout"; key: string; value: number; line: number }
+  | { type: "setAppearanceField"; key: string; value: number; line: number }
   | { type: "setCssVar"; key: string; value: string; line: number }
   | { type: "unsetCssVar"; key: string; line: number }
   | { type: "appearanceCssShow"; line: number }
@@ -1181,7 +1186,7 @@ Recommended V1 rule:
 | P0       | `/set`               |
 | P0       | `/unset`             |
 | P0       | `/json`              |
-| P0       | `/layout`            |
+| P0       | `/appearance-set`            |
 | P0       | `/style-var`         |
 | P0       | `/style-css show`    |
 | P0       | `/style-css append`  |

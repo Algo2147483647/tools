@@ -111,7 +111,7 @@ Constraints reference original IDs; visible aggregated connections expose `origi
 
 ## Console Interface
 
-Layout operations have a dedicated asynchronous namespace. Existing `/layout <key> <number>` continues to edit appearance parameters.
+Layout operations have a dedicated asynchronous namespace. Existing `/appearance-set <key> <number>` continues to edit appearance parameters.
 
 ```text
 /compound-layout inspect checkout

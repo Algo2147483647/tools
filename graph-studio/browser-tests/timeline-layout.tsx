@@ -59,13 +59,11 @@ const settings = {
 const plan = {
   trackOrder: ["Operations", "Engineering", "Research"],
   eventOrder: ["c", "b", "a"],
-  nodeGap: 50,
-  horizontalSpread: 1.5,
   edgeRouting: "avoid",
 };
 const validResponse = JSON.stringify({
   version: 1,
-  explanation: "Place operations before engineering and research, with wider spacing.",
+  explanation: "Place operations before engineering and research.",
   plan,
 });
 let response = validResponse,

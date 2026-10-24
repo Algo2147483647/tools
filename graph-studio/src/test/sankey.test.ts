@@ -212,11 +212,12 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
     assert.equal(legacy.display.nodeShadow, true);
     assert.equal(legacy.display.shadowOpacity, 12);
     const appearance = sanitizeGraphAppearance({
-      display: { nodeShadow: false, shadowBlur: 100, shadowOpacity: -1, sankeyNodeWidth: 100 },
+      nodes: { width: 100 },
+      display: { nodeShadow: false, shadowBlur: 100, shadowOpacity: -1 },
     });
     assert.equal(appearance.display.shadowBlur, 100);
     assert.equal(appearance.display.shadowOpacity, -1);
-    assert.equal(appearance.display.sankeyNodeWidth, 100);
+    assert.equal(appearance.nodes.width, 100);
     assert.equal((appearanceToStageStyle(appearance) as Record<string, unknown>)["--dag-node-shadow"], "none");
     assert.deepEqual(sanitizeGraphAppearance(JSON.parse(JSON.stringify(appearance))), appearance);
     assert.match(

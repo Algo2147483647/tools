@@ -4,8 +4,6 @@ import { isRecord } from "../utils/json";
 export interface TimelineLayoutPlan {
   trackOrder: string[];
   eventOrder: string[];
-  nodeGap?: number;
-  horizontalSpread?: number;
   edgeRouting?: "avoid" | "direct";
 }
 export interface TimelineLayoutData {
@@ -15,7 +13,7 @@ export interface TimelineLayoutData {
 }
 export function parseTimelineLayoutPlan(value: unknown): TimelineLayoutPlan {
   if (!isRecord(value)) throw new Error("Timeline layout must be an object.");
-  const allowed = ["trackOrder", "eventOrder", "nodeGap", "horizontalSpread", "edgeRouting"];
+  const allowed = ["trackOrder", "eventOrder", "edgeRouting"];
   for (const key of Object.keys(value))
     if (!allowed.includes(key)) throw new Error(`Unsupported timeline layout field: ${key}.`);
   const order = (key: string, limit: number) => {
@@ -30,16 +28,6 @@ export function parseTimelineLayoutPlan(value: unknown): TimelineLayoutPlan {
     return [...list] as string[];
   };
   const plan: TimelineLayoutPlan = { trackOrder: order("trackOrder", 2000), eventOrder: order("eventOrder", 2000) };
-  for (const [key, min, max] of [
-    ["nodeGap", 8, 160],
-    ["horizontalSpread", 0.5, 3],
-  ] as const) {
-    if (value[key] === undefined) continue;
-    const number = value[key];
-    if (typeof number !== "number" || !Number.isFinite(number) || number < min || number > max)
-      throw new Error(`${key} must be between ${min} and ${max}.`);
-    plan[key] = number;
-  }
   if (value.edgeRouting !== undefined) {
     if (value.edgeRouting !== "avoid" && value.edgeRouting !== "direct") throw new Error("Invalid edge routing.");
     plan.edgeRouting = value.edgeRouting;

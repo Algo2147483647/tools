@@ -278,7 +278,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     "external neighbors, parent edges and sibling expansion cannot change a completed child's local geometry",
     () => {
       const dag = nestedChainFixture();
-      const theme = getDefaultChartStyle("compound").appearance.layout;
+      const theme = getDefaultChartStyle("compound").appearance;
       const place = (doc: NormalizedDag, collapsedGroupIds: string[] = []) => {
         const projection = projectCompoundGraph(doc, { collapsedGroupIds, focusGroupId: null });
         return layoutCompoundHierarchy(
@@ -394,7 +394,10 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
   defineTest("zero configured gaps produce finite nested geometry", async () => {
     const dag = nestedChainFixture();
     const defaults = getStageAppearance(getDefaultChartStyle("compound").appearance, "compound");
-    const appearance = { ...defaults, layout: { ...defaults.layout, columnGap: 0, rowGap: 0 } };
+    const appearance = {
+      ...defaults,
+      nodes: { ...defaults.nodes, spacing: { ...defaults.nodes.spacing, column: 0, row: 0 } },
+    };
     const stage = await layoutFixture(dag, undefined, false, false, appearance);
     assert.ok(stage.nodes.length > 0);
     for (const node of stage.nodes)

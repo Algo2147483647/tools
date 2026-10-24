@@ -1,5 +1,5 @@
 import type { CompoundProjection } from "../graph/compoundProjection";
-import type { GraphLayoutAppearance } from "../graph/appearance";
+import type { GraphGeometryAppearance } from "../graph/appearance";
 import type { CompoundBox } from "./compound-routes";
 import { arrangeTopology } from "./compound-topology-layout";
 
@@ -16,7 +16,7 @@ interface Scope {
 export function layoutCompoundHierarchy(
   projection: CompoundProjection,
   sizes: Map<string, Size>,
-  theme: GraphLayoutAppearance,
+  theme: GraphGeometryAppearance,
 ) {
   const scopes = new Map<string | null, Scope>([[null, { children: [], edges: [] }]]);
   const parents = new Map(projection.items.map((item) => [item.id, item.parentId]));
@@ -50,7 +50,13 @@ export function layoutCompoundHierarchy(
   const fixedSizes = new Map(sizes);
   for (const id of [...scopes.keys()].reverse()) {
     const scope = scopes.get(id)!;
-    const result = arrangeTopology(scope.children, scope.edges, fixedSizes, theme.columnGap, theme.rowGap);
+    const result = arrangeTopology(
+      scope.children,
+      scope.edges,
+      fixedSizes,
+      theme.nodes.spacing.column,
+      theme.nodes.spacing.row,
+    );
     const left = id === null ? 36 : 24,
       top = id === null ? 36 : 58,
       bottom = id === null ? 36 : 24;

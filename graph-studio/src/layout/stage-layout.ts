@@ -2,7 +2,7 @@ import { buildSpatialStage } from "./spatial-layout";
 import { buildCategoryColorMap, normalizeTypeLabel } from "../graph/categoryColors";
 import { cardContentLayout, minimumCardHeight, type TextFont } from "./typography";
 import { getNodeChildKeys, getNodeChildren, getNodeType } from "../graph/accessors";
-import { type GraphLayoutAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { type GraphGeometryAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getRelationKeys } from "../graph/relations";
 import { getSankeyError } from "../graph/sankey";
 import { cloneGraphDocument } from "../graph/serialize";
@@ -44,7 +44,7 @@ export function buildStageData(input: {
   const font = stageTitleFont(appearance);
   const detailFont = stageRoleFont(appearance, "detail"),
     detailLineHeight = Math.ceil(detailFont.size * 1.2);
-  const theme = { ...appearance.layout };
+  const theme = { ...appearance };
   if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {
     return null;
   }
@@ -85,8 +85,8 @@ export function buildStageData(input: {
     const detailCount = visual.detail
       ? wrapDetailText(visual.detail, Math.max(visual.width - 74, 72), 2, detailFont).length
       : 0;
-    theme.nodeHeight = Math.max(
-      theme.nodeHeight,
+    theme.nodes.height = Math.max(
+      theme.nodes.height,
       minimumCardHeight(font, detailCount, !!getNodeType(layoutDag[key]!), 1, detailLineHeight),
     );
   }
@@ -126,7 +126,7 @@ export function buildStageData(input: {
       typeLabel,
       colorTokens: typeLabel ? typeColorMap.get(typeLabel) : undefined,
       width: visual.width,
-      height: theme.nodeHeight,
+      height: theme.nodes.height,
       isRoot: selection.isForest ? forestTopLevelSet.has(nodeKey) : nodeKey === selection.rootKey,
       x: 0,
       y: 0,
@@ -223,18 +223,18 @@ export function buildStageData(input: {
       }
 
       const slotCount = slotCountsByLayer.get(layer) || layerNodes.length || 1;
-      const layerHeight = slotCount * theme.nodeHeight + Math.max(slotCount - 1, 0) * theme.rowGap;
-      const startY = theme.stagePadding[1] + (stageInnerHeight - layerHeight) / 2;
+      const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.nodes.spacing.row;
+      const startY = theme.canvas.padding[1] + (stageInnerHeight - layerHeight) / 2;
       layerNodes.forEach((nodeData) => {
-        nodeData.y = startY + nodeData.order * (theme.nodeHeight + theme.rowGap) + theme.nodeHeight / 2;
+        nodeData.y = startY + nodeData.order * (theme.nodes.height + theme.nodes.spacing.row) + theme.nodes.height / 2;
       });
     });
 
     const columnWidths = sortedLayers.map((layer) => {
       const layerNodes = nodesByLayer.get(layer) || [];
-      return layerNodes.length ? Math.max(...layerNodes.map((node) => node.width)) : theme.nodeWidthRange[0];
+      return layerNodes.length ? Math.max(...layerNodes.map((node) => node.width)) : theme.nodes.widths[0];
     });
-    let cursorX = theme.stagePadding[0];
+    let cursorX = theme.canvas.padding[0];
 
     sortedLayers.forEach((layer, index) => {
       const layerWidth = columnWidths[index];
@@ -250,11 +250,11 @@ export function buildStageData(input: {
         x: laneCenter,
         width: layerWidth,
       });
-      cursorX += layerWidth + theme.columnGap;
+      cursorX += layerWidth + theme.nodes.spacing.column;
     });
 
-    stageWidth = cursorX - theme.columnGap + theme.stagePadding[0];
-    stageHeight = stageInnerHeight + theme.stagePadding[1] * 2;
+    stageWidth = cursorX - theme.nodes.spacing.column + theme.canvas.padding[0];
+    stageHeight = stageInnerHeight + theme.canvas.padding[1] * 2;
   }
 
   const sugiyamaStageRoutes =
@@ -327,8 +327,8 @@ export function buildStageData(input: {
     edges,
     connectedKeysByNode,
     lanes,
-    stageWidth: Math.max(stageWidth, theme.stageMinSize[0]),
-    stageHeight: Math.max(stageHeight, theme.stageMinSize[1]),
+    stageWidth: Math.max(stageWidth, theme.canvas.minSize[0]),
+    stageHeight: Math.max(stageHeight, theme.canvas.minSize[1]),
     warnings: layoutResult.warnings,
   };
 }
@@ -338,7 +338,7 @@ function resolveLayout(
   layoutDag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>,
   layoutRoots: NodeKey[],
   visualByKey: Map<NodeKey, { width: number }>,
-  theme: GraphLayoutAppearance,
+  theme: GraphGeometryAppearance,
 ) {
   if (layoutMode === "sugiyama") {
     return buildSugiyamaLayout(layoutDag, layoutRoots);
@@ -346,7 +346,7 @@ function resolveLayout(
   if (layoutMode === "dagre") {
     const nodeSizes = new Map<NodeKey, { width: number; height: number }>();
     visualByKey.forEach((visual, nodeKey) => {
-      nodeSizes.set(nodeKey, { width: visual.width, height: theme.nodeHeight });
+      nodeSizes.set(nodeKey, { width: visual.width, height: theme.nodes.height });
     });
     return buildDagreLayout(layoutDag, layoutRoots, nodeSizes);
   }
@@ -356,7 +356,7 @@ function resolveLayout(
 function buildNodeVisualMap(
   dag: Record<NodeKey, NormalizedDag["nodes"][NodeKey] | undefined>,
   nodeKeys: Set<NodeKey>,
-  theme: GraphLayoutAppearance,
+  theme: GraphGeometryAppearance,
   showNodeDetail: boolean,
   alignNodeWidthsToMax: boolean,
   font: TextFont,
@@ -370,7 +370,7 @@ function buildNodeVisualMap(
     }
     visuals.set(
       nodeKey,
-      getNodeVisual(nodeKey, node, theme.nodeWidthRange, showNodeDetail, alignNodeWidthsToMax, font, detailFont),
+      getNodeVisual(nodeKey, node, theme.nodes.widths, showNodeDetail, alignNodeWidthsToMax, font, detailFont),
     );
   });
   return visuals;
@@ -412,13 +412,13 @@ function getBarycentricScore(
   return total / parents.length;
 }
 
-function measureStageInnerHeight(slotCountsByLayer: Map<number, number>, theme: GraphLayoutAppearance): number {
+function measureStageInnerHeight(slotCountsByLayer: Map<number, number>, theme: GraphGeometryAppearance): number {
   let maxHeight = 0;
   slotCountsByLayer.forEach((slotCount) => {
-    const layerHeight = slotCount * theme.nodeHeight + Math.max(slotCount - 1, 0) * theme.rowGap;
+    const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.nodes.spacing.row;
     maxHeight = Math.max(maxHeight, layerHeight);
   });
-  return Math.max(maxHeight, theme.nodeHeight * 3.4);
+  return Math.max(maxHeight, theme.nodes.height * 3.4);
 }
 
 function applyAbsoluteLayoutGeometry(input: {
@@ -427,7 +427,7 @@ function applyAbsoluteLayoutGeometry(input: {
   nodesByLayer: Map<number, StageNode[]>;
   sortedLayers: number[];
   nodePositions: Map<NodeKey, { x: number; y: number }>;
-  theme: GraphLayoutAppearance;
+  theme: GraphGeometryAppearance;
   selection: StageData["selection"];
 }): {
   lanes: StageData["lanes"];
@@ -464,13 +464,13 @@ function applyAbsoluteLayoutGeometry(input: {
   ) {
     minLeft = 0;
     minTop = 0;
-    maxRight = theme.nodeWidthRange[0];
-    maxBottom = theme.nodeHeight * 2;
+    maxRight = theme.nodes.widths[0];
+    maxBottom = theme.nodes.height * 2;
   }
 
   const absoluteOffset = {
-    x: theme.stagePadding[0] - minLeft,
-    y: theme.stagePadding[1] - minTop,
+    x: theme.canvas.padding[0] - minLeft,
+    y: theme.canvas.padding[1] - minTop,
   };
 
   nodeKeys.forEach((nodeKey) => {
@@ -504,14 +504,14 @@ function applyAbsoluteLayoutGeometry(input: {
     });
   });
 
-  const stageWidth = maxRight - minLeft + theme.stagePadding[0] * 2;
-  const stageHeight = maxBottom - minTop + theme.stagePadding[1] * 2;
+  const stageWidth = maxRight - minLeft + theme.canvas.padding[0] * 2;
+  const stageHeight = maxBottom - minTop + theme.canvas.padding[1] * 2;
 
   return {
     lanes,
     laneCenters,
     slotCountsByLayer,
-    stageInnerHeight: Math.max(stageHeight - theme.stagePadding[1] * 2, theme.nodeHeight * 3.4),
+    stageInnerHeight: Math.max(stageHeight - theme.canvas.padding[1] * 2, theme.nodes.height * 3.4),
     stageWidth,
     stageHeight,
     absoluteOffset,
@@ -523,7 +523,7 @@ function getRoutePointPosition(
   laneCenters: Map<number, number>,
   slotCountsByLayer: Map<number, number>,
   stageInnerHeight: number,
-  theme: GraphLayoutAppearance,
+  theme: GraphGeometryAppearance,
   absoluteOffset?: { x: number; y: number },
 ): StageRoutePoint {
   if (typeof point.x === "number" && typeof point.y === "number") {
@@ -536,13 +536,13 @@ function getRoutePointPosition(
   }
 
   const slotCount = slotCountsByLayer.get(point.layer) || 1;
-  const layerHeight = slotCount * theme.nodeHeight + Math.max(slotCount - 1, 0) * theme.rowGap;
-  const startY = theme.stagePadding[1] + (stageInnerHeight - layerHeight) / 2;
+  const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.nodes.spacing.row;
+  const startY = theme.canvas.padding[1] + (stageInnerHeight - layerHeight) / 2;
   return {
     layer: point.layer,
     order: point.order,
-    x: laneCenters.get(point.layer) || theme.stagePadding[0],
-    y: startY + point.order * (theme.nodeHeight + theme.rowGap) + theme.nodeHeight / 2,
+    x: laneCenters.get(point.layer) || theme.canvas.padding[0],
+    y: startY + point.order * (theme.nodes.height + theme.nodes.spacing.row) + theme.nodes.height / 2,
   };
 }
 

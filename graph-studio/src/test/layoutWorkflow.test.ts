@@ -139,7 +139,7 @@ export const layoutWorkflowSuite = defineSuite("AI layout feedback", [
           evaluate: async () => feedback,
           ask: async () => proposal,
         }),
-      /layout proposals/,
+      /appearance-set proposals/,
     );
   }),
   defineTest("the result summary does not claim improvement for equal or worse metrics", () => {

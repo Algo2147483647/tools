@@ -75,7 +75,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
         "/style-preset default",
         '/style-var --dag-node-fill "rgba(18, 24, 38, 0.94)"',
         '/style-css append ".dag-node[data-type=\\"service\\"] .dag-node__shape { fill: #eef6ff; }"',
-        "/layout rowGap 34",
+        "/appearance-set nodes.spacing.row 34",
       ],
       constraints: [
         "All commands must start with /.",
@@ -83,7 +83,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
         "Do not reference missing nodes unless the same command batch creates them first or uses /edge --create-missing.",
         "Use /set for title, type, define, and other non-relation fields.",
         "Use /parents, /children, /edge, or /rm-edge for relation fields.",
-        "Use /style-var, /style-css, /style-preset, /style-reset, and /layout for UI appearance changes.",
+        "Use /style-var, /style-css, /style-preset, /style-reset, and /appearance-set for UI appearance changes.",
         "Only use --dag-* CSS variables and stable .dag-* SVG selectors for appearance CSS.",
       ],
     },

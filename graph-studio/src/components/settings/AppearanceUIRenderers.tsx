@@ -12,19 +12,25 @@ import { TimelinePointTextSettings, TimelineIntervalTextSettings } from "../Time
 import TimelineControls from "../TimelineControls";
 
 function NumberControl({ node, binding }: AppearanceRendererProps) {
-  const { commit } = useAppearanceUI();
+  const { commit, model } = useAppearanceUI();
   if (!binding) return null;
   const pixels = binding.definition.format === "pixels";
+  const scale = node.options?.scale ?? 1;
+  const label =
+    node.labelBy?.values[String(node.labelBy && model.bind(node.labelBy.path).value)] ??
+    node.label ??
+    binding.definition.label ??
+    node.id;
   return (
     <NumericSetting
-      label={node.label ?? binding.definition.label ?? node.id}
-      value={pixels ? parseFloat(String(binding.value)) : Number(binding.value)}
-      defaultValue={pixels ? parseFloat(String(binding.defaultValue)) : Number(binding.defaultValue)}
-      min={binding.definition.min ?? node.options?.min ?? 0}
-      max={binding.definition.max ?? node.options?.max ?? 100}
+      label={label}
+      value={(pixels ? parseFloat(String(binding.value)) : Number(binding.value)) * scale}
+      defaultValue={(pixels ? parseFloat(String(binding.defaultValue)) : Number(binding.defaultValue)) * scale}
+      min={binding.definition.min !== undefined ? binding.definition.min * scale : (node.options?.min ?? 0)}
+      max={binding.definition.max !== undefined ? binding.definition.max * scale : (node.options?.max ?? 100)}
       step={node.options?.step ?? binding.definition.step ?? 1}
       unit={node.options?.unit ?? binding.definition.unit ?? "px"}
-      onChange={(value) => commit(() => binding.set(pixels ? `${value}px` : value))}
+      onChange={(value) => commit(() => binding.set(pixels ? `${value / scale}px` : value / scale))}
     />
   );
 }

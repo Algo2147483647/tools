@@ -58,7 +58,11 @@ export const previewSuite = defineSuite("Shared live preview", [
         layoutMode,
         appearance: {
           ...initial.appearance,
-          layout: { ...initial.appearance.layout, nodeHeight: 140, columnGap: 240 },
+          nodes: {
+            ...initial.appearance.nodes,
+            height: 140,
+            spacing: { ...initial.appearance.nodes.spacing, column: 240 },
+          },
         },
       })!;
       assert.ok(changed.nodes.every((node) => node.height === 140));
@@ -109,7 +113,7 @@ export const previewSuite = defineSuite("Shared live preview", [
     assert.ok(stage.edges.every((edge) => edge.flow));
     const wide = buildFlatPreviewStage({
       ...initial,
-      appearance: { ...initial.appearance, display: { sankeyNodeWidth: 48 } },
+      appearance: { ...initial.appearance, nodes: { ...initial.appearance.nodes, width: 48 } },
     })!;
     assert.ok(wide.nodes.every((node) => node.width === 48));
     assert.notDeepEqual(
@@ -132,7 +136,8 @@ export const previewSuite = defineSuite("Shared live preview", [
     assert.match(render(detailed), /class="timeline-node__detail"/);
     const flow = buildFlatPreviewStage({
       ...initial,
-      timelineSettings: { ...initial.timelineSettings, layout: "flow", horizontalSpread: 2 },
+      timelineSettings: { ...initial.timelineSettings, layout: "flow" },
+      appearance: { ...initial.appearance, nodes: { ...initial.appearance.nodes, spread: 2 } },
     })!;
     assert.notDeepEqual(
       stage.nodes.map((node) => node.x),
@@ -141,13 +146,13 @@ export const previewSuite = defineSuite("Shared live preview", [
   }),
   defineTest("settings omit controls unused by the selected layout", () => {
     const has = (chart: GraphChartType, key: string) =>
-      getSettingsCatalog(chart).some((item) => item.id === `style.appearance.layout.${key}`);
-    assert.ok(has("node-link", "edgeLaneGap"));
-    assert.ok(!has("compound", "edgeLaneGap"));
-    assert.ok(!has("timeline", "columnGap"));
-    assert.ok(has("sankey", "columnGap"));
+      getSettingsCatalog(chart).some((item) => item.id === `style.appearance.${key}`);
+    assert.ok(has("node-link", "edges.spacing"));
+    assert.ok(!has("compound", "edges.spacing"));
+    assert.ok(!has("timeline", "nodes.spacing.column"));
+    assert.ok(has("sankey", "nodes.spacing.column"));
     for (const chart of ["timeline", "sankey"] as const)
-      for (const key of ["rowGap", "nodeHeight", "nodeWidthRange", "stagePadding", "stageMinSize"])
+      for (const key of ["nodes.spacing.row", "nodes.height", "nodes.widths", "canvas.padding", "canvas.minSize"])
         assert.ok(has(chart, key));
   }),
   defineTest("a slider gesture becomes one undo step and transient state never enters preferences", () => {
@@ -160,7 +165,7 @@ export const previewSuite = defineSuite("Shared live preview", [
         chartType: "compound",
         action: {
           type: "commit",
-          appearance: { ...before, layout: { ...before.layout, nodeHeight } },
+          appearance: { ...before, nodes: { ...before.nodes, height: nodeHeight } },
           label: "Resize nodes",
         },
       });
@@ -172,7 +177,7 @@ export const previewSuite = defineSuite("Shared live preview", [
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "undo" } });
     assert.deepEqual(state.compound.appearance, before);
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "redo" } });
-    assert.equal(state.compound.appearance.layout.nodeHeight, 110);
+    assert.equal(state.compound.appearance.nodes.height, 110);
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "beginAdjustment" } });
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "endAdjustment" } });
     assert.equal(state.compound.undoStack.length, 1, "a click without a change creates no transaction");

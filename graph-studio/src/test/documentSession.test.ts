@@ -256,11 +256,14 @@ export const documentSessionSuite = defineSuite("Document lifecycle and architec
       display: { ...base.display, sankeyLinkOpacity: 80 },
     });
     assert.deepEqual(getStageAppearance(base), getStageAppearance(cosmetic));
-    const spacing = sanitizeGraphAppearance({ ...base, layout: { ...base.layout, rowGap: base.layout.rowGap + 10 } });
+    const spacing = sanitizeGraphAppearance({
+      ...base,
+      nodes: { ...base.nodes, spacing: { ...base.nodes.spacing, row: base.nodes.spacing.row + 10 } },
+    });
     assert.notDeepEqual(getStageAppearance(base), getStageAppearance(spacing));
     const width = sanitizeGraphAppearance({
       ...base,
-      display: { ...base.display, sankeyNodeWidth: base.display.sankeyNodeWidth + 2 },
+      nodes: { ...base.nodes, width: base.nodes.width + 2 },
     });
     assert.notDeepEqual(getStageAppearance(base), getStageAppearance(width));
     const dag = createSampleDag();

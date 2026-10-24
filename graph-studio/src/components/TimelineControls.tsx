@@ -23,7 +23,6 @@ export default function TimelineControls({
   showAxis = true,
   showRouting = true,
 }: TimelineControlsProps) {
-  const horizontal = settings.orientation === "horizontal";
   return (
     <>
       {showArrangement && (
@@ -123,16 +122,6 @@ export default function TimelineControls({
               </button>
             ))}
           </div>
-          <NumericSetting
-            label={horizontal ? "Timeline vertical spread" : "Timeline horizontal spread"}
-            min={0}
-            max={300}
-            step={10}
-            unit="%"
-            value={settings.horizontalSpread * 100}
-            defaultValue={timelineDefaults.horizontalSpread * 100}
-            onChange={(value) => onChange({ horizontalSpread: value / 100 })}
-          />
           {settings.layout === "flow" && Object.keys(settings.pins).length > 0 && (
             <button type="button" className="timeline-text-action" onClick={() => onChange({ pins: {} })}>
               Clear pinned positions ({Object.keys(settings.pins).length})

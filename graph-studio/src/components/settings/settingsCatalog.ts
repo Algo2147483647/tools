@@ -6,6 +6,7 @@ import { type SettingsChapter } from "./settingsConfig";
 export const APPEARANCE_GROUPS = [
   { id: "schema", label: "Schema" },
   { id: "presets", label: "Presets" },
+  { id: "canvas", label: "Canvas" },
   { id: "nodes", label: "Nodes" },
   { id: "edges", label: "Edges" },
   { id: "text", label: "Text" },
@@ -46,6 +47,10 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     add("engine", "layout", "Arrangement", "Layout engine", "algorithm sugiyama dagre bfs level 排布 算法 引擎");
   if (chart === "compound")
     add("nested", "layout", "Arrangement", "Nested layout", "compound elk group subgraph 嵌套 分组 排布");
+  if (chart === "sankey")
+    add("flow-layout", "layout", "Arrangement", "Automatic flow layout", "flow direction rules sankey 桑基 流向 规则");
+  if (chart === "spatial")
+    add("projection", "layout", "Arrangement", "Coordinate projection", "axes rotate coordinates 空间 坐标 投影");
   const schema = getAppearanceSchema(chart);
   for (const [path, entry] of schema.entries) {
     if (!entry.editable || !entry.definition.group) continue;
@@ -75,17 +80,14 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
         group,
         node.label ?? node.id.replace(/-/g, " "),
         `${node.id} ${[...schema.entries]
-          .filter(([p]) => p.startsWith(path ?? "style.timeline"))
+          .filter(([p, e]) => p.startsWith(path ?? "style.timeline") && e.definition.group === group.toLowerCase())
           .map(([p, e]) => `${p} ${e.definition.label ?? ""} ${e.definition.keywords ?? ""}`)
           .join(" ")}`,
       );
     node.children?.forEach((child) => visit(child, group, path));
   }
   for (const [group, node] of Object.entries(APPEARANCE_UI))
-    visit(
-      node,
-      group === "dimensions" || group === "timelineLayout" ? "Layout" : group[0].toUpperCase() + group.slice(1),
-    );
+    visit(node, group === "timelineLayout" ? "Layout" : group[0].toUpperCase() + group.slice(1));
   a("appearance-schema", "Schema", "Style schema", "protocol json example fields required optional 协议 示例 字段");
   a("presets", "Presets", "Style presets", "theme default 预设 默认 主题");
   a("configuration", "Advanced", "Appearance configuration", "import export reset 导入 导出 重置");

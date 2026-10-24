@@ -79,7 +79,11 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
           buildTimelineStage({
             dag,
             selection: { type: "full" },
-            timelineSettings: { layout, axis, horizontalSpread },
+            timelineSettings: { layout, axis },
+            appearance: {
+              ...DEFAULT_GRAPH_APPEARANCE,
+              nodes: { ...DEFAULT_GRAPH_APPEARANCE.nodes, spread: horizontalSpread },
+            },
           })!;
         const narrow = build(0.5),
           wide = build(3);
@@ -444,7 +448,7 @@ export const timelineSuite = defineSuite("Timeline time semantics and layout", [
       selection: { type: "full" },
       appearance: {
         ...DEFAULT_GRAPH_APPEARANCE,
-        layout: { ...DEFAULT_GRAPH_APPEARANCE.layout, nodeWidthRange: [188, 400] },
+        nodes: { ...DEFAULT_GRAPH_APPEARANCE.nodes, widths: [188, 400] },
       },
     })!;
     assert.equal(stage.nodeMap.a.timeline!.end, Date.parse("2025-01-01T00:00:00Z"));

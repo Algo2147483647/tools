@@ -90,7 +90,7 @@ Key workflows:
 - `Custom CSS` replaces the graph CSS block used by the renderer and SVG export.
 - The separate `Layout` category adjusts spacing, node height, width, and stage minimums.
 
-Each chart type independently remembers its appearance, dimensions, visibility settings and custom CSS across refreshes. Appearance imports, exports, presets, reset and appearance undo/redo apply to the active type. Sankey opacity is in Appearance; bar width is in Layout. Existing shared appearance preferences migrate to both types on first load. Appearance is not embedded into saved graph JSON.
+Each chart type independently remembers its appearance, dimensions, visibility settings and custom CSS across refreshes. Appearance imports, exports, presets, reset and appearance undo/redo apply to the active type. Sankey bar width and opacity belong to Appearance. Node sizes and spacing are under Nodes, edge-lane spacing is under Edges, and padding and minimum size are under Canvas. Layout contains algorithms and rules. Only the current Schema is accepted. Appearance is not embedded into saved graph JSON.
 
 ## Dense Graph Hover Mode
 
@@ -157,7 +157,7 @@ The console is designed for fast text-based graph and appearance edits:
 - `/find <query>` searches node keys, titles, types, definitions, and custom fields
 - `/neighbors <node> [depth]` inspects local parent/child structure
 - `/path <from> <to>` finds the shortest directed path
-- `/layout <key> <number>` changes one layout tuning value
+- `/appearance-set <key> <number>` changes one layout tuning value
 - `/style-var <var> <value>` changes one `--dag-*` CSS variable
 - `/style-css show`, `/style-css append <css>`, and `/style-css replace <css>` inspect or update custom graph CSS
 - `/style-preset <id>` applies a built-in appearance preset
@@ -182,7 +182,7 @@ Common commands:
 - `/children <node> = A,B`
 - `/set <node> <field> "value"`
 - `/style-preset contrast`
-- `/layout rowGap 28`
+- `/appearance-set nodes.spacing.row 28`
 - `/style-var --dag-edge-active #ff6b35`
 
 For the full command reference, see [Graph Console DSL](graph-console-dsl.md).

@@ -1,4 +1,4 @@
-import type { GraphLayoutAppearance } from "../graph/appearance";
+import type { GraphGeometryAppearance } from "../graph/appearance";
 import type { NodeKey } from "../graph/types";
 import type { LayoutEdgeRoute, StageNode, StageRoutePoint } from "./types";
 
@@ -61,11 +61,11 @@ export function buildSugiyamaVerticalPlanner(input: {
   nodesByLayer: Map<number, StageNode[]>;
   logicalSlotCountsByLayer: Map<number, number>;
   sortedLayers: number[];
-  theme: GraphLayoutAppearance;
+  theme: GraphGeometryAppearance;
 }): SugiyamaVerticalPlanner {
   const { nodesByLayer, logicalSlotCountsByLayer, sortedLayers, theme } = input;
   const planByLayer = new Map<number, LayerVerticalPlan>();
-  let stageInnerHeight = theme.nodeHeight * 3.4;
+  let stageInnerHeight = theme.nodes.height * 3.4;
 
   sortedLayers.forEach((layer) => {
     const layerNodes = (nodesByLayer.get(layer) || []).slice().sort((left, right) => left.order - right.order);
@@ -88,7 +88,7 @@ export function buildSugiyamaVerticalPlanner(input: {
     if (!plan) {
       return;
     }
-    const offsetY = theme.stagePadding[1] + (stageInnerHeight - plan.totalHeight) / 2;
+    const offsetY = theme.canvas.padding[1] + (stageInnerHeight - plan.totalHeight) / 2;
     const finalOrderY = new Map<number, number>();
     plan.orderY.forEach((value, order) => {
       finalOrderY.set(order, offsetY + value);
@@ -201,7 +201,7 @@ export function buildSugiyamaStageRoutes(input: {
 function buildLayerVerticalPlan(
   nodes: StageNode[],
   logicalSlotCount: number,
-  theme: GraphLayoutAppearance,
+  theme: GraphGeometryAppearance,
 ): LayerVerticalPlan {
   const nodeBands: LayerNodeBand[] = [];
   const orderY = new Map<number, number>();
@@ -215,7 +215,7 @@ function buildLayerVerticalPlan(
   }
 
   realNodes.forEach((node, index) => {
-    const centerY = cursorY + theme.nodeHeight / 2;
+    const centerY = cursorY + theme.nodes.height / 2;
     nodeBands.push({
       key: node.key,
       logicalOrder: node.order,
@@ -223,7 +223,7 @@ function buildLayerVerticalPlan(
       centerY,
     });
     orderY.set(node.order, centerY);
-    cursorY += theme.nodeHeight;
+    cursorY += theme.nodes.height;
 
     const corridor = corridors[index + 1];
     if (!corridor) {
@@ -242,13 +242,13 @@ function buildLayerVerticalPlan(
     });
   });
 
-  return { totalHeight: cursorY || theme.nodeHeight, nodeBands, orderY };
+  return { totalHeight: cursorY || theme.nodes.height, nodeBands, orderY };
 }
 
 function buildLayerEdgeCorridors(
   nodes: StageNode[],
   logicalSlotCount: number,
-  theme: GraphLayoutAppearance,
+  theme: GraphGeometryAppearance,
 ): LayerEdgeCorridor[] {
   if (!nodes.length) {
     const logicalOrders = buildLogicalOrderRange(0, logicalSlotCount - 1);
@@ -276,7 +276,7 @@ function buildLayerEdgeCorridors(
   return corridors;
 }
 
-function createCorridor(logicalOrders: number[], theme: GraphLayoutAppearance): LayerEdgeCorridor {
+function createCorridor(logicalOrders: number[], theme: GraphGeometryAppearance): LayerEdgeCorridor {
   return {
     logicalOrders,
     laneYs: [],
@@ -284,16 +284,16 @@ function createCorridor(logicalOrders: number[], theme: GraphLayoutAppearance): 
   };
 }
 
-function computeCorridorHeight(laneCount: number, theme: GraphLayoutAppearance): number {
+function computeCorridorHeight(laneCount: number, theme: GraphGeometryAppearance): number {
   if (laneCount <= 0) {
     return EMPTY_CORRIDOR_HEIGHT;
   }
   const edgeDemand =
-    laneCount * EDGE_STROKE_WIDTH + Math.max(laneCount - 1, 0) * theme.edgeLaneGap + EDGE_NODE_CLEARANCE_Y * 2;
-  return Math.max(edgeDemand, EMPTY_CORRIDOR_HEIGHT, theme.rowGap);
+    laneCount * EDGE_STROKE_WIDTH + Math.max(laneCount - 1, 0) * theme.edges.spacing + EDGE_NODE_CLEARANCE_Y * 2;
+  return Math.max(edgeDemand, EMPTY_CORRIDOR_HEIGHT, theme.nodes.spacing.row);
 }
 
-function assignCorridorYs(corridor: LayerEdgeCorridor, topY: number, theme: GraphLayoutAppearance): void {
+function assignCorridorYs(corridor: LayerEdgeCorridor, topY: number, theme: GraphGeometryAppearance): void {
   if (!corridor.logicalOrders.length) {
     corridor.laneYs = [];
     return;
@@ -301,10 +301,10 @@ function assignCorridorYs(corridor: LayerEdgeCorridor, topY: number, theme: Grap
 
   const laneBandHeight =
     corridor.logicalOrders.length * EDGE_STROKE_WIDTH +
-    Math.max(corridor.logicalOrders.length - 1, 0) * theme.edgeLaneGap;
+    Math.max(corridor.logicalOrders.length - 1, 0) * theme.edges.spacing;
   const laneStartY = topY + (corridor.height - laneBandHeight) / 2 + EDGE_STROKE_WIDTH / 2;
   corridor.laneYs = corridor.logicalOrders.map(
-    (_, index) => laneStartY + index * (EDGE_STROKE_WIDTH + theme.edgeLaneGap),
+    (_, index) => laneStartY + index * (EDGE_STROKE_WIDTH + theme.edges.spacing),
   );
 }
 

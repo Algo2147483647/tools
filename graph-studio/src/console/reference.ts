@@ -77,9 +77,9 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   },
   { label: "/unset <node> <field>", insertText: "/unset ", help: "Remove a non-relation field from a node." },
   {
-    label: "/layout <key> <number>",
-    insertText: "/layout ",
-    help: "Update layout scalars or pairs: stagePadding [x,y], stageMinSize [width,height], nodeWidthRange [min,max].",
+    label: "/appearance-set <path> <JSON>",
+    insertText: "/appearance-set ",
+    help: "Edit an Appearance Schema field, e.g. nodes.widths [160,280], nodes.spacing.row 24, or canvas.padding [40,60].",
   },
   {
     label: "/style-var <var> <value>",
@@ -110,7 +110,7 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   {
     label: "/style-reset",
     insertText: "/style-reset",
-    help: "Reset graph appearance to the default CSS, variables, and layout.",
+    help: "Reset graph appearance to the default CSS, variables, and visual settings.",
   },
   { label: "/clear", insertText: "/clear", help: "Clear the console output." },
 ];
@@ -138,7 +138,7 @@ export function buildConsoleHelpText(): string {
     "- /children <node> = A,B,...: Replace the full child relation set for a node. Use an empty assignment to clear it.",
     "- /set <node> <field> <value>: Set a non-relation field value as string, number, boolean, null, or JSON.",
     "- /unset <node> <field>: Remove a non-relation field from a node.",
-    "- /layout <key> <value>: Set columnGap, rowGap, edgeLaneGap or nodeHeight to a number; set stagePadding [x,y], stageMinSize [width,height] or nodeWidthRange [min,max] to a pair.",
+    "- /appearance-set <path> <JSON>: Edit a declared Appearance field such as nodes.height, edges.spacing or canvas.minSize.",
     "- /style-var <var> <value>: Set a --dag-* CSS variable for graph appearance.",
     "- /style-var --unset <var>: Remove a --dag-* CSS variable override.",
     "- /style-css show|append|replace: Show, append to, or replace graph CSS using stable .dag-* selectors.",

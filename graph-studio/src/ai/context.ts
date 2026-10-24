@@ -99,10 +99,10 @@ function formatAppearanceSummary(appearance: GraphAppearance): string {
     .map(([key, value]) => `- ${key}: ${value}`)
     .join("\n");
   return [
-    "Appearance can be edited with /layout, /style-var, /style-css, /style-preset, and /style-reset.",
+    "Appearance can be edited with /appearance-set, /style-var, /style-css, /style-preset, and /style-reset.",
     "Stable SVG selectors: .dag-graph, .dag-node, .dag-node__shape, .dag-node__title, .dag-node__detail, .dag-edge, .dag-edge__path, .dag-stage__lane.",
     'Useful data selectors: .dag-node[data-type="service"], .dag-node[data-root="true"], .dag-edge[data-weight="2"], .dag-edge[data-active="true"].',
-    `Appearance layout: ${JSON.stringify(appearance.layout)}`,
+    `Appearance layout: ${JSON.stringify(appearance)}`,
     `Appearance display: ${JSON.stringify(appearance.display)}`,
     "Appearance cssVars:",
     vars,

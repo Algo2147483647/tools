@@ -3,7 +3,7 @@ import type { GraphChartType } from "../graph/types";
 import type { APPEARANCE_DEFINITION, TIMELINE_DEFINITION, STYLE_OPTIONS_DEFINITION } from "./appearanceDefinition";
 import type { InferDefinition } from "./definition";
 export type GraphAppearance = InferDefinition<typeof APPEARANCE_DEFINITION>;
-export type GraphLayoutAppearance = GraphAppearance["layout"];
+export type GraphGeometryAppearance = Pick<GraphAppearance, "canvas" | "nodes" | "edges">;
 export type GraphDisplayAppearance = GraphAppearance["display"];
 export type TimelineViewSettings = InferDefinition<typeof TIMELINE_DEFINITION>;
 export type TimelineMarkerSettings = TimelineViewSettings["pointMarker"];

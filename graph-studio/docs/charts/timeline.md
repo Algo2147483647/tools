@@ -136,8 +136,6 @@ The Arrange panel supports Algorithm and AI modes. Applied plans are graph edits
       "plan": {
         "trackOrder": ["Delivery"],
         "eventOrder": ["kickoff", "build", "support"],
-        "nodeGap": 40,
-        "horizontalSpread": 1.2,
         "edgeRouting": "avoid"
       }
     }
@@ -145,7 +143,7 @@ The Arrange panel supports Algorithm and AI modes. Applied plans are graph edits
 }
 ```
 
-`mode` is `algorithm` or `ai`; `plan` is optional. Plan fields are optional. Orders contain unique existing names/IDs; remaining items keep deterministic algorithmic ordering. Track names follow Tracks grouping, or Type categories for the Flow plan's ordering hints. Each order is limited to 2,000 entries. Plan bounds are `nodeGap: 8..160` and `horizontalSpread: 0.5..3`; routing is `avoid` or `direct`. These plan bounds differ from general style controls.
+`mode` is `algorithm` or `ai`; `plan` is optional. Plan fields are optional. Orders contain unique existing names/IDs; remaining items keep deterministic algorithmic ordering. Track names follow Tracks grouping, or Type categories for the Flow plan's ordering hints. Each order is limited to 2,000 entries. Routing is `avoid` or `direct`. Appearance owns channel spacing and cross-axis spread; plans cannot override either value.
 
 AI provides ordering and spacing hints; the local algorithm computes geometry while preserving times, anchors, orientation, fixed indices, and pins. Previewing does not apply a plan. Unsupported saved versions fall back to Algorithm with a warning and preserve source metadata until replaced.
 

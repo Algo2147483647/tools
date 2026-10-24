@@ -104,8 +104,6 @@ Mode changes and applied profiles are graph edits with Undo/Redo and dirty track
       "plan": {
         "trackOrder": ["Research", "Engineering", "Operations"],
         "eventOrder": ["discovery", "prototype", "delivery"],
-        "nodeGap": 40,
-        "horizontalSpread": 1.2,
         "edgeRouting": "avoid"
       }
     }
@@ -113,7 +111,7 @@ Mode changes and applied profiles are graph edits with Undo/Redo and dirty track
 }
 ```
 
-`mode` is `algorithm` or `ai`; `plan` is optional. Plan fields are optional, with omitted orders treated as empty. Track names and event IDs must exist in the layout scope. Unlisted items keep deterministic algorithmic order. In Flow, use `eventOrder` to prioritize independent chains; it does not split continuous sequences. Spacing bounds are `nodeGap: 8..160` and `horizontalSpread: 0.5..3`; routing is `avoid` or `direct`. Node renames, deletions, and import conflict renames repair saved references. Unsupported saved versions fall back to Algorithm with a warning, preserving the source metadata until a new mode/profile is saved.
+`mode` is `algorithm` or `ai`; `plan` is optional. Plan fields are optional, with omitted orders treated as empty. Track names and event IDs must exist in the layout scope. Unlisted items keep deterministic algorithmic order. In Flow, use `eventOrder` to prioritize independent chains; it does not split continuous sequences. Routing is `avoid` or `direct`. Channel spacing and cross-axis spread are read from `style.appearance.nodes.spacing.channel` and `style.appearance.nodes.spread`; AI plans cannot override Appearance. Node renames, deletions, and import conflict renames repair saved references. Unsupported saved versions fall back to Algorithm with a warning, preserving the source metadata until a new mode/profile is saved.
 
 The dedicated AI response is `{ "version": 1, "explanation": "…", "plan": { … } }`. Arbitrary commands, coordinates, date changes, unsupported fields, and unknown references are rejected. The prompt sends layout data: at most 160 sampled events, 240 sampled relationships, full track counts, and up to 240 aggregate track connections. Focused events are sampled first. Graph text is treated as data; full node properties and console history are not included. One JSON repair request is permitted. The model request times out after 90 seconds; Worker evaluation after 20 seconds. Preview evaluation is limited to 2,000 events and 4,000 relationships. Metric comparisons are capped and explicitly marked as sampled when necessary. Large graphs should be filtered and readapted first.
 

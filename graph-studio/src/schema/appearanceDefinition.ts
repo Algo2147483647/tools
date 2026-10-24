@@ -12,60 +12,44 @@ export const APPEARANCE_DEFINITION = {
       enum: [1],
       label: "Version",
     },
-    layout: {
+    canvas: {
       kind: "object",
-      group: "layout",
+      group: "canvas",
       required: true,
-      description: "Stored geometry values; renderer support varies by chart.",
+      description: "Canvas padding and minimum visible size.",
       properties: {
-        stagePadding: {
+        padding: {
           kind: "array",
-          group: "layout",
-          description: "Horizontal and vertical stage padding [x, y] in logical pixels.",
+          description: "Horizontal and vertical canvas padding [x, y] in logical pixels.",
           default: [108, 88],
           length: 2,
           items: {
             kind: "number",
           },
-          label: "Stage padding",
+          label: "Canvas padding",
           keywords: "\u753b\u5e03 \u5185\u8fb9\u8ddd",
         },
-        columnGap: {
-          kind: "number",
-          group: "layout",
-          description: "Layer separation in logical pixels.",
-          default: 116,
-          charts: ["node-link", "compound", "sankey"],
-          label: "Column gap",
-        },
-        rowGap: {
-          kind: "number",
-          group: "layout",
-          description: "Node or label separation in logical pixels.",
-          default: 22,
-          charts: ["node-link", "compound", "timeline", "sankey"],
-          label: "Row gap",
-        },
-        edgeLaneGap: {
-          kind: "number",
-          group: "layout",
-          description: "Ordinary Node-link edge-lane separation in logical pixels.",
-          default: 28,
-          charts: ["node-link"],
-          label: "Edge lane gap",
-        },
-        nodeHeight: {
-          kind: "number",
-          group: "layout",
-          description: "Base card height or chart-specific vertical-space input.",
-          default: 74,
-          charts: ["node-link", "compound", "timeline", "sankey"],
-          label: "Node height",
-          keywords: "\u8282\u70b9 \u9ad8\u5ea6",
-        },
-        nodeWidthRange: {
+        minSize: {
           kind: "array",
-          group: "layout",
+          description: "Minimum canvas size [width, height] in logical pixels.",
+          default: [980, 600],
+          length: 2,
+          items: {
+            kind: "number",
+          },
+          label: "Minimum canvas size",
+          keywords: "\u753b\u5e03 \u6700\u5c0f \u5c3a\u5bf8",
+        },
+      },
+    },
+    nodes: {
+      kind: "object",
+      group: "nodes",
+      required: true,
+      description: "Node sizes and spacing; capabilities are declared per chart.",
+      properties: {
+        widths: {
+          kind: "array",
           description: "Node width bounds [min, max]; max sets the event label width.",
           default: [188, 280],
           length: 2,
@@ -76,17 +60,71 @@ export const APPEARANCE_DEFINITION = {
           label: "Node width range",
           keywords: "\u8282\u70b9 \u5bbd\u5ea6 \u8303\u56f4",
         },
-        stageMinSize: {
-          kind: "array",
-          group: "layout",
-          description: "Minimum stage dimensions [width, height] in logical pixels.",
-          default: [980, 600],
-          length: 2,
-          items: {
-            kind: "number",
+        height: {
+          kind: "number",
+          description: "Base card height or chart-specific vertical-space input.",
+          default: 74,
+          charts: ["node-link", "compound", "timeline", "sankey"],
+          label: "Node height",
+          keywords: "\u8282\u70b9 \u9ad8\u5ea6",
+        },
+        spacing: {
+          kind: "object",
+          group: "nodes",
+          required: true,
+          description: "Spacing between columns, rows and Timeline channels.",
+          properties: {
+            column: {
+              kind: "number",
+              description: "Layer separation in logical pixels.",
+              default: 116,
+              charts: ["node-link", "compound", "sankey"],
+              label: "Column gap",
+            },
+            row: {
+              kind: "number",
+              description: "Node or label separation in logical pixels.",
+              default: 22,
+              charts: ["node-link", "compound", "timeline", "sankey"],
+              label: "Row gap",
+            },
+            channel: {
+              kind: "number",
+              description: "Channel spacing input in logical pixels.",
+              default: 24,
+              label: "Node gap",
+              charts: ["timeline"],
+            },
           },
-          label: "Minimum stage size",
-          keywords: "\u753b\u5e03 \u6700\u5c0f \u5c3a\u5bf8",
+        },
+        spread: {
+          kind: "number",
+          description: "Cross-time-axis spread multiplier, interpreted for the selected orientation.",
+          default: 1,
+          label: "Cross-axis spread",
+          charts: ["timeline"],
+        },
+        width: {
+          kind: "number",
+          description: "Sankey bar width in logical pixels.",
+          default: 20,
+          charts: ["sankey"],
+          label: "Sankey node width",
+        },
+      },
+    },
+    edges: {
+      kind: "object",
+      group: "edges",
+      required: true,
+      description: "Spacing between edge lanes.",
+      properties: {
+        spacing: {
+          kind: "number",
+          description: "Ordinary Node-link edge-lane separation in logical pixels.",
+          default: 28,
+          charts: ["node-link"],
+          label: "Edge lane gap",
         },
       },
     },
@@ -212,14 +250,6 @@ export const APPEARANCE_DEFINITION = {
             equals: true,
           },
           label: "Shadow opacity",
-        },
-        sankeyNodeWidth: {
-          kind: "number",
-          group: "layout",
-          description: "Sankey bar width in logical pixels; exposed under Layout.",
-          default: 20,
-          charts: ["sankey"],
-          label: "Sankey node width",
         },
         sankeyLinkOpacity: {
           kind: "number",
@@ -1101,20 +1131,6 @@ export const TIMELINE_DEFINITION = {
       label: "Tick unit",
       clock: "calendar",
     },
-    nodeGap: {
-      kind: "number",
-      group: "layout",
-      description: "Channel spacing input in logical pixels.",
-      default: 24,
-      label: "Node gap",
-    },
-    horizontalSpread: {
-      kind: "number",
-      group: "layout",
-      description: "Cross-time-axis spread multiplier, interpreted for the selected orientation.",
-      default: 1,
-      label: "Horizontal spread",
-    },
     compactness: {
       kind: "number",
       group: "layout",
@@ -1141,7 +1157,6 @@ export const TIMELINE_DEFINITION = {
     },
   },
 } as const satisfies AppearanceFieldDefinition;
-
 export const STYLE_OPTIONS_DEFINITION = {
   kind: "object",
   properties: {
