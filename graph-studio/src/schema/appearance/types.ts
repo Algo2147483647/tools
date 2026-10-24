@@ -1,6 +1,6 @@
 import type { GraphChartType } from "../../graph/types";
 
-// Data shapes for appearanceDefinition.json. Defaults and constraints live in JSON.
+// Data shapes for definition.json. Defaults and constraints live in JSON.
 // Update these types when changing field structure, enum values, or tuple lengths.
 export type GraphAppearance = {
   version: 1;

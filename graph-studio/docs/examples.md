@@ -2,17 +2,17 @@
 
 Below Recent workspaces, the homepage includes five separate workspaces, including Human History with Chinese and European history timelines. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
 
-| Workspace             | Contents                                                                                                                                     |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Human History         | Two timelines: Chinese history (1273 nodes, 2322 relationships) and European history (598 nodes, 673 relationships), with guides and sources |
-| Commerce operations   | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes        |
-| Mathematics           | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography               |
-| Factorio production   | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes      |
+| Workspace             | Contents                                                                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human History         | Two timelines: Chinese history (1273 nodes, 2322 relationships) and European history (598 nodes, 673 relationships), with guides and sources                                          |
+| Commerce operations   | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes                                                 |
+| Mathematics           | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography                                                        |
+| Factorio production   | Two complete upstream production plans: 1 launch-ready rocket/s, or all 12 science packs at 1 each/s; calculated rates and source notes                                               |
 | History of Technology | Three timelines: space history (298 nodes, 408 relationships), mathematics–physics (250 points, 317 relationships), and AGI research (231 points and 25 intervals, 484 relationships) |
 
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
-The [Commerce operations guide](compound.md) covers the nested node-link example. Its checked-in graphs are validated by the compound and example regression suites in `npm run check`.
+The [Commerce operations guide](charts/compound.md) covers the nested node-link example. Its checked-in graphs are validated by the compound and example regression suites in `npm run check`.
 
 ## European history
 
@@ -24,7 +24,7 @@ The graph, catalogs, names guide, bibliography and six handwritten guides are ch
 
 ## History of Technology
 
-The [Timeline guide](timeline.md) explains the date-aware chart type. History of Technology contains three separate canvases, totaling 804 nodes and 1209 relationships. The original space-history canvas covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion remain in the space-history graph.
+The [Timeline guide](charts/timeline.md) explains the date-aware chart type. History of Technology contains three separate canvases, totaling 804 nodes and 1209 relationships. The original space-history canvas covers 1957–2025 with sourced launch, arrival, rendezvous, return and science milestones alongside completed flight and mission phases. Eight themes cover early spaceflight, crewed lunar exploration, space stations, robotic lunar missions, Mars, deep space, launch and commercial space, and observatories. Apollo 11's Eagle and Columbia branches and reunion remain in the space-history graph.
 
 The default **space-history.json** opens with the complete space corpus. Use the workspace graph list to switch to **mathematics-physics/mathematics-physics.json**, which combines mathematical and physical history in one canvas. Its 250 points span approximately 1850 BCE–2024 across 11 subjects, with 104 explicit connections among its 317 edges. English prose accompanies original-language personal names and separate lookup aliases. Five period guides, event catalogs, a names guide and a source index explain the selection. No long era bars are used in the new canvas.
 
