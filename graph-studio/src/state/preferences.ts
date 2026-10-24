@@ -1,17 +1,17 @@
 import { normalizeAiExecutionMode } from "../ai/executionPolicy";
 import type { AiProvider, AiSettings } from "../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
-import { type ChartStyles, mapChartTypes, createChartStyles, sanitizeChartStyleForType } from "./chartStyles";
-import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
+import { mapChartTypes, getDefaultChartStyle } from "./chartStyles";
+import type { ChartStyleDocuments } from "../schema/appearanceModel";
+import { createStyleDocument, parseStyleDocument } from "../schema/styleProtocol";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
 
 export interface GraphPagePreferences {
-  timelineSettings: TimelineViewSettings;
   mode: GraphMode;
   chartType: GraphChartType;
   layoutMode: GraphLayoutMode;
-  chartStyles: ChartStyles;
+  chartStyles: ChartStyleDocuments;
   consoleSidebarOpen: boolean;
   consoleSidebarWidth: number;
 
@@ -35,11 +35,10 @@ interface StorageLike {
 
 export function getInitialGraphPagePreferences(): GraphPagePreferences {
   return {
-    timelineSettings: sanitizeTimelineSettings(null),
     mode: "edit",
     chartType: "node-link",
     layoutMode: "sugiyama",
-    chartStyles: createChartStyles(),
+    chartStyles: mapChartTypes((type) => createStyleDocument(type, getDefaultChartStyle(type))),
     consoleSidebarOpen: false,
     consoleSidebarWidth: 360,
     aiSettings: { ...DEFAULT_AI_SETTINGS },
@@ -69,7 +68,8 @@ export function saveGraphPagePreferences(
   }
 
   try {
-    storage.setItem(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify(preferences));
+    const chartStyles = mapChartTypes((type) => parseStyleDocument(preferences.chartStyles[type], type));
+    storage.setItem(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify({ ...preferences, chartStyles }));
     return true;
   } catch {
     return false;
@@ -82,7 +82,6 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   }
 
   let parsed: {
-    timelineSettings?: unknown;
     mode?: unknown;
     chartType?: unknown;
     chartStyles?: unknown;
@@ -102,9 +101,6 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   }
 
   const next: Partial<GraphPagePreferences> = {};
-  if (parsed.timelineSettings) {
-    next.timelineSettings = { ...sanitizeTimelineSettings(parsed.timelineSettings), typeColors: {} };
-  }
   if (parsed.mode === "edit") {
     next.mode = parsed.mode;
   }
@@ -122,7 +118,13 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
   }
   if (parsed.chartStyles && typeof parsed.chartStyles === "object" && !Array.isArray(parsed.chartStyles)) {
     const styles = parsed.chartStyles as Record<string, unknown>;
-    next.chartStyles = mapChartTypes((type) => sanitizeChartStyleForType(type, styles[type]));
+    next.chartStyles = mapChartTypes((type) => {
+      try {
+        return parseStyleDocument(styles[type], type);
+      } catch {
+        return createStyleDocument(type, getDefaultChartStyle(type));
+      }
+    });
   }
   if (typeof parsed.consoleSidebarOpen === "boolean") {
     next.consoleSidebarOpen = parsed.consoleSidebarOpen;

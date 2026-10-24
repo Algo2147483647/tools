@@ -5,8 +5,10 @@ import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearan
 import { type GraphAppearancePresetId, applyAppearanceCommand, getGraphPresetStyle } from "../graph/appearanceCommands";
 import type { GraphChartType } from "../graph/types";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
-import { getDefaultChartStyle, type ChartStyles, type ChartStyle } from "../state/chartStyles";
+import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
+import { getDefaultChartStyle, mapChartTypes, type ChartStyle } from "../state/chartStyles";
+import type { ChartStyleDocuments } from "../schema/appearanceModel";
+import { createStyleDocument } from "../schema/styleProtocol";
 import type { GraphAction } from "../state/graphActions";
 import { resetChartStyleSection } from "../components/settings/appearanceSections";
 import type { AppearanceGroup } from "../components/settings/settingsCatalog";
@@ -14,12 +16,14 @@ import type { GraphAppState } from "../state/initialState";
 import type { TimelineViewSettings } from "../graph/timelineSettings";
 
 export function useChartPreferences(
-  styles: ChartStyles,
+  styles: ChartStyleDocuments,
   chartType: GraphChartType,
   dispatch: Dispatch<GraphAction>,
   state: GraphAppState,
 ) {
-  const [histories, updateHistories] = useReducer(chartPreferencesReducer, styles, createChartPreferences);
+  const [histories, updateHistories] = useReducer(chartPreferencesReducer, styles, (documents) =>
+    createChartPreferences(mapChartTypes((type) => documents[type].style)),
+  );
   const previousDocument = useRef(-1);
   const linkedChart = useRef<GraphChartType | null>(null);
   useEffect(() => {
@@ -29,7 +33,7 @@ export function useChartPreferences(
     if (linkedChart.current) {
       updateHistories({
         chartType: linkedChart.current,
-        action: { type: "replace", style: styles[linkedChart.current] },
+        action: { type: "replace", style: styles[linkedChart.current].style },
       });
     }
     linkedChart.current = state.document.linkedStyle ? chartType : null;
@@ -38,7 +42,10 @@ export function useChartPreferences(
     }
   }, [state.document.generation, state.document.linkedStyle, chartType, styles]);
   const history = histories[chartType];
-  const chartStyles = useMemo(() => getChartStyles(histories), [histories]);
+  const chartStyles = useMemo(() => {
+    const current = getChartStyles(histories);
+    return mapChartTypes((type) => createStyleDocument(type, current[type]));
+  }, [histories]);
   const toggleDisplay = (key: "showNodeDetail" | "hideNodeBorders" | "alignNodeWidthsToMax") =>
     updateHistories({ chartType, action: { type: "toggleDisplay", key } });
   const { appearance } = history;
@@ -152,7 +159,7 @@ export function useChartPreferences(
   function handleAppearanceExport() {
     const outputFileName = buildTimestampFileName(`${chartType}-appearance.json`);
     const style = {
-      ...chartStyles[chartType],
+      ...chartStyles[chartType].style,
       ...(chartType === "timeline" ? { timeline: state.timelineSettings } : {}),
     };
     downloadJsonFile(serializeChartStyle(chartType, style), outputFileName);
@@ -233,7 +240,7 @@ export function useChartPreferences(
       commitStyle(
         resetChartStyleSection(
           {
-            ...chartStyles[chartType],
+            ...chartStyles[chartType].style,
             ...(chartType === "timeline" ? { timeline: state.timelineSettings } : {}),
           },
           chartType,

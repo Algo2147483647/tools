@@ -181,7 +181,7 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
   }),
   defineTest("timeline preferences round trip and reject invalid option values", () => {
     const prefs = getInitialGraphPagePreferences();
-    prefs.timelineSettings = sanitizeTimelineSettings({
+    prefs.chartStyles.timeline.style.timeline = sanitizeTimelineSettings({
       layout: "flow",
       axis: "adaptive",
       tickStep: 17,
@@ -189,7 +189,10 @@ export const timelineViewSuite = defineSuite("Timeline view integration", [
       compactness: 0.8,
       horizontalSpread: 2.4,
     });
-    assert.deepEqual(parseGraphPagePreferences(JSON.stringify(prefs))!.timelineSettings, prefs.timelineSettings);
+    assert.deepEqual(
+      parseGraphPagePreferences(JSON.stringify(prefs))!.chartStyles!.timeline.style.timeline,
+      prefs.chartStyles.timeline.style.timeline,
+    );
     const invalid = sanitizeTimelineSettings({
       layout: "bad",
       axis: "bad",

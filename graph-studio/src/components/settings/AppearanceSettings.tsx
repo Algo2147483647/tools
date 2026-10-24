@@ -62,7 +62,7 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const presets = getGraphAppearancePresets(p.chartType);
   const defaultStyle = getDefaultChartStyle(p.chartType);
   const selectedPreset = presets.find((preset) =>
-    chartStylesEqual(preset.style, {
+    chartStylesEqual(preset.document.style, {
       appearance: p.appearance,
       showNodeDetail: p.showNodeDetail,
       hideNodeBorders: p.hideNodeBorders,
@@ -302,11 +302,11 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
                     className="preset-sample"
                     aria-hidden="true"
                     style={{
-                      background: preset.appearance.cssVars["--dag-node-fill"],
-                      color: preset.appearance.cssVars["--dag-text-strong"],
-                      borderColor: preset.appearance.cssVars["--dag-node-border"],
-                      fontFamily: preset.appearance.cssVars["--dag-title-font-family"],
-                      fontStyle: preset.appearance.cssVars["--dag-title-font-style"],
+                      background: preset.document.style.appearance.cssVars["--dag-node-fill"],
+                      color: preset.document.style.appearance.cssVars["--dag-text-strong"],
+                      borderColor: preset.document.style.appearance.cssVars["--dag-node-border"],
+                      fontFamily: preset.document.style.appearance.cssVars["--dag-title-font-family"],
+                      fontStyle: preset.document.style.appearance.cssVars["--dag-title-font-style"],
                     }}
                   >
                     <i />

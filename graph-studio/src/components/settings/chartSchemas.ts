@@ -1,9 +1,9 @@
 import type { GraphChartType, GraphDocument } from "../../graph/types";
 import { TIMELINE_SCHEMA_FIELDS } from "./timelineSchemaFields";
 import { CHART_EXAMPLES } from "./chartSchemaExamples";
-import { schemaField as f, orderSchemaFields, type SchemaField } from "./schemaModel";
+import { schemaField as f, orderSchemaFields, type SchemaField } from "../../schema/fields";
 
-export type { SchemaField } from "./schemaModel";
+export type { SchemaField } from "../../schema/fields";
 interface ChartSchema {
   fields: SchemaField[];
   example: GraphDocument;

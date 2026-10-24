@@ -1,8 +1,9 @@
+import { updateAppearanceSchemaValue } from "../../schema/styleProtocol";
 import { useState, useId, useRef } from "react";
 import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
 import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../graph/appearanceCommands";
 import { chartStylesEqual, type ChartStyle } from "../../state/chartStyles";
-import { getAppearanceSchema, updateAppearanceSchemaValue } from "./appearanceSchemas";
+import { getAppearanceSchema } from "../../schema/appearanceSchema";
 import ProtocolSchema from "./ProtocolSchema";
 
 export default function AppearanceSchema({
@@ -18,7 +19,7 @@ export default function AppearanceSchema({
 }) {
   const schema = getAppearanceSchema(chartType, style);
   const presets = getGraphAppearancePresets(chartType);
-  const selected = presets.find((preset) => chartStylesEqual(preset.style, style));
+  const selected = presets.find((preset) => chartStylesEqual(preset.document.style, style));
   return (
     <div className="appearance-schema-view">
       <label className="schema-preset-picker">

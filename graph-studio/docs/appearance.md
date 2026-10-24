@@ -1,6 +1,6 @@
 # Appearance and the Shared Style Protocol
 
-This page documents the **implemented v1 style protocol**. Appearance is stored as JSON containing structured options, CSS variables, and a CSS string. The proposed JSON-first replacement is described separately in [Appearance protocol v2 proposal](appearance-protocol-v2.md); it is not currently accepted by the importer.
+This page documents the **canonical v1 style protocol**. Presets, browser storage, style files, models, and Schema editing use this same JSON structure. See [Canonical Appearance Schema](appearance-schema.md) for implementation ownership and validation rules. Old protocol fields are not supported.
 
 ## Chart-specific references
 
@@ -67,7 +67,7 @@ Here is a complete, importable Node-link style. Empty objects are accepted and r
 }
 ```
 
-For exact reproducibility, edit a fully exported file rather than relying on omitted fields. An imported partial `appearance` is normalized against generic `GraphAppearance` defaults; it is not deeply merged with the chart's customized Default preset. A bare `GraphAppearance` object is not a valid portable style file.
+Omitted optional fields receive the selected chart's schema defaults. Required fields must be present. A bare `GraphAppearance` object is not a valid style document. Unknown fields and invalid values are rejected.
 
 ## Style-level options
 
@@ -99,7 +99,7 @@ All paths below are relative to `style.appearance.layout`. Numeric dimensions us
 
 The shared sanitizer accepts finite numeric values and supplies fallbacks for missing/nonfinite values. It does **not** enforce all slider ranges or a universal min/max-width relationship. UI ranges and layout-specific clamps are separate. Do not interpret a slider range as a strict file-schema constraint.
 
-Portable style exports use `stagePadding: [x, y]`, with exactly two finite numbers. Imports still accept legacy `stagePaddingX` and `stagePaddingY`; when both forms are present, `stagePadding` takes precedence. Renderer internals retain separate X/Y values. Other layout fields retain their existing names.
+`stagePadding: [x, y]` contains exactly two finite numbers. Models, presets, storage, console commands, and renderers use this tuple directly. Separate X/Y properties are rejected.
 
 ## Display fields
 
@@ -127,7 +127,7 @@ The shared numeric sanitizer checks finiteness rather than consistently clamping
 
 ## CSS variables
 
-`style.appearance.cssVars` is a map of strings. The sanitizer accepts keys beginning with `--dag-`, merges the generic default variables, and truncates each value to 500 characters. It does not implement a complete CSS value validator. Color controls perform additional input validation.
+`style.appearance.cssVars` is a map of strings. Keys must begin with `--dag-`; values longer than 500 characters are rejected. The protocol does not implement a complete CSS value validator. Color controls perform additional input validation.
 
 | Variable                   | Meaning                                                               |
 | -------------------------- | --------------------------------------------------------------------- |
@@ -147,7 +147,7 @@ Additional renderer variables exist for category borders, pins, glows, and inter
 
 ## Custom CSS and precedence
 
-`style.appearance.css` stores the custom stylesheet text, capped at 50,000 characters. `@import` statements are stripped. This is a limited sanitizer, not a complete CSS isolation or security contract.
+`style.appearance.css` stores stylesheet text of at most 50,000 characters. The protocol rejects longer strings and `@import` statements. This is not a complete CSS isolation or security contract.
 
 The SVG embeds styles in this order: built-in base rules, saved CSS, built-in effects, then Timeline rules. Root CSS variables are applied as inline styles; some data-derived properties and tokens are assigned directly to elements. Normal CSS specificity, inline precedence, and `!important` therefore matter. Custom CSS is not guaranteed to win over every effect; shared shadow rules deliberately use `!important` and disable shadows on dense graphs.
 

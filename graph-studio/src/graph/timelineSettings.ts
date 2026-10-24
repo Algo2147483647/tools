@@ -1,48 +1,5 @@
-export type TimelineTickUnit = "auto" | "second" | "minute" | "hour" | "day" | "week" | "month" | "year";
-export interface TimelineMarkerSettings {
-  visible: boolean;
-  shape: "auto" | "circle" | "square" | "diamond";
-  size: number;
-  fill: string;
-  borderColor: string;
-  borderWidth: number;
-}
-
-export interface TimelineViewSettings {
-  layout: "tracks" | "flow";
-  orientation: "vertical" | "horizontal";
-  edgeRouting: "avoid" | "direct";
-  colorBy: "track" | "type";
-  typeColors: Record<string, string>;
-  intervalWidth: number;
-  intervalTitle: "outside" | "inside" | "hidden";
-  intervalAlign: "start" | "center" | "end";
-  intervalStyle: "soft" | "solid" | "outline";
-  intervalBorder: "auto" | "none" | "solid" | "dashed";
-  intervalBorderWidth: number;
-  intervalBorderColor: string;
-  intervalRadius: number;
-  intervalTextColor: string;
-  intervalTextColorMode: "theme" | "event" | "custom";
-  pointMarker: TimelineMarkerSettings;
-  anchorMarker: TimelineMarkerSettings;
-  pointTextColor: string;
-  pointDateVisible: boolean;
-  pointDateColor: string;
-  leaderStyle: "none" | "solid" | "dashed";
-  leaderColor: string;
-  leaderWidth: number;
-  relativeTickStep: number;
-  axis: "linear" | "adaptive";
-  tickStep: number;
-  tickUnit: TimelineTickUnit;
-  nodeGap: number;
-  horizontalSpread: number;
-  compactness: number;
-  locked: boolean;
-  pins: Record<string, number>;
-}
-
+import type { TimelineViewSettings, TimelineMarkerSettings, TimelineTickUnit } from "../schema/appearanceModel";
+export type { TimelineViewSettings, TimelineMarkerSettings, TimelineTickUnit } from "../schema/appearanceModel";
 export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
   const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
   const unit = input.tickUnit;
@@ -78,12 +35,7 @@ export function sanitizeTimelineSettings(value: unknown): TimelineViewSettings {
     intervalRadius: Math.max(0, Math.min(120, finite(input.intervalRadius, 4))),
     intervalTextColor: color(input.intervalTextColor),
     intervalTextColorMode:
-      input.intervalTextColorMode === "event"
-        ? "event"
-        : input.intervalTextColorMode === "custom" ||
-            (input.intervalTextColorMode === undefined && color(input.intervalTextColor))
-          ? "custom"
-          : "theme",
+      input.intervalTextColorMode === "event" ? "event" : input.intervalTextColorMode === "custom" ? "custom" : "theme",
     pointMarker: sanitizeTimelineMarker(input.pointMarker, false),
     anchorMarker: sanitizeTimelineMarker(input.anchorMarker, true),
     pointTextColor: color(input.pointTextColor),

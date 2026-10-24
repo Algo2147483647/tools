@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { defineSuite, defineTest } from "./harness";
 import { normalizeDagInput } from "../graph/normalize";
 import { getDefaultChartStyle, getCompoundPreset2Style, createChartStyles } from "../state/chartStyles";
-import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
+import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
@@ -207,10 +207,10 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     style.appearance.cssVars["--dag-title-font-size"] = "22px";
     const restored = parseChartStyleFile(JSON.parse(serializeChartStyle("compound", style)), "compound");
     assert.deepEqual(restored, style);
-    assert.throws(() => parseChartStyleFile(style.appearance, "compound"), /Unsupported/);
+    assert.throws(() => parseChartStyleFile(style.appearance, "compound"), /unknown field/);
     assert.throws(
       () => parseChartStyleFile(JSON.parse(serializeChartStyle("compound", style)), "node-link"),
-      /not node-link/,
+      /expected "node-link"/,
     );
     const incomplete = JSON.parse(serializeChartStyle("compound", style));
     delete incomplete.style.showNodeDetail;

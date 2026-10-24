@@ -1,5 +1,7 @@
 import { type GraphAppearance, type GraphLayoutAppearance, sanitizeGraphAppearance } from "./appearance";
 import type { GraphChartType } from "./types";
+import type { ChartStyleDocument } from "../schema/appearanceModel";
+import { createStyleDocument } from "../schema/styleProtocol";
 import {
   getDefaultChartStyle,
   getCompoundPreset2Style,
@@ -8,7 +10,9 @@ import {
 } from "../state/chartStyles";
 
 export type AppearanceCommand =
-  | { type: "setLayout"; key: keyof GraphLayoutAppearance; value: number }
+  | {
+      [K in keyof GraphLayoutAppearance]: { type: "setLayout"; key: K; value: GraphLayoutAppearance[K] };
+    }[keyof GraphLayoutAppearance]
   | { type: "setCssVar"; key: string; value: string }
   | { type: "unsetCssVar"; key: string }
   | { type: "replaceCss"; css: string }
@@ -21,8 +25,7 @@ export type GraphAppearancePresetId = "default" | "preset-2";
 interface GraphAppearancePreset {
   id: GraphAppearancePresetId;
   label: string;
-  appearance: GraphAppearance;
-  style: ChartStyle;
+  document: ChartStyleDocument;
 }
 
 export interface AppearanceCommandResult {
@@ -44,13 +47,13 @@ export function getGraphAppearancePresets(chartType?: GraphChartType): GraphAppe
           },
         ]
       : []),
-  ].map((preset) => ({ ...preset, appearance: preset.style.appearance }));
+  ].map((preset) => ({ id: preset.id, label: preset.label, document: createStyleDocument(type, preset.style) }));
 }
 
 export function getGraphPresetStyle(chartType: GraphChartType, presetId: GraphAppearancePresetId): ChartStyle {
   const preset = getGraphAppearancePresets(chartType).find((preset) => preset.id === presetId);
   if (!preset) throw new Error(`Preset ${presetId} is not available for ${chartType}.`);
-  return structuredClone(preset.style);
+  return structuredClone(preset.document.style);
 }
 
 export function applyAppearanceCommand(
@@ -110,7 +113,7 @@ function applyRawAppearanceCommand(
     case "applyPreset": {
       const preset = getGraphAppearancePresets(chartType).find((preset) => preset.id === command.presetId);
       if (!preset) throw new Error(`Preset ${command.presetId} is not available for ${chartType}.`);
-      return preset.appearance;
+      return preset.document.style.appearance;
     }
   }
 }

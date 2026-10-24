@@ -3,8 +3,9 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getGraphAppearancePresets, applyAppearanceCommand } from "../graph/appearanceCommands";
-import { getDefaultChartStyle, createChartStyles, sanitizeChartStyle } from "../state/chartStyles";
+import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
 import { parseGraphPagePreferences } from "../state/preferences";
+import { createStyleDocument } from "../schema/styleProtocol";
 import { createChartPreferences, chartPreferencesReducer, getChartStyles } from "../state/chartPreferences";
 import { resetAppearanceSection } from "../components/settings/appearanceSections";
 import { buildStageData } from "../layout/stage-layout";
@@ -36,7 +37,7 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
         presets.map((preset) => preset.id),
         chartType === "compound" || chartType === "timeline" ? ["default", "preset-2"] : ["default"],
       );
-      assert.deepEqual(presets[0].appearance, getDefaultChartStyle(chartType).appearance);
+      assert.deepEqual(presets[0].document.style.appearance, getDefaultChartStyle(chartType).appearance);
       assert.deepEqual(
         applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "default" }, chartType).appearance,
         getDefaultChartStyle(chartType).appearance,
@@ -88,17 +89,21 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
     assert.equal(style.appearance.cssVars["--dag-edge-active"], "#8b1e2d");
   }),
   defineTest("saved styles retain explicit values without guessing previous defaults", () => {
-    const previous = sanitizeChartStyle(null);
+    const previous = getDefaultChartStyle("sankey");
     const styles = createChartStyles();
     styles["node-link"] = previous;
-    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: styles }))!.chartStyles, styles);
+    const documents = () =>
+      Object.fromEntries(
+        Object.entries(styles).map(([type, style]) => [type, createStyleDocument(type as keyof typeof styles, style)]),
+      );
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: documents() }))!.chartStyles, documents());
     styles["node-link"] = getDefaultChartStyle("node-link");
     styles["node-link"].appearance.cssVars["--dag-edge-active"] = "#a9afb8";
-    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: styles }))!.chartStyles, styles);
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: documents() }))!.chartStyles, documents());
   }),
   defineTest("Default applies atomically and undo/redo restore display options without touching other types", () => {
     const styles = createChartStyles();
-    styles["node-link"] = sanitizeChartStyle(null);
+    styles["node-link"] = getDefaultChartStyle("sankey");
     let state = createChartPreferences(styles);
     const original = getChartStyles(state)["node-link"];
     const compound = state.compound;

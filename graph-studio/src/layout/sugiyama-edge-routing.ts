@@ -88,7 +88,7 @@ export function buildSugiyamaVerticalPlanner(input: {
     if (!plan) {
       return;
     }
-    const offsetY = theme.stagePaddingY + (stageInnerHeight - plan.totalHeight) / 2;
+    const offsetY = theme.stagePadding[1] + (stageInnerHeight - plan.totalHeight) / 2;
     const finalOrderY = new Map<number, number>();
     plan.orderY.forEach((value, order) => {
       finalOrderY.set(order, offsetY + value);

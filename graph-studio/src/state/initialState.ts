@@ -67,7 +67,7 @@ export function createInitialGraphState(
   savedPreferences: GraphPagePreferences = getInitialGraphPagePreferences(),
 ): GraphAppState {
   return {
-    timelineSettings: savedPreferences.timelineSettings,
+    timelineSettings: savedPreferences.chartStyles.timeline.style.timeline!,
     dag: null,
     document: { id: "", generation: 0, savedDag: null },
     nextRevision: 1,

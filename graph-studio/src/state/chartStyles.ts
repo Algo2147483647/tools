@@ -1,20 +1,9 @@
-import { type GraphAppearance, sanitizeGraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import type { ChartStyle, ChartStyles } from "../schema/appearanceModel";
+export type { ChartStyle, ChartStyles, ChartDisplayOptions } from "../schema/appearanceModel";
+import { sanitizeGraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { NODE_LINK_DEFAULT_APPEARANCE, NODE_LINK_DEFAULT_DISPLAY } from "../graph/nodeLinkAppearance";
 import type { GraphChartType } from "../graph/types";
-import { sanitizeTimelineSettings, type TimelineViewSettings } from "../graph/timelineSettings";
-
-export interface ChartDisplayOptions {
-  showNodeDetail: boolean;
-  hideNodeBorders: boolean;
-  alignNodeWidthsToMax: boolean;
-}
-
-export interface ChartStyle extends ChartDisplayOptions {
-  appearance: GraphAppearance;
-  timeline?: TimelineViewSettings;
-}
-
-export type ChartStyles = Record<GraphChartType, ChartStyle>;
+import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 
 /** Imported JSON can use a different property order without changing the style. */
 export function chartStylesEqual(left: ChartStyle, right: ChartStyle): boolean {
@@ -37,14 +26,13 @@ export function mapChartTypes<T>(create: (type: GraphChartType) => T): Record<Gr
   };
 }
 
-export function sanitizeChartStyle(value: unknown): ChartStyle {
-  const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Partial<ChartStyle>) : {};
+function createBaseChartStyle(input: Partial<ChartStyle> = {}): ChartStyle {
   return {
     ...(input.timeline ? { timeline: sanitizeTimelineSettings(input.timeline) } : {}),
     appearance: sanitizeGraphAppearance(input.appearance),
-    showNodeDetail: typeof input.showNodeDetail === "boolean" ? input.showNodeDetail : true,
-    hideNodeBorders: typeof input.hideNodeBorders === "boolean" ? input.hideNodeBorders : true,
-    alignNodeWidthsToMax: typeof input.alignNodeWidthsToMax === "boolean" ? input.alignNodeWidthsToMax : false,
+    showNodeDetail: input.showNodeDetail ?? true,
+    hideNodeBorders: input.hideNodeBorders ?? true,
+    alignNodeWidthsToMax: input.alignNodeWidthsToMax ?? false,
   };
 }
 
@@ -56,7 +44,7 @@ export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
   if (type === "node-link")
     return { appearance: structuredClone(NODE_LINK_DEFAULT_APPEARANCE), ...NODE_LINK_DEFAULT_DISPLAY };
   if (type === "spatial") {
-    const style = sanitizeChartStyle({ showNodeDetail: false });
+    const style = createBaseChartStyle({ showNodeDetail: false });
     style.appearance.cssVars["--dag-title-font-size"] = "12px";
     return style;
   }
@@ -79,8 +67,8 @@ export function getDefaultChartStyle(type: GraphChartType): ChartStyle {
     });
     return style;
   }
-  return sanitizeChartStyle(
-    type === "timeline" ? { showNodeDetail: false, timeline: sanitizeTimelineSettings(null) } : null,
+  return createBaseChartStyle(
+    type === "timeline" ? { showNodeDetail: false, timeline: sanitizeTimelineSettings(null) } : {},
   );
 }
 
@@ -109,12 +97,6 @@ export function getTimelinePreset2Style(): ChartStyle {
     horizontalSpread: 0,
   });
   return style;
-}
-
-export function sanitizeChartStyleForType(type: GraphChartType, value: unknown): ChartStyle {
-  const defaults = getDefaultChartStyle(type);
-  const input = value && typeof value === "object" && !Array.isArray(value) ? (value as Partial<ChartStyle>) : {};
-  return sanitizeChartStyle({ ...defaults, ...input, appearance: input.appearance ?? defaults.appearance });
 }
 
 export function getCompoundPreset2Style(): ChartStyle {

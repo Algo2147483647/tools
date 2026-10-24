@@ -13,7 +13,7 @@ import { getNodeLocatePoint } from "../hooks/useGraphZoom";
 import { buildStageData } from "../layout/stage-layout";
 import { buildTimelineStage } from "../layout/timeline-layout";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { createChartStyles } from "../state/chartStyles";
+import { createChartStyles, getDefaultChartStyle } from "../state/chartStyles";
 import { graphReducer } from "../state/graphReducer";
 import { prepareGraphTransaction } from "../state/graphTransactions";
 import { initialGraphAppState } from "../state/initialState";
@@ -53,7 +53,13 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     assert.equal(persisted["node-link"].showNodeDetail, true);
     assert.equal("undoStack" in persisted["node-link"], false);
     assert.equal("redoStack" in persisted["node-link"], false);
-    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: persisted }))?.chartStyles, persisted);
+    const documents = Object.fromEntries(
+      Object.entries(persisted).map(([type, style]) => [
+        type,
+        { format: "graph-studio-style", version: 1, chartType: type, style },
+      ]),
+    );
+    assert.deepEqual(parseGraphPagePreferences(JSON.stringify({ chartStyles: documents }))?.chartStyles, documents);
   }),
   defineTest("timeline hints open every event without changing v3 diagram semantics", () => {
     const source = normalizeDagInput({
@@ -165,13 +171,13 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
   }),
   defineTest("timeline preferences survive reload and appearance undo stays isolated", () => {
     const preferences = getInitialGraphPagePreferences();
-    assert.equal(preferences.chartStyles.timeline.appearance.display.showEdgeLabels, false);
-    assert.equal(preferences.chartStyles.timeline.showNodeDetail, false);
+    assert.equal(preferences.chartStyles.timeline.style.appearance.display.showEdgeLabels, false);
+    assert.equal(preferences.chartStyles.timeline.style.showNodeDetail, false);
     preferences.chartType = "timeline";
-    preferences.chartStyles.timeline.appearance = sanitizeGraphAppearance({
+    preferences.chartStyles.timeline.style.appearance = sanitizeGraphAppearance({
       cssVars: { "--dag-text-strong": "#234567" },
     });
-    preferences.chartStyles.timeline.showNodeDetail = true;
+    preferences.chartStyles.timeline.style.showNodeDetail = true;
     const parsed = parseGraphPagePreferences(JSON.stringify(preferences));
     assert.deepEqual(parsed!.chartStyles!.timeline, preferences.chartStyles.timeline);
     assert.equal(parsed!.chartType, "timeline");
@@ -180,16 +186,20 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     const original = history["node-link"];
     history = chartPreferencesReducer(history, {
       chartType: "timeline",
-      action: { type: "commit", appearance: preferences.chartStyles.timeline.appearance, label: "Timeline color" },
+      action: {
+        type: "commit",
+        appearance: preferences.chartStyles.timeline.style.appearance,
+        label: "Timeline color",
+      },
     });
     history = chartPreferencesReducer(history, { chartType: "timeline", action: { type: "undo" } });
     assert.equal(history["node-link"], original);
     assert.deepEqual(history.timeline.appearance, defaults.timeline.appearance);
     const migrated = parseGraphPagePreferences('{"chartStyles":{"node-link":{}}}');
-    assert.equal(migrated!.chartStyles!.timeline.appearance.display.showEdgeLabels, false);
-    assert.equal(migrated!.chartStyles!.timeline.showNodeDetail, false);
+    assert.equal(migrated!.chartStyles!.timeline.style.appearance.display.showEdgeLabels, false);
+    assert.equal(migrated!.chartStyles!.timeline.style.showNodeDetail, false);
     const partial = parseGraphPagePreferences('{"chartStyles":{"timeline":{}}}');
-    assert.equal(partial!.chartStyles!.timeline.showNodeDetail, false);
+    assert.equal(partial!.chartStyles!.timeline.style.showNodeDetail, false);
   }),
   defineTest("unrelated edits preserve malformed imported time while date edits must fix it", () => {
     const time = { start: "not-a-date", end: null };
@@ -369,21 +379,24 @@ export const chartTypesSuite = defineSuite("chart types and independent styles",
     const preferences = getInitialGraphPagePreferences();
     preferences.chartType = "sankey";
     preferences.layoutMode = "dagre";
-    preferences.chartStyles["node-link"].appearance = sanitizeGraphAppearance({
+    preferences.chartStyles["node-link"].style.appearance = sanitizeGraphAppearance({
       cssVars: { "--dag-text-strong": "#123456" },
     });
-    preferences.chartStyles.sankey.appearance = sanitizeGraphAppearance({
+    preferences.chartStyles.sankey.style.appearance = sanitizeGraphAppearance({
       cssVars: { "--dag-text-strong": "#abcdef" },
       display: { sankeyLinkOpacity: 65 },
     });
-    preferences.chartStyles.sankey.hideNodeBorders = true;
+    preferences.chartStyles.sankey.style.hideNodeBorders = true;
     saveGraphPagePreferences(preferences, storage);
     assert.deepEqual(loadGraphPagePreferences(storage), preferences);
     const invalid = parseGraphPagePreferences(
       '{"chartStyles":{"node-link":null,"sankey":{"appearance":{"display":{"sankeyLinkOpacity":999}}}}}',
     )!;
-    assert.equal(invalid.chartStyles!["node-link"].showNodeDetail, false);
-    assert.equal(invalid.chartStyles!.sankey.appearance.display.sankeyLinkOpacity, 999);
+    assert.equal(invalid.chartStyles!["node-link"].style.showNodeDetail, false);
+    assert.equal(
+      invalid.chartStyles!.sankey.style.appearance.display.sankeyLinkOpacity,
+      getDefaultChartStyle("sankey").appearance.display.sankeyLinkOpacity,
+    );
   }),
   defineTest("appearance commits, resets, undo and redo affect only their chart type", () => {
     const styles = createChartStyles();

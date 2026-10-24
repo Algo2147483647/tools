@@ -1,3 +1,4 @@
+import { updateAppearanceSchemaValue } from "../schema/styleProtocol";
 import { indexHierarchy } from "../graph/hierarchy";
 import assert from "node:assert/strict";
 import { createElement } from "react";
@@ -14,9 +15,9 @@ import { resetAppearanceSection, resetChartStyleSection } from "../components/se
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getInitialGraphPagePreferences, saveGraphPagePreferences } from "../state/preferences";
 import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
-import { getAppearanceSchema, updateAppearanceSchemaValue } from "../components/settings/appearanceSchemas";
+import { getAppearanceSchema } from "../schema/appearanceSchema";
 import { APPEARANCE_GROUPS } from "../components/settings/settingsCatalog";
-import { orderSchemaFields, type SchemaField } from "../components/settings/schemaModel";
+import { orderSchemaFields, type SchemaField } from "../schema/fields";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
@@ -25,30 +26,78 @@ import { createInitialGraphState } from "../state/initialState";
 import { replaceDocument } from "../state/documentTransitions";
 import TimelineColorSettings from "../components/TimelineColorSettings";
 import fs from "node:fs";
-import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
+import {
+  parseChartStyleFile,
+  serializeChartStyle,
+  createStyleDocument,
+  parseStyleDocument,
+} from "../schema/styleProtocol";
+import { getGraphAppearancePresets } from "../graph/appearanceCommands";
+import path from "node:path";
 import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
 import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 
 export const settingsSuite = defineSuite("Settings controls", [
-  defineTest("appearance schema edits current values and round-trips tuple padding with legacy compatibility", () => {
+  defineTest("presets, persistence, examples and model share the canonical schema document", () => {
+    const preferences = getInitialGraphPagePreferences();
+    let stored = "";
+    assert.equal(
+      saveGraphPagePreferences(preferences, {
+        getItem: () => stored,
+        setItem: (_key, value) => {
+          stored = value;
+        },
+      }),
+      true,
+    );
+    const raw = JSON.parse(stored);
+    assert.equal("timelineSettings" in raw, false);
+    assert.deepEqual(raw, preferences);
+    for (const type of Object.keys(preferences.chartStyles) as (keyof typeof preferences.chartStyles)[]) {
+      const document = preferences.chartStyles[type];
+      assert.deepEqual(parseStyleDocument(document, type), document);
+      assert.deepEqual(getAppearanceSchema(type, document.style).example, document);
+      for (const preset of getGraphAppearancePresets(type)) {
+        assert.deepEqual(parseStyleDocument(preset.document, type), preset.document);
+        assert.deepEqual(JSON.parse(serializeChartStyle(type, preset.document.style)), preset.document);
+      }
+    }
+    const walk = (directory: string): string[] =>
+      fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+        const file = path.join(directory, entry.name);
+        return entry.isDirectory() ? walk(file) : entry.name.endsWith(".style.json") ? [file] : [];
+      });
+    for (const file of walk("public")) {
+      const document = JSON.parse(fs.readFileSync(file, "utf8"));
+      assert.deepEqual(parseStyleDocument(document, document.chartType), document, file);
+    }
+    const invalid = structuredClone(preferences.chartStyles.timeline);
+    Object.assign(invalid.style.appearance.layout, { stagePaddingX: 10 });
+    assert.throws(() => parseStyleDocument(invalid, "timeline"), /unknown field/);
+    const old = parseGraphPagePreferences(JSON.stringify({ chartStyles: { timeline: invalid.style } }));
+    assert.deepEqual(old!.chartStyles!.timeline, preferences.chartStyles.timeline);
+    const before = getDefaultChartStyle("timeline");
+    getDefaultChartStyle("spatial");
+    assert.deepEqual(getDefaultChartStyle("timeline"), before);
+  }),
+  defineTest("appearance schema edits canonical values and rejects old fields", () => {
     const original = getDefaultChartStyle("timeline");
     const updated = updateAppearanceSchemaValue("timeline", original, "style.appearance.layout.stagePadding", [32, 48]);
-    assert.equal(updated.appearance.layout.stagePaddingX, 32);
-    assert.equal(updated.appearance.layout.stagePaddingY, 48);
+    assert.deepEqual(updated.appearance.layout.stagePadding, [32, 48]);
     assert.notDeepEqual(updated.appearance.layout, original.appearance.layout);
     const schema = getAppearanceSchema("timeline", updated);
     assert.deepEqual(schema.entries.get("style.appearance.layout.stagePadding")?.value, [32, 48]);
     assert.equal(schema.entries.has("style.appearance.layout.stagePaddingX"), false);
     assert.deepEqual(parseChartStyleFile(schema.example, "timeline"), updated);
     const legacyNegative = structuredClone(original);
-    legacyNegative.appearance.layout.stagePaddingX = -12.5;
+    legacyNegative.appearance.layout.stagePadding[0] = -12.5;
     assert.deepEqual(
       parseChartStyleFile(JSON.parse(serializeChartStyle("timeline", legacyNegative)), "timeline"),
       legacyNegative,
     );
     const mixed = structuredClone(schema.example);
-    mixed.style.appearance.layout.stagePaddingX = 999;
-    assert.equal(parseChartStyleFile(mixed, "timeline").appearance.layout.stagePaddingX, 32);
+    Object.assign(mixed.style.appearance.layout, { stagePaddingX: 999 });
+    assert.throws(() => parseChartStyleFile(mixed, "timeline"), /unknown field stagePaddingX/);
     assert.deepEqual(
       parseChartStyleFile(
         { format: "graph-studio-style", version: 1, chartType: "timeline", style: original },
@@ -93,7 +142,7 @@ export const settingsSuite = defineSuite("Settings controls", [
         timeline: { before: original.timeline!, after: updated.timeline! },
       },
     });
-    assert.equal(committed.timeline.appearance.layout.stagePaddingX, 32);
+    assert.deepEqual(committed.timeline.appearance.layout.stagePadding, [32, 48]);
     assert.deepEqual(
       chartPreferencesReducer(committed, { chartType: "timeline", action: { type: "undo" } }).timeline.appearance,
       original.appearance,
@@ -226,10 +275,7 @@ export const settingsSuite = defineSuite("Settings controls", [
     assert.equal(first.timelineSettings.typeColors.ExampleCategory, "#123456");
     const second = replaceDocument(first, action(false));
     assert.deepEqual(second.timelineSettings.typeColors, {});
-    assert.deepEqual(
-      parseGraphPagePreferences(JSON.stringify({ timelineSettings: view }))!.timelineSettings!.typeColors,
-      {},
-    );
+    assert.equal(parseGraphPagePreferences(JSON.stringify({ timelineSettings: view })), null);
   }),
   defineTest("sliders start at zero while numeric inputs retain values outside their range", () => {
     for (const control of LAYOUT_CONTROLS) {
@@ -259,8 +305,13 @@ export const settingsSuite = defineSuite("Settings controls", [
         layout: { columnGap: value, rowGap: value, nodeHeight: value, maxNodeWidth: value },
         display: { nodeCornerRadius: value, shadowOpacity: value, sankeyNodeWidth: value },
       });
-      const restored = parseGraphPagePreferences(JSON.stringify({ chartStyles: { compound: { appearance } } }))!
-        .chartStyles!.compound.appearance;
+      const restored = parseGraphPagePreferences(
+        JSON.stringify({
+          chartStyles: {
+            compound: createStyleDocument("compound", { ...getDefaultChartStyle("compound"), appearance }),
+          },
+        }),
+      )!.chartStyles!.compound.style.appearance;
       assert.deepEqual(restored, appearance);
       assert.equal(restored.layout.columnGap, value);
       assert.equal(restored.layout.rowGap, value);

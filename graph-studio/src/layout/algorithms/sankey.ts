@@ -61,7 +61,7 @@ export function buildSankeyStage(
   activeKeys.forEach((key) => columns.set(layerOf(key), [...(columns.get(layerOf(key)) ?? []), key]));
   const padding = theme.rowGap;
   const innerHeight = Math.max(
-    theme.stageMinHeight - 2 * theme.stagePaddingY,
+    theme.stageMinHeight - 2 * theme.stagePadding[1],
     Math.max(1, ...[...columns.values()].map((column) => column.length)) * (Math.max(48, theme.nodeHeight) + padding),
   );
   const maximum = Math.max(1e-300, ...positiveEdges.map((edge) => Number(edge.value)));
@@ -84,7 +84,7 @@ export function buildSankeyStage(
   const gutter = returnEdges.length ? returnWidth / 2 + 32 : 0;
   const nodeWidth = appearance.display.sankeyNodeWidth;
   const columnStep = nodeWidth + Math.max(theme.columnGap, theme.maxNodeWidth + 32, gutter * 2 + returnWidth + 32);
-  const left = theme.stagePaddingX + gutter + returnWidth / 2;
+  const left = theme.stagePadding[0] + gutter + returnWidth / 2;
   const right = left + lastLayer * columnStep + nodeWidth;
   const nodeMap: Record<string, StageNode> = Object.create(null);
   const topLevel = new Set(selection.topLevelKeys);
@@ -119,8 +119,8 @@ export function buildSankeyStage(
       .nodeAlign((node) => layerOf(node.id))
       .iterations(32)
       .extent([
-        [left, theme.stagePaddingY],
-        [right, theme.stagePaddingY + innerHeight],
+        [left, theme.stagePadding[1]],
+        [right, theme.stagePadding[1] + innerHeight],
       ])({
       nodes: [...activeKeys].map((id) => ({ id, fixedValue: normalizedTotal(id) })),
       links: forwardEdges.map((edge) => ({
@@ -142,14 +142,14 @@ export function buildSankeyStage(
     );
   } else {
     // D3 divides by the number of column gaps; place a return-only column directly.
-    let y = theme.stagePaddingY;
+    let y = theme.stagePadding[1];
     [...activeKeys].forEach((key, index) => {
       const height = normalizedTotal(key) * scale;
       addNode(key, left + nodeWidth / 2, y + height / 2, height, 0, index);
       y += height + padding;
     });
   }
-  const quietStartY = positiveEdges.length ? theme.stagePaddingY + innerHeight + 64 : theme.stagePaddingY + 24;
+  const quietStartY = positiveEdges.length ? theme.stagePadding[1] + innerHeight + 64 : theme.stagePadding[1] + 24;
   quietKeys.forEach((key, i) => addNode(key, left + nodeWidth / 2, quietStartY + i * 54, 0, 0, i));
 
   // Keep labels legible even when several very small flows meet a larger one.
@@ -157,7 +157,7 @@ export function buildSankeyStage(
     const column = Object.values(nodeMap)
       .filter((node) => node.layer === layer)
       .sort((a, b) => a.y - b.y);
-    let labelBottom = theme.stagePaddingY - 24;
+    let labelBottom = theme.stagePadding[1] - 24;
     column.forEach((node, index) => {
       node.order = index;
       node.flow!.labelY = Math.max(node.y, labelBottom + Math.max(38, font.size * 1.2 + 20));
@@ -166,7 +166,7 @@ export function buildSankeyStage(
   }
   const nodes = Object.values(nodeMap);
   const bottom = Math.max(
-    theme.stagePaddingY + innerHeight,
+    theme.stagePadding[1] + innerHeight,
     ...nodes.map((node) => Math.max(node.y + node.height / 2, node.flow!.labelY + 24)),
   );
 
@@ -282,9 +282,9 @@ export function buildSankeyStage(
     lanes: [],
     stageWidth: Math.max(
       theme.stageMinWidth,
-      right + Math.max(theme.maxNodeWidth, gutter + returnWidth / 2) + theme.stagePaddingX,
+      right + Math.max(theme.maxNodeWidth, gutter + returnWidth / 2) + theme.stagePadding[0],
     ),
-    stageHeight: Math.max(theme.stageMinHeight, (lanes.length ? laneBottom : bottom) + theme.stagePaddingY),
+    stageHeight: Math.max(theme.stageMinHeight, (lanes.length ? laneBottom : bottom) + theme.stagePadding[1]),
     warnings,
   };
 }

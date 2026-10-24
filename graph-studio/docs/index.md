@@ -18,13 +18,13 @@ Start with [Chart types and the shared data protocol](chart-types.md), then read
 
 [Appearance and the shared style protocol](appearance.md) defines the current file envelope, shared fields, CSS integration, defaults, validation, persistence, and export behavior. Chart-specific pages explain which fields actually affect each renderer.
 
-[Appearance protocol v2 proposal](appearance-protocol-v2.md) records the proposed JSON-first standardization. It is a design document, not an accepted import format. Do not use its proposed field names in current style files.
+[Canonical Appearance Schema](appearance-schema.md) describes the single protocol shared by presets, models, storage, validation, and rendering. Old appearance protocols are not supported.
 
 ## Source of truth
 
 - [Graph JSON Schema](../public/graph.schema.json) documents graph structure; runtime validation performs additional semantic checks.
 - [Graph types](../src/graph/types.ts) define chart IDs and document types.
-- [Style file parser](../src/state/chartStyleFile.ts) defines the accepted appearance file envelope.
+- [Style protocol](../src/schema/styleProtocol.ts) validates the canonical appearance document for imports, exports, presets, and storage.
 - [Chart defaults](../src/state/chartStyles.ts) define chart-specific initial styles.
 
 Older guides are retained in `docs/tmp` during documentation reorganization. The chart and appearance references above replace their overlapping material; archived defaults and relative links may be outdated.

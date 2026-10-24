@@ -198,7 +198,7 @@ export function buildStageData(input: {
 
       const slotCount = slotCountsByLayer.get(layer) || layerNodes.length || 1;
       const layerHeight = slotCount * theme.nodeHeight + Math.max(slotCount - 1, 0) * theme.rowGap;
-      const startY = theme.stagePaddingY + (stageInnerHeight - layerHeight) / 2;
+      const startY = theme.stagePadding[1] + (stageInnerHeight - layerHeight) / 2;
       layerNodes.forEach((nodeData) => {
         nodeData.y = startY + nodeData.order * (theme.nodeHeight + theme.rowGap) + theme.nodeHeight / 2;
       });
@@ -208,7 +208,7 @@ export function buildStageData(input: {
       const layerNodes = nodesByLayer.get(layer) || [];
       return layerNodes.length ? Math.max(...layerNodes.map((node) => node.width)) : theme.minNodeWidth;
     });
-    let cursorX = theme.stagePaddingX;
+    let cursorX = theme.stagePadding[0];
 
     sortedLayers.forEach((layer, index) => {
       const layerWidth = columnWidths[index];
@@ -227,8 +227,8 @@ export function buildStageData(input: {
       cursorX += layerWidth + theme.columnGap;
     });
 
-    stageWidth = cursorX - theme.columnGap + theme.stagePaddingX;
-    stageHeight = stageInnerHeight + theme.stagePaddingY * 2;
+    stageWidth = cursorX - theme.columnGap + theme.stagePadding[0];
+    stageHeight = stageInnerHeight + theme.stagePadding[1] * 2;
   }
 
   const sugiyamaStageRoutes =
@@ -442,8 +442,8 @@ function applyAbsoluteLayoutGeometry(input: {
   }
 
   const absoluteOffset = {
-    x: theme.stagePaddingX - minLeft,
-    y: theme.stagePaddingY - minTop,
+    x: theme.stagePadding[0] - minLeft,
+    y: theme.stagePadding[1] - minTop,
   };
 
   nodeKeys.forEach((nodeKey) => {
@@ -477,14 +477,14 @@ function applyAbsoluteLayoutGeometry(input: {
     });
   });
 
-  const stageWidth = maxRight - minLeft + theme.stagePaddingX * 2;
-  const stageHeight = maxBottom - minTop + theme.stagePaddingY * 2;
+  const stageWidth = maxRight - minLeft + theme.stagePadding[0] * 2;
+  const stageHeight = maxBottom - minTop + theme.stagePadding[1] * 2;
 
   return {
     lanes,
     laneCenters,
     slotCountsByLayer,
-    stageInnerHeight: Math.max(stageHeight - theme.stagePaddingY * 2, theme.nodeHeight * 3.4),
+    stageInnerHeight: Math.max(stageHeight - theme.stagePadding[1] * 2, theme.nodeHeight * 3.4),
     stageWidth,
     stageHeight,
     absoluteOffset,
@@ -510,11 +510,11 @@ function getRoutePointPosition(
 
   const slotCount = slotCountsByLayer.get(point.layer) || 1;
   const layerHeight = slotCount * theme.nodeHeight + Math.max(slotCount - 1, 0) * theme.rowGap;
-  const startY = theme.stagePaddingY + (stageInnerHeight - layerHeight) / 2;
+  const startY = theme.stagePadding[1] + (stageInnerHeight - layerHeight) / 2;
   return {
     layer: point.layer,
     order: point.order,
-    x: laneCenters.get(point.layer) || theme.stagePaddingX,
+    x: laneCenters.get(point.layer) || theme.stagePadding[0],
     y: startY + point.order * (theme.nodeHeight + theme.rowGap) + theme.nodeHeight / 2,
   };
 }

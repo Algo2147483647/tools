@@ -493,10 +493,27 @@ function parseUnsetInstruction(tokens: ConsoleToken[], line: number) {
 }
 
 function parseLayoutInstruction(tokens: ConsoleToken[], line: number) {
-  if (tokens.length !== 3) {
-    return { ok: false, error: { line, message: "layout expects <layout-key> <number>." } } as const;
-  }
   const key = parseLiteralToken(tokens[1]);
+  if (key === "stagePadding") {
+    const parsed = parseSetValueTokens(tokens.slice(2));
+    if (
+      !parsed.ok ||
+      !Array.isArray(parsed.value) ||
+      parsed.value.length !== 2 ||
+      !parsed.value.every((entry) => typeof entry === "number" && Number.isFinite(entry))
+    )
+      return { ok: false, error: { line, message: "layout stagePadding expects [x, y]." } } as const;
+    return {
+      ok: true,
+      instruction: {
+        type: "appearance",
+        command: { type: "setLayout", key, value: parsed.value as [number, number] },
+        line,
+      } satisfies ConsoleInstruction,
+    } as const;
+  }
+  if (tokens.length !== 3)
+    return { ok: false, error: { line, message: "layout expects <layout-key> <number>." } } as const;
   const value = Number(parseLiteralToken(tokens[2]));
   if (!isLayoutKey(key) || !Number.isFinite(value)) {
     return { ok: false, error: { line, message: "layout expects a valid layout key and finite number." } } as const;
@@ -732,10 +749,8 @@ function isDagCssVarName(value: string | null): value is `--dag-${string}` {
   return typeof value === "string" && value.startsWith("--dag-");
 }
 
-function isLayoutKey(value: string | null): value is keyof GraphLayoutAppearance {
+function isLayoutKey(value: string | null): value is Exclude<keyof GraphLayoutAppearance, "stagePadding"> {
   return (
-    value === "stagePaddingX" ||
-    value === "stagePaddingY" ||
     value === "columnGap" ||
     value === "rowGap" ||
     value === "edgeLaneGap" ||

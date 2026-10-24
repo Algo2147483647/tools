@@ -8,6 +8,18 @@ import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 
 export const consoleSuite = defineSuite("console", [
+  defineTest("layout padding uses the schema tuple and rejects obsolete scalar fields", () => {
+    const parsed = parseConsoleSource("/layout stagePadding [32, 48]");
+    assert.equal(parsed.ok, true);
+    if (parsed.ok)
+      assert.deepEqual(parsed.instructions[0], {
+        type: "appearance",
+        command: { type: "setLayout", key: "stagePadding", value: [32, 48] },
+        line: 1,
+      });
+    assert.equal(parseConsoleSource("/layout stagePaddingX 32").ok, false);
+    assert.equal(parseConsoleSource("/layout stagePadding [32]").ok, false);
+  }),
   defineTest("parser accepts comments, quoted strings, and create-missing edges", () => {
     const parsed = parseConsoleSource(
       ["# comment", "/use A", '/set . define "hello world"', "/edge . Missing_Node true --create-missing"].join("\n"),

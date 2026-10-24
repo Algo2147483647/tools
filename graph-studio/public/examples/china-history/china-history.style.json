@@ -6,8 +6,7 @@
     "appearance": {
       "version": 1,
       "layout": {
-        "stagePaddingX": 108,
-        "stagePaddingY": 88,
+        "stagePadding": [108, 88],
         "columnGap": 116,
         "rowGap": 22,
         "edgeLaneGap": 28,

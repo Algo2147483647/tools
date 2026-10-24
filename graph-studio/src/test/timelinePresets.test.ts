@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { getGraphPresetStyle, getGraphAppearancePresets } from "../graph/appearanceCommands";
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
 import { getDefaultChartStyle, createChartStyles, chartStylesEqual } from "../state/chartStyles";
-import { parseChartStyleFile, serializeChartStyle } from "../state/chartStyleFile";
+import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
 import { createChartPreferences, chartPreferencesReducer, getChartStyles } from "../state/chartPreferences";
 import { defineSuite, defineTest } from "./harness";
 

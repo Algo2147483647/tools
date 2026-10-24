@@ -1,7 +1,6 @@
-import { getDefaultChartStyle, type ChartStyle } from "../../state/chartStyles";
-import { serializeChartStyle, parseChartStyleFile } from "../../state/chartStyleFile";
-import type { GraphChartType } from "../../graph/types";
-import { orderSchemaFields, schemaField, type SchemaField } from "./schemaModel";
+import { getDefaultChartStyle, type ChartStyle } from "../state/chartStyles";
+import type { GraphChartType } from "../graph/types";
+import { orderSchemaFields, schemaField, type SchemaField } from "./fields";
 
 const descriptions: Record<string, string> = {
   format: "Portable style document format.",
@@ -16,7 +15,7 @@ const descriptions: Record<string, string> = {
   layout: "Stored geometry values; renderer support varies by chart.",
   display: "Display flags and visual dimensions; unsupported fields remain stored.",
   cssVars: "SVG root CSS variables; only --dag- names with string values are accepted.",
-  css: "Saved CSS, capped at 50,000 characters; @import is removed; built-in effects may take precedence.",
+  css: "Saved CSS; at most 50,000 characters; @import is rejected; built-in effects may take precedence.",
   stagePadding: "Horizontal and vertical stage padding [x, y] in logical pixels.",
   columnGap: "Layer separation in logical pixels.",
   rowGap: "Node or label separation in logical pixels.",
@@ -127,17 +126,20 @@ const required = new Set([
 ]);
 
 export function getAppearanceSchema(chartType: GraphChartType, currentStyle?: ChartStyle) {
-  // Export the real Default preset so examples cannot drift from the accepted style envelope.
+  // The table, examples and validator share the same canonical shape.
   const defaults = currentStyle ?? getDefaultChartStyle(chartType);
-  const example = JSON.parse(
-    serializeChartStyle(chartType, {
+  const example = {
+    format: "graph-studio-style",
+    version: 1,
+    chartType,
+    style: {
       showNodeDetail: defaults.showNodeDetail,
       hideNodeBorders: defaults.hideNodeBorders,
       alignNodeWidthsToMax: defaults.alignNodeWidthsToMax,
       appearance: defaults.appearance,
       ...(defaults.timeline ? { timeline: defaults.timeline } : {}),
-    }),
-  );
+    },
+  };
   const fields: SchemaField[] = [];
   const entries = new Map<string, { value: unknown; keys: string[]; editable: boolean }>();
   function visit(value: unknown, path: string, key: string, keys: string[]) {
@@ -147,7 +149,7 @@ export function getAppearanceSchema(chartType: GraphChartType, currentStyle?: Ch
     if (path.startsWith("style.timeline.typeColors[")) description = "Type-name event color override.";
     if (path.startsWith("style.timeline.pins[")) description = "Finite cross-axis position for this node.";
     if (chartType === "spatial" && path.startsWith("style.appearance.layout."))
-      description = "Stored for compatibility; Spatial geometry comes from coordinates and session projection.";
+      description = "Shared layout field; Spatial geometry comes from coordinates and session projection.";
     if (chartType === "sankey" && key === "nodeHeight")
       description = "Available vertical room per node; bar height remains quantity-derived.";
     if (chartType === "timeline" && key === "maxNodeWidth") description = "Event label width in logical pixels.";
@@ -214,42 +216,4 @@ export function getAppearanceSchema(chartType: GraphChartType, currentStyle?: Ch
     example,
     entries,
   };
-}
-
-export function updateAppearanceSchemaValue(
-  chartType: GraphChartType,
-  style: ChartStyle,
-  path: string,
-  value: unknown,
-): ChartStyle {
-  const schema = getAppearanceSchema(chartType, style);
-  const entry = schema.entries.get(path);
-  const field = schema.fields.find((field) => field.path === path);
-  if (!entry?.editable || !field) throw new Error("This field is read-only.");
-  if (Array.isArray(entry.value)) {
-    if (
-      !Array.isArray(value) ||
-      value.length !== 2 ||
-      !value.every((item) => typeof item === "number" && Number.isFinite(item))
-    )
-      throw new Error("Enter two finite numbers: [x, y].");
-  } else if (typeof entry.value === "object") {
-    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Enter a JSON object.");
-    for (const [key, item] of Object.entries(value)) {
-      if (path.endsWith("pins")) {
-        if (typeof item !== "number" || !Number.isFinite(item)) throw new Error("Pin values must be finite numbers.");
-      } else if (typeof item !== "string") throw new Error("Values must be strings.");
-      if (path.endsWith("cssVars") && !key.startsWith("--dag-"))
-        throw new Error("CSS variable names must start with --dag-.");
-    }
-  } else if (typeof value !== typeof entry.value || (typeof value === "number" && !Number.isFinite(value))) {
-    throw new Error(`Enter a valid ${typeof entry.value}.`);
-  }
-  if (field.type.includes(" | ") && !field.type.split(" | ").includes(String(value)))
-    throw new Error("Choose a listed value.");
-  const next = structuredClone(schema.example);
-  let target = next;
-  for (const key of entry.keys.slice(0, -1)) target = target[key];
-  target[entry.keys.at(-1)!] = value;
-  return parseChartStyleFile(next, chartType);
 }

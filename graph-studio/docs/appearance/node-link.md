@@ -75,7 +75,7 @@ The layout engine (`level`, `sugiyama`, `dagre`) is separate browser preference 
 }
 ```
 
-Omitted fields receive generic appearance fallbacks, as described in the [shared reference](../appearance.md). Export a full current profile if you need an exact starting point.
+Omitted optional fields receive the selected chart's schema defaults, as described in the [shared reference](../appearance.md). Export a full current profile if you need an exact starting point.
 
 ## CSS and rendering notes
 

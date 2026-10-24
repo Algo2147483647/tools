@@ -1,30 +1,6 @@
+import type { GraphAppearance } from "../schema/appearanceModel";
+export type { GraphAppearance, GraphLayoutAppearance } from "../schema/appearanceModel";
 import type { CSSProperties } from "react";
-
-export interface GraphAppearance {
-  version: 1;
-  layout: GraphLayoutAppearance;
-  display: GraphDisplayAppearance;
-  cssVars: Record<string, string>;
-  css: string;
-}
-
-interface GraphDisplayAppearance {
-  titleAlign: "left" | "center";
-  titleOverflow: "ellipsis" | "clip" | "visible";
-  titleWrap: boolean;
-  edgeArrowStyle: "filled" | "open";
-  showNodeDots: boolean;
-  showEdgeLabels: boolean;
-  showGroupStats: boolean;
-  showGroupBorders: boolean;
-  nodeCornerRadius: number;
-  nodeShadow: boolean;
-  shadowBlur: number;
-  shadowOffset: number;
-  shadowOpacity: number;
-  sankeyNodeWidth: number;
-  sankeyLinkOpacity: number;
-}
 
 // Keep core rendering rules outside saved custom CSS so older preferences gain new features.
 export const GRAPH_EFFECTS_CSS = `
@@ -45,19 +21,6 @@ export const GRAPH_EFFECTS_CSS = `
 .dag-node[data-flow="true"]:focus-visible .dag-node__shape { stroke: var(--dag-edge-active); stroke-width: 3; }
 @media (prefers-reduced-motion: reduce) { .dag-graph * { transition: none !important; } }
 `.trim();
-
-export interface GraphLayoutAppearance {
-  stagePaddingX: number;
-  stagePaddingY: number;
-  columnGap: number;
-  rowGap: number;
-  edgeLaneGap: number;
-  nodeHeight: number;
-  minNodeWidth: number;
-  maxNodeWidth: number;
-  stageMinWidth: number;
-  stageMinHeight: number;
-}
 
 const DEFAULT_GRAPH_CSS = `
 .dag-graph,
@@ -261,8 +224,7 @@ const DEFAULT_GRAPH_CSS = `
 export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
   version: 1,
   layout: {
-    stagePaddingX: 108,
-    stagePaddingY: 88,
+    stagePadding: [108, 88],
     columnGap: 116,
     rowGap: 22,
     edgeLaneGap: 28,
@@ -307,7 +269,7 @@ export const DEFAULT_GRAPH_APPEARANCE: GraphAppearance = {
 
 export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
-    return DEFAULT_GRAPH_APPEARANCE;
+    return structuredClone(DEFAULT_GRAPH_APPEARANCE);
   }
 
   const record = input as Record<string, unknown>;
@@ -324,14 +286,16 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
   const padding =
     Array.isArray(layoutInput.stagePadding) && layoutInput.stagePadding.length === 2
       ? layoutInput.stagePadding
-      : [layoutInput.stagePaddingX, layoutInput.stagePaddingY];
+      : defaultLayout.stagePadding;
   const maxNodeWidth = finiteNumeric(layoutInput.maxNodeWidth, defaultLayout.maxNodeWidth);
 
   return {
     version: 1,
     layout: {
-      stagePaddingX: finiteNumeric(padding[0], defaultLayout.stagePaddingX),
-      stagePaddingY: finiteNumeric(padding[1], defaultLayout.stagePaddingY),
+      stagePadding: [
+        finiteNumeric(padding[0], defaultLayout.stagePadding[0]),
+        finiteNumeric(padding[1], defaultLayout.stagePadding[1]),
+      ],
       columnGap: finiteNumeric(layoutInput.columnGap, defaultLayout.columnGap),
       rowGap: finiteNumeric(layoutInput.rowGap, defaultLayout.rowGap),
       edgeLaneGap: finiteNumeric(layoutInput.edgeLaneGap, defaultLayout.edgeLaneGap),

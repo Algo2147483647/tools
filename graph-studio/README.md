@@ -116,7 +116,7 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
 - [Documentation Index](docs/index.md): chart and appearance reference library
 - [Chart Types and Data Protocol](docs/chart-types.md): shared v3 contract and detailed guides for all five charts
 - [Appearance and Style Protocol](docs/appearance.md): current v1 style format and chart-specific field references
-- [Appearance Protocol v2 Proposal](docs/appearance-protocol-v2.md): proposed JSON-first standardization, explicitly separate from current formats
+- [Canonical Appearance Schema](docs/appearance-schema.md): one protocol for presets, models, storage, validation, and rendering
 - [Workspace Guide](docs/tmp/workspaces.md): retained guide to opening modes, recent locations, discovery, and local links
 - [Usage Guide](docs/tmp/usage.md): retained guide to UI workflows and editing
 - [Graph Console DSL](docs/tmp/graph-console-dsl.md): retained command reference
@@ -132,9 +132,7 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
     "A": { "title": "Root", "type": "Concept" },
     "B": { "title": "Child", "type": "Theorem" }
   },
-  "edges": [
-    { "id": "edge-ab", "source": "A", "target": "B", "value": "supports" }
-  ]
+  "edges": [{ "id": "edge-ab", "source": "A", "target": "B", "value": "supports" }]
 }
 ```
 
@@ -142,15 +140,15 @@ For the data model and chart-specific examples, see [Chart Types and Data Protoc
 
 ## Project Structure
 
-| Location | Contents |
-| --- | --- |
-| `launch.cmd`, `launch.ps1`, `launch.command` | Platform startup entry points |
-| [`src/`](src/) | React/TypeScript source and styles; regression suites in `src/test/` |
-| [`browser-tests/`](browser-tests/) | Browser-only regression fixtures, excluded from production builds |
-| [`public/`](public/) | Runtime static assets, graph schema, and example workspaces |
-| [`scripts/`](scripts/) | Startup, cleanup, and launcher regression tests |
-| [`docs/`](docs/) | User/developer documentation and documentation images |
-| Root configuration files | npm lockfile, TypeScript, Vite, formatting, and line-ending rules |
+| Location                                     | Contents                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| `launch.cmd`, `launch.ps1`, `launch.command` | Platform startup entry points                                        |
+| [`src/`](src/)                               | React/TypeScript source and styles; regression suites in `src/test/` |
+| [`browser-tests/`](browser-tests/)           | Browser-only regression fixtures, excluded from production builds    |
+| [`public/`](public/)                         | Runtime static assets, graph schema, and example workspaces          |
+| [`scripts/`](scripts/)                       | Startup, cleanup, and launcher regression tests                      |
+| [`docs/`](docs/)                             | User/developer documentation and documentation images                |
+| Root configuration files                     | npm lockfile, TypeScript, Vite, formatting, and line-ending rules    |
 
 `node_modules/`, `dist/`, caches, test output, and logs are generated files and are ignored by Git. Run `npm run clean` to remove build/test output and root diagnostic logs; use `npm run clean -- --cache` to also remove local npm/example-source caches. Cleanup preserves dependencies, source, documentation, and example workspaces. See the [Development Guide](docs/tmp/development.md) for details.
 

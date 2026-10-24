@@ -6,6 +6,8 @@ import { getStageAppearance } from "../layout/appearance";
 import { buildStageData } from "../layout/stage-layout";
 import GraphStage from "../rendering/GraphStage";
 import { parseGraphPagePreferences } from "../state/preferences";
+import { createStyleDocument } from "../schema/styleProtocol";
+import { getDefaultChartStyle } from "../state/chartStyles";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
 
@@ -21,8 +23,13 @@ export const appearanceSuite = defineSuite("appearance", [
       [NaN, 24],
     ]) {
       const appearance = sanitizeGraphAppearance({ display: { nodeCornerRadius: input } });
-      const restored = parseGraphPagePreferences(JSON.stringify({ chartStyles: { compound: { appearance } } }))!
-        .chartStyles!.compound.appearance;
+      const restored = parseGraphPagePreferences(
+        JSON.stringify({
+          chartStyles: {
+            compound: createStyleDocument("compound", { ...getDefaultChartStyle("compound"), appearance }),
+          },
+        }),
+      )!.chartStyles!.compound.style.appearance;
       assert.equal(restored.display.nodeCornerRadius, saved);
       assert.deepEqual(getStageAppearance(restored), getStageAppearance(DEFAULT_GRAPH_APPEARANCE));
       const html = renderToStaticMarkup(
@@ -53,16 +60,30 @@ export const appearanceSuite = defineSuite("appearance", [
     assert.equal(DEFAULT_GRAPH_APPEARANCE.display.showGroupStats, true);
     const appearance = sanitizeGraphAppearance({ display: { showGroupStats: false } });
     const parsed = parseGraphPagePreferences(
-      JSON.stringify({ chartStyles: { compound: { appearance, showNodeDetail: true } } }),
+      JSON.stringify({
+        chartStyles: {
+          compound: createStyleDocument("compound", {
+            ...getDefaultChartStyle("compound"),
+            appearance,
+            showNodeDetail: true,
+          }),
+        },
+      }),
     );
-    assert.equal(parsed!.chartStyles!.compound.appearance.display.showGroupStats, false);
-    assert.equal(parsed!.chartStyles!.compound.showNodeDetail, true);
+    assert.equal(parsed!.chartStyles!.compound.style.appearance.display.showGroupStats, false);
+    assert.equal(parsed!.chartStyles!.compound.style.showNodeDetail, true);
   }),
   defineTest("node dots default to visible and a hidden preference survives reload", () => {
     assert.equal(sanitizeGraphAppearance({ display: {} }).display.showNodeDots, true);
     const appearance = sanitizeGraphAppearance({ display: { showNodeDots: false } });
-    const parsed = parseGraphPagePreferences(JSON.stringify({ chartStyles: { "node-link": { appearance } } }));
-    const restored = parsed!.chartStyles!["node-link"].appearance;
+    const parsed = parseGraphPagePreferences(
+      JSON.stringify({
+        chartStyles: {
+          "node-link": createStyleDocument("node-link", { ...getDefaultChartStyle("node-link"), appearance }),
+        },
+      }),
+    );
+    const restored = parsed!.chartStyles!["node-link"].style.appearance;
     assert.equal(restored.display.showNodeDots, false);
     assert.equal((appearanceToStageStyle(restored) as Record<string, unknown>)["--dag-node-pin-display"], "none");
     assert.equal(
@@ -140,7 +161,8 @@ export const appearanceSuite = defineSuite("appearance", [
   defineTest("preferences parse appearance within its chart profile", () => {
     const raw = JSON.stringify({
       chartStyles: {
-        "node-link": {
+        "node-link": createStyleDocument("node-link", {
+          ...getDefaultChartStyle("node-link"),
           appearance: {
             ...DEFAULT_GRAPH_APPEARANCE,
             cssVars: {
@@ -152,18 +174,19 @@ export const appearanceSuite = defineSuite("appearance", [
               columnGap: 144,
             },
             display: {
+              ...DEFAULT_GRAPH_APPEARANCE.display,
               showEdgeLabels: false,
             },
           },
-        },
+        }),
       },
     });
     const parsed = parseGraphPagePreferences(raw);
 
-    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.layout.columnGap, 144);
-    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.display.showEdgeLabels, false);
-    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.cssVars["--dag-title-font-size"], "18px");
-    assert.equal(parsed?.chartStyles?.["node-link"].appearance?.cssVars["--dag-title-font-style"], "normal");
+    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.layout.columnGap, 144);
+    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.display.showEdgeLabels, false);
+    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.cssVars["--dag-title-font-size"], "18px");
+    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.cssVars["--dag-title-font-style"], "normal");
   }),
 
   defineTest("buildStageData uses appearance layout minimum stage size", () => {

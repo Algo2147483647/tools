@@ -19,7 +19,7 @@ import { prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
 import { readLinkedStyle } from "../workspace/linkedStyle";
 import { getDefaultChartStyle } from "../state/chartStyles";
 import { sanitizeTimelineSettings } from "../graph/timelineSettings";
-import { serializeChartStyle } from "../state/chartStyleFile";
+import { serializeChartStyle } from "../schema/styleProtocol";
 import { normalizeDagInput } from "../graph/normalize";
 
 const graph = (title = "Example") => ({

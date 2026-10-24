@@ -199,7 +199,7 @@ export function buildTimelineStage(input: {
   const timelineHeight = timestamps.length
     ? Math.max(900, Math.min(!flow && settings.axis === "linear" ? 10_000 : 24_000, demand * labelStep * 1.45))
     : 0;
-  const top = Math.max(112, theme.stagePaddingY + 32);
+  const top = Math.max(112, theme.stagePadding[1] + 32);
   const axisMap =
     start !== null && end !== null
       ? input.timelineAxis && input.timelineAxis.mode === settings.axis
@@ -260,7 +260,7 @@ export function buildTimelineStage(input: {
       fixedPositions[entry.key] = minimumCross + (space - 1) * channelStep;
   }
   const fixedEntries = dated.filter((entry) => fixedPositions[entry.key] !== undefined);
-  let trackX = Math.max(minimumCross, theme.stagePaddingX + 120);
+  let trackX = Math.max(minimumCross, theme.stagePadding[0] + 120);
   let lastLabelBottom = axisMap ? axisMap.originY + axisMap.height : top;
   const topLevel = new Set(selection.topLevelKeys);
   const labelColumns = new Map<string, number>();

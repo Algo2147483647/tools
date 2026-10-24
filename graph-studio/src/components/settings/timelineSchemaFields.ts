@@ -1,4 +1,4 @@
-import { schemaField as f, type SchemaField } from "./schemaModel";
+import { schemaField as f, type SchemaField } from "../../schema/fields";
 
 export const TIMELINE_SCHEMA_FIELDS: SchemaField[] = [
   f(

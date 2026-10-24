@@ -1,7 +1,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { downloadJsonFile } from "../../adapters/download";
 import { JsonSyntax } from "../NodeJsonView";
-import type { SchemaField } from "./schemaModel";
+import type { SchemaField } from "../../schema/fields";
 
 export default function ProtocolSchema({
   label,
