@@ -2,7 +2,8 @@ import { useState } from "react";
 import type { useSpatialView } from "../../controllers/useSpatialView";
 import { spatialUnitScale } from "../../graph/space";
 import type { StageData } from "../../layout/shared/types";
-import Icon from "../ui/Icon";
+import MethodTabs from "../ui/MethodTabs";
+import LayoutRules from "../arrange/LayoutRules";
 
 export default function SpatialControls({
   spatial,
@@ -12,56 +13,43 @@ export default function SpatialControls({
   layout?: StageData["spatial"];
 }) {
   const { metadata, view, change } = spatial;
-  const [collapsed, setCollapsed] = useState(false);
-  if (!metadata)
-    return <aside className="spatial-controls">Spatial · Add metadata.space to define the coordinate system.</aside>;
+  if (!metadata) return <p className="layout-status">Add metadata.space to define the coordinate system.</p>;
   const sphere = ["spherical", "geographic"].includes(metadata.coordinateSystem);
   const dimensions =
     metadata.coordinateSystem === "geographic" ? Math.max(3, metadata.dimensions) : metadata.dimensions;
   return (
-    <aside className="spatial-controls" data-collapsed={collapsed} aria-label="Spatial view controls">
-      <div className="spatial-controls-heading">
-        <button
-          type="button"
-          className="spatial-controls-toggle"
-          aria-label={collapsed ? "Expand Spatial controls" : "Collapse Spatial controls"}
-          aria-expanded={!collapsed}
-          aria-controls="spatial-controls-fields"
-          onClick={() => setCollapsed((value) => !value)}
-        >
-          <strong>Spatial</strong>
-          <Icon name="chevron" size={16} style={{ transform: collapsed ? "rotate(180deg)" : undefined }} />
-        </button>
-        {!collapsed && (
-          <span>
-            {metadata.dimensions}D · {metadata.coordinateSystem}
-            {metadata.unit ? ` · ${metadata.unit}` : ""}
-          </span>
-        )}
-        {!collapsed && (
-          <button type="button" onClick={spatial.reset}>
+    <section className="spatial-controls" aria-label="Spatial view controls">
+      <MethodTabs
+        label="Spatial projection"
+        value={view.projection}
+        onChange={(projection) => change({ projection })}
+        options={
+          dimensions < 3
+            ? [{ value: view.projection, label: dimensions + "D coordinates" }]
+            : [
+                ...(sphere ? [{ value: "map" as const, label: "Map" }] : []),
+                { value: "orthographic", label: "Orthographic" },
+                { value: "perspective", label: "Perspective" },
+              ]
+        }
+      >
+        <LayoutRules
+          label="Spatial rules"
+          rows={[
+            { label: "Dimensions", value: metadata.dimensions + "D" },
+            { label: "Coordinate system", value: metadata.coordinateSystem },
+            { label: "Positions", value: "Node coordinates" },
+            { label: "Unit", value: metadata.unit || "Unspecified" },
+          ]}
+        />
+        <div className="layout-actions">
+          <button type="button" className="studio-button" onClick={spatial.reset}>
             Reset view
           </button>
-        )}
-      </div>
-      {!collapsed && (
-        <div id="spatial-controls-fields" className="spatial-controls-fields">
+        </div>
+        <div className="spatial-controls-fields">
           {metadata.dimensions > 0 && layout && Number.isFinite(layout.pixelsPerUnit) && layout.pixelsPerUnit > 0 && (
             <DisplayUnits layout={layout} onChange={(unitScale) => change({ unitScale })} />
-          )}
-          {dimensions >= 3 && (
-            <label>
-              Projection
-              <select
-                aria-label="Spatial projection"
-                value={view.projection}
-                onChange={(e) => change({ projection: e.target.value as typeof view.projection })}
-              >
-                {sphere && <option value="map">All-sky / world map</option>}
-                <option value="orthographic">Orthographic 3D</option>
-                <option value="perspective">Perspective 3D</option>
-              </select>
-            </label>
           )}
           {dimensions > 3 &&
             view.projection !== "map" &&
@@ -155,8 +143,8 @@ export default function SpatialControls({
             </div>
           )}
         </div>
-      )}
-    </aside>
+      </MethodTabs>
+    </section>
   );
 }
 

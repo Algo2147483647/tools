@@ -7,7 +7,6 @@ import EmptyState from "./EmptyState";
 
 interface WorkspaceProps {
   topbarRef: React.RefObject<HTMLElement>;
-  spatialTools?: React.ReactNode;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement>;
@@ -60,7 +59,6 @@ export default function Workspace({
   onFocusChange,
   onScroll,
   onSidebarResizeStart,
-  spatialTools,
   onGroupToggle,
   onGroupEnter,
 }: WorkspaceProps) {
@@ -85,7 +83,6 @@ export default function Workspace({
           ) : null}
         </div>
         <div className="workspace-stage-shell">
-          {spatialTools}
           {stage && stage.warnings.length > 0 && (
             <StageWarning
               key={JSON.stringify([documentGeneration, stage.layoutMode, stage.warnings])}
@@ -127,7 +124,8 @@ export default function Workspace({
           >
             {stage ? (
               <GraphStage
-                topbarRef={topbarRef} overlaysRef={overlaysRef}
+                topbarRef={topbarRef}
+                overlaysRef={overlaysRef}
                 onGroupToggle={onGroupToggle}
                 onGroupEnter={onGroupEnter}
                 stage={stage}

@@ -1,4 +1,4 @@
-import { useEffect,useMemo,useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCompoundStage } from "../../controllers/useCompoundStage";
 import { useFontMetricsKey } from "../../controllers/useFontMetricsKey";
@@ -6,23 +6,22 @@ import { useTimelineStage } from "../../controllers/useTimelineStage";
 import type { GraphAppearance } from "../../graph/appearance";
 import type { TimelineClock } from "../../graph/timeline/clock";
 import type { TimelineViewSettings } from "../../graph/timeline/settings";
-import { getGraphChartLabel,type CompoundView,type GraphChartType,type GraphLayoutMode } from "../../graph/types";
+import { getGraphChartLabel, type CompoundView, type GraphChartType, type GraphLayoutMode } from "../../graph/types";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import compoundCss from "../../styles/compound.css?inline";
 import graphCss from "../../styles/graph.css?inline";
 import spatialCss from "../../styles/spatial.css?inline";
 import { PreviewCanvas } from "./PreviewCanvas";
 import {
-buildFlatPreviewStage,
-compoundPreviewInput,
-INITIAL_PREVIEW_VIEW,
-previewGeometry,
-timelinePreviewGraph,
+  buildFlatPreviewStage,
+  compoundPreviewInput,
+  INITIAL_PREVIEW_VIEW,
+  previewGeometry,
+  timelinePreviewGraph,
 } from "./previewModel";
 
 const FRAME_DOCUMENT =
   '<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:100%;height:100%;background:#fff}#preview-root{height:100%}</style></head><body><div id="preview-root"></div></body></html>';
-
 
 export default function AppearancePreview({
   appearance,
@@ -218,9 +217,11 @@ export default function AppearancePreview({
           )}
         {!stage && !error && <p className="settings-preview-overlay">Arranging sample…</p>}
       </div>
-      {(error || loading) && <p className="settings-preview-status" role="status">{error || "Updating preview…"}</p>}
+      {(error || loading) && (
+        <p className="settings-preview-status" role="status">
+          {error || "Updating preview…"}
+        </p>
+      )}
     </section>
   );
 }
-
-

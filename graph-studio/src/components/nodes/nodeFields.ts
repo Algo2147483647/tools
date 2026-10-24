@@ -60,8 +60,3 @@ export function parseNodeFieldValue(
     return { ok: false, message: `Field "${field.name}" contains invalid JSON.` };
   }
 }
-
-
-
-
-export { buildRawNodeEditorValue,parseRawNodeEditorValue } from "../../graph/nodeJson";

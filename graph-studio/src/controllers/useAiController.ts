@@ -1,18 +1,13 @@
-import { type Dispatch,useCallback,useEffect,useRef,useState } from "react";
+import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { copyTextToClipboard } from "../adapters/clipboard";
 import { buildAiContextPacket } from "../ai/context/packet";
 import { shouldExecuteValidatedBatch } from "../ai/execution/policy";
 import { validateCommandBatch } from "../ai/execution/validation";
-import {
-attachValidationToHarness,
-createTurnId,
-installPlan,
-markPendingBatchExecuted
-} from "../ai/session/harness";
+import { attachValidationToHarness, createTurnId, installPlan, markPendingBatchExecuted } from "../ai/session/harness";
 import { createPlanFromAiResponse } from "../ai/session/plans";
-import { formatReviewInstruction,formatValidationReport,referencesPreviousWork } from "../ai/session/presentation";
-import { requestAiPlan,testAiConnection } from "../ai/transport/providers";
-import type { AiHarnessState,AiSettings } from "../ai/types";
+import { formatReviewInstruction, formatValidationReport, referencesPreviousWork } from "../ai/session/presentation";
+import { requestAiPlan, testAiConnection } from "../ai/transport/providers";
+import type { AiHarnessState, AiSettings } from "../ai/types";
 import { buildConsoleReviewCard } from "../console/reviewCards";
 import type { GraphAppearance } from "../graph/appearance";
 import type { LayoutIntent } from "../layout/compound/layout-plan";
@@ -51,8 +46,26 @@ export function useAiController({
   const busyRef = useRef(false);
   const requestGeneration = useRef(0);
   const requestAbort = useRef<AbortController | null>(null);
-  const layout = useAiLayout({compoundLayout, settings, appendMessage, requestGeneration, requestAbort, busyRef, setBusy});
-  const {layoutBusy, layoutMessage, layoutExplanation, layoutActive, layoutRequestKey, setLayoutBusy, setLayoutMessage, setLayoutExplanation, cancelLayout} = layout;
+  const layout = useAiLayout({
+    compoundLayout,
+    settings,
+    appendMessage,
+    requestGeneration,
+    requestAbort,
+    busyRef,
+    setBusy,
+  });
+  const {
+    layoutBusy,
+    layoutMessage,
+    layoutExplanation,
+    layoutActive,
+    layoutRequestKey,
+    setLayoutBusy,
+    setLayoutMessage,
+    setLayoutExplanation,
+    cancelLayout,
+  } = layout;
 
   const current = useRef({
     dag: state.dag,
@@ -190,7 +203,8 @@ export function useAiController({
           return;
         }
         if (options || response.kind === "propose_layout" || response.kind === "inspect_layout") {
-          if (!compoundLayout?.ready) throw new Error("Open a rendered Nested node-link chart before requesting layout changes.");
+          if (!compoundLayout?.ready)
+            throw new Error("Open a rendered Nested node-link chart before requesting layout changes.");
           // A geometry plan supersedes an old command batch; continuing must not execute unrelated edits.
           next = {
             ...next,
@@ -199,7 +213,15 @@ export function useAiController({
             workingMemory: { ...next.workingMemory, activePlanId: undefined, pendingCommandBatchId: undefined },
           };
 
-          const layoutHarness = await layout.handleResponse({response, panelIntent: options?.layoutIntent, context, message, signal: abort.signal, isCurrent, next});
+          const layoutHarness = await layout.handleResponse({
+            response,
+            panelIntent: options?.layoutIntent,
+            context,
+            message,
+            signal: abort.signal,
+            isCurrent,
+            next,
+          });
           if (layoutHarness) setHarness(layoutHarness);
           return;
         }

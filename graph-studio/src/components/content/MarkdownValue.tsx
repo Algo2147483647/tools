@@ -1,4 +1,4 @@
-import { Component,lazy,Suspense,type ComponentProps,type ReactNode } from "react";
+import { Component, lazy, Suspense, type ComponentProps, type ReactNode } from "react";
 
 const MarkdownContent = lazy(() => import("./MarkdownContent"));
 type MarkdownValueProps = ComponentProps<typeof MarkdownContent>;

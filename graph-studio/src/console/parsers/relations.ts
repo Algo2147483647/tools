@@ -1,5 +1,5 @@
-import { expectWordToken,parseScalarLiteralToken } from "../syntax/literals";
-import { parseNodeList,parseNodeOperand } from "../syntax/operands";
+import { expectWordToken, parseScalarLiteralToken } from "../syntax/literals";
+import { parseNodeList, parseNodeOperand } from "../syntax/operands";
 import type { ConsoleToken } from "../syntax/types";
 
 export function parseEdgeInstruction(tokens: ConsoleToken[], line: number) {

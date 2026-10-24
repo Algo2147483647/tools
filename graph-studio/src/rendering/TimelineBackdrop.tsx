@@ -1,6 +1,5 @@
-import { sanitizeTimelineClock,timelineClockCaption } from "../graph/timeline/clock";
+import { sanitizeTimelineClock, timelineClockCaption } from "../graph/timeline/clock";
 import type { StageData } from "../layout/shared/types";
-
 
 export default function TimelineBackdrop({ stage }: { stage: StageData }) {
   const timeline = stage.timeline!;
@@ -61,8 +60,6 @@ export default function TimelineBackdrop({ stage }: { stage: StageData }) {
     </g>
   );
 }
-
-
 
 function HorizontalBackdrop({ stage }: { stage: StageData }) {
   const t = stage.timeline!;

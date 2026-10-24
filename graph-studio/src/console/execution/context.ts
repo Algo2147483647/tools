@@ -1,7 +1,6 @@
 import { type CommandResult } from "../../graph/commands";
-import type { NodeKey,NormalizedDag } from "../../graph/types";
+import type { NodeKey, NormalizedDag } from "../../graph/types";
 import type { ConsoleNodeOperand } from "../syntax/types";
-
 
 import type { ConsoleUiEffect } from "./types";
 export function resolveExistingNodeKey(
@@ -20,7 +19,11 @@ export function resolveExistingNodeKey(
   return key;
 }
 
-export function resolveOrCreateNodeKey(operand: ConsoleNodeOperand, contextNodeKey: NodeKey | null, line: number): NodeKey {
+export function resolveOrCreateNodeKey(
+  operand: ConsoleNodeOperand,
+  contextNodeKey: NodeKey | null,
+  line: number,
+): NodeKey {
   const key = operand.type === "context" ? contextNodeKey : operand.value;
   if (!key) {
     throw new Error(`Line ${line}: Current context is empty. Use "use <node>" first.`);

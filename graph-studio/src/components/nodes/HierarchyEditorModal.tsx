@@ -1,7 +1,7 @@
-import { useMemo,useState } from "react";
+import { useMemo, useState } from "react";
 import { getNodeTitle } from "../../graph/accessors";
 import type { GraphCommand } from "../../graph/commands";
-import { getGroupNodes,indexHierarchy,isHierarchyDescendant } from "../../graph/compound/hierarchy";
+import { getGroupNodes, indexHierarchy, isHierarchyDescendant } from "../../graph/compound/hierarchy";
 import type { NormalizedDag } from "../../graph/types";
 
 import type { HierarchyEdit } from "../../state/nodeActions";

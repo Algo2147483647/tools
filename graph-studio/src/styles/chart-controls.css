@@ -1,0 +1,388 @@
+/* Shared controls for the toolbar panel and Settings > Layout. */
+.chart-tools-panel {
+  position: absolute;
+  z-index: 6;
+  top: calc(var(--toolbar-bottom, 76px) + 8px);
+  right: 16px;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - var(--toolbar-bottom, 76px) - 24px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid var(--studio-border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow:
+    0 16px 48px #172c4b20,
+    0 2px 6px #172c4b0a;
+  color: var(--studio-ink);
+  font:
+    13px/1.5 "Segoe UI",
+    sans-serif;
+}
+.chart-tools-panel[hidden],
+.chart-tools-panel [hidden] {
+  display: none;
+}
+.chart-tools-panel:focus {
+  outline: none;
+}
+.chart-tools-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--studio-border);
+}
+.chart-tools-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.chart-tools-heading svg {
+  flex-shrink: 0;
+  color: var(--studio-muted);
+}
+.chart-tools-heading h2 {
+  font:
+    600 14px/1.4 "Segoe UI",
+    sans-serif;
+  margin: 0;
+}
+.chart-tools-body {
+  overflow: auto;
+  min-height: 0;
+  padding: 16px 18px 20px;
+  overscroll-behavior: contain;
+}
+.chart-tools-panel .compound-panel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+.chart-tools-panel .compound-members {
+  max-height: none;
+}
+.chart-tools-panel :focus-visible,
+.method-tabs :focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 3px;
+}
+#chart-tools-toggle[aria-expanded="true"] {
+  color: var(--studio-accent);
+  background: var(--accent-soft);
+}
+.method-tabs {
+  min-width: 0;
+}
+.method-tabs-list {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--studio-border);
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+.method-tabs-list > button {
+  flex: 1;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--studio-muted);
+  padding: 10px 12px;
+  font:
+    500 13px/1.4 "Segoe UI",
+    sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.method-tabs-list > button:hover:not(:disabled) {
+  background: var(--studio-soft);
+  color: var(--studio-ink);
+}
+.method-tabs-list > button[aria-selected="true"] {
+  border-bottom-color: var(--studio-accent);
+  color: var(--studio-accent);
+  font-weight: 600;
+}
+.method-tabs-list > button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.method-tabs-content:focus {
+  outline: none;
+}
+.method-tabs-content:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 4px;
+}
+.chart-tools-body > .method-tabs > .method-tabs-list {
+  margin-bottom: 12px;
+}
+.chart-layout-controls {
+  min-width: 0;
+  color: var(--studio-ink);
+  font:
+    13px/1.5 "Segoe UI",
+    sans-serif;
+}
+.layout-rule-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.layout-rules {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border-top: 2px solid #40526b;
+  border-bottom: 2px solid #40526b;
+  margin: 0 0 18px;
+  font-size: 12px;
+  text-align: left;
+}
+.layout-rules thead {
+  border-bottom: 1px solid #8b9aad;
+}
+.layout-rules th,
+.layout-rules td {
+  padding: 11px 8px;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+  border: 0;
+}
+.layout-rules thead th {
+  color: var(--studio-ink);
+  font-weight: 600;
+  padding-block: 9px;
+}
+.layout-rules th:first-child {
+  width: 33%;
+  padding-left: 0;
+}
+.layout-rules td:last-child,
+.layout-rules th:last-child {
+  padding-right: 0;
+}
+.layout-rules tbody th {
+  color: var(--studio-muted);
+  font-weight: 400;
+}
+.layout-rules tbody td {
+  color: var(--studio-ink);
+}
+.layout-rules strong {
+  font-weight: 600;
+}
+.chart-layout-controls select,
+.layout-ai-form textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #dce3ed;
+  border-radius: 7px;
+  color: var(--studio-ink);
+  background: #f9fbfd;
+  padding: 8px 9px;
+  font: inherit;
+}
+.chart-layout-controls select:disabled,
+.layout-rule-fields:disabled select {
+  opacity: 0.5;
+}
+.layout-rule-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.layout-rule-check input {
+  flex-shrink: 0;
+  accent-color: var(--studio-accent);
+}
+.layout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.layout-actions:empty {
+  display: none;
+}
+.chart-layout-controls .studio-button {
+  font: inherit;
+  min-height: 34px;
+  padding: 7px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.chart-layout-controls .layout-primary {
+  color: #fff;
+  background: var(--studio-accent);
+  border-color: var(--studio-accent);
+}
+.chart-layout-controls .layout-primary:hover:not(:disabled) {
+  background: #264eae;
+  color: #fff;
+}
+.chart-layout-controls button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.layout-ai-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.layout-ai-form > label {
+  font-weight: 600;
+}
+.layout-ai-form textarea {
+  min-height: 100px;
+  max-height: 260px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.layout-ai-form textarea::placeholder {
+  color: var(--text-soft);
+}
+.layout-ai-form .layout-actions {
+  margin-top: 0;
+}
+.layout-model {
+  flex: 1;
+  min-width: 100px;
+  color: var(--studio-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.layout-status,
+.layout-warning {
+  margin: 14px 0 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.layout-status {
+  color: var(--studio-muted);
+}
+.layout-warning {
+  color: #9a5312;
+  background: #fff8e9;
+  border-radius: 6px;
+  padding: 10px;
+}
+.layout-assessment {
+  font-size: 12px;
+  color: var(--studio-muted);
+}
+.layout-assessment summary {
+  cursor: pointer;
+}
+.layout-assessment p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.layout-rules .timeline-field {
+  margin: 0;
+}
+.layout-rules .timeline-field > span {
+  display: none;
+}
+.layout-rules .numeric-setting {
+  margin: 0;
+}
+.chart-layout-controls .spatial-controls-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.chart-layout-controls .spatial-controls-fields > label {
+  align-items: flex-start;
+  flex-direction: column;
+}
+.chart-layout-controls .spatial-controls-fields > .spatial-checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+.chart-layout-controls .spatial-display-units,
+.chart-layout-controls .spatial-legend {
+  grid-column: 1/-1;
+}
+.chart-layout-controls .spatial-display-units > label {
+  flex-wrap: wrap;
+}
+.chart-layout-controls .spatial-angle-input {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.chart-layout-controls .spatial-angle-input input {
+  min-width: 0;
+}
+.chart-layout-controls .spatial-controls .method-tabs-list > button {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 10px 8px;
+  background: transparent;
+}
+.chart-layout-controls .spatial-controls .method-tabs-list > button[aria-selected="true"] {
+  border-bottom-color: var(--studio-accent);
+  color: var(--studio-accent);
+}
+.timeline-view-controls .timeline-range-filter > summary {
+  width: auto;
+  height: auto;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--studio-border);
+}
+.timeline-view-controls .timeline-range-filter > summary::after {
+  content: "Time range";
+  font:
+    500 12px "Segoe UI",
+    sans-serif;
+}
+.timeline-view-controls .timeline-range-popover {
+  position: static;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: none;
+  margin-top: 10px;
+}
+.appearance-text-section {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--studio-border);
+}
+.appearance-text-section h3 {
+  margin: 0 0 14px;
+}
+@media (max-width: 600px) {
+  .chart-tools-panel {
+    right: 10px;
+    width: calc(100vw - 20px);
+    max-width: none;
+  }
+  .chart-tools-body {
+    padding: 12px 14px 16px;
+  }
+  .method-tabs-list > button {
+    padding-inline: 8px;
+  }
+}

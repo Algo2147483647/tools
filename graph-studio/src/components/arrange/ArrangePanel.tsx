@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { AiController } from "../../controllers/useAiController";
 import type { CompoundLayoutController } from "../../controllers/useCompoundLayoutPlan";
-import type { LayoutDirection,LayoutIntent,LayoutObjective } from "../../layout/compound/layout-plan";
+import type { LayoutDirection, LayoutIntent, LayoutObjective } from "../../layout/compound/layout-plan";
+import MethodTabs from "../ui/MethodTabs";
+import LayoutRules, { type LayoutRule } from "./LayoutRules";
 import CompoundLayoutReview from "./compound/CompoundLayoutReview";
 
 export default function ArrangePanel({
@@ -15,7 +17,11 @@ export default function ArrangePanel({
 }) {
   const [direction, setDirection] = useState<LayoutDirection>("AUTO");
   const [objective, setObjective] = useState<LayoutObjective>("readability");
-  const [routesOnly, setRoutesOnly] = useState(true);
+  const [method, setMethod] = useState<"routes" | "layout" | "ai">("routes");
+  const [aiRoutesOnly, setAiRoutesOnly] = useState(true);
+  const routesOnly = method === "routes" || (method === "ai" && aiRoutesOnly);
+  const promptId = useId();
+  const controlsRef = useRef<HTMLElement>(null);
   const [resize, setResize] = useState(false);
   const [pin, setPin] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -41,28 +47,45 @@ export default function ArrangePanel({
     ],
   });
   const busy = c.busy || ai.busy;
-  return (
-    <>
-      <section className="arrange-content" aria-label="Layout tools">
-        <div className="arrange-scope">
-          <span>Scope</span>
-          <strong>{c.scopeTitle}</strong>
-        </div>
-        <fieldset disabled={busy} className="arrange-fields">
-          <label>
-            Action
-            <select
-              aria-label="Arrangement action"
-              value={routesOnly ? "routes" : "layout"}
-              onChange={(e) => setRoutesOnly(e.target.value === "routes")}
-            >
-              <option value="routes">Routes only</option>
-              <option value="layout">Layout &amp; routes</option>
-            </select>
-          </label>
-          {!routesOnly && (
-            <label>
-              Direction
+  const rules: LayoutRule[] = [
+    { label: "Scope", value: <strong>{c.scopeTitle}</strong> },
+    {
+      label: "Optimize for",
+      value: (
+        <select
+          aria-label="Layout objective"
+          value={objective}
+          onChange={(e) => setObjective(e.target.value as LayoutObjective)}
+        >
+          <option value="readability">Readability</option>
+          <option value="stability">Stability</option>
+          <option value="compact">Compactness</option>
+        </select>
+      ),
+    },
+    {
+      label: "Node positions",
+      value:
+        method === "ai" ? (
+          <select
+            aria-label="AI node movement"
+            value={aiRoutesOnly ? "fixed" : "move"}
+            onChange={(e) => setAiRoutesOnly(e.target.value === "fixed")}
+          >
+            <option value="fixed">Keep fixed</option>
+            <option value="move">Allow rearrangement</option>
+          </select>
+        ) : routesOnly ? (
+          "Keep fixed"
+        ) : (
+          "Allow rearrangement"
+        ),
+    },
+    ...(!routesOnly
+      ? [
+          {
+            label: "Direction",
+            value: (
               <select
                 aria-label="Layout direction"
                 value={direction}
@@ -72,50 +95,120 @@ export default function ArrangePanel({
                 <option value="RIGHT">Left to right</option>
                 <option value="DOWN">Top to bottom</option>
               </select>
-            </label>
-          )}
-          <details className="arrange-advanced">
-            <summary>Advanced</summary>
-            <label>
-              Optimize for
+            ),
+          },
+          {
+            label: "Group boundaries",
+            value: (
               <select
-                aria-label="Layout objective"
-                value={objective}
-                onChange={(e) => setObjective(e.target.value as LayoutObjective)}
+                aria-label="Group boundaries"
+                value={resize ? "resize" : "strict"}
+                onChange={(e) => setResize(e.target.value === "resize")}
               >
-                <option value="readability">Readability</option>
-                <option value="stability">Stability</option>
-                <option value="compact">Compactness</option>
+                <option value="strict">Keep surrounding groups fixed</option>
+                <option value="resize">Allow surrounding groups to resize</option>
               </select>
-            </label>
-            {!routesOnly && (
-              <label className="arrange-check">
-                <input type="checkbox" checked={resize} onChange={(e) => setResize(e.target.checked)} />
-                Allow surrounding groups to adjust
+            ),
+          },
+          {
+            label: "Selected node",
+            value: (
+              <label className="layout-rule-check">
+                <input
+                  type="checkbox"
+                  checked={pin}
+                  disabled={!c.focusedKey}
+                  onChange={(e) => setPin(e.target.checked)}
+                />
+                <span>{c.focusedKey ? "Lock " + c.focusedKey : "No node selected"}</span>
               </label>
-            )}
-            <label className="arrange-check">
-              <input
-                type="checkbox"
-                checked={pin}
-                disabled={!c.focusedKey}
-                onChange={(e) => setPin(e.target.checked)}
-              />
-              Lock selected node{c.focusedKey ? ` (${c.focusedKey})` : ""}
-            </label>
-          </details>
+            ),
+          },
+        ]
+      : []),
+  ];
+  return (
+    <section
+      ref={controlsRef}
+      tabIndex={-1}
+      className="chart-layout-controls nested-layout-controls"
+      aria-label="Nested layout"
+    >
+      <MethodTabs
+        label="Nested layout method"
+        value={method}
+        onChange={setMethod}
+        disabled={busy}
+        options={[
+          { value: "routes", label: "Routes" },
+          { value: "layout", label: "Layout & routes" },
+          { value: "ai", label: "AI" },
+        ]}
+      >
+        <fieldset className="layout-rule-fields" disabled={busy}>
+          <LayoutRules rows={rules} />
         </fieldset>
-        <div className="arrange-actions">
-          <button disabled={!c.ready || busy} onClick={() => void c.propose(intent()).catch(() => {})}>
-            Preview
-          </button>
+        {method === "ai" ? (
+          <form
+            className="layout-ai-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void ai.request(prompt, { layoutIntent: intent() });
+            }}
+          >
+            <label htmlFor={promptId}>Layout instructions</label>
+            <textarea
+              id={promptId}
+              rows={4}
+              value={prompt}
+              disabled={busy}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Reduce crossings and keep related nodes together…"
+            />
+            <div className="layout-actions">
+              <span className="layout-model" title={model}>
+                {model || "Choose a model in AI settings"}
+              </span>
+              <button
+                className="studio-button layout-primary"
+                type="submit"
+                disabled={!prompt.trim() || !c.ready || busy}
+              >
+                {ai.layoutBusy ? "Generating…" : "Generate preview"}
+              </button>
+            </div>
+            {ai.layoutMessage && (
+              <p className="layout-status" role="status">
+                {ai.layoutMessage}
+              </p>
+            )}
+            {ai.layoutExplanation && (
+              <details className="layout-assessment">
+                <summary>AI assessment</summary>
+                <p>{ai.layoutExplanation}</p>
+              </details>
+            )}
+          </form>
+        ) : (
+          <div className="layout-actions">
+            <button
+              className="studio-button layout-primary"
+              disabled={!c.ready || busy}
+              onClick={() => void c.propose(intent()).catch(() => {})}
+            >
+              {c.busy ? "Calculating…" : "Preview arrangement"}
+            </button>
+          </div>
+        )}
+        <div className="layout-actions">
           {c.review?.status === "ready" && c.candidate && (
-            <button disabled={c.stale || busy} onClick={c.reveal}>
-              Compare
+            <button className="studio-button" disabled={c.stale || busy} onClick={c.reveal}>
+              Compare preview
             </button>
           )}
           {(c.busy || ai.layoutBusy) && (
             <button
+              className="studio-button"
               onClick={() => {
                 ai.cancelLayout();
                 c.cancel();
@@ -126,47 +219,24 @@ export default function ArrangePanel({
           )}
         </div>
         {c.message && (
-          <p className="arrange-status" role="status">
+          <p className="layout-status" role="status">
             {c.message}
           </p>
         )}
-        {c.stale && <p role="alert">The graph or view changed. Generate a new preview.</p>}
-        <form
-          className="arrange-ai"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void ai.request(prompt, { layoutIntent: intent() });
-          }}
-        >
-          <label htmlFor="arrange-prompt">Ask AI</label>
-          <textarea
-            id="arrange-prompt"
-            rows={3}
-            value={prompt}
-            disabled={busy}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Reduce crossings in this group and preserve node positions…"
-          />
-          <div className="arrange-ai-footer">
-            <span title={model}>{model || "Configure a model in Settings"}</span>
-            <button type="submit" disabled={!prompt.trim() || !c.ready || busy}>
-              {ai.layoutBusy ? "Working…" : "Suggest layout"}
-            </button>
-          </div>
-          {ai.layoutMessage && (
-            <p className="arrange-ai-result" role="status">
-              {ai.layoutMessage}
-            </p>
-          )}
-          {ai.layoutExplanation && (
-            <details className="arrange-assessment">
-              <summary>AI assessment</summary>
-              <p>{ai.layoutExplanation}</p>
-            </details>
-          )}
-        </form>
-      </section>
-      <CompoundLayoutReview controller={c} />
-    </>
+        {c.stale && (
+          <p className="layout-warning" role="alert">
+            The graph or view changed. Generate a new preview.
+          </p>
+        )}
+      </MethodTabs>
+      <CompoundLayoutReview
+        controller={c}
+        returnFocus={() => {
+          const target = controlsRef.current;
+          if (target?.getClientRects().length) target.focus();
+          else document.getElementById("chart-tools-toggle")?.focus();
+        }}
+      />
+    </section>
   );
 }

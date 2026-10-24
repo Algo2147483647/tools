@@ -31,3 +31,11 @@ Browser Canvas access lives in [adapters/textMeasurement.ts](../src/adapters/tex
 Requests have `{ jobId, payload }`. Responses are either `{ jobId, ok: true, result }` or `{ jobId, ok: false, error }`. The worker handler echoes the request ID and converts synchronous failures into error responses.
 
 Controllers retain cancellation, termination, timeout handling and graph/view freshness checks. Both controllers ignore responses for a different job ID. The timeline worker also restores graph indexes lost during structured cloning before evaluating a candidate.
+
+The candidate controllers share main-thread request cleanup in `controllers/layout/workerJob.ts`. Compound searches retain the 15-second timeout and timeline previews retain 20 seconds; the timeline AI request has a separate 90-second timeout. Cancellation settles the request and terminates its worker. Graph/view revision checks remain in each controller.
+
+## AI layout rules
+
+`compound/ai/` contains `context.ts`, `prompt.ts`, `proposalPolicy.ts` and `workflow.ts`. The workflow accepts a proposal, evaluates it locally, and allows one measured feedback turn within the original scope and movement permissions. Local inspection, routing hotspots and feedback summaries live outside `ai/` in `compound/inspection.ts`, `diagnostics.ts` and `feedback.ts`.
+
+`timeline/ai/` contains `context.ts`, `prompt.ts`, `protocol.ts` and `request.ts`. The model supplies arrangement intent; local algorithms compute and validate the resulting geometry. Both chart families use generic transport under `src/ai/transport`. Worker/algorithm imports must not pull in these network request modules.

@@ -1,6 +1,6 @@
 import { routingHotspots } from "./diagnostics";
 import type { LayoutProblem } from "./layout-plan";
-import { measureLayout,validateLayoutGeometry } from "./layout-quality";
+import { measureLayout, validateLayoutGeometry } from "./layout-quality";
 
 export function inspectCompoundLayout(problem: LayoutProblem, scopeId: string | null) {
   const byId = new Map(problem.projection.items.map((i) => [i.id, i]));

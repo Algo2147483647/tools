@@ -1,21 +1,6 @@
 .spatial-controls {
-  position: absolute;
-  z-index: 4;
-  bottom: 20px;
-  right: 24px;
-  padding: 14px 18px;
-  border: 1px solid #ffffff38;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff61, #ffffff38);
-  box-shadow:
-    inset 0 1px 0 #ffffff29,
-    0 10px 24px #1a273f08;
-  backdrop-filter: blur(16px) saturate(135%);
-  -webkit-backdrop-filter: blur(16px) saturate(135%);
-  color: #34475d;
+  color: var(--studio-ink);
   font-size: 12px;
-  width: max-content;
-  max-width: min(640px, calc(100% - 48px));
 }
 #main-content[data-layout="spatial"] {
   overflow: hidden;
@@ -41,27 +26,11 @@
     min-height: 40px;
   }
 }
-.spatial-controls-heading,
 .spatial-controls-fields {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
-}
-.spatial-controls-heading {
-  margin-bottom: 10px;
-}
-.spatial-controls-heading strong {
-  font-size: 15px;
-}
-.spatial-controls-heading > span {
-  color: #728093;
-}
-.spatial-controls[data-collapsed="true"] {
-  padding: 8px 12px;
-}
-.spatial-controls[data-collapsed="true"] .spatial-controls-heading {
-  margin-bottom: 0;
 }
 .spatial-controls label {
   display: flex;
@@ -76,15 +45,6 @@
   color: inherit;
   padding: 4px 7px;
   font: inherit;
-}
-.spatial-controls .spatial-controls-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  background: transparent;
-  padding: 4px 0;
-  cursor: pointer;
 }
 .spatial-angle-input {
   display: inline-flex;

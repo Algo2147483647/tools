@@ -8,14 +8,25 @@ import HierarchyEditorModal from "../nodes/HierarchyEditorModal";
 import NodeDetailModal from "../nodes/NodeDetailModal";
 import RelationEditorModal from "../nodes/RelationEditorModal";
 
-
 import type { StudioViewProps } from "./types";
-export function StudioDialogs({session, ui, viewport, nodeActions, transactions, preview}: Pick<StudioViewProps, "session" | "ui" | "viewport" | "nodeActions" | "transactions"> & {preview: ReturnType<typeof useWorkspacePreview>}) {
- const {state} = session;
- const {filePreview, relativeLinkRoot} = preview;
- const relationEditor = state.ui.relationEditor;
- const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
- return <>      <ContextMenu
+export function StudioDialogs({
+  session,
+  ui,
+  viewport,
+  nodeActions,
+  transactions,
+  preview,
+}: Pick<StudioViewProps, "session" | "ui" | "viewport" | "nodeActions" | "transactions"> & {
+  preview: ReturnType<typeof useWorkspacePreview>;
+}) {
+  const { state } = session;
+  const { filePreview, relativeLinkRoot } = preview;
+  const relationEditor = state.ui.relationEditor;
+  const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
+  return (
+    <>
+      {" "}
+      <ContextMenu
         menu={state.ui.contextMenu}
         dag={state.dag}
         chartType={state.chartType}
@@ -74,5 +85,6 @@ export function StudioDialogs({session, ui, viewport, nodeActions, transactions,
         onSaveNew={session.handleSaveJsonAsNew}
         onClose={ui.closeSaveDialog}
       />
-</>;
+    </>
+  );
 }

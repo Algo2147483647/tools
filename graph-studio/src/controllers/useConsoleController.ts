@@ -1,17 +1,17 @@
-import { useCallback,useEffect,useRef,useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { parseConsoleSource } from "../console/dsl";
-import { buildConsoleMutationLabel,executeConsoleInstructions } from "../console/executor";
+import { buildConsoleMutationLabel, executeConsoleInstructions } from "../console/executor";
 import {
-buildConsolePrompt,
-buildConsoleSuccessMessage,
-requiresGraphForConsoleInstruction
+  buildConsolePrompt,
+  buildConsoleSuccessMessage,
+  requiresGraphForConsoleInstruction,
 } from "../console/presentation";
-import type { ConsoleEntry,ConsoleReviewCard } from "../console/types";
+import type { ConsoleEntry, ConsoleReviewCard } from "../console/types";
 import type { GraphAppearance } from "../graph/appearance";
 import { createGraphDocument } from "../graph/normalize";
 import type { TimelineViewSettings } from "../graph/timeline/settings";
 import type { NodeKey } from "../graph/types";
-import { buildAppearanceMutationLabel,getGraphPresetStyle } from "../schema/appearanceCommands";
+import { buildAppearanceMutationLabel, getGraphPresetStyle } from "../schema/appearanceCommands";
 import type { GraphAppState } from "../state/initialState";
 import { useConsoleInput } from "./console/useConsoleInput";
 import type { GraphTransactionsController } from "./useGraphTransactions";
@@ -186,7 +186,6 @@ export function useConsoleController({
     ],
   );
 
-
   return {
     entries,
     input,
@@ -199,8 +198,10 @@ export function useConsoleController({
     setReviewStatus,
     runSource,
     changeInput,
-    handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>, ask: Ask) => inputState.handleKeyDown(event, ask, runSource),
-    handlePaste: (event: React.ClipboardEvent<HTMLInputElement>, ask: Ask) => inputState.handlePaste(event, ask, runSource),
+    handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>, ask: Ask) =>
+      inputState.handleKeyDown(event, ask, runSource),
+    handlePaste: (event: React.ClipboardEvent<HTMLInputElement>, ask: Ask) =>
+      inputState.handlePaste(event, ask, runSource),
   };
 }
 

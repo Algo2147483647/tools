@@ -1,6 +1,6 @@
-import { useEffect,useRef,useState } from "react";
-import { formatRelationValue,parseRelationInput,parseRelationValue } from "../../graph/relations";
-import type { DagNode,NodeKey,RelationField,RelationValue } from "../../graph/types";
+import { useEffect, useRef, useState } from "react";
+import { formatRelationValue, parseRelationInput, parseRelationValue } from "../../graph/relations";
+import type { DagNode, NodeKey, RelationField, RelationValue } from "../../graph/types";
 import { DEFAULT_RELATION_VALUE } from "../../graph/types";
 
 interface RelationEditorModalProps {

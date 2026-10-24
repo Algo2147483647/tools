@@ -1,9 +1,13 @@
 import type { Dispatch } from "react";
-import { downloadSvg,prepareHtmlSvg } from "../export/svg";
+import { downloadSvg, prepareHtmlSvg } from "../export/svg";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
 import type { GraphViewportController } from "./useGraphViewport";
-export function useGraphExport(state: GraphAppState, dispatch: Dispatch<GraphAction>, viewport: Pick<GraphViewportController, "svgRef" | "stage">) {
+export function useGraphExport(
+  state: GraphAppState,
+  dispatch: Dispatch<GraphAction>,
+  viewport: Pick<GraphViewportController, "svgRef" | "stage">,
+) {
   function exportSvg() {
     if (!viewport.svgRef.current) {
       dispatch({ type: "statusChanged", status: "Render a DAG first, then export the SVG." });
@@ -34,5 +38,5 @@ export function useGraphExport(state: GraphAppState, dispatch: Dispatch<GraphAct
     }
   }
 
-return { exportSvg, exportHtml };
+  return { exportSvg, exportHtml };
 }

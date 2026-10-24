@@ -1,14 +1,15 @@
-import { useCallback,useEffect,useRef,useState,type Dispatch } from "react";
+import { useCallback, useEffect, useRef, useState, type Dispatch } from "react";
 import type { AiSettings } from "../ai/types";
-import { readTimelineLayout,type TimelineLayoutData } from "../graph/timeline/layoutData";
+import { readTimelineLayout, type TimelineLayoutData } from "../graph/timeline/layoutData";
 import type { StageData } from "../layout/shared/types";
-import { requestTimelineLayout,timelineLayoutContext } from "../layout/timeline/ai/request";
-import type { TimelineLayoutCandidate,TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import { timelineLayoutContext } from "../layout/timeline/ai/context";
+import { requestTimelineLayout } from "../layout/timeline/ai/request";
+import type { TimelineLayoutCandidate, TimelineLayoutInput } from "../layout/timeline/layout-candidate";
 import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
 import type { TimelineWorkerInput } from "../layout/workers/protocol";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import { startLayoutWorker,type LayoutWorkerJob } from "./layout/workerJob";
+import { startLayoutWorker, type LayoutWorkerJob } from "./layout/workerJob";
 
 type Review = TimelineLayoutCandidate & { key: number; baseline: StageData; explanation: string };
 export function useTimelineLayout(
@@ -130,10 +131,14 @@ export function useTimelineLayout(
       setMessage("Calculating preview…");
       const payload: TimelineWorkerInput = { input: initial.input, baseline: initial.baseline, plan: response.plan };
       pending.job = startLayoutWorker<TimelineWorkerInput, TimelineLayoutCandidate>({
-        createWorker: () => new Worker(new URL("../layout/workers/timeline.worker.ts", import.meta.url), {type: "module"}),
-        payload, timeoutMs: 20000,
+        createWorker: () =>
+          new Worker(new URL("../layout/workers/timeline.worker.ts", import.meta.url), { type: "module" }),
+        payload,
+        timeoutMs: 20000,
         timeoutMessage: "Layout exceeded 20 seconds. Filter the timeline and use Readapt.",
-        failureMessage: "Timeline worker failed.", invalidMessage: "Invalid timeline preview.", cancelMessage: "Timeline layout cancelled.",
+        failureMessage: "Timeline worker failed.",
+        invalidMessage: "Invalid timeline preview.",
+        cancelMessage: "Timeline layout cancelled.",
       });
       const candidate = await pending.job.result;
       if (sequence.current !== id || current.current.key !== initial.key || !current.current.ready) return;

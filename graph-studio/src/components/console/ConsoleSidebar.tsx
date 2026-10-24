@@ -1,7 +1,7 @@
-import { useEffect,useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { NodeKey } from "../../graph/types";
 
-import type { ConsoleEntry,ConsoleReviewCard,ConsoleSuggestion } from "../../console/types";
+import type { ConsoleEntry, ConsoleReviewCard, ConsoleSuggestion } from "../../console/types";
 
 interface ConsoleSidebarProps {
   hasGraph: boolean;

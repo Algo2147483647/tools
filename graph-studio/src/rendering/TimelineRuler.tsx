@@ -1,11 +1,16 @@
 import type { RefObject } from "react";
-import { sanitizeTimelineClock,timelineClockCaption } from "../graph/timeline/clock";
+import { sanitizeTimelineClock, timelineClockCaption } from "../graph/timeline/clock";
 import type { StageData } from "../layout/shared/types";
-import { getTimelineAxisTicks,getVisibleTimeTicks } from "../layout/timeline/ticks";
-import { useTimelineRulerViewport,type ViewportChromeRefs } from "../viewport/useTimelineRulerViewport";
-export function TimelineRuler({ stage, svgRef, topbarRef, overlaysRef }: { stage: StageData; svgRef: RefObject<SVGSVGElement> } & ViewportChromeRefs) {
+import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline/ticks";
+import { useTimelineRulerViewport, type ViewportChromeRefs } from "../viewport/useTimelineRulerViewport";
+export function TimelineRuler({
+  stage,
+  svgRef,
+  topbarRef,
+  overlaysRef,
+}: { stage: StageData; svgRef: RefObject<SVGSVGElement> } & ViewportChromeRefs) {
   const timeline = stage.timeline!;
-  const viewport = useTimelineRulerViewport(stage, svgRef, {topbarRef, overlaysRef});
+  const viewport = useTimelineRulerViewport(stage, svgRef, { topbarRef, overlaysRef });
   const { scale, x, top, bottom } = viewport;
   const caption = timelineClockCaption(timeline.clock ?? sanitizeTimelineClock(null));
   const horizontal = timeline.orientation === "horizontal";

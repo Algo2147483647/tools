@@ -1,24 +1,33 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
+import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../../graph/nodeJson";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import { getTimelineEditError } from "../../graph/timeline/editing";
-import type { DagNode,NodeKey,NormalizedDag } from "../../graph/types";
+import type { DagNode, NodeKey, NormalizedDag } from "../../graph/types";
 import {
-type EditableField,
-type FieldDisplayMode,
-buildEditableFields,
-buildRawNodeEditorValue,
-formatEditorValue,
-parseNodeFieldValue,
-parseRawNodeEditorValue
+  type EditableField,
+  type FieldDisplayMode,
+  buildEditableFields,
+  formatEditorValue,
+  parseNodeFieldValue,
 } from "./nodeFields";
 
-
-import { buildDefaultFieldDisplayModes,tryBuildRawJsonFromFieldValues } from "./nodeDraft";
-export function useNodeDraft({open, nodeKey, node, graph, timelineReferenceTime, onSave}: {
- open: boolean; nodeKey: NodeKey | null; node: DagNode | null; graph: NormalizedDag | null;
- timelineReferenceTime?: number; onSave: (nextKey: NodeKey, fields: Record<string, unknown>) => string | void;
+import { buildDefaultFieldDisplayModes, tryBuildRawJsonFromFieldValues } from "./nodeDraft";
+export function useNodeDraft({
+  open,
+  nodeKey,
+  node,
+  graph,
+  timelineReferenceTime,
+  onSave,
+}: {
+  open: boolean;
+  nodeKey: NodeKey | null;
+  node: DagNode | null;
+  graph: NormalizedDag | null;
+  timelineReferenceTime?: number;
+  onSave: (nextKey: NodeKey, fields: Record<string, unknown>) => string | void;
 }) {
- const currentNodeKey = nodeKey ?? "";
+  const currentNodeKey = nodeKey ?? "";
   const [fields, setFields] = useState<EditableField[]>([]);
   const [values, setValues] = useState<Record<string, string>>({});
   const [rawJsonValue, setRawJsonValue] = useState("");
@@ -158,5 +167,19 @@ export function useNodeDraft({open, nodeKey, node, graph, timelineReferenceTime,
   function setFieldDisplayMode(fieldName: string, mode: FieldDisplayMode) {
     setFieldDisplayModes((current) => ({ ...current, [fieldName]: mode }));
   }
- return { fields, values, rawJsonValue, fieldDisplayModes, isEditing, setIsEditing, error, handleFieldChange, getDraftValue, handleTimelineChange, handleRawJsonChange, handleSave, setFieldDisplayMode };
+  return {
+    fields,
+    values,
+    rawJsonValue,
+    fieldDisplayModes,
+    isEditing,
+    setIsEditing,
+    error,
+    handleFieldChange,
+    getDraftValue,
+    handleTimelineChange,
+    handleRawJsonChange,
+    handleSave,
+    setFieldDisplayMode,
+  };
 }

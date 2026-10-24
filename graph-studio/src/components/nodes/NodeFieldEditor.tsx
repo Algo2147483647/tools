@@ -1,6 +1,6 @@
 import type { RelativeLinkRoot } from "../../adapters/relativeLinks";
 import MarkdownValue from "../content/MarkdownValue";
-import { type EditableField,type FieldDisplayMode,supportsDisplayMode } from "./nodeFields";
+import { type EditableField, type FieldDisplayMode, supportsDisplayMode } from "./nodeFields";
 
 interface NodeFieldEditorProps {
   field: EditableField;

@@ -1,26 +1,32 @@
-import {
-  supportsFilePicker,
-  supportsDirectoryPicker,
-  pickJsonFileHandle,
-  pickDirectoryHandle,
-} from "../adapters/fileAccess";
-import type { WorkspaceControls } from "./workspaceControls";
 import { type ChangeEvent, type Dispatch, useEffect, useRef, useState } from "react";
 import { downloadJsonFile } from "../adapters/download";
-import { type RecentLocation } from "../workspace/locations";
+import {
+  pickDirectoryHandle,
+  pickJsonFileHandle,
+  supportsDirectoryPicker,
+  supportsFilePicker,
+} from "../adapters/fileAccess";
 import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../adapters/workspaceAccess";
 import { normalizeDagInput } from "../graph/normalize";
 import { getInitialSelection } from "../graph/selectors";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import { createWorkspaceManifest, discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
+import { createWorkspaceFromPicker } from "../workspace/createFromPicker";
+import { createWorkspaceGraph } from "../workspace/creation";
+import { createWorkspaceManifest, discoverWorkspace, WORKSPACE_MANIFEST } from "../workspace/discovery";
 import { loadExampleWorkspace } from "../workspace/examples";
-import { documentIdentity, prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
-import { createLocalWorkspace, createWorkspaceGraph, workspaceFolderName } from "../workspace/creation";
-import type { WorkspaceSession, WorkspaceFile, WorkspaceFolder } from "../workspace/types";
-import { useRecentLocations } from "./useRecentLocations";
-import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
 import { readLinkedStyle } from "../workspace/linkedStyle";
+import { type RecentLocation } from "../workspace/locations";
+import {
+  documentIdentity,
+  prepareFileLocation,
+  prepareWorkspaceGraph,
+  prepareWorkspaceLocation,
+} from "../workspace/opening";
+import { createWorkspaceOperations, openPreparedDocument, type OperationContext } from "../workspace/operations";
+import type { WorkspaceFile, WorkspaceFolder, WorkspaceSession } from "../workspace/types";
+import { useRecentLocations } from "./useRecentLocations";
+import type { WorkspaceControls } from "./workspaceControls";
 
 export function useWorkspaceController({
   dispatch,
@@ -83,18 +89,7 @@ export function useWorkspaceController({
   async function loadFile(entry: WorkspaceFile, recentId: string | undefined, context: OperationContext) {
     await openPreparedDocument(
       context,
-      async () => {
-        const dag = await readGraphFile(entry);
-        const input = {
-          id: recentId,
-          kind: "file" as const,
-          name: entry.path,
-          location: entry.path,
-          handle: entry.handle || undefined,
-        };
-        const id = await identify(input);
-        return { dag, input: { ...input, id }, ...(await readLinkedStyle(dag, entry.path)) };
-      },
+      () => prepareFileLocation(entry, recentId, identify),
       mayReplace,
       ({ dag, input, ...style }) => {
         setWorkspace(null);
@@ -111,20 +106,7 @@ export function useWorkspaceController({
   ) {
     return openPreparedDocument(
       context,
-      async () => {
-        const prepared = await prepareWorkspace(folder, recent?.lastGraph);
-        const input = {
-          id: recent?.id,
-          kind: "workspace" as const,
-          name: prepared.workspace.name,
-          location: folder.handle?.name || folder.name,
-          handle: folder.handle || undefined,
-          lastGraph: prepared.workspace.activePath || undefined,
-          exampleId: folder.exampleId,
-        };
-        const id = await identify(input);
-        return { ...prepared, input: { ...input, id } };
-      },
+      () => prepareWorkspaceLocation(folder, recent, identify),
       canReplace,
       ({ workspace: found, entry, dag, input, ...style }) => {
         setWorkspace({ ...found, locationId: input.id });
@@ -192,23 +174,15 @@ export function useWorkspaceController({
     }
     let created = false;
     await run(async (context) => {
-      const name = workspaceFolderName(input);
-      if (!mayReplace()) return;
-      const previousDag = stateRef.current.dag;
-      const parent = await pickDirectoryHandle({ mode: "readwrite", id: "graph-studio-create-workspace" });
-      if (!parent) return;
-      if (!context.isCurrent() || (stateRef.current.dag !== previousDag && !mayReplace())) return;
-      const approvedDag = stateRef.current.dag;
-      const folder = await createLocalWorkspace(parent, name);
-      created = true;
-      const opened = await loadFolder(
-        folder,
-        undefined,
-        context,
-        () => stateRef.current.dag === approvedDag || mayReplace(),
-      );
-      if (!opened && context.isCurrent())
-        setNotice(`Created "${name}" in "${parent.name}". Use Open workspace to open it when ready.`);
+      await createWorkspaceFromPicker(input, context, {
+        currentGraph: () => stateRef.current.dag,
+        mayReplace,
+        created: () => {
+          created = true;
+        },
+        notice: setNotice,
+        open: (folder, operation, canReplace) => loadFolder(folder, undefined, operation, canReplace),
+      });
     });
     return created;
   }

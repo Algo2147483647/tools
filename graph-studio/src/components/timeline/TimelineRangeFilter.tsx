@@ -1,6 +1,6 @@
-import { useEffect,useRef,useState } from "react";
-import { timelineClockCaption,type TimelineClock } from "../../graph/timeline/clock";
-import { parseTimelineRangeInput,timelineRangeDates,type TimelineTimeRange } from "../../graph/timeline/range";
+import { useEffect, useRef, useState } from "react";
+import { timelineClockCaption, type TimelineClock } from "../../graph/timeline/clock";
+import { parseTimelineRangeInput, timelineRangeDates, type TimelineTimeRange } from "../../graph/timeline/range";
 
 export default function TimelineRangeFilter({
   range,
@@ -34,6 +34,7 @@ export default function TimelineRangeFilter({
       className="timeline-range-filter"
       onKeyDown={(event) => {
         if (event.key === "Escape" && details.current) {
+          event.stopPropagation();
           details.current.open = false;
           details.current.querySelector("summary")?.focus();
         }

@@ -1,12 +1,6 @@
+import { buildRawNodeEditorValue } from "../../graph/nodeJson";
 import type { NodeKey } from "../../graph/types";
-import {
-type EditableField,
-type FieldDisplayMode,
-buildRawNodeEditorValue,
-parseNodeFieldValue,
-supportsDisplayMode
-} from "./nodeFields";
-
+import { type EditableField, type FieldDisplayMode, parseNodeFieldValue, supportsDisplayMode } from "./nodeFields";
 
 export function tryBuildRawJsonFromFieldValues(
   fields: EditableField[],

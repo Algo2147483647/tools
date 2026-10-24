@@ -1,5 +1,5 @@
 import { isRecord } from "../utils/json";
-import { validateNodeFields,validateNodeKey } from "./normalize";
+import { validateNodeFields, validateNodeKey } from "./normalize";
 import type { NodeKey } from "./types";
 
 export function buildRawNodeEditorValue(nodeKey: NodeKey, node: Record<string, unknown>): string {

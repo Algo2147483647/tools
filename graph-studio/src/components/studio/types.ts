@@ -10,7 +10,6 @@ import type { StudioUiController } from "../../controllers/useStudioUi";
 import type { TimelineLayoutController } from "../../controllers/useTimelineLayout";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
 
-
 export interface StudioViewProps {
   session: DocumentSessionController;
   preferences: PreferencesController;

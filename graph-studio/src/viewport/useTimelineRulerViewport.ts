@@ -1,12 +1,16 @@
-import { useLayoutEffect,useState,type RefObject } from "react";
+import { useLayoutEffect, useState, type RefObject } from "react";
 import type { StageData } from "../layout/shared/types";
 import { readViewportBounds } from "./viewportDom";
 export interface ViewportChromeRefs {
- topbarRef?: RefObject<HTMLElement>;
- overlaysRef?: RefObject<HTMLElement>;
+  topbarRef?: RefObject<HTMLElement>;
+  overlaysRef?: RefObject<HTMLElement>;
 }
-export function useTimelineRulerViewport(stage: StageData, svgRef: RefObject<SVGSVGElement>, {topbarRef, overlaysRef}: ViewportChromeRefs) {
- const timeline = stage.timeline!;
+export function useTimelineRulerViewport(
+  stage: StageData,
+  svgRef: RefObject<SVGSVGElement>,
+  { topbarRef, overlaysRef }: ViewportChromeRefs,
+) {
+  const timeline = stage.timeline!;
   const [viewport, setViewport] = useState({
     scale: 1,
     x: timeline.axisX,
@@ -25,7 +29,11 @@ export function useTimelineRulerViewport(stage: StageData, svgRef: RefObject<SVG
       frame = 0;
       if (!svg || !container) return;
       const rect = svg.getBoundingClientRect();
-      const { containerRect: box, topbarRect: topbar, overlayRect: overlays } = readViewportBounds(container, topbarRef?.current ?? null, overlaysRef?.current ?? null);
+      const {
+        containerRect: box,
+        topbarRect: topbar,
+        overlayRect: overlays,
+      } = readViewportBounds(container, topbarRef?.current ?? null, overlaysRef?.current ?? null);
       const viewBox = svg.viewBox.baseVal;
       const scale = rect.width / (viewBox.width || stage.stageWidth) || 1;
       const safeLeft =
@@ -61,5 +69,5 @@ export function useTimelineRulerViewport(stage: StageData, svgRef: RefObject<SVG
     };
   }, [stage, svgRef, timeline.axisX, topbarRef, overlaysRef]);
 
- return viewport;
+  return viewport;
 }

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { getNodeTitle } from "../../graph/accessors";
 import { formatRelationValue } from "../../graph/relations";
-import type { GraphEdge,NodeKey,NormalizedDag } from "../../graph/types";
+import type { GraphEdge, NodeKey, NormalizedDag } from "../../graph/types";
 
 export default function NodeRelationsPanel({ graph, nodeKey }: { graph: NormalizedDag | null; nodeKey: NodeKey }) {
   const { incoming, outgoing } = useMemo(() => {

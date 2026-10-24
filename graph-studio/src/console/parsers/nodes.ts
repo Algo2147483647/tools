@@ -1,6 +1,6 @@
-import { expectWordToken,parseLiteralToken,parseSetValueTokens } from "../syntax/literals";
+import { expectWordToken, parseLiteralToken, parseSetValueTokens } from "../syntax/literals";
 import { parseNodeOperand } from "../syntax/operands";
-import type { ConsoleInstruction,ConsoleToken } from "../syntax/types";
+import type { ConsoleInstruction, ConsoleToken } from "../syntax/types";
 
 export function parseRenameInstruction(tokens: ConsoleToken[], line: number) {
   if (tokens.length !== 3) {

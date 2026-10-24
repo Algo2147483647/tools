@@ -1,31 +1,18 @@
 import type { RefObject } from "react";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
-import type { TimelineClock } from "../../graph/timeline/clock";
-import type { TimelineTimeRange } from "../../graph/timeline/range";
-import TimelineRangeFilter from "../timeline/TimelineRangeFilter";
 import Icon from "../ui/Icon";
 import IconButton from "../ui/IconButton";
 import ZoomInput from "../ui/ZoomInput";
 
 interface TopbarProps {
-  timelineArrange?: { open: boolean; toggle(): void };
-  subgraphs?: { open: boolean; toggle(): void };
+  chartTools?: { open: boolean; toggle(): void };
   topbarRef: RefObject<HTMLElement>;
   files: WorkspaceControls;
   hasGraph: boolean;
   typeOptions: string[];
   selectedType: string;
   onTypeChange: (type: string) => void;
-  timeline?: {
-    clock?: TimelineClock;
-    tracks: string[];
-    selectedTrack: string;
-    onTrackChange: (track: string) => void;
-    range: TimelineTimeRange | null;
-    onRangeChange: (range: TimelineTimeRange | null) => void;
-    canLocate: boolean;
-    onLocate: () => void;
-  };
+  timeline?: boolean;
   canBack: boolean;
   canUp: boolean;
   canUndo: boolean;
@@ -48,8 +35,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({
-  timelineArrange,
-  subgraphs,
+  chartTools,
   topbarRef,
   files,
   hasGraph,
@@ -103,66 +89,15 @@ export default function Topbar({
                 ))}
               </select>
             </label>
-            {timeline && (
-              <>
-                <label className="topbar-group type-filter-control">
-                  <span>Track</span>
-                  <select
-                    aria-label="Filter timeline by track"
-                    value={timeline.selectedTrack}
-                    onChange={(event) => timeline.onTrackChange(event.currentTarget.value)}
-                  >
-                    <option value="">All tracks</option>
-                    {timeline.tracks.map((track) => (
-                      <option key={track} value={track}>
-                        {track}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <TimelineRangeFilter clock={timeline.clock} range={timeline.range} onChange={timeline.onRangeChange} />
-                <IconButton
-                  id="timeline-locate-btn"
-                  label="Locate selected event"
-                  disabled={!timeline.canLocate}
-                  onClick={timeline.onLocate}
-                  icon={
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="topbar-icon-svg"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                    >
-                      <circle cx="12" cy="12" r="6" />
-                      <circle cx="12" cy="12" r="2" />
-                      <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
-                    </svg>
-                  }
-                />
-              </>
-            )}
-            {timelineArrange && (
-              <button
-                id="timeline-arrange-toggle"
-                className="arrange-toggle"
-                aria-expanded={timelineArrange.open}
-                aria-controls="timeline-arrange-panel"
-                onClick={timelineArrange.toggle}
-              >
-                Arrange
-              </button>
-            )}
-            {subgraphs && (
-              <button
-                id="subgraphs-toggle"
-                className="arrange-toggle"
-                aria-expanded={subgraphs.open}
-                aria-controls="subgraphs-panel"
-                onClick={subgraphs.toggle}
-              >
-                Subgraphs
-              </button>
+            {chartTools && (
+              <IconButton
+                id="chart-tools-toggle"
+                label="Chart controls"
+                icon={<Icon name="layout" className="topbar-icon-svg" />}
+                ariaExpanded={chartTools.open}
+                ariaControls="chart-tools-panel"
+                onClick={chartTools.toggle}
+              />
             )}
             <div className="topbar-group nav-controls" aria-label="Graph navigation controls">
               <IconButton

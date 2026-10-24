@@ -1,4 +1,4 @@
-import { useCallback,useRef,useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import StudioView from "./components/studio/StudioView";
 import { parseCompoundLayoutCommand } from "./console/compoundLayout";
 import { useAiController } from "./controllers/useAiController";

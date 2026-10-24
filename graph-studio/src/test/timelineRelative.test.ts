@@ -10,10 +10,10 @@ import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { applyGraphCommand } from "../graph/commands";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import { formatRelativeTime,getTimelineClock,sanitizeTimelineClock } from "../graph/timeline/clock";
-import { parseTimelineRangeInput,timelineRangeDates } from "../graph/timeline/range";
+import { formatRelativeTime, getTimelineClock, sanitizeTimelineClock } from "../graph/timeline/clock";
+import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timeline/range";
 import { sanitizeTimelineSettings } from "../graph/timeline/settings";
-import { parseNodeTimeline,parseTimelineTime } from "../graph/timeline/time";
+import { parseNodeTimeline, parseTimelineTime } from "../graph/timeline/time";
 import { timelineTimeToY } from "../layout/timeline/axis";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import { timelineBarBox } from "../layout/timeline/orientation";
@@ -22,7 +22,7 @@ import { getTimelineAxisTicks } from "../layout/timeline/ticks";
 import TimelineBackdrop from "../rendering/TimelineBackdrop";
 import TimelineNode from "../rendering/TimelineNode";
 import { getNodeLocatePoint } from "../viewport/zoomGeometry";
-import { defineSuite,defineTest } from "./harness";
+import { defineSuite, defineTest } from "./harness";
 
 const clock = sanitizeTimelineClock({
   mode: "relative",

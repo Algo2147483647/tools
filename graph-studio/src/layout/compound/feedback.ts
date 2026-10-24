@@ -1,4 +1,4 @@
-import type { LayoutIntent,LayoutMetrics } from "./layout-plan";
+import type { LayoutIntent, LayoutMetrics } from "./layout-plan";
 import { compareLayoutMetrics } from "./layout-quality";
 
 export interface LayoutFeedback {

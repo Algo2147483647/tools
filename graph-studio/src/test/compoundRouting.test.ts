@@ -3,10 +3,10 @@ import { readFile } from "node:fs/promises";
 import { projectCompoundGraph } from "../graph/compound/projection";
 import { normalizeDagInput } from "../graph/normalize";
 import { routingHotspots } from "../layout/compound/diagnostics";
-import { measureLayout,segmentCrossesBox,validateLayoutGeometry } from "../layout/compound/layout-quality";
+import { measureLayout, segmentCrossesBox, validateLayoutGeometry } from "../layout/compound/layout-quality";
 import { routeCompoundEdges } from "../layout/compound/routing/router";
 import { layoutFixture } from "./compoundLayout.test";
-import { defineSuite,defineTest } from "./harness";
+import { defineSuite, defineTest } from "./harness";
 
 export const compoundRoutingSuite = defineSuite("Compound routing clearance", [
   defineTest("fan-out uses separate ports without moving nodes or depending on input order", () => {

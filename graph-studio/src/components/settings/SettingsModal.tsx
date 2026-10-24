@@ -1,55 +1,30 @@
-import { useEffect,useRef,useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../ui/Icon";
 import { type AiConnectionStatus } from "./AiSettingsPanel";
-import { getSettingsCatalog,matchesSetting } from "./settingsCatalog";
+import { getSettingsCatalog, matchesSetting } from "./settingsCatalog";
 import { type SettingsChapter } from "./settingsConfig";
 import { SettingsContent } from "./SettingsContent";
-import { SettingsNavigation,SettingsSearch } from "./SettingsNavigation";
+import { SettingsNavigation, SettingsSearch } from "./SettingsNavigation";
 
 import type { SettingsModalProps } from "./types";
 
-export default function SettingsModal({
-  open,
-  chartType,
-  sankeyUnavailableReason,
-  onChartTypeChange,
-  layoutMode,
-  timelineControls,
-  appearance,
-  showNodeDetail,
-  hideNodeBorders,
-  alignNodeWidthsToMax,
-  fileName,
-  files,
-  hasGraph,
-  consoleSidebarOpen,
-  aiSettings,
-  aiBusy,
-  onClose,
-  onLayoutModeChange,
-  onAppearanceCssChange,
-  onAppearanceAdjustmentStart,
-  onAppearanceAdjustmentEnd,
-  onAppearanceUndo,
-  onAppearanceRedo,
-  canUndoAppearance,
-  canRedoAppearance,
-  preferencesSaved,
-  onAppearancePresetChange,
-  onAppearanceSchemaChange,
-  onAppearanceReset,
-  onAppearanceExport,
-  onAppearanceImportClick,
-  onAppearanceImportChange,
-  onConsoleSidebarToggle,
-  onInitializeCanvas,
-  onExport,
-  onExportHtml,
-  canExportCanvas,
-  onAiSettingsChange,
-  onAiConnectionTest,
-}: SettingsModalProps) {
+export default function SettingsModal(props: SettingsModalProps) {
+  const {
+    open,
+    chartType,
+    appearance,
+    aiSettings,
+    onClose,
+    onAppearanceAdjustmentStart,
+    onAppearanceAdjustmentEnd,
+    onAppearanceUndo,
+    onAppearanceRedo,
+    canUndoAppearance,
+    canRedoAppearance,
+    preferencesSaved,
+    onAiConnectionTest,
+  } = props;
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
   const [activeChapter, setActiveChapter] = useState<SettingsChapter>("appearance");
@@ -150,6 +125,7 @@ export default function SettingsModal({
             onAppearanceAdjustmentStart();
         }}
         onKeyDown={(event) => {
+          if (!event.currentTarget.contains(event.target as Node)) return;
           event.stopPropagation();
           if (event.key === "Escape") {
             event.preventDefault();
@@ -193,9 +169,32 @@ export default function SettingsModal({
 
         <SettingsSearch query={query} setQuery={setQuery} searchRef={searchRef} />
         <div className="settings-modal-body">
-          <SettingsNavigation query={query} setQuery={setQuery} shownChapter={shownChapter} setActiveChapter={setActiveChapter} chapterCount={chapterCount} />
+          <SettingsNavigation
+            query={query}
+            setQuery={setQuery}
+            shownChapter={shownChapter}
+            setActiveChapter={setActiveChapter}
+            chapterCount={chapterCount}
+          />
 
-          <SettingsContent chartType={chartType} sankeyUnavailableReason={sankeyUnavailableReason} onChartTypeChange={onChartTypeChange} timelineControls={timelineControls} layoutMode={layoutMode} appearance={appearance} showNodeDetail={showNodeDetail} hideNodeBorders={hideNodeBorders} alignNodeWidthsToMax={alignNodeWidthsToMax} fileName={fileName} files={files} hasGraph={hasGraph} consoleSidebarOpen={consoleSidebarOpen} aiSettings={aiSettings} aiBusy={aiBusy} onClose={onClose} onLayoutModeChange={onLayoutModeChange} onAppearanceCssChange={onAppearanceCssChange} onAppearancePresetChange={onAppearancePresetChange} onAppearanceSchemaChange={onAppearanceSchemaChange} onAppearanceReset={onAppearanceReset} onAppearanceExport={onAppearanceExport} onAppearanceImportClick={onAppearanceImportClick} onAppearanceImportChange={onAppearanceImportChange} onConsoleSidebarToggle={onConsoleSidebarToggle} onInitializeCanvas={onInitializeCanvas} onExport={onExport} onExportHtml={onExportHtml} canExportCanvas={canExportCanvas} onAiSettingsChange={onAiSettingsChange} query={query} shownChapter={shownChapter} activeChapter={activeChapter} visualChapter={visualChapter} previewMode={previewMode} setPreviewMode={setPreviewMode} appearanceCssDraft={appearanceCssDraft} setAppearanceCssDraft={setAppearanceCssDraft} providerMenuOpen={providerMenuOpen} setProviderMenuOpen={setProviderMenuOpen} aiConnectionStatus={aiConnectionStatus} handleAiConnectionTestClick={handleAiConnectionTestClick} results={results} chapterCount={chapterCount} />
+          <SettingsContent
+            settings={props}
+
+            query={query}
+            shownChapter={shownChapter}
+            activeChapter={activeChapter}
+            visualChapter={visualChapter}
+            previewMode={previewMode}
+            setPreviewMode={setPreviewMode}
+            appearanceCssDraft={appearanceCssDraft}
+            setAppearanceCssDraft={setAppearanceCssDraft}
+            providerMenuOpen={providerMenuOpen}
+            setProviderMenuOpen={setProviderMenuOpen}
+            aiConnectionStatus={aiConnectionStatus}
+            handleAiConnectionTestClick={handleAiConnectionTestClick}
+            results={results}
+            chapterCount={chapterCount}
+          />
         </div>
         <footer className="settings-footer">
           <div className="settings-status-stack" role="status">

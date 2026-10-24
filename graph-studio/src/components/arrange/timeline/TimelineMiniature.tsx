@@ -7,7 +7,6 @@ import TimelineBackdrop from "../../../rendering/TimelineBackdrop";
 import TimelineNode from "../../../rendering/TimelineNode";
 import { appearanceToStageStyle } from "../../../rendering/appearanceStyle";
 
-
 export function TimelineMiniature({
   stage,
   appearance,

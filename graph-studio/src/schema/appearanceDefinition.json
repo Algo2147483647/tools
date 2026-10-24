@@ -135,7 +135,7 @@
         "properties": {
           "titleAlign": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Nested node-link card-title alignment.",
             "enum": ["left", "center"],
             "default": "left",
@@ -144,7 +144,7 @@
           },
           "titleOverflow": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Nested node-link title overflow treatment.",
             "enum": ["ellipsis", "clip", "visible"],
             "default": "ellipsis",
@@ -153,7 +153,7 @@
           },
           "titleWrap": {
             "kind": "boolean",
-            "group": "text",
+            "group": "nodes",
             "description": "Enables two-line titles in Nested node-link.",
             "default": false,
             "charts": ["compound"],
@@ -273,14 +273,14 @@
         "properties": {
           "--dag-text-strong": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Primary text color.",
             "default": "#162033",
             "label": "Text strong"
           },
           "--dag-text-soft": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Secondary text color.",
             "default": "#8792a2",
             "label": "Text soft"
@@ -325,14 +325,14 @@
           },
           "--dag-title-font-family": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Title font stack; installed fonts determine rendering.",
             "default": "\"Georgia\", serif",
             "label": "Title font family"
           },
           "--dag-title-font-size": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Title size in logical pixels, shared by measurement and rendering.",
             "default": "15px",
             "format": "pixels",
@@ -340,14 +340,14 @@
           },
           "--dag-title-font-style": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Title font style as a CSS string.",
             "default": "normal",
             "label": "Title font style"
           },
           "--dag-title-font-weight": {
             "kind": "string",
-            "group": "text",
+            "group": "nodes",
             "description": "Title font weight as a CSS string.",
             "default": "400",
             "label": "Title font weight"
@@ -355,7 +355,7 @@
           "--dag-detail-font-size": {
             "kind": "string",
             "default": "10px",
-            "group": "text",
+            "group": "nodes",
             "description": "Detail font size.",
             "format": "pixels",
             "label": "Detail font size",
@@ -364,7 +364,7 @@
           "--dag-detail-font-family": {
             "kind": "string",
             "default": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
-            "group": "text",
+            "group": "nodes",
             "description": "Detail font family.",
             "label": "Detail font family",
             "charts": ["node-link", "compound", "timeline", "sankey"]
@@ -372,7 +372,7 @@
           "--dag-detail-font-weight": {
             "kind": "string",
             "default": "400",
-            "group": "text",
+            "group": "nodes",
             "description": "Detail font weight.",
             "label": "Detail font weight",
             "charts": ["node-link", "compound", "timeline", "sankey"]
@@ -380,7 +380,7 @@
           "--dag-detail-font-style": {
             "kind": "string",
             "default": "normal",
-            "group": "text",
+            "group": "nodes",
             "description": "Detail font style.",
             "label": "Detail font style",
             "charts": ["node-link", "compound", "timeline", "sankey"]
@@ -388,7 +388,7 @@
           "--dag-date-font-size": {
             "kind": "string",
             "default": "10px",
-            "group": "text",
+            "group": "nodes",
             "description": "Date font size.",
             "format": "pixels",
             "label": "Date font size",
@@ -397,7 +397,7 @@
           "--dag-date-font-family": {
             "kind": "string",
             "default": "\"IBM Plex Mono\", Consolas, monospace",
-            "group": "text",
+            "group": "nodes",
             "description": "Date font family.",
             "label": "Date font family",
             "charts": ["timeline"]
@@ -405,7 +405,7 @@
           "--dag-date-font-weight": {
             "kind": "string",
             "default": "400",
-            "group": "text",
+            "group": "nodes",
             "description": "Date font weight.",
             "label": "Date font weight",
             "charts": ["timeline"]
@@ -413,7 +413,7 @@
           "--dag-date-font-style": {
             "kind": "string",
             "default": "normal",
-            "group": "text",
+            "group": "nodes",
             "description": "Date font style.",
             "label": "Date font style",
             "charts": ["timeline"]
@@ -421,7 +421,7 @@
           "--dag-axis-font-size": {
             "kind": "string",
             "default": "11px",
-            "group": "text",
+            "group": "canvas",
             "description": "Axis font size.",
             "format": "pixels",
             "label": "Axis font size",
@@ -430,7 +430,7 @@
           "--dag-axis-font-family": {
             "kind": "string",
             "default": "\"IBM Plex Mono\", Consolas, monospace",
-            "group": "text",
+            "group": "canvas",
             "description": "Axis font family.",
             "label": "Axis font family",
             "charts": ["timeline"]
@@ -438,7 +438,7 @@
           "--dag-axis-font-weight": {
             "kind": "string",
             "default": "400",
-            "group": "text",
+            "group": "canvas",
             "description": "Axis font weight.",
             "label": "Axis font weight",
             "charts": ["timeline"]
@@ -446,7 +446,7 @@
           "--dag-axis-font-style": {
             "kind": "string",
             "default": "normal",
-            "group": "text",
+            "group": "canvas",
             "description": "Axis font style.",
             "label": "Axis font style",
             "charts": ["timeline"]
@@ -454,7 +454,7 @@
           "--dag-track-font-size": {
             "kind": "string",
             "default": "12px",
-            "group": "text",
+            "group": "canvas",
             "description": "Track font size.",
             "format": "pixels",
             "label": "Track font size",
@@ -463,7 +463,7 @@
           "--dag-track-font-family": {
             "kind": "string",
             "default": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
-            "group": "text",
+            "group": "canvas",
             "description": "Track font family.",
             "label": "Track font family",
             "charts": ["timeline"]
@@ -471,7 +471,7 @@
           "--dag-track-font-weight": {
             "kind": "string",
             "default": "600",
-            "group": "text",
+            "group": "canvas",
             "description": "Track font weight.",
             "label": "Track font weight",
             "charts": ["timeline"]
@@ -479,7 +479,7 @@
           "--dag-track-font-style": {
             "kind": "string",
             "default": "normal",
-            "group": "text",
+            "group": "canvas",
             "description": "Track font style.",
             "label": "Track font style",
             "charts": ["timeline"]
@@ -532,7 +532,7 @@
           "--dag-timeline-label-opacity": {
             "kind": "string",
             "default": "0.65",
-            "group": "text",
+            "group": "nodes",
             "description": "Timeline label opacity.",
             "format": "opacity",
             "label": "Timeline label opacity",
@@ -656,6 +656,14 @@
             "description": "Shadow active blur scale.",
             "label": "Shadow active blur scale",
             "charts": ["node-link", "compound", "sankey"]
+          },
+          "--dag-edge-label-color": {
+            "kind": "string",
+            "group": "edges",
+            "format": "color",
+            "default": "",
+            "label": "Edge label color",
+            "description": "Optional edge label color; empty uses the secondary theme color."
           }
         }
       },
@@ -811,7 +819,7 @@
       },
       "intervalTitle": {
         "kind": "string",
-        "group": "text",
+        "group": "nodes",
         "description": "Outside shows title/time; inside clips the title to the true interval; hidden omits it.",
         "enum": ["outside", "inside", "hidden"],
         "default": "outside",
@@ -820,7 +828,7 @@
       },
       "intervalAlign": {
         "kind": "string",
-        "group": "text",
+        "group": "nodes",
         "description": "Inside-title alignment along the interval.",
         "enum": ["start", "center", "end"],
         "default": "center",
@@ -872,7 +880,7 @@
       },
       "intervalTextColor": {
         "kind": "string",
-        "group": "text",
+        "group": "nodes",
         "description": "Custom interval title color; empty uses the fallback.",
         "default": "",
         "format": "color",
@@ -884,7 +892,7 @@
       },
       "intervalTextColorMode": {
         "kind": "string",
-        "group": "text",
+        "group": "nodes",
         "description": "Selects theme, event color or explicit custom text color.",
         "enum": ["theme", "event", "custom"],
         "default": "theme",
@@ -1047,7 +1055,7 @@
       },
       "pointTextColor": {
         "kind": "string",
-        "group": "text",
+        "group": "nodes",
         "description": "Point-title color override; empty follows theme.",
         "default": "",
         "format": "color",
@@ -1056,7 +1064,7 @@
       },
       "pointDateVisible": {
         "kind": "boolean",
-        "group": "text",
+        "group": "nodes",
         "description": "Shows the point's date/time text.",
         "default": true,
         "label": "Show point time label",
@@ -1064,7 +1072,7 @@
       },
       "pointDateColor": {
         "kind": "string",
-        "group": "text",
+        "group": "nodes",
         "description": "Point date/time color override.",
         "default": "",
         "format": "color",
@@ -1164,9 +1172,6 @@
         "default": true,
         "required": true,
         "group": "nodes",
-        "groups": {
-          "timeline": "text"
-        },
         "charts": ["node-link", "compound", "timeline"],
         "label": "Node descriptions",
         "keywords": "描述",

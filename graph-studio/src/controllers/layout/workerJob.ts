@@ -1,4 +1,4 @@
-import type { LayoutWorkerRequest,LayoutWorkerResponse } from "../../layout/workers/protocol";
+import type { LayoutWorkerRequest, LayoutWorkerResponse } from "../../layout/workers/protocol";
 
 export interface LayoutWorkerJob<Result> {
   result: Promise<Result>;

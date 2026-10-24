@@ -1,4 +1,4 @@
-import { useEffect,useRef,useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TimelineLayoutController } from "../../../controllers/useTimelineLayout";
 import { type GraphAppearance } from "../../../graph/appearance";
 import type { TimelineLayoutMetrics } from "../../../layout/timeline/layout-quality";
@@ -8,9 +8,11 @@ import { TimelineMiniature } from "./TimelineMiniature";
 export function TimelineLayoutReview({
   controller: c,
   appearance,
+  returnFocus,
 }: {
   controller: TimelineLayoutController;
   appearance: GraphAppearance;
+  returnFocus: () => void;
 }) {
   const dialog = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState("fit");
@@ -21,7 +23,7 @@ export function TimelineLayoutReview({
   const review = c.review!;
   const close = () => {
     c.dismiss();
-    document.getElementById("timeline-arrange-prompt")?.focus();
+    returnFocus();
   };
   const rows: [keyof TimelineLayoutMetrics, string][] = [
     ["crossings", "Crossings"],
@@ -117,7 +119,7 @@ export function TimelineLayoutReview({
           <button
             disabled={c.stale || c.busy}
             onClick={() => {
-              if (c.apply()) document.getElementById("timeline-arrange-toggle")?.focus();
+              if (c.apply()) returnFocus();
             }}
           >
             Apply AI layout

@@ -1,4 +1,4 @@
-import { useCallback,useEffect,useRef,type RefObject } from "react";
+import { useCallback, useEffect, useRef, type RefObject } from "react";
 import type { StageData } from "../../layout/shared/types";
 const EMPTY_CONNECTED_KEYS = new Set<string>();
 
@@ -11,7 +11,6 @@ export function useStageHighlight(stage: StageData, focusedKey: string | null, s
   const connectedNodeElementsRef = useRef(new Set<SVGGElement>());
   const activeEdgeElementsRef = useRef(new Set<SVGGElement>());
   const currentNodeElementRef = useRef<SVGGElement[]>([]);
-
 
   const clearInteractiveClasses = useCallback(() => {
     const svgElement = svgRef.current;

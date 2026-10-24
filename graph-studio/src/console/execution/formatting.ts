@@ -1,7 +1,6 @@
 import { getRelationKeys } from "../../graph/relations";
 import type { NodeKey } from "../../graph/types";
 
-
 export function buildConsoleMutationLabel(mutationCount: number, fallbackMessage: string | undefined): string {
   if (mutationCount <= 1) {
     return fallbackMessage || "Executed 1 console command.";

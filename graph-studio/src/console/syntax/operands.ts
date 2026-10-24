@@ -1,5 +1,5 @@
 import { parseLiteralToken } from "./literals";
-import type { ConsoleNodeOperand,ConsoleToken } from "./types";
+import type { ConsoleNodeOperand, ConsoleToken } from "./types";
 
 export function parseNodeList(
   tokens: ConsoleToken[],
@@ -33,7 +33,10 @@ export function parseNodeList(
   return { ok: true, operands };
 }
 
-export function parseNodeOperand(token: ConsoleToken | undefined, allowContextAlias: boolean): ConsoleNodeOperand | null {
+export function parseNodeOperand(
+  token: ConsoleToken | undefined,
+  allowContextAlias: boolean,
+): ConsoleNodeOperand | null {
   if (!token) {
     return null;
   }

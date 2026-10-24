@@ -1,16 +1,22 @@
-import { useEffect,useRef,useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CompoundLayoutController } from "../../../controllers/useCompoundLayoutPlan";
 import type { LayoutMetrics } from "../../../layout/compound/layout-plan";
 import type { StageData } from "../../../layout/shared/types";
 
-export default function CompoundLayoutReview({ controller: c }: { controller: CompoundLayoutController }) {
+export default function CompoundLayoutReview({
+  controller: c,
+  returnFocus,
+}: {
+  controller: CompoundLayoutController;
+  returnFocus: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDivElement>(null);
   const closeReview = () => {
     setOpen(false);
     c.setShowCandidate(false);
-    document.getElementById("subgraphs-toggle")?.focus();
+    returnFocus();
   };
   useEffect(() => {
     if (c.showCandidate && c.review?.status === "ready" && c.review.result.candidates.length && !c.stale) setOpen(true);

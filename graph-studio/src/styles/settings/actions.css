@@ -53,11 +53,6 @@
   content: "●";
   margin-right: 6px;
 }
-.settings-save-status::before {
-  content: "✓";
-  margin-right: 6px;
-  color: #34745a;
-}
 .studio-settings button:disabled {
   cursor: not-allowed;
   opacity: 0.4;

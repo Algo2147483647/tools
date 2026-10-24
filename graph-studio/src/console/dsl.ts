@@ -1,11 +1,33 @@
-import { parseAppearanceFieldInstruction,parseStyleCssInstruction,parseStylePresetInstruction,parseStyleResetInstruction,parseStyleVarInstruction } from "./parsers/appearance";
-import { parseAddInstruction,parseCopyInstruction,parseDeleteInstruction,parseRenameInstruction,parseSetInstruction,parseUnsetInstruction } from "./parsers/nodes";
-import { parseClearInstruction,parseFindInstruction,parseGraphInstruction,parseHelpInstruction,parseKeysInstruction,parseNeighborsInstruction,parsePathInstruction,parseSingleNodeInstruction } from "./parsers/query";
-import { parseEdgeInstruction,parseRelationInstruction,parseRemoveEdgeInstruction } from "./parsers/relations";
+import {
+  parseAppearanceFieldInstruction,
+  parseStyleCssInstruction,
+  parseStylePresetInstruction,
+  parseStyleResetInstruction,
+  parseStyleVarInstruction,
+} from "./parsers/appearance";
+import {
+  parseAddInstruction,
+  parseCopyInstruction,
+  parseDeleteInstruction,
+  parseRenameInstruction,
+  parseSetInstruction,
+  parseUnsetInstruction,
+} from "./parsers/nodes";
+import {
+  parseClearInstruction,
+  parseFindInstruction,
+  parseGraphInstruction,
+  parseHelpInstruction,
+  parseKeysInstruction,
+  parseNeighborsInstruction,
+  parsePathInstruction,
+  parseSingleNodeInstruction,
+} from "./parsers/query";
+import { parseEdgeInstruction, parseRelationInstruction, parseRemoveEdgeInstruction } from "./parsers/relations";
 import { expectWordToken } from "./syntax/literals";
-import { normalizeCommandLine,tokenizeLine } from "./syntax/tokenizer";
-import type { ConsoleInstruction,ConsoleLineError,ConsoleToken } from "./syntax/types";
-export type { ConsoleInstruction,ConsoleNodeOperand } from "./syntax/types";
+import { normalizeCommandLine, tokenizeLine } from "./syntax/tokenizer";
+import type { ConsoleInstruction, ConsoleLineError, ConsoleToken } from "./syntax/types";
+export type { ConsoleInstruction, ConsoleNodeOperand } from "./syntax/types";
 
 export function parseConsoleSource(
   source: string,

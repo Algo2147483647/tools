@@ -1,15 +1,15 @@
-import { type ChangeEvent,type MouseEvent } from "react";
+import { type ReactNode, type ChangeEvent, type MouseEvent } from "react";
 import type { AiSettings } from "../../ai/types";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
 import type { GraphAppearance } from "../../graph/appearance";
-import type { GraphChartType,GraphLayoutMode } from "../../graph/types";
+import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import type { GraphAppearancePresetId } from "../../schema/appearanceCommands";
 import type { ChartStyle } from "../../schema/chartStyles";
 import type { TimelineControlsProps } from "../timeline/TimelineControls";
 
-
 export interface SettingsModalProps {
   open: boolean;
+  layoutControls: ReactNode;
   chartType: GraphChartType;
   sankeyUnavailableReason: string | null;
   onChartTypeChange: (type: GraphChartType) => void;
@@ -26,7 +26,6 @@ export interface SettingsModalProps {
   aiSettings: AiSettings;
   aiBusy: boolean;
   onClose: () => void;
-  onLayoutModeChange: (mode: GraphLayoutMode) => void;
   onAppearanceCssChange: (css: string) => void;
   onAppearanceAdjustmentStart: () => void;
   onAppearanceAdjustmentEnd: () => void;
@@ -42,7 +41,6 @@ export interface SettingsModalProps {
   onAppearanceImportClick: (event: MouseEvent<HTMLInputElement>) => void;
   onAppearanceImportChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onConsoleSidebarToggle: () => void;
-  onInitializeCanvas: () => void;
   onExport: () => void;
   onExportHtml: () => void;
   canExportCanvas: boolean;

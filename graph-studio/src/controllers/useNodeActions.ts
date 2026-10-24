@@ -1,13 +1,13 @@
 import type { Dispatch } from "react";
-import { useEffect,useState } from "react";
-import { copyTextToClipboard,readTextFromClipboard } from "../adapters/clipboard";
+import { useEffect, useState } from "react";
+import { copyTextToClipboard, readTextFromClipboard } from "../adapters/clipboard";
 import type { GraphCommand } from "../graph/commands";
-import { buildRawNodeEditorValue,parseRawNodeEditorValue } from "../graph/nodeJson";
-import type { NodeKey,RelationValue } from "../graph/types";
+import { buildRawNodeEditorValue, parseRawNodeEditorValue } from "../graph/nodeJson";
+import type { NodeKey, RelationValue } from "../graph/types";
 import type { GraphContextTarget } from "../state/contextMenu";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import type { ContextMenuAction,HierarchyEdit } from "../state/nodeActions";
+import type { ContextMenuAction, HierarchyEdit } from "../state/nodeActions";
 import type { GraphTransactionsController } from "./useGraphTransactions";
 import type { GraphViewportController } from "./useGraphViewport";
 

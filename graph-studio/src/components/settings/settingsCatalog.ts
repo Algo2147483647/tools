@@ -1,6 +1,6 @@
 import type { GraphChartType } from "../../graph/types";
 import { getAppearanceSchema } from "../../schema/appearanceSchema";
-import { APPEARANCE_UI,resolveUIPath,type AppearanceUINode } from "./appearanceUIConfig";
+import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
 import { type SettingsChapter } from "./settingsConfig";
 
 export const APPEARANCE_GROUPS = [
@@ -9,7 +9,6 @@ export const APPEARANCE_GROUPS = [
   { id: "canvas", label: "Canvas" },
   { id: "nodes", label: "Nodes" },
   { id: "edges", label: "Edges" },
-  { id: "text", label: "Text" },
   { id: "advanced", label: "Advanced" },
 ] as const;
 export type AppearanceGroup = (typeof APPEARANCE_GROUPS)[number]["id"];
@@ -27,14 +26,14 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   const add = (id: string, chapter: SettingsChapter, group: string, label: string, keywords: string) =>
     items.push({ id, chapter, group, label, keywords });
   const a = (id: string, group: string, label: string, keywords = "") => add(id, "appearance", group, label, keywords);
+  add("export", "general", "Export", "Export current view", "svg html canvas 导出 画布");
   add(
-    "files",
-    "files",
-    "Files",
-    "Open & create",
-    "workspace graph new recent import export svg html canvas file folder 文件 工作区 打开 新建 最近 导出 画布",
+    "session",
+    "general",
+    "Workspace",
+    "Current session",
+    "workspace manifest location refresh close 会话 工作区 路径",
   );
-  add("session", "files", "Workspace", "Current session", "manifest location refresh close 会话 路径");
   add("console", "general", "Interface", "Graph console", "panel sidebar ai commands 控制台 面板 侧栏 命令");
   add(
     "chart",
@@ -49,6 +48,22 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     add("flow-layout", "layout", "Arrangement", "Automatic flow layout", "flow direction rules sankey 桑基 流向 规则");
   if (chart === "spatial")
     add("projection", "layout", "Arrangement", "Coordinate projection", "axes rotate coordinates 空间 坐标 投影");
+  if (chart === "compound")
+    add(
+      "nested-layout",
+      "layout",
+      "Arrangement",
+      "Nested layout",
+      "routes layout direction boundary scope ai preview rules 嵌套 布局 规则 范围 方向 边界",
+    );
+  if (chart === "timeline")
+    add(
+      "timeline-method",
+      "layout",
+      "Arrangement",
+      "Timeline layout",
+      "tracks flow ai preview rules 时间线 轨道 布局 规则",
+    );
   const schema = getAppearanceSchema(chart);
   for (const [path, entry] of schema.entries) {
     if (!entry.editable || !entry.definition.group) continue;

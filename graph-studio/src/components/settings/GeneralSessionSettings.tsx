@@ -1,82 +1,30 @@
-import Icon from "../ui/Icon";
-import type { RecentLocation } from "../../workspace/locations";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
 
-export default function FilesSettings({
+export default function GeneralSessionSettings({
   files,
   hasGraph,
   fileName,
-  onInitializeCanvas,
   onExport,
   onExportHtml,
   canExportCanvas,
   onClose,
-  showFiles = true,
+  showExport = true,
   showSession = true,
 }: {
   files: WorkspaceControls;
   hasGraph: boolean;
   fileName: string;
-  onInitializeCanvas: () => void;
   onExport: () => void;
   onExportHtml: () => void;
   canExportCanvas: boolean;
   onClose: () => void;
-  showFiles?: boolean;
+  showExport?: boolean;
   showSession?: boolean;
 }) {
   const workspace = files.workspace;
   return (
     <>
-      {showFiles && (
-        <section className="settings-section">
-          <div className="settings-section-header">
-            <div>
-              <h3>Open & create</h3>
-            </div>
-          </div>
-          <div className="settings-open-grid">
-            <button
-              disabled={files.busy}
-              onClick={() => {
-                onClose();
-                files.openFile();
-              }}
-            >
-              <Icon name="file" />
-              <span>
-                <strong>Open graph file</strong>
-                <small>One JSON document</small>
-              </span>
-            </button>
-            <button
-              disabled={files.busy}
-              onClick={() => {
-                onClose();
-                files.openWorkspace();
-              }}
-            >
-              <Icon name="folder" />
-              <span>
-                <strong>Open workspace</strong>
-                <small>Graphs and linked files</small>
-              </span>
-            </button>
-          </div>
-          <div className="settings-inline-actions">
-            <button
-              className="studio-button"
-              onClick={() => {
-                onInitializeCanvas();
-                onClose();
-              }}
-            >
-              + New graph
-            </button>
-          </div>
-        </section>
-      )}
-      {showFiles && (
+      {showExport && (
         <section className="settings-section">
           <h3>Export current view</h3>
           <div className="settings-inline-actions">
@@ -145,41 +93,6 @@ export default function FilesSettings({
               </p>
             )}
           </details>
-        </section>
-      )}
-      {showFiles && (
-        <section className="settings-section">
-          <h3>Recent locations</h3>
-          {!files.recents.length && (
-            <p className="settings-help">Recently opened files and workspaces will appear here.</p>
-          )}
-          <ul className="settings-recent-list">
-            {files.recents.map((item: RecentLocation) => (
-              <li key={item.id}>
-                <button
-                  disabled={files.busy}
-                  onClick={() => {
-                    onClose();
-                    files.openRecent(item);
-                  }}
-                >
-                  <Icon name={item.kind === "workspace" ? "folder" : "file"} size={18} />
-                  <span>
-                    <strong>{item.name}</strong>
-                    <small>{item.location}</small>
-                  </span>
-                  <span>{item.canReopen ? "Open" : "Choose again"}</span>
-                </button>
-                <button
-                  aria-label={`Remove recent location ${item.name}`}
-                  title="Remove from recent"
-                  onClick={() => void files.removeRecent(item.id)}
-                >
-                  <Icon name="close" size={15} />
-                </button>
-              </li>
-            ))}
-          </ul>
         </section>
       )}
     </>

@@ -1,5 +1,5 @@
-import { useEffect,useState } from "react";
-import type { RelativeLinkRoot,ResolvedRelativeFile } from "../../adapters/relativeLinks";
+import { useEffect, useState } from "react";
+import type { RelativeLinkRoot, ResolvedRelativeFile } from "../../adapters/relativeLinks";
 import MarkdownValue from "../content/MarkdownValue";
 import Icon from "../ui/Icon";
 

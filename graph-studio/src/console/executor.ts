@@ -1,16 +1,22 @@
-import { type GraphAppearance,DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { type CommandResult } from "../graph/commands";
 import { cloneGraphDocument } from "../graph/serialize";
-import type { GraphChartType,NodeKey,NormalizedDag } from "../graph/types";
-import { type AppearanceCommandResult,applyAppearanceCommand } from "../schema/appearanceCommands";
+import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
+import { type AppearanceCommandResult, applyAppearanceCommand } from "../schema/appearanceCommands";
 import type { ConsoleInstruction } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
 
-
 import { resolveExistingNodeKey } from "./execution/context";
 import { executeConsoleMutation } from "./execution/mutations";
-import { buildDirectedPathSummary,buildFindResults,buildGraphStats,buildKeyList,buildNeighborSummary,buildNodeSummary } from "./execution/queries";
-import type { ConsoleRunResult,ConsoleUiEffect } from "./execution/types";
+import {
+  buildDirectedPathSummary,
+  buildFindResults,
+  buildGraphStats,
+  buildKeyList,
+  buildNeighborSummary,
+  buildNodeSummary,
+} from "./execution/queries";
+import type { ConsoleRunResult, ConsoleUiEffect } from "./execution/types";
 export { buildConsoleMutationLabel } from "./execution/formatting";
 
 export function executeConsoleInstructions(
@@ -93,7 +99,13 @@ export function executeConsoleInstructions(
           break;
         }
         default: {
-          const next = executeConsoleMutation(instruction, { workingDag, contextNodeKey, results, uiEffects, outputMessages });
+          const next = executeConsoleMutation(instruction, {
+            workingDag,
+            contextNodeKey,
+            results,
+            uiEffects,
+            outputMessages,
+          });
           workingDag = next.workingDag;
           contextNodeKey = next.contextNodeKey;
           break;

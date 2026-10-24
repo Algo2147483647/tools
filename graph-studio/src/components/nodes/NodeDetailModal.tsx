@@ -1,13 +1,11 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import type { RelativeLinkRoot } from "../../adapters/relativeLinks";
 import { getTimelineClock } from "../../graph/timeline/clock";
-import type { DagNode,NodeKey,NormalizedDag } from "../../graph/types";
+import type { DagNode, NodeKey, NormalizedDag } from "../../graph/types";
 import Icon from "../ui/Icon";
 import NodeFieldEditor from "./NodeFieldEditor";
-import { FieldDisplayModeToggle,NodeFieldPreview } from "./NodeFieldPreview";
-import {
-supportsDisplayMode
-} from "./nodeFields";
+import { FieldDisplayModeToggle, NodeFieldPreview } from "./NodeFieldPreview";
+import { supportsDisplayMode } from "./nodeFields";
 import NodeJsonView from "./NodeJsonView";
 import NodeRelationsPanel from "./NodeRelationsPanel";
 import NodeTimeEditor from "./NodeTimeEditor";
@@ -47,7 +45,21 @@ export default function NodeDetailModal({
   onSave,
   onClose,
 }: NodeDetailModalProps) {
-  const { fields, values, rawJsonValue, fieldDisplayModes, isEditing, setIsEditing, error, handleFieldChange, getDraftValue, handleTimelineChange, handleRawJsonChange, handleSave, setFieldDisplayMode } = useNodeDraft({open, nodeKey, node, graph, timelineReferenceTime, onSave});
+  const {
+    fields,
+    values,
+    rawJsonValue,
+    fieldDisplayModes,
+    isEditing,
+    setIsEditing,
+    error,
+    handleFieldChange,
+    getDraftValue,
+    handleTimelineChange,
+    handleRawJsonChange,
+    handleSave,
+    setFieldDisplayMode,
+  } = useNodeDraft({ open, nodeKey, node, graph, timelineReferenceTime, onSave });
   const [isFullscreen, setIsFullscreen] = useState(true);
   const [activeTab, setActiveTab] = useState<NodeDetailTab>(initialFocus);
 
@@ -264,13 +276,7 @@ export default function NodeDetailModal({
       </div>
     </div>
   );
-
-
 }
-
-
-
-
 
 function EditIcon() {
   return (
@@ -289,7 +295,3 @@ function EditIcon() {
     </svg>
   );
 }
-
-
-
-

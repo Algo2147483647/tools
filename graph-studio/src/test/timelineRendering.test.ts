@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import TimelineIntervalSettings from "../components/timeline/TimelineIntervalSettings";
 import TimelinePointSettings from "../components/timeline/TimelinePointSettings";
-import { TimelineIntervalTextSettings,TimelinePointTextSettings } from "../components/timeline/TimelineTextSettings";
+import { TimelineIntervalTextSettings, TimelinePointTextSettings } from "../components/timeline/TimelineTextSettings";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { normalizeDagInput } from "../graph/normalize";
 import { timelineTypeColor } from "../graph/timeline/colors";
@@ -18,7 +18,7 @@ import GraphEdge from "../rendering/GraphEdge";
 import GraphStage from "../rendering/GraphStage";
 import TimelineNode from "../rendering/TimelineNode";
 import { TIMELINE_CSS } from "../styles/timelineStyles";
-import { defineSuite,defineTest } from "./harness";
+import { defineSuite, defineTest } from "./harness";
 
 export const timelineRenderingSuite = defineSuite("Timeline rendering", [
   defineTest(

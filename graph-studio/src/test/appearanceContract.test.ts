@@ -19,7 +19,6 @@ import { createAppearanceUIModel } from "../components/settings/appearanceUIMode
 import { AppearanceUIContext, AppearanceUIOutlet } from "../components/settings/AppearanceUIContext";
 import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "../components/settings/appearanceUIConfig";
 import { APPEARANCE_RENDERERS } from "../components/settings/AppearanceUIRenderers";
-import AppearanceSettings from "../components/settings/AppearanceSettings";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import { resetChartStyleSection } from "../components/settings/appearanceSections";
 import { PRESET_MANIFEST } from "../schema/presetManifest";
@@ -59,34 +58,6 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
         style.appearance.nodes.spread = 2;
         style.appearance.nodes.spacing.channel = 90;
       }
-      const html = renderToStaticMarkup(
-        createElement(AppearanceSettings, {
-          view: "layout",
-          chartType: chart,
-          appearance: style.appearance,
-          showNodeDetail: style.showNodeDetail,
-          hideNodeBorders: style.hideNodeBorders,
-          alignNodeWidthsToMax: style.alignNodeWidthsToMax,
-          layoutMode: "sugiyama",
-          sankeyUnavailableReason: null,
-          appearanceCssDraft: "",
-          onPreviewModeChange: noop,
-          onChartTypeChange: noop,
-          onAppearanceCssDraftChange: noop,
-          onLayoutModeChange: noop,
-          onAppearanceCssChange: noop,
-          onAppearancePresetChange: noop,
-          onAppearanceSchemaChange: noop,
-          onAppearanceReset: noop,
-          onAppearanceExport: noop,
-          onAppearanceImportClick: noop,
-          onAppearanceImportChange: noop,
-          ...(chart === "timeline"
-            ? { timelineControls: { settings: style.timeline!, onChange: noop, onReadapt: noop } }
-            : {}),
-        }),
-      );
-      assert.doesNotMatch(html, /Flow node width|Minimum width|Timeline horizontal spread|Timeline vertical spread/);
       style.appearance.canvas.padding = [30, 40];
       const reset = resetChartStyleSection(style, chart, "nodes");
       assert.deepEqual(reset.appearance.nodes, getDefaultChartStyle(chart).appearance.nodes);

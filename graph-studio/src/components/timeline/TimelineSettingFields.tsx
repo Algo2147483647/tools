@@ -1,4 +1,4 @@
-import { useEffect,useState,type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { getAppearanceSchema } from "../../schema/appearanceSchema";
 
 export function TimelineChoices<T extends string>({

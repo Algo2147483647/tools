@@ -3,13 +3,13 @@ import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
 import TimelineColorSettings from "../timeline/TimelineColorSettings";
 import TimelineControls from "../timeline/TimelineControls";
 import TimelineIntervalSettings from "../timeline/TimelineIntervalSettings";
-import TimelinePointSettings,{ TimelineMarkerEditor } from "../timeline/TimelinePointSettings";
-import { TimelineIntervalTextSettings,TimelinePointTextSettings } from "../timeline/TimelineTextSettings";
+import TimelinePointSettings, { TimelineMarkerEditor } from "../timeline/TimelinePointSettings";
+import { TimelineIntervalTextSettings, TimelinePointTextSettings } from "../timeline/TimelineTextSettings";
 import Icon from "../ui/Icon";
 import { SchemaValueEditor } from "./AppearanceSchema";
-import { useAppearanceUI,type AppearanceRendererProps } from "./AppearanceUIContext";
+import { useAppearanceUI, type AppearanceRendererProps } from "./AppearanceUIContext";
 import ColorSetting from "./ColorSetting";
-import NumericSetting,{ ResetSetting } from "./NumericSetting";
+import NumericSetting, { ResetSetting } from "./NumericSetting";
 
 function NumberControl({ node, binding }: AppearanceRendererProps) {
   const { commit, model } = useAppearanceUI();
@@ -250,6 +250,12 @@ function useTimelineBinding() {
   };
 }
 export const APPEARANCE_RENDERERS = {
+  section: ({ node, children }: AppearanceRendererProps) => (
+    <section className="appearance-text-section">
+      <h3>{node.label}</h3>
+      {children}
+    </section>
+  ),
   panel: ({ children }: AppearanceRendererProps) => <>{children}</>,
   grid: ({ children }: AppearanceRendererProps) => <div className="settings-slider-grid">{children}</div>,
   number: NumberControl,

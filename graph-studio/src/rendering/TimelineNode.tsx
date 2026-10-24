@@ -1,9 +1,9 @@
-import { useId,type CSSProperties,type MouseEvent as ReactMouseEvent } from "react";
+import { useId, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
 import { sanitizeTimelineMarker } from "../graph/timeline/settings";
 import type { StageNode } from "../layout/shared/types";
-import { timelineBarBox,timelinePoint } from "../layout/timeline/orientation";
+import { timelineBarBox, timelinePoint } from "../layout/timeline/orientation";
 import { useTimelineNodeInteraction } from "./interaction/useTimelineNodeInteraction";
-import TimelineMarker,{ timelineMarkerStyle } from "./TimelineMarker";
+import TimelineMarker, { timelineMarkerStyle } from "./TimelineMarker";
 
 interface TimelineNodeProps {
   readOnly?: boolean;
@@ -72,7 +72,16 @@ export default function TimelineNode({
   const labelEdgeX = Math.max(labelX - 7, Math.min(anchor.x, labelX + node.width + 7));
   const labelEdgeY = Math.max(labelY - metrics.top - 1, Math.min(anchor.y, labelY + metrics.bottom + 1));
   const leader = `M ${anchor.x} ${anchor.y} L ${labelEdgeX} ${labelEdgeY}`;
-  const interaction = useTimelineNodeInteraction({ node, canPin, horizontal, cross, minimumCross, onPin, onClick, onDoubleClick });
+  const interaction = useTimelineNodeInteraction({
+    node,
+    canPin,
+    horizontal,
+    cross,
+    minimumCross,
+    onPin,
+    onClick,
+    onDoubleClick,
+  });
   return (
     <g
       className="dag-node timeline-node"
@@ -117,11 +126,7 @@ export default function TimelineNode({
       role={readOnly || layer === "marker" || layer === "leader" ? undefined : "button"}
       aria-hidden={layer === "marker" || layer === "leader" || undefined}
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}.${readOnly ? "" : " Select event; press Enter or double-click for details."}`}
-      
-      
-      
-      
-      
+
       onDoubleClick={() => onDoubleClick?.(node.key)}
       onContextMenu={(event) => onContextMenu(event, node.key)}
       onFocus={() => onFocusChange(node.key)}

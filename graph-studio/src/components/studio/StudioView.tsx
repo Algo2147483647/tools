@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useWorkspacePreview } from "../../controllers/useWorkspacePreview";
-import { getTimelineClock } from "../../graph/timeline/clock";
 import { useSidebarResize } from "../../hooks/useSidebarResize";
 import ConsoleSidebar from "../console/ConsoleSidebar";
-import SpatialControls from "../spatial/SpatialControls";
 import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";
 import WorkspaceOverview from "../workspace/WorkspaceOverview";
@@ -30,8 +28,7 @@ export default function StudioView({
   nodeActions,
 }: StudioViewProps) {
   const { state, dispatch } = session;
-  const [graphTools, setGraphTools] = useState<"arrange" | "subgraphs" | null>(null);
-  const [timelineArrangeOpen, setTimelineArrangeOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const preview = useWorkspacePreview(files, dispatch);
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
@@ -68,18 +65,9 @@ export default function StudioView({
         </div>
       )}
       <Topbar
-        timelineArrange={
-          state.chartType === "timeline" && state.dag && !files.homeVisible
-            ? {
-                open: timelineArrangeOpen,
-                toggle: () => {
-                  if (timelineArrangeOpen) {
-                    timelineLayoutPlan.cancel();
-                    timelineLayoutPlan.dismiss();
-                  }
-                  setTimelineArrangeOpen((value) => !value);
-                },
-              }
+        chartTools={
+          state.dag && !files.homeVisible
+            ? { open: toolsOpen && !state.ui.settingsOpen, toggle: () => setToolsOpen((value) => !value) }
             : undefined
         }
         topbarRef={viewport.topbarRef}
@@ -88,22 +76,7 @@ export default function StudioView({
         typeOptions={viewport.typeOptions}
         selectedType={viewport.activeType}
         onTypeChange={viewport.changeType}
-        timeline={
-          state.chartType === "timeline"
-            ? {
-                clock: getTimelineClock(state.dag?.metadata),
-                tracks: viewport.trackOptions,
-                selectedTrack: viewport.activeTrack,
-                onTrackChange: viewport.changeTrack,
-                range: viewport.activeTimelineRange,
-                onRangeChange: viewport.changeTimelineRange,
-                canLocate: Boolean(viewport.focusedKey && viewport.stage?.nodeMap[viewport.focusedKey]),
-                onLocate: () => {
-                  if (viewport.focusedKey) viewport.zoom.locateNode(viewport.focusedKey);
-                },
-              }
-            : undefined
-        }
+        timeline={state.chartType === "timeline"}
         canBack={viewport.canBack}
         canUp={viewport.canUp}
         canUndo={transactions.canUndo}
@@ -123,26 +96,13 @@ export default function StudioView({
         onZoomPercentCommit={viewport.zoom.setZoomPercent}
         onSettingsToggle={ui.toggleSettings}
         onSaveJson={session.requestSave}
-        subgraphs={
-          state.chartType === "compound" && state.dag && !files.homeVisible
-            ? {
-                open: graphTools !== null,
-                toggle: () => setGraphTools((value) => (value === null ? "subgraphs" : null)),
-              }
-            : undefined
-        }
       />
 
       {files.homeVisible ? (
         <WelcomeScreen files={files} onNew={onInitializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
-        topbarRef={viewport.topbarRef}
-          spatialTools={
-            state.chartType === "spatial" ? (
-              <SpatialControls spatial={viewport.spatialView} layout={viewport.stage?.spatial} />
-            ) : undefined
-          }
+          topbarRef={viewport.topbarRef}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}
           explorer={
@@ -215,9 +175,38 @@ export default function StudioView({
         />
       )}
 
-      <StudioLayoutPanels session={session} preferences={preferences} ui={ui} files={files} transactions={transactions} ai={ai} viewport={viewport} compoundLayoutPlan={compoundLayoutPlan} timelineLayoutPlan={timelineLayoutPlan} graphTools={graphTools} setGraphTools={setGraphTools} timelineArrangeOpen={timelineArrangeOpen} setTimelineArrangeOpen={setTimelineArrangeOpen} />
-      <StudioSettings session={session} preferences={preferences} ui={ui} files={files} ai={ai} viewport={viewport} onInitializeCanvas={onInitializeCanvas} />
-      <StudioDialogs session={session} ui={ui} viewport={viewport} nodeActions={nodeActions} transactions={transactions} preview={preview} />
+      <StudioLayoutPanels
+        session={session}
+        preferences={preferences}
+        ui={ui}
+        files={files}
+        transactions={transactions}
+        ai={ai}
+        viewport={viewport}
+        compoundLayoutPlan={compoundLayoutPlan}
+        timelineLayoutPlan={timelineLayoutPlan}
+        key={state.chartType + state.document.generation}
+        open={toolsOpen}
+        onClose={() => setToolsOpen(false)}
+      />
+      <StudioSettings
+        session={session}
+        preferences={preferences}
+        ui={ui}
+        files={files}
+        ai={ai}
+        viewport={viewport}
+        compoundLayoutPlan={compoundLayoutPlan}
+        timelineLayoutPlan={timelineLayoutPlan}
+      />
+      <StudioDialogs
+        session={session}
+        ui={ui}
+        viewport={viewport}
+        nodeActions={nodeActions}
+        transactions={transactions}
+        preview={preview}
+      />
     </div>
   );
 }

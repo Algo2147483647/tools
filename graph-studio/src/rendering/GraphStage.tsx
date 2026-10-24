@@ -6,7 +6,7 @@ import { appearanceToStageStyle } from "./appearanceStyle";
 import GraphBackdrop from "./GraphBackdrop";
 import GraphDefs from "./GraphDefs";
 import GraphEdge from "./GraphEdge";
-import { GroupControls,GroupHeader } from "./GraphGroup";
+import { GroupControls, GroupHeader } from "./GraphGroup";
 import GraphNode from "./GraphNode";
 import { useStageHighlight } from "./interaction/useStageHighlight";
 import SpatialNode from "./SpatialNode";
@@ -36,7 +36,8 @@ interface GraphStageProps extends ViewportChromeRefs {
 }
 
 export default function GraphStage({
-  topbarRef, overlaysRef,
+  topbarRef,
+  overlaysRef,
   stage,
   focusedKey,
   hideNodeBorders,
@@ -218,8 +219,9 @@ export default function GraphStage({
           ))}
         </g>
       )}
-      {stage.timeline && <TimelineRuler stage={stage} svgRef={svgRef} topbarRef={topbarRef} overlaysRef={overlaysRef} />}
+      {stage.timeline && (
+        <TimelineRuler stage={stage} svgRef={svgRef} topbarRef={topbarRef} overlaysRef={overlaysRef} />
+      )}
     </svg>
   );
-
 }

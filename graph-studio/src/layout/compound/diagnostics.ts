@@ -1,5 +1,5 @@
-import type { LayoutProblem,LayoutSnapshot } from "./layout-plan";
-import { close,GEOMETRY_EPSILON,routeSegments,segmentCrossesBox } from "./layout-quality";
+import type { LayoutProblem, LayoutSnapshot } from "./layout-plan";
+import { close, GEOMETRY_EPSILON, routeSegments, segmentCrossesBox } from "./layout-quality";
 
 /** Bounded, actionable evidence. IDs refer to original business edges, never guessed labels. */
 export function routingHotspots(problem: LayoutProblem, snapshot: LayoutSnapshot = problem.baseline) {

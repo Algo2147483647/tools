@@ -1,16 +1,15 @@
 import {
-getCustomFieldNames,
-getNodeChildren,
-getNodeDefine,
-getNodeParents,
-getNodeTitle,
-getNodeType,
+  getCustomFieldNames,
+  getNodeChildren,
+  getNodeDefine,
+  getNodeParents,
+  getNodeTitle,
+  getNodeType,
 } from "../../graph/accessors";
 import { getRelationKeys } from "../../graph/relations";
-import type { NodeKey,NormalizedDag } from "../../graph/types";
+import type { NodeKey, NormalizedDag } from "../../graph/types";
 
-
-import { formatKeySample,formatRelationPreview,formatScalarPreview } from "./formatting";
+import { formatKeySample, formatRelationPreview, formatScalarPreview } from "./formatting";
 export function buildKeyList(dag: NormalizedDag): string {
   const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
   if (!keys.length) {

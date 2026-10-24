@@ -1,9 +1,8 @@
 import type { GraphAppearancePresetId } from "../../schema/appearanceCommands";
 import { APPEARANCE_DEFINITION } from "../../schema/appearanceDefinition";
-import { definitionAt,resolveDefinition } from "../../schema/definition";
-import { expectWordToken,parseLiteralToken,parseSetValueTokens } from "../syntax/literals";
-import type { ConsoleInstruction,ConsoleToken } from "../syntax/types";
-
+import { definitionAt, resolveDefinition } from "../../schema/definition";
+import { expectWordToken, parseLiteralToken, parseSetValueTokens } from "../syntax/literals";
+import type { ConsoleInstruction, ConsoleToken } from "../syntax/types";
 
 export function parseAppearanceFieldInstruction(tokens: ConsoleToken[], line: number) {
   const path = parseLiteralToken(tokens[1]);

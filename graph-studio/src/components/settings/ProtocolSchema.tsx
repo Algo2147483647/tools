@@ -1,4 +1,4 @@
-import { useId,useState,type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { copyTextToClipboard } from "../../adapters/clipboard";
 import { downloadJsonFile } from "../../adapters/download";
 import type { SchemaField } from "../../schema/fields";

@@ -5,13 +5,13 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import NumericSetting from "../components/settings/NumericSetting";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
-import { resetAppearanceSection,resetChartStyleSection } from "../components/settings/appearanceSections";
+import { resetAppearanceSection, resetChartStyleSection } from "../components/settings/appearanceSections";
 import { APPEARANCE_UI } from "../components/settings/appearanceUIConfig";
 import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
-import { formatColorValue,parseColorValue } from "../components/settings/colorValue";
-import { APPEARANCE_GROUPS,getSettingsCatalog,matchesSetting } from "../components/settings/settingsCatalog";
+import { formatColorValue, parseColorValue } from "../components/settings/colorValue";
+import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting } from "../components/settings/settingsCatalog";
 import TimelineColorSettings from "../components/timeline/TimelineColorSettings";
-import { DEFAULT_GRAPH_APPEARANCE,sanitizeGraphAppearance } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
 import { indexHierarchy } from "../graph/compound/hierarchy";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
@@ -19,14 +19,24 @@ import { sanitizeTimelineSettings } from "../graph/timeline/settings";
 import { parseNodeTimeline } from "../graph/timeline/time";
 import { getGraphAppearancePresets } from "../schema/appearanceCommands";
 import { getAppearanceSchema } from "../schema/appearanceSchema";
-import { createChartStyles,getDefaultChartStyle } from "../schema/chartStyles";
-import { orderSchemaFields,type SchemaField } from "../schema/fields";
-import { createStyleDocument,parseChartStyleFile,parseStyleDocument,serializeChartStyle,updateAppearanceSchemaValue } from "../schema/styleProtocol";
-import { chartPreferencesReducer,createChartPreferences } from "../state/chartPreferences";
+import { createChartStyles, getDefaultChartStyle } from "../schema/chartStyles";
+import { orderSchemaFields, type SchemaField } from "../schema/fields";
+import {
+  createStyleDocument,
+  parseChartStyleFile,
+  parseStyleDocument,
+  serializeChartStyle,
+  updateAppearanceSchemaValue,
+} from "../schema/styleProtocol";
+import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 import { replaceDocument } from "../state/documentTransitions";
 import { createInitialGraphState } from "../state/initialState";
-import { getInitialGraphPagePreferences,parseGraphPagePreferences,saveGraphPagePreferences } from "../state/preferences";
-import { defineSuite,defineTest } from "./harness";
+import {
+  getInitialGraphPagePreferences,
+  parseGraphPagePreferences,
+  saveGraphPagePreferences,
+} from "../state/preferences";
+import { defineSuite, defineTest } from "./harness";
 
 export const settingsSuite = defineSuite("Settings controls", [
   defineTest("layout tuples remain canonical through editing, export and preferences", () => {
@@ -409,8 +419,8 @@ export const settingsSuite = defineSuite("Settings controls", [
       ["pointMarker.size", "Nodes"],
       ["intervalWidth", "Nodes"],
       ["leaderWidth", "Edges"],
-      ["pointTextColor", "Text"],
-      ["intervalAlign", "Text"],
+      ["pointTextColor", "Nodes"],
+      ["intervalAlign", "Nodes"],
     ])
       assert.equal(catalog.find((item) => item.id === `style.timeline.${path}`)?.group, group);
     assert.equal(catalog.find((item) => item.id === "style.timeline.edgeRouting")?.chapter, "layout");
@@ -434,16 +444,16 @@ export const settingsSuite = defineSuite("Settings controls", [
       }),
     };
     const defaults = getDefaultChartStyle("timeline").timeline!;
-    for (const group of ["nodes", "edges", "text"] as const) {
+    for (const group of ["nodes", "edges", "canvas"] as const) {
       const reset = resetChartStyleSection(original, "timeline", group);
       const view = reset.timeline!;
       assert.equal(view.pointMarker.size, group === "nodes" ? defaults.pointMarker.size : 25);
       assert.equal(view.intervalWidth, group === "nodes" ? defaults.intervalWidth : 80);
       assert.equal(view.anchorMarker.size, group === "edges" ? defaults.anchorMarker.size : 18);
       assert.equal(view.leaderWidth, group === "edges" ? defaults.leaderWidth : 3);
-      assert.equal(view.pointTextColor, group === "text" ? defaults.pointTextColor : "#123456");
-      assert.equal(view.intervalTitle, group === "text" ? defaults.intervalTitle : "inside");
-      assert.equal(reset.showNodeDetail, group !== "text");
+      assert.equal(view.pointTextColor, group === "nodes" ? defaults.pointTextColor : "#123456");
+      assert.equal(view.intervalTitle, group === "nodes" ? defaults.intervalTitle : "inside");
+      assert.equal(reset.showNodeDetail, group !== "nodes");
       assert.equal(view.edgeRouting, "direct");
       assert.equal(view.orientation, "horizontal");
       assert.deepEqual(view.pins, original.timeline.pins);

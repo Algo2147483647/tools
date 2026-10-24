@@ -1,11 +1,11 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import type { RelativeLinkRoot } from "../../adapters/relativeLinks";
-import { isExternalUrl,isRelativeLink,resolveRelativeFile,resolveRelativePath } from "../../adapters/relativeLinks";
+import { isExternalUrl, isRelativeLink, resolveRelativeFile, resolveRelativePath } from "../../adapters/relativeLinks";
 
 export default function MarkdownContent({
   value,

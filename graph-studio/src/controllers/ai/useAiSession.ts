@@ -1,16 +1,16 @@
-import { useCallback,useEffect,useRef,useState } from "react";
-import {
-createInitialAiHarnessState,
-syncHarnessRuntime
-} from "../../ai/session/harness";
-import { loadPersistedAiHarnessState,savePersistedAiHarnessState } from "../../ai/session/persistence";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createInitialAiHarnessState, syncHarnessRuntime } from "../../ai/session/harness";
+import { loadPersistedAiHarnessState, savePersistedAiHarnessState } from "../../ai/session/persistence";
 import type { AiSettings } from "../../ai/types";
 import { buildConsoleReviewCard } from "../../console/reviewCards";
 import type { GraphAppState } from "../../state/initialState";
 import type { ConsoleController } from "../useConsoleController";
 
-
-export function useAiSession(state: GraphAppState, settings: AiSettings, upsertReview: ConsoleController["upsertReview"]) {
+export function useAiSession(
+  state: GraphAppState,
+  settings: AiSettings,
+  upsertReview: ConsoleController["upsertReview"],
+) {
   const [harness, setHarness] = useState(() => createInitialAiHarnessState(settings.executionMode));
   const restoredGraph = useRef<string | null>(null);
   const restoredReview = useRef<string | null>(null);
@@ -18,7 +18,9 @@ export function useAiSession(state: GraphAppState, settings: AiSettings, upsertR
   const graphId = state.document.id;
   const graphRevision = `${runtimeId}:${state.document.generation}:${state.editHistory.revision}`;
 
- useEffect(() => { restoredReview.current = null; }, [state.document.generation]);
+  useEffect(() => {
+    restoredReview.current = null;
+  }, [state.document.generation]);
   useEffect(() => {
     const graphChanged = restoredGraph.current !== graphId;
     const restored = graphChanged && graphId ? loadPersistedAiHarnessState(graphId, settings.executionMode) : null;
@@ -66,6 +68,5 @@ export function useAiSession(state: GraphAppState, settings: AiSettings, upsertR
     [graphId, graphRevision, harness, settings.executionMode],
   );
 
-
- return {harness, setHarness, graphRevision, runtimeHarness};
+  return { harness, setHarness, graphRevision, runtimeHarness };
 }

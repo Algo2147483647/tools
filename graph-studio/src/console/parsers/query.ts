@@ -1,6 +1,6 @@
 import { parseLiteralToken } from "../syntax/literals";
 import { parseNodeOperand } from "../syntax/operands";
-import type { ConsoleInstruction,ConsoleLineError,ConsoleToken } from "../syntax/types";
+import type { ConsoleInstruction, ConsoleLineError, ConsoleToken } from "../syntax/types";
 
 export function parseHelpInstruction(
   tokens: ConsoleToken[],

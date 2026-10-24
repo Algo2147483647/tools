@@ -1,6 +1,6 @@
-import { DEFAULT_GRAPH_CSS,GRAPH_EFFECTS_CSS } from "../styles/graphAppearance";
+import { DEFAULT_GRAPH_CSS, GRAPH_EFFECTS_CSS } from "../styles/graphAppearance";
 import { GRAPH_BASE_CSS } from "../styles/graphBaseStyles";
-import { TIMELINE_CSS,timelineMarkerId } from "../styles/timelineStyles";
+import { TIMELINE_CSS, timelineMarkerId } from "../styles/timelineStyles";
 
 const ARROW_MARKER_WIDTH = 10;
 const ARROW_MARKER_HEIGHT = 8;

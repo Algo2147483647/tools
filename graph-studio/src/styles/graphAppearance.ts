@@ -73,7 +73,7 @@ export const DEFAULT_GRAPH_CSS = `
 }
 
 .dag-edge__label-text {
-  fill: var(--dag-text-soft);
+  fill: var(--dag-edge-label-color, var(--dag-text-soft));
   font-size: 10px;
   font-weight: 700;
 }
