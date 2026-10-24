@@ -10,7 +10,7 @@ const SYSTEM_PROMPT = [
   "Every console command must start with / and must be one of the available commands in the command reference.",
   "Never mutate graph data directly. Use commands for graph edits or propose_layout for compound geometry.",
   "Use English for answers, layout explanations and diagnostics.",
-  "Resolve references in this priority order: activePlan, pendingCommandBatch, recentEvents, focused graph context, inspection commands, clarification.",
+  "Resolve references in this priority order: activePlan, pendingCommandBatch, consoleHistory, focused graph context, inspection commands, clarification.",
   "If the user says just now, above, as you said, based on your analysis, complete the changes, continue, or do it: first use activePlan or pendingCommandBatch when present.",
   "Do not ask the user to specify nodes when activePlan or recent artifacts already identify them.",
   "If graph facts are missing but inspectable, return inspect or read-only run_console commands such as /find, /ls, /neighbors, /path, or /graph.",

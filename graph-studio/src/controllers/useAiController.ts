@@ -3,9 +3,7 @@ import { copyTextToClipboard } from "../adapters/clipboard";
 import { buildAiContextPacket } from "../ai/contextPacket";
 import { shouldExecuteValidatedBatch } from "../ai/executionPolicy";
 import {
-  appendAiEvents,
   attachValidationToHarness,
-  createAiEvent,
   createInitialAiHarnessState,
   createTurnId,
   installPlan,
@@ -159,7 +157,7 @@ export function useAiController({
 
   // Every path (new plan, continued plan and Apply) shares validation and execution.
   const validateAndExecute = useCallback(
-    (next: AiHarnessState, turnId: string, approved = false): AiHarnessState => {
+    (next: AiHarnessState, approved = false): AiHarnessState => {
       const batch = next.pendingCommandBatch;
       if (!batch) return next;
       const validation = validateCommandBatch({
@@ -170,7 +168,7 @@ export function useAiController({
         graphRevision,
         chartType: state.chartType,
       });
-      next = attachValidationToHarness(next, validation, turnId);
+      next = attachValidationToHarness(next, validation);
       if (next.activePlan) upsertReview(buildConsoleReviewCard(next.activePlan, validation));
       if (!validation.allPassed) {
         appendMessage("error", formatValidationReport(validation));
@@ -181,11 +179,10 @@ export function useAiController({
         return next;
       }
       if (!runSource(batch.commands.join("\n"))) {
-        return appendAiEvents(next, [
-          createAiEvent(next, turnId, "error", { message: "AI command execution failed." }),
-        ]);
+        appendMessage("error", "AI command execution failed.");
+        return next;
       }
-      next = markPendingBatchExecuted(next, turnId);
+      next = markPendingBatchExecuted(next);
       if (next.activePlan?.commandBatch?.validation) {
         upsertReview(buildConsoleReviewCard(next.activePlan, next.activePlan.commandBatch.validation, "applied"));
       }
@@ -209,23 +206,16 @@ export function useAiController({
       const message = rawMessage.trim();
       if (!message || busyRef.current) return;
       const turnId = createTurnId();
-      const runtime = runtimeHarness();
-      let next = appendAiEvents(runtime, [createAiEvent(runtime, turnId, "user.message", { message })]);
+      let next = runtimeHarness();
       recordInput("ask>", message);
       if (!options && referencesPreviousWork(message) && next.pendingCommandBatch) {
-        setHarness(
-          validateAndExecute(next, turnId, settings.executionMode === "review" && isExecutionApproval(message)),
-        );
+        setHarness(validateAndExecute(next, settings.executionMode === "review" && isExecutionApproval(message)));
         return;
       }
       if (!settings.baseUrl.trim() || !settings.model.trim()) {
         if (options) setLayoutMessage("Configure a Base URL and model in Settings → AI.");
         appendMessage("error", "AI requires a base URL and model in the controls panel.");
-        setHarness(
-          appendAiEvents(next, [
-            createAiEvent(next, turnId, "error", { message: "AI requires a base URL and model." }),
-          ]),
-        );
+        setHarness(next);
         return;
       }
       busyRef.current = true;
@@ -323,11 +313,7 @@ export function useAiController({
           setLayoutExplanation(outcome.explanation);
           if (outcome.explanation) appendMessage("ai", outcome.explanation);
           appendMessage("ai-action", detail);
-          setHarness(
-            appendAiEvents(next, [
-              createAiEvent(next, turnId, "assistant.answer", { answer: response.answer, layout: detail }),
-            ]),
-          );
+          setHarness(next);
           return;
         }
         if (response.kind === "answer" || response.kind === "clarify") {
@@ -336,18 +322,14 @@ export function useAiController({
             ? `\nMissing information:\n${missingInformation.map((item) => `- ${item.field}: ${item.reason}`).join("\n")}`
             : "";
           appendMessage("ai", `${response.answer}${missing}`);
-          setHarness(
-            appendAiEvents(next, [
-              createAiEvent(next, turnId, "assistant.answer", { answer: response.answer, missingInformation }),
-            ]),
-          );
+          setHarness(next);
           return;
         }
         const plan = createPlanFromAiResponse({ response, harness: next, turnId, userMessage: message });
-        next = installPlan(next, plan, turnId);
+        next = installPlan(next, plan);
         appendMessage("ai", response.answer);
         if (!next.pendingCommandBatch) appendMessage("ai-action", plan.ui.displaySummary);
-        setHarness(validateAndExecute(next, turnId));
+        setHarness(validateAndExecute(next));
       } catch (error) {
         if (!isCurrent()) {
           if (generation === requestGeneration.current && layoutActive.current)
@@ -360,7 +342,7 @@ export function useAiController({
           compoundLayout?.reveal();
         }
         appendMessage("error", messageText);
-        setHarness(appendAiEvents(next, [createAiEvent(next, turnId, "error", { message: messageText })]));
+        setHarness(next);
       } finally {
         if (generation === requestGeneration.current) {
           layoutActive.current = false;
@@ -396,9 +378,7 @@ export function useAiController({
         appendMessage("error", "No matching pending AI plan is available.");
         return;
       }
-      const turnId = createTurnId();
-      const approved = appendAiEvents(next, [createAiEvent(next, turnId, "user.approved", { planId })]);
-      setHarness(validateAndExecute(approved, turnId, true));
+      setHarness(validateAndExecute(next, true));
     },
     [appendMessage, runtimeHarness, validateAndExecute],
   );
@@ -408,23 +388,17 @@ export function useAiController({
       if (busyRef.current) return;
       const currentHarness = runtimeHarness();
       if (currentHarness.activePlan?.id !== planId) return;
-      const turnId = createTurnId();
       const dismissedPlan = {
         ...currentHarness.activePlan,
         status: "cancelled" as const,
         timestamps: { ...currentHarness.activePlan.timestamps, updatedAt: Date.now() },
       };
-      setHarness(
-        appendAiEvents(
-          {
-            ...currentHarness,
-            activePlan: dismissedPlan,
-            pendingCommandBatch: undefined,
-            workingMemory: { ...currentHarness.workingMemory, activePlanId: planId, pendingCommandBatchId: undefined },
-          },
-          [createAiEvent(currentHarness, turnId, "user.rejected", { planId })],
-        ),
-      );
+      setHarness({
+        ...currentHarness,
+        activePlan: dismissedPlan,
+        pendingCommandBatch: undefined,
+        workingMemory: { ...currentHarness.workingMemory, activePlanId: planId, pendingCommandBatchId: undefined },
+      });
       setReviewStatus(planId, "dismissed");
       appendMessage("info", "AI plan dismissed.");
     },
@@ -470,7 +444,6 @@ export function useAiController({
   }
 
   return {
-    harness,
     busy,
     request,
     applyReview,

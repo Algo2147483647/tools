@@ -1,18 +1,18 @@
 # Canonical Appearance Schema
 
-`src/schema/appearanceDefinition.ts` is the authoritative field definition. It declares structure, defaults, enums, numeric bounds, tuple lengths, map item types, font units, grouping, chart support, conditional visibility, dependent resets, labels, and search keywords. TypeScript models in `appearanceModel.ts` are inferred from these definitions.
+`src/schema/appearanceDefinition.json` is the authoritative runtime field definition. Its `appearance`, `timeline`, and `options` sections declare structure, defaults, enums, numeric bounds, tuple lengths, map item types, font units, grouping, chart support, conditional visibility, dependent resets, labels, and search keywords. `appearanceDefinition.ts` imports this JSON directly and exports the three definitions; it contains no configuration values. TypeScript data shapes live in `appearanceModel.ts`, preserving enum unions and fixed-length tuples.
 
 `definition.ts` resolves and validates values. Imports, persistence, presets, console commands, ordinary controls, and Schema edits share this resolver. Missing optional values receive defaults; invalid provided values throw descriptive errors. There is no clipping, type coercion, obsolete-field migration, or color rewriting. Runtime helpers named `sanitizeGraphAppearance` and `sanitizeTimelineSettings` are thin aliases to the resolver for partial initialization.
 
-| Consumer | Source | Behavior |
-| --- | --- | --- |
-| TypeScript models | Field definitions | Inferred with `InferDefinition`. |
-| Chart defaults | Field defaults and `chartDefaults.ts` | Explicit per-chart default overrides. |
-| Presets | `presetManifest.ts` | Full validated `ChartStyleDocument` records with identity outside the document. |
-| Schema table | Field definitions and current values | Unsupported fields are read-only and identified in their description. |
-| Ordinary controls | Schema bindings and `appearanceUIConfig.ts` | Hierarchical UI templates retain sliders, color pickers, switches and button groups. |
-| Preferences and style files | `styleProtocol.ts` | Complete documents round-trip through the same validator. |
-| Documentation | `generate-appearance-reference.mjs` | Tables and complete examples are generated from the contract. |
+| Consumer                    | Source                                      | Behavior                                                                             |
+| --------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| TypeScript models           | `appearanceModel.ts`                        | Explicit data shapes matching JSON field structure, enum values and tuple lengths.   |
+| Chart defaults              | Field defaults and `chartDefaults.ts`       | Explicit per-chart default overrides.                                                |
+| Presets                     | `presetManifest.ts`                         | Full validated `ChartStyleDocument` records with identity outside the document.      |
+| Schema table                | Field definitions and current values        | Unsupported fields are read-only and identified in their description.                |
+| Ordinary controls           | Schema bindings and `appearanceUIConfig.ts` | Hierarchical UI templates retain sliders, color pickers, switches and button groups. |
+| Preferences and style files | `styleProtocol.ts`                          | Complete documents round-trip through the same validator.                            |
+| Documentation               | `generate-appearance-reference.mjs`         | Tables and complete examples are generated from the contract.                        |
 
 ## Geometry and typography
 
@@ -34,7 +34,9 @@ CSS requires `--dag-` variable names, at most 500 characters per variable, and a
 
 The document envelope is `{ format: "graph-studio-style", version: 1, chartType, style }`. Saved preferences store one complete document per chart. Session-specific Timeline pins, axis lock state, and document category overrides remain excluded from global browser preferences. Invalid imported documents are rejected; invalid stored documents reset to chart defaults.
 
-Add or change fields in the definition, implement their rendering behavior, and provide capability metadata. Add presets as complete documents in the manifest without adding factory branches. Run the reference generator with the same TypeScript loader as the test runner, then run the contract and rendering tests. Validation tests cover actual geometry, typography, palettes, CSS precedence, editor support, presets, and round trips.
+Edit defaults, bounds, labels, chart support and other configuration directly in `appearanceDefinition.json`; no configuration-generation step is needed. When adding or changing field structure, enum values or tuple lengths, also update `appearanceModel.ts` and implement the corresponding rendering behavior. Add presets as complete documents in the manifest without adding factory branches. Run the reference generator with the same TypeScript loader as the test runner, then run the contract and rendering tests. Validation tests cover actual geometry, typography, palettes, CSS precedence, editor support, presets, and round trips.
+
+The JSON import uses import attributes for the Node.js scripts. The `appearance-json-import` Vite plugin removes that attribute before Vite 4's older esbuild processes the module; Vite loads the same JSON through its built-in JSON support.
 
 ## Hierarchical Settings UI
 

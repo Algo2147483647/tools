@@ -2,7 +2,6 @@ import { normalizeAiExecutionMode } from "./executionPolicy";
 import { isRecord } from "../utils/json";
 import type {
   ActionPlan,
-  AiEvent,
   AiExecutionMode,
   AiHarnessState,
   AiRiskLevel,
@@ -13,7 +12,6 @@ import type {
 } from "./types";
 
 const AI_HARNESS_STORAGE_PREFIX = "graph-studio:ai-harness:";
-const MAX_PERSISTED_EVENTS = 40;
 
 interface StorageLike {
   getItem(key: string): string | null;
@@ -45,7 +43,7 @@ export function savePersistedAiHarnessState(
     return;
   }
   try {
-    storage.setItem(buildAiHarnessStorageKey(harness.graphId), JSON.stringify(serializeAiHarnessState(harness)));
+    storage.setItem(buildAiHarnessStorageKey(harness.graphId), JSON.stringify(harness));
   } catch {
     // Ignore storage failures so AI remains usable in locked-down contexts.
   }
@@ -79,32 +77,12 @@ export function parsePersistedAiHarnessState(raw: string | null, fallbackMode: A
     workingMemory: sanitizeWorkingMemory(parsed.workingMemory),
     activePlan,
     pendingCommandBatch,
-    recentEvents: Array.isArray(parsed.recentEvents)
-      ? parsed.recentEvents
-          .map(sanitizeAiEvent)
-          .filter((event): event is AiEvent => Boolean(event))
-          .slice(-MAX_PERSISTED_EVENTS)
-      : [],
-    artifactRefs: isRecord(parsed.artifactRefs)
-      ? {
-          lastAnalysis: sanitizeOptionalString(parsed.artifactRefs.lastAnalysis),
-          lastValidation: sanitizeOptionalString(parsed.artifactRefs.lastValidation),
-          lastDiff: sanitizeOptionalString(parsed.artifactRefs.lastDiff),
-        }
-      : {},
     mode: normalizeAiExecutionMode(parsed.mode, fallbackMode),
   };
 }
 
 export function buildAiHarnessStorageKey(graphId: string): string {
   return `${AI_HARNESS_STORAGE_PREFIX}${encodeURIComponent(graphId || "local-graph")}`;
-}
-
-function serializeAiHarnessState(harness: AiHarnessState): AiHarnessState {
-  return {
-    ...harness,
-    recentEvents: harness.recentEvents.slice(-MAX_PERSISTED_EVENTS),
-  };
 }
 
 function getBrowserStorage(): StorageLike | null {
@@ -136,7 +114,6 @@ function sanitizeActionPlan(value: unknown): ActionPlan | undefined {
     source: isRecord(value.source)
       ? {
           userTurnId: sanitizeString(value.source.userTurnId, ""),
-          analysisEventId: sanitizeOptionalString(value.source.analysisEventId),
           createdFromMessage: sanitizeString(value.source.createdFromMessage, ""),
         }
       : { userTurnId: "", createdFromMessage: "" },
@@ -262,36 +239,6 @@ function sanitizeProposedChange(value: unknown): ProposedChange | null {
   };
 }
 
-function sanitizeAiEvent(value: unknown): AiEvent | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-  const id = sanitizeString(value.id, "");
-  const sessionId = sanitizeString(value.sessionId, "");
-  const turnId = sanitizeString(value.turnId, "");
-  const type = sanitizeAiEventType(value.type);
-  if (!id || !sessionId || !turnId || !type) {
-    return null;
-  }
-  return {
-    id,
-    sessionId,
-    turnId,
-    type,
-    timestamp: sanitizeNumber(value.timestamp, Date.now()),
-    graphRevisionBefore: sanitizeOptionalString(value.graphRevisionBefore),
-    graphRevisionAfter: sanitizeOptionalString(value.graphRevisionAfter),
-    payload: isRecord(value.payload) ? value.payload : {},
-    causality: isRecord(value.causality)
-      ? {
-          parentEventIds: sanitizeStringArray(value.causality.parentEventIds),
-          sourcePlanId: sanitizeOptionalString(value.causality.sourcePlanId),
-          sourceCommandBatchId: sanitizeOptionalString(value.causality.sourceCommandBatchId),
-        }
-      : undefined,
-  };
-}
-
 function sanitizeWorkingMemory(value: unknown): WorkingMemory {
   if (!isRecord(value)) {
     return createEmptyWorkingMemory();
@@ -313,7 +260,6 @@ function sanitizeWorkingMemory(value: unknown): WorkingMemory {
           concepts: sanitizeStringArray(value.focus.concepts),
         }
       : { nodeIds: [], edgeIds: [], concepts: [] },
-    lastAnalysisRef: sanitizeOptionalString(value.lastAnalysisRef),
     activePlanId: sanitizeOptionalString(value.activePlanId),
     pendingCommandBatchId: sanitizeOptionalString(value.pendingCommandBatchId),
     userPreferences: isRecord(value.userPreferences)
@@ -384,23 +330,6 @@ function sanitizeChangeKind(value: unknown): ProposedChange["kind"] | null {
     value === "merge_node" ||
     value === "rename_node" ||
     value === "restructure_subgraph"
-    ? value
-    : null;
-}
-
-function sanitizeAiEventType(value: unknown): AiEvent["type"] | null {
-  return value === "user.message" ||
-    value === "assistant.answer" ||
-    value === "analysis.proposed" ||
-    value === "plan.created" ||
-    value === "plan.updated" ||
-    value === "command.drafted" ||
-    value === "command.validated" ||
-    value === "command.executed" ||
-    value === "graph.changed" ||
-    value === "error" ||
-    value === "user.approved" ||
-    value === "user.rejected"
     ? value
     : null;
 }

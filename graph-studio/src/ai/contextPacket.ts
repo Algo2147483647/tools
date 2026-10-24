@@ -8,8 +8,7 @@ import type {
   NormalizedDag,
 } from "../graph/types";
 import { buildAiGraphContext } from "./context";
-import { MAX_RECENT_EVENTS } from "./harnessUtils";
-import type { AiContextPacket, AiEvent, AiHarnessState } from "./types";
+import type { AiContextPacket, AiHarnessState } from "./types";
 
 interface ConsoleHistoryEntry {
   tone: string;
@@ -42,10 +41,6 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
     contextNodeKey: input.contextNodeKey,
     appearance: input.appearance || DEFAULT_GRAPH_APPEARANCE,
   });
-  const recentConsoleEvents = input.consoleEntries
-    .slice(-MAX_RECENT_CONSOLE_LINES)
-    .map((entry, index) => createSyntheticConsoleEvent(input.harness, index, entry));
-
   return {
     compoundLayout: input.layoutContext,
     system: {
@@ -88,7 +83,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
       ],
     },
     memory: {
-      recentEvents: [...input.harness.recentEvents, ...recentConsoleEvents].slice(-MAX_RECENT_EVENTS),
+      consoleHistory: input.consoleEntries.slice(-MAX_RECENT_CONSOLE_LINES).map(({ tone, text }) => ({ tone, text })),
       activePlan: input.harness.activePlan,
       workingMemory: input.harness.workingMemory,
     },
@@ -100,21 +95,6 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
       maxInputTokens: 9000,
       reservedOutputTokens: 1400,
       compressionLevel: "light",
-    },
-  };
-}
-
-function createSyntheticConsoleEvent(harness: AiHarnessState, index: number, entry: ConsoleHistoryEntry): AiEvent {
-  return {
-    id: `console-${index}`,
-    sessionId: harness.sessionId,
-    turnId: "console-history",
-    type: entry.tone === "input" ? "user.message" : "assistant.answer",
-    timestamp: Date.now() - (MAX_RECENT_CONSOLE_LINES - index),
-    graphRevisionBefore: harness.graphRevision,
-    payload: {
-      tone: entry.tone,
-      text: entry.text,
     },
   };
 }

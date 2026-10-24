@@ -206,7 +206,7 @@ export const documentSessionSuite = defineSuite("Document lifecycle and architec
         commands: ["/keys"],
       },
     });
-    const installed = installPlan(harness, plan, "turn");
+    const installed = installPlan(harness, plan);
     for (const change of [
       { graphId: "b", graphRevision: "session-a:1" },
       { graphId: "a", graphRevision: "session-b:1" },

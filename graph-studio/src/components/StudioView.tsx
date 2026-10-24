@@ -270,7 +270,6 @@ export default function StudioView({
               inputValue={consoleController.input}
               contextNodeKey={consoleController.contextNodeKey}
               aiBusy={ai.busy}
-              aiHarness={ai.harness}
               suggestions={consoleController.suggestions}
               activeSuggestionIndex={consoleController.activeSuggestionIndex}
               onReviewApply={ai.applyReview}

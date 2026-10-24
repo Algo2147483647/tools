@@ -1,5 +1,5 @@
-import { createId, MAX_RECENT_EVENTS } from "./harnessUtils";
-import type { ActionPlan, AiEvent, AiExecutionMode, AiHarnessState, ValidationReport, WorkingMemory } from "./types";
+import { createId } from "./harnessUtils";
+import type { ActionPlan, AiExecutionMode, AiHarnessState, ValidationReport, WorkingMemory } from "./types";
 
 export function createInitialAiHarnessState(mode: AiExecutionMode): AiHarnessState {
   const sessionId = createId("session");
@@ -8,8 +8,6 @@ export function createInitialAiHarnessState(mode: AiExecutionMode): AiHarnessSta
     graphId: "local-graph",
     graphRevision: "0",
     workingMemory: createEmptyWorkingMemory(),
-    recentEvents: [],
-    artifactRefs: {},
     mode,
   };
 }
@@ -65,56 +63,9 @@ function isOpenPlanStatus(status: ActionPlan["status"]): boolean {
   );
 }
 
-export function appendAiEvents(harness: AiHarnessState, events: AiEvent[]): AiHarnessState {
+export function installPlan(harness: AiHarnessState, plan: ActionPlan): AiHarnessState {
   return {
     ...harness,
-    recentEvents: [...harness.recentEvents, ...events].slice(-MAX_RECENT_EVENTS),
-  };
-}
-
-export function createAiEvent(
-  harness: AiHarnessState,
-  turnId: string,
-  type: AiEvent["type"],
-  payload: Record<string, unknown>,
-  causality?: AiEvent["causality"],
-): AiEvent {
-  return {
-    id: createId("event"),
-    sessionId: harness.sessionId,
-    turnId,
-    type,
-    timestamp: Date.now(),
-    graphRevisionBefore: harness.graphRevision,
-    payload,
-    causality,
-  };
-}
-
-export function installPlan(harness: AiHarnessState, plan: ActionPlan, turnId: string): AiHarnessState {
-  const planEvent = createAiEvent(harness, turnId, "plan.created", {
-    planId: plan.id,
-    title: plan.title,
-    goal: plan.goal,
-    commandCount: plan.commandBatch?.commands.length || 0,
-    riskLevel: plan.ui.riskLevel,
-  });
-  const commandEvent = plan.commandBatch
-    ? createAiEvent(
-        harness,
-        turnId,
-        "command.drafted",
-        {
-          planId: plan.id,
-          commandBatchId: plan.commandBatch.id,
-          commands: plan.commandBatch.commands,
-        },
-        { parentEventIds: [planEvent.id], sourcePlanId: plan.id, sourceCommandBatchId: plan.commandBatch.id },
-      )
-    : null;
-
-  return {
-    ...appendAiEvents(harness, commandEvent ? [planEvent, commandEvent] : [planEvent]),
     activePlan: plan,
     pendingCommandBatch: plan.commandBatch,
     workingMemory: {
@@ -136,11 +87,7 @@ export function installPlan(harness: AiHarnessState, plan: ActionPlan, turnId: s
   };
 }
 
-export function attachValidationToHarness(
-  harness: AiHarnessState,
-  validation: ValidationReport,
-  turnId: string,
-): AiHarnessState {
+export function attachValidationToHarness(harness: AiHarnessState, validation: ValidationReport): AiHarnessState {
   const pending = harness.pendingCommandBatch
     ? {
         ...harness.pendingCommandBatch,
@@ -158,27 +105,10 @@ export function attachValidationToHarness(
         timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
       }
     : undefined;
-  const event = createAiEvent(
-    harness,
-    turnId,
-    "command.validated",
-    {
-      commandBatchId: validation.commandBatchId,
-      allPassed: validation.allPassed,
-      riskLevel: validation.riskLevel,
-      summary: validation.summary,
-    },
-    pending ? { parentEventIds: [], sourcePlanId: pending.planId, sourceCommandBatchId: pending.id } : undefined,
-  );
-
   return {
-    ...appendAiEvents(harness, [event]),
+    ...harness,
     activePlan,
     pendingCommandBatch: pending,
-    artifactRefs: {
-      ...harness.artifactRefs,
-      lastValidation: validation.commandBatchId,
-    },
     workingMemory: {
       ...harness.workingMemory,
       activePlanId: activePlan?.id,
@@ -187,7 +117,7 @@ export function attachValidationToHarness(
   };
 }
 
-export function markPendingBatchExecuted(harness: AiHarnessState, turnId: string): AiHarnessState {
+export function markPendingBatchExecuted(harness: AiHarnessState): AiHarnessState {
   const pending = harness.pendingCommandBatch
     ? { ...harness.pendingCommandBatch, status: "executed" as const, executedAt: Date.now() }
     : undefined;
@@ -199,20 +129,8 @@ export function markPendingBatchExecuted(harness: AiHarnessState, turnId: string
         timestamps: { ...harness.activePlan.timestamps, updatedAt: Date.now() },
       }
     : undefined;
-  const event = createAiEvent(
-    harness,
-    turnId,
-    "command.executed",
-    {
-      commandBatchId: pending?.id,
-      planId: activePlan?.id,
-      commandCount: pending?.commands.length || 0,
-    },
-    pending ? { parentEventIds: [], sourcePlanId: pending.planId, sourceCommandBatchId: pending.id } : undefined,
-  );
-
   return {
-    ...appendAiEvents(harness, [event]),
+    ...harness,
     activePlan,
     pendingCommandBatch: undefined,
     workingMemory: {

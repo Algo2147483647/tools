@@ -126,24 +126,3 @@ export function definitionType(field: AppearanceFieldDefinition): string {
       : `${definitionType(field.items!)}[]`;
   return field.kind === "map" ? "object" : field.kind;
 }
-
-/** Compile-time models are inferred from the same definitions used at runtime. */
-export type InferDefinition<D> = D extends { enum: readonly (infer E)[] }
-  ? E
-  : D extends { kind: "object"; properties: infer P }
-    ? { -readonly [K in keyof P]: InferDefinition<P[K]> }
-    : D extends { kind: "map"; items: infer I }
-      ? Record<string, InferDefinition<I>>
-      : D extends { kind: "array"; items: infer I; length: 2 }
-        ? [InferDefinition<I>, InferDefinition<I>]
-        : D extends { kind: "array"; items: infer I; length: 3 }
-          ? [InferDefinition<I>, InferDefinition<I>, InferDefinition<I>]
-          : D extends { kind: "array"; items: infer I }
-            ? InferDefinition<I>[]
-            : D extends { kind: "number" }
-              ? number
-              : D extends { kind: "boolean" }
-                ? boolean
-                : D extends { kind: "string" }
-                  ? string
-                  : never;

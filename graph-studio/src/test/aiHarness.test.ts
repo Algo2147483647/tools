@@ -80,7 +80,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
         },
       },
     });
-    const next = installPlan(harness, plan, turnId);
+    const next = installPlan(harness, plan);
     assert.equal(next.activePlan?.title, "Group theory chain cleanup");
     assert.deepEqual(next.pendingCommandBatch?.commands, ["/add Subgroup -p Group", '/set Subgroup title "Subgroup"']);
   }),
@@ -170,7 +170,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
         },
       },
     });
-    const next = installPlan(harness, plan, turnId);
+    const next = installPlan(harness, plan);
     const parsed = parsePersistedAiHarnessState(JSON.stringify(next), "ask");
     assert.ok(parsed);
     assert.equal(parsed.mode, "review");

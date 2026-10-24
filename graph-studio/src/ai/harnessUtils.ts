@@ -1,7 +1,5 @@
 import type { AiRiskLevel } from "./types";
 
-export const MAX_RECENT_EVENTS = 40;
-
 export function maxRisk(values: Array<AiRiskLevel | undefined>): AiRiskLevel {
   if (values.includes("high")) {
     return "high";

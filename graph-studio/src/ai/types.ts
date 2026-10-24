@@ -66,36 +66,6 @@ export type AiResponse =
 
 export type AiRiskLevel = "low" | "medium" | "high";
 
-type AiEventType =
-  | "user.message"
-  | "assistant.answer"
-  | "analysis.proposed"
-  | "plan.created"
-  | "plan.updated"
-  | "command.drafted"
-  | "command.validated"
-  | "command.executed"
-  | "graph.changed"
-  | "error"
-  | "user.approved"
-  | "user.rejected";
-
-export interface AiEvent {
-  id: string;
-  sessionId: string;
-  turnId: string;
-  type: AiEventType;
-  timestamp: number;
-  graphRevisionBefore?: string;
-  graphRevisionAfter?: string;
-  payload: Record<string, unknown>;
-  causality?: {
-    parentEventIds: string[];
-    sourcePlanId?: string;
-    sourceCommandBatchId?: string;
-  };
-}
-
 export interface WorkingMemory {
   activeTopic?: string;
   currentIntent?: {
@@ -115,7 +85,6 @@ export interface WorkingMemory {
     edgeIds: string[];
     concepts: string[];
   };
-  lastAnalysisRef?: string;
   activePlanId?: string;
   pendingCommandBatchId?: string;
   userPreferences: {
@@ -179,7 +148,6 @@ export interface ActionPlan {
   goal: string;
   source: {
     userTurnId: string;
-    analysisEventId?: string;
     createdFromMessage: string;
   };
   scope: {
@@ -226,12 +194,6 @@ export interface AiHarnessState {
   workingMemory: WorkingMemory;
   activePlan?: ActionPlan;
   pendingCommandBatch?: CommandBatch;
-  recentEvents: AiEvent[];
-  artifactRefs: {
-    lastAnalysis?: string;
-    lastValidation?: string;
-    lastDiff?: string;
-  };
   mode: AiExecutionMode;
 }
 
@@ -270,7 +232,7 @@ export interface AiContextPacket {
     constraints: string[];
   };
   memory: {
-    recentEvents: AiEvent[];
+    consoleHistory: Array<{ tone: string; text: string }>;
     activePlan?: ActionPlan;
     workingMemory: WorkingMemory;
   };
