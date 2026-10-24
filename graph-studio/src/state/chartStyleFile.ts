@@ -2,7 +2,15 @@ import type { GraphChartType } from "../graph/types";
 import { sanitizeChartStyleForType, type ChartStyle } from "./chartStyles";
 
 export function serializeChartStyle(chartType: GraphChartType, style: ChartStyle): string {
-  return JSON.stringify({ format: "graph-studio-style", version: 1, chartType, style }, null, 2);
+  const { stagePaddingX, stagePaddingY, ...layout } = style.appearance.layout;
+  const portableStyle = {
+    ...style,
+    appearance: {
+      ...style.appearance,
+      layout: { stagePadding: [stagePaddingX, stagePaddingY], ...layout },
+    },
+  };
+  return JSON.stringify({ format: "graph-studio-style", version: 1, chartType, style: portableStyle }, null, 2);
 }
 
 export function parseChartStyleFile(value: unknown, chartType: GraphChartType): ChartStyle {
@@ -14,7 +22,14 @@ export function parseChartStyleFile(value: unknown, chartType: GraphChartType): 
     if (typeof style[key] !== "boolean") throw new Error(`Missing style option: ${key}.`);
   const appearance = record(style.appearance);
   if (appearance.version !== 1 || typeof appearance.css !== "string") throw new Error("Invalid appearance.");
-  record(appearance.layout);
+  const layout = record(appearance.layout);
+  if (
+    layout.stagePadding !== undefined &&
+    (!Array.isArray(layout.stagePadding) ||
+      layout.stagePadding.length !== 2 ||
+      !layout.stagePadding.every((entry) => typeof entry === "number" && Number.isFinite(entry)))
+  )
+    throw new Error("stagePadding must be [x, y] with two finite numbers.");
   record(appearance.display);
   record(appearance.cssVars);
   return sanitizeChartStyleForType(chartType, style);

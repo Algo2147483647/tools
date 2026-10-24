@@ -1,5 +1,5 @@
-import { getDefaultChartStyle } from "../../state/chartStyles";
-import { serializeChartStyle } from "../../state/chartStyleFile";
+import { getDefaultChartStyle, type ChartStyle } from "../../state/chartStyles";
+import { serializeChartStyle, parseChartStyleFile } from "../../state/chartStyleFile";
 import type { GraphChartType } from "../../graph/types";
 import { orderSchemaFields, schemaField, type SchemaField } from "./schemaModel";
 
@@ -17,8 +17,7 @@ const descriptions: Record<string, string> = {
   display: "Display flags and visual dimensions; unsupported fields remain stored.",
   cssVars: "SVG root CSS variables; only --dag- names with string values are accepted.",
   css: "Saved CSS, capped at 50,000 characters; @import is removed; built-in effects may take precedence.",
-  stagePaddingX: "Horizontal stage padding in logical pixels.",
-  stagePaddingY: "Vertical stage padding in logical pixels.",
+  stagePadding: "Horizontal and vertical stage padding [x, y] in logical pixels.",
   columnGap: "Layer separation in logical pixels.",
   rowGap: "Node or label separation in logical pixels.",
   edgeLaneGap: "Ordinary Node-link edge-lane separation in logical pixels.",
@@ -127,9 +126,9 @@ const required = new Set([
   "style.appearance.css",
 ]);
 
-export function getAppearanceSchema(chartType: GraphChartType) {
+export function getAppearanceSchema(chartType: GraphChartType, currentStyle?: ChartStyle) {
   // Export the real Default preset so examples cannot drift from the accepted style envelope.
-  const defaults = getDefaultChartStyle(chartType);
+  const defaults = currentStyle ?? getDefaultChartStyle(chartType);
   const example = JSON.parse(
     serializeChartStyle(chartType, {
       showNodeDetail: defaults.showNodeDetail,
@@ -140,10 +139,13 @@ export function getAppearanceSchema(chartType: GraphChartType) {
     }),
   );
   const fields: SchemaField[] = [];
-  function visit(value: unknown, path: string, key: string) {
+  const entries = new Map<string, { value: unknown; keys: string[]; editable: boolean }>();
+  function visit(value: unknown, path: string, key: string, keys: string[]) {
     const object = value !== null && typeof value === "object" && !Array.isArray(value);
     const relative = path.replace(/^style\./, "");
     let description = descriptions[relative] ?? descriptions[key] ?? "Additional --dag- CSS token.";
+    if (path.startsWith("style.timeline.typeColors[")) description = "Type-name event color override.";
+    if (path.startsWith("style.timeline.pins[")) description = "Finite cross-axis position for this node.";
     if (chartType === "spatial" && path.startsWith("style.appearance.layout."))
       description = "Stored for compatibility; Spatial geometry comes from coordinates and session projection.";
     if (chartType === "sankey" && key === "nodeHeight")
@@ -157,14 +159,31 @@ export function getAppearanceSchema(chartType: GraphChartType) {
           ? JSON.stringify(chartType)
           : path === "version" || path === "style.appearance.version"
             ? "1"
-            : (enums[relative] ?? enums[key] ?? (object ? "object" : typeof value));
+            : (enums[relative] ??
+              enums[key] ??
+              (Array.isArray(value) ? "[number, number]" : object ? "object" : typeof value));
     const defaultValue = key === "css" ? "Built-in stylesheet" : object ? undefined : JSON.stringify(value);
     fields.push(schemaField(path, type, required.has(path) ? "Required" : "Optional", description, defaultValue));
+    entries.set(path, {
+      value,
+      keys,
+      editable:
+        path.startsWith("style.") &&
+        path !== "style.appearance.version" &&
+        (!object || ["style.appearance.cssVars", "style.timeline.typeColors", "style.timeline.pins"].includes(path)),
+    });
     if (object)
       for (const [child, entry] of Object.entries(value as Record<string, unknown>))
-        visit(entry, path === "style.appearance.cssVars" ? `${path}[${child}]` : `${path}.${child}`, child);
+        visit(
+          entry,
+          ["style.appearance.cssVars", "style.timeline.typeColors", "style.timeline.pins"].includes(path)
+            ? `${path}[${child}]`
+            : `${path}.${child}`,
+          child,
+          [...keys, child],
+        );
   }
-  for (const [key, value] of Object.entries(example)) visit(value, key, key);
+  for (const [key, value] of Object.entries(example)) visit(value, key, key, [key]);
   fields.push(
     schemaField(
       "style.appearance.cssVars[--dag-*]",
@@ -188,5 +207,49 @@ export function getAppearanceSchema(chartType: GraphChartType) {
         "Finite cross-axis position for a node; explicit graph space indices take precedence.",
       ),
     );
-  return { fields: orderSchemaFields(fields), example };
+  return {
+    fields: orderSchemaFields(
+      fields.filter((field, index) => fields.findIndex((other) => other.path === field.path) === index),
+    ),
+    example,
+    entries,
+  };
+}
+
+export function updateAppearanceSchemaValue(
+  chartType: GraphChartType,
+  style: ChartStyle,
+  path: string,
+  value: unknown,
+): ChartStyle {
+  const schema = getAppearanceSchema(chartType, style);
+  const entry = schema.entries.get(path);
+  const field = schema.fields.find((field) => field.path === path);
+  if (!entry?.editable || !field) throw new Error("This field is read-only.");
+  if (Array.isArray(entry.value)) {
+    if (
+      !Array.isArray(value) ||
+      value.length !== 2 ||
+      !value.every((item) => typeof item === "number" && Number.isFinite(item))
+    )
+      throw new Error("Enter two finite numbers: [x, y].");
+  } else if (typeof entry.value === "object") {
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Enter a JSON object.");
+    for (const [key, item] of Object.entries(value)) {
+      if (path.endsWith("pins")) {
+        if (typeof item !== "number" || !Number.isFinite(item)) throw new Error("Pin values must be finite numbers.");
+      } else if (typeof item !== "string") throw new Error("Values must be strings.");
+      if (path.endsWith("cssVars") && !key.startsWith("--dag-"))
+        throw new Error("CSS variable names must start with --dag-.");
+    }
+  } else if (typeof value !== typeof entry.value || (typeof value === "number" && !Number.isFinite(value))) {
+    throw new Error(`Enter a valid ${typeof entry.value}.`);
+  }
+  if (field.type.includes(" | ") && !field.type.split(" | ").includes(String(value)))
+    throw new Error("Choose a listed value.");
+  const next = structuredClone(schema.example);
+  let target = next;
+  for (const key of entry.keys.slice(0, -1)) target = target[key];
+  target[entry.keys.at(-1)!] = value;
+  return parseChartStyleFile(next, chartType);
 }

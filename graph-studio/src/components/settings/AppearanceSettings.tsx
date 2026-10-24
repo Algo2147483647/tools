@@ -15,7 +15,7 @@ import { GRAPH_TITLE_FONT_OPTIONS } from "../../graph/types";
 import LayoutSliderControl from "./LayoutSliderControl";
 import { getLayoutControls } from "./settingsConfig";
 import { useState } from "react";
-import { getDefaultChartStyle, chartStylesEqual } from "../../state/chartStyles";
+import { getDefaultChartStyle, chartStylesEqual, type ChartStyle } from "../../state/chartStyles";
 import NumericSetting, { ResetSetting } from "./NumericSetting";
 import ColorSetting from "./ColorSetting";
 import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
@@ -46,6 +46,7 @@ interface AppearanceSettingsProps {
     value: GraphAppearance["display"][K],
   ) => void;
   onAppearancePresetChange: (presetId: GraphAppearancePresetId) => void;
+  onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
   onAppearanceExport: () => void;
   onAppearanceImportClick: (event: React.MouseEvent<HTMLInputElement>) => void;
@@ -243,7 +244,22 @@ export default function AppearanceSettings(p: AppearanceSettingsProps) {
   const renderGroup = (id: AppearanceGroup, label: string) => {
     const items = catalog.filter((item) => item.chapter === "appearance" && item.group === label && visible(item.id));
     if (!items.length) return null;
-    if (id === "schema") return <AppearanceSchema key={id} chartType={p.chartType} />;
+    if (id === "schema")
+      return (
+        <AppearanceSchema
+          key={p.chartType}
+          chartType={p.chartType}
+          style={{
+            appearance: p.appearance,
+            showNodeDetail: p.showNodeDetail,
+            hideNodeBorders: p.hideNodeBorders,
+            alignNodeWidthsToMax: p.alignNodeWidthsToMax,
+            ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}),
+          }}
+          onChange={p.onAppearanceSchemaChange}
+          onPresetChange={p.onAppearancePresetChange}
+        />
+      );
     const has = (key: string) => items.some((item) => item.id === key);
     const slider = ([key, min, max, unit]: (typeof sliders)[number]) => (
       <NumericSetting

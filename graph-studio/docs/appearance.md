@@ -16,9 +16,9 @@ The same `GraphAppearance` shape is stored for every chart, but not every field 
 
 ## Portable file envelope
 
-**Settings > Appearance > Schema** appears before Presets and documents the active chart's current v1 style format. Its single three-rule table keeps each parent and its descendants together, with separate Field, Type, Required / Optional, Default, and Description columns. Cells stay on one line; the table scrolls horizontally for long paths and descriptions. The Default column reflects the chart's actual Default preset.
+**Settings > Appearance > Schema** edits the active chart's current v1 style. Its three-rule table keeps each parent and its descendants together, with Field, Type, Current value, and Description columns. Required fields have a red asterisk after their names. Rows stay on one line; horizontal scrolling belongs to the table. Select a preset above the table, or edit individual values. Booleans use switches and enumerations use selectors; numbers, strings, arrays, and maps accept direct edits. Press Enter or leave a field to apply; Escape cancels the draft. Invalid values remain unapplied with an inline error. CSS has a separate editor. Format and version identifiers are read-only.
 
-The **example.json** view provides a complete style generated from that preset, with Copy JSON and Download JSON actions. Save it as the displayed `<chartType>.style.json` filename to pair it with the graph example in Chart type. This schema page uses the full settings width without a live graph preview.
+The **example.json** view follows the current style, with Copy JSON and Download JSON actions. Edits update the right-hand live preview and participate in automatic saving and style undo/redo. The preset selector displays Custom when current values differ from the built-in presets.
 
 Export the current chart's style from **Settings > Appearance > Advanced**. The accepted structure is:
 
@@ -87,8 +87,7 @@ All paths below are relative to `style.appearance.layout`. Numeric dimensions us
 
 | Field            | Generic fallback | Purpose                                                  |
 | ---------------- | ---------------- | -------------------------------------------------------- |
-| `stagePaddingX`  | 108              | Horizontal stage padding.                                |
-| `stagePaddingY`  | 88               | Vertical stage padding.                                  |
+| `stagePadding`   | `[108, 88]`      | Horizontal and vertical padding `[x, y]`.                |
 | `columnGap`      | 116              | Separation between layers where used.                    |
 | `rowGap`         | 22               | Separation between nodes or labels, depending on chart.  |
 | `edgeLaneGap`    | 28               | Ordinary Node-link edge-lane separation.                 |
@@ -99,6 +98,8 @@ All paths below are relative to `style.appearance.layout`. Numeric dimensions us
 | `stageMinHeight` | 600              | Minimum stage height where used.                         |
 
 The shared sanitizer accepts finite numeric values and supplies fallbacks for missing/nonfinite values. It does **not** enforce all slider ranges or a universal min/max-width relationship. UI ranges and layout-specific clamps are separate. Do not interpret a slider range as a strict file-schema constraint.
+
+Portable style exports use `stagePadding: [x, y]`, with exactly two finite numbers. Imports still accept legacy `stagePaddingX` and `stagePaddingY`; when both forms are present, `stagePadding` takes precedence. Renderer internals retain separate X/Y values. Other layout fields retain their existing names.
 
 ## Display fields
 

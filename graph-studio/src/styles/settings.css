@@ -20,12 +20,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
+  padding: 0;
   background: #18243d4d;
   backdrop-filter: none;
 }
 .settings-modal.studio-settings {
-  width: min(1440px, 100%);
+  width: 100%;
   height: 100dvh;
   max-height: none;
   display: grid;
@@ -191,7 +191,7 @@
   min-height: 0;
   overflow: auto;
   padding: 24px;
-  background: #fafbfd;
+  background: #fff;
   scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scroll-padding-top: 76px;
@@ -295,7 +295,7 @@
   margin: -4px 0 20px;
   padding: 10px 0;
   border-bottom: 1px solid #dfe6f0;
-  background: #fafbfd;
+  background: #fff;
 }
 .appearance-tabs button {
   flex: 1;
@@ -817,17 +817,17 @@
 .schema-table tbody th {
   font-weight: 400;
 }
+.schema-required {
+  margin-left: 4px;
+  color: #c62828;
+  font-weight: 700;
+}
 .schema-table tbody tr:hover {
   background: #f7f9fc;
 }
 .schema-table code {
   color: inherit;
-  font:
-    12px/1.5 "Cascadia Mono",
-    Consolas,
-    "Liberation Mono",
-    monospace;
-  font-variant-ligatures: none;
+  font: inherit;
 }
 .chart-schema-code-actions {
   display: flex;
@@ -1160,7 +1160,7 @@
   min-height: 0;
   padding: 24px 20px 16px;
   margin: 0;
-  background: #f8fafd;
+  background: #fff;
   border: 0;
   border-left: 1px solid #e3e8ef;
 }
@@ -1729,13 +1729,6 @@
   }
 }
 
-/* The protocol uses the full reading width; a sample graph is not needed here. */
-.studio-settings .settings-content:has(.appearance-schema-view) {
-  display: flex;
-}
-.studio-settings .settings-content:has(.appearance-schema-view) > .settings-preview-card {
-  display: none;
-}
 .studio-settings .settings-content:has(.appearance-schema-view) > .settings-page {
   display: block;
 }
@@ -1744,6 +1737,100 @@
 }
 .appearance-schema-view {
   min-width: 0;
+}
+.schema-preset-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.schema-preset-picker select,
+.schema-value-input {
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #303030;
+  padding: 5px 8px;
+  font: inherit;
+}
+.schema-value-input {
+  width: 190px;
+  height: 32px;
+}
+.schema-value-input:focus-visible {
+  outline: 2px solid #5378b8;
+  outline-offset: 1px;
+}
+.schema-value-input[aria-invalid="true"] {
+  color: #b42318;
+}
+.chart-schema .schema-value-switch {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 34px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: #cbd4e0;
+}
+.schema-value-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px #0002;
+}
+.chart-schema .schema-value-switch[aria-checked="true"] {
+  background: #315fce;
+}
+.schema-value-switch[aria-checked="true"]::after {
+  transform: translateX(14px);
+}
+.schema-value-editor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.schema-value-error {
+  color: #b42318;
+  font-size: 12px;
+}
+.chart-schema .schema-edit-code {
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+.schema-code-dialog {
+  width: min(800px, 90vw);
+  border: 1px solid #d4dce7;
+  border-radius: 8px;
+  padding: 20px;
+  white-space: normal;
+}
+.schema-code-dialog::backdrop {
+  background: #18243d66;
+}
+.schema-code-dialog textarea {
+  display: block;
+  width: 100%;
+  height: 50vh;
+  padding: 12px;
+  margin: 12px 0;
+  resize: vertical;
+  font:
+    13px/1.6 Consolas,
+    monospace;
+}
+.schema-code-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 .chart-schema-example pre {
   overflow-x: auto;

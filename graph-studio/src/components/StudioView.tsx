@@ -360,6 +360,7 @@ export default function StudioView({
         canRedoAppearance={appearanceHistory.canRedo}
         preferencesSaved={preferences.saved}
         onAppearancePresetChange={appearanceHistory.handleAppearancePresetChange}
+        onAppearanceSchemaChange={appearanceHistory.handleAppearanceSchemaChange}
         onAppearanceReset={appearanceHistory.handleAppearanceReset}
         onAppearanceExport={appearanceHistory.handleAppearanceExport}
         onAppearanceImportClick={appearanceHistory.handleAppearanceImportClick}

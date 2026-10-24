@@ -14,7 +14,7 @@ import { resetAppearanceSection, resetChartStyleSection } from "../components/se
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import { getInitialGraphPagePreferences, saveGraphPagePreferences } from "../state/preferences";
 import { CHART_SCHEMAS } from "../components/settings/chartSchemas";
-import { getAppearanceSchema } from "../components/settings/appearanceSchemas";
+import { getAppearanceSchema, updateAppearanceSchemaValue } from "../components/settings/appearanceSchemas";
 import { APPEARANCE_GROUPS } from "../components/settings/settingsCatalog";
 import { orderSchemaFields, type SchemaField } from "../components/settings/schemaModel";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
@@ -30,7 +30,76 @@ import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
 import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 
 export const settingsSuite = defineSuite("Settings controls", [
-  defineTest("protocol tables keep parent branches contiguous and requirements in their own column", () => {
+  defineTest("appearance schema edits current values and round-trips tuple padding with legacy compatibility", () => {
+    const original = getDefaultChartStyle("timeline");
+    const updated = updateAppearanceSchemaValue("timeline", original, "style.appearance.layout.stagePadding", [32, 48]);
+    assert.equal(updated.appearance.layout.stagePaddingX, 32);
+    assert.equal(updated.appearance.layout.stagePaddingY, 48);
+    assert.notDeepEqual(updated.appearance.layout, original.appearance.layout);
+    const schema = getAppearanceSchema("timeline", updated);
+    assert.deepEqual(schema.entries.get("style.appearance.layout.stagePadding")?.value, [32, 48]);
+    assert.equal(schema.entries.has("style.appearance.layout.stagePaddingX"), false);
+    assert.deepEqual(parseChartStyleFile(schema.example, "timeline"), updated);
+    const legacyNegative = structuredClone(original);
+    legacyNegative.appearance.layout.stagePaddingX = -12.5;
+    assert.deepEqual(
+      parseChartStyleFile(JSON.parse(serializeChartStyle("timeline", legacyNegative)), "timeline"),
+      legacyNegative,
+    );
+    const mixed = structuredClone(schema.example);
+    mixed.style.appearance.layout.stagePaddingX = 999;
+    assert.equal(parseChartStyleFile(mixed, "timeline").appearance.layout.stagePaddingX, 32);
+    assert.deepEqual(
+      parseChartStyleFile(
+        { format: "graph-studio-style", version: 1, chartType: "timeline", style: original },
+        "timeline",
+      ),
+      original,
+    );
+    assert.throws(() => updateAppearanceSchemaValue("timeline", updated, "style.appearance.layout.stagePadding", [1]));
+    assert.throws(() =>
+      updateAppearanceSchemaValue("timeline", updated, "style.appearance.layout.stagePadding", [1, NaN]),
+    );
+    assert.throws(() => updateAppearanceSchemaValue("timeline", updated, "style.appearance.layout.nodeHeight", "abc"));
+    assert.throws(() => updateAppearanceSchemaValue("timeline", updated, "style.timeline.orientation", "diagonal"));
+    assert.throws(() => updateAppearanceSchemaValue("timeline", updated, "format", "other"));
+    const toggled = updateAppearanceSchemaValue("timeline", updated, "style.timeline.pointMarker.visible", false);
+    assert.equal(toggled.timeline?.pointMarker.visible, false);
+    const colored = updateAppearanceSchemaValue("timeline", updated, "style.timeline.typeColors", {
+      type: "#ff0000",
+      "release.v2": "#00ff00",
+    });
+    assert.equal(
+      getAppearanceSchema("timeline", colored).entries.get("style.timeline.typeColors[release.v2]")?.value,
+      "#00ff00",
+    );
+    assert.equal(
+      updateAppearanceSchemaValue("timeline", colored, "style.timeline.typeColors[release.v2]", "#0000ff").timeline
+        ?.typeColors["release.v2"],
+      "#0000ff",
+    );
+    const histories = createChartPreferences({ ...createChartStyles(), timeline: original });
+    const committed = chartPreferencesReducer(histories, {
+      chartType: "timeline",
+      action: {
+        type: "commit",
+        label: "Edited appearance schema.",
+        appearance: updated.appearance,
+        display: {
+          showNodeDetail: updated.showNodeDetail,
+          hideNodeBorders: updated.hideNodeBorders,
+          alignNodeWidthsToMax: updated.alignNodeWidthsToMax,
+        },
+        timeline: { before: original.timeline!, after: updated.timeline! },
+      },
+    });
+    assert.equal(committed.timeline.appearance.layout.stagePaddingX, 32);
+    assert.deepEqual(
+      chartPreferencesReducer(committed, { chartType: "timeline", action: { type: "undo" } }).timeline.appearance,
+      original.appearance,
+    );
+  }),
+  defineTest("protocol tables keep parent branches contiguous and mark required fields", () => {
     const schemas = Object.entries(CHART_SCHEMAS).flatMap(([type, schema]) => [
       schema,
       getAppearanceSchema(type as keyof typeof CHART_SCHEMAS),
@@ -64,7 +133,11 @@ export const settingsSuite = defineSuite("Settings controls", [
       }),
     );
     assert.equal((markup.match(/<table\b/g) ?? []).length, 1);
-    assert.match(markup, /scope="col">Required \/ Optional/);
+    assert.doesNotMatch(markup, /scope="col">Required \/ Optional/);
+    assert.equal(
+      (markup.match(/class="schema-required"/g) ?? []).length,
+      timeline.fields.filter((field) => field.requirement === "Required").length,
+    );
     assert.match(markup, /scope="col">Description/);
     assert.doesNotMatch(markup, /<dl|chart-schema-field-group/);
   }),

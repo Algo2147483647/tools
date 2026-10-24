@@ -227,6 +227,7 @@ export function useChartPreferences(
     handleAppearanceDisplayChange,
     handleAppearanceCssChange,
     handleAppearancePresetChange,
+    handleAppearanceSchemaChange: (style: ChartStyle) => commitStyle(style, "Edited appearance schema."),
     handleAppearanceReset,
     resetSection: (group: AppearanceGroup | "layout") =>
       commitStyle(

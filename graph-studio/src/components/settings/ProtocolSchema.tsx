@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { downloadJsonFile } from "../../adapters/download";
 import { JsonSyntax } from "../NodeJsonView";
 import type { SchemaField } from "./schemaModel";
@@ -9,12 +9,16 @@ export default function ProtocolSchema({
   fields,
   example,
   fileName,
+  valueHeading = "Default",
+  renderValue,
 }: {
   label: string;
   version: string;
   fields: SchemaField[];
   example: unknown;
   fileName: string;
+  valueHeading?: string;
+  renderValue?: (field: SchemaField) => ReactNode;
 }) {
   const titleId = useId();
   const [view, setView] = useState<"fields" | "example">("fields");
@@ -48,8 +52,7 @@ export default function ProtocolSchema({
               <tr>
                 <th scope="col">Field</th>
                 <th scope="col">Type</th>
-                <th scope="col">Required / Optional</th>
-                <th scope="col">Default</th>
+                <th scope="col">{valueHeading}</th>
                 <th scope="col">Description</th>
               </tr>
             </thead>
@@ -58,14 +61,16 @@ export default function ProtocolSchema({
                 <tr key={field.path}>
                   <th scope="row">
                     <code>{field.path}</code>
+                    {field.requirement === "Required" && (
+                      <span className="schema-required" aria-label="Required" title="Required">
+                        *
+                      </span>
+                    )}
                   </th>
                   <td>
                     <code>{field.type}</code>
                   </td>
-                  <td>{field.requirement}</td>
-                  <td>
-                    <code>{field.defaultValue ?? "—"}</code>
-                  </td>
+                  <td>{renderValue ? renderValue(field) : <code>{field.defaultValue ?? "—"}</code>}</td>
                   <td>{field.description}</td>
                 </tr>
               ))}

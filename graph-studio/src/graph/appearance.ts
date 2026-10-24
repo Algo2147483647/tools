@@ -321,13 +321,17 @@ export function sanitizeGraphAppearance(input: unknown): GraphAppearance {
       ? (record.display as Record<string, unknown>)
       : {};
   const minNodeWidth = finiteNumeric(layoutInput.minNodeWidth, defaultLayout.minNodeWidth);
+  const padding =
+    Array.isArray(layoutInput.stagePadding) && layoutInput.stagePadding.length === 2
+      ? layoutInput.stagePadding
+      : [layoutInput.stagePaddingX, layoutInput.stagePaddingY];
   const maxNodeWidth = finiteNumeric(layoutInput.maxNodeWidth, defaultLayout.maxNodeWidth);
 
   return {
     version: 1,
     layout: {
-      stagePaddingX: finiteNumeric(layoutInput.stagePaddingX, defaultLayout.stagePaddingX),
-      stagePaddingY: finiteNumeric(layoutInput.stagePaddingY, defaultLayout.stagePaddingY),
+      stagePaddingX: finiteNumeric(padding[0], defaultLayout.stagePaddingX),
+      stagePaddingY: finiteNumeric(padding[1], defaultLayout.stagePaddingY),
       columnGap: finiteNumeric(layoutInput.columnGap, defaultLayout.columnGap),
       rowGap: finiteNumeric(layoutInput.rowGap, defaultLayout.rowGap),
       edgeLaneGap: finiteNumeric(layoutInput.edgeLaneGap, defaultLayout.edgeLaneGap),

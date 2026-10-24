@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import type { AiSettings } from "../../ai/types";
 import type { GraphAppearance, GraphLayoutAppearance } from "../../graph/appearance";
 import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
+import type { ChartStyle } from "../../state/chartStyles";
 import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
 import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
@@ -51,6 +52,7 @@ interface SettingsModalProps {
     value: GraphAppearance["display"][K],
   ) => void;
   onAppearancePresetChange: (presetId: GraphAppearancePresetId) => void;
+  onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
   onAppearanceExport: () => void;
   onAppearanceImportClick: (event: MouseEvent<HTMLInputElement>) => void;
@@ -99,6 +101,7 @@ export default function SettingsModal({
   preferencesSaved,
   onAppearanceDisplayChange,
   onAppearancePresetChange,
+  onAppearanceSchemaChange,
   onAppearanceReset,
   onAppearanceExport,
   onAppearanceImportClick,
@@ -389,6 +392,7 @@ export default function SettingsModal({
                   onAppearanceCssChange={onAppearanceCssChange}
                   onAppearanceDisplayChange={onAppearanceDisplayChange}
                   onAppearancePresetChange={onAppearancePresetChange}
+                  onAppearanceSchemaChange={onAppearanceSchemaChange}
                   onAppearanceReset={onAppearanceReset}
                   onAppearanceExport={onAppearanceExport}
                   onAppearanceImportClick={onAppearanceImportClick}
