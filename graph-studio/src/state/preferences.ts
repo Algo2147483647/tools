@@ -1,8 +1,8 @@
 import { getBrowserStorage, readStoredText, writeStoredText, type StorageLike } from "../adapters/browserStorage";
-import { normalizeAiExecutionMode } from "../ai/executionPolicy";
+import { normalizeAiExecutionMode } from "../ai/execution/policy";
 import type { AiProvider, AiSettings } from "../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../graph/types";
-import { mapChartTypes, getDefaultChartStyle } from "./chartStyles";
+import { mapChartTypes, getDefaultChartStyle } from "../schema/chartStyles";
 import type { ChartStyleDocuments } from "../schema/appearanceModel";
 import { createStyleDocument, parseStyleDocument } from "../schema/styleProtocol";
 

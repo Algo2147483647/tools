@@ -1,10 +1,10 @@
-import { DEFAULT_GRAPH_APPEARANCE, type GraphAppearance } from "../../graph/appearance";
-import type { AppearanceGroup } from "./settingsCatalog";
-import { getDefaultChartStyle, type ChartStyle } from "../../state/chartStyles";
-import { getAppearanceSchema } from "../../schema/appearanceSchema";
-import { APPEARANCE_DEFINITION } from "../../schema/appearanceDefinition";
-import type { AppearanceFieldDefinition } from "../../schema/definition";
+import { DEFAULT_GRAPH_APPEARANCE,type GraphAppearance } from "../../graph/appearance";
 import type { GraphChartType } from "../../graph/types";
+import { APPEARANCE_DEFINITION } from "../../schema/appearanceDefinition";
+import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { getDefaultChartStyle,type ChartStyle } from "../../schema/chartStyles";
+import type { AppearanceFieldDefinition } from "../../schema/definition";
+import type { AppearanceGroup } from "./settingsCatalog";
 
 export function resetChartStyleSection(
   style: ChartStyle,

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { DEFAULT_GRAPH_APPEARANCE, appearanceToStageStyle, sanitizeGraphAppearance } from "../graph/appearance";
+import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
+import { appearanceToStageStyle } from "../rendering/appearanceStyle";
 import { applyGraphCommand } from "../graph/commands";
-import { analyzeGraphImport } from "../graph/importMerge";
+import { analyzeGraphImport } from "../graph/imports/merge";
 import { normalizeDagInput } from "../graph/normalize";
 import { getInitialSelection } from "../graph/selectors";
 import { serializeDag } from "../graph/serialize";

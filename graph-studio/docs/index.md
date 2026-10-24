@@ -26,6 +26,6 @@ Start with [Chart types and the shared data protocol](chart-types.md), then read
 - [Graph JSON Schema](../public/graph.schema.json) documents graph structure; runtime validation performs additional semantic checks.
 - [Graph types](../src/graph/types.ts) define chart IDs and document types.
 - [Style protocol](../src/schema/styleProtocol.ts) validates the canonical appearance document for imports, exports, presets, and storage.
-- [Chart defaults](../src/state/chartStyles.ts) define chart-specific initial styles.
+- [Chart defaults](../src/schema/chartStyles.ts) define chart-specific initial styles.
 
 Older guides are retained in `docs/tmp` during documentation reorganization. The chart and appearance references above replace their overlapping material; archived defaults and relative links may be outdated.

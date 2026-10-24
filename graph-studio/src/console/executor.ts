@@ -1,18 +1,18 @@
 import {
-  getCustomFieldNames,
-  getNodeChildren,
-  getNodeDefine,
-  getNodeParents,
-  getNodeTitle,
-  getNodeType,
+getCustomFieldNames,
+getNodeChildren,
+getNodeDefine,
+getNodeParents,
+getNodeTitle,
+getNodeType,
 } from "../graph/accessors";
-import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import { type AppearanceCommandResult, applyAppearanceCommand } from "../graph/appearanceCommands";
-import { type CommandResult, applyGraphCommand } from "../graph/commands";
+import { type GraphAppearance,DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
+import { type CommandResult,applyGraphCommand } from "../graph/commands";
 import { getRelationKeys } from "../graph/relations";
 import { cloneGraphDocument } from "../graph/serialize";
-import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
-import type { ConsoleInstruction, ConsoleNodeOperand } from "./dsl";
+import type { GraphChartType,NodeKey,NormalizedDag } from "../graph/types";
+import { type AppearanceCommandResult,applyAppearanceCommand } from "../schema/appearanceCommands";
+import type { ConsoleInstruction,ConsoleNodeOperand } from "./dsl";
 import { buildConsoleHelpText } from "./reference";
 
 interface ConsoleUiEffect {

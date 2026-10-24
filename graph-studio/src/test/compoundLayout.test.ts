@@ -1,4 +1,4 @@
-import { getGroupNodes } from "../graph/hierarchy";
+import { getGroupNodes } from "../graph/compound/hierarchy";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createElement } from "react";
@@ -6,10 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import GraphStage from "../rendering/GraphStage";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import { projectCompoundGraph } from "../graph/compoundProjection";
+import { projectCompoundGraph } from "../graph/compound/projection";
 import type { CompoundView, GraphDocument, NormalizedDag } from "../graph/types";
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
-import { getDefaultChartStyle } from "../state/chartStyles";
+import { getDefaultChartStyle } from "../schema/chartStyles";
 import { layoutCompoundHierarchy } from "../layout/compound/hierarchy-layout";
 import { arrangeTopology } from "../layout/compound/topology-layout";
 import { compactFlow } from "../layout/compound/rectangle-packing";

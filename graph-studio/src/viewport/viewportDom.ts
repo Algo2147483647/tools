@@ -1,8 +1,9 @@
 import type { StageData } from "../layout/shared/types";
-import { calculateFitZoomScale, type ZoomAnchor } from "./zoomGeometry";
+import { calculateScrollZoom,calculateSpatialCamera,type ViewportMetrics } from "./cameraGeometry";
+import { calculateFitZoomScale,type ZoomAnchor } from "./zoomGeometry";
 
-export function getFitZoomScale(container: HTMLElement, topbar: HTMLElement | null, stage: StageData): number {
-  return calculateFitZoomScale(getViewportMetrics(container, topbar), stage);
+export function getFitZoomScale(container: HTMLElement, topbar: HTMLElement | null, stage: StageData, overlays: HTMLElement | null = null): number {
+  return calculateFitZoomScale(getViewportMetrics(container, topbar, overlays), stage);
 }
 
 export function applyGraphZoom(
@@ -13,39 +14,41 @@ export function applyGraphZoom(
   scale: number,
   preserveCenter: boolean,
   anchor?: ZoomAnchor,
+  overlays: HTMLElement | null = null,
 ): void {
   const previousScale = Number(svg.dataset.zoomScale || 1);
   const previousMarginLeft = Number(svg.dataset.marginLeft || 0);
   const previousMarginTop = Number(svg.dataset.marginTop || 0);
-  const viewportMetrics = getViewportMetrics(container, topbar);
+  const viewportMetrics = getViewportMetrics(container, topbar, overlays);
   const containerRect = container.getBoundingClientRect();
   const scaledWidth = stage.stageWidth * scale;
   const scaledHeight = stage.stageHeight * scale;
-  const marginLeft = viewportMetrics.safeLeft + Math.max((viewportMetrics.availableWidth - scaledWidth) / 2, 0);
-  const marginTop = viewportMetrics.safeTop + Math.max((viewportMetrics.availableHeight - scaledHeight) / 2, 0);
   const anchorOffsetX = anchor
     ? anchor.clientX - containerRect.left
     : viewportMetrics.safeLeft + viewportMetrics.availableWidth / 2;
   const anchorOffsetY = anchor
     ? anchor.clientY - containerRect.top
     : viewportMetrics.safeTop + viewportMetrics.availableHeight / 2;
+  const positionInput = {
+    width: stage.stageWidth,
+    height: stage.stageHeight,
+    scale,
+    previousScale,
+    metrics: viewportMetrics,
+    anchorX: anchorOffsetX,
+    anchorY: anchorOffsetY,
+    preserveAnchor: preserveCenter || Boolean(anchor),
+  };
   if (stage.layoutMode === "spatial") {
-    const bounds = stage.spatial?.fitBounds;
-    const centerX = bounds ? bounds.x + bounds.width / 2 : stage.stageWidth / 2;
-    const centerY = bounds ? bounds.y + bounds.height / 2 : stage.stageHeight / 2;
-    const previousX = Number(svg.dataset.cameraX || 0);
-    const previousY = Number(svg.dataset.cameraY || 0);
-    // Keep the same coordinate under the viewport center when display units change.
     const unitScale = stage.spatial?.unitScale ?? 1;
-    const unitRatio = unitScale / Number(svg.dataset.spatialUnitScale || unitScale);
-    const x =
-      preserveCenter || anchor
-        ? anchorOffsetX - ((anchorOffsetX - previousX) / previousScale) * scale * unitRatio
-        : viewportMetrics.safeLeft + viewportMetrics.availableWidth / 2 - centerX * scale;
-    const y =
-      preserveCenter || anchor
-        ? anchorOffsetY - ((anchorOffsetY - previousY) / previousScale) * scale * unitRatio
-        : viewportMetrics.safeTop + viewportMetrics.availableHeight / 2 - centerY * scale;
+    const { x, y } = calculateSpatialCamera({
+      ...positionInput,
+      fitBounds: stage.spatial?.fitBounds,
+      previousX: Number(svg.dataset.cameraX || 0),
+      previousY: Number(svg.dataset.cameraY || 0),
+      unitScale,
+      previousUnitScale: Number(svg.dataset.spatialUnitScale || unitScale),
+    });
     svg.style.width = `${scaledWidth}px`;
     svg.style.height = `${scaledHeight}px`;
     svg.style.marginLeft = svg.style.marginTop = "0px";
@@ -60,14 +63,13 @@ export function applyGraphZoom(
   delete svg.dataset.cameraX;
   delete svg.dataset.cameraY;
   delete svg.dataset.spatialUnitScale;
-  const zoomOriginX =
-    preserveCenter || anchor
-      ? (container.scrollLeft + anchorOffsetX - previousMarginLeft) / previousScale
-      : stage.stageWidth / 2;
-  const zoomOriginY =
-    preserveCenter || anchor
-      ? (container.scrollTop + anchorOffsetY - previousMarginTop) / previousScale
-      : stage.stageHeight / 2;
+  const { marginLeft, marginTop, scrollLeft, scrollTop } = calculateScrollZoom({
+    ...positionInput,
+    scrollLeft: container.scrollLeft,
+    scrollTop: container.scrollTop,
+    previousMarginLeft,
+    previousMarginTop,
+  });
 
   svg.style.width = `${scaledWidth}px`;
   svg.style.height = `${scaledHeight}px`;
@@ -77,8 +79,8 @@ export function applyGraphZoom(
   svg.dataset.marginLeft = String(marginLeft);
   svg.dataset.marginTop = String(marginTop);
 
-  container.scrollLeft = Math.max(zoomOriginX * scale + marginLeft - anchorOffsetX, 0);
-  container.scrollTop = Math.max(zoomOriginY * scale + marginTop - anchorOffsetY, 0);
+  container.scrollLeft = scrollLeft;
+  container.scrollTop = scrollTop;
 }
 
 export function setSpatialCamera(svg: SVGSVGElement, x: number, y: number) {
@@ -95,12 +97,11 @@ export function getAppliedZoomScale(svg: SVGSVGElement | null, fallbackScale: nu
   return Number.isFinite(appliedScale) && appliedScale > 0 ? appliedScale : fallbackScale;
 }
 
-export function getViewportMetrics(container: HTMLElement, topbar: HTMLElement | null) {
+export function getViewportMetrics(container: HTMLElement, topbar: HTMLElement | null, overlays: HTMLElement | null = null): ViewportMetrics {
   const containerRect = container.getBoundingClientRect();
   const topbarRect = topbar ? topbar.getBoundingClientRect() : null;
   const safeTop = topbarRect ? Math.max(topbarRect.bottom - containerRect.top + 12, 0) : 0;
   const horizontalInset = 24;
-  const overlays = container.closest(".workspace")?.querySelector(".workspace-overlays");
   const overlayRect = overlays?.getBoundingClientRect();
   // Fit into the visible area; the scrollable canvas itself still fills the page.
   const safeLeft =

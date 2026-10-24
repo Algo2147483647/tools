@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { normalizeDagInput } from "../graph/normalize";
-import { projectCompoundGraph } from "../graph/compoundProjection";
+import { projectCompoundGraph } from "../graph/compound/projection";
 import { routeCompoundEdges } from "../layout/compound/routing/router";
 import { measureLayout, validateLayoutGeometry, segmentCrossesBox } from "../layout/compound/layout-quality";
-import { routingHotspots } from "../ai/layoutDiagnostics";
+import { routingHotspots } from "../ai/layout/compoundDiagnostics";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 

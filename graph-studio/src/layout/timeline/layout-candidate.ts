@@ -1,4 +1,4 @@
-import { parseTimelineLayoutPlan, validateTimelineLayoutPlan } from "../../graph/timelineLayout";
+import { parseTimelineLayoutPlan, validateTimelineLayoutPlan } from "../../graph/timeline/layoutData";
 import type { StageData } from "../shared/types";
 import type { TimelineLayoutInput } from "./input-types";
 import { buildTimelineStage } from "./layout";

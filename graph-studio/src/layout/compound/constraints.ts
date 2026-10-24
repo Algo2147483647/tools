@@ -1,6 +1,6 @@
-import type { CompoundProjection } from "../../graph/compoundProjection";
-import { type CompoundLayoutData, type LayoutIntent, type LayoutProblem, type LayoutSnapshot } from "./layout-plan";
-import { close, sameBox } from "./layout-quality";
+import type { CompoundProjection } from "../../graph/compound/projection";
+import { type CompoundLayoutData,type LayoutIntent,type LayoutProblem,type LayoutSnapshot } from "./layout-plan";
+import { close,sameBox } from "./layout-quality";
 import { compoundTopology } from "./topology-layout";
 
 interface Scope {

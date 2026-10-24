@@ -1,9 +1,9 @@
-import { getTimelineClock } from "../graph/timelineClock";
-import { getGroupNodes } from "../graph/hierarchy";
+import { getTimelineClock } from "../graph/timeline/clock";
+import { getGroupNodes } from "../graph/compound/hierarchy";
 import { type Dispatch, useEffect, useMemo, useState } from "react";
 import { getGraphTypeOptions } from "../graph/typeFilter";
-import { getTimelineTrackOptions } from "../graph/timelineView";
-import type { TimelineTimeRange } from "../graph/timelineRange";
+import { getTimelineTrackOptions } from "../graph/timeline/view";
+import type { TimelineTimeRange } from "../graph/timeline/range";
 import type { CompoundView, GraphSelection } from "../graph/types";
 import { useCompoundView } from "./useCompoundView";
 import type { GraphAppState } from "../state/initialState";

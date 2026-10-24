@@ -1,6 +1,6 @@
 import { type Dispatch, useCallback, useRef } from "react";
 import type { GraphAppearance } from "../graph/appearance";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import type { GraphAppState } from "../state/initialState";
 import type { GraphAction } from "../state/graphActions";
 import { useGraphPan } from "../viewport/useGraphPan";
@@ -54,6 +54,7 @@ export function useGraphViewport(
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const topbarRef = useRef<HTMLElement>(null);
+  const overlaysRef = useRef<HTMLDivElement>(null);
   const handleZoomChange = useCallback(
     (scale: number, minScale?: number) => {
       dispatch({ type: "zoomChanged", scale, minScale });
@@ -64,6 +65,7 @@ export function useGraphViewport(
     containerRef,
     svgRef,
     topbarRef,
+    overlaysRef,
     stage,
     viewKey: JSON.stringify([
       state.document.generation,
@@ -134,6 +136,7 @@ export function useGraphViewport(
     containerRef,
     svgRef,
     topbarRef,
+    overlaysRef,
     stage,
     status,
     changeType: (type: string) => {

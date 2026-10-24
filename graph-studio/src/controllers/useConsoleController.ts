@@ -9,8 +9,8 @@ import {
 } from "../console/presentation";
 import type { ConsoleEntry, ConsoleReviewCard } from "../console/types";
 import type { GraphAppearance } from "../graph/appearance";
-import { buildAppearanceMutationLabel, getGraphPresetStyle } from "../graph/appearanceCommands";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
+import { buildAppearanceMutationLabel, getGraphPresetStyle } from "../schema/appearanceCommands";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import { createGraphDocument } from "../graph/normalize";
 import type { NodeKey } from "../graph/types";
 import type { GraphAppState } from "../state/initialState";

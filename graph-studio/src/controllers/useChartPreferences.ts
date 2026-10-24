@@ -1,17 +1,16 @@
-import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import { buildTimestampFileName, downloadJsonFile } from "../adapters/download";
-import { openJsonFileWithAccess, readJsonFile, supportsFilePicker } from "../adapters/fileAccess";
+import { type Dispatch,useCallback,useEffect,useMemo,useReducer,useRef } from "react";
+import { buildTimestampFileName,downloadJsonFile } from "../adapters/download";
+import { openJsonFileWithAccess,readJsonFile,supportsFilePicker } from "../adapters/fileAccess";
 import { type GraphAppearance } from "../graph/appearance";
-import { type GraphAppearancePresetId, applyAppearanceCommand, getGraphPresetStyle } from "../graph/appearanceCommands";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import type { GraphChartType } from "../graph/types";
-import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
-import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
-import { getDefaultChartStyle, mapChartTypes, type ChartStyle } from "../state/chartStyles";
+import { type GraphAppearancePresetId,applyAppearanceCommand,getGraphPresetStyle } from "../schema/appearanceCommands";
 import type { ChartStyleDocuments } from "../schema/appearanceModel";
-import { createStyleDocument } from "../schema/styleProtocol";
+import { type ChartStyle,getDefaultChartStyle,mapChartTypes } from "../schema/chartStyles";
+import { createStyleDocument,parseChartStyleFile,serializeChartStyle } from "../schema/styleProtocol";
+import { chartPreferencesReducer,createChartPreferences,getChartStyles } from "../state/chartPreferences";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
 
 export function useChartPreferences(
   styles: ChartStyleDocuments,

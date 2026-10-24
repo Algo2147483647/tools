@@ -1,6 +1,6 @@
 import { getNodeParentKeys } from "./accessors";
 import { isSpatialDocument } from "./space";
-import { isTimelineDocument } from "./timelineView";
+import { isTimelineDocument } from "./timeline/view";
 import type { GraphSelection, NodeKey, NormalizedDag } from "./types";
 
 export function findRootsFromDag(dag: NormalizedDag): NodeKey[] {

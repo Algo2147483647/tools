@@ -1,6 +1,6 @@
-import type { CompoundView, GraphChartType, NormalizedDag } from "../graph/types";
+import { indexHierarchy,isHierarchyDescendant } from "../graph/compound/hierarchy";
+import type { CompoundView,GraphChartType,NormalizedDag } from "../graph/types";
 import type { GraphContextTarget } from "../state/contextMenu";
-import { indexHierarchy, isHierarchyDescendant } from "../graph/hierarchy";
 
 export type ContextMenuAction =
   | "view-node"

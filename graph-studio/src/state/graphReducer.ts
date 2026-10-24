@@ -10,8 +10,8 @@ import { getGraphChartLabel, getGraphLayoutLabel } from "../graph/types";
 import type { GraphAction } from "./graphActions";
 import type { GraphAppState } from "./initialState";
 import { clampConsoleSidebarWidth } from "./preferences";
-import { sanitizeTimelineSettings } from "../graph/timelineSettings";
-import { parseTimelineLayoutPlan, writeTimelineLayout } from "../graph/timelineLayout";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
+import { parseTimelineLayoutPlan, writeTimelineLayout } from "../graph/timeline/layoutData";
 
 import { replaceDocument, traverseEditHistory, pushEditTransaction } from "./documentTransitions";
 

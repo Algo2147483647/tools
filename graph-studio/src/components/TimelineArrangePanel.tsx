@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect,useRef,useState,type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import type { TimelineLayoutController } from "../controllers/useTimelineLayout";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
+import { type GraphAppearance } from "../graph/appearance";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import type { StageData } from "../layout/shared/types";
-import TimelineNode from "../rendering/TimelineNode";
-import TimelineBackdrop from "../rendering/TimelineBackdrop";
+import type { TimelineLayoutMetrics } from "../layout/timeline/layout-quality";
 import GraphDefs from "../rendering/GraphDefs";
 import GraphEdge from "../rendering/GraphEdge";
-import { appearanceToStageStyle, type GraphAppearance } from "../graph/appearance";
-import type { TimelineLayoutMetrics } from "../layout/timeline/layout-quality";
+import TimelineBackdrop from "../rendering/TimelineBackdrop";
+import TimelineNode from "../rendering/TimelineNode";
+import { appearanceToStageStyle } from "../rendering/appearanceStyle";
 
 export default function TimelineArrangePanel({
   open,

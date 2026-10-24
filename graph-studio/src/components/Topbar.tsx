@@ -1,9 +1,9 @@
-import type { TimelineClock } from "../graph/timelineClock";
-import Icon from "./ui/Icon";
 import type { RefObject } from "react";
 import type { WorkspaceControls } from "../controllers/workspaceControls";
-import type { TimelineTimeRange } from "../graph/timelineRange";
+import type { TimelineClock } from "../graph/timeline/clock";
+import type { TimelineTimeRange } from "../graph/timeline/range";
 import TimelineRangeFilter from "./TimelineRangeFilter";
+import Icon from "./ui/Icon";
 import IconButton from "./ui/IconButton";
 import ZoomInput from "./ui/ZoomInput";
 

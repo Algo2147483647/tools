@@ -1,13 +1,13 @@
 import type { GraphAppearance } from "../graph/appearance";
 import type { GraphChartType } from "../graph/types";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import {
   mapChartTypes,
   chartStylesEqual,
   type ChartStyle,
   type ChartStyles,
   type ChartDisplayOptions,
-} from "./chartStyles";
+} from "../schema/chartStyles";
 
 interface AppearanceTransaction {
   label: string;

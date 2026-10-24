@@ -4,8 +4,8 @@ import {
   formatLayoutFeedback,
   runLayoutWorkflow,
   type LayoutFeedback,
-} from "../ai/layoutWorkflow";
-import { routingHotspots } from "../ai/layoutDiagnostics";
+} from "../ai/layout/compoundWorkflow";
+import { routingHotspots } from "../ai/layout/compoundDiagnostics";
 import { defaultLayoutIntent, type LayoutMetrics } from "../layout/compound/layout-plan";
 import type { AiResponse } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";

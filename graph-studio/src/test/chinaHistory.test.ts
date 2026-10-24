@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import { parseNodeTimeline, parseTimelineDate } from "../graph/timeline";
+import { parseNodeTimeline, parseTimelineDate } from "../graph/timeline/time";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import { timelineTimeToY } from "../layout/timeline/axis";
 import { discoverWorkspace } from "../workspace/discovery";

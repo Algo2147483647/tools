@@ -1,5 +1,6 @@
 import { type CSSProperties, useCallback, useEffect, useRef } from "react";
-import { type GraphAppearance, appearanceToStageStyle } from "../graph/appearance";
+import { type GraphAppearance } from "../graph/appearance";
+import { appearanceToStageStyle } from "./appearanceStyle";
 import type { StageData } from "../layout/shared/types";
 import SpatialNode from "./SpatialNode";
 import GraphBackdrop from "./GraphBackdrop";

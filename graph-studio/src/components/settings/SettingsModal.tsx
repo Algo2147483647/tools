@@ -1,20 +1,20 @@
-import Icon from "../ui/Icon";
-import type { TimelineControlsProps } from "../TimelineControls";
-import { type ChangeEvent, type MouseEvent, useEffect, useRef, useState } from "react";
+import { type ChangeEvent,type MouseEvent,useEffect,useRef,useState } from "react";
 import { createPortal } from "react-dom";
 import type { AiSettings } from "../../ai/types";
-import type { GraphAppearance } from "../../graph/appearance";
-import type { GraphAppearancePresetId } from "../../graph/appearanceCommands";
-import type { ChartStyle } from "../../state/chartStyles";
-import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import type { WorkspaceControls } from "../../controllers/workspaceControls";
-import AiSettingsPanel, { type AiConnectionStatus } from "./AiSettingsPanel";
-import AppearanceSettings from "./AppearanceSettings";
-import AppearancePreview from "./AppearancePreview";
-import FilesSettings from "./FilesSettings";
-import { type SettingsChapter, SETTINGS_CHAPTERS } from "./settingsConfig";
+import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphChartType,GraphLayoutMode } from "../../graph/types";
 import { getGraphChartLabel } from "../../graph/types";
-import { getSettingsCatalog, matchesSetting } from "./settingsCatalog";
+import type { GraphAppearancePresetId } from "../../schema/appearanceCommands";
+import type { ChartStyle } from "../../schema/chartStyles";
+import type { TimelineControlsProps } from "../TimelineControls";
+import Icon from "../ui/Icon";
+import AiSettingsPanel,{ type AiConnectionStatus } from "./AiSettingsPanel";
+import AppearancePreview from "./AppearancePreview";
+import AppearanceSettings from "./AppearanceSettings";
+import FilesSettings from "./FilesSettings";
+import { getSettingsCatalog,matchesSetting } from "./settingsCatalog";
+import { type SettingsChapter,SETTINGS_CHAPTERS } from "./settingsConfig";
 
 interface SettingsModalProps {
   open: boolean;

@@ -1,4 +1,4 @@
-import { AI_PROVIDER_PRESETS } from "../../ai/providerPresets";
+import { AI_PROVIDER_PRESETS } from "../../ai/transport/providerPresets";
 import type { AiProvider } from "../../ai/types";
 
 export default function ProviderIcon({ provider }: { provider: AiProvider }) {

@@ -1,11 +1,11 @@
-import { getTimelineClock } from "../graph/timelineClock";
+import { getTimelineClock } from "../graph/timeline/clock";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { parseNodeTimeline } from "../graph/timeline";
-import { getTimelineReferenceTime } from "../graph/timelineEditing";
+import { parseNodeTimeline } from "../graph/timeline/time";
+import { getTimelineReferenceTime } from "../graph/timeline/editing";
 import type { NormalizedDag } from "../graph/types";
 import { projectGraphDocument } from "../graph/serialize";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
-import type { TimelineTimeRange } from "../graph/timelineRange";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
+import type { TimelineTimeRange } from "../graph/timeline/range";
 import type { StageAppearance } from "../layout/shared/appearance";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import { projectTimelineStage } from "../layout/timeline/project";

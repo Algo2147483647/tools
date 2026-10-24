@@ -1,6 +1,6 @@
-import { timelineClockCaption, type TimelineClock } from "../graph/timelineClock";
-import { useEffect, useRef, useState } from "react";
-import { parseTimelineRangeInput, timelineRangeDates, type TimelineTimeRange } from "../graph/timelineRange";
+import { useEffect,useRef,useState } from "react";
+import { timelineClockCaption,type TimelineClock } from "../graph/timeline/clock";
+import { parseTimelineRangeInput,timelineRangeDates,type TimelineTimeRange } from "../graph/timeline/range";
 
 export default function TimelineRangeFilter({
   range,

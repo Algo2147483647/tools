@@ -1,4 +1,4 @@
-import { timelineClockCaption } from "../graph/timelineClock";
+import { timelineClockCaption } from "../graph/timeline/clock";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReactMarkdown from "react-markdown";

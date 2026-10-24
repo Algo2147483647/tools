@@ -1,5 +1,5 @@
-import { sanitizeTimelineClock, timelineClockCaption, type TimelineClock } from "../graph/timelineClock";
-import { parseNodeTimeline } from "../graph/timeline";
+import { sanitizeTimelineClock,timelineClockCaption,type TimelineClock } from "../graph/timeline/clock";
+import { parseNodeTimeline } from "../graph/timeline/time";
 
 interface NodeTimeEditorProps {
   time: unknown;

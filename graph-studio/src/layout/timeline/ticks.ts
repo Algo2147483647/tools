@@ -1,5 +1,5 @@
-import { formatTimelineDate, formatTimelineYear } from "../../graph/timeline";
-import { formatRelativeTime, type TimelineClock } from "../../graph/timelineClock";
+import { formatTimelineDate, formatTimelineYear } from "../../graph/timeline/time";
+import { formatRelativeTime, type TimelineClock } from "../../graph/timeline/clock";
 import { createTimelineAxis, timelineTimeToY, timelineYToTime, type TimelineAxisMap } from "./axis";
 
 const DAY = 86_400_000;

@@ -1,7 +1,7 @@
 import { timelineBarBox, timelinePoint } from "../layout/timeline/orientation";
 import { useId, useRef, type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import type { StageNode } from "../layout/shared/types";
-import { sanitizeTimelineMarker } from "../graph/timelineSettings";
+import { sanitizeTimelineMarker } from "../graph/timeline/settings";
 import TimelineMarker, { timelineMarkerStyle } from "./TimelineMarker";
 
 interface TimelineNodeProps {

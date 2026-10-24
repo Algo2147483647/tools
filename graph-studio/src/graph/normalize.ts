@@ -1,6 +1,6 @@
 import { getSpaceMetadata, validateSpaceMetadata, validateSpaceCoordinates } from "./space";
 import { indexGraphDocument } from "./graphIndex";
-import { validateHierarchyEdges } from "./hierarchy";
+import { validateHierarchyEdges } from "./compound/hierarchy";
 import { getSankeyError } from "./sankey";
 import type { GraphDocument, NormalizedDag, RawGraphNode } from "./types";
 import { isRecord } from "../utils/json";

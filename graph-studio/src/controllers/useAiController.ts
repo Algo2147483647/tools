@@ -1,29 +1,29 @@
-import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
+import { type Dispatch,useCallback,useEffect,useRef,useState } from "react";
 import { copyTextToClipboard } from "../adapters/clipboard";
-import { buildAiContextPacket } from "../ai/contextPacket";
-import { shouldExecuteValidatedBatch } from "../ai/executionPolicy";
+import { buildAiContextPacket } from "../ai/context/packet";
+import { shouldExecuteValidatedBatch } from "../ai/execution/policy";
+import { validateCommandBatch } from "../ai/execution/validation";
+import { formatLayoutFeedback,runLayoutWorkflow } from "../ai/layout/compoundWorkflow";
 import {
-  attachValidationToHarness,
-  createInitialAiHarnessState,
-  createTurnId,
-  installPlan,
-  markPendingBatchExecuted,
-  syncHarnessRuntime,
-} from "../ai/harness";
-import { loadPersistedAiHarnessState, savePersistedAiHarnessState } from "../ai/persistence";
-import { createPlanFromAiResponse } from "../ai/plans";
-import { formatReviewInstruction, formatValidationReport, referencesPreviousWork } from "../ai/presentation";
-import { requestAiPlan, testAiConnection } from "../ai/providers";
-import type { AiHarnessState, AiSettings } from "../ai/types";
-import { validateCommandBatch } from "../ai/validation";
+attachValidationToHarness,
+createInitialAiHarnessState,
+createTurnId,
+installPlan,
+markPendingBatchExecuted,
+syncHarnessRuntime,
+} from "../ai/session/harness";
+import { loadPersistedAiHarnessState,savePersistedAiHarnessState } from "../ai/session/persistence";
+import { createPlanFromAiResponse } from "../ai/session/plans";
+import { formatReviewInstruction,formatValidationReport,referencesPreviousWork } from "../ai/session/presentation";
+import { requestAiPlan,testAiConnection } from "../ai/transport/providers";
+import type { AiHarnessState,AiSettings } from "../ai/types";
 import { buildConsoleReviewCard } from "../console/reviewCards";
 import type { GraphAppearance } from "../graph/appearance";
+import type { LayoutIntent } from "../layout/compound/layout-plan";
 import type { GraphAction } from "../state/graphActions";
 import type { GraphAppState } from "../state/initialState";
-import type { ConsoleController } from "./useConsoleController";
 import type { CompoundLayoutController } from "./useCompoundLayoutPlan";
-import type { LayoutIntent } from "../layout/compound/layout-plan";
-import { formatLayoutFeedback, runLayoutWorkflow } from "../ai/layoutWorkflow";
+import type { ConsoleController } from "./useConsoleController";
 
 type AiConsole = Pick<
   ConsoleController,

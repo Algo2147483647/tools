@@ -1,6 +1,6 @@
 import { getNodeType } from "../../graph/accessors";
 import { normalizeTypeLabel } from "../../graph/categoryColors";
-import { timelineTypeColor } from "../../graph/timelineColors";
+import { timelineTypeColor } from "../../graph/timeline/colors";
 import { fitMeasuredText, getNodeVisual, measureText } from "../shared/text";
 import type { StageNode } from "../shared/types";
 import type { TimelineEntry } from "./input-types";

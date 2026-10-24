@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { defineSuite, defineTest } from "./harness";
 import { normalizeDagInput } from "../graph/normalize";
-import { getDefaultChartStyle, getCompoundPreset2Style, createChartStyles } from "../state/chartStyles";
+import { getDefaultChartStyle, getCompoundPreset2Style, createChartStyles } from "../schema/chartStyles";
 import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { getStageAppearance } from "../layout/shared/appearance";
@@ -16,7 +16,7 @@ import { measureText, layoutCardTitle } from "../layout/shared/text";
 import { getTitleFont } from "../layout/shared/typography";
 import { parseConsoleSource } from "../console/dsl";
 import { executeConsoleInstructions } from "../console/executor";
-import { validateCommandBatch } from "../ai/validation";
+import { validateCommandBatch } from "../ai/execution/validation";
 import type { CommandBatch } from "../ai/types";
 
 const noop = () => {};

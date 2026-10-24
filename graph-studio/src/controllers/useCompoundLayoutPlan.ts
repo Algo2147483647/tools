@@ -12,8 +12,8 @@ import {
   type LayoutSolveResult,
 } from "../layout/compound/layout-plan";
 import { compareLayoutMetrics, validateLayoutGeometry } from "../layout/compound/layout-quality";
-import type { LayoutFeedback } from "../ai/layoutWorkflow";
-import { diagnoseCompoundLayout, inspectCompoundLayout } from "../ai/layoutContext";
+import type { LayoutFeedback } from "../ai/layout/compoundWorkflow";
+import { diagnoseCompoundLayout, inspectCompoundLayout } from "../ai/layout/compoundContext";
 import { validateLayoutConstraints } from "../layout/compound/layout-solver";
 import { applyLayoutSnapshot } from "../layout/compound/layout-stage";
 import type { StageData } from "../layout/shared/types";

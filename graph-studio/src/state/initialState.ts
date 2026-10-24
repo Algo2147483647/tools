@@ -8,8 +8,8 @@ import type {
 } from "../graph/types";
 import { type GraphPagePreferences, getInitialGraphPagePreferences } from "./preferences";
 import type { GraphContextMenu } from "./contextMenu";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
-import type { ChartStyle } from "./chartStyles";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
+import type { ChartStyle } from "../schema/chartStyles";
 
 export interface EditTransaction {
   label: string;

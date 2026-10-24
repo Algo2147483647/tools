@@ -1,8 +1,8 @@
 import type { GraphChartType, GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag } from "../graph/types";
 import type { EditTransaction } from "./initialState";
 import type { GraphContextTarget } from "./contextMenu";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
-import type { ChartStyle } from "./chartStyles";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
+import type { ChartStyle } from "../schema/chartStyles";
 
 export type GraphAction =
   | {
@@ -11,7 +11,7 @@ export type GraphAction =
       revision: number;
       beforeDag: NormalizedDag;
       historyBase: import("./initialState").GraphAppState["editHistory"];
-      data: import("../graph/timelineLayout").TimelineLayoutData;
+      data: import("../graph/timeline/layoutData").TimelineLayoutData;
     }
   | {
       type: "compoundLayoutCommitted";

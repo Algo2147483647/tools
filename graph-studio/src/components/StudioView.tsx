@@ -1,35 +1,35 @@
-import { getTimelineClock } from "../graph/timelineClock";
-import { useMemo, useState } from "react";
+import { useMemo,useState } from "react";
 import { canOverwrite } from "../adapters/fileAccess";
 import type { AiController } from "../controllers/useAiController";
-import type { PreferencesController } from "../controllers/usePreferencesController";
-import type { WorkspaceControls } from "../controllers/workspaceControls";
-import type { StudioUiController } from "../controllers/useStudioUi";
-import { useWorkspacePreview } from "../controllers/useWorkspacePreview";
-import { useSidebarResize } from "../hooks/useSidebarResize";
-import { downloadSvg, prepareHtmlSvg } from "../rendering/export-svg";
+import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
 import type { ConsoleController } from "../controllers/useConsoleController";
 import type { DocumentSessionController } from "../controllers/useDocumentSession";
 import type { GraphTransactionsController } from "../controllers/useGraphTransactions";
 import type { GraphViewportController } from "../controllers/useGraphViewport";
 import type { NodeActionsController } from "../controllers/useNodeActions";
-import { getSankeyError } from "../graph/sankey";
-import { getTimelineReferenceTime } from "../graph/timelineEditing";
-import ConsoleSidebar from "./ConsoleSidebar";
-import SpatialControls from "./SpatialControls";
-import CompoundPanel from "./CompoundPanel";
-import ArrangePanel from "./ArrangePanel";
-import SubgraphsPanel from "./SubgraphsPanel";
-import TimelineArrangePanel from "./TimelineArrangePanel";
+import type { PreferencesController } from "../controllers/usePreferencesController";
+import type { StudioUiController } from "../controllers/useStudioUi";
 import type { TimelineLayoutController } from "../controllers/useTimelineLayout";
-import type { CompoundLayoutController } from "../controllers/useCompoundLayoutPlan";
+import { useWorkspacePreview } from "../controllers/useWorkspacePreview";
+import type { WorkspaceControls } from "../controllers/workspaceControls";
+import { getSankeyError } from "../graph/sankey";
+import { getTimelineClock } from "../graph/timeline/clock";
+import { getTimelineReferenceTime } from "../graph/timeline/editing";
+import { useSidebarResize } from "../hooks/useSidebarResize";
+import { downloadSvg,prepareHtmlSvg } from "../rendering/export-svg";
+import ArrangePanel from "./ArrangePanel";
+import CompoundPanel from "./CompoundPanel";
+import ConsoleSidebar from "./ConsoleSidebar";
 import ContextMenu from "./ContextMenu";
-import HierarchyEditorModal from "./HierarchyEditorModal";
 import FilePreviewModal from "./FilePreviewModal";
+import HierarchyEditorModal from "./HierarchyEditorModal";
 import NodeDetailModal from "./NodeDetailModal";
 import RelationEditorModal from "./RelationEditorModal";
 import SaveJsonModal from "./SaveJsonModal";
 import SettingsModal from "./settings/SettingsModal";
+import SpatialControls from "./SpatialControls";
+import SubgraphsPanel from "./SubgraphsPanel";
+import TimelineArrangePanel from "./TimelineArrangePanel";
 import Topbar from "./Topbar";
 import Workspace from "./Workspace";
 import WelcomeScreen from "./workspace/WelcomeScreen";
@@ -258,7 +258,8 @@ export default function StudioView({
               <WorkspaceOverview files={files} />
             ) : undefined
           }
-          containerRef={viewport.containerRef}
+            containerRef={viewport.containerRef}
+            overlaysRef={viewport.overlaysRef}
           svgRef={viewport.svgRef}
           stage={viewport.stage}
           documentGeneration={state.document.generation}

@@ -13,7 +13,7 @@ import GraphStage from "../rendering/GraphStage";
 import { graphReducer } from "../state/graphReducer";
 import { initialGraphAppState } from "../state/initialState";
 import { parseGraphPagePreferences } from "../state/preferences";
-import { createChartStyles } from "../state/chartStyles";
+import { createChartStyles } from "../schema/chartStyles";
 import { defineSuite, defineTest } from "./harness";
 
 function graph(

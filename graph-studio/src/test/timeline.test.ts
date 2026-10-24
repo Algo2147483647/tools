@@ -7,7 +7,7 @@ import {
   parseTimelineDate,
   parseTimelineTime,
   validateTimelineTime,
-} from "../graph/timeline";
+} from "../graph/timeline/time";
 import type { GraphSelection } from "../graph/types";
 import { buildTimelineStage, routeTimelineEdge } from "../layout/timeline/layout";
 import { defineSuite, defineTest } from "./harness";

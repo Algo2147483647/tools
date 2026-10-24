@@ -17,8 +17,8 @@ import type { WorkspaceFolder, WorkspaceGraph } from "../workspace/types";
 import { defineSuite, defineTest } from "./harness";
 import { prepareWorkspace, prepareWorkspaceGraph } from "../workspace/opening";
 import { readLinkedStyle } from "../workspace/linkedStyle";
-import { getDefaultChartStyle } from "../state/chartStyles";
-import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { getDefaultChartStyle } from "../schema/chartStyles";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
 import { serializeChartStyle } from "../schema/styleProtocol";
 import { normalizeDagInput } from "../graph/normalize";
 

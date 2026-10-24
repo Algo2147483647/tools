@@ -1,10 +1,10 @@
 import { getNodeType } from "../../graph/accessors";
 import { DEFAULT_GRAPH_APPEARANCE } from "../../graph/appearance";
 import { buildCategoryColorMap } from "../../graph/categoryColors";
-import { getTimelineRelation, parseNodeTimeline, parseTimelineDate } from "../../graph/timeline";
-import { getTimelineClock } from "../../graph/timelineClock";
-import { readTimelineLayout } from "../../graph/timelineLayout";
-import { sanitizeTimelineSettings } from "../../graph/timelineSettings";
+import { getTimelineRelation, parseNodeTimeline, parseTimelineDate } from "../../graph/timeline/time";
+import { getTimelineClock } from "../../graph/timeline/clock";
+import { readTimelineLayout } from "../../graph/timeline/layoutData";
+import { sanitizeTimelineSettings } from "../../graph/timeline/settings";
 import { collectDescendantKeys } from "../../graph/traversal";
 import { stageTitleFont, type StageAppearance } from "../shared/appearance";
 import { resolveStageSelection } from "../shared/selection";

@@ -1,6 +1,6 @@
 import { isSpatialDocument } from "../graph/space";
-import { isTimelineDocument } from "../graph/timelineView";
-import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { isTimelineDocument } from "../graph/timeline/view";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
 import { type GraphAppState, createInitialGraphState, type EditTransaction } from "./initialState";
 import type { GraphAction } from "./graphActions";
 export function replaceDocument(

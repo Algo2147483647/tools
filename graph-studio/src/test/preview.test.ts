@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../graph/appearance";
-import { createChartStyles } from "../state/chartStyles";
+import { createChartStyles } from "../schema/chartStyles";
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../state/chartPreferences";
 import { buildCompoundStage } from "../layout/compound/layout";
 import {

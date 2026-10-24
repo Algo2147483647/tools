@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { formatTimelineDate, parseTimelineDate, parseTimelineTime } from "../graph/timeline";
-import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timelineRange";
+import { formatTimelineDate, parseTimelineDate, parseTimelineTime } from "../graph/timeline/time";
+import { parseTimelineRangeInput, timelineRangeDates } from "../graph/timeline/range";
 import { createTimelineAxis, extendTimelineAxis, timelineTimeToY, timelineYToTime } from "../layout/timeline/axis";
 import { getTimelineAxisTicks, getVisibleTimeTicks } from "../layout/timeline/ticks";
 import { defineSuite, defineTest } from "./harness";

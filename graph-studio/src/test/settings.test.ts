@@ -1,12 +1,12 @@
 import { updateAppearanceSchemaValue } from "../schema/styleProtocol";
-import { indexHierarchy } from "../graph/hierarchy";
+import { indexHierarchy } from "../graph/compound/hierarchy";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import NumericSetting from "../components/settings/NumericSetting";
 import { APPEARANCE_UI } from "../components/settings/appearanceUIConfig";
 import { sanitizeGraphAppearance } from "../graph/appearance";
-import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
 import { parseGraphPagePreferences } from "../state/preferences";
 import { defineSuite, defineTest } from "./harness";
 import { getSettingsCatalog, matchesSetting } from "../components/settings/settingsCatalog";
@@ -21,7 +21,7 @@ import { orderSchemaFields, type SchemaField } from "../schema/fields";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
 import { normalizeDagInput } from "../graph/normalize";
 import { getSankeyError } from "../graph/sankey";
-import { parseNodeTimeline } from "../graph/timeline";
+import { parseNodeTimeline } from "../graph/timeline/time";
 import { createInitialGraphState } from "../state/initialState";
 import { replaceDocument } from "../state/documentTransitions";
 import TimelineColorSettings from "../components/TimelineColorSettings";
@@ -32,9 +32,9 @@ import {
   createStyleDocument,
   parseStyleDocument,
 } from "../schema/styleProtocol";
-import { getGraphAppearancePresets } from "../graph/appearanceCommands";
+import { getGraphAppearancePresets } from "../schema/appearanceCommands";
 import path from "node:path";
-import { getDefaultChartStyle, createChartStyles } from "../state/chartStyles";
+import { getDefaultChartStyle, createChartStyles } from "../schema/chartStyles";
 import { chartPreferencesReducer, createChartPreferences } from "../state/chartPreferences";
 
 export const settingsSuite = defineSuite("Settings controls", [

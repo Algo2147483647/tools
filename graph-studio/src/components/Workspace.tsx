@@ -1,15 +1,16 @@
-import Icon from "./ui/Icon";
 import { useState } from "react";
 import type { GraphAppearance } from "../graph/appearance";
 import type { StageData } from "../layout/shared/types";
 import GraphStage from "../rendering/GraphStage";
 import EmptyState from "./EmptyState";
+import Icon from "./ui/Icon";
 
 interface WorkspaceProps {
   spatialTools?: React.ReactNode;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement>;
+  overlaysRef: React.RefObject<HTMLDivElement>;
   svgRef: React.RefObject<SVGSVGElement>;
   stage: StageData | null;
   documentGeneration: number;
@@ -35,6 +36,7 @@ interface WorkspaceProps {
 
 export default function Workspace({
   containerRef,
+  overlaysRef,
   svgRef,
   stage,
   documentGeneration,
@@ -63,7 +65,7 @@ export default function Workspace({
   return (
     <main id="workspace" className={`workspace${sidebarOpen ? " workspace--split" : ""}`}>
       <div className="workspace-split-shell">
-        <div className="workspace-overlays">
+        <div ref={overlaysRef} className="workspace-overlays">
           {explorer}
           {sidebarOpen ? (
             <>

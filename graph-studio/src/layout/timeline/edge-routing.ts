@@ -1,5 +1,5 @@
-import { getTimelineRelation } from "../../graph/timeline";
-import { type TimelineViewSettings } from "../../graph/timelineSettings";
+import { getTimelineRelation } from "../../graph/timeline/time";
+import { type TimelineViewSettings } from "../../graph/timeline/settings";
 import type { GraphEdge } from "../../graph/types";
 import type { StageEdge, StageNode, StageRoutePoint, StageTimelineData } from "../shared/types";
 import { timelineTimeToY, type TimelineAxisMap } from "./axis";

@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import type { TimelineMarkerSettings } from "../graph/timelineSettings";
+import type { TimelineMarkerSettings } from "../graph/timeline/settings";
 
 export function timelineMarkerStyle(settings: TimelineMarkerSettings): CSSProperties {
   return {

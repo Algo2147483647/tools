@@ -1,5 +1,5 @@
 import type { GraphGeometryAppearance } from "../../graph/appearance";
-import type { CompoundProjection } from "../../graph/compoundProjection";
+import type { CompoundProjection } from "../../graph/compound/projection";
 import type { CompoundBox } from "./routes";
 import { arrangeTopology } from "./topology-layout";
 

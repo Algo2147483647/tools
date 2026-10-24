@@ -1,16 +1,16 @@
-import { AppearanceUIOutlet } from "./AppearanceUIContext";
-import { APPEARANCE_UI } from "./appearanceUIConfig";
-import ChartTypeIcon from "../ui/ChartTypeIcon";
-import ChartSchema from "./ChartSchema";
-import AppearanceSchema from "./AppearanceSchema";
-import { type TimelineControlsProps } from "../TimelineControls";
 import type { ChangeEvent } from "react";
-import type { GraphAppearance } from "../../graph/appearance";
-import { type GraphAppearancePresetId, getGraphAppearancePresets } from "../../graph/appearanceCommands";
-import type { GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { useState } from "react";
-import { chartStylesEqual, type ChartStyle } from "../../state/chartStyles";
-import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
+import type { GraphAppearance } from "../../graph/appearance";
+import type { GraphChartType,GraphLayoutMode } from "../../graph/types";
+import { getGraphAppearancePresets,type GraphAppearancePresetId } from "../../schema/appearanceCommands";
+import { chartStylesEqual,type ChartStyle } from "../../schema/chartStyles";
+import { type TimelineControlsProps } from "../TimelineControls";
+import ChartTypeIcon from "../ui/ChartTypeIcon";
+import AppearanceSchema from "./AppearanceSchema";
+import { AppearanceUIOutlet } from "./AppearanceUIContext";
+import ChartSchema from "./ChartSchema";
+import { APPEARANCE_UI } from "./appearanceUIConfig";
+import { APPEARANCE_GROUPS,getSettingsCatalog,matchesSetting,type AppearanceGroup } from "./settingsCatalog";
 
 export interface AppearanceSettingsProps {
   view?: "chart" | "appearance" | "layout";

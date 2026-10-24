@@ -1,7 +1,7 @@
 import { DEFAULT_GRAPH_APPEARANCE } from "../graph/appearance";
 import assert from "node:assert/strict";
 import { normalizeDagInput } from "../graph/normalize";
-import type { TimelineViewSettings } from "../graph/timelineSettings";
+import type { TimelineViewSettings } from "../graph/timeline/settings";
 import { timelineTimeToY } from "../layout/timeline/axis";
 import { buildTimelineStage } from "../layout/timeline/layout";
 import type { StageNode } from "../layout/shared/types";

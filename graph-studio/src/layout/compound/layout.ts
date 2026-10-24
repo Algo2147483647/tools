@@ -1,6 +1,6 @@
 import { getNodeDefine, getNodeTitle } from "../../graph/accessors";
-import { projectCompoundGraph } from "../../graph/compoundProjection";
-import { getGroupNodes } from "../../graph/hierarchy";
+import { projectCompoundGraph } from "../../graph/compound/projection";
+import { getGroupNodes } from "../../graph/compound/hierarchy";
 import type { CompoundView, NormalizedDag } from "../../graph/types";
 import { stageRoleFont, stageTitleFont, type StageAppearance } from "../shared/appearance";
 import { roundedPolylinePath } from "../shared/rounded-path";

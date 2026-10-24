@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { applyGraphCommand } from "../graph/commands";
-import { analyzeGraphImport } from "../graph/importMerge";
-import { parseAiResponse } from "../ai/responseParser";
+import { analyzeGraphImport } from "../graph/imports/merge";
+import { parseAiResponse } from "../ai/protocol/responseParser";
 import { parseCompoundLayoutCommand } from "../console/compoundLayout";
 import {
   defaultLayoutIntent,

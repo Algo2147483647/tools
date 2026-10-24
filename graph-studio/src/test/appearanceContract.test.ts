@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { defineSuite, defineTest } from "./harness";
-import { getDefaultChartStyle } from "../state/chartStyles";
+import { getDefaultChartStyle } from "../schema/chartStyles";
 import { getAppearanceSchema } from "../schema/appearanceSchema";
 import { createStyleDocument, parseStyleDocument, updateAppearanceSchemaValue } from "../schema/styleProtocol";
-import { sanitizeTimelineSettings } from "../graph/timelineSettings";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
 import { sanitizeGraphAppearance } from "../graph/appearance";
 import { normalizeDagInput } from "../graph/normalize";
 import { buildTimelineStage } from "../layout/timeline/layout";
@@ -23,7 +23,7 @@ import AppearanceSettings from "../components/settings/AppearanceSettings";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import { resetChartStyleSection } from "../components/settings/appearanceSections";
 import { PRESET_MANIFEST } from "../schema/presetManifest";
-import { getGraphAppearancePresets } from "../graph/appearanceCommands";
+import { getGraphAppearancePresets } from "../schema/appearanceCommands";
 
 const dag = normalizeDagInput({
   format: "graph-studio",

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { getGraphPresetStyle, getGraphAppearancePresets } from "../graph/appearanceCommands";
-import { sanitizeTimelineSettings } from "../graph/timelineSettings";
-import { getDefaultChartStyle, createChartStyles, chartStylesEqual } from "../state/chartStyles";
+import { getGraphPresetStyle, getGraphAppearancePresets } from "../schema/appearanceCommands";
+import { sanitizeTimelineSettings } from "../graph/timeline/settings";
+import { getDefaultChartStyle, createChartStyles, chartStylesEqual } from "../schema/chartStyles";
 import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtocol";
 import { createChartPreferences, chartPreferencesReducer, getChartStyles } from "../state/chartPreferences";
 import { defineSuite, defineTest } from "./harness";

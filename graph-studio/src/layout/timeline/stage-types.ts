@@ -1,6 +1,6 @@
-import type { TimelinePrecision, TimelineRelationKind } from "../../graph/timeline";
-import type { TimelineClock } from "../../graph/timelineClock";
-import type { TimelineViewSettings } from "../../graph/timelineSettings";
+import type { TimelinePrecision, TimelineRelationKind } from "../../graph/timeline/time";
+import type { TimelineClock } from "../../graph/timeline/clock";
+import type { TimelineViewSettings } from "../../graph/timeline/settings";
 import type { StageData } from "../shared/types";
 import type { TimelineAxisMap } from "./axis";
 import type { TimelineTickInterval } from "./ticks";

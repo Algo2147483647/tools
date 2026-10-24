@@ -1,4 +1,4 @@
-import { getTimelineRelation } from "../../graph/timeline";
+import { getTimelineRelation } from "../../graph/timeline/time";
 import type { GraphEdge } from "../../graph/types";
 
 interface ChannelEvent {

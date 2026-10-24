@@ -1,10 +1,10 @@
-import { getGroupNodes } from "../graph/hierarchy";
+import { getGroupNodes } from "../graph/compound/hierarchy";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { applyGraphCommand } from "../graph/commands";
-import { projectCompoundGraph } from "../graph/compoundProjection";
-import { indexHierarchy } from "../graph/hierarchy";
-import { analyzeGraphImport } from "../graph/importMerge";
+import { projectCompoundGraph } from "../graph/compound/projection";
+import { indexHierarchy } from "../graph/compound/hierarchy";
+import { analyzeGraphImport } from "../graph/imports/merge";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { projectGraphByType } from "../graph/typeFilter";

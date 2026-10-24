@@ -1,4 +1,4 @@
-import type { TimelineTimeRange } from "../../graph/timelineRange";
+import type { TimelineTimeRange } from "../../graph/timeline/range";
 import type { StageData } from "../shared/types";
 import { timelineTimeToY } from "./axis";
 import { findFreeTimelineLabelPosition, timelineLabelBox as labelBox, timelineMarkerBox } from "./labels";

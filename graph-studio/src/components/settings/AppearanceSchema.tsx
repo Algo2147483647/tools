@@ -1,9 +1,9 @@
-import { updateAppearanceSchemaValue } from "../../schema/styleProtocol";
-import { useState, useId, useRef } from "react";
-import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
-import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../graph/appearanceCommands";
-import { chartStylesEqual, type ChartStyle } from "../../state/chartStyles";
+import { useId,useRef,useState } from "react";
+import { getGraphChartLabel,type GraphChartType } from "../../graph/types";
+import { getGraphAppearancePresets,type GraphAppearancePresetId } from "../../schema/appearanceCommands";
 import { getAppearanceSchema } from "../../schema/appearanceSchema";
+import { chartStylesEqual,type ChartStyle } from "../../schema/chartStyles";
+import { updateAppearanceSchemaValue } from "../../schema/styleProtocol";
 import ProtocolSchema from "./ProtocolSchema";
 
 export default function AppearanceSchema({

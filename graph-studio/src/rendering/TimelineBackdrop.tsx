@@ -1,4 +1,4 @@
-import { sanitizeTimelineClock, timelineClockCaption } from "../graph/timelineClock";
+import { sanitizeTimelineClock, timelineClockCaption } from "../graph/timeline/clock";
 import { useLayoutEffect, useState, type RefObject } from "react";
 import type { StageData } from "../layout/shared/types";
 

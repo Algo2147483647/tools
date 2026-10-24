@@ -151,4 +151,4 @@ AI provides ordering and spacing hints; the local algorithm computes geometry wh
 
 See [Timeline appearance](../appearance/timeline.md) for the complete `style.timeline` settings reference. It includes the current distinction between reusable settings and temporary pins. Saving graph JSON preserves times, tracks, explicit indices, and saved Arrange metadata. SVG and HTML preserve the current time mapping and visible geometry.
 
-Implementation: [schema fields](../../src/components/settings/timelineSchemaFields.ts), [view settings](../../src/graph/timelineSettings.ts), [saved layout plans](../../src/graph/timelineLayout.ts), [timeline layout](../../src/layout/timeline/layout.ts).
+Implementation: [schema fields](../../src/components/settings/timelineSchemaFields.ts), [view settings](../../src/graph/timeline/settings.ts), [saved layout plans](../../src/graph/timeline/layoutData.ts), [timeline layout](../../src/layout/timeline/layout.ts).

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { createInitialAiHarnessState, installPlan, syncHarnessRuntime } from "../ai/harness";
-import { createPlanFromAiResponse } from "../ai/plans";
-import { requestProviderText } from "../ai/providerTransport";
+import { createInitialAiHarnessState, installPlan, syncHarnessRuntime } from "../ai/session/harness";
+import { createPlanFromAiResponse } from "../ai/session/plans";
+import { requestProviderText } from "../ai/transport/providerTransport";
 import { applyGraphCommand } from "../graph/commands";
 import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../graph/appearance";
 import { serializeDag } from "../graph/serialize";

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { type ImportGraphDocument, type ImportResolutions, analyzeGraphImport } from "../graph/importMerge";
+import { type ImportGraphDocument, type ImportResolutions, analyzeGraphImport } from "../graph/imports/merge";
 import { createGraphDocument } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defineSuite, defineTest } from "./harness";
