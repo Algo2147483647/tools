@@ -13,6 +13,7 @@ import { APPEARANCE_UI } from "./appearanceUIConfig";
 import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
 
 export interface AppearanceSettingsProps {
+  graphDocument?: import("../../graph/types").GraphDocument | null;
   view?: "chart" | "appearance";
   onSectionReset: (group: AppearanceGroup | "layout") => void;
   onPreviewModeChange: (mode: "overview" | "detail") => void;
@@ -88,7 +89,7 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             {p.sankeyUnavailableReason}
           </p>
         ) : null}
-        <ChartSchema key={p.chartType} chartType={p.chartType} />
+        <ChartSchema key={p.chartType} chartType={p.chartType} document={p.graphDocument ?? null} />
       </section>
     );
 

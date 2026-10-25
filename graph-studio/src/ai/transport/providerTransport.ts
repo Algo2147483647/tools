@@ -1,5 +1,6 @@
 import { isRecord } from "../../shared/json";
 import type { AiSettings } from "../types";
+import { readProviderStream, type AiProgressListener } from "./streaming";
 export interface ProviderReply {
   content: string;
   structuredValue?: unknown;
@@ -10,6 +11,7 @@ export interface ProviderReply {
   reasoningCharacters?: number;
 }
 export interface ProviderOutput {
+  onProgress?: AiProgressListener;
   schema?: Record<string, unknown>;
   purpose?: "layout" | "layout-planning";
 }
@@ -27,8 +29,9 @@ export async function requestProviderText(
   systemPrompt: string,
   userPrompt: string,
   signal?: AbortSignal,
+  onProgress?: AiProgressListener,
 ): Promise<string> {
-  const reply = await requestProviderReply(settings, systemPrompt, userPrompt, signal);
+  const reply = await requestProviderReply(settings, systemPrompt, userPrompt, signal, { onProgress });
   if (!reply.content) throw new Error(reply.refusal || "AI response did not include message content.");
   return reply.content;
 }
@@ -39,15 +42,20 @@ export async function requestProviderReply(
   signal?: AbortSignal,
   output: ProviderOutput = {},
 ): Promise<ProviderReply> {
-  switch (settings.provider) {
-    case "anthropic":
-      return requestAnthropic(settings, systemPrompt, userPrompt, signal, output);
-    case "gemini":
-      return requestGemini(settings, systemPrompt, userPrompt, signal, output);
-    case "ollama":
-      return requestOllama(settings, systemPrompt, userPrompt, signal, output);
-    default:
-      return requestOpenAiCompatible(settings, systemPrompt, userPrompt, signal, output);
+  output.onProgress?.({ type: "start" });
+  try {
+    switch (settings.provider) {
+      case "anthropic":
+        return await requestAnthropic(settings, systemPrompt, userPrompt, signal, output);
+      case "gemini":
+        return await requestGemini(settings, systemPrompt, userPrompt, signal, output);
+      case "ollama":
+        return await requestOllama(settings, systemPrompt, userPrompt, signal, output);
+      default:
+        return await requestOpenAiCompatible(settings, systemPrompt, userPrompt, signal, output);
+    }
+  } finally {
+    output.onProgress?.({ type: "end" });
   }
 }
 
@@ -68,6 +76,7 @@ async function requestOpenAiCompatible(
       model: settings.model,
       temperature: settings.temperature,
       max_tokens: settings.maxTokens,
+      ...(output.onProgress ? { stream: true } : {}),
       ...(disableThinking
         ? { thinking: { type: "disabled" } }
         : output.purpose === "layout-planning" &&
@@ -81,9 +90,16 @@ async function requestOpenAiCompatible(
       response_format: { type: "json_object" },
     }),
   });
+  if (output.onProgress) {
+    const streamed = await readProviderStream(response, "chat", output.onProgress, signal);
+    if (streamed) return streamed;
+  }
   const json = await parseResponseJson(response);
   const choice: unknown = Array.isArray(json.choices) ? json.choices[0] : undefined;
   const message = isRecord(choice) && isRecord(choice.message) ? choice.message : {};
+  if (typeof message.reasoning_content === "string")
+    output.onProgress?.({ type: "reasoning", text: message.reasoning_content });
+  output.onProgress?.({ type: "content", text: readMessageText(message) });
   return {
     content: readMessageText(message),
     structuredValue: message.parsed,
@@ -113,13 +129,19 @@ async function requestAnthropic(
     body: JSON.stringify({
       model: settings.model,
       system: systemPrompt,
+      ...(output.onProgress ? { stream: true } : {}),
       ...(output.schema ? { output_config: { format: { type: "json_schema", schema: output.schema } } } : {}),
       max_tokens: settings.maxTokens,
       temperature: settings.temperature,
       messages: [{ role: "user", content: userPrompt }],
     }),
   });
+  if (output.onProgress) {
+    const streamed = await readProviderStream(response, "anthropic", output.onProgress, signal);
+    if (streamed) return streamed;
+  }
   const json = await parseResponseJson(response);
+  output.onProgress?.({ type: "content", text: readTextParts(json.content) });
   return {
     content: readTextParts(json.content),
     finishReason: stringValue(json.stop_reason),
@@ -136,8 +158,10 @@ async function requestGemini(
   signal?: AbortSignal,
   output: ProviderOutput = {},
 ): Promise<ProviderReply> {
-  const endpoint = `${trimTrailingSlash(settings.baseUrl)}/v1beta/models/${encodeURIComponent(settings.model)}:generateContent`;
-  const url = settings.apiKey ? `${endpoint}?key=${encodeURIComponent(settings.apiKey)}` : endpoint;
+  const endpoint = `${trimTrailingSlash(settings.baseUrl)}/v1beta/models/${encodeURIComponent(settings.model)}:${output.onProgress ? "streamGenerateContent" : "generateContent"}`;
+  const url = new URL(endpoint);
+  if (settings.apiKey) url.searchParams.set("key", settings.apiKey);
+  if (output.onProgress) url.searchParams.set("alt", "sse");
   const response = await fetch(url, {
     method: "POST",
     signal,
@@ -154,9 +178,14 @@ async function requestGemini(
       contents: [{ role: "user", parts: [{ text: userPrompt }] }],
     }),
   });
+  if (output.onProgress) {
+    const streamed = await readProviderStream(response, "gemini", output.onProgress, signal);
+    if (streamed) return streamed;
+  }
   const json = await parseResponseJson(response);
   const candidate: unknown = Array.isArray(json.candidates) ? json.candidates[0] : undefined;
   const content = isRecord(candidate) ? candidate.content : undefined;
+  output.onProgress?.({ type: "content", text: readTextParts(isRecord(content) ? content.parts : undefined) });
   return {
     content: readTextParts(isRecord(content) ? content.parts : undefined),
     finishReason: stringValue(isRecord(candidate) ? candidate.finishReason : undefined),
@@ -179,7 +208,7 @@ async function requestOllama(
     headers: buildJsonHeaders(),
     body: JSON.stringify({
       model: settings.model,
-      stream: false,
+      stream: Boolean(output.onProgress),
       ...(output.schema ? { format: output.schema } : { format: "json" }),
       options: {
         temperature: settings.temperature,
@@ -191,7 +220,12 @@ async function requestOllama(
       ],
     }),
   });
+  if (output.onProgress) {
+    const streamed = await readProviderStream(response, "ollama", output.onProgress, signal);
+    if (streamed) return streamed;
+  }
   const json = await parseResponseJson(response);
+  output.onProgress?.({ type: "content", text: readMessageText(json.message) });
   return {
     content: readMessageText(json.message),
     finishReason: stringValue(json.done_reason),

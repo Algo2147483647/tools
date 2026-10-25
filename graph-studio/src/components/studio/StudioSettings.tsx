@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { serializeDag } from "../../graph/serialize";
 import { getSankeyError } from "../../graph/sankey";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import ChartLayoutControls from "./ChartLayoutControls";
@@ -20,6 +21,10 @@ export function StudioSettings({
   "session" | "preferences" | "ui" | "files" | "ai" | "viewport" | "compoundLayoutPlan" | "timelineLayoutPlan"
 >) {
   const { state, dispatch } = session;
+  const graphDocument = useMemo(
+    () => (state.ui.settingsOpen && state.dag ? serializeDag(state.dag) : null),
+    [state.dag, state.ui.settingsOpen],
+  );
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
   const consoleSidebarVisible = state.ui.consoleSidebarOpen;
@@ -30,6 +35,7 @@ export function StudioSettings({
   const { exportSvg, exportHtml } = useGraphExport(state, dispatch, viewport);
   return (
     <SettingsModal
+      graphDocument={graphDocument}
       layoutControls={
         <ChartLayoutControls
           key={state.chartType + state.document.generation}

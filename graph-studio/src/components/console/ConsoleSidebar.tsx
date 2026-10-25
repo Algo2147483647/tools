@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import AiActivityView from "../ui/AiActivityView";
+import type { AiActivity } from "../../app/ai/useAiActivity";
 import type { NodeKey } from "../../graph/types";
 
 import type { ConsoleEntry, ConsoleReviewCard, ConsoleSuggestion } from "../../console/types";
@@ -9,6 +11,7 @@ interface ConsoleSidebarProps {
   inputValue: string;
   contextNodeKey: NodeKey | null;
   aiBusy: boolean;
+  aiActivity?: AiActivity;
   suggestions: ConsoleSuggestion[];
   activeSuggestionIndex: number;
   onReviewApply: (planId: string) => void;
@@ -26,6 +29,7 @@ export default function ConsoleSidebar({
   inputValue,
   contextNodeKey,
   aiBusy,
+  aiActivity,
   suggestions,
   activeSuggestionIndex,
   onReviewApply,
@@ -69,7 +73,10 @@ export default function ConsoleSidebar({
             Load or initialize a graph to enable mutations.
           </div>
         ) : null}
-        {aiBusy ? <div className="console-terminal__line console-terminal__line--ai">AI is thinking...</div> : null}
+        {aiBusy && !aiActivity?.request ? (
+          <div className="console-terminal__line console-terminal__line--ai">Waiting for model…</div>
+        ) : null}
+        <AiActivityView activity={aiActivity} busy={aiBusy} />
       </div>
       <div className="console-terminal__input-wrap">
         <label className="console-terminal__prompt" htmlFor="graph-console-input">

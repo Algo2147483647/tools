@@ -2,6 +2,7 @@ import { AI_PROVIDER_ENTRIES, AI_PROVIDER_PRESETS } from "../../ai/transport/pro
 import type { AiExecutionMode, AiProvider, AiSettings } from "../../ai/types";
 import Icon from "../ui/Icon";
 import ProviderIcon from "./ProviderIcon";
+import AiModelPicker from "./AiModelPicker";
 import { clampFloatInput, clampNumberInput } from "./settingsUtils";
 
 export type AiConnectionStatus = "idle" | "testing" | "success" | "error";
@@ -89,16 +90,7 @@ export default function AiSettingsPanel({
                 ) : null}
               </div>
             </label>
-            <label className="settings-field-label" htmlFor="ai-model-input">
-              <span>Model</span>
-              <input
-                id="ai-model-input"
-                className="settings-text-input"
-                type="text"
-                value={aiSettings.model}
-                onChange={(event) => updateAiSetting("model", event.currentTarget.value)}
-              />
-            </label>
+            <AiModelPicker settings={aiSettings} onChange={(model) => updateAiSetting("model", model)} />
             <label className="settings-field-label ai-settings-wide" htmlFor="ai-base-url-input">
               <span>Base URL</span>
               <input

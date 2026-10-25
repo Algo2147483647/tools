@@ -1,4 +1,5 @@
 import type { AiSettings } from "../../../ai/types";
+import type { AiProgressListener } from "../../../ai/transport/streaming";
 import type { LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
 import { routingHotspots } from "../diagnostics";
@@ -100,6 +101,7 @@ export function requestCompoundLayoutDecision(
     candidateIds: ReadonlySet<string>;
     evaluationsRemaining: number;
     decisionsRemaining: number;
+    onProgress?: AiProgressListener;
   },
 ) {
   const { edgeIds, scopes, context } = compoundAiContext(problem);
@@ -121,6 +123,7 @@ export function requestCompoundLayoutDecision(
     signal,
     schema: COMPOUND_AGENT_SCHEMA,
     purpose: "layout-planning",
+    onProgress: session.onProgress,
     onRetry,
     instructions:
       COMPOUND_PLANNER_INSTRUCTIONS +

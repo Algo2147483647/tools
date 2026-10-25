@@ -1,7 +1,9 @@
 import type { AiSettings } from "../types";
 import { requestProviderText } from "./providerTransport";
+import type { AiProgressListener } from "./streaming";
 
 interface StructuredRequest<Result> {
+  onProgress?: AiProgressListener;
   settings: AiSettings;
   systemPrompt: string;
   prompt: string;
@@ -14,7 +16,7 @@ interface StructuredRequest<Result> {
 /** Repair protocol failures once; transport failures and cancellations are never retried here. */
 export async function requestWithRepair<Result>(options: StructuredRequest<Result>): Promise<Result> {
   const { settings, systemPrompt, prompt, signal, parse } = options;
-  const raw = await requestProviderText(settings, systemPrompt, prompt, signal);
+  const raw = await requestProviderText(settings, systemPrompt, prompt, signal, options.onProgress);
   try {
     return parse(raw);
   } catch (original) {
@@ -24,6 +26,7 @@ export async function requestWithRepair<Result>(options: StructuredRequest<Resul
       systemPrompt,
       options.repairPrompt(prompt, raw, original),
       signal,
+      options.onProgress,
     );
     try {
       return parse(repaired);

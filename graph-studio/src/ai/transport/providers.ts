@@ -4,13 +4,20 @@ import type { AiRequest, AiResponse, AiSettings } from "../types";
 import { requestProviderText } from "./providerTransport";
 import { requestWithRepair } from "./requestWithRepair";
 
-export async function requestAiPlan({ settings, context, message, signal }: AiRequest): Promise<AiResponse> {
+export async function requestAiPlan({
+  settings,
+  context,
+  message,
+  signal,
+  onProgress,
+}: AiRequest): Promise<AiResponse> {
   const prompt = buildUserPrompt(context, message);
   return requestWithRepair({
     settings,
     systemPrompt: SYSTEM_PROMPT,
     prompt,
     signal,
+    onProgress,
     parse: parseAiResponse,
     repairPrompt: buildRepairPrompt,
     repairError(error, repairError) {

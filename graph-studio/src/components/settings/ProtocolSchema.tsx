@@ -6,17 +6,15 @@ import { JsonSyntax } from "../nodes/NodeJsonView";
 
 export default function ProtocolSchema({
   label,
-  version,
   fields,
-  example,
+  value,
   fileName,
   valueHeading = "Default",
   renderValue,
 }: {
   label: string;
-  version: string;
   fields: SchemaField[];
-  example: unknown;
+  value: unknown;
   fileName: string;
   valueHeading?: string;
   renderValue?: (field: SchemaField) => ReactNode;
@@ -24,7 +22,7 @@ export default function ProtocolSchema({
   const titleId = useId();
   const [view, setView] = useState<"fields" | "example">("fields");
   const [copyStatus, setCopyStatus] = useState("");
-  const json = JSON.stringify(example, null, 2);
+  const json = JSON.stringify(value, null, 2);
   return (
     <section className="chart-schema" aria-labelledby={titleId}>
       <header className="chart-schema-heading">
@@ -32,14 +30,13 @@ export default function ProtocolSchema({
           <h3 id={titleId}>
             Schema <span>{label}</span>
           </h3>
-          <small>{version}</small>
         </div>
         <div className="chart-schema-switch" role="group" aria-label={`${label} schema view`}>
           <button type="button" aria-pressed={view === "fields"} onClick={() => setView("fields")}>
             Fields
           </button>
           <button type="button" aria-pressed={view === "example"} onClick={() => setView("example")}>
-            example.json
+            Current JSON
           </button>
         </div>
       </header>
@@ -101,7 +98,7 @@ export default function ProtocolSchema({
               </button>
             </div>
           </div>
-          <pre aria-label={`${label} JSON example`}>
+          <pre aria-label={`${label} current JSON`}>
             <code>
               <JsonSyntax value={json} />
             </code>

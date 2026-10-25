@@ -18,6 +18,7 @@ import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
 import { useAiSession } from "./useAiSession";
+import { useAiActivity } from "./useAiActivity";
 import type { ConsoleController } from "../console/useConsoleController";
 
 type AiConsole = Pick<
@@ -43,6 +44,8 @@ export function useAiController({
     consoleController;
   const { setHarness, graphRevision, runtimeHarness } = useAiSession(state, settings, upsertReview);
   const [busy, setBusy] = useState(false);
+  const { activity, onProgress, clear: clearActivity } = useAiActivity();
+  useEffect(clearActivity, [state.document.generation, clearActivity]);
   const busyRef = useRef(false);
   const requestGeneration = useRef(0);
   const requestAbort = useRef<AbortController | null>(null);
@@ -135,6 +138,7 @@ export function useAiController({
       }
       busyRef.current = true;
       setBusy(true);
+      clearActivity();
       const generation = ++requestGeneration.current;
       const abort = new AbortController();
       requestAbort.current = abort;
@@ -158,7 +162,15 @@ export function useAiController({
           appearance,
           consoleEntries: entries,
         });
-        const response = await requestAiPlan({ settings, context, message, signal: abort.signal });
+        const response = await requestAiPlan({
+          settings,
+          context,
+          message,
+          signal: abort.signal,
+          onProgress: (event) => {
+            if (isCurrent() && !abort.signal.aborted) onProgress(event);
+          },
+        });
         if (!isCurrent()) {
           if (generation === requestGeneration.current)
             appendMessage(
@@ -200,6 +212,8 @@ export function useAiController({
       appendMessage,
       contextNodeKey,
       entries,
+      onProgress,
+      clearActivity,
       recordInput,
       runtimeHarness,
       settings,
@@ -287,6 +301,7 @@ export function useAiController({
 
   return {
     busy,
+    activity,
     request,
     applyReview,
     dismissReview,

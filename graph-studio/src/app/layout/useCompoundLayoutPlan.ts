@@ -11,6 +11,7 @@ import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
 import type { useCompoundStage } from "./useCompoundStage";
 import { computeCompoundStage } from "./computeCompoundStage";
+import { useAiActivity } from "../ai/useAiActivity";
 
 export function useCompoundLayoutPlan(
   state: GraphAppState,
@@ -37,6 +38,8 @@ export function useCompoundLayoutPlan(
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [detail, setDetail] = useState("");
+  const { activity, onProgress, clear: clearActivity } = useAiActivity();
+  useEffect(clearActivity, [state.document.generation, clearActivity]);
   const active = useRef<AbortController | null>(null);
   const cancel = useCallback(() => {
     active.current?.abort();
@@ -94,6 +97,7 @@ export function useCompoundLayoutPlan(
       setBusy(true);
       setMessage("Planning layout…");
       setDetail("");
+      clearActivity();
       try {
         let data: CompoundLayoutData;
         let computed: StageData | undefined;
@@ -106,6 +110,10 @@ export function useCompoundLayoutPlan(
             currentStage: initial.viewport.stage!,
             message: request.message,
             signal: abort.signal,
+            onProgress: (event) => {
+              if (active.current === abort && !abort.signal.aborted && current.current.key === initial.key)
+                onProgress(event);
+            },
             compute: (data) => computeCompoundStage({ ...input, layout: parseCompoundLayout(data) }, abort.signal),
             onStatus: (message) => {
               if (active.current === abort) setMessage(message);
@@ -162,10 +170,11 @@ export function useCompoundLayoutPlan(
         }
       }
     },
-    [dispatch],
+    [dispatch, onProgress, clearActivity],
   );
   return {
     ready,
+    activity,
     busy,
     message,
     detail,

@@ -8,6 +8,7 @@ export interface AiGraphContext {
 }
 
 export interface AiRequest {
+  onProgress?: import("../transport/streaming").AiProgressListener;
   signal?: AbortSignal;
   settings: AiSettings;
   context: AiContextPacket;

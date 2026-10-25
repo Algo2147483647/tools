@@ -11,6 +11,7 @@ import type { TimelineWorkerInput } from "../../layout/workers/protocol";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
 import { startLayoutWorker, type LayoutWorkerJob } from "./workerJob";
+import { useAiActivity } from "../ai/useAiActivity";
 
 type Review = TimelineLayoutCandidate & { key: number; baseline: StageData; explanation: string };
 export function useTimelineLayout(
@@ -42,6 +43,8 @@ export function useTimelineLayout(
   const [review, setReview] = useState<Review | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const { activity, onProgress, clear: clearActivity } = useAiActivity();
+  useEffect(clearActivity, [state.document.generation, state.chartType, clearActivity]);
   const active = useRef<{
     key: number;
     abort: AbortController;
@@ -114,6 +117,7 @@ export function useTimelineLayout(
     active.current = pending;
     setReview(null);
     setBusy(true);
+    clearActivity();
     setMessage("Planning timeline layout…");
     let timedOut = false;
     const timeout = setTimeout(() => {
@@ -126,6 +130,10 @@ export function useTimelineLayout(
         timelineLayoutContext(initial.input, initial.baseline, initial.focus),
         prompt,
         abort.signal,
+        (event) => {
+          if (sequence.current === id && current.current.key === initial.key && !abort.signal.aborted)
+            onProgress(event);
+        },
       );
       if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
       clearTimeout(timeout);
@@ -180,6 +188,7 @@ export function useTimelineLayout(
   const saved = state.layoutDocument.data.charts.timeline;
   return {
     ready,
+    activity,
     busy,
     message,
     review,

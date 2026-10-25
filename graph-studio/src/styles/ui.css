@@ -195,3 +195,30 @@ textarea.studio-field {
 .spatial-controls .method-tabs-list > button {
   padding-inline: 8px;
 }
+.ai-activity {
+  margin-top: 10px;
+  min-width: 0;
+  font-size: 12px;
+}
+.ai-activity p {
+  margin: 5px 0;
+  color: #627187;
+}
+.ai-activity summary {
+  cursor: pointer;
+  padding: 5px 0;
+}
+.ai-activity pre {
+  margin: 4px 0 8px;
+  padding: 10px;
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-radius: 6px;
+  background: #f4f6fa;
+  color: #33435b;
+  font:
+    12px/1.6 Consolas,
+    monospace;
+}

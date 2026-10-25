@@ -1,4 +1,5 @@
 import type { AiSettings } from "../../../ai/types";
+import type { AiProgressListener } from "../../../ai/transport/streaming";
 import type { StageData } from "../../shared/types";
 import { LayoutRequestError } from "../../shared/ai/request";
 import type { CompoundLayoutData, LayoutMetrics, LayoutProblem } from "../layout-plan";
@@ -52,6 +53,7 @@ export async function runCompoundAiLayout(options: {
   signal: AbortSignal;
   compute(data: CompoundLayoutData): Promise<StageData>;
   onStatus?(message: string): void;
+  onProgress?: AiProgressListener;
 }) {
   const { problem, signal } = options;
   const replacement = compoundAiContext(problem);
@@ -91,6 +93,7 @@ export async function runCompoundAiLayout(options: {
         candidateIds: new Set(candidates.keys()),
         evaluationsRemaining: COMPOUND_AI_BUDGET.evaluations - evaluations,
         decisionsRemaining: COMPOUND_AI_BUDGET.decisions - decisionIndex,
+        onProgress: options.onProgress,
       },
     );
     checkCancelled();

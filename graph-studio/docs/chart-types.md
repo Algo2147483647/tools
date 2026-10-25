@@ -18,7 +18,7 @@ Switching chart type does not convert or rewrite the graph. Each type retains it
 
 The Schema panel under **Settings > Chart type** presents one continuous three-rule table. Parent fields precede their children, including Timeline clock, event-time, and relationship-anchor fields; there are no separate thematic tables. Requirement and description have independent columns, and cells remain on one line with horizontal scrolling when needed.
 
-Its **example.json** view includes a complete chart-specific graph with Copy JSON and Download JSON actions. Examples demonstrate nested membership, Sankey recycling, Timeline intervals and interior anchors, or Spatial visual data as applicable. Each graph references the matching style example available in **Appearance > Schema**.
+Its **Current JSON** view shows the current graph document, including unsaved edits, with Copy JSON and Download JSON actions. **Appearance > Schema > Current JSON** shows the current style configuration. Neither view substitutes a fixed example or stores rendered geometry.
 
 The following is a complete graph file:
 

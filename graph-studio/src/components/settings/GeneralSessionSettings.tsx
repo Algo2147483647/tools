@@ -25,7 +25,7 @@ export default function GeneralSessionSettings({
   return (
     <>
       {showExport && (
-        <section className="settings-section">
+        <section className="settings-section settings-export-section">
           <h3>Export current view</h3>
           <div className="settings-inline-actions">
             <button className="studio-button" disabled={!canExportCanvas} onClick={onExport}>
@@ -38,7 +38,7 @@ export default function GeneralSessionSettings({
         </section>
       )}
       {showSession && (
-        <section className="settings-section">
+        <section className="settings-section settings-session-section">
           <details className="settings-disclosure">
             <summary>Current session · {workspace?.rootName || fileName || "No file open"}</summary>
             <dl className="session-details">

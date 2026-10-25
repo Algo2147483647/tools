@@ -4,6 +4,7 @@ import { DEFAULT_COMPOUND_LAYOUT_REQUEST } from "../../layout/compound/ai/prompt
 import type { LayoutDirection, LayoutObjective } from "../../layout/compound/layout-plan";
 import MethodTabs from "../ui/MethodTabs";
 import LayoutRules from "../ui/LayoutRules";
+import AiActivityView from "../ui/AiActivityView";
 
 export default function CompoundLayoutPanel({
   controller: c,
@@ -133,6 +134,7 @@ export default function CompoundLayoutPanel({
                 <p>{c.detail}</p>
               </details>
             )}
+            <AiActivityView activity={c.activity} busy={busy} />
           </form>
         )}
         {c.message && (
@@ -158,21 +160,19 @@ export default function CompoundLayoutPanel({
                 { label: "Crossings", value: c.quality.metrics.crossings },
                 { label: "Label collisions", value: c.quality.metrics.labelCollisions },
                 { label: "Bends", value: c.quality.metrics.bends },
+                { label: "Overlapping route length", value: `${Math.round(c.quality.metrics.sharedLength)} px` },
+                { label: "Route length", value: `${Math.round(c.quality.metrics.length)} px` },
+                { label: "Content area", value: `${Math.round(c.quality.metrics.area)} px²` },
               ]}
             />
-            <details>
-              <summary>Details</summary>
-              <LayoutRules
-                rows={[
-                  { label: "Overlapping route length", value: `${Math.round(c.quality.metrics.sharedLength)} px` },
-                  { label: "Route length", value: `${Math.round(c.quality.metrics.length)} px` },
-                  { label: "Content area", value: `${Math.round(c.quality.metrics.area)} px²` },
-                ]}
-              />
-              {c.diagnostics.map((text, index) => (
-                <p key={index}>{text}</p>
-              ))}
-            </details>
+            {c.diagnostics.length > 0 && (
+              <details>
+                <summary>Diagnostics</summary>
+                {c.diagnostics.map((text, index) => (
+                  <p key={index}>{text}</p>
+                ))}
+              </details>
+            )}
           </>
         )}
       </section>

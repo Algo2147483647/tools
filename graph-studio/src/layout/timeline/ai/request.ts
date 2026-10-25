@@ -1,4 +1,5 @@
 import type { AiSettings } from "../../../ai/types";
+import type { AiProgressListener } from "../../../ai/transport/streaming";
 import { requestLayoutPlan } from "../../shared/ai/request";
 import type { timelineLayoutContext } from "./context";
 import { TIMELINE_LAYOUT_PROMPT } from "./prompt";
@@ -9,12 +10,14 @@ export async function requestTimelineLayout(
   context: ReturnType<typeof timelineLayoutContext>,
   message: string,
   signal: AbortSignal,
+  onProgress?: AiProgressListener,
 ) {
   return requestLayoutPlan({
     settings,
     context,
     message,
     signal,
+    onProgress,
     schema: TIMELINE_AI_SCHEMA,
     instructions: TIMELINE_LAYOUT_PROMPT,
     parse: (value) =>

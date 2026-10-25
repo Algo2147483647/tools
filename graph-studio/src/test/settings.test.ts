@@ -215,10 +215,9 @@ export const settingsSuite = defineSuite("Settings controls", [
     const markup = renderToStaticMarkup(
       createElement(ProtocolSchema, {
         label: "Timeline",
-        version: "v3",
         fields: timeline.fields,
-        example: timeline.example,
-        fileName: "timeline-example.json",
+        value: timeline.example,
+        fileName: "timeline-current.json",
       }),
     );
     assert.equal((markup.match(/<table\b/g) ?? []).length, 1);

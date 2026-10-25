@@ -141,6 +141,7 @@ export function SettingsContent({
 
         {shownChapter === "chart" || shownChapter === "appearance" ? (
           <AppearanceSettings
+            graphDocument={settings.graphDocument}
             key={chartType}
             view={shownChapter}
             query={query}

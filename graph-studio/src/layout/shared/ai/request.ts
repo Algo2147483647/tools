@@ -1,6 +1,7 @@
 import type { AiSettings } from "../../../ai/types";
 import { ProviderError, requestProviderReply, type ProviderReply } from "../../../ai/transport/providerTransport";
 import { isRecord } from "../../../shared/json";
+import type { AiProgressListener } from "../../../ai/transport/streaming";
 
 export type LayoutErrorCode =
   "truncated" | "syntax" | "schema" | "semantic" | "refusal" | "completion" | "transport" | "cancelled" | "solve";
@@ -79,6 +80,7 @@ export async function requestLayoutPlan<T>(options: {
   purpose?: "layout" | "layout-planning";
   parse(value: Record<string, unknown>): T;
   onRetry?(): void;
+  onProgress?: AiProgressListener;
 }): Promise<T> {
   const { signal } = options;
   const system = [
@@ -101,7 +103,7 @@ export async function requestLayoutPlan<T>(options: {
         system,
         prompt,
         signal,
-        { schema, purpose: options.purpose ?? "layout" },
+        { schema, purpose: options.purpose ?? "layout", onProgress: options.onProgress },
       );
       if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout request cancelled.");
       return options.parse(parseLayoutJson(reply));

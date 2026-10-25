@@ -57,7 +57,7 @@ The Layout panel offers **Automatic** and **AI**. Automatic jointly arranges nod
 
 AI instructions guide an iterative layout session. The model submits typed direction, partial flow-order and routing declarations to the local solver, observes their results, and explicitly chooses the final arrangement. Only that selected result is installed. AI cannot supply coordinates or lock positions. Scope, objective and user settings are enforced locally.
 
-The **Layout quality** section describes the currently rendered result: validity, elapsed time, crossings, label collisions and bends, with route length, shared length, content area and diagnostics under Details. Quality and geometry are computed together and are not saved. Pan, zoom and selection do not rerun placement.
+The **Layout quality** section describes the currently rendered result: validity and elapsed time, followed by one table containing crossings, label collisions, bends, shared route length, route length and content area. Additional diagnostics appear only when present. Quality and geometry are computed together and are not saved. Pan, zoom and selection do not rerun placement.
 
 ## Independent Layout protocol
 

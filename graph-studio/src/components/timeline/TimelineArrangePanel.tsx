@@ -6,6 +6,7 @@ import TimelineControls, { type TimelineControlsProps } from "./TimelineControls
 import MethodTabs from "../ui/MethodTabs";
 import LayoutRules from "../ui/LayoutRules";
 import { TimelineLayoutReview } from "./TimelineLayoutReview";
+import AiActivityView from "../ui/AiActivityView";
 
 export default function TimelineArrangePanel({
   controller: c,
@@ -86,6 +87,7 @@ export default function TimelineArrangePanel({
                 </button>
               )}
             </div>
+            <AiActivityView activity={c.activity} busy={c.busy} />
           </form>
         )}
         {c.message && (

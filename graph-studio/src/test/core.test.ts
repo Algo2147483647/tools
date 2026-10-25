@@ -1,5 +1,6 @@
 import { agiHistorySuite } from "./agiHistory.test";
 import { aiHarnessSuite } from "./aiHarness.test";
+import { aiTransportSuite } from "./aiTransport.test";
 import { appearanceSuite } from "./appearance.test";
 import { appearanceContractSuite } from "./appearanceContract.test";
 import { chartTypesSuite } from "./chartTypes.test";
@@ -56,6 +57,7 @@ async function main() {
     compoundSuite,
     compoundLayoutSuite,
     aiHarnessSuite,
+    aiTransportSuite,
     documentSessionSuite,
     appearanceSuite,
     previewSuite,

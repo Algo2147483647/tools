@@ -41,9 +41,8 @@ export default function AppearanceSchema({
       </label>
       <ProtocolSchema
         label={`${getGraphChartLabel(chartType)} appearance`}
-        version="graph-studio-style · v1 / GraphAppearance · v1"
         fields={schema.fields}
-        example={schema.example}
+        value={schema.example}
         fileName={`${chartType}.style.json`}
         valueHeading="Current value"
         renderValue={(field) => {
