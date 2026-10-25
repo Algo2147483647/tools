@@ -22,8 +22,7 @@ export async function readProviderStream(
   let buffer = "",
     data: string[] = [],
     complete = false,
-    doneMarker = false,
-    bytes = 0;
+    doneMarker = false;
   const emit = (type: "reasoning" | "content", value: unknown) => {
     if (typeof value !== "string" || !value || signal?.aborted) return;
     if (type === "content") reply.content += value;
@@ -129,8 +128,6 @@ export async function readProviderStream(
       cancelled();
       const { value, done } = await reader.read();
       cancelled();
-      bytes += value?.byteLength ?? 0;
-      if (bytes > 8_000_000) throw new Error("The model stream exceeded the response limit.");
       buffer += decoder.decode(value, { stream: !done });
       let index: number;
       while ((index = buffer.indexOf("\n")) >= 0) {

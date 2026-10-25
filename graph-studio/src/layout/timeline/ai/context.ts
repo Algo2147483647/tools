@@ -15,7 +15,7 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
   const nodes = [...stage.nodes].sort(
     (a, b) => Number(b.key === focus) - Number(a.key === focus) || a.key.localeCompare(b.key),
   );
-  const selected = nodes.slice(0, 160);
+  const selected = nodes;
   const ids = new Set(selected.map((node) => node.key));
   const tracks = new Map<string, { name: string; events: number }>();
   for (const node of nodes) {
@@ -45,12 +45,12 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     totalEvents: nodes.length,
     totalRelationships: stage.edges.length,
     sampledEvents: selected.length,
-    truncated: nodes.length > 160 || stage.edges.length > 240,
+    truncated: false,
     tracks: [...tracks.values()],
-    trackConnections: [...connections.values()].sort((a, b) => b.count - a.count).slice(0, 240),
+    trackConnections: [...connections.values()].sort((a, b) => b.count - a.count),
     events: selected.map((node) => ({
       id: node.key,
-      title: getNodeTitle(input.dag.nodes[node.key]).slice(0, 180),
+      title: getNodeTitle(input.dag.nodes[node.key]),
       track: node.timeline!.track,
       start: node.timeline!.start,
       end: node.timeline!.end,
@@ -60,7 +60,6 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     })),
     relationships: stage.edges
       .filter((edge) => ids.has(edge.source) || ids.has(edge.target))
-      .slice(0, 240)
       .map((edge) => ({ source: edge.source, target: edge.target, kind: edge.timeline?.kind })),
   };
 }

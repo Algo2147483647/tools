@@ -191,10 +191,9 @@ export const documentSessionSuite = defineSuite("Document lifecycle and architec
     assert.ok(prepared.dag!.nodes.A);
   }),
   defineTest("AI plans cannot be applied to a different document or reopened revision", () => {
-    const harness = syncHarnessRuntime(createInitialAiHarnessState("review"), {
+    const harness = syncHarnessRuntime(createInitialAiHarnessState(), {
       graphId: "a",
       graphRevision: "session-a:1",
-      mode: "review",
     });
     const plan = createPlanFromAiResponse({
       harness,
@@ -211,16 +210,16 @@ export const documentSessionSuite = defineSuite("Document lifecycle and architec
       { graphId: "b", graphRevision: "session-a:1" },
       { graphId: "a", graphRevision: "session-b:1" },
     ]) {
-      const next = syncHarnessRuntime(installed, { ...change, mode: "review" });
+      const next = syncHarnessRuntime(installed, { ...change });
       assert.equal(next.pendingCommandBatch, undefined);
       assert.equal(next.activePlan?.status, "superseded");
       const failed = syncHarnessRuntime(
         { ...installed, activePlan: { ...installed.activePlan!, status: "failed" } },
-        { ...change, mode: "review" },
+        { ...change },
       );
       assert.equal(failed.pendingCommandBatch, undefined);
       assert.equal(failed.activePlan?.status, "superseded");
-      const orphaned = syncHarnessRuntime({ ...installed, activePlan: undefined }, { ...change, mode: "review" });
+      const orphaned = syncHarnessRuntime({ ...installed, activePlan: undefined }, { ...change });
       assert.equal(orphaned.pendingCommandBatch, undefined);
     }
   }),

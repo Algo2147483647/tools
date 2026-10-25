@@ -1,8 +1,6 @@
 import { isRecord } from "../../shared/json";
-import { normalizeAiExecutionMode } from "../execution/policy";
 import type {
   ActionPlan,
-  AiExecutionMode,
   AiHarnessState,
   AiRiskLevel,
   CommandBatch,
@@ -12,7 +10,7 @@ import type {
 } from "../types";
 import { createEmptyWorkingMemory } from "./workingMemory";
 
-export function parsePersistedAiHarnessState(raw: string | null, fallbackMode: AiExecutionMode): AiHarnessState | null {
+export function parsePersistedAiHarnessState(raw: string | null): AiHarnessState | null {
   if (!raw) {
     return null;
   }
@@ -40,7 +38,6 @@ export function parsePersistedAiHarnessState(raw: string | null, fallbackMode: A
     workingMemory: sanitizeWorkingMemory(parsed.workingMemory),
     activePlan,
     pendingCommandBatch,
-    mode: normalizeAiExecutionMode(parsed.mode, fallbackMode),
   };
 }
 
@@ -86,11 +83,9 @@ function sanitizeActionPlan(value: unknown): ActionPlan | undefined {
     ui: isRecord(value.ui)
       ? {
           displaySummary: sanitizeString(value.ui.displaySummary, ""),
-          requiresUserConfirmation:
-            typeof value.ui.requiresUserConfirmation === "boolean" ? value.ui.requiresUserConfirmation : true,
           riskLevel: sanitizeRiskLevel(value.ui.riskLevel),
         }
-      : { displaySummary: "", requiresUserConfirmation: true, riskLevel: "medium" },
+      : { displaySummary: "", riskLevel: "medium" },
     timestamps: isRecord(value.timestamps)
       ? {
           createdAt: sanitizeNumber(value.timestamps.createdAt, Date.now()),
@@ -222,16 +217,8 @@ function sanitizeWorkingMemory(value: unknown): WorkingMemory {
             value.userPreferences.preferredLanguage === "auto"
               ? value.userPreferences.preferredLanguage
               : "auto",
-          autoApplyLowRiskCommands:
-            typeof value.userPreferences.autoApplyLowRiskCommands === "boolean"
-              ? value.userPreferences.autoApplyLowRiskCommands
-              : undefined,
-          requireReviewForDestructiveChanges:
-            typeof value.userPreferences.requireReviewForDestructiveChanges === "boolean"
-              ? value.userPreferences.requireReviewForDestructiveChanges
-              : true,
         }
-      : { preferredLanguage: "auto", requireReviewForDestructiveChanges: true },
+      : { preferredLanguage: "auto" },
     unresolvedQuestions: sanitizeStringArray(value.unresolvedQuestions),
   };
 }

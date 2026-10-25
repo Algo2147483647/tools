@@ -3,7 +3,7 @@ import type { AiProgressEvent } from "../../ai/transport/streaming";
 import { emptyAiActivity, updateAiActivity, type AiActivity } from "../../ai/transport/activity";
 export type { AiActivity } from "../../ai/transport/activity";
 
-/** Transient, bounded preview. Never added to graph files, undo or conversation memory. */
+/** Complete transient transcript. Never added to graph files, undo or conversation memory. */
 export function useAiActivity() {
   const [activity, setActivity] = useState<AiActivity>(emptyAiActivity);
   const pending = useRef(emptyAiActivity());

@@ -200,7 +200,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
     assert.deepEqual(layout.charts.timeline.plan!.eventOrder, ["prototype", "a"]);
     assert.equal(dag.metadata?.layout, undefined);
   }),
-  defineTest("model context is bounded and only includes layout data", () => {
+  defineTest("model context preserves all visible layout data without sampling or shortening titles", () => {
     const dag = serializeDag(graph());
     for (let i = 0; i < 200; i++)
       dag.nodes[`extra-${i}`] = {
@@ -211,10 +211,13 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       };
     const input: TimelineLayoutInput = { dag: normalizeDagInput(dag), selection: { type: "full" } };
     const context = timelineLayoutContext(input, buildTimelineStage(input)!, "extra-199");
-    assert.equal(context.sampledEvents, 160);
-    assert.equal(context.truncated, true);
+    assert.equal(context.sampledEvents, context.totalEvents);
+    assert.ok(context.sampledEvents > 160);
+    assert.equal(context.truncated, false);
     assert.equal(context.events[0].id, "extra-199");
-    assert.equal(context.events[0].title.length, 180);
+    assert.equal(context.events[0].title.length, 500);
+    const order = context.events.map((node) => node.id);
+    assert.deepEqual(parseTimelineLayoutResponse({ version: 1, plan: { eventOrder: order } }).plan.eventOrder, order);
     assert.ok(!JSON.stringify(context).includes("not-for-layout"));
     assert.equal(
       context.tracks.reduce((sum, track) => sum + track.events, 0),
@@ -227,6 +230,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       const original = globalThis.fetch;
       const requests: Record<string, unknown>[] = [];
       globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
+        if (!init.body) return new Response(JSON.stringify({ data: [] }));
         requests.push(JSON.parse(init.body));
         const content = requests.length === 1 ? '{"commands":["/rm a"]}' : JSON.stringify({ version: 1, plan });
         return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
@@ -238,9 +242,6 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
             baseUrl: "http://localhost/mock",
             model: "configured-model",
             apiKey: "",
-            temperature: 0,
-            maxTokens: 1000,
-            executionMode: "auto-edit",
           },
           timelineLayoutContext(
             { dag: graph(), selection: { type: "full" }, timelineSettings: { layout: "tracks" } },

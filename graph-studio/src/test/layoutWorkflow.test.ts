@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { requestProviderText } from "../ai/transport/providerTransport";
 import type { AiSettings } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
-import { COMPOUND_AI_SCHEMA, parseCompoundAiPlan } from "../layout/compound/ai/protocol";
+import { COMPOUND_AI_SCHEMA, parseCompoundAiPlan, parseCompoundAiDecision } from "../layout/compound/ai/protocol";
 import { LayoutRequestError, parseLayoutJson, requestLayoutPlan } from "../layout/shared/ai/request";
 import { routingHotspots } from "../layout/compound/diagnostics";
 import { layoutFixture } from "./compoundLayout.test";
@@ -18,9 +18,6 @@ const settings: AiSettings = {
   baseUrl: "https://test.invalid",
   apiKey: "",
   model: "layout-test",
-  temperature: 0.8,
-  maxTokens: 8192,
-  executionMode: "ask",
 };
 const parse = (value: unknown) => parseCompoundAiPlan(value, { direction: "DOWN", edgeIds: new Set(["ab"]) });
 async function mock(
@@ -30,6 +27,8 @@ async function mock(
   const original = globalThis.fetch,
     requests: Record<string, any>[] = [];
   globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
+    if (!init.body)
+      return new Response(JSON.stringify(String(_url).includes("/v1/models/") ? { max_tokens: 131072 } : { data: [] }));
     requests.push(JSON.parse(init.body));
     const r = replies[Math.min(requests.length - 1, replies.length - 1)];
     if (r.error === "network") throw new Error("offline");
@@ -67,6 +66,34 @@ const request = (signal = new AbortController().signal, provider = settings.prov
   });
 
 export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
+  defineTest("long instructions and large text or structured responses are preserved completely", async () => {
+    const message = "完整指令".repeat(4000),
+      value = { text: "完整回答".repeat(12000) };
+    assert.deepEqual(parseLayoutJson({ content: JSON.stringify(value), finishReason: "stop" }), value);
+    assert.deepEqual(parseLayoutJson({ content: "", structuredValue: value, finishReason: "stop" }), value);
+    const finish = parseCompoundAiDecision(
+      { action: "finish", candidateId: "current", summary: value.text },
+      { direction: "AUTO", edgeIds: new Set() },
+      { canEvaluate: true, candidateIds: new Set(["current"]) },
+    );
+    assert.equal(finish.action === "finish" && finish.summary, value.text);
+    await mock([{ content: JSON.stringify(value) }], async (requests) => {
+      const result = await requestLayoutPlan({
+        settings,
+        signal: new AbortController().signal,
+        context: { description: message },
+        message,
+        schema: { type: "object" },
+        instructions: "Return the full answer",
+        parse: (v) => v,
+      });
+      assert.deepEqual(result, value);
+      const input = JSON.parse(requests[0].messages[1].content);
+      assert.equal(input.request, message);
+      assert.equal(input.context.description, message);
+      assert.ok(!("max_tokens" in requests[0]));
+    });
+  }),
   defineTest("dedicated schema preserves direction and rejects commands, coordinates and invented IDs", () => {
     assert.equal(parse(valid).direction, "DOWN");
     for (const bad of [
@@ -99,8 +126,8 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
     await mock([{ content: '{"bad":"broken QUOTE' }, { content: JSON.stringify(valid) }], async (requests) => {
       assert.equal((await request()).direction, "DOWN");
       assert.equal(requests.length, 2);
-      assert.equal(requests[0].temperature, 0);
-      assert.equal(requests[0].max_tokens, 4096);
+      assert.equal(requests[0].temperature, undefined);
+      assert.equal(requests[0].max_tokens, undefined);
       assert.ok(!JSON.stringify(requests[1]).includes("broken QUOTE"));
       assert.ok(!JSON.stringify(requests).includes("/set Water"));
       assert.ok(JSON.stringify(requests[1]).includes("correction"));
@@ -129,15 +156,15 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
       async (requests) => {
         await request();
         assert.equal(requests.length, 2);
-        assert.equal(requests[0].max_tokens, 4096);
-        assert.equal(requests[1].max_tokens, 8192);
+        assert.equal(requests[0].max_tokens, undefined);
+        assert.equal(requests[1].max_tokens, undefined);
       },
     );
   }),
-  defineTest("DeepSeek layout disables thinking and has a budget independent of Console settings", async () => {
+  defineTest("Layout and Console share uncapped provider output defaults", async () => {
     await mock([{ content: JSON.stringify(valid) }], async (requests) => {
       await requestLayoutPlan({
-        settings: { ...settings, provider: "deepseek", model: "deepseek-v4-flash", maxTokens: 900 },
+        settings: { ...settings, provider: "deepseek", model: "deepseek-v4-flash" },
         signal: new AbortController().signal,
         context: {},
         message: "Arrange",
@@ -146,10 +173,10 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
         parse,
       });
       assert.deepEqual(requests[0].thinking, { type: "disabled" });
-      assert.equal(requests[0].max_tokens, 4096);
-      await requestProviderText({ ...settings, provider: "deepseek", maxTokens: 900 }, "system", "user");
+      assert.equal(requests[0].max_tokens, undefined);
+      await requestProviderText({ ...settings, provider: "deepseek" }, "system", "user");
       assert.equal(requests[1].thinking, undefined);
-      assert.equal(requests[1].max_tokens, 900);
+      assert.equal(requests[1].max_tokens, undefined);
     });
   }),
   defineTest("refusal and transport failures do not enter JSON repair", async () => {

@@ -15,7 +15,7 @@ export type AiResponse =
       };
       draftCommands?: ConsoleCommandDraft[];
       nextAction?: {
-        type: "await_user_confirmation" | "validate_then_execute" | "needs_inspection";
+        type: "validate_then_execute" | "needs_inspection";
         message: string;
       };
       memoryPatch?: Partial<WorkingMemory>;

@@ -9,7 +9,7 @@ import { applyCompoundAiPlan } from "./protocol";
 import { compoundAiContext, requestCompoundLayoutDecision } from "./request";
 import type { CompoundRuntimePlacement } from "../precise";
 
-export const COMPOUND_AI_BUDGET = { evaluations: 4, decisions: 6, timeoutMs: 240000 } as const;
+export const COMPOUND_AI_BUDGET = { evaluations: 4, decisions: 6 } as const;
 export interface CompoundAiEvaluation {
   candidateId: string;
   hypothesis: string;
@@ -169,7 +169,7 @@ export async function runCompoundAiLayout(options: {
       const stage = await options.compute(data, runtime);
       checkCancelled();
       const validation = validateLayoutGeometry(stage.compoundLayout!, stage.compoundLayout!.baseline);
-      if (!validation.valid) throw new Error(validation.errors.slice(0, 4).join(" "));
+      if (!validation.valid) throw new Error(validation.errors.join(" "));
       const feedback = compoundExecutionFeedback(problem, stage);
       candidates.set(candidateId, { data, stage, precise: !!runtime });
       signatures.set(signature, candidateId);
@@ -191,7 +191,7 @@ export async function runCompoundAiLayout(options: {
       });
     } catch (error) {
       checkCancelled();
-      const message = error instanceof Error ? error.message.slice(0, 1500) : "Layout solve failed.";
+      const message = error instanceof Error ? error.message : "Layout solve failed.";
       observations.push({
         candidateId,
         kind: "failed",

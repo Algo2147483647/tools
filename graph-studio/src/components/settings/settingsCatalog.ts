@@ -111,13 +111,6 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     "Provider & model",
     "ai assistant provider model base url api key test connection 服务商 模型 地址 密钥 连接",
   );
-  add(
-    "ai-advanced",
-    "ai",
-    "Advanced",
-    "Execution & generation",
-    "ai assistant execution ask review auto edit temperature tokens 自动 审核 执行 温度",
-  );
   return items;
 }
 

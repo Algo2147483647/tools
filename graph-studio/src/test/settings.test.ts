@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import AiSettingsPanel from "../components/settings/AiSettingsPanel";
 import NumericSetting from "../components/settings/NumericSetting";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
 import { resetAppearanceSection, resetChartStyleSection } from "../components/settings/appearanceSections";
@@ -39,6 +40,30 @@ import {
 import { defineSuite, defineTest } from "./harness";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("legacy AI generation and execution settings are dropped and controls are absent", () => {
+    const original = getInitialGraphPagePreferences();
+    const restored = parseGraphPagePreferences(
+      JSON.stringify({
+        ...original,
+        aiSettings: { ...original.aiSettings, executionMode: "ask", temperature: 0, maxTokens: 100 },
+      }),
+    )!;
+    assert.deepEqual(restored.aiSettings, original.aiSettings);
+    const markup = renderToStaticMarkup(
+      createElement(AiSettingsPanel, {
+        aiSettings: restored.aiSettings!,
+        aiBusy: false,
+        providerMenuOpen: false,
+        aiConnectionStatus: "idle",
+        onProviderMenuOpenChange: () => {},
+        onAiConnectionTestClick: () => {},
+        onAiSettingsChange: () => {},
+      }),
+    );
+    assert.doesNotMatch(markup, /Temperature|Console output tokens|Auto Edit|Execution/);
+    assert.match(markup, /Model/);
+  }),
+
   defineTest("layout tuples remain canonical through editing, export and preferences", () => {
     for (const key of ["canvas.padding", "canvas.minSize", "nodes.widths"] as const) {
       const style = updateAppearanceSchemaValue(

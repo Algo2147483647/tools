@@ -1,6 +1,7 @@
 import { isRecord } from "../../shared/json";
 import type { AiSettings } from "../types";
 import { readProviderStream, type AiProgressListener } from "./streaming";
+import { providerOutputLimit } from "./models";
 export interface ProviderReply {
   content: string;
   structuredValue?: unknown;
@@ -11,6 +12,8 @@ export interface ProviderReply {
   reasoningCharacters?: number;
 }
 export interface ProviderOutput {
+  /** Service-advertised capacity; null omits an optional limit, undefined discovers it. */
+  maxTokens?: number | null;
   onProgress?: AiProgressListener;
   schema?: Record<string, unknown>;
   purpose?: "layout" | "layout-planning";
@@ -33,7 +36,9 @@ export async function requestProviderText(
 ): Promise<string> {
   const reply = await requestProviderReply(settings, systemPrompt, userPrompt, signal, { onProgress });
   if (["length", "max_tokens", "max_output_tokens"].includes(reply.finishReason?.toLowerCase() ?? ""))
-    throw new Error("AI response was truncated. Increase Console output tokens or shorten the request.");
+    throw new Error(
+      "The model service truncated the response at its output or context limit. The application did not clip it.",
+    );
   if (reply.refusal) throw new Error(reply.refusal);
   if (!reply.content) throw new Error(reply.refusal || "AI response did not include message content.");
   return reply.content;
@@ -47,6 +52,8 @@ export async function requestProviderReply(
 ): Promise<ProviderReply> {
   output.onProgress?.({ type: "start" });
   try {
+    if (output.maxTokens === undefined)
+      output = { ...output, maxTokens: (await providerOutputLimit(settings, signal)) ?? null };
     switch (settings.provider) {
       case "anthropic":
         return await requestAnthropic(settings, systemPrompt, userPrompt, signal, output);
@@ -77,8 +84,7 @@ async function requestOpenAiCompatible(
     headers: buildJsonHeaders(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {}),
     body: JSON.stringify({
       model: settings.model,
-      temperature: settings.temperature,
-      max_tokens: settings.maxTokens,
+      ...(output.maxTokens == null ? {} : { max_tokens: output.maxTokens }),
       ...(output.onProgress ? { stream: true } : {}),
       ...(disableThinking
         ? { thinking: { type: "disabled" } }
@@ -121,6 +127,7 @@ async function requestAnthropic(
   signal?: AbortSignal,
   output: ProviderOutput = {},
 ): Promise<ProviderReply> {
+  if (output.maxTokens == null) throw new Error("Anthropic requires a service-advertised max_tokens capacity.");
   const response = await fetch(`${trimTrailingSlash(settings.baseUrl)}/v1/messages`, {
     method: "POST",
     signal,
@@ -134,8 +141,7 @@ async function requestAnthropic(
       system: systemPrompt,
       ...(output.onProgress ? { stream: true } : {}),
       ...(output.schema ? { output_config: { format: { type: "json_schema", schema: output.schema } } } : {}),
-      max_tokens: settings.maxTokens,
-      temperature: settings.temperature,
+      max_tokens: output.maxTokens,
       messages: [{ role: "user", content: userPrompt }],
     }),
   });
@@ -172,8 +178,7 @@ async function requestGemini(
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt }] },
       generationConfig: {
-        temperature: settings.temperature,
-        maxOutputTokens: settings.maxTokens,
+        ...(output.maxTokens == null ? {} : { maxOutputTokens: output.maxTokens }),
         ...(output.schema
           ? { responseFormat: { text: { mimeType: "APPLICATION_JSON", schema: output.schema } } }
           : { responseMimeType: "application/json" }),
@@ -214,8 +219,7 @@ async function requestOllama(
       stream: Boolean(output.onProgress),
       ...(output.schema ? { format: output.schema } : { format: "json" }),
       options: {
-        temperature: settings.temperature,
-        num_predict: settings.maxTokens,
+        num_predict: output.maxTokens ?? -1,
       },
       messages: [
         { role: "system", content: systemPrompt },

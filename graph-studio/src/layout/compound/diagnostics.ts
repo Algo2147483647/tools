@@ -1,9 +1,9 @@
 import type { LayoutProblem, LayoutGeometry } from "./layout-plan";
 import { close, GEOMETRY_EPSILON, routeSegments, segmentCrossesBox } from "./layout-quality";
 
-/** Bounded, actionable evidence. IDs refer to original business edges, never guessed labels. */
+/** Complete evidence for the visible graph. IDs refer to original business edges. */
 export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry = problem.baseline) {
-  const edges = problem.projection.edges.slice(0, 200);
+  const edges = problem.projection.edges;
   const items = new Map(problem.projection.items.map((item) => [item.id, item]));
   const ancestors = (id: string) => {
     const result = new Set<string>([id]);
@@ -23,11 +23,9 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
   const segments = edges.flatMap((edge) =>
     routeSegments(geometry.routes[edge.id]?.points ?? []).map(([a, b]) => ({ edge, a, b })),
   );
-  let comparisons = 0;
-  outer: for (let i = 0; i < segments.length; i++) {
+  for (let i = 0; i < segments.length; i++) {
     const a = segments[i];
     for (let j = i + 1; j < segments.length; j++) {
-      if (++comparisons > 30000) break outer;
       const b = segments[j];
       if (a.edge.id === b.edge.id) continue;
       const ah = close(a.a.y, a.b.y),
@@ -38,7 +36,7 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
         const length =
           Math.min(Math.max(ah ? a.a.x : a.a.y, ah ? a.b.x : a.b.y), Math.max(bh ? b.a.x : b.a.y, bh ? b.b.x : b.b.y)) -
           Math.max(Math.min(ah ? a.a.x : a.a.y, ah ? a.b.x : a.b.y), Math.min(bh ? b.a.x : b.a.y, bh ? b.b.x : b.b.y));
-        if (length > 12 && sharedRuns.length < 20) sharedRuns.push({ edgeIds, length: Math.round(length) });
+        if (length > 12) sharedRuns.push({ edgeIds, length: Math.round(length) });
       } else {
         const h = ah ? a : b,
           v = ah ? b : a,
@@ -47,8 +45,7 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
           v.a.x > Math.min(h.a.x, h.b.x) + e &&
           v.a.x < Math.max(h.a.x, h.b.x) - e &&
           h.a.y > Math.min(v.a.y, v.b.y) + e &&
-          h.a.y < Math.max(v.a.y, v.b.y) - e &&
-          crossings.length < 20
+          h.a.y < Math.max(v.a.y, v.b.y) - e
         )
           crossings.push({ edgeIds, x: v.a.x, y: h.a.y });
       }
@@ -81,7 +78,7 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
     const sourceAncestors = ancestors(edge.source),
       targetAncestors = ancestors(edge.target);
     for (const item of problem.projection.items) {
-      if (item.kind !== "group" || item.collapsed || containerPassages.length >= 24) continue;
+      if (item.kind !== "group" || item.collapsed) continue;
       const box = geometry.boxes[item.id];
       if (!box) continue;
       const unrelated = !sourceAncestors.has(item.id) && !targetAncestors.has(item.id);
@@ -105,21 +102,12 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
   return {
     scope: "visible-graph",
     sampledEdges: edges.length,
-    limits: { edges: 200, segmentPairs: 30000, findingsPerCategory: 20, containerPassages: 24 },
-    truncated:
-      edges.length < problem.projection.edges.length ||
-      comparisons > 30000 ||
-      crossings.length === 20 ||
-      sharedRuns.length === 20 ||
-      containerPassages.length === 24 ||
-      detours.length > 20 ||
-      crowdedPorts.length > 20 ||
-      groups.size > 20,
+    truncated: false,
     crossings,
     sharedRuns,
-    detours: detours.sort((a, b) => b.ratio - a.ratio).slice(0, 20),
+    detours: detours.sort((a, b) => b.ratio - a.ratio),
     containerPassages,
-    crowdedPorts: crowdedPorts.slice(0, 20),
-    groupConnections: [...groups.values()].sort((a, b) => b.edgeIds.length - a.edgeIds.length).slice(0, 20),
+    crowdedPorts,
+    groupConnections: [...groups.values()].sort((a, b) => b.edgeIds.length - a.edgeIds.length),
   };
 }

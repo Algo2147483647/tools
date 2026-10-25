@@ -10,7 +10,7 @@ import {
   markPendingBatchExecuted,
 } from "../../ai/session/harness";
 import { createPlanFromAiResponse } from "../../ai/session/plans";
-import { formatReviewInstruction, formatValidationReport, referencesPreviousWork } from "../../ai/session/presentation";
+import { formatValidationReport } from "../../ai/session/presentation";
 import { requestAiPlan, testAiConnection } from "../../ai/transport/providers";
 import type { AiHarnessState, AiSettings } from "../../ai/types";
 import { buildConsoleReviewCard } from "../../console/reviewCards";
@@ -42,7 +42,7 @@ export function useAiController({
 }) {
   const { entries, contextNodeKey, appendMessage, recordInput, upsertReview, setReviewStatus, runSource } =
     consoleController;
-  const { setHarness, graphRevision, runtimeHarness } = useAiSession(state, settings, upsertReview);
+  const { setHarness, graphRevision, runtimeHarness } = useAiSession(state, upsertReview);
   const [busy, setBusy] = useState(false);
   const { activity, onProgress, clear: clearActivity } = useAiActivity();
   useEffect(clearActivity, [state.document.generation, clearActivity]);
@@ -76,7 +76,7 @@ export function useAiController({
   }, [state.document.generation]);
   // Every path (new plan, continued plan and Apply) shares validation and execution.
   const validateAndExecute = useCallback(
-    (next: AiHarnessState, approved = false): AiHarnessState => {
+    (next: AiHarnessState): AiHarnessState => {
       const batch = next.pendingCommandBatch;
       if (!batch) return next;
       const validation = validateCommandBatch({
@@ -89,12 +89,8 @@ export function useAiController({
       });
       next = attachValidationToHarness(next, validation);
       if (next.activePlan) upsertReview(buildConsoleReviewCard(next.activePlan, validation));
-      if (!validation.allPassed) {
+      if (!shouldExecuteValidatedBatch(validation)) {
         appendMessage("error", formatValidationReport(validation));
-        return next;
-      }
-      if (!approved && !shouldExecuteValidatedBatch(settings.executionMode, validation)) {
-        appendMessage("info", formatReviewInstruction(settings.executionMode));
         return next;
       }
       if (!runSource(batch.commands.join("\n"))) {
@@ -107,17 +103,7 @@ export function useAiController({
       }
       return next;
     },
-    [
-      appearance,
-      appendMessage,
-      contextNodeKey,
-      graphRevision,
-      state.chartType,
-      runSource,
-      settings.executionMode,
-      state.dag,
-      upsertReview,
-    ],
+    [appearance, appendMessage, contextNodeKey, graphRevision, state.chartType, runSource, state.dag, upsertReview],
   );
 
   const request = useCallback(
@@ -127,8 +113,8 @@ export function useAiController({
       const turnId = createTurnId();
       let next = runtimeHarness();
       recordInput("ask>", message);
-      if (referencesPreviousWork(message) && next.pendingCommandBatch) {
-        setHarness(validateAndExecute(next, settings.executionMode === "review" && isExecutionApproval(message)));
+      if (isExecutionApproval(message) && next.pendingCommandBatch) {
+        setHarness(validateAndExecute(next));
         return;
       }
       if (!settings.baseUrl.trim() || !settings.model.trim()) {
@@ -234,7 +220,7 @@ export function useAiController({
         appendMessage("error", "No matching pending AI plan is available.");
         return;
       }
-      setHarness(validateAndExecute(next, true));
+      setHarness(validateAndExecute(next));
     },
     [appendMessage, runtimeHarness, validateAndExecute],
   );
@@ -314,5 +300,5 @@ export type AiController = ReturnType<typeof useAiController>;
 
 function isExecutionApproval(message: string): boolean {
   const normalized = message.trim().toLocaleLowerCase();
-  return ["apply", "approve", "execute", "run it", "do it", "complete"].some((phrase) => normalized.includes(phrase));
+  return /^(apply( it)?|approve|execute|run it|do it|执行|应用|继续执行)[.!。！]?$/u.test(normalized);
 }

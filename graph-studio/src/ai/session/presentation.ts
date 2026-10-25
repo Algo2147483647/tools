@@ -1,4 +1,4 @@
-import type { AiExecutionMode,ValidationReport } from "../types";
+import type { ValidationReport } from "../types";
 
 export function referencesPreviousWork(message: string): boolean {
   const normalized = message.toLocaleLowerCase();
@@ -30,14 +30,4 @@ export function formatValidationReport(validation: ValidationReport): string {
   ]
     .filter(Boolean)
     .join("\n");
-}
-
-export function formatReviewInstruction(mode: AiExecutionMode): string {
-  if (mode === "ask") {
-    return 'Ask mode: commands are saved as a pending plan. Type "apply it" after switching to Review or Auto Edit, or copy the commands to run them manually.';
-  }
-  if (mode === "review") {
-    return 'Review mode: preflight passed. Type "apply it" to execute the pending command batch.';
-  }
-  return "Auto Edit mode: command batch is ready.";
 }

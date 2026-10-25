@@ -23,9 +23,6 @@ const settings: AiSettings = {
   baseUrl: "https://fixture.invalid",
   apiKey: "",
   model: "fixture",
-  temperature: 0,
-  maxTokens: 900,
-  executionMode: "ask",
 };
 const appearance = getStageAppearance(getDefaultChartStyle("compound").appearance, "compound");
 const view = { focusGroupId: null, collapsedGroupIds: [] as string[] };
@@ -50,6 +47,7 @@ async function withModel(replies: unknown[], run: (requests: any[]) => Promise<v
   const original = globalThis.fetch;
   const requests: any[] = [];
   globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
+    if (!init.body) return new Response(JSON.stringify({ data: [{ id: settings.model, max_output_tokens: 131072 }] }));
     requests.push(JSON.parse(init.body));
     assert.ok(requests.length <= replies.length, "Unexpected model call beyond the bounded fixture");
     return new Response(
@@ -66,6 +64,38 @@ async function withModel(replies: unknown[], run: (requests: any[]) => Promise<v
 }
 
 export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness", [
+  defineTest("AI context includes every visible node, edge and full labels beyond previous sample limits", async () => {
+    const { problem } = await fixture();
+    const template = problem.projection.items.find((n) => n.id === "a")!;
+    const title = "title".repeat(100);
+    const items = Array.from({ length: 300 }, (_, i) => ({ ...template, id: `n${i}`, parentId: null, title }));
+    const edgeTemplate = problem.projection.edges[0];
+    const edges = items.slice(1).map((n, i) => ({
+      ...edgeTemplate,
+      id: `e${i}`,
+      source: `n${i}`,
+      target: n.id,
+      originalEdgeIds: [`e${i}`],
+      label: title,
+    }));
+    const large = {
+      ...problem,
+      projection: { ...problem.projection, items, edges },
+      baseline: {
+        ...problem.baseline,
+        boxes: Object.fromEntries(items.map((n, i) => [n.id, { x: i * 300, y: 36, width: 100, height: 100 }])),
+        routes: {},
+      },
+    };
+    const context = compoundAiContext(large);
+    assert.equal(context.context.nodes.length, 300);
+    assert.equal(context.context.edges.length, 299);
+    assert.equal(context.edgeIds.size, 299);
+    assert.equal(context.context.nodes[0].title, title);
+    assert.equal(context.context.edges[0].label, title);
+    assert.equal(context.context.truncated, false);
+    assert.equal(context.context.diagnosticsTruncated, false);
+  }),
   defineTest("precise positions survive routing, nested group fitting and serialization boundaries", async () => {
     const { input, problem } = await fixture();
     const placements = [
@@ -671,7 +701,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
             },
           });
           assert.deepEqual(requests[0].thinking, { type: "enabled" });
-          assert.equal(requests[0].max_tokens, 8192);
+          assert.equal(requests[0].max_tokens, 131072);
           assert.deepEqual(result.data, problem.stored);
           assert.equal(result.report.evaluations, 0);
           assert.equal(result.report.candidateId, "current");

@@ -6,6 +6,7 @@ import { buildAiHarnessStorageKey, parsePersistedAiHarnessState } from "../ai/se
 import { createPlanFromAiResponse } from "../ai/session/plans";
 import { referencesPreviousWork } from "../ai/session/presentation";
 import { parseAiResponse } from "../ai/protocol/responseParser";
+import { shouldExecuteValidatedBatch } from "../ai/execution/policy";
 import { validateCommandBatch } from "../ai/execution/validation";
 import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { createSampleDag } from "./fixtures";
@@ -17,14 +18,17 @@ const settings = (provider: AiProvider): AiSettings => ({
   baseUrl: "https://provider.invalid/",
   apiKey: "test",
   model: "test-model",
-  temperature: 0.1,
-  maxTokens: 100,
-  executionMode: "ask",
 });
 
 async function withFetch(fetcher: typeof fetch, run: () => Promise<void>) {
   const original = globalThis.fetch;
-  globalThis.fetch = fetcher;
+  globalThis.fetch = async (input, init) => {
+    if (!init?.body)
+      return new Response(
+        JSON.stringify(String(input).includes("/v1/models/") ? { max_tokens: 131072 } : { data: [] }),
+      );
+    return fetcher(input, init);
+  };
   try {
     await run();
   } finally {
@@ -55,7 +59,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
   }),
 
   defineTest("creates an active plan with a pending command batch from proposed changes", () => {
-    const harness = createInitialAiHarnessState("review");
+    const harness = createInitialAiHarnessState();
     const turnId = createTurnId();
     const plan = createPlanFromAiResponse({
       harness,
@@ -86,7 +90,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
   }),
 
   defineTest("validates command batches before execution and reports risk", () => {
-    const harness = createInitialAiHarnessState("review");
+    const harness = createInitialAiHarnessState();
     const turnId = createTurnId();
     const plan = createPlanFromAiResponse({
       harness,
@@ -112,6 +116,10 @@ export const aiHarnessSuite = defineSuite("ai harness", [
       graphRevision: "0",
     });
     assert.equal(validation.allPassed, true);
+    assert.equal(shouldExecuteValidatedBatch(validation), true);
+    assert.equal(shouldExecuteValidatedBatch({ ...validation, riskLevel: "high" }), true);
+    assert.equal(shouldExecuteValidatedBatch({ ...validation, allPassed: false }), false);
+    assert.equal(shouldExecuteValidatedBatch({ ...validation, results: [] }), false);
     assert.equal(validation.riskLevel, "medium");
     assert.match(validation.summary, /Preflight passed/);
     const diffPreview = validation.results.flatMap((result) => result.expectedDiff || []);
@@ -120,7 +128,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
   }),
 
   defineTest("validates appearance command batches and reports CSS/appearance-set diffs", () => {
-    const harness = createInitialAiHarnessState("review");
+    const harness = createInitialAiHarnessState();
     const turnId = createTurnId();
     const plan = createPlanFromAiResponse({
       harness,
@@ -156,7 +164,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
   }),
 
   defineTest("parses persisted harness state with active plan and pending batch", () => {
-    const harness = createInitialAiHarnessState("review");
+    const harness = createInitialAiHarnessState();
     const turnId = createTurnId();
     const plan = createPlanFromAiResponse({
       harness,
@@ -171,9 +179,9 @@ export const aiHarnessSuite = defineSuite("ai harness", [
       },
     });
     const next = installPlan(harness, plan);
-    const parsed = parsePersistedAiHarnessState(JSON.stringify(next), "ask");
+    const parsed = parsePersistedAiHarnessState(JSON.stringify({ ...next }));
     assert.ok(parsed);
-    assert.equal(parsed.mode, "review");
+    assert.ok(!("mode" in parsed));
     assert.equal(parsed.activePlan?.title, plan.title);
     assert.deepEqual(parsed.pendingCommandBatch?.commands, ["/add Subgroup -p A"]);
   }),

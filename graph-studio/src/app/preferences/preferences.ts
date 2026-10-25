@@ -4,7 +4,6 @@ import {
   writeStoredText,
   type StorageLike,
 } from "../../shared/browser/browserStorage";
-import { normalizeAiExecutionMode } from "../../ai/execution/policy";
 import type { AiProvider, AiSettings } from "../../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../../graph/types";
 import { mapChartTypes, getDefaultChartStyle } from "../../schema/appearance/styles";
@@ -29,9 +28,6 @@ const DEFAULT_AI_SETTINGS: AiSettings = {
   baseUrl: "https://api.openai.com/v1",
   apiKey: "",
   model: "gpt-4.1-mini",
-  temperature: 0.2,
-  maxTokens: 900,
-  executionMode: "ask",
 };
 
 export function getInitialGraphPagePreferences(): GraphPagePreferences {
@@ -144,13 +140,6 @@ export function clampConsoleSidebarWidth(width: number): number {
   return Math.round(width);
 }
 
-function clampNumericPreference(value: unknown, fallback: number, min: number, max: number): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return fallback;
-  }
-  return Math.max(min, Math.min(max, Math.round(value)));
-}
-
 function sanitizeAiSettings(input: object): AiSettings {
   const record = input as Record<string, unknown>;
   return {
@@ -158,9 +147,6 @@ function sanitizeAiSettings(input: object): AiSettings {
     baseUrl: sanitizeString(record.baseUrl, DEFAULT_AI_SETTINGS.baseUrl),
     apiKey: sanitizeString(record.apiKey, DEFAULT_AI_SETTINGS.apiKey),
     model: sanitizeString(record.model, DEFAULT_AI_SETTINGS.model),
-    temperature: clampFloatPreference(record.temperature, DEFAULT_AI_SETTINGS.temperature, 0, 2),
-    maxTokens: clampNumericPreference(record.maxTokens, DEFAULT_AI_SETTINGS.maxTokens, 128, 8000),
-    executionMode: normalizeAiExecutionMode(record.executionMode),
   };
 }
 
@@ -176,11 +162,4 @@ function sanitizeAiProvider(value: unknown): AiProvider {
 
 function sanitizeString(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
-}
-
-function clampFloatPreference(value: unknown, fallback: number, min: number, max: number): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return fallback;
-  }
-  return Math.max(min, Math.min(max, value));
 }

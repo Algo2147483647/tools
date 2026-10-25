@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { requestProviderReply, requestProviderText } from "../ai/transport/providerTransport";
 import { readProviderStream, type AiProgressEvent } from "../ai/transport/streaming";
 import { listProviderModels } from "../ai/transport/models";
+import { providerOutputLimit } from "../ai/transport/models";
 import { parseLayoutJson } from "../layout/shared/ai/request";
 import type { AiProvider, AiSettings } from "../ai/types";
 import { defineSuite, defineTest } from "./harness";
@@ -12,9 +13,6 @@ const settings: AiSettings = {
   baseUrl: "https://test.invalid",
   apiKey: "test-key",
   model: "test",
-  temperature: 0,
-  maxTokens: 8192,
-  executionMode: "ask",
 };
 const sse = (events: unknown[]) =>
   events.map((e) => `data: ${typeof e === "string" ? e : JSON.stringify(e)}\r\n\r\n`).join("");
@@ -49,6 +47,68 @@ const delta = (value: Record<string, unknown>, finish: string | null = null) => 
 });
 
 export const aiTransportSuite = defineSuite("AI transport streaming and model discovery", [
+  defineTest("All callers use advertised capacity and provider sampling defaults", async () => {
+    for (const provider of ["deepseek", "openai-compatible", "gemini", "anthropic", "ollama"] as const) {
+      const configured = { ...settings, provider };
+      let sent: any;
+      await mock(
+        (async (_url, init) => {
+          if (!init?.body)
+            return new Response(
+              JSON.stringify(
+                provider === "anthropic"
+                  ? { max_tokens: 131072 }
+                  : provider === "gemini"
+                    ? { models: [{ name: "models/test", outputTokenLimit: 65536 }] }
+                    : { data: [{ id: "test", max_output_tokens: 393216 }] },
+              ),
+            );
+          sent = JSON.parse(String(init.body));
+          return new Response(
+            JSON.stringify(
+              provider === "anthropic"
+                ? { content: [{ type: "text", text: "{}" }], stop_reason: "end_turn" }
+                : provider === "gemini"
+                  ? { candidates: [{ content: { parts: [{ text: "{}" }] }, finishReason: "STOP" }] }
+                  : provider === "ollama"
+                    ? { message: { content: "{}" }, done_reason: "stop" }
+                    : { choices: [{ message: { content: "{}" }, finish_reason: "stop" }] },
+            ),
+          );
+        }) as typeof fetch,
+        async () => {
+          await requestProviderReply(configured, "system", "user");
+          assert.equal(sent.temperature, undefined);
+          assert.equal(sent.generationConfig?.temperature, undefined);
+          assert.equal(sent.options?.temperature, undefined);
+          assert.equal(
+            provider === "gemini"
+              ? sent.generationConfig.maxOutputTokens
+              : provider === "ollama"
+                ? sent.options.num_predict
+                : sent.max_tokens,
+            provider === "anthropic" ? 131072 : provider === "gemini" ? 65536 : provider === "ollama" ? -1 : 393216,
+          );
+        },
+      );
+    }
+    await mock((async () => new Response("unsupported", { status: 404 })) as typeof fetch, async () => {
+      assert.equal(await providerOutputLimit(settings, new AbortController().signal), undefined);
+      await assert.rejects(
+        () => providerOutputLimit({ ...settings, provider: "anthropic" }, new AbortController().signal),
+        /requires max_tokens/,
+      );
+    });
+  }),
+  defineTest("complete streams larger than eight megabytes are retained without clipping", async () => {
+    const content = JSON.stringify({ text: "x".repeat(8_100_000) });
+    const response = new Response(sse([delta({ content }, "stop"), "[DONE]"]), {
+      headers: { "content-type": "text/event-stream" },
+    });
+    const result = await readProviderStream(response, "chat", () => {});
+    assert.equal(result!.content, content);
+    assert.equal(parseLayoutJson(result!).text, "x".repeat(8_100_000));
+  }),
   defineTest("run transcripts retain earlier requests and final chunks after completion", () => {
     let activity = updateAiActivity(emptyAiActivity(), { type: "start" });
     activity = updateAiActivity(activity, { type: "reasoning", text: "First analysis" });
@@ -63,8 +123,8 @@ export const aiTransportSuite = defineSuite("AI transport streaming and model di
     assert.equal(activity.history[0].reasoning, "First analysis");
     for (let i = 0; i < 20; i++) activity = updateAiActivity(activity, { type: "start" });
     activity = updateAiActivity(activity, { type: "content", text: "a".repeat(20000) });
-    assert.equal(activity.history.length, 15);
-    assert.equal(activity.content.length, 16000);
+    assert.equal(activity.history.length, 21);
+    assert.equal(activity.content.length, 20000);
     assert.equal(activity.received, 20000);
   }),
   defineTest("console rejects a truncated stream even when its content happens to be valid JSON", async () => {
@@ -113,7 +173,7 @@ export const aiTransportSuite = defineSuite("AI transport streaming and model di
       "chat",
       () => {},
     );
-    assert.throws(() => parseLayoutJson(limited!), /cut off/);
+    assert.throws(() => parseLayoutJson(limited!), /provider stopped/);
   }),
   defineTest("abort stops live delivery and cancels the reader", async () => {
     const abort = new AbortController();
@@ -230,6 +290,8 @@ export const aiTransportSuite = defineSuite("AI transport streaming and model di
     for (const provider of ["openai-compatible", "deepseek", "anthropic", "gemini", "ollama"] as AiProvider[]) {
       await mock(
         async (url, init) => {
+          if (!init?.body)
+            return new Response(JSON.stringify(provider === "anthropic" ? { max_tokens: 131072 } : { data: [] }));
           const body = JSON.parse(String(init!.body));
           if (provider === "gemini") {
             assert.match(String(url), /:streamGenerateContent/);

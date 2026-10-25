@@ -190,6 +190,6 @@ function normalizeRisk(value: unknown): "low" | "medium" | "high" | undefined {
   return value === "low" || value === "medium" || value === "high" ? value : undefined;
 }
 
-function normalizeNextAction(value: string): "await_user_confirmation" | "validate_then_execute" | "needs_inspection" {
-  return value === "validate_then_execute" || value === "needs_inspection" ? value : "await_user_confirmation";
+function normalizeNextAction(value: string): "validate_then_execute" | "needs_inspection" {
+  return value === "validate_then_execute" || value === "needs_inspection" ? value : "validate_then_execute";
 }

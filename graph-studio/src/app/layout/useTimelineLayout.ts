@@ -119,11 +119,6 @@ export function useTimelineLayout(
     setBusy(true);
     clearActivity();
     setMessage("Planning timeline layout…");
-    let timedOut = false;
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      abort.abort();
-    }, 90000);
     try {
       const response = await requestTimelineLayout(
         initial.settings,
@@ -136,7 +131,6 @@ export function useTimelineLayout(
         },
       );
       if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
-      clearTimeout(timeout);
       setMessage("Calculating preview…");
       const payload: TimelineWorkerInput = { input: initial.input, baseline: initial.baseline, plan: response.plan };
       pending.job = startLayoutWorker<TimelineWorkerInput, TimelineLayoutCandidate>({
@@ -159,10 +153,8 @@ export function useTimelineLayout(
       });
       setMessage("Preview ready.");
     } catch (error) {
-      if (sequence.current === id)
-        setMessage(timedOut ? "AI request timed out. Try again." : presentLayoutError(error).message);
+      if (sequence.current === id) setMessage(presentLayoutError(error).message);
     } finally {
-      clearTimeout(timeout);
       pending.job?.cancel();
       if (sequence.current === id) {
         active.current = null;

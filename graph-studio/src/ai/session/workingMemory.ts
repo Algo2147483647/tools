@@ -8,7 +8,6 @@ export function createEmptyWorkingMemory(): WorkingMemory {
     },
     userPreferences: {
       preferredLanguage: "auto",
-      requireReviewForDestructiveChanges: true,
     },
     unresolvedQuestions: [],
   };

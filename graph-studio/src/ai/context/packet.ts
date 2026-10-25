@@ -28,8 +28,6 @@ interface BuildContextInput {
   consoleEntries: ConsoleHistoryEntry[];
 }
 
-const MAX_RECENT_CONSOLE_LINES = 16;
-
 export function buildAiContextPacket(input: BuildContextInput): AiContextPacket {
   const graphContext = buildAiGraphContext({
     dag: input.dag,
@@ -46,9 +44,7 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
       language: "auto",
       responseProtocolVersion: "v2",
       editPolicy: {
-        mode: input.harness.mode,
-        autoEditEnabled: input.harness.mode === "auto-edit",
-        requireReviewForDestructiveChanges: true,
+        execution: "validate_then_execute",
       },
     },
     graph: {
@@ -81,18 +77,13 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
       ],
     },
     memory: {
-      consoleHistory: input.consoleEntries.slice(-MAX_RECENT_CONSOLE_LINES).map(({ tone, text }) => ({ tone, text })),
+      consoleHistory: input.consoleEntries.map(({ tone, text }) => ({ tone, text })),
       activePlan: input.harness.activePlan,
       workingMemory: input.harness.workingMemory,
     },
     execution: {
       pendingCommandBatch: input.harness.pendingCommandBatch,
       lastValidation: input.harness.pendingCommandBatch?.validation || input.harness.activePlan?.validation,
-    },
-    budget: {
-      maxInputTokens: 9000,
-      reservedOutputTokens: 1400,
-      compressionLevel: "light",
     },
   };
 }

@@ -10,12 +10,10 @@ import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
 import { contentOrigin } from "../precise";
 
 export function compoundAiContext(problem: LayoutProblem) {
-  const nodes = [...problem.projection.items]
-    .sort((a, b) => a.depth - b.depth || a.id.localeCompare(b.id))
-    .slice(0, 160);
+  const nodes = [...problem.projection.items].sort((a, b) => a.depth - b.depth || a.id.localeCompare(b.id));
   const ids = new Set(nodes.map((n) => n.id));
-  const edges = problem.projection.edges.filter((e) => ids.has(e.source) && ids.has(e.target)).slice(0, 240);
-  const edgeIds = new Set(edges.flatMap((e) => e.originalEdgeIds).slice(0, 240));
+  const edges = problem.projection.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
+  const edgeIds = new Set(edges.flatMap((e) => e.originalEdgeIds));
   const hotspots = routingHotspots(problem);
   const scopes = new Map(
     [...buildScopes(problem.projection).scopes]
@@ -30,7 +28,6 @@ export function compoundAiContext(problem: LayoutProblem) {
   );
   const filterHotspots = <T extends { edgeIds: string[] }>(entries: T[]) =>
     entries
-      .slice(0, 12)
       .map((entry) => ({ ...entry, edgeIds: entry.edgeIds.filter((id) => edgeIds.has(id)) }))
       .filter((entry) => entry.edgeIds.length);
   const activeConstraints = problem.stored.constraints.filter((c) =>
@@ -55,7 +52,7 @@ export function compoundAiContext(problem: LayoutProblem) {
       currentConstraints: activeConstraints,
       nodes: nodes.map((n) => ({
         id: n.id,
-        title: n.title.slice(0, 120),
+        title: n.title,
         parentId: n.parentId,
         external: n.external,
         collapsed: n.collapsed,
@@ -76,7 +73,7 @@ export function compoundAiContext(problem: LayoutProblem) {
           source: e.source,
           target: e.target,
           ids: e.originalEdgeIds.filter((id) => edgeIds.has(id)),
-          label: e.label.slice(0, 160),
+          label: e.label,
           relativePosition: (() => {
             const a = problem.baseline.boxes[e.source],
               b = problem.baseline.boxes[e.target];
@@ -85,10 +82,7 @@ export function compoundAiContext(problem: LayoutProblem) {
             return Math.abs(dx) >= Math.abs(dy) ? (dx >= 0 ? "east" : "west") : dy >= 0 ? "south" : "north";
           })(),
         })),
-      truncated:
-        nodes.length < problem.projection.items.length ||
-        edges.length < problem.projection.edges.length ||
-        edgeIds.size < edges.reduce((sum, e) => sum + e.originalEdgeIds.length, 0),
+      truncated: false,
       quality: measureLayout(problem, problem.baseline),
       crossings: filterHotspots(hotspots.crossings),
       sharedRuns: filterHotspots(hotspots.sharedRuns),

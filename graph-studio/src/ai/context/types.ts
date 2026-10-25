@@ -1,5 +1,5 @@
 import { type CommandBatch, type ValidationReport } from "../execution/types";
-import { type ActionPlan, type AiExecutionMode, type WorkingMemory } from "../session/types";
+import { type ActionPlan, type WorkingMemory } from "../session/types";
 import { type AiSettings } from "../transport/types";
 
 export interface AiGraphContext {
@@ -21,9 +21,7 @@ export interface AiContextPacket {
     language: "zh" | "en" | "auto";
     responseProtocolVersion: "v2";
     editPolicy: {
-      mode: AiExecutionMode;
-      autoEditEnabled: boolean;
-      requireReviewForDestructiveChanges: boolean;
+      execution: "validate_then_execute";
     };
   };
   graph: AiGraphContext & {
@@ -44,10 +42,5 @@ export interface AiContextPacket {
   execution: {
     pendingCommandBatch?: CommandBatch;
     lastValidation?: ValidationReport;
-  };
-  budget: {
-    maxInputTokens: number;
-    reservedOutputTokens: number;
-    compressionLevel: "none" | "light" | "aggressive";
   };
 }

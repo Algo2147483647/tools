@@ -2,6 +2,7 @@ import type { AiSettings } from "../../../ai/types";
 import { ProviderError, requestProviderReply, type ProviderReply } from "../../../ai/transport/providerTransport";
 import { isRecord } from "../../../shared/json";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
+import { providerOutputLimit } from "../../../ai/transport/models";
 
 export type LayoutErrorCode =
   "truncated" | "syntax" | "schema" | "semantic" | "refusal" | "completion" | "transport" | "cancelled" | "solve";
@@ -29,17 +30,13 @@ export function parseLayoutJson(reply: ProviderReply): Record<string, unknown> {
   if (["length", "max_tokens", "max_output_tokens"].includes(reason ?? ""))
     throw new LayoutRequestError(
       "truncated",
-      "The layout response was cut off. Return a complete, smaller declaration.",
+      "The provider stopped generation at its output or context limit. The application did not truncate the response.",
       undefined,
       reply,
     );
   if (reason && !["stop", "end_turn", "stop_sequence"].includes(reason))
     throw new LayoutRequestError("completion", `Unexpected response ending: ${reason}.`, undefined, reply);
-  if (reply.content.length > 32000)
-    throw new LayoutRequestError("schema", "Layout response exceeds 32,000 characters.", "/", reply);
   let value: unknown = reply.structuredValue;
-  if (value !== undefined && JSON.stringify(value).length > 32000)
-    throw new LayoutRequestError("schema", "Structured layout exceeds 32,000 characters.", "/", reply);
   if (value === undefined) {
     try {
       value = JSON.parse(reply.content.trim());
@@ -89,22 +86,28 @@ export async function requestLayoutPlan<T>(options: {
     options.instructions,
     JSON.stringify(options.schema),
   ].join("\n");
-  const original = JSON.stringify({ context: options.context, request: options.message.slice(0, 8000) });
+  const original = JSON.stringify({ context: options.context, request: options.message });
   let prompt = original;
-  // Console settings default to 900 tokens; layout has its own bounded output budget.
-  let tokenLimit = options.purpose === "layout-planning" ? 8192 : 4096;
+  let tokenLimit: number | undefined;
+  try {
+    tokenLimit = await providerOutputLimit(options.settings, signal);
+  } catch (error) {
+    throw new LayoutRequestError(
+      signal.aborted ? "cancelled" : "transport",
+      error instanceof Error ? error.message : "Could not read model capacity.",
+    );
+  }
   let schema: Record<string, unknown> | undefined = options.schema;
   for (let attempt = 1; attempt <= 2; attempt++) {
     if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout request cancelled.");
     let reply: ProviderReply | undefined;
     try {
-      reply = await requestProviderReply(
-        { ...options.settings, temperature: 0, maxTokens: tokenLimit },
-        system,
-        prompt,
-        signal,
-        { schema, purpose: options.purpose ?? "layout", onProgress: options.onProgress },
-      );
+      reply = await requestProviderReply(options.settings, system, prompt, signal, {
+        schema,
+        purpose: options.purpose ?? "layout",
+        onProgress: options.onProgress,
+        maxTokens: tokenLimit ?? null,
+      });
       if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout request cancelled.");
       return options.parse(parseLayoutJson(reply));
     } catch (cause) {
@@ -132,16 +135,13 @@ export async function requestLayoutPlan<T>(options: {
       if (attempt === 2 || (!unsupported && !["truncated", "syntax", "schema", "semantic"].includes(error.code)))
         throw error;
       if (unsupported) schema = undefined;
-      if (error.code === "truncated") tokenLimit = options.purpose === "layout-planning" ? 16384 : 8192;
       options.onRetry?.();
-      // Include bounded validation feedback, not the malformed response or generic editor instructions.
+      // Include validation feedback, not the malformed response or generic editor instructions.
       prompt = JSON.stringify({
         original: JSON.parse(original),
-        correction: { code: error.code, path: error.path, message: error.message.slice(0, 1000) },
+        correction: { code: error.code, path: error.path, message: error.message },
         instruction:
-          options.purpose === "layout-planning"
-            ? "Regenerate one complete action matching the schema. Correct the reported issue while preserving your design intent. Do not continue a partial response. If truncated, shorten prose and remove redundant constraints."
-            : "Regenerate one complete object. Use at most 8 constraints and at most 32 entries in each order. Do not continue a partial response.",
+          "Regenerate one complete object matching the schema. Correct the reported issue while preserving your design intent. Do not continue a partial response. The application does not truncate input or output; provider capacity still applies.",
       });
     }
   }
@@ -157,7 +157,7 @@ export function presentLayoutError(cause: unknown): { message: string; detail: s
     error.code === "cancelled"
       ? "Layout cancelled."
       : error.code === "truncated"
-        ? "AI layout response was truncated."
+        ? "The model service truncated the AI layout response."
         : ["syntax", "schema", "semantic"].includes(error.code)
           ? "AI layout response was invalid."
           : error.code === "refusal"
@@ -172,7 +172,11 @@ export function presentLayoutError(cause: unknown): { message: string; detail: s
       error.path,
       error.response?.finishReason,
       error.response?.requestId,
-      error.tokenLimit === undefined ? undefined : `output limit=${error.tokenLimit}`,
+      error.tokenLimit === undefined
+        ? "output limit=provider default (not set by app)"
+        : error.tokenLimit === -1
+          ? "output limit=unlimited generation (Ollama)"
+          : `provider output capacity=${error.tokenLimit}`,
       usageDetail(error.response),
       error.message,
     ]

@@ -19,7 +19,7 @@ export const emptyAiActivity = (): AiActivity => ({
   history: [],
 });
 
-/** Bounded, session-only transcript of all requests in the current run. */
+/** Complete, session-only transcript of all requests in the current run. */
 export function updateAiActivity(current: AiActivity, event: AiProgressEvent): AiActivity {
   if (event.type === "start") {
     const { history, ...previous } = current;
@@ -27,13 +27,13 @@ export function updateAiActivity(current: AiActivity, event: AiProgressEvent): A
       ...emptyAiActivity(),
       request: current.request + 1,
       streaming: true,
-      history: current.request ? [...history, { ...previous, streaming: false }].slice(-15) : history,
+      history: current.request ? [...history, { ...previous, streaming: false }] : history,
     };
   }
   if (event.type === "end") return { ...current, streaming: false };
   return {
     ...current,
-    [event.type]: (current[event.type] + event.text).slice(-16000),
+    [event.type]: current[event.type] + event.text,
     received: current.received + event.text.length,
   };
 }

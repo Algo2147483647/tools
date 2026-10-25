@@ -1,10 +1,5 @@
-import { type ConsoleInstruction,parseConsoleSource } from "../../console/dsl";
-import type { AiExecutionMode,AiRiskLevel,ValidationReport } from "../types";
-
-export function normalizeAiExecutionMode(value: unknown, fallback: AiExecutionMode = "ask"): AiExecutionMode {
-  if (value === undefined || value === null) return fallback;
-  return value === "ask" || value === "review" || value === "auto-edit" ? value : "ask";
-}
+import { type ConsoleInstruction, parseConsoleSource } from "../../console/dsl";
+import type { AiRiskLevel, ValidationReport } from "../types";
 
 export function classifyCommandRisk(source: string): AiRiskLevel {
   const parsed = parseConsoleSource(source);
@@ -24,14 +19,8 @@ export function isDestructiveCommand(source: string): boolean {
   );
 }
 
-export function shouldExecuteValidatedBatch(mode: AiExecutionMode, validation: ValidationReport): boolean {
-  return (
-    mode === "auto-edit" &&
-    validation.allPassed &&
-    validation.results.length > 0 &&
-    validation.riskLevel !== "high" &&
-    validation.results.every((result) => result.valid && !isDestructiveCommand(result.command))
-  );
+export function shouldExecuteValidatedBatch(validation: ValidationReport): boolean {
+  return validation.allPassed && validation.results.length > 0 && validation.results.every((result) => result.valid);
 }
 
 function classifyInstructionRisk(instruction: ConsoleInstruction): AiRiskLevel {

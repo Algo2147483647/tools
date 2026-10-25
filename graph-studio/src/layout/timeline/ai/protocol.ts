@@ -11,8 +11,8 @@ export const TIMELINE_AI_SCHEMA: Record<string, unknown> = {
       type: "object",
       additionalProperties: false,
       properties: {
-        trackOrder: { type: "array", maxItems: 160, items: { type: "string" } },
-        eventOrder: { type: "array", maxItems: 160, items: { type: "string" } },
+        trackOrder: { type: "array", items: { type: "string" } },
+        eventOrder: { type: "array", items: { type: "string" } },
         edgeRouting: { type: "string", enum: ["avoid", "direct"] },
       },
     },
@@ -29,10 +29,6 @@ export function parseTimelineLayoutResponse(
   );
   if (value.version !== 1) throw new LayoutRequestError("schema", "Expected version 1.", "/version");
   const planValue = layoutObject(value.plan, ["trackOrder", "eventOrder", "edgeRouting"], "/plan");
-  for (const key of ["trackOrder", "eventOrder"]) {
-    if (Array.isArray(planValue[key]) && planValue[key].length > 160)
-      throw new LayoutRequestError("schema", "Return at most 160 entries.", `/plan/${key}`);
-  }
   let plan;
   try {
     plan = parseTimelineLayoutPlan(planValue);

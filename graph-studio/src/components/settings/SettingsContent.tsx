@@ -180,8 +180,6 @@ export function SettingsContent({
             onAiConnectionTestClick={handleAiConnectionTestClick}
             onAiSettingsChange={onAiSettingsChange}
             showConnection={results.some((item) => item.id === "ai-connection")}
-            showAdvanced={results.some((item) => item.id === "ai-advanced")}
-            expandAdvanced={Boolean(query.trim())}
           />
         ) : null}
       </div>

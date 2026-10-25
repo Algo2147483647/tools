@@ -4,14 +4,13 @@ import {
   writeStoredText,
   type StorageLike,
 } from "../../shared/browser/browserStorage";
-import type { AiExecutionMode, AiHarnessState } from "../types";
+import type { AiHarnessState } from "../types";
 import { parsePersistedAiHarnessState } from "./restore";
 
 const AI_HARNESS_STORAGE_PREFIX = "graph-studio:ai-harness:";
 
 export function loadPersistedAiHarnessState(
   graphId: string,
-  mode: AiExecutionMode,
   storage: StorageLike | null = getBrowserStorage(),
 ): AiHarnessState | null {
   if (!storage) {
@@ -19,7 +18,7 @@ export function loadPersistedAiHarnessState(
   }
   try {
     const raw = readStoredText(buildAiHarnessStorageKey(graphId), storage);
-    return parsePersistedAiHarnessState(raw, mode);
+    return parsePersistedAiHarnessState(raw);
   } catch {
     return null;
   }

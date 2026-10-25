@@ -1,6 +1,6 @@
-import { classifyCommandRisk,isDestructiveCommand } from "../execution/policy";
-import { createId,maxRisk } from "../execution/risk";
-import type { ActionPlan,AiHarnessState,AiResponse,CommandBatch,ProposedChange } from "../types";
+import { classifyCommandRisk } from "../execution/policy";
+import { createId, maxRisk } from "../execution/risk";
+import type { ActionPlan, AiHarnessState, AiResponse, CommandBatch, ProposedChange } from "../types";
 
 interface PlanInput {
   response: Extract<AiResponse, { kind: "propose_changes" | "run_console" | "inspect" }>;
@@ -60,7 +60,6 @@ export function createPlanFromAiResponse(input: PlanInput): ActionPlan {
     commandBatch,
     ui: {
       displaySummary: buildPlanSummary(title, changes, commandBatch),
-      requiresUserConfirmation: riskLevel !== "low" || Boolean(commandBatch?.commands.some(isDestructiveCommand)),
       riskLevel,
     },
     timestamps: {

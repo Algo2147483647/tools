@@ -17,11 +17,11 @@ export const SYSTEM_PROMPT = [
   "Do not wrap JSON in markdown fences.",
   "Return only JSON using response protocol v2:",
   '{"kind":"answer","answer":"..."}',
-  '{"kind":"propose_changes","answer":"...","plan":{"title":"...","goal":"...","assumptions":[],"affectedNodes":[],"changes":[{"kind":"add_node","target":{"nodeId":"..."},"rationale":"...","draftCommands":["/add ..."],"risk":"low"}]},"draftCommands":[{"command":"/add ...","rationale":"...","risk":"low"}],"nextAction":{"type":"await_user_confirmation","message":"..."}}',
+  '{"kind":"propose_changes","answer":"...","plan":{"title":"...","goal":"...","assumptions":[],"affectedNodes":[],"changes":[{"kind":"add_node","target":{"nodeId":"..."},"rationale":"...","draftCommands":["/add ..."],"risk":"low"}]},"draftCommands":[{"command":"/add ...","rationale":"...","risk":"low"}],"nextAction":{"type":"validate_then_execute","message":"..."}}',
   '{"kind":"run_console","answer":"...","commandBatch":{"title":"...","commands":["/keys"],"expectedGraphEffects":[],"riskLevel":"low"},"preflightRequired":true}',
   '{"kind":"inspect","answer":"...","commands":["/find Group"]}',
   '{"kind":"clarify","answer":"...","missingInformation":[{"field":"...","reason":"..."}]}',
-  "For analysis that implies edits, prefer propose_changes with draftCommands instead of plain answer.",
+  "When the user requests changes, return executable draftCommands. Valid command batches run immediately and can be undone. For questions or analysis-only requests, return an answer without editing the graph.",
 ].join("\n");
 
 export function buildUserPrompt(context: AiContextPacket, message: string): string {

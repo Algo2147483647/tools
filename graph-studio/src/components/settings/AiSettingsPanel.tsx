@@ -1,16 +1,13 @@
 import { AI_PROVIDER_ENTRIES, AI_PROVIDER_PRESETS } from "../../ai/transport/providerPresets";
-import type { AiExecutionMode, AiProvider, AiSettings } from "../../ai/types";
+import type { AiProvider, AiSettings } from "../../ai/types";
 import Icon from "../ui/Icon";
 import ProviderIcon from "./ProviderIcon";
 import AiModelPicker from "./AiModelPicker";
-import { clampFloatInput, clampNumberInput } from "./settingsUtils";
 
 export type AiConnectionStatus = "idle" | "testing" | "success" | "error";
 
 interface AiSettingsPanelProps {
   showConnection?: boolean;
-  showAdvanced?: boolean;
-  expandAdvanced?: boolean;
   aiSettings: AiSettings;
   aiBusy: boolean;
   providerMenuOpen: boolean;
@@ -22,8 +19,6 @@ interface AiSettingsPanelProps {
 
 export default function AiSettingsPanel({
   showConnection = true,
-  showAdvanced = true,
-  expandAdvanced = false,
   aiSettings,
   aiBusy,
   providerMenuOpen,
@@ -122,63 +117,6 @@ export default function AiSettingsPanel({
             {aiConnectionButtonText}
           </button>
         </>
-      )}
-      {showAdvanced && (
-        <details className="settings-disclosure" open={expandAdvanced || undefined} key={String(expandAdvanced)}>
-          <summary>Execution & generation</summary>
-          <div className="ai-settings-grid">
-            <label className="settings-field-label" htmlFor="ai-execution-mode-select">
-              <span>Execution</span>
-              <select
-                id="ai-execution-mode-select"
-                className="settings-select-input"
-                value={aiSettings.executionMode}
-                onChange={(event) => updateAiSetting("executionMode", event.currentTarget.value as AiExecutionMode)}
-              >
-                <option value="ask">Ask</option>
-                <option value="review">Review</option>
-                <option value="auto-edit">Auto Edit</option>
-              </select>
-            </label>
-
-            <label className="settings-field-label" htmlFor="ai-temperature-input">
-              <span>Temperature</span>
-              <input
-                id="ai-temperature-input"
-                className="settings-text-input"
-                type="number"
-                min={0}
-                max={2}
-                step={0.1}
-                value={aiSettings.temperature}
-                onChange={(event) =>
-                  updateAiSetting(
-                    "temperature",
-                    clampFloatInput(event.currentTarget.value, 0, 2, aiSettings.temperature),
-                  )
-                }
-              />
-            </label>
-            <label className="settings-field-label" htmlFor="ai-max-tokens-input">
-              <span>Console output tokens</span>
-              <input
-                id="ai-max-tokens-input"
-                className="settings-text-input"
-                type="number"
-                min={128}
-                max={8000}
-                step={128}
-                value={aiSettings.maxTokens}
-                onChange={(event) =>
-                  updateAiSetting(
-                    "maxTokens",
-                    clampNumberInput(event.currentTarget.value, 128, 8000, aiSettings.maxTokens),
-                  )
-                }
-              />
-            </label>
-          </div>
-        </details>
       )}
     </section>
   );

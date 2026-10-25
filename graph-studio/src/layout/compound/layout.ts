@@ -150,7 +150,7 @@ export async function buildCompoundStage(input: {
         item.id,
         {
           type: getNodeType(dag.nodes[item.id]),
-          description: getNodeDefine(dag.nodes[item.id]).slice(0, 400),
+          description: getNodeDefine(dag.nodes[item.id]),
         },
       ]),
     ),

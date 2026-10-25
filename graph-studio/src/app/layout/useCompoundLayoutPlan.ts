@@ -5,7 +5,6 @@ import { defaultLayoutIntent, parseLayoutIntent, type CompoundLayoutData } from 
 import { compileConstraints, layoutScopeMembers } from "../../layout/compound/constraints";
 import {
   runCompoundAiLayout,
-  COMPOUND_AI_BUDGET,
   type CompoundAiReport,
   type CompoundAiEvaluation,
 } from "../../layout/compound/ai/workflow";
@@ -109,11 +108,6 @@ export function useCompoundLayoutPlan(
       if (!initial.ready || !initial.problem || !input || active.current) return "Wait for the current layout.";
       const abort = new AbortController();
       active.current = abort;
-      let timedOut = false;
-      const timeout = setTimeout(() => {
-        timedOut = true;
-        abort.abort();
-      }, COMPOUND_AI_BUDGET.timeoutMs);
       setBusy(true);
       setMessage("Planning layout…");
       setDetail("");
@@ -198,19 +192,13 @@ export function useCompoundLayoutPlan(
       } catch (error) {
         if (current.current.key === initial.key && active.current === abort) {
           const report = presentLayoutError(
-            abort.signal.aborted
-              ? new LayoutRequestError(
-                  timedOut ? "completion" : "cancelled",
-                  timedOut ? "Layout planning exceeded four minutes." : "Layout cancelled.",
-                )
-              : error,
+            abort.signal.aborted ? new LayoutRequestError("cancelled", "Layout cancelled.") : error,
           );
           setMessage(report.message);
           setDetail(report.detail);
         }
         return "Layout failed. Current layout kept.";
       } finally {
-        clearTimeout(timeout);
         if (active.current === abort) {
           active.current = null;
           setBusy(false);

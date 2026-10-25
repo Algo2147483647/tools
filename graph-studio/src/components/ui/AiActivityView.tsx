@@ -22,14 +22,12 @@ export default function AiActivityView({ activity, busy }: { activity?: AiActivi
           {entry.reasoning && (
             <>
               <h4>Model reasoning</h4>
-              {entry.reasoning.length >= 16000 && <small>Showing the latest 16,000 characters.</small>}
               <pre tabIndex={0}>{entry.reasoning}</pre>
             </>
           )}
           {entry.content && (
             <>
               <h4>Response</h4>
-              {entry.content.length >= 16000 && <small>Showing the latest 16,000 characters.</small>}
               <pre tabIndex={0}>{entry.content}</pre>
             </>
           )}
@@ -48,7 +46,6 @@ export default function AiActivityView({ activity, busy }: { activity?: AiActivi
       {activity.reasoning && (
         <details open>
           <summary>Model reasoning</summary>
-          {activity.reasoning.length >= 16000 && <small>Showing the latest 16,000 characters.</small>}
           <pre
             ref={reasoning}
             tabIndex={0}
@@ -64,7 +61,6 @@ export default function AiActivityView({ activity, busy }: { activity?: AiActivi
       {activity.content && (
         <details>
           <summary>Response</summary>
-          {activity.content.length >= 16000 && <small>Showing the latest 16,000 characters.</small>}
           <pre tabIndex={0}>{activity.content}</pre>
         </details>
       )}

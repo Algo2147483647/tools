@@ -1,8 +1,6 @@
 import { type AiRiskLevel, type CommandBatch, type ValidationReport } from "../execution/types";
 import { type ProposedChange } from "../protocol/types";
 
-export type AiExecutionMode = "ask" | "review" | "auto-edit";
-
 export interface WorkingMemory {
   activeTopic?: string;
   currentIntent?: {
@@ -26,8 +24,6 @@ export interface WorkingMemory {
   pendingCommandBatchId?: string;
   userPreferences: {
     preferredLanguage?: "English" | "Chinese" | "auto";
-    autoApplyLowRiskCommands?: boolean;
-    requireReviewForDestructiveChanges?: boolean;
   };
   unresolvedQuestions: string[];
 }
@@ -65,7 +61,6 @@ export interface ActionPlan {
   validation?: ValidationReport;
   ui: {
     displaySummary: string;
-    requiresUserConfirmation: boolean;
     riskLevel: AiRiskLevel;
   };
   timestamps: {
@@ -81,5 +76,4 @@ export interface AiHarnessState {
   workingMemory: WorkingMemory;
   activePlan?: ActionPlan;
   pendingCommandBatch?: CommandBatch;
-  mode: AiExecutionMode;
 }

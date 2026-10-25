@@ -94,7 +94,7 @@ export const COMPOUND_AGENT_SCHEMA: Record<string, unknown> = {
       required: ["action", "hypothesis", "plan"],
       properties: {
         action: { type: "string", enum: ["evaluate"] },
-        hypothesis: { type: "string", minLength: 1, maxLength: 600 },
+        hypothesis: { type: "string", minLength: 1 },
         plan: COMPOUND_AI_SCHEMA,
       },
     },
@@ -105,7 +105,7 @@ export const COMPOUND_AGENT_SCHEMA: Record<string, unknown> = {
       properties: {
         action: { type: "string", enum: ["finish"] },
         candidateId: { type: "string" },
-        summary: { type: "string", minLength: 1, maxLength: 1200 },
+        summary: { type: "string", minLength: 1 },
       },
     },
   ],
@@ -119,9 +119,9 @@ export function parseCompoundAiDecision(
   session: { canEvaluate: boolean; candidateIds: ReadonlySet<string> },
 ): CompoundAiDecision {
   const r = layoutObject(value, ["action", "hypothesis", "plan", "candidateId", "summary"], "");
-  const description = (key: "hypothesis" | "summary", max: number) => {
-    if (typeof r[key] !== "string" || !r[key].trim() || r[key].length > max)
-      throw new LayoutRequestError("schema", `Supply a brief ${key} (at most ${max} characters).`, `/${key}`);
+  const description = (key: "hypothesis" | "summary") => {
+    if (typeof r[key] !== "string" || !r[key].trim())
+      throw new LayoutRequestError("schema", `Supply a nonempty ${key}.`, `/${key}`);
     return r[key].trim();
   };
   if (r.action === "evaluate") {
@@ -134,7 +134,7 @@ export function parseCompoundAiDecision(
       );
     return {
       action: "evaluate",
-      hypothesis: description("hypothesis", 600),
+      hypothesis: description("hypothesis"),
       plan: parseCompoundAiPlan(r.plan, policy),
     };
   }
@@ -142,7 +142,7 @@ export function parseCompoundAiDecision(
     layoutObject(value, ["action", "candidateId", "summary"], "");
     if (typeof r.candidateId !== "string" || !session.candidateIds.has(r.candidateId))
       throw new LayoutRequestError("semantic", "Choose an existing successful candidate ID.", "/candidateId");
-    return { action: "finish", candidateId: r.candidateId, summary: description("summary", 1200) };
+    return { action: "finish", candidateId: r.candidateId, summary: description("summary") };
   }
   throw new LayoutRequestError("schema", "Choose evaluate or finish.", "/action");
 }

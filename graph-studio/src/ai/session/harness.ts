@@ -1,15 +1,14 @@
 import { createId } from "../execution/risk";
-import type { ActionPlan,AiExecutionMode,AiHarnessState,ValidationReport } from "../types";
+import type { ActionPlan, AiHarnessState, ValidationReport } from "../types";
 import { createEmptyWorkingMemory } from "./workingMemory";
 
-export function createInitialAiHarnessState(mode: AiExecutionMode): AiHarnessState {
+export function createInitialAiHarnessState(): AiHarnessState {
   const sessionId = createId("session");
   return {
     sessionId,
     graphId: "local-graph",
     graphRevision: "0",
     workingMemory: createEmptyWorkingMemory(),
-    mode,
   };
 }
 
@@ -19,7 +18,7 @@ export function createTurnId(): string {
 
 export function syncHarnessRuntime(
   harness: AiHarnessState,
-  input: { graphId: string; graphRevision: string; mode: AiExecutionMode },
+  input: { graphId: string; graphRevision: string },
 ): AiHarnessState {
   const activePlan =
     harness.activePlan &&
@@ -41,7 +40,6 @@ export function syncHarnessRuntime(
     ...harness,
     graphId: input.graphId,
     graphRevision: input.graphRevision,
-    mode: input.mode,
     activePlan,
     pendingCommandBatch,
     workingMemory: {

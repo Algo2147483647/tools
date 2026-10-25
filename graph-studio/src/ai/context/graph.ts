@@ -19,9 +19,6 @@ import type {
 } from "../../graph/types";
 import type { AiGraphContext } from "../types";
 
-const MAX_CONTEXT_NODES = 80;
-const MAX_NODE_INDEX_ITEMS = 240;
-
 export function buildAiGraphContext({
   dag,
   mode,
@@ -60,12 +57,8 @@ export function buildAiGraphContext({
   const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
   const edgeCount = countEdges(dag);
   const selectionText = formatSelection(selection);
-  const shownKeys = keys.slice(0, MAX_CONTEXT_NODES);
-  const omittedCount = Math.max(0, keys.length - shownKeys.length);
-  const indexedKeys = keys.slice(0, MAX_NODE_INDEX_ITEMS);
-  const indexOmittedCount = Math.max(0, keys.length - indexedKeys.length);
-  const nodeLines = shownKeys.flatMap((key) => formatNodeSummary(key, dag));
-  const nodeIndexLines = indexedKeys.map((key) => formatNodeIndexLine(key, dag));
+  const nodeLines = keys.flatMap((key) => formatNodeSummary(key, dag));
+  const nodeIndexLines = keys.map((key) => formatNodeIndexLine(key, dag));
 
   return {
     commandReference,
@@ -81,14 +74,8 @@ export function buildAiGraphContext({
       `Current selection: ${selectionText}`,
       "Node lookup index:",
       ...nodeIndexLines,
-      indexOmittedCount > 0
-        ? `... ${indexOmittedCount} additional node index item${indexOmittedCount === 1 ? "" : "s"} omitted. Use /find <query> to search beyond this context.`
-        : "",
       "Nodes:",
       ...nodeLines,
-      omittedCount > 0
-        ? `... ${omittedCount} additional detailed node summar${omittedCount === 1 ? "y" : "ies"} omitted from AI context. Use /find, /ls, /neighbors, /path, or /graph for more data.`
-        : "",
     ]
       .filter(Boolean)
       .join("\n"),
@@ -160,5 +147,5 @@ function formatPreview(value: unknown): string {
     return "(empty)";
   }
   const text = typeof value === "string" ? value : JSON.stringify(value);
-  return text.length > 180 ? `${text.slice(0, 177)}...` : text;
+  return text;
 }
