@@ -152,7 +152,7 @@ export async function loadExampleWorkspace(
   const files = new Map<string, WorkspaceFile>([
     [WORKSPACE_MANIFEST, { path: WORKSPACE_MANIFEST, handle: null, file: manifestFile }],
   ]);
-  for (const path of new Set([...manifest.graphs, ...Object.values(manifest.layouts ?? {}), ...assetPaths])) {
+  for (const path of new Set([...manifest.graphs, ...assetPaths])) {
     if (path !== WORKSPACE_MANIFEST) files.set(path, { path, handle: null, loadFile: () => read(path) });
   }
   // A rolling pool avoids waiting for the slowest request in each fixed batch.

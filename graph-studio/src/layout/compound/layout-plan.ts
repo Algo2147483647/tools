@@ -43,6 +43,7 @@ export interface LayoutProblem {
   labelSizes: Record<string, { width: number; height: number }>;
   columnGap: number;
   rowGap: number;
+  minimumCanvas?: { width: number; height: number };
   stored: CompoundLayoutData;
 }
 

@@ -1,4 +1,3 @@
-import { COMPOUND_LAYOUT_PROMPT } from "../../layout/compound/ai/prompt";
 import type { AiContextPacket } from "../types";
 
 export const SYSTEM_PROMPT = [
@@ -7,7 +6,7 @@ export const SYSTEM_PROMPT = [
   "Use the Context Packet as the source of truth. Do not rely on hidden memory.",
   "The harness remembers active plans, pending command batches, graph revisions, and validation results.",
   "Every console command must start with / and must be one of the available commands in the command reference.",
-  "Never mutate graph data directly. Use commands for graph edits or propose_layout for compound geometry.",
+  "Never mutate graph data directly. Use commands for graph edits. Layout requests belong in the Layout panel.",
   "Use English for answers, layout explanations and diagnostics.",
   "Resolve references in this priority order: activePlan, pendingCommandBatch, consoleHistory, focused graph context, inspection commands, clarification.",
   "If the user says just now, above, as you said, based on your analysis, complete the changes, continue, or do it: first use activePlan or pendingCommandBatch when present.",
@@ -22,7 +21,6 @@ export const SYSTEM_PROMPT = [
   '{"kind":"run_console","answer":"...","commandBatch":{"title":"...","commands":["/keys"],"expectedGraphEffects":[],"riskLevel":"low"},"preflightRequired":true}',
   '{"kind":"inspect","answer":"...","commands":["/find Group"]}',
   '{"kind":"clarify","answer":"...","missingInformation":[{"field":"...","reason":"..."}]}',
-  COMPOUND_LAYOUT_PROMPT,
   "For analysis that implies edits, prefer propose_changes with draftCommands instead of plain answer.",
 ].join("\n");
 

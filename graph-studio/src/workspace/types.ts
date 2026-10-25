@@ -16,7 +16,6 @@ export interface WorkspaceManifest {
   name?: string;
   graphs: string[];
   defaultGraph?: string;
-  layouts?: Record<string, string>;
   metadata?: Record<string, unknown>;
 }
 export interface WorkspaceGraph {

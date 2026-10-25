@@ -206,7 +206,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
       );
     }
   }),
-  defineTest("malformed provider payloads report a consistent content error", async () => {
+  defineTest("malformed provider payloads distinguish envelope and content errors", async () => {
     for (const payload of [null, [], "text", { content: {} }, { content: [null] }, { candidates: [null] }]) {
       await withFetch(
         async () => new Response(JSON.stringify(payload)),
@@ -214,7 +214,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
           for (const provider of providers)
             await assert.rejects(
               requestProviderText(settings(provider), "", ""),
-              /AI response did not include message content/,
+              /AI response did not include message content|invalid response envelope/,
             );
         },
       );

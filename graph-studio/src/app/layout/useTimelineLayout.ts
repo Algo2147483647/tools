@@ -3,6 +3,7 @@ import type { AiSettings } from "../../ai/types";
 import { type TimelineLayoutData } from "../../graph/timeline/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import { timelineLayoutContext } from "../../layout/timeline/ai/context";
+import { presentLayoutError } from "../../layout/shared/ai/request";
 import { requestTimelineLayout } from "../../layout/timeline/ai/request";
 import type { TimelineLayoutCandidate, TimelineLayoutInput } from "../../layout/timeline/layout-candidate";
 import { validateTimelineArrangement } from "../../layout/timeline/layout-quality";
@@ -142,17 +143,16 @@ export function useTimelineLayout(
       });
       const candidate = await pending.job.result;
       if (sequence.current !== id || current.current.key !== initial.key || !current.current.ready) return;
-      setReview({ ...candidate, key: initial.key, baseline: initial.baseline, explanation: response.explanation });
+      setReview({
+        ...candidate,
+        key: initial.key,
+        baseline: initial.baseline,
+        explanation: "AI ordering evaluated by the local layout algorithm.",
+      });
       setMessage("Preview ready.");
     } catch (error) {
       if (sequence.current === id)
-        setMessage(
-          timedOut
-            ? "AI request timed out. Try again."
-            : error instanceof Error
-              ? error.message
-              : "Timeline layout failed.",
-        );
+        setMessage(timedOut ? "AI request timed out. Try again." : presentLayoutError(error).message);
     } finally {
       clearTimeout(timeout);
       pending.job?.cancel();

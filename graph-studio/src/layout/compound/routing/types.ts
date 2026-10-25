@@ -18,6 +18,7 @@ export const MIN_STRAIGHT = 20;
 export const LANE_GAP = 16;
 
 export interface CompoundRoutingOptions {
+  portMode?: "distributed" | "midpoints";
   reverseOrder?: boolean;
   fixedRoutes?: Map<string, CompoundRoute>;
   outerEdges?: Set<string>;

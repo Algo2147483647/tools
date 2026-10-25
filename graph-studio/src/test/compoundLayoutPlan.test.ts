@@ -4,6 +4,7 @@ import { parseCompoundLayoutCommand } from "../console/compoundLayout";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultLayoutIntent, parseLayoutIntent, type LayoutIntent } from "../layout/compound/layout-plan";
+import { migrateLegacyLayout } from "../schema/layoutMigration";
 import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
 import { prepareCommandTransaction } from "../app/document/graphTransactions";
 import { prepareWorkspace } from "../workspace/opening";
@@ -46,28 +47,46 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
   defineTest("protocol rejects snapshots, coordinates, pins and route-only requests", () => {
     const base = defaultLayoutDocument();
     for (const field of ["accepted", "snapshot", "geometry", "pins", "boxes", "routes", "x", "width"]) {
-      assert.throws(() => parseLayoutDocument({ ...base, charts: { compound: { ...base.charts.compound, [field]: {} } } }), /Unknown/);
+      assert.throws(
+        () => parseLayoutDocument({ ...base, charts: { compound: { ...base.charts.compound, [field]: {} } } }),
+        /Unknown/,
+      );
     }
     assert.throws(() => parseLayoutIntent({ ...downIntent(), operation: "route-only" }));
     assert.throws(() => parseLayoutIntent({ ...downIntent(), constraints: [{ type: "pin", nodeId: "a" }] }));
     assert.throws(() => parseLayoutIntent({ ...downIntent(), objective: "stability" }));
     assert.throws(() => parseLayoutIntent({ ...downIntent(), code: "run()" }));
-    assert.throws(() => parseLayoutIntent({ ...downIntent(), constraints: Array(101).fill(downIntent().constraints[0]) }));
+    assert.throws(() =>
+      parseLayoutIntent({ ...downIntent(), constraints: Array(101).fill(downIntent().constraints[0]) }),
+    );
   }),
-  defineTest("AI and console share declarative intent and no longer accept review commands", () => {
+  defineTest("generic AI rejects layout operations while explicit console intents remain typed", () => {
     const intent = downIntent();
-    const response = parseAiResponse(JSON.stringify({ kind: "propose_layout", layoutProtocolVersion: 1, answer: "Arrange", intent }));
-    assert.equal(response.kind, "propose_layout");
-    assert.deepEqual(parseCompoundLayoutCommand(`/compound-layout propose ${JSON.stringify(intent)}`), { type: "propose", intent });
-    for (const command of ["apply one", "compare one"]) assert.throws(() => parseCompoundLayoutCommand(`/compound-layout ${command}`));
+    assert.throws(() =>
+      parseAiResponse(JSON.stringify({ kind: "propose_layout", layoutProtocolVersion: 1, answer: "Arrange", intent })),
+    );
+    assert.deepEqual(parseCompoundLayoutCommand(`/compound-layout propose ${JSON.stringify(intent)}`), {
+      type: "propose",
+      intent,
+    });
+    for (const command of ["apply one", "compare one"])
+      assert.throws(() => parseCompoundLayoutCommand(`/compound-layout ${command}`));
   }),
   defineTest("automatic first render selects valid deterministic geometry and reports its quality", async () => {
-    const dag = graph(true), original = serializeDag(dag);
+    const dag = graph(true),
+      original = serializeDag(dag);
     const config = defaultLayoutDocument().charts.compound;
     config.direction = "DOWN";
-    const input = { dag, view: { focusGroupId: null, collapsedGroupIds: [] }, layout: config,
-      appearance: getStageAppearance(getDefaultChartStyle("compound").appearance, "compound"), showNodeDetail: false, alignNodeWidthsToMax: true };
-    const first = await buildCompoundStage(input), second = await buildCompoundStage(input);
+    const input = {
+      dag,
+      view: { focusGroupId: null, collapsedGroupIds: [] },
+      layout: config,
+      appearance: getStageAppearance(getDefaultChartStyle("compound").appearance, "compound"),
+      showNodeDetail: false,
+      alignNodeWidthsToMax: true,
+    };
+    const first = await buildCompoundStage(input),
+      second = await buildCompoundStage(input);
     assert.deepEqual(first.nodes, second.nodes);
     assert.deepEqual(first.edges, second.edges);
     assert.equal(first.layoutQuality!.validation.valid, true);
@@ -76,21 +95,49 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     assert.deepEqual(serializeDag(dag), original);
     assert.equal(validateLayoutGeometry(first.compoundLayout!, first.compoundLayout!.baseline).valid, true);
   }),
-  defineTest("legacy geometry is discarded at graph load and cannot return through save", () => {
+  defineTest("graph layout is a path association; embedded legacy geometry requires migration", () => {
     const raw = serializeDag(graph());
-    raw.metadata = { author: "User", layout: { compound: { accepted: { snapshot: { boxes: { a: { x: 9999 } } } } } } };
-    const dag = normalizeDagInput(raw);
-    assert.deepEqual(dag.metadata, { author: "User" });
-    assert.deepEqual(serializeDag(dag).metadata, { author: "User" });
-    assert.ok(raw.metadata.layout, "Loading must not mutate the source object.");
+    raw.metadata = { author: "User", layout: "layouts/flow.layout.json" };
+    assert.deepEqual(serializeDag(normalizeDagInput(raw)).metadata, raw.metadata);
+    raw.metadata.layout = { compound: { accepted: { snapshot: { boxes: { a: { x: 9999 } } } } } };
+    assert.throws(() => normalizeDagInput(raw), /Migrate embedded layout/);
+  }),
+  defineTest("explicit migration preserves graph content and declarations but discards geometry", () => {
+    const original = serializeDag(graph());
+    original.metadata = {
+      author: "User",
+      layout: {
+        compound: {
+          constraints: [downIntent().constraints[0], { type: "pin", nodeId: "a" }],
+          accepted: { snapshot: { boxes: { a: { x: 999 } } } },
+          pins: [{ nodeId: "a" }],
+        },
+      },
+    };
+    const before = JSON.stringify(original);
+    const result = migrateLegacyLayout(original, "flow.layout.json");
+    assert.equal(result.graph.metadata!.layout, "flow.layout.json");
+    assert.deepEqual(result.graph.nodes, original.nodes);
+    assert.deepEqual(result.layout.charts.compound.constraints, downIntent().constraints);
+    assert.ok(!/snapshot|accepted|boxes|pins/.test(JSON.stringify(result.layout)));
+    assert.equal(JSON.stringify(original), before);
   }),
   defineTest("layout edits undo without dirtying graph and stale imports cannot replace another document", () => {
-    let state = graphReducer(createInitialGraphState(), { type: "graphLoaded", documentId: "a", dag: graph(true), fileName: "a.json", selection: { type: "full" }, status: "Loaded" });
+    let state = graphReducer(createInitialGraphState(), {
+      type: "graphLoaded",
+      documentId: "a",
+      dag: graph(true),
+      fileName: "a.json",
+      selection: { type: "full" },
+      status: "Loaded",
+    });
     const original = state.dag;
-    const data = defaultLayoutDocument(); data.charts.compound.direction = "DOWN";
+    const data = defaultLayoutDocument();
+    data.charts.compound.direction = "DOWN";
     const action: GraphAction = { type: "layoutDocumentChanged", generation: state.document.generation, data };
     state = graphReducer(state, action);
-    assert.equal(state.dag, original); assert.equal(state.source.dirty, false);
+    assert.equal(state.dag, original);
+    assert.equal(state.source.dirty, false);
     assert.equal(state.layoutDocument.data.charts.compound.direction, "DOWN");
     state = graphReducer(state, { type: "undoRequested" });
     assert.equal(state.layoutDocument.data.charts.compound.direction, "AUTO");
@@ -99,9 +146,22 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     assert.equal(graphReducer(state, { ...action, generation: state.document.generation - 1 }), state);
   }),
   defineTest("graph renames and deletion repair layout references in the same undo transaction", () => {
-    const data = defaultLayoutDocument(); data.charts.compound.constraints = [{ type: "direction", scopeId: "g", value: "DOWN", strength: "soft" }];
-    let state = graphReducer(createInitialGraphState(), { type: "graphLoaded", documentId: "g", dag: graph(true), fileName: "g.json", linkedLayout: data, selection: { type: "full" }, status: "Loaded" });
-    const action = prepareCommandTransaction(state, [{ type: "renameNode", oldKey: "g", newKey: "renamed" }], "Rename group")!;
+    const data = defaultLayoutDocument();
+    data.charts.compound.constraints = [{ type: "direction", scopeId: "g", value: "DOWN", strength: "soft" }];
+    let state = graphReducer(createInitialGraphState(), {
+      type: "graphLoaded",
+      documentId: "g",
+      dag: graph(true),
+      fileName: "g.json",
+      linkedLayout: data,
+      selection: { type: "full" },
+      status: "Loaded",
+    });
+    const action = prepareCommandTransaction(
+      state,
+      [{ type: "renameNode", oldKey: "g", newKey: "renamed" }],
+      "Rename group",
+    )!;
     state = graphReducer(state, action);
     assert.equal((state.layoutDocument.data.charts.compound.constraints[0] as { scopeId: string }).scopeId, "renamed");
     state = graphReducer(state, { type: "undoRequested" });
@@ -109,20 +169,42 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     const removed = serializeDag(graph());
     assert.deepEqual(repairLayoutDocument(data, removed).charts.compound.constraints, []);
   }),
-  defineTest("workspace loads a sidecar, respects explicit binding and falls back on invalid data", async () => {
-    const data = defaultLayoutDocument(); data.charts.compound.direction = "DOWN";
-    const contents: Record<string, unknown> = { "graph.json": serializeDag(graph()), "graph.layout.json": data };
-    const open = () => prepareWorkspace({ name: "Test", handle: null, files: new Map(Object.entries(contents).map(([path, value]) => [path, { path, handle: null, file: new File([JSON.stringify(value)], path) }])) });
+  defineTest("workspace loads only metadata.layout; missing or invalid associations use defaults", async () => {
+    const data = defaultLayoutDocument();
+    data.charts.compound.direction = "DOWN";
+    const raw = serializeDag(graph());
+    const contents: Record<string, unknown> = { "graph.json": raw, "graph.layout.json": data };
+    const open = () =>
+      prepareWorkspace({
+        name: "Test",
+        handle: null,
+        files: new Map(
+          Object.entries(contents).map(([path, value]) => [
+            path,
+            { path, handle: null, file: new File([JSON.stringify(value)], path) },
+          ]),
+        ),
+      });
     let loaded = await open();
+    assert.equal(loaded.linkedLayout, undefined, "An unreferenced neighboring layout is ignored.");
+    raw.metadata = { layout: "graph.layout.json" };
+    loaded = await open();
     assert.equal(loaded.linkedLayout!.charts.compound.direction, "DOWN");
     assert.equal(loaded.workspace.graphs.length, 1);
-    contents["custom.json"] = { ...data, charts: { compound: { direction: "RIGHT" } } };
-    contents["graph-studio.workspace.json"] = { format: "graph-studio-workspace", version: 1, graphs: ["graph.json"], layouts: { "graph.json": "custom.json" } };
-    loaded = await open(); assert.equal(loaded.linkedLayout!.charts.compound.direction, "RIGHT");
-    contents["custom.json"] = { ...data, version: 99 };
-    loaded = await open(); assert.equal(loaded.linkedLayout, undefined); assert.match(loaded.layoutNotice!, /default/i);
-    delete contents["graph-studio.workspace.json"]; delete contents["graph.layout.json"]; delete contents["custom.json"];
-    loaded = await open(); assert.equal(loaded.linkedLayout, undefined);
+    raw.metadata.layout = "layouts/custom.layout.json";
+    contents["layouts/custom.layout.json"] = { ...data, charts: { compound: { direction: "RIGHT" } } };
+    loaded = await open();
+    assert.equal(loaded.linkedLayout!.charts.compound.direction, "RIGHT");
+    contents["layouts/custom.layout.json"] = { ...data, version: 99 };
+    loaded = await open();
+    assert.equal(loaded.linkedLayout, undefined);
+    assert.match(loaded.layoutNotice!, /default/i);
+    for (const reference of ["missing.json", "../../outside.json", "https://example.com/layout.json"]) {
+      raw.metadata.layout = reference;
+      loaded = await open();
+      assert.equal(loaded.linkedLayout, undefined);
+      assert.match(loaded.layoutNotice!, /default/i);
+    }
   }),
   defineTest("folded connections report incompatible original edge port preferences", async () => {
     const dag = normalizeDagInput({

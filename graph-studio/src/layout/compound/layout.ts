@@ -40,8 +40,17 @@ export async function buildCompoundStage(input: {
       .map((id, index) => [id, index]),
   );
   // Zero requested spacing still needs a routing corridor between card boundaries.
-  const theme = { ...appearance, nodes: { ...appearance.nodes, spacing: { ...appearance.nodes.spacing,
-    column: Math.max(12, appearance.nodes.spacing.column), row: Math.max(12, appearance.nodes.spacing.row) } } };
+  const theme = {
+    ...appearance,
+    nodes: {
+      ...appearance.nodes,
+      spacing: {
+        ...appearance.nodes.spacing,
+        column: Math.max(12, appearance.nodes.spacing.column),
+        row: Math.max(12, appearance.nodes.spacing.row),
+      },
+    },
+  };
   const font = stageTitleFont(appearance);
   const detailFont = stageRoleFont(appearance, "detail"),
     detailLineHeight = Math.ceil(detailFont.size * 1.2);
@@ -134,6 +143,7 @@ export async function buildCompoundStage(input: {
     showLabels: input.showEdgeLabels ?? false,
     columnGap: theme.nodes.spacing.column,
     rowGap: theme.nodes.spacing.row,
+    minimumCanvas: { width: theme.canvas.minSize[0], height: theme.canvas.minSize[1] },
     stored: config,
     baseline: {
       boxes: Object.fromEntries(placement.boxes),

@@ -9,110 +9,7 @@
     "style": "./workflow.style.json",
     "relationshipSemantics": "Directed data flow and control flow. Optional paths are labelled. Arrows do not imply that every operation executes in one synchronous sequence.",
     "hierarchySemantics": "Groups represent responsibility boundaries. Nested subgroups expose internal processes; containment is independent of ordinary relationships.",
-    "layout": {
-      "compound": {
-        "version": 1,
-        "constraints": [
-          {
-            "type": "direction",
-            "scopeId": null,
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "open",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "edit",
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "appearance",
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "layout",
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "canvas",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "output",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "edit-inputs",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "edit-transaction",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "layout-baseline",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "layout-proposal",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-sources",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-loading",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-session",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-geometry",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-rendering",
-            "value": "DOWN",
-            "strength": "soft"
-          }
-        ],
-        "pins": []
-      }
-    },
+    "layout": "core-workflow.layout.json",
     "nodeCount": 73,
     "edgeCount": 78,
     "groupCount": 15
@@ -145,7 +42,7 @@
     "layout": {
       "title": "04 · Compute layout",
       "type": "Process domain",
-      "define": "Turn document and view inputs into geometry; review optional arrangement proposals.",
+      "define": "Turn document and view inputs into live geometry and quality metrics.",
       "implementation": "src/layout/",
       "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
       "notes": "[Workflow guide](./README.md)"
@@ -191,9 +88,9 @@
       "notes": "[Workflow guide](./README.md)"
     },
     "layout-proposal": {
-      "title": "Arrangement proposals",
+      "title": "Layout declarations",
       "type": "Process domain",
-      "define": "Generate, evaluate and review optional Nested or Timeline layout changes.",
+      "define": "Generate validated declarations for Nested or Timeline layout.",
       "implementation": "src/app/layout/",
       "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
       "notes": "[Workflow guide](./README.md)"
@@ -353,17 +250,17 @@
     "layout-intent": {
       "title": "Choose layout intent",
       "type": "Input",
-      "define": "Choose Automatic or AI, adjustment range, scope and optimization objective.",
+      "define": "Choose Automatic or AI, direction and optimization objective for the current view.",
       "implementation": "src/components/studio/ChartLayoutControls.tsx",
-      "details": "Nested Automatic and AI share Connections only or Nodes and connections. The default keeps nodes fixed. Rearrangement exposes direction, surrounding-group resizing and selected-node locking. Both methods generate a reviewable preview.",
+      "details": "Nested Automatic jointly arranges nodes, groups, connections and labels. AI supplies direction and routing preferences. Layout exposes direction, objective and current quality metrics.",
       "notes": "[Workflow guide](./README.md)"
     },
     "ai-layout": {
       "title": "AI layout proposal",
       "type": "Assistance",
       "define": "Request arrangement intent within the selected chart rules.",
-      "implementation": "src/layout/compound/ai/workflow.ts",
-      "details": "Nested starts with editable default instructions that preserve content, containment and locks and obey the selected objective and adjustment range. Nested and Timeline prompts live under their layout families and use shared provider transport. Models propose intent; local code computes geometry. Nested may request one measured feedback turn.",
+      "implementation": "src/layout/compound/ai/request.ts",
+      "details": "Dedicated chart schemas accept small declarations, never commands or coordinates. A common request layer checks completion, syntax and semantics, with at most one regeneration. Local code computes geometry.",
       "notes": "[Workflow guide](./README.md)"
     },
     "evaluate-layout": {
@@ -375,11 +272,11 @@
       "notes": "[Workflow guide](./README.md)"
     },
     "review-layout": {
-      "title": "Review a preview",
+      "title": "Report layout quality",
       "type": "Input",
-      "define": "Compare the current layout with a validated candidate.",
-      "implementation": "src/components/compound/CompoundLayoutReview.tsx",
-      "details": "Nested and Timeline provide separate review components. A stale proposal cannot be applied; dismissing a preview leaves the document unchanged.",
+      "define": "Display measured quality for the rendered result.",
+      "implementation": "src/components/compound/LayoutPanel.tsx",
+      "details": "Nested installs a validated computed result directly and shows quality in Layout. Stale requests are cancelled. Timeline retains its chart-specific preview.",
       "notes": "[Workflow guide](./README.md)"
     },
     "accept-layout": {
@@ -387,7 +284,7 @@
       "type": "State",
       "define": "Commit accepted chart-specific layout data.",
       "implementation": "src/app/layout/useCompoundLayoutPlan.ts",
-      "details": "Applied layout data is distinct from reusable appearance. Nested durable constraints and snapshots live in graph metadata; Timeline application follows its own layout protocol.",
+      "details": "Session declarations remain separate from graph and appearance data. metadata.layout references an independent input file. Computed geometry is never persisted.",
       "notes": "[Workflow guide](./README.md)"
     },
     "render-svg": {
@@ -603,7 +500,7 @@
       "type": "Interaction",
       "define": "Restore style history and synchronize Timeline settings where applicable.",
       "implementation": "src/app/preferences/useChartPreferences.ts",
-      "details": "Changing a chart style does not rewrite ordinary graph nodes or edges. Document layout metadata has a separate owner.",
+      "details": "Changing a chart style does not rewrite ordinary graph nodes or edges. Independent Layout declarations have a separate owner.",
       "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
     },
     "persist-style": {
@@ -839,8 +736,8 @@
     {
       "id": "accept-layout--document-state",
       "source": "accept-layout",
-      "target": "document-state",
-      "value": "accepted layout data"
+      "target": "stage-data",
+      "value": "computed live stage"
     },
     {
       "id": "render-svg--inspect-node",

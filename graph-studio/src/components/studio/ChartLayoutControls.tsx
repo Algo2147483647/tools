@@ -1,4 +1,3 @@
-import LayoutDocumentControls from "./LayoutDocumentControls";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import CompoundLayoutPanel from "../compound/LayoutPanel";
 import LayoutRules from "../ui/LayoutRules";
@@ -12,20 +11,28 @@ export type ChartLayoutControlsProps = Pick<
   "session" | "preferences" | "ui" | "viewport" | "ai" | "compoundLayoutPlan" | "timelineLayoutPlan"
 >;
 export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
-  return <><LayoutDocumentControls state={props.session.state} dispatch={props.session.dispatch} /><ChartSpecificLayoutControls {...props} /></>;
+  return (
+    <>
+      {props.session.state.layoutDocument.notice && (
+        <p className="layout-warning" role="alert">
+          {props.session.state.layoutDocument.notice}
+        </p>
+      )}
+      <ChartSpecificLayoutControls {...props} />
+    </>
+  );
 }
 function ChartSpecificLayoutControls({
   session,
   preferences,
   ui,
   viewport,
-  ai,
   compoundLayoutPlan,
   timelineLayoutPlan,
 }: ChartLayoutControlsProps) {
   const { state } = session;
   if (state.chartType === "compound")
-    return <CompoundLayoutPanel controller={compoundLayoutPlan} ai={ai} model={preferences.aiSettings.model} />;
+    return <CompoundLayoutPanel controller={compoundLayoutPlan} model={preferences.aiSettings.model} />;
   if (state.chartType === "timeline")
     return (
       <TimelineArrangePanel

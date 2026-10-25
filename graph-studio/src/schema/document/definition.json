@@ -44,6 +44,12 @@
       "description": "Relative graph-studio-style JSON path, resolved inside the opened workspace."
     },
     {
+      "path": "metadata.layout",
+      "type": "string",
+      "requirement": "Optional",
+      "description": "Relative graph-studio-layout JSON path. No embedded configuration or geometry."
+    },
+    {
       "path": "nodes",
       "type": "object",
       "requirement": "Required",

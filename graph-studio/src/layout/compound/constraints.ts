@@ -71,7 +71,7 @@ export function compileConstraints(
   const data: CompoundLayoutData = structuredClone(problem.stored);
   const items = new Map(problem.projection.items.map((i) => [i.id, i]));
   for (const c of intent.constraints) {
-    if (c.type === "direction") {
+    if (c.type === "direction" || c.type === "flow-order") {
       if (
         c.scopeId !== intent.scope.groupId &&
         !(
@@ -81,8 +81,13 @@ export function compileConstraints(
           !items.get(c.scopeId)?.collapsed
         )
       )
-        throw new Error(`Direction scope is outside this request: ${c.scopeId}.`);
-      data.constraints = data.constraints.filter((old) => old.type !== "direction" || old.scopeId !== c.scopeId);
+        throw new Error(`Layout scope is outside this request: ${c.scopeId}.`);
+      if (c.type === "flow-order") {
+        const parent = c.scopeId === problem.projection.focusGroupId ? null : c.scopeId;
+        if (c.nodeIds.some((id) => !items.has(id) || items.get(id)!.parentId !== parent || items.get(id)!.external))
+          throw new Error("Flow order requires movable siblings in its scope.");
+      }
+      data.constraints = data.constraints.filter((old) => old.type !== c.type || old.scopeId !== c.scopeId);
       data.constraints.push(c);
     } else {
       const edge = problem.projection.edges.find((e) => e.originalEdgeIds.includes(c.edgeId));
@@ -129,9 +134,7 @@ export function validateLayoutConstraints(
         }
         ancestor = items.get(ancestor)?.parentId ?? null;
       }
-      const frozen =
-        item.external ||
-        (intent.boundaryPolicy === "strict" && !members.has(item.id) && !carried);
+      const frozen = item.external || (intent.boundaryPolicy === "strict" && !members.has(item.id) && !carried);
       if (frozen && !sameBox(problem.baseline.boxes[item.id], geometry.boxes[item.id]))
         errors.push(`Layout changed a fixed rectangle: ${item.id}.`);
       if (!intent.scope.includeDescendants && members.has(item.id) && item.kind === "group" && !item.collapsed) {
@@ -172,14 +175,34 @@ export function directionWarnings(
   const { scopes } = buildScopes(problem.projection);
   const warnings: string[] = [];
   for (const constraint of data.constraints) {
+    if (constraint.type === "flow-order") {
+      const scopeId = constraint.scopeId === problem.projection.focusGroupId ? null : constraint.scopeId;
+      const scope = scopes.get(scopeId);
+      if (!scope) continue;
+      const ids = constraint.nodeIds.filter((id) => scope.children.includes(id));
+      const direction = data.constraints.find((c) => c.type === "direction" && c.scopeId === constraint.scopeId);
+      const value = direction?.type === "direction" ? direction.value : data.direction;
+      const ordered = (down: boolean) =>
+        ids.every((id, i) => {
+          if (!i) return true;
+          const a = geometry.boxes[ids[i - 1]],
+            b = geometry.boxes[id];
+          return down ? a.y + a.height <= b.y + 0.01 : a.x + a.width <= b.x + 0.01;
+        });
+      if (!(value === "DOWN" ? ordered(true) : value === "RIGHT" ? ordered(false) : ordered(true) || ordered(false)))
+        warnings.push(`Flow order could not be satisfied in ${constraint.scopeId ?? "root"}.`);
+      continue;
+    }
     if (constraint.type !== "direction" || constraint.value === "AUTO") continue;
     const scopeId = constraint.scopeId === problem.projection.focusGroupId ? null : constraint.scopeId;
     const scope = scopes.get(scopeId);
-    if (!scope) {
-      warnings.push(`Direction preference for ${constraint.scopeId ?? "root"} is inactive in this projection.`);
-      continue;
-    }
-    const { forward } = compoundTopology(scope.children, scope.edges);
+    if (!scope) continue;
+    const order = data.constraints.find((c) => c.type === "flow-order" && c.scopeId === constraint.scopeId);
+    const ids = order?.type === "flow-order" ? order.nodeIds.filter((id) => scope.children.includes(id)) : [];
+    const forward =
+      ids.length === scope.children.length && ids.length >= 2
+        ? ids.slice(1).map((id, i) => [ids[i], id])
+        : compoundTopology(scope.children, scope.edges).forward;
     if (
       forward.some(([a, b]) => {
         const first = geometry.boxes[a],

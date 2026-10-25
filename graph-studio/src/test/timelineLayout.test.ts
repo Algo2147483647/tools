@@ -3,10 +3,7 @@ import { applyGraphCommand } from "../graph/commands";
 import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import {
-  parseTimelineLayoutPlan,
-  validateTimelineLayoutPlan,
-} from "../graph/timeline/layoutData";
+import { parseTimelineLayoutPlan, validateTimelineLayoutPlan } from "../graph/timeline/layoutData";
 import { getStageAppearance } from "../layout/shared/appearance";
 import type { StageData } from "../layout/shared/types";
 import { timelineLayoutContext } from "../layout/timeline/ai/context";
@@ -87,7 +84,9 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       () => validateTimelineLayoutPlan({ ...plan, trackOrder: ["missing"] }, graph()),
       /Unknown timeline track/,
     );
-    assert.throws(() => parseLayoutDocument({ ...defaultLayoutDocument(), charts: { timeline: { version: 99, mode: "ai" } } }));
+    assert.throws(() =>
+      parseLayoutDocument({ ...defaultLayoutDocument(), charts: { timeline: { version: 99, mode: "ai" } } }),
+    );
   }),
   defineTest("AI changes track geometry while preserving calendar/relative dates, ports and both orientations", () => {
     for (const relative of [false, true])
@@ -152,7 +151,10 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
     const layout = defaultLayoutDocument();
     layout.charts.timeline = { version: 1, mode: "ai", plan };
     const loaded = parseLayoutDocument(JSON.parse(JSON.stringify(layout)));
-    assert.deepEqual(geometry(buildTimelineStage({ ...input, arrangement: loaded.charts.timeline.plan })!), geometry(preview.stage));
+    assert.deepEqual(
+      geometry(buildTimelineStage({ ...input, arrangement: loaded.charts.timeline.plan })!),
+      geometry(preview.stage),
+    );
     assert.deepEqual(geometry(buildTimelineStage({ ...input, arrangement: null })!), geometry(algorithm));
     assert.deepEqual(serializeDag(dag), original);
   }),
@@ -226,10 +228,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       const requests: Record<string, unknown>[] = [];
       globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
         requests.push(JSON.parse(init.body));
-        const content =
-          requests.length === 1
-            ? '{"commands":["/rm a"]}'
-            : JSON.stringify({ version: 1, explanation: "Group operations first.", plan });
+        const content = requests.length === 1 ? '{"commands":["/rm a"]}' : JSON.stringify({ version: 1, plan });
         return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
       }) as unknown as typeof fetch;
       try {
@@ -243,16 +242,17 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
             maxTokens: 1000,
             executionMode: "auto-edit",
           },
-          {},
+          timelineLayoutContext(
+            { dag: graph(), selection: { type: "full" }, timelineSettings: { layout: "tracks" } },
+            buildTimelineStage({ dag: graph(), selection: { type: "full" }, timelineSettings: { layout: "tracks" } })!,
+          ),
           "Group related tracks",
           new AbortController().signal,
         );
         assert.equal(requests.length, 2);
         assert.equal(requests[0].model, "configured-model");
         assert.deepEqual(response.plan, plan);
-        assert.throws(() =>
-          parseTimelineLayoutResponse(JSON.stringify({ version: 1, explanation: "Invalid", plan, commands: [] })),
-        );
+        assert.throws(() => parseTimelineLayoutResponse(JSON.stringify({ version: 1, plan, commands: [] })));
       } finally {
         globalThis.fetch = original;
       }

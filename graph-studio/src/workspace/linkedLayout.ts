@@ -1,28 +1,40 @@
 import { parseLayoutDocument, repairLayoutDocument, type LayoutDocument } from "../schema/layoutProtocol";
 import type { GraphDocument } from "../graph/types";
 import { readWorkspaceFile } from "./browserAccess";
-import type { GraphWorkspace } from "./types";
+import { resolveWorkspacePath } from "./paths";
+import type { WorkspaceFolder } from "./types";
 
 export interface LinkedLayout {
   linkedLayout?: LayoutDocument;
-  layoutSource?: string;
   layoutNotice?: string;
 }
 
-export async function readLinkedLayout(graph: GraphDocument, graphPath: string, workspace?: GraphWorkspace): Promise<LinkedLayout> {
-  if (!workspace) return {};
-  const explicit = workspace.manifest?.layouts?.[graphPath];
-  const path = explicit ?? graphPath.replace(/\.json$/i, ".layout.json");
-  const entry = workspace.files.get(path);
-  if (!entry && !explicit) return {};
+/** Only explicit graph-relative associations inside the granted folder are read. */
+export async function readLinkedLayout(
+  graph: GraphDocument,
+  graphPath: string,
+  workspace?: WorkspaceFolder,
+): Promise<LinkedLayout> {
+  const reference = graph.metadata?.layout;
+  if (reference === undefined) return {};
   try {
+    if (typeof reference !== "string" || !reference.trim() || /[?#]/.test(reference))
+      throw new Error("metadata.layout must be a relative JSON file path.");
+    const path = resolveWorkspacePath(reference, graphPath);
+    if (!/\.json$/i.test(path)) throw new Error("Layout files must use the .json extension.");
+    if (!workspace) throw new Error("Open the workspace folder to load the associated Layout file.");
+    const entry = workspace.files.get(path);
     if (!entry) throw new Error(`Layout file not found: ${path}`);
     const file = await readWorkspaceFile(entry);
     if (file.size > 16 * 1024 * 1024) throw new Error("Layout exceeds 16 MB.");
     const parsed = parseLayoutDocument(JSON.parse(await file.text()));
     const linkedLayout = repairLayoutDocument(parsed, graph);
-    return { linkedLayout, layoutSource: path,
-      ...(linkedLayout === parsed ? {} : { layoutNotice: "Layout references missing from this graph were removed." }) };
+    return {
+      linkedLayout,
+      ...(linkedLayout === parsed
+        ? {}
+        : { layoutNotice: "Layout references missing from this graph were removed for this session." }),
+    };
   } catch (error) {
     return { layoutNotice: `Using default layout. ${error instanceof Error ? error.message : String(error)}` };
   }

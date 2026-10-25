@@ -5,6 +5,7 @@ import { crossesBox, inflate, inside, simplifyRoute } from "./geometry";
 import { labelBox, placeLabel } from "./labels";
 import { sidePorts } from "./ports";
 import { findOrthogonalPath, simpleRoutes } from "./search";
+import { outerRoutes } from "./outer";
 import { EPSILON, LANE_GAP, type CompoundRoutingOptions, type Point, type Port } from "./types";
 
 /** Choose separated side ports after placement; routing never moves node rectangles. */
@@ -86,7 +87,7 @@ export function routeCompoundEdges(
     const padded = [...obstacles, ...otherLabels, ...containers].map((box) => inflate(box, gap));
     const ports = (id: string): Port[] => {
       const box = boxes.get(id)!;
-      return sidePorts(box, gap, degree.get(id) ?? 1).filter(
+      return sidePorts(box, gap, degree.get(id) ?? 1, options.portMode).filter(
         (port) =>
           !padded.some((box) => inside(port.stub, box)) &&
           !padded.some((box) => !inside(port.point, box) && crossesBox(port.point, port.stub, box)) &&
@@ -129,9 +130,15 @@ export function routeCompoundEdges(
       (port) => attachmentCost(edge.source, port.point),
       (port) => attachmentCost(edge.target, port.point),
     );
-    const candidates = [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : [])]
-      .map((points) => ({ points, cost: cost(points) }))
-      .sort((a, b) => a.cost - b.cost);
+    const normal = [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : [])];
+    const shortest = Math.min(...normal.map(routeCost));
+    const outer = options.outerEdges?.has(edge.id)
+      ? outerRoutes(sources, targets, padded, extent).filter((points) => routeCost(points) <= shortest * 1.35 + 48)
+      : [];
+    const candidates = [
+      ...normal.map((points) => ({ points, cost: cost(points) })),
+      ...outer.map((points) => ({ points, cost: cost(points) - 96 })),
+    ].sort((a, b) => a.cost - b.cost);
     const lineObstacles = [...result.values()].flatMap((route) =>
       route.points.slice(1).map((point, i) => ({
         x: Math.min(point.x, route.points[i].x) - 4,
@@ -161,8 +168,8 @@ export function routeCompoundEdges(
         break;
       }
     }
-    if ((showLabels && edge.label) || options.outerEdges?.has(edge.id)) {
-      if (!labelPlaced || options.outerEdges?.has(edge.id)) {
+    if (showLabels && edge.label) {
+      if (!labelPlaced) {
         // Route through an outer label lane; only the canvas grows, never a node or container.
         const size =
           showLabels && edge.label

@@ -15,7 +15,6 @@ export interface AiRequest {
 }
 
 export interface AiContextPacket {
-  compoundLayout?: Record<string, unknown>;
   system: {
     role: "graph_editing_agent";
     language: "zh" | "en" | "auto";

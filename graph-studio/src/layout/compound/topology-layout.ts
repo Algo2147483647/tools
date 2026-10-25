@@ -102,9 +102,14 @@ export function arrangeTopology(
   columnGap: number,
   rowGap: number,
   direction: "AUTO" | "RIGHT" | "DOWN" = "AUTO",
+  flowOrder?: readonly string[],
 ): Arrangement {
   columnGap = Math.max(0, columnGap);
   rowGap = Math.max(0, rowGap);
+  // An explicit sibling flow defines the reading sequence, including cycles and
+  // disconnected components. Relationship edges remain unchanged in the graph.
+  if (flowOrder?.length === ids.length && ids.every((id) => flowOrder.includes(id)))
+    edges = flowOrder.slice(1).map((id, i) => [flowOrder[i], id]);
   edges = [...edges].sort(([a, b], [c, d]) => compare(a, c) || compare(b, d));
   const adjacent = new Map(ids.map((id) => [id, new Set<string>()]));
   for (const [a, b] of edges) {

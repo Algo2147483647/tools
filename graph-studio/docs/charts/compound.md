@@ -55,13 +55,13 @@ Routing occurs after node and container placement. Orthogonal routes avoid cards
 
 The Layout panel offers **Automatic** and **AI**. Automatic jointly arranges nodes, container sizes, connections and labels whenever graph data, the visible projection or layout settings change. Direction and the Readability/Compactness objective are declarative inputs. Internal alternatives are ranked automatically; there is no adjustment-range selector, candidate picker, preview or confirmation dialog.
 
-AI instructions generate direction and routing preferences. The local solver evaluates them, optionally checks one refinement and directly applies the selected declaration. AI cannot supply coordinates or lock positions. Scope, objective and selected preferences are enforced locally.
+AI instructions generate direction and routing preferences. A dedicated Layout request returns a small typed declaration. The local solver evaluates it and directly installs the computed result once. AI cannot supply coordinates or lock positions. Scope, objective and selected preferences are enforced locally.
 
 The **Layout quality** section describes the currently rendered result: validity, elapsed time, crossings, label collisions and bends, with route length, shared length, content area and diagnostics under Details. Quality and geometry are computed together and are not saved. Pan, zoom and selection do not rerun placement.
 
 ## Independent Layout protocol
 
-Layout files use `graph-studio-layout` version 1. Opened workspaces resolve a manifest `layouts` mapping first, then an adjacent `<graph-name>.layout.json`. Missing configuration uses defaults; invalid files show a notice and use defaults. Standalone graph files can import Layout through the Layout menu.
+Layout files use `graph-studio-layout` version 1. The only association is the graph's `metadata.layout` string, for example `"layout": "layouts/process.layout.json"`. Paths resolve relative to the graph, inside the opened workspace. An absent association uses built-in defaults and does not search neighboring files. A missing or invalid referenced file shows a notice and uses defaults. Open the containing workspace to resolve files; standalone browser file access cannot read siblings.
 
 ```json
 {
@@ -78,11 +78,15 @@ Layout files use `graph-studio-layout` version 1. Opened workspaces resolve a ma
 }
 ```
 
-`method` is `automatic` or `ai`, direction is `AUTO`, `RIGHT` or `DOWN`, and objective is `readability` or `compact`. At most 500 declarative constraints are supported: `direction` with nullable `scopeId`; `prefer-outer-route` with `edgeId`; and `port-side` with `edgeId`, `end` and `side`. All use `strength: "soft"`.
+`method` is `automatic` or `ai`, direction is `AUTO`, `RIGHT` or `DOWN`, and objective is `readability` or `compact`. At most 500 declarative constraints are supported: `direction` with nullable `scopeId`; `flow-order` with `scopeId` and 2–32 sibling `nodeIds`; `prefer-outer-route` with `edgeId`; and `port-side` with `edgeId`, `end` and `side`. All use `strength: "soft"`. Flow order specifies a sequential reading order on the flow axis, without editing relationship directions. AI flow orders must cover all siblings of a supplied orderable scope. Outer routing prefers a nearby corridor only when its detour is bounded; it does not force a canvas-wide loop.
 
-Coordinates, pins, accepted geometry, paths and snapshots are rejected by the Layout parser. Graph `metadata.layout` is discarded on load and omitted on save. Node IDs in Layout are repaired alongside graph renames/deletions; undo restores the graph and configuration together. Layout-only changes do not dirty graph JSON.
+Coordinates, pins, accepted geometry, paths and snapshots are rejected by the Layout parser. Graph JSON preserves only the `metadata.layout` association. Legacy embedded layout objects must be migrated; they are never silently treated as geometry. Run `node --loader ts-node/esm --experimental-specifier-resolution=node scripts/migrate-layout.ts graph.json` with Node 22.12+ to create `graph.migrated.json` and `graph.migrated.layout.json` beside the original. Existing outputs are never overwritten; coordinates and pins are discarded. Node IDs in Layout are repaired alongside graph renames/deletions; undo restores the graph and declaration together. Layout-only changes do not dirty graph JSON.
 
-**Import Layout**, **Save Layout** and **Reset to default** operate on the independent configuration. Save Layout downloads the configuration; place it beside the graph or associate it in the workspace manifest. A single-file browser open cannot discover sibling files.
+The Layout panel edits session declarations and displays quality. It has no source badge or import/save controls. Associated files are loaded inputs; changes in the panel do not overwrite them. Maintain a reusable declaration in the associated JSON file.
+
+Selecting **Automatic** clears the current structural/routing plan, restores `direction: "AUTO"` and recomputes locally. The objective and connection-port setting remain selected. **Connection ports** stores `portMode: "distributed"` (default, several side attachments to reduce overlap) or `"midpoints"` (only the four side centers, allowing shared attachments). Both Automatic and AI obey this setting, and changing it recomputes the layout immediately.
+
+AI responses contain only version, direction preference and at most 32 structural or routing constraints. Each plan replaces preferences for the supplied editable scopes and edges; omitted preferences are removed there. Commands, coordinates, explanations, unknown IDs, incomplete sibling orders and extra fields are rejected before computation. A malformed, truncated or semantically invalid response can be regenerated once; refusal, cancellation and network failures do not enter JSON repair. After calculation, problematic routing or solve failures can trigger one revision using measured execution feedback. Only the final chosen result is installed, without a Review step. If refinement fails, the first valid computation is used with a diagnostic; if no valid computation exists, the existing canvas remains intact. Error details identify the category, field path and provider completion metadata when available.
 
 ## Editing semantics
 

@@ -88,11 +88,11 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 `ai/transport/` owns provider requests and configuration. `protocol/` owns editing prompts, response parsing and legacy adaptation; `context/` owns summaries and packets; `session/` owns working memory, transitions and recovery; `execution/` owns command policies and preflight validation. `ai/types.ts` is the shared type entry.
 
-AI layout rules belong to their chart family under `layout/compound/ai/` and `layout/timeline/ai/`. Compound context, proposal policy and bounded feedback are separate from local inspection and diagnostics. Timeline supplies context, prompts, parsing and requests. Both use generic provider transport; algorithm and worker modules do not import network request entry points.
+AI layout rules belong to their chart family under `layout/compound/ai/` and `layout/timeline/ai/`. Each chart family supplies a compact schema, bounded context and semantic validation. Both use `layout/shared/ai/request.ts` for completion checks and a single correction budget, and shared provider transport; algorithm and worker modules do not import network request entry points.
 
 `transport/requestWithRepair.ts` owns request → parse → one repair attempt. Transport failures propagate without retries; cancellation prevents starting a repair request. Session persistence handles storage and serialization, while recovery interprets stored state. Recovery sanitizers and model-response parsers have different contracts.
 
-`app/ai/useAiSession.ts` owns session recovery and persistence effects. `useAiLayout.ts` coordinates layout responses with the request generation and abort controller owned by `useAiController`. A layout proposal supersedes pending graph-edit commands even if evaluation fails.
+`app/ai/useAiSession.ts` owns Console session recovery and persistence effects. Layout requests have separate controllers, cancellation and schemas; they do not consume or replace pending graph-edit plans. `useCompoundLayoutPlan.ts` installs one validated stage and commits its declaration, guarded by the current document, view and history revision.
 
 `console/dsl.ts` is the parsing entry. `syntax/` owns tokens and literals; `parsers/` groups command grammar. `console/executor.ts` evaluates batches sequentially on an isolated graph; `execution/` holds mutations, remapping, queries and output formatting. `app/console/` owns React commits, UI effects, history and completion. Compound layout commands remain separate asynchronous operations.
 

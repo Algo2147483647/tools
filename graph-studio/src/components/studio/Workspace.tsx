@@ -83,7 +83,7 @@ export default function Workspace({
           ) : null}
         </div>
         <div className="workspace-stage-shell">
-          {stage && stage.warnings.length > 0 && (
+          {stage && !stage.compoundLayout && stage.warnings.length > 0 && (
             <StageWarning
               key={JSON.stringify([documentGeneration, stage.layoutMode, stage.warnings])}
               message={stage.warnings.join(" ")}

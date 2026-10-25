@@ -1,40 +1,59 @@
-import { useEffect, useState } from "react";
-import type { buildCompoundStage } from "../../layout/compound/layout";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { StageData } from "../../layout/shared/types";
-import type { LayoutResult } from "../../layout/compound/layout-plan";
-import { automaticIntent } from "../../layout/compound/automatic";
-import { startLayoutWorker, type LayoutWorkerJob } from "./workerJob";
-import type { CompoundWorkerInput } from "../../layout/workers/protocol";
+import { computeCompoundStage, compoundInputKey, type CompoundStageInput } from "./computeCompoundStage";
 
-type Input = Parameters<typeof buildCompoundStage>[0];
-export function useCompoundStage(input: Input | null) {
-  const [result, setResult] = useState<{ input: Input; stage: StageData | null; error: string } | null>(null);
+type Result = { dag: CompoundStageInput["dag"]; key: string; stage: StageData | null; error: string };
+export function useCompoundStage(input: CompoundStageInput | null) {
+  const [result, setResult] = useState<Result | null>(null);
+  const installed = useRef<Result | null>(null);
+  const current = useRef(input);
+  current.current = input;
+  const key = input ? compoundInputKey(input) : "";
   useEffect(() => {
-    if (!input) return;
-    let cancelled = false;
-    let job: LayoutWorkerJob<LayoutResult> | undefined;
+    if (!input) {
+      installed.current = null;
+      setResult(null);
+      return;
+    }
+    if (installed.current?.dag === input.dag && installed.current.key === compoundInputKey(input)) return;
+    const abort = new AbortController();
     const timer = setTimeout(() => {
-      void import("../../layout/compound/layout").then(({ buildCompoundStage }) => buildCompoundStage({ ...input,
-        solve: async problem => {
-          if (cancelled) throw new Error("Layout cancelled.");
-          job = startLayoutWorker<CompoundWorkerInput, LayoutResult>({
-            createWorker: () => new Worker(new URL("../../layout/workers/compound.worker.ts", import.meta.url), { type: "module" }),
-            payload: { problem, intent: automaticIntent(problem) }, timeoutMs: 15000,
-            timeoutMessage: "Layout exceeded 15 seconds. Reduce the visible scope.", failureMessage: "Layout worker failed.",
-            invalidMessage: "Invalid layout result.", cancelMessage: "Layout cancelled.",
-          });
-          return job.result;
-        },
-      })).then(stage => { if (!cancelled) setResult({ input, stage, error: "" }); })
-        .catch(error => { if (!cancelled) setResult({ input, stage: null, error: error instanceof Error ? error.message : "Layout failed." }); });
+      void computeCompoundStage(input, abort.signal)
+        .then((stage) => {
+          if (abort.signal.aborted) return;
+          const next = { dag: input.dag, key: compoundInputKey(input), stage, error: "" };
+          installed.current = next;
+          setResult(next);
+        })
+        .catch((error) => {
+          if (!abort.signal.aborted)
+            setResult({
+              dag: input.dag,
+              key: compoundInputKey(input),
+              stage: null,
+              error: error instanceof Error ? error.message : "Layout failed.",
+            });
+        });
     }, 100);
-    return () => { cancelled = true; clearTimeout(timer); job?.cancel(); };
+    return () => {
+      clearTimeout(timer);
+      abort.abort();
+    };
   }, [input]);
+  const install = useCallback((expected: CompoundStageInput, next: CompoundStageInput, stage: StageData) => {
+    if (current.current !== expected) return false;
+    const value = { dag: next.dag, key: compoundInputKey(next), stage, error: "" };
+    installed.current = value;
+    setResult(value);
+    return true;
+  }, []);
+  const matches = result?.dag === input?.dag && result?.key === key;
   return {
     input,
-    inputKey: input ? JSON.stringify([input.view, input.selectedType, input.appearance, input.showNodeDetail, input.alignNodeWidthsToMax, input.showEdgeLabels, input.layout]) : "",
-    stage: result?.input === input ? result?.stage ?? null : null,
-    error: result?.input === input ? result?.error ?? "" : "",
-    loading: Boolean(input && result?.input !== input),
+    inputKey: key,
+    install,
+    stage: matches ? (result?.stage ?? null) : null,
+    error: matches ? (result?.error ?? "") : "",
+    loading: Boolean(input && !matches),
   };
 }

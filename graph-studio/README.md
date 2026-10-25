@@ -31,7 +31,7 @@ Open **Settings → Files → Export interactive HTML** after a graph has render
 
 The export is a read-only snapshot: filtered nodes, nodes inside collapsed groups, linked workspace files and embedded images are not bundled. Expand groups before export to include their nodes. Group containers retain their displayed title and can be selected, but their layout cannot be expanded or edited in the exported file. External references remain links; opening them requires a connection. Fonts use the recipient's installed fonts.
 
-For development, `/browser-tests/loading.html` serves an isolated regression fixture through Vite, covering deferred Markdown/math rendering, empty-file previews and export snapshots without opening local user files.
+For development, `/browser-tests/layout.html` serves an isolated regression fixture through Vite. It uses real Workers and local mock model responses to check single-computation AI application, bounded correction, cancellation, stale results and declaration-only undo without opening local user files.
 
 ### One-click startup (Windows / macOS)
 

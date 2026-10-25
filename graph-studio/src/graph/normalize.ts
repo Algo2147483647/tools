@@ -69,6 +69,12 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
   for (const name of ["id", "title"])
     if (input[name] !== undefined && typeof input[name] !== "string") throw new Error(`/${name} must be a string.`);
   if (input.metadata !== undefined && !isRecord(input.metadata)) throw new Error("/metadata must be an object.");
+  if (
+    isRecord(input.metadata) &&
+    input.metadata.layout !== undefined &&
+    (typeof input.metadata.layout !== "string" || !input.metadata.layout.trim())
+  )
+    throw new Error("/metadata/layout must be a relative Layout JSON path. Migrate embedded layout data first.");
   const timeline = isRecord(input.metadata) ? input.metadata.timeline : undefined;
   if (timeline !== undefined) {
     if (!isRecord(timeline)) throw new Error("/metadata/timeline must be an object.");
@@ -126,7 +132,6 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
     if (error) throw new Error(error);
   }
   const document = structuredClone(input) as unknown as NormalizedDag;
-  if (document.metadata) delete document.metadata.layout;
   return indexGraphDocument(document);
 }
 

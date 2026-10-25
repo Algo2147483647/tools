@@ -91,7 +91,7 @@ Hints select a view; they do not relax data validation. For example, `diagram: "
 | Chart preferences                                       | Browser preferences, independently per chart       |
 | Spatial camera and projection controls                  | Session view state                                 |
 | Nested expansion and focus                              | Document-specific view preferences                 |
-| Saved Arrange plans                                     | Document `metadata.layout` where supported         |
+| Saved Arrange plans                                     | Independent JSON referenced by `metadata.layout`   |
 
 Graph documents can currently contain chart-specific visual data, such as Sankey node `color` and Spatial `spatialStyle`. These are documented exceptions to the general data/style separation.
 

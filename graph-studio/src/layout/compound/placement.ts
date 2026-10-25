@@ -40,6 +40,11 @@ export function place(
         (c) => c.type === "direction" && c.scopeId === (scopeId ?? problem.projection.focusGroupId),
       );
       const orientation = persistentDirection?.type === "direction" ? persistentDirection.value : direction;
+      const order = data.constraints.find(
+        (c) => c.type === "flow-order" && c.scopeId === (scopeId ?? problem.projection.focusGroupId),
+      );
+      const flowOrder =
+        order?.type === "flow-order" ? order.nodeIds.filter((id) => scope.children.includes(id)) : undefined;
       const arranged = arrangeTopology(
         scope.children,
         scope.edges,
@@ -47,6 +52,7 @@ export function place(
         problem.columnGap,
         problem.rowGap,
         orientation,
+        flowOrder,
       );
       const preferred = new Map([...arranged.boxes].map(([id, b]) => [id, { ...b, x: b.x + left, y: b.y + top }]));
       const fixed = new Map<string, CompoundBox>();
@@ -60,7 +66,11 @@ export function place(
         box.x >= left - 0.01 &&
         box.y >= top - 0.01 &&
         (!limit || (box.x + box.width <= limit.width - 24 + 0.01 && box.y + box.height <= limit.height - 24 + 0.01));
-      const { layers, forward } = compoundTopology(scope.children, scope.edges);
+      const orderEdges: [string, string][] | undefined =
+        flowOrder?.length === scope.children.length && flowOrder.length >= 2
+          ? flowOrder.slice(1).map((id, i) => [flowOrder[i], id])
+          : undefined;
+      const { layers, forward } = compoundTopology(scope.children, orderEdges ?? scope.edges);
       const down = orientation === "DOWN";
       const before = (a: CompoundBox, b: CompoundBox) => {
         const major = down ? a.y + a.height / 2 - b.y - b.height / 2 : a.x + a.width / 2 - b.x - b.width / 2;

@@ -168,7 +168,7 @@ export default function AiSettingsPanel({
               />
             </label>
             <label className="settings-field-label" htmlFor="ai-max-tokens-input">
-              <span>Maximum tokens</span>
+              <span>Console output tokens</span>
               <input
                 id="ai-max-tokens-input"
                 className="settings-text-input"

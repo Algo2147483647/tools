@@ -1,134 +1,178 @@
 import assert from "node:assert/strict";
-import type { AiResponse } from "../ai/types";
+import { requestProviderText } from "../ai/transport/providerTransport";
+import type { AiSettings } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
-import { constrainLayoutProposal } from "../layout/compound/ai/proposalPolicy";
-import { runLayoutWorkflow } from "../layout/compound/ai/workflow";
+import { COMPOUND_AI_SCHEMA, parseCompoundAiPlan } from "../layout/compound/ai/protocol";
+import { LayoutRequestError, parseLayoutJson, requestLayoutPlan } from "../layout/shared/ai/request";
 import { routingHotspots } from "../layout/compound/diagnostics";
-import { formatLayoutFeedback, type LayoutFeedback } from "../layout/compound/feedback";
-import { defaultLayoutIntent, type LayoutMetrics } from "../layout/compound/layout-plan";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
-const intent = { ...defaultLayoutIntent(), operation: "layout-and-route" as const };
-const proposal: AiResponse = { kind: "propose_layout", layoutProtocolVersion: 1, answer: "Arrange the graph.", intent };
-const metrics: LayoutMetrics = {
-  crossings: 4,
-  sharedLength: 20,
-  labelCollisions: 0,
-  bends: 5,
-  length: 400,
-  area: 5000,
-  movedNodes: 0,
-  movement: 0,
-  changedEdges: 2,
+const valid = {
+  version: 1,
+  preferences: { direction: "DOWN" },
+  constraints: [{ type: "port-side", edgeId: "ab", end: "source", side: "south" }],
 };
-const feedback: LayoutFeedback = {
-  intent,
-  baseline: metrics,
-  candidate: {
-    id: "candidate",
-    metrics: { ...metrics, crossings: 2 },
-    warnings: [],
-    movedNodeIds: [],
-    changedEdgeIds: ["ab", "ac"],
-  },
-  diagnostics: [],
-  retainedEarlierCandidate: false,
+const settings: AiSettings = {
+  provider: "openai-compatible",
+  baseUrl: "https://test.invalid",
+  apiKey: "",
+  model: "layout-test",
+  temperature: 0.8,
+  maxTokens: 8192,
+  executionMode: "ask",
 };
-const base = () => ({ response: proposal, inspect: () => ({}), isCurrent: () => true, onProgress: () => {} });
+const parse = (value: unknown) => parseCompoundAiPlan(value, { direction: "DOWN", edgeIds: new Set(["ab"]) });
+async function mock(
+  replies: { content?: string; finish_reason?: string; refusal?: string; status?: number; error?: string }[],
+  run: (requests: Record<string, any>[]) => Promise<void>,
+) {
+  const original = globalThis.fetch,
+    requests: Record<string, any>[] = [];
+  globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
+    requests.push(JSON.parse(init.body));
+    const r = replies[Math.min(requests.length - 1, replies.length - 1)];
+    if (r.error === "network") throw new Error("offline");
+    return {
+      ok: !r.status,
+      status: r.status ?? 200,
+      text: async () =>
+        JSON.stringify(
+          r.status
+            ? { error: { message: r.error } }
+            : {
+                id: "test-request",
+                choices: [
+                  { finish_reason: r.finish_reason ?? "stop", message: { content: r.content, refusal: r.refusal } },
+                ],
+              },
+        ),
+    };
+  }) as unknown as typeof fetch;
+  try {
+    await run(requests);
+  } finally {
+    globalThis.fetch = original;
+  }
+}
+const request = (signal = new AbortController().signal, provider = settings.provider) =>
+  requestLayoutPlan({
+    settings: { ...settings, provider },
+    signal,
+    context: { edges: ["ab"] },
+    message: "Arrange",
+    schema: COMPOUND_AI_SCHEMA,
+    instructions: "Keep DOWN.",
+    parse,
+  });
 
-export const layoutWorkflowSuite = defineSuite("AI layout feedback", [
-  defineTest("feedback is sent once and refinement has a fixed two-evaluation budget", async () => {
-    let asks = 0;
-    const retained: boolean[] = [];
-    await runLayoutWorkflow({
-      ...base(),
-      evaluate: async (_, retain) => {
-        retained.push(retain);
-        return feedback;
-      },
-      ask: async (report) => {
-        asks++;
-        assert.ok(JSON.stringify(report).includes('"crossings":2'));
-        return proposal;
-      },
-    });
-    assert.equal(asks, 1);
-    assert.deepEqual(retained, [false, true]);
+export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
+  defineTest("dedicated schema preserves direction and rejects commands, coordinates and invented IDs", () => {
+    assert.equal(parse(valid).direction, "DOWN");
+    for (const bad of [
+      { ...valid, commands: ["/rm a"] },
+      { ...valid, explanation: "text" },
+      { ...valid, preferences: { direction: "RIGHT" } },
+      { ...valid, constraints: [{ type: "port-side", edgeId: "missing", end: "source", side: "south" }] },
+    ])
+      assert.throws(() => parse(bad), LayoutRequestError);
+    assert.throws(() => parse({ ...valid, constraints: [...valid.constraints, ...valid.constraints] }), /Duplicate/);
   }),
-  defineTest("refinements preserve scope, objective and selected direction", () => {
-    assert.throws(() => constrainLayoutProposal({ ...intent, scope: { groupId: "other", includeDescendants: true } }, intent), /scope/);
-    assert.throws(() => constrainLayoutProposal({ ...intent, objective: "compact" }, intent), /objective/);
-    const selected = { ...intent, constraints: [{ type: "direction" as const, scopeId: null, value: "DOWN" as const, strength: "soft" as const }] };
-    assert.throws(() => constrainLayoutProposal(intent, selected, true), /removed/);
-  }),
-  defineTest("inspection feeds a scoped result back before proposing geometry", async () => {
-    let evaluations = 0;
-    const outcome = await runLayoutWorkflow({
-      ...base(),
-      response: { kind: "inspect_layout", answer: "Inspect first.", scopeId: "g" },
-      inspect: (id) => ({ scopeId: id }),
-      evaluate: async () => {
-        evaluations++;
-        return feedback;
-      },
-      ask: async (report) => {
-        assert.ok(JSON.stringify(report).includes('"scopeId":"g"'));
-        return proposal;
-      },
-    });
-    assert.equal(evaluations, 1);
-    assert.equal(outcome.feedback, feedback);
-  }),
-  defineTest("a failed feedback request preserves locally computed results", async () => {
-    const outcome = await runLayoutWorkflow({
-      ...base(),
-      evaluate: async () => feedback,
-      ask: async () => {
-        throw new Error("Network unavailable");
-      },
-    });
-    assert.equal(outcome.feedback, feedback);
-    assert.match(outcome.explanation, /Network unavailable/);
-  }),
-  defineTest("cancellation prevents additional model requests and graph commands are rejected", async () => {
-    let current = true,
-      asks = 0;
-    await assert.rejects(
-      () =>
-        runLayoutWorkflow({
-          ...base(),
-          isCurrent: () => current,
-          evaluate: async () => {
-            current = false;
-            return feedback;
-          },
-          ask: async () => {
-            asks++;
-            return proposal;
-          },
-        }),
-      /cancelled/,
+  defineTest("whole-object parsing rejects double encoding, fences, multiple documents and cutoff replies", () => {
+    for (const content of [
+      JSON.stringify(JSON.stringify(valid)),
+      "```json\n" + JSON.stringify(valid) + "\n```",
+      JSON.stringify(valid) + "{}",
+      '{"version":1,',
+    ])
+      assert.throws(() => parseLayoutJson({ content }), LayoutRequestError);
+    assert.throws(
+      () => parseLayoutJson({ content: JSON.stringify(valid), finishReason: "length" }),
+      (e: unknown) => e instanceof LayoutRequestError && e.code === "truncated",
     );
-    assert.equal(asks, 0);
-    await assert.rejects(
-      () =>
-        runLayoutWorkflow({
-          ...base(),
-          response: { kind: "inspect", answer: "Inspect", commands: ["/rm a"] },
-          evaluate: async () => feedback,
-          ask: async () => proposal,
-        }),
-      /layout proposals/,
+    assert.throws(
+      () => parseLayoutJson({ content: "{}", refusal: "declined" }),
+      (e: unknown) => e instanceof LayoutRequestError && e.code === "refusal",
     );
   }),
-  defineTest("the result summary does not claim improvement for equal or worse metrics", () => {
-    assert.match(formatLayoutFeedback(feedback), /4 → 2/);
-    assert.match(
-      formatLayoutFeedback({ ...feedback, candidate: { ...feedback.candidate!, metrics } }),
-      /did not improve/,
+  defineTest("invalid JSON gets one bounded regeneration without replaying malformed text", async () => {
+    await mock([{ content: '{"bad":"broken QUOTE' }, { content: JSON.stringify(valid) }], async (requests) => {
+      assert.equal((await request()).direction, "DOWN");
+      assert.equal(requests.length, 2);
+      assert.equal(requests[0].temperature, 0);
+      assert.equal(requests[0].max_tokens, 4096);
+      assert.ok(!JSON.stringify(requests[1]).includes("broken QUOTE"));
+      assert.ok(!JSON.stringify(requests).includes("/set Water"));
+      assert.ok(JSON.stringify(requests[1]).includes("correction"));
+    });
+  }),
+  defineTest("semantic failures retain paths and request metadata after exactly two calls", async () => {
+    await mock(
+      [{ content: JSON.stringify({ ...valid, constraints: [{ type: "prefer-outer-route", edgeId: "missing" }] }) }],
+      async (requests) => {
+        await assert.rejects(
+          () => request(),
+          (e: unknown) =>
+            e instanceof LayoutRequestError &&
+            e.attempts === 2 &&
+            e.code === "semantic" &&
+            e.path === "/constraints/0/edgeId" &&
+            e.response?.requestId === "test-request",
+        );
+        assert.equal(requests.length, 2);
+      },
     );
-    assert.match(formatLayoutFeedback({ ...feedback, candidate: null }), /unchanged/);
+  }),
+  defineTest("truncation regenerates once even if the partial content appears parseable", async () => {
+    await mock(
+      [{ content: JSON.stringify(valid), finish_reason: "length" }, { content: JSON.stringify(valid) }],
+      async (requests) => {
+        await request();
+        assert.equal(requests.length, 2);
+        assert.equal(requests[0].max_tokens, 4096);
+        assert.equal(requests[1].max_tokens, 8192);
+      },
+    );
+  }),
+  defineTest("DeepSeek layout disables thinking and has a budget independent of Console settings", async () => {
+    await mock([{ content: JSON.stringify(valid) }], async (requests) => {
+      await requestLayoutPlan({
+        settings: { ...settings, provider: "deepseek", model: "deepseek-v4-flash", maxTokens: 900 },
+        signal: new AbortController().signal,
+        context: {},
+        message: "Arrange",
+        schema: COMPOUND_AI_SCHEMA,
+        instructions: "Keep DOWN",
+        parse,
+      });
+      assert.deepEqual(requests[0].thinking, { type: "disabled" });
+      assert.equal(requests[0].max_tokens, 4096);
+      await requestProviderText({ ...settings, provider: "deepseek", maxTokens: 900 }, "system", "user");
+      assert.equal(requests[1].thinking, undefined);
+      assert.equal(requests[1].max_tokens, 900);
+    });
+  }),
+  defineTest("refusal and transport failures do not enter JSON repair", async () => {
+    for (const reply of [{ refusal: "declined" }, { status: 401, error: "unauthorized" }, { error: "network" }])
+      await mock([reply], async (requests) => {
+        await assert.rejects(() => request());
+        assert.equal(requests.length, 1);
+      });
+  }),
+  defineTest("cancellation stops before any call and schema fallback shares the same two-call budget", async () => {
+    await mock([{ content: JSON.stringify(valid) }], async (requests) => {
+      const abort = new AbortController();
+      abort.abort();
+      await assert.rejects(() => request(abort.signal), /cancelled/);
+      assert.equal(requests.length, 0);
+    });
+    await mock([{ status: 400, error: "output_config schema unsupported" }, { content: "{}" }], async (requests) => {
+      // Anthropic uses a different envelope; deliberately invalid fallback still cannot request a third time.
+      await assert.rejects(() => request(undefined, "anthropic"));
+      assert.equal(requests.length, 2);
+      assert.ok(requests[0].output_config);
+      assert.equal(requests[1].output_config, undefined);
+    });
   }),
   defineTest("routing diagnostics identify original edges, crowded ports and unrelated containers", async () => {
     const dag = normalizeDagInput({

@@ -9,86 +9,7 @@
     "style": "./workflow.style.json",
     "relationshipSemantics": "Directed data flow and control flow. Optional paths are labelled. Arrows do not imply that every operation executes in one synchronous sequence.",
     "hierarchySemantics": "Groups represent responsibility boundaries. Nested subgroups expose internal processes; containment is independent of ordinary relationships.",
-    "layout": {
-      "compound": {
-        "version": 1,
-        "constraints": [
-          {
-            "type": "direction",
-            "scopeId": null,
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "open",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "appearance",
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "layout",
-            "value": "RIGHT",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "canvas",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "output",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "layout-baseline",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-sources",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-loading",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-session",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-geometry",
-            "value": "DOWN",
-            "strength": "soft"
-          },
-          {
-            "type": "direction",
-            "scopeId": "style-rendering",
-            "value": "DOWN",
-            "strength": "soft"
-          }
-        ],
-        "pins": []
-      }
-    },
+    "layout": "appearance-pipeline.layout.json",
     "focus": "Appearance",
     "nodeCount": 49,
     "edgeCount": 48,
@@ -114,7 +35,7 @@
     "layout": {
       "title": "04 · Compute layout",
       "type": "Process domain",
-      "define": "Turn document and view inputs into geometry; review optional arrangement proposals.",
+      "define": "Turn document and view inputs into live geometry and quality metrics.",
       "implementation": "src/layout/",
       "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
       "notes": "[Workflow guide](./README.md)"

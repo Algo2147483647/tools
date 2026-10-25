@@ -27,7 +27,7 @@ export interface EditTransaction {
 }
 
 export interface GraphAppState {
-  layoutDocument: { data: LayoutDocument; saved: LayoutDocument; source: string; notice: string };
+  layoutDocument: { data: LayoutDocument; notice: string };
   timelineSettings: TimelineViewSettings;
   dag: NormalizedDag | null;
   document: { id: string; generation: number; savedDag: NormalizedDag | null; linkedStyle?: ChartStyle };
@@ -71,7 +71,7 @@ export function createInitialGraphState(
   savedPreferences: GraphPagePreferences = getInitialGraphPagePreferences(),
 ): GraphAppState {
   return {
-    layoutDocument: { data: defaultLayoutDocument(), saved: defaultLayoutDocument(), source: "Default", notice: "" },
+    layoutDocument: { data: defaultLayoutDocument(), notice: "" },
     timelineSettings: savedPreferences.chartStyles.timeline.style.timeline!,
     dag: null,
     document: { id: "", generation: 0, savedDag: null },

@@ -7,6 +7,6 @@
   "metadata": {
     "description": "Explore the core application workflow and complete Appearance pipeline as two English nested graphs.",
     "language": "en",
-    "assets": ["README.md", "workflow.style.json", "appearance-pipeline.md"]
+    "assets": ["README.md", "workflow.style.json", "appearance-pipeline.md", "core-workflow.layout.json", "appearance-pipeline.layout.json"]
   }
 }

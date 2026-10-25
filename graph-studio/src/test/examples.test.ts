@@ -430,7 +430,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       },
     );
     assert.equal(state.chartType, "node-link");
-    assert.equal(state.layout.mode, "dagre");
+    assert.equal(state.layout.mode, "sugiyama", "No associated Layout means the default method.");
     assert.equal(state.source.dirty, false);
   }),
 ]);

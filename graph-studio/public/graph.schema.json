@@ -33,6 +33,11 @@
     "metadata": {
       "type": "object",
       "properties": {
+        "layout": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to an independent graph-studio-layout JSON file, resolved from this graph within the opened workspace."
+        },
         "timeline": {
           "type": "object",
           "description": "An optional view hint. Timeline preserves the v3 graph and its original edges.",
@@ -89,7 +94,7 @@
         "style": {
           "type": "string",
           "minLength": 1,
-          "description": "Relative path to a graph-studio-style JSON file, resolved from this graph within the opened workspace. Appearance and layout settings belong in that file."
+          "description": "Relative path to a graph-studio-style JSON file, resolved from this graph within the opened workspace. Reusable appearance settings belong in that file."
         },
         "space": {
           "type": "object",

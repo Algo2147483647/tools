@@ -388,7 +388,7 @@ export const timelineRelativeSuite = defineSuite("Relative and horizontal timeli
       controls,
       /Timeline time basis|Relative tick interval|Relative time origin|Relative time unit|Relative display precision/,
     );
-    assert.match(controls, /layout-engine-grid/);
+    assert.match(controls, /Timeline layout rules/);
     assert.doesNotMatch(controls, /Interval bars/);
     const intervals = renderToStaticMarkup(
       createElement(TimelineIntervalSettings, {

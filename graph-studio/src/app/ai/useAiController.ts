@@ -15,12 +15,9 @@ import { requestAiPlan, testAiConnection } from "../../ai/transport/providers";
 import type { AiHarnessState, AiSettings } from "../../ai/types";
 import { buildConsoleReviewCard } from "../../console/reviewCards";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
-import type { LayoutIntent } from "../../layout/compound/layout-plan";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
-import { useAiLayout } from "./useAiLayout";
 import { useAiSession } from "./useAiSession";
-import type { CompoundLayoutController } from "../layout/useCompoundLayoutPlan";
 import type { ConsoleController } from "../console/useConsoleController";
 
 type AiConsole = Pick<
@@ -34,7 +31,6 @@ export function useAiController({
   appearance,
   settings,
   consoleController,
-  compoundLayout,
 }: {
   state: GraphAppState;
   dispatch: Dispatch<GraphAction>;
@@ -42,7 +38,6 @@ export function useAiController({
   appearance: GraphAppearance;
   settings: AiSettings;
   consoleController: AiConsole;
-  compoundLayout?: CompoundLayoutController;
 }) {
   const { entries, contextNodeKey, appendMessage, recordInput, upsertReview, setReviewStatus, runSource } =
     consoleController;
@@ -51,34 +46,12 @@ export function useAiController({
   const busyRef = useRef(false);
   const requestGeneration = useRef(0);
   const requestAbort = useRef<AbortController | null>(null);
-  const layout = useAiLayout({
-    compoundLayout,
-    settings,
-    appendMessage,
-    requestGeneration,
-    requestAbort,
-    busyRef,
-    setBusy,
-  });
-  const {
-    layoutBusy,
-    layoutMessage,
-    layoutExplanation,
-    layoutActive,
-    layoutRequestKey,
-    setLayoutBusy,
-    setLayoutMessage,
-    setLayoutExplanation,
-    cancelLayout,
-  } = layout;
-
   const current = useRef({
     dag: state.dag,
     settings,
     appearance,
     contextNodeKey,
     graphRevision,
-    layoutKey: compoundLayout?.key,
   });
   current.current = {
     dag: state.dag,
@@ -86,7 +59,6 @@ export function useAiController({
     appearance,
     contextNodeKey,
     graphRevision,
-    layoutKey: compoundLayout?.key,
   };
 
   useEffect(() => {
@@ -146,31 +118,23 @@ export function useAiController({
   );
 
   const request = useCallback(
-    async (rawMessage: string, options?: { layoutIntent: LayoutIntent }) => {
+    async (rawMessage: string) => {
       const message = rawMessage.trim();
       if (!message || busyRef.current) return;
       const turnId = createTurnId();
       let next = runtimeHarness();
       recordInput("ask>", message);
-      if (!options && referencesPreviousWork(message) && next.pendingCommandBatch) {
+      if (referencesPreviousWork(message) && next.pendingCommandBatch) {
         setHarness(validateAndExecute(next, settings.executionMode === "review" && isExecutionApproval(message)));
         return;
       }
       if (!settings.baseUrl.trim() || !settings.model.trim()) {
-        if (options) setLayoutMessage("Configure a Base URL and model in Settings → AI.");
         appendMessage("error", "AI requires a base URL and model in the controls panel.");
         setHarness(next);
         return;
       }
       busyRef.current = true;
       setBusy(true);
-      if (options) {
-        layoutActive.current = true;
-        layoutRequestKey.current = compoundLayout?.key;
-        setLayoutBusy(true);
-        setLayoutMessage("Diagnosing the selected scope…");
-        setLayoutExplanation("");
-      }
       const generation = ++requestGeneration.current;
       const abort = new AbortController();
       requestAbort.current = abort;
@@ -181,7 +145,6 @@ export function useAiController({
         snapshot.dag === current.current.dag &&
         snapshot.settings === current.current.settings &&
         snapshot.appearance === current.current.appearance &&
-        snapshot.layoutKey === current.current.layoutKey &&
         snapshot.contextNodeKey === current.current.contextNodeKey;
       try {
         const context = buildAiContextPacket({
@@ -194,9 +157,6 @@ export function useAiController({
           contextNodeKey,
           appearance,
           consoleEntries: entries,
-          layoutContext: compoundLayout?.context
-            ? { ...compoundLayout.context, requestPolicy: options?.layoutIntent }
-            : undefined,
         });
         const response = await requestAiPlan({ settings, context, message, signal: abort.signal });
         if (!isCurrent()) {
@@ -205,29 +165,6 @@ export function useAiController({
               "info",
               "AI response discarded because its document, context or settings changed. Please try again.",
             );
-          return;
-        }
-        if (options || response.kind === "propose_layout" || response.kind === "inspect_layout") {
-          if (!compoundLayout?.ready)
-            throw new Error("Open a rendered Nested node-link chart before requesting layout changes.");
-          // A geometry plan supersedes an old command batch; continuing must not execute unrelated edits.
-          next = {
-            ...next,
-            activePlan: undefined,
-            pendingCommandBatch: undefined,
-            workingMemory: { ...next.workingMemory, activePlanId: undefined, pendingCommandBatchId: undefined },
-          };
-
-          const layoutHarness = await layout.handleResponse({
-            response,
-            panelIntent: options?.layoutIntent,
-            context,
-            message,
-            signal: abort.signal,
-            isCurrent,
-            next,
-          });
-          if (layoutHarness) setHarness(layoutHarness);
           return;
         }
         if (response.kind === "answer" || response.kind === "clarify") {
@@ -246,21 +183,13 @@ export function useAiController({
         setHarness(validateAndExecute(next));
       } catch (error) {
         if (!isCurrent()) {
-          if (generation === requestGeneration.current && layoutActive.current)
-            setLayoutMessage("The graph, view or settings changed. Request a new layout.");
           return;
         }
         const messageText = error instanceof Error ? error.message : "AI request failed.";
-        if (layoutActive.current) {
-          setLayoutMessage(messageText);
-          compoundLayout?.cancel();
-        }
         appendMessage("error", messageText);
         setHarness(next);
       } finally {
         if (generation === requestGeneration.current) {
-          layoutActive.current = false;
-          setLayoutBusy(false);
           busyRef.current = false;
           setBusy(false);
         }
@@ -270,8 +199,6 @@ export function useAiController({
       appearance,
       appendMessage,
       contextNodeKey,
-      compoundLayout,
-      layout,
       entries,
       recordInput,
       runtimeHarness,
@@ -365,10 +292,6 @@ export function useAiController({
     dismissReview,
     copyReview,
     testConnection,
-    layoutBusy,
-    layoutMessage,
-    layoutExplanation,
-    cancelLayout,
   };
 }
 

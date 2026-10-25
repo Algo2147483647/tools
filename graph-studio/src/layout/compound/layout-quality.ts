@@ -70,7 +70,7 @@ export function validateLayoutGeometry(problem: LayoutProblem, geometry: LayoutG
     Object.keys(geometry.boxes).some((id) => !ids.has(id)) ||
     Object.keys(geometry.routes).some((id) => !edgeIds.has(id))
   )
-    fail("Snapshot contains objects outside the current projection.");
+    fail("Geometry contains objects outside the current projection.");
   const validBoxes = new Set<string>();
   for (const item of items) {
     const b = geometry.boxes[item.id];
@@ -263,10 +263,18 @@ export function measureLayout(problem: LayoutProblem, geometry: LayoutGeometry):
   return metrics;
 }
 export function compareLayoutMetrics(a: LayoutMetrics, b: LayoutMetrics, objective: LayoutObjective): number {
+  if (!close(a.labelCollisions, b.labelCollisions)) return a.labelCollisions - b.labelCollisions;
+  if (objective === "readability") {
+    // Use the router's finite trade-offs: a tiny shared-run reduction cannot
+    // dominate an arbitrarily long detour or hundreds of new crossings.
+    const cost = (m: LayoutMetrics) =>
+      m.length + 4 * m.sharedLength + 160 * m.crossings + 20 * m.bends + 2 * Math.sqrt(m.area);
+    if (!close(cost(a), cost(b))) return cost(a) - cost(b);
+  }
   const keys: (keyof LayoutMetrics)[] =
     objective === "compact"
-        ? ["labelCollisions", "area", "crossings", "sharedLength", "bends", "length"]
-        : ["labelCollisions", "sharedLength", "crossings", "bends", "length", "area"];
+      ? ["labelCollisions", "area", "crossings", "sharedLength", "bends", "length"]
+      : ["labelCollisions", "sharedLength", "crossings", "bends", "length", "area"];
   for (const key of keys) if (!close(a[key], b[key])) return a[key] - b[key];
   return 0;
 }

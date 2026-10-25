@@ -32,7 +32,7 @@ export const stateSuite = defineSuite("state", [
     });
 
     assert.equal(nextState.mode, "edit");
-    assert.equal(nextState.layout.mode, "dagre");
+    assert.equal(nextState.layout.mode, "sugiyama", "No associated Layout means the default method.");
     assert.equal(nextState.ui.consoleSidebarOpen, true);
     assert.equal(nextState.ui.consoleSidebarWidth, 420);
     assert.equal(nextState.source.fileName, "sample.json");

@@ -40,7 +40,9 @@ export function buildAiGraphContext({
 
   appearance: GraphAppearance;
 }): AiGraphContext {
-  const commandReference = CONSOLE_COMMAND_REFERENCE.map((command) => `${command.label}: ${command.help}`).join("\n");
+  const commandReference = CONSOLE_COMMAND_REFERENCE.filter((command) => !command.label.startsWith("/compound-layout"))
+    .map((command) => `${command.label}: ${command.help}`)
+    .join("\n");
 
   if (!dag) {
     return {

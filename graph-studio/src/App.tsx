@@ -47,7 +47,7 @@ export default function App() {
     },
     appearance,
   );
-  const compoundLayoutPlan = useCompoundLayoutPlan(state, dispatch, viewport);
+  const compoundLayoutPlan = useCompoundLayoutPlan(state, dispatch, viewport, preferences.aiSettings);
   const timelineLayoutPlan = useTimelineLayout(state, dispatch, preferences.aiSettings, viewport);
   layoutCommandRef.current = (source: string) => {
     try {
@@ -77,7 +77,6 @@ export default function App() {
     appearance,
     settings: preferences.aiSettings,
     consoleController,
-    compoundLayout: compoundLayoutPlan,
   });
   const nodeActions = useNodeActions(
     { state, dispatch, openNodeDetail: ui.openNodeDetail, closeModals: ui.closeModals },

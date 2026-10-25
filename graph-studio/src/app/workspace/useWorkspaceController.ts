@@ -51,7 +51,7 @@ export function useWorkspaceController({
 
   function mayReplace() {
     return (
-      (!stateRef.current.source.dirty && JSON.stringify(stateRef.current.layoutDocument.data) === JSON.stringify(stateRef.current.layoutDocument.saved)) ||
+      !stateRef.current.source.dirty ||
       window.confirm(
         `"${stateRef.current.source.fileName}" has unsaved changes. Discard them and open another document?`,
       )
@@ -81,7 +81,6 @@ export function useWorkspaceController({
       dag,
       linkedStyle: style.linkedStyle,
       linkedLayout: style.linkedLayout,
-      layoutSource: style.layoutSource,
       layoutNotice: style.layoutNotice,
       fileName: entry.path,
       fileHandle: entry.handle,

@@ -1,9 +1,4 @@
-import {
-  compileConstraints,
-  directionWarnings,
-  layoutScopeMembers,
-  validateLayoutConstraints,
-} from "./constraints";
+import { compileConstraints, directionWarnings, layoutScopeMembers, validateLayoutConstraints } from "./constraints";
 import {
   layoutFingerprint,
   parseLayoutIntent,
@@ -47,32 +42,31 @@ export function solveCompoundLayout(
           )
           .map((e) => [e.id, problem.baseline.routes[e.id]]),
       );
-      const outerEdges = new Set<string>(),
-        portSides = new Map<string, { source?: number; target?: number }>();
-      const aggregatedPreferenceWarnings: string[] = [];
-      for (const c of data.constraints) {
-        if (c.type === "direction") continue;
-        for (const edge of problem.projection.edges.filter((e) => e.originalEdgeIds.includes(c.edgeId))) {
-          if (c.type === "prefer-outer-route") outerEdges.add(edge.id);
-          else {
-            const side = ["east", "south", "west", "north"].indexOf(c.side),
-              previous = portSides.get(edge.id)?.[c.end];
-            if (previous !== undefined && previous !== side)
-              aggregatedPreferenceWarnings.push(
-                `Aggregated connection ${edge.originalEdgeIds.join(", ")} has conflicting ${c.end} port preferences; the first preference was retained.`,
-              );
-            else portSides.set(edge.id, { ...portSides.get(edge.id), [c.end]: side });
-          }
-        }
-      }
-      const width = Math.max(problem.baseline.width, ...Object.values(boxes).map((b) => b.x + b.width + 36));
-      const height = Math.max(problem.baseline.height, ...Object.values(boxes).map((b) => b.y + b.height + 36));
+      const { outerEdges, portSides, aggregatedPreferenceWarnings } = routingPreferences(problem, data);
+      const fixedPoints = [...fixedRoutes.values()].flatMap((route) => route?.points ?? []);
+      const width = Math.max(
+        problem.minimumCanvas?.width ?? 0,
+        ...Object.values(boxes).map((b) => b.x + b.width + 36),
+        ...fixedPoints.map((p) => p.x + 36),
+      );
+      const height = Math.max(
+        problem.minimumCanvas?.height ?? 0,
+        ...Object.values(boxes).map((b) => b.y + b.height + 36),
+        ...fixedPoints.map((p) => p.y + 36),
+      );
       const routed = routeCompoundEdges(
         problem.projection,
         new Map(Object.entries(boxes)),
         { x: 0, y: 0, width, height },
         problem.showLabels,
-        { reverseOrder: attempt % 2 === 1, fixedRoutes, outerEdges, portSides, labelSizes: problem.labelSizes },
+        {
+          reverseOrder: attempt % 2 === 1,
+          fixedRoutes,
+          outerEdges,
+          portSides,
+          labelSizes: problem.labelSizes,
+          portMode: data.portMode,
+        },
       );
       const geometry: LayoutGeometry = {
         boxes: Object.fromEntries(Object.entries(boxes)),
@@ -97,18 +91,7 @@ export function solveCompoundLayout(
         ...directionWarnings(problem, geometry, data),
         ...aggregatedPreferenceWarnings,
       ];
-      for (const [edgeId, preferences] of portSides) {
-        const edge = problem.projection.edges.find((e) => e.id === edgeId)!;
-        for (const end of ["source", "target"] as const) {
-          const side = preferences[end];
-          if (side === undefined) continue;
-          const box = boxes[edge[end]],
-            points = geometry.routes[edgeId].points,
-            point = end === "source" ? points[0] : points.at(-1)!;
-          if (!onPortSide(point, box, side))
-            unmetPreferences.push(`Preferred ${end} port was unavailable for ${edge.originalEdgeIds.join(", ")}.`);
-        }
-      }
+      unmetPreferences.push(...portWarnings(problem, geometry, portSides));
       const scopeDirection = data.constraints.find((c) => c.type === "direction" && c.scopeId === intent.scope.groupId);
       const effectiveDirection = scopeDirection?.type === "direction" ? scopeDirection.value : directions[attempt];
       candidates.push({
@@ -148,3 +131,46 @@ export function solveCompoundLayout(
 }
 
 export { layoutScopeMembers, validateLayoutConstraints } from "./constraints";
+
+export function routingPreferences(problem: LayoutProblem, data: LayoutProblem["stored"]) {
+  const outerEdges = new Set<string>(),
+    portSides = new Map<string, { source?: number; target?: number }>();
+  const aggregatedPreferenceWarnings: string[] = [];
+  for (const c of data.constraints) {
+    if (c.type === "direction" || c.type === "flow-order") continue;
+    for (const edge of problem.projection.edges.filter((e) => e.originalEdgeIds.includes(c.edgeId))) {
+      if (c.type === "prefer-outer-route") outerEdges.add(edge.id);
+      else {
+        const side = ["east", "south", "west", "north"].indexOf(c.side),
+          previous = portSides.get(edge.id)?.[c.end];
+        if (previous !== undefined && previous !== side)
+          aggregatedPreferenceWarnings.push(
+            `Aggregated connection ${edge.originalEdgeIds.join(", ")} has conflicting ${c.end} port preferences; the first preference was retained.`,
+          );
+        else portSides.set(edge.id, { ...portSides.get(edge.id), [c.end]: side });
+      }
+    }
+  }
+  return { outerEdges, portSides, aggregatedPreferenceWarnings };
+}
+
+export function portWarnings(
+  problem: LayoutProblem,
+  geometry: LayoutGeometry,
+  portSides: Map<string, { source?: number; target?: number }>,
+) {
+  const unmetPreferences: string[] = [];
+  for (const [edgeId, preferences] of portSides) {
+    const edge = problem.projection.edges.find((e) => e.id === edgeId)!;
+    for (const end of ["source", "target"] as const) {
+      const side = preferences[end];
+      if (side === undefined) continue;
+      const box = geometry.boxes[edge[end]],
+        points = geometry.routes[edgeId].points,
+        point = end === "source" ? points[0] : points.at(-1)!;
+      if (!onPortSide(point, box, side))
+        unmetPreferences.push(`Preferred ${end} port was unavailable for ${edge.originalEdgeIds.join(", ")}.`);
+    }
+  }
+  return unmetPreferences;
+}

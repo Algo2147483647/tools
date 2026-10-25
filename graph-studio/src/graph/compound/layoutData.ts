@@ -6,6 +6,7 @@ export type LayoutObjective = "readability" | "compact";
 
 export type LayoutConstraint =
   | { type: "direction"; scopeId: string | null; value: LayoutDirection; strength: "soft" }
+  | { type: "flow-order"; scopeId: string | null; nodeIds: string[]; strength: "soft" }
   | { type: "prefer-outer-route"; edgeId: string; strength: "soft" }
   | {
       type: "port-side";
@@ -28,16 +29,24 @@ export interface CompoundLayoutData {
   method: "automatic" | "ai";
   direction: LayoutDirection;
   objective: LayoutObjective;
+  portMode: "distributed" | "midpoints";
   constraints: LayoutConstraint[];
 }
 
 export function emptyLayoutData(): CompoundLayoutData {
-  return { version: 1, method: "automatic", direction: "AUTO", objective: "readability", constraints: [] };
+  return {
+    version: 1,
+    method: "automatic",
+    direction: "AUTO",
+    objective: "readability",
+    portMode: "distributed",
+    constraints: [],
+  };
 }
 
 export function parseCompoundLayout(value: unknown): CompoundLayoutData {
   const r = object(value, "Compound layout");
-  keys(r, ["version", "method", "direction", "objective", "constraints"], "compound layout");
+  keys(r, ["version", "method", "direction", "objective", "portMode", "constraints"], "compound layout");
   if (r.version !== undefined && r.version !== 1) throw new Error("Unsupported compound layout version.");
   const constraints = r.constraints ?? [];
   if (!Array.isArray(constraints) || constraints.length > 500) throw new Error("Supply at most 500 constraints.");
@@ -46,6 +55,7 @@ export function parseCompoundLayout(value: unknown): CompoundLayoutData {
     method: oneOf(r.method ?? "automatic", ["automatic", "ai"], "method"),
     direction: oneOf(r.direction ?? "AUTO", ["AUTO", "RIGHT", "DOWN"], "direction"),
     objective: oneOf(r.objective ?? "readability", ["readability", "compact"], "objective"),
+    portMode: oneOf(r.portMode ?? "distributed", ["distributed", "midpoints"], "port mode"),
     constraints: constraints.map(parseLayoutConstraint),
   };
 }
@@ -77,6 +87,14 @@ function oneOf<T extends string>(value: unknown, allowed: readonly T[], name: st
 export function parseLayoutConstraint(value: unknown): LayoutConstraint {
   const c = object(value, "Constraint");
   switch (c.type) {
+    case "flow-order": {
+      keys(c, ["type", "scopeId", "nodeIds", "strength"], "flow order");
+      if (!Array.isArray(c.nodeIds) || c.nodeIds.length < 2 || c.nodeIds.length > 32)
+        throw new Error("Flow order requires 2 to 32 sibling IDs.");
+      const nodeIds = c.nodeIds.map((value) => id(value, "nodeId"));
+      if (new Set(nodeIds).size !== nodeIds.length) throw new Error("Flow order contains duplicate IDs.");
+      return { type: c.type, scopeId: scopeId(c.scopeId), nodeIds, strength: oneOf(c.strength, ["soft"], "strength") };
+    }
     case "direction":
       keys(c, ["type", "scopeId", "value", "strength"], "direction");
       return {
@@ -149,4 +167,3 @@ export function layoutFingerprint(value: unknown): string {
   }
   return `${text.length}:${a >>> 0}:${b >>> 0}`;
 }
-

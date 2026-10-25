@@ -60,6 +60,7 @@ export function diagnoseCompoundLayout(problem: LayoutProblem) {
       supported: [
         "scoped-layout",
         "direction",
+        "sibling-flow-order",
         "outer-route-preference",
         "port-side-preference",
         "multiple-ports-per-side",

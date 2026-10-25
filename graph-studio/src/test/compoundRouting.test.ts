@@ -30,6 +30,24 @@ export const compoundRoutingSuite = defineSuite("Compound routing clearance", [
       for (let i = 1; i < route.points.length; i++)
         for (const box of boxes.values()) assert.ok(!segmentCrossesBox(route.points[i - 1], route.points[i], box));
     assert.deepEqual(boxes, before);
+    const centered = routeCompoundEdges(projection, boxes, bounds, false, { portMode: "midpoints" }).routes;
+    for (const edge of projection.edges) {
+      const route = centered.get(edge.id)!;
+      for (const [id, point] of [
+        [edge.source, route.points[0]],
+        [edge.target, route.points.at(-1)!],
+      ] as const) {
+        const box = boxes.get(id)!;
+        const midpoints = [
+          [box.x, box.y + box.height / 2],
+          [box.x + box.width, box.y + box.height / 2],
+          [box.x + box.width / 2, box.y],
+          [box.x + box.width / 2, box.y + box.height],
+        ];
+        assert.ok(midpoints.some(([x, y]) => point.x === x && point.y === y));
+      }
+    }
+    assert.notDeepEqual(centered, routes, "port mode must affect fan-out geometry");
     assert.deepEqual(
       routeCompoundEdges({ ...projection, edges: [...projection.edges].reverse() }, boxes, bounds, false).routes,
       routes,

@@ -2,10 +2,15 @@ import type { CompoundBox } from "../../../graph/compound/geometry";
 import { LANE_GAP, MIN_STRAIGHT, type Port } from "./types";
 
 /** Prefer the midpoint, then offer distinct ports clear of rounded card corners. */
-export function sidePorts(box: CompoundBox, clearance: number, degree: number): Port[] {
+export function sidePorts(
+  box: CompoundBox,
+  clearance: number,
+  degree: number,
+  mode: "distributed" | "midpoints" = "distributed",
+): Port[] {
   return [0, 1, 2, 3].flatMap((direction) => {
     const sideLength = direction % 2 ? box.width : box.height;
-    const count = Math.min(2, degree - 1, Math.floor((sideLength / 2 - 12) / LANE_GAP));
+    const count = mode === "midpoints" ? 0 : Math.min(2, degree - 1, Math.floor((sideLength / 2 - 12) / LANE_GAP));
     const offsets = [0];
     for (let i = 1; i <= count; i++) offsets.push(-i * LANE_GAP, i * LANE_GAP);
     return offsets.flatMap((offset) => {

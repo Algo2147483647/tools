@@ -4,7 +4,7 @@ import type { GraphDocument, NodeKey, NormalizedDag } from "./types";
 export function serializeDag(dag: NormalizedDag): GraphDocument {
   // structuredClone excludes non-enumerable node IDs and adjacency indexes.
   const document = structuredClone(dag);
-  if (document.metadata) delete document.metadata.layout;
+  if (document.metadata && typeof document.metadata.layout !== "string") delete document.metadata.layout;
   return document;
 }
 
