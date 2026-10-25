@@ -3,7 +3,7 @@ import type { LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
 import { routingHotspots } from "../diagnostics";
 import { requestLayoutPlan } from "../../shared/ai/request";
-import { COMPOUND_AI_SCHEMA, parseCompoundAiPlan, type CompoundAiPolicy } from "./protocol";
+import { COMPOUND_AGENT_SCHEMA, parseCompoundAiDecision, type CompoundAiPolicy } from "./protocol";
 import { buildScopes } from "../constraints";
 import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
 
@@ -22,10 +22,7 @@ export function compoundAiContext(problem: LayoutProblem) {
         id ?? problem.projection.focusGroupId,
         {
           nodeIds: scope.children,
-          orderable:
-            scope.children.length >= 2 &&
-            scope.children.length <= 32 &&
-            !nodes.some((n) => scope.children.includes(n.id) && n.external),
+          orderable: scope.children.length >= 2 && !nodes.some((n) => scope.children.includes(n.id) && n.external),
         },
       ]),
   );
@@ -54,7 +51,10 @@ export function compoundAiContext(problem: LayoutProblem) {
         external: n.external,
         collapsed: n.collapsed,
         kind: n.kind,
+        semanticType: problem.nodeSemantics?.[n.id]?.type,
+        description: problem.nodeSemantics?.[n.id]?.description,
         size: { width: problem.baseline.boxes[n.id].width, height: problem.baseline.boxes[n.id].height },
+        position: { x: problem.baseline.boxes[n.id].x, y: problem.baseline.boxes[n.id].y },
       })),
       edges: edges
         .filter((e) => e.originalEdgeIds.some((id) => edgeIds.has(id)))
@@ -76,7 +76,7 @@ export function compoundAiContext(problem: LayoutProblem) {
         edges.length < problem.projection.edges.length ||
         edgeIds.size < edges.reduce((sum, e) => sum + e.originalEdgeIds.length, 0),
       quality: measureLayout(problem, problem.baseline),
-      crossings: filterHotspots(hotspots.crossings).map(({ edgeIds }) => ({ edgeIds })),
+      crossings: filterHotspots(hotspots.crossings),
       sharedRuns: filterHotspots(hotspots.sharedRuns),
       detours: filterHotspots(hotspots.detours),
       crowdedPorts: filterHotspots(hotspots.crowdedPorts),
@@ -87,33 +87,60 @@ export function compoundAiContext(problem: LayoutProblem) {
   };
 }
 
-export function requestCompoundLayout(
+export function requestCompoundLayoutDecision(
   settings: AiSettings,
   problem: LayoutProblem,
   message: string,
   signal: AbortSignal,
-  onRetry?: () => void,
-  execution?: { feedback: unknown; selectedDirection: CompoundAiPolicy["direction"] },
+  onRetry: (() => void) | undefined,
+  session: {
+    observations: unknown[];
+    selectedDirection: CompoundAiPolicy["direction"];
+    canEvaluate: boolean;
+    candidateIds: ReadonlySet<string>;
+    evaluationsRemaining: number;
+    decisionsRemaining: number;
+  },
 ) {
   const { edgeIds, scopes, context } = compoundAiContext(problem);
-  const selectedDirection = execution?.selectedDirection ?? problem.stored.direction;
+  const selectedDirection = session.selectedDirection;
   return requestLayoutPlan({
     settings,
-    context: { ...context, selectedDirection, executionFeedback: execution?.feedback },
+    context: {
+      ...context,
+      selectedDirection,
+      session: {
+        observations: session.observations,
+        selectableCandidates: [...session.candidateIds],
+        canEvaluate: session.canEvaluate,
+        evaluationsRemaining: session.evaluationsRemaining,
+        decisionsRemaining: session.decisionsRemaining,
+      },
+    },
     message,
     signal,
-    schema: COMPOUND_AI_SCHEMA,
+    schema: COMPOUND_AGENT_SCHEMA,
+    purpose: "layout-planning",
     onRetry,
     instructions:
       COMPOUND_PLANNER_INSTRUCTIONS +
       "\nMinimal response example: " +
-      JSON.stringify({ version: 1, preferences: { direction: selectedDirection }, constraints: [] }),
+      JSON.stringify({
+        action: "evaluate",
+        hypothesis: "Test the main flow direction while preserving parallel branches.",
+        plan: { version: 1, preferences: { direction: selectedDirection }, constraints: [] },
+      }) +
+      '\nFinish example: {"action":"finish","candidateId":"trial-1","summary":"The chosen arrangement keeps the main flow clear and reduces crossings."}',
     parse: (value) =>
-      parseCompoundAiPlan(value, {
-        direction: selectedDirection,
-        edgeIds,
-        scopes,
-        scopeId: problem.projection.focusGroupId,
-      }),
+      parseCompoundAiDecision(
+        value,
+        {
+          direction: selectedDirection,
+          edgeIds,
+          scopes,
+          scopeId: problem.projection.focusGroupId,
+        },
+        session,
+      ),
   });
 }

@@ -11,7 +11,7 @@ export interface ProviderReply {
 }
 export interface ProviderOutput {
   schema?: Record<string, unknown>;
-  purpose?: "layout";
+  purpose?: "layout" | "layout-planning";
 }
 export class ProviderError extends Error {
   constructor(
@@ -68,7 +68,12 @@ async function requestOpenAiCompatible(
       model: settings.model,
       temperature: settings.temperature,
       max_tokens: settings.maxTokens,
-      ...(disableThinking ? { thinking: { type: "disabled" } } : {}),
+      ...(disableThinking
+        ? { thinking: { type: "disabled" } }
+        : output.purpose === "layout-planning" &&
+            (settings.provider === "deepseek" || isDeepSeekEndpoint(settings.baseUrl))
+          ? { thinking: { type: "enabled" } }
+          : {}),
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },

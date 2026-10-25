@@ -3,7 +3,7 @@ import type { AiSettings } from "../../ai/types";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../../layout/compound/inspection";
 import { defaultLayoutIntent, parseLayoutIntent, type CompoundLayoutData } from "../../layout/compound/layout-plan";
 import { compileConstraints, layoutScopeMembers } from "../../layout/compound/constraints";
-import { runCompoundAiLayout } from "../../layout/compound/ai/workflow";
+import { runCompoundAiLayout, COMPOUND_AI_BUDGET } from "../../layout/compound/ai/workflow";
 import { LayoutRequestError, presentLayoutError } from "../../layout/shared/ai/request";
 import { parseCompoundLayout } from "../../graph/compound/layoutData";
 import type { StageData } from "../../layout/shared/types";
@@ -90,7 +90,7 @@ export function useCompoundLayoutPlan(
       const timeout = setTimeout(() => {
         timedOut = true;
         abort.abort();
-      }, 90000);
+      }, COMPOUND_AI_BUDGET.timeoutMs);
       setBusy(true);
       setMessage("Planning layout…");
       setDetail("");
@@ -103,6 +103,7 @@ export function useCompoundLayoutPlan(
           const result = await runCompoundAiLayout({
             settings: initial.aiSettings,
             problem: initial.problem,
+            currentStage: initial.viewport.stage!,
             message: request.message,
             signal: abort.signal,
             compute: (data) => computeCompoundStage({ ...input, layout: parseCompoundLayout(data) }, abort.signal),
@@ -128,7 +129,15 @@ export function useCompoundLayoutPlan(
         if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
         // Transfer the one computed stage into the live renderer, then commit only its declaration.
         if (!initial.viewport.compoundLayout.install(input, nextInput, stage)) return "Layout context changed.";
-        change(data);
+        // Commit the model's selection without invoking the Automatic tab reset.
+        dispatch({
+          type: "layoutDocumentChanged",
+          generation: initial.state.document.generation,
+          data: {
+            ...initial.state.layoutDocument.data,
+            charts: { ...initial.state.layoutDocument.data.charts, compound: data },
+          },
+        });
         setMessage("Layout applied.");
         return "Layout applied.";
       } catch (error) {
@@ -137,7 +146,7 @@ export function useCompoundLayoutPlan(
             abort.signal.aborted
               ? new LayoutRequestError(
                   timedOut ? "completion" : "cancelled",
-                  timedOut ? "Layout request exceeded 90 seconds." : "Layout cancelled.",
+                  timedOut ? "Layout planning exceeded four minutes." : "Layout cancelled.",
                 )
               : error,
           );
@@ -153,7 +162,7 @@ export function useCompoundLayoutPlan(
         }
       }
     },
-    [change],
+    [dispatch],
   );
   return {
     ready,

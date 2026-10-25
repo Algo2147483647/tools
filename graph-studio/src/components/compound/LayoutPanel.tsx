@@ -152,6 +152,7 @@ export default function CompoundLayoutPanel({
         {c.quality && (
           <>
             <p>Geometry valid · {Math.round(c.quality.elapsedMs)} ms</p>
+            {c.quality.aiAssessment && <p className="layout-status">{c.quality.aiAssessment}</p>}
             <LayoutRules
               rows={[
                 { label: "Crossings", value: c.quality.metrics.crossings },

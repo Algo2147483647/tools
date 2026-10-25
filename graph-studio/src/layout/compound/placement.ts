@@ -66,11 +66,7 @@ export function place(
         box.x >= left - 0.01 &&
         box.y >= top - 0.01 &&
         (!limit || (box.x + box.width <= limit.width - 24 + 0.01 && box.y + box.height <= limit.height - 24 + 0.01));
-      const orderEdges: [string, string][] | undefined =
-        flowOrder?.length === scope.children.length && flowOrder.length >= 2
-          ? flowOrder.slice(1).map((id, i) => [flowOrder[i], id])
-          : undefined;
-      const { layers, forward } = compoundTopology(scope.children, orderEdges ?? scope.edges);
+      const { layers, forward } = compoundTopology(scope.children, scope.edges, flowOrder);
       const down = orientation === "DOWN";
       const before = (a: CompoundBox, b: CompoundBox) => {
         const major = down ? a.y + a.height / 2 - b.y - b.height / 2 : a.x + a.width / 2 - b.x - b.width / 2;

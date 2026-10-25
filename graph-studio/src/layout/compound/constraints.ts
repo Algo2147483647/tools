@@ -199,10 +199,7 @@ export function directionWarnings(
     if (!scope) continue;
     const order = data.constraints.find((c) => c.type === "flow-order" && c.scopeId === constraint.scopeId);
     const ids = order?.type === "flow-order" ? order.nodeIds.filter((id) => scope.children.includes(id)) : [];
-    const forward =
-      ids.length === scope.children.length && ids.length >= 2
-        ? ids.slice(1).map((id, i) => [ids[i], id])
-        : compoundTopology(scope.children, scope.edges).forward;
+    const { forward } = compoundTopology(scope.children, scope.edges, ids);
     if (
       forward.some(([a, b]) => {
         const first = geometry.boxes[a],

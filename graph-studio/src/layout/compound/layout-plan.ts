@@ -10,7 +10,7 @@ export interface LayoutGeometry {
 }
 export interface LayoutResult {
   geometry: LayoutGeometry;
-  quality: { metrics: LayoutMetrics; validation: LayoutValidation; elapsedMs: number };
+  quality: { metrics: LayoutMetrics; validation: LayoutValidation; elapsedMs: number; aiAssessment?: string };
   diagnostics: string[];
 }
 
@@ -45,6 +45,7 @@ export interface LayoutProblem {
   rowGap: number;
   minimumCanvas?: { width: number; height: number };
   stored: CompoundLayoutData;
+  nodeSemantics?: Record<string, { type: string; description: string }>;
 }
 
 export interface LayoutCandidate {

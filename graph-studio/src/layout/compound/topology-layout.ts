@@ -5,7 +5,12 @@ type Size = { width: number; height: number };
 type Arrangement = { boxes: Map<string, CompoundBox>; width: number; height: number };
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 /** Condense cycles before ranking. Every edge between components must point downstream. */
-export function compoundTopology(ids: string[], edges: [string, string][]) {
+export function compoundTopology(ids: string[], edges: [string, string][], flowOrder: readonly string[] = []) {
+  const preferred = flowOrder.filter((id) => ids.includes(id));
+  const precedence: [string, string][] = preferred.slice(1).map((id, i) => [preferred[i], id]);
+  // Precedence is additional information. Keep every relationship for ranking
+  // and routing; contradictions become feedback edges inside a component.
+  edges = [...edges, ...precedence];
   const outgoing = new Map(ids.map((id) => [id, new Set<string>()]));
   const incoming = new Map(ids.map((id) => [id, new Set<string>()]));
   for (const [a, b] of edges)
@@ -71,7 +76,15 @@ export function compoundTopology(ids: string[], edges: [string, string][]) {
       if (sink) right.push(next);
       else left.push(next);
     }
-    order.push(...left, ...right.reverse());
+    const ordinaryOrder = [...left, ...right.reverse()];
+    const pending = new Set(ordinaryOrder);
+    while (pending.size) {
+      const next = ordinaryOrder.find(
+        (id) => pending.has(id) && !precedence.some(([a, b]) => b === id && pending.has(a)),
+      )!;
+      order.push(next);
+      pending.delete(next);
+    }
   }
   const position = new Map(order.map((id, i) => [id, i])),
     rank = new Map(ids.map((id) => [id, 0]));
@@ -106,13 +119,11 @@ export function arrangeTopology(
 ): Arrangement {
   columnGap = Math.max(0, columnGap);
   rowGap = Math.max(0, rowGap);
-  // An explicit sibling flow defines the reading sequence, including cycles and
-  // disconnected components. Relationship edges remain unchanged in the graph.
-  if (flowOrder?.length === ids.length && ids.every((id) => flowOrder.includes(id)))
-    edges = flowOrder.slice(1).map((id, i) => [flowOrder[i], id]);
   edges = [...edges].sort(([a, b], [c, d]) => compare(a, c) || compare(b, d));
+  const preferred = flowOrder?.filter((id) => ids.includes(id)) ?? [];
+  const precedence: [string, string][] = preferred.slice(1).map((id, i) => [preferred[i], id]);
   const adjacent = new Map(ids.map((id) => [id, new Set<string>()]));
-  for (const [a, b] of edges) {
+  for (const [a, b] of [...edges, ...precedence]) {
     adjacent.get(a)!.add(b);
     adjacent.get(b)!.add(a);
   }
@@ -134,7 +145,7 @@ export function arrangeTopology(
     }
     const memberSet = new Set(members);
     const localEdges = edges.filter(([a, b]) => memberSet.has(a) && memberSet.has(b));
-    const { layers, forward } = compoundTopology(members.sort(compare), localEdges);
+    const { layers, forward } = compoundTopology(members.sort(compare), localEdges, preferred);
     const candidates: { layout: Arrangement; down: boolean }[] = [];
     for (const down of direction === "AUTO" ? [false, true] : [direction === "DOWN"]) {
       const oriented = new Map(
@@ -178,7 +189,7 @@ export function arrangeTopology(
         candidates.push({ layout, down });
       }
     }
-    candidates.sort((a, b) => compareArrangements(a.layout, b.layout, forward, columnGap, rowGap, a.down, b.down));
+    candidates.sort((a, b) => compareArrangements(a.layout, b.layout, localEdges, columnGap, rowGap, a.down, b.down));
     const best = candidates[0];
     pieces.push(refineLocalPlacement(best.layout, localEdges, forward, columnGap, rowGap, best.down));
   }
