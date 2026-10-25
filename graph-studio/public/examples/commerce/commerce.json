@@ -4,6 +4,7 @@
   "id": "commerce-reference",
   "title": "Commerce: order-to-delivery and returns",
   "metadata": {
+    "layout": "commerce.compound.layout.json",
     "description": "Fictional reference architecture for nested node-link exploration.",
     "relationshipSemantics": "Directed API calls, events and operational handoffs; not quantities."
   },

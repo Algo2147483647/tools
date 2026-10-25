@@ -5,7 +5,7 @@ import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { ChartStyle } from "../../schema/appearance/styles";
 
 export type GraphAction =
-  | { type: "layoutReferenceBound"; generation: number; reference: string }
+  | { type: "layoutReferenceBound"; generation: number; reference: string; persistedDag: NormalizedDag }
   | { type: "styleReferenceBound"; generation: number; reference: string }
   | {
       type: "timelineLayoutCommitted";

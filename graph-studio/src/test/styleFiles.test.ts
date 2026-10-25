@@ -40,6 +40,9 @@ export const styleFilesSuite = defineSuite("Local style file service", [
       input.document = createLayoutConfigFile(timelineFixture().document, "timeline", timelineFixture().settings);
       const saved = await saveExampleStyle(root, schema, input, "layout");
       assert.equal(saved.reference, "main.timeline.layout.json");
+      const graph = JSON.parse(await readFile(resolve(root, "demo/graphs/main.json"), "utf8"));
+      assert.equal(graph.metadata.layout, saved.reference);
+      assert.deepEqual(saved.graph, graph);
       input.document.settings.view.orientation = "horizontal";
       assert.ok(!JSON.stringify(input.document).includes("geometry"));
       await assert.rejects(

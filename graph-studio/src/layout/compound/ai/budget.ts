@@ -6,7 +6,13 @@ export type CompoundAiBudget = typeof DEFAULT_COMPOUND_AI_BUDGET;
 export type CompoundStopReason = "selected" | "request-budget" | "deadline" | "idle-timeout" | "request-error";
 export class CompoundBudgetError extends Error {
   constructor(readonly reason: "request-budget" | "deadline" | "idle-timeout") {
-    super(reason === "deadline" ? "AI layout time budget reached." : reason === "idle-timeout" ? "AI layout response stalled." : "AI layout request budget reached.");
+    super(
+      reason === "deadline"
+        ? "AI layout time budget reached."
+        : reason === "idle-timeout"
+          ? "AI layout response stalled."
+          : "AI layout request budget reached.",
+    );
   }
 }
 export interface CompoundRequestUsage {

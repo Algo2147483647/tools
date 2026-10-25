@@ -75,11 +75,28 @@ export default function AiRunResult({
           <p>{report.summary}</p>
           <p>Structure-only review · {report.reviews.length} reviews</p>
           {report.design && <p>{report.design.purpose}</p>}
-          {!!report.reviews.length && <details><summary>Design reviews</summary><ol>{report.reviews.map(({ review, mode }, index) => <li key={index}>
-            <strong>{review.candidateId} · revision {review.revision} · {mode}</strong>
-            <p>{review.readingFlow}</p><p>{review.hierarchy}</p><p>{review.relationships}</p>
-            {review.problems.map((problem, i) => <p key={i}>{problem.ids.join(", ")}: {problem.observation} {problem.change} {problem.expectedEffect}</p>)}
-          </li>)}</ol></details>}
+          {!!report.reviews.length && (
+            <details>
+              <summary>Design reviews</summary>
+              <ol>
+                {report.reviews.map(({ review, mode }, index) => (
+                  <li key={index}>
+                    <strong>
+                      {review.candidateId} · revision {review.revision} · {mode}
+                    </strong>
+                    <p>{review.readingFlow}</p>
+                    <p>{review.hierarchy}</p>
+                    <p>{review.relationships}</p>
+                    {review.problems.map((problem, i) => (
+                      <p key={i}>
+                        {problem.ids.join(", ")}: {problem.observation} {problem.change} {problem.expectedEffect}
+                      </p>
+                    ))}
+                  </li>
+                ))}
+              </ol>
+            </details>
+          )}
           <p>
             {report.requests}/{report.requestLimit} requests · {(report.elapsedMs / 1000).toFixed(1)} s ·{" "}
             {report.stopReason}

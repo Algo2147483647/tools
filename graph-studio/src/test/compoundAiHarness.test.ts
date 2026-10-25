@@ -22,16 +22,46 @@ import { defineSuite, defineTest } from "./harness";
 import { validateDesign, type CompoundDesign } from "../layout/compound/ai/design";
 
 const review = (candidateId = "trial-1", revision = 1, problems = false) => ({
-  candidateId, revision, readingFlow: "The chain reads left to right.", hierarchy: "The containing group is clear.", relationships: "The actual connections remain readable.",
-  problems: problems ? [{ ids: ["g"], observation: "The group has insufficient margin.", change: "Move the group right.", expectedEffect: "The group has breathing room." }] : [],
+  candidateId,
+  revision,
+  readingFlow: "The chain reads left to right.",
+  hierarchy: "The containing group is clear.",
+  relationships: "The actual connections remain readable.",
+  problems: problems
+    ? [
+        {
+          ids: ["g"],
+          observation: "The group has insufficient margin.",
+          change: "Move the group right.",
+          expectedEffect: "The group has breathing room.",
+        },
+      ]
+    : [],
 });
 const designPlan = (): CompoundDesign => ({
-  purpose: "Explain the chain within its containing group.", readingPath: ["a", "b", "c"],
+  purpose: "Explain the chain within its containing group.",
+  readingPath: ["a", "b", "c"],
   regions: [{ id: "g", role: "primary", reason: "Contains the main flow." }],
-  scopes: [{ groupId: null, direction: "RIGHT", rows: [["g"]], reason: "One primary region." }, { groupId: "g", direction: "RIGHT", rows: [["a", "b", "c"]], reason: "Read the chain." }], connections: [],
+  scopes: [
+    { groupId: null, direction: "RIGHT", rows: [["g"]], reason: "One primary region." },
+    { groupId: "g", direction: "RIGHT", rows: [["a", "b", "c"]], reason: "Read the chain." },
+  ],
+  connections: [],
 });
-const design = (plan = designPlan(), prior: ReturnType<typeof review> | null = null) => ({ protocolVersion: 2, action: "design", hypothesis: "Make the main flow clear", design: plan, review: prior });
-const finish = (candidateId = "trial-1", revision = 1) => ({ protocolVersion: 2, action: "finish", candidateId, summary: "The main reading path is clear.", review: review(candidateId, revision) });
+const design = (plan = designPlan(), prior: ReturnType<typeof review> | null = null) => ({
+  protocolVersion: 2,
+  action: "design",
+  hypothesis: "Make the main flow clear",
+  design: plan,
+  review: prior,
+});
+const finish = (candidateId = "trial-1", revision = 1) => ({
+  protocolVersion: 2,
+  action: "finish",
+  candidateId,
+  summary: "The main reading path is clear.",
+  review: review(candidateId, revision),
+});
 
 const settings: AiSettings = {
   provider: "openai-compatible",
@@ -78,56 +108,241 @@ async function withModel(replies: unknown[], run: (requests: any[]) => Promise<v
 }
 
 export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness", [
+  defineTest("active reasoning refreshes the idle timeout through design and review", async () => {
+    const { stage, problem } = await fixture();
+    const original = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = (async (_url, init) => {
+      if (!init?.body) return new Response(JSON.stringify({ data: [] }));
+      const reply = ++calls === 1 ? design() : finish();
+      const encoder = new TextEncoder();
+      let tick = 0;
+      return new Response(
+        new ReadableStream({
+          start(controller) {
+            const timer = setInterval(() => {
+              const chunk =
+                ++tick < 5
+                  ? { delta: { reasoning_content: "Considering relationships. " } }
+                  : { delta: { content: JSON.stringify(reply) }, finish_reason: "stop" };
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [chunk] })}\n\n`));
+              if (tick === 5) {
+                clearInterval(timer);
+                controller.close();
+              }
+            }, 25);
+            init.signal?.addEventListener(
+              "abort",
+              () => {
+                clearInterval(timer);
+                controller.error(new DOMException("Aborted", "AbortError"));
+              },
+              { once: true },
+            );
+          },
+        }),
+        { headers: { "Content-Type": "text/event-stream" } },
+      );
+    }) as typeof fetch;
+    try {
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Arrange",
+        signal: new AbortController().signal,
+        budget: { idleTimeoutMs: 100, timeoutMs: 5000 },
+      });
+      assert.equal(result.report.requests, 2);
+      assert.equal(result.report.stopReason, "selected");
+      assert.ok(result.report.elapsedMs > 200);
+    } finally {
+      globalThis.fetch = original;
+    }
+  }),
+  defineTest("idle and total deadlines identify unreviewed drafts without claiming retention", async () => {
+    for (const idle of [true, false]) {
+      const { stage, problem } = await fixture();
+      const original = globalThis.fetch;
+      let calls = 0;
+      globalThis.fetch = (async (_url, init) => {
+        if (!init?.body) return new Response(JSON.stringify({ data: [] }));
+        if (++calls === 1)
+          return new Response(
+            JSON.stringify({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(design()) } }] }),
+          );
+        return new Promise<Response>((_resolve, reject) => {
+          if (init.signal?.aborted) reject(new DOMException("Aborted", "AbortError"));
+          else
+            init.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {
+              once: true,
+            });
+        });
+      }) as typeof fetch;
+      try {
+        await assert.rejects(
+          runCompoundAiLayout({
+            settings,
+            problem,
+            currentStage: stage,
+            message: "Arrange",
+            signal: new AbortController().signal,
+            budget: { idleTimeoutMs: idle ? 50 : 5000, timeoutMs: idle ? 5000 : 300 },
+          }),
+          (error: Error) => {
+            assert.match(error.message, idle ? /stopped producing output/ : /time limit reached/);
+            assert.match(error.message, /1 drafts evaluated/);
+            assert.ok(!error.message.includes("retained"));
+            return true;
+          },
+        );
+      } finally {
+        globalThis.fetch = original;
+      }
+    }
+  }),
+  defineTest("DOWN uses physical rows without transposing canvas cells", async () => {
+    const { stage, problem } = await fixture();
+    const plan = designPlan();
+    plan.scopes[1].direction = "DOWN";
+    plan.scopes[1].rows = [
+      ["a", "b"],
+      ["c", null],
+    ];
+    const result = executeCompoundDecision({
+      problem,
+      baseLayout: createLayoutResult(stage, "compound"),
+      decision: { protocolVersion: 2, action: "design", hypothesis: "Read down", design: plan, review: null },
+    });
+    const nodes = new Map(result.layout.geometry.nodes.map((n) => [n.id, n.position]));
+    assert.equal(nodes.get("a")![0], nodes.get("c")![0]);
+    assert.equal(nodes.get("a")![1], nodes.get("b")![1]);
+    assert.ok(nodes.get("c")![1] > nodes.get("a")![1]);
+  }),
   defineTest("a legal design is accepted even when numeric quality regresses", async () => {
-    const { stage, problem } = await fixture(); const plan = designPlan(); plan.scopes[1].rows = [["a", null, null, null, null, "b", null, null, null, null, "c"]];
+    const { stage, problem } = await fixture();
+    const plan = designPlan();
+    plan.scopes[1].rows = [["a", null, null, null, null, "b", null, null, null, null, "c"]];
     await withModel([design(plan), finish()], async () => {
-      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Make a spacious reading path", signal: new AbortController().signal });
-      assert.equal(result.report.candidateId, "trial-1"); assert.ok(result.report.after.length > result.report.before.length);
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Make a spacious reading path",
+        signal: new AbortController().signal,
+      });
+      assert.equal(result.report.candidateId, "trial-1");
+      assert.ok(result.report.after.length > result.report.before.length);
     });
   }),
   defineTest("failed design is repaired structurally and then reviewed", async () => {
-    const { stage, problem } = await fixture(); const broken = designPlan(); broken.scopes[1].rows = [["a", "b"]];
-    await withModel([design(broken), design(designPlan(), review("trial-1", 1, true)), finish("trial-2", 2)], async () => {
-      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal });
-      assert.deepEqual(result.report.trials.map((t) => t.status), ["failed", "evaluated"]);
-      assert.equal(result.report.reviews[0].mode, "invalid-draft");
-    });
+    const { stage, problem } = await fixture();
+    const broken = designPlan();
+    broken.scopes[1].rows = [["a", "b"]];
+    await withModel(
+      [design(broken), design(designPlan(), review("trial-1", 1, true)), finish("trial-2", 2)],
+      async () => {
+        const result = await runCompoundAiLayout({
+          settings,
+          problem,
+          currentStage: stage,
+          message: "Arrange",
+          signal: new AbortController().signal,
+        });
+        assert.deepEqual(
+          result.report.trials.map((t) => t.status),
+          ["failed", "evaluated"],
+        );
+        assert.equal(result.report.reviews[0].mode, "invalid-draft");
+      },
+    );
   }),
   defineTest("design is executed and reviewed before finish with versioned text evidence", async () => {
     const { stage, problem } = await fixture();
-   
+
     await withModel([design(), finish()], async (requests) => {
-      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Explain the chain", signal: new AbortController().signal });
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Explain the chain",
+        signal: new AbortController().signal,
+      });
       assert.equal(result.report.observationMode, "structure-only");
-      assert.equal(result.report.reviews.length, 1); assert.equal(result.report.candidateId, "trial-1");
+      assert.equal(result.report.reviews.length, 1);
+      assert.equal(result.report.candidateId, "trial-1");
       assert.equal(typeof requests[1].messages[1].content, "string");
       const context = JSON.parse(requests[1].messages[1].content).context;
-      assert.equal(context.session.candidateId, "trial-1"); assert.equal(context.session.observationMode, "structure-only");
-      assert.ok(!JSON.stringify(context).includes("base64")); assertCompoundGeometry(graph(), result.stage, view);
+      assert.equal(context.session.candidateId, "trial-1");
+      assert.equal(context.session.observationMode, "structure-only");
+      assert.ok(!JSON.stringify(context).includes("base64"));
+      assertCompoundGeometry(graph(), result.stage, view);
     });
   }),
   defineTest("a revision is executed again and only its own review can finish it", async () => {
     const { stage, problem } = await fixture();
-    const revise = { protocolVersion: 2, action: "revise", hypothesis: "Add breathing room", baseCandidateId: "trial-1", baseRevision: 1, review: review("trial-1", 1, true), changes: [{ type: "move-group", id: "g", position: [100, 100] }] };
+    const revise = {
+      protocolVersion: 2,
+      action: "revise",
+      hypothesis: "Add breathing room",
+      baseCandidateId: "trial-1",
+      baseRevision: 1,
+      review: review("trial-1", 1, true),
+      changes: [{ type: "move-group", id: "g", position: [100, 100] }],
+    };
     await withModel([design(), revise, finish("trial-2", 2)], async () => {
-      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal });
-      assert.equal(result.report.reviews.length, 2); assert.equal(result.report.candidateId, "trial-2");
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Arrange",
+        signal: new AbortController().signal,
+      });
+      assert.equal(result.report.reviews.length, 2);
+      assert.equal(result.report.candidateId, "trial-2");
       assert.equal(result.stage.compoundLayout!.baseline.boxes.g.x, 100);
     });
   }),
   defineTest("parallel cells do not become artificial graph dependencies", async () => {
-    const { stage, problem } = await fixture(); const plan = designPlan(); plan.scopes[1].rows = [["a", "c"], ["b", null]];
-    const result = executeCompoundDecision({ problem, baseLayout: createLayoutResult(stage, "compound"), decision: { protocolVersion: 2, action: "design", hypothesis: "Parallel composition", design: plan, review: null } });
-    const a = result.layout.geometry.nodes.find((n) => n.id === "a")!, b = result.layout.geometry.nodes.find((n) => n.id === "b")!;
-    assert.equal(a.position[0], b.position[0]); assert.ok(a.position[1] < b.position[1]); assert.deepEqual(result.data.constraints, []);
+    const { stage, problem } = await fixture();
+    const plan = designPlan();
+    plan.scopes[1].rows = [
+      ["a", "c"],
+      ["b", null],
+    ];
+    const result = executeCompoundDecision({
+      problem,
+      baseLayout: createLayoutResult(stage, "compound"),
+      decision: {
+        protocolVersion: 2,
+        action: "design",
+        hypothesis: "Parallel composition",
+        design: plan,
+        review: null,
+      },
+    });
+    const a = result.layout.geometry.nodes.find((n) => n.id === "a")!,
+      b = result.layout.geometry.nodes.find((n) => n.id === "b")!;
+    assert.equal(a.position[0], b.position[0]);
+    assert.ok(a.position[1] < b.position[1]);
+    assert.deepEqual(result.data.constraints, []);
     assert.equal(serializeDag(graph()).edges.length, 2);
   }),
   defineTest("design rejects omissions, duplicate cells, wrong scopes and selected direction changes", async () => {
     const { problem } = await fixture();
-    const omitted = designPlan(); omitted.scopes[1].rows = [["a", "b"]]; assert.throws(() => validateDesign(problem, omitted), /exactly once/);
-    const duplicate = designPlan(); duplicate.scopes[1].rows = [["a", "b", "a"]]; assert.throws(() => validateDesign(problem, duplicate), /exactly once/);
-    const wrong = designPlan(); wrong.scopes[1].groupId = "missing"; assert.throws(() => validateDesign(problem, wrong), /Unknown/);
-    assert.throws(() => validateDesign({ ...problem, stored: { ...problem.stored, direction: "DOWN" } }, designPlan()), /Preserve selected/);
+    const omitted = designPlan();
+    omitted.scopes[1].rows = [["a", "b"]];
+    assert.throws(() => validateDesign(problem, omitted), /exactly once/);
+    const duplicate = designPlan();
+    duplicate.scopes[1].rows = [["a", "b", "a"]];
+    assert.throws(() => validateDesign(problem, duplicate), /exactly once/);
+    const wrong = designPlan();
+    wrong.scopes[1].groupId = "missing";
+    assert.throws(() => validateDesign(problem, wrong), /Unknown/);
+    assert.throws(
+      () => validateDesign({ ...problem, stored: { ...problem.stored, direction: "DOWN" } }, designPlan()),
+      /Preserve selected/,
+    );
   }),
   defineTest("the new protocol rejects legacy actions, stale reviews and premature finish", () => {
     const session = { candidateId: "trial-1", revision: 1, valid: true, designed: true };
@@ -141,21 +356,50 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
   defineTest("all design reviews use structure only", async () => {
     const { stage, problem } = await fixture();
     await withModel([design(), finish()], async () => {
-      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal });
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Arrange",
+        signal: new AbortController().signal,
+      });
       assert.equal(result.report.observationMode, "structure-only");
     });
   }),
   defineTest("budget reserves the final review and never installs an unreviewed edit", async () => {
     const { stage, problem } = await fixture();
     await withModel([design(), design(designPlan(), review("trial-1", 1, true))], async () => {
-      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal, budget: { maxRequests: 2 } });
-      assert.equal(result.report.evaluations, 1); assert.equal(result.report.stopReason, "request-budget"); assert.equal(result.report.candidateId, "trial-1");
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Arrange",
+        signal: new AbortController().signal,
+        budget: { maxRequests: 2 },
+      });
+      assert.equal(result.report.evaluations, 1);
+      assert.equal(result.report.stopReason, "request-budget");
+      assert.equal(result.report.candidateId, "trial-1");
     });
   }),
   defineTest("cancellation during execution stops before another model call", async () => {
-    const { stage, problem } = await fixture(); const abort = new AbortController();
+    const { stage, problem } = await fixture();
+    const abort = new AbortController();
     await withModel([design()], async (requests) => {
-      await assert.rejects(runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: abort.signal, execute: async (input) => { abort.abort(); return executeCompoundDecision(input); } }), /cancelled/);
+      await assert.rejects(
+        runCompoundAiLayout({
+          settings,
+          problem,
+          currentStage: stage,
+          message: "Arrange",
+          signal: abort.signal,
+          execute: async (input) => {
+            abort.abort();
+            return executeCompoundDecision(input);
+          },
+        }),
+        /cancelled/,
+      );
       assert.equal(requests.length, 1);
     });
   }),
@@ -267,7 +511,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       baseLayout,
       decision: {
         protocolVersion: 2,
-        action: "revise", review: review(),
+        action: "revise",
+        review: review(),
         hypothesis: "Manual route",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -315,7 +560,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     assert.ok(pairs.every(([, , obstacle]) => issues.some((i) => i.nodeId === obstacle && i.code === "card-crossing")));
     const decision: CompoundAiDecision = {
       protocolVersion: 2,
-      action: "revise", review: review(),
+      action: "revise",
+      review: review(),
       hypothesis: "Repair crossing routes",
       baseCandidateId: "trial-3",
       baseRevision: 1,
@@ -377,7 +623,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       baseLayout: base,
       decision: {
         protocolVersion: 2,
-        action: "revise", review: review(),
+        action: "revise",
+        review: review(),
         hypothesis: "Move unrelated blocker",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -403,7 +650,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       baseLayout: base,
       decision: {
         protocolVersion: 2,
-        action: "revise", review: review(),
+        action: "revise",
+        review: review(),
         hypothesis: "Move group",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -429,7 +677,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       baseLayout: base,
       decision: {
         protocolVersion: 2,
-        action: "revise", review: review(),
+        action: "revise",
+        review: review(),
         hypothesis: "Invalid move",
         baseCandidateId: "current",
         baseRevision: 0,

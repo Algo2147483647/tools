@@ -4,7 +4,7 @@ Layout has two explicit responsibilities: configuration persistence and AI rende
 
 ## Configuration persistence
 
-**Update current layout**, beside the Layout title, writes `<graph-name>.<chartType>.layout.json` beside the graph, or overwrites its existing `metadata.layout` reference. Normal graph Save persists a new association. Only configuration is written:
+**Update current layout**, beside the Layout title, writes `<graph-name>.<chartType>.layout.json` beside the graph, or overwrites its existing `metadata.layout` reference. The same operation persists the association in the disk graph and refreshes the workspace cache. Unrelated unsaved graph edits remain unsaved. The Layout file contains configuration only:
 
 ```json
 {
@@ -67,21 +67,21 @@ Chart variants:
 
 `layout/compound/ai/decision.ts` requires `protocolVersion: 2`. Version 1, unversioned decisions, `propose` and full-geometry `evaluate` are rejected. This protocol does not change Layout v4 or saved graph/settings schemas.
 
-| Action | Required payload | Execution |
-| --- | --- | --- |
-| `design` | `hypothesis`, `design`, `review` | Replace the spatial composition and compute complete geometry. Initial review is null; subsequent designs review the current candidate. |
-| `revise` | `hypothesis`, `baseCandidateId`, `baseRevision`, `changes`, `review` | Apply local changes to the exact supplied draft revision. |
-| `finish` | `candidateId`, `summary`, `review` | Finish the supplied legal candidate after reviewing its actual result. |
+| Action   | Required payload                                                     | Execution                                                                                                                               |
+| -------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `design` | `hypothesis`, `design`, `review`                                     | Replace the spatial composition and compute complete geometry. Initial review is null; subsequent designs review the current candidate. |
+| `revise` | `hypothesis`, `baseCandidateId`, `baseRevision`, `changes`, `review` | Apply local changes to the exact supplied draft revision.                                                                               |
+| `finish` | `candidateId`, `summary`, `review`                                   | Finish the supplied legal candidate after reviewing its actual result.                                                                  |
 
-`design` states a `purpose`, a `readingPath` of visible node/group IDs, `regions` with primary/branch/support roles and reasons, `scopes`, and visible `connections` with main/branch/feedback/support roles. Each scope has `groupId`, RIGHT/DOWN `direction`, `rows` and a reason. RIGHT uses rows as parallel lanes and columns as reading steps; DOWN transposes the map. Null cells reserve space. Every movable direct child of a supplied scope occurs exactly once. The current root scope is required; omitted interiors retain their arrangement. Spatial cells do not add business dependencies or flow-order constraints. Group bounds are derived from contents. Main connections are routed before supporting ones; feedback/support connections may use bounded outer corridors. A replacement design clears earlier generated constraints.
+`design` states a `purpose`, a `readingPath` of visible node/group IDs, `regions` with primary/branch/support roles and reasons, `scopes`, and visible `connections` with main/branch/feedback/support roles. Each scope has `groupId`, RIGHT/DOWN `direction`, `rows` and a reason. Rows always run top to bottom and cells left to right in physical canvas coordinates. RIGHT/DOWN describes reading intent and never transposes the cells. Null cells reserve space. Every movable direct child of a supplied scope occurs exactly once. The current root scope is required; omitted interiors retain their arrangement. Spatial cells do not add business dependencies or flow-order constraints. Group bounds are derived from contents. Main connections are routed before supporting ones; feedback/support connections may use bounded outer corridors. A replacement design clears earlier generated constraints.
 
 `changes` supports `move-node` (center), `move-group` (top-left, translates descendants), `resize-group`, `reroute-edge`, and exact `replace-route`. Moving geometry reroutes incident and newly obstructed connections. Grow groups explicitly if needed. Manual route replacements are never silently repaired. Final geometry receives complete validation.
 
 Each review binds `candidateId` and `revision` and describes `readingFlow`, `hierarchy`, `relationships`, and `problems`. Problems identify concrete IDs, an observation, a proposed change and its expected effect. A revision or replacement after the initial design requires a problem. Subsequent feedback includes the previous review so the model can check its expected effect. Failed drafts can be repaired but not finished. A changed candidate must receive its own review.
 
-The browser renders candidates offscreen using the real GraphStage and current appearance, then sends an overview and up to four details through the configured provider's native image input. Images are identified by candidate/revision and canvas bounds. The canvas is not replaced while reviewing. Images remain transient and are not included as base64 in JSON history. Unsupported image input retries explicitly in structure-only mode; reports disclose this limitation. Renderer failure does not masquerade as visual review.
+All model inputs are text: graph structure, design intent, exact candidate coordinates and routes, and diagnostics. Reviews are explicitly structure-only; no screenshot rendering or image input is used. The canvas is not replaced while reviewing.
 
-Defaults are six total model requests including corrections and a 240-second deadline. Geometry Workers remain cancellable with 15-second timeouts. A final request is reserved for reviewing the result rather than creating an unreviewable edit. There is no numeric stagnation rule, baseline quality gate or automatic metric-based candidate selection. On interruption the last reviewed legal design may be retained with the stop reason and unresolved issues; without a reviewed legal design the canvas stays unchanged. Explicit cancellation always preserves the canvas. Reports include design intent, reviews, observation mode, geometry diagnostics, request counts, elapsed time and available provider usage.
+Defaults are six total model requests including corrections and a 20-minute overall limit and a 120-second response idle timeout. Geometry Workers remain cancellable with 15-second timeouts. A final request is reserved for reviewing the result rather than creating an unreviewable edit. There is no numeric stagnation rule, baseline quality gate or automatic metric-based candidate selection. On interruption the last reviewed legal design may be retained with the stop reason and unresolved issues; without a reviewed legal design the canvas stays unchanged. Explicit cancellation always preserves the canvas. Reports include design intent, reviews, observation mode, geometry diagnostics, request counts, elapsed time and available provider usage.
 
 ## Timeline interaction protocol
 

@@ -8,7 +8,20 @@ import { routingHotspots } from "../layout/compound/diagnostics";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
-const valid = { protocolVersion: 2, action: "finish", candidateId: "current", summary: "Retain the current result.", review: { candidateId: "current", revision: 0, readingFlow: "Clear", hierarchy: "Clear", relationships: "Clear", problems: [] } };
+const valid = {
+  protocolVersion: 2,
+  action: "finish",
+  candidateId: "current",
+  summary: "Retain the current result.",
+  review: {
+    candidateId: "current",
+    revision: 0,
+    readingFlow: "Clear",
+    hierarchy: "Clear",
+    relationships: "Clear",
+    problems: [],
+  },
+};
 const settings: AiSettings = {
   provider: "openai-compatible",
   baseUrl: "https://test.invalid",

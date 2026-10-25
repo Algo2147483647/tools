@@ -1,4 +1,5 @@
 import { parseLayoutConfigFile } from "../src/schema/layoutConfig";
+import { bindLayoutReference } from "../src/workspace/layoutAssociation";
 import { readFile, realpath, writeFile, rename, unlink } from "node:fs/promises";
 import { resolve, dirname, relative, isAbsolute, basename } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -71,10 +72,12 @@ export async function saveExampleStyle(
   )
     throw new Error("Style target must be separate from graph data.");
   let found = false;
+  let previousContent: string | undefined;
   try {
     const actual = await existing(folder, relative(folder, target));
     found = true;
-    const previous = JSON.parse(await readFile(actual, "utf8"));
+    previousContent = await readFile(actual, "utf8");
+    const previous = JSON.parse(previousContent);
     if (
       !(kind === "layout" ? ["graph-studio-layout", "graph-studio-layout-settings"] : ["graph-studio-style"]).includes(
         previous.format,
@@ -85,6 +88,7 @@ export async function saveExampleStyle(
     if (error.code !== "ENOENT") throw error;
   }
   const content = JSON.stringify(normalized, null, 2);
+  const graphDocument = kind === "layout" ? bindLayoutReference(await readFile(graph, "utf8"), reference) : undefined;
   if (!found) await writeFile(target, content, { flag: "wx" });
   else {
     const temporary = `${target}.${randomUUID()}.tmp`;
@@ -95,7 +99,20 @@ export async function saveExampleStyle(
       await unlink(temporary).catch(() => {});
     }
   }
-  return { reference, path: relative(folder, target).replace(/\\/g, "/"), document: normalized };
+  if (graphDocument) {
+    const temporary = `${graph}.${randomUUID()}.tmp`;
+    try {
+      await writeFile(temporary, JSON.stringify(graphDocument, null, 2), { flag: "wx" });
+      await rename(temporary, graph);
+    } catch (error) {
+      if (found) await writeFile(target, previousContent!);
+      else await unlink(target);
+      throw error;
+    } finally {
+      await unlink(temporary).catch(() => {});
+    }
+  }
+  return { reference, path: relative(folder, target).replace(/\\/g, "/"), document: normalized, graph: graphDocument };
 }
 
 export function styleFilesMiddleware(examplesRoot: string, schemaPath: string) {

@@ -42,8 +42,11 @@ export function routeCompoundEdges(
       const dy = Math.max(0, a.y - b.y - b.height, b.y - a.y - a.height);
       clearance = Math.min(clearance, Math.hypot(dx, dy) / 3);
     }
-  const edges = [...projection.edges].sort((a, b) =>
-    (options.edgePriority?.get(a.id) ?? 1) - (options.edgePriority?.get(b.id) ?? 1) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const edges = [...projection.edges].sort(
+    (a, b) =>
+      (options.edgePriority?.get(a.id) ?? 1) - (options.edgePriority?.get(b.id) ?? 1) ||
+      (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+  );
   if (options.reverseOrder) edges.reverse();
   const attachments = new Map<string, Point[]>();
   const labelBoxes = new Map<string, CompoundBox>();

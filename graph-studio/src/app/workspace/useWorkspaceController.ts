@@ -1,4 +1,5 @@
 import { saveWorkspaceLayout, saveServedLayout } from "../../workspace/saveLayout";
+import type { SavedLinkedDocument } from "../../workspace/linkedDocument";
 import type { LayoutConfigFile } from "../../schema/layoutConfig";
 import { saveServedStyle, saveWorkspaceStyle } from "../../workspace/saveStyle";
 import type { ChartStyle } from "../../schema/appearance/types";
@@ -348,28 +349,56 @@ export function useWorkspaceController({
     setNotice("");
     return true;
   }
-  async function saveAndBind(kind: "style" | "layout", save: (folder: WorkspaceSession, path: string, reference: unknown, isCurrent: () => boolean) => Promise<{ reference: string; entry: WorkspaceFile }>) {
-    const snapshot = stateRef.current, folder = workspace;
+  async function saveAndBind(
+    kind: "style" | "layout",
+    save: (
+      folder: WorkspaceSession,
+      path: string,
+      reference: unknown,
+      isCurrent: () => boolean,
+    ) => Promise<SavedLinkedDocument>,
+  ) {
+    const snapshot = stateRef.current,
+      folder = workspace;
     if (!snapshot.dag) return;
-    await run(async context => {
-      if (!folder || folder.activePath !== snapshot.source.fileName) throw new Error(`Open the graph's workspace to update its ${kind} file.`);
+    await run(async (context) => {
+      if (!folder || folder.activePath !== snapshot.source.fileName)
+        throw new Error(`Open the graph's workspace to update its ${kind} file.`);
       if (!folder.handle && !folder.exampleId) throw new Error("The graph's folder has no write access.");
       const saved = await save(folder, snapshot.source.fileName, snapshot.dag!.metadata?.[kind], context.isCurrent);
       if (folder.exampleId) invalidateExampleWorkspace(folder.exampleId, import.meta.env.BASE_URL);
       if (!context.isCurrent()) return;
-      setWorkspace(current => current?.locationId === folder.locationId ? { ...current, files: new Map(current.files).set(saved.entry.path, saved.entry) } : current);
-      dispatch({ type: kind === "style" ? "styleReferenceBound" : "layoutReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
+      setWorkspace((current) => {
+        if (current?.locationId !== folder.locationId) return current;
+        const files = new Map(current.files).set(saved.entry.path, saved.entry);
+        if (saved.graphEntry) files.set(saved.graphEntry.path, saved.graphEntry);
+        return { ...current, files };
+      });
+      if (kind === "layout") {
+        if (!saved.persistedDag) throw new Error("Layout association was not persisted.");
+        dispatch({
+          type: "layoutReferenceBound",
+          generation: snapshot.document.generation,
+          reference: saved.reference,
+          persistedDag: saved.persistedDag,
+        });
+      } else
+        dispatch({ type: "styleReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
     });
   }
   function saveAndBindStyle(chartType: GraphChartType, style: ChartStyle) {
-    return saveAndBind("style", (folder, path, reference, isCurrent) => folder.handle
-      ? saveWorkspaceStyle(folder, path, chartType, style, isCurrent, reference)
-      : saveServedStyle(folder.exampleId!, path, chartType, style, reference));
+    return saveAndBind("style", (folder, path, reference, isCurrent) =>
+      folder.handle
+        ? saveWorkspaceStyle(folder, path, chartType, style, isCurrent, reference)
+        : saveServedStyle(folder.exampleId!, path, chartType, style, reference),
+    );
   }
   function saveAndBindLayout(config: LayoutConfigFile) {
-    return saveAndBind("layout", (folder, path, reference, isCurrent) => folder.handle
-      ? saveWorkspaceLayout(folder, path, config, isCurrent, reference)
-      : saveServedLayout(folder.exampleId!, path, config, reference));
+    return saveAndBind("layout", (folder, path, reference, isCurrent) =>
+      folder.handle
+        ? saveWorkspaceLayout(folder, path, config, isCurrent, reference)
+        : saveServedLayout(folder.exampleId!, path, config, reference),
+    );
   }
   function exportWorkspaceManifest() {
     if (workspace) downloadJsonFile(JSON.stringify(createWorkspaceManifest(workspace), null, 2), WORKSPACE_MANIFEST);

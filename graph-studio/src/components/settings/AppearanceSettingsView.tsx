@@ -82,14 +82,33 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
     const items = catalog.filter((item) => item.chapter === "appearance" && item.group === label && visible(item.id));
     if (!items.length && !APPEARANCE_UI[id]) return null;
     if (id === "presets") {
-      const current: ChartStyle = { appearance: p.appearance, showNodeDetail: p.showNodeDetail, hideNodeBorders: p.hideNodeBorders, alignNodeWidthsToMax: p.alignNodeWidthsToMax, ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}) };
-      return <section key={id} className="settings-section" aria-label="Appearance presets"><div className="chart-type-grid">
-        {PRESET_MANIFEST[p.chartType].presets.map((preset) => {
-          const selected = chartStylesEqual(current, preset.document.style);
-          return <button key={preset.id} type="button" className={selected ? "is-selected" : ""} aria-pressed={selected}
-            onClick={() => p.onAppearanceSchemaChange(structuredClone(preset.document.style))}><strong>{preset.label}</strong></button>;
-        })}
-      </div></section>;
+      const current: ChartStyle = {
+        appearance: p.appearance,
+        showNodeDetail: p.showNodeDetail,
+        hideNodeBorders: p.hideNodeBorders,
+        alignNodeWidthsToMax: p.alignNodeWidthsToMax,
+        ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}),
+      };
+      return (
+        <section key={id} className="settings-section" aria-label="Appearance presets">
+          <div className="chart-type-grid">
+            {PRESET_MANIFEST[p.chartType].presets.map((preset) => {
+              const selected = chartStylesEqual(current, preset.document.style);
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={selected ? "is-selected" : ""}
+                  aria-pressed={selected}
+                  onClick={() => p.onAppearanceSchemaChange(structuredClone(preset.document.style))}
+                >
+                  <strong>{preset.label}</strong>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      );
     }
     if (id === "schema")
       return (

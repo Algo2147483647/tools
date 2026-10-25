@@ -1,5 +1,9 @@
 import type { WorkspaceFolder } from "../workspace/types";
 import { saveWorkspaceStyle } from "../workspace/saveStyle";
+import { saveWorkspaceLayout } from "../workspace/saveLayout";
+import { readLinkedLayout } from "../workspace/linkedLayout";
+import { createLayoutConfigFile } from "../schema/layoutConfig";
+import { defaultLayoutSession } from "../schema/layoutSession";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
 import { parseStyleDocument } from "../schema/styleProtocol";
 import { getAppearanceSchema } from "../schema/appearance/schema";
@@ -93,6 +97,75 @@ function parentDisk() {
 }
 
 export const workspaceCreationSuite = defineSuite("Creating workspace graph files", [
+  defineTest("Layout update persists the link, reloads settings and keeps unsaved graph edits dirty", async () => {
+    const raw = {
+      format: "graph-studio",
+      version: 3,
+      metadata: { description: "Keep" },
+      nodes: { a: { title: "Saved" } },
+      edges: [],
+    };
+    const d = disk({ "graph.json": raw });
+    const folder = await d.open();
+    const config = createLayoutConfigFile(defaultLayoutSession(), "compound");
+    config.settings.portMode = "midpoints";
+    const saved = await saveWorkspaceLayout(folder, "graph.json", config);
+    const persisted = JSON.parse(d.contents.get("graph.json")!);
+    assert.deepEqual(persisted, { ...raw, metadata: { ...raw.metadata, layout: saved.reference } });
+    const reopened = await d.open();
+    const linked = await readLinkedLayout(normalizeDagInput(persisted), "graph.json", reopened);
+    assert.equal(linked.linkedLayout!.charts.compound.portMode, "midpoints");
+    let state = graphReducer(createInitialGraphState(), {
+      type: "graphLoaded",
+      dag: normalizeDagInput(raw),
+      documentId: "test",
+      fileName: "graph.json",
+      selection: { type: "full" },
+      status: "",
+    });
+    const action = {
+      type: "layoutReferenceBound" as const,
+      generation: state.document.generation,
+      reference: saved.reference,
+      persistedDag: saved.persistedDag!,
+    };
+    const clean = graphReducer(state, action);
+    assert.equal(clean.source.dirty, false);
+    assert.equal(
+      graphReducer(graphReducer(clean, { type: "undoRequested" }), { type: "redoRequested" }).source.dirty,
+      false,
+    );
+    state = {
+      ...state,
+      dag: normalizeDagInput({ ...raw, nodes: { a: { title: "Unsaved" } } }),
+      source: { ...state.source, dirty: true },
+    };
+    const dirty = graphReducer(state, action);
+    assert.equal(dirty.source.dirty, true);
+    assert.equal(dirty.dag!.nodes.a.title, "Unsaved");
+    assert.equal(dirty.document.savedDag!.nodes.a.title, "Saved");
+    assert.equal(graphReducer(state, { ...action, generation: action.generation - 1 }), state);
+  }),
+  defineTest("failed graph association rolls back new and existing Layout files", async () => {
+    const raw = { format: "graph-studio", version: 3, nodes: { a: {} }, edges: [] };
+    const config = createLayoutConfigFile(defaultLayoutSession(), "compound");
+    for (const replacing of [false, true]) {
+      const d = disk({ "graph.json": raw, ...(replacing ? { "graph.compound.layout.json": config } : {}) });
+      const before = new Map(d.contents);
+      d.options.failWrite = "graph.json";
+      await assert.rejects(
+        saveWorkspaceLayout(
+          await d.open(),
+          "graph.json",
+          config,
+          () => true,
+          replacing ? "graph.compound.layout.json" : undefined,
+        ),
+        /Disk write failed/,
+      );
+      assert.deepEqual(d.contents, before);
+    }
+  }),
   defineTest("save and bind uses full Schema documents, preserves metadata and reloads after graph save", async () => {
     for (const chartType of ["node-link", "compound", "timeline", "sankey", "spatial"] as const) {
       const raw = {

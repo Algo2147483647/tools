@@ -1,3 +1,4 @@
+import { serializeDag } from "../../graph/serialize";
 import { parseLayoutSession, repairLayoutSession, type LayoutSessionState } from "../../schema/layoutSession";
 import { getSankeyError } from "../../graph/sankey";
 import { areSelectionsEqual } from "../../graph/selectors";
@@ -47,26 +48,37 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
 
     case "layoutReferenceBound": {
       if (!state.dag || action.generation !== state.document.generation) return state;
-      if (state.dag.metadata?.layout === action.reference)
-        return { ...state, ui: { ...state.ui, status: `Updated ${action.reference}.` } };
-      const afterDag = { ...state.dag, metadata: { ...state.dag.metadata, layout: action.reference } };
-      return reduceGraphState(state, {
-        type: "graphCommandsCommitted",
-        transaction: {
-          label: "Bound layout.",
-          beforeDag: state.dag,
-          afterDag,
-          beforeSelection: state.selection,
-          afterSelection: state.selection,
-          beforeNavigationHistory: state.history,
-          afterNavigationHistory: state.history,
-          revisionBefore: state.editHistory.revision,
-          revisionAfter: state.nextRevision,
-        },
-        renamedKeys: [],
-        deletedKeys: [],
-        status: `Saved ${action.reference} and bound metadata.layout. Save the graph to persist this link.`,
-      });
+      const afterDag =
+        state.dag.metadata?.layout === action.reference
+          ? state.dag
+          : { ...state.dag, metadata: { ...state.dag.metadata, layout: action.reference } };
+      const updated =
+        afterDag === state.dag
+          ? state
+          : reduceGraphState(state, {
+              type: "graphCommandsCommitted",
+              transaction: {
+                label: "Bound layout.",
+                beforeDag: state.dag,
+                afterDag,
+                beforeSelection: state.selection,
+                afterSelection: state.selection,
+                beforeNavigationHistory: state.history,
+                afterNavigationHistory: state.history,
+                revisionBefore: state.editHistory.revision,
+                revisionAfter: state.nextRevision,
+              },
+              renamedKeys: [],
+              deletedKeys: [],
+              status: "",
+            });
+      const dirty = JSON.stringify(serializeDag(afterDag)) !== JSON.stringify(serializeDag(action.persistedDag));
+      return {
+        ...updated,
+        document: { ...updated.document, savedDag: dirty ? action.persistedDag : afterDag },
+        source: { ...updated.source, dirty },
+        ui: { ...updated.ui, status: `Saved ${action.reference} and its graph association.` },
+      };
     }
 
     case "timelineLayoutCommitted": {
