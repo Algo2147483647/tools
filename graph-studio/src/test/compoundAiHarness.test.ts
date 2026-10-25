@@ -14,6 +14,7 @@ import { runCompoundAiLayout } from "../layout/compound/ai/workflow";
 import { compoundExecutionFeedback } from "../layout/compound/ai/workflow";
 import { compoundTopology } from "../layout/compound/topology-layout";
 import { compareLayoutMetrics } from "../layout/compound/layout-quality";
+import { arrangePreciseCompound, contentOrigin } from "../layout/compound/precise";
 import { assertCompoundGeometry } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
@@ -65,6 +66,190 @@ async function withModel(replies: unknown[], run: (requests: any[]) => Promise<v
 }
 
 export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness", [
+  defineTest("precise positions survive routing, nested group fitting and serialization boundaries", async () => {
+    const { input, problem } = await fixture();
+    const placements = [
+      { nodeId: "g", x: 137, y: 83 },
+      { nodeId: "a", x: 0, y: 400 },
+      { nodeId: "b", x: 280, y: 200 },
+      { nodeId: "c", x: 0, y: 0 },
+    ];
+    const plan = parseCompoundAiPlan(
+      { ...response(), placements },
+      { direction: "AUTO", ...compoundAiContext(problem) },
+    );
+    const layout = applyCompoundAiPlan(problem.stored, plan, null, compoundAiContext(problem));
+    const stage = await buildCompoundStage({
+      ...input,
+      layout,
+      solve: async (p) => arrangePreciseCompound(p, { placements, baseline: problem.baseline }),
+    });
+    const boxes = stage.compoundLayout!.baseline.boxes;
+    for (const p of placements) {
+      const node = problem.projection.items.find((n) => n.id === p.nodeId)!;
+      const origin = contentOrigin(node.parentId === null ? undefined : boxes[node.parentId]);
+      assert.equal(boxes[p.nodeId].x, origin.x + p.x);
+      assert.equal(boxes[p.nodeId].y, origin.y + p.y);
+    }
+    assertCompoundGeometry(input.dag, stage, view);
+    const feedback = compoundExecutionFeedback(problem, stage);
+    assert.ok(feedback.after.movedNodes > 0);
+    assert.ok(feedback.after.changedEdges > 0);
+    const document = defaultLayoutDocument();
+    document.charts.compound = layout;
+    assert.deepEqual(parseLayoutDocument(document), document);
+    assert.ok(!JSON.stringify(document).includes("placements"));
+    assert.deepEqual(serializeDag(input.dag), serializeDag(graph()));
+    const moved = arrangePreciseCompound(stage.compoundLayout!, {
+      placements: [{ nodeId: "g", x: 437, y: 83 }],
+      baseline: stage.compoundLayout!.baseline,
+    });
+    assert.equal(moved.geometry.boxes.a.x, boxes.a.x + 300);
+    assert.equal(moved.geometry.boxes.a.y, boxes.a.y);
+  }),
+  defineTest("coordinate errors reach the model for revision without hidden placement repair", async () => {
+    const { input, problem, stage } = await fixture();
+    const valid = [
+      { nodeId: "a", x: 0, y: 500 },
+      { nodeId: "b", x: 0, y: 250 },
+      { nodeId: "c", x: 0, y: 0 },
+    ];
+    const trial = (placements: unknown[]) => ({
+      action: "evaluate",
+      hypothesis: "Test exact positions",
+      plan: { ...response(), placements },
+    });
+    const evaluations: string[] = [];
+    await withModel(
+      [
+        trial([
+          { nodeId: "a", x: 0, y: 0 },
+          { nodeId: "b", x: 0, y: 0 },
+        ]),
+        trial(valid),
+        { action: "finish", candidateId: "trial-2", summary: "Separated siblings in reverse reading order." },
+      ],
+      async (requests) => {
+        const result = await runCompoundAiLayout({
+          settings,
+          problem,
+          currentStage: stage,
+          message: "Arrange",
+          signal: new AbortController().signal,
+          onEvaluation: (e) => evaluations.push(e.status),
+          compute: (layout, runtime) =>
+            buildCompoundStage({ ...input, layout, solve: async (p) => arrangePreciseCompound(p, runtime!) }),
+        });
+        assert.deepEqual(evaluations, ["failed", "evaluated"]);
+        const context = JSON.parse(requests[1].messages[1].content).context;
+        assert.match(context.session.observations[1].error, /Sibling overlap/);
+        assert.deepEqual(context.session.selectableCandidates, ["current"]);
+        assert.ok(result.report.changed);
+        assert.ok(result.report.precise);
+        assert.equal(result.report.evaluations, 2);
+        assert.ok(result.report.after.movedNodes > 0);
+        assert.equal(result.report.trials[1].positionedNodes, 3);
+        assert.ok(result.stage.nodeMap.a.y > result.stage.nodeMap.b.y);
+      },
+    );
+  }),
+  defineTest("coordinate validation permits only finite positions on supplied movable IDs", async () => {
+    const { problem } = await fixture();
+    const policy = { direction: "AUTO" as const, ...compoundAiContext(problem) };
+    for (const placements of [
+      [{ nodeId: "missing", x: 0, y: 0 }],
+      [{ nodeId: "a", x: -1, y: 0 }],
+      [{ nodeId: "a", x: Infinity, y: 0 }],
+      [
+        { nodeId: "a", x: 0, y: 0 },
+        { nodeId: "a", x: 1, y: 0 },
+      ],
+      [{ nodeId: "a", x: 0, y: 0, width: 50 }],
+    ])
+      assert.throws(() => parseCompoundAiPlan({ ...response(), placements }, policy));
+    assert.throws(() =>
+      parseCompoundAiPlan(
+        { ...response(), placements: [{ nodeId: "a", x: 0, y: 0 }] },
+        { ...policy, movableNodeIds: new Set() },
+      ),
+    );
+  }),
+  defineTest(
+    "partial coordinate revisions use the latest observation and can select an earlier exact trial",
+    async () => {
+      const { input, problem, stage } = await fixture();
+      const trial = (placements: unknown[]) => ({
+        action: "evaluate",
+        hypothesis: "Test spacing",
+        plan: { ...response(), placements },
+      });
+      const evaluated: Awaited<ReturnType<typeof buildCompoundStage>>[] = [];
+      await withModel(
+        [
+          trial([{ nodeId: "g", x: 137, y: 83 }]),
+          trial([{ nodeId: "g", x: 537, y: 83 }]),
+          { action: "finish", candidateId: "trial-1", summary: "Prefer the first location." },
+        ],
+        async () => {
+          const result = await runCompoundAiLayout({
+            settings,
+            problem,
+            currentStage: stage,
+            message: "Arrange",
+            signal: new AbortController().signal,
+            compute: async (layout, runtime) => {
+              if (evaluated.length) assert.deepEqual(runtime!.baseline, evaluated.at(-1)!.compoundLayout!.baseline);
+              const next = await buildCompoundStage({
+                ...input,
+                layout,
+                solve: async (p) => arrangePreciseCompound(p, runtime!),
+              });
+              evaluated.push(next);
+              return next;
+            },
+          });
+          assert.equal(result.stage.compoundLayout!.baseline.boxes.g.x, 173);
+          assert.equal(evaluated[1].compoundLayout!.baseline.boxes.g.x, 573);
+          assert.equal(result.report.candidateId, "trial-1");
+        },
+      );
+    },
+  ),
+  defineTest("structural plans are not artificially limited to 32 supplied preferences or siblings", () => {
+    const nodeIds = Array.from({ length: 40 }, (_, i) => `n${i}`),
+      edgeIds = new Set(nodeIds);
+    const plan = parseCompoundAiPlan(
+      response([
+        { type: "flow-order", scopeId: null, nodeIds },
+        ...nodeIds.map((edgeId) => ({ type: "prefer-outer-route", edgeId })),
+      ]),
+      { direction: "AUTO", edgeIds, scopes: new Map([[null, { nodeIds, orderable: true }]]) },
+    );
+    assert.equal(plan.constraints.length, 41);
+  }),
+  defineTest("an unchanged trial is explicitly reported as unchanged", async () => {
+    const { problem, stage } = await fixture();
+    await withModel(
+      [
+        { action: "evaluate", hypothesis: "Retain geometry", plan: response() },
+        { action: "finish", candidateId: "trial-1", summary: "This trial made no visual change." },
+      ],
+      async () => {
+        const result = await runCompoundAiLayout({
+          settings,
+          problem,
+          currentStage: stage,
+          message: "Arrange",
+          signal: new AbortController().signal,
+          compute: async () => stage,
+        });
+        assert.equal(result.report.changed, false);
+        assert.equal(result.report.after.movedNodes, 0);
+        assert.equal(result.report.after.changedEdges, 0);
+        assert.equal(result.report.trials.length, 1);
+      },
+    );
+  }),
   defineTest(
     "every observation reports route extents and complete metric deltas without deciding for the model",
     async () => {
@@ -488,6 +673,9 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
           assert.deepEqual(requests[0].thinking, { type: "enabled" });
           assert.equal(requests[0].max_tokens, 8192);
           assert.deepEqual(result.data, problem.stored);
+          assert.equal(result.report.evaluations, 0);
+          assert.equal(result.report.candidateId, "current");
+          assert.equal(result.report.changed, false);
         },
       );
     },

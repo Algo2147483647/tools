@@ -3,14 +3,19 @@ import type { AiSettings } from "../../ai/types";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../../layout/compound/inspection";
 import { defaultLayoutIntent, parseLayoutIntent, type CompoundLayoutData } from "../../layout/compound/layout-plan";
 import { compileConstraints, layoutScopeMembers } from "../../layout/compound/constraints";
-import { runCompoundAiLayout, COMPOUND_AI_BUDGET } from "../../layout/compound/ai/workflow";
+import {
+  runCompoundAiLayout,
+  COMPOUND_AI_BUDGET,
+  type CompoundAiReport,
+  type CompoundAiEvaluation,
+} from "../../layout/compound/ai/workflow";
 import { LayoutRequestError, presentLayoutError } from "../../layout/shared/ai/request";
 import { parseCompoundLayout } from "../../graph/compound/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
 import type { useCompoundStage } from "./useCompoundStage";
-import { computeCompoundStage } from "./computeCompoundStage";
+import { computeCompoundStage, compoundInputKey } from "./computeCompoundStage";
 import { useAiActivity } from "../ai/useAiActivity";
 
 export function useCompoundLayoutPlan(
@@ -38,20 +43,35 @@ export function useCompoundLayoutPlan(
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [detail, setDetail] = useState("");
-  const { activity, onProgress, clear: clearActivity } = useAiActivity();
-  useEffect(clearActivity, [state.document.generation, clearActivity]);
+  const { activity, onProgress, clear: clearActivity, finish: finishActivity } = useAiActivity();
+  const [lastRun, setLastRun] = useState<{
+    report: CompoundAiReport;
+    inputKey: string;
+    dag: GraphAppState["dag"];
+    quality: StageData["layoutQuality"];
+  } | null>(null);
+  const [evaluations, setEvaluations] = useState<CompoundAiEvaluation[]>([]);
+  useEffect(() => {
+    clearActivity();
+    setLastRun(null);
+    setEvaluations([]);
+    setMessage("");
+    setDetail("");
+  }, [state.document.generation, clearActivity]);
   const active = useRef<AbortController | null>(null);
   const cancel = useCallback(() => {
     active.current?.abort();
     active.current = null;
     setBusy(false);
-  }, []);
+    finishActivity();
+  }, [finishActivity]);
   useEffect(() => {
-    cancel();
-    setMessage("");
-    setDetail("");
-    return cancel;
+    if (active.current) {
+      cancel();
+      setMessage("Layout context changed. AI run cancelled; current layout kept.");
+    }
   }, [key, cancel]);
+  useEffect(() => cancel, [cancel]);
   const change = useCallback(
     (patch: Partial<CompoundLayoutData>) => {
       const now = current.current.state;
@@ -98,9 +118,12 @@ export function useCompoundLayoutPlan(
       setMessage("Planning layout…");
       setDetail("");
       clearActivity();
+      setLastRun(null);
+      setEvaluations([]);
       try {
         let data: CompoundLayoutData;
         let computed: StageData | undefined;
+        let report: CompoundAiReport | undefined;
         if ("message" in request) {
           if (!initial.aiSettings.baseUrl.trim() || !initial.aiSettings.model.trim())
             throw new Error("Configure a model in Settings → AI.");
@@ -114,13 +137,19 @@ export function useCompoundLayoutPlan(
               if (active.current === abort && !abort.signal.aborted && current.current.key === initial.key)
                 onProgress(event);
             },
-            compute: (data) => computeCompoundStage({ ...input, layout: parseCompoundLayout(data) }, abort.signal),
+            onEvaluation: (evaluation) => {
+              if (active.current === abort && !abort.signal.aborted)
+                setEvaluations((previous) => [...previous, evaluation]);
+            },
+            compute: (data, runtime) =>
+              computeCompoundStage({ ...input, layout: parseCompoundLayout(data) }, abort.signal, runtime),
             onStatus: (message) => {
               if (active.current === abort) setMessage(message);
             },
           });
           data = result.data;
           computed = result.stage;
+          report = result.report;
         } else {
           const intent = parseLayoutIntent(request.intent);
           data = {
@@ -136,7 +165,10 @@ export function useCompoundLayoutPlan(
         const stage = computed ?? (await computeCompoundStage(nextInput, abort.signal));
         if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
         // Transfer the one computed stage into the live renderer, then commit only its declaration.
-        if (!initial.viewport.compoundLayout.install(input, nextInput, stage)) return "Layout context changed.";
+        if (!initial.viewport.compoundLayout.install(input, nextInput, stage)) {
+          setMessage("Layout context changed. AI result was not applied.");
+          return "Layout context changed.";
+        }
         // Commit the model's selection without invoking the Automatic tab reset.
         dispatch({
           type: "layoutDocumentChanged",
@@ -146,8 +178,23 @@ export function useCompoundLayoutPlan(
             charts: { ...initial.state.layoutDocument.data.charts, compound: data },
           },
         });
-        setMessage("Layout applied.");
-        return "Layout applied.";
+        if (report)
+          setLastRun({
+            report,
+            inputKey: compoundInputKey(nextInput),
+            dag: initial.state.dag,
+            quality: stage.layoutQuality,
+          });
+        const outcome =
+          report?.candidateId === "current"
+            ? "AI kept the current layout."
+            : report && !report.changed
+              ? "AI plan applied. Geometry is unchanged."
+              : report
+                ? "AI layout applied. Geometry changed."
+                : "Layout applied.";
+        setMessage(outcome);
+        return outcome;
       } catch (error) {
         if (current.current.key === initial.key && active.current === abort) {
           const report = presentLayoutError(
@@ -167,14 +214,23 @@ export function useCompoundLayoutPlan(
         if (active.current === abort) {
           active.current = null;
           setBusy(false);
+          finishActivity();
         }
       }
     },
-    [dispatch, onProgress, clearActivity],
+    [dispatch, onProgress, clearActivity, finishActivity],
   );
   return {
     ready,
     activity,
+    lastRun: lastRun?.report ?? null,
+    lastRunCurrent:
+      !!lastRun &&
+      lastRun.quality === viewport.stage?.layoutQuality &&
+      lastRun.dag === state.dag &&
+      lastRun.inputKey === viewport.compoundLayout.inputKey &&
+      state.chartType === "compound",
+    evaluations,
     busy,
     message,
     detail,

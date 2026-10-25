@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { requestProviderReply } from "../ai/transport/providerTransport";
+import { requestProviderReply, requestProviderText } from "../ai/transport/providerTransport";
 import { readProviderStream, type AiProgressEvent } from "../ai/transport/streaming";
 import { listProviderModels } from "../ai/transport/models";
 import { parseLayoutJson } from "../layout/shared/ai/request";
 import type { AiProvider, AiSettings } from "../ai/types";
 import { defineSuite, defineTest } from "./harness";
+import { emptyAiActivity, updateAiActivity } from "../ai/transport/activity";
 
 const settings: AiSettings = {
   provider: "deepseek",
@@ -48,6 +49,31 @@ const delta = (value: Record<string, unknown>, finish: string | null = null) => 
 });
 
 export const aiTransportSuite = defineSuite("AI transport streaming and model discovery", [
+  defineTest("run transcripts retain earlier requests and final chunks after completion", () => {
+    let activity = updateAiActivity(emptyAiActivity(), { type: "start" });
+    activity = updateAiActivity(activity, { type: "reasoning", text: "First analysis" });
+    activity = updateAiActivity(activity, { type: "content", text: "First plan" });
+    activity = updateAiActivity(activity, { type: "end" });
+    activity = updateAiActivity(activity, { type: "start" });
+    activity = updateAiActivity(activity, { type: "content", text: "Final selection" });
+    activity = updateAiActivity(activity, { type: "end" });
+    assert.equal(activity.streaming, false);
+    assert.equal(activity.content, "Final selection");
+    assert.equal(activity.history[0].content, "First plan");
+    assert.equal(activity.history[0].reasoning, "First analysis");
+    for (let i = 0; i < 20; i++) activity = updateAiActivity(activity, { type: "start" });
+    activity = updateAiActivity(activity, { type: "content", text: "a".repeat(20000) });
+    assert.equal(activity.history.length, 15);
+    assert.equal(activity.content.length, 16000);
+    assert.equal(activity.received, 20000);
+  }),
+  defineTest("console rejects a truncated stream even when its content happens to be valid JSON", async () => {
+    await mock(
+      async () => stream(sse([delta({ content: '{"kind":"answer","answer":"ok"}' }, "length"), "[DONE]"])),
+      async () =>
+        assert.rejects(() => requestProviderText(settings, "system", "user", undefined, () => {}), /truncated/),
+    );
+  }),
   defineTest("SSE preserves split UTF-8, reasoning, JSON, terminal metadata and usage", async () => {
     const events: AiProgressEvent[] = [];
     const reply = await readProviderStream(

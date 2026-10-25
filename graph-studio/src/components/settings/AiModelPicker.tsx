@@ -142,7 +142,9 @@ export default function AiModelPicker({
       {open && (
         <div className="ai-model-menu">
           <div className="ai-model-menu-heading">
-            <span role="status">{loading ? "Loading models…" : `${models.length} available models`}</span>
+            <span role="status">
+              {loading ? "Loading models…" : error ? "Models unavailable" : `${models.length} available models`}
+            </span>
             <button type="button" onClick={() => void load()} disabled={loading}>
               Refresh
             </button>

@@ -89,8 +89,8 @@ export function parseLayoutConstraint(value: unknown): LayoutConstraint {
   switch (c.type) {
     case "flow-order": {
       keys(c, ["type", "scopeId", "nodeIds", "strength"], "flow order");
-      if (!Array.isArray(c.nodeIds) || c.nodeIds.length < 2 || c.nodeIds.length > 32)
-        throw new Error("Flow order requires 2 to 32 sibling IDs.");
+      if (!Array.isArray(c.nodeIds) || c.nodeIds.length < 2)
+        throw new Error("Flow order requires at least 2 sibling IDs.");
       const nodeIds = c.nodeIds.map((value) => id(value, "nodeId"));
       if (new Set(nodeIds).size !== nodeIds.length) throw new Error("Flow order contains duplicate IDs.");
       return { type: c.type, scopeId: scopeId(c.scopeId), nodeIds, strength: oneOf(c.strength, ["soft"], "strength") };

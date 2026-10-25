@@ -5,6 +5,7 @@ import type { LayoutDirection, LayoutObjective } from "../../layout/compound/lay
 import MethodTabs from "../ui/MethodTabs";
 import LayoutRules from "../ui/LayoutRules";
 import AiActivityView from "../ui/AiActivityView";
+import AiRunResult, { AiRunComparison, qualityRows } from "./AiRunResult";
 
 export default function CompoundLayoutPanel({
   controller: c,
@@ -134,7 +135,6 @@ export default function CompoundLayoutPanel({
                 <p>{c.detail}</p>
               </details>
             )}
-            <AiActivityView activity={c.activity} busy={busy} />
           </form>
         )}
         {c.message && (
@@ -154,17 +154,16 @@ export default function CompoundLayoutPanel({
         {c.quality && (
           <>
             <p>Geometry valid · {Math.round(c.quality.elapsedMs)} ms</p>
-            {c.quality.aiAssessment && <p className="layout-status">{c.quality.aiAssessment}</p>}
-            <LayoutRules
-              rows={[
-                { label: "Crossings", value: c.quality.metrics.crossings },
-                { label: "Label collisions", value: c.quality.metrics.labelCollisions },
-                { label: "Bends", value: c.quality.metrics.bends },
-                { label: "Overlapping route length", value: `${Math.round(c.quality.metrics.sharedLength)} px` },
-                { label: "Route length", value: `${Math.round(c.quality.metrics.length)} px` },
-                { label: "Content area", value: `${Math.round(c.quality.metrics.area)} px²` },
-              ]}
-            />
+            {c.lastRun && c.lastRunCurrent ? (
+              <AiRunComparison report={c.lastRun} />
+            ) : (
+              <LayoutRules
+                rows={qualityRows.map(({ key, label, unit }) => ({
+                  label,
+                  value: `${Math.round(c.quality!.metrics[key])}${unit ? ` ${unit}` : ""}`,
+                }))}
+              />
+            )}
             {c.diagnostics.length > 0 && (
               <details>
                 <summary>Diagnostics</summary>
@@ -176,6 +175,8 @@ export default function CompoundLayoutPanel({
           </>
         )}
       </section>
+      <AiRunResult report={c.lastRun} current={c.lastRunCurrent} evaluations={c.evaluations ?? []} />
+      <AiActivityView activity={c.activity} busy={busy} />
     </section>
   );
 }

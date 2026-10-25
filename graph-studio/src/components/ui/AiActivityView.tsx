@@ -4,13 +4,37 @@ import type { AiActivity } from "../../app/ai/useAiActivity";
 export default function AiActivityView({ activity, busy }: { activity?: AiActivity; busy: boolean }) {
   const reasoning = useRef<HTMLPreElement>(null);
   const follow = useRef(true);
-  useEffect(() => { follow.current = true; }, [activity?.request]);
+  useEffect(() => {
+    follow.current = true;
+  }, [activity?.request]);
   useEffect(() => {
     if (reasoning.current && follow.current) reasoning.current.scrollTop = reasoning.current.scrollHeight;
   }, [activity?.reasoning]);
   if (!activity?.request) return null;
   return (
     <section className="ai-activity" aria-label="AI activity">
+      <h3>Run transcript</h3>
+      {activity.history?.map((entry) => (
+        <details key={entry.request}>
+          <summary>
+            Request {entry.request} · {entry.received.toLocaleString()} characters
+          </summary>
+          {entry.reasoning && (
+            <>
+              <h4>Model reasoning</h4>
+              {entry.reasoning.length >= 16000 && <small>Showing the latest 16,000 characters.</small>}
+              <pre tabIndex={0}>{entry.reasoning}</pre>
+            </>
+          )}
+          {entry.content && (
+            <>
+              <h4>Response</h4>
+              {entry.content.length >= 16000 && <small>Showing the latest 16,000 characters.</small>}
+              <pre tabIndex={0}>{entry.content}</pre>
+            </>
+          )}
+        </details>
+      ))}
       <p role="status">
         {busy && activity.streaming
           ? activity.content
@@ -18,7 +42,7 @@ export default function AiActivityView({ activity, busy }: { activity?: AiActivi
             : activity.reasoning
               ? "Model is thinking…"
               : "Waiting for model…"
-          : "Model response"}{" "}
+          : `Request ${activity.request} response`}{" "}
         · {activity.received.toLocaleString()} characters
       </p>
       {activity.reasoning && (

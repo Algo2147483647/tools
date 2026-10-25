@@ -32,6 +32,9 @@ export async function requestProviderText(
   onProgress?: AiProgressListener,
 ): Promise<string> {
   const reply = await requestProviderReply(settings, systemPrompt, userPrompt, signal, { onProgress });
+  if (["length", "max_tokens", "max_output_tokens"].includes(reply.finishReason?.toLowerCase() ?? ""))
+    throw new Error("AI response was truncated. Increase Console output tokens or shorten the request.");
+  if (reply.refusal) throw new Error(reply.refusal);
   if (!reply.content) throw new Error(reply.refusal || "AI response did not include message content.");
   return reply.content;
 }

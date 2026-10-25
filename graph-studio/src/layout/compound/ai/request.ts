@@ -7,6 +7,7 @@ import { requestLayoutPlan } from "../../shared/ai/request";
 import { COMPOUND_AGENT_SCHEMA, parseCompoundAiDecision, type CompoundAiPolicy } from "./protocol";
 import { buildScopes } from "../constraints";
 import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
+import { contentOrigin } from "../precise";
 
 export function compoundAiContext(problem: LayoutProblem) {
   const nodes = [...problem.projection.items]
@@ -38,11 +39,18 @@ export function compoundAiContext(problem: LayoutProblem) {
   return {
     edgeIds,
     scopes,
+    movableNodeIds: new Set(nodes.filter((n) => !n.external).map((n) => n.id)),
     context: {
       scopeId: problem.projection.focusGroupId,
       direction: problem.stored.direction,
       objective: problem.stored.objective,
       portMode: problem.stored.portMode,
+      coordinateSystem: {
+        units: "px",
+        placements: "offset from parent content origin",
+        rootOrigin: { x: 36, y: 36 },
+        groupPadding: { left: 24, top: 58, right: 24, bottom: 24 },
+      },
       editableScopes: [...scopes].map(([scopeId, scope]) => ({ scopeId, ...scope })),
       currentConstraints: activeConstraints,
       nodes: nodes.map((n) => ({
@@ -55,6 +63,11 @@ export function compoundAiContext(problem: LayoutProblem) {
         semanticType: problem.nodeSemantics?.[n.id]?.type,
         description: problem.nodeSemantics?.[n.id]?.description,
         size: { width: problem.baseline.boxes[n.id].width, height: problem.baseline.boxes[n.id].height },
+        minimumSize: problem.minimumSizes[n.id],
+        localPosition: (() => {
+          const origin = contentOrigin(n.parentId === null ? undefined : problem.baseline.boxes[n.parentId]);
+          return { x: problem.baseline.boxes[n.id].x - origin.x, y: problem.baseline.boxes[n.id].y - origin.y };
+        })(),
         position: { x: problem.baseline.boxes[n.id].x, y: problem.baseline.boxes[n.id].y },
       })),
       edges: edges
@@ -104,7 +117,7 @@ export function requestCompoundLayoutDecision(
     onProgress?: AiProgressListener;
   },
 ) {
-  const { edgeIds, scopes, context } = compoundAiContext(problem);
+  const { edgeIds, scopes, movableNodeIds, context } = compoundAiContext(problem);
   const selectedDirection = session.selectedDirection;
   return requestLayoutPlan({
     settings,
@@ -125,15 +138,7 @@ export function requestCompoundLayoutDecision(
     purpose: "layout-planning",
     onProgress: session.onProgress,
     onRetry,
-    instructions:
-      COMPOUND_PLANNER_INSTRUCTIONS +
-      "\nMinimal response example: " +
-      JSON.stringify({
-        action: "evaluate",
-        hypothesis: "Test the main flow direction while preserving parallel branches.",
-        plan: { version: 1, preferences: { direction: selectedDirection }, constraints: [] },
-      }) +
-      '\nFinish example: {"action":"finish","candidateId":"trial-1","summary":"The chosen arrangement keeps the main flow clear and reduces crossings."}',
+    instructions: COMPOUND_PLANNER_INSTRUCTIONS,
     parse: (value) =>
       parseCompoundAiDecision(
         value,
@@ -141,6 +146,7 @@ export function requestCompoundLayoutDecision(
           direction: selectedDirection,
           edgeIds,
           scopes,
+          movableNodeIds,
           scopeId: problem.projection.focusGroupId,
         },
         session,

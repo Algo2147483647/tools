@@ -5,6 +5,7 @@ import {
   type LayoutDirection,
 } from "../../../graph/compound/layoutData";
 import { LayoutRequestError, layoutObject } from "../../shared/ai/request";
+import type { CompoundPlacement } from "../precise";
 
 export const COMPOUND_AI_SCHEMA: Record<string, unknown> = {
   type: "object",
@@ -12,6 +13,19 @@ export const COMPOUND_AI_SCHEMA: Record<string, unknown> = {
   required: ["version", "preferences", "constraints"],
   properties: {
     version: { type: "integer", enum: [1] },
+    placements: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["nodeId", "x", "y"],
+        properties: {
+          nodeId: { type: "string" },
+          x: { type: "number", minimum: 0 },
+          y: { type: "number", minimum: 0 },
+        },
+      },
+    },
     preferences: {
       type: "object",
       additionalProperties: false,
@@ -20,7 +34,7 @@ export const COMPOUND_AI_SCHEMA: Record<string, unknown> = {
     },
     constraints: {
       type: "array",
-      maxItems: 32,
+      maxItems: 500,
       items: {
         anyOf: [
           {
@@ -40,7 +54,7 @@ export const COMPOUND_AI_SCHEMA: Record<string, unknown> = {
             properties: {
               type: { type: "string", enum: ["flow-order"] },
               scopeId: { type: ["string", "null"] },
-              nodeIds: { type: "array", minItems: 2, maxItems: 32, items: { type: "string" } },
+              nodeIds: { type: "array", minItems: 2, items: { type: "string" } },
             },
           },
           {
@@ -69,6 +83,7 @@ export const COMPOUND_AI_SCHEMA: Record<string, unknown> = {
 export interface CompoundAiPlan {
   direction: LayoutDirection;
   constraints: LayoutConstraint[];
+  placements?: CompoundPlacement[];
 }
 
 export const COMPOUND_AGENT_SCHEMA: Record<string, unknown> = {
@@ -136,9 +151,10 @@ export interface CompoundAiPolicy {
   edgeIds: ReadonlySet<string>;
   scopes?: ReadonlyMap<string | null, { nodeIds: string[]; orderable: boolean }>;
   scopeId?: string | null;
+  movableNodeIds?: ReadonlySet<string>;
 }
 export function parseCompoundAiPlan(value: unknown, policy: CompoundAiPolicy): CompoundAiPlan {
-  const r = layoutObject(value, ["version", "preferences", "constraints"], "");
+  const r = layoutObject(value, ["version", "preferences", "constraints", "placements"], "");
   if (r.version !== 1) throw new LayoutRequestError("schema", "Expected version 1.", "/version");
   const p = layoutObject(r.preferences, ["direction"], "/preferences");
   if (!["AUTO", "RIGHT", "DOWN"].includes(p.direction as string))
@@ -149,8 +165,8 @@ export function parseCompoundAiPlan(value: unknown, policy: CompoundAiPolicy): C
       `Preserve the selected direction: ${policy.direction}.`,
       "/preferences/direction",
     );
-  if (!Array.isArray(r.constraints) || r.constraints.length > 32)
-    throw new LayoutRequestError("schema", "Expected at most 32 constraints.", "/constraints");
+  if (!Array.isArray(r.constraints) || r.constraints.length > 500)
+    throw new LayoutRequestError("schema", "Expected at most 500 constraints.", "/constraints");
   const used = new Set<string>();
   const constraints = r.constraints.map((value, i) => {
     const path = `/constraints/${i}`;
@@ -183,7 +199,27 @@ export function parseCompoundAiPlan(value: unknown, policy: CompoundAiPolicy): C
     used.add(key);
     return parsed;
   });
-  return { direction: p.direction as LayoutDirection, constraints };
+  let placements: CompoundPlacement[] | undefined;
+  if (r.placements !== undefined) {
+    if (!Array.isArray(r.placements))
+      throw new LayoutRequestError("schema", "Expected an array of placements.", "/placements");
+    const placed = new Set<string>();
+    placements = r.placements.map((value, i) => {
+      const path = `/placements/${i}`;
+      const v = layoutObject(value, ["nodeId", "x", "y"], path);
+      if (typeof v.nodeId !== "string" || !policy.movableNodeIds?.has(v.nodeId) || placed.has(v.nodeId))
+        throw new LayoutRequestError("semantic", "Use each supplied movable node ID at most once.", `${path}/nodeId`);
+      if (typeof v.x !== "number" || typeof v.y !== "number" || ![v.x, v.y].every((n) => Number.isFinite(n) && n >= 0))
+        throw new LayoutRequestError(
+          "schema",
+          "Coordinates must be finite nonnegative pixel offsets from the parent content origin.",
+          path,
+        );
+      placed.add(v.nodeId);
+      return { nodeId: v.nodeId, x: v.x, y: v.y };
+    });
+  }
+  return { direction: p.direction as LayoutDirection, constraints, ...(placements ? { placements } : {}) };
 }
 
 export function applyCompoundAiPlan(

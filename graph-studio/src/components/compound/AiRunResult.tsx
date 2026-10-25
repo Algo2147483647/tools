@@ -1,0 +1,114 @@
+import type { CompoundAiEvaluation, CompoundAiReport } from "../../layout/compound/ai/workflow";
+import type { LayoutMetrics } from "../../layout/compound/layout-plan";
+
+export const qualityRows: { key: keyof LayoutMetrics; label: string; unit?: string }[] = [
+  { key: "crossings", label: "Crossings" },
+  { key: "labelCollisions", label: "Label collisions" },
+  { key: "bends", label: "Bends" },
+  { key: "sharedLength", label: "Overlapping route length", unit: "px" },
+  { key: "length", label: "Route length", unit: "px" },
+  { key: "area", label: "Content area", unit: "px²" },
+];
+export function AiRunComparison({ report }: { report: CompoundAiReport }) {
+  return (
+    <table className="layout-rules" aria-label="AI layout before and after">
+      <thead>
+        <tr>
+          <th scope="col">Metric</th>
+          <th scope="col">Before</th>
+          <th scope="col">Selected</th>
+          <th scope="col">Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        {qualityRows.map(({ key, label, unit }) => {
+          const before = Math.round(report.before[key]),
+            after = Math.round(report.after[key]),
+            delta = after - before;
+          return (
+            <tr key={key}>
+              <th scope="row">
+                {label}
+                {unit ? ` (${unit})` : ""}
+              </th>
+              <td>{before}</td>
+              <td>{after}</td>
+              <td>
+                {delta > 0 ? "+" : ""}
+                {delta}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+export default function AiRunResult({
+  report,
+  current,
+  evaluations,
+}: {
+  report: CompoundAiReport | null;
+  current: boolean;
+  evaluations: CompoundAiEvaluation[];
+}) {
+  if (!report && !evaluations.length) return null;
+  return (
+    <section className="layout-ai-result" aria-label="AI run result">
+      <h3>{report ? "Last AI run" : "AI evaluations"}</h3>
+      {report && (
+        <>
+          <p>
+            <strong>
+              {report.candidateId === "current"
+                ? "Kept current layout"
+                : report.changed
+                  ? "Layout changed"
+                  : "Geometry unchanged"}
+            </strong>{" "}
+            · {report.evaluations} evaluations · {report.decisions} decisions · selected {report.candidateId}
+          </p>
+          <p>
+            {report.after.movedNodes} nodes/groups changed · {report.after.changedEdges} routes changed
+          </p>
+          <p>{report.summary}</p>
+          {report.precise && (
+            <p>
+              Exact positions applied to this live view. Positions are not saved; changing graph, view or layout
+              settings recomputes the layout.
+            </p>
+          )}
+          {!report.evaluations && <p>No alternative layout was evaluated.</p>}
+          {!current && <p>This result is from an earlier layout context; the current canvas has changed.</p>}
+          {!current && <AiRunComparison report={report} />}
+        </>
+      )}
+      {!!evaluations.length && (
+        <details>
+          <summary>Evaluation history ({evaluations.length})</summary>
+          <ol>
+            {evaluations.map((trial, index) => (
+              <li key={index}>
+                <strong>
+                  {trial.candidateId} · {trial.status}
+                  {report?.candidateId === trial.candidateId ? " · selected" : ""}
+                </strong>
+                <p>{trial.hypothesis}</p>
+                {trial.positionedNodes !== undefined && <p>{trial.positionedNodes} exact position instructions</p>}
+                {trial.metrics && (
+                  <p>
+                    {trial.metrics.crossings} crossings · {trial.metrics.bends} bends ·{" "}
+                    {Math.round(trial.metrics.length)} px route length · {trial.metrics.movedNodes} nodes/groups changed
+                    · {trial.metrics.changedEdges} routes changed
+                  </p>
+                )}
+                {trial.error && <p>{trial.error}</p>}
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
+    </section>
+  );
+}

@@ -7,14 +7,34 @@ import { measureLayout, validateLayoutGeometry } from "../layout-quality";
 import { directionWarnings } from "../constraints";
 import { applyCompoundAiPlan } from "./protocol";
 import { compoundAiContext, requestCompoundLayoutDecision } from "./request";
+import type { CompoundRuntimePlacement } from "../precise";
 
 export const COMPOUND_AI_BUDGET = { evaluations: 4, decisions: 6, timeoutMs: 240000 } as const;
+export interface CompoundAiEvaluation {
+  candidateId: string;
+  hypothesis: string;
+  status: "evaluated" | "failed" | "reused";
+  metrics?: LayoutMetrics;
+  error?: string;
+  positionedNodes?: number;
+}
+export interface CompoundAiReport {
+  candidateId: string;
+  summary: string;
+  evaluations: number;
+  decisions: number;
+  before: LayoutMetrics;
+  after: LayoutMetrics;
+  changed: boolean;
+  trials: CompoundAiEvaluation[];
+  precise: boolean;
+}
 
 /** Observations only: the model, not a threshold or ranker, decides what to do next. */
 export function compoundExecutionFeedback(before: LayoutProblem, stage: StageData) {
   const problem = stage.compoundLayout!;
   const observation = compoundAiContext(problem).context;
-  const metrics = measureLayout(problem, problem.baseline);
+  const metrics = measureLayout(before, problem.baseline);
   const previous = measureLayout(before, before.baseline);
   const delta = Object.fromEntries(
     (Object.keys(metrics) as (keyof LayoutMetrics)[]).map((key) => [key, metrics[key] - previous[key]]),
@@ -51,16 +71,17 @@ export async function runCompoundAiLayout(options: {
   currentStage: StageData;
   message: string;
   signal: AbortSignal;
-  compute(data: CompoundLayoutData): Promise<StageData>;
+  compute(data: CompoundLayoutData, runtime?: CompoundRuntimePlacement): Promise<StageData>;
   onStatus?(message: string): void;
   onProgress?: AiProgressListener;
+  onEvaluation?(evaluation: CompoundAiEvaluation): void;
 }) {
   const { problem, signal } = options;
   const replacement = compoundAiContext(problem);
   const checkCancelled = () => {
     if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout cancelled.");
   };
-  const candidates = new Map<string, { data: CompoundLayoutData; stage: StageData }>();
+  const candidates = new Map<string, { data: CompoundLayoutData; stage: StageData; precise?: boolean }>();
   if (validateLayoutGeometry(problem, problem.baseline).valid)
     candidates.set("current", { data: problem.stored, stage: options.currentStage });
   const observations: unknown[] = [
@@ -73,6 +94,11 @@ export async function runCompoundAiLayout(options: {
     },
   ];
   const signatures = new Map<string, string>();
+  const trials: CompoundAiEvaluation[] = [];
+  const recordTrial = (trial: CompoundAiEvaluation) => {
+    trials.push(trial);
+    options.onEvaluation?.(trial);
+  };
   let evaluations = 0,
     observed = problem;
   for (let decisionIndex = 0; decisionIndex < COMPOUND_AI_BUDGET.decisions; decisionIndex++) {
@@ -99,27 +125,53 @@ export async function runCompoundAiLayout(options: {
     checkCancelled();
     if (decision.action === "finish") {
       const chosen = candidates.get(decision.candidateId)!;
+      const before = measureLayout(problem, problem.baseline),
+        after = measureLayout(problem, chosen.stage.compoundLayout!.baseline);
+      const report: CompoundAiReport = {
+        candidateId: decision.candidateId,
+        summary: decision.summary,
+        evaluations,
+        decisions: decisionIndex + 1,
+        before,
+        after,
+        changed: after.movedNodes > 0 || after.changedEdges > 0,
+        trials,
+        precise: !!chosen.precise,
+      };
       return {
+        report,
         data: chosen.data,
         stage: { ...chosen.stage, layoutQuality: { ...chosen.stage.layoutQuality!, aiAssessment: decision.summary } },
       };
     }
     const data = applyCompoundAiPlan(problem.stored, decision.plan, problem.projection.focusGroupId, replacement);
-    const signature = JSON.stringify(data);
+    const runtime =
+      decision.plan.placements === undefined
+        ? undefined
+        : { placements: decision.plan.placements, baseline: observed.baseline };
+    const signature = JSON.stringify([data, runtime?.placements, runtime?.baseline.boxes]);
     const reused = signatures.get(signature);
     if (reused) {
       observations.push({ kind: "reused-evaluation", candidateId: reused, hypothesis: decision.hypothesis });
       observed = candidates.get(reused)!.stage.compoundLayout!;
+      recordTrial({
+        candidateId: reused,
+        hypothesis: decision.hypothesis,
+        status: "reused",
+        metrics: measureLayout(problem, observed.baseline),
+        positionedNodes: runtime?.placements.length,
+      });
       continue;
     }
     const candidateId = `trial-${++evaluations}`;
     options.onStatus?.(`Evaluating layout ${evaluations} of ${COMPOUND_AI_BUDGET.evaluations}…`);
     try {
-      const stage = await options.compute(data);
+      const stage = await options.compute(data, runtime);
       checkCancelled();
       const validation = validateLayoutGeometry(stage.compoundLayout!, stage.compoundLayout!.baseline);
       if (!validation.valid) throw new Error(validation.errors.slice(0, 4).join(" "));
-      candidates.set(candidateId, { data, stage });
+      const feedback = compoundExecutionFeedback(problem, stage);
+      candidates.set(candidateId, { data, stage, precise: !!runtime });
       signatures.set(signature, candidateId);
       observed = stage.compoundLayout!;
       observations.push({
@@ -127,17 +179,34 @@ export async function runCompoundAiLayout(options: {
         kind: "evaluated",
         hypothesis: decision.hypothesis,
         declaration: data,
-        result: compoundExecutionFeedback(problem, stage),
+        placements: runtime?.placements,
+        result: feedback,
+      });
+      recordTrial({
+        candidateId,
+        hypothesis: decision.hypothesis,
+        status: "evaluated",
+        metrics: feedback.after,
+        positionedNodes: runtime?.placements.length,
       });
     } catch (error) {
       checkCancelled();
+      const message = error instanceof Error ? error.message.slice(0, 1500) : "Layout solve failed.";
       observations.push({
         candidateId,
         kind: "failed",
         selectable: false,
         hypothesis: decision.hypothesis,
         declaration: data,
-        error: error instanceof Error ? error.message.slice(0, 1500) : "Layout solve failed.",
+        placements: runtime?.placements,
+        error: message,
+      });
+      recordTrial({
+        candidateId,
+        hypothesis: decision.hypothesis,
+        status: "failed",
+        error: message,
+        positionedNodes: runtime?.placements.length,
       });
     }
   }

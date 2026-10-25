@@ -2,6 +2,7 @@ import type { LayoutIntent, LayoutProblem, LayoutResult } from "../compound/layo
 import type { StageData } from "../shared/types";
 import type { TimelineLayoutInput } from "../timeline/input-types";
 import type { TimelineLayoutCandidate } from "../timeline/layout-candidate";
+import type { CompoundRuntimePlacement } from "../compound/precise";
 
 export interface LayoutWorkerRequest<Input> {
   jobId: string;
@@ -14,6 +15,7 @@ export type LayoutWorkerResponse<Result> =
 export interface CompoundWorkerInput {
   problem: LayoutProblem;
   intent: LayoutIntent;
+  runtime?: CompoundRuntimePlacement;
 }
 
 export interface TimelineWorkerInput {
