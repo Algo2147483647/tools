@@ -1,16 +1,25 @@
 import type { AiSettings } from "../../../ai/types";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
+import { requestToolTurn } from "../../../ai/transport/toolConversation";
+import type { ModelToolCall, ToolMessage } from "../../../ai/transport/toolTypes";
 import type { StageData } from "../../shared/types";
 import { LayoutRequestError } from "../../shared/ai/request";
 import type { CompoundLayoutData, LayoutMetrics, LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
 import { createLayoutResult, type LayoutResultDocument } from "../../../schema/layoutResult";
+import { layoutIdentity } from "../../../schema/layoutGeometry";
 import { applyLayoutResult } from "../../shared/applyLayoutResult";
-import { compoundAiContext, requestCompoundLayoutDecision } from "./request";
 import { executeCompoundDecision, type CompoundExecutionInput, type CompoundExecutionResult } from "./execute";
-import { inspectDraft } from "./geometry";
-import type { CompoundAiDecision, DesignReview } from "./decision";
 import type { CompoundDesign } from "./design";
+import { graphOverview, inspectGraph, inspectLayout } from "./observation";
+import {
+  LAYOUT_TOOLS,
+  parseToolArguments,
+  type CandidateRef,
+  type LayoutReview,
+  type LayoutToolName,
+} from "./protocol";
+import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
 import {
   CompoundBudgetError,
   DEFAULT_COMPOUND_AI_BUDGET,
@@ -30,6 +39,40 @@ export interface CompoundAiEvaluation {
   reroutedEdgeIds?: string[];
   design?: CompoundDesign;
 }
+export interface LayoutCandidate extends CandidateRef {
+  parentId?: string;
+  layout: LayoutResultDocument;
+  data: CompoundLayoutData;
+  design?: CompoundDesign;
+  valid: boolean;
+  error?: string;
+  inspectedAt?: number;
+}
+export interface LayoutToolTrace {
+  id: string;
+  name: string;
+  arguments: string;
+  result: unknown;
+  elapsedMs: number;
+  ok: boolean;
+}
+export interface CompoundCheckpoint {
+  version: 1;
+  contextKey: string;
+  modelKey: string;
+  message: string;
+  messages: ToolMessage[];
+  candidates: LayoutCandidate[];
+  pending: ModelToolCall[];
+  pendingIndex: number;
+  completed: { id: string; signature: string; result: unknown }[];
+  trials: CompoundAiEvaluation[];
+  trace: LayoutToolTrace[];
+  usage: CompoundRequestUsage[];
+  requests: number;
+  requestLimit: number;
+  elapsedMs: number;
+}
 export interface CompoundAiReport {
   candidateId: string;
   summary: string;
@@ -44,44 +87,19 @@ export interface CompoundAiReport {
   after: LayoutMetrics;
   changed: boolean;
   trials: CompoundAiEvaluation[];
-  reviews: { review: DesignReview; mode: string }[];
+  review: LayoutReview;
+  tools: LayoutToolTrace[];
   observationMode: "structure-only";
   design?: CompoundDesign;
 }
-export function compoundExecutionFeedback(before: LayoutProblem, stage: StageData) {
-  const problem = stage.compoundLayout!,
-    observation = compoundAiContext(problem).context;
-  const metrics = measureLayout(before, problem.baseline),
-    previous = measureLayout(before, before.baseline);
-  const points = Object.values(problem.baseline.routes).flatMap((r) => r.points);
-  return {
-    original: previous,
-    candidate: metrics,
-    delta: Object.fromEntries(
-      (Object.keys(metrics) as (keyof LayoutMetrics)[]).map((key) => [key, metrics[key] - previous[key]]),
-    ),
-    diagnostics: stage.warnings,
-    canvas: {
-      width: problem.baseline.width,
-      height: problem.baseline.height,
-      routeRight: Math.max(0, ...points.map((p) => p.x)),
-      routeBottom: Math.max(0, ...points.map((p) => p.y)),
-    },
-    crossings: observation.crossings,
-    sharedRuns: observation.sharedRuns,
-    detours: observation.detours,
-  };
+export function compoundContextKey(problem: LayoutProblem, stage: StageData) {
+  return layoutIdentity({
+    overview: graphOverview(problem),
+    current: createLayoutResult(stage, "compound"),
+    settings: problem.stored,
+    sizes: problem.minimumSizes,
+  });
 }
-interface Draft {
-  candidateId: string;
-  revision: number;
-  layout: LayoutResultDocument;
-  data: CompoundLayoutData;
-  stage?: StageData;
-  design?: CompoundDesign;
-}
-
-/** Design -> execute -> structural review -> edit. Numeric quality never selects a design. */
 export async function runCompoundAiLayout(options: {
   settings: AiSettings;
   problem: LayoutProblem;
@@ -89,225 +107,351 @@ export async function runCompoundAiLayout(options: {
   message: string;
   signal: AbortSignal;
   budget?: Partial<CompoundAiBudget>;
+  checkpoint?: CompoundCheckpoint;
   execute?(input: CompoundExecutionInput, signal: AbortSignal): Promise<CompoundExecutionResult>;
   onStatus?(message: string): void;
   onProgress?: AiProgressListener;
   onEvaluation?(evaluation: CompoundAiEvaluation): void;
+  onCheckpoint?(checkpoint: CompoundCheckpoint): void;
 }) {
   const { problem } = options,
     budget = { ...DEFAULT_COMPOUND_AI_BUDGET, ...options.budget };
   if (Object.values(budget).some((v) => !Number.isSafeInteger(v) || v <= 0))
     throw new Error("AI layout budgets must be positive integers.");
+  const contextKey = compoundContextKey(problem, options.currentStage),
+    modelKey = JSON.stringify([options.settings.provider, options.settings.baseUrl, options.settings.model]);
+  if (
+    options.checkpoint &&
+    (options.checkpoint.version !== 1 ||
+      options.checkpoint.contextKey !== contextKey ||
+      options.checkpoint.modelKey !== modelKey)
+  )
+    throw new Error("Layout or model context changed. Start a new design.");
+  const initialLayout = createLayoutResult(options.currentStage, "compound");
+  let initialValid = true;
+  try {
+    applyLayoutResult(initialLayout, options.currentStage);
+  } catch {
+    initialValid = false;
+  }
+  const state: CompoundCheckpoint = options.checkpoint
+    ? structuredClone(options.checkpoint)
+    : {
+        version: 1,
+        contextKey,
+        modelKey,
+        message: options.message,
+        messages: [
+          {
+            role: "user",
+            content: JSON.stringify({
+              request: options.message,
+              graph: graphOverview(problem),
+              initialCandidate: { candidateId: "current", revision: 0, valid: initialValid },
+            }),
+          },
+        ],
+        candidates: [
+          { candidateId: "current", revision: 0, layout: initialLayout, data: problem.stored, valid: initialValid },
+        ],
+        pending: [],
+        pendingIndex: 0,
+        completed: [],
+        trials: [],
+        trace: [],
+        usage: [],
+        requests: 0,
+        requestLimit: 0,
+        elapsedMs: 0,
+      };
   const started = Date.now(),
-    deadline = started + budget.timeoutMs,
-    abort = new AbortController();
-  const cancel = () => abort.abort();
+    priorElapsed = state.elapsedMs,
+    requestStart = state.requests;
+  state.requestLimit += budget.maxRequests;
+  let toolCount = 0,
+    idle = false,
+    timedOut = false,
+    idleTimer: ReturnType<typeof setTimeout> | undefined;
+  const abort = new AbortController(),
+    cancel = () => abort.abort();
   options.signal.addEventListener("abort", cancel, { once: true });
   if (options.signal.aborted) cancel();
-  const timer = setTimeout(cancel, budget.timeoutMs);
-  let stalled = false;
-  let idleTimer: ReturnType<typeof setTimeout> | undefined;
-  const refreshIdle = () => {
+  const timer = setTimeout(() => {
+    timedOut = true;
+    cancel();
+  }, budget.timeoutMs);
+  const progress: AiProgressListener = (e) => {
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => {
-      stalled = true;
+      idle = true;
       cancel();
     }, budget.idleTimeoutMs);
+    options.onProgress?.(e);
   };
   const check = () => {
-    if (options.signal.aborted) throw new LayoutRequestError("cancelled", "Layout cancelled.");
-    if (stalled) throw new CompoundBudgetError("idle-timeout");
-    if (abort.signal.aborted || Date.now() >= deadline) throw new CompoundBudgetError("deadline");
+    if (options.signal.aborted)
+      throw new LayoutRequestError("cancelled", "Layout cancelled. Resume is available for this unchanged context.");
+    if (idle) throw new CompoundBudgetError("idle-timeout");
+    if (timedOut || abort.signal.aborted) throw new CompoundBudgetError("deadline");
   };
-  const trials: CompoundAiEvaluation[] = [],
-    usage: CompoundRequestUsage[] = [],
-    reviews: CompoundAiReport["reviews"] = [];
-  let requests = 0,
-    decisions = 0;
-  let working: Draft = {
-    candidateId: "current",
-    revision: 0,
-    layout: createLayoutResult(options.currentStage, "compound"),
-    data: problem.stored,
+  const checkpoint = () => {
+    state.elapsedMs = priorElapsed + Date.now() - started;
+    options.onCheckpoint?.(structuredClone(state));
   };
-  let lastReviewed: Draft | undefined;
-  let feedback: unknown;
-  const finish = (reason: CompoundStopReason, detail: string, selected?: Draft) => {
-    if (options.signal.aborted) throw new LayoutRequestError("cancelled", "Layout cancelled.");
-    // On interruption only a reviewed legal draft is eligible. There is no score-based or baseline quality gate.
-    const chosen = selected ?? lastReviewed;
-    if (!chosen?.stage)
-      throw new LayoutRequestError(
-        "solve",
-        `${reason === "deadline" ? "Design time limit reached before a legal design was reviewed." : reason === "idle-timeout" ? "The model stopped producing output before a legal design was reviewed." : detail} ${trials.length} drafts evaluated; no reviewed legal design is available. Current layout kept.`,
+  const candidate = (ref: CandidateRef) => {
+    const c = state.candidates.find((c) => c.candidateId === ref.candidateId);
+    if (!c || c.revision !== ref.revision)
+      throw new Error(
+        "Unknown candidate or stale revision. Use the exact candidateId and revision returned by a tool.",
       );
-    const before = measureLayout(problem, problem.baseline),
-      after = measureLayout(problem, chosen.stage.compoundLayout!.baseline);
-    const report: CompoundAiReport = {
-      candidateId: chosen.candidateId,
-      summary: detail,
-      evaluations: trials.length,
-      decisions,
-      requests,
-      requestLimit: budget.maxRequests,
-      elapsedMs: Date.now() - started,
-      stopReason: reason,
-      usage,
-      before,
-      after,
-      changed: after.movedNodes > 0 || after.changedEdges > 0,
-      trials,
-      reviews,
-      design: chosen.design,
-      observationMode: "structure-only",
-    };
-    return {
-      report,
-      data: chosen.data,
-      stage: { ...chosen.stage, layoutQuality: { ...chosen.stage.layoutQuality!, aiAssessment: detail } },
-    };
+    return c;
   };
-  try {
-    check();
-    // Original is context, not an automatic competing design.
+  let selected: { candidate: LayoutCandidate; summary: string; review: LayoutReview } | undefined;
+  const observation = (c: LayoutCandidate, scopeId: string | null = null, nodeIds: string[] = [], routes = false) => ({
+    candidateId: c.candidateId,
+    revision: c.revision,
+    parentId: c.parentId,
+    valid: c.valid,
+    error: c.error,
+    ...inspectLayout(problem, c.layout, c.design, scopeId, nodeIds, routes),
+  });
+  const execute = async (call: ModelToolCall): Promise<unknown> => {
+    let raw: unknown;
     try {
-      working.stage = applyLayoutResult(working.layout, options.currentStage);
+      raw = JSON.parse(call.arguments);
     } catch {
-      /* Can still design from invalid starting geometry. */
+      throw new Error("Tool arguments must be one complete JSON object.");
     }
+    const name = call.name as LayoutToolName;
+    if (name === "inspect_graph") {
+      const a = parseToolArguments(name, raw);
+      return inspectGraph(problem, a.scopeId, a.nodeIds);
+    }
+    if (name === "inspect_layout") {
+      const a = parseToolArguments(name, raw),
+        c = candidate(a),
+        result = observation(c, a.scopeId, a.nodeIds, a.includeRoutes);
+      if (a.scopeId === null && a.nodeIds.length === 0) c.inspectedAt = state.requests;
+      return result;
+    }
+    if (name === "compare_layouts") {
+      const a = parseToolArguments(name, raw),
+        left = candidate(a.left),
+        right = candidate(a.right);
+      const l = observation(left),
+        r = observation(right);
+      left.inspectedAt = right.inspectedAt = state.requests;
+      const positions = (c: LayoutCandidate) => [...c.layout.geometry.nodes, ...(c.layout.geometry.groups ?? [])];
+      const before = new Map(positions(left).map((n) => [n.id, n]));
+      return {
+        left: l,
+        right: r,
+        changed: positions(right).filter((n) => JSON.stringify(n) !== JSON.stringify(before.get(n.id))),
+        instruction: "Choose by communication intent and evidence; no metric-based winner is assigned.",
+      };
+    }
+    if (name === "finish_layout") {
+      const a = parseToolArguments(name, raw),
+        c = candidate(a);
+      if (c.candidateId === "current" || !c.valid) throw new Error("Finish requires a legal generated candidate.");
+      if (c.inspectedAt === undefined || c.inspectedAt >= state.requests)
+        throw new Error(
+          "Inspect the whole candidate and consume its tool result in a subsequent model turn before finishing.",
+        );
+      if (state.pendingIndex !== state.pending.length - 1)
+        throw new Error("finish_layout must be the final tool call in the turn.");
+      selected = { candidate: c, summary: a.summary, review: a.review };
+      return { selected: c.candidateId, revision: c.revision };
+    }
+    if (name !== "compose_layout" && name !== "edit_layout") throw new Error(`Unknown layout tool: ${name}.`);
+    const a = parseToolArguments(name, raw),
+      base = candidate(a);
+    let design = base.design;
+    let decision: CompoundExecutionInput["decision"];
+    if (name === "compose_layout") {
+      const plan = parseToolArguments("compose_layout", raw).design;
+      const scopes = new Map(base.design?.scopes.map((s) => [s.groupId, s]) ?? []);
+      for (const s of plan.scopes) scopes.set(s.groupId === problem.projection.focusGroupId ? null : s.groupId, s);
+      design = { ...plan, scopes: [...scopes.values()] };
+      decision = { action: "compose", design };
+    } else decision = { action: "edit", changes: parseToolArguments("edit_layout", raw).changes };
+    const baseStage = base.valid
+      ? applyLayoutResult(base.layout, { ...options.currentStage, compoundLayout: { ...problem, stored: base.data } })
+      : undefined;
+    const input: CompoundExecutionInput = {
+      problem: { ...problem, baseline: baseStage?.compoundLayout!.baseline ?? problem.baseline, stored: base.data },
+      baseLayout: base.layout,
+      decision,
+    };
+    options.onStatus?.(`${name === "compose_layout" ? "Composing" : "Editing"} from ${base.candidateId}…`);
+    const result = await (options.execute ? options.execute(input, abort.signal) : executeCompoundDecision(input));
+    check();
+    const id = `trial-${state.trials.length + 1}`;
+    const trial: CompoundAiEvaluation = {
+      candidateId: id,
+      revision: base.revision + 1,
+      hypothesis: a.hypothesis,
+      status: "evaluated",
+      reroutedEdgeIds: result.reroutedEdgeIds,
+      design,
+    };
+    let error = result.error;
+    try {
+      if (error) throw new Error(error);
+      const stage = applyLayoutResult(result.layout, {
+        ...options.currentStage,
+        compoundLayout: { ...problem, stored: result.data },
+      });
+      trial.metrics = measureLayout(problem, stage.compoundLayout!.baseline);
+    } catch (e) {
+      error = e instanceof Error ? e.message : "Invalid geometry";
+      trial.status = "failed";
+      trial.error = error;
+    }
+    const next: LayoutCandidate = {
+      candidateId: id,
+      revision: trial.revision,
+      parentId: base.candidateId,
+      layout: result.layout,
+      data: result.data,
+      design,
+      valid: !error,
+      error,
+    };
+    state.candidates.push(next);
+    state.trials.push(trial);
+    options.onEvaluation?.(trial);
+    // Invalid compositions can contain unknown IDs; don't inspect an unrealized intent.
+    return error
+      ? { candidateId: id, revision: next.revision, valid: false, error, issues: result.issues }
+      : observation(next);
+  };
+  checkpoint();
+  try {
     for (;;) {
       check();
-      if (requests >= budget.maxRequests)
-        return finish(
-          "request-budget",
-          "Request budget reached; retained the last reviewed legal design. Review may still identify unresolved design issues.",
-        );
-      const mode = !trials.length ? "design" : !working.stage ? "invalid-draft" : "structure-only";
-      let decision: CompoundAiDecision;
-      try {
-        decision = await requestCompoundLayoutDecision(
-          options.settings,
-          problem,
-          options.message,
-          abort.signal,
-          () => options.onStatus?.("Correcting the design response…"),
-          {
-            observations: trials,
-            currentLayout: working.layout,
-            candidateId: working.candidateId,
-            revision: working.revision,
-            valid: !!working.stage,
-            designed: trials.length > 0,
-            design: working.design,
-            observationMode: mode,
-            feedback: { ...((feedback ?? {}) as object), previousReview: reviews.at(-1) },
-            budget: {
-              remainingRequests: budget.maxRequests - requests,
-              remainingMs: Math.max(0, deadline - Date.now()),
-            },
-            onProgress: (progress) => {
-              refreshIdle();
-              options.onProgress?.(progress);
-            },
-            beforeRequest: () => {
-              check();
-              if (requests >= budget.maxRequests) throw new CompoundBudgetError("request-budget");
-              refreshIdle();
-              requests++;
-              usage.push({});
-              options.onStatus?.(
-                `${trials.length ? "Reviewing the design" : "Designing the composition"} · request ${requests}/${budget.maxRequests}…`,
-              );
-            },
-            onReply: (reply) => {
-              clearTimeout(idleTimer);
-              usage[requests - 1] = requestUsage(reply);
-            },
-          },
-        );
+      while (state.pendingIndex < state.pending.length) {
         check();
-      } catch (error) {
+        if (toolCount++ >= budget.maxToolCalls) throw new CompoundBudgetError("tool-budget");
+        const call = state.pending[state.pendingIndex],
+          signature = JSON.stringify([call.name, call.arguments]);
+        const cached = state.completed.find((c) => c.id === call.id);
+        let result: unknown,
+          ok = true;
+        const began = Date.now();
+        try {
+          if (cached) {
+            if (cached.signature !== signature) throw new Error("Tool call ID was reused with different arguments.");
+            result = cached.result;
+          } else result = await execute(call);
+        } catch (e) {
+          check();
+          ok = false;
+          result = { error: e instanceof Error ? e.message : "Tool failed", recoverable: true };
+        }
         check();
-        return finish(
-          error instanceof CompoundBudgetError ? error.reason : "request-error",
-          error instanceof Error ? error.message : "Design request failed.",
-        );
+        if (!cached) state.completed.push({ id: call.id, signature, result });
+        state.messages.push({ role: "tool", callId: call.id, name: call.name, content: JSON.stringify(result) });
+        state.trace.push({
+          id: call.id,
+          name: call.name,
+          arguments: call.arguments,
+          result,
+          elapsedMs: Date.now() - began,
+          ok,
+        });
+        state.pendingIndex++;
+        checkpoint();
       }
-      decisions++;
-      if (decision.review) {
-        reviews.push({ review: decision.review, mode });
-        if (working.stage) lastReviewed = working;
-      }
-      if (decision.action === "finish") return finish("selected", decision.summary, working);
-      // Do not execute an edit if no request remains to inspect its actual result.
-      if (requests >= budget.maxRequests)
-        return finish(
-          "request-budget",
-          "Reserved final selection for the last reviewed design; the suggested edit could not be inspected within this budget.",
-        );
-      const candidateId = `trial-${trials.length + 1}`,
-        base = working;
-      options.onStatus?.("Building the design and routing its connections…");
-      const input: CompoundExecutionInput = {
-        problem: { ...problem, baseline: base.stage?.compoundLayout!.baseline ?? problem.baseline, stored: base.data },
-        baseLayout: base.layout,
-        decision,
-      };
-      let execution: CompoundExecutionResult;
-      try {
-        execution = await (options.execute ? options.execute(input, abort.signal) : executeCompoundDecision(input));
-      } catch (error) {
-        check();
-        execution = {
-          layout: base.layout,
-          data: base.data,
-          reroutedEdgeIds: [],
-          issues: [],
-          error: error instanceof Error ? error.message : "Design execution failed.",
+      state.pending = [];
+      state.pendingIndex = 0;
+      if (selected) {
+        const c = selected.candidate,
+          stage = applyLayoutResult(c.layout, {
+            ...options.currentStage,
+            compoundLayout: { ...problem, stored: c.data },
+          });
+        const before = measureLayout(problem, problem.baseline),
+          after = measureLayout(problem, stage.compoundLayout!.baseline);
+        const report: CompoundAiReport = {
+          candidateId: c.candidateId,
+          summary: selected.summary,
+          evaluations: state.trials.length,
+          decisions: state.trace.length,
+          requests: state.requests,
+          requestLimit: state.requestLimit,
+          elapsedMs: state.elapsedMs,
+          stopReason: "selected",
+          usage: state.usage,
+          before,
+          after,
+          changed: after.movedNodes > 0 || after.changedEdges > 0,
+          trials: state.trials,
+          review: selected.review,
+          tools: state.trace,
+          observationMode: "structure-only",
+          design: c.design,
+        };
+        return {
+          report,
+          data: c.data,
+          stage: { ...stage, layoutQuality: { ...stage.layoutQuality!, aiAssessment: selected.summary } },
         };
       }
-      check();
-      working = {
-        candidateId,
-        revision: base.revision + 1,
-        layout: execution.layout,
-        data: execution.data,
-        design: decision.action === "design" ? decision.design : base.design,
+      if (state.requests - requestStart >= budget.maxRequests) throw new CompoundBudgetError("request-budget");
+      const remaining = {
+        requests: budget.maxRequests - (state.requests - requestStart),
+        toolCalls: budget.maxToolCalls - toolCount,
+        timeMs: Math.max(0, budget.timeoutMs - (Date.now() - started)),
       };
-      const trial: CompoundAiEvaluation = {
-        candidateId,
-        revision: working.revision,
-        hypothesis: decision.hypothesis,
-        status: "evaluated",
-        reroutedEdgeIds: execution.reroutedEdgeIds,
-        design: working.design,
-      };
-      try {
-        if (execution.error) throw new Error(execution.error);
-        const stage = applyLayoutResult(working.layout, {
-          ...options.currentStage,
-          compoundLayout: { ...problem, stored: working.data },
-        });
-        working.stage = stage;
-        trial.metrics = measureLayout(problem, stage.compoundLayout!.baseline);
-        feedback = compoundExecutionFeedback(problem, stage);
-      } catch (error) {
-        trial.status = "failed";
-        trial.error = error instanceof Error ? error.message : "Invalid geometry.";
-        const issues = execution.issues.length ? execution.issues : inspectDraft(working.layout, problem);
-        feedback = { error: trial.error, issues: issues.slice(0, 20), issueCount: issues.length };
-      }
-      trials.push(trial);
-      options.onEvaluation?.(trial);
-    }
-  } catch (error) {
-    if (options.signal.aborted) throw new LayoutRequestError("cancelled", "Layout cancelled.");
-    if (error instanceof CompoundBudgetError || abort.signal.aborted)
-      return finish(
-        stalled ? "idle-timeout" : "deadline",
-        `${stalled ? "Model output stalled" : "Design time limit reached"}; retained the last reviewed legal design.`,
+      options.onStatus?.(`Designing with tools · request ${state.requests + 1}…`);
+      state.requests++;
+      state.usage.push({});
+      checkpoint();
+      const reply = await requestToolTurn(
+        options.settings,
+        COMPOUND_PLANNER_INSTRUCTIONS +
+          "\n" +
+          JSON.stringify({
+            remaining,
+            candidates: state.candidates.map((c) => ({
+              candidateId: c.candidateId,
+              revision: c.revision,
+              valid: c.valid,
+              parentId: c.parentId,
+            })),
+          }),
+        state.messages,
+        LAYOUT_TOOLS,
+        abort.signal,
+        progress,
       );
-    throw error;
+      clearTimeout(idleTimer);
+      check();
+      state.usage[state.requests - 1] = requestUsage(reply);
+      state.messages.push(reply.assistant);
+      state.pending = reply.assistant.calls;
+      state.pendingIndex = 0;
+      if (!state.pending.length)
+        state.messages.push({
+          role: "user",
+          content:
+            "Continue using the layout tools. A text answer does not install a layout; inspect a candidate and call finish_layout when ready.",
+        });
+      checkpoint();
+    }
+  } catch (e) {
+    checkpoint();
+    if (options.signal.aborted)
+      throw new LayoutRequestError("cancelled", "Layout cancelled. Completed work is available to resume.");
+    const reason = idle
+      ? "Model output stalled"
+      : timedOut
+        ? "Design time limit reached"
+        : e instanceof Error
+          ? e.message
+          : "Tool session stopped";
+    throw new LayoutRequestError("solve", `${reason} Layout work saved for Resume; current canvas kept.`);
   } finally {
     clearTimeout(timer);
     clearTimeout(idleTimer);

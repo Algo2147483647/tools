@@ -63,25 +63,26 @@ Chart variants:
 - Node-link: node centers and connection polylines.
 - Sankey and spatial: node centers and exact SVG connection paths, retaining measured chart-specific rendering attributes from the input.
 
-## Compound AI interaction protocol
+## Compound AI tools
 
-`layout/compound/ai/decision.ts` requires `protocolVersion: 2`. Version 1, unversioned decisions, `propose` and full-geometry `evaluate` are rejected. This protocol does not change Layout v4 or saved graph/settings schemas.
+Compound uses native function tools defined in `layout/compound/ai/protocol.ts`. The old versioned JSON decision envelope and correction adapter have been removed. Schema Layout v4 and configuration persistence are unchanged.
 
-| Action   | Required payload                                                     | Execution                                                                                                                               |
-| -------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `design` | `hypothesis`, `design`, `review`                                     | Replace the spatial composition and compute complete geometry. Initial review is null; subsequent designs review the current candidate. |
-| `revise` | `hypothesis`, `baseCandidateId`, `baseRevision`, `changes`, `review` | Apply local changes to the exact supplied draft revision.                                                                               |
-| `finish` | `candidateId`, `summary`, `review`                                   | Finish the supplied legal candidate after reviewing its actual result.                                                                  |
+| Tool              | Purpose                                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `inspect_graph`   | Scope children, selected nodes, incident connections and boundary endpoints.                    |
+| `compose_layout`  | Branch from an exact candidate/revision, merge supplied scope compositions, and execute intent. |
+| `edit_layout`     | Branch using exact local positions, group sizes or routes.                                      |
+| `inspect_layout`  | Scoped geometry, intent checks, region shares, route passages and optional exact polylines.     |
+| `compare_layouts` | Compare two immutable candidates without assigning a metric winner.                             |
+| `finish_layout`   | Select a legal candidate after consuming its global inspection in a later model turn.           |
 
-`design` states a `purpose`, a `readingPath` of visible node/group IDs, `regions` with primary/branch/support roles and reasons, `scopes`, and visible `connections` with main/branch/feedback/support roles. Each scope has `groupId`, RIGHT/DOWN `direction`, `rows` and a reason. Rows always run top to bottom and cells left to right in physical canvas coordinates. RIGHT/DOWN describes reading intent and never transposes the cells. Null cells reserve space. Every movable direct child of a supplied scope occurs exactly once. The current root scope is required; omitted interiors retain their arrangement. Spatial cells do not add business dependencies or flow-order constraints. Group bounds are derived from contents. Main connections are routed before supporting ones; feedback/support connections may use bounded outer corridors. A replacement design clears earlier generated constraints.
+A design contains purpose, readingPath, region roles, scope compositions and connection roles. Each supplied scope can express primaryPath, parallelBranches, relative placement (left/right/above/below), left/top alignment, and [column,row] spacing. These are executable spatial requirements, not new business edges. Optional rows seed physical top-to-bottom rows and left-to-right cells in both directions. Explicit rows must contain every movable direct child exactly once. Without rows the engine seeds from path/branches and puts supporting regions in another lane. Omitted scopes retain their compositions. Groups size from children, followed by routing. Conflicting requirements return a recoverable tool error identifying the involved relationships.
 
-`changes` supports `move-node` (center), `move-group` (top-left, translates descendants), `resize-group`, `reroute-edge`, and exact `replace-route`. Moving geometry reroutes incident and newly obstructed connections. Grow groups explicitly if needed. Manual route replacements are never silently repaired. Final geometry receives complete validation.
+Every mutation returns an immutable candidate ID and revision. Earlier candidates remain available for branching and comparison. Call IDs are idempotent: identical replays reuse results; changed arguments with an existing ID are rejected. Mutations run sequentially. Errors return through tool results, not an old JSON-regeneration protocol. Finish requires a complete global inspection (null scope, empty nodeIds), or comparison, returned before the selecting model turn. Geometry validity is enforced; numeric quality is auxiliary.
 
-Each review binds `candidateId` and `revision` and describes `readingFlow`, `hierarchy`, `relationships`, and `problems`. Problems identify concrete IDs, an observation, a proposed change and its expected effect. A revision or replacement after the initial design requires a problem. Subsequent feedback includes the previous review so the model can check its expected effect. Failed drafts can be repaired but not finished. A changed candidate must receive its own review.
+Initial input is a complete semantic graph overview without route geometry. Detailed positions and routes are queried as text. No images or offscreen renderer are used. Native conversation messages retain tool calls/results and provider-required reasoning/signatures; tools are not guaranteed to reduce total token usage.
 
-All model inputs are text: graph structure, design intent, exact candidate coordinates and routes, and diagnostics. Reviews are explicitly structure-only; no screenshot rendering or image input is used. The canvas is not replaced while reviewing.
-
-Defaults are six total model requests including corrections and a 20-minute overall limit and a 120-second response idle timeout. Geometry Workers remain cancellable with 15-second timeouts. A final request is reserved for reviewing the result rather than creating an unreviewable edit. There is no numeric stagnation rule, baseline quality gate or automatic metric-based candidate selection. On interruption the last reviewed legal design may be retained with the stop reason and unresolved issues; without a reviewed legal design the canvas stays unchanged. Explicit cancellation always preserves the canvas. Reports include design intent, reviews, observation mode, geometry diagnostics, request counts, elapsed time and available provider usage.
+Each invocation allows 16 model requests, 48 tool dispatches, a 20-minute overall limit and a 120-second response idle timeout refreshed by streaming output. Geometry Workers retain their 15-second timeout. Interruptions preserve the current canvas and checkpoint the conversation, candidates and pending calls in the current page session. Resume grants a fresh bounded invocation and continues pending work without repeating completed mutations. Changing document/view/layout/model context invalidates resume. Reloading the page discards these transient checkpoints. Only finish installs a candidate; no fallback or metric-based selection occurs. Tool inputs/results and final review are visible in the panel.
 
 ## Timeline interaction protocol
 

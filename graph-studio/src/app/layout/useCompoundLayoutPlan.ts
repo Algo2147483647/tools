@@ -6,6 +6,7 @@ import {
   runCompoundAiLayout,
   type CompoundAiReport,
   type CompoundAiEvaluation,
+  type CompoundCheckpoint,
 } from "../../layout/compound/ai/workflow";
 import { computeCompoundAi } from "./computeCompoundAi";
 import { LayoutRequestError, presentLayoutError } from "../../layout/shared/ai/request";
@@ -51,6 +52,9 @@ export function useCompoundLayoutPlan(
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [detail, setDetail] = useState("");
+  const [checkpoint, setCheckpoint] = useState<{ key: string; value: CompoundCheckpoint } | null>(null);
+  const checkpointRef = useRef(checkpoint);
+  checkpointRef.current = checkpoint;
   const { activity, onProgress, clear: clearActivity, finish: finishActivity } = useAiActivity();
   const [lastRun, setLastRun] = useState<{
     report: CompoundAiReport;
@@ -76,6 +80,7 @@ export function useCompoundLayoutPlan(
     finishActivity();
   }, [finishActivity]);
   useEffect(() => {
+    setCheckpoint(null);
     if (active.current) {
       cancel();
       setMessage("Layout context changed. AI run cancelled; current layout kept.");
@@ -114,7 +119,7 @@ export function useCompoundLayoutPlan(
     };
   }, []);
   const run = useCallback(
-    async (request: { message: string } | { intent: unknown }) => {
+    async (request: { message: string; resume?: boolean } | { intent: unknown }) => {
       const initial = current.current;
       const input = initial.viewport.compoundLayout.input;
       if (!initial.ready || !initial.problem || !input || active.current) return "Wait for the current layout.";
@@ -123,9 +128,21 @@ export function useCompoundLayoutPlan(
       setBusy(true);
       setMessage("Planning layout…");
       setDetail("");
-      clearActivity();
+      const saved =
+        "message" in request && request.resume && checkpointRef.current?.key === initial.key
+          ? checkpointRef.current.value
+          : undefined;
+      if ("message" in request && request.resume && !saved) {
+        active.current = null;
+        setBusy(false);
+        return "No matching layout work to resume.";
+      }
+      if (!saved) {
+        clearActivity();
+        setCheckpoint(null);
+      }
       setLastRun(null);
-      setEvaluations([]);
+      setEvaluations(saved?.trials ?? []);
       try {
         let data: CompoundLayoutData;
         let stage: StageData;
@@ -140,6 +157,11 @@ export function useCompoundLayoutPlan(
             currentStage: initial.viewport.stage!,
             message: request.message,
             signal: abort.signal,
+            checkpoint: saved,
+            onCheckpoint: (value) => {
+              if (current.current.key === initial.key && (active.current === abort || active.current === null))
+                setCheckpoint({ key: initial.key, value });
+            },
             onProgress: (event) => {
               if (active.current === abort && !abort.signal.aborted && current.current.key === initial.key)
                 onProgress(event);
@@ -155,6 +177,7 @@ export function useCompoundLayoutPlan(
           data = result.data;
           stage = result.stage;
           report = result.report;
+          setCheckpoint(null);
         } else {
           const intent = parseLayoutIntent(request.intent);
           const result = await computeCompoundAi(
@@ -247,6 +270,9 @@ export function useCompoundLayoutPlan(
       lastRun.inputKey === viewport.compoundLayout.inputKey &&
       state.chartType === "compound",
     evaluations,
+    toolTrace: checkpoint?.key === key ? checkpoint.value.trace : (lastRun?.report.tools ?? []),
+    canResume: !busy && ready && checkpoint?.key === key,
+    resume: () => run({ message: checkpointRef.current?.value.message ?? "", resume: true }),
     busy,
     message,
     detail,

@@ -1,5 +1,6 @@
 import type { LayoutResultDocument } from "../../../schema/layoutResult";
-import type { CompoundAiDecision } from "./decision";
+import type { LayoutChange } from "./protocol";
+import type { CompoundDesign } from "./design";
 import type { CompoundLayoutData, LayoutProblem, LayoutIntent } from "../layout-plan";
 import { routingPreferences, solveCompoundLayout } from "../layout-solver";
 import { routeCompoundEdges } from "../routing/router";
@@ -10,7 +11,10 @@ import { draftGeometry, geometryLayout, inspectDraft, routeIssues, type Geometry
 export interface CompoundExecutionInput {
   problem: LayoutProblem;
   baseLayout: LayoutResultDocument;
-  decision: Exclude<CompoundAiDecision, { action: "finish" }> | { action: "console-intent"; intent: LayoutIntent };
+  decision:
+    | { action: "compose"; design: CompoundDesign }
+    | { action: "edit"; changes: LayoutChange[] }
+    | { action: "console-intent"; intent: LayoutIntent };
 }
 export interface CompoundExecutionResult {
   layout: LayoutResultDocument;
@@ -35,12 +39,12 @@ export function executeCompoundDecision({
       if (!candidate) throw new Error("No legal arrangement for this console intent.");
       layout = geometryLayout(baseLayout, candidate.geometry);
       data = candidate.data;
-    } else if (decision.action === "design") {
+    } else if (decision.action === "compose") {
       const geometry = executeDesign(problem, decision.design);
       layout = geometryLayout(baseLayout, geometry);
       data = { ...problem.stored, method: "ai", constraints: [] };
       for (const edge of problem.projection.edges) reroutedEdgeIds.add(edge.id);
-    } else if (decision.action === "revise") {
+    } else if (decision.action === "edit") {
       const original = draftGeometry(layout, problem);
       const manual = new Set<string>();
       const requested = new Set<string>();

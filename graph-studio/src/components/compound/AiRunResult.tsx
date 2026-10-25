@@ -1,4 +1,4 @@
-import type { CompoundAiEvaluation, CompoundAiReport } from "../../layout/compound/ai/workflow";
+import type { CompoundAiEvaluation, CompoundAiReport, LayoutToolTrace } from "../../layout/compound/ai/workflow";
 import type { LayoutMetrics } from "../../layout/compound/layout-plan";
 
 export const qualityRows: { key: keyof LayoutMetrics; label: string; unit?: string }[] = [
@@ -48,15 +48,17 @@ export default function AiRunResult({
   report,
   current,
   evaluations,
+  tools = [],
 }: {
   report: CompoundAiReport | null;
   current: boolean;
   evaluations: CompoundAiEvaluation[];
+  tools?: LayoutToolTrace[];
 }) {
-  if (!report && !evaluations.length) return null;
+  if (!report && !evaluations.length && !tools.length) return null;
   return (
     <section className="layout-ai-result" aria-label="AI run result">
-      <h3>{report ? "Last AI run" : "AI evaluations"}</h3>
+      <h3>{report ? "Last AI run" : "AI layout activity"}</h3>
       {report && (
         <>
           <p>
@@ -67,36 +69,23 @@ export default function AiRunResult({
                   ? "Layout changed"
                   : "Geometry unchanged"}
             </strong>{" "}
-            · {report.evaluations} evaluations · {report.decisions} decisions · selected {report.candidateId}
+            · {report.evaluations} evaluations · {report.decisions} tool calls · selected {report.candidateId}
           </p>
           <p>
             {report.after.movedNodes} nodes/groups changed · {report.after.changedEdges} routes changed
           </p>
           <p>{report.summary}</p>
-          <p>Structure-only review · {report.reviews.length} reviews</p>
+          <p>Structure-only review</p>
           {report.design && <p>{report.design.purpose}</p>}
-          {!!report.reviews.length && (
-            <details>
-              <summary>Design reviews</summary>
-              <ol>
-                {report.reviews.map(({ review, mode }, index) => (
-                  <li key={index}>
-                    <strong>
-                      {review.candidateId} · revision {review.revision} · {mode}
-                    </strong>
-                    <p>{review.readingFlow}</p>
-                    <p>{review.hierarchy}</p>
-                    <p>{review.relationships}</p>
-                    {review.problems.map((problem, i) => (
-                      <p key={i}>
-                        {problem.ids.join(", ")}: {problem.observation} {problem.change} {problem.expectedEffect}
-                      </p>
-                    ))}
-                  </li>
-                ))}
-              </ol>
-            </details>
-          )}
+          <details>
+            <summary>Design review</summary>
+            <p>{report.review.readingFlow}</p>
+            <p>{report.review.hierarchy}</p>
+            <p>{report.review.relationships}</p>
+            {report.review.tradeoffs.map((text, i) => (
+              <p key={i}>{text}</p>
+            ))}
+          </details>
           <p>
             {report.requests}/{report.requestLimit} requests · {(report.elapsedMs / 1000).toFixed(1)} s ·{" "}
             {report.stopReason}
@@ -120,6 +109,25 @@ export default function AiRunResult({
           {!current && <p>This result is from an earlier layout context; the current canvas has changed.</p>}
           {!current && <AiRunComparison report={report} />}
         </>
+      )}
+      {!!tools.length && (
+        <details>
+          <summary>Tool calls ({tools.length})</summary>
+          <ol>
+            {tools.map((tool, i) => (
+              <li key={i}>
+                <strong>
+                  {tool.name} · {tool.ok ? "completed" : "error"}
+                </strong>
+                <details>
+                  <summary>Input and result</summary>
+                  <pre>{tool.arguments}</pre>
+                  <pre>{JSON.stringify(tool.result, null, 2)}</pre>
+                </details>
+              </li>
+            ))}
+          </ol>
+        </details>
       )}
       {!!evaluations.length && (
         <details>

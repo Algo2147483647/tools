@@ -2,18 +2,14 @@ import type { LayoutGeometry, LayoutProblem } from "../layout-plan";
 import type { CompoundBox } from "../../../graph/compound/geometry";
 import { buildScopes } from "../constraints";
 import { routeCompoundEdges } from "../routing/router";
+import { applyComposition, compositionRows, type ScopeComposition } from "./composition";
 
 /** Spatial cells describe composition, never additional graph dependencies. */
 export interface CompoundDesign {
   purpose: string;
   readingPath: string[];
   regions: { id: string; role: "primary" | "branch" | "support"; reason: string }[];
-  scopes: {
-    groupId: string | null;
-    direction: "RIGHT" | "DOWN";
-    rows: (string | null)[][];
-    reason: string;
-  }[];
+  scopes: ScopeComposition[];
   connections: { edgeId: string; role: "main" | "branch" | "feedback" | "support" }[];
 }
 
@@ -31,8 +27,14 @@ export function validateDesign(problem: LayoutProblem, design: CompoundDesign) {
     seen.add(id);
     if (problem.stored.direction !== "AUTO" && scope.direction !== problem.stored.direction)
       throw new Error(`Preserve selected direction ${problem.stored.direction}.`);
-    const ids = scope.rows.flat().filter((value): value is string => value !== null);
     const movable = children.filter((child) => !items.get(child)!.external);
+    const ids = compositionRows(
+      scope,
+      movable,
+      new Set(design.regions.filter((r) => r.role === "support").map((r) => r.id)),
+    )
+      .flat()
+      .filter((value): value is string => value !== null);
     if (
       ids.length !== movable.length ||
       new Set(ids).size !== ids.length ||
@@ -41,8 +43,15 @@ export function validateDesign(problem: LayoutProblem, design: CompoundDesign) {
       throw new Error(
         `Scope ${scope.groupId ?? "root"} must place every movable direct child exactly once: ${movable.join(", ")}.`,
       );
+    const intentIds = [
+      ...(scope.primaryPath ?? []),
+      ...(scope.parallelBranches ?? []).flatMap((b) => [b.from, ...b.members]),
+      ...(scope.placement ?? []).flatMap((p) => [p.subject, p.anchor]),
+      ...(scope.alignment ?? []).flatMap((a) => a.members),
+    ];
+    for (const child of intentIds)
+      if (!movable.includes(child)) throw new Error(`Intent references a non-sibling or fixed node: ${child}.`);
   }
-  if (!seen.has(null)) throw new Error("Design the current root scope, including every movable direct child.");
   for (const id of [...design.readingPath, ...design.regions.map((r) => r.id)])
     if (!items.has(id)) throw new Error(`Unknown design node: ${id}.`);
   const edgeIds = new Set(problem.projection.edges.map((e) => e.id));
@@ -71,10 +80,17 @@ export function executeDesign(problem: LayoutProblem, design: CompoundDesign): L
     }
     const plan = plans.get(id);
     if (plan) {
+      const children = scope.children.filter((child) => !items.get(child)!.external);
+      const rows = compositionRows(
+        plan,
+        children,
+        new Set(design.regions.filter((r) => r.role === "support").map((r) => r.id)),
+      );
+      const gap: [number, number] = plan.spacing ?? [problem.columnGap, problem.rowGap];
       // Rows and columns always describe physical canvas positions.
       const widths: number[] = [],
         heights: number[] = [];
-      plan.rows.forEach((row, y) =>
+      rows.forEach((row, y) =>
         row.forEach((child, x) => {
           const size = child === null ? { width: 0, height: 0 } : sizes.get(child)!;
           widths[x] = Math.max(widths[x] ?? 0, size.width);
@@ -83,9 +99,9 @@ export function executeDesign(problem: LayoutProblem, design: CompoundDesign): L
       );
       const offsets = (values: number[], gap: number) =>
         values.map((_, i) => values.slice(0, i).reduce((sum, v) => sum + v + gap, 0));
-      const xs = offsets(widths, problem.columnGap);
-      const ys = offsets(heights, problem.rowGap);
-      plan.rows.forEach((row, y) =>
+      const xs = offsets(widths, gap[0]);
+      const ys = offsets(heights, gap[1]);
+      rows.forEach((row, y) =>
         row.forEach((child, x) => {
           if (child === null) return;
           const size = sizes.get(child)!;
@@ -94,6 +110,7 @@ export function executeDesign(problem: LayoutProblem, design: CompoundDesign): L
           local.set(child, { ...size, x: (id === null ? 36 : 24) + xOffset, y: (id === null ? 36 : 58) + yOffset });
         }),
       );
+      applyComposition(plan, local, children, gap);
     }
     if (id !== null && !items.get(id)?.external) {
       const children = scope.children.map((child) => local.get(child)!);

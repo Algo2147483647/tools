@@ -30,13 +30,7 @@ export default function CompoundLayoutPanel({
           {
             value: "ai",
             label: "AI",
-            status: busy
-              ? "running"
-              : c.detail || (c.lastRunCurrent && ["deadline", "request-error"].includes(c.lastRun?.stopReason ?? ""))
-                ? "error"
-                : c.lastRunCurrent
-                  ? "success"
-                  : "idle",
+            status: busy ? "running" : c.detail ? "error" : c.lastRunCurrent ? "success" : "idle",
           },
         ]}
       >
@@ -127,6 +121,11 @@ export default function CompoundLayoutPanel({
               <button className="studio-button primary" disabled={!c.ready || busy || !prompt.trim()}>
                 {busy ? "Arranging…" : "Arrange"}
               </button>
+              {c.canResume && (
+                <button type="button" className="studio-button" onClick={() => void c.resume()}>
+                  Resume
+                </button>
+              )}
               {busy && (
                 <button
                   type="button"
@@ -185,7 +184,12 @@ export default function CompoundLayoutPanel({
           </>
         )}
       </section>
-      <AiRunResult report={c.lastRun} current={c.lastRunCurrent} evaluations={c.evaluations ?? []} />
+      <AiRunResult
+        report={c.lastRun}
+        current={c.lastRunCurrent}
+        evaluations={c.evaluations ?? []}
+        tools={c.toolTrace ?? []}
+      />
       <AiActivityView activity={c.activity} busy={busy} />
     </section>
   );

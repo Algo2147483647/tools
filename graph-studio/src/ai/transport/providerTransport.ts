@@ -10,6 +10,9 @@ export interface ProviderReply {
   requestId?: string;
   usage?: Record<string, unknown>;
   reasoningCharacters?: number;
+  reasoningContent?: string;
+  toolCalls?: import("./toolTypes").ModelToolCall[];
+  nativeContent?: unknown[];
 }
 export interface ProviderOutput {
   /** Service-advertised capacity; null omits an optional limit, undefined discovers it. */

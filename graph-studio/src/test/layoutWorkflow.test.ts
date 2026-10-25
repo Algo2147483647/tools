@@ -2,34 +2,20 @@ import assert from "node:assert/strict";
 import { requestProviderText } from "../ai/transport/providerTransport";
 import type { AiSettings } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
-import { compoundDecisionSchema, parseCompoundDecision } from "../layout/compound/ai/decision";
+import { timelineDecisionSchema, parseTimelineDecision } from "../layout/timeline/ai/decision";
 import { LayoutRequestError, parseLayoutJson, requestLayoutPlan } from "../layout/shared/ai/request";
 import { routingHotspots } from "../layout/compound/diagnostics";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
-const valid = {
-  protocolVersion: 2,
-  action: "finish",
-  candidateId: "current",
-  summary: "Retain the current result.",
-  review: {
-    candidateId: "current",
-    revision: 0,
-    readingFlow: "Clear",
-    hierarchy: "Clear",
-    relationships: "Clear",
-    problems: [],
-  },
-};
+const valid = { action: "finish", candidateId: "current", summary: "Retain the current result." };
 const settings: AiSettings = {
   provider: "openai-compatible",
   baseUrl: "https://test.invalid",
   apiKey: "",
   model: "layout-test",
 };
-const parse = (value: Record<string, unknown>) =>
-  parseCompoundDecision(value, { candidateId: "current", revision: 0, valid: true, designed: true });
+const parse = (value: Record<string, unknown>) => parseTimelineDecision(value, new Set(["current"]), false);
 async function mock(
   replies: { content?: string; finish_reason?: string; refusal?: string; status?: number; error?: string }[],
   run: (requests: Record<string, any>[]) => Promise<void>,
@@ -70,7 +56,7 @@ const request = (signal = new AbortController().signal, provider = settings.prov
     signal,
     context: { edges: ["ab"] },
     message: "Arrange",
-    schema: compoundDecisionSchema(),
+    schema: timelineDecisionSchema(),
     instructions: "Keep DOWN.",
     parse,
   });
@@ -168,7 +154,7 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
         signal: new AbortController().signal,
         context: {},
         message: "Arrange",
-        schema: compoundDecisionSchema(),
+        schema: timelineDecisionSchema(),
         instructions: "Keep DOWN",
         parse,
       });
