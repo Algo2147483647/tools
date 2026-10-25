@@ -5,7 +5,8 @@ import { LayoutRequestError } from "../../shared/ai/request";
 import type { CompoundLayoutData, LayoutMetrics, LayoutProblem } from "../layout-plan";
 import { measureLayout, validateLayoutGeometry } from "../layout-quality";
 import { directionWarnings } from "../constraints";
-import { applyLayoutResult, createLayoutResult } from "../../../schema/layoutResult";
+import { createLayoutResult } from "../../../schema/layoutResult";
+import { applyLayoutResult } from "../../shared/applyLayoutResult";
 import { compoundAiContext, requestCompoundLayoutDecision } from "./request";
 
 export interface CompoundAiEvaluation {
@@ -110,7 +111,6 @@ export async function runCompoundAiLayout(options: {
       {
         selectedDirection: problem.stored.direction,
         observations,
-        canEvaluate: true,
         candidateIds: new Set(candidates.keys()),
         currentLayout: createLayoutResult(observedStage, "compound"),
         requireEvaluation: !evaluations,
@@ -161,8 +161,6 @@ export async function runCompoundAiLayout(options: {
       const stage = applyLayoutResult(decision.layout, options.currentStage);
       stage.compoundLayout = { ...stage.compoundLayout!, stored: data };
       checkCancelled();
-      const validation = validateLayoutGeometry(stage.compoundLayout!, stage.compoundLayout!.baseline);
-      if (!validation.valid) throw new Error(validation.errors.join(" "));
       const feedback = compoundExecutionFeedback(problem, stage);
       candidates.set(candidateId, { data, stage, precise: true });
       signatures.set(signature, candidateId);

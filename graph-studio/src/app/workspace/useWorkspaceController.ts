@@ -1,5 +1,5 @@
 import { saveWorkspaceLayout, saveServedLayout } from "../../workspace/saveLayout";
-import type { LayoutDocument } from "../../schema/layoutProtocol";
+import type { LayoutConfigFile } from "../../schema/layoutConfig";
 import { saveServedStyle, saveWorkspaceStyle } from "../../workspace/saveStyle";
 import type { ChartStyle } from "../../schema/appearance/types";
 import type { GraphChartType } from "../../graph/types";
@@ -348,73 +348,28 @@ export function useWorkspaceController({
     setNotice("");
     return true;
   }
-  async function saveAndBindStyle(chartType: GraphChartType, style: ChartStyle) {
-    const snapshot = stateRef.current;
-    const folder = workspace;
+  async function saveAndBind(kind: "style" | "layout", save: (folder: WorkspaceSession, path: string, reference: unknown, isCurrent: () => boolean) => Promise<{ reference: string; entry: WorkspaceFile }>) {
+    const snapshot = stateRef.current, folder = workspace;
     if (!snapshot.dag) return;
-    await run(async (context) => {
-      if (!folder || folder.activePath !== snapshot.source.fileName)
-        throw new Error("The graph's folder is not accessible. Open its workspace to update the sibling style file.");
-      const saved = folder.handle
-        ? await saveWorkspaceStyle(
-            folder,
-            snapshot.source.fileName,
-            chartType,
-            style,
-            context.isCurrent,
-            snapshot.dag!.metadata?.style,
-          )
-        : folder.exampleId
-          ? await saveServedStyle(
-              folder.exampleId,
-              snapshot.source.fileName,
-              chartType,
-              style,
-              snapshot.dag!.metadata?.style,
-            )
-          : (() => {
-              throw new Error("The graph's folder has no write access.");
-            })();
+    await run(async context => {
+      if (!folder || folder.activePath !== snapshot.source.fileName) throw new Error(`Open the graph's workspace to update its ${kind} file.`);
+      if (!folder.handle && !folder.exampleId) throw new Error("The graph's folder has no write access.");
+      const saved = await save(folder, snapshot.source.fileName, snapshot.dag!.metadata?.[kind], context.isCurrent);
       if (folder.exampleId) invalidateExampleWorkspace(folder.exampleId, import.meta.env.BASE_URL);
       if (!context.isCurrent()) return;
-      setWorkspace((current) =>
-        current?.locationId === folder.locationId
-          ? { ...current, files: new Map(current.files).set(saved.entry.path, saved.entry) }
-          : current,
-      );
-      dispatch({ type: "styleReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
+      setWorkspace(current => current?.locationId === folder.locationId ? { ...current, files: new Map(current.files).set(saved.entry.path, saved.entry) } : current);
+      dispatch({ type: kind === "style" ? "styleReferenceBound" : "layoutReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
     });
   }
-  async function saveAndBindLayout(layout: LayoutDocument) {
-    const snapshot = stateRef.current;
-    const folder = workspace;
-    if (!snapshot.dag) return;
-    await run(async (context) => {
-      if (!folder || folder.activePath !== snapshot.source.fileName)
-        throw new Error("The graph's folder is not accessible. Open its workspace to update the sibling layout file.");
-      const saved = folder.handle
-        ? await saveWorkspaceLayout(
-            folder,
-            snapshot.source.fileName,
-            layout,
-            context.isCurrent,
-            snapshot.dag!.metadata?.layout,
-          )
-        : folder.exampleId
-          ? await saveServedLayout(folder.exampleId, snapshot.source.fileName, layout, snapshot.dag!.metadata?.layout)
-          : (() => {
-              throw new Error("The graph's folder has no write access.");
-            })();
-      if (folder.exampleId) invalidateExampleWorkspace(folder.exampleId, import.meta.env.BASE_URL);
-      if (!context.isCurrent()) return;
-      setWorkspace((current) =>
-        current?.locationId === folder.locationId
-          ? { ...current, files: new Map(current.files).set(saved.entry.path, saved.entry) }
-          : current,
-      );
-      dispatch({ type: "layoutDocumentChanged", generation: snapshot.document.generation, data: layout });
-      dispatch({ type: "layoutReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
-    });
+  function saveAndBindStyle(chartType: GraphChartType, style: ChartStyle) {
+    return saveAndBind("style", (folder, path, reference, isCurrent) => folder.handle
+      ? saveWorkspaceStyle(folder, path, chartType, style, isCurrent, reference)
+      : saveServedStyle(folder.exampleId!, path, chartType, style, reference));
+  }
+  function saveAndBindLayout(config: LayoutConfigFile) {
+    return saveAndBind("layout", (folder, path, reference, isCurrent) => folder.handle
+      ? saveWorkspaceLayout(folder, path, config, isCurrent, reference)
+      : saveServedLayout(folder.exampleId!, path, config, reference));
   }
   function exportWorkspaceManifest() {
     if (workspace) downloadJsonFile(JSON.stringify(createWorkspaceManifest(workspace), null, 2), WORKSPACE_MANIFEST);

@@ -1,19 +1,14 @@
+import { LAYOUT_VIEW_CONFIG_KEYS } from "../../../schema/layoutConfig";
 import { measureTimelineLayout } from "../layout-quality";
 import { timelineLabelBox } from "../labels";
 import { getNodeTitle } from "../../../graph/accessors";
 import { getTimelineClock } from "../../../graph/timeline/clock";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../../schema/appearance/contract";
 import type { StageData } from "../../shared/types";
-import type { TimelineLayoutInput } from "../layout-candidate";
+import type { TimelineLayoutInput } from "../input-types";
 
 export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageData, focus?: string | null) {
-  const saved = { mode: input.arrangement ? "ai" : "algorithm", plan: input.arrangement };
-  const currentPlan =
-    input.arrangement === undefined ? (saved.mode === "ai" ? saved.plan : undefined) : input.arrangement;
-  const currentSettings = sanitizeTimelineSettings({
-    ...input.timelineSettings,
-    ...(currentPlan?.edgeRouting ? { edgeRouting: currentPlan.edgeRouting } : {}),
-  });
+  const currentSettings = sanitizeTimelineSettings(input.timelineSettings);
   const nodes = [...stage.nodes].sort(
     (a, b) => Number(b.key === focus) - Number(a.key === focus) || a.key.localeCompare(b.key),
   );
@@ -40,8 +35,7 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     clock: getTimelineClock(input.dag.metadata),
     layout: currentSettings.layout,
     orientation: currentSettings.orientation,
-    settings: currentSettings,
-    currentPlan,
+    settings: Object.fromEntries(LAYOUT_VIEW_CONFIG_KEYS.map(k => [k, currentSettings[k]])),
     geometry: {
       width: stage.stageWidth,
       height: stage.stageHeight,
@@ -58,11 +52,9 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     trackConnections: [...connections.values()].sort((a, b) => b.count - a.count),
     events: selected.map((node) => ({
       id: node.key,
-      x: node.x,
-      y: node.y,
       width: node.width,
       height: node.height,
-      label: { x: node.timeline!.labelX, y: node.timeline!.labelY, bounds: timelineLabelBox(node) },
+      labelBounds: timelineLabelBox(node),
       timeAnchors: { start: node.timeline!.startY, end: node.timeline!.endY, ports: node.timeline!.ports },
       title: getNodeTitle(input.dag.nodes[node.key]),
       track: node.timeline!.track,
@@ -79,8 +71,6 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
         source: edge.source,
         target: edge.target,
         relationship: edge.timeline,
-        points: edge.points,
-        label: edge.labelPosition,
       })),
   };
 }

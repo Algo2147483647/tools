@@ -110,3 +110,16 @@ export function readLayoutConfig(value: unknown): LayoutConfigFile {
   if (chart === "node-link") settings.method ??= "sugiyama";
   return parseLayoutConfigFile({ format: "graph-studio-layout-settings", version: 1, chartType: chart, settings });
 }
+
+/** Disk projection depends only on settings, never on a stage or rendering snapshot. */
+export function createLayoutConfigFile(
+  data: Pick<import("./layoutSession").LayoutSessionState, "charts">,
+  chart: GraphChartType,
+  view?: Partial<import("./appearance/types").TimelineViewSettings>,
+): LayoutConfigFile {
+  let settings: Record<string, unknown> = {};
+  if (chart === "compound") { const c = data.charts.compound; settings = { method: c.method, direction: c.direction, objective: c.objective, portMode: c.portMode }; }
+  if (chart === "node-link") settings = { method: data.charts["node-link"].method };
+  if (chart === "timeline") settings = { mode: data.charts.timeline.mode, ...(view ? { view: Object.fromEntries(LAYOUT_VIEW_CONFIG_KEYS.filter(k => view[k] !== undefined).map(k => [k, view[k]])) } : {}) };
+  return parseLayoutConfigFile({ format: "graph-studio-layout-settings", version: 1, chartType: chart, settings });
+}

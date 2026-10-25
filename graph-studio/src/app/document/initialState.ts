@@ -1,4 +1,4 @@
-import { defaultLayoutDocument, type LayoutDocument } from "../../schema/layoutProtocol";
+import { defaultLayoutSession, type LayoutSessionState } from "../../schema/layoutSession";
 import type {
   GraphChartType,
   GraphLayoutMode,
@@ -14,8 +14,8 @@ import type { ChartStyle } from "../../schema/appearance/styles";
 
 export interface EditTransaction {
   label: string;
-  beforeLayout?: LayoutDocument;
-  afterLayout?: LayoutDocument;
+  beforeLayout?: LayoutSessionState;
+  afterLayout?: LayoutSessionState;
   beforeDag: NormalizedDag;
   afterDag: NormalizedDag;
   beforeSelection: GraphSelection | null;
@@ -27,7 +27,7 @@ export interface EditTransaction {
 }
 
 export interface GraphAppState {
-  layoutDocument: { data: LayoutDocument; notice: string };
+  layoutSession: { data: LayoutSessionState; notice: string };
   timelineSettings: TimelineViewSettings;
   dag: NormalizedDag | null;
   document: {
@@ -77,7 +77,7 @@ export function createInitialGraphState(
   savedPreferences: GraphPagePreferences = getInitialGraphPagePreferences(),
 ): GraphAppState {
   return {
-    layoutDocument: { data: defaultLayoutDocument(), notice: "" },
+    layoutSession: { data: defaultLayoutSession(), notice: "" },
     timelineSettings: savedPreferences.chartStyles.timeline.style.timeline!,
     dag: null,
     document: { id: "", generation: 0, savedDag: null },

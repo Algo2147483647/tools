@@ -1,66 +1,25 @@
-import { createChartLayoutDocument } from "./legacyLayoutFixture";
-import { readLayoutConfig } from "../schema/layoutConfig";
-import { createLayoutResult, layoutResultFields, applyLayoutResult, parseLayoutResult } from "../schema/layoutResult";
+import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import LayoutSchema from "../components/settings/LayoutSchema";
-import { layoutGeometryFields, layoutFieldValues, layoutFieldSummary } from "../schema/layoutGeometryFields";
-import assert from "node:assert/strict";
-import { normalizeDagInput } from "../graph/normalize";
+import { createLayoutResult, parseLayoutResult, layoutResultFields } from "../schema/layoutResult";
+import { applyLayoutResult } from "../layout/shared/applyLayoutResult";
+import { createLayoutConfigFile, readLayoutConfig, parseLayoutConfigFile } from "../schema/layoutConfig";
+import { defaultLayoutSession, layoutSessionFromConfig, parseLayoutSession, repairLayoutSession } from "../schema/layoutSession";
+import { captureLayoutGeometry, restoreLayoutGeometry, graphLayoutIdentity, layoutIdentity, renderingSettings } from "../schema/layoutGeometry";
+import { layoutFieldSummary, layoutFieldValues } from "../schema/fieldValues";
 import { defaultSpaceView } from "../graph/space";
-import {
-  defaultLayoutDocument,
-  parseLayoutDocument,
-  repairLayoutDocument,
-  createLayoutConfigFile,
-} from "../schema/layoutProtocol";
-import {
-  captureLayoutGeometry,
-  restoreLayoutGeometry,
-  graphLayoutIdentity,
-  layoutIdentity,
-  renderingMatches,
-  renderingSettings,
-  migrateLayoutGeometry,
-  validateLayoutGeometryData,
-} from "../schema/layoutGeometry";
+import { normalizeDagInput } from "../graph/normalize";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
 import { buildTimelineStage } from "../layout/timeline/layout";
-import { buildStageData } from "../layout/node-link/layout";
-import { buildSpatialStage } from "../layout/spatial/layout";
-import { buildCompoundStage } from "../layout/compound/layout";
-import { serializeDag } from "../graph/serialize";
-import { evaluateTimelineLayout, type TimelineLayoutInput } from "../layout/timeline/layout-candidate";
+import type { TimelineLayoutInput } from "../layout/timeline/input-types";
+import type { StageData } from "../layout/shared/types";
 import { validateTimelineArrangement } from "../layout/timeline/layout-quality";
-import { projectTimelineStage } from "../layout/timeline/project";
-import { parseTimelineLayoutPlan } from "../graph/timeline/layoutData";
+import { runTimelineAiLayout } from "../layout/timeline/ai/workflow";
+import { readLinkedLayout } from "../workspace/linkedLayout";
 import { graphReducer } from "../app/document/graphReducer";
 import { createInitialGraphState } from "../app/document/initialState";
-import { readLinkedLayout } from "../workspace/linkedLayout";
-import { runTimelineAiLayout } from "../layout/timeline/ai/workflow";
-import { getStageAppearance } from "../layout/shared/appearance";
 import { defineSuite, defineTest } from "./harness";
-
-function assertNodeAndEdgeFields(
-  stage: NonNullable<ReturnType<typeof buildTimelineStage>>,
-  chart: Parameters<typeof layoutGeometryFields>[0],
-) {
-  const paths = new Set(layoutGeometryFields(chart).map((field) => field.path));
-  function visit(value: unknown, path: string) {
-    if (value === undefined) return;
-    if (Array.isArray(value)) {
-      if (value.every((entry) => entry === null || typeof entry !== "object")) {
-        assert.ok(paths.has(path) || paths.has(`${path}[]`), `Missing field ${path}`);
-      } else value.forEach((entry) => visit(entry, `${path}[]`));
-    } else if (value && typeof value === "object") {
-      for (const [key, child] of Object.entries(value)) visit(child, `${path}.${key}`);
-    } else assert.ok(paths.has(path), `Missing field ${path}`);
-  }
-  const geometry = captureLayoutGeometry(stage);
-  visit(geometry.nodes, "layout.geometry.nodes");
-  visit(geometry.edges, "layout.geometry.edges");
-}
-
 export function timelineFixture(orientation: "vertical" | "horizontal" = "vertical") {
   const dag = normalizeDagInput({
     format: "graph-studio",
@@ -79,7 +38,7 @@ export function timelineFixture(orientation: "vertical" | "horizontal" = "vertic
   const settings = { ...getDefaultChartStyle("timeline").timeline!, orientation };
   const input: TimelineLayoutInput = { dag, selection: { type: "full" }, timelineSettings: settings, now: 0 };
   const stage = buildTimelineStage(input)!;
-  const document = defaultLayoutDocument();
+  const document = defaultLayoutSession();
   const scope = {
     selection: input.selection,
     compound: { focusGroupId: null, collapsedGroupIds: [] },
@@ -101,463 +60,100 @@ export function timelineFixture(orientation: "vertical" | "horizontal" = "vertic
   return { input, dag, settings, stage, document, scope };
 }
 
-export const layoutPersistenceSuite = defineSuite("Layout rendering persistence and timeline AI", [
-  defineTest("configuration persistence strips every placement, scope, pin, plan and rendering", () => {
-    const { document } = timelineFixture();
-    document.charts.timeline = {
-      version: 1,
-      mode: "ai",
-      basis: "basis",
-      plan: parseTimelineLayoutPlan({ placements: [{ id: "b", cross: 800 }] }),
-    };
-    document.renderings!.timeline!.timelineSettings.pins = { b: 800 };
-    const file = createLayoutConfigFile(document, "timeline");
-    assert.deepEqual(Object.keys(file).sort(), ["chartType", "format", "settings", "version"]);
-    assert.equal(file.settings.mode, "ai");
-    for (const key of [
-      "geometry",
-      "position",
-      "plan",
-      "basis",
-      "scope",
-      "fingerprint",
-      "pins",
-      "trackOrder",
-      "eventOrder",
-    ])
-      assert.ok(!JSON.stringify(file).includes(key), key);
-    const loaded = parseLayoutDocument(file);
-    const legacy = createChartLayoutDocument(document, "timeline");
-    (legacy.layout as any).geometry = { corrupt: true };
-    assert.deepEqual(readLayoutConfig(legacy), file);
-    assert.equal(loaded.renderings, undefined);
-    assert.equal(loaded.charts.timeline.plan, undefined);
-    document.charts.compound.constraints = [
-      { type: "flow-order", scopeId: null, nodeIds: ["a", "b"], strength: "soft" },
-    ];
-    assert.ok(!JSON.stringify(createLayoutConfigFile(document, "compound")).includes("constraints"));
-  }),
-  defineTest(
-    "Schema Layout applies exact timeline geometry in both orientations without changing time or content",
-    () => {
-      for (const orientation of ["vertical", "horizontal"] as const) {
-        const { stage, input } = timelineFixture(orientation);
-        const axis = orientation === "vertical" ? "x" : "y";
-        const selected = evaluateTimelineLayout(
-          input,
-          stage,
-          parseTimelineLayoutPlan({ placements: [{ id: "b", cross: stage.nodeMap.b[axis] + 300 }] }),
-        ).stage;
-        const layout = createLayoutResult(selected, "timeline");
-        const rendered = applyLayoutResult(layout, stage);
-        assert.deepEqual(createLayoutResult(rendered, "timeline"), layout);
-        assert.deepEqual(rendered.dag, stage.dag);
-        assert.deepEqual(validateTimelineArrangement(stage, rendered), []);
-        if (orientation === "horizontal")
-          for (const node of rendered.nodes) {
-            const canonical = rendered.timeline!.canonicalStage!.nodeMap[node.key];
-            assert.equal(canonical.timeline!.labelX, node.timeline!.labelY);
-            assert.equal(canonical.timeline!.labelY, node.timeline!.labelX);
-            assert.equal(canonical.x, node.y);
-          }
-        assert.throws(() => applyLayoutResult(layout, stage, { b: stage.nodeMap.b[axis] }), /pinned/);
-        const invalid = structuredClone(layout);
-        invalid.geometry.nodes[0].position[orientation === "vertical" ? 1 : 0] += 1;
-        assert.throws(() => applyLayoutResult(invalid, stage), /time coordinate/);
-        invalid.geometry.nodes.pop();
-        assert.throws(() => applyLayoutResult(invalid, stage), /complete current scope/);
-      }
-    },
-  ),
 
-  defineTest("legacy v3 parsing retains tuple validation for runtime migration", () => {
-    const { stage, document, dag } = timelineFixture();
-    const file = createChartLayoutDocument(document, "timeline");
-    assert.equal(file.version, 3);
-    const json = JSON.stringify(file);
-    for (const content of [
-      '"displayTitle"',
-      '"detail"',
-      '"detailLines"',
-      '"colorTokens"',
-      '"source"',
-      '"target"',
-      '"weight"',
-      '"layoutQuality"',
-      '"compoundGeometry"',
-      '"pointMarker"',
-      '"typeColors"',
-    ])
-      assert.ok(!json.includes(content), `Unexpected content: ${content}`);
-    assert.ok(!json.includes('"Work"'));
-    assert.deepEqual(file.layout.geometry!.nodes[0].position, [stage.nodes[0].x, stage.nodes[0].y]);
-    const fresh = structuredClone(stage);
-    fresh.nodes[0].title = "Current graph title";
-    fresh.nodes[0].displayTitle = "Current graph title";
-    fresh.nodes[0].timeline!.color = "#abcdef";
-    fresh.nodeMap = Object.fromEntries(fresh.nodes.map((n) => [n.key, n]));
-    fresh.edges[0].label = "Current relationship label";
-    const restored = restoreLayoutGeometry(file.layout.geometry!, fresh);
-    assert.equal(restored.nodes[0].displayTitle, "Current graph title");
-    assert.equal(restored.nodes[0].timeline!.color, "#abcdef");
-    assert.equal(restored.edges[0].label, "Current relationship label");
-    const linkedStyle = getDefaultChartStyle("timeline");
-    linkedStyle.timeline!.pointTextColor = "#123456";
-    const state = graphReducer(createInitialGraphState(), {
-      type: "graphLoaded",
-      dag,
-      documentId: "pure-layout",
-      fileName: "graph.json",
-      selection: { type: "full" },
-      status: "",
-      linkedStyle,
-      linkedChartType: "timeline",
-      linkedLayout: parseLayoutDocument(file),
-    });
-    assert.equal(state.timelineSettings.pointTextColor, "#123456", "Layout must not override linked Appearance");
-    for (const invalid of [
-      { ...file.layout.geometry!, nodes: [{ ...file.layout.geometry!.nodes[0], displayTitle: "stale text" }] },
-      { ...file.layout.geometry!, nodes: [{ ...file.layout.geometry!.nodes[0], position: [1, 2, 3] }] },
-      { ...file.layout.geometry!, nodes: [{ ...file.layout.geometry!.nodes[0], position: [1, Infinity] }] },
-    ])
-      assert.throws(() => validateLayoutGeometryData(invalid, "timeline"));
+export function movedTimeline(stage: StageData, id: string, delta: number) {
+  const layout = createLayoutResult(stage, "timeline"), cross = stage.timeline!.orientation === "horizontal" ? 1 : 0;
+  layout.geometry.size[cross] += delta;
+  const node = layout.geometry.nodes.find(n => n.id === id)!;
+  node.position[cross] += delta; node.label![cross] += delta;
+  const edges = new Map(stage.edges.map(e => [e.id,e]));
+  for (const route of layout.geometry.edges) { const edge = edges.get(route.id)!; if (edge.source===id) route.points![0][cross]+=delta; if(edge.target===id)route.points!.at(-1)![cross]+=delta; }
+  return layout;
+}
+
+export const layoutPersistenceSuite = defineSuite("Layout configuration and result contract", [
+  defineTest("configuration projection excludes all session geometry and concrete arrangement data", () => {
+    const { document, settings } = timelineFixture();
+    document.charts.timeline.mode = "ai"; settings.pins = { b: 800 };
+    const file = createLayoutConfigFile(document, "timeline", settings);
+    assert.deepEqual(Object.keys(file).sort(), ["chartType", "format", "settings", "version"]);
+    for (const key of ["geometry", "position", "plan", "basis", "scope", "fingerprint", "pins", "trackOrder", "eventOrder"]) assert.ok(!JSON.stringify(file).includes(key), key);
+    const loaded = layoutSessionFromConfig(file);
+    assert.equal(loaded.renderings, undefined); assert.equal(loaded.charts.timeline.mode, "ai");
+    document.charts.compound.constraints = [{ type: "flow-order", scopeId: null, nodeIds: ["a", "b"], strength: "soft" }];
+    assert.ok(!JSON.stringify(createLayoutConfigFile(document, "compound")).includes("constraints"));
+    assert.throws(() => parseLayoutConfigFile({ ...file, geometry: {} }));
+    assert.throws(() => parseLayoutConfigFile({ ...file, settings: { mode:"ai", view:{ pins:{} } } }));
+    assert.throws(() => parseLayoutConfigFile({ ...file, settings: { mode:"ai", view:{ compactness:2 } } }));
   }),
-  defineTest("v2 renderer payloads upgrade to v3 without keeping content or losing geometry", () => {
-    const { stage, document, dag, scope, settings } = timelineFixture("horizontal");
-    function legacyGeometry(s: typeof stage): unknown {
-      const {
-        dag: _dag,
-        nodeMap: _map,
-        connectedKeysByNode: _connections,
-        compoundLayout: _compound,
-        timeline,
-        ...rest
-      } = s;
-      const { canonicalStage, ...time } = timeline ?? {};
-      return {
-        ...rest,
-        timeline: { ...time, ...(canonicalStage ? { canonicalStage: legacyGeometry(canonicalStage) } : {}) },
-      };
-    }
-    const legacy = legacyGeometry(stage);
-    assert.deepEqual(migrateLayoutGeometry(legacy), captureLayoutGeometry(stage));
-    const old = { ...createChartLayoutDocument(document, "timeline"), version: 2 };
-    const loaded = parseLayoutDocument({ ...old, layout: { ...old.layout, geometry: legacy } });
-    const rendering = loaded.renderings!.timeline!;
-    assert.ok(renderingMatches(rendering, dag, renderingSettings("timeline", loaded.charts, scope, settings), stage));
-    assert.deepEqual(
-      captureLayoutGeometry(restoreLayoutGeometry(rendering.geometry, stage)),
-      captureLayoutGeometry(stage),
-    );
-    assert.equal(createChartLayoutDocument(loaded, "timeline").version, 3);
-    assert.throws(() => parseLayoutDocument({ ...old, version: 3, layout: { ...old.layout, geometry: legacy } }));
+  defineTest("legacy associations ignore even invalid geometry and restore settings only", async () => {
+    const { dag, document, settings } = timelineFixture("horizontal");
+    const file = createLayoutConfigFile(document,"timeline",settings);
+    const legacy = { format:"graph-studio-layout",version:3,chartType:"timeline",layout:{settings:{...file.settings,plan:{placements:[{id:"b",cross:9999}]}},geometry:{corrupt:true}};
+    assert.deepEqual(readLayoutConfig(legacy),file);
+    const linked = await readLinkedLayout({...dag,metadata:{...dag.metadata,layout:"graph.layout.json"}},"graph.json",{name:"fixture",handle:null,files:new Map([["graph.layout.json",{path:"graph.layout.json",handle:null,file:new File([JSON.stringify(legacy)],"graph.layout.json")}]])});
+    assert.equal(linked.layoutNotice,undefined); assert.equal(linked.linkedLayout!.renderings,undefined);
+    assert.equal(linked.linkedLayout!.timelineView!.orientation,"horizontal");
+    assert.deepEqual(await readLinkedLayout(dag,"graph.json"),{});
   }),
-  defineTest("legacy timeline plan files are read with tuple coordinates", () => {
-    const { document } = timelineFixture();
-    const plan = parseTimelineLayoutPlan({
-      placements: [{ id: "b", cross: 760, label: { x: 790, y: 190 } }],
-      routes: [
-        {
-          id: "ab",
-          points: [
-            { x: 1, y: 2 },
-            { x: 3, y: 4 },
-          ],
-          label: { x: 5, y: 6 },
-        },
-      ],
-    });
-    document.charts.timeline = { version: 1, mode: "ai", plan };
-    const file = createChartLayoutDocument(document, "timeline");
-    assert.deepEqual((file.layout.settings.plan as any).placements[0].label, [790, 190]);
-    assert.deepEqual((file.layout.settings.plan as any).routes[0].points, [
-      [1, 2],
-      [3, 4],
-    ]);
-    assert.deepEqual(parseLayoutDocument(file).charts.timeline.plan, plan);
-    assert.deepEqual(document.charts.timeline.plan, plan, "Saving does not mutate the AI/solver plan");
-    (file.layout.settings.plan as any).routes[0].points[0] = [1];
-    assert.throws(() => parseLayoutDocument(file));
-  }),
-  defineTest("Schema Layout describes AI results, distinct from configuration files", () => {
-    const { document } = timelineFixture();
-    for (const chart of ["compound", "timeline", "node-link", "sankey", "spatial"] as const) {
-      const file = createChartLayoutDocument(document, chart);
-      assert.equal(file.chartType, chart);
-      assert.ok(!("charts" in file) && !("renderings" in file));
-      const markup = renderToStaticMarkup(createElement(LayoutSchema, { stage: null, chartType: chart }));
-      const fields = layoutResultFields(chart);
-      assert.equal(new Set(fields.map((field) => field.path)).size, fields.length);
-      for (const path of ["geometry.nodes[].id", "geometry.nodes[].position", "geometry.edges[].label"])
-        assert.ok(markup.includes(path));
-      assert.ok(
-        !markup.includes("layout.settings") && !markup.includes("Fingerprint") && !markup.includes("displayTitle"),
-      );
-      assert.equal(markup.includes("geometry.groups[].position"), chart === "compound");
-      assert.equal(markup.includes("geometry.nodes[].label"), chart === "timeline");
-      assert.deepEqual(parseLayoutResult(createLayoutResult(null, chart), chart), createLayoutResult(null, chart));
-      assert.equal(parseLayoutDocument(file).activeChart, chart);
+  defineTest("AI positions and paths render exactly in both orientations, preserving content, dates and pins", () => {
+    for(const orientation of ["vertical","horizontal"] as const) {
+      const { stage } = timelineFixture(orientation), result = movedTimeline(stage,"b",300);
+      const rendered = applyLayoutResult(result,stage);
+      assert.deepEqual(createLayoutResult(rendered,"timeline"),result);
+      assert.deepEqual(validateTimelineArrangement(stage,rendered),[]);
+      assert.deepEqual(rendered.dag,stage.dag);
+      assert.throws(()=>applyLayoutResult(result,stage,{b:1}),/pinned/);
+      if(orientation==="horizontal")for(const node of rendered.nodes){const canonical=rendered.timeline!.canonicalStage!.nodeMap[node.key];assert.equal(canonical.x,node.y);assert.equal(canonical.timeline!.labelX,node.timeline!.labelY);}
+      const changed=structuredClone(result);changed.geometry.nodes[0].position[orientation==="vertical"?1:0]+=1;
+      assert.throws(()=>applyLayoutResult(changed,stage),/time coordinate/);
+      changed.geometry.nodes.pop();assert.throws(()=>applyLayoutResult(changed,stage),/complete current scope/);
+      const detached=structuredClone(result);detached.geometry.edges[0].points![0][0]+=3;
+      assert.throws(()=>applyLayoutResult(detached,stage),/time anchors/);
     }
   }),
-  defineTest("geometry Schema resolves array children, ID maps and missing optional fields", () => {
-    const { document, stage } = timelineFixture();
-    const file = createChartLayoutDocument(document, "timeline");
-    assert.deepEqual(
-      layoutFieldValues(file, "layout.geometry.nodes[].id"),
-      stage.nodes.map((node) => node.key),
-    );
-    assert.deepEqual(
-      layoutFieldValues(file, "layout.geometry.edges[].points[][0]"),
-      stage.edges.flatMap((edge) => edge.points?.map((point) => point.x) ?? []),
-    );
-    assert.equal(layoutFieldSummary(file, "layout.geometry.nodes[]"), "3 items");
-    assert.equal(layoutFieldSummary(file, "layout.geometry.nodes[].missing"), "—");
-    assert.deepEqual(layoutFieldValues({ boxes: { a: { x: 12 }, b: { x: 24 } } }, "boxes[id].x"), [12, 24]);
-    assert.ok(layoutFieldSummary(file, "layout.geometry.nodes[].position") !== "—");
-    assert.equal(layoutFieldSummary({ a: null }, "a"), "null");
-    assertNodeAndEdgeFields(stage, "timeline");
-  }),
-  defineTest("exact event/label coordinates and routes survive evaluation, both orientations and JSON reload", () => {
-    for (const orientation of ["vertical", "horizontal"] as const) {
-      const { input, stage } = timelineFixture(orientation);
-      const axis = orientation === "vertical" ? "x" : "y";
-      const plan = { placements: [{ id: "b", cross: stage.nodeMap.b[axis] + 151, label: { x: 510, y: 620 } }] };
-      const moved = evaluateTimelineLayout(input, stage, plan);
-      assert.equal(moved.stage.nodeMap.b[axis], plan.placements[0].cross);
-      assert.equal(moved.stage.nodeMap.b.timeline!.labelX, 510);
-      assert.equal(moved.stage.nodeMap.b.timeline!.labelY, 620);
-      assert.deepEqual(validateTimelineArrangement(stage, moved.stage), []);
-      const edge = moved.stage.edges[0];
-      const route = { id: edge.id, points: edge.points!.map(({ x, y }) => ({ x, y })), label: { x: 401, y: 402 } };
-      route.points.splice(1, 0, { x: 700, y: 700 });
-      const routed = evaluateTimelineLayout(input, stage, { ...plan, routes: [route] }).stage;
-      assert.deepEqual(
-        routed.edges[0].points!.map(({ x, y }) => ({ x, y })),
-        route.points,
-      );
-      assert.deepEqual(routed.edges[0].labelPosition, route.label);
-      const restored = restoreLayoutGeometry(JSON.parse(JSON.stringify(captureLayoutGeometry(routed))), stage);
-      assert.deepEqual(captureLayoutGeometry(restored), captureLayoutGeometry(routed));
-      assert.equal(projectTimelineStage(restored, new Set(["a", "b", "c"])), restored);
-      assert.throws(
-        () =>
-          evaluateTimelineLayout(input, stage, {
-            routes: [
-              {
-                ...route,
-                points: [
-                  { x: 0, y: 0 },
-                  { x: 1, y: 1 },
-                ],
-              },
-            ],
-          }),
-        /attach/,
-      );
-      assert.throws(
-        () =>
-          evaluateTimelineLayout(
-            { ...input, timelineSettings: { ...input.timelineSettings, pins: { b: stage.nodeMap.b[axis] } } },
-            stage,
-            plan,
-          ),
-        /pinned/,
-      );
+  defineTest("Schema uses the provider contract and only fields belonging to the selected chart", () => {
+    for(const chart of ["compound","timeline","node-link","sankey","spatial"] as const){
+      const markup=renderToStaticMarkup(createElement(LayoutSchema,{stage:null,chartType:chart}));
+      assert.equal(new Set(layoutResultFields(chart).map(f=>f.path)).size,layoutResultFields(chart).length);
+      assert.ok(markup.includes("geometry.nodes[].position"));
+      assert.equal(markup.includes("geometry.groups[].position"),chart==="compound");
+      assert.equal(markup.includes("geometry.nodes[].label"),chart==="timeline");
+      assert.ok(!markup.includes("Fingerprint")&&!markup.includes("displayTitle")&&!markup.includes("settings"));
+      assert.deepEqual(parseLayoutResult(createLayoutResult(null,chart),chart),createLayoutResult(null,chart));
     }
   }),
-  defineTest("full geometry round-trips for nested, node-link, Sankey and spatial charts", async () => {
-    const dag = normalizeDagInput({
-      format: "graph-studio",
-      version: 3,
-      nodes: { a: { title: "A" }, b: { title: "B" }, group: { title: "Group" } },
-      edges: [{ id: "ab", source: "a", target: "b", value: 3 }],
-      hierarchy_edges: [{ id: "ga", source: "group", target: "a" }],
-    });
-    const compound = await buildCompoundStage({
-      dag,
-      view: { focusGroupId: null, collapsedGroupIds: [] },
-      layout: defaultLayoutDocument().charts.compound,
-      appearance: getStageAppearance(getDefaultChartStyle("compound").appearance),
-      showEdgeLabels: true,
-      selectedType: "",
-      showNodeDetail: true,
-      alignNodeWidthsToMax: false,
-    });
-    const spatialDag = normalizeDagInput({
-      format: "graph-studio",
-      version: 3,
-      metadata: { space: { dimensions: 2, coordinateSystem: "cartesian" } },
-      nodes: { a: { coordinates: [0, 0] }, b: { coordinates: [1, 2] } },
-      edges: [],
-    });
-    const stages = [
-      compound,
-      buildStageData({ dag, selection: { type: "full" }, layoutMode: "sugiyama" }),
-      buildStageData({ dag, selection: { type: "full" }, layoutMode: "sankey" }),
-      buildSpatialStage({ dag: spatialDag, spaceView: defaultSpaceView(null) }),
-    ];
-    for (const stage of stages) {
-      assert.ok(stage);
-      const fixture = timelineFixture();
-      if (stage!.compoundLayout) {
-        const restored = restoreLayoutGeometry(captureLayoutGeometry(stage!), stage!);
-        assert.deepEqual(restored.compoundLayout!.baseline, stage!.compoundLayout.baseline);
-        assert.deepEqual(restored.nodeMap.group, stage!.nodeMap.group);
-      }
-      const chart = ["compound", "sankey", "spatial"].includes(stage!.layoutMode)
-        ? (stage!.layoutMode as "compound" | "sankey" | "spatial")
-        : "node-link";
-      assertNodeAndEdgeFields(stage!, chart);
-      fixture.document.renderings = {
-        [chart]: { ...fixture.document.renderings!.timeline!, geometry: captureLayoutGeometry(stage!) },
-      };
-      const document = parseLayoutDocument(JSON.parse(JSON.stringify(fixture.document)));
-      assert.deepEqual(
-        captureLayoutGeometry(restoreLayoutGeometry(document.renderings![chart]!.geometry, stage!)),
-        captureLayoutGeometry(stage!),
-      );
-    }
+  defineTest("session renderings preserve current graph text and are invalidated by graph edits", () => {
+    const { stage, document, dag }=timelineFixture();
+    const parsed=parseLayoutSession(document), geometry=parsed.renderings!.timeline!.geometry;
+    const fresh={...stage,nodeMap:{...stage.nodeMap,a:{...stage.nodeMap.a,displayTitle:"Current title"}}};
+    assert.equal(restoreLayoutGeometry(geometry,fresh).nodeMap.a.displayTitle,"Current title");
+    assert.deepEqual(captureLayoutGeometry(restoreLayoutGeometry(geometry,stage)),geometry);
+    const changed={...dag,nodes:{...dag.nodes,a:{...dag.nodes.a,title:"Changed"}}};
+    assert.equal(repairLayoutSession(document,changed).renderings!.timeline,undefined);
+    const invalid=structuredClone(document);invalid.renderings!.timeline!.geometry.nodes[0].position[0]=Infinity;
+    assert.throws(()=>parseLayoutSession(invalid),/geometry/);
   }),
-  defineTest("legacy linked files restore configuration only; runtime geometry remains scoped", async () => {
-    const { document, dag, stage, scope, settings } = timelineFixture("horizontal");
-    const linkedDag = normalizeDagInput({
-      ...serializeDag(dag),
-      metadata: { ...dag.metadata, layout: "graph.layout.json" },
-    });
-    const loaded = await readLinkedLayout(linkedDag, "graph.json", {
-      name: "test",
-      handle: null,
-      files: new Map([
-        [
-          "graph.layout.json",
-          {
-            path: "graph.layout.json",
-            handle: null,
-            file: new File([JSON.stringify(createChartLayoutDocument(document, "timeline"))], "graph.layout.json"),
-          },
-        ],
-      ]),
-    });
-    assert.equal(loaded.layoutNotice, undefined);
-    assert.equal(loaded.linkedLayout!.renderings, undefined);
-    assert.deepEqual(
-      createLayoutConfigFile(loaded.linkedLayout!, "timeline"),
-      createLayoutConfigFile(document, "timeline"),
-    );
-    const state = graphReducer(createInitialGraphState(), {
-      type: "graphLoaded",
-      dag: linkedDag,
-      documentId: "test",
-      fileName: "graph.json",
-      selection: { type: "full" },
-      status: "",
-      linkedLayout: loaded.linkedLayout,
-    });
-    assert.equal(state.chartType, "timeline");
-    assert.equal(state.timelineSettings.orientation, "horizontal");
-    const rendering = document.renderings!.timeline!;
-    assert.ok(
-      renderingMatches(rendering, linkedDag, renderingSettings("timeline", document.charts, scope, settings), stage),
-    );
-    assert.ok(
-      !renderingMatches(
-        rendering,
-        linkedDag,
-        renderingSettings("timeline", document.charts, scope, { ...settings, orientation: "vertical" }),
-        stage,
-      ),
-    );
-    const raw = serializeDag(dag);
-    raw.nodes.a.title = "Changed";
-    const changed = normalizeDagInput(raw);
-    assert.equal(repairLayoutDocument(document, changed).renderings!.timeline, undefined);
-    assert.equal(parseLayoutDocument({ format: "graph-studio-layout", version: 1, charts: {} }).version, 2);
-    const bad = structuredClone(document);
-    bad.renderings!.timeline!.geometry.nodes[0].position[0] = Infinity;
-    assert.throws(() => parseLayoutDocument(bad), /geometry/);
-    const bound = graphReducer(state, {
-      type: "layoutReferenceBound",
-      generation: state.document.generation,
-      reference: "updated.layout.json",
-    });
-    assert.equal(bound.dag!.metadata!.layout, "updated.layout.json");
-    assert.equal(graphReducer(bound, { type: "undoRequested" }).dag!.metadata!.layout, "graph.layout.json");
+  defineTest("timeline geometry commit is undoable and stale commits cannot change another document", () => {
+    const {dag,document,stage,scope,settings}=timelineFixture();
+    let state=graphReducer(createInitialGraphState(),{type:"graphLoaded",dag,documentId:"test",fileName:"graph.json",selection:{type:"full"},status:""});
+    const data={version:1 as const,mode:"ai" as const};
+    const rendering={...document.renderings!.timeline!,geometry:captureLayoutGeometry(applyLayoutResult(movedTimeline(stage,"b",200),stage)),settingsFingerprint:layoutIdentity(renderingSettings("timeline",{...document.charts,timeline:data},scope,settings))};
+    const action={type:"timelineLayoutCommitted" as const,generation:state.document.generation,revision:state.editHistory.revision,beforeDag:dag,historyBase:state.editHistory,data,rendering};
+    state=graphReducer(state,action);assert.deepEqual(state.layoutSession.data.renderings!.timeline,rendering);assert.equal(state.source.dirty,false);
+    const undo=graphReducer(state,{type:"undoRequested"});assert.equal(undo.layoutSession.data.renderings?.timeline,undefined);
+    const redo=graphReducer(undo,{type:"redoRequested"});assert.deepEqual(redo.layoutSession.data.renderings!.timeline,rendering);
+    assert.equal(graphReducer(state,{...action,generation:state.document.generation-1}).layoutSession,state.layoutSession);
   }),
-  defineTest("timeline AI observes quality, revises, explicitly selects and enables DeepSeek thinking", async () => {
-    const { input, stage } = timelineFixture();
-    const previous = globalThis.fetch;
-    const requests: any[] = [];
-    const decisions = [
-      {
-        action: "evaluate",
-        hypothesis: "Separate the branch",
-        layout: createLayoutResult(
-          evaluateTimelineLayout(input, stage, parseTimelineLayoutPlan({ placements: [{ id: "b", cross: 820 }] }))
-            .stage,
-          "timeline",
-        ),
-      },
-      {
-        action: "evaluate",
-        hypothesis: "Reduce wasted width",
-        layout: createLayoutResult(
-          evaluateTimelineLayout(input, stage, parseTimelineLayoutPlan({ placements: [{ id: "b", cross: 650 }] }))
-            .stage,
-          "timeline",
-        ),
-      },
-      {
-        action: "finish",
-        candidateId: "trial-2",
-        summary: "Moved the branch closer while preserving chronology.",
-      },
-    ];
-    globalThis.fetch = (async (_url: unknown, init?: { body?: string }) => {
-      if (!init?.body) return new Response(JSON.stringify({ data: [] }));
-      requests.push(JSON.parse(init.body));
-      assert.ok(requests.length <= decisions.length);
-      return new Response(
-        JSON.stringify({
-          choices: [{ finish_reason: "stop", message: { content: JSON.stringify(decisions[requests.length - 1]) } }],
-        }),
-      );
-    }) as typeof fetch;
-    try {
-      const result = await runTimelineAiLayout({
-        settings: { provider: "deepseek", baseUrl: "http://localhost/mock", model: "test", apiKey: "" },
-        input,
-        baseline: stage,
-        message: "Arrange",
-        signal: new AbortController().signal,
-      });
-      assert.equal(result.stage.nodeMap.b.x, 650);
-      assert.equal(result.evaluations, 2);
-      assert.equal(result.changed, true);
-      assert.deepEqual(requests[0].thinking, { type: "enabled" });
-      assert.ok(requests[1].messages.at(-1).content.includes('"crossings"'));
-      assert.ok(requests[2].messages.at(-1).content.includes("trial-2"));
-      assert.ok(!("max_tokens" in requests[0]), "No application output cap");
-    } finally {
-      globalThis.fetch = previous;
-    }
+  defineTest("generic Schema value presentation preserves coordinate tuples", () => {
+    const value={geometry:{nodes:[{id:"a",position:[1,2]},{id:"b",position:[3,4]}]}};
+    assert.deepEqual(layoutFieldValues(value,"geometry.nodes[].id"),["a","b"]);
+    assert.equal(layoutFieldSummary(value,"geometry.nodes[].position"),"[1,2] · [3,4]");
   }),
-  defineTest("large plans are not clipped and cancellation never commits a partial candidate", async () => {
-    assert.equal(
-      parseTimelineLayoutPlan({ eventOrder: Array.from({ length: 2501 }, (_, i) => `event-${i}`) }).eventOrder.length,
-      2501,
-    );
-    const { input, stage } = timelineFixture();
-    const abort = new AbortController();
-    abort.abort();
-    await assert.rejects(
-      runTimelineAiLayout({
-        settings: { provider: "openai-compatible", baseUrl: "http://localhost", model: "test", apiKey: "" },
-        input,
-        baseline: stage,
-        message: "Arrange",
-        signal: abort.signal,
-      }),
-      /cancelled/,
-    );
+  defineTest("timeline AI observes, revises and explicitly selects exact geometry", async () => {
+    const {input,stage}=timelineFixture(); const previous=globalThis.fetch; const requests:any[]=[];
+    const decisions=[{action:"evaluate",hypothesis:"Separate",layout:movedTimeline(stage,"b",400)},{action:"evaluate",hypothesis:"Compact",layout:movedTimeline(stage,"b",200)},{action:"finish",candidateId:"trial-2",summary:"Selected the compact layout."}];
+    globalThis.fetch=(async (_url:unknown,init?:{body?:string})=>{if(!init?.body)return new Response(JSON.stringify({data:[]}));requests.push(JSON.parse(init.body));assert.ok(requests.length<=decisions.length);return new Response(JSON.stringify({choices:[{finish_reason:"stop",message:{content:JSON.stringify(decisions[requests.length-1])}}]}));}) as typeof fetch;
+    try {const result=await runTimelineAiLayout({settings:{provider:"deepseek",baseUrl:"http://localhost/mock",model:"test",apiKey:""},input,baseline:stage,message:"Arrange",signal:new AbortController().signal});assert.deepEqual(createLayoutResult(result.stage,"timeline"),decisions[1].layout);assert.equal(result.evaluations,2);assert.ok(result.changed);assert.deepEqual(requests[0].thinking,{type:"enabled"});assert.ok(requests[1].messages.at(-1).content.includes('"crossings"'));assert.ok(!("max_tokens" in requests[0]));}finally{globalThis.fetch=previous;}
   }),
 ]);

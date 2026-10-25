@@ -13,7 +13,6 @@ export function arrangeTimelineNodes(context: PreparedTimeline) {
   const {
     dag,
     appearance,
-    arrangement,
     settings,
     trackPalette,
     intervalWidth,
@@ -38,7 +37,6 @@ export function arrangeTimelineNodes(context: PreparedTimeline) {
         edges: sourceEdges,
         minimum: 0,
         step: 1,
-        order: arrangement?.eventOrder,
       });
       for (const event of events) event.lane = positions.get(event.key)!;
       channelCounts.set(track, Math.max(0, ...positions.values()) + 1);
@@ -83,7 +81,6 @@ export function arrangeTimelineNodes(context: PreparedTimeline) {
             minimum: trackX + 10,
             step: channelStep,
             fixedPositions,
-            order: arrangement?.eventOrder,
           })
         : undefined;
     const labelX = Math.max(
@@ -126,7 +123,6 @@ export function arrangeTimelineNodes(context: PreparedTimeline) {
       gap: appearance.nodes.spacing.channel,
       spread: appearance.nodes.spread,
       pins: settings.pins,
-      order: arrangement?.eventOrder,
       packLabels: settings.orientation !== "horizontal",
     });
     flowWidth = arranged.width;
@@ -173,7 +169,6 @@ export function arrangeTimelineNodes(context: PreparedTimeline) {
       gap: appearance.nodes.spacing.channel,
       spread: appearance.nodes.spread,
       pins: settings.pins,
-      order: arrangement?.eventOrder,
       packLabels: settings.orientation !== "horizontal",
     });
     flowWidth = Math.max(flowWidth, arranged.width);

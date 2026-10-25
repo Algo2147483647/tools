@@ -16,14 +16,14 @@ export type GraphAction =
       data: import("../../graph/timeline/layoutData").TimelineLayoutData;
       rendering?: import("../../schema/layoutGeometry").LayoutRendering;
     }
-  | { type: "layoutDocumentChanged"; generation: number; data: import("../../schema/layoutProtocol").LayoutDocument }
+  | { type: "layoutSessionChanged"; generation: number; data: import("../../schema/layoutSession").LayoutSessionState }
   | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }
   | { type: "graphClosed"; status: string }
   | {
       type: "graphLoaded";
       linkedStyle?: ChartStyle;
       linkedChartType?: GraphChartType;
-      linkedLayout?: import("../../schema/layoutProtocol").LayoutDocument;
+      linkedLayout?: import("../../schema/layoutSession").LayoutSessionState;
       layoutNotice?: string;
       documentId: string;
       dag: NormalizedDag;

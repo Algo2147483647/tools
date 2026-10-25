@@ -1,5 +1,5 @@
 import ProtocolSchema from "./ProtocolSchema";
-import { layoutFieldSummary } from "../../schema/layoutGeometryFields";
+import { layoutFieldSummary } from "../../schema/fieldValues";
 import { createLayoutResult, layoutResultFields } from "../../schema/layoutResult";
 import type { StageData } from "../../layout/shared/types";
 import type { GraphChartType } from "../../graph/types";

@@ -166,9 +166,6 @@ export function SettingsContent({
 
             onAppearanceCssChange={onAppearanceCssChange}
 
-            onAppearanceBind={settings.onAppearanceBind}
-            canBindAppearance={settings.canBindAppearance}
-            bindingAppearance={settings.bindingAppearance}
             onAppearanceSchemaChange={onAppearanceSchemaChange}
             onAppearanceReset={onAppearanceReset}
 

@@ -1,9 +1,10 @@
-import { applyLayoutResult, createLayoutResult } from "../../../schema/layoutResult";
+import { createLayoutResult } from "../../../schema/layoutResult";
+import { applyLayoutResult } from "../../shared/applyLayoutResult";
 import type { AiSettings } from "../../../ai/types";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
 import type { StageData } from "../../shared/types";
 import { LayoutRequestError } from "../../shared/ai/request";
-import type { TimelineLayoutInput } from "../layout-candidate";
+import type { TimelineLayoutInput } from "../input-types";
 import { measureTimelineLayout } from "../layout-quality";
 import { timelineLayoutContext } from "./context";
 import { requestTimelineLayout } from "./request";

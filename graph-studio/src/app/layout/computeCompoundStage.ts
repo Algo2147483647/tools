@@ -3,7 +3,6 @@ import { automaticIntent } from "../../layout/compound/automatic";
 import type { LayoutResult } from "../../layout/compound/layout-plan";
 import type { CompoundWorkerInput } from "../../layout/workers/protocol";
 import { startLayoutWorker } from "./workerJob";
-import type { CompoundRuntimePlacement } from "../../layout/compound/precise";
 
 export type CompoundStageInput = Omit<Parameters<typeof buildCompoundStage>[0], "solve">;
 export function compoundInputKey(input: CompoundStageInput) {
@@ -20,7 +19,6 @@ export function compoundInputKey(input: CompoundStageInput) {
 export async function computeCompoundStage(
   input: CompoundStageInput,
   signal: AbortSignal,
-  runtime?: CompoundRuntimePlacement,
 ) {
   const { buildCompoundStage } = await import("../../layout/compound/layout");
   if (signal.aborted) throw new Error("Layout cancelled.");
@@ -31,7 +29,7 @@ export async function computeCompoundStage(
       const job = startLayoutWorker<CompoundWorkerInput, LayoutResult>({
         createWorker: () =>
           new Worker(new URL("../../layout/workers/compound.worker.ts", import.meta.url), { type: "module" }),
-        payload: { problem, intent: automaticIntent(problem), runtime },
+        payload: { problem, intent: automaticIntent(problem) },
         timeoutMs: 15000,
         timeoutMessage: "Layout exceeded 15 seconds. Reduce the visible scope.",
         failureMessage: "Layout worker failed.",

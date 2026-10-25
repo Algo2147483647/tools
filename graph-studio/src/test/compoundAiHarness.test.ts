@@ -8,14 +8,12 @@ import { emptyLayoutData } from "../graph/compound/layoutData";
 import { buildCompoundStage } from "../layout/compound/layout";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
-import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
+import { defaultLayoutSession, parseLayoutSession, repairLayoutSession } from "../schema/layoutSession";
 import { compoundAiContext } from "../layout/compound/ai/request";
-import { applyCompoundAiPlan, parseCompoundAiPlan } from "../layout/compound/ai/protocol";
 import { runCompoundAiLayout } from "../layout/compound/ai/workflow";
 import { compoundExecutionFeedback } from "../layout/compound/ai/workflow";
 import { compoundTopology } from "../layout/compound/topology-layout";
 import { compareLayoutMetrics } from "../layout/compound/layout-quality";
-import { arrangePreciseCompound, contentOrigin } from "../layout/compound/precise";
 import { assertCompoundGeometry } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
@@ -43,7 +41,6 @@ const fixture = async () => {
   const stage = await buildCompoundStage(input);
   return { input, stage, problem: stage.compoundLayout! };
 };
-const response = (constraints: unknown[] = []) => ({ version: 1, preferences: { direction: "AUTO" }, constraints });
 async function withModel(replies: unknown[], run: (requests: any[]) => Promise<void>) {
   const original = globalThis.fetch;
   const requests: any[] = [];
@@ -116,81 +113,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     assert.equal(context.context.nodes[0].title, title);
     assert.equal(context.context.edges[0].label, title);
     assert.equal(context.context.truncated, false);
+    assert.ok(!("position" in context.context.nodes[0]) && !("localPosition" in context.context.nodes[0]));
     assert.equal(context.context.diagnosticsTruncated, false);
-  }),
-  defineTest("precise positions survive routing, nested group fitting and serialization boundaries", async () => {
-    const { input, problem } = await fixture();
-    const placements = [
-      { nodeId: "g", x: 137, y: 83 },
-      { nodeId: "a", x: 0, y: 400 },
-      { nodeId: "b", x: 280, y: 200 },
-      { nodeId: "c", x: 0, y: 0 },
-    ];
-    const plan = parseCompoundAiPlan(
-      { ...response(), placements },
-      { direction: "AUTO", ...compoundAiContext(problem) },
-    );
-    const layout = applyCompoundAiPlan(problem.stored, plan, null, compoundAiContext(problem));
-    const stage = await buildCompoundStage({
-      ...input,
-      layout,
-      solve: async (p) => arrangePreciseCompound(p, { placements, baseline: problem.baseline }),
-    });
-    const boxes = stage.compoundLayout!.baseline.boxes;
-    for (const p of placements) {
-      const node = problem.projection.items.find((n) => n.id === p.nodeId)!;
-      const origin = contentOrigin(node.parentId === null ? undefined : boxes[node.parentId]);
-      assert.equal(boxes[p.nodeId].x, origin.x + p.x);
-      assert.equal(boxes[p.nodeId].y, origin.y + p.y);
-    }
-    assertCompoundGeometry(input.dag, stage, view);
-    const feedback = compoundExecutionFeedback(problem, stage);
-    assert.ok(feedback.after.movedNodes > 0);
-    assert.ok(feedback.after.changedEdges > 0);
-    const document = defaultLayoutDocument();
-    document.charts.compound = layout;
-    assert.deepEqual(parseLayoutDocument(document), document);
-    assert.ok(!JSON.stringify(document).includes("placements"));
-    assert.deepEqual(serializeDag(input.dag), serializeDag(graph()));
-    const moved = arrangePreciseCompound(stage.compoundLayout!, {
-      placements: [{ nodeId: "g", x: 437, y: 83 }],
-      baseline: stage.compoundLayout!.baseline,
-    });
-    assert.equal(moved.geometry.boxes.a.x, boxes.a.x + 300);
-    assert.equal(moved.geometry.boxes.a.y, boxes.a.y);
-  }),
-  defineTest("coordinate validation permits only finite positions on supplied movable IDs", async () => {
-    const { problem } = await fixture();
-    const policy = { direction: "AUTO" as const, ...compoundAiContext(problem) };
-    for (const placements of [
-      [{ nodeId: "missing", x: 0, y: 0 }],
-      [{ nodeId: "a", x: -1, y: 0 }],
-      [{ nodeId: "a", x: Infinity, y: 0 }],
-      [
-        { nodeId: "a", x: 0, y: 0 },
-        { nodeId: "a", x: 1, y: 0 },
-      ],
-      [{ nodeId: "a", x: 0, y: 0, width: 50 }],
-    ])
-      assert.throws(() => parseCompoundAiPlan({ ...response(), placements }, policy));
-    assert.throws(() =>
-      parseCompoundAiPlan(
-        { ...response(), placements: [{ nodeId: "a", x: 0, y: 0 }] },
-        { ...policy, movableNodeIds: new Set() },
-      ),
-    );
-  }),
-  defineTest("structural plans are not artificially limited to 32 supplied preferences or siblings", () => {
-    const nodeIds = Array.from({ length: 40 }, (_, i) => `n${i}`),
-      edgeIds = new Set(nodeIds);
-    const plan = parseCompoundAiPlan(
-      response([
-        { type: "flow-order", scopeId: null, nodeIds },
-        ...nodeIds.map((edgeId) => ({ type: "prefer-outer-route", edgeId })),
-      ]),
-      { direction: "AUTO", edgeIds, scopes: new Map([[null, { nodeIds, orderable: true }]]) },
-    );
-    assert.equal(plan.constraints.length, 41);
   }),
   defineTest(
     "every observation reports route extents and complete metric deltas without deciding for the model",
@@ -230,64 +154,18 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
         ];
         assert.ok(centers.some(([x, y]) => Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01));
       }
-    const doc = defaultLayoutDocument();
+    const doc = defaultLayoutSession();
     doc.charts.compound = layout;
-    assert.equal(parseLayoutDocument(doc).charts.compound.portMode, "midpoints");
+    assert.equal(parseLayoutSession(doc).charts.compound.portMode, "midpoints");
     assert.equal(
-      parseLayoutDocument({ format: "graph-studio-layout", version: 1, charts: { compound: {} } }).charts.compound
+      parseLayoutSession({ charts: { compound: {} } }).charts.compound
         .portMode,
       "distributed",
     );
     assertCompoundGeometry(input.dag, stage, view);
   }),
-  defineTest("group direction and sibling flow order change actual geometry without editing graph", async () => {
-    const { input, problem } = await fixture();
-    const supplied = compoundAiContext(problem);
-    const plan = parseCompoundAiPlan(
-      response([
-        { type: "direction", scopeId: "g", value: "DOWN" },
-        { type: "flow-order", scopeId: "g", nodeIds: ["c", "b", "a"] },
-      ]),
-      { direction: "AUTO", ...supplied },
-    );
-    const data = applyCompoundAiPlan(emptyLayoutData(), plan, null, supplied);
-    const stage = await buildCompoundStage({ ...input, layout: data });
-    assert.ok(stage.nodeMap.c.y < stage.nodeMap.b.y && stage.nodeMap.b.y < stage.nodeMap.a.y);
-    assert.deepEqual(serializeDag(input.dag), serializeDag(graph()));
-    assertCompoundGeometry(input.dag, stage, view);
-    assert.equal(stage.warnings.length, 0);
-    const document = defaultLayoutDocument();
-    document.charts.compound = data;
-    assert.deepEqual(parseLayoutDocument(document), document);
-  }),
-  defineTest(
-    "structural plans reject hidden scopes, non-siblings, duplicate IDs and conflicting root directions",
-    async () => {
-      const { problem } = await fixture();
-      const supplied = compoundAiContext(problem);
-      for (const constraint of [
-        { type: "direction", scopeId: "missing", value: "DOWN" },
-        { type: "flow-order", scopeId: "g", nodeIds: ["g", "a", "b"] },
-        { type: "flow-order", scopeId: "g", nodeIds: ["a", "a", "b"] },
-        { type: "direction", scopeId: null, value: "DOWN" },
-      ])
-        assert.throws(() => parseCompoundAiPlan(response([constraint]), { direction: "AUTO", ...supplied }));
-    },
-  ),
-  defineTest("replacement retracts visible hints while preserving unsupplied scopes and edges", async () => {
-    const { problem } = await fixture();
-    const current = emptyLayoutData();
-    current.constraints = [
-      { type: "prefer-outer-route", edgeId: "ab", strength: "soft" },
-      { type: "direction", scopeId: "g", value: "DOWN", strength: "soft" },
-      { type: "prefer-outer-route", edgeId: "hidden-edge", strength: "soft" },
-      { type: "direction", scopeId: "hidden-group", value: "RIGHT", strength: "soft" },
-    ];
-    const next = applyCompoundAiPlan(current, { direction: "AUTO", constraints: [] }, null, compoundAiContext(problem));
-    assert.deepEqual(next.constraints, current.constraints.slice(2));
-  }),
   defineTest("flow order survives rename and drops removed or reparented siblings", () => {
-    const layout = defaultLayoutDocument();
+    const layout = defaultLayoutSession();
     layout.charts.compound.constraints = [
       { type: "flow-order", scopeId: "g", nodeIds: ["a", "b", "c"], strength: "soft" },
     ];
@@ -295,81 +173,15 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     dag.nodes.renamed = dag.nodes.a;
     delete dag.nodes.a;
     dag.hierarchy_edges!.find((e) => e.target === "a")!.target = "renamed";
-    const repaired = repairLayoutDocument(layout, dag, [{ from: "a", to: "renamed" }]);
+    const repaired = repairLayoutSession(layout, dag, [{ from: "a", to: "renamed" }]);
     assert.deepEqual(repaired.charts.compound.constraints[0], {
       ...layout.charts.compound.constraints[0],
       nodeIds: ["renamed", "b", "c"],
     });
     dag.hierarchy_edges = dag.hierarchy_edges!.filter((e) => e.target !== "c");
-    const final = repairLayoutDocument(repaired, dag).charts.compound.constraints[0];
+    const final = repairLayoutSession(repaired, dag).charts.compound.constraints[0];
     assert.equal(final.type, "flow-order");
     if (final.type === "flow-order") assert.deepEqual(final.nodeIds, ["renamed", "b"]);
-  }),
-  defineTest("Commerce all-outer plan stays close to content and supplies detour evidence to the planner", async () => {
-    const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
-    const view = { focusGroupId: null, collapsedGroupIds: ["checkout", "payments", "fulfillment", "aftersales"] };
-    const input = { dag, view, appearance, showNodeDetail: false, alignNodeWidthsToMax: true };
-    const before = await buildCompoundStage(input);
-    const supplied = compoundAiContext(before.compoundLayout!);
-    assert.ok(supplied.context.detours.length > 0);
-    assert.ok(supplied.context.groupConnections.length > 0);
-    const plan = parseCompoundAiPlan(
-      response(
-        before.compoundLayout!.projection.edges.map((e) => ({
-          type: "prefer-outer-route",
-          edgeId: e.originalEdgeIds[0],
-        })),
-      ),
-      { direction: "AUTO", ...supplied },
-    );
-    const layout = applyCompoundAiPlan(emptyLayoutData(), plan, null, supplied);
-    const after = await buildCompoundStage({ ...input, layout });
-    const contentBottom = Math.max(...Object.values(after.compoundLayout!.baseline.boxes).map((b) => b.y + b.height));
-    assert.ok(after.stageHeight <= contentBottom + 72, "Routing must not accumulate empty bottom lanes");
-    assert.ok(after.layoutQuality!.metrics.length < before.layoutQuality!.metrics.length * 1.5);
-    assert.ok(after.layoutQuality!.metrics.crossings <= before.layoutQuality!.metrics.crossings + 5);
-    assertCompoundGeometry(dag, after, view);
-    assert.ok(compoundAiContext(after.compoundLayout!).context.currentConstraints.length > 0);
-  }),
-  defineTest("partial flow order retains all branch relationships instead of replacing them with a chain", async () => {
-    const edges: [string, string][] = [
-      ["a", "b"],
-      ["a", "c"],
-      ["b", "d"],
-      ["c", "d"],
-    ];
-    const topology = compoundTopology(["a", "b", "c", "d"], edges, ["a", "d"]);
-    for (const edge of edges) assert.ok(topology.forward.some((e) => JSON.stringify(e) === JSON.stringify(edge)));
-    assert.ok(topology.layers.some((layer) => layer.includes("b") && layer.includes("c")));
-    const { problem } = await fixture();
-    const plan = parseCompoundAiPlan(response([{ type: "flow-order", scopeId: "g", nodeIds: ["a", "c"] }]), {
-      direction: "AUTO",
-      ...compoundAiContext(problem),
-    });
-    assert.equal(plan.constraints.length, 1);
-  }),
-  defineTest("AI direction choices remain revisable while explicit user direction remains enforced", async () => {
-    const { problem } = await fixture();
-    const chosen = applyCompoundAiPlan(
-      emptyLayoutData(),
-      { direction: "DOWN", constraints: [] },
-      null,
-      compoundAiContext(problem),
-    );
-    assert.equal(chosen.direction, "AUTO");
-    assert.ok(chosen.constraints.some((c) => c.type === "direction" && c.value === "DOWN"));
-    assert.doesNotThrow(() =>
-      parseCompoundAiPlan(
-        { ...response(), preferences: { direction: "RIGHT" } },
-        { direction: chosen.direction, ...compoundAiContext(problem) },
-      ),
-    );
-    assert.throws(() =>
-      parseCompoundAiPlan(
-        { ...response(), preferences: { direction: "RIGHT" } },
-        { direction: "DOWN", ...compoundAiContext(problem) },
-      ),
-    );
   }),
   defineTest("AI returns Schema Layout and the selected exact geometry is rendered without a solver", async () => {
     const { stage, problem } = await fixture();

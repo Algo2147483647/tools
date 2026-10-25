@@ -14,10 +14,8 @@ import { compareKeys } from "./ordering";
 const DAY = 86_400_000;
 export function prepareTimeline(input: TimelineLayoutInput) {
   const { dag, appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = false } = input;
-  const arrangement = input.arrangement;
   const settings = sanitizeTimelineSettings({
     ...input.timelineSettings,
-    ...(arrangement?.edgeRouting ? { edgeRouting: arrangement.edgeRouting } : {}),
   });
   const clock = getTimelineClock(dag.metadata);
   const colorSource = Object.values((input.axisSource ?? dag).nodes);
@@ -123,10 +121,8 @@ export function prepareTimeline(input: TimelineLayoutInput) {
     const firstTime = entry.time.status === "dated" ? entry.time.start : Infinity;
     trackStartTimes.set(entry.track, Math.min(trackStartTimes.get(entry.track) ?? Infinity, firstTime));
   });
-  const trackRanks = new Map((arrangement?.trackOrder ?? []).map((track, index) => [track, index]));
   const tracks = [...trackStartTimes.keys()].sort(
     (a, b) =>
-      (trackRanks.get(a) ?? Infinity) - (trackRanks.get(b) ?? Infinity) ||
       trackStartTimes.get(a)! - trackStartTimes.get(b)! ||
       compareKeys(a, b),
   );
@@ -208,7 +204,6 @@ export function prepareTimeline(input: TimelineLayoutInput) {
     dag,
     appearance,
     showNodeDetail,
-    arrangement,
     settings,
     clock,
     typePalette,

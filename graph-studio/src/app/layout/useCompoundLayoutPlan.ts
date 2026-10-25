@@ -28,7 +28,7 @@ export function useCompoundLayoutPlan(
   aiSettings: AiSettings,
 ) {
   const problem = viewport.stage?.compoundLayout;
-  const settings = state.layoutDocument.data.charts.compound;
+  const settings = state.layoutSession.data.charts.compound;
   const key = JSON.stringify([
     state.document.generation,
     state.editHistory.revision,
@@ -79,14 +79,14 @@ export function useCompoundLayoutPlan(
       const nextPatch =
         patch.method === "automatic" ? { ...patch, direction: "AUTO" as const, constraints: [] } : patch;
       dispatch({
-        type: "layoutDocumentChanged",
+        type: "layoutSessionChanged",
         generation: now.document.generation,
         data: {
-          ...now.layoutDocument.data,
-          renderings: { ...now.layoutDocument.data.renderings, compound: undefined },
+          ...now.layoutSession.data,
+          renderings: { ...now.layoutSession.data.renderings, compound: undefined },
           charts: {
-            ...now.layoutDocument.data.charts,
-            compound: { ...now.layoutDocument.data.charts.compound, ...nextPatch },
+            ...now.layoutSession.data.charts,
+            compound: { ...now.layoutSession.data.charts.compound, ...nextPatch },
           },
         },
       });
@@ -164,12 +164,12 @@ export function useCompoundLayoutPlan(
         }
         // Commit the model's selection without invoking the Automatic tab reset.
         dispatch({
-          type: "layoutDocumentChanged",
+          type: "layoutSessionChanged",
           generation: initial.state.document.generation,
           data: {
-            ...initial.state.layoutDocument.data,
-            renderings: { ...initial.state.layoutDocument.data.renderings, compound: undefined },
-            charts: { ...initial.state.layoutDocument.data.charts, compound: data },
+            ...initial.state.layoutSession.data,
+            renderings: { ...initial.state.layoutSession.data.renderings, compound: undefined },
+            charts: { ...initial.state.layoutSession.data.charts, compound: data },
           },
         });
         if (report)

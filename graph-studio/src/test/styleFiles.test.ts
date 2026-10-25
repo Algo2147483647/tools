@@ -1,4 +1,4 @@
-import { createLayoutConfigFile } from "../schema/layoutProtocol";
+import { createLayoutConfigFile } from "../schema/layoutConfig";
 import { timelineFixture } from "./layoutPersistence.test";
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from "node:fs/promises";
@@ -37,7 +37,7 @@ async function fixture(run: (root: string, input: any) => Promise<void>) {
 export const styleFilesSuite = defineSuite("Local style file service", [
   defineTest("Layout writes configuration only beside the graph and overwrites its existing association", async () => {
     await fixture(async (root, input) => {
-      input.document = createLayoutConfigFile(timelineFixture().document, "timeline");
+      input.document = createLayoutConfigFile(timelineFixture().document, "timeline", timelineFixture().settings);
       const saved = await saveExampleStyle(root, schema, input, "layout");
       assert.equal(saved.reference, "main.timeline.layout.json");
       input.document.settings.view.orientation = "horizontal";

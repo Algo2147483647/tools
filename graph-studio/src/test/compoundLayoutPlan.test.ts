@@ -5,7 +5,7 @@ import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultLayoutIntent, parseLayoutIntent, type LayoutIntent } from "../layout/compound/layout-plan";
 import { migrateLegacyLayout } from "../schema/layoutMigration";
-import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
+import { defaultLayoutSession, parseLayoutSession, repairLayoutSession } from "../schema/layoutSession";
 import { prepareCommandTransaction } from "../app/document/graphTransactions";
 import { prepareWorkspace } from "../workspace/opening";
 import { buildCompoundStage } from "../layout/compound/layout";
@@ -45,10 +45,10 @@ function downIntent(): LayoutIntent {
 
 export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
   defineTest("protocol rejects snapshots, coordinates, pins and route-only requests", () => {
-    const base = defaultLayoutDocument();
+    const base = defaultLayoutSession();
     for (const field of ["accepted", "snapshot", "geometry", "pins", "boxes", "routes", "x", "width"]) {
       assert.throws(
-        () => parseLayoutDocument({ ...base, charts: { compound: { ...base.charts.compound, [field]: {} } } }),
+        () => parseLayoutSession({ ...base, charts: { compound: { ...base.charts.compound, [field]: {} } } }),
         /Unknown/,
       );
     }
@@ -75,7 +75,7 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
   defineTest("automatic first render selects valid deterministic geometry and reports its quality", async () => {
     const dag = graph(true),
       original = serializeDag(dag);
-    const config = defaultLayoutDocument().charts.compound;
+    const config = defaultLayoutSession().charts.compound;
     config.direction = "DOWN";
     const input = {
       dag,
@@ -118,7 +118,8 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     const result = migrateLegacyLayout(original, "flow.layout.json");
     assert.equal(result.graph.metadata!.layout, "flow.layout.json");
     assert.deepEqual(result.graph.nodes, original.nodes);
-    assert.deepEqual(result.layout.charts.compound.constraints, downIntent().constraints);
+    assert.equal(result.layout.format, "graph-studio-layout-settings");
+    assert.ok(!("constraints" in result.layout.settings));
     assert.ok(!/snapshot|accepted|boxes|pins/.test(JSON.stringify(result.layout)));
     assert.equal(JSON.stringify(original), before);
   }),
@@ -132,21 +133,21 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
       status: "Loaded",
     });
     const original = state.dag;
-    const data = defaultLayoutDocument();
+    const data = defaultLayoutSession();
     data.charts.compound.direction = "DOWN";
-    const action: GraphAction = { type: "layoutDocumentChanged", generation: state.document.generation, data };
+    const action: GraphAction = { type: "layoutSessionChanged", generation: state.document.generation, data };
     state = graphReducer(state, action);
     assert.equal(state.dag, original);
     assert.equal(state.source.dirty, false);
-    assert.equal(state.layoutDocument.data.charts.compound.direction, "DOWN");
+    assert.equal(state.layoutSession.data.charts.compound.direction, "DOWN");
     state = graphReducer(state, { type: "undoRequested" });
-    assert.equal(state.layoutDocument.data.charts.compound.direction, "AUTO");
+    assert.equal(state.layoutSession.data.charts.compound.direction, "AUTO");
     state = graphReducer(state, { type: "redoRequested" });
-    assert.equal(state.layoutDocument.data.charts.compound.direction, "DOWN");
+    assert.equal(state.layoutSession.data.charts.compound.direction, "DOWN");
     assert.equal(graphReducer(state, { ...action, generation: state.document.generation - 1 }), state);
   }),
   defineTest("graph renames and deletion repair layout references in the same undo transaction", () => {
-    const data = defaultLayoutDocument();
+    const data = defaultLayoutSession();
     data.charts.compound.constraints = [{ type: "direction", scopeId: "g", value: "DOWN", strength: "soft" }];
     let state = graphReducer(createInitialGraphState(), {
       type: "graphLoaded",
@@ -163,14 +164,14 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
       "Rename group",
     )!;
     state = graphReducer(state, action);
-    assert.equal((state.layoutDocument.data.charts.compound.constraints[0] as { scopeId: string }).scopeId, "renamed");
+    assert.equal((state.layoutSession.data.charts.compound.constraints[0] as { scopeId: string }).scopeId, "renamed");
     state = graphReducer(state, { type: "undoRequested" });
-    assert.deepEqual(state.layoutDocument.data, data);
+    assert.deepEqual(state.layoutSession.data, data);
     const removed = serializeDag(graph());
-    assert.deepEqual(repairLayoutDocument(data, removed).charts.compound.constraints, []);
+    assert.deepEqual(repairLayoutSession(data, removed).charts.compound.constraints, []);
   }),
   defineTest("workspace loads only metadata.layout; missing or invalid associations use defaults", async () => {
-    const data = defaultLayoutDocument();
+    const data = defaultLayoutSession();
     data.charts.compound.direction = "DOWN";
     const raw = serializeDag(graph());
     const contents: Record<string, unknown> = { "graph.json": raw, "graph.layout.json": data };

@@ -27,9 +27,6 @@ export interface AppearanceSettingsProps {
   appearanceCssDraft: string;
   onAppearanceCssDraftChange: (value: string) => void;
   onAppearanceCssChange: (css: string) => void;
-  onAppearanceBind: () => void;
-  canBindAppearance: boolean;
-  bindingAppearance: boolean;
   onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
 }

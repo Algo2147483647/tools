@@ -4,12 +4,10 @@ import type { LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
 import { routingHotspots } from "../diagnostics";
 import { requestLayoutPlan } from "../../shared/ai/request";
-import type { CompoundAiPolicy } from "./protocol";
+import type { LayoutDirection } from "../../../graph/compound/layoutData";
 import type { LayoutResultDocument } from "../../../schema/layoutResult";
 import { layoutDecisionSchema, parseLayoutDecision } from "../../shared/ai/decision";
-import { buildScopes } from "../constraints";
 import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
-import { contentOrigin } from "../precise";
 
 export function compoundAiContext(problem: LayoutProblem) {
   const nodes = [...problem.projection.items].sort((a, b) => a.depth - b.depth || a.id.localeCompare(b.id));
@@ -17,28 +15,12 @@ export function compoundAiContext(problem: LayoutProblem) {
   const edges = problem.projection.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
   const edgeIds = new Set(edges.flatMap((e) => e.originalEdgeIds));
   const hotspots = routingHotspots(problem);
-  const scopes = new Map(
-    [...buildScopes(problem.projection).scopes]
-      .filter(([id, scope]) => (id === null || ids.has(id)) && scope.children.every((id) => ids.has(id)))
-      .map(([id, scope]) => [
-        id ?? problem.projection.focusGroupId,
-        {
-          nodeIds: scope.children,
-          orderable: scope.children.length >= 2 && !nodes.some((n) => scope.children.includes(n.id) && n.external),
-        },
-      ]),
-  );
   const filterHotspots = <T extends { edgeIds: string[] }>(entries: T[]) =>
     entries
       .map((entry) => ({ ...entry, edgeIds: entry.edgeIds.filter((id) => edgeIds.has(id)) }))
       .filter((entry) => entry.edgeIds.length);
-  const activeConstraints = problem.stored.constraints.filter((c) =>
-    "scopeId" in c ? scopes.has(c.scopeId) : edgeIds.has(c.edgeId),
-  );
   return {
     edgeIds,
-    scopes,
-    movableNodeIds: new Set(nodes.filter((n) => !n.external).map((n) => n.id)),
     context: {
       scopeId: problem.projection.focusGroupId,
       direction: problem.stored.direction,
@@ -47,11 +29,8 @@ export function compoundAiContext(problem: LayoutProblem) {
       coordinateSystem: {
         units: "px",
         positions: "absolute canvas pixels; node centers and group top-left corners",
-        rootOrigin: { x: 36, y: 36 },
         groupPadding: { left: 24, top: 58, right: 24, bottom: 24 },
       },
-      editableScopes: [...scopes].map(([scopeId, scope]) => ({ scopeId, ...scope })),
-      currentConstraints: activeConstraints,
       nodes: nodes.map((n) => ({
         id: n.id,
         title: n.title,
@@ -63,17 +42,13 @@ export function compoundAiContext(problem: LayoutProblem) {
         description: problem.nodeSemantics?.[n.id]?.description,
         size: { width: problem.baseline.boxes[n.id].width, height: problem.baseline.boxes[n.id].height },
         minimumSize: problem.minimumSizes[n.id],
-        localPosition: (() => {
-          const origin = contentOrigin(n.parentId === null ? undefined : problem.baseline.boxes[n.parentId]);
-          return { x: problem.baseline.boxes[n.id].x - origin.x, y: problem.baseline.boxes[n.id].y - origin.y };
-        })(),
-        position: { x: problem.baseline.boxes[n.id].x, y: problem.baseline.boxes[n.id].y },
       })),
       edges: edges
         .filter((e) => e.originalEdgeIds.some((id) => edgeIds.has(id)))
         .map((e) => ({
           source: e.source,
           target: e.target,
+          id: e.id,
           ids: e.originalEdgeIds.filter((id) => edgeIds.has(id)),
           label: e.label,
           relativePosition: (() => {
@@ -105,8 +80,7 @@ export function requestCompoundLayoutDecision(
   onRetry: (() => void) | undefined,
   session: {
     observations: unknown[];
-    selectedDirection: CompoundAiPolicy["direction"];
-    canEvaluate: boolean;
+    selectedDirection: LayoutDirection;
     candidateIds: ReadonlySet<string>;
     currentLayout: LayoutResultDocument;
     requireEvaluation: boolean;
@@ -124,7 +98,6 @@ export function requestCompoundLayoutDecision(
       session: {
         observations: session.observations,
         selectableCandidates: [...session.candidateIds],
-        canEvaluate: session.canEvaluate,
       },
     },
     message,

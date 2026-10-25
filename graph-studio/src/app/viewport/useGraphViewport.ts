@@ -35,7 +35,8 @@ export function useGraphViewport(
   const { compound, activeType, activeTrack, activeTimelineRange } = navigation;
   const {
     stage: computedStage,
-    currentLayoutDocument,
+    currentLayoutConfig,
+    layoutRenderingContext,
     status,
     parentSelection,
     timelineView,
@@ -120,7 +121,8 @@ export function useGraphViewport(
     focusGroupId: compound.view.focusGroupId,
   });
   return {
-    currentLayoutDocument,
+    currentLayoutConfig,
+    layoutRenderingContext,
     timelineSettings: state.timelineSettings,
     changeTimelineSettings: (patch: Partial<TimelineViewSettings>) =>
       dispatch({ type: "timelineSettingsChanged", patch }),

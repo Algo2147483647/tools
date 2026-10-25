@@ -1,7 +1,7 @@
 import { createLayoutResult } from "../schema/layoutResult";
 import assert from "node:assert/strict";
 import { applyGraphCommand } from "../graph/commands";
-import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
+import { defaultLayoutSession, parseLayoutSession, repairLayoutSession } from "../schema/layoutSession";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { parseTimelineLayoutPlan, validateTimelineLayoutPlan } from "../graph/timeline/layoutData";
@@ -86,7 +86,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       /Unknown timeline track/,
     );
     assert.throws(() =>
-      parseLayoutDocument({ ...defaultLayoutDocument(), charts: { timeline: { version: 99, mode: "ai" } } }),
+      parseLayoutSession({ ...defaultLayoutSession(), charts: { timeline: { version: 99, mode: "ai" } } }),
     );
   }),
   defineTest("AI changes track geometry while preserving calendar/relative dates, ports and both orientations", () => {
@@ -149,9 +149,9 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
     const input: TimelineLayoutInput = { dag, selection: { type: "full" }, timelineSettings: { layout: "tracks" } };
     const algorithm = buildTimelineStage(input)!;
     const preview = evaluateTimelineLayout(input, algorithm, plan);
-    const layout = defaultLayoutDocument();
+    const layout = defaultLayoutSession();
     layout.charts.timeline = { version: 1, mode: "ai", plan };
-    const loaded = parseLayoutDocument(JSON.parse(JSON.stringify(layout)));
+    const loaded = parseLayoutSession(JSON.parse(JSON.stringify(layout)));
     assert.deepEqual(
       geometry(buildTimelineStage({ ...input, arrangement: loaded.charts.timeline.plan })!),
       geometry(preview.stage),
@@ -180,24 +180,24 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
     };
     state = graphReducer(state, action);
     assert.equal(state.editHistory.undoStack.length, 1);
-    assert.equal(state.layoutDocument.data.charts.timeline.mode, "ai");
+    assert.equal(state.layoutSession.data.charts.timeline.mode, "ai");
     state = graphReducer(state, { type: "undoRequested" });
-    assert.equal(state.layoutDocument.data.charts.timeline.mode, "algorithm");
+    assert.equal(state.layoutSession.data.charts.timeline.mode, "algorithm");
     assert.equal(graphReducer(state, action).dag, state.dag, "Undo must not revive a stale preview.");
     state = graphReducer(state, { type: "redoRequested" });
-    assert.deepEqual(state.layoutDocument.data.charts.timeline.plan, plan);
+    assert.deepEqual(state.layoutSession.data.charts.timeline.plan, plan);
     assert.equal(graphReducer(before, { ...action, generation: before.document.generation + 1 }).dag, before.dag);
     assert.deepEqual(state.dag!.nodes, before.dag!.nodes);
     assert.deepEqual(state.dag!.edges, before.dag!.edges);
   }),
   defineTest("rename and delete repair independent event references", () => {
-    let layout = defaultLayoutDocument();
+    let layout = defaultLayoutSession();
     layout.charts.timeline = { version: 1, mode: "ai", plan };
     let dag = applyGraphCommand(graph(), { type: "renameNode", oldKey: "b", newKey: "prototype" }).dag;
-    layout = repairLayoutDocument(layout, dag, [{ from: "b", to: "prototype" }]);
+    layout = repairLayoutSession(layout, dag, [{ from: "b", to: "prototype" }]);
     assert.deepEqual(layout.charts.timeline.plan!.eventOrder, ["c", "prototype", "a"]);
     dag = applyGraphCommand(dag, { type: "deleteNode", key: "c" }).dag;
-    layout = repairLayoutDocument(layout, dag);
+    layout = repairLayoutSession(layout, dag);
     assert.deepEqual(layout.charts.timeline.plan!.eventOrder, ["prototype", "a"]);
     assert.equal(dag.metadata?.layout, undefined);
   }),

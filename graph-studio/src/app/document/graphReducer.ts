@@ -1,4 +1,4 @@
-import { parseLayoutDocument, repairLayoutDocument, type LayoutDocument } from "../../schema/layoutProtocol";
+import { parseLayoutSession, repairLayoutSession, type LayoutSessionState } from "../../schema/layoutSession";
 import { getSankeyError } from "../../graph/sankey";
 import { areSelectionsEqual } from "../../graph/selectors";
 import { getGraphChartLabel } from "../../graph/types";
@@ -6,7 +6,6 @@ import type { GraphAction } from "./graphActions";
 import type { GraphAppState } from "./initialState";
 import { clampConsoleSidebarWidth } from "../preferences/preferences";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../schema/appearance/contract";
-import { parseTimelineLayoutPlan } from "../../graph/timeline/layoutData";
 
 import { replaceDocument, traverseEditHistory, pushEditTransaction } from "./documentTransitions";
 
@@ -83,19 +82,14 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       try {
         if (action.data.version !== 1 || !["ai", "algorithm"].includes(action.data.mode))
           throw new Error("Invalid layout mode.");
-        const plan = action.data.plan ? parseTimelineLayoutPlan(action.data.plan) : undefined;
-        if (plan?.eventOrder.some((id) => !Object.prototype.hasOwnProperty.call(state.dag!.nodes, id)))
-          throw new Error("Timeline layout references an unknown event.");
         return commitLayout(state, {
-          ...state.layoutDocument.data,
-          renderings: { ...state.layoutDocument.data.renderings, timeline: action.rendering },
+          ...state.layoutSession.data,
+          renderings: { ...state.layoutSession.data.renderings, timeline: action.rendering },
           charts: {
-            ...state.layoutDocument.data.charts,
+            ...state.layoutSession.data.charts,
             timeline: {
               version: 1,
               mode: action.data.mode,
-              ...(action.data.basis ? { basis: action.data.basis } : {}),
-              ...(plan ? { plan } : {}),
             },
           },
         });
@@ -106,16 +100,16 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         };
       }
     }
-    case "layoutDocumentChanged": {
+    case "layoutSessionChanged": {
       if (action.generation !== state.document.generation || !state.dag) return state;
       try {
-        const data = repairLayoutDocument(parseLayoutDocument(action.data), state.dag);
+        const data = repairLayoutSession(parseLayoutSession(action.data), state.dag);
         return commitLayout(state, data);
       } catch (error) {
         return {
           ...state,
-          layoutDocument: {
-            ...state.layoutDocument,
+          layoutSession: {
+            ...state.layoutSession,
             notice: error instanceof Error ? error.message : "Invalid layout.",
           },
         };
@@ -151,8 +145,8 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
     }
     case "graphCommandsCommitted": {
       const revision = action.transaction.revisionAfter;
-      const data = repairLayoutDocument(state.layoutDocument.data, action.transaction.afterDag, action.renamedKeys);
-      const transaction = { ...action.transaction, beforeLayout: state.layoutDocument.data, afterLayout: data };
+      const data = repairLayoutSession(state.layoutSession.data, action.transaction.afterDag, action.renamedKeys);
+      const transaction = { ...action.transaction, beforeLayout: state.layoutSession.data, afterLayout: data };
       const undoStack = pushEditTransaction(state.editHistory.undoStack, transaction);
       const nextUi = applyBatchUiEffects(state.ui, action.renamedKeys, action.deletedKeys);
 
@@ -161,7 +155,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         dag: action.transaction.afterDag,
         nextRevision: revision + 1,
         source: { ...state.source, dirty: action.transaction.afterDag !== state.document.savedDag },
-        layoutDocument: { ...state.layoutDocument, data },
+        layoutSession: { ...state.layoutSession, data },
         selection: action.transaction.afterSelection,
         history: action.transaction.afterNavigationHistory,
         editHistory: {
@@ -184,8 +178,8 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
     case "layoutModeChanged":
       if (state.chartType !== "node-link") return state;
       return commitLayout(state, {
-        ...state.layoutDocument.data,
-        charts: { ...state.layoutDocument.data.charts, "node-link": { method: action.mode } },
+        ...state.layoutSession.data,
+        charts: { ...state.layoutSession.data.charts, "node-link": { method: action.mode } },
       });
     case "chartTypeChanged": {
       if (action.chartType === state.chartType) return state;
@@ -288,14 +282,14 @@ function applyBatchUiEffects(
   };
 }
 
-function commitLayout(state: GraphAppState, data: LayoutDocument): GraphAppState {
-  if (!state.dag || JSON.stringify(data) === JSON.stringify(state.layoutDocument.data)) return state;
+function commitLayout(state: GraphAppState, data: LayoutSessionState): GraphAppState {
+  if (!state.dag || JSON.stringify(data) === JSON.stringify(state.layoutSession.data)) return state;
   const revision = state.nextRevision;
   const transaction = {
     label: "Updated layout configuration.",
     beforeDag: state.dag,
     afterDag: state.dag,
-    beforeLayout: state.layoutDocument.data,
+    beforeLayout: state.layoutSession.data,
     afterLayout: data,
     beforeSelection: state.selection,
     afterSelection: state.selection,
@@ -306,7 +300,7 @@ function commitLayout(state: GraphAppState, data: LayoutDocument): GraphAppState
   };
   return {
     ...state,
-    layoutDocument: { ...state.layoutDocument, data, notice: "" },
+    layoutSession: { ...state.layoutSession, data, notice: "" },
     layout: { mode: data.charts["node-link"].method },
     nextRevision: revision + 1,
     editHistory: {

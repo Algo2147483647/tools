@@ -1,5 +1,4 @@
 import { type ParsedTimelineTime } from "../../graph/timeline/time";
-import { type TimelineLayoutPlan } from "../../graph/timeline/layoutData";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { GraphSelection, NodeKey, NormalizedDag } from "../../graph/types";
 import { type StageAppearance } from "../shared/appearance";
@@ -22,7 +21,5 @@ export interface TimelineLayoutInput {
   timelineSettings?: Partial<TimelineViewSettings>;
   timelineAxis?: TimelineAxisMap;
   axisSource?: NormalizedDag;
-  /** Arrangement loaded from the independent Layout document. */
-  arrangement?: TimelineLayoutPlan | null;
   nodeLabels?: Record<string, { width: number; displayTitle: string }>;
 }

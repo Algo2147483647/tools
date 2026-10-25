@@ -1,4 +1,3 @@
-import { applyTimelinePositions } from "./precise";
 import type { StageData } from "../shared/types";
 import { arrangeTimelineNodes } from "./arrange";
 import type { TimelineLayoutInput } from "./input-types";
@@ -8,6 +7,6 @@ export { routeTimelineEdge } from "./edge-routing";
 export function buildTimelineStage(input: TimelineLayoutInput): StageData | null {
   const prepared = prepareTimeline(input);
   return prepared
-    ? applyTimelinePositions(assembleTimelineStage(prepared, arrangeTimelineNodes(prepared)), input)
+    ? assembleTimelineStage(prepared, arrangeTimelineNodes(prepared))
     : null;
 }

@@ -1,5 +1,5 @@
+import { createLayoutConfigFile } from "../../schema/layoutConfig";
 import {
-  captureLayoutGeometry,
   graphLayoutIdentity,
   layoutIdentity,
   renderingMatches,
@@ -48,7 +48,7 @@ export function useGraphLayout({
   const spatialView = useSpatialView(
     state.dag,
     state.document.generation,
-    state.layoutDocument.data.renderings?.spatial?.scope.spatial,
+    state.layoutSession.data.renderings?.spatial?.scope.spatial,
   );
   const typeFilteredDag = useMemo(
     () =>
@@ -70,7 +70,6 @@ export function useGraphLayout({
     visibleDag: state.chartType === "timeline" ? displayDag : null,
     generation: state.document.generation,
     settings: timelineSettings,
-    layout: state.layoutDocument.data.charts.timeline,
     appearance: geometryAppearance,
     showNodeDetail,
     range: activeTimelineRange,
@@ -118,7 +117,7 @@ export function useGraphLayout({
         ? {
             dag: state.dag,
             view: compound.view,
-            layout: state.layoutDocument.data.charts.compound,
+            layout: state.layoutSession.data.charts.compound,
             showEdgeLabels: appearance.display.showEdgeLabels,
             selectedType: activeType,
             appearance: geometryAppearance,
@@ -130,7 +129,7 @@ export function useGraphLayout({
       state.chartType,
       state.dag,
       compound.view,
-      state.layoutDocument.data.charts.compound,
+      state.layoutSession.data.charts.compound,
       activeType,
       geometryAppearance,
       showNodeDetail,
@@ -148,7 +147,7 @@ export function useGraphLayout({
     timelineRange: activeTimelineRange,
     spatial: spatialView.view,
   };
-  const saved = state.layoutDocument.data.renderings?.[state.chartType];
+  const saved = state.layoutSession.data.renderings?.[state.chartType];
   // Exact AI geometry is session-only. Appearance changes invalidate the captured measurements.
   const appearanceKey = JSON.stringify([
     getStageAppearance(appearance, state.chartType),
@@ -172,7 +171,7 @@ export function useGraphLayout({
   else if (loadedAppearance.current.saved !== saved)
     loadedAppearance.current = { generation: state.document.generation, saved, key: appearanceKey };
   const settingsKey = JSON.stringify(
-    renderingSettings(state.chartType, state.layoutDocument.data.charts, scope, state.timelineSettings),
+    renderingSettings(state.chartType, state.layoutSession.data.charts, scope, state.timelineSettings),
   );
   const stage = useMemo(
     () =>
@@ -185,26 +184,11 @@ export function useGraphLayout({
         : computedStage,
     [saved, state.dag, computedStage, appearanceKey, settingsKey],
   );
-  const currentLayoutDocument = useMemo(
-    () =>
-      !stage || !state.dag
-        ? null
-        : {
-            ...state.layoutDocument.data,
-            activeChart: state.chartType,
-            renderings: {
-              ...state.layoutDocument.data.renderings,
-              [state.chartType]: {
-                graphFingerprint: graphLayoutIdentity(state.dag),
-                settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)),
-                scope,
-                timelineSettings: state.timelineSettings,
-                geometry: captureLayoutGeometry(stage),
-              },
-            },
-          },
-    [stage, state.dag, state.layoutDocument.data, state.chartType, settingsKey],
-  );
+  const currentLayoutConfig = useMemo(() => state.dag ? createLayoutConfigFile(state.layoutSession.data, state.chartType, state.timelineSettings) : null,
+    [state.dag, state.layoutSession.data.charts, state.chartType, state.timelineSettings]);
+  const layoutRenderingContext = useMemo(() => state.dag ? {
+    graphFingerprint: graphLayoutIdentity(state.dag), settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)), scope, timelineSettings: state.timelineSettings,
+  } : null, [state.dag, settingsKey, state.timelineSettings]);
   const parentSelection = useMemo(
     () =>
       state.chartType !== "compound" &&
@@ -262,7 +246,8 @@ export function useGraphLayout({
 
   return {
     stage,
-    currentLayoutDocument,
+    currentLayoutConfig,
+    layoutRenderingContext,
     status,
     parentSelection,
     timelineView: {

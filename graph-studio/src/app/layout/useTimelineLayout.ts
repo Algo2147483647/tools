@@ -1,4 +1,3 @@
-import type { LayoutDocument } from "../../schema/layoutProtocol";
 import {
   captureLayoutGeometry,
   layoutIdentity,
@@ -11,7 +10,7 @@ import { type TimelineLayoutData } from "../../graph/timeline/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import { runTimelineAiLayout, type TimelineAiResult } from "../../layout/timeline/ai/workflow";
 import { presentLayoutError } from "../../layout/shared/ai/request";
-import type { TimelineLayoutInput } from "../../layout/timeline/layout-candidate";
+import type { TimelineLayoutInput } from "../../layout/timeline/input-types";
 import { measureTimelineLayout } from "../../layout/timeline/layout-quality";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
@@ -23,7 +22,7 @@ export function useTimelineLayout(
   settings: AiSettings,
   view: {
     stage: StageData | null;
-    currentLayoutDocument: LayoutDocument | null;
+    layoutRenderingContext: Omit<LayoutRendering, "geometry"> | null;
     focusedKey: string | null;
     timelineLayout: { base: StageData | null; layoutInput: TimelineLayoutInput | null; ready: boolean };
   },
@@ -50,7 +49,7 @@ export function useTimelineLayout(
     baseline,
     ready,
     focus: view.focusedKey,
-    rendering: view.currentLayoutDocument?.renderings?.timeline,
+    rendering: view.layoutRenderingContext,
   });
   current.current = {
     state,
@@ -60,7 +59,7 @@ export function useTimelineLayout(
     baseline,
     ready,
     focus: view.focusedKey,
-    rendering: view.currentLayoutDocument?.renderings?.timeline,
+    rendering: view.layoutRenderingContext,
   };
   const [report, setReport] = useState<TimelineAiResult | null>(null);
   const [errorDetail, setErrorDetail] = useState("");
@@ -118,7 +117,7 @@ export function useTimelineLayout(
     cancel();
     setReport(null);
     setMessage("");
-    const data = current.current.state.layoutDocument.data.charts.timeline;
+    const data = current.current.state.layoutSession.data.charts.timeline;
     if (mode !== data.mode || mode === "algorithm") commit({ ...data, mode });
   };
   const generate = async (prompt: string) => {
@@ -154,7 +153,7 @@ export function useTimelineLayout(
       active.current = null;
       if (result.candidateId !== "current" && initial.rendering) {
         const data: TimelineLayoutData = { version: 1, mode: "ai" };
-        const charts = { ...initial.state.layoutDocument.data.charts, timeline: data };
+        const charts = { ...initial.state.layoutSession.data.charts, timeline: data };
         commit(data, {
           ...initial.rendering,
           geometry: captureLayoutGeometry(result.stage),
@@ -179,7 +178,7 @@ export function useTimelineLayout(
       }
     }
   };
-  const saved = state.layoutDocument.data.charts.timeline;
+  const saved = state.layoutSession.data.charts.timeline;
   return {
     ready,
     activity,
@@ -189,8 +188,8 @@ export function useTimelineLayout(
     errorDetail,
     quality: useMemo(() => (view.stage?.timeline ? measureTimelineLayout(view.stage) : null), [view.stage]),
     mode: saved.mode,
-    hasPlan: !!state.layoutDocument.data.renderings?.timeline || !!saved.plan,
-    warning: state.layoutDocument.notice,
+    hasPlan: !!state.layoutSession.data.renderings?.timeline,
+    warning: state.layoutSession.notice,
     count: baseline?.nodes.length ?? 0,
     generate,
     cancel,

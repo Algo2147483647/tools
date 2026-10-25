@@ -8,9 +8,9 @@ export function LayoutUpdateButton({
     <button
       type="button"
       className="studio-button"
-      disabled={!viewport.currentLayoutDocument || files.busy || busy}
+      disabled={!viewport.currentLayoutConfig || files.busy || busy}
       onClick={() => {
-        if (viewport.currentLayoutDocument) void files.saveAndBindLayout(viewport.currentLayoutDocument);
+        if (viewport.currentLayoutConfig) void files.saveAndBindLayout(viewport.currentLayoutConfig);
       }}
     >
       {files.busy ? "Updating…" : "Update current layout"}

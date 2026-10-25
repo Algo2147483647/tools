@@ -14,7 +14,7 @@ export function useGraphNavigation(
   captureLayoutAnchor: (key: string) => void,
 ) {
   const groupIds = useMemo(() => Object.keys(getGroupNodes(state.dag)), [state.dag]);
-  const savedScope = state.layoutDocument.data.renderings?.[state.chartType]?.scope;
+  const savedScope = state.layoutSession.data.renderings?.[state.chartType]?.scope;
   const compound = useCompoundView(state.document.id, groupIds, savedScope?.compound, state.document.generation);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");

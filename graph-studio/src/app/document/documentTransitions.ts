@@ -12,7 +12,6 @@ export function replaceDocument(
   const loaded = action.type !== "graphClosed";
   const isNew = action.type === "canvasInitialized";
   const loadedLayout = action.type === "graphLoaded" ? action.linkedLayout : undefined;
-  const rendering = loadedLayout?.activeChart ? loadedLayout.renderings?.[loadedLayout.activeChart] : undefined;
   return {
     ...initial,
     timelineSettings: sanitizeTimelineSettings({
@@ -22,7 +21,6 @@ export function replaceDocument(
       locked: false,
       ...(action.type === "graphLoaded" ? action.linkedStyle?.timeline : {}),
       ...timelineLayoutSettings(loadedLayout?.timelineView ?? {}),
-      ...(loadedLayout?.activeChart === "timeline" ? timelineLayoutSettings(rendering?.timelineSettings ?? {}) : {}),
     }),
     dag: loaded ? action.dag : null,
     document: {
@@ -39,9 +37,7 @@ export function replaceDocument(
           dirty: isNew,
         }
       : initial.source,
-    selection: rendering
-      ? rendering.scope.selection
-      : loaded
+    selection: loaded
         ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag) || isSpatialDocument(action.dag)
           ? { type: "full" }
           : action.selection
@@ -62,18 +58,18 @@ export function replaceDocument(
                   ? "sankey"
                   : "node-link"
           : state.chartType),
-    layoutDocument:
+    layoutSession:
       action.type === "graphLoaded"
         ? {
-            data: action.linkedLayout ?? initial.layoutDocument.data,
+            data: action.linkedLayout ?? initial.layoutSession.data,
             notice: action.layoutNotice ?? "",
           }
-        : initial.layoutDocument,
+        : initial.layoutSession,
     layout: {
       mode:
         action.type === "graphLoaded" && action.linkedLayout
           ? action.linkedLayout.charts["node-link"].method
-          : initial.layoutDocument.data.charts["node-link"].method,
+          : initial.layoutSession.data.charts["node-link"].method,
     },
     ui: {
       ...initial.ui,
@@ -94,12 +90,12 @@ export function traverseEditHistory(state: GraphAppState, direction: "undo" | "r
   return {
     ...state,
     dag: undo ? transaction.beforeDag : transaction.afterDag,
-    layoutDocument: {
-      ...state.layoutDocument,
-      data: (undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutDocument.data,
+    layoutSession: {
+      ...state.layoutSession,
+      data: (undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutSession.data,
     },
     layout: {
-      mode: ((undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutDocument.data).charts[
+      mode: ((undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutSession.data).charts[
         "node-link"
       ].method,
     },

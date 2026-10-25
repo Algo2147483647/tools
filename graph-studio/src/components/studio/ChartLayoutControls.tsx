@@ -16,9 +16,9 @@ export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
   const [tab, setTab] = useState<"arrangement" | "schema">("arrangement");
   return (
     <>
-      {props.session.state.layoutDocument.notice && (
+      {props.session.state.layoutSession.notice && (
         <p className="layout-warning" role="alert">
-          {props.session.state.layoutDocument.notice}
+          {props.session.state.layoutSession.notice}
         </p>
       )}
       <MethodTabs

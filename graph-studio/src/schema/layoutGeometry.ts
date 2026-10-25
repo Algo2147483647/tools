@@ -1,4 +1,4 @@
-import { measureLayout, validateLayoutGeometry } from "../layout/compound/layout-quality";
+import { finalizeCompoundStage } from "../layout/compound/finalizeStage";
 import { formatTimelineDate } from "../graph/timeline/time";
 import { formatRelativeTime } from "../graph/timeline/clock";
 import type { CompoundView, GraphChartType, GraphDocument, GraphSelection } from "../graph/types";
@@ -6,7 +6,6 @@ import type { SpaceView } from "../graph/space";
 import type { TimelineTimeRange } from "../graph/timeline/range";
 import type { TimelineViewSettings } from "./appearance/types";
 import type { StageData } from "../layout/shared/types";
-import type { LayoutGeometry } from "../layout/compound/layout-plan";
 import { isRecord } from "../shared/json";
 
 export interface LayoutScope {
@@ -436,47 +435,12 @@ export function restoreLayoutGeometry(data: LayoutGeometryData, base: StageData)
         : undefined,
     };
   }
-  if (base.compoundLayout) {
-    const geometry: LayoutGeometry = {
-      width: data.size[0],
-      height: data.size[1],
-      boxes: Object.fromEntries([
-        ...nodes.map(
-          (n) => [n.key, { x: n.x - n.width / 2, y: n.y - n.height / 2, width: n.width, height: n.height }] as const,
-        ),
-        ...(groups ?? []).map((g) => [g.id, { x: g.x, y: g.y, width: g.width, height: g.height }] as const),
-      ]),
-      routes: Object.fromEntries(
-        edges.map((e) => [
-          e.id,
-          { points: (e.points ?? []).map((p) => ({ x: p.x, y: p.y })), labelPosition: e.labelPosition },
-        ]),
-      ),
-    };
-    result.compoundLayout = { ...base.compoundLayout, baseline: geometry };
-    result.layoutQuality = {
-      metrics: measureLayout(result.compoundLayout, geometry),
-      validation: validateLayoutGeometry(result.compoundLayout, geometry),
-      elapsedMs: 0,
-    };
-  }
+  finalizeCompoundStage(result, base.compoundLayout);
   return result;
 }
 
 function formatSavedTick(time: number, timeline: NonNullable<StageData["timeline"]>) {
   return timeline.clock?.mode === "relative" ? formatRelativeTime(time, timeline.clock) : formatTimelineDate(time);
-}
-
-/** Upgrade the old renderer dump once on input; it is never written back. */
-export function migrateLayoutGeometry(value: unknown): LayoutGeometryData {
-  if (isRecord(value) && typeof value.layoutMode === "string") {
-    const legacy = value as unknown as StageData;
-    if (!Array.isArray(legacy.nodes) || !Array.isArray(legacy.edges) || !Array.isArray(legacy.lanes))
-      throw new Error("Invalid legacy Layout geometry.");
-    value = captureLayoutGeometry(legacy);
-  }
-  validateLayoutGeometryData(value);
-  return value;
 }
 
 export function validateLayoutGeometryData(
