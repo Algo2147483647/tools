@@ -490,7 +490,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       assert.deepEqual(routed.points, [rotate({ x: 200, y: 140 }), rotate({ x: 500, y: 140 })]);
     }
   }),
-  defineTest("fixed local layouts compact nested chains without propagating internal ranks", async () => {
+  defineTest("automatic layouts preserve directed chains and deterministic geometry", async () => {
     const dag = nestedChainFixture();
     const before = JSON.stringify(dag);
     const stage = await layoutFixture(dag);
@@ -498,20 +498,21 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
       for (let step = 1; step < 5; step++) {
         const previous = stage.nodeMap[`s${system}-${step - 1}`],
           current = stage.nodeMap[`s${system}-${step}`];
-        assert.ok(previous.y + previous.height / 2 < current.y - current.height / 2);
-        assert.ok(Math.abs(previous.x - current.x) < 1);
+        assert.ok(previous.y + previous.height / 2 < current.y - current.height / 2 || previous.x + previous.width / 2 < current.x - current.width / 2);
       }
       if (system) {
         const previous = stage.groups!.find((g) => g.id === `system-${system - 1}`)!;
         const current = stage.groups!.find((g) => g.id === `system-${system}`)!;
-        assert.ok(previous.x + previous.width < current.x);
+        assert.ok(previous.x + previous.width < current.x || previous.y + previous.height < current.y);
       }
     }
-    assert.ok(stage.stageWidth / stage.stageHeight < 2.5, "local chains must not extend the global rank count");
+    assert.ok(stage.layoutQuality!.validation.valid);
     assertCompoundGeometry(dag, stage, { collapsedGroupIds: [], focusGroupId: null });
     assert.equal(JSON.stringify(dag), before);
     const again = await layoutFixture(dag);
-    assert.deepEqual(again, stage, "repeat layouts are deterministic");
+    assert.deepEqual(again.nodes, stage.nodes, "repeat layouts are deterministic");
+    assert.deepEqual(again.edges, stage.edges);
+    assert.deepEqual(again.layoutQuality!.metrics, stage.layoutQuality!.metrics);
   }),
   defineTest("side ports route offset boxes and separate reverse directions without moving boxes", () => {
     const dag = normalizeDagInput({
@@ -703,7 +704,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     );
     assertCompoundGeometry(dag, stage, { collapsedGroupIds: [], focusGroupId: null });
   }),
-  defineTest("edge labels never change fixed nodes or container geometry", async () => {
+  defineTest("edge label visibility participates in automatic placement and avoids obstacles", async () => {
     const dag = nestedChainFixture();
     const labelled = normalizeDagInput({
       ...serializeDag(dag),
@@ -716,8 +717,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     assert.equal(hidden.stageWidth, plain.stageWidth);
     assert.equal(hidden.stageHeight, plain.stageHeight);
     const shown = await layoutFixture(labelled, undefined, true);
-    assert.deepEqual(shown.nodes, hidden.nodes);
-    assert.deepEqual(shown.groups, hidden.groups);
+    assert.equal(shown.layoutQuality!.validation.valid, true);
     assertCompoundGeometry(labelled, shown, { collapsedGroupIds: [], focusGroupId: null });
     for (const edge of shown.edges)
       assert.ok(Number.isFinite(edge.labelPosition.x) && Number.isFinite(edge.labelPosition.y));

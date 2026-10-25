@@ -1,7 +1,5 @@
-import { remapImportedLayoutData,repairLayoutData } from "../compound/layoutData";
 import { normalizeDagInput,validateNodeKey } from "../normalize";
 import { serializeDag } from "../serialize";
-import { remapImportedTimelineLayout,repairTimelineLayout } from "../timeline/layoutData";
 import type { GraphEdge,HierarchyEdge } from "../types";
 
 
@@ -150,8 +148,6 @@ export function analyzeGraphImport(
       }
     }
     if (incoming.metadata) {
-      remapImportedLayoutData(incoming, renameMap, edgeRenameMap);
-      remapImportedTimelineLayout(incoming, renameMap);
       output.metadata ??= {};
       mergeObject(output.metadata, incoming.metadata, index, "/metadata");
     }
@@ -172,8 +168,6 @@ export function analyzeGraphImport(
     }
   }
   if (parsed.length > 1) {
-    repairLayoutData(output, parsed[0]);
-    repairTimelineLayout(output);
     output.metadata ??= {};
     // Preserve all original document headers and metadata, even when a user chooses the existing merged value.
     const archiveKey = unique("importSources", Object.keys(output.metadata));

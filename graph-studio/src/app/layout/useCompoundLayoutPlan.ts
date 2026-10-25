@@ -1,321 +1,98 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from "react";
-import type { CompoundView } from "../../graph/types";
 import { buildCompoundLayoutContext } from "../../layout/compound/ai/context";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../../layout/compound/inspection";
-import {
-  defaultLayoutIntent,
-  layoutFingerprint,
-  parseLayoutIntent,
-  type LayoutSolveResult,
-} from "../../layout/compound/layout-plan";
-import { compareLayoutMetrics, validateLayoutGeometry } from "../../layout/compound/layout-quality";
-import { validateLayoutConstraints } from "../../layout/compound/layout-solver";
+import { defaultLayoutIntent, parseLayoutIntent, type CompoundLayoutData, type LayoutResult } from "../../layout/compound/layout-plan";
+import { compileConstraints, layoutScopeMembers } from "../../layout/compound/constraints";
+import { compareLayoutMetrics } from "../../layout/compound/layout-quality";
+import { automaticIntent } from "../../layout/compound/automatic";
+import type { LayoutFeedback } from "../../layout/compound/feedback";
 import type { StageData } from "../../layout/shared/types";
 import type { CompoundWorkerInput } from "../../layout/workers/protocol";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
-import { useCompoundReview, type LayoutReview } from "./useCompoundReview";
+import type { useCompoundStage } from "./useCompoundStage";
 import { startLayoutWorker, type LayoutWorkerJob } from "./workerJob";
 
-export function useCompoundLayoutPlan(
-  state: GraphAppState,
-  dispatch: Dispatch<GraphAction>,
-  viewport: {
-    stage: StageData | null;
-    focusedKey: string | null;
-    compound: { view: CompoundView };
-    compoundLayout: { inputKey: string; loading: boolean };
-  },
-) {
+export function useCompoundLayoutPlan(state: GraphAppState, dispatch: Dispatch<GraphAction>, viewport: {
+  stage: StageData | null; focusedKey: string | null;
+  compoundLayout: ReturnType<typeof useCompoundStage>;
+}) {
   const problem = viewport.stage?.compoundLayout;
-  const signature = layoutFingerprint([
-    state.document.id,
-    state.document.generation,
-    state.editHistory.revision,
-    state.chartType,
-    viewport.compoundLayout.inputKey,
-    viewport.focusedKey,
-    problem?.fingerprint,
-  ]);
-  const runtime = useRef({ signature, history: state.editHistory, epoch: 0 });
-  if (runtime.current.signature !== signature || runtime.current.history !== state.editHistory)
-    runtime.current = { signature, history: state.editHistory, epoch: runtime.current.epoch + 1 };
-  const key = `${runtime.current.epoch}:${signature}`;
-  const ready = state.chartType === "compound" && !!problem && !!state.dag && !viewport.compoundLayout.loading;
-  const current = useRef({ state, key, ready, problem, stage: viewport.stage });
-  current.current = { state, key, ready, problem, stage: viewport.stage };
-  const {
-    review,
-    setReview,
-    selected,
-    setSelected,
-    showCandidate,
-    setShowCandidate,
-    feedbackRef,
-    reviewRef,
-    stale,
-    candidate,
-    previewStage,
-  } = useCompoundReview(key, ready);
+  const settings = state.layoutDocument.data.charts.compound;
+  const key = JSON.stringify([state.document.generation, state.editHistory.revision, viewport.compoundLayout.inputKey, state.chartType]);
+  const ready = state.chartType === "compound" && !!problem && !viewport.compoundLayout.loading;
+  const current = useRef({ state, key, ready, problem, input: viewport.compoundLayout.input, stage: viewport.stage });
+  current.current = { state, key, ready, problem, input: viewport.compoundLayout.input, stage: viewport.stage };
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const pending = useRef<{ key: string; job: LayoutWorkerJob<LayoutSolveResult> } | null>(null);
   const sequence = useRef(0);
-  const cancel = useCallback(() => {
-    sequence.current++;
-    const active = pending.current;
-    if (active) {
-      pending.current = null;
-      active.job.cancel();
-      setMessage("Layout calculation cancelled.");
-    }
-    setBusy(false);
+  const pending = useRef<LayoutWorkerJob<LayoutResult> | null>(null);
+  // Only declarations and measured scores survive evaluation, never candidate geometry.
+  const evaluated = useRef<{ key: string; data: CompoundLayoutData; feedback: LayoutFeedback } | null>(null);
+  const cancel = useCallback(() => { sequence.current++; pending.current?.cancel(); pending.current = null; evaluated.current = null; setBusy(false); }, []);
+  useEffect(() => { cancel(); setMessage(""); return cancel; }, [key, cancel]);
+  const change = useCallback((patch: Partial<CompoundLayoutData>) => {
+    const now = current.current.state;
+    dispatch({ type: "layoutDocumentChanged", generation: now.document.generation,
+      data: { ...now.layoutDocument.data, charts: { ...now.layoutDocument.data.charts,
+        compound: { ...now.layoutDocument.data.charts.compound, ...patch } } } });
+  }, [dispatch]);
+  const defaultIntent = useMemo(() => ({ ...defaultLayoutIntent(problem?.projection.focusGroupId ?? null), objective: settings.objective,
+    constraints: settings.direction === "AUTO" ? [] : [{ type: "direction" as const, scopeId: problem?.projection.focusGroupId ?? null, value: settings.direction, strength: "soft" as const }] }), [problem?.projection.focusGroupId, settings.objective, settings.direction]);
+  const inspect = useCallback((groupId?: string | null) => {
+    const p = current.current.problem;
+    if (!p) throw new Error("No nested layout is available.");
+    return { ...inspectCompoundLayout(p, groupId === undefined ? p.projection.focusGroupId : groupId), ...diagnoseCompoundLayout(p) };
   }, []);
-  useEffect(() => {
-    if (pending.current && pending.current.key !== key) cancel();
-    if (reviewRef.current?.key !== key) setShowCandidate(false);
-  }, [key, cancel]);
-  useEffect(
-    () => () => {
-      const active = pending.current;
-      if (active) {
-        active.job.cancel();
-        pending.current = null;
-      }
-    },
-    [],
-  );
-  const apply = useCallback(
-    (candidateId?: string) => {
-      const active = reviewRef.current,
-        now = current.current;
-      const candidate =
-        active?.result.candidates.find((c) => c.id === candidateId) ??
-        (!candidateId ? active?.result.candidates[selected] : undefined);
-      if (
-        !active ||
-        !candidate ||
-        active.status !== "ready" ||
-        active.key !== now.key ||
-        !now.ready ||
-        !now.state.dag
-      ) {
-        setMessage("This layout candidate is stale. Generate a new preview.");
-        return false;
-      }
-      const errors = [
-        ...validateLayoutGeometry(active.problem, candidate.snapshot).errors,
-        ...validateLayoutConstraints(active.problem, candidate.snapshot, candidate.data, active.intent),
-      ];
-      if (errors.length) {
-        setMessage(errors.join(" "));
-        return false;
-      }
-      dispatch({
-        type: "compoundLayoutCommitted",
-        generation: now.state.document.generation,
-        revision: now.state.editHistory.revision,
-        beforeDag: now.state.dag,
-        historyBase: now.state.editHistory,
-        problem: active.problem,
-        intent: active.intent,
-        candidate,
-      });
-      const next = { ...active, status: "applied" as const };
-      reviewRef.current = next;
-      setReview(next);
-      setShowCandidate(false);
-      setMessage("Layout applied. Undo restores the previous layout.");
-      return true;
-    },
-    [dispatch, selected],
-  );
-  const propose = useCallback(
-    async (rawIntent: unknown, autoApply = false, options?: { background?: boolean; retainBest?: boolean }) => {
-      const initial = current.current;
-      if (!initial.ready || !initial.problem || !initial.stage)
-        throw new Error("Wait for a nested graph to finish rendering before arranging it.");
-      const intent = parseLayoutIntent(rawIntent);
-      const previous = options?.retainBest && reviewRef.current?.key === initial.key ? reviewRef.current : null;
-      cancel();
-      const requestSequence = sequence.current;
-      if (!previous) {
-        setReview(null);
-        reviewRef.current = null;
-      }
-      setShowCandidate(false);
-      setMessage("Calculating layout candidates…");
-      setBusy(true);
-      try {
-        const job = startLayoutWorker<CompoundWorkerInput, LayoutSolveResult>({
-          createWorker: () =>
-            new Worker(new URL("../../layout/workers/compound.worker.ts", import.meta.url), { type: "module" }),
-          payload: { problem: initial.problem, intent },
-          timeoutMs: 15000,
-          timeoutMessage: "Layout search exceeded 15 seconds. Use a smaller scope or fewer visible nodes.",
-          failureMessage: "Layout worker failed.",
-          invalidMessage: "Invalid layout worker response.",
-          cancelMessage: "Layout calculation cancelled.",
-        });
-        pending.current = { key: initial.key, job };
-        let result: LayoutSolveResult;
-        try {
-          result = await job.result;
-        } finally {
-          if (pending.current?.job === job) pending.current = null;
-        }
-        if (requestSequence !== sequence.current || current.current.key !== initial.key || !current.current.ready)
-          return "Layout result discarded because its graph or view changed.";
-        let next: LayoutReview = {
-          key: initial.key,
-          intent,
-          problem: initial.problem,
-          stage: initial.stage,
-          result,
-          status: "ready",
-        };
-        const oldBest = previous?.result.candidates[0],
-          newBest = result.candidates[0];
-        const retain =
-          !!oldBest && (!newBest || compareLayoutMetrics(oldBest.metrics, newBest.metrics, intent.objective) <= 0);
-        if (retain && previous) next = previous;
-        const retainedBest = next.result.candidates[0];
-        feedbackRef.current = {
-          intent: next.intent,
-          baseline: next.result.baselineMetrics,
-          candidate: retainedBest
-            ? {
-                id: retainedBest.id,
-                metrics: retainedBest.metrics,
-                warnings: retainedBest.unmetPreferences,
-                movedNodeIds: retainedBest.changedNodeIds,
-                changedEdgeIds: retainedBest.changedEdgeIds,
-              }
-            : null,
-          diagnostics: result.diagnostics,
-          retainedEarlierCandidate: retain,
-        };
-        reviewRef.current = next;
-        setReview(next);
-        setSelected(0);
-        setShowCandidate(!options?.background && next.result.candidates.length > 0);
-        const summary = next.result.candidates.length
-          ? `${next.result.candidates.length} legal layout candidate${next.result.candidates.length === 1 ? "" : "s"} ready for review.`
-          : result.diagnostics.join(" ");
-        setMessage(summary);
-        const best = result.candidates[0];
-        let applied = false;
-        if (
-          autoApply &&
-          best &&
-          intent.boundaryPolicy === "strict" &&
-          !intent.constraints.some((c) => c.type === "unpin") &&
-          !best.unmetPreferences.length &&
-          !best.expandedGroupIds.length
-        )
-          applied = apply(best.id);
-        if (applied) return `Layout applied (${best.id}). Undo restores the previous layout.`;
-        return result.candidates.length
-          ? `${summary}\n${result.candidates.map((candidate) => `${candidate.id}: ${candidate.title}`).join("\n")}`
-          : summary;
-      } catch (error) {
-        if (requestSequence === sequence.current && current.current.key === initial.key)
-          setMessage(error instanceof Error ? error.message : "Layout failed.");
-        throw error;
-      } finally {
-        if (requestSequence === sequence.current && current.current.key === initial.key) setBusy(false);
-      }
-    },
-    [cancel, apply],
-  );
-  const focused = problem?.projection.items.find((i) => i.id === viewport.focusedKey && !i.external);
-  const scopeId = focused
-    ? focused.kind === "group" && !focused.collapsed
-      ? focused.id
-      : (focused.parentId ?? viewport.compound.view.focusGroupId)
-    : viewport.compound.view.focusGroupId;
-  const defaultIntent = useMemo(() => defaultLayoutIntent(scopeId), [scopeId]);
-  const scopeTitle =
-    problem?.projection.items.find((item) => item.id === scopeId)?.title ?? (scopeId || "Current root");
-  const dismiss = () => {
+  const context = useMemo(() => ready ? buildCompoundLayoutContext(defaultIntent, inspect(), null) : undefined, [ready, defaultIntent, inspect, problem]);
+  const finishAi = useCallback(() => {
+    const value = evaluated.current;
+    if (!value || value.key !== current.current.key) return false;
+    change(value.data);
+    evaluated.current = null;
+    setMessage("Layout configuration applied.");
+    return true;
+  }, [change]);
+  const propose = useCallback(async (rawIntent: unknown, autoApply = true, options?: { background?: boolean; retainBest?: boolean }) => {
+    const initial = current.current;
+    if (!initial.ready || !initial.problem || !initial.input) throw new Error("Wait for the nested graph to finish arranging.");
+    const intent = parseLayoutIntent(rawIntent);
+    const previous = options?.retainBest && evaluated.current?.key === initial.key ? evaluated.current : null;
     cancel();
-    setReview(null);
-    reviewRef.current = null;
-    setShowCandidate(false);
-    setMessage("Layout preview dismissed.");
-  };
-  const diagnostics = useMemo(() => (problem ? diagnoseCompoundLayout(problem) : null), [problem]);
-  const reveal = useCallback(() => {
-    if (reviewRef.current?.key === current.current.key && reviewRef.current.status === "ready") setShowCandidate(true);
-  }, []);
-  const getFeedback = useCallback(() => feedbackRef.current, []);
-  const finishAi = useCallback(
-    (autoApply: boolean) => {
-      const active = reviewRef.current,
-        best = active?.result.candidates[0];
-      if (!active || !best || active.key !== current.current.key) return false;
-      if (
-        autoApply &&
-        active.intent.boundaryPolicy === "strict" &&
-        !active.intent.constraints.some((c) => c.type === "unpin") &&
-        !best.unmetPreferences.length &&
-        !best.expandedGroupIds.length &&
-        compareLayoutMetrics(best.metrics, active.result.baselineMetrics, active.intent.objective) < 0
-      )
-        return apply(best.id);
-      reveal();
-      return false;
-    },
-    [apply, reveal],
-  );
-  const inspect = useCallback(
-    (groupId?: string | null) => {
-      const now = current.current;
-      if (!now.problem) throw new Error("No nested layout is available.");
-      const p = now.problem;
-      const scope = groupId === undefined ? defaultIntent.scope.groupId : groupId;
-      return { ...inspectCompoundLayout(p, scope), ...diagnostics };
-    },
-    [defaultIntent, diagnostics],
-  );
-  const context = useMemo(
-    () =>
-      ready
-        ? buildCompoundLayoutContext(
-            defaultIntent,
-            inspect(),
-            review && !stale && review.status === "ready"
-              ? { intent: review.intent, candidateIds: review.result.candidates.map((c) => c.id) }
-              : null,
-          )
-        : undefined,
-    [ready, defaultIntent, inspect, review, stale],
-  );
-  return {
-    ready,
-    key,
-    context,
-    busy,
-    message,
-    review,
-    candidate,
-    stale,
-    selected,
-    setSelected,
-    showCandidate,
-    setShowCandidate,
-    previewStage,
-    defaultIntent,
-    scopeTitle,
-    reveal,
-    getFeedback,
-    finishAi,
-    propose,
-    apply,
-    dismiss,
-    cancel,
-    inspect,
-    focusedKey: focused?.id ?? null,
+    const id = sequence.current;
+    const compiled = compileConstraints(initial.problem, intent, layoutScopeMembers(initial.problem, intent));
+    const data: CompoundLayoutData = { ...compiled, method: "ai", objective: intent.objective };
+    setBusy(true); setMessage("Arranging…");
+    try {
+      const { buildCompoundStage } = await import("../../layout/compound/layout");
+      const stage = await buildCompoundStage({ ...initial.input, layout: data, solve: problem => {
+        if (id !== sequence.current || current.current.key !== initial.key) throw new Error("Layout cancelled.");
+        const job = startLayoutWorker<CompoundWorkerInput, LayoutResult>({
+          createWorker: () => new Worker(new URL("../../layout/workers/compound.worker.ts", import.meta.url), { type: "module" }),
+          payload: { problem, intent: automaticIntent(problem) }, timeoutMs: 15000,
+          timeoutMessage: "Layout exceeded 15 seconds. Reduce the visible scope.", failureMessage: "Layout worker failed.",
+          invalidMessage: "Invalid layout result.", cancelMessage: "Layout cancelled.",
+        }); pending.current = job; return job.result;
+      } });
+      if (id !== sequence.current || current.current.key !== initial.key) throw new Error("Layout context changed.");
+      const metrics = stage.layoutQuality!.metrics;
+      const feedback: LayoutFeedback = { intent, baseline: initial.stage!.layoutQuality!.metrics,
+        candidate: { id: "evaluated", metrics, warnings: stage.warnings, movedNodeIds: [], changedEdgeIds: [] },
+        diagnostics: stage.warnings, retainedEarlierCandidate: false };
+      const retain = previous?.feedback.candidate && compareLayoutMetrics(previous.feedback.candidate.metrics, metrics, intent.objective) <= 0;
+      evaluated.current = retain && previous ? { ...previous, feedback: { ...previous.feedback, retainedEarlierCandidate: true } } : { key: initial.key, data, feedback };
+      if (autoApply) finishAi();
+      return "Layout evaluated.";
+    } catch (error) {
+      if (id === sequence.current) setMessage(error instanceof Error ? error.message : "Layout failed.");
+      throw error;
+    } finally { if (id === sequence.current) { pending.current = null; setBusy(false); } }
+  }, [cancel, finishAi]);
+  return { ready, key, context, busy, message, settings, change, defaultIntent, inspect, propose, finishAi, cancel,
+    getFeedback: () => evaluated.current?.feedback ?? null,
+    scopeTitle: problem?.projection.focusGroupId ?? "Current view",
+    quality: viewport.stage?.layoutQuality, diagnostics: viewport.stage?.warnings ?? [],
+    loading: viewport.compoundLayout.loading, error: viewport.compoundLayout.error,
   };
 }
 export type CompoundLayoutController = ReturnType<typeof useCompoundLayoutPlan>;

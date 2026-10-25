@@ -1,5 +1,18 @@
 import type { CompoundProjection } from "../../graph/compound/projection";
-import type { LayoutSnapshot, CompoundLayoutData } from "../../graph/compound/layoutData";
+import type { CompoundLayoutData } from "../../graph/compound/layoutData";
+
+import type { CompoundBox, CompoundRoute } from "../../graph/compound/geometry";
+export interface LayoutGeometry {
+  boxes: Record<string, CompoundBox>;
+  routes: Record<string, CompoundRoute>;
+  width: number;
+  height: number;
+}
+export interface LayoutResult {
+  geometry: LayoutGeometry;
+  quality: { metrics: LayoutMetrics; validation: LayoutValidation; elapsedMs: number };
+  diagnostics: string[];
+}
 
 export const COMPOUND_LAYOUT_VERSION = "compound-plan-1";
 
@@ -24,7 +37,7 @@ export interface LayoutProblem {
   viewKey: string;
   minimumSizes: Record<string, { width: number; height: number }>;
   projection: CompoundProjection;
-  baseline: LayoutSnapshot;
+  baseline: LayoutGeometry;
   fingerprint: string;
   showLabels: boolean;
   labelSizes: Record<string, { width: number; height: number }>;
@@ -36,7 +49,7 @@ export interface LayoutProblem {
 export interface LayoutCandidate {
   id: string;
   title: string;
-  snapshot: LayoutSnapshot;
+  geometry: LayoutGeometry;
   data: CompoundLayoutData;
   metrics: LayoutMetrics;
   validation: LayoutValidation;
@@ -57,18 +70,10 @@ export {
   type LayoutObjective,
   type LayoutConstraint,
   type LayoutIntent,
-  type LayoutPin,
-  type LayoutSnapshot,
   type CompoundLayoutData,
   emptyLayoutData,
   parseLayoutConstraint,
   parseLayoutIntent,
   defaultLayoutIntent,
   layoutFingerprint,
-  layoutMetadataValue,
-  readLayoutData,
-  parseLayoutSnapshot,
-  writeLayoutData,
-  remapImportedLayoutData,
-  repairLayoutData,
 } from "../../graph/compound/layoutData";

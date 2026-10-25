@@ -1,0 +1,64 @@
+(node:4796) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Timeline AI arrangement
+  PASS strict plans reject graph edits, unknown references, duplicate IDs and invalid spacing
+  PASS AI changes track geometry while preserving calendar/relative dates, ports and both orientations
+  PASS AI prioritizes independent chains without breaking sequence alignment, pins or protocol rows
+  PASS saved AI profiles toggle reversibly and the applied layout matches the evaluated preview
+  PASS committing is one undoable edit and stale document/history results are rejected
+  PASS rename and delete repair independent event references
+  PASS model context is bounded and only includes layout data
+  PASS provider requests use the configured model, repair invalid JSON once and never execute graph commands
+
+AI layout feedback
+  PASS feedback is sent once and refinement has a fixed two-evaluation budget
+  PASS refinements preserve scope, objective and selected direction
+  PASS inspection feeds a scoped result back before proposing geometry
+  PASS a failed feedback request preserves locally computed results
+  PASS cancellation prevents additional model requests and graph commands are rejected
+  PASS the result summary does not claim improvement for equal or worse metrics
+  PASS routing diagnostics identify original edges, crowded ports and unrelated containers
+
+Compound layout planning
+  PASS protocol rejects snapshots, coordinates, pins and route-only requests
+  PASS AI and console share declarative intent and no longer accept review commands
+  PASS automatic first render selects valid deterministic geometry and reports its quality
+  PASS legacy geometry is discarded at graph load and cannot return through save
+  PASS layout edits undo without dirtying graph and stale imports cannot replace another document
+  PASS graph renames and deletion repair layout references in the same undo transaction
+  PASS workspace loads a sidecar, respects explicit binding and falls back on invalid data
+  PASS folded connections report incompatible original edge port preferences
+
+Compound routing clearance
+  PASS fan-out uses separate ports without moving nodes or depending on input order
+(node:4796) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  PASS Commerce routing separates shared runs and avoids unrelated groups with fixed rectangles
+
+Compound hierarchy, projection and layout
+  PASS context menus stay within the viewport and flyouts flip or fall back to one panel
+  PASS rounded routes preserve endpoints and clamp bends on short and repeated segments
+  PASS context menus distinguish G connections, H membership and external summaries
+  PASS adding a group member is one atomic undoable edit and adds no G relationship
+  PASS v3 preserves independent G and H and rejects v2
+  PASS new containment validation rejects dangling edges, cycles, duplicate IDs and multiple parents; old hierarchy is rejected
+  PASS parent nodes retain fields and can be ordinary edge endpoints in every compound view
+  PASS deep hierarchies validate and index without recursive stack overflow
+  PASS nested folding preserves original edges and uses the outermost collapsed ancestor
+  PASS drill-down retains isolated members and incoming/outgoing external boundaries
+  PASS folded and external summaries merge mixed relationships by directed visible endpoints
+  PASS type filtering retains ancestor containers without synthesizing paths
+  PASS grouping, moving and dissolving preserve ordinary relationships and reject cycles atomically
+  PASS node rename/delete repair H and undo restores complete hierarchy
+  PASS ordinary node-link ignores H and keeps disconnected cyclic components
+  PASS compound and ordinary chart switching preserves the same document
+  PASS merging documents preserves and remaps incoming hierarchy
+  PASS fixed-layout routing preserves cross-boundary and reverse edges in expanded, folded and focused views
+  PASS hierarchy import conflicts require explicit parent choices and remap renamed groups
+  PASS membership import resolves parent and ID conflicts without silently creating two parents
+  PASS special object-key IDs remain ordinary members and stale focus falls back safely
+  PASS commerce workspace demonstrates nested groups and complete relationship provenance
+
+Summary: 47 passed, 0 failed

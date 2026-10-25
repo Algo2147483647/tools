@@ -3,7 +3,6 @@ import { DEFAULT_GRAPH_APPEARANCE } from "../../schema/appearance/defaults";
 import { buildCategoryColorMap } from "../../graph/categoryColors";
 import { getTimelineRelation, parseNodeTimeline, parseTimelineDate } from "../../graph/timeline/time";
 import { getTimelineClock } from "../../graph/timeline/clock";
-import { readTimelineLayout } from "../../graph/timeline/layoutData";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../schema/appearance/contract";
 import { collectDescendantKeys } from "../../graph/traversal";
 import { stageTitleFont, type StageAppearance } from "../shared/appearance";
@@ -15,13 +14,7 @@ import { compareKeys } from "./ordering";
 const DAY = 86_400_000;
 export function prepareTimeline(input: TimelineLayoutInput) {
   const { dag, appearance = DEFAULT_GRAPH_APPEARANCE, showNodeDetail = false } = input;
-  const savedLayout = readTimelineLayout(dag);
-  const arrangement =
-    input.arrangement === undefined
-      ? savedLayout.data.mode === "ai"
-        ? savedLayout.data.plan
-        : undefined
-      : input.arrangement;
+  const arrangement = input.arrangement;
   const settings = sanitizeTimelineSettings({
     ...input.timelineSettings,
     ...(arrangement?.edgeRouting ? { edgeRouting: arrangement.edgeRouting } : {}),
@@ -120,7 +113,6 @@ export function prepareTimeline(input: TimelineLayoutInput) {
   const warnings = entries
     .filter((entry) => entry.time.status === "invalid")
     .map((entry) => `${entry.key}: ${entry.time.status === "invalid" ? entry.time.message : ""}`);
-  if (savedLayout.warning) warnings.push(savedLayout.warning);
   const missingCount = entries.filter((entry) => entry.time.status === "missing").length;
   if (missingCount)
     warnings.push(

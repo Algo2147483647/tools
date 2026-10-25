@@ -1,9 +1,3 @@
-import { solveCompoundLayout } from "../compound/layout-solver";
+import { arrangeCompound } from "../compound/automatic";
 import { handleLayoutWorker, type CompoundWorkerInput } from "./protocol";
-
-// The measured boxes and label sizes come from the main thread.
-handleLayoutWorker(
-  self,
-  ({ problem, intent }: CompoundWorkerInput) => solveCompoundLayout(problem, intent),
-  "Layout worker failed.",
-);
+handleLayoutWorker(self, ({ problem, intent }: CompoundWorkerInput) => arrangeCompound(problem, intent), "Layout worker failed.");

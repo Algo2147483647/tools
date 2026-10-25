@@ -3,15 +3,14 @@ import { parseLayoutIntent, type LayoutIntent } from "../layout/compound/layout-
 export type CompoundLayoutInstruction =
   | { type: "inspect" | "diagnose"; groupId?: string | null }
   | { type: "propose"; intent: LayoutIntent }
-  | { type: "compare" | "apply"; candidateId: string }
   | { type: "cancel" };
 export function parseCompoundLayoutCommand(source: string): CompoundLayoutInstruction {
   const match = source
     .trim()
-    .match(/^\/compound-layout\s+(inspect|diagnose|propose|compare|apply|cancel)(?:\s+([\s\S]*))?$/);
+    .match(/^\/compound-layout\s+(inspect|diagnose|propose|cancel)(?:\s+([\s\S]*))?$/);
   if (!match)
     throw new Error(
-      "Use /compound-layout inspect, diagnose, propose <JSON>, compare <candidate-id>, apply <candidate-id>, or cancel.",
+      "Use /compound-layout inspect, diagnose, propose <JSON>, or cancel.",
     );
   const action = match[1],
     argument = match[2]?.trim();
@@ -23,6 +22,5 @@ export function parseCompoundLayoutCommand(source: string): CompoundLayoutInstru
     if (argument) throw new Error("Cancel does not accept arguments.");
     return { type: action };
   }
-  if (!argument) throw new Error("A candidate ID is required.");
-  return { type: action as "compare" | "apply", candidateId: argument };
+  throw new Error("Unsupported layout command.");
 }

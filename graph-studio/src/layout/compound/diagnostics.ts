@@ -1,8 +1,8 @@
-import type { LayoutProblem, LayoutSnapshot } from "./layout-plan";
+import type { LayoutProblem, LayoutGeometry } from "./layout-plan";
 import { close, GEOMETRY_EPSILON, routeSegments, segmentCrossesBox } from "./layout-quality";
 
 /** Bounded, actionable evidence. IDs refer to original business edges, never guessed labels. */
-export function routingHotspots(problem: LayoutProblem, snapshot: LayoutSnapshot = problem.baseline) {
+export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry = problem.baseline) {
   const edges = problem.projection.edges.slice(0, 200);
   const items = new Map(problem.projection.items.map((item) => [item.id, item]));
   const ancestors = (id: string) => {
@@ -21,7 +21,7 @@ export function routingHotspots(problem: LayoutProblem, snapshot: LayoutSnapshot
   const ports = new Map<string, { nodeId: string; edgeIds: string[] }>();
   const groups = new Map<string, { sourceGroupId: string | null; targetGroupId: string | null; edgeIds: string[] }>();
   const segments = edges.flatMap((edge) =>
-    routeSegments(snapshot.routes[edge.id]?.points ?? []).map(([a, b]) => ({ edge, a, b })),
+    routeSegments(geometry.routes[edge.id]?.points ?? []).map(([a, b]) => ({ edge, a, b })),
   );
   let comparisons = 0;
   outer: for (let i = 0; i < segments.length; i++) {
@@ -55,7 +55,7 @@ export function routingHotspots(problem: LayoutProblem, snapshot: LayoutSnapshot
     }
   }
   for (const edge of edges) {
-    const points = snapshot.routes[edge.id]?.points ?? [];
+    const points = geometry.routes[edge.id]?.points ?? [];
     const first = points[0],
       last = points.at(-1);
     if (!first || !last) continue;
@@ -82,7 +82,7 @@ export function routingHotspots(problem: LayoutProblem, snapshot: LayoutSnapshot
       targetAncestors = ancestors(edge.target);
     for (const item of problem.projection.items) {
       if (item.kind !== "group" || item.collapsed || containerPassages.length >= 24) continue;
-      const box = snapshot.boxes[item.id];
+      const box = geometry.boxes[item.id];
       if (!box) continue;
       const unrelated = !sourceAncestors.has(item.id) && !targetAncestors.has(item.id);
       if (parts.some(([a, b]) => segmentCrossesBox(a, b, { ...box, height: Math.min(40, box.height) })))

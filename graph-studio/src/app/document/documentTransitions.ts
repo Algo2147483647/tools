@@ -50,7 +50,12 @@ export function replaceDocument(
               ? "sankey"
               : "node-link"
       : state.chartType,
-    layout: state.layout,
+    layoutDocument: action.type === "graphLoaded" ? {
+      data: action.linkedLayout ?? initial.layoutDocument.data,
+      saved: action.linkedLayout ?? initial.layoutDocument.saved,
+      source: action.layoutSource ?? "Default", notice: action.layoutNotice ?? "",
+    } : initial.layoutDocument,
+    layout: { mode: action.type === "graphLoaded" && action.linkedLayout ? action.linkedLayout.charts["node-link"].method : initial.layoutDocument.data.charts["node-link"].method },
     ui: {
       ...initial.ui,
       consoleSidebarOpen: state.ui.consoleSidebarOpen,
@@ -70,7 +75,9 @@ export function traverseEditHistory(state: GraphAppState, direction: "undo" | "r
   return {
     ...state,
     dag: undo ? transaction.beforeDag : transaction.afterDag,
-    source: { ...state.source, dirty: revision !== state.editHistory.savedRevision },
+    layoutDocument: { ...state.layoutDocument, data: (undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutDocument.data },
+    layout: { mode: ((undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutDocument.data).charts["node-link"].method },
+    source: { ...state.source, dirty: (undo ? transaction.beforeDag : transaction.afterDag) !== state.document.savedDag },
     selection: undo ? transaction.beforeSelection : transaction.afterSelection,
     history: undo ? transaction.beforeNavigationHistory : transaction.afterNavigationHistory,
     editHistory: {

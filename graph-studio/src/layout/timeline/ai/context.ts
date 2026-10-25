@@ -1,12 +1,11 @@
 import { getNodeTitle } from "../../../graph/accessors";
 import { getTimelineClock } from "../../../graph/timeline/clock";
-import { readTimelineLayout } from "../../../graph/timeline/layoutData";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../../schema/appearance/contract";
 import type { StageData } from "../../shared/types";
 import type { TimelineLayoutInput } from "../layout-candidate";
 
 export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageData, focus?: string | null) {
-  const saved = readTimelineLayout(input.dag).data;
+  const saved = { mode: input.arrangement ? "ai" : "algorithm", plan: input.arrangement };
   const currentPlan =
     input.arrangement === undefined ? (saved.mode === "ai" ? saved.plan : undefined) : input.arrangement;
   const currentSettings = sanitizeTimelineSettings({

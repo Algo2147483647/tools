@@ -1,4 +1,4 @@
-import type { LayoutIntent, LayoutProblem, LayoutSolveResult } from "../compound/layout-plan";
+import type { LayoutIntent, LayoutProblem, LayoutResult } from "../compound/layout-plan";
 import type { StageData } from "../shared/types";
 import type { TimelineLayoutInput } from "../timeline/input-types";
 import type { TimelineLayoutCandidate } from "../timeline/layout-candidate";
@@ -22,7 +22,7 @@ export interface TimelineWorkerInput {
   plan: unknown;
 }
 
-export type CompoundWorkerResponse = LayoutWorkerResponse<LayoutSolveResult>;
+export type CompoundWorkerResponse = LayoutWorkerResponse<LayoutResult>;
 export type TimelineWorkerResponse = LayoutWorkerResponse<TimelineLayoutCandidate>;
 
 interface LayoutWorkerScope<Input, Result> {

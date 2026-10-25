@@ -27,12 +27,12 @@
   border-radius: 8px;
   background: #f8fafc;
 }
-.compound-layout-previews .timeline-layout-preview > svg {
+.timeline-review-previews .timeline-layout-preview > svg {
   border: 0;
   border-radius: 0;
   max-width: none;
 }
-.compound-layout-backdrop {
+.timeline-review-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -41,7 +41,7 @@
   padding: 20px;
   background: #14233780;
 }
-.compound-layout-dialog {
+.timeline-review-dialog {
   width: min(1100px, 94vw);
   max-height: 90vh;
   overflow: auto;
@@ -54,20 +54,20 @@
     13px/1.5 "Segoe UI",
     sans-serif;
 }
-.compound-layout-dialog header,
-.compound-layout-dialog footer,
-.compound-layout-choice {
+.timeline-review-dialog header,
+.timeline-review-dialog footer,
+.timeline-review-choice {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
-.compound-layout-dialog h2,
-.compound-layout-dialog header p {
+.timeline-review-dialog h2,
+.timeline-review-dialog header p {
   margin: 0 0 8px;
 }
-.compound-layout-dialog button,
-.compound-layout-dialog select {
+.timeline-review-dialog button,
+.timeline-review-dialog select {
   padding: 8px 12px;
   border: 1px solid var(--studio-border, #ccd7e3);
   border-radius: 7px;
@@ -75,32 +75,32 @@
   color: inherit;
   background: var(--studio-surface, #fff);
 }
-.compound-layout-dialog button {
+.timeline-review-dialog button {
   cursor: pointer;
 }
-.compound-layout-dialog button:disabled {
+.timeline-review-dialog button:disabled {
   opacity: 0.45;
   cursor: default;
 }
-.compound-layout-dialog footer {
+.timeline-review-dialog footer {
   justify-content: flex-end;
   margin-top: 18px;
 }
-.compound-layout-dialog footer button:last-child {
+.timeline-review-dialog footer button:last-child {
   background: #1d5f9e;
   color: #fff;
 }
-.compound-layout-previews {
+.timeline-review-previews {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin: 14px 0;
 }
-.compound-layout-previews figure {
+.timeline-review-previews figure {
   margin: 0;
   min-width: 0;
 }
-.compound-layout-previews svg {
+.timeline-review-previews svg {
   display: block;
   width: 100%;
   height: 280px;
@@ -108,28 +108,28 @@
   border: 1px solid #dce4ec;
   border-radius: 8px;
 }
-.compound-layout-dialog table {
+.timeline-review-dialog table {
   border-collapse: collapse;
   width: 100%;
 }
-.compound-layout-dialog th,
-.compound-layout-dialog td {
+.timeline-review-dialog th,
+.timeline-review-dialog td {
   padding: 5px 9px;
   text-align: right;
   border-bottom: 1px solid var(--studio-border, #e4eaf1);
 }
-.compound-layout-dialog th:first-child,
-.compound-layout-dialog td:first-child {
+.timeline-review-dialog th:first-child,
+.timeline-review-dialog td:first-child {
   text-align: left;
 }
 @media (max-width: 700px) {
-  .compound-layout-previews {
+  .timeline-review-previews {
     grid-template-columns: 1fr;
   }
-  .compound-layout-previews svg {
+  .timeline-review-previews svg {
     height: 190px;
   }
-  .compound-layout-choice {
+  .timeline-review-choice {
     flex-wrap: wrap;
   }
 }
@@ -336,3 +336,11 @@
   color: #a12d36;
   margin-top: 16px;
 }
+
+.layout-document-controls { padding-bottom: 14px; border-bottom: 1px solid var(--studio-border); }
+.layout-document-controls .layout-actions { flex-wrap: wrap; }
+.layout-document-controls .layout-status { overflow-wrap: anywhere; }
+.layout-quality { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--studio-border); }
+.layout-quality h3 { margin: 0 0 8px; font-size: 13px; }
+.layout-quality details { margin-top: 10px; }
+.layout-quality summary { cursor: pointer; }

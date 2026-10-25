@@ -9,8 +9,8 @@ import { defaultLayoutIntent, type LayoutMetrics } from "../layout/compound/layo
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
-const intent = { ...defaultLayoutIntent(), operation: "route-only" as const };
-const proposal: AiResponse = { kind: "propose_layout", layoutProtocolVersion: 1, answer: "Try routes only.", intent };
+const intent = { ...defaultLayoutIntent(), operation: "layout-and-route" as const };
+const proposal: AiResponse = { kind: "propose_layout", layoutProtocolVersion: 1, answer: "Arrange the graph.", intent };
 const metrics: LayoutMetrics = {
   crossings: 4,
   sharedLength: 20,
@@ -56,28 +56,11 @@ export const layoutWorkflowSuite = defineSuite("AI layout feedback", [
     assert.equal(asks, 1);
     assert.deepEqual(retained, [false, true]);
   }),
-  defineTest("panel permissions and refinements reject scope expansion, movement and pin release", () => {
-    assert.throws(
-      () => constrainLayoutProposal({ ...intent, operation: "layout-and-route" }, intent, true),
-      /nodes fixed/,
-    );
-    assert.throws(
-      () => constrainLayoutProposal({ ...intent, scope: { groupId: "other", includeDescendants: true } }, intent),
-      /scope/,
-    );
-    assert.throws(
-      () => constrainLayoutProposal({ ...intent, boundaryPolicy: "allow-ancestor-resize" }, intent),
-      /surrounding/,
-    );
-    assert.throws(
-      () => constrainLayoutProposal({ ...intent, constraints: [{ type: "unpin", nodeId: "a" }] }, intent, true),
-      /release/,
-    );
-    const locked = {
-      ...intent,
-      constraints: [{ type: "pin" as const, nodeId: "a", space: "canvas" as const, strength: "hard" as const }],
-    };
-    assert.throws(() => constrainLayoutProposal(intent, locked), /removed/);
+  defineTest("refinements preserve scope, objective and selected direction", () => {
+    assert.throws(() => constrainLayoutProposal({ ...intent, scope: { groupId: "other", includeDescendants: true } }, intent), /scope/);
+    assert.throws(() => constrainLayoutProposal({ ...intent, objective: "compact" }, intent), /objective/);
+    const selected = { ...intent, constraints: [{ type: "direction" as const, scopeId: null, value: "DOWN" as const, strength: "soft" as const }] };
+    assert.throws(() => constrainLayoutProposal(intent, selected, true), /removed/);
   }),
   defineTest("inspection feeds a scoped result back before proposing geometry", async () => {
     let evaluations = 0;
@@ -136,7 +119,7 @@ export const layoutWorkflowSuite = defineSuite("AI layout feedback", [
           evaluate: async () => feedback,
           ask: async () => proposal,
         }),
-      /appearance-set proposals/,
+      /layout proposals/,
     );
   }),
   defineTest("the result summary does not claim improvement for equal or worse metrics", () => {

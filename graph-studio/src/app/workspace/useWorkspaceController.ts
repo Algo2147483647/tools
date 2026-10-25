@@ -1,3 +1,4 @@
+import type { LinkedLayout } from "../../workspace/linkedLayout";
 import { type ChangeEvent, type Dispatch, useEffect, useRef, useState } from "react";
 import { downloadJsonFile } from "../../shared/browser/download";
 import {
@@ -50,7 +51,7 @@ export function useWorkspaceController({
 
   function mayReplace() {
     return (
-      !stateRef.current.source.dirty ||
+      (!stateRef.current.source.dirty && JSON.stringify(stateRef.current.layoutDocument.data) === JSON.stringify(stateRef.current.layoutDocument.saved)) ||
       window.confirm(
         `"${stateRef.current.source.fileName}" has unsaved changes. Discard them and open another document?`,
       )
@@ -72,13 +73,16 @@ export function useWorkspaceController({
     dag: ReturnType<typeof normalizeDagInput>,
     entry: WorkspaceFile,
     locationId: string,
-    style: Awaited<ReturnType<typeof readLinkedStyle>> = {},
+    style: Awaited<ReturnType<typeof readLinkedStyle>> & LinkedLayout = {},
   ) {
     dispatch({
       type: "graphLoaded",
       documentId: documentIdentity(locationId, entry.path),
       dag,
       linkedStyle: style.linkedStyle,
+      linkedLayout: style.linkedLayout,
+      layoutSource: style.layoutSource,
+      layoutNotice: style.layoutNotice,
       fileName: entry.path,
       fileHandle: entry.handle,
       selection: getInitialSelection(dag),

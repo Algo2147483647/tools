@@ -37,7 +37,7 @@ export async function runLayoutWorkflow(options: {
         inspection: response.kind === "inspect_layout" ? options.inspect(response.scopeId) : undefined,
         evaluation: feedback,
         instruction:
-          "Assess measured results. Return answer to finish, or one revised propose_layout. Keep the same scope, objective, locks and movement permissions. If more space or unsupported routing features are needed, explain the limitation; do not expand scope. Never claim an unmeasured improvement.",
+          "Assess measured results. Return answer to finish, or one revised propose_layout. Keep the same scope, objective and selected preferences. If more space or unsupported routing features are needed, explain the limitation; do not expand scope. Never claim an unmeasured improvement.",
       });
     } catch (error) {
       if (!feedback || !options.isCurrent()) throw error;

@@ -88,15 +88,15 @@ function ExampleArt({ kind, color }: { kind: (typeof EXAMPLE_WORKSPACES)[number]
             </g>
           ))}
         </>
-      ) : kind === "commerce" ? (
+      ) : kind === "commerce" || kind === "graph-studio" ? (
         <g stroke={color}>
           <rect x="22" y="16" width="200" height="100" rx="9" fill="white" fillOpacity=".7" strokeOpacity=".5" />
           <text x="34" y="34" fill={color} stroke="none" fontSize="11">
-            Commerce
+            {kind === "graph-studio" ? "Graph Studio" : "Commerce"}
           </text>
           <rect x="34" y="45" width="115" height="59" rx="7" fill={color} fillOpacity=".06" strokeOpacity=".4" />
           <text x="45" y="62" fill={color} stroke="none" fontSize="10">
-            Payments
+            {kind === "graph-studio" ? "Transactions" : "Payments"}
           </text>
           <rect x="45" y="73" width="43" height="20" rx="5" fill="white" />
           <rect x="99" y="73" width="37" height="20" rx="5" fill="white" />

@@ -1,4 +1,4 @@
-import { activePins, buildScopes } from "./constraints";
+import { buildScopes } from "./constraints";
 import { type CompoundLayoutData, type LayoutDirection, type LayoutIntent, type LayoutProblem } from "./layout-plan";
 import { boxesOverlap } from "./layout-quality";
 import type { CompoundBox } from "../../graph/compound/geometry";
@@ -11,7 +11,6 @@ export function place(
   members: Set<string>,
   direction: LayoutDirection,
 ) {
-  if (intent.operation === "route-only") return structuredClone(problem.baseline.boxes);
   const { scopes, parents } = buildScopes(problem.projection);
   const rootScope = intent.scope.groupId === problem.projection.focusGroupId ? null : intent.scope.groupId;
   const active = new Set<string | null>([rootScope]);
@@ -27,14 +26,6 @@ export function place(
   const baseline = problem.baseline.boxes;
   const sizes = new Map(Object.entries(baseline).map(([id, b]) => [id, { width: b.width, height: b.height }]));
   const locals = new Map<string, CompoundBox>();
-  const anchored = new Set<string>();
-  for (const pin of activePins(problem, data).filter((p) => p.space === "canvas" && parents.has(p.nodeId))) {
-    let parent = parents.get(pin.nodeId);
-    while (parent != null) {
-      anchored.add(parent);
-      parent = parents.get(parent);
-    }
-  }
   let evaluations = 0;
   for (const [scopeId, scope] of [...scopes].reverse()) {
     const origin = scopeId === null ? { x: 0, y: 0 } : baseline[scopeId];
@@ -61,16 +52,7 @@ export function place(
       const fixed = new Map<string, CompoundBox>();
       for (const id of scope.children) {
         const item = problem.projection.items.find((i) => i.id === id)!;
-        const pin = activePins(problem, data).find(
-          (p) => p.nodeId === id && p.parentId === (scopeId ?? problem.projection.focusGroupId),
-        );
-        if (pin)
-          fixed.set(id, {
-            ...sizes.get(id)!,
-            x: pin.x - (pin.space === "canvas" ? origin.x : 0),
-            y: pin.y - (pin.space === "canvas" ? origin.y : 0),
-          });
-        else if (anchored.has(id) || item.external) fixed.set(id, { ...original.get(id)!, ...sizes.get(id)! });
+        if (item.external) fixed.set(id, { ...original.get(id)!, ...sizes.get(id)! });
       }
       const limit =
         intent.boundaryPolicy === "strict" && scopeId === rootScope && scopeId !== null ? baseline[scopeId] : null;

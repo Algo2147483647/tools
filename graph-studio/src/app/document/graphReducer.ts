@@ -1,17 +1,12 @@
+import { parseLayoutDocument, repairLayoutDocument, type LayoutDocument } from "../../schema/layoutProtocol";
 import { getSankeyError } from "../../graph/sankey";
-import { serializeDag } from "../../graph/serialize";
-import { normalizeDagInput } from "../../graph/normalize";
-import { COMPOUND_LAYOUT_VERSION, writeLayoutData } from "../../layout/compound/layout-plan";
-import { validateLayoutGeometry } from "../../layout/compound/layout-quality";
-import { validateLayoutConstraints } from "../../layout/compound/layout-solver";
-import { prepareGraphTransaction } from "./graphTransactions";
 import { areSelectionsEqual } from "../../graph/selectors";
-import { getGraphChartLabel, getGraphLayoutLabel } from "../../graph/types";
+import { getGraphChartLabel } from "../../graph/types";
 import type { GraphAction } from "./graphActions";
 import type { GraphAppState } from "./initialState";
 import { clampConsoleSidebarWidth } from "../preferences/preferences";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../schema/appearance/contract";
-import { parseTimelineLayoutPlan, writeTimelineLayout } from "../../graph/timeline/layoutData";
+import { parseTimelineLayoutPlan } from "../../graph/timeline/layoutData";
 
 import { replaceDocument, traverseEditHistory, pushEditTransaction } from "./documentTransitions";
 
@@ -43,14 +38,8 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         const plan = action.data.plan ? parseTimelineLayoutPlan(action.data.plan) : undefined;
         if (plan?.eventOrder.some((id) => !Object.prototype.hasOwnProperty.call(state.dag!.nodes, id)))
           throw new Error("Timeline layout references an unknown event.");
-        const document = serializeDag(state.dag);
-        writeTimelineLayout(document, { version: 1, mode: action.data.mode, ...(plan ? { plan } : {}) });
-        const transaction = prepareGraphTransaction(
-          state,
-          [{ dag: normalizeDagInput(document), changedKeys: [] }],
-          action.data.mode === "ai" ? "Using AI timeline layout." : "Using Algorithm timeline layout.",
-        );
-        return transaction ? reduceGraphState(state, transaction) : state;
+        return commitLayout(state, { ...state.layoutDocument.data, charts: { ...state.layoutDocument.data.charts,
+          timeline: { version: 1, mode: action.data.mode, ...(plan ? { plan } : {}) } } });
       } catch (error) {
         return {
           ...state,
@@ -58,37 +47,19 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         };
       }
     }
-    case "compoundLayoutCommitted": {
-      if (
-        state.chartType !== "compound" ||
-        action.generation !== state.document.generation ||
-        action.revision !== state.editHistory.revision ||
-        action.beforeDag !== state.dag ||
-        action.historyBase !== state.editHistory
-      )
-        return { ...state, ui: { ...state.ui, status: "Layout candidate is stale. Generate a new preview." } };
-      const validation = validateLayoutGeometry(action.problem, action.candidate.snapshot);
-      const errors = [
-        ...validation.errors,
-        ...validateLayoutConstraints(action.problem, action.candidate.snapshot, action.candidate.data, action.intent),
-      ];
-      if (errors.length) return { ...state, ui: { ...state.ui, status: `Layout rejected: ${errors[0]}` } };
-      const document = serializeDag(state.dag!);
-      writeLayoutData(document, {
-        ...action.candidate.data,
-        accepted: {
-          fingerprint: action.problem.fingerprint,
-          engineVersion: COMPOUND_LAYOUT_VERSION,
-          snapshot: action.candidate.snapshot,
-        },
-      });
-      const transaction = prepareGraphTransaction(
-        state,
-        [{ dag: normalizeDagInput(document), changedKeys: [] }],
-        "Applied compound layout.",
-      );
-      return transaction ? reduceGraphState(state, transaction) : state;
+    case "layoutDocumentChanged": {
+      if (action.generation !== state.document.generation || !state.dag) return state;
+      try {
+        const data = repairLayoutDocument(parseLayoutDocument(action.data), state.dag);
+        const next = commitLayout(state, data);
+        return action.source ? { ...next, layoutDocument: { ...next.layoutDocument, source: action.source } } : next;
+      } catch (error) {
+        return { ...state, layoutDocument: { ...state.layoutDocument, notice: error instanceof Error ? error.message : "Invalid layout." } };
+      }
     }
+    case "layoutDocumentSaved":
+      return action.generation === state.document.generation
+        ? { ...state, layoutDocument: { ...state.layoutDocument, saved: action.data, source: action.source } } : state;
     case "timelineSettingsChanged":
       return { ...state, timelineSettings: sanitizeTimelineSettings({ ...state.timelineSettings, ...action.patch }) };
     case "graphClosed":
@@ -119,15 +90,17 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
     }
     case "graphCommandsCommitted": {
       const revision = action.transaction.revisionAfter;
-      const savedRevision = state.editHistory.savedRevision;
-      const undoStack = pushEditTransaction(state.editHistory.undoStack, action.transaction);
+      const data = repairLayoutDocument(state.layoutDocument.data, action.transaction.afterDag, action.renamedKeys);
+      const transaction = { ...action.transaction, beforeLayout: state.layoutDocument.data, afterLayout: data };
+      const undoStack = pushEditTransaction(state.editHistory.undoStack, transaction);
       const nextUi = applyBatchUiEffects(state.ui, action.renamedKeys, action.deletedKeys);
 
       return {
         ...state,
         dag: action.transaction.afterDag,
         nextRevision: revision + 1,
-        source: { ...state.source, dirty: revision !== savedRevision },
+        source: { ...state.source, dirty: action.transaction.afterDag !== state.document.savedDag },
+        layoutDocument: { ...state.layoutDocument, data },
         selection: action.transaction.afterSelection,
         history: action.transaction.afterNavigationHistory,
         editHistory: {
@@ -149,15 +122,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       return traverseEditHistory(state, "redo");
     case "layoutModeChanged":
       if (state.chartType !== "node-link") return state;
-      return {
-        ...state,
-        layout: { ...state.layout, mode: action.mode },
-        ui: {
-          ...state.ui,
-          contextMenu: null,
-          status: state.dag ? `Layout: ${getGraphLayoutLabel(action.mode)}.` : state.ui.status,
-        },
-      };
+      return commitLayout(state, { ...state.layoutDocument.data, charts: { ...state.layoutDocument.data.charts, "node-link": { method: action.mode } } });
     case "chartTypeChanged": {
       if (action.chartType === state.chartType) return state;
       if (action.chartType === "sankey" && state.dag) {
@@ -212,7 +177,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       if (action.generation !== state.document.generation || !state.dag) return state;
       return {
         ...state,
-        source: { ...state.source, dirty: state.editHistory.revision !== action.revision },
+        source: { ...state.source, dirty: state.dag !== action.dag },
         document: { ...state.document, savedDag: action.dag },
         editHistory: { ...state.editHistory, savedRevision: action.revision },
         ui: { ...state.ui, saveDialogOpen: false, status: action.status },
@@ -257,4 +222,19 @@ function applyBatchUiEffects(
     nodeDetail,
     relationEditor,
   };
+}
+
+function commitLayout(state: GraphAppState, data: LayoutDocument): GraphAppState {
+  if (!state.dag || JSON.stringify(data) === JSON.stringify(state.layoutDocument.data)) return state;
+  const revision = state.nextRevision;
+  const transaction = {
+    label: "Updated layout configuration.", beforeDag: state.dag, afterDag: state.dag,
+    beforeLayout: state.layoutDocument.data, afterLayout: data,
+    beforeSelection: state.selection, afterSelection: state.selection,
+    beforeNavigationHistory: state.history, afterNavigationHistory: state.history,
+    revisionBefore: state.editHistory.revision, revisionAfter: revision,
+  };
+  return { ...state, layoutDocument: { ...state.layoutDocument, data, notice: "" },
+    layout: { mode: data.charts["node-link"].method }, nextRevision: revision + 1,
+    editHistory: { ...state.editHistory, revision, undoStack: pushEditTransaction(state.editHistory.undoStack, transaction), redoStack: [] } };
 }

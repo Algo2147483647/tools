@@ -1,13 +1,11 @@
 import assert from "node:assert/strict";
 import { applyGraphCommand } from "../graph/commands";
-import { analyzeGraphImport } from "../graph/imports/merge";
+import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import {
   parseTimelineLayoutPlan,
-  readTimelineLayout,
   validateTimelineLayoutPlan,
-  writeTimelineLayout,
 } from "../graph/timeline/layoutData";
 import { getStageAppearance } from "../layout/shared/appearance";
 import type { StageData } from "../layout/shared/types";
@@ -89,10 +87,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       () => validateTimelineLayoutPlan({ ...plan, trackOrder: ["missing"] }, graph()),
       /Unknown timeline track/,
     );
-    assert.ok(
-      readTimelineLayout({ metadata: { layout: { timeline: { version: 1, mode: "ai", plan: false } } } }).warning,
-    );
-    assert.ok(readTimelineLayout({ metadata: { layout: { timeline: { version: 99, mode: "ai" } } } }).warning);
+    assert.throws(() => parseLayoutDocument({ ...defaultLayoutDocument(), charts: { timeline: { version: 99, mode: "ai" } } }));
   }),
   defineTest("AI changes track geometry while preserving calendar/relative dates, ports and both orientations", () => {
     for (const relative of [false, true])
@@ -154,15 +149,12 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
     const input: TimelineLayoutInput = { dag, selection: { type: "full" }, timelineSettings: { layout: "tracks" } };
     const algorithm = buildTimelineStage(input)!;
     const preview = evaluateTimelineLayout(input, algorithm, plan);
-    const doc = serializeDag(dag);
-    writeTimelineLayout(doc, { version: 1, mode: "ai", plan });
-    const loaded = normalizeDagInput(JSON.parse(JSON.stringify(doc)));
-    assert.deepEqual(geometry(buildTimelineStage({ ...input, dag: loaded })!), geometry(preview.stage));
-    writeTimelineLayout(doc, { ...readTimelineLayout(doc).data, mode: "algorithm" });
-    assert.deepEqual(readTimelineLayout(doc).data.plan, plan);
-    assert.deepEqual(geometry(buildTimelineStage({ ...input, dag: normalizeDagInput(doc) })!), geometry(algorithm));
-    assert.deepEqual(doc.nodes, original.nodes);
-    assert.deepEqual(doc.edges, original.edges);
+    const layout = defaultLayoutDocument();
+    layout.charts.timeline = { version: 1, mode: "ai", plan };
+    const loaded = parseLayoutDocument(JSON.parse(JSON.stringify(layout)));
+    assert.deepEqual(geometry(buildTimelineStage({ ...input, arrangement: loaded.charts.timeline.plan })!), geometry(preview.stage));
+    assert.deepEqual(geometry(buildTimelineStage({ ...input, arrangement: null })!), geometry(algorithm));
+    assert.deepEqual(serializeDag(dag), original);
   }),
   defineTest("committing is one undoable edit and stale document/history results are rejected", () => {
     let state = graphReducer(createInitialGraphState(), {
@@ -185,34 +177,26 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
     };
     state = graphReducer(state, action);
     assert.equal(state.editHistory.undoStack.length, 1);
-    assert.equal(readTimelineLayout(state.dag).data.mode, "ai");
+    assert.equal(state.layoutDocument.data.charts.timeline.mode, "ai");
     state = graphReducer(state, { type: "undoRequested" });
-    assert.equal(readTimelineLayout(state.dag).data.mode, "algorithm");
+    assert.equal(state.layoutDocument.data.charts.timeline.mode, "algorithm");
     assert.equal(graphReducer(state, action).dag, state.dag, "Undo must not revive a stale preview.");
     state = graphReducer(state, { type: "redoRequested" });
-    assert.deepEqual(readTimelineLayout(state.dag).data.plan, plan);
+    assert.deepEqual(state.layoutDocument.data.charts.timeline.plan, plan);
     assert.equal(graphReducer(before, { ...action, generation: before.document.generation + 1 }).dag, before.dag);
     assert.deepEqual(state.dag!.nodes, before.dag!.nodes);
     assert.deepEqual(state.dag!.edges, before.dag!.edges);
   }),
-  defineTest("rename, delete and conflicting imports keep saved event references valid", () => {
-    const doc = serializeDag(graph());
-    writeTimelineLayout(doc, { version: 1, mode: "ai", plan });
-    let dag = applyGraphCommand(normalizeDagInput(doc), { type: "renameNode", oldKey: "b", newKey: "prototype" }).dag;
-    assert.deepEqual(readTimelineLayout(dag).data.plan!.eventOrder, ["c", "prototype", "a"]);
+  defineTest("rename and delete repair independent event references", () => {
+    let layout = defaultLayoutDocument();
+    layout.charts.timeline = { version: 1, mode: "ai", plan };
+    let dag = applyGraphCommand(graph(), { type: "renameNode", oldKey: "b", newKey: "prototype" }).dag;
+    layout = repairLayoutDocument(layout, dag, [{ from: "b", to: "prototype" }]);
+    assert.deepEqual(layout.charts.timeline.plan!.eventOrder, ["c", "prototype", "a"]);
     dag = applyGraphCommand(dag, { type: "deleteNode", key: "c" }).dag;
-    assert.deepEqual(readTimelineLayout(dag).data.plan!.eventOrder, ["prototype", "a"]);
-    const imports = [
-      {
-        name: "first.json",
-        payload: { format: "graph-studio", version: 3, nodes: { a: { title: "Other" } }, edges: [] },
-      },
-      { name: "second.json", payload: doc },
-    ];
-    const conflict = analyzeGraphImport(imports).conflicts.find((item) => item.path === "/nodes/a")!;
-    const merged = analyzeGraphImport(imports, { [conflict.id]: { strategy: "rename", name: "imported_a" } });
-    assert.equal(merged.unresolved.length, 0);
-    assert.deepEqual(readTimelineLayout(merged.dag).data.plan!.eventOrder, ["c", "b", "imported_a"]);
+    layout = repairLayoutDocument(layout, dag);
+    assert.deepEqual(layout.charts.timeline.plan!.eventOrder, ["prototype", "a"]);
+    assert.equal(dag.metadata?.layout, undefined);
   }),
   defineTest("model context is bounded and only includes layout data", () => {
     const dag = serializeDag(graph());

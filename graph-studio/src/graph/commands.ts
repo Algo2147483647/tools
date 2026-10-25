@@ -1,5 +1,3 @@
-import { repairLayoutData } from "./compound/layoutData";
-import { repairTimelineLayout } from "./timeline/layoutData";
 import { normalizeDagInput } from "./normalize";
 import { serializeDag } from "./serialize";
 import { applyHierarchyCommand } from "./compound/hierarchy";
@@ -22,16 +20,12 @@ export function applyGraphCommand(source: NormalizedDag, command: GraphCommand):
     command.type === "groupDissolve"
   ) {
     applyHierarchyCommand(document, command);
-    repairLayoutData(document, source);
-    repairTimelineLayout(document);
     return { dag: normalizeDagInput(document), changedKeys: [], message: "Updated subgraph hierarchy." };
   }
   const context = createCommandContext(source, document, timelineReferenceTime);
   if (isNodeCommand(command)) applyNodeCommand(context, command);
   else applyRelationCommand(context, command);
   const { result } = context;
-  repairLayoutData(document, source, result.renamedKey);
-  repairTimelineLayout(document, result.renamedKey);
   const dag = normalizeDagInput(document);
   return { ...result, dag, changedKeys: Object.keys(dag.nodes) };
 }

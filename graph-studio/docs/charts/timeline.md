@@ -125,11 +125,13 @@ Time range filters preserve events inside or intersecting the range, clip displa
 
 ## Saved Arrange protocol
 
-The Arrange panel supports Algorithm and AI modes. Applied plans are graph edits stored separately from styles under `metadata.layout.timeline`. The following is a metadata fragment, not a standalone graph file:
+The Arrange panel supports Algorithm and AI modes. Plans are stored in an independent Layout file, separately from graph data and styles:
 
 ```json
 {
-  "layout": {
+  "format": "graph-studio-layout",
+  "version": 1,
+  "charts": {
     "timeline": {
       "version": 1,
       "mode": "ai",
@@ -145,10 +147,10 @@ The Arrange panel supports Algorithm and AI modes. Applied plans are graph edits
 
 `mode` is `algorithm` or `ai`; `plan` is optional. Plan fields are optional. Orders contain unique existing names/IDs; remaining items keep deterministic algorithmic ordering. Track names follow Tracks grouping, or Type categories for the Flow plan's ordering hints. Each order is limited to 2,000 entries. Routing is `avoid` or `direct`. Appearance owns channel spacing and cross-axis spread; plans cannot override either value.
 
-AI provides ordering and spacing hints; the local algorithm computes geometry while preserving times, anchors, orientation, fixed indices, and pins. Previewing does not apply a plan. Unsupported saved versions fall back to Algorithm with a warning and preserve source metadata until replaced.
+AI provides ordering and spacing hints; the local algorithm computes geometry while preserving times, anchors, orientation, fixed indices, and pins. Previewing does not apply a plan. Unsupported Layout versions fall back to defaults with a notice. Legacy graph metadata is discarded.
 
 ## Style and persistence
 
-See [Timeline appearance](../appearance/timeline.md) for the complete `style.timeline` settings reference. It includes the current distinction between reusable settings and temporary pins. Saving graph JSON preserves times, tracks, explicit indices, and saved Arrange metadata. SVG and HTML preserve the current time mapping and visible geometry.
+See [Timeline appearance](../appearance/timeline.md) for the complete `style.timeline` settings reference. It includes the current distinction between reusable settings and temporary pins. Saving graph JSON preserves times, tracks, explicit indices, and other business data; Save Layout downloads the separate arrangement configuration. SVG and HTML preserve the current time mapping and visible geometry.
 
 Implementation: [schema fields](../../src/schema/document/definition.json), [view settings](../../src/schema/appearance/contract.ts), [saved layout plans](../../src/graph/timeline/layoutData.ts), [timeline layout](../../src/layout/timeline/layout.ts).

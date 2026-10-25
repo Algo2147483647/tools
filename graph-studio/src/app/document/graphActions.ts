@@ -13,21 +13,16 @@ export type GraphAction =
       historyBase: import("./initialState").GraphAppState["editHistory"];
       data: import("../../graph/timeline/layoutData").TimelineLayoutData;
     }
-  | {
-      type: "compoundLayoutCommitted";
-      generation: number;
-      revision: number;
-      beforeDag: NormalizedDag;
-      historyBase: import("./initialState").GraphAppState["editHistory"];
-      problem: import("../../layout/compound/layout-plan").LayoutProblem;
-      intent: import("../../layout/compound/layout-plan").LayoutIntent;
-      candidate: import("../../layout/compound/layout-plan").LayoutCandidate;
-    }
+  | { type: "layoutDocumentChanged"; generation: number; data: import("../../schema/layoutProtocol").LayoutDocument; source?: string }
+  | { type: "layoutDocumentSaved"; generation: number; data: import("../../schema/layoutProtocol").LayoutDocument; source: string }
   | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }
   | { type: "graphClosed"; status: string }
   | {
       type: "graphLoaded";
       linkedStyle?: ChartStyle;
+      linkedLayout?: import("../../schema/layoutProtocol").LayoutDocument;
+      layoutSource?: string;
+      layoutNotice?: string;
       documentId: string;
       dag: NormalizedDag;
       fileName: string;

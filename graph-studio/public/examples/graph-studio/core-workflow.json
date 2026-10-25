@@ -1,0 +1,1513 @@
+{
+  "format": "graph-studio",
+  "version": 3,
+  "id": "graph-studio-core-workflow",
+  "title": "Graph Studio · Core workflow",
+  "metadata": {
+    "description": "An English nested process map of Graph Studio, from opening a graph through editing, appearance, layout, interaction and export.",
+    "language": "en",
+    "style": "./workflow.style.json",
+    "relationshipSemantics": "Directed data flow and control flow. Optional paths are labelled. Arrows do not imply that every operation executes in one synchronous sequence.",
+    "hierarchySemantics": "Groups represent responsibility boundaries. Nested subgroups expose internal processes; containment is independent of ordinary relationships.",
+    "layout": {
+      "compound": {
+        "version": 1,
+        "constraints": [
+          {
+            "type": "direction",
+            "scopeId": null,
+            "value": "RIGHT",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "open",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "edit",
+            "value": "RIGHT",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "appearance",
+            "value": "RIGHT",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "layout",
+            "value": "RIGHT",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "canvas",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "output",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "edit-inputs",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "edit-transaction",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "layout-baseline",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "layout-proposal",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "style-sources",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "style-loading",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "style-session",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "style-geometry",
+            "value": "DOWN",
+            "strength": "soft"
+          },
+          {
+            "type": "direction",
+            "scopeId": "style-rendering",
+            "value": "DOWN",
+            "strength": "soft"
+          }
+        ],
+        "pins": []
+      }
+    },
+    "nodeCount": 73,
+    "edgeCount": 78,
+    "groupCount": 15
+  },
+  "nodes": {
+    "open": {
+      "title": "01 · Open a graph",
+      "type": "Process domain",
+      "define": "Prepare a complete document before replacing the current session.",
+      "implementation": "src/app/workspace/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "edit": {
+      "title": "02 · Edit the document",
+      "type": "Process domain",
+      "define": "Keep editing entry points separate from committed document state.",
+      "implementation": "src/app/document/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "appearance": {
+      "title": "03 · Resolve appearance",
+      "type": "Process domain",
+      "define": "Resolve chart defaults, preferences and document-linked styles.",
+      "implementation": "src/schema/appearance/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "layout": {
+      "title": "04 · Compute layout",
+      "type": "Process domain",
+      "define": "Turn document and view inputs into geometry; review optional arrangement proposals.",
+      "implementation": "src/layout/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "canvas": {
+      "title": "05 · Render and explore",
+      "type": "Process domain",
+      "define": "Draw the visible graph and manage interaction without changing containment.",
+      "implementation": "src/components/canvas/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "output": {
+      "title": "06 · Save and export",
+      "type": "Process domain",
+      "define": "Preserve the editable document or capture the current visible view.",
+      "implementation": "src/export/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "edit-inputs": {
+      "title": "Editing entry points",
+      "type": "Process domain",
+      "define": "Visual edits, console commands and AI-assisted command plans.",
+      "implementation": "src/components/nodes/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "edit-transaction": {
+      "title": "Document transactions",
+      "type": "Process domain",
+      "define": "Validate changes, commit state and retain graph edit history.",
+      "implementation": "src/app/document/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "layout-baseline": {
+      "title": "Stage construction",
+      "type": "Process domain",
+      "define": "Prepare the visible projection, measure content and run chart algorithms.",
+      "implementation": "src/layout/shared/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "layout-proposal": {
+      "title": "Arrangement proposals",
+      "type": "Process domain",
+      "define": "Generate, evaluate and review optional Nested or Timeline layout changes.",
+      "implementation": "src/app/layout/",
+      "details": "Expand this group to follow its internal steps. Containment indicates ownership; arrows indicate data flow or control flow.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "choose-source": {
+      "title": "Choose a source",
+      "type": "Input",
+      "define": "Open a file, workspace, recent location or bundled example.",
+      "implementation": "src/app/workspace/useWorkspaceController.ts",
+      "details": "Bundled examples create in-memory files with no writable source handles. A new canvas is another entry into document state.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "discover-files": {
+      "title": "Discover graph files",
+      "type": "Process",
+      "define": "Read the workspace manifest and select the requested or default graph.",
+      "implementation": "src/workspace/discovery.ts",
+      "details": "Workspace opening uses discovery; opening a standalone file can skip workspace discovery. Linked assets remain scoped to the opened workspace.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "prepare-document": {
+      "title": "Prepare a document",
+      "type": "Validation",
+      "define": "Parse and normalize the graph; resolve its optional linked style.",
+      "implementation": "src/workspace/opening.ts",
+      "details": "Check document shape and references before replacing the session. An unavailable linked style produces a notice rather than preventing the graph from opening.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "replace-session": {
+      "title": "Replace the session",
+      "type": "State",
+      "define": "Resolve unsaved changes, then commit the prepared document.",
+      "implementation": "src/app/document/documentTransitions.ts",
+      "details": "Document replacement increments the generation, resets document-specific history and selects the chart type. Pending work must not apply to the replacement document.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "visual-edit": {
+      "title": "Visual editing",
+      "type": "Input",
+      "define": "Edit nodes, relationships and group membership.",
+      "implementation": "src/app/document/useNodeActions.ts",
+      "details": "Node and hierarchy editors prepare graph commands. Containment and ordinary relationships remain separate collections.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "console-input": {
+      "title": "Console commands",
+      "type": "Input",
+      "define": "Parse commands and evaluate a batch on an isolated graph.",
+      "implementation": "src/console/executor.ts",
+      "details": "Queries return output. Mutations produce results for application transactions; a failed batch must not partially commit document edits.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "ai-edit": {
+      "title": "AI command plans",
+      "type": "Assistance",
+      "define": "Build context, request a plan and validate the proposed command batch.",
+      "implementation": "src/app/ai/useAiController.ts",
+      "details": "Command preflight checks and the configured execution policy determine whether a validated batch runs immediately or waits for review. Execution uses the console pipeline.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "apply-command": {
+      "title": "Apply graph commands",
+      "type": "Process",
+      "define": "Apply edits, repair durable references and normalize the result.",
+      "implementation": "src/graph/commands.ts",
+      "details": "Operate on an isolated serialized document. Invalid node, relation or containment changes do not become committed document state.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "commit-document": {
+      "title": "Commit a transaction",
+      "type": "State",
+      "define": "Commit successful changes and record the edit revision.",
+      "implementation": "src/app/document/graphTransactions.ts",
+      "details": "The application reducer stores the resulting document, selection, dirty state and history entry together.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "document-state": {
+      "title": "Current document",
+      "type": "Data",
+      "define": "Hold the normalized graph, source identity and edit revision.",
+      "implementation": "src/app/document/initialState.ts",
+      "details": "This is the shared input for layout, AI context and serialization. Graph data includes ordinary edges, independent hierarchy edges and document metadata.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "graph-history": {
+      "title": "Undo and redo",
+      "type": "State",
+      "define": "Restore document snapshots and their selections.",
+      "implementation": "src/app/document/documentTransitions.ts",
+      "details": "Graph history tracks saved revisions for dirty-state calculation. Appearance edits use separate preference history.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "style-sources": {
+      "title": "Default construction",
+      "type": "Process domain",
+      "define": "Import field definitions and combine base defaults with chart overrides.",
+      "implementation": "src/schema/appearance/contract.ts",
+      "details": "Default construction is separate from selecting a preset or restoring a saved style.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "style-controls": {
+      "title": "Appearance controls",
+      "type": "Input",
+      "define": "Edit Nodes, Edges and Canvas properties or their Schema values.",
+      "implementation": "src/components/settings/AppearanceSettings.tsx",
+      "details": "Controls and Schema editing use the same appearance contract. Chart Schema describes graph fields; it does not own layout computation.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "resolve-style": {
+      "title": "Validate style values",
+      "type": "Validation",
+      "define": "Validate field types, bounds, enums and the chart-specific style envelope.",
+      "implementation": "src/schema/appearance/contract.ts",
+      "details": "documentDefinition uses styleDefinition for the selected chart; resolveDefinition enforces the contract. Invalid stored preferences fall back to defaults, invalid file imports leave active state unchanged, and invalid linked styles surface a notice.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "style-state": {
+      "title": "Resolved chart style",
+      "type": "Data",
+      "define": "Provide validated appearance values and independent style history.",
+      "implementation": "src/app/preferences/useChartPreferences.ts",
+      "details": "The active per-chart style supplies two branches: geometry inputs for layout and display/CSS inputs for drawing. It also retains independent undo history. ChartStyle includes display options and optional Timeline settings beyond appearance.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "prepare-view": {
+      "title": "Prepare visible input",
+      "type": "Process",
+      "define": "Select visible nodes, hierarchy scope and chart-specific settings.",
+      "implementation": "src/app/layout/useGraphLayout.ts",
+      "details": "Nested projection accounts for collapsed groups and focus. Timeline and Spatial use their own view and layout settings.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "measure-content": {
+      "title": "Measure text and boxes",
+      "type": "Process",
+      "define": "Resolve font metrics and the dimensions needed by layout.",
+      "implementation": "src/layout/shared/text-measurement.ts",
+      "details": "The main thread uses browser Canvas measurements when available. Workers and static consumers retain a deterministic fallback; some worker inputs carry measured sizes.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "run-layout": {
+      "title": "Run chart algorithms",
+      "type": "Process",
+      "define": "Compute positions and routes for the selected chart family.",
+      "implementation": "src/layout/",
+      "details": "Node-link, Nested, Timeline, Sankey and Spatial use separate pipelines. Nested layout arranges inner scopes before their parents. Candidate searches use workers where implemented.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "stage-data": {
+      "title": "Build stage data",
+      "type": "Data",
+      "define": "Assemble positioned nodes, paths, labels and canvas bounds.",
+      "implementation": "src/layout/shared/types.ts",
+      "details": "Stage geometry is derived from the document and view. It is not a replacement for the editable graph document.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "layout-intent": {
+      "title": "Choose layout intent",
+      "type": "Input",
+      "define": "Choose Automatic or AI, adjustment range, scope and optimization objective.",
+      "implementation": "src/components/studio/ChartLayoutControls.tsx",
+      "details": "Nested Automatic and AI share Connections only or Nodes and connections. The default keeps nodes fixed. Rearrangement exposes direction, surrounding-group resizing and selected-node locking. Both methods generate a reviewable preview.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "ai-layout": {
+      "title": "AI layout proposal",
+      "type": "Assistance",
+      "define": "Request arrangement intent within the selected chart rules.",
+      "implementation": "src/layout/compound/ai/workflow.ts",
+      "details": "Nested starts with editable default instructions that preserve content, containment and locks and obey the selected objective and adjustment range. Nested and Timeline prompts live under their layout families and use shared provider transport. Models propose intent; local code computes geometry. Nested may request one measured feedback turn.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "evaluate-layout": {
+      "title": "Evaluate candidates",
+      "type": "Validation",
+      "define": "Compute candidate geometry and compare layout quality.",
+      "implementation": "src/app/layout/workerJob.ts",
+      "details": "Job IDs, cancellation and timeout isolate asynchronous searches. Each chart controller checks graph and view freshness before applying a result.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "review-layout": {
+      "title": "Review a preview",
+      "type": "Input",
+      "define": "Compare the current layout with a validated candidate.",
+      "implementation": "src/components/compound/CompoundLayoutReview.tsx",
+      "details": "Nested and Timeline provide separate review components. A stale proposal cannot be applied; dismissing a preview leaves the document unchanged.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "accept-layout": {
+      "title": "Apply an arrangement",
+      "type": "State",
+      "define": "Commit accepted chart-specific layout data.",
+      "implementation": "src/app/layout/useCompoundLayoutPlan.ts",
+      "details": "Applied layout data is distinct from reusable appearance. Nested durable constraints and snapshots live in graph metadata; Timeline application follows its own layout protocol.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "render-svg": {
+      "title": "Render the SVG stage",
+      "type": "Process",
+      "define": "Render nodes, edges, group frames and chart backdrops.",
+      "implementation": "src/components/canvas/GraphStage.tsx",
+      "details": "The main canvas and preview canvases reuse stage renderers. SVG style sources are also used by exports.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "inspect-node": {
+      "title": "Inspect and select",
+      "type": "Interaction",
+      "define": "Select nodes, highlight relationships and open details.",
+      "implementation": "src/components/nodes/NodeDetailModal.tsx",
+      "details": "Inspect custom fields and linked Markdown notes. Opening the field editor starts a document-edit transaction.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "navigate-view": {
+      "title": "Navigate the canvas",
+      "type": "Interaction",
+      "define": "Zoom, pan, fit the graph and locate selected nodes.",
+      "implementation": "src/viewport/useGraphZoom.ts",
+      "details": "Camera geometry is separate from DOM measurements. Navigating the view does not rewrite graph relationships.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "project-groups": {
+      "title": "Explore nested groups",
+      "type": "Interaction",
+      "define": "Expand, collapse or focus a group.",
+      "implementation": "src/graph/compound/projection.ts",
+      "details": "The projection keeps ancestor containers and maps hidden endpoints onto visible representatives. Original nodes and edges remain in the document.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "save-json": {
+      "title": "Save graph JSON",
+      "type": "Output",
+      "define": "Serialize the complete editable document.",
+      "implementation": "src/app/document/useDocumentSave.ts",
+      "details": "Overwrite requires a writable source handle and permission. Saving a new copy downloads JSON; it does not mark the original file as overwritten. Example files have no writable source handles.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "export-svg": {
+      "title": "Export current SVG",
+      "type": "Output",
+      "define": "Capture the current visible projection as an SVG file.",
+      "implementation": "src/export/svg.ts",
+      "details": "Collapsed descendants are not individually drawn in the exported view. The editable graph JSON still preserves those descendants.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "export-html": {
+      "title": "Export interactive HTML",
+      "type": "Output",
+      "define": "Capture graph and SVG together for the standalone viewer.",
+      "implementation": "src/app/document/useGraphExport.ts",
+      "details": "The export snapshots the document and SVG before asynchronously loading the HTML exporter. The offline viewer cannot expand descendants omitted from the captured projection.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "persist-session": {
+      "title": "Persist browser state",
+      "type": "Storage",
+      "define": "Remember preferences, recent locations and AI session state.",
+      "implementation": "src/app/preferences/preferences.ts",
+      "details": "Browser state supports returning to work. It is separate from explicitly saving graph JSON to a source file or downloading a copy.",
+      "notes": "[Workflow guide](./README.md)"
+    },
+    "style-loading": {
+      "title": "Style loading and validation",
+      "type": "Process domain",
+      "define": "Expand this group to inspect the appearance pipeline.",
+      "implementation": "src/schema/styleProtocol.ts",
+      "details": "Containment indicates responsibility. Labelled arrows show configuration, state changes and rendering inputs.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "style-session": {
+      "title": "Active style and history",
+      "type": "Process domain",
+      "define": "Expand this group to inspect the appearance pipeline.",
+      "implementation": "src/app/preferences/useChartPreferences.ts",
+      "details": "Containment indicates responsibility. Labelled arrows show configuration, state changes and rendering inputs.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "style-geometry": {
+      "title": "Appearance layout inputs",
+      "type": "Process domain",
+      "define": "Expand this group to inspect the appearance pipeline.",
+      "implementation": "src/layout/shared/appearance.ts",
+      "details": "Containment indicates responsibility. Labelled arrows show configuration, state changes and rendering inputs.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "style-rendering": {
+      "title": "Appearance SVG rendering",
+      "type": "Process domain",
+      "define": "Expand this group to inspect the appearance pipeline.",
+      "implementation": "src/components/canvas/GraphStage.tsx",
+      "details": "Containment indicates responsibility. Labelled arrows show configuration, state changes and rendering inputs.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "field-json": {
+      "title": "Field definition JSON",
+      "type": "Configuration",
+      "define": "Define fields, defaults, enums, bounds and UI metadata.",
+      "implementation": "src/schema/appearance/definition.json",
+      "details": "Contains appearance, timeline and display-option definitions. This is runtime configuration, not the rendered stylesheet.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "definition-import": {
+      "title": "Import definitions",
+      "type": "Process",
+      "define": "Import JSON and expose the three field-definition objects.",
+      "implementation": "src/schema/appearance/definition.ts",
+      "details": "ES module imports load bundled JSON. The Vite compatibility plugin strips JSON import attributes for its older esbuild; it does not generate configuration.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "chart-default-json": {
+      "title": "Chart override JSON",
+      "type": "Configuration",
+      "define": "Supply default overrides for each chart type.",
+      "implementation": "src/schema/appearance/defaults.json",
+      "details": "These values specialize base defaults. Presets are separate complete snapshots and are not automatically layered onto defaults.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "construct-style": {
+      "title": "Compose chart defaults",
+      "type": "Process",
+      "define": "Build styleDefinition and apply chart-specific default overrides.",
+      "implementation": "src/schema/appearance/contract.ts",
+      "details": "resolveDefinition first supplies base values. mergeDefinitionValues applies chart overrides, and styleDefinition assigns the resulting leaf defaults. defaultChartStyle resolves the complete style.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "default-style": {
+      "title": "Default ChartStyle",
+      "type": "Data",
+      "define": "Provide appearance, display options and optional Timeline settings.",
+      "implementation": "src/schema/appearance/styles.ts",
+      "details": "getDefaultChartStyle supplies initialization and reset. ChartStyle includes showNodeDetail, hideNodeBorders and alignNodeWidthsToMax outside appearance; Timeline also has style.timeline.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "browser-style": {
+      "title": "Restore browser preferences",
+      "type": "Storage",
+      "define": "Read graph-studio:page-preferences and validate each saved chart style.",
+      "implementation": "src/app/preferences/preferences.ts",
+      "details": "Valid saved styles replace defaults for their chart type. Missing or invalid saved styles fall back to that chart default. Storage failure also falls back to defaults.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "preset-style": {
+      "title": "Preset JSON snapshots",
+      "type": "Configuration",
+      "define": "Load and validate complete preset documents; clone a selected preset.",
+      "implementation": "src/schema/appearance/presets.ts",
+      "details": "Preset identity and document validation happen at module loading. Selecting a preset commits its cloned style; selecting Reset uses chart defaults instead.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "imported-style": {
+      "title": "Import a style file",
+      "type": "Input",
+      "define": "Read a selected JSON file and check its chart type and envelope.",
+      "implementation": "src/app/preferences/useChartPreferences.ts",
+      "details": "importAppearanceFile parses the document before commitStyle. Invalid imports report an error and do not commit the imported values.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "linked-style": {
+      "title": "Resolve metadata.style",
+      "type": "Input",
+      "define": "Resolve the document-relative style path within the opened workspace.",
+      "implementation": "src/workspace/linkedStyle.ts",
+      "details": "Only granted workspace files are read. A valid style is attached to the prepared document; unavailable or invalid linked styles produce a notice without preventing graph opening.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "resolved-document": {
+      "title": "Validated style document",
+      "type": "Data",
+      "define": "Produce a complete graph-studio-style envelope and its style member.",
+      "implementation": "src/schema/styleProtocol.ts",
+      "details": "parseStyleDocument calls resolveDefinition(documentDefinition(chartType), value). parseChartStyleFile returns the style member. Field validation and envelope validation share the same contract.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "activate-style": {
+      "title": "Activate a chart style",
+      "type": "State",
+      "define": "Initialize from preferences, or replace with the newly opened document style.",
+      "implementation": "src/app/preferences/useChartPreferences.ts",
+      "details": "State is indexed by chart type. A valid linked style takes effect on document generation change. Leaving a linked-style document restores the stored user preference. Presets and edits subsequently update the active style.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "ui-bindings": {
+      "title": "Bind controls to Schema",
+      "type": "Process",
+      "define": "Resolve field paths, visibility, supported charts and reset values.",
+      "implementation": "src/components/settings/appearanceUIModel.ts",
+      "details": "Ordinary controls bind to field definitions. The Schema editor uses the same update contract; it does not implement a separate validation pipeline.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "validate-edit": {
+      "title": "Validate an atomic edit",
+      "type": "Validation",
+      "define": "Apply changes and dependent resets, then validate the complete style document.",
+      "implementation": "src/schema/styleProtocol.ts",
+      "details": "updateAppearanceSchemaValues edits a clone, checks writable supported paths, applies declared reset dependencies and parses the entire result. Custom CSS commands also use the appearance resolver.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "commit-style": {
+      "title": "Commit style and history",
+      "type": "State",
+      "define": "Record appearance changes with before and after values.",
+      "implementation": "src/app/preferences/chartPreferences.ts",
+      "details": "commitStyle also carries display options and Timeline settings. Slider adjustments can be grouped; style undo and redo remain separate from graph-edit history.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "style-undo": {
+      "title": "Undo or redo appearance",
+      "type": "Interaction",
+      "define": "Restore style history and synchronize Timeline settings where applicable.",
+      "implementation": "src/app/preferences/useChartPreferences.ts",
+      "details": "Changing a chart style does not rewrite ordinary graph nodes or edges. Document layout metadata has a separate owner.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "persist-style": {
+      "title": "Save reusable preferences",
+      "type": "Storage",
+      "define": "Persist chart styles while excluding document-linked overrides.",
+      "implementation": "src/app/preferences/usePreferencesController.ts",
+      "details": "For a linked-style document, persistence retains the stored user chart preference. Timeline typeColors and pins are cleared and locked is false in reusable preferences. Browser persistence does not overwrite the linked style file.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "extract-geometry": {
+      "title": "Extract StageAppearance",
+      "type": "Process",
+      "define": "Select dimensions, spacing, font roles, palette and relevant display flags.",
+      "implementation": "src/layout/shared/appearance.ts",
+      "details": "getStageAppearance extracts canvas, nodes, edges, typography and detail/date/axis/track fonts. Compound display flags include group stats and title wrapping. Palette is still included, so color changes are not universally render-only.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "font-readiness": {
+      "title": "Track font readiness",
+      "type": "Process",
+      "define": "Invalidate measurements when browser fonts become available.",
+      "implementation": "src/app/layout/useFontMetricsKey.ts",
+      "details": "The font metrics key participates in StageAppearance. Registered font tokens affect both measurement and SVG text; arbitrary custom CSS font changes do not participate in geometry measurement.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "geometry-cache": {
+      "title": "Memoize and debounce",
+      "type": "Process",
+      "define": "Compare serialized geometry inputs and settle rapid changes.",
+      "implementation": "src/app/layout/useGraphLayout.ts",
+      "details": "JSON.stringify creates the geometry comparison key; useMemo preserves equivalent inputs. useDebouncedValue settles changes with a default 150 ms delay before expensive layout work.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "layout-options": {
+      "title": "Supply layout options",
+      "type": "Configuration",
+      "define": "Pass detail visibility, width alignment and chart-specific settings.",
+      "implementation": "src/app/layout/useGraphLayout.ts",
+      "details": "showNodeDetail and alignNodeWidthsToMax also affect layout. Nested showEdgeLabels participates separately in compound layout input. Timeline settings have a separate debounced path.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "svg-vars": {
+      "title": "Map SVG CSS variables",
+      "type": "Process",
+      "define": "Convert cssVars and derived effects into root SVG style properties.",
+      "implementation": "src/components/canvas/appearanceStyle.ts",
+      "details": "appearanceToStageStyle derives shadows, dot visibility, content shift, edge-label color fallback and Sankey opacity. The resulting object is assigned to the root svg style.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "svg-properties": {
+      "title": "Apply component properties",
+      "type": "Process",
+      "define": "Pass display flags, colors and density behavior to SVG components.",
+      "implementation": "src/components/canvas/GraphStage.tsx",
+      "details": "Not every property becomes CSS: group fills and borders, edge-label visibility, marker style and dense-shadow attributes are consumed by React components. hideNodeBorders comes from ChartStyle outside appearance.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "svg-defs": {
+      "title": "Build GraphDefs",
+      "type": "Process",
+      "define": "Embed stylesheets and arrow markers in the SVG.",
+      "implementation": "src/components/canvas/GraphDefs.tsx",
+      "details": "GraphDefs declares graph-base, graph-theme and graph-custom layers, then embeds their CSS in a style element inside defs. Marker geometry also depends on appearance.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "css-base": {
+      "title": "graph-base layer",
+      "type": "Stylesheet",
+      "define": "Combine structural graph CSS and default graph CSS.",
+      "implementation": "src/styles/graphBaseStyles.ts",
+      "details": "GraphDefs combines GRAPH_BASE_CSS with DEFAULT_GRAPH_CSS in the base layer.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "css-theme": {
+      "title": "graph-theme layer",
+      "type": "Stylesheet",
+      "define": "Apply built-in effects and Timeline rules.",
+      "implementation": "src/styles/graphAppearance.ts",
+      "details": "GraphDefs combines GRAPH_EFFECTS_CSS and TIMELINE_CSS in the theme layer.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "css-custom": {
+      "title": "graph-custom layer",
+      "type": "Stylesheet",
+      "define": "Embed validated appearance.css in the final named layer.",
+      "implementation": "src/components/canvas/GraphDefs.tsx",
+      "details": "For normal layered declarations the custom layer follows theme and base. Inline data styling still has its own cascade priority; custom CSS is not an unconditional override of every SVG property.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    },
+    "svg-compose": {
+      "title": "Compose SVG elements",
+      "type": "Process",
+      "define": "Combine stage geometry, style properties and embedded definitions.",
+      "implementation": "src/components/canvas/GraphStage.tsx",
+      "details": "GraphNode, GraphEdge, group components and chart-specific renderers consume stage data and appearance. The main canvas and preview canvases reuse these rendering components.",
+      "notes": "[Appearance pipeline guide](./appearance-pipeline.md)"
+    }
+  },
+  "edges": [
+    {
+      "id": "choose-source--discover-files",
+      "source": "choose-source",
+      "target": "discover-files",
+      "value": "workspace or example"
+    },
+    {
+      "id": "choose-source--prepare-document",
+      "source": "choose-source",
+      "target": "prepare-document",
+      "value": "standalone file"
+    },
+    {
+      "id": "discover-files--prepare-document",
+      "source": "discover-files",
+      "target": "prepare-document",
+      "value": "selected graph"
+    },
+    {
+      "id": "prepare-document--replace-session",
+      "source": "prepare-document",
+      "target": "replace-session",
+      "value": "valid candidate"
+    },
+    {
+      "id": "replace-session--document-state",
+      "source": "replace-session",
+      "target": "document-state",
+      "value": "load document"
+    },
+    {
+      "id": "visual-edit--apply-command",
+      "source": "visual-edit",
+      "target": "apply-command",
+      "value": "graph command"
+    },
+    {
+      "id": "ai-edit--console-input",
+      "source": "ai-edit",
+      "target": "console-input",
+      "value": "validated and authorized batch"
+    },
+    {
+      "id": "console-input--apply-command",
+      "source": "console-input",
+      "target": "apply-command",
+      "value": "mutation commands"
+    },
+    {
+      "id": "apply-command--commit-document",
+      "source": "apply-command",
+      "target": "commit-document",
+      "value": "validated result"
+    },
+    {
+      "id": "commit-document--document-state",
+      "source": "commit-document",
+      "target": "document-state",
+      "value": "new revision"
+    },
+    {
+      "id": "document-state--graph-history",
+      "source": "document-state",
+      "target": "graph-history",
+      "value": "record edits"
+    },
+    {
+      "id": "graph-history--document-state",
+      "source": "graph-history",
+      "target": "document-state",
+      "value": "restore snapshot"
+    },
+    {
+      "id": "document-state--prepare-view",
+      "source": "document-state",
+      "target": "prepare-view",
+      "value": "graph and chart type"
+    },
+    {
+      "id": "prepare-view--measure-content",
+      "source": "prepare-view",
+      "target": "measure-content",
+      "value": "visible content"
+    },
+    {
+      "id": "measure-content--run-layout",
+      "source": "measure-content",
+      "target": "run-layout",
+      "value": "measured input"
+    },
+    {
+      "id": "run-layout--stage-data",
+      "source": "run-layout",
+      "target": "stage-data",
+      "value": "positions and routes"
+    },
+    {
+      "id": "stage-data--layout-intent",
+      "source": "stage-data",
+      "target": "layout-intent",
+      "value": "current baseline"
+    },
+    {
+      "id": "layout-intent--evaluate-layout",
+      "source": "layout-intent",
+      "target": "evaluate-layout",
+      "value": "local method"
+    },
+    {
+      "id": "layout-intent--ai-layout",
+      "source": "layout-intent",
+      "target": "ai-layout",
+      "value": "AI method"
+    },
+    {
+      "id": "ai-layout--evaluate-layout",
+      "source": "ai-layout",
+      "target": "evaluate-layout",
+      "value": "proposed intent"
+    },
+    {
+      "id": "evaluate-layout--review-layout",
+      "source": "evaluate-layout",
+      "target": "review-layout",
+      "value": "valid candidate"
+    },
+    {
+      "id": "review-layout--accept-layout",
+      "source": "review-layout",
+      "target": "accept-layout",
+      "value": "apply while current"
+    },
+    {
+      "id": "accept-layout--document-state",
+      "source": "accept-layout",
+      "target": "document-state",
+      "value": "accepted layout data"
+    },
+    {
+      "id": "render-svg--inspect-node",
+      "source": "render-svg",
+      "target": "inspect-node",
+      "value": "select and inspect"
+    },
+    {
+      "id": "render-svg--navigate-view",
+      "source": "render-svg",
+      "target": "navigate-view",
+      "value": "fit and navigate"
+    },
+    {
+      "id": "inspect-node--visual-edit",
+      "source": "inspect-node",
+      "target": "visual-edit",
+      "value": "edit fields"
+    },
+    {
+      "id": "navigate-view--project-groups",
+      "source": "navigate-view",
+      "target": "project-groups",
+      "value": "choose group scope"
+    },
+    {
+      "id": "project-groups--prepare-view",
+      "source": "project-groups",
+      "target": "prepare-view",
+      "value": "updated projection"
+    },
+    {
+      "id": "document-state--save-json",
+      "source": "document-state",
+      "target": "save-json",
+      "value": "complete document"
+    },
+    {
+      "id": "render-svg--export-svg",
+      "source": "render-svg",
+      "target": "export-svg",
+      "value": "visible SVG"
+    },
+    {
+      "id": "render-svg--export-html",
+      "source": "render-svg",
+      "target": "export-html",
+      "value": "visible snapshot"
+    },
+    {
+      "id": "document-state--export-html",
+      "source": "document-state",
+      "target": "export-html",
+      "value": "matching graph snapshot"
+    },
+    {
+      "id": "replace-session--persist-session",
+      "source": "replace-session",
+      "target": "persist-session",
+      "value": "recent location"
+    },
+    {
+      "id": "ai-edit--persist-session",
+      "source": "ai-edit",
+      "target": "persist-session",
+      "value": "AI session state"
+    },
+    {
+      "id": "field-json--definition-import",
+      "source": "field-json",
+      "target": "definition-import",
+      "value": "bundled JSON import"
+    },
+    {
+      "id": "definition-import--construct-style",
+      "source": "definition-import",
+      "target": "construct-style",
+      "value": "base field defaults"
+    },
+    {
+      "id": "chart-default-json--construct-style",
+      "source": "chart-default-json",
+      "target": "construct-style",
+      "value": "per-chart overrides"
+    },
+    {
+      "id": "construct-style--default-style",
+      "source": "construct-style",
+      "target": "default-style",
+      "value": "defaultChartStyle"
+    },
+    {
+      "id": "construct-style--resolve-style",
+      "source": "construct-style",
+      "target": "resolve-style",
+      "value": "chart-specific contract"
+    },
+    {
+      "id": "default-style--browser-style",
+      "source": "default-style",
+      "target": "browser-style",
+      "value": "initial and fallback values"
+    },
+    {
+      "id": "browser-style--resolve-style",
+      "source": "browser-style",
+      "target": "resolve-style",
+      "value": "validate saved envelopes"
+    },
+    {
+      "id": "preset-style--resolve-style",
+      "source": "preset-style",
+      "target": "resolve-style",
+      "value": "validate on module loading"
+    },
+    {
+      "id": "imported-style--resolve-style",
+      "source": "imported-style",
+      "target": "resolve-style",
+      "value": "validate before committing"
+    },
+    {
+      "id": "prepare-document--linked-style",
+      "source": "prepare-document",
+      "target": "linked-style",
+      "value": "optional metadata.style"
+    },
+    {
+      "id": "linked-style--resolve-style",
+      "source": "linked-style",
+      "target": "resolve-style",
+      "value": "validate linked document"
+    },
+    {
+      "id": "resolve-style--resolved-document",
+      "source": "resolve-style",
+      "target": "resolved-document",
+      "value": "valid values only"
+    },
+    {
+      "id": "resolved-document--activate-style",
+      "source": "resolved-document",
+      "target": "activate-style",
+      "value": "restored or document-linked style"
+    },
+    {
+      "id": "resolved-document--commit-style",
+      "source": "resolved-document",
+      "target": "commit-style",
+      "value": "selected preset or valid import"
+    },
+    {
+      "id": "activate-style--style-state",
+      "source": "activate-style",
+      "target": "style-state",
+      "value": "active chart history"
+    },
+    {
+      "id": "default-style--commit-style",
+      "source": "default-style",
+      "target": "commit-style",
+      "value": "Reset action"
+    },
+    {
+      "id": "style-state--style-controls",
+      "source": "style-state",
+      "target": "style-controls",
+      "value": "current values"
+    },
+    {
+      "id": "style-controls--ui-bindings",
+      "source": "style-controls",
+      "target": "ui-bindings",
+      "value": "edit field or object"
+    },
+    {
+      "id": "ui-bindings--validate-edit",
+      "source": "ui-bindings",
+      "target": "validate-edit",
+      "value": "path and proposed values"
+    },
+    {
+      "id": "construct-style--validate-edit",
+      "source": "construct-style",
+      "target": "validate-edit",
+      "value": "defaults and constraints"
+    },
+    {
+      "id": "validate-edit--commit-style",
+      "source": "validate-edit",
+      "target": "commit-style",
+      "value": "valid complete style"
+    },
+    {
+      "id": "commit-style--style-state",
+      "source": "commit-style",
+      "target": "style-state",
+      "value": "new style revision"
+    },
+    {
+      "id": "style-state--style-undo",
+      "source": "style-state",
+      "target": "style-undo",
+      "value": "available history"
+    },
+    {
+      "id": "style-undo--style-state",
+      "source": "style-undo",
+      "target": "style-state",
+      "value": "restored values"
+    },
+    {
+      "id": "style-state--persist-style",
+      "source": "style-state",
+      "target": "persist-style",
+      "value": "preferences effect"
+    },
+    {
+      "id": "persist-style--persist-session",
+      "source": "persist-style",
+      "target": "persist-session",
+      "value": "browser storage"
+    },
+    {
+      "id": "style-state--extract-geometry",
+      "source": "style-state",
+      "target": "extract-geometry",
+      "value": "geometry-relevant values"
+    },
+    {
+      "id": "font-readiness--extract-geometry",
+      "source": "font-readiness",
+      "target": "extract-geometry",
+      "value": "font metrics key"
+    },
+    {
+      "id": "extract-geometry--geometry-cache",
+      "source": "extract-geometry",
+      "target": "geometry-cache",
+      "value": "stable comparison key"
+    },
+    {
+      "id": "geometry-cache--measure-content",
+      "source": "geometry-cache",
+      "target": "measure-content",
+      "value": "settled geometry and fonts"
+    },
+    {
+      "id": "style-state--layout-options",
+      "source": "style-state",
+      "target": "layout-options",
+      "value": "display and chart settings"
+    },
+    {
+      "id": "layout-options--run-layout",
+      "source": "layout-options",
+      "target": "run-layout",
+      "value": "additional layout inputs"
+    },
+    {
+      "id": "style-state--svg-vars",
+      "source": "style-state",
+      "target": "svg-vars",
+      "value": "cssVars and effects"
+    },
+    {
+      "id": "style-state--svg-properties",
+      "source": "style-state",
+      "target": "svg-properties",
+      "value": "display, palette and performance"
+    },
+    {
+      "id": "style-state--css-custom",
+      "source": "style-state",
+      "target": "css-custom",
+      "value": "appearance.css"
+    },
+    {
+      "id": "css-base--svg-defs",
+      "source": "css-base",
+      "target": "svg-defs",
+      "value": "first named layer"
+    },
+    {
+      "id": "css-theme--svg-defs",
+      "source": "css-theme",
+      "target": "svg-defs",
+      "value": "second named layer"
+    },
+    {
+      "id": "css-custom--svg-defs",
+      "source": "css-custom",
+      "target": "svg-defs",
+      "value": "third named layer"
+    },
+    {
+      "id": "svg-properties--svg-defs",
+      "source": "svg-properties",
+      "target": "svg-defs",
+      "value": "arrow marker style"
+    },
+    {
+      "id": "svg-vars--svg-compose",
+      "source": "svg-vars",
+      "target": "svg-compose",
+      "value": "root SVG style"
+    },
+    {
+      "id": "svg-properties--svg-compose",
+      "source": "svg-properties",
+      "target": "svg-compose",
+      "value": "attributes and component props"
+    },
+    {
+      "id": "svg-defs--svg-compose",
+      "source": "svg-defs",
+      "target": "svg-compose",
+      "value": "defs and embedded styles"
+    },
+    {
+      "id": "stage-data--svg-compose",
+      "source": "stage-data",
+      "target": "svg-compose",
+      "value": "positions and paths"
+    },
+    {
+      "id": "svg-compose--render-svg",
+      "source": "svg-compose",
+      "target": "render-svg",
+      "value": "rendered stage"
+    }
+  ],
+  "hierarchy_edges": [
+    {
+      "id": "contains-edit-inputs",
+      "source": "edit",
+      "target": "edit-inputs"
+    },
+    {
+      "id": "contains-edit-transaction",
+      "source": "edit",
+      "target": "edit-transaction"
+    },
+    {
+      "id": "contains-layout-baseline",
+      "source": "layout",
+      "target": "layout-baseline"
+    },
+    {
+      "id": "contains-layout-proposal",
+      "source": "layout",
+      "target": "layout-proposal"
+    },
+    {
+      "id": "contains-choose-source",
+      "source": "open",
+      "target": "choose-source"
+    },
+    {
+      "id": "contains-discover-files",
+      "source": "open",
+      "target": "discover-files"
+    },
+    {
+      "id": "contains-prepare-document",
+      "source": "open",
+      "target": "prepare-document"
+    },
+    {
+      "id": "contains-replace-session",
+      "source": "open",
+      "target": "replace-session"
+    },
+    {
+      "id": "contains-visual-edit",
+      "source": "edit-inputs",
+      "target": "visual-edit"
+    },
+    {
+      "id": "contains-console-input",
+      "source": "edit-inputs",
+      "target": "console-input"
+    },
+    {
+      "id": "contains-ai-edit",
+      "source": "edit-inputs",
+      "target": "ai-edit"
+    },
+    {
+      "id": "contains-apply-command",
+      "source": "edit-transaction",
+      "target": "apply-command"
+    },
+    {
+      "id": "contains-commit-document",
+      "source": "edit-transaction",
+      "target": "commit-document"
+    },
+    {
+      "id": "contains-document-state",
+      "source": "edit-transaction",
+      "target": "document-state"
+    },
+    {
+      "id": "contains-graph-history",
+      "source": "edit-transaction",
+      "target": "graph-history"
+    },
+    {
+      "id": "contains-style-sources",
+      "source": "appearance",
+      "target": "style-sources"
+    },
+    {
+      "id": "contains-style-controls",
+      "source": "style-session",
+      "target": "style-controls"
+    },
+    {
+      "id": "contains-resolve-style",
+      "source": "style-loading",
+      "target": "resolve-style"
+    },
+    {
+      "id": "contains-style-state",
+      "source": "style-session",
+      "target": "style-state"
+    },
+    {
+      "id": "contains-prepare-view",
+      "source": "layout-baseline",
+      "target": "prepare-view"
+    },
+    {
+      "id": "contains-measure-content",
+      "source": "layout-baseline",
+      "target": "measure-content"
+    },
+    {
+      "id": "contains-run-layout",
+      "source": "layout-baseline",
+      "target": "run-layout"
+    },
+    {
+      "id": "contains-stage-data",
+      "source": "layout-baseline",
+      "target": "stage-data"
+    },
+    {
+      "id": "contains-layout-intent",
+      "source": "layout-proposal",
+      "target": "layout-intent"
+    },
+    {
+      "id": "contains-ai-layout",
+      "source": "layout-proposal",
+      "target": "ai-layout"
+    },
+    {
+      "id": "contains-evaluate-layout",
+      "source": "layout-proposal",
+      "target": "evaluate-layout"
+    },
+    {
+      "id": "contains-review-layout",
+      "source": "layout-proposal",
+      "target": "review-layout"
+    },
+    {
+      "id": "contains-accept-layout",
+      "source": "layout-proposal",
+      "target": "accept-layout"
+    },
+    {
+      "id": "contains-render-svg",
+      "source": "canvas",
+      "target": "render-svg"
+    },
+    {
+      "id": "contains-inspect-node",
+      "source": "canvas",
+      "target": "inspect-node"
+    },
+    {
+      "id": "contains-navigate-view",
+      "source": "canvas",
+      "target": "navigate-view"
+    },
+    {
+      "id": "contains-project-groups",
+      "source": "canvas",
+      "target": "project-groups"
+    },
+    {
+      "id": "contains-save-json",
+      "source": "output",
+      "target": "save-json"
+    },
+    {
+      "id": "contains-export-svg",
+      "source": "output",
+      "target": "export-svg"
+    },
+    {
+      "id": "contains-export-html",
+      "source": "output",
+      "target": "export-html"
+    },
+    {
+      "id": "contains-persist-session",
+      "source": "output",
+      "target": "persist-session"
+    },
+    {
+      "id": "contains-style-loading",
+      "source": "appearance",
+      "target": "style-loading"
+    },
+    {
+      "id": "contains-style-session",
+      "source": "appearance",
+      "target": "style-session"
+    },
+    {
+      "id": "contains-style-geometry",
+      "source": "layout-baseline",
+      "target": "style-geometry"
+    },
+    {
+      "id": "contains-style-rendering",
+      "source": "canvas",
+      "target": "style-rendering"
+    },
+    {
+      "id": "contains-field-json",
+      "source": "style-sources",
+      "target": "field-json"
+    },
+    {
+      "id": "contains-definition-import",
+      "source": "style-sources",
+      "target": "definition-import"
+    },
+    {
+      "id": "contains-chart-default-json",
+      "source": "style-sources",
+      "target": "chart-default-json"
+    },
+    {
+      "id": "contains-construct-style",
+      "source": "style-sources",
+      "target": "construct-style"
+    },
+    {
+      "id": "contains-default-style",
+      "source": "style-sources",
+      "target": "default-style"
+    },
+    {
+      "id": "contains-browser-style",
+      "source": "style-loading",
+      "target": "browser-style"
+    },
+    {
+      "id": "contains-preset-style",
+      "source": "style-loading",
+      "target": "preset-style"
+    },
+    {
+      "id": "contains-imported-style",
+      "source": "style-loading",
+      "target": "imported-style"
+    },
+    {
+      "id": "contains-linked-style",
+      "source": "style-loading",
+      "target": "linked-style"
+    },
+    {
+      "id": "contains-resolved-document",
+      "source": "style-loading",
+      "target": "resolved-document"
+    },
+    {
+      "id": "contains-activate-style",
+      "source": "style-session",
+      "target": "activate-style"
+    },
+    {
+      "id": "contains-ui-bindings",
+      "source": "style-session",
+      "target": "ui-bindings"
+    },
+    {
+      "id": "contains-validate-edit",
+      "source": "style-session",
+      "target": "validate-edit"
+    },
+    {
+      "id": "contains-commit-style",
+      "source": "style-session",
+      "target": "commit-style"
+    },
+    {
+      "id": "contains-style-undo",
+      "source": "style-session",
+      "target": "style-undo"
+    },
+    {
+      "id": "contains-persist-style",
+      "source": "style-session",
+      "target": "persist-style"
+    },
+    {
+      "id": "contains-extract-geometry",
+      "source": "style-geometry",
+      "target": "extract-geometry"
+    },
+    {
+      "id": "contains-font-readiness",
+      "source": "style-geometry",
+      "target": "font-readiness"
+    },
+    {
+      "id": "contains-geometry-cache",
+      "source": "style-geometry",
+      "target": "geometry-cache"
+    },
+    {
+      "id": "contains-layout-options",
+      "source": "style-geometry",
+      "target": "layout-options"
+    },
+    {
+      "id": "contains-svg-vars",
+      "source": "style-rendering",
+      "target": "svg-vars"
+    },
+    {
+      "id": "contains-svg-properties",
+      "source": "style-rendering",
+      "target": "svg-properties"
+    },
+    {
+      "id": "contains-svg-defs",
+      "source": "style-rendering",
+      "target": "svg-defs"
+    },
+    {
+      "id": "contains-css-base",
+      "source": "style-rendering",
+      "target": "css-base"
+    },
+    {
+      "id": "contains-css-theme",
+      "source": "style-rendering",
+      "target": "css-theme"
+    },
+    {
+      "id": "contains-css-custom",
+      "source": "style-rendering",
+      "target": "css-custom"
+    },
+    {
+      "id": "contains-svg-compose",
+      "source": "style-rendering",
+      "target": "svg-compose"
+    }
+  ]
+}

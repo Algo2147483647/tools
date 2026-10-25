@@ -34,10 +34,10 @@ export function TimelineLayoutReview({
     ["movedEvents", "Moved events"],
   ];
   return (
-    <div className="compound-layout-backdrop" onClick={close}>
+    <div className="timeline-review-backdrop" onClick={close}>
       <div
         ref={dialog}
-        className="compound-layout-dialog"
+        className="timeline-review-dialog"
         role="dialog"
         aria-modal="true"
         aria-label="Review timeline layout"
@@ -79,7 +79,7 @@ export function TimelineLayoutReview({
             </button>
           </div>
         </header>
-        <div className="compound-layout-previews">
+        <div className="timeline-review-previews">
           <figure>
             <figcaption>Current</figcaption>
             <TimelineMiniature stage={review.baseline} appearance={appearance} scale={scale} />

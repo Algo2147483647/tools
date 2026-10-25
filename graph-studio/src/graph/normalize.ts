@@ -125,7 +125,9 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
     const error = getSankeyError(nodes as GraphDocument["nodes"], input.edges as unknown as GraphDocument["edges"]);
     if (error) throw new Error(error);
   }
-  return indexGraphDocument(structuredClone(input) as unknown as NormalizedDag);
+  const document = structuredClone(input) as unknown as NormalizedDag;
+  if (document.metadata) delete document.metadata.layout;
+  return indexGraphDocument(document);
 }
 
 export function createGraphDocument(

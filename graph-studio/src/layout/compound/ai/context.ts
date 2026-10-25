@@ -9,7 +9,7 @@ export function buildCompoundLayoutContext(
     protocolVersion: 1,
     defaultIntent,
     ...inspection,
-    supportedConstraints: ["direction", "pin", "unpin", "prefer-outer-route", "port-side"],
+    supportedConstraints: ["direction", "prefer-outer-route", "port-side"],
     pending,
   };
 }

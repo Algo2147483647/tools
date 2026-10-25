@@ -10,15 +10,13 @@ import { cardContentLayout, minimumCardHeight } from "../shared/typography";
 import { layoutCompoundHierarchy } from "./hierarchy-layout";
 import {
   COMPOUND_LAYOUT_VERSION,
-  defaultLayoutIntent,
   layoutFingerprint,
-  readLayoutData,
+  emptyLayoutData,
+  type CompoundLayoutData,
+  type LayoutResult,
   type LayoutProblem,
-  type LayoutSnapshot,
 } from "./layout-plan";
-import { validateLayoutGeometry } from "./layout-quality";
-import { solveCompoundLayout, validateLayoutConstraints } from "./layout-solver";
-import { routeCompoundEdges } from "./routing/router";
+import { arrangeCompound } from "./automatic";
 
 export async function buildCompoundStage(input: {
   dag: NormalizedDag;
@@ -28,6 +26,8 @@ export async function buildCompoundStage(input: {
   showNodeDetail: boolean;
   alignNodeWidthsToMax: boolean;
   showEdgeLabels?: boolean;
+  layout?: CompoundLayoutData;
+  solve?: (problem: LayoutProblem) => Promise<LayoutResult>;
 }): Promise<StageData> {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
@@ -39,7 +39,9 @@ export async function buildCompoundStage(input: {
       .sort()
       .map((id, index) => [id, index]),
   );
-  const theme = appearance;
+  // Zero requested spacing still needs a routing corridor between card boundaries.
+  const theme = { ...appearance, nodes: { ...appearance.nodes, spacing: { ...appearance.nodes.spacing,
+    column: Math.max(12, appearance.nodes.spacing.column), row: Math.max(12, appearance.nodes.spacing.row) } } };
   const font = stageTitleFont(appearance);
   const detailFont = stageRoleFont(appearance, "detail"),
     detailLineHeight = Math.ceil(detailFont.size * 1.2);
@@ -110,8 +112,8 @@ export async function buildCompoundStage(input: {
         },
       ]),
   );
-  const read = readLayoutData(dag);
-  const warnings: string[] = read.warning ? [read.warning] : [];
+  const config = input.layout ?? emptyLayoutData();
+  const warnings: string[] = [];
   // Session font counters are excluded: measured dimensions and typography determine portability.
   const fingerprint = layoutFingerprint({
     engine: COMPOUND_LAYOUT_VERSION,
@@ -132,7 +134,7 @@ export async function buildCompoundStage(input: {
     showLabels: input.showEdgeLabels ?? false,
     columnGap: theme.nodes.spacing.column,
     rowGap: theme.nodes.spacing.row,
-    stored: { ...read.data, accepted: undefined },
+    stored: config,
     baseline: {
       boxes: Object.fromEntries(placement.boxes),
       routes: {},
@@ -140,48 +142,15 @@ export async function buildCompoundStage(input: {
       height: Math.max(placement.height, theme.canvas.minSize[1]),
     },
   };
-  let snapshot: LayoutSnapshot | undefined;
-  const accepted = read.data.accepted;
-  if (accepted?.fingerprint === fingerprint && accepted.engineVersion === COMPOUND_LAYOUT_VERSION) {
-    const validation = validateLayoutGeometry(problem, accepted.snapshot);
-    if (validation.valid && !validateLayoutConstraints(problem, accepted.snapshot, read.data).length)
-      snapshot = accepted.snapshot;
-    else warnings.push("The saved layout failed geometry validation and was recalculated.");
-  }
-  if (!snapshot) {
-    const routing = routeCompoundEdges(
-      projection,
-      placement.boxes,
-      { x: 0, y: 0, width: placement.width, height: placement.height },
-      input.showEdgeLabels ?? false,
-    );
-    snapshot = {
-      boxes: Object.fromEntries(placement.boxes),
-      routes: Object.fromEntries(routing.routes),
-      width: Math.max(routing.width, theme.canvas.minSize[0]),
-      height: Math.max(routing.height, theme.canvas.minSize[1]),
-    };
-    problem.baseline = snapshot;
-    if (read.data.constraints.length || read.data.pins.length) {
-      const intent = {
-        ...defaultLayoutIntent(projection.focusGroupId),
-        boundaryPolicy: "allow-ancestor-resize" as const,
-      };
-      try {
-        const solved = solveCompoundLayout(problem, intent, 1);
-        if (solved.candidates.length) snapshot = solved.candidates[0].snapshot;
-        else warnings.push(...solved.diagnostics);
-      } catch (error) {
-        warnings.push(error instanceof Error ? error.message : "Saved constraints could not be reapplied.");
-      }
-    }
-  }
-  problem.baseline = snapshot;
+  const solved = input.solve ? await input.solve(problem) : arrangeCompound(problem);
+  const geometry = solved.geometry;
+  warnings.push(...solved.diagnostics);
+  problem.baseline = geometry;
   const result = {
-    boxes: new Map(Object.entries(snapshot.boxes)),
-    routes: new Map(Object.entries(snapshot.routes)),
-    width: snapshot.width,
-    height: snapshot.height,
+    boxes: new Map(Object.entries(geometry.boxes)),
+    routes: new Map(Object.entries(geometry.routes)),
+    width: geometry.width,
+    height: geometry.height,
   };
   const nodes: StageNode[] = [];
   const groups: StageGroup[] = [];
@@ -275,6 +244,7 @@ export async function buildCompoundStage(input: {
   });
   return {
     compoundLayout: problem,
+    layoutQuality: solved.quality,
     dag: dag.nodes,
     layoutMode: "compound",
     root: "",

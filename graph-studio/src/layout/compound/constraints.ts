@@ -1,20 +1,11 @@
 import type { CompoundProjection } from "../../graph/compound/projection";
-import { type CompoundLayoutData, type LayoutIntent, type LayoutProblem, type LayoutSnapshot } from "./layout-plan";
-import { close, sameBox } from "./layout-quality";
+import { type CompoundLayoutData, type LayoutIntent, type LayoutProblem, type LayoutGeometry } from "./layout-plan";
+import { sameBox } from "./layout-quality";
 import { compoundTopology } from "./topology-layout";
 
 interface Scope {
   children: string[];
   edges: [string, string][];
-}
-
-export function pinProjectionKey(problem: LayoutProblem) {
-  return problem.viewKey;
-}
-
-export function activePins(problem: LayoutProblem, data: CompoundLayoutData) {
-  const key = pinProjectionKey(problem);
-  return data.pins.filter((p) => !p.projectionKey || p.projectionKey === key);
 }
 
 export function buildScopes(projection: CompoundProjection) {
@@ -78,32 +69,9 @@ export function compileConstraints(
   members: Set<string>,
 ): CompoundLayoutData {
   const data: CompoundLayoutData = structuredClone(problem.stored);
-  delete data.accepted;
   const items = new Map(problem.projection.items.map((i) => [i.id, i]));
   for (const c of intent.constraints) {
-    if (c.type === "pin" || c.type === "unpin") {
-      const item = items.get(c.nodeId);
-      if (!item || item.external || (!members.has(c.nodeId) && c.nodeId !== intent.scope.groupId))
-        throw new Error(`Node is outside the layout scope: ${c.nodeId}.`);
-      data.pins = data.pins.filter((p) => p.nodeId !== c.nodeId);
-      if (c.type === "pin") {
-        if (c.space === "parent" && item.parentId === null && problem.projection.focusGroupId !== null)
-          throw new Error(
-            "Use a canvas pin for a direct member of an entered group, or return to its parent view first.",
-          );
-        const box = problem.baseline.boxes[c.nodeId],
-          parent = item.parentId === null ? null : problem.baseline.boxes[item.parentId];
-        data.pins.push({
-          nodeId: c.nodeId,
-          parentId: item.parentId ?? problem.projection.focusGroupId,
-          space: c.space,
-          x: box.x - (c.space === "parent" ? (parent?.x ?? 0) : 0),
-          y: box.y - (c.space === "parent" ? (parent?.y ?? 0) : 0),
-          ...(c.space === "canvas" ? { projectionKey: pinProjectionKey(problem) } : {}),
-        });
-      }
-    } else if (c.type === "direction") {
-      if (intent.operation === "route-only") throw new Error("Route-only requests cannot change layout direction.");
+    if (c.type === "direction") {
       if (
         c.scopeId !== intent.scope.groupId &&
         !(
@@ -132,37 +100,23 @@ export function compileConstraints(
       data.constraints.push(c);
     }
   }
-  if (data.constraints.length > 500 || data.pins.length > 1000)
+  if (data.constraints.length > 500)
     throw new Error("Too many saved layout constraints; remove unused constraints first.");
   return data;
 }
 
 export function validateLayoutConstraints(
   problem: LayoutProblem,
-  snapshot: LayoutSnapshot,
-  data: CompoundLayoutData,
+  geometry: LayoutGeometry,
+  _data: CompoundLayoutData,
   intent?: LayoutIntent,
 ) {
   const errors: string[] = [];
   const items = new Map(problem.projection.items.map((i) => [i.id, i]));
-  for (const pin of activePins(problem, data)) {
-    const item = items.get(pin.nodeId),
-      b = snapshot.boxes[pin.nodeId];
-    if (!item || item.external || (item.parentId ?? problem.projection.focusGroupId) !== pin.parentId) continue;
-    if (!b) {
-      errors.push(`Missing pinned rectangle: ${pin.nodeId}.`);
-      continue;
-    }
-    // A canvas pin belongs to its captured projection; parent pins work at any visible parent origin.
-    const parent = item.parentId === null ? null : snapshot.boxes[item.parentId];
-    const x = b.x - (pin.space === "parent" ? (parent?.x ?? 0) : 0),
-      y = b.y - (pin.space === "parent" ? (parent?.y ?? 0) : 0);
-    if (!close(x, pin.x) || !close(y, pin.y)) errors.push(`Pinned node moved: ${pin.nodeId}.`);
-  }
   if (intent) {
     const members = layoutScopeMembers(problem, intent);
     for (const item of problem.projection.items) {
-      if (!snapshot.boxes[item.id]) {
+      if (!geometry.boxes[item.id]) {
         errors.push(`Missing rectangle: ${item.id}.`);
         continue;
       }
@@ -176,10 +130,9 @@ export function validateLayoutConstraints(
         ancestor = items.get(ancestor)?.parentId ?? null;
       }
       const frozen =
-        intent.operation === "route-only" ||
         item.external ||
         (intent.boundaryPolicy === "strict" && !members.has(item.id) && !carried);
-      if (frozen && !sameBox(problem.baseline.boxes[item.id], snapshot.boxes[item.id]))
+      if (frozen && !sameBox(problem.baseline.boxes[item.id], geometry.boxes[item.id]))
         errors.push(`Layout changed a fixed rectangle: ${item.id}.`);
       if (!intent.scope.includeDescendants && members.has(item.id) && item.kind === "group" && !item.collapsed) {
         const descendants = problem.projection.items.filter((i) => {
@@ -190,18 +143,18 @@ export function validateLayoutConstraints(
           }
           return false;
         });
-        const dx = snapshot.boxes[item.id].x - problem.baseline.boxes[item.id].x,
-          dy = snapshot.boxes[item.id].y - problem.baseline.boxes[item.id].y;
+        const dx = geometry.boxes[item.id].x - problem.baseline.boxes[item.id].x,
+          dy = geometry.boxes[item.id].y - problem.baseline.boxes[item.id].y;
         for (const d of descendants)
           if (
-            !snapshot.boxes[d.id] ||
+            !geometry.boxes[d.id] ||
             !sameBox(
               {
                 ...problem.baseline.boxes[d.id],
                 x: problem.baseline.boxes[d.id].x + dx,
                 y: problem.baseline.boxes[d.id].y + dy,
               },
-              snapshot.boxes[d.id],
+              geometry.boxes[d.id],
             )
           )
             errors.push(`Frozen subtree changed: ${item.id}.`);
@@ -213,7 +166,7 @@ export function validateLayoutConstraints(
 
 export function directionWarnings(
   problem: LayoutProblem,
-  snapshot: LayoutSnapshot,
+  geometry: LayoutGeometry,
   data: CompoundLayoutData,
 ): string[] {
   const { scopes } = buildScopes(problem.projection);
@@ -229,15 +182,15 @@ export function directionWarnings(
     const { forward } = compoundTopology(scope.children, scope.edges);
     if (
       forward.some(([a, b]) => {
-        const first = snapshot.boxes[a],
-          second = snapshot.boxes[b];
+        const first = geometry.boxes[a],
+          second = geometry.boxes[b];
         return constraint.value === "DOWN"
           ? second.y + second.height / 2 <= first.y + first.height / 2 + 0.01
           : second.x + second.width / 2 <= first.x + first.width / 2 + 0.01;
       })
     )
       warnings.push(
-        `Direction ${constraint.value} could not be fully satisfied in ${constraint.scopeId ?? "root"} within its bounds and pins.`,
+        `Direction ${constraint.value} could not be fully satisfied in ${constraint.scopeId ?? "root"} within this view.`,
       );
   }
   return warnings;

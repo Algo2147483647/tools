@@ -19,7 +19,7 @@ export function parseWorkspaceManifest(input: unknown): WorkspaceManifest {
   if (!isRecord(input) || input.format !== "graph-studio-workspace" || input.version !== 1)
     throw new Error("Unsupported workspace manifest. Expected graph-studio-workspace version 1.");
   for (const key of Object.keys(input))
-    if (!["format", "version", "name", "graphs", "defaultGraph", "metadata"].includes(key))
+    if (!["format", "version", "name", "graphs", "defaultGraph", "layouts", "metadata"].includes(key))
       throw new Error(`Unknown workspace field: ${key}`);
   if (input.name !== undefined && (typeof input.name !== "string" || !input.name.trim()))
     throw new Error("Workspace name must be a non-empty string.");
@@ -31,6 +31,14 @@ export function parseWorkspaceManifest(input: unknown): WorkspaceManifest {
     throw new Error("defaultGraph must be listed in graphs.");
   if (input.metadata !== undefined && !isRecord(input.metadata))
     throw new Error("Workspace metadata must be an object.");
+  if (input.layouts !== undefined) {
+    if (!isRecord(input.layouts)) throw new Error("Workspace layouts must map graph paths to layout paths.");
+    for (const [graph, path] of Object.entries(input.layouts)) {
+      if (!graphs.includes(graph)) throw new Error("Layout graph must be listed in graphs.");
+      const target = manifestPath(path);
+      if (graphs.includes(target) || target === WORKSPACE_MANIFEST) throw new Error("Layout must be a separate file.");
+    }
+  }
   validateJsonValue(input, "/workspace");
   return structuredClone(input) as unknown as WorkspaceManifest;
 }
@@ -61,7 +69,7 @@ export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: stri
   let skipped = 0;
   const paths =
     manifest?.graphs ??
-    [...folder.files.keys()].filter((path) => /\.json$/i.test(path) && path !== WORKSPACE_MANIFEST).sort();
+    [...folder.files.keys()].filter((path) => /\.json$/i.test(path) && path !== WORKSPACE_MANIFEST && !/\.layout\.json$/i.test(path)).sort();
   if (!manifest && paths.length > 1000)
     throw new Error(
       "More than 1,000 JSON files found. Add graph-studio.workspace.json to specify which graphs to load, or open a smaller folder.",

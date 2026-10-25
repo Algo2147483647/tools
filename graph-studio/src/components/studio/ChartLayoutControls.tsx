@@ -1,3 +1,4 @@
+import LayoutDocumentControls from "./LayoutDocumentControls";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import CompoundLayoutPanel from "../compound/LayoutPanel";
 import LayoutRules from "../ui/LayoutRules";
@@ -10,7 +11,10 @@ export type ChartLayoutControlsProps = Pick<
   StudioViewProps,
   "session" | "preferences" | "ui" | "viewport" | "ai" | "compoundLayoutPlan" | "timelineLayoutPlan"
 >;
-export default function ChartLayoutControls({
+export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
+  return <><LayoutDocumentControls state={props.session.state} dispatch={props.session.dispatch} /><ChartSpecificLayoutControls {...props} /></>;
+}
+function ChartSpecificLayoutControls({
   session,
   preferences,
   ui,

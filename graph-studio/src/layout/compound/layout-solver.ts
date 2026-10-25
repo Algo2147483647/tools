@@ -1,19 +1,17 @@
 import {
-  activePins,
   compileConstraints,
   directionWarnings,
   layoutScopeMembers,
   validateLayoutConstraints,
 } from "./constraints";
 import {
-  COMPOUND_LAYOUT_VERSION,
   layoutFingerprint,
   parseLayoutIntent,
   type LayoutCandidate,
   type LayoutDirection,
   type LayoutIntent,
   type LayoutProblem,
-  type LayoutSnapshot,
+  type LayoutGeometry,
   type LayoutSolveResult,
 } from "./layout-plan";
 import { compareLayoutMetrics, measureLayout, onPortSide, sameBox, validateLayoutGeometry } from "./layout-quality";
@@ -34,8 +32,7 @@ export function solveCompoundLayout(
   const baselineMetrics = measureLayout(problem, problem.baseline);
   const diagnostics: string[] = [],
     candidates: LayoutCandidate[] = [];
-  const directions: LayoutDirection[] =
-    intent.operation === "route-only" ? ["AUTO", "AUTO"] : ["AUTO", "RIGHT", "DOWN"];
+  const directions: LayoutDirection[] = ["AUTO", "RIGHT", "DOWN"];
   const seen = new Set<string>();
   for (let attempt = 0; attempt < Math.min(maxCandidates, directions.length); attempt++) {
     try {
@@ -77,50 +74,36 @@ export function solveCompoundLayout(
         problem.showLabels,
         { reverseOrder: attempt % 2 === 1, fixedRoutes, outerEdges, portSides, labelSizes: problem.labelSizes },
       );
-      const snapshot: LayoutSnapshot = {
+      const geometry: LayoutGeometry = {
         boxes: Object.fromEntries(Object.entries(boxes)),
         routes: Object.fromEntries(routed.routes),
         width: routed.width,
         height: routed.height,
       };
-      const validation = validateLayoutGeometry(problem, snapshot);
-      validation.errors.push(...validateLayoutConstraints(problem, snapshot, data, intent));
+      const validation = validateLayoutGeometry(problem, geometry);
+      validation.errors.push(...validateLayoutConstraints(problem, geometry, data, intent));
       validation.valid = validation.errors.length === 0;
       if (!validation.valid) {
         diagnostics.push(...validation.errors);
         continue;
       }
-      const signature = layoutFingerprint(snapshot);
+      const signature = layoutFingerprint(geometry);
       if (seen.has(signature)) continue;
       seen.add(signature);
-      const metrics = measureLayout(problem, snapshot);
-      const newRequirements =
-        intent.constraints.length > 0 ||
-        validateLayoutConstraints(problem, problem.baseline, data).length > 0 ||
-        data.constraints.length > 0;
-      if (!newRequirements && compareLayoutMetrics(metrics, baselineMetrics, intent.objective) >= 0) continue;
+      const metrics = measureLayout(problem, geometry);
       const candidateData = structuredClone(data);
-      candidateData.accepted = { fingerprint: problem.fingerprint, engineVersion: COMPOUND_LAYOUT_VERSION, snapshot };
       const changedNodeIds = [...changed];
       const unmetPreferences: string[] = [
-        ...directionWarnings(problem, snapshot, data),
+        ...directionWarnings(problem, geometry, data),
         ...aggregatedPreferenceWarnings,
       ];
-      for (const pin of data.pins)
-        if (
-          !activePins(problem, data).includes(pin) ||
-          !problem.projection.items.some((i) => i.id === pin.nodeId && !i.external)
-        )
-          unmetPreferences.push(
-            `Pin ${pin.nodeId} is inactive in this projection; it is preserved for its original view.`,
-          );
       for (const [edgeId, preferences] of portSides) {
         const edge = problem.projection.edges.find((e) => e.id === edgeId)!;
         for (const end of ["source", "target"] as const) {
           const side = preferences[end];
           if (side === undefined) continue;
           const box = boxes[edge[end]],
-            points = snapshot.routes[edgeId].points,
+            points = geometry.routes[edgeId].points,
             point = end === "source" ? points[0] : points.at(-1)!;
           if (!onPortSide(point, box, side))
             unmetPreferences.push(`Preferred ${end} port was unavailable for ${edge.originalEdgeIds.join(", ")}.`);
@@ -130,17 +113,14 @@ export function solveCompoundLayout(
       const effectiveDirection = scopeDirection?.type === "direction" ? scopeDirection.value : directions[attempt];
       candidates.push({
         id: `layout-${signature}`,
-        title:
-          intent.operation === "route-only"
-            ? `Route arrangement ${attempt + 1}`
-            : `${effectiveDirection === "AUTO" ? "Automatic" : effectiveDirection === "RIGHT" ? "Left-to-right" : "Top-to-bottom"} arrangement ${attempt + 1}`,
-        snapshot,
+        title: `${effectiveDirection === "AUTO" ? "Automatic" : effectiveDirection === "RIGHT" ? "Left-to-right" : "Top-to-bottom"} arrangement ${attempt + 1}`,
+        geometry,
         data: candidateData,
         metrics,
         validation,
         changedNodeIds,
         changedEdgeIds: problem.projection.edges
-          .filter((e) => JSON.stringify(problem.baseline.routes[e.id]) !== JSON.stringify(snapshot.routes[e.id]))
+          .filter((e) => JSON.stringify(problem.baseline.routes[e.id]) !== JSON.stringify(geometry.routes[e.id]))
           .flatMap((e) => e.originalEdgeIds),
         expandedGroupIds: problem.projection.items
           .filter(
@@ -167,4 +147,4 @@ export function solveCompoundLayout(
   return { candidates, baselineMetrics, diagnostics: [...new Set(diagnostics)].slice(0, 12) };
 }
 
-export { layoutScopeMembers, pinProjectionKey, validateLayoutConstraints } from "./constraints";
+export { layoutScopeMembers, validateLayoutConstraints } from "./constraints";

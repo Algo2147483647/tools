@@ -1,3 +1,4 @@
+import { readLinkedLayout } from "./linkedLayout";
 import { discoverWorkspace, readGraphFile } from "./discovery";
 import { readLinkedStyle } from "./linkedStyle";
 import type { LocationInput, RecentLocation } from "./locations";
@@ -9,14 +10,14 @@ export async function prepareWorkspace(folder: WorkspaceFolder, lastGraph?: stri
   const workspace = await discoverWorkspace(folder, lastGraph);
   const entry = workspace.activePath ? workspace.files.get(workspace.activePath)! : null;
   const dag = entry ? await readGraphFile(entry) : null;
-  return { workspace, entry, dag, ...(dag && entry ? await readLinkedStyle(dag, entry.path, workspace) : {}) };
+  return { workspace, entry, dag, ...(dag && entry ? { ...await readLinkedStyle(dag, entry.path, workspace), ...await readLinkedLayout(dag, entry.path, workspace) } : {}) };
 }
 export async function prepareWorkspaceGraph(workspace: GraphWorkspace, path: string) {
   const entry = workspace.files.get(path);
   if (!entry || !workspace.graphs.some((graph) => graph.path === path))
     throw new Error("Graph not found in the current workspace.");
   const dag = await readGraphFile(entry);
-  return { entry, dag, ...(await readLinkedStyle(dag, entry.path, workspace)) };
+  return { entry, dag, ...(await readLinkedStyle(dag, entry.path, workspace)), ...(await readLinkedLayout(dag, entry.path, workspace)) };
 }
 
 type IdentifyLocation = (input: LocationInput) => Promise<string>;

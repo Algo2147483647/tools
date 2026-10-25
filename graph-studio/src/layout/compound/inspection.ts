@@ -48,7 +48,6 @@ export function inspectCompoundLayout(problem: LayoutProblem, scopeId: string | 
       box: problem.baseline.boxes[i.id],
     })),
     edges: edges.slice(0, 120),
-    pins: problem.stored.pins.filter((p) => ids.has(p.nodeId)),
   };
 }
 export function diagnoseCompoundLayout(problem: LayoutProblem) {
@@ -60,8 +59,6 @@ export function diagnoseCompoundLayout(problem: LayoutProblem) {
     capabilities: {
       supported: [
         "scoped-layout",
-        "route-only",
-        "position-locks",
         "direction",
         "outer-route-preference",
         "port-side-preference",

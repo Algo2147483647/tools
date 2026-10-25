@@ -253,7 +253,7 @@ export function useAiController({
         const messageText = error instanceof Error ? error.message : "AI request failed.";
         if (layoutActive.current) {
           setLayoutMessage(messageText);
-          compoundLayout?.reveal();
+          compoundLayout?.cancel();
         }
         appendMessage("error", messageText);
         setHarness(next);

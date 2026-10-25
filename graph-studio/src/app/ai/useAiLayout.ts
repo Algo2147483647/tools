@@ -97,10 +97,10 @@ export function useAiLayout({
     // End the request before a commit changes its graph revision.
     layoutActive.current = false;
     const applied = outcome.feedback
-      ? compoundLayout.finishAi(!panelIntent && outcome.allowAutoApply && settings.executionMode === "auto-edit")
+      ? compoundLayout.finishAi()
       : false;
     const detail = [
-      applied ? "Layout applied. Undo restores the previous layout." : "",
+      applied ? "Layout applied. Undo restores the previous layout configuration." : "",
       outcome.feedback ? formatLayoutFeedback(outcome.feedback) : outcome.explanation,
     ]
       .filter(Boolean)

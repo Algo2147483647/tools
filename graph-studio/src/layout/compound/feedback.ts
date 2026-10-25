@@ -22,7 +22,7 @@ export function formatLayoutFeedback(feedback: LayoutFeedback): string {
   const metric = (key: keyof LayoutMetrics) => `${Math.round(baseline[key])} → ${Math.round(candidate.metrics[key])}`;
   return [
     improved
-      ? "Measured improvement; ready to compare."
+      ? "Measured improvement."
       : "A legal candidate is available; the selected quality score did not improve.",
     `Crossings: ${metric("crossings")}. Shared route length: ${metric("sharedLength")} px. Bends: ${metric("bends")}.`,
     `${candidate.metrics.movedNodes} rectangles changed; ${candidate.changedEdgeIds.length} connections affected.`,

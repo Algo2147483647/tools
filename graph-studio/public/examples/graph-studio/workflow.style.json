@@ -1,0 +1,119 @@
+{
+  "format": "graph-studio-style",
+  "version": 1,
+  "chartType": "compound",
+  "style": {
+    "showNodeDetail": false,
+    "hideNodeBorders": false,
+    "alignNodeWidthsToMax": true,
+    "appearance": {
+      "version": 1,
+      "canvas": {
+        "padding": [48, 48],
+        "minSize": [980, 600]
+      },
+      "nodes": {
+        "widths": [190, 230],
+        "height": 64,
+        "spacing": {
+          "column": 40,
+          "row": 24,
+          "channel": 24
+        },
+        "spread": 1,
+        "width": 20
+      },
+      "edges": {
+        "spacing": 28
+      },
+      "display": {
+        "titleAlign": "center",
+        "titleOverflow": "ellipsis",
+        "titleWrap": true,
+        "edgeArrowStyle": "open",
+        "showNodeDots": false,
+        "showEdgeLabels": true,
+        "showGroupStats": false,
+        "showGroupBorders": true,
+        "nodeCornerRadius": 20,
+        "nodeShadow": true,
+        "shadowBlur": 8,
+        "shadowOffset": 3,
+        "shadowOpacity": 12,
+        "sankeyLinkOpacity": 32
+      },
+      "cssVars": {
+        "--dag-text-strong": "#162033",
+        "--dag-text-soft": "#8792a2",
+        "--dag-edge": "#cccccc",
+        "--dag-edge-active": "#cc0000",
+        "--dag-node-fill": "#ffffff",
+        "--dag-node-border": "rgba(91, 109, 142, 0.17)",
+        "--dag-node-border-strong": "rgba(50, 79, 132, 0.35)",
+        "--dag-title-font-family": "\"Segoe UI\", sans-serif",
+        "--dag-title-font-size": "16px",
+        "--dag-title-font-style": "normal",
+        "--dag-title-font-weight": "400",
+        "--dag-detail-font-size": "10px",
+        "--dag-detail-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-detail-font-weight": "400",
+        "--dag-detail-font-style": "normal",
+        "--dag-date-font-size": "10px",
+        "--dag-date-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-date-font-weight": "400",
+        "--dag-date-font-style": "normal",
+        "--dag-axis-font-size": "11px",
+        "--dag-axis-font-family": "\"IBM Plex Mono\", Consolas, monospace",
+        "--dag-axis-font-weight": "400",
+        "--dag-axis-font-style": "normal",
+        "--dag-track-font-size": "12px",
+        "--dag-track-font-family": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+        "--dag-track-font-weight": "600",
+        "--dag-track-font-style": "normal",
+        "--dag-flow-active-opacity": "0.8",
+        "--dag-flow-muted-opacity": "0.12",
+        "--dag-timeline-muted-opacity": "0.28",
+        "--dag-timeline-soft-opacity": "0.24",
+        "--dag-timeline-hover-opacity": "0.38",
+        "--dag-timeline-label-opacity": "0.65",
+        "--dag-timeline-edge-opacity": "0.55",
+        "--dag-timeline-edge-muted-opacity": "0.07",
+        "--dag-timeline-edge-active-opacity": "1",
+        "--dag-timeline-edge-width": "1.7px",
+        "--dag-timeline-edge-active-width": "2.4px",
+        "--dag-timeline-selection-width": "2.5px",
+        "--dag-timeline-dash": "6 4",
+        "--dag-timeline-reference-dash": "3 5",
+        "--dag-timeline-backward-dash": "6 3",
+        "--dag-timeline-reference-opacity": "0.25",
+        "--dag-timeline-leader-dash": "4 3",
+        "--dag-shadow-color": "24, 39, 64",
+        "--dag-shadow-active-offset-scale": "1.5",
+        "--dag-shadow-active-blur-scale": "1.25"
+      },
+      "css": "",
+      "palette": {
+        "categories": [
+          [356, 58, 47],
+          [214, 62, 44],
+          [145, 52, 40],
+          [32, 66, 47],
+          [188, 54, 42],
+          [265, 48, 48],
+          [325, 48, 48],
+          [210, 24, 44]
+        ],
+        "groups": [
+          ["#fffdf5", "#fffbea", "#fff7df", "#fff4d5"],
+          ["#f5fdf9", "#edfdf5", "#e5fbf0", "#dcf8e9"],
+          ["#fff9f5", "#fff3eb", "#ffede1", "#ffe7d8"],
+          ["#f5fcff", "#edf9ff", "#e4f6ff", "#daf2ff"]
+        ]
+      },
+      "performance": {
+        "denseThresholds": [220, 440, 20000000],
+        "denseShadows": "disable"
+      }
+    }
+  }
+}

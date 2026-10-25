@@ -4,6 +4,15 @@ import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
 export const EXAMPLE_WORKSPACES = [
   {
+    id: "graph-studio",
+    title: "Graph Studio workflow",
+    kind: "Nested node-link",
+    description:
+      "Follow a graph from opening and editing through appearance, layout, canvas interaction and export. Inspect the full Appearance pipeline, AI commands and live layouts inside their owning processes.",
+    detail: "2 nested graphs · Core workflow & Appearance pipeline",
+    accent: "#526ea5",
+  },
+  {
     id: "spatial-atlas",
     title: "Spatial Atlas",
     kind: "Spatial",
@@ -143,7 +152,7 @@ export async function loadExampleWorkspace(
   const files = new Map<string, WorkspaceFile>([
     [WORKSPACE_MANIFEST, { path: WORKSPACE_MANIFEST, handle: null, file: manifestFile }],
   ]);
-  for (const path of new Set([...manifest.graphs, ...assetPaths])) {
+  for (const path of new Set([...manifest.graphs, ...Object.values(manifest.layouts ?? {}), ...assetPaths])) {
     if (path !== WORKSPACE_MANIFEST) files.set(path, { path, handle: null, loadFile: () => read(path) });
   }
   // A rolling pool avoids waiting for the slowest request in each fixed batch.

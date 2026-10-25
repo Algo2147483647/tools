@@ -131,33 +131,19 @@ export default function TimelineControls({
             unit="%"
             value={settings.compactness * 100}
             defaultValue={getDefaultChartStyle("timeline").timeline!.compactness * 100}
-            disabled={settings.locked}
+            
             onChange={(value) => onChange({ compactness: value / 100 })}
           />
         ),
       });
-    rows.push({
-      label: "Axis lock",
-      value: (
-        <label className="layout-rule-check">
-          <input
-            type="checkbox"
-            role="switch"
-            aria-label="Lock time axis"
-            checked={settings.locked}
-            onChange={(e) => onChange({ locked: e.target.checked })}
-          />
-          Lock axis
-        </label>
-      ),
-    });
+
   }
   return (
     <div className="timeline-layout-rules">
       <LayoutRules rows={rows} label="Timeline layout rules" />
       <div className="layout-actions">
         {showAxis && (
-          <button className="studio-button" type="button" disabled={settings.locked} onClick={onReadapt}>
+          <button className="studio-button" type="button"  onClick={onReadapt}>
             Fit visible events
           </button>
         )}

@@ -56,6 +56,7 @@ export function useGraphLayout({
     visibleDag: state.chartType === "timeline" ? displayDag : null,
     generation: state.document.generation,
     settings: timelineSettings,
+    layout: state.layoutDocument.data.charts.timeline,
     appearance: geometryAppearance,
     showNodeDetail,
     range: activeTimelineRange,
@@ -103,6 +104,7 @@ export function useGraphLayout({
         ? {
             dag: state.dag,
             view: compound.view,
+            layout: state.layoutDocument.data.charts.compound,
             showEdgeLabels: appearance.display.showEdgeLabels,
             selectedType: activeType,
             appearance: geometryAppearance,
@@ -114,6 +116,7 @@ export function useGraphLayout({
       state.chartType,
       state.dag,
       compound.view,
+      state.layoutDocument.data.charts.compound,
       activeType,
       geometryAppearance,
       showNodeDetail,

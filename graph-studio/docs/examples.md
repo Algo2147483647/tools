@@ -1,9 +1,10 @@
 # Example workspaces
 
-Below Recent workspaces, the homepage includes five separate workspaces, including Human History with Chinese and European history timelines. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
+Below Recent workspaces, the homepage includes independent example workspaces, including Graph Studio workflow and Human History with Chinese and European history timelines. Each has its own folder under `public/examples/`, containing a standard workspace manifest, independent v3 graph documents, and Markdown notes. Opening an example from the homepage creates new in-memory files with no writable source handles. Save JSON exports your edited graph; reopening a sample starts from the original files. Unsaved-change confirmation still applies when replacing an edited document.
 
 | Workspace             | Contents                                                                                                                                                                              |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Graph Studio workflow | Two English nested graphs: the core application workflow and the complete Appearance loading-to-rendering pipeline                                                                    |
 | Human History         | Two timelines: Chinese history (1273 nodes, 2322 relationships) and European history (598 nodes, 673 relationships), with guides and sources                                          |
 | Commerce operations   | 32 services and operations, 45 relationships, 14 nested groups; overview, order fulfillment and return journeys, plus operating notes                                                 |
 | Mathematics           | 202 concepts; subject overview, complete atlas, ten subject views; 202 linked concept notes, ten study guides and bibliography                                                        |
@@ -13,6 +14,12 @@ Below Recent workspaces, the homepage includes five separate workspaces, includi
 Examples also appear in Recents and restore the last graph without requesting a local folder. Refresh reloads the example's file list while preserving the currently edited document.
 
 The [Commerce operations guide](charts/compound.md) covers the nested node-link example. Its checked-in graphs are validated by the compound and example regression suites in `npm run check`.
+
+## Graph Studio workflow
+
+The [workflow guide](../public/examples/graph-studio/README.md) explains the application as a nested process graph. Open **Graph Studio workflow** from the homepage to follow document loading, transactional edits, appearance resolution, layout, SVG rendering and output. Editing and layout contain their own subgroups, including AI command validation and optional arrangement previews. Node details map each step to its implementation. Switch to **appearance-pipeline.json** for the full Appearance chain, including default composition, linked-style activation, history, geometry inputs, CSS variable conversion and SVG stylesheet layers. The [Appearance pipeline guide](../public/examples/graph-studio/appearance-pipeline.md) explains each path.
+
+The example uses a linked appearance file with visible group borders and edge labels. Containment represents ownership; labelled relationships represent data and control flow, including feedback cycles. The complete graph and its original relationships remain available when groups are collapsed.
 
 ## European history
 

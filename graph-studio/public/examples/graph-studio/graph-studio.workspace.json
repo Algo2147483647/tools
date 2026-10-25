@@ -1,0 +1,12 @@
+{
+  "format": "graph-studio-workspace",
+  "version": 1,
+  "name": "Graph Studio workflow",
+  "defaultGraph": "core-workflow.json",
+  "graphs": ["core-workflow.json", "appearance-pipeline.json"],
+  "metadata": {
+    "description": "Explore the core application workflow and complete Appearance pipeline as two English nested graphs.",
+    "language": "en",
+    "assets": ["README.md", "workflow.style.json", "appearance-pipeline.md"]
+  }
+}

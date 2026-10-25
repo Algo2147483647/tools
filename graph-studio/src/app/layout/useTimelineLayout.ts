@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch } from "react";
 import type { AiSettings } from "../../ai/types";
-import { readTimelineLayout, type TimelineLayoutData } from "../../graph/timeline/layoutData";
+import { type TimelineLayoutData } from "../../graph/timeline/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import { timelineLayoutContext } from "../../layout/timeline/ai/context";
 import { requestTimelineLayout } from "../../layout/timeline/ai/request";
@@ -92,7 +92,7 @@ export function useTimelineLayout(
     cancel();
     setReview(null);
     setMessage("");
-    const data = readTimelineLayout(current.current.state.dag).data;
+    const data = current.current.state.layoutDocument.data.charts.timeline;
     if (mode !== data.mode) commit({ ...data, mode });
   };
   const generate = async (prompt: string) => {
@@ -177,16 +177,16 @@ export function useTimelineLayout(
     setMessage("AI layout applied.");
     return true;
   };
-  const saved = readTimelineLayout(state.dag);
+  const saved = state.layoutDocument.data.charts.timeline;
   return {
     ready,
     busy,
     message,
     review,
     stale: !!review && review.key !== key,
-    mode: saved.data.mode,
-    hasPlan: !!saved.data.plan,
-    warning: saved.warning,
+    mode: saved.mode,
+    hasPlan: !!saved.plan,
+    warning: state.layoutDocument.notice,
     count: baseline?.nodes.length ?? 0,
     generate,
     cancel,

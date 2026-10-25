@@ -1,5 +1,6 @@
+import type { TimelineLayoutData } from "../../graph/timeline/layoutData";
 import { getTimelineClock } from "../../graph/timeline/clock";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { parseNodeTimeline } from "../../graph/timeline/time";
 import { getTimelineReferenceTime } from "../../graph/timeline/editing";
 import type { NormalizedDag } from "../../graph/types";
@@ -9,7 +10,6 @@ import type { TimelineTimeRange } from "../../graph/timeline/range";
 import type { StageAppearance } from "../../layout/shared/appearance";
 import { buildTimelineStage } from "../../layout/timeline/layout";
 import { projectTimelineStage } from "../../layout/timeline/project";
-import type { StageData } from "../../layout/shared/types";
 
 /** Filters project an existing layout. Only an explicit readapt changes its scope. */
 export function useTimelineStage(input: {
@@ -17,6 +17,7 @@ export function useTimelineStage(input: {
   visibleDag: NormalizedDag | null;
   generation: number;
   settings: TimelineViewSettings;
+  layout?: TimelineLayoutData;
   appearance: StageAppearance;
   showNodeDetail: boolean;
   range: TimelineTimeRange | null;
@@ -28,7 +29,6 @@ export function useTimelineStage(input: {
     range: TimelineTimeRange | null;
     revision: number;
   } | null>(null);
-  const retained = useRef<{ generation: number; revision: number; clock: string; stage: StageData | null }>();
   const activeScope = scope?.generation === generation ? scope : null;
   const asOf = getTimelineReferenceTime(dag);
   const clockMode = getTimelineClock(dag?.metadata).mode;
@@ -49,7 +49,6 @@ export function useTimelineStage(input: {
         .map(([key]) => key),
     [visibleDag, range, referenceTime, dag?.metadata],
   );
-  const clock = JSON.stringify([settings.axis, settings.compactness, getTimelineClock(dag?.metadata)]);
   const scopeKeys = activeScope ? JSON.stringify([...new Set([...activeScope.keys, ...currentKeys])].sort()) : "";
   const scopeRange =
     activeScope?.range && range
@@ -72,27 +71,18 @@ export function useTimelineStage(input: {
       const keys = new Set<string>(JSON.parse(scopeKeys));
       source = projectGraphDocument(dag, keys);
     }
-    const previous = retained.current;
-    const keep =
-      previous?.generation === generation &&
-      previous.revision === revision &&
-      previous.clock === clock &&
-      (settings.locked || activeScope);
     return {
       dag: source,
+      arrangement: input.layout?.mode === "ai" ? input.layout.plan : null,
       selection: { type: "full" as const },
       appearance,
       showNodeDetail,
       now: referenceTime,
       timelineSettings: settings,
-      timelineAxis: keep ? previous.stage?.timeline?.axisMap : undefined,
       timeRange: scopeRange ? JSON.parse(scopeRange) : undefined,
     };
-  }, [dag, generation, settings, appearance, showNodeDetail, scopeKeys, scopeRange, revision, referenceTime]);
+  }, [input.layout, dag, generation, settings, appearance, showNodeDetail, scopeKeys, scopeRange, revision, referenceTime]);
   const base = useMemo(() => (layoutInput ? buildTimelineStage(layoutInput) : null), [layoutInput]);
-  useEffect(() => {
-    retained.current = { generation, revision, clock, stage: base };
-  }, [base, generation, revision, clock]);
   const visibleKeys = useMemo(() => new Set(Object.keys(visibleDag?.nodes ?? {})), [visibleDag]);
   const stage = useMemo(() => projectTimelineStage(base, visibleKeys, range), [base, visibleKeys, range]);
   return {
@@ -100,7 +90,7 @@ export function useTimelineStage(input: {
     base,
     layoutInput,
     readapt: () => {
-      if (!settings.locked && stage)
+      if (stage)
         setScope({
           generation,
           keys: stage.nodes.map((node) => node.key),
