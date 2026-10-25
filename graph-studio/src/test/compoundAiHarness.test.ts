@@ -1,6 +1,5 @@
 import { createLayoutResult, type LayoutResultDocument } from "../schema/layoutResult";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import type { AiSettings } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
@@ -12,7 +11,6 @@ import { defaultLayoutSession, parseLayoutSession, repairLayoutSession } from ".
 import { compoundAiContext } from "../layout/compound/ai/request";
 import { runCompoundAiLayout } from "../layout/compound/ai/workflow";
 import { compoundExecutionFeedback } from "../layout/compound/ai/workflow";
-import { compoundTopology } from "../layout/compound/topology-layout";
 import { compareLayoutMetrics } from "../layout/compound/layout-quality";
 import { assertCompoundGeometry } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";

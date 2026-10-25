@@ -14,7 +14,6 @@ import { useMemo, useRef } from "react";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { getNodeTitle } from "../../graph/accessors";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
-import { getDefaultChartStyle } from "../../schema/appearance/styles";
 import { getParentLevelSelection, sanitizeNodeLabel } from "../../graph/selectors";
 import { projectGraphByType } from "../../graph/typeFilter";
 import { projectGraphByTimelineTrack } from "../../graph/timeline/view";
@@ -154,21 +153,8 @@ export function useGraphLayout({
     showNodeDetail,
     alignNodeWidthsToMax,
   ]);
-  const initialStyle =
-    state.document.linkedStyle && state.document.linkedChartType === state.chartType
-      ? state.document.linkedStyle
-      : getDefaultChartStyle(state.chartType);
-  const initialAppearanceKey = JSON.stringify([
-    getStageAppearance(initialStyle.appearance, state.chartType),
-    initialStyle.showNodeDetail,
-    initialStyle.alignNodeWidthsToMax,
-  ]);
-  // Linked Appearance is applied by the preference hook after the document's first render.
-  // Compare against that loaded style, not the previous document's transient appearance.
-  const loadedAppearance = useRef({ generation: state.document.generation, saved, key: initialAppearanceKey });
-  if (loadedAppearance.current.generation !== state.document.generation)
-    loadedAppearance.current = { generation: state.document.generation, saved, key: initialAppearanceKey };
-  else if (loadedAppearance.current.saved !== saved)
+  const loadedAppearance = useRef({ generation: state.document.generation, saved, key: appearanceKey });
+  if (loadedAppearance.current.generation !== state.document.generation || loadedAppearance.current.saved !== saved)
     loadedAppearance.current = { generation: state.document.generation, saved, key: appearanceKey };
   const settingsKey = JSON.stringify(
     renderingSettings(state.chartType, state.layoutSession.data.charts, scope, state.timelineSettings),

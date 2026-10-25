@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type Dispatch } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from "react";
 import type { AiSettings } from "../../ai/types";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../../layout/compound/inspection";
 import { defaultLayoutIntent, parseLayoutIntent, type CompoundLayoutData } from "../../layout/compound/layout-plan";
@@ -16,6 +16,7 @@ import type { GraphAppState } from "../document/initialState";
 import type { useCompoundStage } from "./useCompoundStage";
 import { computeCompoundStage, compoundInputKey } from "./computeCompoundStage";
 import { useAiActivity } from "../ai/useAiActivity";
+import { captureLayoutGeometry, layoutIdentity, renderingSettings, type LayoutRendering } from "../../schema/layoutGeometry";
 
 export function useCompoundLayoutPlan(
   state: GraphAppState,
@@ -24,6 +25,7 @@ export function useCompoundLayoutPlan(
     stage: StageData | null;
     focusedKey: string | null;
     compoundLayout: ReturnType<typeof useCompoundStage>;
+    layoutRenderingContext: Omit<LayoutRendering, "geometry"> | null;
   },
   aiSettings: AiSettings,
 ) {
@@ -47,8 +49,10 @@ export function useCompoundLayoutPlan(
     report: CompoundAiReport;
     inputKey: string;
     dag: GraphAppState["dag"];
-    quality: StageData["layoutQuality"];
+    geometryKey: string;
   } | null>(null);
+  const savedGeometry = state.layoutSession.data.renderings?.compound?.geometry;
+  const savedGeometryKey = useMemo(() => savedGeometry ? layoutIdentity(savedGeometry) : "", [savedGeometry]);
   const [evaluations, setEvaluations] = useState<CompoundAiEvaluation[]>([]);
   useEffect(() => {
     clearActivity();
@@ -157,19 +161,22 @@ export function useCompoundLayoutPlan(
         const nextInput = { ...input, layout: data };
         const stage = computed ?? (await computeCompoundStage(nextInput, abort.signal));
         if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
-        // Transfer the one computed stage into the live renderer, then commit only its declaration.
-        if (!initial.viewport.compoundLayout.install(input, nextInput, stage)) {
-          setMessage("Layout context changed. AI result was not applied.");
-          return "Layout context changed.";
-        }
+        const context = initial.viewport.layoutRenderingContext;
+        if (!context) return "Layout context changed.";
+        const charts = { ...initial.state.layoutSession.data.charts, compound: data };
+        const rendering: LayoutRendering = {
+          ...context,
+          geometry: captureLayoutGeometry(stage),
+          settingsFingerprint: layoutIdentity(renderingSettings("compound", charts, context.scope, context.timelineSettings)),
+        };
         // Commit the model's selection without invoking the Automatic tab reset.
         dispatch({
           type: "layoutSessionChanged",
           generation: initial.state.document.generation,
           data: {
             ...initial.state.layoutSession.data,
-            renderings: { ...initial.state.layoutSession.data.renderings, compound: undefined },
-            charts: { ...initial.state.layoutSession.data.charts, compound: data },
+            renderings: { ...initial.state.layoutSession.data.renderings, compound: rendering },
+            charts,
           },
         });
         if (report)
@@ -177,7 +184,7 @@ export function useCompoundLayoutPlan(
             report,
             inputKey: compoundInputKey(nextInput),
             dag: initial.state.dag,
-            quality: stage.layoutQuality,
+            geometryKey: layoutIdentity(rendering.geometry),
           });
         const outcome =
           report?.candidateId === "current"
@@ -214,7 +221,7 @@ export function useCompoundLayoutPlan(
     lastRun: lastRun?.report ?? null,
     lastRunCurrent:
       !!lastRun &&
-      lastRun.quality === viewport.stage?.layoutQuality &&
+      lastRun.geometryKey === savedGeometryKey &&
       lastRun.dag === state.dag &&
       lastRun.inputKey === viewport.compoundLayout.inputKey &&
       state.chartType === "compound",

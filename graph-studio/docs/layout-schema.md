@@ -26,7 +26,7 @@ Opening or expanding/collapsing the graph calculates the visible layout using cu
 
 ## Schema Layout: AI output and rendering
 
-`src/schema/layoutResult.ts` defines the provider JSON Schema, Schema tab fields, response parser and renderer adapter together. **Current JSON** shows the currently rendered result in this same protocol, not the settings file.
+`src/schema/layoutResult.ts` defines the provider JSON Schema, Schema tab fields and response parser. `src/layout/shared/applyLayoutResult.ts` applies validated results directly to measured stage data; the Schema module does not depend on rendering algorithms. **Current JSON** shows the currently rendered result in this same protocol, not the settings file.
 
 ```json
 {

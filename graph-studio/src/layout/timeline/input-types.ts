@@ -21,5 +21,4 @@ export interface TimelineLayoutInput {
   timelineSettings?: Partial<TimelineViewSettings>;
   timelineAxis?: TimelineAxisMap;
   axisSource?: NormalizedDag;
-  nodeLabels?: Record<string, { width: number; displayTitle: string }>;
 }

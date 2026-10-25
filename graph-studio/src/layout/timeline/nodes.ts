@@ -9,7 +9,6 @@ export function createTimelineNodeFactory(
   context: PreparedTimeline & { fixedPositions: Record<string, number>; topLevel: Set<string>; minimumCross: number },
 ) {
   const {
-    input,
     dag,
     showNodeDetail,
     settings,
@@ -57,17 +56,15 @@ export function createTimelineNodeFactory(
       labelX = x + 22;
     }
     const contentWidth =
-      input.nodeLabels?.[entry.key]?.width ??
-      (!showNodeDetail
+      !showNodeDetail
         ? Math.min(
             labelWidth,
             Math.max(110, measureText(visual.title, titleFont) + 16, measureText(time.label, dateFont) + 12),
           )
-        : labelWidth);
+        : labelWidth;
     const inside = time.kind === "range" && settings.intervalTitle === "inside";
     const insideWidth = settings.orientation === "horizontal" ? entry.endY - entry.startY : intervalWidth;
     const displayTitle =
-      input.nodeLabels?.[entry.key]?.displayTitle ??
       fitMeasuredText(visual.title, inside ? Math.max(0, insideWidth - 16) : contentWidth - 6, titleFont);
     const isDated = time.status === "dated";
     return {

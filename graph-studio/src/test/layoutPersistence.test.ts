@@ -89,7 +89,7 @@ export const layoutPersistenceSuite = defineSuite("Layout configuration and resu
   defineTest("legacy associations ignore even invalid geometry and restore settings only", async () => {
     const { dag, document, settings } = timelineFixture("horizontal");
     const file = createLayoutConfigFile(document,"timeline",settings);
-    const legacy = { format:"graph-studio-layout",version:3,chartType:"timeline",layout:{settings:{...file.settings,plan:{placements:[{id:"b",cross:9999}]}},geometry:{corrupt:true}};
+    const legacy = { format:"graph-studio-layout",version:3,chartType:"timeline",layout:{settings:{...file.settings,plan:{placements:[{id:"b",cross:9999}]}},geometry:{corrupt:true}}};
     assert.deepEqual(readLayoutConfig(legacy),file);
     const linked = await readLinkedLayout({...dag,metadata:{...dag.metadata,layout:"graph.layout.json"}},"graph.json",{name:"fixture",handle:null,files:new Map([["graph.layout.json",{path:"graph.layout.json",handle:null,file:new File([JSON.stringify(legacy)],"graph.layout.json")}]])});
     assert.equal(linked.layoutNotice,undefined); assert.equal(linked.linkedLayout!.renderings,undefined);
@@ -119,7 +119,7 @@ export const layoutPersistenceSuite = defineSuite("Layout configuration and resu
       assert.ok(markup.includes("geometry.nodes[].position"));
       assert.equal(markup.includes("geometry.groups[].position"),chart==="compound");
       assert.equal(markup.includes("geometry.nodes[].label"),chart==="timeline");
-      assert.ok(!markup.includes("Fingerprint")&&!markup.includes("displayTitle")&&!markup.includes("settings"));
+      assert.ok(!markup.includes("Fingerprint")&&!markup.includes("displayTitle")&&!layoutResultFields(chart).some(field=>field.path.includes("settings")));
       assert.deepEqual(parseLayoutResult(createLayoutResult(null,chart),chart),createLayoutResult(null,chart));
     }
   }),

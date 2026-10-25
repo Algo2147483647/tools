@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { StageData } from "../../layout/shared/types";
 import { computeCompoundStage, compoundInputKey, type CompoundStageInput } from "./computeCompoundStage";
 
@@ -6,8 +6,6 @@ type Result = { dag: CompoundStageInput["dag"]; key: string; stage: StageData | 
 export function useCompoundStage(input: CompoundStageInput | null) {
   const [result, setResult] = useState<Result | null>(null);
   const installed = useRef<Result | null>(null);
-  const current = useRef(input);
-  current.current = input;
   const key = input ? compoundInputKey(input) : "";
   useEffect(() => {
     if (!input) {
@@ -40,18 +38,10 @@ export function useCompoundStage(input: CompoundStageInput | null) {
       abort.abort();
     };
   }, [input]);
-  const install = useCallback((expected: CompoundStageInput, next: CompoundStageInput, stage: StageData) => {
-    if (current.current !== expected) return false;
-    const value = { dag: next.dag, key: compoundInputKey(next), stage, error: "" };
-    installed.current = value;
-    setResult(value);
-    return true;
-  }, []);
   const matches = result?.dag === input?.dag && result?.key === key;
   return {
     input,
     inputKey: key,
-    install,
     stage: matches ? (result?.stage ?? null) : null,
     error: matches ? (result?.error ?? "") : "",
     loading: Boolean(input && !matches),

@@ -107,4 +107,4 @@ Ordinary cards, collapsed cards, expanded frames, and group titles are distinct 
 
 Graph JSON preserves all members and original relationships. SVG and interactive HTML capture the visible projection. Expand groups before exporting if their individual members must be included; the offline HTML snapshot cannot expand a collapsed group.
 
-Implementation: [containment projection](../../src/graph/compound/projection.ts), [Layout protocol](../../src/schema/layoutProtocol.ts), [graph types](../../src/graph/types.ts), [stage rendering](../../src/components/canvas/GraphStage.tsx).
+Implementation: [containment projection](../../src/graph/compound/projection.ts), [Layout protocol](../../src/schema/layoutResult.ts), [graph types](../../src/graph/types.ts), [stage rendering](../../src/components/canvas/GraphStage.tsx).
