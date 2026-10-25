@@ -6,6 +6,6 @@
     "method": "automatic",
     "direction": "AUTO",
     "objective": "readability",
-    "portMode": "distributed"
+    "portMode": "midpoints"
   }
 }

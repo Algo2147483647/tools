@@ -20,6 +20,7 @@ export const LANE_GAP = 16;
 export interface CompoundRoutingOptions {
   portMode?: "distributed" | "midpoints";
   reverseOrder?: boolean;
+  edgePriority?: Map<string, number>;
   fixedRoutes?: Map<string, CompoundRoute>;
   outerEdges?: Set<string>;
   portSides?: Map<string, { source?: number; target?: number }>;

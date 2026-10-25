@@ -65,36 +65,23 @@ Chart variants:
 
 ## Compound AI interaction protocol
 
-`layout/compound/ai/decision.ts` defines a separate versioned interaction schema. Every response requires `protocolVersion: 1`; unversioned decisions and other versions are rejected. This version does not change Layout v4, graph data, or settings files. There is no old-protocol adapter.
+`layout/compound/ai/decision.ts` requires `protocolVersion: 2`. Version 1, unversioned decisions, `propose` and full-geometry `evaluate` are rejected. This protocol does not change Layout v4 or saved graph/settings schemas.
 
-| Action     | Required payload                                           | Execution                                                          |
-| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------ |
-| `propose`  | `hypothesis`, `intent`                                     | Programmatic placement, group fitting, ports, routing and labels.  |
-| `revise`   | `hypothesis`, `baseCandidateId`, `baseRevision`, `changes` | Apply ordered local changes to the exact immutable draft revision. |
-| `evaluate` | `hypothesis`, complete v4 `layout`                         | Validate exact geometry without rerouting it.                      |
-| `finish`   | `candidateId`, `summary`                                   | Select a legal evaluated candidate (or the legal starting layout). |
+| Action | Required payload | Execution |
+| --- | --- | --- |
+| `design` | `hypothesis`, `design`, `review` | Replace the spatial composition and compute complete geometry. Initial review is null; subsequent designs review the current candidate. |
+| `revise` | `hypothesis`, `baseCandidateId`, `baseRevision`, `changes`, `review` | Apply local changes to the exact supplied draft revision. |
+| `finish` | `candidateId`, `summary`, `review` | Finish the supplied legal candidate after reviewing its actual result. |
 
-`intent` has `scope: {groupId, includeDescendants}`, `operation: "layout-and-route"`, `boundaryPolicy: "strict" | "allow-ancestor-resize"`, `objective: "readability" | "compact"`, and up to 100 constraints. Constraints are `direction`, `flow-order`, `prefer-outer-route`, and `port-side`, all with `strength: "soft"`. IDs for connections in this AI protocol are always visible aggregated IDs. The executor converts them to the solver's original edge IDs. The selected objective and fixed direction remain authoritative.
+`design` states a `purpose`, a `readingPath` of visible node/group IDs, `regions` with primary/branch/support roles and reasons, `scopes`, and visible `connections` with main/branch/feedback/support roles. Each scope has `groupId`, RIGHT/DOWN `direction`, `rows` and a reason. RIGHT uses rows as parallel lanes and columns as reading steps; DOWN transposes the map. Null cells reserve space. Every movable direct child of a supplied scope occurs exactly once. The current root scope is required; omitted interiors retain their arrangement. Spatial cells do not add business dependencies or flow-order constraints. Group bounds are derived from contents. Main connections are routed before supporting ones; feedback/support connections may use bounded outer corridors. A replacement design clears earlier generated constraints.
 
-`changes` contains 1–100 operations: `move-node` with center `position`, `move-group` with top-left `position` (translates descendants), `resize-group` with `size`, `reroute-edge`, or `replace-route` with `points` and `label`. Each operation supplies `id`. Resize containers explicitly when local moves need more room. Moving geometry invalidates incident routes and routes or labels newly obstructed by unrelated cards. Unaffected routes are fixed. Manual replacement routes are validated exactly. Up to two local routing passes are attempted; all final geometry still receives full validation.
+`changes` supports `move-node` (center), `move-group` (top-left, translates descendants), `resize-group`, `reroute-edge`, and exact `replace-route`. Moving geometry reroutes incident and newly obstructed connections. Grow groups explicitly if needed. Manual route replacements are never silently repaired. Final geometry receives complete validation.
 
-```json
-{
-  "protocolVersion": 1,
-  "action": "revise",
-  "hypothesis": "Repair the two routes that cross cards.",
-  "baseCandidateId": "trial-3",
-  "baseRevision": 1,
-  "changes": [
-    { "type": "reroute-edge", "id": "aggregate:[\"dispatch\",\"carrier\"]" },
-    { "type": "reroute-edge", "id": "aggregate:[\"orders\",\"metrics\"]" }
-  ]
-}
-```
+Each review binds `candidateId` and `revision` and describes `readingFlow`, `hierarchy`, `relationships`, and `problems`. Problems identify concrete IDs, an observation, a proposed change and its expected effect. A revision or replacement after the initial design requires a problem. Subsequent feedback includes the previous review so the model can check its expected effect. Failed drafts can be repaired but not finished. A changed candidate must receive its own review.
 
-`currentLayout` describes `session.workingDraft`, including a failed draft that can be repaired. Candidate IDs and revisions are immutable. Failed drafts are not selectable. Prior observations contain summaries, not full historical geometry; structured issues include route segments, card bounds and expected ports. Diagnostic lists contain at most 12 entries with totals; validation covers the full graph. Exact duplicate decisions, including failures, reuse their evaluation.
+The browser renders candidates offscreen using the real GraphStage and current appearance, then sends an overview and up to four details through the configured provider's native image input. Images are identified by candidate/revision and canvas bounds. The canvas is not replaced while reviewing. Images remain transient and are not included as base64 in JSON history. Unsupported image input retries explicitly in structure-only mode; reports disclose this limitation. Renderer failure does not masquerade as visual review.
 
-Defaults are four model requests total (including correction calls), two consecutive evaluations without improvement, and a 180-second deadline. Geometry calculations run in cancellable Workers with a 15-second per-job timeout. On budget exhaustion, stagnation or request failure, the harness reports the reason and selects the best legal candidate according to unmet intent preferences and the selected quality objective. A legal starting layout participates in that comparison. If none is legal, the run fails without changing the canvas. Explicit cancellation always preserves the canvas. Reports include requests, elapsed time, stop reason and provider-reported token counts; unavailable usage is not treated as zero. Evaluation geometry remains session-only.
+Defaults are six total model requests including corrections and a 240-second deadline. Geometry Workers remain cancellable with 15-second timeouts. A final request is reserved for reviewing the result rather than creating an unreviewable edit. There is no numeric stagnation rule, baseline quality gate or automatic metric-based candidate selection. On interruption the last reviewed legal design may be retained with the stop reason and unresolved issues; without a reviewed legal design the canvas stays unchanged. Explicit cancellation always preserves the canvas. Reports include design intent, reviews, observation mode, geometry diagnostics, request counts, elapsed time and available provider usage.
 
 ## Timeline interaction protocol
 

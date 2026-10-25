@@ -4,10 +4,10 @@ import type { LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
 import { routingHotspots } from "../diagnostics";
 import { requestLayoutPlan } from "../../shared/ai/request";
-import type { LayoutDirection } from "../../../graph/compound/layoutData";
 import type { LayoutResultDocument } from "../../../schema/layoutResult";
 import { compoundDecisionSchema, parseCompoundDecision, COMPOUND_AI_PROTOCOL_VERSION } from "./decision";
 import type { ProviderReply } from "../../../ai/transport/providerTransport";
+import type { CompoundDesign } from "./design";
 import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
 
 export function compoundAiContext(problem: LayoutProblem) {
@@ -56,7 +56,7 @@ export function compoundAiContext(problem: LayoutProblem) {
           label: e.label,
         })),
       truncated: false,
-      quality: measureLayout(problem, problem.baseline),
+      originalQuality: measureLayout(problem, problem.baseline),
       crossings: filterHotspots(hotspots.crossings),
       sharedRuns: filterHotspots([...hotspots.sharedRuns].sort((a, b) => b.length - a.length)),
       detours: filterHotspots(hotspots.detours),
@@ -91,46 +91,39 @@ export function requestCompoundLayoutDecision(
   onRetry: (() => void) | undefined,
   session: {
     observations: unknown[];
-    selectedDirection: LayoutDirection;
-    candidateIds: ReadonlySet<string>;
     currentLayout: LayoutResultDocument;
-    requireEvaluation: boolean;
-    onProgress?: AiProgressListener;
-    drafts: ReadonlyMap<string, number>;
-    workingDraft: { candidateId: string; revision: number };
+    candidateId: string;
+    revision: number;
+    valid: boolean;
+    designed: boolean;
+    design?: CompoundDesign;
+    observationMode: "structure-only" | "invalid-draft" | "design";
     feedback: unknown;
     budget: { remainingRequests: number; remainingMs: number };
+    onProgress?: AiProgressListener;
     beforeRequest(): void;
     onReply(reply: ProviderReply): void;
   },
 ) {
   const { context } = compoundAiContext(problem);
-  const selectedDirection = session.selectedDirection;
+  const { onProgress, beforeRequest, onReply, ...observation } = session;
   return requestLayoutPlan({
     settings,
     context: {
       ...context,
       protocolVersion: COMPOUND_AI_PROTOCOL_VERSION,
-      selectedDirection,
-      currentLayout: session.currentLayout,
-      session: {
-        observations: session.observations,
-        selectableCandidates: [...session.candidateIds],
-        drafts: [...session.drafts].map(([candidateId, revision]) => ({ candidateId, revision })),
-        workingDraft: session.workingDraft,
-        feedback: session.feedback,
-        budget: session.budget,
-      },
+      selectedDirection: problem.stored.direction,
+      session: observation,
     },
     message,
     signal,
     schema: compoundDecisionSchema(),
     purpose: "layout-planning",
-    onProgress: session.onProgress,
+    onProgress,
     onRetry,
-    beforeRequest: session.beforeRequest,
-    onReply: session.onReply,
+    beforeRequest,
+    onReply,
     instructions: COMPOUND_PLANNER_INSTRUCTIONS,
-    parse: (value) => parseCompoundDecision(value, session.candidateIds, session.drafts, session.requireEvaluation),
+    parse: (value) => parseCompoundDecision(value, session),
   });
 }

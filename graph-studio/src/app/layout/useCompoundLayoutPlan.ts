@@ -162,9 +162,7 @@ export function useCompoundLayoutPlan(
               problem: initial.problem,
               baseLayout: createLayoutResult(initial.viewport.stage!, "compound"),
               decision: {
-                protocolVersion: 1,
-                action: "propose",
-                hypothesis: "Apply the console layout intent.",
+                action: "console-intent",
                 intent,
               },
             },

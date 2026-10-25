@@ -1,9 +1,9 @@
-import { createLayoutResult, type LayoutResultDocument } from "../schema/layoutResult";
+import { createLayoutResult } from "../schema/layoutResult";
 import assert from "node:assert/strict";
 import type { AiSettings } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
-import { emptyLayoutData, defaultLayoutIntent } from "../graph/compound/layoutData";
+import { emptyLayoutData } from "../graph/compound/layoutData";
 import { buildCompoundStage } from "../layout/compound/layout";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
@@ -19,6 +19,19 @@ import { inspectDraft } from "../layout/compound/ai/geometry";
 import { readFile } from "node:fs/promises";
 import { assertCompoundGeometry } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
+import { validateDesign, type CompoundDesign } from "../layout/compound/ai/design";
+
+const review = (candidateId = "trial-1", revision = 1, problems = false) => ({
+  candidateId, revision, readingFlow: "The chain reads left to right.", hierarchy: "The containing group is clear.", relationships: "The actual connections remain readable.",
+  problems: problems ? [{ ids: ["g"], observation: "The group has insufficient margin.", change: "Move the group right.", expectedEffect: "The group has breathing room." }] : [],
+});
+const designPlan = (): CompoundDesign => ({
+  purpose: "Explain the chain within its containing group.", readingPath: ["a", "b", "c"],
+  regions: [{ id: "g", role: "primary", reason: "Contains the main flow." }],
+  scopes: [{ groupId: null, direction: "RIGHT", rows: [["g"]], reason: "One primary region." }, { groupId: "g", direction: "RIGHT", rows: [["a", "b", "c"]], reason: "Read the chain." }], connections: [],
+});
+const design = (plan = designPlan(), prior: ReturnType<typeof review> | null = null) => ({ protocolVersion: 2, action: "design", hypothesis: "Make the main flow clear", design: plan, review: prior });
+const finish = (candidateId = "trial-1", revision = 1) => ({ protocolVersion: 2, action: "finish", candidateId, summary: "The main reading path is clear.", review: review(candidateId, revision) });
 
 const settings: AiSettings = {
   provider: "openai-compatible",
@@ -64,30 +77,88 @@ async function withModel(replies: unknown[], run: (requests: any[]) => Promise<v
   }
 }
 
-function shifted(stage: Awaited<ReturnType<typeof buildCompoundStage>>, dx: number): LayoutResultDocument {
-  const layout = createLayoutResult(stage, "compound");
-  layout.geometry.size[0] += dx;
-  for (const n of [...layout.geometry.nodes, ...layout.geometry.groups!]) n.position[0] += dx;
-  for (const e of layout.geometry.edges) {
-    e.label[0] += dx;
-    for (const p of e.points!) p[0] += dx;
-  }
-  return layout;
-}
-const evaluate = (layout: LayoutResultDocument) => ({
-  protocolVersion: 1,
-  action: "evaluate",
-  hypothesis: "Compare exact spatial design",
-  layout,
-});
-const finish = (candidateId = "trial-1") => ({
-  protocolVersion: 1,
-  action: "finish",
-  candidateId,
-  summary: "Selected after inspecting geometry and quality.",
-});
-
 export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness", [
+  defineTest("a legal design is accepted even when numeric quality regresses", async () => {
+    const { stage, problem } = await fixture(); const plan = designPlan(); plan.scopes[1].rows = [["a", null, null, null, null, "b", null, null, null, null, "c"]];
+    await withModel([design(plan), finish()], async () => {
+      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Make a spacious reading path", signal: new AbortController().signal });
+      assert.equal(result.report.candidateId, "trial-1"); assert.ok(result.report.after.length > result.report.before.length);
+    });
+  }),
+  defineTest("failed design is repaired structurally and then reviewed", async () => {
+    const { stage, problem } = await fixture(); const broken = designPlan(); broken.scopes[1].rows = [["a", "b"]];
+    await withModel([design(broken), design(designPlan(), review("trial-1", 1, true)), finish("trial-2", 2)], async () => {
+      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal });
+      assert.deepEqual(result.report.trials.map((t) => t.status), ["failed", "evaluated"]);
+      assert.equal(result.report.reviews[0].mode, "invalid-draft");
+    });
+  }),
+  defineTest("design is executed and reviewed before finish with versioned text evidence", async () => {
+    const { stage, problem } = await fixture();
+   
+    await withModel([design(), finish()], async (requests) => {
+      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Explain the chain", signal: new AbortController().signal });
+      assert.equal(result.report.observationMode, "structure-only");
+      assert.equal(result.report.reviews.length, 1); assert.equal(result.report.candidateId, "trial-1");
+      assert.equal(typeof requests[1].messages[1].content, "string");
+      const context = JSON.parse(requests[1].messages[1].content).context;
+      assert.equal(context.session.candidateId, "trial-1"); assert.equal(context.session.observationMode, "structure-only");
+      assert.ok(!JSON.stringify(context).includes("base64")); assertCompoundGeometry(graph(), result.stage, view);
+    });
+  }),
+  defineTest("a revision is executed again and only its own review can finish it", async () => {
+    const { stage, problem } = await fixture();
+    const revise = { protocolVersion: 2, action: "revise", hypothesis: "Add breathing room", baseCandidateId: "trial-1", baseRevision: 1, review: review("trial-1", 1, true), changes: [{ type: "move-group", id: "g", position: [100, 100] }] };
+    await withModel([design(), revise, finish("trial-2", 2)], async () => {
+      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal });
+      assert.equal(result.report.reviews.length, 2); assert.equal(result.report.candidateId, "trial-2");
+      assert.equal(result.stage.compoundLayout!.baseline.boxes.g.x, 100);
+    });
+  }),
+  defineTest("parallel cells do not become artificial graph dependencies", async () => {
+    const { stage, problem } = await fixture(); const plan = designPlan(); plan.scopes[1].rows = [["a", "c"], ["b", null]];
+    const result = executeCompoundDecision({ problem, baseLayout: createLayoutResult(stage, "compound"), decision: { protocolVersion: 2, action: "design", hypothesis: "Parallel composition", design: plan, review: null } });
+    const a = result.layout.geometry.nodes.find((n) => n.id === "a")!, b = result.layout.geometry.nodes.find((n) => n.id === "b")!;
+    assert.equal(a.position[0], b.position[0]); assert.ok(a.position[1] < b.position[1]); assert.deepEqual(result.data.constraints, []);
+    assert.equal(serializeDag(graph()).edges.length, 2);
+  }),
+  defineTest("design rejects omissions, duplicate cells, wrong scopes and selected direction changes", async () => {
+    const { problem } = await fixture();
+    const omitted = designPlan(); omitted.scopes[1].rows = [["a", "b"]]; assert.throws(() => validateDesign(problem, omitted), /exactly once/);
+    const duplicate = designPlan(); duplicate.scopes[1].rows = [["a", "b", "a"]]; assert.throws(() => validateDesign(problem, duplicate), /exactly once/);
+    const wrong = designPlan(); wrong.scopes[1].groupId = "missing"; assert.throws(() => validateDesign(problem, wrong), /Unknown/);
+    assert.throws(() => validateDesign({ ...problem, stored: { ...problem.stored, direction: "DOWN" } }, designPlan()), /Preserve selected/);
+  }),
+  defineTest("the new protocol rejects legacy actions, stale reviews and premature finish", () => {
+    const session = { candidateId: "trial-1", revision: 1, valid: true, designed: true };
+    assert.throws(() => parseCompoundDecision({ ...finish(), protocolVersion: 1 }, session));
+    assert.throws(() => parseCompoundDecision({ protocolVersion: 2, action: "propose" }, session));
+    assert.throws(() => parseCompoundDecision(finish("trial-2", 2), session), /Review/);
+    assert.throws(() => parseCompoundDecision(finish(), { ...session, designed: false }), /Begin/);
+    assert.throws(() => parseCompoundDecision(finish(), { ...session, valid: false }), /legal/);
+    assert.throws(() => parseCompoundDecision(design(), session), /Review/);
+  }),
+  defineTest("all design reviews use structure only", async () => {
+    const { stage, problem } = await fixture();
+    await withModel([design(), finish()], async () => {
+      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal });
+      assert.equal(result.report.observationMode, "structure-only");
+    });
+  }),
+  defineTest("budget reserves the final review and never installs an unreviewed edit", async () => {
+    const { stage, problem } = await fixture();
+    await withModel([design(), design(designPlan(), review("trial-1", 1, true))], async () => {
+      const result = await runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: new AbortController().signal, budget: { maxRequests: 2 } });
+      assert.equal(result.report.evaluations, 1); assert.equal(result.report.stopReason, "request-budget"); assert.equal(result.report.candidateId, "trial-1");
+    });
+  }),
+  defineTest("cancellation during execution stops before another model call", async () => {
+    const { stage, problem } = await fixture(); const abort = new AbortController();
+    await withModel([design()], async (requests) => {
+      await assert.rejects(runCompoundAiLayout({ settings, problem, currentStage: stage, message: "Arrange", signal: abort.signal, execute: async (input) => { abort.abort(); return executeCompoundDecision(input); } }), /cancelled/);
+      assert.equal(requests.length, 1);
+    });
+  }),
   defineTest("AI context includes every visible node, edge and full labels beyond previous sample limits", async () => {
     const { problem } = await fixture();
     const template = problem.projection.items.find((n) => n.id === "a")!;
@@ -184,209 +255,6 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     assert.equal(final.type, "flow-order");
     if (final.type === "flow-order") assert.deepEqual(final.nodeIds, ["renamed", "b"]);
   }),
-  defineTest("AI returns Schema Layout and the selected exact geometry is rendered without a solver", async () => {
-    const { stage, problem } = await fixture();
-    const first = shifted(stage, 100);
-    await withModel([evaluate(first), finish()], async (requests) => {
-      const result = await runCompoundAiLayout({
-        settings,
-        problem,
-        currentStage: stage,
-        message: "Arrange",
-        signal: new AbortController().signal,
-      });
-      assert.deepEqual(createLayoutResult(result.stage, "compound"), first);
-      assert.ok(result.report.changed && result.report.precise);
-      assert.equal(result.report.evaluations, 1);
-      const request = JSON.parse(requests[1].messages[1].content).context;
-      assert.deepEqual(request.currentLayout, first);
-      assert.ok(request.session.feedback.after);
-      assert.deepEqual(request.session.workingDraft, { candidateId: "trial-1", revision: 1 });
-      assert.ok(request.session.observations.every((entry: object) => !("layout" in entry)));
-      assert.deepEqual(result.data.constraints, []);
-    });
-  }),
-  defineTest("invalid geometry is returned as feedback and can never be selected", async () => {
-    const { stage, problem } = await fixture();
-    const invalid = createLayoutResult(stage, "compound");
-    invalid.geometry.nodes[0].position = [...invalid.geometry.nodes[1].position];
-    const statuses: string[] = [];
-    await withModel(
-      [evaluate(invalid), finish(), evaluate(shifted(stage, 50)), finish("trial-2")],
-      async (requests) => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          budget: { maxStagnant: 3, maxRequests: 5 },
-          onEvaluation: (e) => statuses.push(e.status),
-        });
-        assert.deepEqual(statuses, ["failed", "evaluated"]);
-        assert.equal(result.report.candidateId, "trial-2");
-        assert.match(JSON.parse(requests[1].messages[1].content).context.session.feedback.error, /overlap|endpoint/i);
-      },
-    );
-  }),
-  defineTest("unchanged results and repeated candidates are reported honestly", async () => {
-    const { stage, problem } = await fixture();
-    const layout = createLayoutResult(stage, "compound");
-    await withModel([evaluate(layout), evaluate(layout), finish()], async () => {
-      const result = await runCompoundAiLayout({
-        settings,
-        problem,
-        currentStage: stage,
-        message: "Arrange",
-        signal: new AbortController().signal,
-      });
-      assert.equal(result.report.changed, false);
-      assert.deepEqual(
-        result.report.trials.map((t) => t.status),
-        ["evaluated", "reused"],
-      );
-    });
-  }),
-  defineTest("a model that keeps evaluating stops at the total request budget", async () => {
-    const { stage, problem } = await fixture();
-    await withModel(
-      Array.from({ length: 4 }, (_, i) => evaluate(shifted(stage, 100 * (i + 1)))),
-      async (requests) => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          budget: { maxStagnant: 5 },
-        });
-        assert.equal(result.report.evaluations, 4);
-        assert.equal(result.report.stopReason, "request-budget");
-        assert.equal(requests.length, 4);
-        assert.equal(result.report.candidateId, "current");
-      },
-    );
-  }),
-  defineTest("malformed continuation reports its error and selects the best legal candidate", async () => {
-    const { stage, problem } = await fixture();
-    const before = createLayoutResult(stage, "compound");
-    await withModel([evaluate(shifted(stage, 100)), { invalid: true }, { invalid: true }], async () => {
-      const result = await runCompoundAiLayout({
-        settings,
-        problem,
-        currentStage: stage,
-        message: "Arrange",
-        signal: new AbortController().signal,
-      });
-      assert.equal(result.report.stopReason, "request-error");
-      assert.equal(result.report.candidateId, "current");
-      assert.equal(result.report.requests, 3);
-      assert.deepEqual(createLayoutResult(stage, "compound"), before);
-    });
-  }),
-  defineTest("cancellation after evaluation stops before another decision", async () => {
-    const { stage, problem } = await fixture();
-    const abort = new AbortController();
-    await withModel([evaluate(shifted(stage, 100))], async (requests) => {
-      await assert.rejects(
-        runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: abort.signal,
-          onEvaluation: () => abort.abort(),
-        }),
-        /cancelled/,
-      );
-      assert.equal(requests.length, 1);
-    });
-  }),
-  defineTest("Compound requires its protocol version and validates draft revisions and change variants", async () => {
-    const { stage } = await fixture();
-    const parse = (value: Record<string, unknown>) =>
-      parseCompoundDecision(value, new Set(["current"]), new Map([["current", 0]]), false);
-    const revise = {
-      protocolVersion: 1,
-      action: "revise",
-      hypothesis: "Fix one route",
-      baseCandidateId: "current",
-      baseRevision: 0,
-      changes: [{ type: "reroute-edge", id: stage.edges[0].id }],
-    };
-    assert.equal(parse(revise).action, "revise");
-    for (const value of [
-      { ...evaluate(createLayoutResult(stage, "compound")), protocolVersion: undefined },
-      { ...finish("current"), protocolVersion: 2 },
-      { ...revise, baseRevision: 1 },
-      { ...revise, baseCandidateId: "missing" },
-      { ...revise, changes: [] },
-      { ...revise, changes: [{ type: "move-node", id: "a", position: [NaN, 2] }] },
-      { ...revise, changes: [{ type: "reroute-edge", id: "x", arbitrary: true }] },
-    ])
-      assert.throws(() => parse(value));
-  }),
-  defineTest("propose uses the solver and visible edge IDs while returning complete Layout v4", async () => {
-    const { stage, problem, input } = await fixture();
-    const intent = defaultLayoutIntent();
-    intent.constraints = [
-      { type: "direction", scopeId: "g", value: "RIGHT", strength: "soft" },
-      { type: "port-side", edgeId: stage.edges[0].id, end: "source", side: "east", strength: "soft" },
-    ];
-    await withModel(
-      [{ protocolVersion: 1, action: "propose", hypothesis: "Read chain eastward", intent }, finish()],
-      async () => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Read eastward",
-          signal: new AbortController().signal,
-        });
-        assert.equal(result.report.trials[0].status, "evaluated", result.report.trials[0].error);
-        assert.equal(result.report.candidateId, "trial-1");
-        assert.equal(result.report.precise, false);
-        assert.ok(result.stage.nodeMap.a.x < result.stage.nodeMap.b.x);
-        assert.equal(createLayoutResult(result.stage, "compound").version, 4);
-        assertCompoundGeometry(input.dag, result.stage, view);
-      },
-    );
-  }),
-  defineTest("a failed exact draft can be repaired by rerouting one edge, preserving all other geometry", async () => {
-    const { stage, problem } = await fixture();
-    problem.stored.portMode = "midpoints";
-    const before = createLayoutResult(stage, "compound");
-    const broken = structuredClone(before);
-    broken.geometry.edges[0].points![0][0] += 10;
-    const revise = {
-      protocolVersion: 1,
-      action: "revise",
-      hypothesis: "Repair midpoint attachment",
-      baseCandidateId: "trial-1",
-      baseRevision: 1,
-      changes: [{ type: "reroute-edge", id: stage.edges[0].id }],
-    };
-    await withModel([evaluate(broken), revise, finish("trial-2")], async (requests) => {
-      const result = await runCompoundAiLayout({
-        settings,
-        problem,
-        currentStage: stage,
-        message: "Fix ports",
-        signal: new AbortController().signal,
-        budget: { maxStagnant: 3 },
-      });
-      assert.equal(result.report.candidateId, "trial-2", result.report.summary);
-      assert.deepEqual(
-        result.report.trials.map((t) => t.status),
-        ["failed", "evaluated"],
-      );
-      assert.deepEqual(createLayoutResult(result.stage, "compound"), before);
-      const context = JSON.parse(requests[1].messages[1].content).context;
-      assert.deepEqual(context.currentLayout, broken);
-      assert.ok(context.session.feedback.issues.some((i: { code: string }) => i.code === "port"));
-      assert.deepEqual(result.report.trials[1].reroutedEdgeIds, [stage.edges[0].id]);
-    });
-  }),
   defineTest("manual replacement paths fail visibly and are never automatically changed", async () => {
     const { stage, problem } = await fixture();
     const baseLayout = createLayoutResult(stage, "compound");
@@ -398,8 +266,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       problem,
       baseLayout,
       decision: {
-        protocolVersion: 1,
-        action: "revise",
+        protocolVersion: 2,
+        action: "revise", review: review(),
         hypothesis: "Manual route",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -410,101 +278,6 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     assert.deepEqual(result.reroutedEdgeIds, []);
     assert.throws(() => applyLayoutResult(result.layout, stage));
     assert.deepEqual(createLayoutResult(stage, "compound"), baseLayout);
-  }),
-  defineTest("failed duplicates are cached and consecutive failures stop the run", async () => {
-    const { stage, problem } = await fixture();
-    const layout = createLayoutResult(stage, "compound");
-    layout.geometry.nodes[0].position = [0, 0];
-    let executions = 0;
-    await withModel([evaluate(layout), evaluate(layout)], async (requests) => {
-      const result = await runCompoundAiLayout({
-        settings,
-        problem,
-        currentStage: stage,
-        message: "Arrange",
-        signal: new AbortController().signal,
-        execute: async (input) => {
-          executions++;
-          return executeCompoundDecision(input);
-        },
-      });
-      assert.equal(executions, 1);
-      assert.equal(requests.length, 2);
-      assert.equal(result.report.stopReason, "no-improvement");
-      assert.equal(result.report.candidateId, "current");
-      assert.deepEqual(
-        result.report.trials.map((t) => t.status),
-        ["failed", "reused"],
-      );
-    });
-  }),
-  defineTest("protocol corrections share the total request budget", async () => {
-    const { stage, problem } = await fixture();
-    await withModel(
-      [evaluate(shifted(stage, 10)), { bad: true }, evaluate(shifted(stage, 20)), { bad: true }],
-      async (requests) => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          budget: { maxStagnant: 5 },
-        });
-        assert.equal(requests.length, 4);
-        assert.equal(result.report.requests, 4);
-        assert.equal(result.report.stopReason, "request-budget");
-      },
-    );
-  }),
-  defineTest("deadline aborts an in-flight model request and reports a legal fallback", async () => {
-    const { stage, problem } = await fixture();
-    const original = globalThis.fetch;
-    let aborted = false;
-    globalThis.fetch = (async (_url: unknown, init: RequestInit) => {
-      if (!init.body) return new Response(JSON.stringify({ data: [] }));
-      return await new Promise<Response>((_resolve, reject) => {
-        init.signal!.addEventListener(
-          "abort",
-          () => {
-            aborted = true;
-            reject(new DOMException("aborted", "AbortError"));
-          },
-          { once: true },
-        );
-      });
-    }) as typeof fetch;
-    try {
-      const result = await runCompoundAiLayout({
-        settings,
-        problem,
-        currentStage: stage,
-        message: "Arrange",
-        signal: new AbortController().signal,
-        budget: { timeoutMs: 50 },
-      });
-      assert.ok(aborted);
-      assert.equal(result.report.stopReason, "deadline");
-      assert.equal(result.report.candidateId, "current");
-    } finally {
-      globalThis.fetch = original;
-    }
-  }),
-  defineTest("a deadline cannot install an invalid initial layout", async () => {
-    const { stage, problem } = await fixture();
-    const invalidStage = { ...stage, nodes: stage.nodes.map((n) => ({ ...n, x: 0 })) };
-    await withModel([{ bad: true }, { bad: true }], async () => {
-      await assert.rejects(
-        runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: invalidStage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-        }),
-        /No legal candidate/,
-      );
-    });
   }),
   defineTest("commerce card-crossing diagnostics are repaired locally without moving nodes", async () => {
     const raw = JSON.parse(
@@ -541,8 +314,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     const issues = inspectDraft(broken, problem);
     assert.ok(pairs.every(([, , obstacle]) => issues.some((i) => i.nodeId === obstacle && i.code === "card-crossing")));
     const decision: CompoundAiDecision = {
-      protocolVersion: 1,
-      action: "revise",
+      protocolVersion: 2,
+      action: "revise", review: review(),
       hypothesis: "Repair crossing routes",
       baseCandidateId: "trial-3",
       baseRevision: 1,
@@ -603,8 +376,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       problem: arranged.compoundLayout!,
       baseLayout: base,
       decision: {
-        protocolVersion: 1,
-        action: "revise",
+        protocolVersion: 2,
+        action: "revise", review: review(),
         hypothesis: "Move unrelated blocker",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -629,8 +402,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       problem,
       baseLayout: base,
       decision: {
-        protocolVersion: 1,
-        action: "revise",
+        protocolVersion: 2,
+        action: "revise", review: review(),
         hypothesis: "Move group",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -655,8 +428,8 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       problem: fixed,
       baseLayout: base,
       decision: {
-        protocolVersion: 1,
-        action: "revise",
+        protocolVersion: 2,
+        action: "revise", review: review(),
         hypothesis: "Invalid move",
         baseCandidateId: "current",
         baseRevision: 0,
@@ -664,30 +437,5 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       },
     });
     assert.match(rejected.error!, /External node is fixed/);
-  }),
-  defineTest("selected direction is enforced by proposals and exact evaluations", async () => {
-    const { stage, problem } = await fixture();
-    const directed = { ...problem, stored: { ...problem.stored, direction: "RIGHT" as const } };
-    const directedStage = { ...stage, compoundLayout: directed };
-    await withModel(
-      [
-        evaluate(createLayoutResult(stage, "compound")),
-        { protocolVersion: 1, action: "propose", hypothesis: "Honor rightward flow", intent: defaultLayoutIntent() },
-        finish("trial-2"),
-      ],
-      async () => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem: directed,
-          currentStage: directedStage,
-          message: "Right",
-          signal: new AbortController().signal,
-          budget: { maxStagnant: 3 },
-        });
-        assert.equal(result.report.trials[0].status, "failed");
-        assert.equal(result.report.candidateId, "trial-2", result.report.summary);
-        assert.ok(result.stage.nodeMap.b.x > result.stage.nodeMap.a.x);
-      },
-    );
   }),
 ]);

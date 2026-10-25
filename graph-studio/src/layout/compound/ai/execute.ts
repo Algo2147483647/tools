@@ -1,71 +1,45 @@
 import type { LayoutResultDocument } from "../../../schema/layoutResult";
 import type { CompoundAiDecision } from "./decision";
-import type { CompoundLayoutData, LayoutConstraint, LayoutProblem } from "../layout-plan";
+import type { CompoundLayoutData, LayoutProblem, LayoutIntent } from "../layout-plan";
 import { routingPreferences, solveCompoundLayout } from "../layout-solver";
 import { routeCompoundEdges } from "../routing/router";
 import { sameBox } from "../layout-quality";
-import { layoutScopeMembers } from "../constraints";
+import { executeDesign } from "./design";
 import { draftGeometry, geometryLayout, inspectDraft, routeIssues, type GeometryIssue } from "./geometry";
 
 export interface CompoundExecutionInput {
   problem: LayoutProblem;
   baseLayout: LayoutResultDocument;
-  decision: Exclude<CompoundAiDecision, { action: "finish" }>;
+  decision: Exclude<CompoundAiDecision, { action: "finish" }> | { action: "console-intent"; intent: LayoutIntent };
 }
 export interface CompoundExecutionResult {
   layout: LayoutResultDocument;
   data: CompoundLayoutData;
-  precise: boolean;
   reroutedEdgeIds: string[];
   issues: GeometryIssue[];
   error?: string;
 }
 
-/** Pure worker operation. Exact evaluations are never silently rerouted. */
+/** Pure geometry execution. Manual replacement routes are never silently rerouted. */
 export function executeCompoundDecision({
   problem,
   baseLayout,
   decision,
 }: CompoundExecutionInput): CompoundExecutionResult {
-  let layout = structuredClone(decision.action === "evaluate" ? decision.layout : baseLayout);
+  let layout = structuredClone(baseLayout);
   let data: CompoundLayoutData = { ...problem.stored, method: "ai" };
   const reroutedEdgeIds = new Set<string>();
   try {
-    if (decision.action === "propose") {
-      const intent = structuredClone(decision.intent);
-      // The AI protocol uses visible connection IDs. The existing solver uses original IDs.
-      intent.constraints = intent.constraints.flatMap<LayoutConstraint>((c) => {
-        if (!("edgeId" in c)) return [c];
-        const edge = problem.projection.edges.find((e) => e.id === c.edgeId);
-        if (!edge) throw new Error(`Unknown visible connection: ${c.edgeId}.`);
-        return edge.originalEdgeIds.map((edgeId) => ({ ...c, edgeId }));
-      });
-      intent.objective = problem.stored.objective;
-      if (problem.stored.direction !== "AUTO") {
-        if (intent.constraints.some((c) => c.type === "direction" && c.value !== problem.stored.direction))
-          throw new Error(`Preserve selected direction ${problem.stored.direction}.`);
-        const members = layoutScopeMembers(problem, intent);
-        for (const scopeId of [
-          problem.projection.focusGroupId,
-          ...problem.projection.items.filter((i) => i.kind === "group" && !i.collapsed && !i.external).map((i) => i.id),
-        ]) {
-          // Only constrain scopes the intent can actually arrange.
-          if (
-            scopeId === intent.scope.groupId ||
-            (scopeId !== null && intent.scope.includeDescendants && members.has(scopeId))
-          )
-            intent.constraints.push({ type: "direction", scopeId, value: problem.stored.direction, strength: "soft" });
-        }
-      }
-      // Avoid feeding an invalid draft to placement; proposals start from a valid observation.
-      const solved = solveCompoundLayout(problem, intent, 2);
-      const candidate = solved.candidates[0];
-      if (!candidate) throw new Error(solved.diagnostics.join(" ") || "No legal arrangement found.");
+    if (decision.action === "console-intent") {
+      const candidate = solveCompoundLayout(problem, decision.intent).candidates[0];
+      if (!candidate) throw new Error("No legal arrangement for this console intent.");
       layout = geometryLayout(baseLayout, candidate.geometry);
-      data = { ...candidate.data, method: "ai", objective: intent.objective };
-      for (const edge of problem.projection.edges)
-        if (JSON.stringify(candidate.geometry.routes[edge.id]) !== JSON.stringify(problem.baseline.routes[edge.id]))
-          reroutedEdgeIds.add(edge.id);
+      data = candidate.data;
+    } else if (decision.action === "design") {
+      const geometry = executeDesign(problem, decision.design);
+      layout = geometryLayout(baseLayout, geometry);
+      data = { ...problem.stored, method: "ai", constraints: [] };
+      for (const edge of problem.projection.edges) reroutedEdgeIds.add(edge.id);
     } else if (decision.action === "revise") {
       const original = draftGeometry(layout, problem);
       const manual = new Set<string>();
@@ -155,7 +129,6 @@ export function executeCompoundDecision({
     return {
       layout,
       data,
-      precise: decision.action === "evaluate",
       reroutedEdgeIds: [...reroutedEdgeIds],
       issues: inspectDraft(layout, { ...problem, stored: data }),
     };
@@ -163,7 +136,6 @@ export function executeCompoundDecision({
     return {
       layout,
       data,
-      precise: decision.action === "evaluate",
       reroutedEdgeIds: [...reroutedEdgeIds],
       issues: inspectDraft(layout, problem),
       error: error instanceof Error ? error.message : "Layout execution failed.",

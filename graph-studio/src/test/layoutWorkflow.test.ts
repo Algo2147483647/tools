@@ -8,7 +8,7 @@ import { routingHotspots } from "../layout/compound/diagnostics";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
-const valid = { protocolVersion: 1, action: "finish", candidateId: "current", summary: "Retain the current result." };
+const valid = { protocolVersion: 2, action: "finish", candidateId: "current", summary: "Retain the current result.", review: { candidateId: "current", revision: 0, readingFlow: "Clear", hierarchy: "Clear", relationships: "Clear", problems: [] } };
 const settings: AiSettings = {
   provider: "openai-compatible",
   baseUrl: "https://test.invalid",
@@ -16,7 +16,7 @@ const settings: AiSettings = {
   model: "layout-test",
 };
 const parse = (value: Record<string, unknown>) =>
-  parseCompoundDecision(value, new Set(["current"]), new Map([["current", 0]]), false);
+  parseCompoundDecision(value, { candidateId: "current", revision: 0, valid: true, designed: true });
 async function mock(
   replies: { content?: string; finish_reason?: string; refusal?: string; status?: number; error?: string }[],
   run: (requests: Record<string, any>[]) => Promise<void>,

@@ -1,12 +1,12 @@
 import type { ProviderReply } from "../../../ai/transport/providerTransport";
 import { isRecord } from "../../../shared/json";
 
-export const DEFAULT_COMPOUND_AI_BUDGET = { maxRequests: 4, maxStagnant: 2, timeoutMs: 180000 };
+export const DEFAULT_COMPOUND_AI_BUDGET = { maxRequests: 6, idleTimeoutMs: 120000, timeoutMs: 1200000 };
 export type CompoundAiBudget = typeof DEFAULT_COMPOUND_AI_BUDGET;
-export type CompoundStopReason = "selected" | "request-budget" | "no-improvement" | "deadline" | "request-error";
+export type CompoundStopReason = "selected" | "request-budget" | "deadline" | "idle-timeout" | "request-error";
 export class CompoundBudgetError extends Error {
-  constructor(readonly reason: "request-budget" | "deadline") {
-    super(reason === "deadline" ? "AI layout time budget reached." : "AI layout request budget reached.");
+  constructor(readonly reason: "request-budget" | "deadline" | "idle-timeout") {
+    super(reason === "deadline" ? "AI layout time budget reached." : reason === "idle-timeout" ? "AI layout response stalled." : "AI layout request budget reached.");
   }
 }
 export interface CompoundRequestUsage {

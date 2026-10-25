@@ -5,6 +5,7 @@ import { type SettingsChapter } from "./settingsConfig";
 
 export const APPEARANCE_GROUPS = [
   { id: "schema", label: "Schema" },
+  { id: "presets", label: "Preset" },
   { id: "canvas", label: "Canvas" },
   { id: "nodes", label: "Nodes" },
   { id: "edges", label: "Edges" },
@@ -101,6 +102,7 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   for (const [group, node] of Object.entries(APPEARANCE_UI))
     visit(node, group === "timelineLayout" ? "Layout" : group[0].toUpperCase() + group.slice(1));
   a("appearance-schema", "Schema", "Style schema", "protocol json fields bind save metadata.style 保存 关联 协议 字段");
+  a("appearance-presets", "Preset", "Appearance presets", "preset theme style 预设 样式 主题");
   a("configuration", "Advanced", "Appearance configuration", "reset 重置");
   add(
     "ai-connection",

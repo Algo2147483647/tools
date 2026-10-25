@@ -73,6 +73,13 @@ export default function AiRunResult({
             {report.after.movedNodes} nodes/groups changed · {report.after.changedEdges} routes changed
           </p>
           <p>{report.summary}</p>
+          <p>Structure-only review · {report.reviews.length} reviews</p>
+          {report.design && <p>{report.design.purpose}</p>}
+          {!!report.reviews.length && <details><summary>Design reviews</summary><ol>{report.reviews.map(({ review, mode }, index) => <li key={index}>
+            <strong>{review.candidateId} · revision {review.revision} · {mode}</strong>
+            <p>{review.readingFlow}</p><p>{review.hierarchy}</p><p>{review.relationships}</p>
+            {review.problems.map((problem, i) => <p key={i}>{problem.ids.join(", ")}: {problem.observation} {problem.change} {problem.expectedEffect}</p>)}
+          </li>)}</ol></details>}
           <p>
             {report.requests}/{report.requestLimit} requests · {(report.elapsedMs / 1000).toFixed(1)} s ·{" "}
             {report.stopReason}
@@ -109,7 +116,6 @@ export default function AiRunResult({
                   {report?.candidateId === trial.candidateId ? " · selected" : ""}
                 </strong>
                 <p>{trial.hypothesis}</p>
-                {trial.positionedNodes !== undefined && <p>{trial.positionedNodes} exact position instructions</p>}
                 {!!trial.reroutedEdgeIds?.length && (
                   <p>{trial.reroutedEdgeIds.length} connections routed by the geometry engine</p>
                 )}
