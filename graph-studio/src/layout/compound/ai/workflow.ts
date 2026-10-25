@@ -5,11 +5,9 @@ import { LayoutRequestError } from "../../shared/ai/request";
 import type { CompoundLayoutData, LayoutMetrics, LayoutProblem } from "../layout-plan";
 import { measureLayout, validateLayoutGeometry } from "../layout-quality";
 import { directionWarnings } from "../constraints";
-import { applyCompoundAiPlan } from "./protocol";
+import { applyLayoutResult, createLayoutResult } from "../../../schema/layoutResult";
 import { compoundAiContext, requestCompoundLayoutDecision } from "./request";
-import type { CompoundRuntimePlacement } from "../precise";
 
-export const COMPOUND_AI_BUDGET = { evaluations: 4, decisions: 6 } as const;
 export interface CompoundAiEvaluation {
   candidateId: string;
   hypothesis: string;
@@ -71,13 +69,11 @@ export async function runCompoundAiLayout(options: {
   currentStage: StageData;
   message: string;
   signal: AbortSignal;
-  compute(data: CompoundLayoutData, runtime?: CompoundRuntimePlacement): Promise<StageData>;
   onStatus?(message: string): void;
   onProgress?: AiProgressListener;
   onEvaluation?(evaluation: CompoundAiEvaluation): void;
 }) {
   const { problem, signal } = options;
-  const replacement = compoundAiContext(problem);
   const checkCancelled = () => {
     if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout cancelled.");
   };
@@ -101,10 +97,9 @@ export async function runCompoundAiLayout(options: {
   };
   let evaluations = 0,
     observed = problem;
-  for (let decisionIndex = 0; decisionIndex < COMPOUND_AI_BUDGET.decisions; decisionIndex++) {
+  let observedStage = options.currentStage;
+  for (let decisionIndex = 0; ; decisionIndex++) {
     checkCancelled();
-    const canEvaluate =
-      evaluations < COMPOUND_AI_BUDGET.evaluations && decisionIndex < COMPOUND_AI_BUDGET.decisions - 1;
     options.onStatus?.(decisionIndex ? "AI is examining layout results…" : "AI is planning the layout…");
     const decision = await requestCompoundLayoutDecision(
       options.settings,
@@ -115,10 +110,10 @@ export async function runCompoundAiLayout(options: {
       {
         selectedDirection: problem.stored.direction,
         observations,
-        canEvaluate,
+        canEvaluate: true,
         candidateIds: new Set(candidates.keys()),
-        evaluationsRemaining: COMPOUND_AI_BUDGET.evaluations - evaluations,
-        decisionsRemaining: COMPOUND_AI_BUDGET.decisions - decisionIndex,
+        currentLayout: createLayoutResult(observedStage, "compound"),
+        requireEvaluation: !evaluations,
         onProgress: options.onProgress,
       },
     );
@@ -144,42 +139,41 @@ export async function runCompoundAiLayout(options: {
         stage: { ...chosen.stage, layoutQuality: { ...chosen.stage.layoutQuality!, aiAssessment: decision.summary } },
       };
     }
-    const data = applyCompoundAiPlan(problem.stored, decision.plan, problem.projection.focusGroupId, replacement);
-    const runtime =
-      decision.plan.placements === undefined
-        ? undefined
-        : { placements: decision.plan.placements, baseline: observed.baseline };
-    const signature = JSON.stringify([data, runtime?.placements, runtime?.baseline.boxes]);
+    const data: CompoundLayoutData = { ...problem.stored, method: "ai", constraints: [] };
+    const signature = JSON.stringify(decision.layout);
     const reused = signatures.get(signature);
     if (reused) {
       observations.push({ kind: "reused-evaluation", candidateId: reused, hypothesis: decision.hypothesis });
-      observed = candidates.get(reused)!.stage.compoundLayout!;
+      observedStage = candidates.get(reused)!.stage;
+      observed = observedStage.compoundLayout!;
       recordTrial({
         candidateId: reused,
         hypothesis: decision.hypothesis,
         status: "reused",
         metrics: measureLayout(problem, observed.baseline),
-        positionedNodes: runtime?.placements.length,
+        positionedNodes: decision.layout.geometry.nodes.length,
       });
       continue;
     }
     const candidateId = `trial-${++evaluations}`;
-    options.onStatus?.(`Evaluating layout ${evaluations} of ${COMPOUND_AI_BUDGET.evaluations}…`);
+    options.onStatus?.(`Evaluating layout ${evaluations}…`);
     try {
-      const stage = await options.compute(data, runtime);
+      const stage = applyLayoutResult(decision.layout, options.currentStage);
+      stage.compoundLayout = { ...stage.compoundLayout!, stored: data };
       checkCancelled();
       const validation = validateLayoutGeometry(stage.compoundLayout!, stage.compoundLayout!.baseline);
       if (!validation.valid) throw new Error(validation.errors.join(" "));
       const feedback = compoundExecutionFeedback(problem, stage);
-      candidates.set(candidateId, { data, stage, precise: !!runtime });
+      candidates.set(candidateId, { data, stage, precise: true });
       signatures.set(signature, candidateId);
       observed = stage.compoundLayout!;
+      observedStage = stage;
       observations.push({
         candidateId,
         kind: "evaluated",
         hypothesis: decision.hypothesis,
         declaration: data,
-        placements: runtime?.placements,
+        layout: decision.layout,
         result: feedback,
       });
       recordTrial({
@@ -187,7 +181,7 @@ export async function runCompoundAiLayout(options: {
         hypothesis: decision.hypothesis,
         status: "evaluated",
         metrics: feedback.after,
-        positionedNodes: runtime?.placements.length,
+        positionedNodes: decision.layout.geometry.nodes.length,
       });
     } catch (error) {
       checkCancelled();
@@ -198,7 +192,7 @@ export async function runCompoundAiLayout(options: {
         selectable: false,
         hypothesis: decision.hypothesis,
         declaration: data,
-        placements: runtime?.placements,
+        layout: decision.layout,
         error: message,
       });
       recordTrial({
@@ -206,9 +200,8 @@ export async function runCompoundAiLayout(options: {
         hypothesis: decision.hypothesis,
         status: "failed",
         error: message,
-        positionedNodes: runtime?.placements.length,
+        positionedNodes: decision.layout.geometry.nodes.length,
       });
     }
   }
-  throw new LayoutRequestError("completion", "AI did not select a layout within the planning budget.");
 }

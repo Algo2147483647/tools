@@ -47,12 +47,9 @@ export const settingsSuite = defineSuite("Settings controls", [
         chartType: "compound",
         style: getDefaultChartStyle("compound"),
         onChange: () => {},
-        onBind: () => {},
-        canBind: false,
-        binding: false,
       }),
     );
-    assert.match(markup, /Update current appearance/);
+    assert.doesNotMatch(markup, /Update current appearance/);
     assert.doesNotMatch(markup, /Preset|Open a local workspace graph|Appearance edits apply to this session/);
     assert.ok(!getSettingsCatalog("compound").some((item) => item.id === "presets"));
     const parsed = parseGraphPagePreferences(JSON.stringify({ chartStyles: { compound: { invalid: true } } }));

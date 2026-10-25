@@ -1,6 +1,4 @@
-import { validateLayoutGeometryData } from "../src/schema/layoutGeometry";
-import { parseCompoundLayout } from "../src/graph/compound/layoutData";
-import { timelinePlanFromFile } from "../src/schema/timelineLayoutFile";
+import { parseLayoutConfigFile } from "../src/schema/layoutConfig";
 import { readFile, realpath, writeFile, rename, unlink } from "node:fs/promises";
 import { resolve, dirname, relative, isAbsolute, basename } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -39,21 +37,7 @@ export async function saveExampleStyle(
   const document = input.document;
   let normalized: any;
   if (kind === "layout") {
-    if (
-      !document ||
-      document.format !== "graph-studio-layout" ||
-      document.version !== 3 ||
-      !document.layout ||
-      !["compound", "timeline", "node-link", "sankey", "spatial"].includes(document.chartType) ||
-      Object.keys(document).some((k) => !["format", "version", "chartType", "layout"].includes(k))
-    )
-      throw new Error("Invalid Layout Schema document.");
-    const config = document.layout.settings;
-    if (!config || typeof config !== "object") throw new Error("Missing Layout settings.");
-    if (document.chartType === "compound") parseCompoundLayout(config);
-    if (document.chartType === "timeline" && config.plan) timelinePlanFromFile(config.plan);
-    if (document.layout.geometry) validateLayoutGeometryData(document.layout.geometry, document.chartType);
-    normalized = document;
+    normalized = parseLayoutConfigFile(document);
   } else {
     if (
       !document ||
@@ -91,7 +75,12 @@ export async function saveExampleStyle(
     const actual = await existing(folder, relative(folder, target));
     found = true;
     const previous = JSON.parse(await readFile(actual, "utf8"));
-    if (previous.format !== `graph-studio-${kind}`) throw new Error(`Target is not a ${kind} file.`);
+    if (
+      !(kind === "layout" ? ["graph-studio-layout", "graph-studio-layout-settings"] : ["graph-studio-style"]).includes(
+        previous.format,
+      )
+    )
+      throw new Error(`Target is not a ${kind} file.`);
   } catch (error: any) {
     if (error.code !== "ENOENT") throw error;
   }

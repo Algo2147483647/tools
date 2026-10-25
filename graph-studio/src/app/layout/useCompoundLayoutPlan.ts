@@ -136,8 +136,6 @@ export function useCompoundLayoutPlan(
               if (active.current === abort && !abort.signal.aborted)
                 setEvaluations((previous) => [...previous, evaluation]);
             },
-            compute: (data, runtime) =>
-              computeCompoundStage({ ...input, layout: parseCompoundLayout(data) }, abort.signal, runtime),
             onStatus: (message) => {
               if (active.current === abort) setMessage(message);
             },

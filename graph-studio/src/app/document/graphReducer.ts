@@ -88,7 +88,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
           throw new Error("Timeline layout references an unknown event.");
         return commitLayout(state, {
           ...state.layoutDocument.data,
-          renderings: { ...state.layoutDocument.data.renderings, timeline: undefined },
+          renderings: { ...state.layoutDocument.data.renderings, timeline: action.rendering },
           charts: {
             ...state.layoutDocument.data.charts,
             timeline: {

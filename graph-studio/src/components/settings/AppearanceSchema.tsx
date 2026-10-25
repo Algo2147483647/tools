@@ -9,27 +9,16 @@ export default function AppearanceSchema({
   chartType,
   style,
   onChange,
-  onBind,
-  canBind,
-  binding,
   styleReference,
 }: {
   chartType: GraphChartType;
   style: ChartStyle;
   onChange: (style: ChartStyle) => void;
-  onBind: () => void;
-  canBind: boolean;
-  binding: boolean;
   styleReference?: string;
 }) {
   const schema = getAppearanceSchema(chartType, style);
   return (
     <div className="appearance-schema-view">
-      <div className="settings-inline-actions">
-        <button type="button" className="studio-button" disabled={!canBind || binding} onClick={onBind}>
-          {binding ? "Updating current appearance…" : "Update current appearance"}
-        </button>
-      </div>
       {styleReference && (
         <p>
           <code>metadata.style: {styleReference}</code>

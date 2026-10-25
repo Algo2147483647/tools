@@ -4,7 +4,9 @@ import type { LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
 import { routingHotspots } from "../diagnostics";
 import { requestLayoutPlan } from "../../shared/ai/request";
-import { COMPOUND_AGENT_SCHEMA, parseCompoundAiDecision, type CompoundAiPolicy } from "./protocol";
+import type { CompoundAiPolicy } from "./protocol";
+import type { LayoutResultDocument } from "../../../schema/layoutResult";
+import { layoutDecisionSchema, parseLayoutDecision } from "../../shared/ai/decision";
 import { buildScopes } from "../constraints";
 import { COMPOUND_PLANNER_INSTRUCTIONS } from "./prompt";
 import { contentOrigin } from "../precise";
@@ -44,7 +46,7 @@ export function compoundAiContext(problem: LayoutProblem) {
       portMode: problem.stored.portMode,
       coordinateSystem: {
         units: "px",
-        placements: "offset from parent content origin",
+        positions: "absolute canvas pixels; node centers and group top-left corners",
         rootOrigin: { x: 36, y: 36 },
         groupPadding: { left: 24, top: 58, right: 24, bottom: 24 },
       },
@@ -106,44 +108,32 @@ export function requestCompoundLayoutDecision(
     selectedDirection: CompoundAiPolicy["direction"];
     canEvaluate: boolean;
     candidateIds: ReadonlySet<string>;
-    evaluationsRemaining: number;
-    decisionsRemaining: number;
+    currentLayout: LayoutResultDocument;
+    requireEvaluation: boolean;
     onProgress?: AiProgressListener;
   },
 ) {
-  const { edgeIds, scopes, movableNodeIds, context } = compoundAiContext(problem);
+  const { context } = compoundAiContext(problem);
   const selectedDirection = session.selectedDirection;
   return requestLayoutPlan({
     settings,
     context: {
       ...context,
       selectedDirection,
+      currentLayout: session.currentLayout,
       session: {
         observations: session.observations,
         selectableCandidates: [...session.candidateIds],
         canEvaluate: session.canEvaluate,
-        evaluationsRemaining: session.evaluationsRemaining,
-        decisionsRemaining: session.decisionsRemaining,
       },
     },
     message,
     signal,
-    schema: COMPOUND_AGENT_SCHEMA,
+    schema: layoutDecisionSchema("compound"),
     purpose: "layout-planning",
     onProgress: session.onProgress,
     onRetry,
     instructions: COMPOUND_PLANNER_INSTRUCTIONS,
-    parse: (value) =>
-      parseCompoundAiDecision(
-        value,
-        {
-          direction: selectedDirection,
-          edgeIds,
-          scopes,
-          movableNodeIds,
-          scopeId: problem.projection.focusGroupId,
-        },
-        session,
-      ),
+    parse: (value) => parseLayoutDecision(value, "compound", session.candidateIds, session.requireEvaluation),
   });
 }

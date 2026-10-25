@@ -1,9 +1,9 @@
+import { applyLayoutResult, createLayoutResult } from "../../../schema/layoutResult";
 import type { AiSettings } from "../../../ai/types";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
-import type { TimelineLayoutPlan } from "../../../graph/timeline/layoutData";
 import type { StageData } from "../../shared/types";
 import { LayoutRequestError } from "../../shared/ai/request";
-import type { TimelineLayoutInput, TimelineLayoutCandidate } from "../layout-candidate";
+import type { TimelineLayoutInput } from "../layout-candidate";
 import { measureTimelineLayout } from "../layout-quality";
 import { timelineLayoutContext } from "./context";
 import { requestTimelineLayout } from "./request";
@@ -16,15 +16,20 @@ export async function runTimelineAiLayout(options: {
   signal: AbortSignal;
   onProgress?: AiProgressListener;
   onStatus?(message: string): void;
-  compute(plan: TimelineLayoutPlan): Promise<TimelineLayoutCandidate>;
 }) {
   const { baseline, signal } = options;
   const before = measureTimelineLayout(baseline);
-  const candidates = new Map<string, TimelineLayoutCandidate>([
+  const candidates = new Map<
+    string,
+    {
+      stage: StageData;
+      before: ReturnType<typeof measureTimelineLayout>;
+      after: ReturnType<typeof measureTimelineLayout>;
+    }
+  >([
     [
       "current",
       {
-        plan: options.input.arrangement ?? { trackOrder: [], eventOrder: [] },
         stage: baseline,
         before,
         after: before,
@@ -43,7 +48,12 @@ export async function runTimelineAiLayout(options: {
     options.onStatus?.(evaluations ? "AI is examining timeline results…" : "AI is planning the timeline…");
     const decision = await requestTimelineLayout(
       options.settings,
-      { ...timelineLayoutContext(options.input, observed), observations, candidates: [...candidates.keys()] },
+      {
+        ...timelineLayoutContext(options.input, observed),
+        currentLayout: createLayoutResult(observed, "timeline"),
+        observations,
+        candidates: [...candidates.keys()],
+      },
       options.message,
       signal,
       options.onProgress,
@@ -59,14 +69,15 @@ export async function runTimelineAiLayout(options: {
     const candidateId = `trial-${++evaluations}`;
     options.onStatus?.(`Evaluating timeline layout ${evaluations}…`);
     try {
-      const candidate = await options.compute(decision.plan);
+      const stage = applyLayoutResult(decision.layout, baseline, options.input.timelineSettings?.pins);
+      const candidate = { stage, before, after: measureTimelineLayout(stage, baseline) };
       check();
       candidates.set(candidateId, candidate);
       observed = candidate.stage;
       observations.push({
         candidateId,
         hypothesis: decision.hypothesis,
-        plan: decision.plan,
+        layout: decision.layout,
         before: candidate.before,
         after: candidate.after,
         warnings: candidate.stage.warnings,
@@ -77,7 +88,7 @@ export async function runTimelineAiLayout(options: {
         candidateId,
         selectable: false,
         hypothesis: decision.hypothesis,
-        plan: decision.plan,
+        layout: decision.layout,
         error: error instanceof Error ? error.message : String(error),
       });
     }

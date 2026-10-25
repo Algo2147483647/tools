@@ -149,7 +149,7 @@ export function useGraphLayout({
     spatial: spatialView.view,
   };
   const saved = state.layoutDocument.data.renderings?.[state.chartType];
-  // File geometry is restored on load even without an Appearance association. A live appearance edit invalidates it.
+  // Exact AI geometry is session-only. Appearance changes invalidate the captured measurements.
   const appearanceKey = JSON.stringify([
     getStageAppearance(appearance, state.chartType),
     showNodeDetail,

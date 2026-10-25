@@ -1,3 +1,4 @@
+import { readLayoutConfig } from "../schema/layoutConfig";
 import { parseLayoutDocument, repairLayoutDocument, type LayoutDocument } from "../schema/layoutProtocol";
 import type { GraphDocument } from "../graph/types";
 import { readWorkspaceFile } from "./browserAccess";
@@ -26,7 +27,7 @@ export async function readLinkedLayout(
     const entry = workspace.files.get(path);
     if (!entry) throw new Error(`Layout file not found: ${path}`);
     const file = await readWorkspaceFile(entry);
-    const parsed = parseLayoutDocument(JSON.parse(await file.text()));
+    const parsed = parseLayoutDocument(readLayoutConfig(JSON.parse(await file.text())));
     const linkedLayout = repairLayoutDocument(parsed, graph);
     return {
       linkedLayout,

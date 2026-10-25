@@ -1,75 +1,68 @@
-# Layout protocol
+# Layout protocols
 
-`metadata.layout` references one independent JSON file for one `chartType`. **Update current layout** writes `<graph-name>.<chartType>.layout.json` beside the graph, or overwrites the existing reference. A new association is persisted by the normal graph Save operation. Layout files are written only on Update.
+Layout has two explicit responsibilities: configuration persistence and AI rendering results. Both are chart-specific; they are deliberately different documents.
 
-Version 3 separates layout geometry from graph content and Appearance. It does not serialize the internal renderer objects. Older version 1 settings and version 2 renderer payloads are read and converted in memory; the next Update writes version 3.
+## Configuration persistence
+
+**Update current layout**, beside the Layout title, writes `<graph-name>.<chartType>.layout.json` beside the graph, or overwrites its existing `metadata.layout` reference. Normal graph Save persists a new association. Only configuration is written:
 
 ```json
 {
-  "format": "graph-studio-layout",
-  "version": 3,
+  "format": "graph-studio-layout-settings",
+  "version": 1,
   "chartType": "compound",
-  "layout": {
-    "settings": {
-      "version": 1,
-      "method": "automatic",
-      "direction": "AUTO",
-      "objective": "readability",
-      "portMode": "distributed",
-      "constraints": []
-    }
+  "settings": {
+    "method": "ai",
+    "direction": "AUTO",
+    "objective": "readability",
+    "portMode": "distributed"
   }
 }
 ```
 
-This is a settings-only document. Update includes the visible geometry and scope; Schema → Current JSON shows the actual document.
+Compound stores method, direction, objective and port mode. Timeline stores mode and view settings (`layout`, `orientation`, `edgeRouting`, `axis`, `relativeTickStep`, `tickStep`, `tickUnit`, `compactness`). Node-link stores its algorithm. There are no saved coordinates, group bounds, paths, node order, constraints, plans, pins, scope, fingerprints or geometry. Unsupported fields are rejected at both filesystem write boundaries. Old associations are read for configuration only; old geometry is discarded before validation and never installed. Update replaces the old file with configuration only.
 
-| Field under `layout` | Responsibility |
-| --- | --- |
-| `settings` | Only the selected chart's layout settings and optional AI plan |
-| `scope` | Selection and filters; nested focus/collapse state, timeline range, or spatial camera as applicable |
-| `graphFingerprint` | Identity of graph content, excluding style/layout references |
-| `settingsFingerprint` | Identity of layout settings and scope |
-| `geometry` | Canvas dimensions, node/group positions and dimensions, routes and label positions |
+Opening or expanding/collapsing the graph calculates the visible layout using current configuration. An AI result exists in the current session; reopening does not reproduce that result or call an AI automatically. Appearance has its own independent JSON association through `metadata.style`, updated by **Update current appearance** beside the Appearance title.
 
-The file contains no node titles, descriptions, displayed text, relationship values/endpoints, colors, marker styles, selection indexes, diagnostics or quality reports. These come from the current graph, its projection and Appearance. Expanded compound solver boxes/routes are reconstructed from the single set of node/group/edge geometry. Quality is measured from the restored result.
+## Schema Layout: AI output and rendering
 
-A node geometry fragment is:
+`src/schema/layoutResult.ts` defines the provider JSON Schema, Schema tab fields, response parser and renderer adapter together. **Current JSON** shows the currently rendered result in this same protocol, not the settings file.
 
 ```json
 {
-  "id": "web-storefront",
-  "position": [384, 618],
-  "size": [200, 100]
+  "format": "graph-studio-layout",
+  "version": 4,
+  "chartType": "compound",
+  "geometry": {
+    "size": [700, 300],
+    "nodes": [
+      { "id": "a", "position": [150, 150] },
+      { "id": "b", "position": [500, 150] }
+    ],
+    "edges": [
+      {
+        "id": "ab",
+        "points": [
+          [250, 150],
+          [400, 150]
+        ],
+        "label": [325, 150]
+      }
+    ],
+    "groups": []
+  }
 }
 ```
 
-| Geometry field | Meaning |
-| --- | --- |
-| `size` | `[canvasWidth, canvasHeight]`, pixels |
-| `nodes[].id` | Graph node or collapsed-group ID |
-| `nodes[].position` | `[x, y]`, node center in canvas pixels; timeline uses time anchor/cross-axis center |
-| `nodes[].size` | `[width, height]`, pixels |
-| `nodes[].text.title` | Optional measured `[localX, lineHeight]`; no title string or copied line content |
-| `nodes[].text.content` | Optional `[titleY, detailY, detailLineHeight, badgeY]` in local pixels |
-| `edges[].id` | Rendered connection ID; source, target and label text are resolved from the graph projection |
-| `edges[].points` | Ordered `[[x, y], ...]` in canvas pixels, including attachments; used for route evaluation/editing |
-| `edges[].path` | Exact SVG curve/band outline used for rendering; retained because waypoints alone do not describe curves and filled Sankey bands |
-| `edges[].label` | `[x, y]` connection label anchor in canvas pixels |
-| `groups[].position` | Compound-only `[left, top]` of an expanded group, pixels |
-| `groups[].size` | Compound-only `[width, height]`, pixels |
-| `lanes[].extent` | `[crossAxisCenter, width]`, pixels |
+This example assumes two measured cards 200 pixels wide. Coordinates are absolute canvas pixels, before viewport pan/zoom. `size` is `[width,height]`, node `position` is its center, group `position` is its top-left. The input supplies graph meaning, measured dimensions, topology, current result, configuration and quality observations. Output supplies complete visible member IDs and exact positions/routes. It does not duplicate titles, details, colors, measured card sizes, time mapping or ticks.
 
-Node text remains derived from the current graph and Appearance; only measured text placement is retained. Viewport pan/zoom is never baked into geometry. The Schema expands every object into its fields; tuple order and units are stated in the description. Current values display each tuple intact, e.g. `[384, 618]`, rather than independently summarizing all x and y values.
+Chart variants:
 
-Each chart adds only the necessary geometry:
+- Compound: node positions, expanded group bounds, connection polylines and label anchors. Collapsed groups are nodes. Groups preserve containment and measured minimum dimensions.
+- Timeline: event marker positions and independent `label:[x,y]`, connection polylines and labels. The time-axis coordinate, dates, durations and pins are preserved. Horizontal coordinates are physical canvas coordinates; canonical geometry is derived locally without rearrangement.
+- Node-link: node centers and connection polylines.
+- Sankey and spatial: node centers and exact SVG connection paths, retaining measured chart-specific rendering attributes from the input.
 
-- **Timeline:** event anchors `[startPixel, endPixel, anchorPixel]`, independent label `[x,y]`, extra attachment `[time,pixel]` tuples, time mapping, ticks and track extents. Time-axis pixels are canonical (canvas y vertically, canvas x horizontally). Horizontal filtering retains a canonical geometry-only representation; it contains no copied graph or Appearance data.
-- **Sankey:** label side/y coordinate, band width and direction path. Flow quantities and colors come from graph/Appearance.
-- **Spatial:** projected depth, label visibility/side, guide paths, fit bounds and scale. Source coordinates, guide labels and colors come from graph/Appearance.
+AI Arrange currently runs for compound and timeline. Their evaluation envelope is `{action:"evaluate",hypothesis:"...",layout:<Schema Layout document>}`. The payload under `layout` is precisely the Schema tab's protocol. The response `{action:"finish",candidateId:"trial-1",summary:"..."}` selects a successful evaluated result. Every evaluation returns quality and geometry feedback. The model controls revision and selection, with cancellation available; there is no fixed iteration budget or quality-based substitute. One malformed provider response may be regenerated once.
 
-Timeline `settings.view` includes only `layout`, `orientation`, `edgeRouting`, `axis`, `relativeTickStep`, `tickStep`, `tickUnit`, `compactness`, `locked` and `pins`. Marker appearance, colors and other visual styling are not persisted by Layout and cannot overwrite `metadata.style` on load.
-
-Timeline AI plans in the **file** use tuple `label: [x,y]` and `points: [[x,y], ...]`. The independent AI/solver protocol still uses named point coordinates; the file adapter converts at the boundary. The AI never has to produce this complete persistence document.
-
-On opening, matching graph/settings/scope restore positions while joining current graph content and Appearance by ID. Changes to graph content, scope or layout settings invalidate the saved geometry; live geometric Appearance changes also trigger a new layout. Update captures the resulting view. The parser validates exact tuple lengths, finite coordinates, unique IDs and chart-specific fields, and rejects graph/Appearance properties inside version 3 geometry.
+The harness checks structure, finite coordinates, current-scope membership and chart semantics. It joins graph and Appearance data, constructs SVG paths from supplied polylines, measures quality, and renders exact supplied geometry. It never fits groups, moves specified nodes, reroutes supplied connections or chooses Automatic in place of the selected AI result. Intermediate results are not applied; invalid responses or cancellation leave the live arrangement unchanged.

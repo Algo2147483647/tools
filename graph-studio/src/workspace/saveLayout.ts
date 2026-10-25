@@ -1,9 +1,9 @@
-import { parseLayoutDocument, createChartLayoutDocument, type LayoutDocument } from "../schema/layoutProtocol";
+import { parseLayoutDocument, createLayoutConfigFile, type LayoutDocument } from "../schema/layoutProtocol";
 import { writeJsonToHandle } from "../shared/browser/fileAccess";
 import { resolveWorkspacePath } from "./paths";
 import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
-/** Update the linked Schema document, or create one beside the graph for its first binding. */
+/** Save configuration only, beside the graph or at its existing metadata.layout reference. */
 export async function saveWorkspaceLayout(
   workspace: WorkspaceFolder,
   graphPath: string,
@@ -12,7 +12,7 @@ export async function saveWorkspaceLayout(
   linkedReference?: unknown,
 ): Promise<{ reference: string; entry: WorkspaceFile }> {
   const content = JSON.stringify(
-    createChartLayoutDocument(parseLayoutDocument(layout), layout.activeChart ?? "node-link"),
+    createLayoutConfigFile(parseLayoutDocument(layout), layout.activeChart ?? "node-link"),
     null,
     2,
   );
@@ -57,7 +57,7 @@ export async function saveWorkspaceLayout(
   const path = [...parts, fileName].join("/");
   if (replacing) {
     const currentFile = await (await directory.getFileHandle(fileName)).getFile();
-    if (JSON.parse(await currentFile.text()).format !== "graph-studio-layout")
+    if (!["graph-studio-layout", "graph-studio-layout-settings"].includes(JSON.parse(await currentFile.text()).format))
       throw new Error("Target is not a Layout file.");
   }
   if (!isCurrent()) throw new DOMException("Document changed.", "AbortError");
@@ -86,7 +86,7 @@ export async function saveServedLayout(
       exampleId,
       graphPath,
       reference,
-      document: createChartLayoutDocument(parseLayoutDocument(layout), layout.activeChart ?? "node-link"),
+      document: createLayoutConfigFile(parseLayoutDocument(layout), layout.activeChart ?? "node-link"),
     }),
   });
   if (!response.headers.get("content-type")?.includes("application/json"))

@@ -1,4 +1,4 @@
-import { createChartLayoutDocument } from "../schema/layoutProtocol";
+import { createLayoutConfigFile } from "../schema/layoutProtocol";
 import { timelineFixture } from "./layoutPersistence.test";
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from "node:fs/promises";
@@ -35,12 +35,16 @@ async function fixture(run: (root: string, input: any) => Promise<void>) {
   }
 }
 export const styleFilesSuite = defineSuite("Local style file service", [
-  defineTest("Layout writes complete geometry beside the graph and overwrites its existing association", async () => {
+  defineTest("Layout writes configuration only beside the graph and overwrites its existing association", async () => {
     await fixture(async (root, input) => {
-      input.document = createChartLayoutDocument(timelineFixture().document, "timeline");
+      input.document = createLayoutConfigFile(timelineFixture().document, "timeline");
       const saved = await saveExampleStyle(root, schema, input, "layout");
       assert.equal(saved.reference, "main.timeline.layout.json");
-      input.document.layout.geometry.nodes[0].position[0] += 200;
+      input.document.settings.view.orientation = "horizontal";
+      assert.ok(!JSON.stringify(input.document).includes("geometry"));
+      await assert.rejects(
+        saveExampleStyle(root, schema, { ...input, document: { ...input.document, geometry: {} } }, "layout"),
+      );
       const updated = await saveExampleStyle(root, schema, { ...input, reference: saved.reference }, "layout");
       assert.equal(saved.path, updated.path);
       assert.deepEqual(JSON.parse(await readFile(resolve(root, "demo", saved.path), "utf8")), input.document);

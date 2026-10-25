@@ -97,6 +97,16 @@ export function SettingsContent({
             <div className="settings-title-line">
               <h2>{SETTINGS_CHAPTERS.find((chapter) => chapter.key === shownChapter)?.label}</h2>
               {shownChapter === "layout" && settings.layoutAction}
+              {shownChapter === "appearance" && (
+                <button
+                  type="button"
+                  className="studio-button"
+                  disabled={!settings.canBindAppearance || settings.bindingAppearance}
+                  onClick={settings.onAppearanceBind}
+                >
+                  {settings.bindingAppearance ? "Updating…" : "Update current appearance"}
+                </button>
+              )}
               {(visualChapter || shownChapter === "chart") && (
                 <span className="settings-chart-badge">{getGraphChartLabel(chartType)}</span>
               )}

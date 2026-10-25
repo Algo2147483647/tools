@@ -1,8 +1,8 @@
 import type { AiSettings } from "../../../ai/types";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
-import { LayoutRequestError, requestLayoutPlan } from "../../shared/ai/request";
+import { requestLayoutPlan } from "../../shared/ai/request";
 import { TIMELINE_LAYOUT_PROMPT } from "./prompt";
-import { parseTimelineDecision, TIMELINE_DECISION_SCHEMA } from "./protocol";
+import { layoutDecisionSchema, parseLayoutDecision } from "../../shared/ai/decision";
 
 export async function requestTimelineLayout(
   settings: AiSettings,
@@ -22,13 +22,8 @@ export async function requestTimelineLayout(
     message,
     signal,
     onProgress,
-    schema: TIMELINE_DECISION_SCHEMA,
+    schema: layoutDecisionSchema("timeline"),
     instructions: TIMELINE_LAYOUT_PROMPT,
-    parse: (value) => {
-      const decision = parseTimelineDecision(value, session.candidates);
-      if (decision.action === "finish" && session.requireEvaluation)
-        throw new LayoutRequestError("semantic", "Evaluate a proposal before finishing.");
-      return decision;
-    },
+    parse: (value) => parseLayoutDecision(value, "timeline", session.candidates, session.requireEvaluation),
   });
 }

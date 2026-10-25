@@ -96,9 +96,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}),
           }}
           onChange={p.onAppearanceSchemaChange}
-          onBind={p.onAppearanceBind}
-          canBind={p.canBindAppearance}
-          binding={p.bindingAppearance}
           styleReference={
             typeof p.graphDocument?.metadata?.style === "string" ? p.graphDocument.metadata.style : undefined
           }

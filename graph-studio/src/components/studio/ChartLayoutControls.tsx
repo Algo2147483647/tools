@@ -33,12 +33,7 @@ export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
         <div hidden={tab !== "arrangement"}>
           <ChartSpecificLayoutControls {...props} />
         </div>
-        {tab === "schema" && (
-          <LayoutSchema
-            chartType={props.session.state.chartType}
-            value={props.viewport.currentLayoutDocument ?? props.session.state.layoutDocument.data}
-          />
-        )}
+        {tab === "schema" && <LayoutSchema chartType={props.session.state.chartType} stage={props.viewport.stage} />}
       </MethodTabs>
     </>
   );

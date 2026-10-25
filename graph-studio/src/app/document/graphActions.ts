@@ -14,6 +14,7 @@ export type GraphAction =
       beforeDag: NormalizedDag;
       historyBase: import("./initialState").GraphAppState["editHistory"];
       data: import("../../graph/timeline/layoutData").TimelineLayoutData;
+      rendering?: import("../../schema/layoutGeometry").LayoutRendering;
     }
   | { type: "layoutDocumentChanged"; generation: number; data: import("../../schema/layoutProtocol").LayoutDocument }
   | { type: "timelineSettingsChanged"; patch: Partial<TimelineViewSettings> }

@@ -1,13 +1,12 @@
-import { timelinePlanToFile, timelinePlanFromFile } from "./timelineLayoutFile";
+import { parseLayoutConfigFile, LAYOUT_VIEW_CONFIG_KEYS, type LayoutConfigFile } from "./layoutConfig";
+import { timelinePlanFromFile } from "./timelineLayoutFile";
 import { defaultSpaceView } from "../graph/space";
 import {
   graphLayoutIdentity,
   migrateLayoutGeometry,
-  timelineLayoutSettings,
   TIMELINE_LAYOUT_KEYS,
   renderingSettings,
   layoutIdentity,
-  layoutScopeForChart,
   validateLayoutScope,
   validateLayoutGeometryData,
   type LayoutRendering,
@@ -18,7 +17,7 @@ import { emptyLayoutData, parseCompoundLayout, type CompoundLayoutData } from ".
 import { parseTimelineLayoutPlan, timelineTrack, type TimelineLayoutData } from "../graph/timeline/layoutData";
 import type { GraphDocument, GraphLayoutMode, GraphChartType } from "../graph/types";
 
-/** Internal session state. Persist only createChartLayoutDocument(), the chart-specific file protocol below. */
+/** Internal session state. Persist only createLayoutConfigFile(); renderings are session-only. */
 export interface LayoutDocument {
   format: "graph-studio-layout";
   version: 2;
@@ -51,6 +50,18 @@ function object(value: unknown, allowed: string[], label: string) {
 }
 
 export function parseLayoutDocument(value: unknown): LayoutDocument {
+  if (isRecord(value) && value.format === "graph-studio-layout-settings") {
+    const file = parseLayoutConfigFile(value);
+    const data = defaultLayoutDocument();
+    data.activeChart = file.chartType;
+    if (file.chartType === "compound") data.charts.compound = parseCompoundLayout(file.settings);
+    if (file.chartType === "timeline") {
+      data.charts.timeline = { version: 1, mode: file.settings.mode as "ai" | "algorithm" };
+      if (file.settings.view) data.timelineView = resolveTimeline(file.settings.view);
+    }
+    if (file.chartType === "node-link") data.charts["node-link"] = { method: file.settings.method as GraphLayoutMode };
+    return data;
+  }
   if (isRecord(value) && value.chartType !== undefined) return parseChartLayoutFile(value);
   const r = object(value, ["format", "version", "charts", "activeChart", "renderings", "timelineView"], "layout");
   if (r.format !== "graph-studio-layout" || ![1, 2].includes(r.version as number))
@@ -157,47 +168,6 @@ export function repairLayoutDocument(
   return JSON.stringify(data) === JSON.stringify(layout) ? layout : data;
 }
 
-/** Public file protocol. One file belongs to exactly one chart type, like Appearance. */
-export interface ChartLayoutDocument {
-  format: "graph-studio-layout";
-  version: 3;
-  chartType: GraphChartType;
-  layout: {
-    settings: Record<string, unknown>;
-    scope?: Record<string, unknown>;
-    graphFingerprint?: string;
-    settingsFingerprint?: string;
-    geometry?: import("./layoutGeometry").LayoutGeometryData;
-  };
-}
-export function createChartLayoutDocument(data: LayoutDocument, chartType: GraphChartType): ChartLayoutDocument {
-  const rendering = data.renderings?.[chartType];
-  const settings = chartType in data.charts ? data.charts[chartType as keyof LayoutDocument["charts"]] : {};
-  return {
-    format: "graph-studio-layout",
-    version: 3,
-    chartType,
-    layout: {
-      settings: {
-        ...settings,
-        ...(chartType === "timeline" && data.charts.timeline.plan
-          ? { plan: timelinePlanToFile(data.charts.timeline.plan) }
-          : {}),
-        ...(chartType === "timeline" && (rendering || data.timelineView)
-          ? { view: timelineLayoutSettings(rendering?.timelineSettings ?? data.timelineView!) }
-          : {}),
-      },
-      ...(rendering
-        ? {
-            scope: layoutScopeForChart(chartType, rendering.scope),
-            graphFingerprint: rendering.graphFingerprint,
-            settingsFingerprint: rendering.settingsFingerprint,
-            geometry: rendering.geometry,
-          }
-        : {}),
-    },
-  };
-}
 function parseChartLayoutFile(value: Record<string, unknown>): LayoutDocument {
   const file = object(value, ["format", "version", "chartType", "layout"], "Layout file");
   if (
@@ -271,4 +241,22 @@ function parseChartLayoutFile(value: Record<string, unknown>): LayoutDocument {
   // Configuration-only timeline files still restore their view settings.
   if (view !== undefined) data.timelineView = resolveTimeline(view);
   return data;
+}
+
+/** Disk boundary: only reusable settings, never current scope, AI plans or geometry. */
+export function createLayoutConfigFile(data: LayoutDocument, chart: GraphChartType): LayoutConfigFile {
+  let settings: Record<string, unknown> = {};
+  if (chart === "compound") {
+    const c = data.charts.compound;
+    settings = { method: c.method, direction: c.direction, objective: c.objective, portMode: c.portMode };
+  }
+  if (chart === "node-link") settings = { method: data.charts["node-link"].method };
+  if (chart === "timeline") {
+    const view = data.renderings?.timeline?.timelineSettings ?? data.timelineView;
+    settings = {
+      mode: data.charts.timeline.mode,
+      ...(view ? { view: Object.fromEntries(LAYOUT_VIEW_CONFIG_KEYS.map((key) => [key, view[key]])) } : {}),
+    };
+  }
+  return parseLayoutConfigFile({ format: "graph-studio-layout-settings", version: 1, chartType: chart, settings });
 }

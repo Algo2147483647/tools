@@ -1,3 +1,4 @@
+import { createLayoutResult } from "../schema/layoutResult";
 import assert from "node:assert/strict";
 import { applyGraphCommand } from "../graph/commands";
 import { defaultLayoutDocument, parseLayoutDocument, repairLayoutDocument } from "../schema/layoutProtocol";
@@ -227,6 +228,10 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
   defineTest(
     "provider requests use the configured model, repair invalid JSON once and never execute graph commands",
     async () => {
+      const layout = createLayoutResult(
+        buildTimelineStage({ dag: graph(), selection: { type: "full" }, timelineSettings: { layout: "tracks" } })!,
+        "timeline",
+      );
       const original = globalThis.fetch;
       const requests: Record<string, unknown>[] = [];
       globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
@@ -235,7 +240,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
         const content =
           requests.length === 1
             ? '{"commands":["/rm a"]}'
-            : JSON.stringify({ version: 1, action: "evaluate", hypothesis: "Order tracks", plan });
+            : JSON.stringify({ action: "evaluate", hypothesis: "Order tracks", layout });
         return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
       }) as unknown as typeof fetch;
       try {
@@ -256,7 +261,7 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
         assert.equal(requests.length, 2);
         assert.equal(requests[0].model, "configured-model");
         assert.equal(response.action, "evaluate");
-        if (response.action === "evaluate") assert.deepEqual(response.plan, plan);
+        if (response.action === "evaluate") assert.deepEqual(response.layout, layout);
         assert.throws(() => parseTimelineLayoutResponse(JSON.stringify({ version: 1, plan, commands: [] })));
       } finally {
         globalThis.fetch = original;

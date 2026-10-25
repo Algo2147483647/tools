@@ -1,3 +1,4 @@
+import { createLayoutResult, type LayoutResultDocument } from "../schema/layoutResult";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import type { AiSettings } from "../ai/types";
@@ -62,6 +63,27 @@ async function withModel(replies: unknown[], run: (requests: any[]) => Promise<v
     globalThis.fetch = original;
   }
 }
+
+function shifted(stage: Awaited<ReturnType<typeof buildCompoundStage>>, dx: number): LayoutResultDocument {
+  const layout = createLayoutResult(stage, "compound");
+  layout.geometry.size[0] += dx;
+  for (const n of [...layout.geometry.nodes, ...layout.geometry.groups!]) n.position[0] += dx;
+  for (const e of layout.geometry.edges) {
+    e.label[0] += dx;
+    for (const p of e.points!) p[0] += dx;
+  }
+  return layout;
+}
+const evaluate = (layout: LayoutResultDocument) => ({
+  action: "evaluate",
+  hypothesis: "Compare exact spatial design",
+  layout,
+});
+const finish = (candidateId = "trial-1") => ({
+  action: "finish",
+  candidateId,
+  summary: "Selected after inspecting geometry and quality.",
+});
 
 export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness", [
   defineTest("AI context includes every visible node, edge and full labels beyond previous sample limits", async () => {
@@ -137,52 +159,6 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
     assert.equal(moved.geometry.boxes.a.x, boxes.a.x + 300);
     assert.equal(moved.geometry.boxes.a.y, boxes.a.y);
   }),
-  defineTest("coordinate errors reach the model for revision without hidden placement repair", async () => {
-    const { input, problem, stage } = await fixture();
-    const valid = [
-      { nodeId: "a", x: 0, y: 500 },
-      { nodeId: "b", x: 0, y: 250 },
-      { nodeId: "c", x: 0, y: 0 },
-    ];
-    const trial = (placements: unknown[]) => ({
-      action: "evaluate",
-      hypothesis: "Test exact positions",
-      plan: { ...response(), placements },
-    });
-    const evaluations: string[] = [];
-    await withModel(
-      [
-        trial([
-          { nodeId: "a", x: 0, y: 0 },
-          { nodeId: "b", x: 0, y: 0 },
-        ]),
-        trial(valid),
-        { action: "finish", candidateId: "trial-2", summary: "Separated siblings in reverse reading order." },
-      ],
-      async (requests) => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          onEvaluation: (e) => evaluations.push(e.status),
-          compute: (layout, runtime) =>
-            buildCompoundStage({ ...input, layout, solve: async (p) => arrangePreciseCompound(p, runtime!) }),
-        });
-        assert.deepEqual(evaluations, ["failed", "evaluated"]);
-        const context = JSON.parse(requests[1].messages[1].content).context;
-        assert.match(context.session.observations[1].error, /Sibling overlap/);
-        assert.deepEqual(context.session.selectableCandidates, ["current"]);
-        assert.ok(result.report.changed);
-        assert.ok(result.report.precise);
-        assert.equal(result.report.evaluations, 2);
-        assert.ok(result.report.after.movedNodes > 0);
-        assert.equal(result.report.trials[1].positionedNodes, 3);
-        assert.ok(result.stage.nodeMap.a.y > result.stage.nodeMap.b.y);
-      },
-    );
-  }),
   defineTest("coordinate validation permits only finite positions on supplied movable IDs", async () => {
     const { problem } = await fixture();
     const policy = { direction: "AUTO" as const, ...compoundAiContext(problem) };
@@ -204,47 +180,6 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       ),
     );
   }),
-  defineTest(
-    "partial coordinate revisions use the latest observation and can select an earlier exact trial",
-    async () => {
-      const { input, problem, stage } = await fixture();
-      const trial = (placements: unknown[]) => ({
-        action: "evaluate",
-        hypothesis: "Test spacing",
-        plan: { ...response(), placements },
-      });
-      const evaluated: Awaited<ReturnType<typeof buildCompoundStage>>[] = [];
-      await withModel(
-        [
-          trial([{ nodeId: "g", x: 137, y: 83 }]),
-          trial([{ nodeId: "g", x: 537, y: 83 }]),
-          { action: "finish", candidateId: "trial-1", summary: "Prefer the first location." },
-        ],
-        async () => {
-          const result = await runCompoundAiLayout({
-            settings,
-            problem,
-            currentStage: stage,
-            message: "Arrange",
-            signal: new AbortController().signal,
-            compute: async (layout, runtime) => {
-              if (evaluated.length) assert.deepEqual(runtime!.baseline, evaluated.at(-1)!.compoundLayout!.baseline);
-              const next = await buildCompoundStage({
-                ...input,
-                layout,
-                solve: async (p) => arrangePreciseCompound(p, runtime!),
-              });
-              evaluated.push(next);
-              return next;
-            },
-          });
-          assert.equal(result.stage.compoundLayout!.baseline.boxes.g.x, 173);
-          assert.equal(evaluated[1].compoundLayout!.baseline.boxes.g.x, 573);
-          assert.equal(result.report.candidateId, "trial-1");
-        },
-      );
-    },
-  ),
   defineTest("structural plans are not artificially limited to 32 supplied preferences or siblings", () => {
     const nodeIds = Array.from({ length: 40 }, (_, i) => `n${i}`),
       edgeIds = new Set(nodeIds);
@@ -256,29 +191,6 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       { direction: "AUTO", edgeIds, scopes: new Map([[null, { nodeIds, orderable: true }]]) },
     );
     assert.equal(plan.constraints.length, 41);
-  }),
-  defineTest("an unchanged trial is explicitly reported as unchanged", async () => {
-    const { problem, stage } = await fixture();
-    await withModel(
-      [
-        { action: "evaluate", hypothesis: "Retain geometry", plan: response() },
-        { action: "finish", candidateId: "trial-1", summary: "This trial made no visual change." },
-      ],
-      async () => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          compute: async () => stage,
-        });
-        assert.equal(result.report.changed, false);
-        assert.equal(result.report.after.movedNodes, 0);
-        assert.equal(result.report.after.changedEdges, 0);
-        assert.equal(result.report.trials.length, 1);
-      },
-    );
   }),
   defineTest(
     "every observation reports route extents and complete metric deltas without deciding for the model",
@@ -459,20 +371,34 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
       ),
     );
   }),
-  defineTest("every successful solve is observed and only an explicit model selection is applied", async () => {
-    const { input, problem, stage } = await fixture();
-    let solves = 0;
-    const evaluate = (constraints: unknown[] = []) => ({
-      action: "evaluate",
-      hypothesis: "Test the main flow",
-      plan: response(constraints),
+  defineTest("AI returns Schema Layout and the selected exact geometry is rendered without a solver", async () => {
+    const { stage, problem } = await fixture();
+    const first = shifted(stage, 100),
+      second = shifted(stage, 400);
+    await withModel([evaluate(first), evaluate(second), finish()], async (requests) => {
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Arrange",
+        signal: new AbortController().signal,
+      });
+      assert.deepEqual(createLayoutResult(result.stage, "compound"), first);
+      assert.ok(result.report.changed && result.report.precise);
+      assert.equal(result.report.evaluations, 2);
+      const request = JSON.parse(requests[1].messages[1].content).context;
+      assert.deepEqual(request.currentLayout, first);
+      assert.ok(request.session.observations[1].result.after);
+      assert.deepEqual(result.data.constraints, []);
     });
+  }),
+  defineTest("invalid geometry is returned as feedback and can never be selected", async () => {
+    const { stage, problem } = await fixture();
+    const invalid = createLayoutResult(stage, "compound");
+    invalid.geometry.nodes[0].position = [...invalid.geometry.nodes[1].position];
+    const statuses: string[] = [];
     await withModel(
-      [
-        evaluate([{ type: "prefer-outer-route", edgeId: "ab" }]),
-        evaluate(),
-        { action: "finish", candidateId: "trial-2", summary: "Remove the unhelpful routing hint." },
-      ],
+      [evaluate(invalid), finish(), evaluate(shifted(stage, 50)), finish("trial-2")],
       async (requests) => {
         const result = await runCompoundAiLayout({
           settings,
@@ -480,234 +406,87 @@ export const compoundAiHarnessSuite = defineSuite("Compound AI planning harness"
           currentStage: stage,
           message: "Arrange",
           signal: new AbortController().signal,
-          compute: async (layout) => {
-            solves++;
-            return buildCompoundStage({ ...input, layout });
-          },
+          onEvaluation: (e) => statuses.push(e.status),
         });
-        assert.equal(solves, 2);
-        assert.equal(requests.length, 3);
-        const context = JSON.parse(requests[1].messages[1].content).context;
-        const observation = context.session.observations[1];
-        assert.equal(observation.kind, "evaluated");
-        for (const key of ["crossings", "bends", "length", "sharedLength", "area", "labelCollisions"])
-          assert.equal(typeof observation.result.delta[key], "number");
-        assert.equal(context.selectedDirection, "AUTO");
-        assert.deepEqual(result.data.constraints, []);
-        assert.equal(result.stage.layoutQuality!.aiAssessment, "Remove the unhelpful routing hint.");
-        assert.equal(stage.layoutQuality!.aiAssessment, undefined);
+        assert.deepEqual(statuses, ["failed", "evaluated"]);
+        assert.equal(result.report.candidateId, "trial-2");
+        assert.match(
+          JSON.parse(requests[1].messages[1].content).context.session.observations[1].error,
+          /overlap|endpoint/i,
+        );
       },
     );
   }),
+  defineTest("unchanged results and repeated candidates are reported honestly", async () => {
+    const { stage, problem } = await fixture();
+    const layout = createLayoutResult(stage, "compound");
+    await withModel([evaluate(layout), evaluate(layout), finish()], async () => {
+      const result = await runCompoundAiLayout({
+        settings,
+        problem,
+        currentStage: stage,
+        message: "Arrange",
+        signal: new AbortController().signal,
+      });
+      assert.equal(result.report.changed, false);
+      assert.deepEqual(
+        result.report.trials.map((t) => t.status),
+        ["evaluated", "reused"],
+      );
+    });
+  }),
   defineTest(
-    "the model can select a legal candidate with a worse numeric score; no hidden Automatic fallback",
+    "the model controls iteration beyond the former six-decision limit and may select a larger canvas",
     async () => {
-      const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
-      const input = { dag, view, appearance, showNodeDetail: false, alignNodeWidthsToMax: true };
-      const currentStage = await buildCompoundStage(input);
-      const problem = currentStage.compoundLayout!;
+      const { stage, problem } = await fixture();
       await withModel(
-        [
-          {
-            action: "evaluate",
-            hypothesis: "Prefer vertical reading for the domain",
-            plan: { ...response(), preferences: { direction: "DOWN" } },
-          },
-          { action: "finish", candidateId: "trial-1", summary: "Choose vertical reading despite its longer routes." },
-        ],
+        [...Array.from({ length: 7 }, (_, i) => evaluate(shifted(stage, 100 * (i + 1)))), finish("trial-7")],
         async () => {
           const result = await runCompoundAiLayout({
             settings,
             problem,
-            currentStage,
-            message: "Vertical reading",
+            currentStage: stage,
+            message: "Arrange",
             signal: new AbortController().signal,
-            compute: (layout) => buildCompoundStage({ ...input, layout }),
           });
-          assert.ok(result.data.constraints.some((c) => c.type === "direction" && c.value === "DOWN"));
-          assert.equal(result.stage.layoutQuality!.aiAssessment, "Choose vertical reading despite its longer routes.");
-          assert.ok(
-            compareLayoutMetrics(
-              result.stage.layoutQuality!.metrics,
-              currentStage.layoutQuality!.metrics,
-              "readability",
-            ) > 0,
-          );
+          assert.equal(result.report.evaluations, 7);
+          assert.equal(result.stage.stageWidth, stage.stageWidth + 700);
         },
       );
     },
   ),
-  defineTest("failed solves are exposed to the model and cannot be selected", async () => {
-    const { input, problem, stage } = await fixture();
-    let solves = 0;
-    await withModel(
-      [
-        { action: "evaluate", hypothesis: "Try direction", plan: response() },
-        { action: "finish", candidateId: "trial-1", summary: "Invalid selection" },
-        { action: "evaluate", hypothesis: "Revise after failure", plan: response() },
-        { action: "finish", candidateId: "trial-2", summary: "The revised arrangement is valid." },
-      ],
-      async (requests) => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          compute: async (layout) => {
-            if (++solves === 1) throw new Error("No legal slot in g");
-            return buildCompoundStage({ ...input, layout });
-          },
-        });
-        const context = JSON.parse(requests[1].messages[1].content).context;
-        assert.equal(context.session.observations[1].error, "No legal slot in g");
-        assert.deepEqual(context.session.selectableCandidates, ["current"]);
-        const correction = JSON.parse(requests[2].messages[1].content);
-        assert.equal(correction.correction.code, "semantic");
-        assert.ok(correction.instruction.includes("preserving your design intent"));
-        assert.ok(!correction.instruction.includes("at most 8 constraints"));
-        assert.equal(requests.length, 4);
-        assert.equal(solves, 2);
-        assert.equal(result.stage.layoutQuality!.aiAssessment, "The revised arrangement is valid.");
-      },
-    );
-  }),
-  defineTest("malformed continuation never silently applies a prior trial", async () => {
-    const { input, problem, stage } = await fixture();
-    let solves = 0;
-    await withModel(
-      [{ action: "evaluate", hypothesis: "Test", plan: response() }, { invalid: true }, { invalid: true }],
-      async (requests) => {
-        await assert.rejects(() =>
-          runCompoundAiLayout({
-            settings,
-            problem,
-            currentStage: stage,
-            message: "Arrange",
-            signal: new AbortController().signal,
-            compute: async (layout) => {
-              solves++;
-              return buildCompoundStage({ ...input, layout });
-            },
-          }),
-        );
-        assert.equal(solves, 1);
-        assert.equal(requests.length, 3);
-        assert.equal(stage.layoutQuality!.aiAssessment, undefined);
-        assert.deepEqual(problem.stored.constraints, []);
-      },
-    );
-  }),
-  defineTest("identical trials reuse their calculation but still require the model to finish", async () => {
-    const { input, problem, stage } = await fixture();
-    let solves = 0;
-    const trial = { action: "evaluate", hypothesis: "Test", plan: response() };
-    await withModel(
-      [trial, trial, { action: "finish", candidateId: "trial-1", summary: "Keep this result." }],
-      async (requests) => {
-        await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          compute: async (layout) => {
-            solves++;
-            return buildCompoundStage({ ...input, layout });
-          },
-        });
-        assert.equal(solves, 1);
-        assert.equal(requests.length, 3);
-        assert.equal(
-          JSON.parse(requests[2].messages[1].content).context.session.observations[2].kind,
-          "reused-evaluation",
-        );
-      },
-    );
-  }),
-  defineTest("evaluation budget returns control to the model for final selection, never to a ranker", async () => {
-    const { input, problem, stage } = await fixture();
-    let solves = 0;
-    const trials = ["east", "south", "west", "north"].map((side) => ({
-      action: "evaluate",
-      hypothesis: `Try ${side}`,
-      plan: response([{ type: "port-side", edgeId: "ab", end: "source", side }]),
-    }));
-    await withModel(
-      [...trials, trials[0], { action: "finish", candidateId: "trial-3", summary: "Choose the third evaluation." }],
-      async (requests) => {
-        const result = await runCompoundAiLayout({
-          settings,
-          problem,
-          currentStage: stage,
-          message: "Arrange",
-          signal: new AbortController().signal,
-          compute: async (layout) => {
-            solves++;
-            return buildCompoundStage({ ...input, layout });
-          },
-        });
-        assert.equal(solves, 4);
-        assert.equal(requests.length, 6);
-        assert.equal(JSON.parse(requests[4].messages[1].content).context.session.canEvaluate, false);
-        assert.equal(result.stage.layoutQuality!.aiAssessment, "Choose the third evaluation.");
-      },
-    );
-  }),
-  defineTest("cancellation after a solve stops the agent before another decision or commit", async () => {
-    const { input, problem, stage } = await fixture();
-    const abort = new AbortController();
-    await withModel([{ action: "evaluate", hypothesis: "Test", plan: response() }], async (requests) => {
+  defineTest("malformed continuation never silently commits the last valid layout", async () => {
+    const { stage, problem } = await fixture();
+    const before = createLayoutResult(stage, "compound");
+    await withModel([evaluate(shifted(stage, 100)), { invalid: true }, { invalid: true }], async () => {
       await assert.rejects(
-        () =>
-          runCompoundAiLayout({
-            settings,
-            problem,
-            currentStage: stage,
-            message: "Arrange",
-            signal: abort.signal,
-            compute: async (layout) => {
-              const result = await buildCompoundStage({ ...input, layout });
-              abort.abort();
-              return result;
-            },
-          }),
+        runCompoundAiLayout({
+          settings,
+          problem,
+          currentStage: stage,
+          message: "Arrange",
+          signal: new AbortController().signal,
+        }),
+      );
+      assert.deepEqual(createLayoutResult(stage, "compound"), before);
+    });
+  }),
+  defineTest("cancellation after evaluation stops before another decision", async () => {
+    const { stage, problem } = await fixture();
+    const abort = new AbortController();
+    await withModel([evaluate(shifted(stage, 100))], async (requests) => {
+      await assert.rejects(
+        runCompoundAiLayout({
+          settings,
+          problem,
+          currentStage: stage,
+          message: "Arrange",
+          signal: abort.signal,
+          onEvaluation: () => abort.abort(),
+        }),
         /cancelled/,
       );
       assert.equal(requests.length, 1);
     });
   }),
-  defineTest(
-    "DeepSeek planning enables thinking with an independent budget and can explicitly keep current",
-    async () => {
-      const { problem, stage } = await fixture();
-      await withModel(
-        [
-          {
-            action: "finish",
-            candidateId: "current",
-            summary: "The current organization fits the requested reading flow.",
-          },
-        ],
-        async (requests) => {
-          const result = await runCompoundAiLayout({
-            settings: { ...settings, provider: "deepseek" },
-            problem,
-            currentStage: stage,
-            message: "Arrange",
-            signal: new AbortController().signal,
-            compute: async () => {
-              throw new Error("No evaluation was requested");
-            },
-          });
-          assert.deepEqual(requests[0].thinking, { type: "enabled" });
-          assert.equal(requests[0].max_tokens, 131072);
-          assert.deepEqual(result.data, problem.stored);
-          assert.equal(result.report.evaluations, 0);
-          assert.equal(result.report.candidateId, "current");
-          assert.equal(result.report.changed, false);
-        },
-      );
-    },
-  ),
 ]);
