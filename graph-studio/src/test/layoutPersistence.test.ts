@@ -18,6 +18,8 @@ import {
   layoutIdentity,
   renderingMatches,
   renderingSettings,
+  migrateLayoutGeometry,
+  validateLayoutGeometryData,
 } from "../schema/layoutGeometry";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
 import { buildTimelineStage } from "../layout/timeline/layout";
@@ -51,8 +53,9 @@ function assertNodeAndEdgeFields(
       for (const [key, child] of Object.entries(value)) visit(child, `${path}.${key}`);
     } else assert.ok(paths.has(path), `Missing field ${path}`);
   }
-  visit(stage.nodes, "layout.geometry.nodes");
-  visit(stage.edges, "layout.geometry.edges");
+  const geometry = captureLayoutGeometry(stage);
+  visit(geometry.nodes, "layout.geometry.nodes");
+  visit(geometry.edges, "layout.geometry.edges");
 }
 
 export function timelineFixture(orientation: "vertical" | "horizontal" = "vertical") {
@@ -96,6 +99,115 @@ export function timelineFixture(orientation: "vertical" | "horizontal" = "vertic
 }
 
 export const layoutPersistenceSuite = defineSuite("Layout rendering persistence and timeline AI", [
+  defineTest("v3 persists pure tuple geometry and restores current graph content and Appearance", () => {
+    const { stage, document, dag } = timelineFixture();
+    const file = createChartLayoutDocument(document, "timeline");
+    assert.equal(file.version, 3);
+    const json = JSON.stringify(file);
+    for (const content of [
+      '"displayTitle"',
+      '"detail"',
+      '"detailLines"',
+      '"colorTokens"',
+      '"source"',
+      '"target"',
+      '"weight"',
+      '"layoutQuality"',
+      '"compoundGeometry"',
+      '"pointMarker"',
+      '"typeColors"',
+    ])
+      assert.ok(!json.includes(content), `Unexpected content: ${content}`);
+    assert.ok(!json.includes('"Work"'));
+    assert.deepEqual(file.layout.geometry!.nodes[0].position, [stage.nodes[0].x, stage.nodes[0].y]);
+    const fresh = structuredClone(stage);
+    fresh.nodes[0].title = "Current graph title";
+    fresh.nodes[0].displayTitle = "Current graph title";
+    fresh.nodes[0].timeline!.color = "#abcdef";
+    fresh.nodeMap = Object.fromEntries(fresh.nodes.map((n) => [n.key, n]));
+    fresh.edges[0].label = "Current relationship label";
+    const restored = restoreLayoutGeometry(file.layout.geometry!, fresh);
+    assert.equal(restored.nodes[0].displayTitle, "Current graph title");
+    assert.equal(restored.nodes[0].timeline!.color, "#abcdef");
+    assert.equal(restored.edges[0].label, "Current relationship label");
+    const linkedStyle = getDefaultChartStyle("timeline");
+    linkedStyle.timeline!.pointTextColor = "#123456";
+    const state = graphReducer(createInitialGraphState(), {
+      type: "graphLoaded",
+      dag,
+      documentId: "pure-layout",
+      fileName: "graph.json",
+      selection: { type: "full" },
+      status: "",
+      linkedStyle,
+      linkedChartType: "timeline",
+      linkedLayout: parseLayoutDocument(file),
+    });
+    assert.equal(state.timelineSettings.pointTextColor, "#123456", "Layout must not override linked Appearance");
+    for (const invalid of [
+      { ...file.layout.geometry!, nodes: [{ ...file.layout.geometry!.nodes[0], displayTitle: "stale text" }] },
+      { ...file.layout.geometry!, nodes: [{ ...file.layout.geometry!.nodes[0], position: [1, 2, 3] }] },
+      { ...file.layout.geometry!, nodes: [{ ...file.layout.geometry!.nodes[0], position: [1, Infinity] }] },
+    ])
+      assert.throws(() => validateLayoutGeometryData(invalid, "timeline"));
+  }),
+  defineTest("v2 renderer payloads upgrade to v3 without keeping content or losing geometry", () => {
+    const { stage, document, dag, scope, settings } = timelineFixture("horizontal");
+    function legacyGeometry(s: typeof stage): unknown {
+      const {
+        dag: _dag,
+        nodeMap: _map,
+        connectedKeysByNode: _connections,
+        compoundLayout: _compound,
+        timeline,
+        ...rest
+      } = s;
+      const { canonicalStage, ...time } = timeline ?? {};
+      return {
+        ...rest,
+        timeline: { ...time, ...(canonicalStage ? { canonicalStage: legacyGeometry(canonicalStage) } : {}) },
+      };
+    }
+    const legacy = legacyGeometry(stage);
+    assert.deepEqual(migrateLayoutGeometry(legacy), captureLayoutGeometry(stage));
+    const old = { ...createChartLayoutDocument(document, "timeline"), version: 2 };
+    const loaded = parseLayoutDocument({ ...old, layout: { ...old.layout, geometry: legacy } });
+    const rendering = loaded.renderings!.timeline!;
+    assert.ok(renderingMatches(rendering, dag, renderingSettings("timeline", loaded.charts, scope, settings), stage));
+    assert.deepEqual(
+      captureLayoutGeometry(restoreLayoutGeometry(rendering.geometry, stage)),
+      captureLayoutGeometry(stage),
+    );
+    assert.equal(createChartLayoutDocument(loaded, "timeline").version, 3);
+    assert.throws(() => parseLayoutDocument({ ...old, version: 3, layout: { ...old.layout, geometry: legacy } }));
+  }),
+  defineTest("saved timeline plans use tuple points while AI and solver keep their own protocol", () => {
+    const { document } = timelineFixture();
+    const plan = parseTimelineLayoutPlan({
+      placements: [{ id: "b", cross: 760, label: { x: 790, y: 190 } }],
+      routes: [
+        {
+          id: "ab",
+          points: [
+            { x: 1, y: 2 },
+            { x: 3, y: 4 },
+          ],
+          label: { x: 5, y: 6 },
+        },
+      ],
+    });
+    document.charts.timeline = { version: 1, mode: "ai", plan };
+    const file = createChartLayoutDocument(document, "timeline");
+    assert.deepEqual((file.layout.settings.plan as any).placements[0].label, [790, 190]);
+    assert.deepEqual((file.layout.settings.plan as any).routes[0].points, [
+      [1, 2],
+      [3, 4],
+    ]);
+    assert.deepEqual(parseLayoutDocument(file).charts.timeline.plan, plan);
+    assert.deepEqual(document.charts.timeline.plan, plan, "Saving does not mutate the AI/solver plan");
+    (file.layout.settings.plan as any).routes[0].points[0] = [1];
+    assert.throws(() => parseLayoutDocument(file));
+  }),
   defineTest("each Layout file and Schema contains only its chart type", () => {
     const { document } = timelineFixture();
     for (const chart of ["compound", "timeline", "node-link", "sankey", "spatial"] as const) {
@@ -106,15 +218,13 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
       const fields = layoutGeometryFields(chart);
       assert.equal(new Set(fields.map((field) => field.path)).size, fields.length, "No duplicate geometry fields");
       for (const path of [
-        "nodes[].key",
-        "nodes[].x",
-        "nodes[].y",
-        "nodes[].width",
-        "nodes[].height",
-        "nodes[].titleLayout.lines",
-        "nodes[].contentLayout.titleY",
-        "edges[].points[].x",
-        "edges[].labelPosition.y",
+        "nodes[].id",
+        "nodes[].position",
+        "nodes[].size",
+        "nodes[].text.title",
+        "nodes[].text.content",
+        "edges[].points[]",
+        "edges[].label",
       ])
         assert.ok(markup.includes(`layout.geometry.${path}`), `Missing ${chart} field ${path}`);
       if (chart !== "timeline") {
@@ -126,9 +236,9 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
       if (chart !== "compound") assert.ok(!markup.includes("compoundGeometry"));
       if (chart !== "spatial") assert.ok(!markup.includes("geometry.spatial"));
       if (chart !== "sankey") assert.ok(!markup.includes("nodes[].flow"));
-      if (chart === "compound") assert.ok(markup.includes("compoundGeometry.routes[id].points[].y"));
-      if (chart === "timeline") assert.ok(markup.includes("nodes[].timeline.ports[].time"));
-      if (chart === "spatial") assert.ok(markup.includes("nodes[].spatial.coordinates"));
+      if (chart === "compound") assert.ok(markup.includes("groups[].position"));
+      if (chart === "timeline") assert.ok(markup.includes("nodes[].timeline.ports[]"));
+      if (chart === "spatial") assert.ok(markup.includes("nodes[].spatial.depth"));
       assert.equal(parseLayoutDocument(file).activeChart, chart);
     }
   }),
@@ -136,17 +246,17 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
     const { document, stage } = timelineFixture();
     const file = createChartLayoutDocument(document, "timeline");
     assert.deepEqual(
-      layoutFieldValues(file, "layout.geometry.nodes[].key"),
+      layoutFieldValues(file, "layout.geometry.nodes[].id"),
       stage.nodes.map((node) => node.key),
     );
     assert.deepEqual(
-      layoutFieldValues(file, "layout.geometry.edges[].points[].x"),
+      layoutFieldValues(file, "layout.geometry.edges[].points[][0]"),
       stage.edges.flatMap((edge) => edge.points?.map((point) => point.x) ?? []),
     );
     assert.equal(layoutFieldSummary(file, "layout.geometry.nodes[]"), "3 items");
     assert.equal(layoutFieldSummary(file, "layout.geometry.nodes[].missing"), "—");
     assert.deepEqual(layoutFieldValues({ boxes: { a: { x: 12 }, b: { x: 24 } } }, "boxes[id].x"), [12, 24]);
-    assert.ok(layoutFieldSummary(file, "layout.geometry.nodes[].x") !== "—");
+    assert.ok(layoutFieldSummary(file, "layout.geometry.nodes[].position") !== "—");
     assert.equal(layoutFieldSummary({ a: null }, "a"), "null");
     assertNodeAndEdgeFields(stage, "timeline");
   }),
@@ -202,8 +312,9 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
-      nodes: { a: { title: "A" }, b: { title: "B" } },
+      nodes: { a: { title: "A" }, b: { title: "B" }, group: { title: "Group" } },
       edges: [{ id: "ab", source: "a", target: "b", value: 3 }],
+      hierarchy_edges: [{ id: "ga", source: "group", target: "a" }],
     });
     const compound = await buildCompoundStage({
       dag,
@@ -231,6 +342,11 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
     for (const stage of stages) {
       assert.ok(stage);
       const fixture = timelineFixture();
+      if (stage!.compoundLayout) {
+        const restored = restoreLayoutGeometry(captureLayoutGeometry(stage!), stage!);
+        assert.deepEqual(restored.compoundLayout!.baseline, stage!.compoundLayout.baseline);
+        assert.deepEqual(restored.nodeMap.group, stage!.nodeMap.group);
+      }
       const chart = ["compound", "sankey", "spatial"].includes(stage!.layoutMode)
         ? (stage!.layoutMode as "compound" | "sankey" | "spatial")
         : "node-link";
@@ -268,7 +384,10 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
         ]),
       });
       assert.equal(loaded.layoutNotice, undefined);
-      assert.deepEqual(loaded.linkedLayout, document);
+      assert.deepEqual(
+        createChartLayoutDocument(loaded.linkedLayout!, "timeline"),
+        createChartLayoutDocument(document, "timeline"),
+      );
       const state = graphReducer(createInitialGraphState(), {
         type: "graphLoaded",
         dag: linkedDag,
@@ -298,7 +417,7 @@ export const layoutPersistenceSuite = defineSuite("Layout rendering persistence 
       assert.equal(repairLayoutDocument(document, changed).renderings!.timeline, undefined);
       assert.equal(parseLayoutDocument({ format: "graph-studio-layout", version: 1, charts: {} }).version, 2);
       const bad = structuredClone(document);
-      bad.renderings!.timeline!.geometry.nodes[0].x = Infinity;
+      bad.renderings!.timeline!.geometry.nodes[0].position[0] = Infinity;
       assert.throws(() => parseLayoutDocument(bad), /geometry/);
       const bound = graphReducer(state, {
         type: "layoutReferenceBound",

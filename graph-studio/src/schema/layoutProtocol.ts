@@ -1,6 +1,12 @@
+import { timelinePlanToFile, timelinePlanFromFile } from "./timelineLayoutFile";
 import { defaultSpaceView } from "../graph/space";
 import {
   graphLayoutIdentity,
+  migrateLayoutGeometry,
+  timelineLayoutSettings,
+  TIMELINE_LAYOUT_KEYS,
+  renderingSettings,
+  layoutIdentity,
   layoutScopeForChart,
   validateLayoutScope,
   validateLayoutGeometryData,
@@ -94,16 +100,13 @@ export function parseLayoutDocument(value: unknown): LayoutDocument {
       );
       validateLayoutScope(scope);
       const timelineSettings = resolveTimeline(rendering.timelineSettings);
-      validateLayoutGeometryData(rendering.geometry);
-      if (!(chart === "node-link" ? ["level", "sugiyama", "dagre"] : [chart]).includes(rendering.geometry.layoutMode))
-        throw new Error("Layout rendering does not match its chart type.");
-      if (
-        (chart !== "timeline" && rendering.geometry.timeline) ||
-        (chart !== "compound" && (rendering.geometry.compoundGeometry || rendering.geometry.groups?.length)) ||
-        (chart !== "spatial" && rendering.geometry.spatial)
-      )
-        throw new Error("Layout contains geometry for another chart type.");
-      result.renderings[chart as GraphChartType] = { ...rendering, timelineSettings } as unknown as LayoutRendering;
+      const geometry = migrateLayoutGeometry(rendering.geometry);
+      validateLayoutGeometryData(geometry, chart as GraphChartType);
+      result.renderings[chart as GraphChartType] = {
+        ...rendering,
+        geometry,
+        timelineSettings,
+      } as unknown as LayoutRendering;
     }
   }
   return result;
@@ -157,7 +160,7 @@ export function repairLayoutDocument(
 /** Public file protocol. One file belongs to exactly one chart type, like Appearance. */
 export interface ChartLayoutDocument {
   format: "graph-studio-layout";
-  version: 2;
+  version: 3;
   chartType: GraphChartType;
   layout: {
     settings: Record<string, unknown>;
@@ -172,13 +175,16 @@ export function createChartLayoutDocument(data: LayoutDocument, chartType: Graph
   const settings = chartType in data.charts ? data.charts[chartType as keyof LayoutDocument["charts"]] : {};
   return {
     format: "graph-studio-layout",
-    version: 2,
+    version: 3,
     chartType,
     layout: {
       settings: {
         ...settings,
+        ...(chartType === "timeline" && data.charts.timeline.plan
+          ? { plan: timelinePlanToFile(data.charts.timeline.plan) }
+          : {}),
         ...(chartType === "timeline" && (rendering || data.timelineView)
-          ? { view: rendering?.timelineSettings ?? data.timelineView }
+          ? { view: timelineLayoutSettings(rendering?.timelineSettings ?? data.timelineView!) }
           : {}),
       },
       ...(rendering
@@ -196,10 +202,10 @@ function parseChartLayoutFile(value: Record<string, unknown>): LayoutDocument {
   const file = object(value, ["format", "version", "chartType", "layout"], "Layout file");
   if (
     file.format !== "graph-studio-layout" ||
-    file.version !== 2 ||
+    ![2, 3].includes(file.version as number) ||
     !["compound", "timeline", "node-link", "sankey", "spatial"].includes(file.chartType as string)
   )
-    throw new Error("Expected a version 2 Layout file with chartType.");
+    throw new Error("Expected a version 2 or 3 Layout file with chartType.");
   const chart = file.chartType as GraphChartType;
   const layout = object(
     file.layout,
@@ -211,6 +217,10 @@ function parseChartLayoutFile(value: Record<string, unknown>): LayoutDocument {
   if (view !== undefined && chart !== "timeline") throw new Error("Only timeline settings contain view.");
   if ((chart === "sankey" || chart === "spatial") && Object.keys(settings).length)
     throw new Error("Unsupported chart layout settings.");
+  if (file.version === 3 && view !== undefined) object(view, [...TIMELINE_LAYOUT_KEYS], "timeline layout view");
+  if (file.version === 3 && chart === "timeline" && settings.plan !== undefined)
+    settings.plan = timelinePlanFromFile(settings.plan);
+  if (file.version === 3 && layout.geometry !== undefined) validateLayoutGeometryData(layout.geometry, chart);
   const data = parseLayoutDocument({
     format: "graph-studio-layout",
     version: 2,
@@ -242,11 +252,20 @@ function parseChartLayoutFile(value: Record<string, unknown>): LayoutDocument {
       [chart]: {
         graphFingerprint: layout.graphFingerprint,
         settingsFingerprint: layout.settingsFingerprint,
-        geometry: layout.geometry,
+        geometry: file.version === 2 ? migrateLayoutGeometry(layout.geometry) : layout.geometry,
         scope: internalScope,
         timelineSettings: resolveTimeline(view),
       } as LayoutRendering,
     };
+    if (file.version === 2)
+      data.renderings[chart]!.settingsFingerprint = layoutIdentity(
+        renderingSettings(
+          chart,
+          data.charts,
+          internalScope as import("./layoutGeometry").LayoutScope,
+          resolveTimeline(view),
+        ),
+      );
     return parseLayoutDocument(data);
   }
   // Configuration-only timeline files still restore their view settings.

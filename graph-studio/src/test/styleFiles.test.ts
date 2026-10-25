@@ -40,7 +40,7 @@ export const styleFilesSuite = defineSuite("Local style file service", [
       input.document = createChartLayoutDocument(timelineFixture().document, "timeline");
       const saved = await saveExampleStyle(root, schema, input, "layout");
       assert.equal(saved.reference, "main.timeline.layout.json");
-      input.document.layout.geometry.nodes[0].x += 200;
+      input.document.layout.geometry.nodes[0].position[0] += 200;
       const updated = await saveExampleStyle(root, schema, { ...input, reference: saved.reference }, "layout");
       assert.equal(saved.path, updated.path);
       assert.deepEqual(JSON.parse(await readFile(resolve(root, "demo", saved.path), "utf8")), input.document);

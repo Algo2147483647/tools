@@ -1,3 +1,4 @@
+import { timelineLayoutSettings } from "../../schema/layoutGeometry";
 import { isSpatialDocument } from "../../graph/space";
 import { isTimelineDocument } from "../../graph/timeline/view";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../schema/appearance/contract";
@@ -20,8 +21,8 @@ export function replaceDocument(
       pins: {},
       locked: false,
       ...(action.type === "graphLoaded" ? action.linkedStyle?.timeline : {}),
-      ...loadedLayout?.timelineView,
-      ...(loadedLayout?.activeChart === "timeline" ? rendering?.timelineSettings : {}),
+      ...timelineLayoutSettings(loadedLayout?.timelineView ?? {}),
+      ...(loadedLayout?.activeChart === "timeline" ? timelineLayoutSettings(rendering?.timelineSettings ?? {}) : {}),
     }),
     dag: loaded ? action.dag : null,
     document: {

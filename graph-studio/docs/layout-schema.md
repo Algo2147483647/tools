@@ -1,11 +1,13 @@
 # Layout protocol
 
-`metadata.layout` is a relative path to a separate JSON file. Layout changes apply to the current session. **Update current layout**, on the right of the Layout title, saves the current settings and complete rendering. A first update creates `<graph-name>.<chartType>.layout.json` in the graph's directory and binds the reference; subsequent updates overwrite the referenced file. New references are persisted with the normal graph Save operation, just like Appearance. Local workspaces and the local example server support direct writes without a file picker.
+`metadata.layout` references one independent JSON file for one `chartType`. **Update current layout** writes `<graph-name>.<chartType>.layout.json` beside the graph, or overwrites the existing reference. A new association is persisted by the normal graph Save operation. Layout files are written only on Update.
+
+Version 3 separates layout geometry from graph content and Appearance. It does not serialize the internal renderer objects. Older version 1 settings and version 2 renderer payloads are read and converted in memory; the next Update writes version 3.
 
 ```json
 {
   "format": "graph-studio-layout",
-  "version": 2,
+  "version": 3,
   "chartType": "compound",
   "layout": {
     "settings": {
@@ -20,40 +22,54 @@
 }
 ```
 
-This is a configuration-only example. The Schema tab's **Current JSON** contains the actual complete rendering; Update always includes it when a graph is visible. Version 1 configuration files are upgraded in memory and written as version 2 on Update.
+This is a settings-only document. Update includes the visible geometry and scope; Schema → Current JSON shows the actual document.
 
-Each file describes exactly one `chartType`; its Schema tab contains only fields relevant to that type. `layout` contains:
+| Field under `layout` | Responsibility |
+| --- | --- |
+| `settings` | Only the selected chart's layout settings and optional AI plan |
+| `scope` | Selection and filters; nested focus/collapse state, timeline range, or spatial camera as applicable |
+| `graphFingerprint` | Identity of graph content, excluding style/layout references |
+| `settingsFingerprint` | Identity of layout settings and scope |
+| `geometry` | Canvas dimensions, node/group positions and dimensions, routes and label positions |
 
-| Field                 | Content                                                                                                                                   |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `scope`               | Selection/type filter plus only the selected chart’s scope: nested focus/collapsed groups, timeline track/date filters, or spatial camera |
-| `settings`            | Only this chart’s layout settings. Timeline adds `view` with resolved timeline controls, orientation, mapping options and pins            |
-| `graphFingerprint`    | Stable identity of graph content, excluding the style/layout file associations                                                            |
-| `settingsFingerprint` | Identity of the chart's configuration and current scope                                                                                   |
-| `geometry`            | Complete rendering payload, with absolute canvas coordinates in pixels                                                                    |
+The file contains no node titles, descriptions, displayed text, relationship values/endpoints, colors, marker styles, selection indexes, diagnostics or quality reports. These come from the current graph, its projection and Appearance. Expanded compound solver boxes/routes are reconstructed from the single set of node/group/edge geometry. Quality is measured from the restored result.
 
-Geometry includes node positions and dimensions, measured text layouts, event label positions and time anchors/ports, expanded group bounds, edge waypoints and SVG paths, edge labels, Sankey bands, lanes, canvas bounds, spatial guides and projected positions. Timeline geometry includes axis mapping, tick positions, track bounds and the canonical stage for horizontal filtering. Nested geometry also includes the exact solver boxes/routes so subsequent AI evaluations see the rendered arrangement.
+A node geometry fragment is:
 
-The Fields table expands arrays and objects into their child fields, including optional fields absent from the current graph. `[]` means each array item; `[id]` means each entry in an ID-keyed map. The Current column summarizes values across matching entries; Current JSON retains every value in full.
+```json
+{
+  "id": "web-storefront",
+  "position": [384, 618],
+  "size": [200, 100]
+}
+```
 
-| Node field under `layout.geometry.nodes[]`                    | Meaning                                                                                  |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `key`                                                         | Graph node ID, or the group ID for a collapsed summary                                   |
-| `x`, `y`                                                      | Node center in canvas pixels; timeline nodes use their time anchor and cross-axis center |
-| `width`, `height`                                             | Rendered dimensions in pixels                                                            |
-| `layer`, `order`                                              | Algorithm layer and within-layer order                                                   |
-| `title`, `displayTitle`, `detail`, `detailLines`, `typeLabel` | Resolved text and measured line breaks                                                   |
-| `titleLayout.{lines,x,anchor,lineHeight}`                     | Wrapped title and local horizontal positioning                                           |
-| `contentLayout.{titleY,detailY,detailLineHeight,badgeY}`      | Card-local text offsets in pixels                                                        |
-| `kind`, `groupStatsOnly`, `external`                          | Nested chart summary and focused-group flags                                             |
-| `timeline.*`                                                  | Timeline-only event/time/label/port geometry; every property is expanded in Schema       |
-| `flow.*`                                                      | Sankey-only flow totals and label placement                                              |
-| `spatial.*`                                                   | Spatial-only source coordinates, projected depth and marker/label properties             |
+| Geometry field | Meaning |
+| --- | --- |
+| `size` | `[canvasWidth, canvasHeight]`, pixels |
+| `nodes[].id` | Graph node or collapsed-group ID |
+| `nodes[].position` | `[x, y]`, node center in canvas pixels; timeline uses time anchor/cross-axis center |
+| `nodes[].size` | `[width, height]`, pixels |
+| `nodes[].text.title` | Optional measured `[localX, lineHeight]`; no title string or copied line content |
+| `nodes[].text.content` | Optional `[titleY, detailY, detailLineHeight, badgeY]` in local pixels |
+| `edges[].id` | Rendered connection ID; source, target and label text are resolved from the graph projection |
+| `edges[].points` | Ordered `[[x, y], ...]` in canvas pixels, including attachments; used for route evaluation/editing |
+| `edges[].path` | Exact SVG curve/band outline used for rendering; retained because waypoints alone do not describe curves and filled Sankey bands |
+| `edges[].label` | `[x, y]` connection label anchor in canvas pixels |
+| `groups[].position` | Compound-only `[left, top]` of an expanded group, pixels |
+| `groups[].size` | Compound-only `[width, height]`, pixels |
+| `lanes[].extent` | `[crossAxisCenter, width]`, pixels |
 
-Connection `points[].x/y` and `labelPosition.x/y` are absolute canvas coordinates. Card text offsets are local to its top-left corner. Expanded group rectangles and `compoundGeometry.boxes[id]` use top-left coordinates, unlike node centers. Timeline `startY`, `endY`, `anchorY` and `ports[].y` refer to the canonical time axis (canvas y vertically, canvas x horizontally); `labelX` and `labelY` always refer to physical canvas coordinates. Viewport pan and zoom are not baked into any of these values.
+Node text remains derived from the current graph and Appearance; only measured text placement is retained. Viewport pan/zoom is never baked into geometry. The Schema expands every object into its fields; tuple order and units are stated in the description. Current values display each tuple intact, e.g. `[384, 618]`, rather than independently summarizing all x and y values.
 
-Runtime lookup Maps, adjacency indexes and graph data are reconstructed from the graph and geometry; they are not duplicated in the file. Appearance remains its own Schema and `metadata.style` association. Geometric text measurements and resolved renderer attributes describe the saved rendering, not an additional editable Appearance preset.
+Each chart adds only the necessary geometry:
 
-On opening, matching graph/settings/scope restore the saved rendering. Graph content changes invalidate it. Changing scope or layout settings computes the appropriate new view; editing live Appearance geometry also releases the restored positions. Update captures the resulting current view. A file never bundles unrelated chart configurations or renderings. Switching chart types changes Schema immediately. An existing metadata.layout target is overwritten by Update, including its declared chart type, matching Appearance semantics. No automatic background file write occurs.
+- **Timeline:** event anchors `[startPixel, endPixel, anchorPixel]`, independent label `[x,y]`, extra attachment `[time,pixel]` tuples, time mapping, ticks and track extents. Time-axis pixels are canonical (canvas y vertically, canvas x horizontally). Horizontal filtering retains a canonical geometry-only representation; it contains no copied graph or Appearance data.
+- **Sankey:** label side/y coordinate, band width and direction path. Flow quantities and colors come from graph/Appearance.
+- **Spatial:** projected depth, label visibility/side, guide paths, fit bounds and scale. Source coordinates, guide labels and colors come from graph/Appearance.
 
-Timeline AI plans support `trackOrder`, `eventOrder`, `edgeRouting`, `placements` and `routes`. A placement is `{id, cross, label?: {x,y}}`; `cross` is x for vertical time and y for horizontal time. A route is `{id, points: [{x,y}, ...], label?: {x,y}}`. Endpoints attach to the declared event time anchors; labels and interior route points are otherwise independent. Dates and durations remain graph content. `layout.settings.basis` identifies the inputs for exact plans; stale exact routes/positions are not reused after their time mapping or dimensions change.
+Timeline `settings.view` includes only `layout`, `orientation`, `edgeRouting`, `axis`, `relativeTickStep`, `tickStep`, `tickUnit`, `compactness`, `locked` and `pins`. Marker appearance, colors and other visual styling are not persisted by Layout and cannot overwrite `metadata.style` on load.
+
+Timeline AI plans in the **file** use tuple `label: [x,y]` and `points: [[x,y], ...]`. The independent AI/solver protocol still uses named point coordinates; the file adapter converts at the boundary. The AI never has to produce this complete persistence document.
+
+On opening, matching graph/settings/scope restore positions while joining current graph content and Appearance by ID. Changes to graph content, scope or layout settings invalidate the saved geometry; live geometric Appearance changes also trigger a new layout. Update captures the resulting view. The parser validates exact tuple lengths, finite coordinates, unique IDs and chart-specific fields, and rejects graph/Appearance properties inside version 3 geometry.

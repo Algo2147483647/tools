@@ -1,6 +1,7 @@
 import ProtocolSchema from "./ProtocolSchema";
 import { schemaField } from "../../schema/fields";
 import { layoutGeometryFields, layoutFieldSummary } from "../../schema/layoutGeometryFields";
+import { TIMELINE_LAYOUT_KEYS } from "../../schema/layoutGeometry";
 import { getAppearanceSchema } from "../../schema/appearance/schema";
 import { createChartLayoutDocument, type LayoutDocument } from "../../schema/layoutProtocol";
 import type { GraphChartType } from "../../graph/types";
@@ -11,7 +12,7 @@ export default function LayoutSchema({ value, chartType }: { value: LayoutDocume
     schemaField(path, type, required ? "Required" : "Optional", description);
   const fields = [
     field("format", '\"graph-studio-layout\"', "Independent JSON linked by metadata.layout.", true),
-    field("version", "2", "Layout file version.", true),
+    field("version", "3", "Layout file version.", true),
     field("chartType", `\"${chartType}\"`, "The chart type this file configures and renders.", true),
     field("layout.settings", "object", "Settings for this chart type only.", true),
     ...(chartType === "compound"
@@ -59,11 +60,13 @@ export default function LayoutSchema({ value, chartType }: { value: LayoutDocume
             field(
               "layout.settings.view",
               "object",
-              "Timeline direction, time-axis mapping, routing, display settings and pins.",
+              "Timeline direction, time-axis mapping, routing and pins. Appearance is stored separately.",
             ),
             ...getAppearanceSchema("timeline")
-              .fields.filter(
-                (entry) => entry.path.startsWith("style.timeline.") || entry.path.startsWith("style.timeline["),
+              .fields.filter((entry) =>
+                TIMELINE_LAYOUT_KEYS.some(
+                  (key) => entry.path === `style.timeline.${key}` || entry.path.startsWith(`style.timeline.${key}[`),
+                ),
               )
               .map((entry) => ({ ...entry, path: entry.path.replace(/^style\.timeline/, "layout.settings.view") })),
             field(
@@ -86,42 +89,24 @@ export default function LayoutSchema({ value, chartType }: { value: LayoutDocume
               "Absolute cross-axis position in pixels: x for vertical time, y for horizontal time.",
               true,
             ),
-            field("layout.settings.plan.placements[].label", "object", "Optional independent label position."),
             field(
-              "layout.settings.plan.placements[].label.x",
-              "number",
-              "Absolute physical label x coordinate in pixels.",
-              true,
-            ),
-            field(
-              "layout.settings.plan.placements[].label.y",
-              "number",
-              "Absolute physical label y coordinate in pixels.",
-              true,
+              "layout.settings.plan.placements[].label",
+              "[number, number]",
+              "Optional absolute [x, y] label position in canvas pixels.",
             ),
             field("layout.settings.plan.routes[]", "object[]", "Complete connection polylines and label positions."),
             field("layout.settings.plan.routes[].id", "string", "Graph edge ID.", true),
             field(
               "layout.settings.plan.routes[].points[]",
-              "object[]",
-              "At least two points; first/last attach to the event time anchors.",
+              "[number, number]",
+              "Ordered [x, y] waypoints; first/last attach to event time anchors.",
               true,
             ),
             field(
-              "layout.settings.plan.routes[].points[].x",
-              "number",
-              "Absolute waypoint x coordinate in pixels.",
-              true,
+              "layout.settings.plan.routes[].label",
+              "[number, number]",
+              "Optional absolute [x, y] connection label position in pixels.",
             ),
-            field(
-              "layout.settings.plan.routes[].points[].y",
-              "number",
-              "Absolute waypoint y coordinate in pixels.",
-              true,
-            ),
-            field("layout.settings.plan.routes[].label", "object", "Optional independent connection label position."),
-            field("layout.settings.plan.routes[].label.x", "number", "Absolute label x coordinate in pixels.", true),
-            field("layout.settings.plan.routes[].label.y", "number", "Absolute label y coordinate in pixels.", true),
           ]
         : chartType === "node-link"
           ? [field("layout.settings.method", "level | sugiyama | dagre", "Layered layout algorithm.")]
