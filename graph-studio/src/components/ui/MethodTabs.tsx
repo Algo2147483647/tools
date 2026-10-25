@@ -10,7 +10,7 @@ export default function MethodTabs<T extends string>({
 }: {
   label: string;
   value: T;
-  options: readonly { value: T; label: string }[];
+  options: readonly { value: T; label: string; status?: "idle" | "running" | "success" | "error" }[];
   onChange: (value: T) => void;
   disabled?: boolean;
   children: ReactNode;
@@ -30,6 +30,7 @@ export default function MethodTabs<T extends string>({
             aria-controls={id + "-panel"}
             tabIndex={value === option.value ? 0 : -1}
             disabled={disabled}
+            data-status={option.status}
             onClick={() => onChange(option.value)}
             onKeyDown={(event) => {
               const next =
@@ -49,6 +50,9 @@ export default function MethodTabs<T extends string>({
             }}
           >
             {option.label}
+            {option.status && (
+              <span className="method-tab-status" data-status={option.status} role="img" aria-label={option.status} />
+            )}
           </button>
         ))}
       </div>

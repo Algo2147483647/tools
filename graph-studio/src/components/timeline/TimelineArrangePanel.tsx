@@ -29,7 +29,11 @@ export default function TimelineArrangePanel({
         options={[
           { value: "tracks", label: "Tracks" },
           { value: "flow", label: "Relation flow" },
-          { value: "ai", label: "AI" },
+          {
+            value: "ai",
+            label: "AI",
+            status: c.busy ? "running" : c.errorDetail ? "error" : c.report ? "success" : "idle",
+          },
         ]}
         onChange={(value) => {
           c.setMode(value === "ai" ? "ai" : "algorithm");

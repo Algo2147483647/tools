@@ -27,7 +27,17 @@ export default function CompoundLayoutPanel({
         disabled={busy}
         options={[
           { value: "automatic", label: "Automatic" },
-          { value: "ai", label: "AI" },
+          {
+            value: "ai",
+            label: "AI",
+            status: busy
+              ? "running"
+              : c.detail || (c.lastRunCurrent && ["deadline", "request-error"].includes(c.lastRun?.stopReason ?? ""))
+                ? "error"
+                : c.lastRunCurrent
+                  ? "success"
+                  : "idle",
+          },
         ]}
       >
         <fieldset className="layout-rule-fields" disabled={busy}>

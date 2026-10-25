@@ -163,6 +163,40 @@ summary:focus-visible {
   opacity: 0.5;
   cursor: default;
 }
+.method-tabs-list > button:disabled[data-status="running"] {
+  opacity: 1;
+}
+.method-tab-status {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-start: 7px;
+  border-radius: 50%;
+  vertical-align: middle;
+  color: var(--studio-muted);
+  background: currentColor;
+}
+.method-tab-status[data-status="running"] {
+  color: var(--studio-accent);
+  animation: method-tab-pulse 1.4s ease-in-out infinite;
+}
+.method-tab-status[data-status="success"] {
+  color: #16a34a;
+}
+.method-tab-status[data-status="error"] {
+  color: #dc2626;
+}
+@keyframes method-tab-pulse {
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .method-tab-status[data-status="running"] {
+    animation: none;
+  }
+}
 .method-tabs-content:focus {
   outline: none;
 }
