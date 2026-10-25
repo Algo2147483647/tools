@@ -1,3 +1,5 @@
+import { useState } from "react";
+import LayoutSchema from "../settings/LayoutSchema";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import CompoundLayoutPanel from "../compound/LayoutPanel";
 import LayoutRules from "../ui/LayoutRules";
@@ -11,6 +13,7 @@ export type ChartLayoutControlsProps = Pick<
   "session" | "preferences" | "ui" | "viewport" | "ai" | "compoundLayoutPlan" | "timelineLayoutPlan"
 >;
 export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
+  const [tab, setTab] = useState<"arrangement" | "schema">("arrangement");
   return (
     <>
       {props.session.state.layoutDocument.notice && (
@@ -18,7 +21,25 @@ export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
           {props.session.state.layoutDocument.notice}
         </p>
       )}
-      <ChartSpecificLayoutControls {...props} />
+      <MethodTabs
+        label="Layout pages"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: "arrangement", label: "Arrangement" },
+          { value: "schema", label: "Schema" },
+        ]}
+      >
+        <div hidden={tab !== "arrangement"}>
+          <ChartSpecificLayoutControls {...props} />
+        </div>
+        {tab === "schema" && (
+          <LayoutSchema
+            chartType={props.session.state.chartType}
+            value={props.viewport.currentLayoutDocument ?? props.session.state.layoutDocument.data}
+          />
+        )}
+      </MethodTabs>
     </>
   );
 }

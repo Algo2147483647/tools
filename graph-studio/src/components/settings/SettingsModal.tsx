@@ -204,7 +204,7 @@ export default function SettingsModal(props: SettingsModalProps) {
               </span>
             )}
             {!preferencesSaved ? (
-              <span className="setting-error">Applied settings could not be saved in this browser.</span>
+              <span className="setting-error">Interface and AI preferences could not be saved in this browser.</span>
             ) : null}
           </div>
           <div className="settings-footer-actions">

@@ -11,12 +11,14 @@ export default function ProtocolSchema({
   fileName,
   valueHeading = "Default",
   renderValue,
+  allowDownload = true,
 }: {
   label: string;
   fields: SchemaField[];
   value: unknown;
   fileName: string;
   valueHeading?: string;
+  allowDownload?: boolean;
   renderValue?: (field: SchemaField) => ReactNode;
 }) {
   const titleId = useId();
@@ -80,9 +82,11 @@ export default function ProtocolSchema({
           <div className="chart-schema-code-toolbar">
             <span>{fileName}</span>
             <div className="chart-schema-code-actions">
-              <button type="button" onClick={() => downloadJsonFile(json, fileName)}>
-                Download JSON
-              </button>
+              {allowDownload && (
+                <button type="button" onClick={() => downloadJsonFile(json, fileName)}>
+                  Download JSON
+                </button>
+              )}
               <button
                 type="button"
                 onClick={async () => {

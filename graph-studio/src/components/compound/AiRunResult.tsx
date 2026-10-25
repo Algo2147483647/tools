@@ -73,12 +73,6 @@ export default function AiRunResult({
             {report.after.movedNodes} nodes/groups changed · {report.after.changedEdges} routes changed
           </p>
           <p>{report.summary}</p>
-          {report.precise && (
-            <p>
-              Exact positions applied to this live view. Positions are not saved; changing graph, view or layout
-              settings recomputes the layout.
-            </p>
-          )}
           {!report.evaluations && <p>No alternative layout was evaluated.</p>}
           {!current && <p>This result is from an earlier layout context; the current canvas has changed.</p>}
           {!current && <AiRunComparison report={report} />}

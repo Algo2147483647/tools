@@ -1,6 +1,5 @@
-import type { NormalizedDag } from "../graph/types";
-import { isSpatialDocument } from "../graph/space";
-import { isTimelineDocument } from "../graph/timeline/view";
+import type { GraphChartType, NormalizedDag } from "../graph/types";
+import { isRecord } from "../shared/json";
 import { parseChartStyleFile } from "../schema/styleProtocol";
 import type { ChartStyle } from "../schema/appearance/styles";
 import { readWorkspaceFile } from "./browserAccess";
@@ -12,7 +11,7 @@ export async function readLinkedStyle(
   dag: NormalizedDag,
   graphPath: string,
   folder?: WorkspaceFolder,
-): Promise<{ linkedStyle?: ChartStyle; styleNotice?: string }> {
+): Promise<{ linkedStyle?: ChartStyle; linkedChartType?: GraphChartType; styleNotice?: string }> {
   const reference = dag.metadata?.style;
   if (reference === undefined) return {};
   try {
@@ -25,16 +24,14 @@ export async function readLinkedStyle(
     if (!entry) throw new Error(`Style file not found: ${path}`);
     const file = await readWorkspaceFile(entry);
     if (file.size > 16 * 1024 * 1024) throw new Error("Style JSON exceeds the 16 MB limit.");
-    const chartType = isSpatialDocument(dag)
-      ? "spatial"
-      : isTimelineDocument(dag)
-        ? "timeline"
-        : dag.hierarchy_edges?.length
-          ? "compound"
-          : dag.diagram === "sankey"
-            ? "sankey"
-            : "node-link";
-    return { linkedStyle: parseChartStyleFile(JSON.parse(await file.text()), chartType) };
+    const value: unknown = JSON.parse(await file.text());
+    if (
+      !isRecord(value) ||
+      !["node-link", "compound", "timeline", "sankey", "spatial"].includes(String(value.chartType))
+    )
+      throw new Error("Style JSON must declare a supported chartType.");
+    const chartType = value.chartType as GraphChartType;
+    return { linkedStyle: parseChartStyleFile(value, chartType), linkedChartType: chartType };
   } catch (error) {
     return { styleNotice: `Linked style unavailable: ${error instanceof Error ? error.message : String(error)}` };
   }

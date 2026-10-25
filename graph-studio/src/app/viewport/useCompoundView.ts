@@ -2,9 +2,14 @@ import { loadCompoundView, saveCompoundView } from "../../viewport/compoundViewS
 import { useCallback, useMemo, useState } from "react";
 import type { CompoundView } from "../../graph/types";
 
-export function useCompoundView(documentId: string, defaultCollapsedGroupIds: string[] = []) {
-  const key = JSON.stringify(["graph-studio:compound-view", documentId]);
-  const saved = useMemo(() => loadCompoundView(key, defaultCollapsedGroupIds), [key]);
+export function useCompoundView(
+  documentId: string,
+  defaultCollapsedGroupIds: string[] = [],
+  initial?: CompoundView,
+  generation = 0,
+) {
+  const key = JSON.stringify(["graph-studio:compound-view", documentId, generation]);
+  const saved = useMemo(() => initial ?? loadCompoundView(key, defaultCollapsedGroupIds), [key]);
   const [current, setCurrent] = useState({ key, view: saved });
   const [history, setHistory] = useState<{ key: string; entries: CompoundView[] }>({ key, entries: [] });
   const view = current.key === key ? current.view : saved;

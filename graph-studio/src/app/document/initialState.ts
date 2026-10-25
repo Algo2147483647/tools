@@ -30,7 +30,13 @@ export interface GraphAppState {
   layoutDocument: { data: LayoutDocument; notice: string };
   timelineSettings: TimelineViewSettings;
   dag: NormalizedDag | null;
-  document: { id: string; generation: number; savedDag: NormalizedDag | null; linkedStyle?: ChartStyle };
+  document: {
+    id: string;
+    generation: number;
+    savedDag: NormalizedDag | null;
+    linkedStyle?: ChartStyle;
+    linkedChartType?: GraphChartType;
+  };
   nextRevision: number;
   source: {
     fileName: string;

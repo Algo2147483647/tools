@@ -1,8 +1,7 @@
 import { useId, useRef, useState } from "react";
 import { getGraphChartLabel, type GraphChartType } from "../../graph/types";
-import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearance/commands";
 import { getAppearanceSchema } from "../../schema/appearance/schema";
-import { chartStylesEqual, type ChartStyle } from "../../schema/appearance/styles";
+import { type ChartStyle } from "../../schema/appearance/styles";
 import { updateAppearanceSchemaValue } from "../../schema/styleProtocol";
 import ProtocolSchema from "./ProtocolSchema";
 
@@ -10,41 +9,39 @@ export default function AppearanceSchema({
   chartType,
   style,
   onChange,
-  onPresetChange,
+  onBind,
+  canBind,
+  binding,
+  styleReference,
 }: {
   chartType: GraphChartType;
   style: ChartStyle;
   onChange: (style: ChartStyle) => void;
-  onPresetChange: (id: GraphAppearancePresetId) => void;
+  onBind: () => void;
+  canBind: boolean;
+  binding: boolean;
+  styleReference?: string;
 }) {
   const schema = getAppearanceSchema(chartType, style);
-  const presets = getGraphAppearancePresets(chartType);
-  const selected = presets.find((preset) => chartStylesEqual(preset.document.style, style));
   return (
     <div className="appearance-schema-view">
-      <label className="schema-preset-picker">
-        Preset
-        <select
-          aria-label="Schema preset"
-          value={selected?.id ?? "custom"}
-          onChange={(event) => onPresetChange(event.target.value as GraphAppearancePresetId)}
-        >
-          <option value="custom" disabled>
-            Custom
-          </option>
-          {presets.map((preset) => (
-            <option key={preset.id} value={preset.id}>
-              {preset.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="settings-inline-actions">
+        <button type="button" className="studio-button" disabled={!canBind || binding} onClick={onBind}>
+          {binding ? "Updating current appearance…" : "Update current appearance"}
+        </button>
+      </div>
+      {styleReference && (
+        <p>
+          <code>metadata.style: {styleReference}</code>
+        </p>
+      )}
       <ProtocolSchema
         label={`${getGraphChartLabel(chartType)} appearance`}
         fields={schema.fields}
         value={schema.example}
         fileName={`${chartType}.style.json`}
         valueHeading="Current value"
+        allowDownload={false}
         renderValue={(field) => {
           const entry = schema.entries.get(field.path);
           if (!entry?.editable)

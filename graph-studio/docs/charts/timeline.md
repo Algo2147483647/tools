@@ -151,6 +151,6 @@ AI provides ordering and routing preferences; the local algorithm computes geome
 
 ## Style and persistence
 
-See [Timeline appearance](../appearance/timeline.md) for the complete `style.timeline` settings reference. It includes the current distinction between reusable settings and temporary pins. Saving graph JSON preserves times, tracks, explicit indices, and other business data; `metadata.layout` can associate an independent arrangement declaration; Layout panel changes remain in the session. SVG and HTML preserve the current time mapping and visible geometry.
+See [Timeline appearance](../appearance/timeline.md) for the complete `style.timeline` settings reference. It includes the current distinction between reusable settings and temporary pins. Saving graph JSON preserves times, tracks, explicit indices, and other business data; `metadata.layout` associates an independent version 2 Layout file containing settings and complete positions/routes. Update current layout writes that file; Schema shows the current document. Timeline AI directly applies its selected, evaluated exact positions and reports quality on the Layout page. SVG and HTML preserve the current time mapping and visible geometry.
 
 Implementation: [schema fields](../../src/schema/document/definition.json), [view settings](../../src/schema/appearance/contract.ts), [saved layout plans](../../src/graph/timeline/layoutData.ts), [timeline layout](../../src/layout/timeline/layout.ts).

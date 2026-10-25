@@ -232,7 +232,10 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
       globalThis.fetch = (async (_url: unknown, init: { body: string }) => {
         if (!init.body) return new Response(JSON.stringify({ data: [] }));
         requests.push(JSON.parse(init.body));
-        const content = requests.length === 1 ? '{"commands":["/rm a"]}' : JSON.stringify({ version: 1, plan });
+        const content =
+          requests.length === 1
+            ? '{"commands":["/rm a"]}'
+            : JSON.stringify({ version: 1, action: "evaluate", hypothesis: "Order tracks", plan });
         return { ok: true, text: async () => JSON.stringify({ choices: [{ message: { content } }] }) };
       }) as unknown as typeof fetch;
       try {
@@ -252,7 +255,8 @@ export const timelineLayoutSuite = defineSuite("Timeline AI arrangement", [
         );
         assert.equal(requests.length, 2);
         assert.equal(requests[0].model, "configured-model");
-        assert.deepEqual(response.plan, plan);
+        assert.equal(response.action, "evaluate");
+        if (response.action === "evaluate") assert.deepEqual(response.plan, plan);
         assert.throws(() => parseTimelineLayoutResponse(JSON.stringify({ version: 1, plan, commands: [] })));
       } finally {
         globalThis.fetch = original;

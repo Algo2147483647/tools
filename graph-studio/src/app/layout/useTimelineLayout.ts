@@ -1,19 +1,18 @@
-import { useCallback, useEffect, useRef, useState, type Dispatch } from "react";
+import { timelinePlanBasis } from "../../layout/timeline/plan-basis";
+import { useCallback, useEffect, useRef, useState, useMemo, type Dispatch } from "react";
 import type { AiSettings } from "../../ai/types";
 import { type TimelineLayoutData } from "../../graph/timeline/layoutData";
 import type { StageData } from "../../layout/shared/types";
-import { timelineLayoutContext } from "../../layout/timeline/ai/context";
+import { runTimelineAiLayout, type TimelineAiResult } from "../../layout/timeline/ai/workflow";
 import { presentLayoutError } from "../../layout/shared/ai/request";
-import { requestTimelineLayout } from "../../layout/timeline/ai/request";
 import type { TimelineLayoutCandidate, TimelineLayoutInput } from "../../layout/timeline/layout-candidate";
-import { validateTimelineArrangement } from "../../layout/timeline/layout-quality";
+import { measureTimelineLayout } from "../../layout/timeline/layout-quality";
 import type { TimelineWorkerInput } from "../../layout/workers/protocol";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
 import { startLayoutWorker, type LayoutWorkerJob } from "./workerJob";
 import { useAiActivity } from "../ai/useAiActivity";
 
-type Review = TimelineLayoutCandidate & { key: number; baseline: StageData; explanation: string };
 export function useTimelineLayout(
   state: GraphAppState,
   dispatch: Dispatch<GraphAction>,
@@ -25,7 +24,13 @@ export function useTimelineLayout(
   },
 ) {
   const input = view.timelineLayout.layoutInput,
-    baseline = view.timelineLayout.base;
+    baseline =
+      view.stage &&
+      view.timelineLayout.base &&
+      view.stage.nodes.length === view.timelineLayout.base.nodes.length &&
+      view.stage.edges.length === view.timelineLayout.base.edges.length
+        ? view.stage
+        : view.timelineLayout.base;
   const signature = JSON.stringify([state.document.generation, state.chartType, state.timelineSettings, settings]);
   const epoch = useRef({ signature, input, stage: view.stage, history: state.editHistory, key: 0 });
   if (
@@ -40,10 +45,11 @@ export function useTimelineLayout(
     state.chartType === "timeline" && !!state.dag && !!baseline && !!input && !!view.stage && view.timelineLayout.ready;
   const current = useRef({ state, settings, key, input, baseline, ready, focus: view.focusedKey });
   current.current = { state, settings, key, input, baseline, ready, focus: view.focusedKey };
-  const [review, setReview] = useState<Review | null>(null);
+  const [report, setReport] = useState<TimelineAiResult | null>(null);
+  const [errorDetail, setErrorDetail] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const { activity, onProgress, clear: clearActivity } = useAiActivity();
+  const { activity, onProgress, clear: clearActivity, finish: finishActivity } = useAiActivity();
   useEffect(clearActivity, [state.document.generation, state.chartType, clearActivity]);
   const active = useRef<{
     key: number;
@@ -61,12 +67,13 @@ export function useTimelineLayout(
       setMessage("Timeline layout cancelled.");
     }
     setBusy(false);
-  }, []);
+    finishActivity();
+  }, [finishActivity]);
   useEffect(() => {
     if (active.current && active.current.key !== key) cancel();
   }, [key, cancel]);
   useEffect(() => {
-    setReview(null);
+    setReport(null);
     setMessage("");
   }, [state.document.generation, state.chartType]);
   useEffect(
@@ -94,10 +101,10 @@ export function useTimelineLayout(
   };
   const setMode = (mode: TimelineLayoutData["mode"]) => {
     cancel();
-    setReview(null);
+    setReport(null);
     setMessage("");
     const data = current.current.state.layoutDocument.data.charts.timeline;
-    if (mode !== data.mode) commit({ ...data, mode });
+    if (mode !== data.mode || mode === "algorithm") commit({ ...data, mode });
   };
   const generate = async (prompt: string) => {
     const initial = current.current;
@@ -106,76 +113,60 @@ export function useTimelineLayout(
       setMessage("Configure a model in Settings → AI.");
       return;
     }
-    if (initial.baseline.nodes.length > 2000 || initial.baseline.edges.length > 4000) {
-      setMessage("Filter the timeline and use Readapt before arranging more than 2,000 events or 4,000 relationships.");
-      return;
-    }
     cancel();
     const id = sequence.current;
     const abort = new AbortController();
     const pending: NonNullable<typeof active.current> = { key: initial.key, abort };
     active.current = pending;
-    setReview(null);
+    setReport(null);
     setBusy(true);
     clearActivity();
     setMessage("Planning timeline layout…");
     try {
-      const response = await requestTimelineLayout(
-        initial.settings,
-        timelineLayoutContext(initial.input, initial.baseline, initial.focus),
-        prompt,
-        abort.signal,
-        (event) => {
-          if (sequence.current === id && current.current.key === initial.key && !abort.signal.aborted)
-            onProgress(event);
-        },
-      );
-      if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
-      setMessage("Calculating preview…");
-      const payload: TimelineWorkerInput = { input: initial.input, baseline: initial.baseline, plan: response.plan };
-      pending.job = startLayoutWorker<TimelineWorkerInput, TimelineLayoutCandidate>({
-        createWorker: () =>
-          new Worker(new URL("../../layout/workers/timeline.worker.ts", import.meta.url), { type: "module" }),
-        payload,
-        timeoutMs: 20000,
-        timeoutMessage: "Layout exceeded 20 seconds. Filter the timeline and use Readapt.",
-        failureMessage: "Timeline worker failed.",
-        invalidMessage: "Invalid timeline preview.",
-        cancelMessage: "Timeline layout cancelled.",
-      });
-      const candidate = await pending.job.result;
-      if (sequence.current !== id || current.current.key !== initial.key || !current.current.ready) return;
-      setReview({
-        ...candidate,
-        key: initial.key,
+      setErrorDetail("");
+      const result = await runTimelineAiLayout({
+        settings: initial.settings,
+        input: initial.input,
         baseline: initial.baseline,
-        explanation: "AI ordering evaluated by the local layout algorithm.",
+        message: prompt,
+        signal: abort.signal,
+        onStatus: setMessage,
+        onProgress: (event) => {
+          if (sequence.current === id && !abort.signal.aborted) onProgress(event);
+        },
+        compute: async (plan) => {
+          const payload: TimelineWorkerInput = { input: initial.input!, baseline: initial.baseline!, plan };
+          pending.job = startLayoutWorker<TimelineWorkerInput, TimelineLayoutCandidate>({
+            createWorker: () =>
+              new Worker(new URL("../../layout/workers/timeline.worker.ts", import.meta.url), { type: "module" }),
+            payload,
+            failureMessage: "Timeline worker failed.",
+            invalidMessage: "Invalid timeline geometry.",
+            cancelMessage: "Timeline layout cancelled.",
+          });
+          return pending.job.result;
+        },
       });
-      setMessage("Preview ready.");
+      if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
+      active.current = null;
+      if (result.candidateId !== "current")
+        commit({ version: 1, mode: "ai", plan: result.plan, basis: timelinePlanBasis(initial.input) });
+      setReport(result);
+      setMessage(result.changed ? "AI layout applied." : "AI retained the current arrangement.");
     } catch (error) {
-      if (sequence.current === id) setMessage(presentLayoutError(error).message);
+      if (sequence.current === id) {
+        const detail = presentLayoutError(error);
+        setMessage(detail.message);
+        setErrorDetail(detail.detail);
+      }
     } finally {
       pending.job?.cancel();
       if (sequence.current === id) {
         active.current = null;
         setBusy(false);
+        finishActivity();
       }
     }
-  };
-  const apply = () => {
-    if (!review || review.key !== current.current.key || !current.current.ready) {
-      setMessage("This preview is stale. Generate a new preview.");
-      return false;
-    }
-    const errors = validateTimelineArrangement(review.baseline, review.stage);
-    if (errors.length) {
-      setMessage(errors.join(" "));
-      return false;
-    }
-    if (!commit({ version: 1, mode: "ai", plan: review.plan })) return false;
-    setReview(null);
-    setMessage("AI layout applied.");
-    return true;
   };
   const saved = state.layoutDocument.data.charts.timeline;
   return {
@@ -183,18 +174,18 @@ export function useTimelineLayout(
     activity,
     busy,
     message,
-    review,
-    stale: !!review && review.key !== key,
+    report,
+    errorDetail,
+    quality: useMemo(() => (view.stage?.timeline ? measureTimelineLayout(view.stage) : null), [view.stage]),
     mode: saved.mode,
     hasPlan: !!saved.plan,
     warning: state.layoutDocument.notice,
     count: baseline?.nodes.length ?? 0,
     generate,
     cancel,
-    apply,
     setMode,
     dismiss: () => {
-      setReview(null);
+      setReport(null);
       setMessage("");
     },
   };

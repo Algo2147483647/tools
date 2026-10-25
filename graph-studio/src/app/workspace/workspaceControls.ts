@@ -23,6 +23,11 @@ export interface WorkspaceControls {
   openRecent(item: RecentLocation): void;
   removeRecent(id: string | string[]): void;
   openWorkspaceGraph(path: string): void;
+  saveAndBindLayout(layout: import("../../schema/layoutProtocol").LayoutDocument): Promise<void>;
+  saveAndBindStyle(
+    chartType: import("../../graph/types").GraphChartType,
+    style: import("../../schema/appearance/types").ChartStyle,
+  ): Promise<void>;
   createGraph(name: string): Promise<boolean>;
   refreshWorkspace(): void;
   closeWorkspace(): void;

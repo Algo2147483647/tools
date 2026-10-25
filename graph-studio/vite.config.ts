@@ -1,3 +1,5 @@
+import { styleFilesMiddleware } from "./scripts/style-files";
+import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFile } from "node:fs/promises";
@@ -18,9 +20,33 @@ function schemaJsonPlugin(): Plugin {
   };
 }
 
+function localStyleFiles(): Plugin {
+  let root = "";
+  let publicDir = "";
+  let outputDir = "";
+  return {
+    name: "local-style-files",
+    configResolved(config) {
+      root = config.root;
+      publicDir = config.publicDir;
+      outputDir = resolve(root, config.build.outDir);
+    },
+    configureServer(server) {
+      server.middlewares.use(
+        styleFilesMiddleware(resolve(publicDir, "examples"), resolve(root, "src/schema/appearance/definition.json")),
+      );
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(
+        styleFilesMiddleware(resolve(outputDir, "examples"), resolve(root, "src/schema/appearance/definition.json")),
+      );
+    },
+  };
+}
+
 export default defineConfig({
   worker: { plugins: [schemaJsonPlugin()] },
-  plugins: [schemaJsonPlugin(), react()],
+  plugins: [schemaJsonPlugin(), react(), localStyleFiles()],
   optimizeDeps: {
     esbuildOptions: {
       plugins: [

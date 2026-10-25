@@ -165,5 +165,23 @@ export async function loadExampleWorkspace(
       }
     }),
   );
+  // Newly linked style files need not be predeclared in the example's asset list.
+  for (const graphPath of manifest.graphs) {
+    try {
+      const graph = JSON.parse(await files.get(graphPath)!.file!.text());
+      for (const reference of [graph.metadata?.style, graph.metadata?.layout]) {
+        if (typeof reference !== "string" || /[?#]/.test(reference)) continue;
+        const path = resolveWorkspacePath(reference, graphPath);
+        if (/\.json$/i.test(path) && !files.has(path))
+          files.set(path, { path, handle: null, loadFile: () => read(path) });
+      }
+    } catch {
+      /* Graph and linked-style errors are reported when that graph is opened. */
+    }
+  }
   return { name: example.title, handle: null, files, exampleId: id };
+}
+
+export function invalidateExampleWorkspace(id: string, baseUrl: string) {
+  downloads.get(fetch)?.delete(`${baseUrl}examples/${id}/`);
 }

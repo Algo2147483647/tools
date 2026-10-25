@@ -1,24 +1,23 @@
 import { useId, useState } from "react";
-import { createPortal } from "react-dom";
 import type { TimelineLayoutController } from "../../app/layout/useTimelineLayout";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
 import TimelineControls, { type TimelineControlsProps } from "./TimelineControls";
 import MethodTabs from "../ui/MethodTabs";
 import LayoutRules from "../ui/LayoutRules";
-import { TimelineLayoutReview } from "./TimelineLayoutReview";
+import { DEFAULT_TIMELINE_LAYOUT_PROMPT } from "../../layout/timeline/ai/prompt";
 import AiActivityView from "../ui/AiActivityView";
 
 export default function TimelineArrangePanel({
   controller: c,
   model,
-  appearance,
+  appearance: _appearance,
   ...controls
 }: TimelineControlsProps & {
   controller: TimelineLayoutController;
   model: string;
   appearance: GraphAppearance;
 }) {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(DEFAULT_TIMELINE_LAYOUT_PROMPT);
   const promptId = useId();
   const method = c.mode === "ai" ? "ai" : controls.settings.layout;
   return (
@@ -46,7 +45,7 @@ export default function TimelineArrangePanel({
               label: "Placement",
               value:
                 method === "ai"
-                  ? "AI proposal with preview"
+                  ? "AI positions and routes"
                   : method === "tracks"
                     ? "Group events by track"
                     : "Arrange related events in branches",
@@ -79,7 +78,7 @@ export default function TimelineArrangePanel({
                 {model || "Choose a model in AI settings"}
               </span>
               <button className="studio-button primary" type="submit" disabled={!c.ready || c.busy || !prompt.trim()}>
-                {c.busy ? "Generating…" : "Generate preview"}
+                {c.busy ? "Generating…" : "Arrange"}
               </button>
               {c.busy && (
                 <button className="studio-button" type="button" onClick={c.cancel}>
@@ -100,26 +99,54 @@ export default function TimelineArrangePanel({
             {c.warning}
           </p>
         )}
-        {c.stale && (
-          <p className="layout-warning" role="alert">
-            The timeline changed. Generate a new preview.
-          </p>
+        {c.errorDetail && (
+          <details>
+            <summary>Error details</summary>
+            <p>{c.errorDetail}</p>
+          </details>
+        )}
+        {c.quality && (
+          <section aria-label="Layout quality">
+            <h3>Layout quality</h3>
+            <table className="schema-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  {c.report && <th>Before</th>}
+                  <th>Current</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(
+                  [
+                    ["crossings", "Crossings"],
+                    ["labelOverlaps", "Label collisions"],
+                    ["routeLength", "Route length"],
+                    ["width", "Canvas width"],
+                    ["height", "Canvas height"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <tr key={key}>
+                    <th>{label}</th>
+                    {c.report && <td>{Math.round(c.report.before[key]).toLocaleString()}</td>}
+                    <td>{Math.round(c.quality![key]).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {c.quality.sampled && <p>Crossing and collision metrics are sampled.</p>}
+            {c.report && (
+              <>
+                <p>{c.report.summary}</p>
+                <p>
+                  {c.report.evaluations} evaluations ·{" "}
+                  {c.report.changed ? "Arrangement changed" : "Arrangement unchanged"}
+                </p>
+              </>
+            )}
+          </section>
         )}
       </MethodTabs>
-      {c.review &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <TimelineLayoutReview
-            controller={c}
-            appearance={appearance}
-            returnFocus={() => {
-              const target = document.getElementById(promptId);
-              if (target?.getClientRects().length) target.focus();
-              else document.getElementById("chart-tools-toggle")?.focus();
-            }}
-          />,
-          document.body,
-        )}
     </section>
   );
 }

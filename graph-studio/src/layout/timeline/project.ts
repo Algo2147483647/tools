@@ -12,6 +12,7 @@ export function projectTimelineStage(
   range?: TimelineTimeRange | null,
 ): StageData | null {
   if (!stage) return null;
+  if (!range && stage.nodes.every((node) => visible.has(node.key))) return stage;
   if (stage.timeline?.canonicalStage) {
     const projected = projectTimelineStage(stage.timeline.canonicalStage, visible, range);
     return projected ? orientTimelineStage(projected, "horizontal", stage) : null;

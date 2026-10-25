@@ -32,7 +32,7 @@ CSS requires `--dag-` variable names, at most 500 characters per variable, and a
 
 ## Storage and maintenance
 
-The document envelope is `{ format: "graph-studio-style", version: 1, chartType, style }`. Saved preferences store one complete document per chart. Session-specific Timeline pins, axis lock state, and document category overrides remain excluded from global browser preferences. Invalid imported documents are rejected; invalid stored documents reset to chart defaults.
+The document envelope is `{ format: "graph-studio-style", version: 1, chartType, style }`. The Schema **Update current appearance** action serializes the complete current document through this resolver, overwrites the file linked by metadata.style, or creates a separate JSON file and records its relative path when no link exists. Appearance values are never persisted in browser preferences; legacy cached styles are ignored. File-write failures leave the graph reference unchanged.
 
 Edit defaults, bounds, labels, chart support and other configuration directly in `appearance/definition.json`; no configuration-generation step is needed. Edit per-chart overrides in `appearance/defaults.json`. When adding or changing field structure, enum values or tuple lengths, also update `appearance/types.ts` and implement the corresponding rendering behavior. Add presets as complete documents in the corresponding `appearance/presets/<chart>.json` file without adding factory branches. Run the reference generator with the same TypeScript loader as the test runner, then run the contract and rendering tests. Validation tests cover actual geometry, typography, palettes, CSS precedence, editor support, presets, and round trips.
 

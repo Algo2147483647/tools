@@ -14,7 +14,8 @@ export function useGraphNavigation(
   captureLayoutAnchor: (key: string) => void,
 ) {
   const groupIds = useMemo(() => Object.keys(getGroupNodes(state.dag)), [state.dag]);
-  const compound = useCompoundView(state.document.id, groupIds);
+  const savedScope = state.layoutDocument.data.renderings?.[state.chartType]?.scope;
+  const compound = useCompoundView(state.document.id, groupIds, savedScope?.compound, state.document.generation);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState("");
   const [selectedTrack, setSelectedTrack] = useState("");
@@ -25,13 +26,13 @@ export function useGraphNavigation(
   const trackOptions = useMemo(() => (state.dag ? getTimelineTrackOptions(state.dag) : []), [state.dag]);
   const activeTrack = state.chartType === "timeline" && trackOptions.includes(selectedTrack) ? selectedTrack : "";
   useEffect(() => {
-    setSelectedTrack("");
-    setTimelineRange(null);
-    setSelectedType("");
+    setSelectedTrack(savedScope?.activeTrack ?? "");
+    setTimelineRange(savedScope?.timelineRange ?? null);
+    setSelectedType(savedScope?.activeType ?? "");
     setFocusedKey(null);
   }, [state.document.generation]);
   const timeBasis = getTimelineClock(state.dag?.metadata).mode;
-  useEffect(() => setTimelineRange(null), [timeBasis]);
+  useEffect(() => setTimelineRange(savedScope?.timelineRange ?? null), [timeBasis]);
   useEffect(() => {
     if (selectedType && !typeOptions.includes(selectedType)) {
       setSelectedType("");

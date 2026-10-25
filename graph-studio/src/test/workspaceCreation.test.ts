@@ -1,3 +1,13 @@
+import type { WorkspaceFolder } from "../workspace/types";
+import { saveWorkspaceStyle } from "../workspace/saveStyle";
+import { getDefaultChartStyle } from "../schema/appearance/styles";
+import { parseStyleDocument } from "../schema/styleProtocol";
+import { getAppearanceSchema } from "../schema/appearance/schema";
+import { readLinkedStyle } from "../workspace/linkedStyle";
+import { graphReducer } from "../app/document/graphReducer";
+import { createInitialGraphState } from "../app/document/initialState";
+import { serializeDag } from "../graph/serialize";
+import { normalizeDagInput } from "../graph/normalize";
 import assert from "node:assert/strict";
 import { createLocalWorkspace, createWorkspaceGraph, graphFileName, workspaceFolderName } from "../workspace/creation";
 import { discoverWorkspace, readGraphFile, WORKSPACE_MANIFEST } from "../workspace/discovery";
@@ -83,6 +93,159 @@ function parentDisk() {
 }
 
 export const workspaceCreationSuite = defineSuite("Creating workspace graph files", [
+  defineTest("save and bind uses full Schema documents, preserves metadata and reloads after graph save", async () => {
+    for (const chartType of ["node-link", "compound", "timeline", "sankey", "spatial"] as const) {
+      const raw = {
+        format: "graph-studio",
+        version: 3,
+        nodes: { a: {} },
+        edges: [],
+        metadata: { title: "Keep", layout: "existing.layout.json" },
+      };
+      const source = disk({ "graph.json": raw });
+      const workspace = await source.open();
+      const style = getDefaultChartStyle(chartType);
+      style.appearance.css = ".dag-node { opacity: .75; }";
+      style.hideNodeBorders = !style.hideNodeBorders;
+      if (style.timeline) style.timeline.typeColors = { Category: "#123456" };
+      const saved = await saveWorkspaceStyle(workspace, "graph.json", chartType, style);
+      const json = JSON.parse(source.contents.get(saved.entry.path)!);
+      assert.deepEqual(json, getAppearanceSchema(chartType, style).example);
+      assert.deepEqual(parseStyleDocument(json, chartType).style, style);
+      assert.deepEqual(JSON.parse(source.contents.get("graph.json")!), raw);
+      const before = graphReducer(createInitialGraphState(), {
+        type: "graphLoaded",
+        dag: normalizeDagInput(raw),
+        documentId: "test",
+        fileName: "graph.json",
+        selection: { type: "full" },
+        status: "",
+      });
+      const bound = graphReducer(before, {
+        type: "styleReferenceBound",
+        generation: before.document.generation,
+        reference: saved.reference,
+      });
+      assert.equal(bound.source.dirty, true);
+      assert.deepEqual(bound.dag!.metadata, { ...raw.metadata, style: saved.reference });
+      assert.equal(graphReducer(before, { type: "styleReferenceBound", generation: -1, reference: "stale" }), before);
+      const undone = graphReducer(bound, { type: "undoRequested" });
+      assert.deepEqual(undone.dag, before.dag);
+      assert.equal(undone.source.dirty, false);
+      assert.deepEqual(graphReducer(undone, { type: "redoRequested" }).dag, bound.dag);
+      source.contents.set("graph.json", JSON.stringify(serializeDag(bound.dag!)));
+      const reopened = await source.open();
+      const loaded = await readLinkedStyle(
+        normalizeDagInput(JSON.parse(source.contents.get("graph.json")!)),
+        "graph.json",
+        reopened,
+      );
+      assert.deepEqual(loaded.linkedStyle, style);
+      assert.equal(loaded.linkedChartType, chartType);
+      style.appearance.css = ".dag-node { opacity: .5; }";
+      const count = source.contents.size;
+      const again = await saveWorkspaceStyle(reopened, "graph.json", chartType, style, undefined, saved.reference);
+      assert.equal(again.reference, saved.reference);
+      assert.equal(source.contents.size, count);
+      assert.deepEqual(
+        JSON.parse(source.contents.get(saved.entry.path)!),
+        getAppearanceSchema(chartType, style).example,
+      );
+      const updated = graphReducer(bound, {
+        type: "styleReferenceBound",
+        generation: bound.document.generation,
+        reference: saved.reference,
+      });
+      assert.equal(updated.dag, bound.dag);
+      assert.equal(updated.editHistory, bound.editHistory);
+    }
+  }),
+  defineTest("updating an existing style preserves its path and retains its contents on write failure", async () => {
+    const raw = { format: "graph-studio", version: 3, nodes: {}, edges: [], metadata: { style: "shared.style.json" } };
+    const style = getDefaultChartStyle("compound");
+    const source = disk({ "graph.json": raw, "shared.style.json": getAppearanceSchema("compound", style).example });
+    const workspace = await source.open();
+    const original = new Map(source.contents);
+    style.appearance.css = ".dag-node { opacity: .3; }";
+    source.options.failWrite = "shared.style.json";
+    await assert.rejects(
+      saveWorkspaceStyle(workspace, "graph.json", "compound", style, undefined, raw.metadata.style),
+      /Disk write failed/,
+    );
+    assert.deepEqual(source.contents, original);
+    source.options.failWrite = "";
+    for (const path of [
+      "../escape.json",
+      "graph.json",
+      "https://example.com/style.json",
+      "graph-studio.workspace.json",
+    ])
+      await assert.rejects(saveWorkspaceStyle(workspace, "graph.json", "compound", style, undefined, path));
+    assert.deepEqual(source.contents, original);
+  }),
+  defineTest("style write failure, cancellation and denial leave no file or link", async () => {
+    const source = disk({ "graph.json": { format: "graph-studio", version: 3, nodes: {}, edges: [] } });
+    const workspace = await source.open();
+    const style = getDefaultChartStyle("compound");
+    const original = new Map(source.contents);
+    source.options.permission = "denied";
+    await assert.rejects(saveWorkspaceStyle(workspace, "graph.json", "compound", style), /Write access/);
+    assert.deepEqual(source.contents, original);
+    source.options.permission = "granted";
+    source.options.failWrite = "graph.compound.style.json";
+    await assert.rejects(saveWorkspaceStyle(workspace, "graph.json", "compound", style), /Disk write failed/);
+    assert.deepEqual(source.contents, original);
+    source.options.failWrite = "";
+    let currentChecks = 0;
+    await assert.rejects(
+      saveWorkspaceStyle(workspace, "graph.json", "compound", style, () => ++currentChecks < 2),
+      { name: "AbortError" },
+    );
+    assert.deepEqual(source.contents, original);
+    await assert.rejects(
+      saveWorkspaceStyle(workspace, "graph.json", "compound", { ...style, unexpected: true } as any),
+    );
+    assert.deepEqual(source.contents, original);
+  }),
+  defineTest("style is saved next to nested graph files with a relative reference", async () => {
+    const child = disk({ "nested.json": { format: "graph-studio", version: 3, nodes: {}, edges: [] } });
+    const root = disk();
+    root.handle.getDirectoryHandle = async (name) => {
+      assert.equal(name, "graphs");
+      return child.handle;
+    };
+    const workspace: WorkspaceFolder = {
+      name: "Root",
+      handle: root.handle,
+      files: new Map([
+        [
+          "graphs/nested.json",
+          { path: "graphs/nested.json", handle: await child.handle.getFileHandle!("nested.json") },
+        ],
+      ]),
+    };
+    const saved = await saveWorkspaceStyle(
+      workspace,
+      "graphs/nested.json",
+      "node-link",
+      getDefaultChartStyle("node-link"),
+    );
+    assert.equal(saved.entry.path, "graphs/nested.node-link.style.json");
+    assert.equal(saved.reference, "nested.node-link.style.json");
+    const linked = await readLinkedStyle(
+      normalizeDagInput({
+        format: "graph-studio",
+        version: 3,
+        nodes: {},
+        edges: [],
+        metadata: { style: saved.reference },
+      }),
+      "graphs/nested.json",
+      { ...workspace, files: new Map(workspace.files).set(saved.entry.path, saved.entry) },
+    );
+    assert.deepEqual(linked.linkedStyle, getDefaultChartStyle("node-link"));
+  }),
+
   defineTest("creates a named folder with a saved startup graph and manifest that reopen together", async () => {
     const source = parentDisk();
     const result = await createLocalWorkspace(source.handle, "  我的工作空间  ");

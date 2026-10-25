@@ -26,7 +26,6 @@ export async function readLinkedLayout(
     const entry = workspace.files.get(path);
     if (!entry) throw new Error(`Layout file not found: ${path}`);
     const file = await readWorkspaceFile(entry);
-    if (file.size > 16 * 1024 * 1024) throw new Error("Layout exceeds 16 MB.");
     const parsed = parseLayoutDocument(JSON.parse(await file.text()));
     const linkedLayout = repairLayoutDocument(parsed, graph);
     return {

@@ -60,12 +60,8 @@ export function SettingsContent({
     aiBusy,
     onClose,
     onAppearanceCssChange,
-    onAppearancePresetChange,
     onAppearanceSchemaChange,
     onAppearanceReset,
-    onAppearanceExport,
-    onAppearanceImportClick,
-    onAppearanceImportChange,
     onConsoleSidebarToggle,
     onExport,
     onExportHtml,
@@ -100,6 +96,7 @@ export function SettingsContent({
           <div className="settings-page-heading">
             <div className="settings-title-line">
               <h2>{SETTINGS_CHAPTERS.find((chapter) => chapter.key === shownChapter)?.label}</h2>
+              {shownChapter === "layout" && settings.layoutAction}
               {(visualChapter || shownChapter === "chart") && (
                 <span className="settings-chart-badge">{getGraphChartLabel(chartType)}</span>
               )}
@@ -159,12 +156,11 @@ export function SettingsContent({
 
             onAppearanceCssChange={onAppearanceCssChange}
 
-            onAppearancePresetChange={onAppearancePresetChange}
+            onAppearanceBind={settings.onAppearanceBind}
+            canBindAppearance={settings.canBindAppearance}
+            bindingAppearance={settings.bindingAppearance}
             onAppearanceSchemaChange={onAppearanceSchemaChange}
             onAppearanceReset={onAppearanceReset}
-            onAppearanceExport={onAppearanceExport}
-            onAppearanceImportClick={onAppearanceImportClick}
-            onAppearanceImportChange={onAppearanceImportChange}
 
             onPreviewModeChange={setPreviewMode}
           />

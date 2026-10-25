@@ -10,14 +10,18 @@ export function replaceDocument(
   const initial = createInitialGraphState();
   const loaded = action.type !== "graphClosed";
   const isNew = action.type === "canvasInitialized";
+  const loadedLayout = action.type === "graphLoaded" ? action.linkedLayout : undefined;
+  const rendering = loadedLayout?.activeChart ? loadedLayout.renderings?.[loadedLayout.activeChart] : undefined;
   return {
     ...initial,
     timelineSettings: sanitizeTimelineSettings({
-      ...(state.document.linkedStyle ? initial.timelineSettings : state.timelineSettings),
+      ...initial.timelineSettings,
       typeColors: {},
       pins: {},
       locked: false,
       ...(action.type === "graphLoaded" ? action.linkedStyle?.timeline : {}),
+      ...loadedLayout?.timelineView,
+      ...(loadedLayout?.activeChart === "timeline" ? rendering?.timelineSettings : {}),
     }),
     dag: loaded ? action.dag : null,
     document: {
@@ -25,6 +29,7 @@ export function replaceDocument(
       generation: state.document.generation + 1,
       savedDag: action.type === "graphLoaded" ? action.dag : null,
       linkedStyle: action.type === "graphLoaded" ? action.linkedStyle : undefined,
+      linkedChartType: action.type === "graphLoaded" ? action.linkedChartType : undefined,
     },
     source: loaded
       ? {
@@ -33,23 +38,29 @@ export function replaceDocument(
           dirty: isNew,
         }
       : initial.source,
-    selection: loaded
-      ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag) || isSpatialDocument(action.dag)
-        ? { type: "full" }
-        : action.selection
-      : null,
+    selection: rendering
+      ? rendering.scope.selection
+      : loaded
+        ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag) || isSpatialDocument(action.dag)
+          ? { type: "full" }
+          : action.selection
+        : null,
     editHistory: { ...initial.editHistory, savedRevision: isNew ? -1 : 0 },
-    chartType: loaded
-      ? isSpatialDocument(action.dag)
-        ? "spatial"
-        : isTimelineDocument(action.dag)
-          ? "timeline"
-          : action.dag.hierarchy_edges?.length
-            ? "compound"
-            : action.dag.diagram === "sankey"
-              ? "sankey"
-              : "node-link"
-      : state.chartType,
+    chartType:
+      loadedLayout?.activeChart ??
+      (action.type === "graphLoaded" && action.linkedStyle && action.linkedChartType
+        ? action.linkedChartType
+        : loaded
+          ? isSpatialDocument(action.dag)
+            ? "spatial"
+            : isTimelineDocument(action.dag)
+              ? "timeline"
+              : action.dag.hierarchy_edges?.length
+                ? "compound"
+                : action.dag.diagram === "sankey"
+                  ? "sankey"
+                  : "node-link"
+          : state.chartType),
     layoutDocument:
       action.type === "graphLoaded"
         ? {

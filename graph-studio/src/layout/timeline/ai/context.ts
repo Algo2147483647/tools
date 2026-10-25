@@ -1,3 +1,5 @@
+import { measureTimelineLayout } from "../layout-quality";
+import { timelineLabelBox } from "../labels";
 import { getNodeTitle } from "../../../graph/accessors";
 import { getTimelineClock } from "../../../graph/timeline/clock";
 import { resolveTimeline as sanitizeTimelineSettings } from "../../../schema/appearance/contract";
@@ -38,9 +40,15 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     clock: getTimelineClock(input.dag.metadata),
     layout: currentSettings.layout,
     orientation: currentSettings.orientation,
-    settings: {
-      edgeRouting: currentSettings.edgeRouting,
+    settings: currentSettings,
+    currentPlan,
+    geometry: {
+      width: stage.stageWidth,
+      height: stage.stageHeight,
+      axis: stage.timeline?.axisMap,
+      tracks: stage.timeline?.tracks,
     },
+    quality: measureTimelineLayout(stage),
     currentTrackOrder: stage.timeline!.tracks.map((track) => track.id),
     totalEvents: nodes.length,
     totalRelationships: stage.edges.length,
@@ -50,6 +58,12 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     trackConnections: [...connections.values()].sort((a, b) => b.count - a.count),
     events: selected.map((node) => ({
       id: node.key,
+      x: node.x,
+      y: node.y,
+      width: node.width,
+      height: node.height,
+      label: { x: node.timeline!.labelX, y: node.timeline!.labelY, bounds: timelineLabelBox(node) },
+      timeAnchors: { start: node.timeline!.startY, end: node.timeline!.endY, ports: node.timeline!.ports },
       title: getNodeTitle(input.dag.nodes[node.key]),
       track: node.timeline!.track,
       start: node.timeline!.start,
@@ -60,6 +74,13 @@ export function timelineLayoutContext(input: TimelineLayoutInput, stage: StageDa
     })),
     relationships: stage.edges
       .filter((edge) => ids.has(edge.source) || ids.has(edge.target))
-      .map((edge) => ({ source: edge.source, target: edge.target, kind: edge.timeline?.kind })),
+      .map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        relationship: edge.timeline,
+        points: edge.points,
+        label: edge.labelPosition,
+      })),
   };
 }

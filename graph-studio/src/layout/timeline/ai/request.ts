@@ -1,29 +1,34 @@
 import type { AiSettings } from "../../../ai/types";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
-import { requestLayoutPlan } from "../../shared/ai/request";
-import type { timelineLayoutContext } from "./context";
+import { LayoutRequestError, requestLayoutPlan } from "../../shared/ai/request";
 import { TIMELINE_LAYOUT_PROMPT } from "./prompt";
-import { parseTimelineLayoutResponse, TIMELINE_AI_SCHEMA } from "./protocol";
+import { parseTimelineDecision, TIMELINE_DECISION_SCHEMA } from "./protocol";
 
 export async function requestTimelineLayout(
   settings: AiSettings,
-  context: ReturnType<typeof timelineLayoutContext>,
+  context: unknown,
   message: string,
   signal: AbortSignal,
   onProgress?: AiProgressListener,
+  session: { candidates: ReadonlySet<string>; requireEvaluation: boolean } = {
+    candidates: new Set(["current"]),
+    requireEvaluation: true,
+  },
 ) {
   return requestLayoutPlan({
+    purpose: "layout-planning",
     settings,
     context,
     message,
     signal,
     onProgress,
-    schema: TIMELINE_AI_SCHEMA,
+    schema: TIMELINE_DECISION_SCHEMA,
     instructions: TIMELINE_LAYOUT_PROMPT,
-    parse: (value) =>
-      parseTimelineLayoutResponse(value, {
-        events: new Set(context.events.map((e) => e.id)),
-        tracks: new Set(context.tracks.map((t) => t.name)),
-      }),
+    parse: (value) => {
+      const decision = parseTimelineDecision(value, session.candidates);
+      if (decision.action === "finish" && session.requireEvaluation)
+        throw new LayoutRequestError("semantic", "Evaluate a proposal before finishing.");
+      return decision;
+    },
   });
 }

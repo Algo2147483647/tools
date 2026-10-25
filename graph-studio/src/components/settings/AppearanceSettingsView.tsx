@@ -1,9 +1,7 @@
-import type { ChangeEvent } from "react";
 import { useState } from "react";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { GraphChartType } from "../../graph/types";
-import { getGraphAppearancePresets, type GraphAppearancePresetId } from "../../schema/appearance/commands";
-import { chartStylesEqual, type ChartStyle } from "../../schema/appearance/styles";
+import { type ChartStyle } from "../../schema/appearance/styles";
 import { type TimelineControlsProps } from "../timeline/TimelineControls";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import AppearanceSchema from "./AppearanceSchema";
@@ -29,25 +27,14 @@ export interface AppearanceSettingsProps {
   appearanceCssDraft: string;
   onAppearanceCssDraftChange: (value: string) => void;
   onAppearanceCssChange: (css: string) => void;
-  onAppearancePresetChange: (presetId: GraphAppearancePresetId) => void;
+  onAppearanceBind: () => void;
+  canBindAppearance: boolean;
+  bindingAppearance: boolean;
   onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
-  onAppearanceExport: () => void;
-  onAppearanceImportClick: (event: React.MouseEvent<HTMLInputElement>) => void;
-  onAppearanceImportChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
-  const presets = getGraphAppearancePresets(p.chartType);
-  const selectedPreset = presets.find((preset) =>
-    chartStylesEqual(preset.document.style, {
-      appearance: p.appearance,
-      showNodeDetail: p.showNodeDetail,
-      hideNodeBorders: p.hideNodeBorders,
-      alignNodeWidthsToMax: p.alignNodeWidthsToMax,
-      ...(p.chartType === "timeline" ? { timeline: p.timelineControls?.settings } : {}),
-    }),
-  );
   const [group, setGroup] = useState<AppearanceGroup>("nodes");
   const catalog = getSettingsCatalog(p.chartType);
   const visible = (id: string) =>
@@ -109,7 +96,12 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}),
           }}
           onChange={p.onAppearanceSchemaChange}
-          onPresetChange={p.onAppearancePresetChange}
+          onBind={p.onAppearanceBind}
+          canBind={p.canBindAppearance}
+          binding={p.bindingAppearance}
+          styleReference={
+            typeof p.graphDocument?.metadata?.style === "string" ? p.graphDocument.metadata.style : undefined
+          }
         />
       );
     const has = (key: string) => items.some((item) => item.id === key || item.uiId === key);
@@ -117,38 +109,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
         {id === "canvas" && <h3>Canvas</h3>}
         {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
-        {has("presets") && (
-          <>
-            <div className="preset-grid">
-              {presets.map((preset) => (
-                <button
-                  key={preset.id}
-                  aria-label={preset.label}
-                  className={selectedPreset?.id === preset.id ? "is-selected" : ""}
-                  aria-pressed={selectedPreset?.id === preset.id}
-                  onClick={() => p.onAppearancePresetChange(preset.id)}
-                >
-                  <span
-                    className="preset-sample"
-                    aria-hidden="true"
-                    style={{
-                      background: preset.document.style.appearance.cssVars["--dag-node-fill"],
-                      color: preset.document.style.appearance.cssVars["--dag-text-strong"],
-                      borderColor: preset.document.style.appearance.cssVars["--dag-node-border"],
-                      fontFamily: preset.document.style.appearance.cssVars["--dag-title-font-family"],
-                      fontStyle: preset.document.style.appearance.cssVars["--dag-title-font-style"],
-                    }}
-                  >
-                    <i />
-                    Aa<span>→</span>
-                    <i />
-                  </span>
-                  <strong>{preset.label}</strong>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
         {(has("css") || has("style.appearance.css")) && (
           <div className="settings-css">
             <label htmlFor="setting-css">Custom graph CSS</label>
@@ -180,19 +140,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
         )}
         {has("configuration") && (
           <div className="settings-inline-actions">
-            <label className="studio-button settings-file-input">
-              Import style
-              <input
-                type="file"
-                accept=".json,application/json"
-                aria-label="Import appearance configuration"
-                onClick={p.onAppearanceImportClick}
-                onChange={p.onAppearanceImportChange}
-              />
-            </label>
-            <button className="studio-button" onClick={p.onAppearanceExport}>
-              Export style
-            </button>
             <button className="studio-button subtle-danger" onClick={p.onAppearanceReset}>
               Reset current style
             </button>

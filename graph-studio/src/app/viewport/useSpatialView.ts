@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import { defaultSpaceView, getSpaceMetadata, type SpaceView } from "../../graph/space";
 import type { NormalizedDag } from "../../graph/types";
 
-export function useSpatialView(dag: NormalizedDag | null, generation: number) {
+export function useSpatialView(dag: NormalizedDag | null, generation: number, initial?: SpaceView) {
   const metadata = dag ? getSpaceMetadata(dag) : null;
   const key = `${generation}:${JSON.stringify(metadata)}`;
-  const defaults = useMemo(() => defaultSpaceView(metadata), [key]);
+  const defaults = useMemo(() => initial ?? defaultSpaceView(metadata), [key]);
   const [saved, setSaved] = useState<{ key: string; view: SpaceView } | null>(null);
   const [resetVersion, setResetVersion] = useState(0);
   const view = saved?.key === key ? saved.view : defaults;

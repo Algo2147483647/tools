@@ -83,6 +83,7 @@ export function useCompoundLayoutPlan(
         generation: now.document.generation,
         data: {
           ...now.layoutDocument.data,
+          renderings: { ...now.layoutDocument.data.renderings, compound: undefined },
           charts: {
             ...now.layoutDocument.data.charts,
             compound: { ...now.layoutDocument.data.charts.compound, ...nextPatch },
@@ -169,6 +170,7 @@ export function useCompoundLayoutPlan(
           generation: initial.state.document.generation,
           data: {
             ...initial.state.layoutDocument.data,
+            renderings: { ...initial.state.layoutDocument.data.renderings, compound: undefined },
             charts: { ...initial.state.layoutDocument.data.charts, compound: data },
           },
         });

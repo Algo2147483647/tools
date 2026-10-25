@@ -7,7 +7,7 @@ src/
   app/
     document/       Document state, transactions, save, export and node actions
     workspace/      Opening, creation, preview and recent-location orchestration
-    preferences/    Chart preferences and persisted appearance state
+    preferences/    Session-only chart styles and interface preferences
     viewport/       Wiring canvas interaction and chart-specific view state
     layout/         Layout hooks, workers, candidate review and freshness checks
     ai/             AI request lifecycle and session coordination
@@ -62,7 +62,7 @@ General contains current-view exports and current-session details. File opening,
 
 The field-description format is not standard JSON Schema. [public/graph.schema.json](../public/graph.schema.json) remains the machine-readable JSON Schema for external document tooling. `graph/normalize.ts` remains responsible for runtime document validation and graph semantics. Changes to the document format must update these contracts together; they are not automatically generated from the description table.
 
-[appearance/definition.json](../src/schema/appearance/definition.json) defines appearance fields, defaults and constraints. `appearance/defaults.json` supplies chart-specific overrides. Complete snapshots under `appearance/presets/` are selectable presets. `appearance/presets.ts` validates their identities and envelopes through `styleProtocol.ts`; `appearance/styles.ts` owns default-style construction, comparison and lookup. These modules do not depend on React.
+[appearance/definition.json](../src/schema/appearance/definition.json) defines appearance fields, defaults and constraints. `appearance/defaults.json` supplies chart-specific overrides. Complete snapshots under `appearance/presets/` support internal defaults and Console preset commands. `appearance/presets.ts` validates their identities and envelopes through `styleProtocol.ts`; `appearance/styles.ts` owns default-style construction, comparison and lookup. These modules do not depend on React.
 
 `appearance/defaults.ts` exposes the base appearance and resolver; `appearance/contract.ts` validates complete values; `appearance/commands.ts` owns appearance commands. Obsolete forwarding modules have been removed, and consumers import the owning modules directly. See [Appearance schema](appearance-schema.md) for the full contract.
 
@@ -74,7 +74,7 @@ The `schema-json-import` Vite compatibility plugin handles JSON import attribute
 
 Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timeline/layoutData.ts`. Serializable compound geometry belongs to `graph/compound/geometry.ts`. Layout algorithms consume those contracts; graph mutations do not import layout engines. `graph/serialize.ts` owns both document serialization and formatted JSON output.
 
-`app/layout/workerJob.ts` owns request IDs, timeout, cancellation and worker cleanup. Compound and timeline hooks retain document/view freshness checks and application rules. `useCompoundReview.ts` owns candidate selection and preview state. Text measurement and its browser Canvas fallback are colocated under `layout/shared/` because layout owns the font contract.
+`app/layout/workerJob.ts` owns request IDs, timeout, cancellation and worker cleanup. Compound and timeline hooks retain document/view freshness checks and application rules. The compound and timeline AI workflows let the model evaluate and select arrangements; the selected result applies directly. `schema/layoutGeometry.ts` owns independent rendering serialization/restoration. Text measurement and its browser Canvas fallback are colocated under `layout/shared/` because layout owns the font contract.
 
 ## Browser access and viewport
 

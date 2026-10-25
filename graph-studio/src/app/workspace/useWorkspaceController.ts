@@ -1,3 +1,8 @@
+import { saveWorkspaceLayout, saveServedLayout } from "../../workspace/saveLayout";
+import type { LayoutDocument } from "../../schema/layoutProtocol";
+import { saveServedStyle, saveWorkspaceStyle } from "../../workspace/saveStyle";
+import type { ChartStyle } from "../../schema/appearance/types";
+import type { GraphChartType } from "../../graph/types";
 import type { LinkedLayout } from "../../workspace/linkedLayout";
 import { type ChangeEvent, type Dispatch, useEffect, useRef, useState } from "react";
 import { downloadJsonFile } from "../../shared/browser/download";
@@ -15,7 +20,7 @@ import type { GraphAppState } from "../document/initialState";
 import { createWorkspaceFromPicker } from "../../workspace/createFromPicker";
 import { createWorkspaceGraph } from "../../workspace/creation";
 import { createWorkspaceManifest, discoverWorkspace, WORKSPACE_MANIFEST } from "../../workspace/discovery";
-import { loadExampleWorkspace } from "../../workspace/examples";
+import { invalidateExampleWorkspace, loadExampleWorkspace } from "../../workspace/examples";
 import { readLinkedStyle } from "../../workspace/linkedStyle";
 import { type RecentLocation } from "../../workspace/locations";
 import {
@@ -80,6 +85,7 @@ export function useWorkspaceController({
       documentId: documentIdentity(locationId, entry.path),
       dag,
       linkedStyle: style.linkedStyle,
+      linkedChartType: style.linkedChartType,
       linkedLayout: style.linkedLayout,
       layoutNotice: style.layoutNotice,
       fileName: entry.path,
@@ -342,6 +348,74 @@ export function useWorkspaceController({
     setNotice("");
     return true;
   }
+  async function saveAndBindStyle(chartType: GraphChartType, style: ChartStyle) {
+    const snapshot = stateRef.current;
+    const folder = workspace;
+    if (!snapshot.dag) return;
+    await run(async (context) => {
+      if (!folder || folder.activePath !== snapshot.source.fileName)
+        throw new Error("The graph's folder is not accessible. Open its workspace to update the sibling style file.");
+      const saved = folder.handle
+        ? await saveWorkspaceStyle(
+            folder,
+            snapshot.source.fileName,
+            chartType,
+            style,
+            context.isCurrent,
+            snapshot.dag!.metadata?.style,
+          )
+        : folder.exampleId
+          ? await saveServedStyle(
+              folder.exampleId,
+              snapshot.source.fileName,
+              chartType,
+              style,
+              snapshot.dag!.metadata?.style,
+            )
+          : (() => {
+              throw new Error("The graph's folder has no write access.");
+            })();
+      if (folder.exampleId) invalidateExampleWorkspace(folder.exampleId, import.meta.env.BASE_URL);
+      if (!context.isCurrent()) return;
+      setWorkspace((current) =>
+        current?.locationId === folder.locationId
+          ? { ...current, files: new Map(current.files).set(saved.entry.path, saved.entry) }
+          : current,
+      );
+      dispatch({ type: "styleReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
+    });
+  }
+  async function saveAndBindLayout(layout: LayoutDocument) {
+    const snapshot = stateRef.current;
+    const folder = workspace;
+    if (!snapshot.dag) return;
+    await run(async (context) => {
+      if (!folder || folder.activePath !== snapshot.source.fileName)
+        throw new Error("The graph's folder is not accessible. Open its workspace to update the sibling layout file.");
+      const saved = folder.handle
+        ? await saveWorkspaceLayout(
+            folder,
+            snapshot.source.fileName,
+            layout,
+            context.isCurrent,
+            snapshot.dag!.metadata?.layout,
+          )
+        : folder.exampleId
+          ? await saveServedLayout(folder.exampleId, snapshot.source.fileName, layout, snapshot.dag!.metadata?.layout)
+          : (() => {
+              throw new Error("The graph's folder has no write access.");
+            })();
+      if (folder.exampleId) invalidateExampleWorkspace(folder.exampleId, import.meta.env.BASE_URL);
+      if (!context.isCurrent()) return;
+      setWorkspace((current) =>
+        current?.locationId === folder.locationId
+          ? { ...current, files: new Map(current.files).set(saved.entry.path, saved.entry) }
+          : current,
+      );
+      dispatch({ type: "layoutDocumentChanged", generation: snapshot.document.generation, data: layout });
+      dispatch({ type: "layoutReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
+    });
+  }
   function exportWorkspaceManifest() {
     if (workspace) downloadJsonFile(JSON.stringify(createWorkspaceManifest(workspace), null, 2), WORKSPACE_MANIFEST);
   }
@@ -371,6 +445,8 @@ export function useWorkspaceController({
     closeWorkspace,
     prepareNewDocument,
     exportWorkspaceManifest,
+    saveAndBindStyle,
+    saveAndBindLayout,
     handleDroppedFiles,
     openExample,
   };

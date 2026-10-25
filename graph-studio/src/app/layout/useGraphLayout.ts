@@ -1,10 +1,20 @@
+import {
+  captureLayoutGeometry,
+  graphLayoutIdentity,
+  layoutIdentity,
+  renderingMatches,
+  renderingSettings,
+  restoreLayoutGeometry,
+  type LayoutScope,
+} from "../../schema/layoutGeometry";
 import { useSpatialView } from "../viewport/useSpatialView";
 import { buildSpatialStage } from "../../layout/spatial/layout";
 import { useFontMetricsKey } from "./useFontMetricsKey";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { getNodeTitle } from "../../graph/accessors";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
+import { getDefaultChartStyle } from "../../schema/appearance/styles";
 import { getParentLevelSelection, sanitizeNodeLabel } from "../../graph/selectors";
 import { projectGraphByType } from "../../graph/typeFilter";
 import { projectGraphByTimelineTrack } from "../../graph/timeline/view";
@@ -35,7 +45,11 @@ export function useGraphLayout({
   showNodeDetail,
   alignNodeWidthsToMax,
 }: LayoutInput) {
-  const spatialView = useSpatialView(state.dag, state.document.generation);
+  const spatialView = useSpatialView(
+    state.dag,
+    state.document.generation,
+    state.layoutDocument.data.renderings?.spatial?.scope.spatial,
+  );
   const typeFilteredDag = useMemo(
     () =>
       state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, activeType, state.chartType) : null,
@@ -125,7 +139,72 @@ export function useGraphLayout({
     ],
   );
   const compoundLayout = useCompoundStage(compoundInput);
-  const stage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
+  const computedStage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
+  const scope: LayoutScope = {
+    selection: state.selection,
+    compound: compound.view,
+    activeType,
+    activeTrack,
+    timelineRange: activeTimelineRange,
+    spatial: spatialView.view,
+  };
+  const saved = state.layoutDocument.data.renderings?.[state.chartType];
+  // File geometry is restored on load even without an Appearance association. A live appearance edit invalidates it.
+  const appearanceKey = JSON.stringify([
+    getStageAppearance(appearance, state.chartType),
+    showNodeDetail,
+    alignNodeWidthsToMax,
+  ]);
+  const initialStyle =
+    state.document.linkedStyle && state.document.linkedChartType === state.chartType
+      ? state.document.linkedStyle
+      : getDefaultChartStyle(state.chartType);
+  const initialAppearanceKey = JSON.stringify([
+    getStageAppearance(initialStyle.appearance, state.chartType),
+    initialStyle.showNodeDetail,
+    initialStyle.alignNodeWidthsToMax,
+  ]);
+  // Linked Appearance is applied by the preference hook after the document's first render.
+  // Compare against that loaded style, not the previous document's transient appearance.
+  const loadedAppearance = useRef({ generation: state.document.generation, saved, key: initialAppearanceKey });
+  if (loadedAppearance.current.generation !== state.document.generation)
+    loadedAppearance.current = { generation: state.document.generation, saved, key: initialAppearanceKey };
+  else if (loadedAppearance.current.saved !== saved)
+    loadedAppearance.current = { generation: state.document.generation, saved, key: appearanceKey };
+  const settingsKey = JSON.stringify(
+    renderingSettings(state.chartType, state.layoutDocument.data.charts, scope, state.timelineSettings),
+  );
+  const stage = useMemo(
+    () =>
+      saved &&
+      state.dag &&
+      computedStage &&
+      loadedAppearance.current.key === appearanceKey &&
+      renderingMatches(saved, state.dag, JSON.parse(settingsKey), computedStage)
+        ? restoreLayoutGeometry(saved.geometry, computedStage)
+        : computedStage,
+    [saved, state.dag, computedStage, appearanceKey, settingsKey],
+  );
+  const currentLayoutDocument = useMemo(
+    () =>
+      !stage || !state.dag
+        ? null
+        : {
+            ...state.layoutDocument.data,
+            activeChart: state.chartType,
+            renderings: {
+              ...state.layoutDocument.data.renderings,
+              [state.chartType]: {
+                graphFingerprint: graphLayoutIdentity(state.dag),
+                settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)),
+                scope,
+                timelineSettings: state.timelineSettings,
+                geometry: captureLayoutGeometry(stage),
+              },
+            },
+          },
+    [stage, state.dag, state.layoutDocument.data, state.chartType, settingsKey],
+  );
   const parentSelection = useMemo(
     () =>
       state.chartType !== "compound" &&
@@ -183,6 +262,7 @@ export function useGraphLayout({
 
   return {
     stage,
+    currentLayoutDocument,
     status,
     parentSelection,
     timelineView: {

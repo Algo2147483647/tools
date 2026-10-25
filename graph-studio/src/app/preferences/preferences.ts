@@ -8,7 +8,7 @@ import type { AiProvider, AiSettings } from "../../ai/types";
 import type { GraphChartType, GraphLayoutMode, GraphMode } from "../../graph/types";
 import { mapChartTypes, getDefaultChartStyle } from "../../schema/appearance/styles";
 import type { ChartStyleDocuments } from "../../schema/appearance/types";
-import { createStyleDocument, parseStyleDocument } from "../../schema/styleProtocol";
+import { createStyleDocument } from "../../schema/styleProtocol";
 
 const GRAPH_PAGE_PREFERENCES_KEY = "graph-studio:page-preferences";
 
@@ -65,8 +65,8 @@ export function saveGraphPagePreferences(
   }
 
   try {
-    const chartStyles = mapChartTypes((type) => parseStyleDocument(preferences.chartStyles[type], type));
-    return writeStoredText(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify({ ...preferences, chartStyles }), storage);
+    const { chartStyles: _sessionStyles, ...persisted } = preferences;
+    return writeStoredText(GRAPH_PAGE_PREFERENCES_KEY, JSON.stringify(persisted), storage);
   } catch {
     return false;
   }
@@ -111,16 +111,6 @@ export function parseGraphPagePreferences(raw: string | null): Partial<GraphPage
     parsed.chartType === "spatial"
   ) {
     next.chartType = parsed.chartType;
-  }
-  if (parsed.chartStyles && typeof parsed.chartStyles === "object" && !Array.isArray(parsed.chartStyles)) {
-    const styles = parsed.chartStyles as Record<string, unknown>;
-    next.chartStyles = mapChartTypes((type) => {
-      try {
-        return parseStyleDocument(styles[type], type);
-      } catch {
-        return createStyleDocument(type, getDefaultChartStyle(type));
-      }
-    });
   }
   if (typeof parsed.consoleSidebarOpen === "boolean") {
     next.consoleSidebarOpen = parsed.consoleSidebarOpen;

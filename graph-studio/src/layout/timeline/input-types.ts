@@ -22,7 +22,7 @@ export interface TimelineLayoutInput {
   timelineSettings?: Partial<TimelineViewSettings>;
   timelineAxis?: TimelineAxisMap;
   axisSource?: NormalizedDag;
-  /** Declaration loaded from the independent Layout document; no geometry. */
+  /** Arrangement loaded from the independent Layout document. */
   arrangement?: TimelineLayoutPlan | null;
   nodeLabels?: Record<string, { width: number; displayTitle: string }>;
 }

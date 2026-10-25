@@ -1,3 +1,4 @@
+import { LayoutUpdateButton } from "./LayoutUpdateButton";
 import { useEffect, useRef, useState } from "react";
 import { getGraphChartLabel } from "../../graph/types";
 import CompoundPanel from "../compound/CompoundPanel";
@@ -54,6 +55,11 @@ export function StudioLayoutPanels(
         <div>
           <Icon name="layout" size={18} />
           <h2>{getGraphChartLabel(state.chartType)}</h2>
+          <LayoutUpdateButton
+            files={files}
+            viewport={viewport}
+            busy={props.compoundLayoutPlan.busy || props.timelineLayoutPlan.busy}
+          />
         </div>
         <IconButton
           variant="quiet"

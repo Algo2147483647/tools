@@ -71,7 +71,7 @@ The [JSON Schema](../public/graph.schema.json) and runtime importer complement o
 
 ## Initial chart selection
 
-On document load, chart hints are evaluated in this order:
+On document load, a valid linked style selects its declared chartType. Without a linked style, graph hints are evaluated in this order:
 
 1. A `metadata.space` object selects Spatial.
 2. A `metadata.timeline` object selects Timeline.
@@ -88,7 +88,7 @@ Hints select a view; they do not relax data validation. For example, `diagram: "
 | Nodes, relationships, containment, times, coordinates   | Graph JSON                                         |
 | Portable chart appearance and supported layout controls | Separate `graph-studio-style` file                 |
 | Reference to a style file                               | Graph `metadata.style`, relative to the graph file |
-| Chart preferences                                       | Browser preferences, independently per chart       |
+| Appearance edits                                        | Session only; Update writes the linked style file  |
 | Spatial camera and projection controls                  | Session view state                                 |
 | Nested expansion and focus                              | Document-specific view preferences                 |
 | Saved Arrange plans                                     | Independent JSON referenced by `metadata.layout`   |

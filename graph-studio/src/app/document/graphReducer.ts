@@ -22,6 +22,54 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
 
 function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
+    case "styleReferenceBound": {
+      if (!state.dag || action.generation !== state.document.generation) return state;
+      if (state.dag.metadata?.style === action.reference)
+        return { ...state, ui: { ...state.ui, status: `Updated ${action.reference}.` } };
+      const afterDag = { ...state.dag, metadata: { ...state.dag.metadata, style: action.reference } };
+      return reduceGraphState(state, {
+        type: "graphCommandsCommitted",
+        transaction: {
+          label: "Bound appearance style.",
+          beforeDag: state.dag,
+          afterDag,
+          beforeSelection: state.selection,
+          afterSelection: state.selection,
+          beforeNavigationHistory: state.history,
+          afterNavigationHistory: state.history,
+          revisionBefore: state.editHistory.revision,
+          revisionAfter: state.nextRevision,
+        },
+        renamedKeys: [],
+        deletedKeys: [],
+        status: `Saved ${action.reference} and bound metadata.style. Save the graph to persist this link.`,
+      });
+    }
+
+    case "layoutReferenceBound": {
+      if (!state.dag || action.generation !== state.document.generation) return state;
+      if (state.dag.metadata?.layout === action.reference)
+        return { ...state, ui: { ...state.ui, status: `Updated ${action.reference}.` } };
+      const afterDag = { ...state.dag, metadata: { ...state.dag.metadata, layout: action.reference } };
+      return reduceGraphState(state, {
+        type: "graphCommandsCommitted",
+        transaction: {
+          label: "Bound layout.",
+          beforeDag: state.dag,
+          afterDag,
+          beforeSelection: state.selection,
+          afterSelection: state.selection,
+          beforeNavigationHistory: state.history,
+          afterNavigationHistory: state.history,
+          revisionBefore: state.editHistory.revision,
+          revisionAfter: state.nextRevision,
+        },
+        renamedKeys: [],
+        deletedKeys: [],
+        status: `Saved ${action.reference} and bound metadata.layout. Save the graph to persist this link.`,
+      });
+    }
+
     case "timelineLayoutCommitted": {
       if (
         state.chartType !== "timeline" ||
@@ -31,7 +79,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         action.beforeDag !== state.dag ||
         action.historyBase !== state.editHistory
       )
-        return { ...state, ui: { ...state.ui, status: "Timeline layout is stale. Generate a new preview." } };
+        return { ...state, ui: { ...state.ui, status: "Timeline changed. Arrange again." } };
       try {
         if (action.data.version !== 1 || !["ai", "algorithm"].includes(action.data.mode))
           throw new Error("Invalid layout mode.");
@@ -40,9 +88,15 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
           throw new Error("Timeline layout references an unknown event.");
         return commitLayout(state, {
           ...state.layoutDocument.data,
+          renderings: { ...state.layoutDocument.data.renderings, timeline: undefined },
           charts: {
             ...state.layoutDocument.data.charts,
-            timeline: { version: 1, mode: action.data.mode, ...(plan ? { plan } : {}) },
+            timeline: {
+              version: 1,
+              mode: action.data.mode,
+              ...(action.data.basis ? { basis: action.data.basis } : {}),
+              ...(plan ? { plan } : {}),
+            },
           },
         });
       } catch (error) {

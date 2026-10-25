@@ -1,3 +1,4 @@
+import { LayoutUpdateButton } from "./LayoutUpdateButton";
 import { useMemo } from "react";
 import { serializeDag } from "../../graph/serialize";
 import { getSankeyError } from "../../graph/sankey";
@@ -36,6 +37,13 @@ export function StudioSettings({
   return (
     <SettingsModal
       graphDocument={graphDocument}
+      layoutAction={
+        <LayoutUpdateButton
+          files={files}
+          viewport={viewport}
+          busy={compoundLayoutPlan.busy || timelineLayoutPlan.busy}
+        />
+      }
       layoutControls={
         <ChartLayoutControls
           key={state.chartType + state.document.generation}
@@ -81,12 +89,16 @@ export function StudioSettings({
       canUndoAppearance={appearanceHistory.canUndo}
       canRedoAppearance={appearanceHistory.canRedo}
       preferencesSaved={preferences.saved}
-      onAppearancePresetChange={appearanceHistory.handleAppearancePresetChange}
+      onAppearanceBind={() =>
+        void files.saveAndBindStyle(state.chartType, {
+          ...appearanceHistory.chartStyles[state.chartType].style,
+          ...(state.chartType === "timeline" ? { timeline: state.timelineSettings } : {}),
+        })
+      }
+      canBindAppearance={Boolean(state.dag)}
+      bindingAppearance={files.busy}
       onAppearanceSchemaChange={appearanceHistory.handleAppearanceSchemaChange}
       onAppearanceReset={appearanceHistory.handleAppearanceReset}
-      onAppearanceExport={appearanceHistory.handleAppearanceExport}
-      onAppearanceImportClick={appearanceHistory.handleAppearanceImportClick}
-      onAppearanceImportChange={appearanceHistory.handleAppearanceImportChange}
 
       onConsoleSidebarToggle={ui.toggleConsole}
       onExport={exportSvg}

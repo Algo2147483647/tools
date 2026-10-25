@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import AppearanceSchema from "../components/settings/AppearanceSchema";
 import AiSettingsPanel from "../components/settings/AiSettingsPanel";
 import NumericSetting from "../components/settings/NumericSetting";
 import ProtocolSchema from "../components/settings/ProtocolSchema";
@@ -40,6 +41,24 @@ import {
 import { defineSuite, defineTest } from "./harness";
 
 export const settingsSuite = defineSuite("Settings controls", [
+  defineTest("Schema exposes only explicit style binding and no preset or persistence copy", () => {
+    const markup = renderToStaticMarkup(
+      createElement(AppearanceSchema, {
+        chartType: "compound",
+        style: getDefaultChartStyle("compound"),
+        onChange: () => {},
+        onBind: () => {},
+        canBind: false,
+        binding: false,
+      }),
+    );
+    assert.match(markup, /Update current appearance/);
+    assert.doesNotMatch(markup, /Preset|Open a local workspace graph|Appearance edits apply to this session/);
+    assert.ok(!getSettingsCatalog("compound").some((item) => item.id === "presets"));
+    const parsed = parseGraphPagePreferences(JSON.stringify({ chartStyles: { compound: { invalid: true } } }));
+    assert.equal(parsed, null);
+  }),
+
   defineTest("legacy AI generation and execution settings are dropped and controls are absent", () => {
     const original = getInitialGraphPagePreferences();
     const restored = parseGraphPagePreferences(
@@ -85,13 +104,7 @@ export const settingsSuite = defineSuite("Settings controls", [
       );
       const preferences = getInitialGraphPagePreferences();
       preferences.chartStyles.timeline = document;
-      assert.deepEqual(
-        getAppearanceSchema(
-          "timeline",
-          parseGraphPagePreferences(JSON.stringify(preferences))!.chartStyles!.timeline.style,
-        ).entries.get(`style.appearance.${key}`)?.value,
-        [320, 640],
-      );
+      assert.equal(parseGraphPagePreferences(JSON.stringify(preferences))!.chartStyles, undefined);
       assert.throws(() => updateAppearanceSchemaValue("timeline", style, `style.appearance.${key}`, [320]));
     }
     const document = createStyleDocument("timeline", getDefaultChartStyle("timeline"));
@@ -119,7 +132,9 @@ export const settingsSuite = defineSuite("Settings controls", [
     );
     const raw = JSON.parse(stored);
     assert.equal("timelineSettings" in raw, false);
-    assert.deepEqual(raw, preferences);
+    const { chartStyles: _styles, ...persisted } = preferences;
+    assert.deepEqual(raw, persisted);
+    assert.equal("chartStyles" in raw, false);
     for (const type of Object.keys(preferences.chartStyles) as (keyof typeof preferences.chartStyles)[]) {
       const document = preferences.chartStyles[type];
       assert.deepEqual(parseStyleDocument(document, type), document);
@@ -257,7 +272,7 @@ export const settingsSuite = defineSuite("Settings controls", [
   defineTest("appearance schema examples are complete chart defaults and pair with graph examples", () => {
     assert.deepEqual(
       APPEARANCE_GROUPS.slice(0, 2).map((group) => group.id),
-      ["schema", "presets"],
+      ["schema", "canvas"],
     );
     for (const type of Object.keys(CHART_SCHEMAS) as (keyof typeof CHART_SCHEMAS)[]) {
       const schema = getAppearanceSchema(type);
@@ -363,7 +378,7 @@ export const settingsSuite = defineSuite("Settings controls", [
       }
     }
   }),
-  defineTest("finite numeric settings survive sanitizing and preference reload without rounding or bounds", () => {
+  defineTest("finite numeric settings survive style JSON round trips without rounding or bounds", () => {
     for (const value of [-12.3456789, 0, 10000.125]) {
       const appearance = sanitizeGraphAppearance({
         nodes: {
@@ -375,13 +390,10 @@ export const settingsSuite = defineSuite("Settings controls", [
         },
         display: { nodeCornerRadius: value, shadowOpacity: value },
       });
-      const restored = parseGraphPagePreferences(
-        JSON.stringify({
-          chartStyles: {
-            compound: createStyleDocument("compound", { ...getDefaultChartStyle("compound"), appearance }),
-          },
-        }),
-      )!.chartStyles!.compound.style.appearance;
+      const restored = parseChartStyleFile(
+        JSON.parse(serializeChartStyle("compound", { ...getDefaultChartStyle("compound"), appearance })),
+        "compound",
+      ).appearance;
       assert.deepEqual(restored, appearance);
       assert.equal(restored.nodes.spacing.column, value);
       assert.equal(restored.nodes.spacing.row, value);

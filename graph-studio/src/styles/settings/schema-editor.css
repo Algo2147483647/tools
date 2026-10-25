@@ -7,13 +7,6 @@
 .appearance-schema-view {
   min-width: 0;
 }
-.schema-preset-picker {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-}
-.schema-preset-picker select,
 .schema-value-input {
   border: 0;
   border-radius: 4px;

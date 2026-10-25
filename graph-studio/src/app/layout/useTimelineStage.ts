@@ -1,3 +1,4 @@
+import { timelinePlanBasis } from "../../layout/timeline/plan-basis";
 import type { TimelineLayoutData } from "../../graph/timeline/layoutData";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import { useMemo, useState } from "react";
@@ -71,7 +72,7 @@ export function useTimelineStage(input: {
       const keys = new Set<string>(JSON.parse(scopeKeys));
       source = projectGraphDocument(dag, keys);
     }
-    return {
+    const prepared = {
       dag: source,
       arrangement: input.layout?.mode === "ai" ? input.layout.plan : null,
       selection: { type: "full" as const },
@@ -81,7 +82,23 @@ export function useTimelineStage(input: {
       timelineSettings: settings,
       timeRange: scopeRange ? JSON.parse(scopeRange) : undefined,
     };
-  }, [input.layout, dag, generation, settings, appearance, showNodeDetail, scopeKeys, scopeRange, revision, referenceTime]);
+    if (input.layout?.basis && input.layout.basis !== timelinePlanBasis(prepared) && prepared.arrangement) {
+      const { placements: _placements, routes: _routes, ...order } = prepared.arrangement;
+      return { ...prepared, arrangement: order };
+    }
+    return prepared;
+  }, [
+    input.layout,
+    dag,
+    generation,
+    settings,
+    appearance,
+    showNodeDetail,
+    scopeKeys,
+    scopeRange,
+    revision,
+    referenceTime,
+  ]);
   const base = useMemo(() => (layoutInput ? buildTimelineStage(layoutInput) : null), [layoutInput]);
   const visibleKeys = useMemo(() => new Set(Object.keys(visibleDag?.nodes ?? {})), [visibleDag]);
   const stage = useMemo(() => projectTimelineStage(base, visibleKeys, range), [base, visibleKeys, range]);
