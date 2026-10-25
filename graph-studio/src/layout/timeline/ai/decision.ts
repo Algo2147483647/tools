@@ -1,11 +1,10 @@
-import type { GraphChartType } from "../../../graph/types";
 import { layoutResultSchema, parseLayoutResult, type LayoutResultDocument } from "../../../schema/layoutResult";
-import { LayoutRequestError, layoutObject } from "./request";
+import { LayoutRequestError, layoutObject } from "../../shared/ai/request";
 
-export type LayoutDecision =
+export type TimelineLayoutDecision =
   | { action: "evaluate"; hypothesis: string; layout: LayoutResultDocument }
   | { action: "finish"; candidateId: string; summary: string };
-export function layoutDecisionSchema(chart: GraphChartType) {
+export function timelineDecisionSchema() {
   return {
     oneOf: [
       {
@@ -15,7 +14,7 @@ export function layoutDecisionSchema(chart: GraphChartType) {
         properties: {
           action: { const: "evaluate" },
           hypothesis: { type: "string" },
-          layout: layoutResultSchema(chart),
+          layout: layoutResultSchema("timeline"),
         },
       },
       {
@@ -27,12 +26,11 @@ export function layoutDecisionSchema(chart: GraphChartType) {
     ],
   };
 }
-export function parseLayoutDecision(
+export function parseTimelineDecision(
   value: Record<string, unknown>,
-  chart: GraphChartType,
   candidates: ReadonlySet<string>,
   requireEvaluation: boolean,
-): LayoutDecision {
+): TimelineLayoutDecision {
   const text = (v: unknown) => {
     if (typeof v !== "string" || !v.trim())
       throw new LayoutRequestError("schema", "Expected a nonempty explanation or candidate ID.");
@@ -40,7 +38,11 @@ export function parseLayoutDecision(
   };
   if (value.action === "evaluate") {
     layoutObject(value, ["action", "hypothesis", "layout"], "/");
-    return { action: "evaluate", hypothesis: text(value.hypothesis), layout: parseLayoutResult(value.layout, chart) };
+    return {
+      action: "evaluate",
+      hypothesis: text(value.hypothesis),
+      layout: parseLayoutResult(value.layout, "timeline"),
+    };
   }
   if (value.action !== "finish") throw new LayoutRequestError("schema", "Expected evaluate or finish.");
   layoutObject(value, ["action", "candidateId", "summary"], "/");

@@ -118,10 +118,25 @@ export function layoutResultFields(chart: GraphChartType): SchemaField[] {
   walk(layoutResultSchema(chart), "", true);
   return fields;
 }
-function validate(value: unknown, schema: Schema, path: string): void {
+export function validateLayoutSchema(value: unknown, schema: Schema, path: string): void {
   const fail = (message: string): never => {
     throw new LayoutRequestError("schema", message, path);
   };
+  if (schema.oneOf || schema.anyOf) {
+    const branches: Schema[] = schema.oneOf ?? schema.anyOf;
+    const matches = branches.filter((branch) => {
+      try {
+        validateLayoutSchema(value, branch, path);
+        return true;
+      } catch (error) {
+        if (!(error instanceof LayoutRequestError)) throw error;
+        return false;
+      }
+    });
+    if (schema.oneOf ? matches.length !== 1 : !matches.length) fail("Value does not match a supported schema variant.");
+    return;
+  }
+  if (schema.enum && !schema.enum.includes(value)) fail(`Expected one of: ${schema.enum.join(", ")}.`);
   if (schema.const !== undefined) {
     if (value !== schema.const) fail(`Expected ${JSON.stringify(schema.const)}.`);
     return;
@@ -129,23 +144,31 @@ function validate(value: unknown, schema: Schema, path: string): void {
   if (schema.type === "object") {
     const record = layoutObject(value, Object.keys(schema.properties), path);
     for (const key of schema.required) if (record[key] === undefined) fail(`Missing ${key}.`);
-    for (const [key, v] of Object.entries(record)) validate(v, schema.properties[key], `${path}/${key}`);
+    for (const [key, v] of Object.entries(record)) validateLayoutSchema(v, schema.properties[key], `${path}/${key}`);
   } else if (schema.type === "array") {
     if (!Array.isArray(value)) return fail("Expected an array.");
     if (value.length < (schema.minItems ?? 0) || value.length > (schema.maxItems ?? Infinity))
       fail("Invalid array length.");
-    value.forEach((v, i) => validate(v, schema.items, `${path}/${i}`));
-  } else if (schema.type === "number") {
+    if (schema.uniqueItems && new Set(value.map((v) => JSON.stringify(v))).size !== value.length)
+      fail("Duplicate array members.");
+    value.forEach((v, i) => validateLayoutSchema(v, schema.items, `${path}/${i}`));
+  } else if (schema.type === "number" || schema.type === "integer") {
     if (
       typeof value !== "number" ||
       !Number.isFinite(value) ||
+      (schema.type === "integer" && !Number.isSafeInteger(value)) ||
+      (schema.minimum !== undefined && value < schema.minimum) ||
       (schema.exclusiveMinimum !== undefined && value <= schema.exclusiveMinimum)
     )
       fail("Expected a finite number in the allowed range.");
+  } else if (schema.type === "boolean") {
+    if (typeof value !== "boolean") fail("Expected a boolean.");
+  } else if (schema.type === "null") {
+    if (value !== null) fail("Expected null.");
   } else if (typeof value !== "string" || !value.trim()) fail("Expected a nonempty string.");
 }
 export function parseLayoutResult(value: unknown, chart: GraphChartType): LayoutResultDocument {
-  validate(value, layoutResultSchema(chart), "/layout");
+  validateLayoutSchema(value, layoutResultSchema(chart), "/layout");
   return structuredClone(value) as LayoutResultDocument;
 }
 export function createLayoutResult(stage: StageData | null, chart: GraphChartType): LayoutResultDocument {

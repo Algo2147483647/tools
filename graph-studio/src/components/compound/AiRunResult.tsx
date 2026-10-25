@@ -73,6 +73,25 @@ export default function AiRunResult({
             {report.after.movedNodes} nodes/groups changed · {report.after.changedEdges} routes changed
           </p>
           <p>{report.summary}</p>
+          <p>
+            {report.requests}/{report.requestLimit} requests · {(report.elapsedMs / 1000).toFixed(1)} s ·{" "}
+            {report.stopReason}
+          </p>
+          <details>
+            <summary>Token usage</summary>
+            <p>Provider-reported tokens; reasoning may be included in output. Missing values are unavailable.</p>
+            <ul>
+              {Array.from({ length: report.requests }, (_, i) => {
+                const usage = report.usage[i];
+                return (
+                  <li key={i}>
+                    Request {i + 1}: input {usage?.inputTokens ?? "unavailable"} · output{" "}
+                    {usage?.outputTokens ?? "unavailable"} · reasoning {usage?.reasoningTokens ?? "unavailable"}
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
           {!report.evaluations && <p>No alternative layout was evaluated.</p>}
           {!current && <p>This result is from an earlier layout context; the current canvas has changed.</p>}
           {!current && <AiRunComparison report={report} />}
@@ -86,10 +105,14 @@ export default function AiRunResult({
               <li key={index}>
                 <strong>
                   {trial.candidateId} · {trial.status}
+                  {` · revision ${trial.revision}`}
                   {report?.candidateId === trial.candidateId ? " · selected" : ""}
                 </strong>
                 <p>{trial.hypothesis}</p>
                 {trial.positionedNodes !== undefined && <p>{trial.positionedNodes} exact position instructions</p>}
+                {!!trial.reroutedEdgeIds?.length && (
+                  <p>{trial.reroutedEdgeIds.length} connections routed by the geometry engine</p>
+                )}
                 {trial.metrics && (
                   <p>
                     {trial.metrics.crossings} crossings · {trial.metrics.bends} bends ·{" "}

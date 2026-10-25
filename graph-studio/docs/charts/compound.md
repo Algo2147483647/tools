@@ -55,25 +55,24 @@ Routing occurs after node and container placement. Orthogonal routes avoid cards
 
 The Layout panel offers **Automatic** and **AI**. Automatic jointly arranges nodes, container sizes, connections and labels whenever graph data, the visible projection or layout settings change. Direction and the Readability/Compactness objective are declarative inputs. Internal alternatives are ranked automatically; there is no adjustment-range selector, candidate picker, preview or confirmation dialog.
 
-AI instructions guide an iterative layout session. The model submits typed direction, partial flow-order and routing declarations to the local solver, observes their results, and explicitly chooses the final arrangement. Only that selected result is installed. AI cannot supply coordinates or lock positions. Scope, objective and user settings are enforced locally.
+AI instructions guide a bounded layout session. The model proposes structural intent or changes a specific draft revision; the local engine computes placement and routes. Exact geometry is also supported as an explicit action. Scope, objective, fixed direction and external nodes are enforced locally. Only legal candidates can be installed.
 
 The **Layout quality** section describes the currently rendered result: validity and elapsed time, followed by one table containing crossings, label collisions, bends, shared route length, route length and content area. Additional diagnostics appear only when present. Quality and geometry are computed together and are not saved. Pan, zoom and selection do not rerun placement.
 
 ## Independent Layout protocol
 
-Layout files use `graph-studio-layout` version 1. The only association is the graph's `metadata.layout` string, for example `"layout": "layouts/process.layout.json"`. Paths resolve relative to the graph, inside the opened workspace. An absent association uses built-in defaults and does not search neighboring files. A missing or invalid referenced file shows a notice and uses defaults. Open the containing workspace to resolve files; standalone browser file access cannot read siblings.
+Settings files use `graph-studio-layout-settings` version 1. The association is the graph's `metadata.layout` string, for example `"layout": "layouts/process.layout.json"`. Paths resolve relative to the graph, inside the opened workspace. An absent association uses built-in defaults and does not search neighboring files. A missing or invalid referenced file shows a notice and uses defaults. Open the containing workspace to resolve files; standalone browser file access cannot read siblings.
 
 ```json
 {
-  "format": "graph-studio-layout",
+  "format": "graph-studio-layout-settings",
   "version": 1,
-  "charts": {
-    "compound": {
-      "method": "automatic",
-      "direction": "DOWN",
-      "objective": "readability",
-      "constraints": []
-    }
+  "chartType": "compound",
+  "settings": {
+    "method": "automatic",
+    "direction": "DOWN",
+    "objective": "readability",
+    "portMode": "distributed"
   }
 }
 ```
@@ -84,9 +83,9 @@ Chart configuration is independent of graph data. `metadata.layout` links a char
 
 Selecting **Automatic** clears the session plan and rendering, restores `direction: "AUTO"`, and recomputes locally. Connection ports and objective remain selected. Distributed ports allow boundary positions to reduce overlap; midpoint mode restricts attachments to four side centers.
 
-AI returns **Schema Layout** with exact node centers, expanded group bounds and complete connection polylines, all in absolute canvas coordinates using numeric tuples. It supplies the complete visible scope. The harness validates and renders these coordinates without a placement solver or automatic rerouting. Graph content and measured Appearance dimensions remain input data. The Schema tab uses the same definitions as the provider response parser and displays the current rendered JSON.
+The final result remains **Schema Layout v4**: complete node centers, expanded group bounds and connection polylines in canvas pixels. The separate Compound interaction protocol requires `protocolVersion: 1` for `propose`, `revise`, `evaluate` and `finish`. Unversioned responses are rejected. Programmatic operations compile to complete v4 results; explicit exact geometry is validated without rerouting. The Schema tab continues to display the current rendered result.
 
-AI controls evaluation, feedback, revision and explicit final selection. Every evaluated result returns metrics and routing diagnostics. Failed candidates cannot be selected. There is no fixed iteration budget or hidden quality ranker. Invalid continuation or cancellation leaves the current canvas unchanged. The completed run retains its transcript, evaluation history, selected candidate and quality comparison. Exact positions remain session-only; graph, scope and layout changes recompute the view.
+Defaults are four model requests including corrections, two consecutive evaluations without improvement, and 180 seconds per run. Programmatic geometry jobs are cancellable Workers with 15-second timeouts. Failed drafts can be revised but cannot be selected. Budget exhaustion or request failure reports its cause and selects the best legal candidate, including the original layout; cancellation preserves the canvas. History includes revisions, local routing changes, quality, request counts, elapsed time, stop reason and provider token usage. Exact positions remain session-only; graph, scope and layout changes recompute the view.
 
 See [Layout protocols](../layout-schema.md) for the configuration file and AI result contract.
 

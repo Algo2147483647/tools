@@ -2,20 +2,21 @@ import assert from "node:assert/strict";
 import { requestProviderText } from "../ai/transport/providerTransport";
 import type { AiSettings } from "../ai/types";
 import { normalizeDagInput } from "../graph/normalize";
-import { layoutDecisionSchema, parseLayoutDecision } from "../layout/shared/ai/decision";
+import { compoundDecisionSchema, parseCompoundDecision } from "../layout/compound/ai/decision";
 import { LayoutRequestError, parseLayoutJson, requestLayoutPlan } from "../layout/shared/ai/request";
 import { routingHotspots } from "../layout/compound/diagnostics";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
 
-const valid = { action: "finish", candidateId: "current", summary: "Retain the current result." };
+const valid = { protocolVersion: 1, action: "finish", candidateId: "current", summary: "Retain the current result." };
 const settings: AiSettings = {
   provider: "openai-compatible",
   baseUrl: "https://test.invalid",
   apiKey: "",
   model: "layout-test",
 };
-const parse = (value: Record<string, unknown>) => parseLayoutDecision(value, "compound", new Set(["current"]), false);
+const parse = (value: Record<string, unknown>) =>
+  parseCompoundDecision(value, new Set(["current"]), new Map([["current", 0]]), false);
 async function mock(
   replies: { content?: string; finish_reason?: string; refusal?: string; status?: number; error?: string }[],
   run: (requests: Record<string, any>[]) => Promise<void>,
@@ -56,7 +57,7 @@ const request = (signal = new AbortController().signal, provider = settings.prov
     signal,
     context: { edges: ["ab"] },
     message: "Arrange",
-    schema: layoutDecisionSchema("compound"),
+    schema: compoundDecisionSchema(),
     instructions: "Keep DOWN.",
     parse,
   });
@@ -67,7 +68,7 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
       value = { text: "完整回答".repeat(12000) };
     assert.deepEqual(parseLayoutJson({ content: JSON.stringify(value), finishReason: "stop" }), value);
     assert.deepEqual(parseLayoutJson({ content: "", structuredValue: value, finishReason: "stop" }), value);
-    const finish = parseLayoutDecision({ action: "finish", candidateId: "current", summary: value.text }, "compound", new Set(["current"]), false);
+    const finish = parse({ ...valid, summary: value.text });
     assert.equal(finish.action === "finish" && finish.summary, value.text);
     await mock([{ content: JSON.stringify(value) }], async (requests) => {
       const result = await requestLayoutPlan({
@@ -88,7 +89,12 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
   }),
   defineTest("shared decisions reject extra fields, missing candidates and obsolete plans", () => {
     assert.equal(parse(valid).action, "finish");
-    for (const bad of [{ ...valid, commands: ["/rm a"] }, { ...valid, candidateId: "missing" }, { action: "evaluate", hypothesis: "Test", plan: {} }]) assert.throws(() => parse(bad), LayoutRequestError);
+    for (const bad of [
+      { ...valid, commands: ["/rm a"] },
+      { ...valid, candidateId: "missing" },
+      { action: "evaluate", hypothesis: "Test", plan: {} },
+    ])
+      assert.throws(() => parse(bad), LayoutRequestError);
   }),
   defineTest("whole-object parsing rejects double encoding, fences, multiple documents and cutoff replies", () => {
     for (const content of [
@@ -119,20 +125,17 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
     });
   }),
   defineTest("semantic failures retain paths and request metadata after exactly two calls", async () => {
-    await mock(
-      [{ content: JSON.stringify({ ...valid, candidateId: "missing" }) }],
-      async (requests) => {
-        await assert.rejects(
-          () => request(),
-          (e: unknown) =>
-            e instanceof LayoutRequestError &&
-            e.attempts === 2 &&
-            e.code === "semantic" &&
-            e.response?.requestId === "test-request",
-        );
-        assert.equal(requests.length, 2);
-      },
-    );
+    await mock([{ content: JSON.stringify({ ...valid, candidateId: "missing" }) }], async (requests) => {
+      await assert.rejects(
+        () => request(),
+        (e: unknown) =>
+          e instanceof LayoutRequestError &&
+          e.attempts === 2 &&
+          e.code === "semantic" &&
+          e.response?.requestId === "test-request",
+      );
+      assert.equal(requests.length, 2);
+    });
   }),
   defineTest("truncation regenerates once even if the partial content appears parseable", async () => {
     await mock(
@@ -152,7 +155,7 @@ export const layoutWorkflowSuite = defineSuite("AI layout declarations", [
         signal: new AbortController().signal,
         context: {},
         message: "Arrange",
-        schema: layoutDecisionSchema("compound"),
+        schema: compoundDecisionSchema(),
         instructions: "Keep DOWN",
         parse,
       });

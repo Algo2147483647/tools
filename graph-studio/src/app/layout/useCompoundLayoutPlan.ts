@@ -2,21 +2,28 @@ import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from
 import type { AiSettings } from "../../ai/types";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../../layout/compound/inspection";
 import { defaultLayoutIntent, parseLayoutIntent, type CompoundLayoutData } from "../../layout/compound/layout-plan";
-import { compileConstraints, layoutScopeMembers } from "../../layout/compound/constraints";
 import {
   runCompoundAiLayout,
   type CompoundAiReport,
   type CompoundAiEvaluation,
 } from "../../layout/compound/ai/workflow";
+import { computeCompoundAi } from "./computeCompoundAi";
 import { LayoutRequestError, presentLayoutError } from "../../layout/shared/ai/request";
 import { parseCompoundLayout } from "../../graph/compound/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
 import type { useCompoundStage } from "./useCompoundStage";
-import { computeCompoundStage, compoundInputKey } from "./computeCompoundStage";
+import { compoundInputKey } from "./computeCompoundStage";
+import { createLayoutResult } from "../../schema/layoutResult";
+import { applyLayoutResult } from "../../layout/shared/applyLayoutResult";
 import { useAiActivity } from "../ai/useAiActivity";
-import { captureLayoutGeometry, layoutIdentity, renderingSettings, type LayoutRendering } from "../../schema/layoutGeometry";
+import {
+  captureLayoutGeometry,
+  layoutIdentity,
+  renderingSettings,
+  type LayoutRendering,
+} from "../../schema/layoutGeometry";
 
 export function useCompoundLayoutPlan(
   state: GraphAppState,
@@ -52,7 +59,7 @@ export function useCompoundLayoutPlan(
     geometryKey: string;
   } | null>(null);
   const savedGeometry = state.layoutSession.data.renderings?.compound?.geometry;
-  const savedGeometryKey = useMemo(() => savedGeometry ? layoutIdentity(savedGeometry) : "", [savedGeometry]);
+  const savedGeometryKey = useMemo(() => (savedGeometry ? layoutIdentity(savedGeometry) : ""), [savedGeometry]);
   const [evaluations, setEvaluations] = useState<CompoundAiEvaluation[]>([]);
   useEffect(() => {
     clearActivity();
@@ -121,12 +128,13 @@ export function useCompoundLayoutPlan(
       setEvaluations([]);
       try {
         let data: CompoundLayoutData;
-        let computed: StageData | undefined;
+        let stage: StageData;
         let report: CompoundAiReport | undefined;
         if ("message" in request) {
           if (!initial.aiSettings.baseUrl.trim() || !initial.aiSettings.model.trim())
             throw new Error("Configure a model in Settings → AI.");
           const result = await runCompoundAiLayout({
+            execute: computeCompoundAi,
             settings: initial.aiSettings,
             problem: initial.problem,
             currentStage: initial.viewport.stage!,
@@ -145,21 +153,34 @@ export function useCompoundLayoutPlan(
             },
           });
           data = result.data;
-          computed = result.stage;
+          stage = result.stage;
           report = result.report;
         } else {
           const intent = parseLayoutIntent(request.intent);
-          data = {
-            ...compileConstraints(initial.problem, intent, layoutScopeMembers(initial.problem, intent)),
-            method: "ai",
-            objective: intent.objective,
-          };
+          const result = await computeCompoundAi(
+            {
+              problem: initial.problem,
+              baseLayout: createLayoutResult(initial.viewport.stage!, "compound"),
+              decision: {
+                protocolVersion: 1,
+                action: "propose",
+                hypothesis: "Apply the console layout intent.",
+                intent,
+              },
+            },
+            abort.signal,
+          );
+          if (result.error) throw new Error(result.error);
+          data = result.data;
+          stage = applyLayoutResult(result.layout, {
+            ...initial.viewport.stage!,
+            compoundLayout: { ...initial.problem, stored: data },
+          });
         }
         if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
         setMessage("Arranging…");
         data = parseCompoundLayout(data);
         const nextInput = { ...input, layout: data };
-        const stage = computed ?? (await computeCompoundStage(nextInput, abort.signal));
         if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
         const context = initial.viewport.layoutRenderingContext;
         if (!context) return "Layout context changed.";
@@ -167,7 +188,9 @@ export function useCompoundLayoutPlan(
         const rendering: LayoutRendering = {
           ...context,
           geometry: captureLayoutGeometry(stage),
-          settingsFingerprint: layoutIdentity(renderingSettings("compound", charts, context.scope, context.timelineSettings)),
+          settingsFingerprint: layoutIdentity(
+            renderingSettings("compound", charts, context.scope, context.timelineSettings),
+          ),
         };
         // Commit the model's selection without invoking the Automatic tab reset.
         dispatch({

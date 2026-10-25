@@ -78,6 +78,9 @@ export async function requestLayoutPlan<T>(options: {
   parse(value: Record<string, unknown>): T;
   onRetry?(): void;
   onProgress?: AiProgressListener;
+  /** Optional caller-owned budget, including protocol correction requests. */
+  beforeRequest?(): void;
+  onReply?(reply: ProviderReply): void;
 }): Promise<T> {
   const { signal } = options;
   const system = [
@@ -100,6 +103,7 @@ export async function requestLayoutPlan<T>(options: {
   let schema: Record<string, unknown> | undefined = options.schema;
   for (let attempt = 1; attempt <= 2; attempt++) {
     if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout request cancelled.");
+    options.beforeRequest?.();
     let reply: ProviderReply | undefined;
     try {
       reply = await requestProviderReply(options.settings, system, prompt, signal, {
@@ -108,6 +112,7 @@ export async function requestLayoutPlan<T>(options: {
         onProgress: options.onProgress,
         maxTokens: tokenLimit ?? null,
       });
+      options.onReply?.(reply);
       if (signal.aborted) throw new LayoutRequestError("cancelled", "Layout request cancelled.");
       return options.parse(parseLayoutJson(reply));
     } catch (cause) {

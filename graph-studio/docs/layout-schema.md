@@ -63,6 +63,39 @@ Chart variants:
 - Node-link: node centers and connection polylines.
 - Sankey and spatial: node centers and exact SVG connection paths, retaining measured chart-specific rendering attributes from the input.
 
-AI Arrange currently runs for compound and timeline. Their evaluation envelope is `{action:"evaluate",hypothesis:"...",layout:<Schema Layout document>}`. The payload under `layout` is precisely the Schema tab's protocol. The response `{action:"finish",candidateId:"trial-1",summary:"..."}` selects a successful evaluated result. Every evaluation returns quality and geometry feedback. The model controls revision and selection, with cancellation available; there is no fixed iteration budget or quality-based substitute. One malformed provider response may be regenerated once.
+## Compound AI interaction protocol
 
-The harness checks structure, finite coordinates, current-scope membership and chart semantics. It joins graph and Appearance data, constructs SVG paths from supplied polylines, measures quality, and renders exact supplied geometry. It never fits groups, moves specified nodes, reroutes supplied connections or chooses Automatic in place of the selected AI result. Intermediate results are not applied; invalid responses or cancellation leave the live arrangement unchanged.
+`layout/compound/ai/decision.ts` defines a separate versioned interaction schema. Every response requires `protocolVersion: 1`; unversioned decisions and other versions are rejected. This version does not change Layout v4, graph data, or settings files. There is no old-protocol adapter.
+
+| Action     | Required payload                                           | Execution                                                          |
+| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------ |
+| `propose`  | `hypothesis`, `intent`                                     | Programmatic placement, group fitting, ports, routing and labels.  |
+| `revise`   | `hypothesis`, `baseCandidateId`, `baseRevision`, `changes` | Apply ordered local changes to the exact immutable draft revision. |
+| `evaluate` | `hypothesis`, complete v4 `layout`                         | Validate exact geometry without rerouting it.                      |
+| `finish`   | `candidateId`, `summary`                                   | Select a legal evaluated candidate (or the legal starting layout). |
+
+`intent` has `scope: {groupId, includeDescendants}`, `operation: "layout-and-route"`, `boundaryPolicy: "strict" | "allow-ancestor-resize"`, `objective: "readability" | "compact"`, and up to 100 constraints. Constraints are `direction`, `flow-order`, `prefer-outer-route`, and `port-side`, all with `strength: "soft"`. IDs for connections in this AI protocol are always visible aggregated IDs. The executor converts them to the solver's original edge IDs. The selected objective and fixed direction remain authoritative.
+
+`changes` contains 1–100 operations: `move-node` with center `position`, `move-group` with top-left `position` (translates descendants), `resize-group` with `size`, `reroute-edge`, or `replace-route` with `points` and `label`. Each operation supplies `id`. Resize containers explicitly when local moves need more room. Moving geometry invalidates incident routes and routes or labels newly obstructed by unrelated cards. Unaffected routes are fixed. Manual replacement routes are validated exactly. Up to two local routing passes are attempted; all final geometry still receives full validation.
+
+```json
+{
+  "protocolVersion": 1,
+  "action": "revise",
+  "hypothesis": "Repair the two routes that cross cards.",
+  "baseCandidateId": "trial-3",
+  "baseRevision": 1,
+  "changes": [
+    { "type": "reroute-edge", "id": "aggregate:[\"dispatch\",\"carrier\"]" },
+    { "type": "reroute-edge", "id": "aggregate:[\"orders\",\"metrics\"]" }
+  ]
+}
+```
+
+`currentLayout` describes `session.workingDraft`, including a failed draft that can be repaired. Candidate IDs and revisions are immutable. Failed drafts are not selectable. Prior observations contain summaries, not full historical geometry; structured issues include route segments, card bounds and expected ports. Diagnostic lists contain at most 12 entries with totals; validation covers the full graph. Exact duplicate decisions, including failures, reuse their evaluation.
+
+Defaults are four model requests total (including correction calls), two consecutive evaluations without improvement, and a 180-second deadline. Geometry calculations run in cancellable Workers with a 15-second per-job timeout. On budget exhaustion, stagnation or request failure, the harness reports the reason and selects the best legal candidate according to unmet intent preferences and the selected quality objective. A legal starting layout participates in that comparison. If none is legal, the run fails without changing the canvas. Explicit cancellation always preserves the canvas. Reports include requests, elapsed time, stop reason and provider-reported token counts; unavailable usage is not treated as zero. Evaluation geometry remains session-only.
+
+## Timeline interaction protocol
+
+Timeline retains its independent `evaluate`/`finish` contract in `layout/timeline/ai/decision.ts`. It submits complete v4 timeline geometry and explicitly selects a successful result; it does not accept Compound actions. Its cancellation and exact-geometry behavior remain unchanged.
