@@ -71,12 +71,28 @@ Compound uses native function tools defined in `layout/compound/ai/protocol.ts`.
 | ----------------- | ----------------------------------------------------------------------------------------------- |
 | `inspect_graph`   | Scope children, selected nodes, incident connections and boundary endpoints.                    |
 | `compose_layout`  | Branch from an exact candidate/revision, merge supplied scope compositions, and execute intent. |
-| `edit_layout`     | Branch using exact local positions, group sizes or routes.                                      |
-| `inspect_layout`  | Scoped geometry, intent checks, region shares, route passages and optional exact polylines.     |
+| `edit_layout`     | Branch using local geometry, replace routing intent, or jointly reroute related edges.          |
+| `inspect_layout`  | Scoped geometry, routing issues with evidence, paginated routes, and optional complete design.  |
 | `compare_layouts` | Compare two immutable candidates without assigning a metric winner.                             |
 | `finish_layout`   | Select a legal candidate after consuming its global inspection in a later model turn.           |
 
 A design contains purpose, readingPath, region roles, scope compositions and connection roles. Each supplied scope can express primaryPath, parallelBranches, relative placement (left/right/above/below), left/top alignment, and [column,row] spacing. These are executable spatial requirements, not new business edges. Optional rows seed physical top-to-bottom rows and left-to-right cells in both directions. Explicit rows must contain every movable direct child exactly once. Without rows the engine seeds from path/branches and puts supporting regions in another lane. Omitted scopes retain their compositions. Groups size from children, followed by routing. Conflicting requirements return a recoverable tool error identifying the involved relationships.
+
+The optional `routing` object has three arrays:
+
+- `channels`: `{ id, scopeId, location, edgeIds, strength }`. Location is `{ type: "between", regions: [siblingA, siblingB] }` or `{ type: "perimeter", side }`. Composition reserves space for distinct tracks, including perimeter padding. A local routing-only edit cannot enlarge a region; insufficient space returns evidence and a placement repair suggestion.
+- `gateways`: `{ id, regionId, side, edgeIds, order: "opposite-end", strength }`. Edges must cross the expanded region boundary. Gateways are geometric passages, never graph nodes. IDs must be unique across channels and gateways; `auto:` is reserved.
+- `ports`: `{ nodeId, side, ends: [{ edgeId, end }], order: "opposite-end", strength }`. Each endpoint is assigned at most once. Sides are `east`, `south`, `west`, `north`; ends are `source` or `target`.
+
+`strength` is `required` or `preferred`. Required routing is checked against the final polylines, including manual replacements and fixed routes. Preferred deviations are returned as routing issues. Unspecified interfaces are inferred; their paths compete with ordinary legal paths to avoid unnecessary bends through nested boundaries. Semantic feedback/support roles no longer automatically request outer routes. Roles retain routing priority.
+
+Scopes can supply `anchorAlignment: [{ axis: "x" | "y", anchors, strength }]`. Anchors are `{ nodeId, kind: "center" }` or `{ gatewayId, kind: "gateway-center" }`. Gateway-center means the center of its assigned region side; individual edge passages may be distributed around it. Alignment moves whole direct-child regions using descendant offsets. Required alignments are checked again after subsequent edits. Contradictory requirements are recoverable errors, not silent relaxations.
+
+`compose_layout` retains base routing when omitted; an explicit object replaces it. Empty arrays clear it. `edit_layout` accepts `{ type: "set-routing", routing }` to replace complete routing intent and `{ type: "reroute-together", edgeIds }` to repair a local conflict set without moving boxes. All local edits retain the base design. Use composition for changing space or alignment.
+
+`inspect_layout` accepts optional `edgeIds`, `issueIds`, `offset`, `limit` (1–30, default 12) and `includeDesign`. Complete intent is returned only when requested. Route and issue pages report total counts and `nextOffset`. Issues include stable IDs within unchanged evidence categories, affected nodes/edges, evidence, repair level and suggested actions. Detours require an obstacle-safe alternative with no additional crossing cost; this diagnostic is omitted when edge labels prevent verification. A long route alone is not proof of an avoidable detour. Comparisons report resolved and introduced issue IDs without choosing a winner. The initial graph overview remains complete; scoped graph queries summarize cross-child relationships rather than repeating interiors of child groups.
+
+The selected design is stored with its session rendering and travels through candidates and checkpoints. It is not written into a Layout settings file. Graph changes invalidate the associated rendering and design together. Checkpoint protocol version 2 rejects old checkpoint envelopes; there is no compatibility adapter.
 
 Every mutation returns an immutable candidate ID and revision. Earlier candidates remain available for branching and comparison. Call IDs are idempotent: identical replays reuse results; changed arguments with an existing ID are rejected. Mutations run sequentially. Errors return through tool results, not an old JSON-regeneration protocol. Finish requires a complete global inspection (null scope, empty nodeIds), or comparison, returned before the selecting model turn. Geometry validity is enforced; numeric quality is auxiliary.
 

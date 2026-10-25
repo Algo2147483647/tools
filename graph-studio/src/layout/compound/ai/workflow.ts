@@ -11,6 +11,7 @@ import { layoutIdentity } from "../../../schema/layoutGeometry";
 import { applyLayoutResult } from "../../shared/applyLayoutResult";
 import { executeCompoundDecision, type CompoundExecutionInput, type CompoundExecutionResult } from "./execute";
 import type { CompoundDesign } from "./design";
+import type { RoutingIssue } from "../routing/intent";
 import { graphOverview, inspectGraph, inspectLayout } from "./observation";
 import {
   LAYOUT_TOOLS,
@@ -40,6 +41,7 @@ export interface CompoundAiEvaluation {
   design?: CompoundDesign;
 }
 export interface LayoutCandidate extends CandidateRef {
+  routingIssues?: RoutingIssue[];
   parentId?: string;
   layout: LayoutResultDocument;
   data: CompoundLayoutData;
@@ -57,7 +59,7 @@ export interface LayoutToolTrace {
   ok: boolean;
 }
 export interface CompoundCheckpoint {
-  version: 1;
+  version: 2;
   contextKey: string;
   modelKey: string;
   message: string;
@@ -97,6 +99,7 @@ export function compoundContextKey(problem: LayoutProblem, stage: StageData) {
     overview: graphOverview(problem),
     current: createLayoutResult(stage, "compound"),
     settings: problem.stored,
+    design: problem.design,
     sizes: problem.minimumSizes,
   });
 }
@@ -122,7 +125,7 @@ export async function runCompoundAiLayout(options: {
     modelKey = JSON.stringify([options.settings.provider, options.settings.baseUrl, options.settings.model]);
   if (
     options.checkpoint &&
-    (options.checkpoint.version !== 1 ||
+    (options.checkpoint.version !== 2 ||
       options.checkpoint.contextKey !== contextKey ||
       options.checkpoint.modelKey !== modelKey)
   )
@@ -137,7 +140,7 @@ export async function runCompoundAiLayout(options: {
   const state: CompoundCheckpoint = options.checkpoint
     ? structuredClone(options.checkpoint)
     : {
-        version: 1,
+        version: 2,
         contextKey,
         modelKey,
         message: options.message,
@@ -152,7 +155,14 @@ export async function runCompoundAiLayout(options: {
           },
         ],
         candidates: [
-          { candidateId: "current", revision: 0, layout: initialLayout, data: problem.stored, valid: initialValid },
+          {
+            candidateId: "current",
+            revision: 0,
+            layout: initialLayout,
+            data: problem.stored,
+            design: problem.design,
+            valid: initialValid,
+          },
         ],
         pending: [],
         pendingIndex: 0,
@@ -207,13 +217,22 @@ export async function runCompoundAiLayout(options: {
     return c;
   };
   let selected: { candidate: LayoutCandidate; summary: string; review: LayoutReview } | undefined;
-  const observation = (c: LayoutCandidate, scopeId: string | null = null, nodeIds: string[] = [], routes = false) => ({
+  const observation = (
+    c: LayoutCandidate,
+    scopeId: string | null = null,
+    nodeIds: string[] = [],
+    routes = false,
+    query: { edgeIds?: string[]; issueIds?: string[]; offset?: number; limit?: number; includeDesign?: boolean } = {},
+  ) => ({
     candidateId: c.candidateId,
     revision: c.revision,
     parentId: c.parentId,
     valid: c.valid,
     error: c.error,
-    ...inspectLayout(problem, c.layout, c.design, scopeId, nodeIds, routes),
+    ...inspectLayout(problem, c.layout, c.design, scopeId, nodeIds, routes, {
+      ...query,
+      executionIssues: c.routingIssues,
+    }),
   });
   const execute = async (call: ModelToolCall): Promise<unknown> => {
     let raw: unknown;
@@ -230,8 +249,9 @@ export async function runCompoundAiLayout(options: {
     if (name === "inspect_layout") {
       const a = parseToolArguments(name, raw),
         c = candidate(a),
-        result = observation(c, a.scopeId, a.nodeIds, a.includeRoutes);
-      if (a.scopeId === null && a.nodeIds.length === 0) c.inspectedAt = state.requests;
+        result = observation(c, a.scopeId, a.nodeIds, a.includeRoutes, a);
+      if (a.scopeId === null && a.nodeIds.length === 0 && !a.edgeIds?.length && !a.issueIds?.length && !a.offset)
+        c.inspectedAt = state.requests;
       return result;
     }
     if (name === "compare_layouts") {
@@ -246,6 +266,8 @@ export async function runCompoundAiLayout(options: {
       return {
         left: l,
         right: r,
+        resolvedIssues: l.issueIds.filter((id) => !r.issueIds.includes(id)),
+        introducedIssues: r.issueIds.filter((id) => !l.issueIds.includes(id)),
         changed: positions(right).filter((n) => JSON.stringify(n) !== JSON.stringify(before.get(n.id))),
         instruction: "Choose by communication intent and evidence; no metric-based winner is assigned.",
       };
@@ -272,7 +294,7 @@ export async function runCompoundAiLayout(options: {
       const plan = parseToolArguments("compose_layout", raw).design;
       const scopes = new Map(base.design?.scopes.map((s) => [s.groupId, s]) ?? []);
       for (const s of plan.scopes) scopes.set(s.groupId === problem.projection.focusGroupId ? null : s.groupId, s);
-      design = { ...plan, scopes: [...scopes.values()] };
+      design = { ...plan, routing: plan.routing ?? base.design?.routing, scopes: [...scopes.values()] };
       decision = { action: "compose", design };
     } else decision = { action: "edit", changes: parseToolArguments("edit_layout", raw).changes };
     const baseStage = base.valid
@@ -281,10 +303,12 @@ export async function runCompoundAiLayout(options: {
     const input: CompoundExecutionInput = {
       problem: { ...problem, baseline: baseStage?.compoundLayout!.baseline ?? problem.baseline, stored: base.data },
       baseLayout: base.layout,
+      baseDesign: base.design,
       decision,
     };
     options.onStatus?.(`${name === "compose_layout" ? "Composing" : "Editing"} from ${base.candidateId}…`);
     const result = await (options.execute ? options.execute(input, abort.signal) : executeCompoundDecision(input));
+    design = result.design ?? design;
     check();
     const id = `trial-${state.trials.length + 1}`;
     const trial: CompoundAiEvaluation = {
@@ -316,6 +340,7 @@ export async function runCompoundAiLayout(options: {
       data: result.data,
       design,
       valid: !error,
+      routingIssues: result.routingIssues,
       error,
     };
     state.candidates.push(next);
@@ -369,7 +394,7 @@ export async function runCompoundAiLayout(options: {
         const c = selected.candidate,
           stage = applyLayoutResult(c.layout, {
             ...options.currentStage,
-            compoundLayout: { ...problem, stored: c.data },
+            compoundLayout: { ...problem, stored: c.data, design: c.design },
           });
         const before = measureLayout(problem, problem.baseline),
           after = measureLayout(problem, stage.compoundLayout!.baseline);

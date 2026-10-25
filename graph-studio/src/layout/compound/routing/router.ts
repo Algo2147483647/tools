@@ -7,6 +7,8 @@ import { sidePorts } from "./ports";
 import { findOrthogonalPath, simpleRoutes } from "./search";
 import { outerRoutes } from "./outer";
 import { EPSILON, LANE_GAP, type CompoundRoutingOptions, type Point, type Port } from "./types";
+import { compileRoutingPlan } from "./plan";
+import { sides, type RoutingIssue } from "./intent";
 
 /** Choose separated side ports after placement; routing never moves node rectangles. */
 export function routeCompoundEdges(
@@ -15,7 +17,19 @@ export function routeCompoundEdges(
   bounds: CompoundBox,
   showLabels: boolean,
   options: CompoundRoutingOptions = {},
-): { routes: Map<string, CompoundRoute>; width: number; height: number } {
+): { routes: Map<string, CompoundRoute>; width: number; height: number; issues: RoutingIssue[] } {
+  const plan = options.intent
+    ? compileRoutingPlan(
+        projection,
+        boxes,
+        bounds,
+        options.intent,
+        options.portMode,
+        options.fixedRoutes,
+        options.reversePorts,
+      )
+    : undefined;
+  const issues = plan?.issues ?? [];
   const items = new Map(projection.items.map((item) => [item.id, item]));
   const ancestors = (id: string) => {
     const result = new Set<string>([id]);
@@ -86,6 +100,21 @@ export function routeCompoundEdges(
         if (!related.has(item.id)) return [box];
         // An expanded group can itself be an ordinary relationship endpoint.
         if (item.id === edge.source || item.id === edge.target) return [];
+        const north = plan?.passages
+          .get(edge.id)
+          ?.filter(
+            (p) =>
+              (p.direction === 1 || p.direction === 3) &&
+              Math.min(p.entry.y, p.exit.y) < box.y &&
+              Math.max(p.entry.y, p.exit.y) > box.y,
+          );
+        if (north?.length) {
+          const x = north[0].entry.x;
+          return [
+            { ...box, width: Math.max(0, x - box.x - 12), height: Math.min(40, box.height) },
+            { ...box, x: x + 12, width: Math.max(0, box.x + box.width - x - 12), height: Math.min(40, box.height) },
+          ];
+        }
         return [{ ...box, height: Math.min(40, box.height) }];
       });
     const padded = [...obstacles, ...otherLabels, ...containers].map((box) => inflate(box, gap));
@@ -123,8 +152,100 @@ export function routeCompoundEdges(
       attachmentCost(edge.source, points[0]) +
       attachmentCost(edge.target, points[points.length - 1]) +
       points.slice(1).reduce((sum, point, i) => sum + sharedCost(points[i], point), 0);
-    const sources = ports(edge.source),
-      targets = ports(edge.target);
+    const assigned = plan?.endpoints.get(edge.id);
+    const requiredPort = (end: "source" | "target") =>
+      options.intent?.ports.some(
+        (p) => p.strength === "required" && p.ends.some((e) => e.edgeId === edge.id && e.end === end),
+      );
+    const endpointPorts = (end: "source" | "target") => {
+      const p = assigned?.[end];
+      if (!p) return ports(edge[end]);
+      if (
+        p.stub.x >= extent.x &&
+        p.stub.y >= extent.y &&
+        p.stub.x <= extent.x + extent.width &&
+        p.stub.y <= extent.y + extent.height &&
+        !padded.some((b) => inside(p.stub, b))
+      )
+        return [p];
+      if (requiredPort(end))
+        throw new Error(`Required ${end} port is obstructed: ${edge.id}. Change the port side or spacing.`);
+      issues.push({
+        id: `port-deviation:${edge.id}:${end}`,
+        kind: "intent-deviation",
+        scopeId: items.get(edge[end])?.parentId ?? null,
+        nodeIds: [edge[end]],
+        edgeIds: [edge.id],
+        evidence: { end, assignedSide: sides[p.direction], reason: "Assigned port is obstructed" },
+        repairLevel: "placement",
+        suggestedActions: ["increase-gap", "change-port-side"],
+      });
+      return ports(edge[end]);
+    };
+    let sources = endpointPorts("source"),
+      targets = endpointPorts("target");
+    const passages = plan?.passages.get(edge.id) ?? [];
+    const explicitPassages =
+      options.intent?.gateways.some((g) => g.edgeIds.includes(edge.id)) ||
+      options.intent?.channels.some((c) => c.edgeIds.includes(edge.id));
+    const directedPort = (point: Point, direction: number): Port => ({ point, stub: point, direction });
+    const via = () => {
+      if (!passages.length) return null;
+      const points: Point[] = [];
+      let starts = sources;
+      for (const p of passages) {
+        if (
+          [p.entry, p.exit].some(
+            (point) =>
+              point.x < extent.x ||
+              point.y < extent.y ||
+              point.x > extent.x + extent.width ||
+              point.y > extent.y + extent.height,
+          )
+        )
+          return null;
+        if (padded.some((b) => crossesBox(p.entry, p.exit, b))) return null;
+        const part = findOrthogonalPath(
+          starts,
+          [directedPort(p.entry, (p.direction + 2) % 4)],
+          padded,
+          extent,
+          sharedCost,
+          () => 0,
+          () => 0,
+        );
+        if (!part) return null;
+        points.push(...part, p.exit);
+        starts = [directedPort(p.exit, p.direction)];
+      }
+      const last = findOrthogonalPath(
+        starts,
+        targets,
+        padded,
+        extent,
+        sharedCost,
+        () => 0,
+        () => 0,
+      );
+      return last ? simplifyRoute([...points, ...last]) : null;
+    };
+    const planned = via();
+    if (explicitPassages && !planned) {
+      if (passages.some((p) => p.required))
+        throw new Error(
+          `Required passages cannot be routed: ${edge.id}; ${passages.map((p) => p.id).join(", ")}. Change gateways, channels or spacing.`,
+        );
+      issues.push({
+        id: `passage-deviation:${edge.id}`,
+        kind: "intent-deviation",
+        scopeId: null,
+        nodeIds: [edge.source, edge.target],
+        edgeIds: [edge.id],
+        evidence: { passages: passages.map((p) => p.id), reason: "No legal route through planned passages" },
+        repairLevel: "placement",
+        suggestedActions: ["change-gateway-side", "increase-gap"],
+      });
+    }
     const candidate = findOrthogonalPath(
       sources,
       targets,
@@ -134,11 +255,42 @@ export function routeCompoundEdges(
       (port) => attachmentCost(edge.source, port.point),
       (port) => attachmentCost(edge.target, port.point),
     );
-    const normal = [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : [])];
+    // Inferred gateways are candidate hints. Do not force extra bends through every
+    // nested boundary when a clean route already communicates the same connection.
+    let normal =
+      planned && explicitPassages
+        ? [planned]
+        : [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : []), ...(planned ? [planned] : [])];
+    if (!normal.length && assigned && !passages.some((p) => p.required)) {
+      if (!requiredPort("source")) sources = ports(edge.source);
+      if (!requiredPort("target")) targets = ports(edge.target);
+      const fallback = findOrthogonalPath(
+        sources,
+        targets,
+        padded,
+        extent,
+        sharedCost,
+        () => 0,
+        () => 0,
+      );
+      normal = [...simpleRoutes(sources, targets, padded), ...(fallback ? [fallback] : [])];
+      if (normal.length)
+        issues.push({
+          id: `endpoint-deviation:${edge.id}`,
+          kind: "intent-deviation",
+          scopeId: null,
+          nodeIds: [edge.source, edge.target],
+          edgeIds: [edge.id],
+          evidence: { reason: "Endpoint side changed to obtain a legal route" },
+          repairLevel: "routing",
+          suggestedActions: ["change-port-side"],
+        });
+    }
     const shortest = Math.min(...normal.map(routeCost));
-    const outer = options.outerEdges?.has(edge.id)
-      ? outerRoutes(sources, targets, padded, extent).filter((points) => routeCost(points) <= shortest * 1.35 + 48)
-      : [];
+    const outer =
+      !(planned && explicitPassages) && options.outerEdges?.has(edge.id)
+        ? outerRoutes(sources, targets, padded, extent).filter((points) => routeCost(points) <= shortest * 1.35 + 48)
+        : [];
     const candidates = [
       ...normal.map((points) => ({ points, cost: cost(points) })),
       ...outer.map((points) => ({ points, cost: cost(points) - 96 })),
@@ -174,6 +326,19 @@ export function routeCompoundEdges(
     }
     if (showLabels && edge.label) {
       if (!labelPlaced) {
+        if (passages.some((p) => p.required))
+          throw new Error(`No label space on planned route ${edge.id}. Increase channel space or change its gateway.`);
+        if (explicitPassages)
+          issues.push({
+            id: `label-passage-deviation:${edge.id}`,
+            kind: "intent-deviation",
+            scopeId: null,
+            nodeIds: [edge.source, edge.target],
+            edgeIds: [edge.id],
+            evidence: { reason: "Label requires a separate route lane" },
+            repairLevel: "placement",
+            suggestedActions: ["increase-channel-space"],
+          });
         // Route through an outer label lane; only the canvas grows, never a node or container.
         const size =
           showLabels && edge.label
@@ -213,7 +378,7 @@ export function routeCompoundEdges(
     }
     accept(chosen);
   }
-  return { routes: result, width: extent.width, height: extent.height };
+  return { routes: result, width: extent.width, height: extent.height, issues };
 }
 
 export { routeCost } from "./cost";

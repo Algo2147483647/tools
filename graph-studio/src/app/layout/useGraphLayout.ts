@@ -166,15 +166,32 @@ export function useGraphLayout({
       computedStage &&
       loadedAppearance.current.key === appearanceKey &&
       renderingMatches(saved, state.dag, JSON.parse(settingsKey), computedStage)
-        ? restoreLayoutGeometry(saved.geometry, computedStage)
+        ? (() => {
+            const restored = restoreLayoutGeometry(saved.geometry, computedStage);
+            if (restored.compoundLayout)
+              restored.compoundLayout = { ...restored.compoundLayout, design: saved.compoundDesign };
+            return restored;
+          })()
         : computedStage,
     [saved, state.dag, computedStage, appearanceKey, settingsKey],
   );
-  const currentLayoutConfig = useMemo(() => state.dag ? createLayoutConfigFile(state.layoutSession.data, state.chartType, state.timelineSettings) : null,
-    [state.dag, state.layoutSession.data.charts, state.chartType, state.timelineSettings]);
-  const layoutRenderingContext = useMemo(() => state.dag ? {
-    graphFingerprint: graphLayoutIdentity(state.dag), settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)), scope, timelineSettings: state.timelineSettings,
-  } : null, [state.dag, settingsKey, state.timelineSettings]);
+  const currentLayoutConfig = useMemo(
+    () =>
+      state.dag ? createLayoutConfigFile(state.layoutSession.data, state.chartType, state.timelineSettings) : null,
+    [state.dag, state.layoutSession.data.charts, state.chartType, state.timelineSettings],
+  );
+  const layoutRenderingContext = useMemo(
+    () =>
+      state.dag
+        ? {
+            graphFingerprint: graphLayoutIdentity(state.dag),
+            settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)),
+            scope,
+            timelineSettings: state.timelineSettings,
+          }
+        : null,
+    [state.dag, settingsKey, state.timelineSettings],
+  );
   const parentSelection = useMemo(
     () =>
       state.chartType !== "compound" &&

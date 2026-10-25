@@ -107,7 +107,8 @@ export function findOrthogonalPath(
     }
   }
   const at = (point: Point) => yIndex.get(point.y)! * width + xIndex.get(point.x)!;
-  const targetCells = new Map(targets.map((port, index) => [at(port.stub), index]));
+  const targetCells = new Map<number, number[]>();
+  targets.forEach((port, index) => targetCells.set(at(port.stub), [...(targetCells.get(at(port.stub)) ?? []), index]));
   const distance = new Float64Array(width * height * 4).fill(Infinity);
   const previous = new Int32Array(distance.length).fill(-1);
   const queue = new MinQueue();
@@ -139,20 +140,23 @@ export function findOrthogonalPath(
       direction = state % 4;
     const cost = distance[state];
     if (score > cost + heuristic(cell) + EPSILON) continue;
-    const target = targetCells.get(cell);
-    if (target !== undefined && direction !== targets[target].direction) {
-      const total =
-        cost +
-        (direction === (targets[target].direction + 2) % 4 ? 0 : BEND_COST) +
-        targetCost(targets[target]) +
-        Math.hypot(targets[target].point.x - targets[target].stub.x, targets[target].point.y - targets[target].stub.y) +
-        segmentCost(targets[target].stub, targets[target].point);
-      if (total < best) {
-        best = total;
-        endState = state;
-        endPort = target;
+    for (const target of targetCells.get(cell) ?? [])
+      if (direction !== targets[target].direction) {
+        const total =
+          cost +
+          (direction === (targets[target].direction + 2) % 4 ? 0 : BEND_COST) +
+          targetCost(targets[target]) +
+          Math.hypot(
+            targets[target].point.x - targets[target].stub.x,
+            targets[target].point.y - targets[target].stub.y,
+          ) +
+          segmentCost(targets[target].stub, targets[target].point);
+        if (total < best) {
+          best = total;
+          endState = state;
+          endPort = target;
+        }
       }
-    }
     const x = cell % width,
       y = Math.floor(cell / width);
     const visit = (nextCell: number, nextDirection: number, length: number) => {

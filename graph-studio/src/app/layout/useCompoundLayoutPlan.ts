@@ -208,6 +208,7 @@ export function useCompoundLayoutPlan(
         const charts = { ...initial.state.layoutSession.data.charts, compound: data };
         const rendering: LayoutRendering = {
           ...context,
+          ...(report?.design ? { compoundDesign: report.design } : {}),
           geometry: captureLayoutGeometry(stage),
           settingsFingerprint: layoutIdentity(
             renderingSettings("compound", charts, context.scope, context.timelineSettings),

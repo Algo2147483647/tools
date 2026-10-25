@@ -1,4 +1,5 @@
 import type { CompoundRoute } from "../../../graph/compound/geometry";
+import type { RoutingIntent } from "./intent";
 
 export type Point = { x: number; y: number };
 
@@ -18,6 +19,9 @@ export const MIN_STRAIGHT = 20;
 export const LANE_GAP = 16;
 
 export interface CompoundRoutingOptions {
+  intent?: RoutingIntent;
+  /** Internal bounded-repair alternative; explicit port ordering remains authoritative. */
+  reversePorts?: Set<string>;
   portMode?: "distributed" | "midpoints";
   reverseOrder?: boolean;
   edgePriority?: Map<string, number>;

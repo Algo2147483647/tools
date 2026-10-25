@@ -102,6 +102,60 @@ const runOptions = (f: Awaited<ReturnType<typeof fixture>>) => ({
 });
 
 export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
+  defineTest(
+    "native local repair retains routing intent, exposes it on demand, and compares issue deltas",
+    async () => {
+      const f = await fixture(),
+        plan = designPlan(),
+        id = f.problem.projection.edges[0].id;
+      plan.routing = {
+        channels: [],
+        gateways: [],
+        ports: [
+          {
+            nodeId: "a",
+            side: "east",
+            ends: [{ edgeId: id, end: "source" }],
+            order: "opposite-end",
+            strength: "required",
+          },
+        ],
+      };
+      await withModel(
+        [
+          [compose(plan)],
+          [
+            call("edit_layout", {
+              ...ref(),
+              hypothesis: "Repair related routes",
+              changes: [{ type: "reroute-together", edgeIds: [id] }],
+            }),
+          ],
+          [
+            call("compare_layouts", { left: ref(), right: ref("trial-2", 2) }),
+            call("inspect_layout", {
+              ...ref("trial-2", 2),
+              scopeId: null,
+              nodeIds: [],
+              includeRoutes: false,
+              includeDesign: true,
+            }),
+          ],
+          [finish(ref("trial-2", 2))],
+        ],
+        async () => {
+          const result = await runCompoundAiLayout(runOptions(f));
+          assert.equal(result.report.evaluations, 2);
+          assert.deepEqual(result.report.design?.routing, plan.routing);
+          const comparison = result.report.tools.find((t) => t.name === "compare_layouts")!.result as any;
+          assert.ok(Array.isArray(comparison.resolvedIssues));
+          assert.ok(Array.isArray(comparison.introducedIssues));
+          const inspection = result.report.tools.find((t) => t.name === "inspect_layout")!.result as any;
+          assert.deepEqual(inspection.design.routing, plan.routing);
+        },
+      );
+    },
+  ),
   defineTest("native provider reasoning signatures survive tool-result round trips", async () => {
     for (const provider of ["anthropic", "gemini", "ollama"] as const) {
       const old = globalThis.fetch,
@@ -396,8 +450,10 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
   }),
   defineTest("checkpoint resumes pending calls without repeating completed composition", async () => {
     const f = await fixture();
+    const plan = designPlan();
+    plan.routing = { channels: [], gateways: [], ports: [] };
     let cp: CompoundCheckpoint | undefined;
-    await withModel([[compose(), inspect()]], async () => {
+    await withModel([[compose(plan), inspect()]], async () => {
       await assert.rejects(
         runCompoundAiLayout({
           ...runOptions(f),
@@ -411,6 +467,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
     });
     assert.equal(cp!.pendingIndex, 1);
     assert.equal(cp!.trials.length, 1);
+    assert.deepEqual(cp!.candidates[1].design?.routing, plan.routing);
     await withModel([[{ ...finish(), id: "resume-finish" }]], async (requests) => {
       const r = await runCompoundAiLayout({ ...runOptions(f), checkpoint: cp });
       assert.equal(r.report.evaluations, 1);

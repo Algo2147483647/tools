@@ -82,6 +82,7 @@ export function timelineLayoutSettings(settings: Partial<TimelineViewSettings>) 
   ) as Partial<Pick<TimelineViewSettings, (typeof TIMELINE_LAYOUT_KEYS)[number]>>;
 }
 export interface LayoutRendering {
+  compoundDesign?: import("../layout/compound/ai/design").CompoundDesign;
   graphFingerprint: string;
   settingsFingerprint: string;
   scope: LayoutScope;

@@ -1,9 +1,12 @@
 import type { ModelTool } from "../../../ai/transport/toolTypes";
 import type { LayoutPoint } from "../../../schema/layoutGeometry";
 import type { CompoundDesign } from "./design";
+import type { RoutingIntent } from "../routing/intent";
 import { validateLayoutSchema } from "../../../schema/layoutResult";
 
 export type LayoutChange =
+  | { type: "set-routing"; routing: RoutingIntent }
+  | { type: "reroute-together"; edgeIds: string[] }
   | { type: "move-node" | "move-group"; id: string; position: LayoutPoint }
   | { type: "resize-group"; id: string; size: LayoutPoint }
   | { type: "reroute-edge"; id: string }
@@ -22,7 +25,16 @@ export interface ToolArguments {
   inspect_graph: { scopeId: string | null; nodeIds: string[] };
   compose_layout: CandidateRef & { hypothesis: string; design: CompoundDesign };
   edit_layout: CandidateRef & { hypothesis: string; changes: LayoutChange[] };
-  inspect_layout: CandidateRef & { scopeId: string | null; nodeIds: string[]; includeRoutes: boolean };
+  inspect_layout: CandidateRef & {
+    scopeId: string | null;
+    nodeIds: string[];
+    includeRoutes: boolean;
+    includeDesign?: boolean;
+    edgeIds?: string[];
+    issueIds?: string[];
+    offset?: number;
+    limit?: number;
+  };
   compare_layouts: { left: CandidateRef; right: CandidateRef };
   finish_layout: CandidateRef & { summary: string; review: LayoutReview };
 }
@@ -40,29 +52,78 @@ const choice = (...values: string[]) => ({ type: "string", enum: values });
 const point = { type: "array", items: { type: "number" }, minItems: 2, maxItems: 2 };
 const ref = { candidateId: text, revision: { type: "integer", minimum: 0 } };
 const change = (type: string, fields: Record<string, unknown> = {}) => obj({ type: choice(type), id: text, ...fields });
-export const designSchema = obj({
-  purpose: text,
-  readingPath: list(text, 1),
-  regions: list(obj({ id: text, role: choice("primary", "branch", "support"), reason: text })),
-  scopes: list(
-    obj(
-      {
-        groupId: nullable,
-        direction: choice("RIGHT", "DOWN"),
-        reason: text,
-        rows: list(list(nullable, 1), 1),
-        primaryPath: list(text),
-        parallelBranches: list(obj({ from: text, members: list(text, 2) })),
-        placement: list(obj({ subject: text, relation: choice("left", "right", "above", "below"), anchor: text })),
-        alignment: list(obj({ members: list(text, 2), axis: choice("left", "top") })),
-        spacing: { ...point, items: { type: "number", minimum: 12 } },
+const side = choice("east", "south", "west", "north"),
+  strength = choice("required", "preferred");
+export const routingSchema = obj({
+  channels: list(
+    obj({
+      id: text,
+      scopeId: nullable,
+      location: {
+        anyOf: [
+          obj({ type: choice("between"), regions: { ...list(text, 2), maxItems: 2 } }),
+          obj({ type: choice("perimeter"), side }),
+        ],
       },
-      ["groupId", "direction", "reason"],
-    ),
-    1,
+      edgeIds: list(text, 1),
+      strength,
+    }),
   ),
-  connections: list(obj({ edgeId: text, role: choice("main", "branch", "feedback", "support") })),
+  gateways: list(
+    obj({ id: text, regionId: text, side, edgeIds: list(text, 1), order: choice("opposite-end"), strength }),
+  ),
+  ports: list(
+    obj({
+      nodeId: text,
+      side,
+      ends: list(obj({ edgeId: text, end: choice("source", "target") }), 1),
+      order: choice("opposite-end"),
+      strength,
+    }),
+  ),
 });
+export const designSchema = obj(
+  {
+    purpose: text,
+    readingPath: list(text, 1),
+    regions: list(obj({ id: text, role: choice("primary", "branch", "support"), reason: text })),
+    scopes: list(
+      obj(
+        {
+          groupId: nullable,
+          direction: choice("RIGHT", "DOWN"),
+          reason: text,
+          rows: list(list(nullable, 1), 1),
+          primaryPath: list(text),
+          parallelBranches: list(obj({ from: text, members: list(text, 2) })),
+          placement: list(obj({ subject: text, relation: choice("left", "right", "above", "below"), anchor: text })),
+          alignment: list(obj({ members: list(text, 2), axis: choice("left", "top") })),
+          anchorAlignment: list(
+            obj({
+              axis: choice("x", "y"),
+              anchors: list(
+                {
+                  anyOf: [
+                    obj({ nodeId: text, kind: choice("center") }),
+                    obj({ gatewayId: text, kind: choice("gateway-center") }),
+                  ],
+                },
+                2,
+              ),
+              strength,
+            }),
+          ),
+          spacing: { ...point, items: { type: "number", minimum: 12 } },
+        },
+        ["groupId", "direction", "reason"],
+      ),
+      0,
+    ),
+    connections: list(obj({ edgeId: text, role: choice("main", "branch", "feedback", "support") })),
+    routing: routingSchema,
+  },
+  ["purpose", "readingPath", "regions", "scopes", "connections"],
+);
 export const LAYOUT_TOOLS: ModelTool[] = [
   {
     name: "inspect_graph",
@@ -79,13 +140,15 @@ export const LAYOUT_TOOLS: ModelTool[] = [
   {
     name: "edit_layout",
     description:
-      "Branch from an exact revision with local geometric edits. Node positions are centers, groups top-left. Group moves translate descendants; obstructed connections reroute. Use compose_layout for relative placement and alignment. Returns a new immutable candidate.",
+      "Branch from an exact revision with local edits. Node positions are centers, groups top-left. set-routing replaces complete routing intent; reroute-together jointly repairs selected edges without moving boxes. Group moves translate descendants. All edits retain and validate required routing and anchor intent. Use compose_layout for spacing and alignment. Returns a new immutable candidate.",
     parameters: obj({
       ...ref,
       hypothesis: text,
       changes: list(
         {
           anyOf: [
+            obj({ type: choice("set-routing"), routing: routingSchema }),
+            obj({ type: choice("reroute-together"), edgeIds: list(text, 1) }),
             change("move-node", { position: point }),
             change("move-group", { position: point }),
             change("resize-group", { size: { ...point, items: { type: "number", exclusiveMinimum: 0 } } }),
@@ -100,8 +163,21 @@ export const LAYOUT_TOOLS: ModelTool[] = [
   {
     name: "inspect_layout",
     description:
-      "Inspect actual geometry of a candidate scope and selected nodes, intent checks, route interactions and supporting-region relationships. includeRoutes retrieves exact incident polylines. Consume this result in a subsequent model turn before finishing.",
-    parameters: obj({ ...ref, scopeId: nullable, nodeIds: list(text), includeRoutes: { type: "boolean" } }),
+      "Inspect actual geometry, intent checks and evidence-based routing issues. edgeIds/issueIds select detail; offset/limit paginate. includeRoutes retrieves polylines; includeDesign retrieves complete retained intent before editing. Default results are compact. Consume a global unfiltered result in a subsequent model turn before finishing.",
+    parameters: obj(
+      {
+        ...ref,
+        scopeId: nullable,
+        nodeIds: list(text),
+        includeRoutes: { type: "boolean" },
+        includeDesign: { type: "boolean" },
+        edgeIds: list(text),
+        issueIds: list(text),
+        offset: { type: "integer", minimum: 0 },
+        limit: { type: "integer", minimum: 1, maximum: 30 },
+      },
+      [...Object.keys(ref), "scopeId", "nodeIds", "includeRoutes"],
+    ),
   },
   {
     name: "compare_layouts",

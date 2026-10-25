@@ -1,4 +1,5 @@
 import type { CompoundBox } from "../../../graph/compound/geometry";
+import type { AnchorAlignment } from "../routing/intent";
 
 export interface ScopeComposition {
   groupId: string | null;
@@ -8,6 +9,7 @@ export interface ScopeComposition {
   parallelBranches?: { from: string; members: string[] }[];
   placement?: { subject: string; relation: "left" | "right" | "above" | "below"; anchor: string }[];
   alignment?: { members: string[]; axis: "left" | "top" }[];
+  anchorAlignment?: AnchorAlignment[];
   spacing?: [number, number];
   reason: string;
 }

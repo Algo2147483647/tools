@@ -85,6 +85,10 @@ Selecting **Automatic** clears the session plan and rendering, restores `directi
 
 The final result remains **Schema Layout v4**. Compound AI uses native inspect_graph, compose_layout, edit_layout, inspect_layout, compare_layouts and finish_layout tools. Versioned JSON decision actions have been removed. Paths, branches, relative placement, alignment and spacing execute geometrically without changing business connections. The Schema tab shows complete rendered geometry.
 
+AI can also design region gateways, reserved channels, endpoint sides and alignment between descendant anchors. Required routing intent is checked after every mutation; preferred deviations are reported. Automatic gateways compete with shorter legal routes rather than forcing every inferred boundary point. Related conflicts can be rerouted together while retaining other paths. Text inspection identifies congestion, interface order conflicts, insufficient capacity and verified alternatives, so the next tool call can repair a specific issue. Connection roles describe business meaning and priority; they no longer automatically force support or feedback edges around the canvas.
+
+The selected design remains attached to its rendering in the current page session, including local edits and Resume. Layout settings files still contain configuration only. No image input is sent to the model.
+
 Each invocation allows 16 model requests, 48 tool dispatches, a 20-minute overall limit, a 120-second response idle timeout and cancellable 15-second geometry Workers. Tool inputs and results appear in the panel. All inspection uses text only. Interrupted work can be resumed in the same page session, preserving immutable candidates and completed calls. Changing graph/view/layout/model context invalidates the checkpoint. Only an explicit finish after consuming a global inspection installs a candidate; metrics never select a winner.
 
 See [Layout protocols](../layout-schema.md) for the configuration file and AI result contract.

@@ -11,6 +11,7 @@ import { compoundSuite } from "./compound.test";
 import { compoundLayoutSuite } from "./compoundLayout.test";
 import { compoundLayoutPlanSuite } from "./compoundLayoutPlan.test";
 import { compoundRoutingSuite } from "./compoundRouting.test";
+import { compoundRoutingIntentSuite } from "./compoundRoutingIntent.test";
 import { compoundAiHarnessSuite } from "./compoundAiHarness.test";
 import { consoleSuite } from "./console.test";
 import { documentSessionSuite } from "./documentSession.test";
@@ -55,6 +56,7 @@ async function main() {
     layoutWorkflowSuite,
     compoundLayoutPlanSuite,
     compoundRoutingSuite,
+    compoundRoutingIntentSuite,
     compoundAiHarnessSuite,
     spatialSuite,
     stylePipelineSuite,

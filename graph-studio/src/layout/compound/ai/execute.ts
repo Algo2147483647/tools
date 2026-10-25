@@ -3,14 +3,17 @@ import type { LayoutChange } from "./protocol";
 import type { CompoundDesign } from "./design";
 import type { CompoundLayoutData, LayoutProblem, LayoutIntent } from "../layout-plan";
 import { routingPreferences, solveCompoundLayout } from "../layout-solver";
-import { routeCompoundEdges } from "../routing/router";
+import { routeDesignedEdges } from "../routing/designed";
+import { emptyRouting, type RoutingIssue } from "../routing/intent";
+import { verifyRoutingIntent } from "../routing/verify";
 import { sameBox } from "../layout-quality";
-import { executeDesign } from "./design";
+import { executeDesign, validateDesign, validateRequiredAnchors } from "./design";
 import { draftGeometry, geometryLayout, inspectDraft, routeIssues, type GeometryIssue } from "./geometry";
 
 export interface CompoundExecutionInput {
   problem: LayoutProblem;
   baseLayout: LayoutResultDocument;
+  baseDesign?: CompoundDesign;
   decision:
     | { action: "compose"; design: CompoundDesign }
     | { action: "edit"; changes: LayoutChange[] }
@@ -22,29 +25,38 @@ export interface CompoundExecutionResult {
   reroutedEdgeIds: string[];
   issues: GeometryIssue[];
   error?: string;
+  design?: CompoundDesign;
+  routingIssues?: RoutingIssue[];
 }
 
 /** Pure geometry execution. Manual replacement routes are never silently rerouted. */
 export function executeCompoundDecision({
   problem,
   baseLayout,
+  baseDesign,
   decision,
 }: CompoundExecutionInput): CompoundExecutionResult {
   let layout = structuredClone(baseLayout);
   let data: CompoundLayoutData = { ...problem.stored, method: "ai" };
   const reroutedEdgeIds = new Set<string>();
+  let design = baseDesign ? structuredClone(baseDesign) : undefined;
+  let routingIssues: RoutingIssue[] = [];
   try {
     if (decision.action === "console-intent") {
+      design = undefined;
       const candidate = solveCompoundLayout(problem, decision.intent).candidates[0];
       if (!candidate) throw new Error("No legal arrangement for this console intent.");
       layout = geometryLayout(baseLayout, candidate.geometry);
       data = candidate.data;
     } else if (decision.action === "compose") {
+      design = decision.design;
       const geometry = executeDesign(problem, decision.design);
+      routingIssues = geometry.routingIssues;
       layout = geometryLayout(baseLayout, geometry);
       data = { ...problem.stored, method: "ai", constraints: [] };
       for (const edge of problem.projection.edges) reroutedEdgeIds.add(edge.id);
     } else if (decision.action === "edit") {
+      if (design) validateDesign(problem, design);
       const original = draftGeometry(layout, problem);
       const manual = new Set<string>();
       const requested = new Set<string>();
@@ -59,6 +71,28 @@ export function executeCompoundDecision({
         return false;
       };
       for (const change of decision.changes) {
+        if (change.type === "set-routing") {
+          if (touched.has("routing")) throw new Error("Conflicting routing replacements.");
+          touched.add("routing");
+          design ??= {
+            purpose: "Local layout",
+            readingPath: problem.projection.items.slice(0, 1).map((n) => n.id),
+            regions: [],
+            scopes: [],
+            connections: [],
+          };
+          design.routing = change.routing;
+          validateDesign(problem, design);
+          for (const edge of problem.projection.edges) requested.add(edge.id);
+          continue;
+        }
+        if (change.type === "reroute-together") {
+          for (const id of change.edgeIds) {
+            if (!problem.projection.edges.some((e) => e.id === id)) throw new Error(`Unknown edge: ${id}.`);
+            requested.add(id);
+          }
+          continue;
+        }
         const key = `${change.type === "replace-route" || change.type === "reroute-edge" ? "route" : change.type}:${change.id}`;
         if (touched.has(key)) throw new Error(`Conflicting changes for ${change.id}.`);
         touched.add(key);
@@ -107,7 +141,7 @@ export function executeCompoundDecision({
       for (let attempt = 0; requested.size && attempt < 2; attempt++) {
         const fixedRoutes = new Map(Object.entries(geometry.routes).filter(([id]) => !requested.has(id)));
         const preferences = routingPreferences(problem, data);
-        const routed = routeCompoundEdges(
+        const routed = routeDesignedEdges(
           problem.projection,
           new Map(Object.entries(geometry.boxes)),
           { x: 0, y: 0, width: geometry.width, height: geometry.height },
@@ -118,11 +152,21 @@ export function executeCompoundDecision({
             labelSizes: problem.labelSizes,
             reverseOrder: attempt === 1,
             ...preferences,
+            ...(design
+              ? {
+                  intent: design.routing ?? emptyRouting(),
+                  outerEdges: undefined,
+                  edgePriority: new Map(
+                    design.connections.map((e) => [e.edgeId, { main: 0, branch: 1, feedback: 2, support: 3 }[e.role]]),
+                  ),
+                }
+              : {}),
           },
         );
         geometry.routes = Object.fromEntries(routed.routes);
         geometry.width = routed.width;
         geometry.height = routed.height;
+        routingIssues = routed.issues;
         for (const id of requested) reroutedEdgeIds.add(id);
         requested.clear();
         for (const issue of routeIssues(problem, geometry))
@@ -130,9 +174,25 @@ export function executeCompoundDecision({
       }
       layout = geometryLayout(layout, geometry);
     }
+    if (design) validateRequiredAnchors(design, draftGeometry(layout, problem));
+    if (design?.routing) {
+      const g = draftGeometry(layout, problem);
+      routingIssues.push(
+        ...verifyRoutingIntent(
+          problem.projection,
+          new Map(Object.entries(g.boxes)),
+          new Map(Object.entries(g.routes)),
+          { x: 0, y: 0, width: g.width, height: g.height },
+          design.routing,
+          data.portMode,
+        ),
+      );
+    }
     return {
       layout,
       data,
+      design,
+      routingIssues,
       reroutedEdgeIds: [...reroutedEdgeIds],
       issues: inspectDraft(layout, { ...problem, stored: data }),
     };
@@ -140,6 +200,8 @@ export function executeCompoundDecision({
     return {
       layout,
       data,
+      design,
+      routingIssues,
       reroutedEdgeIds: [...reroutedEdgeIds],
       issues: inspectDraft(layout, problem),
       error: error instanceof Error ? error.message : "Layout execution failed.",

@@ -1,4 +1,6 @@
 import { parseLayoutConfigFile, type LayoutConfigFile } from "./layoutConfig";
+import { designSchema } from "../layout/compound/ai/protocol";
+import { validateLayoutSchema } from "./layoutResult";
 import {
   graphLayoutIdentity,
   validateLayoutScope,
@@ -72,7 +74,7 @@ export function parseLayoutSession(value: unknown): LayoutSessionState {
       if (value === undefined) continue;
       const rendering = object(
         value,
-        ["graphFingerprint", "settingsFingerprint", "scope", "timelineSettings", "geometry"],
+        ["graphFingerprint", "settingsFingerprint", "scope", "timelineSettings", "geometry", "compoundDesign"],
         "rendering",
       );
       if (typeof rendering.graphFingerprint !== "string" || typeof rendering.settingsFingerprint !== "string")
@@ -86,6 +88,10 @@ export function parseLayoutSession(value: unknown): LayoutSessionState {
       const timelineSettings = resolveTimeline(rendering.timelineSettings);
       const geometry = rendering.geometry;
       validateLayoutGeometryData(geometry, chart as GraphChartType);
+      if (rendering.compoundDesign !== undefined) {
+        if (chart !== "compound") throw new Error("Compound design belongs to a compound rendering.");
+        validateLayoutSchema(rendering.compoundDesign, designSchema, "/compoundDesign");
+      }
       result.renderings[chart as GraphChartType] = {
         ...rendering,
         geometry,
@@ -128,7 +134,6 @@ export function repairLayoutSession(
         delete data.renderings[chart as GraphChartType];
   return JSON.stringify(data) === JSON.stringify(layout) ? layout : data;
 }
-
 
 /** Configuration is the only external document accepted into a new session. */
 export function layoutSessionFromConfig(value: LayoutConfigFile): LayoutSessionState {

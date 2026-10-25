@@ -34,6 +34,7 @@ export interface LayoutValidation {
 }
 
 export interface LayoutProblem {
+  design?: import("./ai/design").CompoundDesign;
   viewKey: string;
   minimumSizes: Record<string, { width: number; height: number }>;
   projection: CompoundProjection;
