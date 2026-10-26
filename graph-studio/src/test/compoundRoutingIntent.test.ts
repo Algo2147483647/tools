@@ -75,7 +75,7 @@ export const compoundRoutingIntentSuite = defineSuite("Compound routing intent",
           assert.ok(!segmentCrossesBox(route.points[i - 1], route.points[i], boxes.get(id)!));
     assert.deepEqual(boxes, before);
   }),
-  defineTest("north gateways provide a controlled crossing of the group title band", () => {
+  defineTest("explicit north gateways cross the boundary without cutting through title text", () => {
     const projection = projectCompoundGraph(nested(), view),
       id = projection.edges[0].id,
       boxes = nestedBoxes(),

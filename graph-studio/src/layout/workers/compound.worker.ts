@@ -1,8 +1,13 @@
 import { arrangeCompound } from "../compound/automatic";
-import { handleLayoutWorker, type CompoundWorkerInput } from "./protocol";
-handleLayoutWorker(
+import { layoutCompoundHierarchy } from "../compound/hierarchy-layout";
+import type { LayoutResult } from "../compound/layout-plan";
+import { handleLayoutWorker, type CompoundWorkerInput, type CompoundPlacementInput } from "./protocol";
+handleLayoutWorker<
+  CompoundWorkerInput | CompoundPlacementInput,
+  LayoutResult | ReturnType<typeof layoutCompoundHierarchy>
+>(
   self,
-  ({ problem, intent }: CompoundWorkerInput) =>
-    arrangeCompound(problem, intent),
+  (input) =>
+    "placement" in input ? layoutCompoundHierarchy(...input.placement) : arrangeCompound(input.problem, input.intent),
   "Layout worker failed.",
 );

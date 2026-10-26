@@ -12,6 +12,9 @@ export interface CompoundWorkerInput {
   problem: LayoutProblem;
   intent: LayoutIntent;
 }
+export interface CompoundPlacementInput {
+  placement: Parameters<typeof import("../compound/hierarchy-layout").layoutCompoundHierarchy>;
+}
 
 export type CompoundWorkerResponse = LayoutWorkerResponse<LayoutResult>;
 
@@ -20,7 +23,7 @@ interface LayoutWorkerScope<Input, Result> {
   postMessage(message: LayoutWorkerResponse<Result>): void;
 }
 
-/** Workers compute synchronously; their controllers own cancellation, timeouts and stale-result checks. */
+/** Workers compute synchronously; their controllers own cancellation and stale-result checks. */
 export function handleLayoutWorker<Input, Result>(
   scope: LayoutWorkerScope<Input, Result>,
   execute: (input: Input) => Result,

@@ -79,9 +79,7 @@ export function compileRoutingPlan(
     chain.forEach(({ region, entering }, rank) => {
       const opposite = center(boxes.get(entering ? e.source : e.target)!);
       const explicit = gateAssignments.get(`${region}:${e.id}`);
-      let side = explicit?.side ?? facing(center(boxes.get(region)!), opposite);
-      // Automatic gateways avoid the group title band.
-      if (!explicit && side === "north") side = opposite.x < center(boxes.get(region)!).x ? "west" : "east";
+      const side = explicit?.side ?? facing(center(boxes.get(region)!), opposite);
       uses.push({
         edgeId: e.id,
         region,
@@ -138,7 +136,7 @@ export function compileRoutingPlan(
       const d = sides.indexOf(use.side),
         v = vector(d),
         distance = 10;
-      const inward = use.side === "north" ? 50 : distance;
+      const inward = distance;
       const inside = { x: p.x - v.x * inward, y: p.y - v.y * inward },
         outside = { x: p.x + v.x * distance, y: p.y + v.y * distance };
       const passage: Passage = {

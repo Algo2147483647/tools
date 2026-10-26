@@ -9,6 +9,7 @@ import { outerRoutes } from "./outer";
 import { EPSILON, type CompoundRoutingOptions, type Point, type Port } from "./types";
 import { compileRoutingPlan } from "./plan";
 import { sides, type RoutingIssue } from "./intent";
+import { groupTitleObstacles } from "../../shared/group-title";
 
 /** Choose reusable side ports after placement; routing never moves node rectangles. */
 export function routeCompoundEdges(
@@ -97,24 +98,7 @@ export function routeCompoundEdges(
       .flatMap((item) => {
         const box = boxes.get(item.id)!;
         if (!related.has(item.id)) return [box];
-        // An expanded group can itself be an ordinary relationship endpoint.
-        if (item.id === edge.source || item.id === edge.target) return [];
-        const north = plan?.passages
-          .get(edge.id)
-          ?.filter(
-            (p) =>
-              (p.direction === 1 || p.direction === 3) &&
-              Math.min(p.entry.y, p.exit.y) < box.y &&
-              Math.max(p.entry.y, p.exit.y) > box.y,
-          );
-        if (north?.length) {
-          const x = north[0].entry.x;
-          return [
-            { ...box, width: Math.max(0, x - box.x - 12), height: Math.min(40, box.height) },
-            { ...box, x: x + 12, width: Math.max(0, box.x + box.width - x - 12), height: Math.min(40, box.height) },
-          ];
-        }
-        return [{ ...box, height: Math.min(40, box.height) }];
+        return groupTitleObstacles(item, box);
       });
     const padded = [...obstacles, ...otherLabels, ...containers].map((box) => inflate(box, gap));
     const ports = (id: string): Port[] => {

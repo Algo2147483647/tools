@@ -1,6 +1,7 @@
 import { overlapLength, sharedEndpoints, sharedExit } from "./routing/cost";
 import type { LayoutMetrics, LayoutObjective, LayoutProblem, LayoutGeometry, LayoutValidation } from "./layout-plan";
 import type { CompoundBox } from "../../graph/compound/geometry";
+import { groupContentTop, groupTitleObstacles } from "../shared/group-title";
 
 export const GEOMETRY_EPSILON = 0.01;
 type Point = { x: number; y: number };
@@ -100,7 +101,7 @@ export function validateLayoutGeometry(problem: LayoutProblem, geometry: LayoutG
     if (
       parent &&
       (b.x < parent.x + 24 - GEOMETRY_EPSILON ||
-        b.y < parent.y + 58 - GEOMETRY_EPSILON ||
+        b.y < parent.y + groupContentTop(items.find((i) => i.id === item.parentId)!.title) - GEOMETRY_EPSILON ||
         b.x + b.width > parent.x + parent.width - 24 + GEOMETRY_EPSILON ||
         b.y + b.height > parent.y + parent.height - 24 + GEOMETRY_EPSILON)
     )
@@ -119,6 +120,9 @@ export function validateLayoutGeometry(problem: LayoutProblem, geometry: LayoutG
         fail(`Sibling overlap: ${a.id} / ${b.id}.`);
     }
   const cards = items.filter((i) => i.kind !== "group" || i.collapsed).filter((i) => validBoxes.has(i.id));
+  const titles = items
+    .filter((i) => i.kind === "group" && !i.collapsed && validBoxes.has(i.id))
+    .flatMap((i) => groupTitleObstacles(i, geometry.boxes[i.id]).map((box) => ({ id: i.id, box })));
   for (const edge of edges) {
     const r = geometry.routes[edge.id];
     if (
@@ -153,6 +157,8 @@ export function validateLayoutGeometry(problem: LayoutProblem, geometry: LayoutG
         fail(`Route exceeds canvas: ${edge.id}.`);
       for (const card of cards)
         if (segmentCrossesBox(a, b, geometry.boxes[card.id])) fail(`Route ${edge.id} crosses card ${card.id}.`);
+      for (const title of titles)
+        if (segmentCrossesBox(a, b, title.box)) fail(`Route ${edge.id} crosses title ${title.id}.`);
     }
     const label = labelRect(problem, geometry, edge.id);
     if (label) {

@@ -9,8 +9,6 @@ export interface LayoutWorkerJob<Result> {
 export function startLayoutWorker<Input, Result>(options: {
   createWorker(): Worker;
   payload: Input;
-  timeoutMs?: number;
-  timeoutMessage?: string;
   failureMessage: string;
   invalidMessage: string;
   cancelMessage: string;
@@ -23,7 +21,6 @@ export function startLayoutWorker<Input, Result>(options: {
     const finish = () => {
       if (settled) return false;
       settled = true;
-      clearTimeout(timer);
       worker.onmessage = null;
       worker.onerror = null;
       worker.onmessageerror = null;
@@ -33,10 +30,6 @@ export function startLayoutWorker<Input, Result>(options: {
     const fail = (message: string) => {
       if (finish()) reject(new Error(message));
     };
-    const timer =
-      options.timeoutMs === undefined
-        ? undefined
-        : setTimeout(() => fail(options.timeoutMessage ?? "Layout timed out."), options.timeoutMs);
     cancel = () => fail(options.cancelMessage);
     worker.onerror = (event) => fail(event.message || options.failureMessage);
     worker.onmessageerror = () => fail(options.invalidMessage);

@@ -3,6 +3,7 @@ import type { GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { CompoundProjection } from "../../graph/compound/projection";
 import type { CompoundBox } from "../../graph/compound/geometry";
 import { arrangeTopology } from "./topology-layout";
+import { groupContentTop } from "../shared/group-title";
 
 interface Size {
   width: number;
@@ -64,7 +65,7 @@ export function layoutCompoundHierarchy(
       createPlacementScore(scope.edges, { projection, children: local, showLabels, labelSizes }),
     );
     const left = id === null ? 36 : 24,
-      top = id === null ? 36 : 58,
+      top = id === null ? 36 : groupContentTop(projection.items.find((item) => item.id === id)!.title),
       bottom = id === null ? 36 : 24;
     const width = Math.max(id === null ? 0 : sizes.get(id)!.width, result.width + 2 * left);
     const height = Math.max(id === null ? 0 : sizes.get(id)!.height, result.height + top + bottom);

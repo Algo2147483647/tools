@@ -172,7 +172,7 @@ export function executeDesign(
           local.set(child, {
             ...size,
             x: (id === null ? 36 : 24) + perimeter.left + xOffset,
-            y: (id === null ? 36 : 58) + perimeter.top + yOffset,
+            y: (id === null ? 36 : groupContentTop(items.get(id)!.title)) + perimeter.top + yOffset,
           });
         }),
       );
@@ -303,3 +303,4 @@ export function executeDesign(
     return id === problem.projection.focusGroupId ? null : id;
   }
 }
+import { groupContentTop } from "../../shared/group-title";

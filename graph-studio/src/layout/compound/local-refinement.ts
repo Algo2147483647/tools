@@ -20,7 +20,6 @@ export function refineLocalPlacement(
   gapX: number,
   gapY: number,
   score: PlacementScore = createPlacementScore(inputEdges),
-  budget = 128,
 ): RectangleArrangement {
   const edges = inputEdges.filter(([a, b]) => a !== b);
   if (initial.boxes.size < 2 || !edges.length) return initial;
@@ -35,7 +34,7 @@ export function refineLocalPlacement(
     (a, b) => incident.get(a)!.length - incident.get(b)!.length || (a < b ? 1 : a > b ? -1 : 0),
   );
   let bestCost = score(boxes);
-  while (budget > 0) {
+  while (true) {
     let moved = false;
     for (const id of order) {
       const original = boxes.get(id)!;
@@ -44,7 +43,12 @@ export function refineLocalPlacement(
       const add = (x: number, y: number) => {
         if (Number.isFinite(x) && Number.isFinite(y)) candidates.set(`${x}:${y}`, { ...original, x, y });
       };
-      const neighbors = new Set(incident.get(id)!.flatMap(([a, b]) => [a, b]));
+      const neighbors = new Set(
+        incident
+          .get(id)!
+          .flatMap(([a, b]) => [a, b])
+          .sort(),
+      );
       neighbors.delete(id);
       for (const neighbor of neighbors) {
         const box = boxes.get(neighbor)!;
@@ -58,7 +62,7 @@ export function refineLocalPlacement(
         add(x, box.y + box.height + gapY);
       }
       for (const candidate of candidates.values()) {
-        if (--budget < 0) break;
+        if (Math.abs(candidate.x - original.x) < EPSILON && Math.abs(candidate.y - original.y) < EPSILON) continue;
         if ([...boxes].some(([other, box]) => other !== id && !separated(candidate, box))) continue;
         boxes.set(id, candidate);
         const value = score(boxes);
@@ -69,7 +73,6 @@ export function refineLocalPlacement(
       }
       boxes.set(id, best);
       moved ||= best !== original;
-      if (budget <= 0) break;
     }
     if (!moved) break;
   }

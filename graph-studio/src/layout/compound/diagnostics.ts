@@ -78,7 +78,7 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
       const box = geometry.boxes[item.id];
       if (!box) continue;
       const unrelated = !sourceAncestors.has(item.id) && !targetAncestors.has(item.id);
-      if (parts.some(([a, b]) => segmentCrossesBox(a, b, { ...box, height: Math.min(40, box.height) })))
+      if (groupTitleObstacles(item, box).some((title) => parts.some(([a, b]) => segmentCrossesBox(a, b, title))))
         containerPassages.push({ edgeIds: edge.originalEdgeIds, groupId: item.id, region: "header" });
       else if (unrelated && parts.some(([a, b]) => segmentCrossesBox(a, b, box)))
         containerPassages.push({ edgeIds: edge.originalEdgeIds, groupId: item.id, region: "unrelated-interior" });
@@ -104,3 +104,4 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
     groupConnections: [...groups.values()].sort((a, b) => b.edgeIds.length - a.edgeIds.length),
   };
 }
+import { groupTitleObstacles } from "../shared/group-title";

@@ -17,6 +17,7 @@ import {
   type LayoutProblem,
 } from "./layout-plan";
 import { arrangeCompound } from "./automatic";
+import { measureGroupTitle } from "../shared/group-title";
 
 export async function buildCompoundStage(input: {
   dag: NormalizedDag;
@@ -28,9 +29,12 @@ export async function buildCompoundStage(input: {
   showEdgeLabels?: boolean;
   layout?: CompoundLayoutData;
   solve?: (problem: LayoutProblem) => Promise<LayoutResult>;
+  place?: (...args: Parameters<typeof layoutCompoundHierarchy>) => Promise<ReturnType<typeof layoutCompoundHierarchy>>;
 }): Promise<StageData> {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
+  for (const item of projection.items)
+    if (item.kind === "group" && !item.collapsed) item.titleMetrics = measureGroupTitle(item.title);
   const groupParents = new Map((dag.hierarchy_edges ?? []).map((edge) => [edge.target, edge.source]));
   // Use all original roots, including collapsed/hidden ones, to keep colors stable.
   const colorFamilies = new Map(
@@ -120,7 +124,13 @@ export async function buildCompoundStage(input: {
         },
       ]),
   );
-  const placement = layoutCompoundHierarchy(projection, sizes, theme, !!input.showEdgeLabels, labelSizes);
+  const placement = await (input.place ?? layoutCompoundHierarchy)(
+    projection,
+    sizes,
+    theme,
+    !!input.showEdgeLabels,
+    labelSizes,
+  );
   const config = input.layout ?? emptyLayoutData();
   const warnings: string[] = [];
   // Session font counters are excluded: measured dimensions and typography determine portability.
@@ -203,6 +213,7 @@ export async function buildCompoundStage(input: {
         id,
         colorFamilyIndex: colorFamilies.get(colorFamilyId) ?? 0,
         title: item.title,
+        titleMetrics: item.titleMetrics,
         depth: item.depth,
         leafCount: item.leafCount,
         x: left,

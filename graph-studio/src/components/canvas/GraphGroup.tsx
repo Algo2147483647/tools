@@ -1,5 +1,5 @@
 import type { StageGroup } from "../../layout/shared/types";
-import { truncateTitleToWidth } from "../../layout/shared/text";
+import { layoutGroupTitle } from "../../layout/shared/group-title";
 
 export function GroupControls({
   id,
@@ -69,6 +69,7 @@ export function GroupHeader({
   onToggle?: (id: string) => void;
   onEnter?: (id: string) => void;
 }) {
+  const titleLines = layoutGroupTitle(group.title, group.width, group.titleMetrics);
   return (
     <g
       className="dag-group-header dag-node"
@@ -98,11 +99,15 @@ export function GroupHeader({
       }}
     >
       <title>{`${group.title} · ${group.leafCount} nodes`}</title>
-      <text x={group.x + 16} y={group.y + 26} className="dag-group-title">
-        {truncateTitleToWidth(group.title, group.width - 55)}
+      <text className="dag-group-title">
+        {titleLines.map((line, index) => (
+          <tspan key={index} x={group.x + line.x} y={group.y + line.baseline}>
+            {line.text}
+          </tspan>
+        ))}
       </text>
       {showStats && (
-        <text x={group.x + 16} y={group.y + 44} className="dag-group-count">
+        <text x={group.x + 16} y={group.y + 44 + (titleLines.length - 1) * 18} className="dag-group-count">
           {group.leafCount} node{group.leafCount === 1 ? "" : "s"}
         </text>
       )}

@@ -5,7 +5,7 @@ import { crossingCost, parallelRouteCost, routeCost, sharedEndpoints } from "./r
 import type { LayoutObjective } from "./layout-plan";
 import { routeCompoundEdges } from "./routing/router";
 
-export type PlacementScore = ((boxes: Map<string, CompoundBox>) => number) & { evaluationBudget?: number };
+export type PlacementScore = (boxes: Map<string, CompoundBox>) => number;
 
 /** Rebase the completed scope once; parents add their own content padding. */
 export function normalizePlacement(boxes: Map<string, CompoundBox>): RectangleArrangement {
@@ -98,8 +98,5 @@ export function createPlacementScore(
     cache.set(signature, value);
     return value;
   };
-  // Route work grows with the entire visible subtree. Bound computation, never coordinates.
-  const complexity = context ? context.projection.items.length + context.projection.edges.length : edges.length;
-  score.evaluationBudget = Math.max(12, Math.min(128, Math.floor(1024 / Math.max(1, complexity))));
   return score;
 }

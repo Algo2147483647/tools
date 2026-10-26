@@ -14,7 +14,7 @@ export interface LayoutResult {
   diagnostics: string[];
 }
 
-export const COMPOUND_LAYOUT_VERSION = "compound-plan-2";
+export const COMPOUND_LAYOUT_VERSION = "compound-plan-3";
 
 export interface LayoutMetrics {
   crossings: number;

@@ -10,8 +10,6 @@ export async function computeCompoundAi(
     createWorker: () =>
       new Worker(new URL("../../layout/workers/compound-ai.worker.ts", import.meta.url), { type: "module" }),
     payload: input,
-    timeoutMs: 15000,
-    timeoutMessage: "AI layout calculation exceeded 15 seconds.",
     failureMessage: "AI layout calculation failed.",
     invalidMessage: "Invalid AI calculation result.",
     cancelMessage: "Layout cancelled.",

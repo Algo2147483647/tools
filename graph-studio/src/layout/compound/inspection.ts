@@ -64,7 +64,7 @@ export function diagnoseCompoundLayout(problem: LayoutProblem) {
         "outer-route-preference",
         "port-side-preference",
         "multiple-ports-per-side",
-        "container-header-avoidance",
+        "container-title-avoidance",
         "unrelated-container-avoidance",
       ],
       unavailable: ["strict-container-gates", "reserved-routing-channels", "minimum-parallel-route-spacing"],

@@ -7,6 +7,7 @@ import { inflate } from "./geometry";
 import { sidePorts } from "./ports";
 import { simpleRoutes } from "./search";
 import type { Point } from "./types";
+import { groupTitleObstacles } from "../../shared/group-title";
 
 export function diagnoseRoutes(
   projection: CompoundProjection,
@@ -138,8 +139,8 @@ export function diagnoseRoutes(
       const obstacles = projection.items
         .flatMap((n) => {
           const b = boxes.get(n.id)!;
-          if (n.kind === "group" && !n.collapsed && related.has(n.id))
-            return [{ ...b, height: Math.min(40, b.height) }];
+          if (n.kind === "group" && !n.collapsed && (related.has(n.id) || n.id === e.source || n.id === e.target))
+            return groupTitleObstacles(n, b);
           return [b];
         })
         .map((b) => inflate(b, 4));

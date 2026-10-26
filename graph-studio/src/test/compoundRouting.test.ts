@@ -14,8 +14,61 @@ import {
 import { routeCompoundEdges } from "../layout/compound/routing/router";
 import { layoutFixture } from "./compoundLayout.test";
 import { defineSuite, defineTest } from "./harness";
+import { groupTitleObstacles, layoutGroupTitle, measureGroupTitle } from "../layout/shared/group-title";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { GroupHeader } from "../components/canvas/GraphGroup";
 
 export const compoundRoutingSuite = defineSuite("Compound routing clearance", [
+  defineTest(
+    "automatic routing crosses blank north boundary and controls while avoiding each rendered title line",
+    () => {
+      const dag = normalizeDagInput({
+        format: "graph-studio",
+        version: 3,
+        nodes: { g: { title: "Long first line\nShort" }, child: {}, outside: {} },
+        edges: [{ id: "e", source: "outside", target: "child" }],
+        hierarchy_edges: [{ id: "h", source: "g", target: "child" }],
+      });
+      const projection = projectCompoundGraph(dag, { collapsedGroupIds: [], focusGroupId: null });
+      const group = projection.items.find((i) => i.id === "g")!;
+      group.titleMetrics = measureGroupTitle(group.title);
+      const bounds = { x: 0, y: 0, width: 700, height: 600 };
+      const boxes = new Map([
+        ["g", { x: 100, y: 150, width: 440, height: 350 }],
+        ["outside", { x: 450, y: 30, width: 80, height: 60 }],
+        ["child", { x: 450, y: 260, width: 80, height: 60 }],
+      ]);
+      const run = () => routeCompoundEdges(projection, boxes, bounds, false).routes.get(projection.edges[0].id)!.points;
+      assert.deepEqual(
+        run(),
+        [
+          { x: 490, y: 90 },
+          { x: 490, y: 260 },
+        ],
+        "the straight route may cross the header controls without a gateway",
+      );
+      boxes.set("outside", { ...boxes.get("outside")!, x: 100 });
+      boxes.set("child", { ...boxes.get("child")!, x: 100 });
+      const points = run();
+      const obstacles = groupTitleObstacles(group, boxes.get("g")!);
+      assert.equal(obstacles.length, 2);
+      assert.ok(obstacles[1].width < obstacles[0].width);
+      for (let i = 1; i < points.length; i++)
+        for (const box of obstacles) assert.ok(!segmentCrossesBox(points[i - 1], points[i], box));
+      assert.notDeepEqual(points, [
+        { x: 140, y: 90 },
+        { x: 140, y: 260 },
+      ]);
+      const markup = renderToStaticMarkup(
+        createElement(GroupHeader, { group: { ...group, ...boxes.get("g")!, colorFamilyIndex: 0 }, showStats: false }),
+      );
+      for (const line of layoutGroupTitle(group.title, 440, group.titleMetrics)) {
+        assert.ok(markup.includes(`x="${100 + line.x}" y="${150 + line.baseline}"`));
+        assert.ok(markup.includes(line.text));
+      }
+    },
+  ),
   defineTest("common endpoints and short exits are free, remote overlaps and unrelated crossings are scored", () => {
     const a = [
       { x: 0, y: 0 },
@@ -89,26 +142,29 @@ export const compoundRoutingSuite = defineSuite("Compound routing clearance", [
       routes,
     );
   }),
-  defineTest("Commerce routing balances the combined score and avoids unrelated groups with fixed rectangles", async () => {
-    const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
-    const problem = (await layoutFixture(dag)).compoundLayout!;
-    const metrics = measureLayout(problem, problem.baseline);
-    const hotspots = routingHotspots(problem);
-    assert.ok(validateLayoutGeometry(problem, problem.baseline).valid);
-    // Reusable midpoints may trade some crossings/overlap for shorter routes. Bound the
-    // combined objective rather than reinstating either metric as a hard constraint.
-    assert.ok(scoreLayoutMetrics(metrics) < 38000, `routing score: ${scoreLayoutMetrics(metrics)}`);
-    assert.ok(metrics.length < 26000, `route length: ${metrics.length}`);
-    assert.equal(hotspots.crowdedPorts.length, 0);
-    assert.equal(hotspots.containerPassages.length, 0);
-    const fixed = new Map(Object.entries(problem.baseline.routes));
-    const rerouted = routeCompoundEdges(
-      problem.projection,
-      new Map(Object.entries(problem.baseline.boxes)),
-      { x: 0, y: 0, width: problem.baseline.width, height: problem.baseline.height },
-      false,
-      { fixedRoutes: fixed },
-    );
-    assert.deepEqual(rerouted.routes, fixed, "out-of-scope paths keep their geometry");
-  }),
+  defineTest(
+    "Commerce routing balances the combined score and avoids unrelated groups with fixed rectangles",
+    async () => {
+      const dag = normalizeDagInput(JSON.parse(await readFile("public/examples/commerce/commerce.json", "utf8")));
+      const problem = (await layoutFixture(dag)).compoundLayout!;
+      const metrics = measureLayout(problem, problem.baseline);
+      const hotspots = routingHotspots(problem);
+      assert.ok(validateLayoutGeometry(problem, problem.baseline).valid);
+      // Reusable midpoints may trade some crossings/overlap for shorter routes. Bound the
+      // combined objective rather than reinstating either metric as a hard constraint.
+      assert.ok(scoreLayoutMetrics(metrics) < 38000, `routing score: ${scoreLayoutMetrics(metrics)}`);
+      assert.ok(metrics.length < 26000, `route length: ${metrics.length}`);
+      assert.equal(hotspots.crowdedPorts.length, 0);
+      assert.equal(hotspots.containerPassages.length, 0);
+      const fixed = new Map(Object.entries(problem.baseline.routes));
+      const rerouted = routeCompoundEdges(
+        problem.projection,
+        new Map(Object.entries(problem.baseline.boxes)),
+        { x: 0, y: 0, width: problem.baseline.width, height: problem.baseline.height },
+        false,
+        { fixedRoutes: fixed },
+      );
+      assert.deepEqual(rerouted.routes, fixed, "out-of-scope paths keep their geometry");
+    },
+  ),
 ]);

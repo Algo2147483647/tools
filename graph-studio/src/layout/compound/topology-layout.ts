@@ -194,19 +194,10 @@ export function arrangeTopology(
     const ranked = candidates
       .map(({ layout }) => ({ layout, score: score(layout.boxes) }))
       .sort((a, b) => a.score - b.score);
-    // Route every finalist with the same objective; continue accepted moves until convergence or budget.
+    // Independently converge every finalist with the same routed objective.
     const finalists = ranked
       .slice(0, 2)
-      .map(({ layout }) =>
-        refineLocalPlacement(
-          layout,
-          localEdges,
-          columnGap,
-          rowGap,
-          score,
-          Math.ceil((score.evaluationBudget ?? 128) / 2),
-        ),
-      );
+      .map(({ layout }) => refineLocalPlacement(layout, localEdges, columnGap, rowGap, score));
     finalists.sort((a, b) => score(a.boxes) - score(b.boxes));
     pieces.push(finalists[0]);
   }

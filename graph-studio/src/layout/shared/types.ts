@@ -125,6 +125,7 @@ export interface StageData {
 }
 
 export interface StageGroup {
+  titleMetrics?: import("./group-title").GroupTitleMetrics;
   id: string;
   colorFamilyIndex: number;
   title: string;

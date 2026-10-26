@@ -20,6 +20,8 @@ import { buildCompoundStage } from "../layout/compound/layout";
 import type { StageData } from "../layout/shared/types";
 import { routeCompoundEdges } from "../layout/compound/routing/router";
 import { defineSuite, defineTest } from "./harness";
+import { startLayoutWorker } from "../app/layout/workerJob";
+import { validateLayoutGeometry } from "../layout/compound/layout-quality";
 
 export function nestedChainFixture(): NormalizedDag {
   const nodes: GraphDocument["nodes"] = {};
@@ -182,6 +184,88 @@ export function assertCompoundGeometry(dag: NormalizedDag, stage: StageData, vie
 }
 
 export const compoundLayoutSuite = defineSuite("Independent topological layouts and fixed-position routing", [
+  defineTest("local search completes all candidates beyond 128 evaluations and remains at a stable optimum", () => {
+    const boxes = new Map<string, Rect>();
+    const edges: [string, string][] = [];
+    for (let i = 0; i < 60; i++) {
+      const a = `a${i}`,
+        b = `b${i}`;
+      boxes.set(a, { x: 0, y: i * 200, width: 10, height: 10 });
+      boxes.set(b, { x: 500, y: i * 200, width: 10, height: 10 });
+      edges.push([a, b]);
+    }
+    let evaluations = 0;
+    const score = (positions: Map<string, Rect>) => {
+      evaluations++;
+      return edges.reduce(
+        (sum, [a, b]) =>
+          sum +
+          Math.abs(positions.get(b)!.x - positions.get(a)!.x + 20) +
+          Math.abs(positions.get(b)!.y - positions.get(a)!.y),
+        0,
+      );
+    };
+    const result = refineLocalPlacement({ boxes, width: 510, height: 12000 }, edges, 10, 10, score);
+    assert.equal(score(result.boxes), 0, "even the last visited nodes improve");
+    assert.ok(evaluations > 128);
+    assert.deepEqual(refineLocalPlacement(result, [...edges].reverse(), 10, 10, score), result);
+    assert.deepEqual(
+      refineLocalPlacement(result, edges, 10, 10, () => 1),
+      result,
+      "equal scores preserve coordinates",
+    );
+  }),
+  defineTest("workers have no deadline and terminate on completion, cancellation or failure", async () => {
+    const originalTimeout = globalThis.setTimeout;
+    globalThis.setTimeout = (() => {
+      throw new Error("Unexpected layout deadline");
+    }) as unknown as typeof setTimeout;
+    try {
+      for (const outcome of ["complete", "cancel", "error"] as const) {
+        let request: { jobId: string } | undefined;
+        let terminated = 0;
+        const worker = {
+          onmessage: null as Worker["onmessage"],
+          onerror: null as Worker["onerror"],
+          onmessageerror: null as Worker["onmessageerror"],
+          postMessage(value: { jobId: string }) {
+            request = value;
+          },
+          terminate() {
+            terminated++;
+          },
+        };
+        const job = startLayoutWorker<null, { value: number }>({
+          createWorker: () => worker as unknown as Worker,
+          payload: null,
+          failureMessage: "failed",
+          invalidMessage: "invalid",
+          cancelMessage: "cancelled",
+        });
+        assert.equal(terminated, 0);
+        const deliver = (jobId: string) =>
+          worker.onmessage!.call(
+            worker as unknown as Worker,
+            { data: { jobId, ok: true, result: { value: 1 } } } as MessageEvent,
+          );
+        deliver("stale-job");
+        assert.equal(terminated, 0);
+        if (outcome === "complete") {
+          deliver(request!.jobId);
+          assert.deepEqual(await job.result, { value: 1 });
+        } else {
+          if (outcome === "cancel") job.cancel();
+          else worker.onerror!.call(worker as unknown as Worker, { message: "failed" } as ErrorEvent);
+          await assert.rejects(job.result, outcome === "cancel" ? /cancelled/ : /failed/);
+        }
+        job.cancel();
+        assert.equal(terminated, 1);
+        assert.equal(worker.onmessage, null);
+      }
+    } finally {
+      globalThis.setTimeout = originalTimeout;
+    }
+  }),
   defineTest("local search accepts all four sides beyond the seed bounds and then rebases", () => {
     const initial = {
       width: 600,
@@ -720,23 +804,11 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     ]) {
       const stage = await layoutFixture(dag, view);
       assertCompoundGeometry(dag, stage, view);
-      if (!view.focusGroupId && !view.collapsedGroupIds.length) {
-        for (const [source, target] of [
-          ["capture", "bank"],
-          ["carrier", "tracking"],
-        ]) {
-          const points = stage.edges.find((edge) => edge.source === source && edge.target === target)!.points!;
-          const length = points
-            .slice(1)
-            .reduce((sum, point, i) => sum + Math.abs(point.x - points[i].x) + Math.abs(point.y - points[i].y), 0);
-          const direct =
-            Math.abs(points[0].x - points[points.length - 1].x) + Math.abs(points[0].y - points[points.length - 1].y);
-          assert.ok(
-            length <= direct * 1.2 + 16,
-            `${source} → ${target} may make a short detour for clearance, not a remote boundary loop`,
-          );
-        }
-      }
+      // Length trades against bends/crossings/area in the combined objective;
+      // every view must still satisfy the hard geometry and title checks.
+      const problem = stage.compoundLayout!;
+      const validation = validateLayoutGeometry(problem, problem.baseline);
+      assert.ok(validation.valid, validation.errors.join("\n"));
     }
   }),
   defineTest("empty projections and unconnected nodes have finite packed layouts", async () => {

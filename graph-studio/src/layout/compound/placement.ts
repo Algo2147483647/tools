@@ -4,6 +4,7 @@ import { type CompoundLayoutData, type LayoutDirection, type LayoutIntent, type 
 import { boxesOverlap } from "./layout-quality";
 import type { CompoundBox } from "../../graph/compound/geometry";
 import { arrangeTopology, compoundTopology } from "./topology-layout";
+import { groupContentTop } from "../shared/group-title";
 
 export function place(
   problem: LayoutProblem,
@@ -28,11 +29,11 @@ export function place(
   const sizes = new Map(Object.entries(baseline).map(([id, b]) => [id, { width: b.width, height: b.height }]));
   const locals = new Map<string, CompoundBox>();
   const completed = new Map<string | null, { boxes: Map<string, CompoundBox> }>();
-  let evaluations = 0;
   for (const [scopeId, scope] of [...scopes].reverse()) {
     const origin = scopeId === null ? { x: 0, y: 0 } : baseline[scopeId];
     const left = scopeId === null ? 36 : 24,
-      top = scopeId === null ? 36 : 58;
+      top =
+        scopeId === null ? 36 : groupContentTop(problem.projection.items.find((item) => item.id === scopeId)!.title);
     const original = new Map(
       scope.children.map((id) => [id, { ...baseline[id], x: baseline[id].x - origin.x, y: baseline[id].y - origin.y }]),
     );
@@ -117,7 +118,6 @@ export function place(
                 a.y - b.y,
             );
           const chosen = candidates.find((b) => {
-            if (++evaluations > 4096) throw new Error("Placement evaluation budget exhausted.");
             return fits(b) && !occupied.some((a) => boxesOverlap(a, b));
           });
           if (!chosen) throw new Error(`No legal slot found for ${id}. Try a larger scope or allow ancestor resizing.`);

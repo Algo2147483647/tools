@@ -1,11 +1,12 @@
-import { getNodeTitle,getNodeType } from "../accessors";
-import type { CompoundView,GraphEdge,NormalizedDag } from "../types";
-import { indexHierarchy,isHierarchyDescendant } from "./hierarchy";
+import { getNodeTitle, getNodeType } from "../accessors";
+import type { CompoundView, GraphEdge, NormalizedDag } from "../types";
+import { indexHierarchy, isHierarchyDescendant } from "./hierarchy";
 
 export interface CompoundItem {
   id: string;
   kind: "node" | "group";
   title: string;
+  titleMetrics?: import("../../layout/shared/group-title").GroupTitleMetrics;
   parentId: string | null;
   collapsed: boolean;
   external: boolean;
