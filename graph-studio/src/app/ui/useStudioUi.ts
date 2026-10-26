@@ -19,7 +19,6 @@ export function useStudioUi(dispatch: Dispatch<GraphAction>) {
     closeModals,
     closeContextMenu,
     toggleSettings: () => dispatch({ type: "settingsToggled" }),
-    toggleConsole: () => dispatch({ type: "consoleSidebarToggled" }),
     closeSaveDialog: () => dispatch({ type: "saveDialogClosed" }),
     changeLayout: (mode: GraphLayoutMode) => dispatch({ type: "layoutModeChanged", mode }),
     changeChartType: (chartType: GraphChartType) => dispatch({ type: "chartTypeChanged", chartType }),

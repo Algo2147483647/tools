@@ -312,19 +312,6 @@
 .workspace-overlays:empty {
   width: 0;
 }
-.workspace-sidebar-shell {
-  border-right: 1px solid var(--studio-border);
-  position: relative;
-  border: 1px solid var(--glass-edge);
-  border-radius: 14px;
-  background: linear-gradient(150deg, #ffffffe0, #f3f6fba6);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(32px) saturate(145%);
-  -webkit-backdrop-filter: blur(32px) saturate(145%);
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
 .workspace-stage-shell {
   position: absolute;
   inset: 0;
@@ -332,25 +319,6 @@
   overflow: hidden;
   border: 0;
   background: #fff;
-}
-.workspace-sidebar-resizer {
-  width: 6px;
-  margin: 0 -6px;
-  flex-shrink: 0;
-}
-.workspace-sidebar-resizer::before {
-  background: #8091ad30;
-  border-radius: 4px;
-  left: 1px;
-  top: 20px;
-  bottom: 20px;
-}
-.workspace-sidebar-shell .console-sidebar--terminal {
-  height: 100%;
-  border: 0;
-  border-radius: inherit;
-  background: #162032d9;
-  box-shadow: none;
 }
 .stage-warning {
   position: absolute;

@@ -28,7 +28,6 @@ export function StudioSettings({
   );
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
-  const consoleSidebarVisible = state.ui.consoleSidebarOpen;
   const sankeyUnavailableReason = useMemo(
     () => (state.dag ? getSankeyError(state.dag.nodes, state.dag.edges) : null),
     [state.dag],
@@ -74,7 +73,6 @@ export function StudioSettings({
       fileName={state.source.fileName}
       files={files}
       hasGraph={Boolean(state.dag)}
-      consoleSidebarOpen={consoleSidebarVisible}
       aiSettings={preferences.aiSettings}
       aiBusy={ai.busy}
       onClose={ui.toggleSettings}
@@ -100,7 +98,6 @@ export function StudioSettings({
       onAppearanceSchemaChange={appearanceHistory.handleAppearanceSchemaChange}
       onAppearanceReset={appearanceHistory.handleAppearanceReset}
 
-      onConsoleSidebarToggle={ui.toggleConsole}
       onExport={exportSvg}
       onExportHtml={exportHtml}
       canExportCanvas={Boolean(viewport.stage && !files.homeVisible)}

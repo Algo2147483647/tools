@@ -1,14 +1,243 @@
-.console-sidebar--terminal {
+.console-window {
+  position: fixed;
+  z-index: 35;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  height: calc(100% - 12px);
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  background: #000;
-  color: #f2f2f2;
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.32);
+  width: 680px;
+  height: 540px;
+  min-width: min(360px, calc(100vw - 16px));
+  min-height: min(280px, calc(100dvh - 16px));
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow: hidden;
+  resize: both;
+  border: 1px solid var(--chrome-border);
+  border-radius: 14px;
+  background: var(--chrome-background);
+  color: #000;
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: var(--chrome-blur);
+  -webkit-backdrop-filter: var(--chrome-blur);
+}
+.console-window__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  gap: 16px;
+  padding: 0 16px;
+  min-height: 50px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  border-bottom: 1px solid #edf0f4;
+}
+.console-window__header:active {
+  cursor: grabbing;
+}
+.console-window__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.console-window__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #000;
+  font-size: 11px;
+}
+.console-window__status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #288466;
+}
+.console-window__status.is-busy::before {
+  background: #b98123;
+}
+.console-window__close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #000;
+  background: transparent;
+  cursor: pointer;
+}
+.console-window__close:hover {
+  color: #000;
+  background: #f0f3f8;
+}
+.console-window button:focus-visible {
+  outline: 2px solid #617bc3;
+  outline-offset: 2px;
+}
+.console-window__tabs {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 24px;
+  padding: 0;
+  align-self: stretch;
+}
+.console-window__tabs button {
+  padding: 12px 0 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #000;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.console-window__tabs button[aria-selected="true"] {
+  color: #000;
+  border-bottom-color: #526eaf;
+}
+.console-window__conversation {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.console-window__protocol-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.console-window [hidden] {
+  display: none;
+}
+.console-protocols {
+  padding: 20px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #000;
+}
+.console-protocols__heading h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+.console-protocols p {
+  margin: 6px 0 16px;
+}
+.console-protocols__links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+}
+.console-protocols a {
+  color: #000;
+  text-decoration: none;
+}
+.console-protocols a:hover {
+  text-decoration: underline;
+}
+.console-protocols section {
+  scroll-margin-top: 16px;
+}
+.console-protocols h4 {
+  margin: 20px 0 10px;
+  color: #000;
+  font-size: 13px;
+  font-weight: 600;
+}
+.console-protocols h4 span {
+  margin-left: 8px;
+  color: #000;
+  font-size: 11px;
+  font-weight: 400;
+}
+.console-protocols input[type="search"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #dce3ee;
+  border-radius: 8px;
+  background: transparent;
+  color: #000;
+  font: inherit;
+}
+.console-protocols__table-scroll {
+  overflow-x: auto;
+  margin: 16px 0 20px;
+}
+.console-protocols__table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 2px solid #68778d;
+  border-bottom: 2px solid #68778d;
+  text-align: left;
+  font-size: 11px;
+}
+.console-protocols__table caption {
+  text-align: left;
+  padding: 0 0 8px;
+  color: #000;
+  font-size: 10px;
+}
+.console-protocols__table thead {
+  border-bottom: 1px solid #9ba6b6;
+  color: #000;
+}
+.console-protocols__table th,
+.console-protocols__table td {
+  padding: 10px 8px;
+  border: 0;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.console-protocols__table th {
+  font-weight: 500;
+}
+.console-protocols__table th:first-child {
+  width: 32%;
+}
+.console-protocols__table td:nth-child(2) {
+  width: 24%;
+}
+.console-protocols code,
+.console-protocols pre {
+  font-family: "Cascadia Mono", Consolas, monospace;
+}
+.console-protocols details {
+  margin: 12px 0;
+}
+.console-protocols summary {
+  cursor: pointer;
+  color: #000;
+  font-weight: 500;
+}
+.console-protocols pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  padding: 12px;
+  background: transparent;
+  color: #000;
+  font-size: 11px;
+}
+.console-window .console-terminal__input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.console-window .ai-activity,
+.console-window .ai-activity pre {
+  background: transparent;
+  color: #000;
+  border-color: #e3e8ef;
 }
 
 .console-terminal__output {
@@ -17,7 +246,7 @@
   overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.46) transparent;
-  padding: 8px 10px;
+  padding: 8px 20px 20px;
   font:
     13px/1.55 "Cascadia Mono",
     "IBM Plex Mono",
@@ -31,31 +260,33 @@
 }
 
 .console-terminal__line + .console-terminal__line {
-  margin-top: 6px;
+  margin-top: 10px;
 }
 
 .console-terminal__line--input {
-  color: #f2f2f2;
+  border-left: 2px solid #c7d3ed;
+  padding: 6px 12px;
+  color: #000;
 }
 
 .console-terminal__line--success {
-  color: #89e089;
+  color: #000;
 }
 
 .console-terminal__line--error {
-  color: #ff8b8b;
+  color: #000;
 }
 
 .console-terminal__line--info {
-  color: #9bbcff;
+  color: #000;
 }
 
 .console-terminal__line--ai {
-  color: #d7c3ff;
+  color: #000;
 }
 
 .console-terminal__line--ai-action {
-  color: #ffd18a;
+  color: #000;
 }
 
 .console-review-card {
@@ -65,8 +296,8 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.34);
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.88);
-  color: #f8fafc;
+  background: transparent;
+  color: #000;
   font:
     12px/1.45 "Cascadia Mono",
     "IBM Plex Mono",
@@ -82,13 +313,8 @@
   border-color: rgba(74, 222, 128, 0.48);
 }
 
-.console-review-card--dismissed {
-  opacity: 0.72;
-}
-
 .console-review-card--stale {
   border-color: rgba(148, 163, 184, 0.5);
-  opacity: 0.78;
 }
 
 .console-review-card__header {
@@ -100,7 +326,7 @@
 
 .console-review-card__header h3 {
   margin: 2px 0 0;
-  color: #fff;
+  color: #000;
   font:
     700 13px/1.25 "Cascadia Mono",
     "IBM Plex Mono",
@@ -111,7 +337,7 @@
 .console-review-card__eyebrow,
 .console-review-card__label {
   margin: 0;
-  color: rgba(203, 213, 225, 0.72);
+  color: #000;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -131,23 +357,23 @@
 
 .console-review-card__risk--low {
   border-color: rgba(74, 222, 128, 0.42);
-  color: #86efac;
+  color: #000;
 }
 
 .console-review-card__risk--medium {
   border-color: rgba(251, 191, 36, 0.46);
-  color: #fcd34d;
+  color: #000;
 }
 
 .console-review-card__risk--high {
   border-color: rgba(248, 113, 113, 0.52);
-  color: #fca5a5;
+  color: #000;
 }
 
 .console-review-card__goal,
 .console-review-card__validation {
   margin: 0;
-  color: rgba(226, 232, 240, 0.88);
+  color: #000;
 }
 
 .console-review-card__meta {
@@ -160,7 +386,7 @@
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 999px;
   padding: 2px 7px;
-  color: rgba(226, 232, 240, 0.78);
+  color: #000;
   font-size: 11px;
 }
 
@@ -176,8 +402,8 @@
   padding: 8px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 6px;
-  background: rgba(2, 6, 23, 0.72);
-  color: #ffd18a;
+  background: transparent;
+  color: #000;
   font:
     12px/1.45 "Cascadia Mono",
     "IBM Plex Mono",
@@ -197,8 +423,8 @@
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 6px;
   padding: 4px 9px;
-  background: rgba(30, 41, 59, 0.92);
-  color: #f8fafc;
+  background: transparent;
+  color: #000;
   font:
     12px/1.2 "Cascadia Mono",
     "IBM Plex Mono",
@@ -209,12 +435,11 @@
 
 .console-review-card__actions button:hover:not(:disabled) {
   border-color: rgba(125, 211, 252, 0.5);
-  background: rgba(30, 64, 175, 0.36);
+  background: #f0f3fb;
 }
 
 .console-review-card__actions button:disabled {
   cursor: not-allowed;
-  opacity: 0.44;
 }
 
 .console-terminal__input-wrap {
@@ -222,9 +447,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 42px;
-  padding: 0 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 0 0 auto;
+  min-height: 48px;
+  margin: 8px 16px 16px;
+  padding: 0 12px;
+  border: 1px solid #dce3ee;
+  border-radius: 10px;
   font:
     13px/1.4 "Cascadia Mono",
     "IBM Plex Mono",
@@ -232,9 +460,18 @@
     monospace;
 }
 
+.console-terminal__input-wrap:focus-within {
+  border-color: #8399ce;
+  box-shadow: 0 0 0 3px #eef2fa;
+}
+
 .console-terminal__prompt {
+  max-width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   flex: 0 0 auto;
-  color: #f2f2f2;
+  color: #000;
 }
 
 .console-terminal__input {
@@ -243,18 +480,22 @@
   border: none;
   padding: 0;
   background: transparent;
-  color: #f2f2f2;
+  color: #000;
   font: inherit;
   outline: none;
 }
 
-.console-terminal__input::placeholder {
-  color: rgba(242, 242, 242, 0.35);
+.console-window input::placeholder {
+  color: #000;
+  opacity: 1;
+}
+
+.console-window .ai-activity :is(h3, h4, p, summary) {
+  color: #000;
 }
 
 .console-terminal__input:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .console-terminal__suggestions {
@@ -264,7 +505,7 @@
   overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.46) transparent;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #eef2f8;
   padding: 8px 10px 0;
 }
 
@@ -282,7 +523,7 @@
 .console-terminal__output::-webkit-scrollbar-thumb,
 .console-terminal__suggestions::-webkit-scrollbar-thumb {
   min-height: 28px;
-  border: 2px solid #000;
+  border: 2px solid transparent;
   border-radius: 999px;
   background: rgba(148, 163, 184, 0.42);
   background-clip: padding-box;
@@ -310,7 +551,7 @@
   border: none;
   padding: 6px 8px;
   background: transparent;
-  color: rgba(242, 242, 242, 0.72);
+  color: #000;
   font:
     12px/1.4 "Cascadia Mono",
     "IBM Plex Mono",
@@ -322,13 +563,12 @@
 
 .console-terminal__suggestion.is-active,
 .console-terminal__suggestion:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: #eef2f8;
+  color: #000;
 }
 
-@media (max-width: 900px) {
-  .console-sidebar--terminal {
-    height: auto;
-    max-height: 48vh;
+@media (max-width: 520px) {
+  .console-window__header {
+    padding: 0 12px;
   }
 }

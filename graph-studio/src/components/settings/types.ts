@@ -23,7 +23,6 @@ export interface SettingsModalProps {
   fileName: string;
   files: WorkspaceControls;
   hasGraph: boolean;
-  consoleSidebarOpen: boolean;
   aiSettings: AiSettings;
   aiBusy: boolean;
   onClose: () => void;
@@ -40,7 +39,6 @@ export interface SettingsModalProps {
   bindingAppearance: boolean;
   onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
-  onConsoleSidebarToggle: () => void;
   onExport: () => void;
   onExportHtml: () => void;
   canExportCanvas: boolean;

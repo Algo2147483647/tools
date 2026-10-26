@@ -6,9 +6,24 @@ interface ConsoleCommandReference {
 
 export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   {
-    label: "/compound-layout <operation>",
+    label: "/compound-layout inspect [group-id|root]",
     insertText: "/compound-layout inspect",
-    help: "Nested layout controls: inspect or diagnose [group ID], propose <intent JSON> to arrange directly, or cancel. Run separately from graph edit batches. AI layout requests use the Layout panel.",
+    help: "Inspect nested layout geometry and metrics for the current scope, a group, or root. Run separately from edit batches.",
+  },
+  {
+    label: "/compound-layout diagnose [group-id|root]",
+    insertText: "/compound-layout diagnose",
+    help: "Inspect nested layout diagnostics. Uses the same inspection result as inspect.",
+  },
+  {
+    label: "/compound-layout propose <intent JSON>",
+    insertText: "/compound-layout propose ",
+    help: "Compute and apply a local layout from a validated intent. Run separately from edit batches. AI layout requests use the Layout panel.",
+  },
+  {
+    label: "/compound-layout cancel",
+    insertText: "/compound-layout cancel",
+    help: "Cancel the current nested layout calculation.",
   },
   { label: "/help", insertText: "/help", help: "Show this command reference." },
   { label: "/keys", insertText: "/keys", help: "List every node key in the current graph." },
@@ -113,6 +128,7 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
     help: "Reset graph appearance to the default CSS, variables, and visual settings.",
   },
   { label: "/clear", insertText: "/clear", help: "Clear the console output." },
+  { label: "/cls", insertText: "/cls", help: "Alias of /clear. Clear the console output." },
 ];
 
 export function buildConsoleHelpText(): string {

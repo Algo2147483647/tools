@@ -34,7 +34,6 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
     "Current session",
     "workspace manifest location refresh close 会话 工作区 路径",
   );
-  add("console", "general", "Interface", "Graph console", "panel sidebar ai commands 控制台 面板 侧栏 命令");
   add(
     "chart",
     "chart",

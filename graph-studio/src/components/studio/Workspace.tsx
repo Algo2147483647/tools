@@ -17,9 +17,6 @@ interface WorkspaceProps {
   status: string;
   explorer?: React.ReactNode;
   emptyContent?: React.ReactNode;
-  sidebar: React.ReactNode;
-  sidebarOpen: boolean;
-  sidebarWidth: number;
   appearance: GraphAppearance;
   onInitializeCanvas: () => void;
   focusedKey: string | null;
@@ -31,7 +28,6 @@ interface WorkspaceProps {
   onBackgroundContextMenu: (event: React.MouseEvent<Element>) => void;
   onFocusChange: (key: string | null) => void;
   onScroll: () => void;
-  onSidebarResizeStart: (event: React.PointerEvent<HTMLDivElement>) => void;
 }
 
 export default function Workspace({
@@ -44,9 +40,6 @@ export default function Workspace({
   status,
   explorer,
   emptyContent,
-  sidebar,
-  sidebarOpen,
-  sidebarWidth,
   appearance,
   onInitializeCanvas,
   focusedKey,
@@ -58,29 +51,14 @@ export default function Workspace({
   onBackgroundContextMenu,
   onFocusChange,
   onScroll,
-  onSidebarResizeStart,
   onGroupToggle,
   onGroupEnter,
 }: WorkspaceProps) {
   return (
-    <main id="workspace" className={`workspace${sidebarOpen ? " workspace--split" : ""}`}>
+    <main id="workspace" className="workspace">
       <div className="workspace-split-shell">
         <div ref={overlaysRef} className="workspace-overlays">
           {explorer}
-          {sidebarOpen ? (
-            <>
-              <aside className="workspace-sidebar-shell" style={{ width: sidebarWidth }}>
-                {sidebar}
-              </aside>
-              <div
-                className="workspace-sidebar-resizer"
-                role="separator"
-                aria-orientation="vertical"
-                aria-label="Resize console sidebar"
-                onPointerDown={onSidebarResizeStart}
-              />
-            </>
-          ) : null}
         </div>
         <div className="workspace-stage-shell">
           {stage && !stage.compoundLayout && stage.warnings.length > 0 && (

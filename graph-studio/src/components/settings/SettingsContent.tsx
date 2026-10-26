@@ -55,14 +55,12 @@ export function SettingsContent({
     fileName,
     files,
     hasGraph,
-    consoleSidebarOpen,
     aiSettings,
     aiBusy,
     onClose,
     onAppearanceCssChange,
     onAppearanceSchemaChange,
     onAppearanceReset,
-    onConsoleSidebarToggle,
     onExport,
     onExportHtml,
     canExportCanvas,
@@ -117,18 +115,6 @@ export function SettingsContent({
               </p>
             )}
           </div>
-        )}
-        {shownChapter === "general" && results.some((item) => item.id === "console") && (
-          <section className="settings-section">
-            <h3>Interface</h3>
-            <label className="settings-toggle-row">
-              <span>
-                <strong>Graph console</strong>
-                <small>Show the sidebar to run commands and work with the AI assistant.</small>
-              </span>
-              <input type="checkbox" role="switch" checked={consoleSidebarOpen} onChange={onConsoleSidebarToggle} />
-            </label>
-          </section>
         )}
         {shownChapter === "general" ? (
           <GeneralSessionSettings

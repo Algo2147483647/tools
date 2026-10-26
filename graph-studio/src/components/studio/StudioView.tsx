@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
-import { useSidebarResize } from "./useSidebarResize";
-import ConsoleSidebar from "../console/ConsoleSidebar";
+import { useConsoleGesture } from "../console/useConsoleGesture";
+import ConsoleWindow from "../console/ConsoleWindow";
 import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";
 import WorkspaceOverview from "../workspace/WorkspaceOverview";
@@ -32,10 +32,13 @@ export default function StudioView({
   const preview = useWorkspacePreview(files, dispatch);
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
-  const resizeSidebar = useSidebarResize(state.ui.consoleSidebarWidth, (width) =>
-    dispatch({ type: "consoleSidebarWidthChanged", width }),
+  const consoleGesture = useConsoleGesture(
+    () => {
+      ui.closeContextMenu();
+      dispatch({ type: "consoleSidebarToggled", open: true });
+    },
+    state.document.generation + ":" + files.homeVisible + ":" + state.chartType,
   );
-  const consoleSidebarVisible = state.ui.consoleSidebarOpen;
 
   return (
     <div className="app-shell" onDragOver={preview.handleAppDragOver} onDrop={preview.handleAppDrop}>
@@ -140,27 +143,6 @@ export default function StudioView({
           stage={viewport.stage}
           documentGeneration={state.document.generation}
           status={viewport.status}
-          sidebar={
-            <ConsoleSidebar
-              hasGraph={Boolean(state.dag)}
-              entries={consoleController.entries}
-              inputValue={consoleController.input}
-              contextNodeKey={consoleController.contextNodeKey}
-              aiBusy={ai.busy}
-              aiActivity={ai.activity}
-              suggestions={consoleController.suggestions}
-              activeSuggestionIndex={consoleController.activeSuggestionIndex}
-              onReviewApply={ai.applyReview}
-              onReviewDismiss={ai.dismissReview}
-              onReviewCopy={ai.copyReview}
-              onInputChange={consoleController.changeInput}
-              onKeyDown={(event) => consoleController.handleKeyDown(event, ai.request)}
-              onPaste={(event) => consoleController.handlePaste(event, ai.request)}
-              onSuggestionSelect={(suggestion) => consoleController.changeInput(suggestion.insertText)}
-            />
-          }
-          sidebarOpen={consoleSidebarVisible}
-          sidebarWidth={state.ui.consoleSidebarWidth}
           appearance={appearance}
           onInitializeCanvas={onInitializeCanvas}
           focusedKey={viewport.focusedKey}
@@ -168,11 +150,31 @@ export default function StudioView({
           onTimelineNodePin={viewport.pinTimelineNode}
           onNodeClick={viewport.handleNodeClick}
           onNodeDoubleClick={viewport.handleNodeDoubleClick}
-          onNodeContextMenu={viewport.handleNodeContextMenu}
-          onBackgroundContextMenu={viewport.handleBackgroundContextMenu}
+          onNodeContextMenu={(event, key) => consoleGesture(event, () => viewport.handleNodeContextMenu(event, key))}
+          onBackgroundContextMenu={(event) => consoleGesture(event, () => viewport.handleBackgroundContextMenu(event))}
           onFocusChange={viewport.setFocusedKey}
           onScroll={ui.closeContextMenu}
-          onSidebarResizeStart={resizeSidebar}
+        />
+      )}
+
+      {state.ui.consoleSidebarOpen && !files.homeVisible && (
+        <ConsoleWindow
+          onClose={() => dispatch({ type: "consoleSidebarToggled", open: false })}
+          hasGraph={Boolean(state.dag)}
+          entries={consoleController.entries}
+          inputValue={consoleController.input}
+          contextNodeKey={consoleController.contextNodeKey}
+          aiBusy={ai.busy}
+          aiActivity={ai.activity}
+          suggestions={consoleController.suggestions}
+          activeSuggestionIndex={consoleController.activeSuggestionIndex}
+          onReviewApply={ai.applyReview}
+          onReviewDismiss={ai.dismissReview}
+          onReviewCopy={ai.copyReview}
+          onInputChange={consoleController.changeInput}
+          onKeyDown={(event) => consoleController.handleKeyDown(event, ai.request)}
+          onPaste={(event) => consoleController.handlePaste(event, ai.request)}
+          onSuggestionSelect={(suggestion) => consoleController.changeInput(suggestion.insertText)}
         />
       )}
 
