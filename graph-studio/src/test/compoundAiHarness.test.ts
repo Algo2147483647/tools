@@ -582,7 +582,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
     const doc = defaultLayoutSession();
     doc.charts.compound = layout;
     assert.equal(parseLayoutSession(doc).charts.compound.portMode, "midpoints");
-    assert.equal(parseLayoutSession({ charts: { compound: {} } }).charts.compound.portMode, "distributed");
+    assert.equal(parseLayoutSession({ charts: { compound: {} } }).charts.compound.portMode, "midpoints");
     assertCompoundGeometry(input.dag, stage, view);
   }),
   defineTest("flow order survives rename and drops removed or reparented siblings", () => {

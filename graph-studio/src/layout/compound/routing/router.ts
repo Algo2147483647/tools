@@ -1,16 +1,16 @@
 import type { CompoundProjection } from "../../../graph/compound/projection";
 import type { CompoundBox, CompoundRoute } from "../../../graph/compound/geometry";
-import { crossingCost, parallelRouteCost, routeCost } from "./cost";
+import { crossingCost, parallelRouteCost, routeCost, sharedEndpoints } from "./cost";
 import { crossesBox, inflate, inside, simplifyRoute } from "./geometry";
 import { labelBox, placeLabel } from "./labels";
 import { sidePorts } from "./ports";
 import { findOrthogonalPath, simpleRoutes } from "./search";
 import { outerRoutes } from "./outer";
-import { EPSILON, LANE_GAP, type CompoundRoutingOptions, type Point, type Port } from "./types";
+import { EPSILON, type CompoundRoutingOptions, type Point, type Port } from "./types";
 import { compileRoutingPlan } from "./plan";
 import { sides, type RoutingIssue } from "./intent";
 
-/** Choose separated side ports after placement; routing never moves node rectangles. */
+/** Choose reusable side ports after placement; routing never moves node rectangles. */
 export function routeCompoundEdges(
   projection: CompoundProjection,
   boxes: Map<string, CompoundBox>,
@@ -46,6 +46,16 @@ export function routeCompoundEdges(
   const obstacles = projection.items
     .filter((item) => item.kind !== "group" || item.collapsed)
     .map((item) => boxes.get(item.id)!);
+  const portApproaches = showLabels
+    ? [...boxes.values()].flatMap((box) =>
+        sidePorts(box, 8, 1, "midpoints").map(({ point, stub }) => ({
+          x: Math.min(point.x, stub.x) - 8,
+          y: Math.min(point.y, stub.y) - 8,
+          width: Math.abs(point.x - stub.x) + 16,
+          height: Math.abs(point.y - stub.y) + 16,
+        })),
+      )
+    : [];
   const extent = { ...bounds };
   let clearance = 8;
   for (let i = 0; i < obstacles.length; i++)
@@ -62,7 +72,6 @@ export function routeCompoundEdges(
       (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
   if (options.reverseOrder) edges.reverse();
-  const attachments = new Map<string, Point[]>();
   const labelBoxes = new Map<string, CompoundBox>();
   const result = new Map<string, CompoundRoute>();
   const edgeLabelBox = (id: string, label: string, position: Point) => {
@@ -73,22 +82,12 @@ export function routeCompoundEdges(
     const fixed = options.fixedRoutes?.get(edge.id);
     if (!fixed) continue;
     result.set(edge.id, fixed);
-    for (const [id, point] of [
-      [edge.source, fixed.points[0]],
-      [edge.target, fixed.points[fixed.points.length - 1]],
-    ] as const)
-      attachments.set(id, [...(attachments.get(id) ?? []), point]);
     if (showLabels && edge.label) labelBoxes.set(edge.id, edgeLabelBox(edge.id, edge.label, fixed.labelPosition));
   }
   for (const edge of edges) {
     if (options.fixedRoutes?.has(edge.id)) continue;
     const accept = (route: CompoundRoute) => {
       result.set(edge.id, route);
-      for (const [id, point] of [
-        [edge.source, route.points[0]],
-        [edge.target, route.points[route.points.length - 1]],
-      ] as const)
-        attachments.set(id, [...(attachments.get(id) ?? []), point]);
     };
     const otherLabels = [...labelBoxes].filter(([id]) => id !== edge.id).map(([, box]) => box);
     const gap = clearance;
@@ -130,16 +129,35 @@ export function routeCompoundEdges(
           port.stub.y <= extent.y + extent.height,
       );
     };
-    const sharedCost = (a: Point, b: Point) =>
-      [...result.values()].reduce(
-        (sum, route) => sum + parallelRouteCost(a, b, route.points) + crossingCost(a, b, route.points),
+    let costSources: Port[] | undefined, costTargets: Port[] | undefined;
+    let costRoutes: { points: Point[]; shared: Point[] }[] = [];
+    const sharedCost = (a: Point, b: Point) => {
+      if (costSources !== sources || costTargets !== targets) {
+        costSources = sources;
+        costTargets = targets;
+        costRoutes = [...result].map(([id, route]) => {
+          const other = edges.find((e) => e.id === id)!;
+          const shared: Point[] = [];
+          for (const end of ["source", "target"] as const) {
+            const candidates = end === "source" ? sources : targets;
+            for (const otherEnd of ["source", "target"] as const) {
+              const point = otherEnd === "source" ? route.points[0] : route.points[route.points.length - 1];
+              if (
+                edge[end] === other[otherEnd] &&
+                candidates.some((p) => Math.hypot(p.point.x - point.x, p.point.y - point.y) < EPSILON)
+              )
+                shared.push(point);
+            }
+          }
+          return { points: route.points, shared };
+        });
+      }
+      return costRoutes.reduce(
+        (sum, route) =>
+          sum + parallelRouteCost(a, b, route.points, route.shared) + crossingCost(a, b, route.points, route.shared),
         0,
       );
-    const attachmentCost = (id: string, point: Point) =>
-      (attachments.get(id) ?? []).reduce(
-        (sum, used) => sum + Math.max(0, LANE_GAP - Math.hypot(point.x - used.x, point.y - used.y)) * 4,
-        portPreferenceCost(id, point),
-      );
+    };
     function portPreferenceCost(id: string, point: Point) {
       const side = options.portSides?.get(edge.id)?.[id === edge.source ? "source" : "target"];
       if (side === undefined) return 0;
@@ -149,9 +167,24 @@ export function routeCompoundEdges(
     }
     const cost = (points: Point[]) =>
       routeCost(points) +
-      attachmentCost(edge.source, points[0]) +
-      attachmentCost(edge.target, points[points.length - 1]) +
-      points.slice(1).reduce((sum, point, i) => sum + sharedCost(points[i], point), 0);
+      portPreferenceCost(edge.source, points[0]) +
+      portPreferenceCost(edge.target, points[points.length - 1]) +
+      [...result].reduce((total, [id, route]) => {
+        const other = edges.find((e) => e.id === id)!;
+        const shared = sharedEndpoints(edge, points, other, route.points);
+        return (
+          total +
+          points
+            .slice(1)
+            .reduce(
+              (sum, point, i) =>
+                sum +
+                parallelRouteCost(points[i], point, route.points, shared) +
+                crossingCost(points[i], point, route.points, shared),
+              0,
+            )
+        );
+      }, 0);
     const assigned = plan?.endpoints.get(edge.id);
     const requiredPort = (end: "source" | "target") =>
       options.intent?.ports.some(
@@ -246,21 +279,36 @@ export function routeCompoundEdges(
         suggestedActions: ["change-gateway-side", "increase-gap"],
       });
     }
-    const candidate = findOrthogonalPath(
-      sources,
-      targets,
-      padded,
-      extent,
-      sharedCost,
-      (port) => attachmentCost(edge.source, port.point),
-      (port) => attachmentCost(edge.target, port.point),
+    const simple = simpleRoutes(sources, targets, padded);
+    const lowerBound = Math.min(
+      ...sources.flatMap((source) =>
+        targets.map(
+          (target) =>
+            Math.abs(source.point.x - target.point.x) +
+            Math.abs(source.point.y - target.point.y) +
+            portPreferenceCost(edge.source, source.point) +
+            portPreferenceCost(edge.target, target.point),
+        ),
+      ),
     );
+    // All other costs are nonnegative: an optimal direct route needs no grid search.
+    const candidate = simple.some((points) => cost(points) <= lowerBound + EPSILON)
+      ? null
+      : findOrthogonalPath(
+          sources,
+          targets,
+          padded,
+          extent,
+          sharedCost,
+          (port) => portPreferenceCost(edge.source, port.point),
+          (port) => portPreferenceCost(edge.target, port.point),
+        );
     // Inferred gateways are candidate hints. Do not force extra bends through every
     // nested boundary when a clean route already communicates the same connection.
     let normal =
       planned && explicitPassages
         ? [planned]
-        : [...simpleRoutes(sources, targets, padded), ...(candidate ? [candidate] : []), ...(planned ? [planned] : [])];
+        : [...simple, ...(candidate ? [candidate] : []), ...(planned ? [planned] : [])];
     if (!normal.length && assigned && !passages.some((p) => p.required)) {
       if (!requiredPort("source")) sources = ports(edge.source);
       if (!requiredPort("target")) targets = ports(edge.target);
@@ -313,7 +361,7 @@ export function routeCompoundEdges(
           ? placeLabel(
               edge.label,
               points,
-              [...obstacles, ...containers, ...otherLabels, ...lineObstacles],
+              [...obstacles, ...containers, ...otherLabels, ...lineObstacles, ...portApproaches],
               extent,
               options.labelSizes?.[edge.id],
             )
@@ -359,7 +407,7 @@ export function routeCompoundEdges(
           [...padded, labelObstacle],
           extent,
           sharedCost,
-          (port) => attachmentCost(edge.source, port.point),
+          (port) => portPreferenceCost(edge.source, port.point),
           () => 0,
         );
         const end = findOrthogonalPath(
@@ -369,7 +417,7 @@ export function routeCompoundEdges(
           extent,
           sharedCost,
           () => 0,
-          (port) => attachmentCost(edge.target, port.point),
+          (port) => portPreferenceCost(edge.target, port.point),
         );
         if (!start || !end) throw new Error(`Unable to route label lane: ${edge.source} → ${edge.target}.`);
         chosen = { points: simplifyRoute([...start, ...end]) ?? [...start, ...end], labelPosition };

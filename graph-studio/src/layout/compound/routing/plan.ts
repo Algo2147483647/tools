@@ -44,7 +44,7 @@ export function compileRoutingPlan(
   boxes: Map<string, CompoundBox>,
   bounds: CompoundBox,
   intent: RoutingIntent = emptyRouting(),
-  mode: "distributed" | "midpoints" = "distributed",
+  mode: "distributed" | "midpoints" = "midpoints",
   fixed: Map<string, CompoundRoute> = new Map(),
   reversePorts: Set<string> = new Set(),
 ): RoutingPlan {
@@ -268,34 +268,6 @@ export function compileRoutingPlan(
         required: explicit?.required ?? false,
       });
     }
-  if (mode !== "midpoints") {
-    const assignedCounts = new Map<string, number>();
-    for (const end of [...ends].sort(
-      (a, b) =>
-        Number(b.required) - Number(a.required) || a.edgeId.localeCompare(b.edgeId) || a.end.localeCompare(b.end),
-    )) {
-      const box = boxes.get(end.nodeId)!;
-      const capacity = (side: Side) =>
-        Math.max(1, Math.floor(((side === "east" || side === "west" ? box.height : box.width) - 24) / LANE_GAP) + 1);
-      const count = (side: Side) => assignedCounts.get(`${end.nodeId}:${side}`) ?? 0;
-      if (!end.required && !explicitPorts.has(`${end.edgeId}:${end.end}`) && count(end.side) >= capacity(end.side)) {
-        const alternatives = sides
-          .filter((side) => count(side) < capacity(side))
-          .sort((a, b) => {
-            const pa = boundaryPoint(box, a),
-              pb = boundaryPoint(box, b);
-            return (
-              Math.abs(pa.x - end.opposite.x) +
-              Math.abs(pa.y - end.opposite.y) -
-              Math.abs(pb.x - end.opposite.x) -
-              Math.abs(pb.y - end.opposite.y)
-            );
-          });
-        if (alternatives.length) end.side = alternatives[0];
-      }
-      assignedCounts.set(`${end.nodeId}:${end.side}`, count(end.side) + 1);
-    }
-  }
   const portBuckets = new Map<string, End[]>();
   for (const end of ends) {
     const key = `${end.nodeId}:${end.side}`;
@@ -319,20 +291,6 @@ export function compileRoutingPlan(
       );
     const reversed = slots.map((s) => s.e).reverse();
     slots.forEach((s, i) => (bucket[s.i] = reversed[i]));
-    if (mode !== "midpoints" && available < (bucket.length - 1) * LANE_GAP) {
-      const issue: RoutingIssue = {
-        id: `port-capacity:${first.nodeId}:${first.side}`,
-        kind: "port-congestion",
-        scopeId: projection.items.find((n) => n.id === first.nodeId)?.parentId ?? null,
-        nodeIds: [first.nodeId],
-        edgeIds: bucket.map((e) => e.edgeId),
-        evidence: { side: first.side, requiredWidth: (bucket.length - 1) * LANE_GAP, availableWidth: available },
-        repairLevel: "routing",
-        suggestedActions: ["change-port-side", "separate-connection-families"],
-      };
-      if (bucket.some((e) => e.required)) throw new Error(JSON.stringify(issue));
-      plan.issues.push(issue);
-    }
     bucket.forEach((end, i) => {
       const route = fixed.get(end.edgeId),
         old = end.end === "source" ? route?.points[0] : route?.points.at(-1);

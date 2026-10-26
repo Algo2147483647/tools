@@ -1,10 +1,11 @@
+import { createPlacementScore, type PlacementScore } from "./placement-score";
 import { refineLocalPlacement } from "./local-refinement";
-import { compactFlow, compareArrangements, packRectangles } from "./rectangle-packing";
+import { compactFlow, packRectangles } from "./rectangle-packing";
 import type { CompoundBox } from "../../graph/compound/geometry";
 type Size = { width: number; height: number };
 type Arrangement = { boxes: Map<string, CompoundBox>; width: number; height: number };
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-/** Condense cycles before ranking. Every edge between components must point downstream. */
+/** Condense cycles to rank initial seeds; ranking never constrains subsequent moves. */
 export function compoundTopology(ids: string[], edges: [string, string][], flowOrder: readonly string[] = []) {
   const preferred = flowOrder.filter((id) => ids.includes(id));
   const precedence: [string, string][] = preferred.slice(1).map((id, i) => [preferred[i], id]);
@@ -116,6 +117,7 @@ export function arrangeTopology(
   rowGap: number,
   direction: "AUTO" | "RIGHT" | "DOWN" = "AUTO",
   flowOrder?: readonly string[],
+  score: PlacementScore = createPlacementScore(edges),
 ): Arrangement {
   columnGap = Math.max(0, columnGap);
   rowGap = Math.max(0, rowGap);
@@ -189,9 +191,24 @@ export function arrangeTopology(
         candidates.push({ layout, down });
       }
     }
-    candidates.sort((a, b) => compareArrangements(a.layout, b.layout, localEdges, columnGap, rowGap, a.down, b.down));
-    const best = candidates[0];
-    pieces.push(refineLocalPlacement(best.layout, localEdges, forward, columnGap, rowGap, best.down));
+    const ranked = candidates
+      .map(({ layout }) => ({ layout, score: score(layout.boxes) }))
+      .sort((a, b) => a.score - b.score);
+    // Route every finalist with the same objective; continue accepted moves until convergence or budget.
+    const finalists = ranked
+      .slice(0, 2)
+      .map(({ layout }) =>
+        refineLocalPlacement(
+          layout,
+          localEdges,
+          columnGap,
+          rowGap,
+          score,
+          Math.ceil((score.evaluationBudget ?? 128) / 2),
+        ),
+      );
+    finalists.sort((a, b) => score(a.boxes) - score(b.boxes));
+    pieces.push(finalists[0]);
   }
   if (!pieces.length) return { boxes: new Map(), width: 0, height: 0 };
   const keys = pieces.map((_, i) => String(i)),

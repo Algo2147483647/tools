@@ -1,3 +1,4 @@
+import { createPlacementScore } from "./placement-score";
 import { buildScopes } from "./constraints";
 import { type CompoundLayoutData, type LayoutDirection, type LayoutIntent, type LayoutProblem } from "./layout-plan";
 import { boxesOverlap } from "./layout-quality";
@@ -26,6 +27,7 @@ export function place(
   const baseline = problem.baseline.boxes;
   const sizes = new Map(Object.entries(baseline).map(([id, b]) => [id, { width: b.width, height: b.height }]));
   const locals = new Map<string, CompoundBox>();
+  const completed = new Map<string | null, { boxes: Map<string, CompoundBox> }>();
   let evaluations = 0;
   for (const [scopeId, scope] of [...scopes].reverse()) {
     const origin = scopeId === null ? { x: 0, y: 0 } : baseline[scopeId];
@@ -53,6 +55,14 @@ export function place(
         problem.rowGap,
         orientation,
         flowOrder,
+        createPlacementScore(scope.edges, {
+          projection: problem.projection,
+          children: completed,
+          showLabels: problem.showLabels,
+          labelSizes: problem.labelSizes,
+          objective: intent.objective,
+          portMode: data.portMode,
+        }),
       );
       const preferred = new Map([...arranged.boxes].map(([id, b]) => [id, { ...b, x: b.x + left, y: b.y + top }]));
       const fixed = new Map<string, CompoundBox>();
@@ -66,13 +76,7 @@ export function place(
         box.x >= left - 0.01 &&
         box.y >= top - 0.01 &&
         (!limit || (box.x + box.width <= limit.width - 24 + 0.01 && box.y + box.height <= limit.height - 24 + 0.01));
-      const { layers, forward } = compoundTopology(scope.children, scope.edges, flowOrder);
-      const down = orientation === "DOWN";
-      const before = (a: CompoundBox, b: CompoundBox) => {
-        const major = down ? a.y + a.height / 2 - b.y - b.height / 2 : a.x + a.width / 2 - b.x - b.width / 2;
-        const minor = down ? b.x + b.width / 2 - a.x - a.width / 2 : b.y + b.height / 2 - a.y - a.height / 2;
-        return major < -0.01 || (Math.abs(major) < 0.01 && minor < -0.01);
-      };
+      const { layers } = compoundTopology(scope.children, scope.edges, flowOrder);
       if (!fixed.size && [...preferred.values()].every(fits)) positioned = preferred;
       else {
         positioned = new Map(fixed);
@@ -114,26 +118,15 @@ export function place(
             );
           const chosen = candidates.find((b) => {
             if (++evaluations > 4096) throw new Error("Placement evaluation budget exhausted.");
-            return (
-              fits(b) &&
-              !occupied.some((a) => boxesOverlap(a, b, Math.min(problem.columnGap, problem.rowGap))) &&
-              forward.every(([a, c]) =>
-                a === id && positioned.has(c)
-                  ? before(b, positioned.get(c)!)
-                  : c === id && positioned.has(a)
-                    ? before(positioned.get(a)!, b)
-                    : true,
-              )
-            );
+            return fits(b) && !occupied.some((a) => boxesOverlap(a, b));
           });
           if (!chosen) throw new Error(`No legal slot found for ${id}. Try a larger scope or allow ancestor resizing.`);
           positioned.set(id, chosen);
         }
-        if (forward.some(([a, b]) => !before(positioned.get(a)!, positioned.get(b)!)))
-          throw new Error(`Pins conflict with forward ordering in ${scopeId ?? "root"}.`);
       }
     }
     for (const [id, b] of positioned) locals.set(id, { ...b, ...sizes.get(id)! });
+    completed.set(scopeId, { boxes: new Map(scope.children.map((id) => [id, locals.get(id)!])) });
     if (scopeId !== null && active.has(scopeId)) {
       const strict = intent.boundaryPolicy === "strict" && scopeId === rootScope;
       sizes.set(

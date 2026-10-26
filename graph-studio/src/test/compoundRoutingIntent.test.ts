@@ -103,7 +103,34 @@ export const compoundRoutingIntentSuite = defineSuite("Compound routing intent",
     intent.gateways[0].edgeIds = ["missing"];
     assert.throws(() => validateRouting(projection, intent), /boundary/);
   }),
-  defineTest("joint port allocation is spatially ordered and independent of edge input order", () => {
+  defineTest("required midpoint ports have no edge capacity limit", () => {
+    const ids = Array.from({ length: 24 }, (_, i) => `n${i}`);
+    const dag = normalizeDagInput({
+      format: "graph-studio",
+      version: 3,
+      nodes: Object.fromEntries(["hub", ...ids].map((id) => [id, {}])),
+      edges: ids.map((target) => ({ id: target, source: "hub", target })),
+    });
+    const projection = projectCompoundGraph(dag, view);
+    const boxes = new Map(
+      projection.items.map((item, i) => [item.id, { x: i ? 400 : 80, y: 80 + i * 120, width: 160, height: 100 }]),
+    );
+    const intent = emptyRouting();
+    intent.ports = [
+      {
+        nodeId: "hub",
+        side: "east",
+        order: "opposite-end",
+        strength: "required",
+        ends: projection.edges.map((e) => ({ edgeId: e.id, end: "source" })),
+      },
+    ];
+    const plan = compileRoutingPlan(projection, boxes, { x: 0, y: 0, width: 800, height: 3200 }, intent);
+    assert.equal(plan.endpoints.size, 24);
+    assert.equal(new Set([...plan.endpoints.values()].map((e) => JSON.stringify(e.source.point))).size, 1);
+    assert.ok(!plan.issues.some((issue) => issue.kind === "port-congestion"));
+  }),
+  defineTest("joint midpoint allocation permits reuse and is independent of edge input order", () => {
     const dag = normalizeDagInput({
       format: "graph-studio",
       version: 3,
@@ -121,14 +148,14 @@ export const compoundRoutingIntentSuite = defineSuite("Compound routing intent",
       height: 600,
     });
     const ys = projection.edges.map((e) => plan.endpoints.get(e.id)!.source.point.y);
-    assert.equal(new Set(ys).size, 3);
+    assert.equal(new Set(ys).size, 1);
     assert.deepEqual(
       ys,
       [...ys].sort((a, b) => a - b),
     );
     for (const e of projection.edges) assert.deepEqual(plan.endpoints.get(e.id), reversed.endpoints.get(e.id));
     const routes = routeDesignedEdges(projection, boxes, { ...bounds, height: 600 }, false, { intent: emptyRouting() });
-    assert.equal(new Set([...routes.routes.values()].map((r) => JSON.stringify(r.points[0]))).size, 3);
+    assert.equal(new Set([...routes.routes.values()].map((r) => JSON.stringify(r.points[0]))).size, 1);
   }),
   defineTest("composition reserves channel capacity and aligns descendant anchors", async () => {
     const stage = await layoutFixture(nested()),
@@ -236,17 +263,18 @@ export const compoundRoutingIntentSuite = defineSuite("Compound routing intent",
     assert.match(result.error ?? "", /Required routing intent/);
     assert.deepEqual(result.layout.geometry.edges[0].points, points);
   }),
-  defineTest("congestion diagnostics carry evidence and detail queries return only affected edges", async () => {
+  defineTest("long overlap diagnostics carry evidence and detail queries return only affected edges", async () => {
     const stage = await layoutFixture(nested()),
       problem = stage.compoundLayout!,
       g = structuredClone(problem.baseline),
       id = problem.projection.edges[0].id;
     const a = g.boxes.a,
       b = g.boxes.b;
-    // Deliberately crowd two distinct routes to exercise evidence-based diagnostics.
+    // Reuse endpoints legally, but share a deliberately long exit to exercise diagnostics.
     const p = [
       { x: a.x + a.width, y: a.y + a.height / 2 },
-      { x: b.x, y: a.y + a.height / 2 },
+      { x: a.x + a.width + 200, y: a.y + a.height / 2 },
+      { x: a.x + a.width + 200, y: b.y + b.height / 2 },
       { x: b.x, y: b.y + b.height / 2 },
     ];
     const duplicate = { ...problem.projection.edges[0], id: "duplicate" };
@@ -256,7 +284,8 @@ export const compoundRoutingIntentSuite = defineSuite("Compound routing intent",
       [duplicate.id, { points: p, labelPosition: p[0] }],
     ]);
     const issues = diagnoseRoutes(projection, new Map(Object.entries(g.boxes)), routes, { detours: false });
-    assert.ok(issues.some((i) => i.kind === "port-congestion" && i.edgeIds.length === 2));
+    assert.ok(!issues.some((i) => i.kind === "port-congestion"));
+    assert.ok(issues.some((i) => i.kind === "ambiguous-parallel-run" && i.edgeIds.length === 2));
     const layout = geometryLayout(createLayoutResult(stage, "compound"), g);
     const observation = inspectLayout(problem, layout, undefined, null, [], false, {
       executionIssues: issues,

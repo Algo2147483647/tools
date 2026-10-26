@@ -105,7 +105,6 @@ export async function buildCompoundStage(input: {
       return [item.id, { width: visual.width, height }];
     }),
   );
-  const placement = layoutCompoundHierarchy(projection, sizes, theme);
   const labelSizes = Object.fromEntries(
     projection.edges
       .filter((e) => e.label)
@@ -121,6 +120,7 @@ export async function buildCompoundStage(input: {
         },
       ]),
   );
+  const placement = layoutCompoundHierarchy(projection, sizes, theme, !!input.showEdgeLabels, labelSizes);
   const config = input.layout ?? emptyLayoutData();
   const warnings: string[] = [];
   // Session font counters are excluded: measured dimensions and typography determine portability.

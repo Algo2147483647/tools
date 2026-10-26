@@ -1,3 +1,4 @@
+import { overlapLength, sharedEndpoints, sharedExit } from "./routing/cost";
 import type { LayoutMetrics, LayoutObjective, LayoutProblem, LayoutGeometry, LayoutValidation } from "./layout-plan";
 import type { CompoundBox } from "../../graph/compound/geometry";
 
@@ -190,7 +191,7 @@ export function measureLayout(problem: LayoutProblem, geometry: LayoutGeometry):
     changedEdges: 0,
   };
   const all = problem.projection.edges.flatMap((e) =>
-    routeSegments(geometry.routes[e.id]?.points ?? []).map(([a, b]) => ({ id: e.id, a, b })),
+    routeSegments(geometry.routes[e.id]?.points ?? []).map(([a, b]) => ({ id: e.id, edge: e, a, b })),
   );
   const crossings = new Set<string>();
   for (const item of problem.projection.items) {
@@ -227,31 +228,23 @@ export function measureLayout(problem: LayoutProblem, geometry: LayoutGeometry):
     for (let j = i + 1; j < all.length; j++) {
       const b = all[j];
       if (a.id === b.id) continue;
+      const shared = sharedEndpoints(a.edge, geometry.routes[a.id].points, b.edge, geometry.routes[b.id].points);
       const ah = close(a.a.y, a.b.y),
         bh = close(b.a.y, b.b.y);
       if (ah === bh) {
         if (close(ah ? a.a.y : a.a.x, bh ? b.a.y : b.a.x))
-          metrics.sharedLength += Math.max(
-            0,
-            Math.min(
-              Math.max(ah ? a.a.x : a.a.y, ah ? a.b.x : a.b.y),
-              Math.max(bh ? b.a.x : b.a.y, bh ? b.b.x : b.b.y),
-            ) -
-              Math.max(
-                Math.min(ah ? a.a.x : a.a.y, ah ? a.b.x : a.b.y),
-                Math.min(bh ? b.a.x : b.a.y, bh ? b.b.x : b.b.y),
-              ),
-          );
+          metrics.sharedLength += overlapLength(a.a, a.b, b.a, b.b, shared);
       } else {
         const h = ah ? a : b,
           v = ah ? b : a;
         if (
-          v.a.x > Math.min(h.a.x, h.b.x) + GEOMETRY_EPSILON &&
-          v.a.x < Math.max(h.a.x, h.b.x) - GEOMETRY_EPSILON &&
-          h.a.y > Math.min(v.a.y, v.b.y) + GEOMETRY_EPSILON &&
-          h.a.y < Math.max(v.a.y, v.b.y) - GEOMETRY_EPSILON
+          v.a.x >= Math.min(h.a.x, h.b.x) - GEOMETRY_EPSILON &&
+          v.a.x <= Math.max(h.a.x, h.b.x) + GEOMETRY_EPSILON &&
+          h.a.y >= Math.min(v.a.y, v.b.y) - GEOMETRY_EPSILON &&
+          h.a.y <= Math.max(v.a.y, v.b.y) + GEOMETRY_EPSILON &&
+          !sharedExit({ x: v.a.x, y: h.a.y }, shared)
         )
-          crossings.add(`${a.id}|${b.id}|${v.a.x}|${h.a.y}`);
+          crossings.add(`${[a.id, b.id].sort().join("|")}|${v.a.x}|${h.a.y}`);
       }
     }
   }
@@ -262,19 +255,19 @@ export function measureLayout(problem: LayoutProblem, geometry: LayoutGeometry):
   metrics.area = xs.length ? (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys)) : 0;
   return metrics;
 }
+/** Finite routing and compactness trade-offs for final candidate selection. */
+export function scoreLayoutMetrics(m: LayoutMetrics, objective: LayoutObjective = "readability") {
+  return (
+    m.length +
+    4 * m.sharedLength +
+    160 * m.crossings +
+    20 * m.bends +
+    (objective === "compact" ? 3 : 2) * Math.sqrt(m.area)
+  );
+}
 export function compareLayoutMetrics(a: LayoutMetrics, b: LayoutMetrics, objective: LayoutObjective): number {
   if (!close(a.labelCollisions, b.labelCollisions)) return a.labelCollisions - b.labelCollisions;
-  if (objective === "readability") {
-    // Use the router's finite trade-offs: a tiny shared-run reduction cannot
-    // dominate an arbitrarily long detour or hundreds of new crossings.
-    const cost = (m: LayoutMetrics) =>
-      m.length + 4 * m.sharedLength + 160 * m.crossings + 20 * m.bends + 2 * Math.sqrt(m.area);
-    if (!close(cost(a), cost(b))) return cost(a) - cost(b);
-  }
-  const keys: (keyof LayoutMetrics)[] =
-    objective === "compact"
-      ? ["labelCollisions", "area", "crossings", "sharedLength", "bends", "length"]
-      : ["labelCollisions", "sharedLength", "crossings", "bends", "length", "area"];
-  for (const key of keys) if (!close(a[key], b[key])) return a[key] - b[key];
-  return 0;
+  const first = scoreLayoutMetrics(a, objective),
+    second = scoreLayoutMetrics(b, objective);
+  return close(first, second) ? 0 : first - second;
 }

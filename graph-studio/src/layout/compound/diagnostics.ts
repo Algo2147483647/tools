@@ -1,3 +1,4 @@
+import { overlapLength, sharedEndpoints, sharedExit } from "./routing/cost";
 import type { LayoutProblem, LayoutGeometry } from "./layout-plan";
 import { close, GEOMETRY_EPSILON, routeSegments, segmentCrossesBox } from "./layout-quality";
 
@@ -18,7 +19,6 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
   const sharedRuns: { edgeIds: string[]; length: number }[] = [];
   const detours: { edgeIds: string[]; length: number; directDistance: number; ratio: number }[] = [];
   const containerPassages: { edgeIds: string[]; groupId: string; region: "header" | "unrelated-interior" }[] = [];
-  const ports = new Map<string, { nodeId: string; edgeIds: string[] }>();
   const groups = new Map<string, { sourceGroupId: string | null; targetGroupId: string | null; edgeIds: string[] }>();
   const segments = edges.flatMap((edge) =>
     routeSegments(geometry.routes[edge.id]?.points ?? []).map(([a, b]) => ({ edge, a, b })),
@@ -28,24 +28,29 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
     for (let j = i + 1; j < segments.length; j++) {
       const b = segments[j];
       if (a.edge.id === b.edge.id) continue;
+      const shared = sharedEndpoints(
+        a.edge,
+        geometry.routes[a.edge.id].points,
+        b.edge,
+        geometry.routes[b.edge.id].points,
+      );
       const ah = close(a.a.y, a.b.y),
         bh = close(b.a.y, b.b.y);
       const edgeIds = [...a.edge.originalEdgeIds, ...b.edge.originalEdgeIds];
       if (ah === bh) {
         if (!close(ah ? a.a.y : a.a.x, bh ? b.a.y : b.a.x)) continue;
-        const length =
-          Math.min(Math.max(ah ? a.a.x : a.a.y, ah ? a.b.x : a.b.y), Math.max(bh ? b.a.x : b.a.y, bh ? b.b.x : b.b.y)) -
-          Math.max(Math.min(ah ? a.a.x : a.a.y, ah ? a.b.x : a.b.y), Math.min(bh ? b.a.x : b.a.y, bh ? b.b.x : b.b.y));
+        const length = overlapLength(a.a, a.b, b.a, b.b, shared);
         if (length > 12) sharedRuns.push({ edgeIds, length: Math.round(length) });
       } else {
         const h = ah ? a : b,
           v = ah ? b : a,
           e = GEOMETRY_EPSILON;
         if (
-          v.a.x > Math.min(h.a.x, h.b.x) + e &&
-          v.a.x < Math.max(h.a.x, h.b.x) - e &&
-          h.a.y > Math.min(v.a.y, v.b.y) + e &&
-          h.a.y < Math.max(v.a.y, v.b.y) - e
+          v.a.x >= Math.min(h.a.x, h.b.x) - e &&
+          v.a.x <= Math.max(h.a.x, h.b.x) + e &&
+          h.a.y >= Math.min(v.a.y, v.b.y) - e &&
+          h.a.y <= Math.max(v.a.y, v.b.y) + e &&
+          !sharedExit({ x: v.a.x, y: h.a.y }, shared)
         )
           crossings.push({ edgeIds, x: v.a.x, y: h.a.y });
       }
@@ -66,15 +71,6 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
         directDistance: Math.round(directDistance),
         ratio: Math.round((length / Math.max(1, directDistance)) * 10) / 10,
       });
-    for (const [nodeId, point] of [
-      [edge.source, first],
-      [edge.target, last],
-    ] as const) {
-      const key = JSON.stringify([nodeId, Math.round(point.x), Math.round(point.y)]);
-      const entry = ports.get(key) ?? { nodeId, edgeIds: [] };
-      entry.edgeIds.push(...edge.originalEdgeIds);
-      ports.set(key, entry);
-    }
     const sourceAncestors = ancestors(edge.source),
       targetAncestors = ancestors(edge.target);
     for (const item of problem.projection.items) {
@@ -96,9 +92,6 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
       groups.set(key, entry);
     }
   }
-  const crowdedPorts = [...ports.values()]
-    .filter((p) => p.edgeIds.length >= 3)
-    .sort((a, b) => b.edgeIds.length - a.edgeIds.length);
   return {
     scope: "visible-graph",
     sampledEdges: edges.length,
@@ -107,7 +100,7 @@ export function routingHotspots(problem: LayoutProblem, geometry: LayoutGeometry
     sharedRuns,
     detours: detours.sort((a, b) => b.ratio - a.ratio),
     containerPassages,
-    crowdedPorts,
+    crowdedPorts: [] as { nodeId: string; edgeIds: string[] }[],
     groupConnections: [...groups.values()].sort((a, b) => b.edgeIds.length - a.edgeIds.length),
   };
 }

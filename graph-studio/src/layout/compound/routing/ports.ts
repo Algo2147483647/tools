@@ -6,7 +6,7 @@ export function sidePorts(
   box: CompoundBox,
   clearance: number,
   degree: number,
-  mode: "distributed" | "midpoints" = "distributed",
+  mode: "distributed" | "midpoints" = "midpoints",
 ): Port[] {
   return [0, 1, 2, 3].flatMap((direction) => {
     const sideLength = direction % 2 ? box.width : box.height;

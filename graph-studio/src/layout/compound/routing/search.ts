@@ -112,12 +112,16 @@ export function findOrthogonalPath(
   const distance = new Float64Array(width * height * 4).fill(Infinity);
   const previous = new Int32Array(distance.length).fill(-1);
   const queue = new MinQueue();
-  const heuristic = (cell: number) =>
-    Math.min(
+  const heuristics = new Float64Array(width * height).fill(NaN);
+  const segmentCosts = new Float64Array(width * height * 2).fill(NaN);
+  const heuristic = (cell: number) => {
+    if (!Number.isNaN(heuristics[cell])) return heuristics[cell];
+    return (heuristics[cell] = Math.min(
       ...targets.map(
         (port) => Math.abs(xs[cell % width] - port.stub.x) + Math.abs(ys[Math.floor(cell / width)] - port.stub.y),
       ),
-    );
+    ));
+  };
   sources.forEach((port, index) => {
     const cell = at(port.stub),
       state = cell * 4 + port.direction;
@@ -162,11 +166,14 @@ export function findOrthogonalPath(
     const visit = (nextCell: number, nextDirection: number, length: number) => {
       if ((direction + 2) % 4 === nextDirection) return;
       const nextState = nextCell * 4 + nextDirection;
-      const nextCost =
-        cost +
-        length +
-        (direction === nextDirection ? 0 : BEND_COST) +
-        segmentCost({ x: xs[x], y: ys[y] }, { x: xs[nextCell % width], y: ys[Math.floor(nextCell / width)] });
+      // The same undirected grid segment is visited from several direction states.
+      const key = Math.min(cell, nextCell) * 2 + (nextDirection % 2);
+      if (Number.isNaN(segmentCosts[key]))
+        segmentCosts[key] = segmentCost(
+          { x: xs[x], y: ys[y] },
+          { x: xs[nextCell % width], y: ys[Math.floor(nextCell / width)] },
+        );
+      const nextCost = cost + length + (direction === nextDirection ? 0 : BEND_COST) + segmentCosts[key];
       if (nextCost >= distance[nextState] - EPSILON) return;
       distance[nextState] = nextCost;
       previous[nextState] = state;

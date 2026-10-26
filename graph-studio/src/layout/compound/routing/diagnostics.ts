@@ -2,7 +2,7 @@ import type { CompoundBox, CompoundRoute } from "../../../graph/compound/geometr
 import type { CompoundProjection } from "../../../graph/compound/projection";
 import type { RoutingIssue } from "./intent";
 import { ancestry } from "./intent";
-import { routeCost, crossingCost } from "./cost";
+import { routeCost, crossingCost, overlapLength, sharedEndpoints } from "./cost";
 import { inflate } from "./geometry";
 import { sidePorts } from "./ports";
 import { simpleRoutes } from "./search";
@@ -34,15 +34,9 @@ export function diagnoseRoutes(
       suggestedActions,
     });
   };
-  const endpoints = new Map<string, { id: string; point: Point; next: Point }[]>();
   for (const e of projection.edges) {
     const points = routes.get(e.id)?.points;
     if (!points || points.length < 2) continue;
-    for (const [id, point, next] of [
-      [e.source, points[0], points[1]],
-      [e.target, points[points.length - 1], points[points.length - 2]],
-    ] as const)
-      endpoints.set(id, [...(endpoints.get(id) ?? []), { id: e.id, point, next }]);
     if (options.mainEdges?.has(e.id)) {
       const axis = options.direction === "DOWN" ? "y" : "x";
       const reverse = points.slice(1).reduce((sum, p, i) => sum + Math.max(0, points[i][axis] - p[axis]), 0);
@@ -53,27 +47,6 @@ export function diagnoseRoutes(
           "change-port-side",
         ]);
     }
-  }
-  for (const [nodeId, ends] of endpoints) {
-    const crowded = new Set<string>();
-    let minGap = Infinity;
-    for (let i = 0; i < ends.length; i++)
-      for (let j = i + 1; j < ends.length; j++) {
-        if (ends[i].id === ends[j].id) continue;
-        const a = ends[i],
-          b = ends[j],
-          gap = Math.hypot(a.point.x - b.point.x, a.point.y - b.point.y);
-        if (gap < 8) {
-          crowded.add(a.id);
-          crowded.add(b.id);
-          minGap = Math.min(minGap, gap);
-        }
-      }
-    if (crowded.size)
-      emit("port-congestion", [nodeId], [...crowded], { minimumGap: minGap, requiredGap: 8 }, "routing", [
-        "distribute-ports",
-        "change-port-side",
-      ]);
   }
   const edges = projection.edges.filter((e) => routes.has(e.id));
   const boundaryCoordinate = (points: Point[], box: CompoundBox, side: "east" | "west" | "north" | "south") => {
@@ -135,18 +108,16 @@ export function diagnoseRoutes(
         eb = edges[j],
         a = routes.get(ea.id)!.points,
         b = routes.get(eb.id)!.points;
+      const shared = sharedEndpoints(ea, a, eb, b);
       let closeLength = 0,
         minGap = Infinity;
       for (let x = 1; x < a.length; x++)
         for (let y = 1; y < b.length; y++) {
           const horizontal = a[x].y === a[x - 1].y;
           if (horizontal !== (b[y].y === b[y - 1].y)) continue;
-          const along = horizontal ? "x" : "y",
-            across = horizontal ? "y" : "x";
+          const across = horizontal ? "y" : "x";
           const gap = Math.abs(a[x][across] - b[y][across]);
-          const overlap =
-            Math.min(Math.max(a[x][along], a[x - 1][along]), Math.max(b[y][along], b[y - 1][along])) -
-            Math.max(Math.min(a[x][along], a[x - 1][along]), Math.min(b[y][along], b[y - 1][along]));
+          const overlap = overlapLength(a[x - 1], a[x], b[y - 1], b[y], shared);
           if (gap < 8 && overlap > 0) {
             closeLength += overlap;
             minGap = Math.min(minGap, gap);
@@ -177,11 +148,26 @@ export function diagnoseRoutes(
         sidePorts(boxes.get(e.target)!, 8, 1, "midpoints"),
         obstacles,
       );
-      const others = edges.filter((other) => other.id !== e.id).map((other) => routes.get(other.id)!.points);
+      const others = edges.filter((other) => other.id !== e.id);
       const crossings = (points: Point[]) =>
         points
           .slice(1)
-          .reduce((sum, p, i) => sum + others.reduce((n, other) => n + crossingCost(points[i], p, other), 0), 0);
+          .reduce(
+            (sum, p, i) =>
+              sum +
+              others.reduce(
+                (n, other) =>
+                  n +
+                  crossingCost(
+                    points[i],
+                    p,
+                    routes.get(other.id)!.points,
+                    sharedEndpoints(e, points, other, routes.get(other.id)!.points),
+                  ),
+                0,
+              ),
+            0,
+          );
       const alternative = candidates
         .sort((a, b) => routeCost(a) - routeCost(b))
         .find((p) => routeCost(p) < routeCost(route.points) * 0.7 && crossings(p) <= crossings(route.points));

@@ -182,18 +182,3 @@ export function packRectangles(
   }
   return best ?? { boxes: new Map(), width: 0, height: 0 };
 }
-
-/** No preferred aspect ratio: occupied footprint first, branch alignment second, perimeter last. */
-export function compareArrangements(
-  a: RectangleArrangement,
-  b: RectangleArrangement,
-  edges: readonly Dependency[],
-  gapX: number,
-  gapY: number,
-  aDown = false,
-  bDown = false,
-) {
-  const first = score(a.boxes, edges, gapX, gapY, aDown),
-    second = score(b.boxes, edges, gapX, gapY, bDown);
-  return better(first, second) ? -1 : better(second, first) ? 1 : 0;
-}

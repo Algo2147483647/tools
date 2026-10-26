@@ -1,6 +1,50 @@
 import { BEND_COST, EPSILON, LANE_GAP, MIN_STRAIGHT, type Point } from "./types";
 
-export function crossingCost(a: Point, b: Point, points: Point[]): number {
+/** Only endpoints belonging to the same node may share a short exit. */
+export function sharedEndpoints(
+  a: { source: string; target: string },
+  ap: readonly Point[],
+  b: { source: string; target: string },
+  bp: readonly Point[],
+): Point[] {
+  return (["source", "target"] as const).flatMap((end) => {
+    const point = end === "source" ? ap[0] : ap[ap.length - 1];
+    return point &&
+      (["source", "target"] as const).some((other) => {
+        const p = other === "source" ? bp[0] : bp[bp.length - 1];
+        return a[end] === b[other] && p && Math.hypot(point.x - p.x, point.y - p.y) < EPSILON;
+      })
+      ? [point]
+      : [];
+  });
+}
+
+export function sharedExit(point: Point, shared: readonly Point[]) {
+  return shared.some((p) => Math.abs(point.x - p.x) + Math.abs(point.y - p.y) <= MIN_STRAIGHT + EPSILON);
+}
+
+/** Length of overlap outside the short common exit; unrelated lines get no exemption. */
+export function overlapLength(a: Point, b: Point, c: Point, d: Point, shared: readonly Point[] = []) {
+  const horizontal = Math.abs(a.y - b.y) < EPSILON;
+  const axis = horizontal ? "x" : "y",
+    cross = horizontal ? "y" : "x";
+  const low = Math.max(Math.min(a[axis], b[axis]), Math.min(c[axis], d[axis]));
+  const high = Math.min(Math.max(a[axis], b[axis]), Math.max(c[axis], d[axis]));
+  if (!shared.length || high <= low) return Math.max(0, high - low);
+  let length = high - low,
+    end = low;
+  const intervals = shared
+    .filter((p) => Math.abs(p[cross] - a[cross]) < EPSILON && Math.abs(p[cross] - c[cross]) < EPSILON)
+    .map((p) => [Math.max(low, p[axis] - MIN_STRAIGHT), Math.min(high, p[axis] + MIN_STRAIGHT)])
+    .sort((a, b) => a[0] - b[0]);
+  for (const [start, stop] of intervals) {
+    length -= Math.max(0, stop - Math.max(start, end));
+    end = Math.max(end, stop);
+  }
+  return length;
+}
+
+export function crossingCost(a: Point, b: Point, points: readonly Point[], shared: readonly Point[] = []): number {
   let cost = 0;
   for (let i = 1; i < points.length; i++) {
     const c = points[i - 1],
@@ -19,6 +63,7 @@ export function crossingCost(a: Point, b: Point, points: Point[]): number {
       across >= Math.min(otherFrom, otherTo) - EPSILON &&
       across <= Math.max(otherFrom, otherTo) + EPSILON
     ) {
+      if (sharedExit(horizontal ? { x: along, y: across } : { x: across, y: along }, shared)) continue;
       // The visibility grid splits segments at crossings. Two half charges at a grid
       // vertex must equal one interior crossing, rather than making it free to cross.
       const end = Math.abs(along - from) < EPSILON || Math.abs(along - to) < EPSILON;
@@ -29,7 +74,7 @@ export function crossingCost(a: Point, b: Point, points: Point[]): number {
   return cost;
 }
 
-export function parallelRouteCost(a: Point, b: Point, route: Point[]): number {
+export function parallelRouteCost(a: Point, b: Point, route: readonly Point[], shared: readonly Point[] = []): number {
   const horizontal = a.y === b.y;
   let cost = 0;
   for (let i = 1; i < route.length; i++) {
@@ -37,9 +82,7 @@ export function parallelRouteCost(a: Point, b: Point, route: Point[]): number {
       d = route[i];
     if ((c.y === d.y) !== horizontal) continue;
     const gap = Math.abs(horizontal ? a.y - c.y : a.x - c.x);
-    const overlap = horizontal
-      ? Math.min(Math.max(a.x, b.x), Math.max(c.x, d.x)) - Math.max(Math.min(a.x, b.x), Math.min(c.x, d.x))
-      : Math.min(Math.max(a.y, b.y), Math.max(c.y, d.y)) - Math.max(Math.min(a.y, b.y), Math.min(c.y, d.y));
+    const overlap = overlapLength(a, b, c, d, shared);
     if (overlap > 0 && gap < LANE_GAP) cost += overlap * (1 - gap / LANE_GAP) * 4;
   }
   return cost;

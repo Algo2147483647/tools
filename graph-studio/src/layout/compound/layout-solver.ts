@@ -1,4 +1,4 @@
-import { compileConstraints, directionWarnings, layoutScopeMembers, validateLayoutConstraints } from "./constraints";
+import { compileConstraints, layoutScopeMembers, validateLayoutConstraints } from "./constraints";
 import {
   layoutFingerprint,
   parseLayoutIntent,
@@ -87,10 +87,7 @@ export function solveCompoundLayout(
       const metrics = measureLayout(problem, geometry);
       const candidateData = structuredClone(data);
       const changedNodeIds = [...changed];
-      const unmetPreferences: string[] = [
-        ...directionWarnings(problem, geometry, data),
-        ...aggregatedPreferenceWarnings,
-      ];
+      const unmetPreferences: string[] = [...aggregatedPreferenceWarnings];
       unmetPreferences.push(...portWarnings(problem, geometry, portSides));
       const scopeDirection = data.constraints.find((c) => c.type === "direction" && c.scopeId === intent.scope.groupId);
       const effectiveDirection = scopeDirection?.type === "direction" ? scopeDirection.value : directions[attempt];

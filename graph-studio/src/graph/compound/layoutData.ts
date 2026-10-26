@@ -39,7 +39,7 @@ export function emptyLayoutData(): CompoundLayoutData {
     method: "automatic",
     direction: "AUTO",
     objective: "readability",
-    portMode: "distributed",
+    portMode: "midpoints",
     constraints: [],
   };
 }
@@ -55,7 +55,7 @@ export function parseCompoundLayout(value: unknown): CompoundLayoutData {
     method: oneOf(r.method ?? "automatic", ["automatic", "ai"], "method"),
     direction: oneOf(r.direction ?? "AUTO", ["AUTO", "RIGHT", "DOWN"], "direction"),
     objective: oneOf(r.objective ?? "readability", ["readability", "compact"], "objective"),
-    portMode: oneOf(r.portMode ?? "distributed", ["distributed", "midpoints"], "port mode"),
+    portMode: oneOf(r.portMode ?? "midpoints", ["distributed", "midpoints"], "port mode"),
     constraints: constraints.map(parseLayoutConstraint),
   };
 }

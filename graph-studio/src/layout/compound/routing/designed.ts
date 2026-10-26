@@ -2,7 +2,7 @@ import type { CompoundBox, CompoundRoute } from "../../../graph/compound/geometr
 import type { CompoundProjection } from "../../../graph/compound/projection";
 import { routeCompoundEdges } from "./router";
 import { diagnoseRoutes } from "./diagnostics";
-import { crossingCost, routeCost } from "./cost";
+import { crossingCost, routeCost, sharedEndpoints } from "./cost";
 import type { CompoundRoutingOptions } from "./types";
 
 /** Bounded joint repair: release a local conflict set, retain all unrelated routes. */
@@ -17,13 +17,17 @@ export function routeDesignedEdges(
   const diagnostic = (routes: Map<string, CompoundRoute>) =>
     diagnoseRoutes(projection, boxes, routes, { showLabels, detours: false });
   const score = (r: typeof result) => {
-    const routes = [...r.routes.values()];
+    const edges = projection.edges.filter((e) => r.routes.has(e.id));
+    const routes = edges.map((e) => r.routes.get(e.id)!);
     let crossings = 0;
-    routes.forEach((a, i) =>
-      routes
-        .slice(i + 1)
-        .forEach((b) => a.points.slice(1).forEach((p, j) => (crossings += crossingCost(a.points[j], p, b.points)))),
-    );
+    routes.forEach((a, i) => {
+      routes.slice(i + 1).forEach((b, k) => {
+        const shared = sharedEndpoints(edges[i], a.points, edges[i + k + 1], b.points);
+        a.points.slice(1).forEach((p, j) => {
+          crossings += crossingCost(a.points[j], p, b.points, shared);
+        });
+      });
+    });
     return [
       r.issues.length + diagnostic(r.routes).length,
       crossings,

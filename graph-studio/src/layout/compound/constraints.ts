@@ -1,7 +1,6 @@
 import type { CompoundProjection } from "../../graph/compound/projection";
 import { type CompoundLayoutData, type LayoutIntent, type LayoutProblem, type LayoutGeometry } from "./layout-plan";
 import { sameBox } from "./layout-quality";
-import { compoundTopology } from "./topology-layout";
 
 interface Scope {
   children: string[];
@@ -165,53 +164,4 @@ export function validateLayoutConstraints(
     }
   }
   return errors;
-}
-
-export function directionWarnings(
-  problem: LayoutProblem,
-  geometry: LayoutGeometry,
-  data: CompoundLayoutData,
-): string[] {
-  const { scopes } = buildScopes(problem.projection);
-  const warnings: string[] = [];
-  for (const constraint of data.constraints) {
-    if (constraint.type === "flow-order") {
-      const scopeId = constraint.scopeId === problem.projection.focusGroupId ? null : constraint.scopeId;
-      const scope = scopes.get(scopeId);
-      if (!scope) continue;
-      const ids = constraint.nodeIds.filter((id) => scope.children.includes(id));
-      const direction = data.constraints.find((c) => c.type === "direction" && c.scopeId === constraint.scopeId);
-      const value = direction?.type === "direction" ? direction.value : data.direction;
-      const ordered = (down: boolean) =>
-        ids.every((id, i) => {
-          if (!i) return true;
-          const a = geometry.boxes[ids[i - 1]],
-            b = geometry.boxes[id];
-          return down ? a.y + a.height <= b.y + 0.01 : a.x + a.width <= b.x + 0.01;
-        });
-      if (!(value === "DOWN" ? ordered(true) : value === "RIGHT" ? ordered(false) : ordered(true) || ordered(false)))
-        warnings.push(`Flow order could not be satisfied in ${constraint.scopeId ?? "root"}.`);
-      continue;
-    }
-    if (constraint.type !== "direction" || constraint.value === "AUTO") continue;
-    const scopeId = constraint.scopeId === problem.projection.focusGroupId ? null : constraint.scopeId;
-    const scope = scopes.get(scopeId);
-    if (!scope) continue;
-    const order = data.constraints.find((c) => c.type === "flow-order" && c.scopeId === constraint.scopeId);
-    const ids = order?.type === "flow-order" ? order.nodeIds.filter((id) => scope.children.includes(id)) : [];
-    const { forward } = compoundTopology(scope.children, scope.edges, ids);
-    if (
-      forward.some(([a, b]) => {
-        const first = geometry.boxes[a],
-          second = geometry.boxes[b];
-        return constraint.value === "DOWN"
-          ? second.y + second.height / 2 <= first.y + first.height / 2 + 0.01
-          : second.x + second.width / 2 <= first.x + first.width / 2 + 0.01;
-      })
-    )
-      warnings.push(
-        `Direction ${constraint.value} could not be fully satisfied in ${constraint.scopeId ?? "root"} within this view.`,
-      );
-  }
-  return warnings;
 }

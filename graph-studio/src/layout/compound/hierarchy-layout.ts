@@ -1,3 +1,4 @@
+import { createPlacementScore } from "./placement-score";
 import type { GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { CompoundProjection } from "../../graph/compound/projection";
 import type { CompoundBox } from "../../graph/compound/geometry";
@@ -12,11 +13,13 @@ interface Scope {
   edges: [string, string][];
 }
 
-/** Placement only. Completed children are fixed rectangles; routes and labels never enter this pass. */
+/** Bottom-up placement scored with routed edges; completed child geometry stays fixed. */
 export function layoutCompoundHierarchy(
   projection: CompoundProjection,
   sizes: Map<string, Size>,
   theme: GraphGeometryAppearance,
+  showLabels = false,
+  labelSizes?: Record<string, Size>,
 ) {
   const scopes = new Map<string | null, Scope>([[null, { children: [], edges: [] }]]);
   const parents = new Map(projection.items.map((item) => [item.id, item.parentId]));
@@ -56,6 +59,9 @@ export function layoutCompoundHierarchy(
       fixedSizes,
       theme.nodes.spacing.column,
       theme.nodes.spacing.row,
+      "AUTO",
+      undefined,
+      createPlacementScore(scope.edges, { projection, children: local, showLabels, labelSizes }),
     );
     const left = id === null ? 36 : 24,
       top = id === null ? 36 : 58,

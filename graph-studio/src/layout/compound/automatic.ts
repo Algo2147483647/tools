@@ -1,7 +1,7 @@
 import { defaultLayoutIntent, type LayoutIntent, type LayoutProblem, type LayoutResult } from "./layout-plan";
 import { solveCompoundLayout, routingPreferences, portWarnings } from "./layout-solver";
 import { compareLayoutMetrics, measureLayout, validateLayoutGeometry } from "./layout-quality";
-import { directionWarnings, compileConstraints, layoutScopeMembers } from "./constraints";
+import { compileConstraints, layoutScopeMembers } from "./constraints";
 import { routeCompoundEdges } from "./routing/router";
 
 export function automaticIntent(problem: LayoutProblem): LayoutIntent {
@@ -52,7 +52,6 @@ export function arrangeCompound(problem: LayoutProblem, intent = automaticIntent
   let validation = validateLayoutGeometry(problem, geometry);
   let metrics = measureLayout(problem, geometry);
   let diagnostics = [
-    ...directionWarnings(problem, geometry, data),
     ...preferences.aggregatedPreferenceWarnings,
     ...portWarnings(problem, geometry, preferences.portSides),
   ];
