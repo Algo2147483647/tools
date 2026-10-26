@@ -122,7 +122,8 @@ export function useCompoundLayoutPlan(
     async (request: { message: string; resume?: boolean } | { intent: unknown }) => {
       const initial = current.current;
       const input = initial.viewport.compoundLayout.input;
-      if (!initial.ready || !initial.problem || !input || active.current) return "Wait for the current layout.";
+      if (!initial.ready || !initial.problem || !input || active.current)
+        return { ok: false, message: "Wait for the current layout." };
       const abort = new AbortController();
       active.current = abort;
       setBusy(true);
@@ -135,7 +136,7 @@ export function useCompoundLayoutPlan(
       if ("message" in request && request.resume && !saved) {
         active.current = null;
         setBusy(false);
-        return "No matching layout work to resume.";
+        return { ok: false, message: "No matching layout work to resume." };
       }
       if (!saved) {
         clearActivity();
@@ -198,13 +199,15 @@ export function useCompoundLayoutPlan(
             compoundLayout: { ...initial.problem, stored: data },
           });
         }
-        if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
+        if (abort.signal.aborted || current.current.key !== initial.key)
+          return { ok: false, message: "Layout cancelled." };
         setMessage("Arranging…");
         data = parseCompoundLayout(data);
         const nextInput = { ...input, layout: data };
-        if (abort.signal.aborted || current.current.key !== initial.key) return "Layout cancelled.";
+        if (abort.signal.aborted || current.current.key !== initial.key)
+          return { ok: false, message: "Layout cancelled." };
         const context = initial.viewport.layoutRenderingContext;
-        if (!context) return "Layout context changed.";
+        if (!context) return { ok: false, message: "Layout context changed." };
         const charts = { ...initial.state.layoutSession.data.charts, compound: data };
         const rendering: LayoutRendering = {
           ...context,
@@ -240,7 +243,7 @@ export function useCompoundLayoutPlan(
                 ? "AI layout applied. Geometry changed."
                 : "Layout applied.";
         setMessage(outcome);
-        return outcome;
+        return { ok: true, message: outcome };
       } catch (error) {
         if (current.current.key === initial.key && active.current === abort) {
           const report = presentLayoutError(
@@ -249,7 +252,12 @@ export function useCompoundLayoutPlan(
           setMessage(report.message);
           setDetail(report.detail);
         }
-        return "Layout failed. Current layout kept.";
+        return {
+          ok: false,
+          message: abort.signal.aborted
+            ? "Layout cancelled. Current layout kept."
+            : `Layout failed: ${error instanceof Error ? error.message : "Unknown error"}. Current layout kept.`,
+        };
       } finally {
         if (active.current === abort) {
           active.current = null;

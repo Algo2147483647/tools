@@ -8,6 +8,7 @@ import type { ConsoleUiEffect } from "./types";
 export function executeConsoleMutation(
   instruction: ConsoleInstruction,
   context: {
+    referenceTime?: number;
     workingDag: NormalizedDag;
     contextNodeKey: NodeKey | null;
     results: CommandResult[];
@@ -17,10 +18,12 @@ export function executeConsoleMutation(
 ) {
   let { workingDag, contextNodeKey } = context;
   const { results, uiEffects, outputMessages } = context;
+  const apply = (dag: NormalizedDag, command: Parameters<typeof applyGraphCommand>[1]) =>
+    applyGraphCommand(dag, command, context.referenceTime);
   switch (instruction.type) {
     case "rename": {
       const oldKey = resolveExistingNodeKey(instruction.oldKey, contextNodeKey, workingDag, instruction.line);
-      const result = applyGraphCommand(workingDag, { type: "renameNode", oldKey, newKey: instruction.newKey });
+      const result = apply(workingDag, { type: "renameNode", oldKey, newKey: instruction.newKey });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);
@@ -29,7 +32,7 @@ export function executeConsoleMutation(
     }
     case "delete": {
       const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-      const result = applyGraphCommand(
+      const result = apply(
         workingDag,
         instruction.recursive ? { type: "deleteSubtree", rootKey: key } : { type: "deleteNode", key },
       );
@@ -43,7 +46,7 @@ export function executeConsoleMutation(
       const parentKey = instruction.parentKey
         ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
         : undefined;
-      const result = applyGraphCommand(workingDag, { type: "addNode", key: instruction.key, parentKey });
+      const result = apply(workingDag, { type: "addNode", key: instruction.key, parentKey });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);
@@ -55,7 +58,7 @@ export function executeConsoleMutation(
       const parentKey = instruction.parentKey
         ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
         : undefined;
-      const result = applyGraphCommand(workingDag, {
+      const result = apply(workingDag, {
         type: "copyNode",
         sourceKey,
         key: instruction.key,
@@ -77,7 +80,7 @@ export function executeConsoleMutation(
       if (instruction.createMissing) {
         [parentKey, childKey].forEach((key) => {
           if (!workingDag.nodes[key]) {
-            const addResult = applyGraphCommand(workingDag, { type: "addNode", key });
+            const addResult = apply(workingDag, { type: "addNode", key });
             workingDag = addResult.dag;
             contextNodeKey = remapContextKey(contextNodeKey, addResult);
             syncUiEffects(uiEffects, addResult);
@@ -85,7 +88,7 @@ export function executeConsoleMutation(
           }
         });
       }
-      const result = applyGraphCommand(workingDag, {
+      const result = apply(workingDag, {
         type: "setEdge",
         parentKey,
         childKey,
@@ -100,7 +103,7 @@ export function executeConsoleMutation(
     case "removeEdge": {
       const parentKey = resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line);
       const childKey = resolveExistingNodeKey(instruction.childKey, contextNodeKey, workingDag, instruction.line);
-      const result = applyGraphCommand(workingDag, { type: "removeEdge", parentKey, childKey });
+      const result = apply(workingDag, { type: "removeEdge", parentKey, childKey });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);
@@ -112,7 +115,7 @@ export function executeConsoleMutation(
       const parents = instruction.keys.map((item) =>
         resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line),
       );
-      const result = applyGraphCommand(workingDag, { type: "setParents", key, parents });
+      const result = apply(workingDag, { type: "setParents", key, parents });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);
@@ -124,7 +127,7 @@ export function executeConsoleMutation(
       const children = instruction.keys.map((item) =>
         resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line),
       );
-      const result = applyGraphCommand(workingDag, { type: "setChildren", key, children });
+      const result = apply(workingDag, { type: "setChildren", key, children });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);
@@ -150,7 +153,7 @@ export function executeConsoleMutation(
         writable: true,
         configurable: true,
       });
-      const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields });
+      const result = apply(workingDag, { type: "updateNodeFields", key, fields });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);
@@ -175,7 +178,7 @@ export function executeConsoleMutation(
       }
       const { key: _oldKey, ...fields } = structuredClone(currentNode);
       delete fields[instruction.field];
-      const result = applyGraphCommand(workingDag, { type: "updateNodeFields", key, fields });
+      const result = apply(workingDag, { type: "updateNodeFields", key, fields });
       workingDag = result.dag;
       contextNodeKey = remapContextKey(contextNodeKey, result);
       syncUiEffects(uiEffects, result);

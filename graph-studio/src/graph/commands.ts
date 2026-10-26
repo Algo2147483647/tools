@@ -10,9 +10,13 @@ import { applyNodeCommand, isNodeCommand } from "./commands/nodes";
 import { applyRelationCommand } from "./commands/relations";
 export type { GraphCommand, CommandResult } from "./commands/types";
 export { collectSubtreeNodeKeys } from "./commands/nodes";
-export function applyGraphCommand(source: NormalizedDag, command: GraphCommand): CommandResult {
+export function applyGraphCommand(
+  source: NormalizedDag,
+  command: GraphCommand,
+  referenceTime = Date.now(),
+): CommandResult {
   const document = serializeDag(source);
-  const timelineReferenceTime = getTimelineReferenceTime(document);
+  const timelineReferenceTime = getTimelineReferenceTime(document) ?? referenceTime;
   if (
     command.type === "groupCreate" ||
     command.type === "groupMove" ||

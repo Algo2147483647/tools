@@ -3,6 +3,8 @@ import { type ActionPlan, type WorkingMemory } from "../session/types";
 import { type AiSettings } from "../transport/types";
 
 export interface AiGraphContext {
+  capabilities?: ReturnType<typeof import("../../console/capabilities").describeCapabilities>;
+  domain?: Record<string, unknown>;
   summary: string;
   commandReference: string;
 }
@@ -40,6 +42,10 @@ export interface AiContextPacket {
     workingMemory: WorkingMemory;
   };
   execution: {
+    inspectionResults?: unknown[];
+    executionKey?: string;
+    readOnly?: boolean;
+    view?: import("../../console/runtime").ConsoleEnvironment["view"];
     pendingCommandBatch?: CommandBatch;
     lastValidation?: ValidationReport;
   };

@@ -122,10 +122,11 @@ export function useTimelineLayout(
   };
   const generate = async (prompt: string) => {
     const initial = current.current;
-    if (!initial.ready || !initial.input || !initial.baseline || !prompt.trim()) return;
+    if (!initial.ready || !initial.input || !initial.baseline || !prompt.trim())
+      return { ok: false, message: "Timeline layout is not ready." };
     if (!initial.settings.baseUrl.trim() || !initial.settings.model.trim()) {
       setMessage("Configure a model in Settings → AI.");
-      return;
+      return { ok: false, message: "Configure a model in Settings / AI." };
     }
     cancel();
     const id = sequence.current;
@@ -149,7 +150,8 @@ export function useTimelineLayout(
           if (sequence.current === id && !abort.signal.aborted) onProgress(event);
         },
       });
-      if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted) return;
+      if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted)
+        return { ok: false, message: "Timeline layout cancelled or context changed." };
       active.current = null;
       if (result.candidateId !== "current" && initial.rendering) {
         const data: TimelineLayoutData = { version: 1, mode: "ai" };
@@ -163,13 +165,19 @@ export function useTimelineLayout(
         });
       }
       setReport(result);
-      setMessage(result.changed ? "AI layout applied." : "AI retained the current arrangement.");
+      const message = result.changed ? "AI layout applied." : "AI retained the current arrangement.";
+      setMessage(message);
+      return { ok: true, message };
     } catch (error) {
       if (sequence.current === id) {
         const detail = presentLayoutError(error);
         setMessage(detail.message);
         setErrorDetail(detail.detail);
       }
+      return {
+        ok: false,
+        message: abort.signal.aborted ? "Timeline layout cancelled." : presentLayoutError(error).message,
+      };
     } finally {
       if (sequence.current === id) {
         active.current = null;

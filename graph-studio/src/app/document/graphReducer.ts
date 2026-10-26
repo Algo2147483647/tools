@@ -156,15 +156,38 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       };
     }
     case "graphCommandsCommitted": {
+      if (
+        action.transaction.beforeDag !== state.dag ||
+        action.transaction.revisionBefore !== state.editHistory.revision
+      )
+        return { ...state, ui: { ...state.ui, status: "Document changed. Prepare the operation again." } };
       const revision = action.transaction.revisionAfter;
       const data = repairLayoutSession(state.layoutSession.data, action.transaction.afterDag, action.renamedKeys);
-      const transaction = { ...action.transaction, beforeLayout: state.layoutSession.data, afterLayout: data };
-      const undoStack = pushEditTransaction(state.editHistory.undoStack, transaction);
+      let transaction = { ...action.transaction, beforeLayout: state.layoutSession.data, afterLayout: data };
+      const previous = state.editHistory.undoStack.at(-1);
+      const continuingAdjustment = !!transaction.adjustmentId && previous?.adjustmentId === transaction.adjustmentId;
+      if (continuingAdjustment)
+        transaction = {
+          ...transaction,
+          beforeDag: previous.beforeDag,
+          beforeStyles: previous.beforeStyles,
+          beforeTimeline: previous.beforeTimeline,
+          beforeLayout: previous.beforeLayout ?? state.layoutSession.data,
+          beforeSelection: previous.beforeSelection,
+          beforeNavigationHistory: previous.beforeNavigationHistory,
+          revisionBefore: previous.revisionBefore,
+        };
+      const undoStack = pushEditTransaction(
+        continuingAdjustment ? state.editHistory.undoStack.slice(0, -1) : state.editHistory.undoStack,
+        transaction,
+      );
       const nextUi = applyBatchUiEffects(state.ui, action.renamedKeys, action.deletedKeys);
 
       return {
         ...state,
         dag: action.transaction.afterDag,
+        documentStyles: action.transaction.afterStyles ?? state.documentStyles,
+        timelineSettings: action.transaction.afterTimeline ?? state.timelineSettings,
         nextRevision: revision + 1,
         source: { ...state.source, dirty: action.transaction.afterDag !== state.document.savedDag },
         layoutSession: { ...state.layoutSession, data },

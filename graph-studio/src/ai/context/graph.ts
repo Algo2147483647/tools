@@ -1,4 +1,6 @@
-import { CONSOLE_COMMAND_REFERENCE } from "../../console/reference";
+import { describeCapabilities, hasCapability } from "../../console/capabilities";
+import { inspectDomain } from "../../console/domains";
+import { getConsoleCommandReference } from "../../console/reference";
 import {
   getCustomFieldNames,
   getNodeChildren,
@@ -37,7 +39,8 @@ export function buildAiGraphContext({
 
   appearance: GraphAppearance;
 }): AiGraphContext {
-  const commandReference = CONSOLE_COMMAND_REFERENCE.filter((command) => !command.label.startsWith("/compound-layout"))
+  const commandReference = getConsoleCommandReference({ dag, chartType })
+    .filter((command) => !command.label.startsWith("/compound-layout"))
     .map((command) => `${command.label}: ${command.help}`)
     .join("\n");
 
@@ -47,7 +50,7 @@ export function buildAiGraphContext({
       summary: [
         "No graph is currently loaded.",
         `Application mode: ${mode}`,
-        `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
+        `Chart type: ${chartType}. Layout: ${chartType === "node-link" ? layoutMode : chartType}.`,
         formatAppearanceSummary(appearance),
         "Console commands are available for help and graph mutation after a graph is loaded.",
       ].join("\n"),
@@ -55,12 +58,32 @@ export function buildAiGraphContext({
   }
 
   const keys = Object.keys(dag.nodes).sort((left, right) => left.localeCompare(right));
-  const edgeCount = countEdges(dag);
+  const edgeCount = dag.edges.length;
+  const focused = selection?.type === "node" ? [selection.key] : selection?.type === "forest" ? selection.keys : [];
+  const relevantKeys = [...new Set([...(contextNodeKey ? [contextNodeKey] : []), ...focused, ...keys])]
+    .filter((k) => dag.nodes[k])
+    .slice(0, 60);
+  const domain: Record<string, unknown> = {};
+  for (const family of ["group", "timeline", "flow", "space"] as const) {
+    if (hasCapability({ dag, chartType }, family)) {
+      try {
+        domain[family] = inspectDomain(
+          dag,
+          { type: "domain", family, action: "inspect", args: { limit: 20 }, line: 1 },
+          Date.now(),
+        );
+      } catch (error) {
+        domain[family] = { error: error instanceof Error ? error.message : "Invalid domain data" };
+      }
+    }
+  }
   const selectionText = formatSelection(selection);
-  const nodeLines = keys.flatMap((key) => formatNodeSummary(key, dag));
-  const nodeIndexLines = keys.map((key) => formatNodeIndexLine(key, dag));
+  const nodeLines = relevantKeys.flatMap((key) => formatNodeSummary(key, dag));
+  const nodeIndexLines = relevantKeys.map((key) => formatNodeIndexLine(key, dag));
 
   return {
+    capabilities: describeCapabilities({ dag, chartType }),
+    domain,
     commandReference,
     summary: [
       `Graph has ${keys.length} node${keys.length === 1 ? "" : "s"} and ${edgeCount} directed edge${edgeCount === 1 ? "" : "s"}.`,
@@ -68,10 +91,11 @@ export function buildAiGraphContext({
         ? "Sankey document: edge values are finite, non-negative numeric flows; cycles are shown as return flows. Use numeric weights with /edge. Node colors can use a six-digit hex color field."
         : "",
       `Application mode: ${mode}`,
-      `Chart type: ${chartType}. Layout: ${chartType === "sankey" ? "Automatic flow" : layoutMode}.`,
+      `Chart type: ${chartType}. Layout: ${chartType === "node-link" ? layoutMode : chartType}.`,
       formatAppearanceSummary(appearance),
       `Current console context node: ${contextNodeKey || "(unset)"}`,
       `Current selection: ${selectionText}`,
+      `Context includes ${relevantKeys.length} of ${keys.length} nodes; query for omitted facts.`,
       "Node lookup index:",
       ...nodeIndexLines,
       "Nodes:",
@@ -96,10 +120,6 @@ function formatAppearanceSummary(appearance: GraphAppearance): string {
     "Appearance cssVars:",
     vars,
   ].join("\n");
-}
-
-function countEdges(dag: NormalizedDag): number {
-  return Object.values(dag.nodes).reduce((count, node) => count + getRelationKeys(getNodeChildren(node)).length, 0);
 }
 
 function formatSelection(selection: GraphSelection | null): string {
@@ -131,7 +151,9 @@ function formatNodeSummary(key: NodeKey, dag: NormalizedDag): string[] {
     `  define: ${formatPreview(define)}`,
     `  parents: ${parents.length ? parents.join(", ") : "(none)"}`,
     `  children: ${children.length ? children.join(", ") : "(none)"}`,
-    customFields.length ? `  custom fields: ${customFields.join(", ")}` : "",
+    customFields.length
+      ? `  custom fields: ${JSON.stringify(Object.fromEntries(customFields.map((name) => [name, node[name]]))).slice(0, 1800)}`
+      : "",
   ].filter(Boolean);
 }
 
@@ -147,5 +169,5 @@ function formatPreview(value: unknown): string {
     return "(empty)";
   }
   const text = typeof value === "string" ? value : JSON.stringify(value);
-  return text;
+  return text.length > 1200 ? text.slice(0, 1200) + "…" : text;
 }

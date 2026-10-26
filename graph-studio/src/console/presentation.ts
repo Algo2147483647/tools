@@ -1,5 +1,6 @@
+import { getDomainCommand } from "./domainRegistry";
 import type { NodeKey } from "../graph/types";
-import { CONSOLE_COMMAND_REFERENCE } from "./reference";
+import { getConsoleCommandReference } from "./reference";
 import type { ConsoleSuggestion } from "./types";
 
 export function buildConsoleSuccessMessage(
@@ -33,16 +34,37 @@ export function buildConsolePrompt(contextNodeKey: NodeKey | null): string {
   return contextNodeKey ? `${contextNodeKey}>` : "graph>";
 }
 
-const COMMAND_TEMPLATES: ConsoleSuggestion[] = [
-  ...CONSOLE_COMMAND_REFERENCE.map((command) => ({ label: command.label, insertText: command.insertText })),
-];
-
-export function getConsoleSuggestions(input: string): ConsoleSuggestion[] {
+export function getConsoleSuggestions(
+  input: string,
+  context?: import("./capabilities").CapabilityContext,
+): ConsoleSuggestion[] {
+  const COMMAND_TEMPLATES = getConsoleCommandReference(context);
   const trimmedStart = input.trimStart();
   if (!trimmedStart || !trimmedStart.startsWith("/")) {
     return [];
   }
 
+  if (context?.dag) {
+    const operand = /^(\/(?:use|ls|show|json|mv|rm|neighbors|path|edge|rm-edge|set|unset)\s+)([^\s"]*)$/.exec(
+      trimmedStart,
+    );
+    if (operand)
+      return Object.keys(context.dag.nodes)
+        .filter((key) => key.toLowerCase().startsWith(operand[2].toLowerCase()))
+        .slice(0, 8)
+        .map((key) => ({ label: key, insertText: operand[1] + (/\s/.test(key) ? JSON.stringify(key) : key) }));
+    const id = /^(.*"(?:id|edge|parent)"\s*:\s*")([^"\\]*)$/.exec(trimmedStart);
+    if (id) {
+      const candidates =
+        trimmedStart.startsWith("/edge-data") || trimmedStart.startsWith("/flow")
+          ? context.dag.edges.map((edge) => edge.id)
+          : Object.keys(context.dag.nodes);
+      return candidates
+        .filter((key) => key.startsWith(id[2]))
+        .slice(0, 8)
+        .map((key) => ({ label: key, insertText: id[1].slice(0, -1) + JSON.stringify(key) }));
+    }
+  }
   const hasWhitespace = /\s/.test(trimmedStart);
   if (!hasWhitespace) {
     const lower = trimmedStart.toLowerCase();
@@ -53,4 +75,11 @@ export function getConsoleSuggestions(input: string): ConsoleSuggestion[] {
   return COMMAND_TEMPLATES.filter(
     (item) => item.label.toLowerCase().startsWith(`${mnemonic} `) || item.label.toLowerCase() === mnemonic,
   ).slice(0, 6);
+}
+
+export function isReadOnlyInstruction(instruction: import("./dsl").ConsoleInstruction): boolean {
+  if (instruction.type === "domain") return getDomainCommand(instruction.family, instruction.action).effect === "query";
+  return ["help", "keys", "graphStats", "find", "neighbors", "path", "list", "appearanceCssShow"].includes(
+    instruction.type,
+  );
 }

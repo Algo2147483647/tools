@@ -54,3 +54,23 @@ export function prepareGraphTransaction(
     status: label,
   };
 }
+
+/** One document/style operation, one reducer commit and one undo entry. */
+export function prepareConsoleTransaction(
+  state: GraphAppState,
+  execution: Extract<import("../../console/execution/types").ConsoleRunResult, { ok: true }>,
+  label: string,
+) {
+  if (!state.dag || (!execution.mutationCount && !execution.appearanceMutationCount)) return null;
+  const results = execution.results.length ? execution.results : [{ dag: state.dag, changedKeys: [] }];
+  const action = prepareGraphTransaction(state, results, label)!;
+  if (execution.appearanceMutationCount) {
+    Object.assign(action.transaction, {
+      beforeStyles: state.documentStyles,
+      afterStyles: { ...state.documentStyles, [state.chartType]: execution.style },
+      beforeTimeline: state.timelineSettings,
+      afterTimeline: execution.style.timeline ?? state.timelineSettings,
+    });
+  }
+  return action;
+}

@@ -12,6 +12,11 @@ export interface ConsoleUiEffect {
 export type ConsoleRunResult =
   | {
       ok: true;
+      style: import("../../schema/appearance/types").ChartStyle;
+      queryResults: import("../domains").QueryResult[];
+      runtimeEffects: import("../domainRegistry").DomainInstruction[];
+      diff: string[];
+      referenceTime: number;
       dag: NormalizedDag;
       contextNodeKey: NodeKey | null;
       results: CommandResult[];

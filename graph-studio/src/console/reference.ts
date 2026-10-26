@@ -1,3 +1,5 @@
+import { DOMAIN_COMMANDS, domainAvailability } from "./domainRegistry";
+import type { CapabilityContext } from "./capabilities";
 interface ConsoleCommandReference {
   label: string;
   insertText: string;
@@ -18,7 +20,7 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   {
     label: "/compound-layout propose <intent JSON>",
     insertText: "/compound-layout propose ",
-    help: "Compute and apply a local layout from a validated intent. Run separately from edit batches. AI layout requests use the Layout panel.",
+    help: "Compute and apply a local layout from a validated intent. Run separately from edit batches. Compatibility alias of /layout run; AI and Arrange use the same layout service.",
   },
   {
     label: "/compound-layout cancel",
@@ -131,35 +133,27 @@ export const CONSOLE_COMMAND_REFERENCE: ConsoleCommandReference[] = [
   { label: "/cls", insertText: "/cls", help: "Alias of /clear. Clear the console output." },
 ];
 
-export function buildConsoleHelpText(): string {
+export function getConsoleCommandReference(context?: CapabilityContext, all = false) {
+  const common = CONSOLE_COMMAND_REFERENCE.filter(
+    (c) => !c.label.startsWith("/compound-layout") || !context || context.chartType === "compound",
+  );
+  const domain = DOMAIN_COMMANDS.flatMap((definition) => {
+    const unavailable = context ? domainAvailability(definition, context) : null;
+    if (unavailable && !all) return [];
+    const prefix = `/${definition.family} ${definition.action}`;
+    return [
+      {
+        label: `${prefix}${definition.args.length ? " <JSON>" : ""}`,
+        insertText: `${prefix}${definition.args.length ? " " + JSON.stringify(definition.example) : ""}`,
+        help: `${definition.help} Arguments: ${definition.args.join(", ") || "none"}. Example: ${prefix}${definition.args.length ? " " + JSON.stringify(definition.example) : ""}.${unavailable ? " Unavailable: " + unavailable : ""}`,
+      },
+    ];
+  });
+  return [...domain, ...common];
+}
+export function buildConsoleHelpText(context?: CapabilityContext, all = false): string {
   return [
-    "Available commands:",
-    "- /help: Show this command reference.",
-    "- /keys: List every node key in the current graph.",
-    "- /graph: Print graph-level statistics, roots, leaves, and type counts.",
-    "- /find <query>: Search node keys, titles, types, definitions, and custom fields.",
-    "- /neighbors <node> [depth]: Print parents and children around a node up to depth 4.",
-    "- /path <from> <to>: Find the shortest directed path from one node to another.",
-    "- /ls <node>: Print a compact node summary in the console output.",
-    "- /use <node>: Set the current context node. Use . to refer to the current context in later commands.",
-    "- /show <node>: Open the node viewer for a node.",
-    "- /json <node>: Open the raw JSON editor for a node.",
-    "- /mv <old-key> <new-key>: Rename a node key.",
-    "- /rm [-r] <node>: Delete a single node, or delete the full subtree rooted at the node with -r.",
-    "- /add <new-key> [-p <parent>]: Add a new node, and optionally link it as a child of the parent with -p.",
-    "- /cp <source> <new-key> [-p <parent>]: Copy a node into a new node key, and optionally link the copy to a parent with -p.",
-    "- /edge [--create-missing] <parent> <child> [weight]: Add or update a directed edge, optionally create missing endpoint nodes, and optionally set the edge relation value.",
-    "- /rm-edge <parent> <child>: Remove a single directed edge.",
-    "- /parents <node> = A,B,...: Replace the full parent relation set for a node. Use an empty assignment to clear it.",
-    "- /children <node> = A,B,...: Replace the full child relation set for a node. Use an empty assignment to clear it.",
-    "- /set <node> <field> <value>: Set a non-relation field value as string, number, boolean, null, or JSON.",
-    "- /unset <node> <field>: Remove a non-relation field from a node.",
-    "- /appearance-set <path> <JSON>: Edit a declared Appearance field such as nodes.height, edges.spacing or canvas.minSize.",
-    "- /style-var <var> <value>: Set a --dag-* CSS variable for graph appearance.",
-    "- /style-var --unset <var>: Remove a --dag-* CSS variable override.",
-    "- /style-css show|append|replace: Show, append to, or replace graph CSS using stable .dag-* selectors.",
-    "- /style-preset default: Apply the current chart type's default appearance preset.",
-    "- /style-reset: Reset graph appearance.",
-    "- /clear | /cls: Clear the console output.",
+    "Available commands (domain arguments use JSON objects):",
+    ...getConsoleCommandReference(context, all).map((c) => `- ${c.label}: ${c.help}`),
   ].join("\n");
 }

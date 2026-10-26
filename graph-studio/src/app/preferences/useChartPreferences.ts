@@ -1,3 +1,4 @@
+import { prepareGraphTransaction } from "../document/graphTransactions";
 import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { type GraphAppearance } from "../../schema/appearance/defaults";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
@@ -20,9 +21,11 @@ export function useChartPreferences(
     createChartPreferences(mapChartTypes((type) => documents[type].style)),
   );
   const previousDocument = useRef(-1);
+  const adjustmentId = useRef<string | null>(null);
   useEffect(() => {
     if (previousDocument.current === state.document.generation) return;
     previousDocument.current = state.document.generation;
+    adjustmentId.current = null;
     for (const type of Object.keys(styles) as GraphChartType[]) {
       updateHistories({
         chartType: type,
@@ -36,23 +39,36 @@ export function useChartPreferences(
       });
     }
   }, [state.document.generation, state.document.linkedStyle, chartType, styles]);
-  const history = histories[chartType];
+  const history = { ...histories[chartType], ...state.documentStyles[chartType] };
   const chartStyles = useMemo(() => {
     const current = getChartStyles(histories);
-    return mapChartTypes((type) => createStyleDocument(type, current[type]));
-  }, [histories]);
+    return mapChartTypes((type) => createStyleDocument(type, state.documentStyles[type] ?? current[type]));
+  }, [histories, state.documentStyles]);
   const { appearance } = history;
-  const beginAdjustment = useCallback(
-    () => updateHistories({ chartType, action: { type: "beginAdjustment" } }),
-    [chartType],
-  );
-  const endAdjustment = useCallback(
-    () => updateHistories({ chartType, action: { type: "endAdjustment" } }),
-    [chartType],
-  );
+  const beginAdjustment = useCallback(() => {
+    adjustmentId.current ??= crypto.randomUUID();
+    updateHistories({ chartType, action: { type: "beginAdjustment" } });
+  }, [chartType]);
+  const endAdjustment = useCallback(() => {
+    adjustmentId.current = null;
+    updateHistories({ chartType, action: { type: "endAdjustment" } });
+  }, [chartType]);
   const commitAppearance = useCallback(
     (nextAppearance: GraphAppearance, label: string, resetDisplay = false, timeline?: TimelineViewSettings) => {
       const { appearance: _appearance, timeline: _timeline, ...display } = getDefaultChartStyle(chartType);
+      if (state.dag) {
+        commitDocumentStyle(
+          {
+            ...getChartStyles(histories)[chartType],
+            ...state.documentStyles[chartType],
+            appearance: nextAppearance,
+            ...(resetDisplay ? display : {}),
+            ...(chartType === "timeline" ? { timeline: timeline ?? state.timelineSettings } : {}),
+          },
+          label,
+        );
+        return;
+      }
       updateHistories({
         chartType,
         action: {
@@ -65,24 +81,32 @@ export function useChartPreferences(
       });
       if (timeline) dispatch({ type: "timelineSettingsChanged", patch: timeline });
     },
-    [chartType, state.timelineSettings, dispatch],
+    [chartType, state, histories, dispatch],
   );
   const undo = useCallback(() => {
+    if (state.dag) {
+      if (state.editHistory.undoStack.at(-1)?.beforeStyles) dispatch({ type: "undoRequested" });
+      return;
+    }
     const transaction = history.undoStack.at(-1);
     if (!transaction) return;
     updateHistories({ chartType, action: { type: "undo" } });
     if (chartType === "timeline" && transaction.beforeTimeline)
       dispatch({ type: "timelineSettingsChanged", patch: transaction.beforeTimeline });
     dispatch({ type: "statusChanged", status: `Undid: ${transaction.label}` });
-  }, [chartType, dispatch, history.undoStack]);
+  }, [chartType, dispatch, history.undoStack, state.dag, state.editHistory.undoStack]);
   const redo = useCallback(() => {
+    if (state.dag) {
+      if (state.editHistory.redoStack.at(-1)?.afterStyles) dispatch({ type: "redoRequested" });
+      return;
+    }
     const transaction = history.redoStack.at(-1);
     if (!transaction) return;
     updateHistories({ chartType, action: { type: "redo" } });
     if (chartType === "timeline" && transaction.afterTimeline)
       dispatch({ type: "timelineSettingsChanged", patch: transaction.afterTimeline });
     dispatch({ type: "statusChanged", status: `Redid: ${transaction.label}` });
-  }, [chartType, dispatch, history.redoStack]);
+  }, [chartType, dispatch, history.redoStack, state.dag, state.editHistory.redoStack]);
   function handleAppearanceCssChange(css: string) {
     commitAppearance(applyAppearanceCommand(appearance, { type: "replaceCss", css }).appearance, "Replaced graph CSS.");
   }
@@ -91,7 +115,24 @@ export function useChartPreferences(
     commitStyle(getDefaultChartStyle(chartType), "Reset graph appearance.");
   }
 
+  function commitDocumentStyle(style: ChartStyle, label: string) {
+    if (!state.dag) return;
+    const action = prepareGraphTransaction(state, [{ dag: state.dag, changedKeys: [] }], label)!;
+    Object.assign(action.transaction, {
+      adjustmentId: adjustmentId.current ?? undefined,
+      beforeStyles: state.documentStyles,
+      afterStyles: { ...state.documentStyles, [chartType]: style },
+      beforeTimeline: state.timelineSettings,
+      afterTimeline: style.timeline ?? state.timelineSettings,
+    });
+    dispatch(action);
+  }
+
   function commitStyle(style: ChartStyle, label: string) {
+    if (state.dag) {
+      commitDocumentStyle(style, label);
+      return;
+    }
     const { appearance, timeline, ...display } = style;
     const nextTimeline = chartType === "timeline" ? timeline : undefined;
     updateHistories({
@@ -118,8 +159,8 @@ export function useChartPreferences(
     commitAppearance,
     undo,
     redo,
-    canUndo: history.undoStack.length > 0,
-    canRedo: history.redoStack.length > 0,
+    canUndo: state.dag ? !!state.editHistory.undoStack.at(-1)?.beforeStyles : history.undoStack.length > 0,
+    canRedo: state.dag ? !!state.editHistory.redoStack.at(-1)?.afterStyles : history.redoStack.length > 0,
     handleAppearanceCssChange,
     handleAppearanceSchemaChange: (style: ChartStyle) => commitStyle(style, "Edited appearance schema."),
     handleAppearanceReset,

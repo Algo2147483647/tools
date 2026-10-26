@@ -9,6 +9,8 @@ import type { NodeKey } from "../../graph/types";
 import type { ConsoleEntry, ConsoleReviewCard, ConsoleSuggestion } from "../../console/types";
 
 interface ConsoleWindowProps {
+  capabilityContext?: import("../../console/capabilities").CapabilityContext;
+  onCancelAi?: () => void;
   onClose: () => void;
   hasGraph: boolean;
   entries: ConsoleEntry[];
@@ -29,6 +31,8 @@ interface ConsoleWindowProps {
 
 export default function ConsoleWindow({
   onClose,
+  capabilityContext,
+  onCancelAi,
   hasGraph,
   entries,
   inputValue,
@@ -114,6 +118,14 @@ export default function ConsoleWindow({
           ))}
         </div>
         <div className="console-window__actions">
+          <span className="console-window__mode" title={`Scope: ${contextNodeKey || "current view"}`}>
+            {capabilityContext?.chartType}
+          </span>
+          {aiBusy && onCancelAi && (
+            <button type="button" onClick={onCancelAi} aria-label="Cancel AI request">
+              Stop
+            </button>
+          )}
           <span className={`console-window__status${aiBusy ? " is-busy" : ""}`} role="status">
             {aiBusy ? "Working" : "Ready"}
           </span>
@@ -219,7 +231,7 @@ export default function ConsoleWindow({
         hidden={activeTab !== "protocols"}
         tabIndex={0}
       >
-        <ConsoleProtocols />
+        <ConsoleProtocols context={capabilityContext} />
       </div>
     </section>
   );

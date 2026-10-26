@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CONSOLE_COMMAND_REFERENCE } from "../../console/reference";
+import { getConsoleCommandReference } from "../../console/reference";
 import { SYSTEM_PROMPT } from "../../ai/protocol/editingPrompt";
 import type { AiResponse } from "../../ai/protocol/types";
 import { defaultLayoutIntent } from "../../graph/compound/layoutData";
@@ -12,11 +12,7 @@ const requestFields: Row[] = [
     "Latest user request. Plain text entered in the console is sent to AI; / commands run locally.",
   ],
   ["system.role", '"graph_editing_agent"', "Identifies the graph editing agent."],
-  [
-    "system.language",
-    '"zh" | "en" | "auto"',
-    "Context language; the current builder sends auto. The system prompt requests English replies.",
-  ],
+  ["system.language", '"zh" | "en" | "auto"', "Context language; auto follows the latest user request."],
   ["system.responseProtocolVersion", '"v2"', "Selects the response protocol below."],
   ["system.editPolicy.execution", '"validate_then_execute"', "Validate commands before execution."],
   ["graph.summary / commandReference", "string", "Current graph context and its command reference."],
@@ -28,6 +24,18 @@ const requestFields: Row[] = [
   ["memory.activePlan", "ActionPlan · optional", "Active plan, changes, scope, base revision and validation."],
   ["memory.workingMemory", "WorkingMemory", "Topic, intent, focus, plan IDs, preferences and unresolved questions."],
   ["execution.pendingCommandBatch", "CommandBatch · optional", "Pending commands associated with a graph revision."],
+  [
+    "graph.capabilities / domain",
+    "object",
+    "Document capabilities and mode-specific facts, including time, flow, hierarchy and coordinates.",
+  ],
+  [
+    "execution.view / executionKey",
+    "object / string",
+    "Current scope and request snapshot. Changed modes, scopes or revisions invalidate pending plans.",
+  ],
+  ["execution.inspectionResults", "array", "Bounded structured results fed back during the current inspection loop."],
+  ["execution.readOnly", "boolean", "Analysis-only requests cannot commit edits."],
   ["execution.lastValidation", "ValidationReport · optional", "Most recent command validation results."],
 ];
 const responseFields: Row[] = [
@@ -40,7 +48,7 @@ const responseFields: Row[] = [
   [
     "inspect",
     "answer; commands: string[]",
-    "Request inspection commands such as /find, /ls or /graph. Commands pass through validation.",
+    "Run read-only queries and automatically return structured results to AI. Maximum 6 turns, 20 commands per turn.",
   ],
   [
     "run_console",
@@ -191,9 +199,14 @@ function ProtocolTable({ title, columns, rows }: { title: string; columns: Row; 
   );
 }
 
-export default function ConsoleProtocols() {
+export default function ConsoleProtocols({
+  context,
+}: {
+  context?: import("../../console/capabilities").CapabilityContext;
+}) {
+  const reference = getConsoleCommandReference(context, true);
   const [query, setQuery] = useState("");
-  const commands = CONSOLE_COMMAND_REFERENCE.filter((command) =>
+  const commands = reference.filter((command) =>
     `${command.label} ${command.help}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
   return (
@@ -210,12 +223,13 @@ export default function ConsoleProtocols() {
       </nav>
       <section id="console-command-protocol">
         <h4>
-          01 / Console commands <span>{CONSOLE_COMMAND_REFERENCE.length}</span>
+          01 / Console commands <span>{reference.length}</span>
         </h4>
         <p>
           <code>&lt;value&gt;</code> is required; <code>[value]</code> is optional. One command per line. Empty lines
           and lines starting with # are ignored within a command batch. Use <code>.</code> for the node selected by
-          /use. Quote keys containing spaces with JSON double quotes.
+          /use. Quote keys containing spaces with JSON double quotes. Domain commands take a JSON object; unavailable
+          capabilities are explained in the table.
         </p>
         <input
           type="search"

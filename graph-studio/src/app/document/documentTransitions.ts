@@ -38,10 +38,10 @@ export function replaceDocument(
         }
       : initial.source,
     selection: loaded
-        ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag) || isSpatialDocument(action.dag)
-          ? { type: "full" }
-          : action.selection
-        : null,
+      ? action.dag.hierarchy_edges?.length || isTimelineDocument(action.dag) || isSpatialDocument(action.dag)
+        ? { type: "full" }
+        : action.selection
+      : null,
     editHistory: { ...initial.editHistory, savedRevision: isNew ? -1 : 0 },
     chartType:
       loadedLayout?.activeChart ??
@@ -90,6 +90,8 @@ export function traverseEditHistory(state: GraphAppState, direction: "undo" | "r
   return {
     ...state,
     dag: undo ? transaction.beforeDag : transaction.afterDag,
+    documentStyles: (undo ? transaction.beforeStyles : transaction.afterStyles) ?? state.documentStyles,
+    timelineSettings: (undo ? transaction.beforeTimeline : transaction.afterTimeline) ?? state.timelineSettings,
     layoutSession: {
       ...state.layoutSession,
       data: (undo ? transaction.beforeLayout : transaction.afterLayout) ?? state.layoutSession.data,

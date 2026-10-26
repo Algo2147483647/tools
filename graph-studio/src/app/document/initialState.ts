@@ -13,7 +13,12 @@ import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { ChartStyle } from "../../schema/appearance/styles";
 
 export interface EditTransaction {
+  adjustmentId?: string;
   label: string;
+  beforeStyles?: Partial<Record<GraphChartType, ChartStyle>>;
+  afterStyles?: Partial<Record<GraphChartType, ChartStyle>>;
+  beforeTimeline?: TimelineViewSettings;
+  afterTimeline?: TimelineViewSettings;
   beforeLayout?: LayoutSessionState;
   afterLayout?: LayoutSessionState;
   beforeDag: NormalizedDag;
@@ -27,6 +32,7 @@ export interface EditTransaction {
 }
 
 export interface GraphAppState {
+  documentStyles: Partial<Record<GraphChartType, ChartStyle>>;
   layoutSession: { data: LayoutSessionState; notice: string };
   timelineSettings: TimelineViewSettings;
   dag: NormalizedDag | null;
@@ -77,6 +83,7 @@ export function createInitialGraphState(
   savedPreferences: GraphPagePreferences = getInitialGraphPagePreferences(),
 ): GraphAppState {
   return {
+    documentStyles: {},
     layoutSession: { data: defaultLayoutSession(), notice: "" },
     timelineSettings: savedPreferences.chartStyles.timeline.style.timeline!,
     dag: null,

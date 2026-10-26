@@ -2,7 +2,7 @@ import { type Dispatch, useCallback } from "react";
 import { type CommandResult, type GraphCommand, applyGraphCommand } from "../../graph/commands";
 import type { GraphSelection } from "../../graph/types";
 import type { GraphAction } from "./graphActions";
-import { prepareGraphTransaction, prepareCommandTransaction } from "./graphTransactions";
+import { prepareGraphTransaction, prepareCommandTransaction, prepareConsoleTransaction } from "./graphTransactions";
 import type { GraphAppState } from "./initialState";
 
 interface AppearanceUndo {
@@ -30,6 +30,16 @@ export function useGraphTransactions({
       return true;
     },
     [dispatch, state],
+  );
+
+  const commitPrepared = useCallback(
+    (execution: Extract<import("../../console/execution/types").ConsoleRunResult, { ok: true }>, label: string) => {
+      const action = prepareConsoleTransaction(state, execution, label);
+      if (!action) return false;
+      dispatch(action);
+      return true;
+    },
+    [state, dispatch],
   );
 
   const commitCommand = useCallback(
@@ -71,6 +81,7 @@ export function useGraphTransactions({
   }, [appearanceHistory.redo, dispatch, state.editHistory.redoStack.length]);
 
   return {
+    commitPrepared,
     commitCommand,
     commitCommands,
     commitBatch,

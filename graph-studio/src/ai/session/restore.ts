@@ -108,6 +108,8 @@ function sanitizeCommandBatch(value: unknown): CommandBatch | undefined {
   return {
     id,
     planId: sanitizeOptionalString(value.planId),
+    executionKey: sanitizeOptionalString(value.executionKey),
+    completedSteps: sanitizeStringArray(value.completedSteps),
     status: sanitizeCommandBatchStatus(value.status),
     title,
     commands,

@@ -123,8 +123,8 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     assert.equal(validation.riskLevel, "medium");
     assert.match(validation.summary, /Preflight passed/);
     const diffPreview = validation.results.flatMap((result) => result.expectedDiff || []);
-    assert.ok(diffPreview.some((line) => line === "+ Node: Subgroup"));
-    assert.ok(diffPreview.some((line) => line === "+ Edge: A -> Subgroup"));
+    assert.ok(diffPreview.some((line) => line.startsWith("nodes.Subgroup:")));
+    assert.ok(diffPreview.some((line) => line.startsWith("edges.") && line.includes('"target":"Subgroup"')));
   }),
 
   defineTest("validates appearance command batches and reports CSS/appearance-set diffs", () => {
@@ -159,7 +159,7 @@ export const aiHarnessSuite = defineSuite("ai harness", [
     assert.equal(validation.allPassed, true);
     assert.equal(validation.riskLevel, "low");
     const diffPreview = validation.results.flatMap((result) => result.expectedDiff || []);
-    assert.ok(diffPreview.some((line) => line.includes("layout.nodes.spacing.row")));
+    assert.ok(diffPreview.some((line) => line.includes("style.appearance.nodes.spacing.row")));
     assert.ok(diffPreview.some((line) => line.includes("cssVars.--dag-edge")));
   }),
 

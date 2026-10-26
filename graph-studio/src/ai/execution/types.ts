@@ -3,6 +3,8 @@ export type AiRiskLevel = "low" | "medium" | "high";
 export interface CommandBatch {
   id: string;
   planId?: string;
+  executionKey?: string;
+  completedSteps?: string[];
   status: "draft" | "validated" | "ready" | "executing" | "executed" | "failed";
   title: string;
   commands: string[];

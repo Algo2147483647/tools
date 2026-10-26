@@ -1,3 +1,4 @@
+import { getDomainCommand } from "../../console/domainRegistry";
 import { type ConsoleInstruction, parseConsoleSource } from "../../console/dsl";
 import type { AiRiskLevel, ValidationReport } from "../types";
 
@@ -14,7 +15,10 @@ export function isDestructiveCommand(source: string): boolean {
     !parsed.ok ||
     parsed.instructions.some(
       (instruction) =>
-        instruction.type === "delete" || instruction.type === "removeEdge" || instruction.type === "unsetField",
+        instruction.type === "delete" ||
+        instruction.type === "removeEdge" ||
+        instruction.type === "unsetField" ||
+        (instruction.type === "domain" && ["delete", "dissolve"].includes(instruction.action)),
     )
   );
 }
@@ -25,6 +29,12 @@ export function shouldExecuteValidatedBatch(validation: ValidationReport): boole
 
 function classifyInstructionRisk(instruction: ConsoleInstruction): AiRiskLevel {
   switch (instruction.type) {
+    case "domain":
+      return ["delete", "dissolve"].includes(instruction.action)
+        ? "high"
+        : getDomainCommand(instruction.family, instruction.action).effect === "query"
+          ? "low"
+          : "medium";
     case "delete":
     case "removeEdge":
     case "unsetField":

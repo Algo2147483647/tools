@@ -1,6 +1,13 @@
+import { executionFingerprint } from "../../console/snapshot";
+import { parseCompoundLayoutCommand } from "../../console/compoundLayout";
+import { isReadOnlyInstruction } from "../../console/presentation";
+import type { ConsoleInstruction } from "../../console/dsl";
+import type { ConsoleRunResult } from "../../console/execution/types";
+import type { ConsoleEnvironment } from "../../console/runtime";
+import type { DomainInstruction } from "../../console/domainRegistry";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { parseConsoleSource } from "../../console/dsl";
-import { buildConsoleMutationLabel, executeConsoleInstructions } from "../../console/executor";
+import { executeConsoleInstructions } from "../../console/executor";
 import {
   buildConsolePrompt,
   buildConsoleSuccessMessage,
@@ -11,7 +18,6 @@ import type { GraphAppearance } from "../../schema/appearance/defaults";
 import { createGraphDocument } from "../../graph/normalize";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { NodeKey } from "../../graph/types";
-import { buildAppearanceMutationLabel, getGraphPresetStyle } from "../../schema/appearance/commands";
 import type { GraphAppState } from "../document/initialState";
 import { useConsoleInput } from "./useConsoleInput";
 import type { GraphTransactionsController } from "../document/useGraphTransactions";
@@ -24,12 +30,13 @@ export function useConsoleController({
   transactions,
   commitAppearance,
   openNodeDetail,
-  runLayoutCommand,
+  getEnvironment,
+  runRuntime,
 }: {
   state: GraphAppState;
 
   appearance: GraphAppearance;
-  transactions: Pick<GraphTransactionsController, "commitBatch">;
+  transactions: Pick<GraphTransactionsController, "commitPrepared">;
   commitAppearance: (
     next: GraphAppearance,
     label: string,
@@ -37,7 +44,8 @@ export function useConsoleController({
     timeline?: TimelineViewSettings,
   ) => void;
   openNodeDetail: (key: NodeKey, focus?: "fields" | "raw") => void;
-  runLayoutCommand?: (source: string) => boolean;
+  getEnvironment?: () => ConsoleEnvironment;
+  runRuntime?: (instruction: DomainInstruction) => Promise<{ ok: boolean; message: string }>;
 }) {
   const [contextNodeKey, setContextNodeKey] = useState<NodeKey | null>(null);
   const [entries, setEntries] = useState<ConsoleEntry[]>([{ id: 1, tone: "info", text: "Graph console ready." }]);
@@ -56,7 +64,10 @@ export function useConsoleController({
     setEntries((current) => [...current, entry]);
   }, []);
 
-  const inputState = useConsoleInput(state.document.generation, appendMessage);
+  const inputState = useConsoleInput(state.document.generation, appendMessage, {
+    dag: state.dag,
+    chartType: state.chartType,
+  });
   const { input, suggestions, activeSuggestionIndex, recordInput, changeInput } = inputState;
   const upsertReview = useCallback((review: ConsoleReviewCard) => {
     const entry: ConsoleEntry = { id: nextEntryId.current++, tone: "ai-review", text: review.title, review };
@@ -84,81 +95,118 @@ export function useConsoleController({
     setEntries([entry]);
   }, []);
 
-  const runSource = useCallback(
-    (rawSource: string): boolean => {
-      const source = rawSource.trim();
-      if (!source) return false;
-      recordInput(buildConsolePrompt(contextNodeKey), source);
-      if (/^\/compound-layout(?:\s|$)/.test(source)) {
-        if (runLayoutCommand) return runLayoutCommand(source);
-        appendMessage("error", "Nested layout commands are unavailable.");
+  const getExecutionKey = () =>
+    executionFingerprint([
+      state.document.generation,
+      state.editHistory.revision,
+      state.chartType,
+      state.selection,
+      state.layout.mode,
+      state.timelineSettings,
+      state.layoutSession.data,
+      appearance,
+      contextNodeKey,
+      getEnvironment?.().style,
+      getEnvironment?.().view,
+    ]);
+  const prepareSource = (rawSource: string, readOnly = false): PreparedConsoleSource => {
+    let source = rawSource.trim();
+    // Compatibility alias uses the same parser, validation and runtime service.
+    if (/^\/compound-layout(?:\s|$)/.test(source)) {
+      try {
+        if (state.chartType !== "compound") throw new Error("Compound layout requires the compound view.");
+        const legacy = parseCompoundLayoutCommand(source);
+        source =
+          legacy.type === "propose"
+            ? `/layout run ${JSON.stringify({ intent: legacy.intent })}`
+            : `/layout ${legacy.type}${"groupId" in legacy && legacy.groupId !== undefined ? " " + JSON.stringify({ scope: legacy.groupId ?? "root" }) : ""}`;
+      } catch (error) {
+        return {
+          source,
+          base: getExecutionKey(),
+          instructions: [],
+          execution: {
+            ok: false,
+            line: 1,
+            contextNodeKey,
+            message: error instanceof Error ? error.message : "Invalid layout command.",
+          },
+        };
+      }
+    }
+    const base = getExecutionKey();
+    const parsed = parseConsoleSource(source);
+    if (!parsed.ok)
+      return { source, base, instructions: [], execution: { ok: false, ...parsed.error, contextNodeKey } };
+    let error = !parsed.instructions.length ? "No instructions were found." : "";
+    if (!state.dag && parsed.instructions.some((instruction) => requiresGraphForConsoleInstruction(instruction.type)))
+      error = "No graph loaded.";
+    if (readOnly && parsed.instructions.some((instruction) => !isReadOnlyInstruction(instruction)))
+      error = "Inspection only permits read-only queries.";
+    return {
+      source,
+      base,
+      instructions: parsed.instructions,
+      execution: error
+        ? { ok: false, line: 1, message: error, contextNodeKey }
+        : executeConsoleInstructions(
+            state.dag || createGraphDocument(),
+            parsed.instructions,
+            contextNodeKey,
+            appearance,
+            state.chartType,
+            getEnvironment?.(),
+          ),
+    };
+  };
+  const committedBase = useRef<string | null>(null);
+  const latest = useRef({ state, getExecutionKey });
+  latest.current = { state, getExecutionKey };
+  const executePrepared = async (prepared: PreparedConsoleSource): Promise<boolean> => {
+    const executed = prepared.execution;
+    if (latest.current.getExecutionKey() !== prepared.base) {
+      appendMessage("error", "Document, view or settings changed. Prepare the operation again.");
+      return false;
+    }
+    if (!executed.ok) {
+      appendMessage("error", `Line ${executed.line}: ${executed.message}`);
+      return false;
+    }
+    if (executed.mutationCount || executed.appearanceMutationCount) {
+      if (committedBase.current === prepared.base) {
+        appendMessage("error", "A batch already committed against this revision. Wait for the view to update.");
         return false;
       }
-      if (source === "/clear" || source === "/cls") {
-        clear();
-        return true;
-      }
-      const parsed = parseConsoleSource(source);
-      if (!parsed.ok) {
-        appendMessage("error", `Line ${parsed.error.line}: ${parsed.error.message}`);
+      committedBase.current = prepared.base;
+      const label = `Console: ${executed.mutationCount} graph edit(s), ${executed.appearanceMutationCount} style edit(s).`;
+      if (state.dag) {
+        if (!transactions.commitPrepared(executed, label)) return false;
+      } else commitAppearance(executed.appearance, label, false, executed.style.timeline);
+    }
+    if (prepared.instructions.some((instruction) => instruction.type === "clear")) clear();
+    setContextNodeKey(
+      executed.contextNodeKey && executed.dag.nodes[executed.contextNodeKey] ? executed.contextNodeKey : null,
+    );
+    executed.outputMessages.forEach((message) => appendMessage("info", message));
+    if (executed.diff.length) appendMessage("info", executed.diff.join("\n"));
+    const finalUiEffect = executed.uiEffects.filter((effect) => executed.dag.nodes[effect.nodeKey]).at(-1);
+    if (finalUiEffect) openNodeDetail(finalUiEffect.nodeKey, finalUiEffect.type === "json" ? "raw" : "fields");
+    for (const effect of executed.runtimeEffects) {
+      if (!runRuntime) {
+        appendMessage("error", "Runtime service is unavailable.");
         return false;
       }
-      if (!parsed.instructions.length) {
-        appendMessage("info", "No instructions were found.");
+      try {
+        const result = await runRuntime(effect);
+        if (latest.current.state.document.generation !== state.document.generation) return false;
+        appendMessage(result.ok ? "success" : "error", result.message);
+        if (!result.ok) return false;
+      } catch (error) {
+        appendMessage("error", error instanceof Error ? error.message : "Task failed.");
         return false;
       }
-      if (parsed.instructions.some((instruction) => instruction.type === "clear")) clear();
-      if (
-        !state.dag &&
-        parsed.instructions.some((instruction) => requiresGraphForConsoleInstruction(instruction.type))
-      ) {
-        appendMessage("error", "No graph loaded. Load or initialize a graph before running console instructions.");
-        return false;
-      }
-      const executed = executeConsoleInstructions(
-        state.dag || createGraphDocument(),
-        parsed.instructions,
-        contextNodeKey,
-        appearance,
-        state.chartType,
-      );
-      setContextNodeKey(executed.contextNodeKey);
-      if (!executed.ok) {
-        appendMessage(
-          "error",
-          executed.message.startsWith("Line ") ? executed.message : `Line ${executed.line}: ${executed.message}`,
-        );
-        return false;
-      }
-      executed.outputMessages.forEach((message) => appendMessage("info", message));
-      if (executed.appearanceMutationCount > 0) {
-        const label = buildAppearanceMutationLabel(
-          executed.appearanceMutationCount,
-          executed.appearanceResults.at(-1)?.message,
-        );
-        const resetCommand = parsed.instructions
-          .flatMap((instruction) =>
-            instruction.type === "appearance" &&
-            (instruction.command.type === "resetAppearance" || instruction.command.type === "applyPreset")
-              ? [instruction.command]
-              : [],
-          )
-          .at(-1);
-        const resetStyle = resetCommand
-          ? getGraphPresetStyle(
-              state.chartType,
-              resetCommand.type === "applyPreset" ? resetCommand.presetId : "default",
-            )
-          : undefined;
-        commitAppearance(executed.appearance, label, Boolean(resetStyle), resetStyle?.timeline);
-        appendMessage("success", label);
-      }
-      if (executed.mutationCount > 0) {
-        const label = buildConsoleMutationLabel(executed.mutationCount, executed.results.at(-1)?.message);
-        if (!transactions.commitBatch(executed.results, label)) return false;
-      }
-      const finalUiEffect = executed.uiEffects.filter((effect) => effect.nodeKey).at(-1);
-      if (finalUiEffect) openNodeDetail(finalUiEffect.nodeKey, finalUiEffect.type === "json" ? "raw" : "fields");
+    }
+    if (!executed.runtimeEffects.length)
       appendMessage(
         "success",
         buildConsoleSuccessMessage(
@@ -169,22 +217,13 @@ export function useConsoleController({
           finalUiEffect?.type,
         ),
       );
-      return true;
-    },
-    [
-      appearance,
-      runLayoutCommand,
-      appendMessage,
-      clear,
-      commitAppearance,
-      contextNodeKey,
-      openNodeDetail,
-      recordInput,
-      state.dag,
-      state.chartType,
-      transactions.commitBatch,
-    ],
-  );
+    return true;
+  };
+  const runSource = async (source: string): Promise<boolean> => {
+    if (!source.trim()) return false;
+    recordInput(buildConsolePrompt(contextNodeKey), source);
+    return executePrepared(prepareSource(source));
+  };
 
   return {
     entries,
@@ -197,6 +236,11 @@ export function useConsoleController({
     upsertReview,
     setReviewStatus,
     runSource,
+    prepareSource,
+    executePrepared,
+    getExecutionKey,
+    getEnvironment: () => getEnvironment?.() ?? {},
+    capabilityContext: { dag: state.dag, chartType: state.chartType },
     changeInput,
     handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>, ask: Ask) =>
       inputState.handleKeyDown(event, ask, runSource),
@@ -204,5 +248,10 @@ export function useConsoleController({
       inputState.handlePaste(event, ask, runSource),
   };
 }
-
 export type ConsoleController = ReturnType<typeof useConsoleController>;
+export interface PreparedConsoleSource {
+  source: string;
+  base: string;
+  instructions: ConsoleInstruction[];
+  execution: ConsoleRunResult;
+}

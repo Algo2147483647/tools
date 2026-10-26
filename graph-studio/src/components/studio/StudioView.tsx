@@ -159,6 +159,8 @@ export default function StudioView({
 
       {state.ui.consoleSidebarOpen && !files.homeVisible && (
         <ConsoleWindow
+          capabilityContext={consoleController.capabilityContext}
+          onCancelAi={ai.cancel}
           onClose={() => dispatch({ type: "consoleSidebarToggled", open: false })}
           hasGraph={Boolean(state.dag)}
           entries={consoleController.entries}

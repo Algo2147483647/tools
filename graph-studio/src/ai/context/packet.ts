@@ -1,3 +1,5 @@
+import { boundedInspectionResult } from "../session/inspection";
+import { getConsoleCommandReference } from "../../console/reference";
 import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../../schema/appearance/defaults";
 import type {
   GraphChartType,
@@ -17,6 +19,9 @@ interface ConsoleHistoryEntry {
 
 interface BuildContextInput {
   harness: AiHarnessState;
+  environment?: import("../../console/runtime").ConsoleEnvironment;
+  executionKey?: string;
+  readOnly?: boolean;
   dag: NormalizedDag | null;
   mode: GraphMode;
   layoutMode: GraphLayoutMode;
@@ -49,25 +54,24 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
     },
     graph: {
       ...graphContext,
+      domain: boundedInspectionResult(graphContext.domain) as Record<string, unknown>,
       graphRevision: input.harness.graphRevision,
       currentSelection: formatSelectionKeys(input.selection),
       focusedNodes: input.contextNodeKey ? [input.contextNodeKey] : [],
     },
     tools: {
       availableCommands: graphContext.commandReference,
-      commandExamples: [
-        "/find Group",
-        "/neighbors Group 2",
-        "/add Subgroup -p Group",
-        '/set Group define "A group is a set with an associative binary operation, an identity element, and inverses."',
-        "/edge Group Representation_Theory",
-        "/style-preset default",
-        '/style-var --dag-node-fill "rgba(18, 24, 38, 0.94)"',
-        '/style-css append ".dag-node[data-type=\\"service\\"] .dag-node__shape { fill: #eef6ff; }"',
-        "/appearance-set nodes.spacing.row 34",
-      ],
+      commandExamples: getConsoleCommandReference({ dag: input.dag, chartType: input.chartType ?? "node-link" })
+        .filter((command) => !command.label.startsWith("/compound-layout"))
+        .slice(0, 16)
+        .map((command) => command.insertText),
       constraints: [
         "All commands must start with /.",
+        "Domain commands take one JSON object. Consult the current capability catalog; never invent commands.",
+        "Ordinary edges and hierarchy_edges are independent. /rm -r traverses ordinary edges; /group delete traverses containment.",
+        "Times follow the document clock; coordinates follow metadata.space. Camera and layout changes must not rewrite domain data.",
+        "Domain query pages include total and nextOffset; request additional pages rather than assuming omitted records are absent.",
+        "View and layout commands form separate workflow steps between atomic edit batches. Return commands in dependency order. Query results are returned automatically for another reasoning turn.",
         "Use /find, /ls, /neighbors, /path, or /graph when more graph facts are needed.",
         "Do not reference missing nodes unless the same command batch creates them first or uses /edge --create-missing.",
         "Use /set for title, type, define, and other non-relation fields.",
@@ -77,11 +81,14 @@ export function buildAiContextPacket(input: BuildContextInput): AiContextPacket 
       ],
     },
     memory: {
-      consoleHistory: input.consoleEntries.map(({ tone, text }) => ({ tone, text })),
+      consoleHistory: input.consoleEntries.slice(-40).map(({ tone, text }) => ({ tone, text: text.slice(0, 4000) })),
       activePlan: input.harness.activePlan,
       workingMemory: input.harness.workingMemory,
     },
     execution: {
+      executionKey: input.executionKey,
+      readOnly: input.readOnly,
+      view: input.environment?.view,
       pendingCommandBatch: input.harness.pendingCommandBatch,
       lastValidation: input.harness.pendingCommandBatch?.validation || input.harness.activePlan?.validation,
     },

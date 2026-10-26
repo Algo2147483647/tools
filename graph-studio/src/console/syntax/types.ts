@@ -7,7 +7,8 @@ export interface ConsoleLineError {
 export type ConsoleNodeOperand = { type: "key"; value: string } | { type: "context" };
 
 export type ConsoleInstruction =
-  | { type: "help"; line: number }
+  | import("../domainRegistry").DomainInstruction
+  | { type: "help"; all?: boolean; line: number }
   | { type: "clear"; line: number }
   | { type: "keys"; line: number }
   | { type: "graphStats"; line: number }

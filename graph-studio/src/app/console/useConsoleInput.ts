@@ -5,12 +5,13 @@ type Ask = (message: string) => Promise<void>;
 export function useConsoleInput(
   generation: number,
   appendMessage: (tone: Exclude<ConsoleEntry["tone"], "ai-review">, text: string) => void,
+  context?: import("../../console/capabilities").CapabilityContext,
 ) {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
-  const suggestions = useMemo(() => getConsoleSuggestions(input), [input]);
+  const suggestions = useMemo(() => getConsoleSuggestions(input, context), [input, context?.chartType, context?.dag]);
   useEffect(() => {
     setInput("");
     setHistory([]);
@@ -36,7 +37,7 @@ export function useConsoleInput(
     setActiveSuggestionIndex(0);
   }, []);
 
-  function submit(source: string, ask: Ask, runSource: (source: string) => boolean) {
+  function submit(source: string, ask: Ask, runSource: (source: string) => boolean | Promise<boolean>) {
     if (!source.trim()) return;
     if (source.trimStart().startsWith("/")) runSource(source);
     else void ask(source);
@@ -46,7 +47,7 @@ export function useConsoleInput(
   function handleKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     ask: Ask,
-    runSource: (source: string) => boolean,
+    runSource: (source: string) => boolean | Promise<boolean>,
   ) {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -76,7 +77,7 @@ export function useConsoleInput(
   function handlePaste(
     event: React.ClipboardEvent<HTMLInputElement>,
     ask: Ask,
-    runSource: (source: string) => boolean,
+    runSource: (source: string) => boolean | Promise<boolean>,
   ) {
     const pasted = event.clipboardData.getData("text");
     if (!/\r?\n/.test(pasted)) return;

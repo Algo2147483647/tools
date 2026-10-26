@@ -1,3 +1,4 @@
+import { parseDomainInstruction } from "./domainRegistry";
 import {
   parseAppearanceFieldInstruction,
   parseStyleCssInstruction,
@@ -47,6 +48,22 @@ export function parseConsoleSource(
       return { ok: false, error: { line: lineNumber, message: commandLine.message } };
     }
 
+    try {
+      if (rawLine.trim() === "/help all") {
+        instructions.push({ type: "help", all: true, line: lineNumber });
+        continue;
+      }
+      const domain = parseDomainInstruction(rawLine, lineNumber);
+      if (domain) {
+        instructions.push(domain);
+        continue;
+      }
+    } catch (error) {
+      return {
+        ok: false,
+        error: { line: lineNumber, message: error instanceof Error ? error.message : "Invalid command arguments." },
+      };
+    }
     const tokenized = tokenizeLine(commandLine.line);
     if (!tokenized.ok) {
       return { ok: false, error: { line: lineNumber, message: tokenized.message } };

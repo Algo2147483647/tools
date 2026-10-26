@@ -248,7 +248,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
       });
       const executed = executeConsoleInstructions(dag, parsed.instructions, null, appearance, chartType);
       assert.ok(executed.ok && report.allPassed);
-      const diff = executed.appearanceResults.flatMap((result) => result.diff);
+      const diff = executed.diff;
       assert.deepEqual(report.results[0].expectedDiff, diff.length ? diff : ["No graph mutations expected."]);
     }
   }),

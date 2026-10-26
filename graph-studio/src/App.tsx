@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import StudioView from "./components/studio/StudioView";
-import { parseCompoundLayoutCommand } from "./console/compoundLayout";
+import { useConsoleRuntime } from "./app/console/useConsoleRuntime";
+import type { ConsoleEnvironment } from "./console/runtime";
+import type { DomainInstruction } from "./console/domainRegistry";
 import { useAiController } from "./app/ai/useAiController";
 import { useCompoundLayoutPlan } from "./app/layout/useCompoundLayoutPlan";
 import { useConsoleController } from "./app/console/useConsoleController";
@@ -25,15 +27,23 @@ export default function App() {
   const { charts } = preferences;
   const { appearance } = charts;
   const transactions = useGraphTransactions({ state, dispatch, appearanceHistory: charts });
-  const layoutCommandRef = useRef<(source: string) => boolean>(() => false);
-  const runLayoutCommand = useCallback((source: string) => layoutCommandRef.current(source), []);
+  const runtimeRef = useRef<{
+    getEnvironment: () => ConsoleEnvironment;
+    run: (instruction: DomainInstruction) => Promise<{ ok: boolean; message: string }>;
+  }>({
+    getEnvironment: () => ({}),
+    run: async () => ({ ok: false, message: "Runtime not ready." }),
+  });
+  const getEnvironment = useCallback(() => runtimeRef.current.getEnvironment(), []);
+  const runRuntime = useCallback((instruction: DomainInstruction) => runtimeRef.current.run(instruction), []);
   const consoleController = useConsoleController({
     state,
     appearance,
     transactions,
     commitAppearance: charts.commitAppearance,
     openNodeDetail: ui.openNodeDetail,
-    runLayoutCommand,
+    getEnvironment,
+    runRuntime,
   });
   const viewport = useGraphViewport(
     {
@@ -49,28 +59,16 @@ export default function App() {
   );
   const compoundLayoutPlan = useCompoundLayoutPlan(state, dispatch, viewport, preferences.aiSettings);
   const timelineLayoutPlan = useTimelineLayout(state, dispatch, preferences.aiSettings, viewport);
-  layoutCommandRef.current = (source: string) => {
-    try {
-      const instruction = parseCompoundLayoutCommand(source);
-      if (instruction.type === "propose") {
-        void compoundLayoutPlan
-          .propose(instruction.intent)
-          .then((message) => consoleController.appendMessage("info", message))
-          .catch((error) =>
-            consoleController.appendMessage("error", error instanceof Error ? error.message : "Layout failed."),
-          );
-      } else if (instruction.type === "inspect" || instruction.type === "diagnose") {
-        consoleController.appendMessage(
-          "info",
-          JSON.stringify(compoundLayoutPlan.inspect(instruction.groupId), null, 2),
-        );
-      } else compoundLayoutPlan.cancel();
-      return true;
-    } catch (error) {
-      consoleController.appendMessage("error", error instanceof Error ? error.message : "Invalid layout command.");
-      return false;
-    }
-  };
+  const consoleRuntime = useConsoleRuntime(
+    state,
+    dispatch,
+    charts.chartStyles[state.chartType].style,
+    viewport,
+    compoundLayoutPlan,
+    timelineLayoutPlan,
+    consoleController.appendMessage,
+  );
+  runtimeRef.current = consoleRuntime;
   const ai = useAiController({
     state,
     dispatch,
