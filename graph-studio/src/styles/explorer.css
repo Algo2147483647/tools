@@ -102,12 +102,12 @@
   overflow: hidden;
   font-size: 12px;
   position: relative;
-  border: 1px solid var(--glass-edge);
+  border: 1px solid var(--chrome-border);
   border-radius: 14px;
-  background: linear-gradient(150deg, #ffffffe0, #f3f6fba6);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(32px) saturate(145%);
-  -webkit-backdrop-filter: blur(32px) saturate(145%);
+  background: var(--chrome-background);
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: var(--chrome-blur);
+  -webkit-backdrop-filter: var(--chrome-blur);
   width: 242px;
   flex: 0 1 242px;
   min-width: 180px;
