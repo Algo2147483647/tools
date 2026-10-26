@@ -1,27 +1,56 @@
 import type { CompoundBox } from "../../../graph/compound/geometry";
 import { crossesBox, inside, simplifyRoute } from "./geometry";
 import { BEND_COST, EPSILON, type Point, type Port } from "./types";
+import { uniquePorts } from "./ports";
+import { ObstacleIndex } from "./spatial-index";
 
 /** Try clean one-/two-bend routes as well as the visibility search, so tiny jogs need not win by length. */
-export function simpleRoutes(sources: Port[], targets: Port[], obstacles: CompoundBox[]): Point[][] {
+export function simpleRoutes(
+  sources: Port[],
+  targets: Port[],
+  obstacles: CompoundBox[],
+  index = new ObstacleIndex(obstacles),
+): Point[][] {
   const result: Point[][] = [];
   const seen = new Set<string>();
-  for (const source of sources)
-    for (const target of targets) {
+  const checked = new Map<string, boolean>();
+  const clear = (key: string, check: () => boolean) => {
+    let value = checked.get(key);
+    if (value === undefined) {
+      value = check();
+      checked.set(key, value);
+    }
+    return value;
+  };
+  for (const source of uniquePorts(sources))
+    for (const target of uniquePorts(targets)) {
       // A straight connection may be shorter than two endpoint stubs; do not force a dogleg in a narrow gap.
       const dx = target.point.x - source.point.x,
         dy = target.point.y - source.point.y;
       const directDirection =
         Math.abs(dx) < EPSILON ? (dy > 0 ? 1 : 3) : Math.abs(dy) < EPSILON ? (dx > 0 ? 0 : 2) : -1;
+      const direct = [source.point, target.point],
+        directKey = JSON.stringify(direct);
       if (
         directDirection === source.direction &&
         (directDirection + 2) % 4 === target.direction &&
-        !obstacles.some(
-          (box) =>
-            !inside(source.point, box) && !inside(target.point, box) && crossesBox(source.point, target.point, box),
+        !seen.has(directKey) &&
+        clear(
+          `direct:${directKey}`,
+          () =>
+            !index
+              .segment(source.point, target.point)
+              .some(
+                (box) =>
+                  !inside(source.point, box) &&
+                  !inside(target.point, box) &&
+                  crossesBox(source.point, target.point, box),
+              ),
         )
-      )
-        result.push([source.point, target.point]);
+      ) {
+        seen.add(directKey);
+        result.push(direct);
+      }
       const a = source.stub,
         b = target.stub;
       for (const middle of [
@@ -38,9 +67,20 @@ export function simpleRoutes(sources: Port[], targets: Port[], obstacles: Compou
       ]) {
         const trunk = [a, ...middle, b];
         const points = simplifyRoute([source.point, ...trunk, target.point]);
-        if (points && !trunk.slice(1).some((point, i) => obstacles.some((box) => crossesBox(trunk[i], point, box)))) {
-          const key = JSON.stringify(points);
-          if (seen.has(key)) continue;
+        if (!points) continue;
+        const key = JSON.stringify(points);
+        if (seen.has(key)) continue;
+        // Identical simplified paths may have different stubs. Cache the tested
+        // trunk separately: endpoint approaches have different exemption rules.
+        if (
+          clear(
+            `trunk:${JSON.stringify(trunk)}`,
+            () =>
+              !trunk
+                .slice(1)
+                .some((point, i) => index.segment(trunk[i], point).some((box) => crossesBox(trunk[i], point, box))),
+          )
+        ) {
           seen.add(key);
           result.push(points);
         }

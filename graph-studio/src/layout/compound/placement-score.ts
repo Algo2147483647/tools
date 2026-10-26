@@ -1,7 +1,8 @@
 import type { CompoundBox } from "../../graph/compound/geometry";
 import type { CompoundProjection } from "../../graph/compound/projection";
 import type { RectangleArrangement } from "./rectangle-packing";
-import { crossingCost, parallelRouteCost, routeCost, sharedEndpoints } from "./routing/cost";
+import { indexedSegmentCosts, routeCost, sharedEndpoints } from "./routing/cost";
+import { RouteSegmentIndex } from "./routing/spatial-index";
 import type { LayoutObjective } from "./layout-plan";
 import { routeCompoundEdges } from "./routing/router";
 
@@ -80,17 +81,26 @@ export function createPlacementScore(
         { portMode: context?.portMode ?? "midpoints", labelSizes: context?.labelSizes },
       );
       value = (context?.objective === "compact" ? 3 : 2) * Math.sqrt(routed.width * routed.height);
+      const routes = projection.edges.map((e) => routed.routes.get(e.id)!.points);
+      const index = new RouteSegmentIndex(routes);
       projection.edges.forEach((edge, i) => {
-        const points = routed.routes.get(edge.id)!.points;
+        const points = routes[i];
         value += routeCost(points);
-        for (const other of projection.edges.slice(i + 1)) {
-          const route = routed.routes.get(other.id)!.points;
-          const shared = sharedEndpoints(edge, points, other, route);
-          for (let j = 1; j < points.length; j++)
-            value +=
-              crossingCost(points[j - 1], points[j], route, shared) +
-              parallelRouteCost(points[j - 1], points[j], route, shared);
-        }
+        const shared = projection.edges.map((other, k) =>
+          k > i ? sharedEndpoints(edge, points, other, routes[k]) : [],
+        );
+        const pairs = new Map<number, number[]>();
+        for (let j = 1; j < points.length; j++)
+          for (const c of indexedSegmentCosts(index, points[j - 1], points[j], (k) => shared[k], i + 1)) {
+            let costs = pairs.get(c.route);
+            if (!costs) {
+              costs = [];
+              pairs.set(c.route, costs);
+            }
+            costs.push(c.crossing + c.parallel);
+          }
+        // Preserve edge -> other edge -> segment accumulation, including rounding.
+        for (const [, costs] of [...pairs].sort(([a], [b]) => a - b)) for (const cost of costs) value += cost;
       });
     } catch {
       // An unroutable candidate is infeasible; it must never replace a legal one.

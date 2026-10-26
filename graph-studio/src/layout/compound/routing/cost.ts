@@ -1,4 +1,42 @@
 import { BEND_COST, EPSILON, LANE_GAP, MIN_STRAIGHT, type Point } from "./types";
+import type { RouteSegmentIndex } from "./spatial-index";
+
+/** Keep each route's two sums separate, in original segment order. */
+export function indexedSegmentCosts(
+  index: RouteSegmentIndex,
+  a: Point,
+  b: Point,
+  shared: (route: number) => readonly Point[],
+  firstRoute = 0,
+) {
+  const costs = new Map<number, { route: number; parallel: number; crossing: number }>();
+  const get = (route: number) => {
+    let value = costs.get(route);
+    if (!value) {
+      value = { route, parallel: 0, crossing: 0 };
+      costs.set(route, value);
+    }
+    return value;
+  };
+  for (const s of index.parallel(a, b))
+    if (s.route >= firstRoute) get(s.route).parallel += parallelRouteCost(a, b, [s.a, s.b], shared(s.route));
+  for (const s of index.crossing(a, b))
+    if (s.route >= firstRoute) get(s.route).crossing += crossingCost(a, b, [s.a, s.b], shared(s.route));
+  return [...costs.values()].sort((a, b) => a.route - b.route);
+}
+
+/** Match router's route -> candidate segment -> parallel/crossing reduction. */
+export function indexedRouteCost(
+  index: RouteSegmentIndex,
+  points: readonly Point[],
+  shared: (route: number) => readonly Point[],
+) {
+  const costs = new Map<number, number>();
+  for (let i = 1; i < points.length; i++)
+    for (const c of indexedSegmentCosts(index, points[i - 1], points[i], shared))
+      costs.set(c.route, (costs.get(c.route) ?? 0) + c.parallel + c.crossing);
+  return [...costs].sort(([a], [b]) => a - b).reduce((sum, [, cost]) => sum + cost, 0);
+}
 
 /** Only endpoints belonging to the same node may share a short exit. */
 export function sharedEndpoints(

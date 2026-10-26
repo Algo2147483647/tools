@@ -2,6 +2,7 @@ import { estimateTextWidth } from "../../shared/text-estimate";
 import type { CompoundBox } from "../../../graph/compound/geometry";
 import { overlaps } from "./geometry";
 import type { Point } from "./types";
+import { ObstacleIndex } from "./spatial-index";
 
 export function labelBox(label: string, position: Point): CompoundBox {
   const width = Math.max(label.length * 7 + 12, estimateTextWidth(label, 10) + 14);
@@ -14,6 +15,7 @@ export function placeLabel(
   obstacles: CompoundBox[],
   extent: CompoundBox,
   measuredSize?: { width: number; height: number },
+  index = new ObstacleIndex(obstacles),
 ): Point | null {
   const segments = points
     .slice(1)
@@ -30,7 +32,7 @@ export function placeLabel(
         box.y >= extent.y &&
         box.x + box.width <= extent.x + extent.width &&
         box.y + box.height <= extent.y + extent.height &&
-        !obstacles.some((obstacle) => overlaps(box, obstacle))
+        !index.box(box).some((obstacle) => overlaps(box, obstacle))
       )
         return position;
     }

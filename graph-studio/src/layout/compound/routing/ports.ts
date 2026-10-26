@@ -31,3 +31,13 @@ export function sidePorts(
     });
   });
 }
+/** Only identical point, stub and outward direction are interchangeable. */
+export function uniquePorts(ports: readonly Port[]): Port[] {
+  const seen = new Set<string>();
+  return ports.filter((p) => {
+    const key = `${p.point.x}:${p.point.y}:${p.stub.x}:${p.stub.y}:${p.direction}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
