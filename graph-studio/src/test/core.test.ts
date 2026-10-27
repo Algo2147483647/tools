@@ -1,4 +1,5 @@
 import { consoleModesSuite } from "./consoleModes.test";
+import { simpleRoutingSuite } from "./simpleRouting.test";
 import { layoutPersistenceSuite } from "./layoutPersistence.test";
 import { styleFilesSuite } from "./styleFiles.test";
 import { agiHistorySuite } from "./agiHistory.test";
@@ -50,6 +51,7 @@ import { workspaceOperationsSuite } from "./workspaceOperations.test";
 
 async function main() {
   const suites = [
+    simpleRoutingSuite,
     consoleModesSuite,
     styleFilesSuite,
     layoutPersistenceSuite,

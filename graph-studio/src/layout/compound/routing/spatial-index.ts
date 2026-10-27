@@ -15,7 +15,7 @@ export const segmentBounds = (a: Point, b: Point, padding = 0): Bounds => ({
 const boxBounds = (b: CompoundBox): Bounds => ({ minX: b.x, minY: b.y, maxX: b.x + b.width, maxY: b.y + b.height });
 
 /** Immutable broad phase. Inclusive bounds only discard impossible matches.
- * Results always retain input order; tree traversal cannot change score sums. */
+ * query() retains input order; tree traversal cannot change score sums. */
 export class SpatialIndex<T> {
   private readonly root?: Branch<T>;
   constructor(values: readonly T[], bounds: (value: T) => Bounds) {
@@ -55,6 +55,18 @@ export class SpatialIndex<T> {
     found.sort((a, b) => a.order - b.order);
     return found.map((entry) => entry.value);
   }
+  /** Unordered boolean query. The predicate must be pure; stop at the first exact hit. */
+  some(bounds: Bounds, predicate: (value: T) => boolean): boolean {
+    const visit = (node: Branch<T> | undefined): boolean => {
+      if (!node || !intersects(node, bounds)) return false;
+      if (node.entries) {
+        for (const entry of node.entries) if (intersects(entry, bounds) && predicate(entry.value)) return true;
+        return false;
+      }
+      return visit(node.left) || visit(node.right);
+    };
+    return visit(this.root);
+  }
 }
 
 export class ObstacleIndex extends SpatialIndex<CompoundBox> {
@@ -63,6 +75,9 @@ export class ObstacleIndex extends SpatialIndex<CompoundBox> {
   }
   segment(a: Point, b: Point) {
     return this.query(segmentBounds(a, b));
+  }
+  segmentSome(a: Point, b: Point, predicate: (box: CompoundBox) => boolean): boolean {
+    return this.some(segmentBounds(a, b), predicate);
   }
   point(p: Point) {
     return this.segment(p, p);

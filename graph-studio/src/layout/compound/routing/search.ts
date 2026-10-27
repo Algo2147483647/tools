@@ -13,43 +13,30 @@ export function simpleRoutes(
 ): Point[][] {
   const result: Point[][] = [];
   const seen = new Set<string>();
-  const checked = new Map<string, boolean>();
-  const clear = (key: string, check: () => boolean) => {
-    let value = checked.get(key);
-    if (value === undefined) {
-      value = check();
-      checked.set(key, value);
-    }
-    return value;
-  };
-  for (const source of uniquePorts(sources))
-    for (const target of uniquePorts(targets)) {
+  const sourcePorts = uniquePorts(sources);
+  const targetPorts = uniquePorts(targets);
+  for (const source of sourcePorts)
+    for (const target of targetPorts) {
       // A straight connection may be shorter than two endpoint stubs; do not force a dogleg in a narrow gap.
       const dx = target.point.x - source.point.x,
         dy = target.point.y - source.point.y;
       const directDirection =
         Math.abs(dx) < EPSILON ? (dy > 0 ? 1 : 3) : Math.abs(dy) < EPSILON ? (dx > 0 ? 0 : 2) : -1;
-      const direct = [source.point, target.point],
-        directKey = JSON.stringify(direct);
-      if (
-        directDirection === source.direction &&
-        (directDirection + 2) % 4 === target.direction &&
-        !seen.has(directKey) &&
-        clear(
-          `direct:${directKey}`,
-          () =>
-            !index
-              .segment(source.point, target.point)
-              .some(
-                (box) =>
-                  !inside(source.point, box) &&
-                  !inside(target.point, box) &&
-                  crossesBox(source.point, target.point, box),
-              ),
-        )
-      ) {
-        seen.add(directKey);
-        result.push(direct);
+      if (directDirection === source.direction && (directDirection + 2) % 4 === target.direction) {
+        const direct = [source.point, target.point],
+          directKey = JSON.stringify(direct);
+        if (
+          !seen.has(directKey) &&
+          !index.segmentSome(
+            source.point,
+            target.point,
+            (box) =>
+              !inside(source.point, box) && !inside(target.point, box) && crossesBox(source.point, target.point, box),
+          )
+        ) {
+          seen.add(directKey);
+          result.push(direct);
+        }
       }
       const a = source.stub,
         b = target.stub;
@@ -70,16 +57,11 @@ export function simpleRoutes(
         if (!points) continue;
         const key = JSON.stringify(points);
         if (seen.has(key)) continue;
-        // Identical simplified paths may have different stubs. Cache the tested
-        // trunk separately: endpoint approaches have different exemption rules.
+        // Check the original trunk: endpoint approaches have different exemption rules.
         if (
-          clear(
-            `trunk:${JSON.stringify(trunk)}`,
-            () =>
-              !trunk
-                .slice(1)
-                .some((point, i) => index.segment(trunk[i], point).some((box) => crossesBox(trunk[i], point, box))),
-          )
+          !trunk
+            .slice(1)
+            .some((point, i) => index.segmentSome(trunk[i], point, (box) => crossesBox(trunk[i], point, box)))
         ) {
           seen.add(key);
           result.push(points);
