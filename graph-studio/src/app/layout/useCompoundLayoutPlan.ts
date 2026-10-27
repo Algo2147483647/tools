@@ -10,7 +10,7 @@ import {
 } from "../../layout/compound/ai/workflow";
 import { computeCompoundAi } from "./computeCompoundAi";
 import { LayoutRequestError, presentLayoutError } from "../../layout/shared/ai/request";
-import { parseCompoundLayout } from "../../graph/compound/layoutData";
+import { parseCompoundLayout, changeCompoundLayout } from "../../graph/compound/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
@@ -46,7 +46,8 @@ export function useCompoundLayoutPlan(
     state.chartType,
     aiSettings,
   ]);
-  const ready = state.chartType === "compound" && !!problem && !viewport.compoundLayout.loading;
+  const ready =
+    state.chartType === "compound" && !!problem && !viewport.compoundLayout.loading && !viewport.compoundLayout.error;
   const current = useRef({ state, key, ready, problem, viewport, aiSettings });
   current.current = { state, key, ready, problem, viewport, aiSettings };
   const [busy, setBusy] = useState(false);
@@ -90,10 +91,6 @@ export function useCompoundLayoutPlan(
   const change = useCallback(
     (patch: Partial<CompoundLayoutData>) => {
       const now = current.current.state;
-      // Selecting Automatic starts a fresh algorithmic plan, rather than merely
-      // hiding the AI form while retaining its structural/routing decisions.
-      const nextPatch =
-        patch.method === "automatic" ? { ...patch, direction: "AUTO" as const, constraints: [] } : patch;
       dispatch({
         type: "layoutSessionChanged",
         generation: now.document.generation,
@@ -102,7 +99,7 @@ export function useCompoundLayoutPlan(
           renderings: { ...now.layoutSession.data.renderings, compound: undefined },
           charts: {
             ...now.layoutSession.data.charts,
-            compound: { ...now.layoutSession.data.charts.compound, ...nextPatch },
+            compound: changeCompoundLayout(now.layoutSession.data.charts.compound, patch),
           },
         },
       });
@@ -202,7 +199,17 @@ export function useCompoundLayoutPlan(
         if (abort.signal.aborted || current.current.key !== initial.key)
           return { ok: false, message: "Layout cancelled." };
         setMessage("Arranging…");
-        data = parseCompoundLayout(data);
+        const switched = changeCompoundLayout(initial.state.layoutSession.data.charts.compound, {
+          method: data.method,
+        });
+        data = parseCompoundLayout({
+          ...switched,
+          direction: data.direction,
+          objective: data.objective,
+          portMode: data.portMode,
+          constraints: data.constraints,
+        });
+        stage = { ...stage, layoutProvenance: { method: "ai", engine: "compound-ai-v4" } };
         const nextInput = { ...input, layout: data };
         if (abort.signal.aborted || current.current.key !== initial.key)
           return { ok: false, message: "Layout cancelled." };

@@ -1,5 +1,5 @@
 import type { GraphChartType } from "../graph/types";
-import { parseCompoundLayout } from "../graph/compound/layoutData";
+import { parseCompoundLayout, compoundModeSettings } from "../graph/compound/layoutData";
 import { isRecord } from "../shared/json";
 
 export const LAYOUT_VIEW_CONFIG_KEYS = [
@@ -35,7 +35,7 @@ export function parseLayoutConfigFile(value: unknown): LayoutConfigFile {
   const settings = object(
     file.settings,
     chart === "compound"
-      ? ["method", "direction", "objective", "portMode"]
+      ? ["method", "direction", "objective", "portMode", "modes"]
       : chart === "timeline"
         ? ["mode", "view"]
         : chart === "node-link"
@@ -88,7 +88,7 @@ export function readLayoutConfig(value: unknown): LayoutConfigFile {
         : {};
   const keys =
     chart === "compound"
-      ? ["method", "direction", "objective", "portMode"]
+      ? ["method", "direction", "objective", "portMode", "modes"]
       : chart === "timeline"
         ? ["mode", "view"]
         : chart === "node-link"
@@ -118,7 +118,22 @@ export function createLayoutConfigFile(
   view?: Partial<import("./appearance/types").TimelineViewSettings>,
 ): LayoutConfigFile {
   let settings: Record<string, unknown> = {};
-  if (chart === "compound") { const c = data.charts.compound; settings = { method: c.method, direction: c.direction, objective: c.objective, portMode: c.portMode }; }
+  if (chart === "compound") {
+    const c = data.charts.compound;
+    settings = {
+      method: c.method,
+      ...(c.method === "fcose" ? {} : { direction: c.direction }),
+      objective: c.objective,
+      portMode: c.portMode,
+    };
+    if (c.modes)
+      settings.modes = Object.fromEntries(
+        Object.entries({ ...c.modes, [c.method]: compoundModeSettings(c) }).map(([method, values]) => {
+          const { direction, ...rest } = values;
+          return [method, method === "fcose" ? rest : values];
+        }),
+      );
+  }
   if (chart === "node-link") settings = { method: data.charts["node-link"].method };
   if (chart === "timeline") settings = { mode: data.charts.timeline.mode, ...(view ? { view: Object.fromEntries(LAYOUT_VIEW_CONFIG_KEYS.filter(k => view[k] !== undefined).map(k => [k, view[k]])) } : {}) };
   return parseLayoutConfigFile({ format: "graph-studio-layout-settings", version: 1, chartType: chart, settings });

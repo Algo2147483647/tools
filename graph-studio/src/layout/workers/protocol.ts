@@ -12,6 +12,9 @@ export interface CompoundWorkerInput {
   problem: LayoutProblem;
   intent: LayoutIntent;
 }
+export interface FcoseWorkerInput {
+  problem: LayoutProblem;
+}
 export interface CompoundPlacementInput {
   placement: Parameters<typeof import("../compound/hierarchy-layout").layoutCompoundHierarchy>;
 }

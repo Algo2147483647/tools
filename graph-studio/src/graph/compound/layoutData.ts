@@ -24,13 +24,17 @@ export interface LayoutIntent {
   constraints: LayoutConstraint[];
 }
 
-export interface CompoundLayoutData {
-  version: 1;
-  method: "automatic" | "ai";
+export type CompoundLayoutMethod = "automatic" | "ai" | "fcose";
+export interface CompoundModeSettings {
   direction: LayoutDirection;
   objective: LayoutObjective;
   portMode: "distributed" | "midpoints";
   constraints: LayoutConstraint[];
+}
+export interface CompoundLayoutData extends CompoundModeSettings {
+  version: 1;
+  method: CompoundLayoutMethod;
+  modes?: Partial<Record<CompoundLayoutMethod, CompoundModeSettings>>;
 }
 
 export function emptyLayoutData(): CompoundLayoutData {
@@ -46,18 +50,53 @@ export function emptyLayoutData(): CompoundLayoutData {
 
 export function parseCompoundLayout(value: unknown): CompoundLayoutData {
   const r = object(value, "Compound layout");
-  keys(r, ["version", "method", "direction", "objective", "portMode", "constraints"], "compound layout");
+  keys(r, ["version", "method", "direction", "objective", "portMode", "constraints", "modes"], "compound layout");
   if (r.version !== undefined && r.version !== 1) throw new Error("Unsupported compound layout version.");
-  const constraints = r.constraints ?? [];
+  const active =
+    isRecord(r.modes) && isRecord(r.modes[String(r.method)])
+      ? (r.modes[String(r.method)] as Record<string, unknown>)
+      : {};
+  const constraints = r.constraints ?? active.constraints ?? [];
   if (!Array.isArray(constraints) || constraints.length > 500) throw new Error("Supply at most 500 constraints.");
+  const modes: CompoundLayoutData["modes"] = {};
+  if (r.modes !== undefined) {
+    const entries = object(r.modes, "Layout modes");
+    keys(entries, ["automatic", "ai", "fcose"], "layout modes");
+    for (const [method, settings] of Object.entries(entries)) {
+      const s = object(settings, "Mode settings");
+      keys(s, ["direction", "objective", "portMode", "constraints"], "mode settings");
+      modes[method as CompoundLayoutMethod] = compoundModeSettings(parseCompoundLayout({ ...s, method }));
+    }
+  }
   return {
     version: 1,
-    method: oneOf(r.method ?? "automatic", ["automatic", "ai"], "method"),
-    direction: oneOf(r.direction ?? "AUTO", ["AUTO", "RIGHT", "DOWN"], "direction"),
-    objective: oneOf(r.objective ?? "readability", ["readability", "compact"], "objective"),
-    portMode: oneOf(r.portMode ?? "midpoints", ["distributed", "midpoints"], "port mode"),
+    method: oneOf(r.method ?? "automatic", ["automatic", "ai", "fcose"], "method"),
+    direction: oneOf(r.direction ?? active.direction ?? "AUTO", ["AUTO", "RIGHT", "DOWN"], "direction"),
+    objective: oneOf(r.objective ?? active.objective ?? "readability", ["readability", "compact"], "objective"),
+    portMode: oneOf(r.portMode ?? active.portMode ?? "midpoints", ["distributed", "midpoints"], "port mode"),
     constraints: constraints.map(parseLayoutConstraint),
+    ...(r.modes === undefined ? {} : { modes }),
   };
+}
+
+/** Only the active mode's settings participate in execution/cache identity. */
+export function compoundModeSettings(data: CompoundLayoutData): CompoundModeSettings {
+  return {
+    direction: data.method === "fcose" ? "AUTO" : data.direction,
+    objective: data.objective,
+    portMode: data.portMode,
+    constraints:
+      data.method === "fcose"
+        ? data.constraints.filter((c) => c.type === "port-side" || c.type === "prefer-outer-route")
+        : data.constraints,
+  };
+}
+
+export function changeCompoundLayout(data: CompoundLayoutData, patch: Partial<CompoundLayoutData>): CompoundLayoutData {
+  if (!patch.method || patch.method === data.method) return parseCompoundLayout({ ...data, ...patch });
+  const modes = { ...data.modes, [data.method]: compoundModeSettings(data) };
+  const settings = modes[patch.method] ?? compoundModeSettings({ ...emptyLayoutData(), method: patch.method });
+  return parseCompoundLayout({ ...data, ...settings, ...patch, modes });
 }
 
 function object(value: unknown, name: string): Record<string, unknown> {

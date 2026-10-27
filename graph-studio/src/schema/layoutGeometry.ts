@@ -1,3 +1,4 @@
+import { compoundModeSettings, type CompoundLayoutData } from "../graph/compound/layoutData";
 import { finalizeCompoundStage } from "../layout/compound/finalizeStage";
 import { formatTimelineDate } from "../graph/timeline/time";
 import { formatRelativeTime } from "../graph/timeline/clock";
@@ -42,6 +43,7 @@ export interface LayoutEdgeGeometry {
 }
 /** Independent geometry protocol. No graph text, Appearance values, lookup indexes or diagnostics. */
 export interface LayoutGeometryData {
+  generator?: StageData["layoutProvenance"];
   size: LayoutPoint;
   nodes: LayoutNodeGeometry[];
   edges: LayoutEdgeGeometry[];
@@ -170,6 +172,7 @@ export function captureLayoutGeometry(stage: StageData): LayoutGeometryData {
   const t = stage.timeline,
     sp = stage.spatial;
   return {
+    ...(stage.layoutProvenance ? { generator: structuredClone(stage.layoutProvenance) } : {}),
     size: [stage.stageWidth, stage.stageHeight],
     nodes: stage.nodes.map((n) => ({
       id: n.key,
@@ -370,6 +373,7 @@ export function restoreLayoutGeometry(data: LayoutGeometryData, base: StageData)
   const laneMap = new Map(base.lanes.map((l) => [l.layer, l]));
   const result: StageData = {
     ...base,
+    layoutProvenance: data.generator,
     nodes,
     edges,
     nodeMap,
@@ -485,7 +489,13 @@ export function validateLayoutGeometryData(
   const side = (v: unknown, path: string) => {
     if (v !== "left" && v !== "right") fail(path);
   };
-  const g = obj(value, ["size", "nodes", "edges", "groups", "lanes", "timeline", "spatial"], "geometry");
+  const g = obj(value, ["size", "nodes", "edges", "groups", "lanes", "timeline", "spatial", "generator"], "geometry");
+  if (g.generator !== undefined) {
+    const generator = obj(g.generator, ["method", "engine", "parameters"], "generator");
+    if (!["automatic", "ai", "fcose"].includes(String(generator.method)) || typeof generator.engine !== "string")
+      fail("generator");
+    if (generator.parameters !== undefined && !isRecord(generator.parameters)) fail("generator.parameters");
+  }
   positiveSize(g.size, "size");
   if (g.size[1] <= 0) fail("size");
   const nodes = array(g.nodes, "nodes"),
@@ -607,6 +617,10 @@ export function renderingMatches(
   const sameIds = (saved: string[], current: string[]) =>
     layoutIdentity(saved.sort()) === layoutIdentity(current.sort());
   return (
+    (stage.layoutProvenance?.method !== "fcose" ||
+      (rendering.geometry.generator?.method === "fcose" &&
+        rendering.geometry.generator.engine === stage.layoutProvenance.engine &&
+        layoutIdentity(rendering.geometry.generator.parameters) === layoutIdentity(stage.layoutProvenance.parameters))) &&
     rendering.graphFingerprint === graphLayoutIdentity(graph) &&
     rendering.settingsFingerprint === layoutIdentity(settings) &&
     sameIds(
@@ -634,9 +648,11 @@ export function renderingSettings(
   scope: LayoutScope,
   timeline: TimelineViewSettings,
 ) {
+  const stored = (charts as Record<string, unknown>)[chart];
+  const compound = chart === "compound" ? stored as CompoundLayoutData : undefined;
   return {
     chart,
-    settings: (charts as Record<string, unknown>)[chart] ?? {},
+    settings: compound ? { method: compound.method, ...compoundModeSettings(compound) } : stored ?? {},
     scope: layoutScopeForChart(chart, scope),
     ...(chart === "timeline" ? { timeline: timelineLayoutSettings(timeline) } : {}),
   };

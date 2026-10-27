@@ -5,6 +5,7 @@ import { computeCompoundStage, compoundInputKey, type CompoundStageInput } from 
 type Result = { dag: CompoundStageInput["dag"]; key: string; stage: StageData | null; error: string };
 export function useCompoundStage(input: CompoundStageInput | null) {
   const [result, setResult] = useState<Result | null>(null);
+  const version = useRef(0);
   const installed = useRef<Result | null>(null);
   const key = input ? compoundInputKey(input) : "";
   useEffect(() => {
@@ -13,18 +14,26 @@ export function useCompoundStage(input: CompoundStageInput | null) {
       setResult(null);
       return;
     }
-    if (installed.current?.dag === input.dag && installed.current.key === compoundInputKey(input)) return;
+    if (installed.current?.dag === input.dag && installed.current.key === compoundInputKey(input)) {
+      setResult(installed.current);
+      return;
+    }
+    const requestVersion = ++version.current;
     const abort = new AbortController();
     const timer = setTimeout(() => {
-      void computeCompoundStage(input, abort.signal)
+      void computeCompoundStage(
+        input,
+        abort.signal,
+        installed.current?.dag === input.dag ? (installed.current.stage ?? undefined) : undefined,
+      )
         .then((stage) => {
-          if (abort.signal.aborted) return;
+          if (abort.signal.aborted || version.current !== requestVersion) return;
           const next = { dag: input.dag, key: compoundInputKey(input), stage, error: "" };
           installed.current = next;
           setResult(next);
         })
         .catch((error) => {
-          if (!abort.signal.aborted)
+          if (!abort.signal.aborted && version.current === requestVersion)
             setResult({
               dag: input.dag,
               key: compoundInputKey(input),

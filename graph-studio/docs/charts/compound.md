@@ -49,13 +49,19 @@ Entering a group focuses its scope; external relationships can appear as boundar
 
 ## Layout and routing
 
-Layout proceeds from inner scopes outward. Each scope arranges its immediate children using their actual rectangles, then supplies its size to the containing scope. Cross-boundary relationships contribute ordering at their common scope. Cycles are handled without reversing the source document's edges.
+Automatic layout proceeds from inner scopes outward. Each scope arranges its immediate children using their actual rectangles, then supplies its size to the containing scope. Cross-boundary relationships contribute ordering at their common scope. Cycles are handled without reversing the source document's edges.
 
 Routing occurs after node and container placement. Orthogonal routes avoid cards and unrelated containers; labels may require additional routing space. A parent can be a real edge endpoint, so container boundaries and ordinary card geometry must remain distinct.
 
-The Layout panel offers **Automatic** and **AI**. Automatic jointly arranges nodes, container sizes, connections and labels whenever graph data, the visible projection or layout settings change. Direction and the Readability/Compactness objective are declarative inputs. Internal alternatives are ranked automatically; there is no adjustment-range selector, candidate picker, preview or confirmation dialog.
+The Layout panel offers **Automatic**, **AI** and **fCoSE**. Automatic jointly arranges nodes, container sizes, connections and labels whenever graph data, the visible projection or layout settings change. Direction and the Readability/Compactness objective are declarative inputs. Internal alternatives are ranked automatically; there is no adjustment-range selector, candidate picker, preview or confirmation dialog.
 
 AI first designs the purpose, reading path, parallel regions and connection roles. The engine realizes this composition, then AI reviews the resulting coordinates and relationships against its design intent. It can replace the design or make local revisions; every changed candidate is reviewed again. Fixed direction, external nodes, content and containment remain authoritative. Numeric metrics are auxiliary, not an acceptance threshold.
+
+fCoSE arranges the entire visible nested graph in one headless solve, then runs the existing orthogonal router once on those final coordinates. It shares projection, measurement, validation and rendering with the other modes, but never runs Automatic initialization or candidate search. It uses no direction or alignment constraints. Changing modes preserves each mode's objective, ports, direction and constraints independently; fCoSE ignores placement constraints and retains routing preferences only.
+
+Collapsed groups are measured cards; expanded groups retain parent/child relationships. Container title space and minimum dimensions are reserved before solving. fCoSE requires uniform compound padding, so the reservation is conservative; final displayed containers can shrink inside that reservation, never expand beyond it. Focused external summaries remain fixed when a matching current rectangle exists. Ancestor/descendant relationships are excluded from unsupported spring forces with a diagnostic, but still receive their full orthogonal route. Invalid self-loops are rejected explicitly; projected duplicate relationships retain all original edge IDs.
+
+Mode changes, graph edits and view changes cancel superseded work. A failed solve or route reports the problem and leaves the previous drawing visible. It never falls back to Automatic or draws a straight line through an obstacle. Successful results are cached by graph, projection, measurements, engine, algorithm parameters and routing settings. The engine's iteration limit is not a claim of global optimality. See [architecture](../layout-architecture.md#fcose-pipeline) for parameters and execution details.
 
 The **Layout quality** section describes the currently rendered result: validity and elapsed time, followed by one table containing crossings, label collisions, bends, shared route length, route length and content area. Additional diagnostics appear only when present. Quality and geometry are computed together and are not saved. Pan, zoom and selection do not rerun placement.
 

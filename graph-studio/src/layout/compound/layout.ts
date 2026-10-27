@@ -16,10 +16,12 @@ import {
   type LayoutResult,
   type LayoutProblem,
 } from "./layout-plan";
+import { FCOSE_ENGINE, fcoseParameters } from "./fcose/options";
+import { compoundModeSettings } from "../../graph/compound/layoutData";
 import { arrangeCompound } from "./automatic";
 import { measureGroupTitle } from "../shared/group-title";
 
-export async function buildCompoundStage(input: {
+export interface CompoundStageInput {
   dag: NormalizedDag;
   view: CompoundView;
   selectedType?: string;
@@ -30,7 +32,10 @@ export async function buildCompoundStage(input: {
   layout?: CompoundLayoutData;
   solve?: (problem: LayoutProblem) => Promise<LayoutResult>;
   place?: (...args: Parameters<typeof layoutCompoundHierarchy>) => Promise<ReturnType<typeof layoutCompoundHierarchy>>;
-}): Promise<StageData> {
+}
+
+/** Pure projection and measurement: no placement or routing. */
+export function measureCompoundStage(input: CompoundStageInput) {
   const { dag, view, appearance, showNodeDetail, alignNodeWidthsToMax } = input;
   const projection = projectCompoundGraph(dag, view, input.selectedType);
   for (const item of projection.items)
@@ -124,18 +129,16 @@ export async function buildCompoundStage(input: {
         },
       ]),
   );
-  const placement = await (input.place ?? layoutCompoundHierarchy)(
-    projection,
-    sizes,
-    theme,
-    !!input.showEdgeLabels,
-    labelSizes,
-  );
   const config = input.layout ?? emptyLayoutData();
   const warnings: string[] = [];
   // Session font counters are excluded: measured dimensions and typography determine portability.
   const fingerprint = layoutFingerprint({
-    engine: COMPOUND_LAYOUT_VERSION,
+    engine: config.method === "fcose" ? FCOSE_ENGINE : COMPOUND_LAYOUT_VERSION,
+    settings: { method: config.method, ...compoundModeSettings(config) },
+    parameters: config.method === "fcose" ? fcoseParameters(config.objective) : undefined,
+    graph: dag,
+    view,
+    selectedType: input.selectedType ?? "",
     items: projection.items,
     edges: projection.edges,
     focus: projection.focusGroupId,
@@ -165,13 +168,57 @@ export async function buildCompoundStage(input: {
       ]),
     ),
     baseline: {
-      boxes: Object.fromEntries(placement.boxes),
+      boxes: {},
       routes: {},
-      width: Math.max(placement.width, theme.canvas.minSize[0]),
-      height: Math.max(placement.height, theme.canvas.minSize[1]),
+      width: theme.canvas.minSize[0],
+      height: theme.canvas.minSize[1],
     },
   };
-  const solved = input.solve ? await input.solve(problem) : arrangeCompound(problem);
+  return { input, problem, sizes, theme, visuals, cardGeometry, groupParents, colorFamilies, warnings, detailFont };
+}
+export type CompoundMeasurement = ReturnType<typeof measureCompoundStage>;
+
+/** Existing modes retain their original initialization and solver. */
+export async function solveCompoundStage(measured: CompoundMeasurement): Promise<LayoutResult> {
+  const { input, problem, sizes, theme } = measured;
+  if (problem.stored.method === "fcose") {
+    const loops = input.dag.edges.filter(
+      (e) => e.source === e.target && problem.projection.representative.get(e.source) === e.source,
+    );
+    if (loops.length)
+      throw new Error(
+        `fCoSE does not support visible self-loops: ${loops.map((e) => e.id).join(", ")}. Current view kept.`,
+      );
+    if (input.solve) return input.solve(problem);
+    const { solveFcose } = await import("./fcose/solver");
+    return solveFcose(problem);
+  }
+  const placement = await (input.place ?? layoutCompoundHierarchy)(
+    problem.projection,
+    sizes,
+    theme,
+    problem.showLabels,
+    problem.labelSizes,
+  );
+  problem.baseline = {
+    boxes: Object.fromEntries(placement.boxes),
+    routes: {},
+    width: Math.max(placement.width, theme.canvas.minSize[0]),
+    height: Math.max(placement.height, theme.canvas.minSize[1]),
+  };
+  return input.solve ? input.solve(problem) : arrangeCompound(problem);
+}
+
+export async function buildCompoundStage(input: CompoundStageInput): Promise<StageData> {
+  const measured = measureCompoundStage(input);
+  return renderCompoundStage(measured, await solveCompoundStage(measured));
+}
+
+/** Shared renderer consumes only a fully solved, validated geometry. */
+export function renderCompoundStage(measured: CompoundMeasurement, solved: LayoutResult): StageData {
+  const { input, problem, theme, visuals, cardGeometry, groupParents, colorFamilies, warnings, detailFont } = measured;
+  const { dag, showNodeDetail } = input;
+  const { projection } = problem;
   const geometry = solved.geometry;
   warnings.push(...solved.diagnostics);
   problem.baseline = geometry;
@@ -275,6 +322,7 @@ export async function buildCompoundStage(input: {
   return {
     compoundLayout: problem,
     layoutQuality: solved.quality,
+    layoutProvenance: solved.provenance ?? { method: problem.stored.method, engine: COMPOUND_LAYOUT_VERSION },
     dag: dag.nodes,
     layoutMode: "compound",
     root: "",

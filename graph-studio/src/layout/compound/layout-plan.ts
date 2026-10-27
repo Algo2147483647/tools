@@ -10,8 +10,19 @@ export interface LayoutGeometry {
 }
 export interface LayoutResult {
   geometry: LayoutGeometry;
-  quality: { metrics: LayoutMetrics; validation: LayoutValidation; elapsedMs: number; aiAssessment?: string };
+  quality: {
+    metrics: LayoutMetrics;
+    validation: LayoutValidation;
+    elapsedMs: number;
+    aiAssessment?: string;
+    timings?: Record<string, number>;
+  };
   diagnostics: string[];
+  provenance?: {
+    method: import("../../graph/compound/layoutData").CompoundLayoutMethod;
+    engine: string;
+    parameters?: Record<string, unknown>;
+  };
 }
 
 export const COMPOUND_LAYOUT_VERSION = "compound-plan-3";
@@ -74,6 +85,7 @@ export {
   type LayoutConstraint,
   type LayoutIntent,
   type CompoundLayoutData,
+  type CompoundLayoutMethod,
   emptyLayoutData,
   parseLayoutConstraint,
   parseLayoutIntent,

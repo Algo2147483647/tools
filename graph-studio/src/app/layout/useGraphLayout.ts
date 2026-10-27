@@ -159,7 +159,7 @@ export function useGraphLayout({
   const settingsKey = JSON.stringify(
     renderingSettings(state.chartType, state.layoutSession.data.charts, scope, state.timelineSettings),
   );
-  const stage = useMemo(
+  const solvedStage = useMemo(
     () =>
       saved &&
       state.dag &&
@@ -175,6 +175,16 @@ export function useGraphLayout({
         : computedStage,
     [saved, state.dag, computedStage, appearanceKey, settingsKey],
   );
+  // Keep the last displayed picture (including accepted AI geometry) on failure.
+  // It is visual fallback only, never relabelled or saved as the requested mode.
+  const lastCompound = useRef<{ generation: number; stage: NonNullable<typeof solvedStage> } | null>(null);
+  if (lastCompound.current?.generation !== state.document.generation) lastCompound.current = null;
+  if (state.chartType === "compound" && solvedStage && !compoundLayout.error && !compoundLayout.loading)
+    lastCompound.current = { generation: state.document.generation, stage: solvedStage };
+  const stage =
+    state.chartType === "compound" && (compoundLayout.error || compoundLayout.loading)
+      ? (lastCompound.current?.stage ?? null)
+      : solvedStage;
   const currentLayoutConfig = useMemo(
     () =>
       state.dag ? createLayoutConfigFile(state.layoutSession.data, state.chartType, state.timelineSettings) : null,
