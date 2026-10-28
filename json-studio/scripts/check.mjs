@@ -1,32 +1,20 @@
-import { readdir } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { root, runPython } from './python.mjs';
 
-const root = fileURLToPath(new URL('../', import.meta.url));
-async function files(directory) {
-  const entries = await readdir(new URL(directory, import.meta.url), { withFileTypes: true });
-  const result = [];
-  for (const entry of entries) {
-    const path = directory + entry.name;
-    if (entry.isDirectory()) result.push(...(await files(path + '/')));
-    else if (/\.(m?js)$/.test(entry.name))
-      result.push(fileURLToPath(new URL(path, import.meta.url)));
-  }
-  return result;
+function files(path) {
+  return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
+    const file = join(path, entry.name);
+    return entry.isDirectory() ? files(file) : /\.m?js$/.test(file) ? [file] : [];
+  });
 }
-function run(args) {
-  const result = spawnSync(process.execPath, args, { cwd: root, stdio: 'inherit' });
+for (const file of [
+  'playwright.config.mjs',
+  ...['public/src', 'scripts', 'tests'].flatMap((dir) => files(join(root, dir))),
+]) {
+  const result = spawnSync(process.execPath, ['--check', file], { cwd: root, stdio: 'inherit' });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
-for (const file of [
-  'server.mjs',
-  'playwright.config.mjs',
-  ...(await files('../public/src/')),
-  ...(await files('./')),
-  ...(await files('../tests/')),
-]) {
-  run(['--check', file]);
-}
-const tests = (await files('../tests/')).filter((file) => file.endsWith('.test.mjs'));
-run(['--test', ...tests]);
+runPython(['scripts/manage.py', 'check']);

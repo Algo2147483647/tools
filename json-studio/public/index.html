@@ -3,583 +3,143 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
-    <meta
-      name="description"
-      content="A local JSON workspace with live structure inspection, formatting, escaping and common transformations."
-    />
+    <meta name="color-scheme" content="light" />
     <title>JSON Studio</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='white'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Georgia' font-size='42' fill='%23262626'%3E%7B%7D%3C/text%3E%3C/svg%3E"
-    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
-      <defs>
-        <symbol id="i-upload" viewBox="0 0 24 24">
-          <path d="M12 16V3m-4 4 4-4 4 4M4 16v5h16v-5" />
-        </symbol>
-        <symbol id="i-download" viewBox="0 0 24 24">
-          <path d="M12 3v13m-4-4 4 4 4-4M4 16v5h16v-5" />
-        </symbol>
-        <symbol id="i-copy" viewBox="0 0 24 24">
-          <rect x="8" y="8" width="12" height="13" rx="1" />
-          <path d="M16 8V3H3v13h5" />
-        </symbol>
-        <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></symbol>
-        <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
-        <symbol id="i-search" viewBox="0 0 24 24">
-          <circle cx="10" cy="10" r="6" />
-          <path d="m15 15 5 5" />
-        </symbol>
-        <symbol id="i-undo" viewBox="0 0 24 24">
-          <path d="m8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12" />
-        </symbol>
-        <symbol id="i-redo" viewBox="0 0 24 24">
-          <path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12" />
-        </symbol>
-        <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" /></symbol>
-      </defs>
-    </svg>
-    <main class="shell">
-      <header class="topbar">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true">{ }</span>
-          <h1>JSON Studio</h1>
-        </div>
-        <span id="mode-caption" class="context-caption" hidden
-          >Explore and edit the active document</span
-        >
-        <details class="more display-settings" id="display-settings">
-          <summary aria-label="Display settings">Aa</summary>
-          <div class="dropdown">
-            <label
-              >Code size<select id="code-size" aria-label="Code font size">
-                <option value="12">12 px</option>
-                <option value="14" selected>14 px</option>
-                <option value="16">16 px</option>
-                <option value="18">18 px</option>
-              </select></label
-            ><button id="reset-layout">Reset panel layout</button>
-          </div>
-        </details>
-        <div class="actions">
-          <button class="button" id="import-button">
-            <svg class="icon"><use href="#i-upload" /></svg>Import file</button
-          ><button class="button" id="download" disabled>
-            <svg class="icon"><use href="#i-download" /></svg>Download JSON
-          </button>
-        </div>
-      </header>
-      <section class="workbench" aria-label="JSON workspace">
-        <div class="document-bar">
-          <div id="document-tabs" class="document-tabs" role="tablist" aria-label="Documents"></div>
-          <button id="new-document" class="text-button">+ New</button>
-          <details id="document-menu" class="more">
-            <summary aria-label="Document actions">⋯</summary>
-            <div class="dropdown">
-              <button id="rename-document">Rename</button
-              ><button id="duplicate-document">Duplicate</button
-              ><button id="reopen-document" disabled>Reopen closed</button>
-            </div>
-          </details>
-          <nav class="mode-bar" aria-label="Workspace modes">
-            <button class="mode active" data-mode="workspace" aria-pressed="true">Workspace</button
-            ><button class="mode" data-mode="diff" aria-pressed="false">Diff</button
-            ><button class="mode" data-mode="path" aria-pressed="false">JSONPath</button
-            ><button class="mode" data-mode="schema" aria-pressed="false">Schema</button>
-          </nav>
-        </div>
-        <section id="diff-mode" class="feature-panel" aria-label="JSON Diff" hidden>
-          <div class="feature-toolbar">
-            <label class="wrap-label"
-              ><input id="diff-sync" type="checkbox" checked />Sync scroll</label
-            ><label class="wrap-label"
-              ><input id="diff-ignore-order" type="checkbox" checked />Ignore object key
-              order</label
-            ><label
-              >Compare with
-              <select id="diff-document" aria-label="Compare with document">
-                <option value="">Pasted JSON</option>
-              </select></label
-            ><button id="diff-snapshot" class="text-button">Copy active to comparison</button
-            ><button id="compare" class="button">Compare</button><span class="spacer"></span
-            ><button id="diff-previous" class="text-button" disabled>← Previous</button
-            ><span id="diff-position">0 / 0</span
-            ><button id="diff-next" class="text-button" disabled>Next →</button>
-          </div>
-          <div class="diff-editors split-layout" id="diff-editors">
-            <section class="diff-pane split-left">
-              <header class="code-heading">
-                <span>Before · Active document</span
-                ><button
-                  class="icon-button"
-                  data-focus="diff:left"
-                  aria-label="Focus Before editor"
-                  title="Focus Before editor"
-                >
-                  ⛶
-                </button>
-              </header>
-              <textarea
-                id="diff-left"
-                aria-label="Before JSON"
-                spellcheck="false"
-                wrap="off"
-                placeholder="Paste the original JSON…"
-              ></textarea>
-            </section>
-            <div
-              id="diff-divider"
-              class="splitter"
-              role="separator"
-              tabindex="0"
-              aria-label="Resize Diff columns"
-              aria-orientation="vertical"
-              aria-valuemin="20"
-              aria-valuemax="80"
-              aria-valuenow="50"
-            ></div>
-            <section class="diff-pane split-right">
-              <header class="code-heading">
-                <span>After · Comparison</span
-                ><button
-                  class="icon-button"
-                  data-focus="diff:right"
-                  aria-label="Focus After editor"
-                  title="Focus After editor"
-                >
-                  ⛶
-                </button>
-              </header>
-              <textarea
-                id="diff-right"
-                aria-label="After JSON"
-                spellcheck="false"
-                wrap="off"
-                placeholder="Paste the updated JSON…"
-              ></textarea>
-            </section>
-          </div>
-          <div
-            id="diff-height-divider"
-            class="splitter horizontal"
-            role="separator"
-            tabindex="0"
-            aria-label="Resize Diff editor height"
-            aria-orientation="horizontal"
-            aria-valuemin="140"
-            aria-valuemax="600"
-            aria-valuenow="300"
-          ></div>
-          <div id="diff-status" class="feature-status" role="status">
-            Paste two documents to compare.
-          </div>
-          <div class="diff-result-head">
-            <span>Change</span><span>Path</span><span>Before</span><span>After</span>
-          </div>
-          <div id="diff-results" class="result-list"></div>
-        </section>
-        <section id="path-mode" class="feature-panel" aria-label="JSONPath query" hidden>
-          <div class="analysis-layout">
-            <div class="analysis-controls">
-              <div class="feature-toolbar">
-                <input
-                  id="path-expression"
-                  class="query-input"
-                  aria-label="JSONPath expression"
-                  value="$"
-                  placeholder="$.records[?(@.id > 10)]"
-                /><button id="run-query" class="button primary">Run query</button
-                ><button id="copy-query" class="button" disabled>Copy results</button
-                ><button id="export-query" class="button" disabled>Export results</button>
-              </div>
-              <details class="feature-help">
-                <summary>Supported JSONPath syntax</summary>
-                <p>
-                  Root $, .name, ["key"], indices including negative indices, wildcards, unions,
-                  slices and recursive descent. Filters support existence, ==, !=, &lt;, &lt;=,
-                  &gt;, &gt;=, &amp;&amp;, ||, ! and parentheses. Compare singular @ or $ paths with
-                  JSON literals. Functions and scripts are not supported. Results are always
-                  exported as an array.
-                </p>
-                <code
-                  >$.records[*].id &nbsp; $..name &nbsp; $.records[?(@.id &gt; 10)] &nbsp;
-                  $[0:10:2]</code
-                >
-              </details>
-              <div id="query-status" class="feature-status" role="status">
-                Run a query against the active document.
-              </div>
-              <div id="query-results" class="result-list"></div>
-            </div>
-            <aside class="source-context" aria-label="Query source preview">
-              <header class="code-heading">
-                <span id="path-location" class="path-label" title="Active document"
-                  >Active document</span
-                ><button class="text-button" id="path-edit-source">Edit in workspace ↗</button>
-              </header>
-              <textarea
-                id="path-preview"
-                aria-label="Query source"
-                readonly
-                spellcheck="false"
-                wrap="off"
-                placeholder="The active document appears here."
-              ></textarea>
-            </aside>
-          </div>
-        </section>
-        <section id="schema-mode" class="feature-panel" aria-label="JSON Schema validation" hidden>
-          <div class="analysis-layout">
-            <div class="analysis-controls">
-              <div class="feature-toolbar">
-                <span>Schema for the active document</span
-                ><button id="schema-example" class="text-button">Load example</button
-                ><span class="spacer"></span
-                ><button id="validate-schema" class="button primary">Validate</button>
-              </div>
-              <textarea
-                id="schema-source"
-                class="schema-source"
-                aria-label="JSON Schema"
-                spellcheck="false"
-                placeholder='{"type":"object","required":["id"],"properties":{"id":{"type":"integer","minimum":1}}}'
-              ></textarea>
-              <details class="feature-help">
-                <summary>Supported schema rules · 2020-12 subset</summary>
-                <p>
-                  Boolean schemas; type, properties, required, additionalProperties; items,
-                  prefixItems, minItems, maxItems, uniqueItems; enum, const; minimum, maximum,
-                  exclusiveMinimum, exclusiveMaximum; minLength, maxLength, pattern; minProperties,
-                  maxProperties; allOf, anyOf, oneOf, not; $defs and local JSON Pointer $ref.
-                  Unsupported validation keywords and remote references produce an error. Values
-                  keep exact numeric precision.
-                </p>
-              </details>
-              <div id="schema-status" class="feature-status" role="status">
-                Paste a schema and select Validate.
-              </div>
-              <div id="schema-results" class="result-list"></div>
-            </div>
-            <aside class="source-context" aria-label="Schema source preview">
-              <header class="code-heading">
-                <span id="schema-location" class="path-label" title="Active document"
-                  >Active document</span
-                ><button class="text-button" id="schema-edit-source">Edit in workspace ↗</button>
-              </header>
-              <textarea
-                id="schema-preview"
-                aria-label="Schema source"
-                readonly
-                spellcheck="false"
-                wrap="off"
-                placeholder="The active document appears here."
-              ></textarea>
-            </aside>
-          </div>
-        </section>
-        <div class="panes split-layout" id="workspace-panes">
-          <section class="pane input-pane split-left" aria-labelledby="input-heading">
-            <header class="pane-header input-header">
-              <div class="input-heading-group">
-                <div class="pane-heading">
-                  <span class="section-number">01</span>
-                  <h2 id="input-heading">Input</h2>
-                  <details class="more input-menu" id="more-tools">
-                    <summary aria-label="Input tools">
-                      Tools<svg class="icon"><use href="#i-down" /></svg>
-                    </summary>
-                    <div class="dropdown input-dropdown">
-                      <div class="input-menu-section">
-                        <span class="menu-label">Transform</span>
-                        <button data-action="compact">
-                          Minify<small>Remove unnecessary whitespace</small>
-                        </button>
-                        <button data-action="sort">
-                          Sort keys<small>Sort object keys recursively</small>
-                        </button>
-                        <button data-action="reverse">
-                          Reverse arrays<small
-                            >Reverse the root array or its direct array fields</small
-                          >
-                        </button>
-                      </div>
-                      <div class="input-menu-section">
-                        <span class="menu-label">Encode &amp; decode</span>
-                        <button data-action="escape">
-                          Escape<small>Encode the input as a JSON string</small>
-                        </button>
-                        <button data-action="unescape">
-                          Unescape<small>Decode one JSON string layer</small>
-                        </button>
-                        <button data-action="unicode">Escape Unicode</button>
-                        <button data-action="unicode-decode">Decode Unicode</button>
-                      </div>
-                      <label class="indent-label"
-                        >Indentation<select id="indent" aria-label="Indentation">
-                          <option value="2">2 spaces</option>
-                          <option value="4">4 spaces</option>
-                          <option value="tab">Tab</option>
-                        </select></label
-                      >
-                    </div>
-                  </details>
-                </div>
-                <button
-                  class="tool main-tool"
-                  data-action="format"
-                  title="Format (⌘ / Ctrl + Enter)"
-                >
-                  Format
-                </button>
-                <div class="actions input-history">
-                  <button
-                    id="undo"
-                    class="icon-button"
-                    title="Undo (⌘ / Ctrl + Z)"
-                    aria-label="Undo"
-                    disabled
-                  >
-                    <svg class="icon"><use href="#i-undo" /></svg></button
-                  ><button
-                    id="redo"
-                    class="icon-button"
-                    title="Redo (⌘ / Ctrl + Shift + Z)"
-                    aria-label="Redo"
-                    disabled
-                  >
-                    <svg class="icon"><use href="#i-redo" /></svg>
-                  </button>
-                </div>
-              </div>
-              <div class="pane-tools">
-                <button
-                  class="icon-button"
-                  data-focus="workspace:left"
-                  aria-label="Focus input"
-                  title="Focus input"
-                >
-                  ⛶</button
-                ><label class="wrap-label"><input id="wrap" type="checkbox" />Wrap lines</label
-                ><button id="sample" class="text-button">Load sample</button
-                ><button id="clear" class="text-button">Clear</button
-                ><button
-                  id="copy-source"
-                  class="icon-button"
-                  title="Copy input"
-                  aria-label="Copy input"
-                >
-                  <svg class="icon"><use href="#i-copy" /></svg>
-                </button>
-              </div>
-            </header>
-            <div class="editor" id="editor">
-              <div class="gutter" id="gutter" aria-hidden="true">1</div>
-              <div class="source-area">
-                <pre id="source-highlight" class="source-highlight" aria-hidden="true"></pre>
-                <textarea
-                  id="source"
-                  aria-label="JSON input"
-                  aria-describedby="parse-status editor-help"
-                  spellcheck="false"
-                  autocapitalize="off"
-                  autocomplete="off"
-                  autocorrect="off"
-                  wrap="off"
-                  placeholder="Paste JSON here, or drop a file…&#10;&#10;Objects, arrays and primitives are supported."
-                ></textarea>
-              </div>
-            </div>
-            <footer class="pane-footer">
-              <span id="source-meta">0 characters · 0 B</span
-              ><span id="cursor-meta">Ln 1, Col 1</span>
-            </footer>
-          </section>
-          <div
-            id="workspace-divider"
-            class="splitter"
-            role="separator"
-            tabindex="0"
-            aria-label="Resize workspace columns"
-            aria-orientation="vertical"
-            aria-valuemin="20"
-            aria-valuemax="80"
-            aria-valuenow="50"
-          ></div>
-          <section class="pane output-pane split-right" aria-labelledby="output-heading">
-            <header class="pane-header">
-              <div class="pane-heading">
-                <span class="section-number">02</span>
-                <h2 id="output-heading">Output</h2>
-              </div>
-              <label class="search"
-                ><svg class="icon"><use href="#i-search" /></svg
-                ><input
-                  id="search"
-                  type="search"
-                  placeholder="Search keys or values…"
-                  aria-label="Search keys or values"
-                  disabled
-              /></label>
-              <div class="pane-tools">
-                <button
-                  class="icon-button"
-                  data-focus="workspace:right"
-                  aria-label="Focus output"
-                  title="Focus output"
-                >
-                  ⛶
-                </button>
-                <div class="tabs" role="tablist" aria-label="Output view">
-                  <button
-                    class="tab"
-                    id="tree-tab"
-                    role="tab"
-                    aria-selected="true"
-                    aria-controls="tree-panel"
-                  >
-                    Tree</button
-                  ><button
-                    class="tab"
-                    id="code-tab"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="code-panel"
-                    tabindex="-1"
-                  >
-                    Format</button
-                  ><button
-                    class="tab"
-                    id="table-tab"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="table-panel"
-                    tabindex="-1"
-                  >
-                    Table
-                  </button>
-                </div>
-                <div class="tree-controls" id="tree-controls">
-                  <button class="text-button" id="expand" disabled>Expand</button><span>/</span
-                  ><button class="text-button" id="collapse" disabled>Collapse</button>
-                </div>
-                <span id="search-count" hidden></span
-                ><button
-                  id="copy-output"
-                  class="icon-button"
-                  title="Copy the complete formatted JSON"
-                  aria-label="Copy output"
-                  disabled
-                >
-                  <svg class="icon"><use href="#i-copy" /></svg>
-                </button>
-              </div>
-            </header>
-            <div class="output" id="output">
-              <nav id="tree-breadcrumb" class="breadcrumb" aria-label="Selected JSON path"></nav>
-              <div class="blank" id="empty-state">
-                <div class="blank-symbol" aria-hidden="true">{ ··· }</div>
-                <h3>No JSON yet</h3>
-                <p>Paste JSON on the left to inspect its structure, or load a sample.</p>
-                <button class="button" id="empty-sample">
-                  Load sample <span aria-hidden="true">↗</span>
-                </button>
-              </div>
-              <div class="blank error-state" id="error-state" role="alert" hidden>
-                <div class="error-label">× &nbsp; JSON syntax error</div>
-                <h3 id="error-title"></h3>
-                <p id="error-position"></p>
-                <pre id="error-context"></pre>
-                <button class="button" id="locate-error">Go to error</button>
-              </div>
-              <div class="notice" id="notice" hidden></div>
-              <div id="tree-panel" role="tabpanel" aria-labelledby="tree-tab" hidden>
-                <div id="tree" class="tree"></div>
-              </div>
-              <div id="table-panel" role="tabpanel" aria-labelledby="table-tab" hidden></div>
-              <div id="code-panel" role="tabpanel" aria-labelledby="code-tab" hidden>
-                <pre id="formatted"></pre>
-              </div>
-            </div>
-            <footer class="pane-footer">
-              <span class="status" id="parse-status" role="status"
-                ><i class="status-dot"></i><span id="status-text">Waiting for input</span></span
-              ><span id="output-meta">Live parsing</span>
-            </footer>
-          </section>
-        </div>
-      </section>
-      <footer class="page-footer">
-        <div class="legend" aria-label="Data types">
-          <span class="type-string">String</span><span class="type-number">Number</span
-          ><span class="type-boolean">Boolean</span><span class="type-null">Null</span>
-        </div>
-        <div class="footer-note">
-          <span><kbd>⌘ / Ctrl</kbd> + <kbd>Enter</kbd> Format</span>
-        </div>
-      </footer>
+    <main id="editor" aria-label="Text editor">
+      <pre id="highlight" aria-hidden="true"></pre>
+      <textarea
+        id="source"
+        aria-label="Editor"
+        spellcheck="false"
+        autocapitalize="off"
+        autocomplete="off"
+        autocorrect="off"
+        wrap="off"
+      ></textarea>
+      <form id="find-bar" hidden aria-label="Find in editor">
+        <input id="find-text" aria-label="Find text" placeholder="Find…" />
+        <span id="find-status" role="status"></span>
+        <button type="submit">Next</button>
+        <button id="find-close" type="button" aria-label="Close find">×</button>
+      </form>
     </main>
-    <dialog id="edit-dialog" aria-labelledby="edit-title">
-      <form id="edit-form">
-        <div class="dialog-heading">
-          <h2 id="edit-title">Edit node</h2>
-          <button type="button" class="icon-button" id="edit-cancel" aria-label="Close editor">
-            ×
+    <section id="console" role="dialog" aria-label="AI console" hidden>
+      <header id="console-header">
+        <nav role="tablist" aria-label="Console pages">
+          <button
+            id="tab-console"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-console"
+            data-tab="console"
+          >
+            Console
           </button>
+          <button
+            id="tab-protocols"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-protocols"
+            data-tab="protocols"
+            tabindex="-1"
+          >
+            Protocols
+          </button>
+          <button
+            id="tab-settings"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-settings"
+            data-tab="settings"
+            tabindex="-1"
+          >
+            AI Settings
+          </button>
+        </nav>
+        <span id="engine-status" role="status">Ready</span>
+        <button id="console-close" aria-label="Close console" title="Close (Esc)">×</button>
+      </header>
+      <div id="panel-console" class="panel" role="tabpanel" aria-labelledby="tab-console">
+        <div id="conversation" role="log" aria-live="polite">
+          <div class="welcome">
+            <p>What would you like to do?</p>
+            <span>Ask to format JSON, transform YAML, or work with text.</span>
+          </div>
         </div>
-        <p id="edit-path" class="mono"></p>
-        <label
-          >Action<select id="edit-action" aria-label="Node action">
-            <option value="replace">Edit JSON value</option>
-            <option value="rename">Rename key</option>
-            <option value="add">Add child</option>
-            <option value="remove">Delete node</option>
-            <option value="decode">Parse nested JSON string</option>
-            <option value="encode">Convert to JSON string</option>
-          </select></label
-        ><label id="edit-key-label"
-          >Property name<input id="edit-key" aria-label="Property name" autocomplete="off" /></label
-        ><label id="edit-index-label"
-          >Array position<input
-            id="edit-index"
-            aria-label="Array position"
-            type="number"
-            min="0" /></label
-        ><label id="edit-value-label"
-          >JSON value<textarea
-            id="edit-value"
-            aria-label="Node JSON value"
+        <form id="chat-form">
+          <textarea
+            id="chat-input"
+            aria-label="Message AI"
+            placeholder="Describe what you want to do…"
+            rows="2"
             spellcheck="false"
           ></textarea>
-        </label>
-        <p id="edit-hint"></p>
-        <p id="edit-error" class="form-error" role="alert"></p>
-        <div class="dialog-actions">
-          <button type="submit" class="button primary">Apply change</button>
-        </div>
-      </form>
-    </dialog>
-    <dialog id="name-dialog" aria-labelledby="name-title">
-      <form id="name-form">
-        <h2 id="name-title">Rename document</h2>
-        <label
-          >Name<input id="document-name" aria-label="Document name" maxlength="60" required
-        /></label>
-        <div class="dialog-actions">
-          <button type="button" id="name-cancel" class="button">Cancel</button
-          ><button class="button primary">Save name</button>
-        </div>
-      </form>
-    </dialog>
-    <span id="editor-help" class="sr-only"
-      >Tab indents selected lines. Shift + Tab outdents. Escape then Tab moves focus out of the
-      editor. Click a tree value to select its source.</span
-    >
-    <input id="file-input" type="file" accept=".json,.txt,application/json,text/plain" hidden />
-    <div id="toast" class="toast" role="status" hidden></div>
+          <footer>
+            <span id="scope-hint">Current text · Enter to send</span>
+            <button id="stop" type="button" hidden>Stop</button>
+            <button id="send" type="submit">Send</button>
+          </footer>
+        </form>
+      </div>
+      <div
+        id="panel-protocols"
+        class="panel scroll-panel"
+        role="tabpanel"
+        aria-labelledby="tab-protocols"
+        hidden
+      >
+        <input
+          id="protocol-search"
+          type="search"
+          aria-label="Search protocols"
+          placeholder="Search tools and parameters…"
+        />
+        <p id="tool-count" class="muted"></p>
+        <div id="tool-reference"></div>
+        <div id="protocol-reference"></div>
+      </div>
+      <div
+        id="panel-settings"
+        class="panel scroll-panel"
+        role="tabpanel"
+        aria-labelledby="tab-settings"
+        hidden
+      >
+        <form id="settings-form">
+          <p class="settings-intro">
+            Connect an API that supports chat completions and JSON responses.
+          </p>
+          <label
+            >API base URL<input
+              id="api-base"
+              type="url"
+              placeholder="https://your-provider.example/v1"
+              required
+          /></label>
+          <label
+            >Model<input id="api-model" type="text" placeholder="Model identifier" required
+          /></label>
+          <label
+            >API key<input id="api-key" type="password" autocomplete="off" placeholder="API key"
+          /></label>
+          <label class="check-label"
+            ><input id="clear-key" type="checkbox" /> Clear the saved key</label
+          >
+          <p class="muted">
+            Settings stay in this local service's memory for this browser session. AI requests send
+            the relevant editor text to your configured provider.
+          </p>
+          <div class="settings-actions">
+            <button type="submit">Save settings</button
+            ><button id="test-connection" type="button">Save & test</button>
+          </div>
+          <p id="settings-status" role="status"></p>
+        </form>
+      </div>
+    </section>
     <script type="module" src="./src/app.js"></script>
   </body>
 </html>

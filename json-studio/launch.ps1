@@ -8,42 +8,53 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
-
-$studioCandidates = @()
-$studioPathNode = Get-Command node -ErrorAction SilentlyContinue
-if ($studioPathNode) { $studioCandidates += $studioPathNode.Source }
-$studioCandidates += (Join-Path $env:USERPROFILE '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe')
-if ($env:ProgramFiles) { $studioCandidates += (Join-Path $env:ProgramFiles 'nodejs/node.exe') }
-$studioNode = $null
-foreach ($candidate in $studioCandidates) {
-    if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) { continue }
-    try {
-        $studioVersion = & $candidate --version
-        if ($LASTEXITCODE -eq 0 -and $studioVersion -match '^v(\d+)\.' -and [int]$Matches[1] -ge 20) {
-            $studioNode = $candidate
-            break
-        }
-    } catch { continue }
+$studioPython = Join-Path $PSScriptRoot '.venv/Scripts/python.exe'
+if (-not (Test-Path -LiteralPath $studioPython)) {
+    $studioCandidates = @()
+    $studioPy = Get-Command py -ErrorAction SilentlyContinue
+    if ($studioPy) {
+        $studioDiscovered = & $studioPy.Source -3 -c 'import sys; print(sys.executable)' 2>$null
+        if ($LASTEXITCODE -eq 0) { $studioCandidates += $studioDiscovered }
+    }
+    $studioPathPython = Get-Command python -ErrorAction SilentlyContinue
+    if ($studioPathPython) { $studioCandidates += $studioPathPython.Source }
+    $studioCandidates += (Join-Path $env:USERPROFILE '.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe')
+    $studioBasePython = $null
+    foreach ($studioCandidate in $studioCandidates) {
+        if (-not (Test-Path -LiteralPath $studioCandidate -PathType Leaf)) { continue }
+        & $studioCandidate -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' 2>$null
+        if ($LASTEXITCODE -eq 0) { $studioBasePython = $studioCandidate; break }
+    }
+    if (-not $studioBasePython) { throw 'Python 3.10+ is required. Install Python and run again.' }
+    & $studioBasePython -m venv .venv
+    if ($LASTEXITCODE -ne 0) { throw 'Could not create the project Python environment.' }
 }
-if (-not $studioNode) { throw 'Node.js 20+ is required. Install Node.js LTS and run again.' }
-if ($InstallOnly) { Write-Host 'Runtime is ready. No runtime dependencies are required.'; exit 0 }
+$studioRequirementsHash = (Get-FileHash -LiteralPath 'requirements.txt' -Algorithm SHA256).Hash
+$studioStamp = Join-Path $PSScriptRoot '.venv/requirements.sha256'
+$studioInstalledHash = if (Test-Path -LiteralPath $studioStamp) { (Get-Content -LiteralPath $studioStamp -Raw).Trim() } else { '' }
+if ($InstallOnly -or $studioRequirementsHash -ne $studioInstalledHash) {
+    & $studioPython -m pip install -r requirements.txt
+    if ($LASTEXITCODE -ne 0) { throw 'Python dependencies could not be installed.' }
+    Set-Content -LiteralPath $studioStamp -Value $studioRequirementsHash -Encoding ascii
+}
+if ($InstallOnly) { Write-Host 'Python engine and dependencies are ready.'; exit 0 }
 if ($BuildOnly -or $Preview) {
-    & $studioNode scripts/check.mjs
+    & $studioPython scripts/manage.py check
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $studioNode scripts/build.mjs
+    & $studioPython scripts/manage.py build
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     if ($BuildOnly) { exit 0 }
 }
-$studioArguments = @('server.mjs', '--port', "$Port")
+$studioArguments = @('-u', 'server.py', '--port', "$Port")
 if ($Preview) { $studioArguments += '--dist' }
 $studioUrl = "http://127.0.0.1:$Port/"
 $studioBrowserOpened = $false
-& $studioNode @studioArguments | ForEach-Object {
+& $studioPython @studioArguments | ForEach-Object {
     Write-Host $_
     if (-not $NoBrowser -and -not $studioBrowserOpened -and $_.Contains($studioUrl)) {
         $studioBrowserOpened = $true
         try { Start-Process $studioUrl -WindowStyle Hidden }
-        catch { Write-Warning "Could not open the browser. Open $studioUrl manually." }
+        catch { Write-Warning "Open $studioUrl in your browser." }
     }
 }
 exit $LASTEXITCODE

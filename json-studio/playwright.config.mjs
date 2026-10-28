@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { python } from './scripts/python.mjs';
 
 export default defineConfig({
   testDir: './tests',
@@ -12,7 +13,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: `"${process.execPath}" server.mjs --port 4190`,
+    command: `"${python}" server.py --port 4190`,
     url: 'http://127.0.0.1:4190',
     reuseExistingServer: false,
   },

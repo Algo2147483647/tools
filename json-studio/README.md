@@ -1,58 +1,117 @@
 # JSON Studio
 
-本地 JSON 工作台，由原始单文件 HTML 整理为独立项目。保留原有英文界面、纸张风格和功能，使用原生 JavaScript ES Modules；运行时不依赖框架、CDN 或第三方包。
+A single text editor with a floating AI console and a local Python computation engine. There are no document tabs, file workspace, split output panels, or user-facing command language.
 
-## 启动
+## Start
 
-Windows 双击本目录的 `launch.cmd`，或在 tools 根目录运行：
+On Windows, double-click `launch.cmd`, or run from the Tools directory:
 
 ```powershell
 .\launch.cmd json-studio
 ```
 
-默认打开 <http://127.0.0.1:4189/>。保持终端开启，按 `Ctrl+C` 停止服务。启动器优先使用 PATH 中的 Node.js 20+，也会查找现有 Codex 运行时及标准 Node 安装目录；不会修改全局 PATH。
-
-在本项目目录可运行：
-
-```powershell
-.\launch.cmd -NoBrowser          # 仅启动服务
-.\launch.cmd -Port 4200          # 自定义端口
-.\launch.cmd -BuildOnly          # 语法检查、单元测试、生成 dist
-.\launch.cmd -Preview            # 检查并构建，再提供 dist 预览
-.\launch.cmd -InstallOnly        # 检查运行环境；没有运行依赖需要安装
-```
-
-`-Dev` 与默认启动行为相同；修改静态文件后刷新页面即可。
-
-其他系统或手动启动（Node.js 20+）：
+On macOS, double-click **`launch.command`** in Finder, or run it from Terminal:
 
 ```sh
-node server.mjs
-node server.mjs --port 4200
+./launch.command
+./launch.command --no-browser
+./launch.command --port 4200
+./launch.command --install-only
+./launch.command --build-only
+./launch.command --preview
 ```
 
-请通过 HTTP 地址访问，不能直接双击 `public/index.html`：浏览器需要通过 HTTP 加载 ES Modules 和模块 Worker。
+Open **http://127.0.0.1:4189/**. Both launchers find Python 3.10+, create a project-local `.venv`, and install the pinned `requirements.txt` on first launch or when it changes. Node.js is not needed to run the application. The macOS launcher supports Apple Silicon and Intel Homebrew paths, opens the browser after the server binds, and works when the project path contains spaces. If Python is installed elsewhere, set `STUDIO_PYTHON` to its executable path for the first launch. Do not copy a Windows `.venv` to macOS; each machine needs its own environment. Git preserves the launcher's executable permission; if a ZIP extraction loses it, run `chmod +x launch.command` once.
 
-## 功能与数据
+```powershell
+.\launch.cmd -NoBrowser
+.\launch.cmd -Port 4200
+.\launch.cmd -InstallOnly
+.\launch.cmd -BuildOnly
+.\launch.cmd -Preview
+```
 
-- 格式化、压缩、转义/反转义、Unicode 转换、递归键排序、数组反转。
-- 输入操作位于 **Input** 旁：**Format**、撤销/重做直接可用；**Tools** 菜单集中提供其他转换及缩进设置。字号、导入和下载位于顶部。
-- 树视图、格式化视图、表格视图；搜索、源代码定位、节点编辑、表格排序与筛选。
-- 多文档标签页、独立撤销/重做、文件导入及下载，最多同时打开 12 个文档。
-- 结构差异比较，可选择忽略对象键顺序。
-- JSONPath 查询：属性、索引、通配符、递归下降、切片和过滤表达式。
-- JSON Schema 2020-12 的有限子集校验，支持本地 `$ref`；完整支持范围见界面中的说明，不支持的关键字会明确报错。
-- 可调整分栏、代码字号和换行，支持移动端布局及键盘操作。
+`-BuildOnly` runs Python checks and builds `dist/`; `-Preview` checks, builds and serves it with the Python backend. `-Dev` behaves like the default launch; refresh after editing frontend assets and restart after editing Python. Keep the terminal open while using the app.
 
-自定义 JSON 语法树保留数字原文、重复键和对象键顺序，例如 `9007199254740993` 不会经过 JavaScript 浮点数转换。Schema 校验要求对象键唯一。JSONPath 为自定义实现的子集，不承诺完整标准兼容。
+Manual setup (including Linux):
 
-编辑内容和分析均在浏览器本地内存中完成，服务端只提供静态文件，不上传或保存 JSON。刷新或关闭页面后不会恢复文档，需要保留的数据请使用 **Download JSON** 导出。
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python server.py
+```
 
-沿用原版保护限制：单份 JSON 最多 2,097,152 个 UTF-16 代码单元、50,000 个节点、128 层嵌套；后台分析超过 3 秒会终止。大文本会降级为纯文本显示。
+On Windows, use `.venv\Scripts\python.exe` instead. The Python server always binds to `127.0.0.1`.
 
-## 开发与验证
+## Use
 
-启动、构建和核心测试不需要安装依赖。格式化和浏览器测试使用锁定版本的开发依赖：
+1. Paste JSON, YAML, or plain text into the editor. Dropping one text file replaces the current text; it does not create a document.
+2. **Right-click once** to open the floating console. `Ctrl+backtick` / `Cmd+backtick` is the keyboard equivalent. Drag the header to move it, drag the bottom-right corner to resize, and press `Esc` to close it.
+3. In **AI Settings**, enter an API base URL, model, and API key. Use **Save & test** to test the connection. The provider must support `POST {baseUrl}/chat/completions`, `response_format: {"type":"json_object"}`, and text at `choices[0].message.content`. Local providers may use an empty key. Other provider protocols are not implemented.
+4. In **Console**, describe the change in natural language: “Format this JSON with two spaces”, “Remove duplicate array items by id, sort by name, then convert to YAML”, or “Uppercase the selected text”. Enter sends; Shift+Enter inserts a newline.
+5. Successful transformations replace the editor content and update syntax coloring automatically. Validation, statistics and queries report in the console. Ask explicitly to replace the text with query results if desired.
+
+The editor stores plain text. Syntax coloring never becomes part of the content. `Ctrl/Cmd+Z` undoes an edit, `Ctrl/Cmd+Shift+Z` redoes it, and `Ctrl/Cmd+F` opens the editor's find control. Tab indents, Shift+Tab outdents. A complete AI transformation pipeline is one undo entry. Undo history holds up to 100 entries within an approximately 20-million-character budget.
+
+The console preserves the selection present when it opens. Selection scope is used only when requested. Editing the content or changing language while an AI request is running invalidates its pending result. **Stop** cancels remaining AI rounds/tool execution and prevents application; an HTTP request already sent to the provider may finish before the backend observes cancellation. Closing the console does not cancel an operation.
+
+No API key is required for typing, highlighting, finding, or undoing. Natural-language operations require a configured AI provider. There is no offline fake AI mode.
+
+## Tools and protocol
+
+The **Protocols** tab displays every registered capability, parameter schema, example, AI context field, response variant, result and error contract using three-line tables (top rule, header rule, bottom rule; no cell grid). Search filters tools and parameters. Expand examples or schemas for exact details.
+
+The Python registry in `engine.py` is the single source for the 39 tools, parameter validation, model context and reference table:
+
+| Group  | Capabilities                                                                                                                                            |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSON   | Format, minify, validate, sort keys, query, set/remove by JSON Pointer, merge, diff, JSON Schema validation, array sort/unique/reverse, convert to YAML |
+| YAML   | Format with comments/quotes, validate, query, convert to JSON                                                                                           |
+| Text   | Trim, replace/regex, case, statistics, line sorting/deduplication/filtering, JSON escaping, Base64, URL encoding, Unicode escaping and normalization    |
+| Editor | Write generated text, clear, undo, redo, change highlighting language                                                                                   |
+
+An AI response is one JSON object: `answer`, `clarify`, or `execute`. There are no slash commands or shell scripts. Example:
+
+```json
+{
+  "type": "execute",
+  "calls": [
+    { "tool": "json.array_unique", "arguments": { "by": "id" } },
+    { "tool": "json.array_sort", "arguments": { "by": "name" } },
+    { "tool": "json.to_yaml", "arguments": {} }
+  ]
+}
+```
+
+The runtime binds text, selection and revision; AI never supplies document IDs or revision numbers. Tools transform the prior step's text. Report-only tools leave that text unchanged and feed inspection results back to the model. A successful modifying batch ends the turn and commits once. A failed batch commits nothing. History/language actions run alone. AI may use `editor.write` for generation or genuine rewriting; deterministic formatting and conversion use dedicated tools.
+
+All data computation runs in Python. The browser owns display, selection, undo and revision checks. The AI can invoke only registered functions, never arbitrary Python, shell commands or filesystem operations.
+
+## Data semantics and limits
+
+- JSON uses arbitrary-precision integers and `Decimal`; results are sent as text, avoiding browser floating-point conversion. Numeric values are preserved, although numeric spellings such as exponent notation may be normalized. Duplicate keys and non-finite JSON numbers are rejected rather than silently discarded.
+- JSONPath is the syntax supported by `jsonpath-ng`'s extended parser. Queries always produce an array. Mutation paths use RFC 6901 JSON Pointer, with `/-` supporting array append. Intermediate mutation parents must exist.
+- Schema validation uses JSON Schema 2020-12, with local references only. `format` remains an annotation. Remote schema retrieval is disabled.
+- YAML formatting retains comments and quoted strings. One YAML document is accepted per operation. Cyclic aliases, custom tags and duplicate keys are rejected. JSON conversion omits comments and rejects dates, sets, binary data, non-string keys and non-finite values instead of coercing their meaning.
+- Deep merge recursively combines objects; right-hand values replace conflicting scalars and arrays. Array deduplication preserves the first item and uses canonical JSON text equality. Sorting mixed scalar values orders null, booleans, numbers, then strings.
+- Unicode escaping uses JSON-string escapes without surrounding quotes; decoding consumes that same representation. Base64 operates on UTF-8. URL decoding leaves `+` literal. Text statistics count code points, not grapheme clusters; words are whitespace-separated.
+- Maximum editor computation input/output: 2 million characters. Maximum batch: 20 calls, one scope. Tool workers are terminated after 8 seconds. Regex operations have an additional timeout. YAML structure/alias expansion is bounded. Four backend requests may run at once.
+- AI receives at most 120,000 input characters. For larger documents, select a smaller range; only that range is supplied and only selection-scope calls may execute. Each conversation turn permits at most six AI rounds. Inspection feedback above 20,000 characters per report is explicitly marked truncated. The full report remains available in the console.
+- Syntax coloring falls back to plain text beyond 300,000 characters to keep the editor usable. This does not change the text or computation limit.
+
+Content, conversation and undo history stay in browser memory; pending tool execution uses local process memory. Refresh clears the editor. Provider settings and keys are held in a per-browser server session, expire after 12 hours of inactivity, and disappear when the service stops. Keys are not returned by the API, written to browser storage, inserted into prompts, or logged. AI requests send the applicable text and recent conversation to the configured provider. The local API checks host, origin and per-session request tokens.
+
+## Development and validation
+
+Python checks and build:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/manage.py check
+.\.venv\Scripts\python.exe scripts/manage.py build
+.\.venv\Scripts\python.exe server.py --dist
+```
+
+Optional frontend tooling requires Node.js 20+:
 
 ```sh
 npm ci
@@ -60,48 +119,24 @@ npm run check
 npm run format:check
 npm run test:e2e
 npm run build
-npm run preview
 ```
 
-开发命令需要 PATH 中有 Node.js 20+。`npm run format` 统一格式；`npm run check` 检查脚本语法并执行 Node 内置测试。单元测试覆盖数字精度、重复键、解析限制、转换、编辑、Diff、JSONPath、Schema 和静态服务边界。
+The npm wrappers use the project's `.venv`; override with `STUDIO_PYTHON` if needed. `npm run check` additionally checks JavaScript syntax. Browser tests use Chrome by default; set `PLAYWRIGHT_CHANNEL=chromium` after installing Playwright Chromium if necessary.
 
-浏览器测试默认使用本机 Chrome，验证编辑/撤销、错误恢复、表格、模块 Worker、多文档、导入导出和移动布局。如无 Chrome，可安装 Playwright Chromium：
-
-```powershell
-npx playwright install chromium
-$env:PLAYWRIGHT_CHANNEL = 'chromium'
-npm run test:e2e
-```
-
-浏览器测试使用独立端口 4190，避免与默认服务冲突。
-
-## 目录
+Tests cover tool semantics, exact numeric round trips, atomic failure, YAML edge cases, JSON protocol recovery, bounded workers, cancellation, session isolation and static/API boundaries. Browser tests cover the complete browser → Python → provider → Python tools → editor flow with a local deterministic **provider test double**, not a real AI account. Real-provider model quality and credentials must be tested through AI Settings.
 
 ```text
-public/
-  index.html                 页面结构及 SVG 图标
-  styles.css                 界面样式和响应式布局
-  src/
-    app.js                   页面状态、编辑器、视图和交互
-    json-core.js             保留数字原文的解析、序列化和转换
-    editor-core.js           语法高亮、括号配对和缩进
-    studio-core.js           节点编辑、数字比较、Diff、JSONPath、Schema
-    analysis.js              可独立测试的分析任务入口
-    analysis-worker.js       模块 Worker 消息处理
-scripts/
-  check.mjs                  语法检查和核心测试
-  build.mjs                  将静态资源复制到 dist
-tests/
-  core.test.mjs              核心逻辑回归测试
-  server.test.mjs            静态服务器测试
-  workspace.spec.mjs         浏览器流程测试
-server.mjs                   仅监听 127.0.0.1 的静态服务器
-launch.cmd / launch.ps1      Windows 启动入口
-playwright.config.mjs       浏览器测试配置
+engine.py                 Python tool registry, schemas and implementations
+protocol.py               AI response schema and generated reference content
+ai.py                     API transport, tool loop and isolated worker execution
+server.py                 Local static/API service and in-memory sessions
+public/index.html         Single editor and hidden console
+public/styles.css         Editor, floating chrome and three-line protocol tables
+public/src/editor.js      Highlighting, selection, history and revision ownership
+public/src/app.js         Conversation, protocols, settings and result application
+requirements.txt          Pinned Python dependency set
+scripts/                  Build/check scripts and optional npm wrappers
+tests/                    Python and browser integration tests
 ```
 
-构建不转译或打包 JavaScript，`dist/` 可部署到静态 HTTP 服务器或其子目录。页面和 Worker 使用相对资源路径。构建会重新生成本项目的 `dist/`，不要把手工文件放进去。
-
-## 整理范围
-
-源文件为 `粘贴的文本 (1)(3).txt`，原文件未修改。将内嵌 HTML、CSS、JavaScript 拆分并统一格式，显式声明模块依赖；原先从页面脚本文本拼接的 Blob Worker 改为独立模块 Worker，保留取消任务、过期结果丢弃和超时处理。补齐本地服务、Windows 启动器、格式配置、锁文件、构建与测试，不做框架重写。
+`dist/` contains frontend assets only; it still requires the Python backend. Static-only deployment is no longer supported. The old multi-document state, browser calculation modules, worker pipeline and separate output views have been removed.

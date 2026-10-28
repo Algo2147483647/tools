@@ -33,7 +33,7 @@ Graph Studio 的 Windows 入口为 `graph-studio/launch.cmd`，macOS 入口为 `
 | JSON Studio | http://127.0.0.1:4189/（本地 JSON 工作台） | 同默认 |
 | AI Studio | http://127.0.0.1:4190/ (persistent AI collaboration workspace) | Same as default |
 
-[JSON Studio](json-studio/README.md) 支持 JSON 编辑、格式化、树/表格视图、结构比较、JSONPath 和 Schema 校验。Node.js 20+，无运行时第三方依赖，处理内容仅保存在当前浏览器页面内存中。
+[JSON Studio](json-studio/README.md) 是单一文本编辑器与右键 AI 控制台，JSON、YAML 和字符串能力统一由本地 Python 引擎执行。Windows 双击 `json-studio/launch.cmd`，macOS 双击 `json-studio/launch.command`。Python 3.10+，启动器自动准备项目虚拟环境；自然语言操作使用配置的 AI API，内容与配置不写入磁盘。
 
 [AI Studio](ais-studio/README.md) is an English-language workspace for persistent AI identities, memory, goals, and conversations. Configure multiple providers and API keys, run round-table discussions or directed collaboration, inspect each turn, and retain state as local JSON. Includes a clearly labeled offline demo. Node.js 22.12+, no package dependencies.
 
