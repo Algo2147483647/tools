@@ -20,7 +20,6 @@ import {
 interface UseGraphZoomInput {
   containerRef: React.RefObject<HTMLElement>;
   svgRef: React.RefObject<SVGSVGElement>;
-  topbarRef: React.RefObject<HTMLElement>;
   overlaysRef: React.RefObject<HTMLElement>;
   stage: StageData | null;
   viewKey?: string;
@@ -33,7 +32,6 @@ interface UseGraphZoomInput {
 export function useGraphZoom({
   containerRef,
   svgRef,
-  topbarRef,
   overlaysRef,
   stage,
   viewKey,
@@ -60,16 +58,7 @@ export function useGraphZoom({
       const currentZoom = zoomStateRef.current;
       const resolvedMinScale = nextMinScale ?? currentZoom.minScale;
       const clampedScale = clamp(nextScale, resolvedMinScale, currentZoom.maxScale);
-      applyGraphZoom(
-        container,
-        svg,
-        topbarRef.current,
-        stage,
-        clampedScale,
-        preserveCenter,
-        anchor,
-        overlaysRef.current,
-      );
+      applyGraphZoom(container, svg, stage, clampedScale, preserveCenter, anchor, overlaysRef.current);
       zoomStateRef.current = { ...currentZoom, scale: clampedScale, minScale: resolvedMinScale };
       if (
         Math.abs(currentZoom.scale - clampedScale) > 0.0001 ||
@@ -78,7 +67,7 @@ export function useGraphZoom({
         onZoomChange(clampedScale, resolvedMinScale);
       }
     },
-    [containerRef, onZoomChange, stage, svgRef, topbarRef, overlaysRef],
+    [containerRef, onZoomChange, stage, svgRef, overlaysRef],
   );
 
   const zoomBy = useCallback(
@@ -100,7 +89,7 @@ export function useGraphZoom({
         return;
       }
       const currentZoom = zoomStateRef.current;
-      const fitScale = getFitZoomScale(container, topbarRef.current, stage, overlaysRef.current);
+      const fitScale = getFitZoomScale(container, stage, overlaysRef.current);
       if (stage.layoutMode === "spatial") {
         apply(preserveCenter ? currentZoom.scale : fitScale, preserveCenter, spatialMinScale(fitScale));
         return;
@@ -113,7 +102,7 @@ export function useGraphZoom({
           : clamp(currentZoom.scale, nextMinScale, currentZoom.maxScale);
       apply(nextScale, preserveCenter, nextMinScale);
     },
-    [apply, containerRef, stage, topbarRef, overlaysRef],
+    [apply, containerRef, stage, overlaysRef],
   );
 
   useLayoutEffect(() => {
@@ -124,7 +113,7 @@ export function useGraphZoom({
       previous.viewKey === viewKey;
     refresh(preserve);
     if (!preserve && stage?.layoutMode === "timeline" && containerRef.current) {
-      const fit = getFitZoomScale(containerRef.current, topbarRef.current, stage, overlaysRef.current);
+      const fit = getFitZoomScale(containerRef.current, stage, overlaysRef.current);
       apply(Math.max(fit, 0.85), false, fit);
       containerRef.current.scrollLeft = 0;
       containerRef.current.scrollTop = 0;
@@ -167,7 +156,7 @@ export function useGraphZoom({
       zoomOut: () => zoomBy(1 / ZOOM_STEP_FACTOR),
       zoomFit: () => {
         if (containerRef.current && stage) {
-          const fitScale = getFitZoomScale(containerRef.current, topbarRef.current, stage, overlaysRef.current);
+          const fitScale = getFitZoomScale(containerRef.current, stage, overlaysRef.current);
           apply(fitScale, false, stage.layoutMode === "spatial" ? spatialMinScale(fitScale) : fitScale);
         }
       },
@@ -178,7 +167,7 @@ export function useGraphZoom({
         if (!container || !svg || !stage || !node) return;
         const current = zoomStateRef.current;
         apply(Math.max(current.scale, 1), false, current.minScale);
-        const metrics = getViewportMetrics(container, topbarRef.current, overlaysRef.current);
+        const metrics = getViewportMetrics(container, overlaysRef.current);
         const appliedScale = getAppliedZoomScale(svg, current.scale);
         const point = getNodeLocatePoint(node);
         if (stage.layoutMode === "spatial") {
@@ -217,6 +206,6 @@ export function useGraphZoom({
       },
       refresh,
     }),
-    [apply, minScale, refresh, zoomBy, stage, containerRef, svgRef, topbarRef, overlaysRef],
+    [apply, minScale, refresh, zoomBy, stage, containerRef, svgRef, overlaysRef],
   );
 }

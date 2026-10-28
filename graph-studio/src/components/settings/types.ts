@@ -11,6 +11,7 @@ export interface SettingsModalProps {
   open: boolean;
   layoutControls: ReactNode;
   layoutAction?: ReactNode;
+  documentActions?: ReactNode;
   chartType: GraphChartType;
   sankeyUnavailableReason: string | null;
   onChartTypeChange: (type: GraphChartType) => void;

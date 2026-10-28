@@ -315,7 +315,7 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding-top: var(--toolbar-bottom);
+  padding-top: 8px;
   background: radial-gradient(ellipse at 12% 0, #ecf2fb, transparent 52%), #fff;
 }
 .welcome-inner {

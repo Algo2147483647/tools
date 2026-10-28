@@ -6,7 +6,6 @@ import Icon from "../ui/Icon";
 import EmptyState from "./EmptyState";
 
 interface WorkspaceProps {
-  topbarRef: React.RefObject<HTMLElement>;
   onGroupToggle?: (id: string) => void;
   onGroupEnter?: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement>;
@@ -31,7 +30,6 @@ interface WorkspaceProps {
 }
 
 export default function Workspace({
-  topbarRef,
   containerRef,
   overlaysRef,
   svgRef,
@@ -102,7 +100,6 @@ export default function Workspace({
           >
             {stage ? (
               <GraphStage
-                topbarRef={topbarRef}
                 overlaysRef={overlaysRef}
                 onGroupToggle={onGroupToggle}
                 onGroupEnter={onGroupEnter}

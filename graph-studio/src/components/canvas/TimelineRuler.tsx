@@ -6,11 +6,10 @@ import { useTimelineRulerViewport, type ViewportChromeRefs } from "../../viewpor
 export function TimelineRuler({
   stage,
   svgRef,
-  topbarRef,
   overlaysRef,
 }: { stage: StageData; svgRef: RefObject<SVGSVGElement> } & ViewportChromeRefs) {
   const timeline = stage.timeline!;
-  const viewport = useTimelineRulerViewport(stage, svgRef, { topbarRef, overlaysRef });
+  const viewport = useTimelineRulerViewport(stage, svgRef, { overlaysRef });
   const { scale, x, top, bottom } = viewport;
   const caption = timelineClockCaption(timeline.clock ?? sanitizeTimelineClock(null));
   const horizontal = timeline.orientation === "horizontal";

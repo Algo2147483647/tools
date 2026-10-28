@@ -42,7 +42,7 @@
     border: 0;
     border-radius: 0;
     grid-template-columns: 96px minmax(0, 1fr) 44px;
-    grid-template-rows: 58px minmax(0, 1fr) auto;
+    grid-template-rows: 48px 44px minmax(0, 1fr) auto;
   }
   .studio-settings .settings-modal-header {
     padding: 0 12px;
@@ -51,7 +51,10 @@
     font-size: 16px;
   }
   .settings-search {
-    width: 100%;
+    grid-column: 1/-1;
+    grid-row: 2;
+    justify-self: center;
+    width: calc(100% - 24px);
     margin: 0;
     padding: 7px;
   }
@@ -59,6 +62,7 @@
     display: none;
   }
   .studio-settings .settings-modal-body {
+    grid-row: 3;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
   }
@@ -99,6 +103,7 @@
     padding: 10px 18px;
   }
   .settings-footer {
+    grid-row: 4;
     padding: 10px 12px;
     flex-wrap: wrap;
   }

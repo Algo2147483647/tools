@@ -56,7 +56,6 @@ export function useGraphViewport(
   const stage = homeVisible ? null : computedStage;
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const topbarRef = useRef<HTMLElement>(null);
   const overlaysRef = useRef<HTMLDivElement>(null);
   const handleZoomChange = useCallback(
     (scale: number, minScale?: number) => {
@@ -67,7 +66,6 @@ export function useGraphViewport(
   const zoom = useGraphZoom({
     containerRef,
     svgRef,
-    topbarRef,
     overlaysRef,
     stage,
     viewKey: JSON.stringify([
@@ -87,13 +85,7 @@ export function useGraphViewport(
 
   const handleResize = useCallback(() => zoom.refresh(true), [zoom]);
   useResizeObserver(containerRef, handleResize);
-  const handleChromeResize = useCallback(() => {
-    const topbar = topbarRef.current;
-    if (topbar)
-      topbar.parentElement?.style.setProperty("--toolbar-bottom", `${topbar.offsetTop + topbar.offsetHeight + 8}px`);
-    zoom.refresh(true);
-  }, [zoom]);
-  useResizeObserver(topbarRef, handleChromeResize);
+  useResizeObserver(overlaysRef, handleResize);
   useGraphPan({
     containerRef,
     enabled: Boolean(stage) && stage?.layoutMode !== "spatial",
@@ -140,7 +132,6 @@ export function useGraphViewport(
     spatialView,
     containerRef,
     svgRef,
-    topbarRef,
     overlaysRef,
     stage,
     status,

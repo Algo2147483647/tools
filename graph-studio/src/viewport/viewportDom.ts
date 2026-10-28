@@ -2,19 +2,13 @@ import type { StageData } from "../layout/shared/types";
 import { calculateScrollZoom, calculateSpatialCamera, type ViewportMetrics } from "./cameraGeometry";
 import { calculateFitZoomScale, type ZoomAnchor } from "./zoomGeometry";
 
-export function getFitZoomScale(
-  container: HTMLElement,
-  topbar: HTMLElement | null,
-  stage: StageData,
-  overlays: HTMLElement | null = null,
-): number {
-  return calculateFitZoomScale(getViewportMetrics(container, topbar, overlays), stage);
+export function getFitZoomScale(container: HTMLElement, stage: StageData, overlays: HTMLElement | null = null): number {
+  return calculateFitZoomScale(getViewportMetrics(container, overlays), stage);
 }
 
 export function applyGraphZoom(
   container: HTMLElement,
   svg: SVGSVGElement,
-  topbar: HTMLElement | null,
   stage: StageData,
   scale: number,
   preserveCenter: boolean,
@@ -24,7 +18,7 @@ export function applyGraphZoom(
   const previousScale = Number(svg.dataset.zoomScale || 1);
   const previousMarginLeft = Number(svg.dataset.marginLeft || 0);
   const previousMarginTop = Number(svg.dataset.marginTop || 0);
-  const viewportMetrics = getViewportMetrics(container, topbar, overlays);
+  const viewportMetrics = getViewportMetrics(container, overlays);
   const containerRect = container.getBoundingClientRect();
   const scaledWidth = stage.stageWidth * scale;
   const scaledHeight = stage.stageHeight * scale;
@@ -102,13 +96,9 @@ export function getAppliedZoomScale(svg: SVGSVGElement | null, fallbackScale: nu
   return Number.isFinite(appliedScale) && appliedScale > 0 ? appliedScale : fallbackScale;
 }
 
-export function getViewportMetrics(
-  container: HTMLElement,
-  topbar: HTMLElement | null,
-  overlays: HTMLElement | null = null,
-): ViewportMetrics {
-  const { containerRect, topbarRect, overlayRect } = readViewportBounds(container, topbar, overlays);
-  const safeTop = topbarRect ? Math.max(topbarRect.bottom - containerRect.top + 12, 0) : 0;
+export function getViewportMetrics(container: HTMLElement, overlays: HTMLElement | null = null): ViewportMetrics {
+  const { containerRect, overlayRect } = readViewportBounds(container, overlays);
+  const safeTop = 16;
   const horizontalInset = 24;
   // Fit into the visible area; the scrollable canvas itself still fills the page.
   const safeLeft =
@@ -124,10 +114,9 @@ export function getViewportMetrics(
   };
 }
 
-export function readViewportBounds(container: HTMLElement, topbar: HTMLElement | null, overlays: HTMLElement | null) {
+export function readViewportBounds(container: HTMLElement, overlays: HTMLElement | null) {
   return {
     containerRect: container.getBoundingClientRect(),
-    topbarRect: topbar?.getBoundingClientRect() ?? null,
     overlayRect: overlays?.getBoundingClientRect() ?? null,
   };
 }

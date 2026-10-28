@@ -1,18 +1,3 @@
-/* Settings uses opaque surfaces and one independently scrolling controls pane. */
-.topbar .settings-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 7px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: #465268;
-  cursor: pointer;
-  box-shadow: none;
-}
 .settings-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -80,7 +65,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  width: min(520px, calc(100% - 24px));
+  width: min(520px, calc(100% - 180px));
   margin: 0 0 0 24px;
   padding: 8px 10px;
   background: #f4f6f9;
@@ -329,4 +314,17 @@
 .studio-settings .timeline-settings-section > h3 {
   color: #293e5b;
   font-size: 14px;
+}
+.settings-header-actions,
+.settings-document-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.settings-document-actions {
+  margin-right: 6px;
+}
+.studio-settings .settings-document-actions button:disabled {
+  opacity: 0.32;
+  cursor: default;
 }

@@ -41,10 +41,15 @@ Object.values(doc.nodes).forEach((node, i) => {
       .locator("input[type=file]")
       .first()
       .setInputFiles({ name, mimeType: "application/json", buffer: Buffer.from(JSON.stringify(data)) });
-    await page.locator("#console-toggle").waitFor();
+    await page.locator("#console-toggle").waitFor({ state: "attached" });
+  }
+  async function launcher(id) {
+    await page.locator("#studio-launcher").hover();
+    if (!(await page.locator("#" + id).isVisible())) await page.locator("#studio-launcher").click();
+    await page.locator("#" + id).click();
   }
   async function mode(name) {
-    await page.locator("#settings-btn").click();
+    await launcher("settings-btn");
     await page.getByRole("button", { name: "Chart type", exact: true }).click();
     await page
       .locator(".chart-type-grid button")
@@ -53,7 +58,7 @@ Object.values(doc.nodes).forEach((node, i) => {
     await page.getByRole("button", { name: "Close settings", exact: true }).click();
   }
   async function workbench() {
-    if (!(await page.locator("#graph-console").count())) await page.locator("#console-toggle").click();
+    if (!(await page.locator("#graph-console").count())) await launcher("console-toggle");
     await page.getByRole("tab", { name: "Workbench", exact: true }).click();
     return page.locator("#console-panel-workbench");
   }
@@ -77,7 +82,22 @@ Object.values(doc.nodes).forEach((node, i) => {
     await load();
     await mode("Nested node-link");
     let panel = await workbench();
-    assert.equal(await page.locator('.topbar select[aria-label*="type" i]').count(), 0);
+    assert.equal(await page.locator(".topbar").count(), 0);
+    assert.equal(await panel.locator("h2").count(), 0);
+    assert.equal(
+      await panel
+        .locator(".workbench-card")
+        .first()
+        .evaluate((el) => getComputedStyle(el).borderTopWidth),
+      "0px",
+    );
+    assert.equal(await page.locator(".console-toolbar #back-btn").count(), 1);
+    await page.locator("#zoom-value-input").fill("100");
+    await page.locator("#zoom-value-input").press("Enter");
+    await page.locator("#zoom-in-btn").click();
+    assert.ok(Number(await page.locator("#zoom-value-input").inputValue()) > 100);
+    await page.locator("#zoom-out-btn").click();
+    await page.locator("#zoom-fit-btn").click();
     await panel.getByRole("button", { name: "Expand all", exact: true }).click();
     await nodes(["a", "b", "x"]);
     await panel.getByRole("button", { name: "Collapse h", exact: true }).click();
@@ -117,8 +137,8 @@ Object.values(doc.nodes).forEach((node, i) => {
     await nodes(["a", "b", "x"]);
     assert.equal(await page.locator("#layout-toggle, #layout-panel").count(), 0);
     await panel.press("Escape");
-    assert.equal(await page.locator("#console-toggle").evaluate((el) => el === document.activeElement), true);
-    await page.locator("#settings-btn").click();
+    assert.equal(await page.locator("#studio-launcher").evaluate((el) => el === document.activeElement), true);
+    await launcher("settings-btn");
     await page.getByRole("button", { name: "Layout", exact: true }).click();
     assert.equal(await page.getByRole("tab", { name: "Automatic", exact: true }).count(), 1);
     await page.getByRole("button", { name: "Close settings", exact: true }).click();
@@ -161,12 +181,19 @@ Object.values(doc.nodes).forEach((node, i) => {
     await page.waitForFunction(() => document.querySelector("#graph-console-input")?.value === "");
     await page.getByRole("tab", { name: "Workbench", exact: true }).click();
     await page.screenshot({ path: output + "/mobile.png" });
+    await launcher("settings-btn");
+    const searchBox = await page.locator(".settings-search").boundingBox();
+    const actionsBox = await page.locator(".settings-header-actions").boundingBox();
+    assert.ok(searchBox.y >= actionsBox.y + actionsBox.height);
+    assert.ok(actionsBox.x + actionsBox.width <= 390);
+    await page.screenshot({ path: output + "/mobile-settings.png" });
+    await page.getByRole("button", { name: "Close settings", exact: true }).click();
     const header = await page.locator(".console-window__header").boundingBox();
     const close = await page.getByRole("button", { name: "Close console", exact: true }).boundingBox();
     assert.ok(close.x + close.width <= header.x + header.width);
-    await page.locator("#console-toggle").click();
+    await launcher("console-toggle");
     assert.equal(await page.locator("#graph-console").count(), 0);
-    await page.locator("#console-toggle").click();
+    await launcher("console-toggle");
     assert.equal(await page.getByRole("tab", { name: "Workbench", exact: true }).getAttribute("aria-selected"), "true");
     assert.equal(await page.locator("#chart-tools-panel").count(), 0);
     await page.setViewportSize({ width: 1440, height: 1000 });

@@ -88,11 +88,7 @@
   align-items: center;
   margin-bottom: 8px;
 }
-.workbench-overview h2 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-}
+
 .workbench-grid {
   display: grid;
   gap: 8px;
@@ -103,10 +99,7 @@
   min-width: 0;
 }
 .workbench-card {
-  border: 1px solid var(--studio-border);
-  border-radius: 8px;
-  padding: 10px;
-  background: rgb(255 255 255 / 70%);
+  padding: 4px 0;
 }
 .workbench-field {
   display: flex;

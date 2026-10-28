@@ -154,17 +154,20 @@ export default function SettingsModal(props: SettingsModalProps) {
       >
         <div className="settings-modal-header">
           <h2 id="settings-modal-title">Settings</h2>
-          <button
-            type="button"
-            className="ghost-btn topbar-icon-btn"
-            title="Close settings"
-            aria-label="Close settings"
-            onClick={onClose}
-          >
-            <span className="topbar-icon" aria-hidden="true">
-              <Icon name="close" className="topbar-icon-svg" />
-            </span>
-          </button>
+          <div className="settings-header-actions">
+            {props.documentActions}
+            <button
+              type="button"
+              className="ghost-btn icon-button--toolbar"
+              title="Close settings"
+              aria-label="Close settings"
+              onClick={onClose}
+            >
+              <span className="icon-button-content" aria-hidden="true">
+                <Icon name="close" className="icon-glyph" />
+              </span>
+            </button>
+          </div>
         </div>
 
         <SettingsSearch query={query} setQuery={setQuery} searchRef={searchRef} />

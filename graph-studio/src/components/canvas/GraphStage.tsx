@@ -36,7 +36,6 @@ interface GraphStageProps extends ViewportChromeRefs {
 }
 
 export default function GraphStage({
-  topbarRef,
   overlaysRef,
   stage,
   focusedKey,
@@ -219,9 +218,7 @@ export default function GraphStage({
           ))}
         </g>
       )}
-      {stage.timeline && (
-        <TimelineRuler stage={stage} svgRef={svgRef} topbarRef={topbarRef} overlaysRef={overlaysRef} />
-      )}
+      {stage.timeline && <TimelineRuler stage={stage} svgRef={svgRef} overlaysRef={overlaysRef} />}
     </svg>
   );
 }

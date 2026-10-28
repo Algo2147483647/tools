@@ -38,6 +38,12 @@ const graph = (extra = {}) => ({
     await page.locator("#graph-console-input").waitFor({ state: "visible" });
     return { context, page };
   }
+  async function documentAction(page, id) {
+    await page.locator("#studio-launcher").hover();
+    await page.locator("#settings-btn").click();
+    await page.locator("#" + id).click();
+    await page.getByRole("button", { name: "Close settings", exact: true }).click();
+  }
   async function command(page, source) {
     const input = page.locator("#graph-console-input");
     if (source.includes("\n")) {
@@ -72,13 +78,13 @@ const graph = (extra = {}) => ({
         '/set A title Changed\n/style set {"path":"style.appearance.display.showEdgeLabels","value":true}',
       );
       await output(page, "2 instructions executed, 1 mutation committed, 1 appearance update committed");
-      await page.locator("#undo-btn").click();
+      await documentAction(page, "undo-btn");
       await command(page, "/clear");
       await command(page, "/ls A");
       await output(page, "Alpha");
       await command(page, '/style inspect {"path":"style.appearance.display.showEdgeLabels"}');
       await output(page, '"value": false');
-      await page.locator("#redo-btn").click();
+      await documentAction(page, "redo-btn");
       await command(page, "/clear");
       await command(page, "/ls A");
       await output(page, "Changed");
@@ -260,7 +266,7 @@ const graph = (extra = {}) => ({
       await command(page, "/clear");
       await command(page, '/timeline inspect {"id":"A"}');
       await output(page, "2026-10-31");
-      await page.locator("#undo-btn").click();
+      await documentAction(page, "undo-btn");
       await command(page, "/clear");
       await command(page, '/timeline inspect {"id":"A"}');
       await output(page, "2026-10-30");

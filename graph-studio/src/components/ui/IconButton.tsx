@@ -21,14 +21,14 @@ export default function IconButton({
   return (
     <button
       {...props}
-      className={`icon-button ${variant === "toolbar" ? "ghost-btn topbar-icon-btn" : "icon-button--quiet"} ${className}`}
+      className={`icon-button ${variant === "toolbar" ? "ghost-btn icon-button--toolbar" : "icon-button--quiet"} ${className}`}
       type={type}
       title={label}
       aria-label={label}
       aria-controls={ariaControls}
       aria-expanded={ariaExpanded}
     >
-      <span className={variant === "toolbar" ? "topbar-icon" : "icon-button-content"} aria-hidden="true">
+      <span className="icon-button-content" aria-hidden="true">
         {icon}
       </span>
     </button>

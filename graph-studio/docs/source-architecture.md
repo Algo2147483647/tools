@@ -82,7 +82,7 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 `workspace/opening.ts` prepares complete candidates including recent-location identity and linked style. `workspace/createFromPicker.ts` coordinates folder creation through explicit ports. `app/workspace/useWorkspaceController.ts` retains one operation lock, document replacement decisions and React commits.
 
-`viewport/useGraphZoom.ts` coordinates zoom state, fit, location and layout anchors. Wheel, pan and spatial gesture hooks retain their input lifecycles. `cameraGeometry.ts` computes offsets without DOM access; `viewportDom.ts` measures elements and applies results. Explicit topbar and overlay refs supplied through `Workspace` and `GraphStage` support zoom and floating timeline-ruler measurements. Preview canvases may omit those page refs.
+`viewport/useGraphZoom.ts` coordinates zoom state, fit, location and layout anchors. Wheel, pan and spatial gesture hooks retain their input lifecycles. `cameraGeometry.ts` computes offsets without DOM access; `viewportDom.ts` measures elements and applies results. Explorer overlay refs supplied through `Workspace` and `GraphStage` support zoom and floating timeline-ruler measurements. The canvas has no topbar offset. `StudioLaunchers` owns the corner bubbles; `ConsoleToolbar` supplies navigation and zoom to the console shell, while `StudioSettings` supplies document actions to Settings. Preview canvases may omit overlay refs.
 
 ## AI and console
 

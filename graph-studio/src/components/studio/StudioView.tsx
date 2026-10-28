@@ -8,7 +8,8 @@ import WorkspaceOverview from "../workspace/WorkspaceOverview";
 import { StudioDialogs } from "./StudioDialogs";
 import Workbench from "../workbench/Workbench";
 import { StudioSettings } from "./StudioSettings";
-import Topbar from "./Topbar";
+import StudioLaunchers from "./StudioLaunchers";
+import ConsoleToolbar from "./ConsoleToolbar";
 import Workspace from "./Workspace";
 
 import type { StudioViewProps } from "./types";
@@ -69,45 +70,19 @@ export default function StudioView({
           )}
         </div>
       )}
-      <Topbar
-        consoleControls={
-          state.dag && !files.homeVisible
-            ? {
-                open: state.ui.consoleSidebarOpen && !state.ui.settingsOpen,
-                toggle: () => dispatch({ type: "consoleSidebarToggled", open: !state.ui.consoleSidebarOpen }),
-              }
-            : undefined
-        }
-        topbarRef={viewport.topbarRef}
+      <StudioLaunchers
         files={files}
-        hasGraph={Boolean(state.dag)}
-        timeline={state.chartType === "timeline"}
-        canBack={viewport.canBack}
-        canUp={viewport.canUp}
-        canUndo={transactions.canUndo}
-        canRedo={transactions.canRedo}
-        zoomPercent={viewport.zoomPercent}
-        canZoomOut={viewport.canZoomOut}
-        canZoomIn={viewport.canZoomIn}
+        consoleAvailable={Boolean(state.dag) && !files.homeVisible}
+        consoleOpen={state.ui.consoleSidebarOpen && !state.ui.settingsOpen}
         settingsOpen={state.ui.settingsOpen}
-        onBack={viewport.back}
-        onUp={viewport.up}
-        onAll={viewport.showAll}
-        onUndo={transactions.undo}
-        onRedo={transactions.redo}
-        onZoomOut={viewport.zoom.zoomOut}
-        onZoomIn={viewport.zoom.zoomIn}
-        onZoomFit={viewport.zoom.zoomFit}
-        onZoomPercentCommit={viewport.zoom.setZoomPercent}
-        onSettingsToggle={ui.toggleSettings}
-        onSaveJson={session.requestSave}
+        onConsole={() => dispatch({ type: "consoleSidebarToggled", open: !state.ui.consoleSidebarOpen })}
+        onSettings={ui.toggleSettings}
       />
 
       {files.homeVisible ? (
         <WelcomeScreen files={files} onNew={onInitializeCanvas} hasDocument={Boolean(state.dag)} />
       ) : (
         <Workspace
-          topbarRef={viewport.topbarRef}
           onGroupToggle={viewport.toggleGroup}
           onGroupEnter={viewport.enterGroup}
           explorer={
@@ -161,6 +136,7 @@ export default function StudioView({
 
       {state.ui.consoleSidebarOpen && !files.homeVisible && !state.ui.settingsOpen && (
         <ConsoleWindow
+          toolbar={<ConsoleToolbar viewport={viewport} hasGraph={Boolean(state.dag)} />}
           activeTab={consoleTab}
           onTabChange={setConsoleTab}
           workbench={
@@ -194,6 +170,7 @@ export default function StudioView({
       )}
 
       <StudioSettings
+        transactions={transactions}
         session={session}
         preferences={preferences}
         ui={ui}

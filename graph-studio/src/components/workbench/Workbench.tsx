@@ -1,5 +1,4 @@
 import { getNodeTitle } from "../../graph/accessors";
-import { getGraphChartLabel } from "../../graph/types";
 import CompoundPanel from "../compound/CompoundPanel";
 import TimelineViewControls from "../timeline/TimelineViewControls";
 import SpatialControls from "../spatial/SpatialControls";
@@ -24,15 +23,11 @@ export default function Workbench(props: Pick<StudioViewProps, "session" | "view
     <div className="workbench">
       <header className="workbench-overview">
         <div>
-          <h2>{getGraphChartLabel(state.chartType)}</h2>
           <div className="workbench-summary">
             <span>{viewport.stage?.nodes.length ?? 0} nodes</span>
             <span>{viewport.stage?.edges.length ?? 0} connections</span>
           </div>
         </div>
-        <button className="studio-button" disabled={!viewport.stage} onClick={viewport.zoom.zoomFit}>
-          Fit view
-        </button>
       </header>
       <div className="workbench-grid">
         <div className="workbench-primary">
@@ -78,7 +73,6 @@ export default function Workbench(props: Pick<StudioViewProps, "session" | "view
                 </strong>
               </div>
               <div className="workbench-actions">
-                <button onClick={viewport.showAll}>Show whole graph</button>
                 <button
                   disabled={!viewport.focusedKey || !viewport.stage?.nodeMap[viewport.focusedKey]}
                   onClick={() => viewport.focusedKey && viewport.zoom.locateNode(viewport.focusedKey)}

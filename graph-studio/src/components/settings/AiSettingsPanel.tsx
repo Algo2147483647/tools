@@ -63,7 +63,7 @@ export default function AiSettingsPanel({
                   <ProviderIcon provider={aiSettings.provider} />
                   <span>{selectedProvider.label}</span>
                   <span className="provider-select-chevron" aria-hidden="true">
-                    <Icon name="chevron" className="topbar-icon-svg" />
+                    <Icon name="chevron" className="icon-glyph" />
                   </span>
                 </button>
                 {providerMenuOpen ? (

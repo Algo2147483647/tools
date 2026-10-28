@@ -1,4 +1,74 @@
-/* Application toolbar, shared controls and overlays. Component rules include responsive variants and surface fallbacks. */
+/* Floating launchers, shared controls and canvas overlays. */
+
+.studio-launchers {
+  position: fixed;
+  z-index: 40;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.studio-bubble {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--chrome-border);
+  border-radius: 50%;
+  background: var(--chrome-background);
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: var(--chrome-blur);
+  color: #465c85;
+  cursor: pointer;
+}
+.studio-bubble:hover,
+.studio-bubble[aria-expanded="true"] {
+  background: #edf2fc;
+  color: var(--studio-accent);
+}
+.studio-bubble:focus-visible,
+.studio-launcher-actions button:focus-visible {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 3px;
+}
+.explorer-launcher {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  left: 12px;
+}
+.studio-launcher-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0 0;
+}
+.studio-launcher-actions[hidden] {
+  display: none;
+}
+.studio-launcher-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--chrome-border);
+  border-radius: 18px;
+  background: #f7f9fd;
+  box-shadow: 0 3px 12px #27375515;
+  color: var(--studio-ink);
+  font:
+    500 12px/1.4 "Segoe UI",
+    sans-serif;
+  cursor: pointer;
+}
+.studio-launcher-actions button:hover:not(:disabled) {
+  background: #e8effc;
+}
+.studio-launcher-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
 
 .timeline-range-filter {
   position: relative;
@@ -66,14 +136,10 @@
 @media (max-width: 760px) {
   .timeline-range-popover {
     position: fixed;
-    top: var(--toolbar-bottom, 90px);
+    top: 12px;
     right: 16px;
   }
 }
-.brand-home svg {
-  color: var(--studio-accent);
-}
-.topbar .topbar-icon-btn,
 .studio-icon-button {
   display: inline-flex;
   align-items: center;
@@ -88,7 +154,6 @@
   box-shadow: none;
   cursor: pointer;
 }
-.topbar button:hover,
 .studio-icon-button:hover {
   background: #eff3fa;
   color: var(--studio-accent);
@@ -144,146 +209,10 @@
   overflow-wrap: anywhere;
   color: var(--studio-ink);
 }
-@media (max-width: 1000px) {
-  .topbar {
-    flex-direction: row;
-    align-items: center;
-  }
-  .topbar-actions {
-    flex-direction: row;
-  }
-  .topbar-brand {
-    min-width: 145px;
-  }
-}
-@media (max-width: 700px) {
-  .topbar {
-    padding: 10px 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .topbar-brand {
-    flex: 1;
-  }
-  .topbar-actions {
-    flex-wrap: wrap;
-    gap: 5px;
-    flex: 1;
-    justify-content: flex-end;
-  }
-  .topbar-group {
-    padding: 0 4px;
-  }
-  .topbar .nav-controls,
-  .topbar .zoom-controls {
-    display: none;
-  }
-}
 .app-shell {
-  --toolbar-bottom: 66px;
   background:
     radial-gradient(ellipse at 0 20%, #e4ebf8b3, transparent 50%),
     radial-gradient(ellipse at 95% 0, #ece6f5a6, transparent 45%), #f4f6f9;
-}
-.topbar {
-  z-index: 5;
-  flex: 0 0 auto;
-  border-bottom: 1px solid var(--studio-border);
-  position: absolute;
-  inset: 8px 8px auto;
-  margin: 0;
-  min-height: 0;
-  padding: 8px 10px;
-  gap: 12px;
-  border: 1px solid var(--chrome-border);
-  border-radius: 14px;
-  background: var(--chrome-background);
-  box-shadow: var(--chrome-shadow);
-  backdrop-filter: var(--chrome-blur);
-  -webkit-backdrop-filter: var(--chrome-blur);
-}
-.topbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex: 0 0 auto;
-  min-width: 132px;
-  overflow: visible;
-}
-.brand-home {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 0;
-  background: none;
-  color: var(--studio-ink);
-  font: inherit;
-  cursor: pointer;
-  white-space: nowrap;
-  padding: 4px 2px;
-}
-.brand-home strong {
-  font-size: 17px;
-  font:
-    600 26px/0.96 "Cormorant Garamond",
-    Georgia,
-    serif;
-  letter-spacing: 0;
-}
-.topbar-actions {
-  gap: 6px;
-  min-width: 0;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.topbar .type-filter-control {
-  width: clamp(154px, 16vw, 220px);
-}
-.topbar-group {
-  border-left: 1px solid var(--studio-border);
-  width: auto;
-  flex-shrink: 0;
-  gap: 3px;
-  padding: 3px;
-  min-height: 34px;
-  border: 1px solid #5b6d8e1a;
-  border-radius: 999px;
-  background: #fafcff47;
-  box-shadow:
-    inset 0 1px 0 #ffffff2e,
-    0 1px 0 #ffffff14;
-}
-.topbar .control-dock {
-  width: auto;
-  flex: 0 0 auto;
-}
-.topbar .file-controls > *,
-.topbar .nav-controls > * {
-  flex: 0 0 auto;
-}
-.topbar .topbar-icon-btn,
-.topbar .studio-icon-button {
-  border-radius: 50%;
-  color: #465268;
-}
-.topbar button:hover {
-  background: #ffffffc4;
-  box-shadow: 0 2px 6px #2737550f;
-}
-.topbar button:disabled {
-  opacity: 0.32;
-  cursor: default;
-  box-shadow: none;
-  background: transparent;
-}
-.topbar select {
-  border: 1px solid var(--studio-border);
-  color: var(--studio-ink);
-  padding: 5px;
-  background: #ffffff69;
-  border-color: #c0cbde55;
-  border-radius: 8px;
 }
 .workspace {
   position: absolute;
@@ -298,7 +227,7 @@
 .workspace-overlays {
   position: absolute;
   z-index: 3;
-  top: var(--toolbar-bottom);
+  top: 8px;
   bottom: 8px;
   left: 8px;
   display: flex;
@@ -377,17 +306,15 @@
   line-height: 1.6;
   border-radius: 10px;
   box-shadow: 0 8px 32px #192f4f15;
-  top: calc(var(--toolbar-bottom) + 8px);
+  top: 64px;
 }
 @supports not (backdrop-filter: blur(1px)) {
-  .topbar,
   .spatial-controls,
   .workspace-sidebar-shell {
     background: #f1f4f9;
   }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .topbar,
   .spatial-controls,
   .workspace-sidebar-shell {
     background: #f1f4f9;
@@ -409,28 +336,6 @@
   }
 }
 @media (max-width: 650px) {
-  .topbar {
-    inset: 6px 6px auto;
-    padding: 8px;
-    border-radius: 14px;
-  }
-  .topbar-brand {
-    flex: 0 0 auto;
-    min-width: 0;
-  }
-  .brand-home strong {
-    font-size: 23px;
-  }
-  .topbar-actions {
-    flex: 1 1 100%;
-  }
-  .topbar--home .topbar-actions {
-    flex: 1 1 auto;
-  }
-  .topbar .nav-controls,
-  .topbar .zoom-controls {
-    display: inline-flex;
-  }
   .workspace-overlays {
     left: 6px;
     bottom: 6px;

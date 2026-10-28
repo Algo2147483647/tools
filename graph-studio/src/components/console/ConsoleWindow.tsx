@@ -19,6 +19,7 @@ interface ConsoleWindowProps {
   activeTab: ConsoleTab;
   onTabChange(tab: ConsoleTab): void;
   workbench: ReactNode;
+  toolbar: ReactNode;
   capabilityContext?: import("../../console/capabilities").CapabilityContext;
   onCancelAi?: () => void;
   onClose: () => void;
@@ -43,6 +44,7 @@ export default function ConsoleWindow({
   activeTab,
   onTabChange,
   workbench,
+  toolbar,
   onClose,
   capabilityContext,
   onCancelAi,
@@ -75,7 +77,7 @@ export default function ConsoleWindow({
       const target =
         previous instanceof HTMLElement && previous !== document.body && previous.isConnected
           ? previous
-          : document.getElementById("console-toggle");
+          : document.getElementById("studio-launcher");
       target?.focus({ preventScroll: true });
     };
   }, []);
@@ -135,9 +137,6 @@ export default function ConsoleWindow({
           ))}
         </div>
         <div className="console-window__actions">
-          <span className="console-window__mode" title={`Scope: ${contextNodeKey || "current view"}`}>
-            {capabilityContext?.chartType}
-          </span>
           {aiBusy && onCancelAi && (
             <button type="button" onClick={onCancelAi} aria-label="Cancel AI request">
               Stop
@@ -157,6 +156,7 @@ export default function ConsoleWindow({
           </button>
         </div>
       </header>
+      {toolbar}
       <div
         className="console-window__conversation"
         id="console-panel-conversation"

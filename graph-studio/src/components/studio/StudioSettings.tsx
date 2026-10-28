@@ -4,12 +4,15 @@ import { serializeDag } from "../../graph/serialize";
 import { getSankeyError } from "../../graph/sankey";
 import { getTimelineClock } from "../../graph/timeline/clock";
 import ChartLayoutControls from "./ChartLayoutControls";
+import Icon from "../ui/Icon";
+import IconButton from "../ui/IconButton";
 import SettingsModal from "../settings/SettingsModal";
 
 import { useGraphExport } from "../../app/document/useGraphExport";
 import type { StudioViewProps } from "./types";
 export function StudioSettings({
   session,
+  transactions,
   preferences,
   ui,
   files,
@@ -19,7 +22,15 @@ export function StudioSettings({
   timelineLayoutPlan,
 }: Pick<
   StudioViewProps,
-  "session" | "preferences" | "ui" | "files" | "ai" | "viewport" | "compoundLayoutPlan" | "timelineLayoutPlan"
+  | "transactions"
+  | "session"
+  | "preferences"
+  | "ui"
+  | "files"
+  | "ai"
+  | "viewport"
+  | "compoundLayoutPlan"
+  | "timelineLayoutPlan"
 >) {
   const { state, dispatch } = session;
   const graphDocument = useMemo(
@@ -35,6 +46,42 @@ export function StudioSettings({
   const { exportSvg, exportHtml } = useGraphExport(state, dispatch, viewport);
   return (
     <SettingsModal
+      documentActions={
+        <div className="settings-document-actions" role="group" aria-label="Document actions">
+          <IconButton
+            label="Go to home"
+            icon={<Icon name="home" />}
+            onClick={() => {
+              ui.toggleSettings();
+              files.setHomeVisible(true);
+            }}
+          />
+          <IconButton
+            id="undo-btn"
+            label="Undo"
+            disabled={!transactions.canUndo}
+            onClick={transactions.undo}
+            icon={<Icon name="undo" />}
+          />
+          <IconButton
+            id="redo-btn"
+            label="Redo"
+            disabled={!transactions.canRedo}
+            onClick={transactions.redo}
+            icon={<Icon name="redo" />}
+          />
+          <IconButton
+            id="save-json-btn"
+            label="Save JSON"
+            disabled={!state.dag}
+            onClick={() => {
+              ui.toggleSettings();
+              session.requestSave();
+            }}
+            icon={<Icon name="save" />}
+          />
+        </div>
+      }
       graphDocument={graphDocument}
       layoutAction={
         <LayoutUpdateButton

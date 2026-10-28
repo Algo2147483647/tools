@@ -12,11 +12,6 @@ export default function WorkspaceOverview({ files }: { files: WorkspaceControls 
           ? "Choose a graph in the explorer to start. Each file opens independently."
           : "No Graph Studio documents were found in this folder."}
       </p>
-      {!files.explorerOpen && (
-        <button className="studio-button" onClick={() => files.setExplorerOpen(true)}>
-          Show explorer
-        </button>
-      )}
       <div className="workspace-overview-cards">
         <div>
           <strong>{workspace.graphs.length}</strong>

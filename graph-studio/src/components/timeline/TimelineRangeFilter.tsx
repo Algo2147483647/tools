@@ -47,7 +47,7 @@ export default function TimelineRangeFilter({
       >
         <svg
           viewBox="0 0 24 24"
-          className="topbar-icon-svg"
+          className="icon-glyph"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"

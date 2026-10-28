@@ -9,25 +9,6 @@
   gap: 0;
 }
 
-.topbar {
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  backdrop-filter: blur(16px);
-}
-
-.topbar h1 {
-  margin: 0;
-  font-family: "Cormorant Garamond", "Georgia", serif;
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 0.96;
-  letter-spacing: 0;
-}
-
 .empty-state h2 {
   margin: 0;
   font-family: "Georgia", "Times New Roman", serif;
@@ -42,16 +23,6 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-}
-
-.topbar-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.topbar-group {
-  display: inline-flex;
-  align-items: center;
 }
 
 .workspace {
@@ -144,28 +115,6 @@
 }
 
 @media (max-width: 900px) {
-  .topbar {
-    top: 6px;
-    left: 6px;
-    right: 6px;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .topbar-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .topbar-brand {
-    min-width: 0;
-  }
-
-  .topbar-group {
-    width: 100%;
-    justify-content: stretch;
-  }
-
   .workspace-split-shell {
     flex-direction: column;
   }
