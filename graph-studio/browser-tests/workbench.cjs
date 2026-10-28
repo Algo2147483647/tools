@@ -41,7 +41,7 @@ Object.values(doc.nodes).forEach((node, i) => {
       .locator("input[type=file]")
       .first()
       .setInputFiles({ name, mimeType: "application/json", buffer: Buffer.from(JSON.stringify(data)) });
-    await page.locator("#chart-tools-toggle").waitFor();
+    await page.locator("#console-toggle").waitFor();
   }
   async function mode(name) {
     await page.locator("#settings-btn").click();
@@ -53,8 +53,9 @@ Object.values(doc.nodes).forEach((node, i) => {
     await page.getByRole("button", { name: "Close settings", exact: true }).click();
   }
   async function workbench() {
-    if (!(await page.locator("#chart-tools-panel").count())) await page.locator("#chart-tools-toggle").click();
-    return page.locator("#chart-tools-panel");
+    if (!(await page.locator("#graph-console").count())) await page.locator("#console-toggle").click();
+    await page.getByRole("tab", { name: "Workbench", exact: true }).click();
+    return page.locator("#console-panel-workbench");
   }
   async function nodes(keys) {
     await page.waitForFunction(
@@ -99,7 +100,7 @@ Object.values(doc.nodes).forEach((node, i) => {
     assert.equal(await panel.getByRole("button", { name: "Expand h", exact: true }).count(), 1);
     await panel.getByRole("button", { name: "All", exact: true }).click();
     await panel.getByRole("button", { name: "Expand all", exact: true }).click();
-    await panel.getByRole("tab", { name: "Multiple", exact: true }).click();
+    await panel.getByRole("button", { name: "Multiple", exact: true }).click();
     await panel.getByRole("checkbox", { name: "service", exact: true }).check();
     await nodes(["a"]);
     await panel.getByRole("checkbox", { name: "data", exact: true }).check();
@@ -116,7 +117,7 @@ Object.values(doc.nodes).forEach((node, i) => {
     await nodes(["a", "b", "x"]);
     assert.equal(await page.locator("#layout-toggle, #layout-panel").count(), 0);
     await panel.press("Escape");
-    assert.equal(await page.locator("#chart-tools-toggle").evaluate((el) => el === document.activeElement), true);
+    assert.equal(await page.locator("#console-toggle").evaluate((el) => el === document.activeElement), true);
     await page.locator("#settings-btn").click();
     await page.getByRole("button", { name: "Layout", exact: true }).click();
     assert.equal(await page.getByRole("tab", { name: "Automatic", exact: true }).count(), 1);
@@ -125,10 +126,10 @@ Object.values(doc.nodes).forEach((node, i) => {
       await mode(name);
       panel = await workbench();
       assert.equal(await panel.getByRole("heading", { name: "Types", exact: true }).count(), 1);
-      await panel.getByRole("tab", { name: "Single", exact: true }).click();
+      await panel.getByRole("button", { name: "Single", exact: true }).click();
       await panel.getByRole("radio", { name: "service", exact: true }).check();
       await page.waitForFunction(() =>
-        document.querySelector("#chart-tools-panel")?.textContent.includes("Showing 1 selected type"),
+        document.querySelector("#console-panel-workbench")?.textContent.includes("Showing 1 selected type"),
       );
       await nodes(["a"]);
       if (name === "Spatial") {
@@ -146,8 +147,50 @@ Object.values(doc.nodes).forEach((node, i) => {
     }
     await page.setViewportSize({ width: 540, height: 800 });
     await page.screenshot({ path: output + "/narrow.png" });
-    const bounds = await panel.boundingBox();
+    const bounds = await page.locator("#graph-console").boundingBox();
     assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 540);
+    await page.setViewportSize({ width: 390, height: 700 });
+    await page.getByRole("tab", { name: "Console", exact: true }).click();
+    await page.locator("#graph-console-input").fill("/help");
+    await page.getByRole("tab", { name: "Workbench", exact: true }).click();
+    await page.getByRole("tab", { name: "Workbench", exact: true }).press("ArrowRight");
+    assert.equal(await page.getByRole("tab", { name: "Protocols", exact: true }).getAttribute("aria-selected"), "true");
+    await page.getByRole("tab", { name: "Protocols", exact: true }).press("ArrowRight");
+    assert.equal(await page.locator("#graph-console-input").inputValue(), "/help");
+    await page.locator("#graph-console-input").press("Enter");
+    await page.waitForFunction(() => document.querySelector("#graph-console-input")?.value === "");
+    await page.getByRole("tab", { name: "Workbench", exact: true }).click();
+    await page.screenshot({ path: output + "/mobile.png" });
+    const header = await page.locator(".console-window__header").boundingBox();
+    const close = await page.getByRole("button", { name: "Close console", exact: true }).boundingBox();
+    assert.ok(close.x + close.width <= header.x + header.width);
+    await page.locator("#console-toggle").click();
+    assert.equal(await page.locator("#graph-console").count(), 0);
+    await page.locator("#console-toggle").click();
+    assert.equal(await page.getByRole("tab", { name: "Workbench", exact: true }).getAttribute("aria-selected"), "true");
+    assert.equal(await page.locator("#chart-tools-panel").count(), 0);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.locator("#main-content").evaluate((element) => {
+      for (let i = 0; i < 2; i++)
+        element.dispatchEvent(
+          new MouseEvent("contextmenu", { button: 2, clientX: 40, clientY: 200, bubbles: true, cancelable: true }),
+        );
+    });
+    await page.waitForFunction(() => document.activeElement?.id === "graph-console-input");
+    assert.equal(await page.getByRole("tab", { name: "Console", exact: true }).getAttribute("aria-selected"), "true");
+    await page.getByRole("tab", { name: "Workbench", exact: true }).click();
+    await panel.getByRole("searchbox", { name: "Find types" }).fill("service");
+    await page.getByRole("tab", { name: "Console", exact: true }).click();
+    await page.getByRole("tab", { name: "Workbench", exact: true }).click();
+    assert.equal(await panel.getByRole("searchbox", { name: "Find types" }).inputValue(), "service");
+    const beforeDrag = await page.locator("#graph-console").boundingBox();
+    const dragHeader = await page.locator(".console-window__header").boundingBox();
+    await page.mouse.move(dragHeader.x + 4, dragHeader.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(dragHeader.x + 39, dragHeader.y + 40, { steps: 4 });
+    await page.mouse.up();
+    const afterDrag = await page.locator("#graph-console").boundingBox();
+    assert.ok(afterDrag.x > beforeDrag.x && afterDrag.y > beforeDrag.y);
     assert.deepEqual(errors, []);
     console.log(
       "PASS: five mode workbenches, Settings-only Layout, Nested direct controls and isolated focus, include/exclude/invert/empty filters, file reopen cache, Escape focus, narrow viewport",

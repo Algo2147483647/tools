@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "../ui/Icon";
 import ConsoleProtocols from "./ConsoleProtocols";
 import { useFloatingConsole } from "./useFloatingConsole";
@@ -8,7 +8,17 @@ import type { NodeKey } from "../../graph/types";
 
 import type { ConsoleEntry, ConsoleReviewCard, ConsoleSuggestion } from "../../console/types";
 
+const CONSOLE_TABS = [
+  { id: "conversation", label: "Console" },
+  { id: "workbench", label: "Workbench" },
+  { id: "protocols", label: "Protocols" },
+] as const;
+export type ConsoleTab = (typeof CONSOLE_TABS)[number]["id"];
+
 interface ConsoleWindowProps {
+  activeTab: ConsoleTab;
+  onTabChange(tab: ConsoleTab): void;
+  workbench: ReactNode;
   capabilityContext?: import("../../console/capabilities").CapabilityContext;
   onCancelAi?: () => void;
   onClose: () => void;
@@ -30,6 +40,9 @@ interface ConsoleWindowProps {
 }
 
 export default function ConsoleWindow({
+  activeTab,
+  onTabChange,
+  workbench,
   onClose,
   capabilityContext,
   onCancelAi,
@@ -53,13 +66,17 @@ export default function ConsoleWindow({
   const inputRef = useRef<HTMLInputElement>(null);
   const followOutput = useRef(true);
   const floating = useFloatingConsole();
-  const [activeTab, setActiveTab] = useState<"conversation" | "protocols">("conversation");
 
   useEffect(() => {
     const previous = document.activeElement;
-    inputRef.current?.focus();
+    if (activeTab === "conversation") inputRef.current?.focus();
+    else document.getElementById(`console-tab-${activeTab}`)?.focus();
     return () => {
-      if (previous instanceof HTMLElement && previous.isConnected) previous.focus({ preventScroll: true });
+      const target =
+        previous instanceof HTMLElement && previous !== document.body && previous.isConnected
+          ? previous
+          : document.getElementById("console-toggle");
+      target?.focus({ preventScroll: true });
     };
   }, []);
 
@@ -73,6 +90,7 @@ export default function ConsoleWindow({
 
   return (
     <section
+      id="graph-console"
       ref={floating.ref}
       style={floating.style}
       className="console-window"
@@ -80,7 +98,7 @@ export default function ConsoleWindow({
       aria-modal="false"
       aria-label="Graph console"
       onKeyDown={(event) => {
-        if (event.key === "Escape") {
+        if (event.key === "Escape" && !event.defaultPrevented) {
           event.stopPropagation();
           onClose();
         }
@@ -88,7 +106,7 @@ export default function ConsoleWindow({
     >
       <header className="console-window__header" {...floating.headerProps}>
         <div className="console-window__tabs" role="tablist" aria-label="Console pages">
-          {(["conversation", "protocols"] as const).map((tab) => (
+          {CONSOLE_TABS.map(({ id: tab, label }, index) => (
             <button
               key={tab}
               type="button"
@@ -97,23 +115,22 @@ export default function ConsoleWindow({
               aria-selected={activeTab === tab}
               aria-controls={`console-panel-${tab}`}
               tabIndex={activeTab === tab ? 0 : -1}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => onTabChange(tab)}
               onKeyDown={(event) => {
                 if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
                 event.preventDefault();
-                const next =
+                const nextIndex =
                   event.key === "Home"
-                    ? "conversation"
+                    ? 0
                     : event.key === "End"
-                      ? "protocols"
-                      : tab === "conversation"
-                        ? "protocols"
-                        : "conversation";
-                setActiveTab(next);
+                      ? CONSOLE_TABS.length - 1
+                      : (index + (event.key === "ArrowRight" ? 1 : -1) + CONSOLE_TABS.length) % CONSOLE_TABS.length;
+                const next = CONSOLE_TABS[nextIndex].id;
+                onTabChange(next);
                 document.getElementById(`console-tab-${next}`)?.focus();
               }}
             >
-              {tab === "conversation" ? "Console" : "Protocols"}
+              {label}
             </button>
           ))}
         </div>
@@ -222,6 +239,16 @@ export default function ConsoleWindow({
             ))}
           </div>
         ) : null}
+      </div>
+      <div
+        className="console-window__workbench-panel"
+        id="console-panel-workbench"
+        role="tabpanel"
+        aria-labelledby="console-tab-workbench"
+        hidden={activeTab !== "workbench"}
+        tabIndex={0}
+      >
+        {workbench}
       </div>
       <div
         className="console-window__protocol-panel"

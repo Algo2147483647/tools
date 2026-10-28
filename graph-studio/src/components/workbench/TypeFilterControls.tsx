@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { TypeFilter } from "../../graph/typeFilter";
-import MethodTabs from "../ui/MethodTabs";
 
 export default function TypeFilterControls({
   options,
@@ -14,26 +13,30 @@ export default function TypeFilterControls({
   const [query, setQuery] = useState("");
   const shown = options.filter((type) => type.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   return (
-    <section className="workbench-section type-filter" aria-label="Type filter">
+    <section className="workbench-card type-filter" aria-label="Type filter">
       <div className="workbench-section-heading">
         <h3>Types</h3>
         <button className="workbench-text-button" onClick={() => onChange({ ...value, enabled: false, values: [] })}>
           Show all types
         </button>
       </div>
-      <MethodTabs
-        label="Type selection"
-        value={value.selection}
-        options={[
-          { value: "single", label: "Single" },
-          { value: "multiple", label: "Multiple" },
-        ]}
-        onChange={(selection) =>
-          onChange({ ...value, selection, values: selection === "single" ? value.values.slice(0, 1) : value.values })
-        }
-      >
-        {null}
-      </MethodTabs>
+      <div className="type-filter-selection" role="group" aria-label="Type selection">
+        {(["single", "multiple"] as const).map((selection) => (
+          <button
+            key={selection}
+            aria-pressed={value.selection === selection}
+            onClick={() =>
+              onChange({
+                ...value,
+                selection,
+                values: selection === "single" ? value.values.slice(0, 1) : value.values,
+              })
+            }
+          >
+            {selection === "single" ? "Single" : "Multiple"}
+          </button>
+        ))}
+      </div>
       <div className="type-filter-operation" role="group" aria-label="Type filter operation">
         {(["include", "exclude"] as const).map((operation) => (
           <button

@@ -5,7 +5,7 @@ import IconButton from "../ui/IconButton";
 import ZoomInput from "../ui/ZoomInput";
 
 interface TopbarProps {
-  chartTools?: { open: boolean; toggle(): void };
+  consoleControls?: { open: boolean; toggle(): void };
   topbarRef: RefObject<HTMLElement>;
   files: WorkspaceControls;
   hasGraph: boolean;
@@ -32,7 +32,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({
-  chartTools,
+  consoleControls,
   topbarRef,
   files,
   hasGraph,
@@ -67,14 +67,14 @@ export default function Topbar({
       <div className="topbar-actions">
         {!files.homeVisible && (
           <>
-            {chartTools && (
+            {consoleControls && (
               <IconButton
-                id="chart-tools-toggle"
-                label="Workbench"
+                id="console-toggle"
+                label="AI console"
                 icon={<Icon name="workbench" className="topbar-icon-svg" />}
-                ariaExpanded={chartTools.open}
-                ariaControls="chart-tools-panel"
-                onClick={chartTools.toggle}
+                ariaExpanded={consoleControls.open}
+                ariaControls="graph-console"
+                onClick={consoleControls.toggle}
               />
             )}
             <div className="topbar-group nav-controls" aria-label="Graph navigation controls">

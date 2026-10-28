@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
 import { useConsoleGesture } from "../console/useConsoleGesture";
-import ConsoleWindow from "../console/ConsoleWindow";
+import ConsoleWindow, { type ConsoleTab } from "../console/ConsoleWindow";
 import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";
 import WorkspaceOverview from "../workspace/WorkspaceOverview";
 import { StudioDialogs } from "./StudioDialogs";
-import { WorkbenchPanel } from "./WorkbenchPanel";
+import Workbench from "../workbench/Workbench";
 import { StudioSettings } from "./StudioSettings";
 import Topbar from "./Topbar";
 import Workspace from "./Workspace";
@@ -28,13 +28,15 @@ export default function StudioView({
   nodeActions,
 }: StudioViewProps) {
   const { state, dispatch } = session;
-  const [workbenchOpen, setWorkbenchOpen] = useState(false);
+  const [consoleTab, setConsoleTab] = useState<ConsoleTab>("conversation");
   const preview = useWorkspacePreview(files, dispatch);
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
   const consoleGesture = useConsoleGesture(
     () => {
       ui.closeContextMenu();
+      setConsoleTab("conversation");
+      requestAnimationFrame(() => document.getElementById("graph-console-input")?.focus());
       dispatch({ type: "consoleSidebarToggled", open: true });
     },
     state.document.generation + ":" + files.homeVisible + ":" + state.chartType,
@@ -68,11 +70,11 @@ export default function StudioView({
         </div>
       )}
       <Topbar
-        chartTools={
+        consoleControls={
           state.dag && !files.homeVisible
             ? {
-                open: workbenchOpen && !state.ui.settingsOpen,
-                toggle: () => setWorkbenchOpen((value) => !value),
+                open: state.ui.consoleSidebarOpen && !state.ui.settingsOpen,
+                toggle: () => dispatch({ type: "consoleSidebarToggled", open: !state.ui.consoleSidebarOpen }),
               }
             : undefined
         }
@@ -157,8 +159,19 @@ export default function StudioView({
         />
       )}
 
-      {state.ui.consoleSidebarOpen && !files.homeVisible && (
+      {state.ui.consoleSidebarOpen && !files.homeVisible && !state.ui.settingsOpen && (
         <ConsoleWindow
+          activeTab={consoleTab}
+          onTabChange={setConsoleTab}
+          workbench={
+            <Workbench
+              session={session}
+              ui={ui}
+              transactions={transactions}
+              viewport={viewport}
+              key={state.chartType + state.document.generation}
+            />
+          }
           capabilityContext={consoleController.capabilityContext}
           onCancelAi={ai.cancel}
           onClose={() => dispatch({ type: "consoleSidebarToggled", open: false })}
@@ -180,16 +193,6 @@ export default function StudioView({
         />
       )}
 
-      <WorkbenchPanel
-        session={session}
-        ui={ui}
-        files={files}
-        transactions={transactions}
-        viewport={viewport}
-        key={state.chartType + state.document.generation}
-        open={workbenchOpen}
-        onClose={() => setWorkbenchOpen(false)}
-      />
       <StudioSettings
         session={session}
         preferences={preferences}

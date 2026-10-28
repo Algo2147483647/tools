@@ -62,11 +62,7 @@
   gap: 6px;
   flex-basis: 100%;
 }
-.spatial-units-hint {
-  flex-basis: 100%;
-  color: #728093;
-  font-size: 11px;
-}
+
 .spatial-legend {
   flex-basis: 100%;
   padding-top: 10px;

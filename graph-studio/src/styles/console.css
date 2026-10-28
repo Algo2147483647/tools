@@ -106,7 +106,8 @@
   flex: 1;
   min-height: 0;
 }
-.console-window__protocol-panel {
+.console-window__protocol-panel,
+.console-window__workbench-panel {
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -570,5 +571,22 @@
 @media (max-width: 520px) {
   .console-window__header {
     padding: 0 12px;
+  }
+}
+
+#console-toggle[aria-expanded="true"] {
+  color: var(--studio-accent);
+  background: var(--accent-soft);
+}
+@media (max-width: 600px) {
+  .console-window__header {
+    gap: 10px;
+    padding-inline: 12px;
+  }
+  .console-window__tabs {
+    gap: 16px;
+  }
+  .console-window__actions {
+    gap: 8px;
   }
 }

@@ -3,7 +3,6 @@ import type { useSpatialView } from "../../app/viewport/useSpatialView";
 import { spatialUnitScale } from "../../graph/space";
 import type { StageData } from "../../layout/shared/types";
 import MethodTabs from "../ui/MethodTabs";
-import LayoutRules from "../ui/LayoutRules";
 
 export default function SpatialControls({
   spatial,
@@ -33,16 +32,11 @@ export default function SpatialControls({
               ]
         }
       >
-        <LayoutRules
-          label="Spatial rules"
-          rows={[
-            { label: "Dimensions", value: metadata.dimensions + "D" },
-            { label: "Coordinate system", value: metadata.coordinateSystem },
-            { label: "Positions", value: "Node coordinates" },
-            { label: "Unit", value: metadata.unit || "Unspecified" },
-          ]}
-        />
-        <div className="layout-actions">
+        <div className="workbench-inline-heading">
+          <p className="workbench-hint">
+            {metadata.dimensions}D · {metadata.coordinateSystem}
+            {metadata.unit ? ` · ${metadata.unit}` : ""}
+          </p>
           <button type="button" className="studio-button" onClick={spatial.reset}>
             Reset view
           </button>
@@ -211,7 +205,6 @@ function DisplayUnits({
       <button type="button" onClick={() => onChange(1)}>
         Auto
       </button>
-      <span className="spatial-units-hint">At 100% zoom · larger values spread points apart</span>
     </div>
   );
 }
