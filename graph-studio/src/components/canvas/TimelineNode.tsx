@@ -1,4 +1,4 @@
-import { useId, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
+import { useId, type CSSProperties } from "react";
 import { resolveMarker as sanitizeTimelineMarker } from "../../schema/appearance/contract";
 import type { StageNode } from "../../layout/shared/types";
 import { timelineBarBox, timelinePoint } from "../../layout/timeline/orientation";
@@ -13,7 +13,6 @@ interface TimelineNodeProps {
   onPin?: (key: string, x: number) => void;
   onClick: (key: string) => void;
   onDoubleClick?: (key: string) => void;
-  onContextMenu: (event: ReactMouseEvent<SVGGElement>, key: string) => void;
   onFocusChange: (key: string | null) => void;
 }
 
@@ -25,7 +24,6 @@ export default function TimelineNode({
   onPin,
   onClick,
   onDoubleClick,
-  onContextMenu,
   onFocusChange,
 }: TimelineNodeProps) {
   const time = node.timeline!;
@@ -128,7 +126,6 @@ export default function TimelineNode({
       aria-label={`${node.title}. ${time.label}${time.warning ? `. ${time.warning}` : ""}.${readOnly ? "" : " Select event; press Enter or double-click for details."}`}
 
       onDoubleClick={() => onDoubleClick?.(node.key)}
-      onContextMenu={(event) => onContextMenu(event, node.key)}
       onFocus={() => onFocusChange(node.key)}
       {...interaction}
     >

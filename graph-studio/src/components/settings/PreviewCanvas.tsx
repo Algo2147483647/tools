@@ -118,8 +118,6 @@ export function PreviewCanvas({
         svgRef={svgRef}
         onNodeClick={noop}
         onNodeDoubleClick={noop}
-        onNodeContextMenu={(event) => event.preventDefault()}
-        onBackgroundContextMenu={(event) => event.preventDefault()}
         onFocusChange={noop}
         onGroupToggle={onToggle}
         onGroupEnter={onEnter}

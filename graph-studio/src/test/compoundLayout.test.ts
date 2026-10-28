@@ -679,8 +679,6 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
             svgRef: { current: null },
             onNodeClick: noop,
             onNodeDoubleClick: noop,
-            onNodeContextMenu: noop,
-            onBackgroundContextMenu: noop,
             onFocusChange: noop,
           }),
         );

@@ -117,8 +117,6 @@ export function traverseEditHistory(state: GraphAppState, direction: "undo" | "r
     },
     ui: {
       ...state.ui,
-      contextMenu: null,
-      relationEditor: null,
       nodeDetail: null,
       saveDialogOpen: false,
       status: (undo ? "Undid: " : "Redid: ") + transaction.label,

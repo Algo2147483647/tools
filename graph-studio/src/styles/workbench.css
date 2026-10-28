@@ -166,9 +166,7 @@
   gap: 6px;
   margin-top: 6px;
 }
-.workbench-actions button,
-.type-filter-operation button,
-.type-filter-selection button {
+.workbench-actions button {
   border: 1px solid var(--studio-border);
   border-radius: 8px;
   background: transparent;
@@ -181,9 +179,7 @@
   font: inherit;
   font-size: 12px;
 }
-.workbench-actions button:hover:not(:disabled),
-.type-filter-operation button:hover,
-.type-filter-selection button:hover {
+.workbench-actions button:hover:not(:disabled) {
   background: var(--accent-soft);
   border-color: var(--studio-accent);
 }
@@ -191,25 +187,41 @@
   opacity: 0.45;
   cursor: default;
 }
-.type-filter-operation,
-.type-filter-selection {
+.type-filter-modes {
   display: flex;
-  gap: 6px;
-  margin: 6px 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 8px;
 }
-.type-filter-operation button,
-.type-filter-selection button {
-  flex: 1;
+.type-filter-selection,
+.type-filter-operation {
+  display: inline-flex;
+  padding: 2px;
+  gap: 1px;
+  border-radius: 6px;
+  background: #e9edf4;
 }
-.type-filter-operation button[aria-pressed="true"],
-.type-filter-selection button[aria-pressed="true"] {
-  color: var(--studio-accent);
-  background: var(--accent-soft);
-  border-color: var(--studio-accent);
+.type-filter-modes button {
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #63718a;
+  font:
+    500 11px/1.4 "Segoe UI",
+    sans-serif;
+  cursor: pointer;
 }
-.type-filter > input {
-  width: 100%;
-  box-sizing: border-box;
+.type-filter-modes button:hover {
+  color: #253247;
+  background: #ffffff70;
+}
+.type-filter-modes button[aria-pressed="true"] {
+  color: #253247;
+  background: #fff;
+  box-shadow: 0 1px 3px #2532471f;
 }
 .type-filter-options {
   display: grid;

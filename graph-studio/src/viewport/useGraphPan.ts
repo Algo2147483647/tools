@@ -3,11 +3,9 @@ import { useEffect, useRef } from "react";
 interface UseGraphPanInput {
   containerRef: React.RefObject<HTMLElement>;
   enabled: boolean;
-  onPanStart?: () => void;
-  onPanEnd?: () => void;
 }
 
-export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: UseGraphPanInput): void {
+export function useGraphPan({ containerRef, enabled }: UseGraphPanInput): void {
   const panState = useRef({ active: false, moved: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
 
   useEffect(() => {
@@ -34,7 +32,6 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
         scrollTop: container!.scrollTop,
       };
       document.body.classList.add("graph-is-panning");
-      onPanStart?.();
     }
 
     function handleMouseMove(event: MouseEvent) {
@@ -55,7 +52,6 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
       }
       panState.current.active = false;
       document.body.classList.remove("graph-is-panning");
-      onPanEnd?.();
     }
 
     function suppressDragClick(event: MouseEvent) {
@@ -79,5 +75,5 @@ export function useGraphPan({ containerRef, enabled, onPanStart, onPanEnd }: Use
       window.removeEventListener("blur", stopPan);
       document.body.classList.remove("graph-is-panning");
     };
-  }, [containerRef, enabled, onPanEnd, onPanStart]);
+  }, [containerRef, enabled]);
 }

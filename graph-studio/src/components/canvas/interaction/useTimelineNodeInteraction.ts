@@ -42,16 +42,6 @@ export function useTimelineNodeInteraction({
       event.preventDefault();
       if (event.key === "Enter" && onDoubleClick) onDoubleClick(node.key);
       else select(node.key);
-    } else if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
-      event.preventDefault();
-      const rect = event.currentTarget.getBoundingClientRect();
-      event.currentTarget.dispatchEvent(
-        new MouseEvent("contextmenu", {
-          bubbles: true,
-          clientX: rect.left + rect.width / 2,
-          clientY: rect.top + rect.height / 2,
-        }),
-      );
     }
   }
   const onPointerDown = (event: PointerEvent<SVGGElement>) => {

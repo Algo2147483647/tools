@@ -62,11 +62,7 @@ const stageFor = (orientation: "vertical" | "horizontal" = "horizontal") =>
   })!;
 const renderNode = (node: ReturnType<typeof stageFor>["nodes"][number]) =>
   renderToStaticMarkup(
-    createElement(
-      "svg",
-      {},
-      createElement(TimelineNode, { node, isActive: false, onClick() {}, onContextMenu() {}, onFocusChange() {} }),
-    ),
+    createElement("svg", {}, createElement(TimelineNode, { node, isActive: false, onClick() {}, onFocusChange() {} })),
   );
 
 export const timelineRelativeSuite = defineSuite("Relative and horizontal timeline", [

@@ -5,68 +5,71 @@
   z-index: 40;
   top: 12px;
   right: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--chrome-border);
+  border-radius: 22px;
+  background: var(--chrome-background);
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: var(--chrome-blur);
+  transition: width 160ms ease;
+}
+.studio-launchers.is-expanded {
+  width: 116px;
 }
 .studio-bubble {
+  position: absolute;
+  inset: 0 0 0 auto;
   display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid var(--chrome-border);
+  border: 0;
   border-radius: 50%;
-  background: var(--chrome-background);
-  box-shadow: var(--chrome-shadow);
-  backdrop-filter: var(--chrome-blur);
+  background: transparent;
   color: #465c85;
   cursor: pointer;
 }
-.studio-bubble:hover,
-.studio-bubble[aria-expanded="true"] {
-  background: #edf2fc;
-  color: var(--studio-accent);
+.studio-launchers.is-expanded .studio-bubble {
+  opacity: 0;
+  pointer-events: none;
 }
 .studio-bubble:focus-visible,
 .studio-launcher-actions button:focus-visible {
   outline: 2px solid var(--studio-accent);
-  outline-offset: 3px;
-}
-.explorer-launcher {
-  position: absolute;
-  z-index: 4;
-  top: 12px;
-  left: 12px;
+  outline-offset: -2px;
 }
 .studio-launcher-actions {
+  position: absolute;
+  inset: 4px;
   display: flex;
+  justify-content: flex-end;
   gap: 4px;
-  padding: 8px 0 0;
 }
 .studio-launcher-actions[hidden] {
   display: none;
 }
 .studio-launcher-actions button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border: 1px solid var(--chrome-border);
-  border-radius: 18px;
-  background: #f7f9fd;
-  box-shadow: 0 3px 12px #27375515;
-  color: var(--studio-ink);
-  font:
-    500 12px/1.4 "Segoe UI",
-    sans-serif;
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #52627a;
   cursor: pointer;
 }
-.studio-launcher-actions button:hover:not(:disabled) {
+.studio-launcher-actions button:hover:not(:disabled),
+.studio-launcher-actions button[aria-expanded="true"] {
   background: #e8effc;
+  color: var(--studio-accent);
 }
 .studio-launcher-actions button:disabled {
-  opacity: 0.45;
+  opacity: 0.3;
   cursor: default;
 }
 
@@ -179,14 +182,6 @@
     sans-serif;
   letter-spacing: 1.4px;
   color: var(--studio-muted);
-}
-.workspace-detection-dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #6989c5;
-  margin-right: 6px;
 }
 .workspace-warning {
   color: #a06724;

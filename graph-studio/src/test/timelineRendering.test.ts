@@ -58,7 +58,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
               node: stage.nodeMap[key],
               isActive: false,
               onClick() {},
-              onContextMenu() {},
               onFocusChange() {},
             }),
           );
@@ -88,7 +87,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
             node: hidden.nodeMap.point,
             isActive: false,
             onClick() {},
-            onContextMenu() {},
             onFocusChange() {},
           }),
         );
@@ -267,7 +265,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
             node: stage.nodeMap.a,
             isActive: false,
             onClick() {},
-            onContextMenu() {},
             onFocusChange() {},
           }),
         );
@@ -309,7 +306,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
             node: stage.nodeMap[key],
             isActive: false,
             onClick: () => {},
-            onContextMenu: () => {},
             onFocusChange: () => {},
           }),
         );
@@ -359,8 +355,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
         svgRef: { current: null },
         onNodeClick: noop,
         onNodeDoubleClick: noop,
-        onNodeContextMenu: noop,
-        onBackgroundContextMenu: noop,
         onFocusChange: noop,
       }),
     );
@@ -390,7 +384,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
           node,
           isActive: false,
           onClick: () => {},
-          onContextMenu: () => {},
           onFocusChange: () => {},
         }),
       );
@@ -410,7 +403,6 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
         node,
         isActive: false,
         onClick: () => {},
-        onContextMenu: () => {},
         onFocusChange: () => {},
       }),
     );

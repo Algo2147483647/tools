@@ -12,7 +12,7 @@ src/
     layout/         Layout hooks, workers, candidate review and freshness checks
     ai/             AI request lifecycle and session coordination
     console/        Command execution commits, input history and completion
-    ui/             Page state, shortcuts and context-menu state
+    ui/             Page state and shortcuts
   components/
     studio/         Page composition, toolbar, settings and dialogs
     canvas/         SVG stage rendering and local stage interaction
@@ -22,7 +22,6 @@ src/
     workspace/      Home, explorer, file preview and save dialogs
     settings/       Settings presentation and editors
     nodes/          Node fields, relations, hierarchy and detail editors
-    menus/          Context-menu rendering and keyboard navigation
     console/        Console presentation
     content/        Markdown and rich content
     ui/             Shared controls, tabs and layout-rule tables
@@ -48,13 +47,13 @@ src/
 
 ## Application state and components
 
-`app/` combines the former controller and state directories by feature. Hooks own React state and effect lifecycles; pure reducers and transaction helpers remain separate files beside their callers. `app/document/nodeActions.ts` holds action contracts shared with menus, so controllers do not import component implementations.
+`app/` combines the former controller and state directories by feature. Hooks own React state and effect lifecycles; pure reducers and transaction helpers remain separate files beside their callers.
 
 `StudioView` composes the page. `StudioDialogs` and `StudioSettings` wire their respective surfaces. `StudioView` owns the active console tab and passes the workbench as content to `console/ConsoleWindow`. `ChartLayoutControls` is used only by Settings → Layout; the Workbench has no layout controls. `MethodTabs` supplies accessible switching; `LayoutRules` renders three-line rule tables. `components/workbench/Workbench.tsx` composes the current-view summary, chart-specific controls and shared `TypeFilterControls`; `styles/workbench.css` owns their responsive cards. Domain controls stay under `compound`, `timeline` and `spatial`. The console owns floating-window geometry, tab navigation and focus, with Console / Workbench / Protocols pages. There is no separate workbench floating window or open state.
 
 General contains current-view exports and current-session details. File opening, creation and recent locations belong to the home screen. Appearance text controls belong to Nodes or Edges; timeline axis and track typography belong to Canvas. Schema groups also determine search and section resets.
 
-`nodes/useNodeDraft.ts` owns field/JSON draft synchronization and save validation. `nodeDraft.ts` contains draft conversion; the reusable node JSON codec lives in `graph/nodeJson.ts`. Settings navigation and chapter rendering stay separate from modal lifecycle. `menus/useContextMenuNavigation.ts` owns menu focus, keyboard navigation and submenu placement.
+`nodes/useNodeDraft.ts` owns field/JSON draft synchronization and save validation. `nodeDraft.ts` contains draft conversion; the reusable node JSON codec lives in `graph/nodeJson.ts`. Settings navigation and chapter rendering stay separate from modal lifecycle. A single canvas-level right-click handler in `StudioView` opens the console; renderers carry no menu callbacks. Node-detail saves go directly through graph transactions.
 
 ## Document and appearance schemas
 
@@ -82,7 +81,7 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 `workspace/opening.ts` prepares complete candidates including recent-location identity and linked style. `workspace/createFromPicker.ts` coordinates folder creation through explicit ports. `app/workspace/useWorkspaceController.ts` retains one operation lock, document replacement decisions and React commits.
 
-`viewport/useGraphZoom.ts` coordinates zoom state, fit, location and layout anchors. Wheel, pan and spatial gesture hooks retain their input lifecycles. `cameraGeometry.ts` computes offsets without DOM access; `viewportDom.ts` measures elements and applies results. Explorer overlay refs supplied through `Workspace` and `GraphStage` support zoom and floating timeline-ruler measurements. The canvas has no topbar offset. `StudioLaunchers` owns the corner bubbles; `ConsoleToolbar` supplies navigation and zoom to the console shell, while `StudioSettings` supplies document actions to Settings. Preview canvases may omit overlay refs.
+`viewport/useGraphZoom.ts` coordinates zoom state, fit, location and layout anchors. Wheel, pan and spatial gesture hooks retain their input lifecycles. `cameraGeometry.ts` computes offsets without DOM access; `viewportDom.ts` measures elements and applies results. Explorer overlay refs supplied through `Workspace` and `GraphStage` support zoom and floating timeline-ruler measurements. The canvas has no topbar offset. `StudioLaunchers` owns the expanding corner capsule; `ConsoleToolbar` supplies navigation and zoom inside the Workbench tab, while `StudioSettings` supplies document actions to Settings. Preview canvases may omit overlay refs.
 
 ## AI and console
 

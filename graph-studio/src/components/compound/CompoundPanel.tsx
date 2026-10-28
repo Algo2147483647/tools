@@ -13,7 +13,6 @@ export default function CompoundPanel({
   onCommand,
   onSelect,
   onOpenNode,
-  onMemberContextMenu,
 }: {
   dag: NormalizedDag;
   view: CompoundView;
@@ -21,7 +20,6 @@ export default function CompoundPanel({
   onCommand: (command: GraphCommand) => string | undefined;
   onSelect: (id: string) => void;
   onOpenNode: (id: string) => void;
-  onMemberContextMenu: (event: React.MouseEvent<Element>, id: string) => void;
 }) {
   const index = useMemo(() => indexHierarchy(dag), [dag]);
   const groups = getGroupNodes(dag);
@@ -140,12 +138,7 @@ export default function CompoundPanel({
         {rows.map(({ id, depth }) => {
           const group = has(groups, id);
           return (
-            <div
-              className="compound-member"
-              style={{ paddingLeft: depth * 16 }}
-              key={id}
-              onContextMenu={(event) => onMemberContextMenu(event, id)}
-            >
+            <div className="compound-member" style={{ paddingLeft: depth * 16 }} key={id}>
               {editing && (
                 <input
                   type="checkbox"

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
-import { useConsoleGesture } from "../console/useConsoleGesture";
 import ConsoleWindow, { type ConsoleTab } from "../console/ConsoleWindow";
 import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";
@@ -26,22 +25,19 @@ export default function StudioView({
   compoundLayoutPlan,
   timelineLayoutPlan,
   viewport,
-  nodeActions,
 }: StudioViewProps) {
   const { state, dispatch } = session;
   const [consoleTab, setConsoleTab] = useState<ConsoleTab>("conversation");
   const preview = useWorkspacePreview(files, dispatch);
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
-  const consoleGesture = useConsoleGesture(
-    () => {
-      ui.closeContextMenu();
-      setConsoleTab("conversation");
-      requestAnimationFrame(() => document.getElementById("graph-console-input")?.focus());
-      dispatch({ type: "consoleSidebarToggled", open: true });
-    },
-    state.document.generation + ":" + files.homeVisible + ":" + state.chartType,
-  );
+  const openConsole = (event: React.MouseEvent<Element>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setConsoleTab("conversation");
+    dispatch({ type: "consoleSidebarToggled", open: true });
+    requestAnimationFrame(() => document.getElementById("graph-console-input")?.focus());
+  };
 
   return (
     <div className="app-shell" onDragOver={preview.handleAppDragOver} onDrop={preview.handleAppDrop}>
@@ -127,10 +123,8 @@ export default function StudioView({
           onTimelineNodePin={viewport.pinTimelineNode}
           onNodeClick={viewport.handleNodeClick}
           onNodeDoubleClick={viewport.handleNodeDoubleClick}
-          onNodeContextMenu={(event, key) => consoleGesture(event, () => viewport.handleNodeContextMenu(event, key))}
-          onBackgroundContextMenu={(event) => consoleGesture(event, () => viewport.handleBackgroundContextMenu(event))}
+          onCanvasContextMenu={openConsole}
           onFocusChange={viewport.setFocusedKey}
-          onScroll={ui.closeContextMenu}
         />
       )}
 
@@ -180,14 +174,7 @@ export default function StudioView({
         compoundLayoutPlan={compoundLayoutPlan}
         timelineLayoutPlan={timelineLayoutPlan}
       />
-      <StudioDialogs
-        session={session}
-        ui={ui}
-        viewport={viewport}
-        nodeActions={nodeActions}
-        transactions={transactions}
-        preview={preview}
-      />
+      <StudioDialogs session={session} ui={ui} transactions={transactions} preview={preview} />
     </div>
   );
 }

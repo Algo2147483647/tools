@@ -8,7 +8,6 @@ interface SpatialGestures {
   onOrbit(dx: number, dy: number): void;
   onPan(dx: number, dy: number): void;
   onZoom(factor: number, anchor: { clientX: number; clientY: number }): void;
-  onStart(): void;
 }
 
 /** One pointer rotates a 3D view; two pointers manipulate the screen-space camera. */
@@ -51,7 +50,6 @@ export function useSpatialGestures(input: SpatialGestures) {
       if (!pointers.size) {
         moved = multiple = false;
         suppressUntil = 0;
-        callbacks.current.onStart();
       }
       pointers.set(event.pointerId, {
         x: event.clientX,

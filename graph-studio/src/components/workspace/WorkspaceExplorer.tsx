@@ -27,7 +27,7 @@ export default function WorkspaceExplorer({
   }, [workspace]);
   const matchingAssets = assets.filter((path) => path.toLowerCase().includes(query.toLowerCase()));
   return (
-    <aside className="workspace-explorer" aria-label="Workspace explorer">
+    <aside id="workspace-explorer" className="workspace-explorer" aria-label="Workspace explorer">
       <div className="explorer-heading">
         <div className="explorer-workspace">
           <Icon name="folder" size={18} />
@@ -132,14 +132,6 @@ export default function WorkspaceExplorer({
         </details>
         {children}
       </div>
-      <footer>
-        <span className="workspace-detection-dot" />
-        {workspace.exampleId ? "Example workspace" : workspace.manifest ? "Workspace manifest" : "Auto-detected"}
-        <small>
-          {workspace.files.size} files ·{" "}
-          {workspace.exampleId ? "Editable copy" : workspace.handle ? "Folder access" : "Selected files"}
-        </small>
-      </footer>
     </aside>
   );
 }

@@ -12,12 +12,10 @@ export function useStudioUi(dispatch: Dispatch<GraphAction>) {
     [dispatch],
   );
   const closeModals = useCallback(() => dispatch({ type: "modalClosed" }), [dispatch]);
-  const closeContextMenu = useCallback(() => dispatch({ type: "contextMenuClosed" }), [dispatch]);
   return {
     nodeDetailInitialFocus,
     openNodeDetail,
     closeModals,
-    closeContextMenu,
     toggleSettings: () => dispatch({ type: "settingsToggled" }),
     closeSaveDialog: () => dispatch({ type: "saveDialogClosed" }),
     changeLayout: (mode: GraphLayoutMode) => dispatch({ type: "layoutModeChanged", mode }),

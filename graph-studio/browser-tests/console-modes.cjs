@@ -39,7 +39,7 @@ const graph = (extra = {}) => ({
     return { context, page };
   }
   async function documentAction(page, id) {
-    await page.locator("#studio-launcher").hover();
+    await page.locator(".studio-launchers").hover();
     await page.locator("#settings-btn").click();
     await page.locator("#" + id).click();
     await page.getByRole("button", { name: "Close settings", exact: true }).click();

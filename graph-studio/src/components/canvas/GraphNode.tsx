@@ -20,7 +20,6 @@ interface GraphNodeProps {
   onTimelineNodePin?: (key: string, x: number) => void;
   onClick: (key: string) => void;
   onDoubleClick?: (key: string) => void;
-  onContextMenu: (event: React.MouseEvent<SVGGElement>, key: string) => void;
   onFocusChange: (key: string | null) => void;
 }
 
@@ -32,7 +31,6 @@ const GraphNode = memo(function GraphNode({
   onTimelineNodePin,
   onClick,
   onDoubleClick,
-  onContextMenu,
   onFocusChange,
 }: GraphNodeProps) {
   if (node.timeline)
@@ -44,7 +42,6 @@ const GraphNode = memo(function GraphNode({
         onPin={onTimelineNodePin}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
-        onContextMenu={onContextMenu}
         onFocusChange={onFocusChange}
       />
     );
@@ -80,18 +77,6 @@ const GraphNode = memo(function GraphNode({
   const affordanceY = content.badgeY;
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
-    if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
-      event.preventDefault();
-      const rect = event.currentTarget.getBoundingClientRect();
-      event.currentTarget.dispatchEvent(
-        new MouseEvent("contextmenu", {
-          bubbles: true,
-          clientX: rect.left + rect.width / 2,
-          clientY: rect.top + rect.height / 2,
-        }),
-      );
-      return;
-    }
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       onClick(node.key);
@@ -130,7 +115,6 @@ const GraphNode = memo(function GraphNode({
       }
       onClick={() => onClick(node.key)}
       onDoubleClick={() => onDoubleClick?.(node.key)}
-      onContextMenu={(event) => onContextMenu(event, node.key)}
       onFocus={() => onFocusChange(node.key)}
       onBlur={() => onFocusChange(null)}
       onKeyDown={handleKeyDown}
@@ -259,7 +243,6 @@ function areEqualGraphNodeProps(previous: GraphNodeProps, next: GraphNodeProps):
     previous.nodeCornerRadius === next.nodeCornerRadius &&
     previous.onClick === next.onClick &&
     previous.onDoubleClick === next.onDoubleClick &&
-    previous.onContextMenu === next.onContextMenu &&
     previous.onFocusChange === next.onFocusChange
   );
 }

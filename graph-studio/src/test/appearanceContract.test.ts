@@ -174,7 +174,7 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     const node = after.nodeMap.a,
       metrics = node.timeline!.labelMetrics!;
     const html = renderToStaticMarkup(
-      createElement(TimelineNode, { node, isActive: false, onClick: noop, onContextMenu: noop, onFocusChange: noop }),
+      createElement(TimelineNode, { node, isActive: false, onClick: noop, onFocusChange: noop }),
     );
     assert.ok(html.includes(`height="${metrics.top + metrics.bottom}"`));
     const small = buildStageData({

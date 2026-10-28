@@ -3,55 +3,22 @@ import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
 import { getTimelineReferenceTime } from "../../graph/timeline/editing";
 import FilePreviewModal from "../workspace/FilePreviewModal";
 import SaveJsonModal from "../workspace/SaveJsonModal";
-import ContextMenu from "../menus/ContextMenu";
-import HierarchyEditorModal from "../nodes/HierarchyEditorModal";
 import NodeDetailModal from "../nodes/NodeDetailModal";
-import RelationEditorModal from "../nodes/RelationEditorModal";
 
 import type { StudioViewProps } from "./types";
 export function StudioDialogs({
   session,
   ui,
-  viewport,
-  nodeActions,
   transactions,
   preview,
-}: Pick<StudioViewProps, "session" | "ui" | "viewport" | "nodeActions" | "transactions"> & {
+}: Pick<StudioViewProps, "session" | "ui" | "transactions"> & {
   preview: ReturnType<typeof useWorkspacePreview>;
 }) {
   const { state } = session;
   const { filePreview, relativeLinkRoot } = preview;
-  const relationEditor = state.ui.relationEditor;
   const detailNodeKey = state.ui.nodeDetail?.nodeKey || null;
   return (
     <>
-      {" "}
-      <ContextMenu
-        menu={state.ui.contextMenu}
-        dag={state.dag}
-        chartType={state.chartType}
-        view={viewport.compound.view}
-        onAction={nodeActions.handleContextMenuAction}
-        onClose={ui.closeContextMenu}
-      />
-      {nodeActions.hierarchyEdit && state.dag && (
-        <HierarchyEditorModal
-          edit={nodeActions.hierarchyEdit}
-          dag={state.dag}
-          onSave={transactions.commitCommands}
-          onClose={nodeActions.closeHierarchyEditor}
-        />
-      )}
-      <RelationEditorModal
-        open={Boolean(relationEditor)}
-        nodeKey={relationEditor?.nodeKey || null}
-        field={relationEditor?.field || null}
-        fieldLabel={relationEditor?.field === "parents" ? "incoming relationships" : "outgoing relationships"}
-        node={relationEditor && state.dag ? state.dag.nodes[relationEditor.nodeKey] || null : null}
-        sankey={state.dag?.diagram === "sankey"}
-        onSave={nodeActions.saveRelations}
-        onClose={ui.closeModals}
-      />
       <NodeDetailModal
         open={Boolean(detailNodeKey)}
         graph={state.dag}
@@ -62,7 +29,11 @@ export function StudioDialogs({
         initialFocus={ui.nodeDetailInitialFocus}
         relativeLinkRoot={relativeLinkRoot}
         onOpenRelativeLink={preview.handleOpenRelativeLink}
-        onSave={nodeActions.saveNode}
+        onSave={(nextKey, fields) =>
+          detailNodeKey
+            ? transactions.commitCommand({ type: "updateNodeFields", key: detailNodeKey, nextKey, fields })
+            : undefined
+        }
         onClose={ui.closeModals}
       />
       <FilePreviewModal

@@ -56,7 +56,6 @@ export function GroupHeader({
   showStats = true,
   onNodeClick,
   onNodeDoubleClick,
-  onNodeContextMenu,
   onFocusChange,
   onToggle,
   onEnter,
@@ -65,7 +64,6 @@ export function GroupHeader({
   showStats?: boolean;
   onNodeClick?: (id: string) => void;
   onNodeDoubleClick?: (id: string) => void;
-  onNodeContextMenu?: (event: React.MouseEvent<SVGGElement>, id: string) => void;
   onFocusChange?: (id: string | null) => void;
   onToggle?: (id: string) => void;
   onEnter?: (id: string) => void;
@@ -77,7 +75,6 @@ export function GroupHeader({
       data-key={group.id}
       onClick={() => onNodeClick?.(group.id)}
       onDoubleClick={() => onNodeDoubleClick?.(group.id)}
-      onContextMenu={(event) => onNodeContextMenu?.(event, group.id)}
       onFocus={() => onFocusChange?.(group.id)}
       onBlur={() => onFocusChange?.(null)}
       data-group-id={group.id}
@@ -88,14 +85,6 @@ export function GroupHeader({
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           onNodeClick?.(group.id);
-        }
-        if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
-          event.preventDefault();
-          event.stopPropagation();
-          const rect = event.currentTarget.getBoundingClientRect();
-          event.currentTarget.dispatchEvent(
-            new MouseEvent("contextmenu", { bubbles: true, clientX: rect.left + 20, clientY: rect.top + 20 }),
-          );
         }
       }}
     >

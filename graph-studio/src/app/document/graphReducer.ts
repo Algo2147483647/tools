@@ -140,7 +140,6 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         ...state,
         selection: action.selection,
         history: shouldPush ? [...state.history, state.selection!] : state.history,
-        ui: { ...state.ui, contextMenu: null },
       };
     }
     case "navigateBack": {
@@ -152,7 +151,6 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         ...state,
         selection: previousSelection,
         history: state.history.slice(0, -1),
-        ui: { ...state.ui, contextMenu: null },
       };
     }
     case "graphCommandsCommitted": {
@@ -201,7 +199,6 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         },
         ui: {
           ...nextUi,
-          contextMenu: null,
           status: action.status,
         },
       };
@@ -225,7 +222,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       return {
         ...state,
         chartType: action.chartType,
-        ui: { ...state.ui, contextMenu: null, status: `Chart type: ${getGraphChartLabel(action.chartType)}.` },
+        ui: { ...state.ui, status: `Chart type: ${getGraphChartLabel(action.chartType)}.` },
       };
     }
     case "zoomChanged":
@@ -249,19 +246,10 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
       return { ...state, ui: { ...state.ui, consoleSidebarOpen: action.open ?? !state.ui.consoleSidebarOpen } };
     case "consoleSidebarWidthChanged":
       return { ...state, ui: { ...state.ui, consoleSidebarWidth: clampConsoleSidebarWidth(action.width) } };
-    case "contextMenuOpened":
-      return { ...state, ui: { ...state.ui, contextMenu: { x: action.x, y: action.y, target: action.target } } };
-    case "contextMenuClosed":
-      return { ...state, ui: { ...state.ui, contextMenu: null } };
-    case "relationEditorOpened":
-      return {
-        ...state,
-        ui: { ...state.ui, contextMenu: null, relationEditor: { nodeKey: action.nodeKey, field: action.field } },
-      };
     case "nodeDetailOpened":
-      return { ...state, ui: { ...state.ui, contextMenu: null, nodeDetail: { nodeKey: action.nodeKey } } };
+      return { ...state, ui: { ...state.ui, nodeDetail: { nodeKey: action.nodeKey } } };
     case "modalClosed":
-      return { ...state, ui: { ...state.ui, relationEditor: null, nodeDetail: null, saveDialogOpen: false } };
+      return { ...state, ui: { ...state.ui, nodeDetail: null, saveDialogOpen: false } };
     case "saveDialogOpened":
       return { ...state, ui: { ...state.ui, saveDialogOpen: true } };
     case "saveDialogClosed":
@@ -292,28 +280,20 @@ function applyBatchUiEffects(
 ): GraphAppState["ui"] {
   const deleted = new Set(deletedKeys);
   let nodeDetail = ui.nodeDetail;
-  let relationEditor = ui.relationEditor;
 
   renamedKeys.forEach((renamed) => {
     if (nodeDetail?.nodeKey === renamed.from) {
       nodeDetail = { nodeKey: renamed.to };
-    }
-    if (relationEditor?.nodeKey === renamed.from) {
-      relationEditor = { ...relationEditor, nodeKey: renamed.to };
     }
   });
 
   if (nodeDetail && deleted.has(nodeDetail.nodeKey)) {
     nodeDetail = null;
   }
-  if (relationEditor && deleted.has(relationEditor.nodeKey)) {
-    relationEditor = null;
-  }
 
   return {
     ...ui,
     nodeDetail,
-    relationEditor,
   };
 }
 

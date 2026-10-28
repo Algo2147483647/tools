@@ -39,8 +39,6 @@ const render = (stage: StageData, showEdgeLabels = true, showGroupStats = true) 
       svgRef: { current: null },
       onNodeClick: noop,
       onNodeDoubleClick: noop,
-      onNodeContextMenu: noop,
-      onBackgroundContextMenu: noop,
       onFocusChange: noop,
     }),
   );

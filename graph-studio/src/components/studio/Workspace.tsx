@@ -23,10 +23,8 @@ interface WorkspaceProps {
   onTimelineNodePin?: (key: string, x: number) => void;
   onNodeClick: (key: string) => void;
   onNodeDoubleClick: (key: string) => void;
-  onNodeContextMenu: (event: React.MouseEvent<SVGGElement>, key: string) => void;
-  onBackgroundContextMenu: (event: React.MouseEvent<Element>) => void;
+  onCanvasContextMenu: (event: React.MouseEvent<Element>) => void;
   onFocusChange: (key: string | null) => void;
-  onScroll: () => void;
 }
 
 export default function Workspace({
@@ -45,10 +43,8 @@ export default function Workspace({
   onTimelineNodePin,
   onNodeClick,
   onNodeDoubleClick,
-  onNodeContextMenu,
-  onBackgroundContextMenu,
+  onCanvasContextMenu,
   onFocusChange,
-  onScroll,
   onGroupToggle,
   onGroupEnter,
 }: WorkspaceProps) {
@@ -80,8 +76,7 @@ export default function Workspace({
             className={stage ? "is-ready" : ""}
             data-layout={stage?.layoutMode}
             aria-live="polite"
-            onScroll={onScroll}
-            onContextMenu={onBackgroundContextMenu}
+            onContextMenu={onCanvasContextMenu}
             onClick={(event) => {
               if (
                 event.defaultPrevented ||
@@ -111,8 +106,6 @@ export default function Workspace({
                 onTimelineNodePin={onTimelineNodePin}
                 onNodeClick={onNodeClick}
                 onNodeDoubleClick={onNodeDoubleClick}
-                onNodeContextMenu={onNodeContextMenu}
-                onBackgroundContextMenu={onBackgroundContextMenu}
                 onFocusChange={onFocusChange}
               />
             ) : null}

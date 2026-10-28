@@ -1,6 +1,5 @@
 import type { GraphChartType, GraphLayoutMode, GraphSelection, NodeKey, NormalizedDag } from "../../graph/types";
 import type { EditTransaction } from "./initialState";
-import type { GraphContextTarget } from "../ui/contextMenu";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { ChartStyle } from "../../schema/appearance/styles";
 
@@ -57,9 +56,6 @@ export type GraphAction =
   | { type: "settingsToggled"; open?: boolean }
   | { type: "consoleSidebarToggled"; open?: boolean }
   | { type: "consoleSidebarWidthChanged"; width: number }
-  | { type: "contextMenuOpened"; x: number; y: number; target: GraphContextTarget }
-  | { type: "contextMenuClosed" }
-  | { type: "relationEditorOpened"; nodeKey: NodeKey; field: "parents" | "children" }
   | { type: "nodeDetailOpened"; nodeKey: NodeKey }
   | { type: "modalClosed" }
   | { type: "saveDialogOpened" }

@@ -32,7 +32,6 @@ export function useWorkspacePreview(
     handleAppDrop(event: React.DragEvent) {
       if (!hasFiles(event)) return;
       event.preventDefault();
-      dispatch({ type: "contextMenuClosed" });
       void files.handleDroppedFiles(event.dataTransfer.files);
     },
   };

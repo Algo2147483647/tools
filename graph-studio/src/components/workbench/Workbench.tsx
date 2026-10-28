@@ -40,7 +40,6 @@ export default function Workbench(props: Pick<StudioViewProps, "session" | "view
                 onCommand={transactions.commitCommand}
                 onSelect={viewport.setFocusedKey}
                 onOpenNode={ui.openNodeDetail}
-                onMemberContextMenu={viewport.handleNodeContextMenu}
               />
             </div>
           )}

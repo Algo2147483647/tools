@@ -1,7 +1,5 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { getContextMenuPages } from "../components/menus/contextMenuModel";
-import { placeContextMenu, placeContextSubmenu } from "../components/menus/contextMenuPosition";
 import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { applyGraphCommand } from "../graph/commands";
 import { getGroupNodes, indexHierarchy } from "../graph/compound/hierarchy";
@@ -58,23 +56,6 @@ const layout = (dag = compoundFixture(), currentView = view()) =>
   });
 
 export const compoundSuite = defineSuite("Compound hierarchy, projection and layout", [
-  defineTest("context menus stay within the viewport and flyouts flip or fall back to one panel", () => {
-    const viewport = { width: 1280, height: 720 };
-    const size = { width: 304, height: 250 };
-    assert.deepEqual(placeContextMenu({ x: 1279, y: 719 }, size, viewport), { left: 968, top: 462 });
-    const root = { left: 100, right: 380, top: 100, width: 280, height: 390 };
-    assert.deepEqual(placeContextSubmenu(root, 200, size, viewport), {
-      left: 384,
-      top: 194,
-      side: "right",
-      inline: false,
-    });
-    const flipped = placeContextSubmenu({ ...root, left: 900, right: 1180 }, 700, size, viewport);
-    assert.deepEqual(flipped, { left: 592, top: 462, side: "left", inline: false });
-    const narrow = placeContextSubmenu({ ...root, left: 72, right: 352 }, 200, size, { width: 360, height: 640 });
-    assert.equal(narrow.inline, true);
-    assert.equal(narrow.left, 72);
-  }),
   defineTest("rounded routes preserve endpoints and clamp bends on short and repeated segments", () => {
     assert.equal(
       roundedPolylinePath([
@@ -101,26 +82,6 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
       "M4,2 L0,2",
     );
     assert.equal(roundedPolylinePath([]), "");
-  }),
-  defineTest("context menus distinguish G connections, H membership and external summaries", () => {
-    const dag = compoundFixture();
-    const group = getContextMenuPages({ kind: "group", id: "b" }, dag, "compound", view());
-    const actions = Object.values(group).flatMap((page) => page.sections.flat().map((item) => item.action));
-    assert.ok(
-      actions.includes("group-dissolve") && actions.includes("group-members") && actions.includes("group-move"),
-    );
-    assert.ok(actions.includes("delete-node") && actions.includes("edit-parents") && actions.includes("view-node"));
-    const node = getContextMenuPages({ kind: "node", id: "a" }, dag, "compound", view());
-    assert.ok(node.root.sections.flat().some((item) => item.page === "organize"));
-    assert.ok(node.connections.sections.flat().some((item) => item.action === "edit-parents"));
-    assert.ok(!node.connections.sections.flat().some((item) => item.action === "delete-subtree"));
-    const ordinary = getContextMenuPages({ kind: "node", id: "a" }, dag, "node-link", view());
-    assert.ok(!ordinary.root.sections.flat().some((item) => item.page === "organize"));
-    const external = getContextMenuPages({ kind: "group", id: "c" }, dag, "compound", view([], "b"));
-    assert.ok(!external.root.sections.flat().some((item) => item.action === "group-toggle"));
-    const promote = external.organize.sections.flat().find((item) => item.action === "group-promote")!;
-    assert.equal(promote.disabled, true);
-    assert.equal(promote.disabledReason, "Already at the top level");
   }),
   defineTest("adding a group member is one atomic undoable edit and adds no G relationship", () => {
     const dag = compoundFixture();

@@ -1,7 +1,6 @@
 /* Keep these imports in order: later rules intentionally override earlier ones. */
 @import "./modals/shared.css";
 @import "./modals/save-json.css";
-@import "./modals/relation-editor.css";
 @import "./modals/node-detail.css";
 @import "./modals/node-relations.css";
 @import "./modals/node-fields.css";

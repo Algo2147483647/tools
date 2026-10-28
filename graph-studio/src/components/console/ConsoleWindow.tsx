@@ -156,7 +156,6 @@ export default function ConsoleWindow({
           </button>
         </div>
       </header>
-      {toolbar}
       <div
         className="console-window__conversation"
         id="console-panel-conversation"
@@ -248,6 +247,7 @@ export default function ConsoleWindow({
         hidden={activeTab !== "workbench"}
         tabIndex={0}
       >
+        {toolbar}
         {workbench}
       </div>
       <div

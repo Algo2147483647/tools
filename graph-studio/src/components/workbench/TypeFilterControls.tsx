@@ -20,33 +20,37 @@ export default function TypeFilterControls({
           Show all types
         </button>
       </div>
-      <div className="type-filter-selection" role="group" aria-label="Type selection">
-        {(["single", "multiple"] as const).map((selection) => (
-          <button
-            key={selection}
-            aria-pressed={value.selection === selection}
-            onClick={() =>
-              onChange({
-                ...value,
-                selection,
-                values: selection === "single" ? value.values.slice(0, 1) : value.values,
-              })
-            }
-          >
-            {selection === "single" ? "Single" : "Multiple"}
-          </button>
-        ))}
-      </div>
-      <div className="type-filter-operation" role="group" aria-label="Type filter operation">
-        {(["include", "exclude"] as const).map((operation) => (
-          <button
-            key={operation}
-            aria-pressed={value.operation === operation}
-            onClick={() => onChange({ ...value, operation })}
-          >
-            {operation === "include" ? "Include selected" : "Exclude selected"}
-          </button>
-        ))}
+      <div className="type-filter-modes">
+        <div className="type-filter-selection" role="group" aria-label="Type selection">
+          {(["single", "multiple"] as const).map((selection) => (
+            <button
+              key={selection}
+              aria-pressed={value.selection === selection}
+              onClick={() =>
+                onChange({
+                  ...value,
+                  selection,
+                  values: selection === "single" ? value.values.slice(0, 1) : value.values,
+                })
+              }
+            >
+              {selection === "single" ? "Single" : "Multiple"}
+            </button>
+          ))}
+        </div>
+        <div className="type-filter-operation" role="group" aria-label="Type filter operation">
+          {(["include", "exclude"] as const).map((operation) => (
+            <button
+              key={operation}
+              aria-label={operation === "include" ? "Include selected" : "Exclude selected"}
+              title={operation === "include" ? "Show selected types" : "Hide selected types"}
+              aria-pressed={value.operation === operation}
+              onClick={() => onChange({ ...value, operation })}
+            >
+              {operation === "include" ? "Include" : "Exclude"}
+            </button>
+          ))}
+        </div>
       </div>
       <input
         className="studio-field"

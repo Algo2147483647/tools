@@ -346,8 +346,6 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
         hideNodeBorders: false,
         onNodeClick: noop,
         onNodeDoubleClick: noop,
-        onNodeContextMenu: noop,
-        onBackgroundContextMenu: noop,
         onFocusChange: noop,
       }),
     );

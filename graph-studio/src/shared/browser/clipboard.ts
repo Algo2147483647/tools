@@ -33,11 +33,3 @@ export async function copyTextToClipboard(text: string): Promise<void> {
     throw new Error("Clipboard write failed.");
   }
 }
-
-export async function readTextFromClipboard(): Promise<string> {
-  if (typeof navigator !== "undefined" && navigator.clipboard?.readText) {
-    return navigator.clipboard.readText();
-  }
-
-  throw new Error("Clipboard read is not available in this environment.");
-}

@@ -16,19 +16,10 @@ interface ViewportInput {
   dispatch: Dispatch<GraphAction>;
   showNodeDetail: boolean;
   alignNodeWidthsToMax: boolean;
-  closeContextMenu(): void;
   openNodeDetail(key: string): void;
 }
 export function useGraphViewport(
-  {
-    state,
-    dispatch,
-    homeVisible,
-    showNodeDetail,
-    alignNodeWidthsToMax,
-    closeContextMenu,
-    openNodeDetail,
-  }: ViewportInput,
+  { state, dispatch, homeVisible, showNodeDetail, alignNodeWidthsToMax, openNodeDetail }: ViewportInput,
   appearance: GraphAppearance,
 ) {
   const navigation = useGraphNavigation(state, dispatch, (key) => zoom.captureLayoutAnchor(key));
@@ -89,7 +80,6 @@ export function useGraphViewport(
   useGraphPan({
     containerRef,
     enabled: Boolean(stage) && stage?.layoutMode !== "spatial",
-    onPanStart: closeContextMenu,
   });
   useSpatialGestures({
     containerRef,
@@ -101,7 +91,6 @@ export function useGraphViewport(
     onOrbit: spatialView.orbit,
     onPan: zoom.panBy,
     onZoom: zoom.zoomBy,
-    onStart: closeContextMenu,
   });
 
   const interactions = useGraphInteractions({
@@ -111,7 +100,6 @@ export function useGraphViewport(
     stage,
     openNodeDetail,
     setFocusedKey: navigation.setFocusedKey,
-    focusGroupId: compound.view.focusGroupId,
   });
   return {
     currentLayoutConfig,

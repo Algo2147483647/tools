@@ -12,9 +12,10 @@ It is built for fast graph inspection and editing in the browser:
 - edit nodes and relationships directly in the UI
 - batch graph edits from a text console in `Edit` mode
 
-Double right-click a node or the canvas to open the floating console. A single right-click still opens the context menu (after a short double-click detection delay). Drag the console header to move it, resize from its bottom-right corner, and press Esc while focused inside it to close. The **Protocols** tab lists every console command, compound layout intent, AI Context Packet, response v2 variants and provider envelopes in searchable command tables and reference tables. The console is no longer toggled in Settings.
+Right-click a node or the canvas once to open the floating console. There is no context menu. Drag the console header to move it, resize from its bottom-right corner, and press Esc while focused inside it to close. The **Protocols** tab lists every console command, compound layout intent, AI Context Packet, response v2 variants and provider envelopes in searchable command tables and reference tables. The corner star expands in place into icon-only Workspace files, Console and Settings controls. Navigation and zoom belong to the Workbench tab.
 
 If Graph Studio returns to the welcome screen after being away, the app has no inactivity logout timer. The default launcher runs Vite in development mode; its client reloads the page when a lost server connection becomes available again. Browser tab discard can also reload a background page. The active document, unsaved edits and workspace view currently live in memory, and startup always initializes the welcome screen; recent locations and preferences do not restore that editing session. Use `launch.cmd -Preview` for normal use to avoid development HMR reconnect reloads. This does not provide recovery from browser discard or manual refresh; that requires a separate document/session recovery mechanism.
+
 - undo and redo graph mutations without losing navigation history
 - save the updated graph back to JSON or export the current view as SVG
 - export the current canvas as a standalone interactive HTML file with read-only node details

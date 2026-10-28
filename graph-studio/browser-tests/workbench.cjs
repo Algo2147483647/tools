@@ -44,7 +44,7 @@ Object.values(doc.nodes).forEach((node, i) => {
     await page.locator("#console-toggle").waitFor({ state: "attached" });
   }
   async function launcher(id) {
-    await page.locator("#studio-launcher").hover();
+    await page.locator(".studio-launchers").hover();
     if (!(await page.locator("#" + id).isVisible())) await page.locator("#studio-launcher").click();
     await page.locator("#" + id).click();
   }
@@ -146,6 +146,19 @@ Object.values(doc.nodes).forEach((node, i) => {
       await mode(name);
       panel = await workbench();
       assert.equal(await panel.getByRole("heading", { name: "Types", exact: true }).count(), 1);
+      await page.getByRole("button", { name: "Close console", exact: true }).click();
+      const nodeBounds = await page
+        .locator(name === "Sankey" ? "#main-content .dag-node__shape" : "#main-content .dag-node-layer .dag-node")
+        .first()
+        .boundingBox();
+      assert.ok(nodeBounds, `${name} has a visible node`);
+      await page.mouse.click(nodeBounds.x + nodeBounds.width / 2, nodeBounds.y + nodeBounds.height / 2, {
+        button: "right",
+      });
+      await page.waitForFunction(() => document.activeElement?.id === "graph-console-input");
+      assert.equal(await page.locator(".context-menu, #context-menu").count(), 0);
+      assert.equal(await page.locator(".console-toolbar").isVisible(), false);
+      await page.getByRole("tab", { name: "Workbench", exact: true }).click();
       await panel.getByRole("button", { name: "Single", exact: true }).click();
       await panel.getByRole("radio", { name: "service", exact: true }).check();
       await page.waitForFunction(() =>
@@ -171,10 +184,12 @@ Object.values(doc.nodes).forEach((node, i) => {
     assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 540);
     await page.setViewportSize({ width: 390, height: 700 });
     await page.getByRole("tab", { name: "Console", exact: true }).click();
+    assert.equal(await page.locator(".console-toolbar").isVisible(), false);
     await page.locator("#graph-console-input").fill("/help");
     await page.getByRole("tab", { name: "Workbench", exact: true }).click();
     await page.getByRole("tab", { name: "Workbench", exact: true }).press("ArrowRight");
     assert.equal(await page.getByRole("tab", { name: "Protocols", exact: true }).getAttribute("aria-selected"), "true");
+    assert.equal(await page.locator(".console-toolbar").isVisible(), false);
     await page.getByRole("tab", { name: "Protocols", exact: true }).press("ArrowRight");
     assert.equal(await page.locator("#graph-console-input").inputValue(), "/help");
     await page.locator("#graph-console-input").press("Enter");
@@ -198,10 +213,9 @@ Object.values(doc.nodes).forEach((node, i) => {
     assert.equal(await page.locator("#chart-tools-panel").count(), 0);
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.locator("#main-content").evaluate((element) => {
-      for (let i = 0; i < 2; i++)
-        element.dispatchEvent(
-          new MouseEvent("contextmenu", { button: 2, clientX: 40, clientY: 200, bubbles: true, cancelable: true }),
-        );
+      element.dispatchEvent(
+        new MouseEvent("contextmenu", { button: 2, clientX: 40, clientY: 200, bubbles: true, cancelable: true }),
+      );
     });
     await page.waitForFunction(() => document.activeElement?.id === "graph-console-input");
     assert.equal(await page.getByRole("tab", { name: "Console", exact: true }).getAttribute("aria-selected"), "true");

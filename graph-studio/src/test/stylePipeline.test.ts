@@ -71,7 +71,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
       node.contentLayout!.titleY + node.titleLayout!.lineHeight / 2 + font.size * 0.6 < node.contentLayout!.detailY - 5,
     );
     const html = renderToStaticMarkup(
-      createElement(GraphNode, { node, isActive: false, onClick: noop, onContextMenu: noop, onFocusChange: noop }),
+      createElement(GraphNode, { node, isActive: false, onClick: noop, onFocusChange: noop }),
     );
     assert.match(html, /text-anchor="middle" style="transform:none"/);
     assert.ok(html.includes(node.titleLayout!.lines[0]));
@@ -123,7 +123,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
           node,
           isActive: false,
           onClick: noop,
-          onContextMenu: noop,
+
           onFocusChange: noop,
         }),
       );
@@ -192,8 +192,6 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
           svgRef: { current: null },
           onNodeClick: noop,
           onNodeDoubleClick: noop,
-          onNodeContextMenu: noop,
-          onBackgroundContextMenu: noop,
           onFocusChange: noop,
         }),
       );

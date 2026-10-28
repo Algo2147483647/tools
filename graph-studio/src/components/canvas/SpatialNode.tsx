@@ -4,13 +4,11 @@ export default function SpatialNode({
   node,
   onClick,
   onDoubleClick,
-  onContextMenu,
   onFocusChange,
 }: {
   node: StageNode;
   onClick(key: string): void;
   onDoubleClick(key: string): void;
-  onContextMenu(event: React.MouseEvent<SVGGElement>, key: string): void;
   onFocusChange(key: string | null): void;
 }) {
   const spatial = node.spatial!;
@@ -31,7 +29,6 @@ export default function SpatialNode({
         e.stopPropagation();
         onDoubleClick(node.key);
       }}
-      onContextMenu={(e) => onContextMenu(e, node.key)}
       onFocus={() => onFocusChange(node.key)}
       onBlur={() => onFocusChange(null)}
       onKeyDown={(e) => {

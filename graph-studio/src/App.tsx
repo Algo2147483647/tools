@@ -9,7 +9,6 @@ import { useConsoleController } from "./app/console/useConsoleController";
 import { useDocumentSession } from "./app/document/useDocumentSession";
 import { useGraphTransactions } from "./app/document/useGraphTransactions";
 import { useGraphViewport } from "./app/viewport/useGraphViewport";
-import { useNodeActions } from "./app/document/useNodeActions";
 import { usePreferencesController } from "./app/preferences/usePreferencesController";
 import { useStudioShortcuts } from "./app/ui/useStudioShortcuts";
 import { useStudioUi } from "./app/ui/useStudioUi";
@@ -52,7 +51,6 @@ export default function App() {
       homeVisible: files.homeVisible,
       showNodeDetail: charts.showNodeDetail,
       alignNodeWidthsToMax: charts.alignNodeWidthsToMax,
-      closeContextMenu: ui.closeContextMenu,
       openNodeDetail: ui.openNodeDetail,
     },
     appearance,
@@ -76,15 +74,8 @@ export default function App() {
     settings: preferences.aiSettings,
     consoleController,
   });
-  const nodeActions = useNodeActions(
-    { state, dispatch, openNodeDetail: ui.openNodeDetail, closeModals: ui.closeModals },
-    transactions,
-    viewport,
-  );
   useStudioShortcuts(
     {
-      contextMenuOpen: Boolean(state.ui.contextMenu),
-      closeContextMenu: ui.closeContextMenu,
       closeModals: ui.closeModals,
       requestSave: session.requestSave,
     },
@@ -106,7 +97,6 @@ export default function App() {
       compoundLayoutPlan={compoundLayoutPlan}
       timelineLayoutPlan={timelineLayoutPlan}
       viewport={viewport}
-      nodeActions={nodeActions}
     />
   );
 }

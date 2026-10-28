@@ -8,7 +8,6 @@ import type {
   NormalizedDag,
 } from "../../graph/types";
 import { type GraphPagePreferences, getInitialGraphPagePreferences } from "../preferences/preferences";
-import type { GraphContextMenu } from "../ui/contextMenu";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { ChartStyle } from "../../schema/appearance/styles";
 
@@ -72,8 +71,6 @@ export interface GraphAppState {
     settingsOpen: boolean;
     consoleSidebarOpen: boolean;
     consoleSidebarWidth: number;
-    contextMenu: GraphContextMenu | null;
-    relationEditor: null | { nodeKey: NodeKey; field: "parents" | "children" };
     nodeDetail: null | { nodeKey: NodeKey };
     saveDialogOpen: boolean;
   };
@@ -117,8 +114,6 @@ export function createInitialGraphState(
       settingsOpen: false,
       consoleSidebarOpen: savedPreferences.consoleSidebarOpen,
       consoleSidebarWidth: savedPreferences.consoleSidebarWidth,
-      contextMenu: null,
-      relationEditor: null,
       nodeDetail: null,
       saveDialogOpen: false,
     },

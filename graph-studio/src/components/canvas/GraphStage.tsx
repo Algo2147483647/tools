@@ -30,8 +30,6 @@ interface GraphStageProps extends ViewportChromeRefs {
   onTimelineNodePin?: (key: string, x: number) => void;
   onNodeClick: (key: string) => void;
   onNodeDoubleClick: (key: string) => void;
-  onNodeContextMenu: (event: React.MouseEvent<SVGGElement>, key: string) => void;
-  onBackgroundContextMenu: (event: React.MouseEvent<Element>) => void;
   onFocusChange: (key: string | null) => void;
 }
 
@@ -45,8 +43,6 @@ export default function GraphStage({
   onTimelineNodePin,
   onNodeClick,
   onNodeDoubleClick,
-  onNodeContextMenu,
-  onBackgroundContextMenu,
   onFocusChange,
   onGroupToggle,
   onGroupEnter,
@@ -77,7 +73,6 @@ export default function GraphStage({
           : "img"
       }
       aria-label={`${stage.layoutMode === "spatial" ? "Spatial" : stage.layoutMode === "timeline" ? "Timeline" : stage.layoutMode === "compound" ? "Nested graph" : stage.layoutMode === "sankey" ? "Sankey flow" : "DAG"} view focused on ${stage.selection.label}`}
-      onContextMenu={onBackgroundContextMenu}
     >
       <GraphDefs
         edgeArrowStyle={appearance.display.edgeArrowStyle}
@@ -134,7 +129,6 @@ export default function GraphStage({
               node={node}
               isActive={node.key === stage.root}
               onClick={onNodeClick}
-              onContextMenu={onNodeContextMenu}
               onFocusChange={onFocusChange}
             />
           ))}
@@ -153,7 +147,6 @@ export default function GraphStage({
               node={node}
               onClick={onNodeClick}
               onDoubleClick={onNodeDoubleClick}
-              onContextMenu={onNodeContextMenu}
               onFocusChange={onFocusChange}
             />
           ) : (
@@ -166,7 +159,6 @@ export default function GraphStage({
               onTimelineNodePin={onTimelineNodePin}
               onClick={onNodeClick}
               onDoubleClick={onNodeDoubleClick}
-              onContextMenu={onNodeContextMenu}
               onFocusChange={onFocusChange}
             />
           ),
@@ -180,7 +172,6 @@ export default function GraphStage({
             showStats={appearance.display.showGroupStats}
             onNodeClick={onNodeClick}
             onNodeDoubleClick={onNodeDoubleClick}
-            onNodeContextMenu={onNodeContextMenu}
             onFocusChange={onFocusChange}
             onToggle={onGroupToggle}
             onEnter={onGroupEnter}
@@ -212,7 +203,6 @@ export default function GraphStage({
               onPin={onTimelineNodePin}
               onClick={onNodeClick}
               onDoubleClick={onNodeDoubleClick}
-              onContextMenu={onNodeContextMenu}
               onFocusChange={onFocusChange}
             />
           ))}
