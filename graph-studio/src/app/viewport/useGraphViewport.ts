@@ -32,7 +32,7 @@ export function useGraphViewport(
   appearance: GraphAppearance,
 ) {
   const navigation = useGraphNavigation(state, dispatch, (key) => zoom.captureLayoutAnchor(key));
-  const { compound, activeType, activeTrack, activeTimelineRange } = navigation;
+  const { compound, activeType, typeFilter, activeTrack, activeTimelineRange } = navigation;
   const {
     stage: computedStage,
     currentLayoutConfig,
@@ -46,6 +46,7 @@ export function useGraphViewport(
     state,
     appearance,
     compound,
+    typeFilter,
     activeType,
     activeTrack,
     activeTimelineRange,
@@ -76,7 +77,7 @@ export function useGraphViewport(
       compound.view.focusGroupId,
       ...(state.chartType === "timeline"
         ? [state.timelineSettings.orientation]
-        : [activeType, activeTrack, activeTimelineRange]),
+        : [typeFilter, activeTrack, activeTimelineRange]),
     ]),
     scale: state.zoom.scale,
     minScale: state.zoom.minScale,
@@ -146,6 +147,10 @@ export function useGraphViewport(
     changeType: (type: string) => {
       interactions.clearPendingNodeClick();
       navigation.changeType(type);
+    },
+    changeTypeFilter: (filter: typeof typeFilter) => {
+      interactions.clearPendingNodeClick();
+      navigation.changeTypeFilter(filter);
     },
     up: () => navigation.up(parentSelection),
     showAll: () => {

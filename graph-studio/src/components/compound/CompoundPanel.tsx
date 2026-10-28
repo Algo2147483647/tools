@@ -1,3 +1,4 @@
+import Icon from "../ui/Icon";
 import { useMemo, useState } from "react";
 import { getNodeTitle } from "../../graph/accessors";
 import type { GraphCommand } from "../../graph/commands";
@@ -26,6 +27,7 @@ export default function CompoundPanel({
   const groups = getGroupNodes(dag);
   const focus = view.focusGroupId && has(groups, view.focusGroupId) ? view.focusGroupId : null;
   const children = index.children.get(focus) ?? [];
+  const [editing, setEditing] = useState(false);
   const [checked, setChecked] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [target, setTarget] = useState("");
@@ -35,7 +37,26 @@ export default function CompoundPanel({
     setError(message ?? "");
     return message;
   }
-  const selected = checked.filter((id) => children.includes(id));
+  const rows: { id: string; depth: number }[] = [];
+  const pending = children.map((id) => ({ id, depth: 0 })).reverse();
+  while (pending.length) {
+    const row = pending.pop()!;
+    rows.push(row);
+    if (has(groups, row.id) && !view.collapsedGroupIds.includes(row.id)) {
+      const members = index.children.get(row.id) ?? [];
+      for (let i = members.length - 1; i >= 0; i--) pending.push({ id: members[i], depth: row.depth + 1 });
+    }
+  }
+  const scopeGroups = Object.keys(groups).filter(
+    (id) =>
+      id !== focus &&
+      (!focus ||
+        (() => {
+          for (let p = index.parent.get(id); p; p = index.parent.get(p)) if (p === focus) return true;
+          return false;
+        })()),
+  );
+  const selected = checked.filter((id) => rows.some((row) => row.id === id));
   const path: string[] = [];
   let ancestor = focus;
   while (ancestor) {
@@ -66,7 +87,19 @@ export default function CompoundPanel({
   }
   return (
     <section className="compound-panel" aria-label="Subgraph structure">
-      <p>{Object.keys(groups).length} subgraphs</p>
+      <div className="workbench-section-heading">
+        <h3>Subgraphs</h3>
+        <button
+          className="workbench-text-button"
+          aria-pressed={editing}
+          onClick={() => {
+            setEditing(!editing);
+            setChecked([]);
+          }}
+        >
+          Edit membership
+        </button>
+      </div>
       <nav className="compound-breadcrumb" aria-label="Subgraph path">
         <button onClick={() => enter(null)}>All</button>
         {path.map((id) => (
@@ -79,28 +112,63 @@ export default function CompoundPanel({
           </span>
         ))}
       </nav>
-      <div className="compound-panel-actions">
-        <button onClick={() => onViewChange({ ...view, collapsedGroupIds: [] })}>Expand all</button>
+      <div className="compound-quick-actions">
         <button
-          onClick={() => onViewChange({ ...view, collapsedGroupIds: Object.keys(groups).filter((id) => id !== focus) })}
+          disabled={!scopeGroups.some((id) => view.collapsedGroupIds.includes(id))}
+          onClick={() =>
+            onViewChange({
+              ...view,
+              collapsedGroupIds: view.collapsedGroupIds.filter((id) => !scopeGroups.includes(id)),
+            })
+          }
         >
+          <Icon name="expand" size={16} />
+          Expand all
+        </button>
+        <button
+          disabled={!scopeGroups.some((id) => !view.collapsedGroupIds.includes(id))}
+          onClick={() =>
+            onViewChange({ ...view, collapsedGroupIds: [...new Set([...view.collapsedGroupIds, ...scopeGroups])] })
+          }
+        >
+          <Icon name="collapse" size={16} />
           Collapse all
         </button>
       </div>
       {error && <p role="alert">{error}</p>}
       <div className="compound-members" role="group" aria-label="Subgraph members">
-        {children.map((id) => {
+        {rows.map(({ id, depth }) => {
           const group = has(groups, id);
           return (
-            <div className="compound-member" key={id} onContextMenu={(event) => onMemberContextMenu(event, id)}>
-              <input
-                type="checkbox"
-                aria-label={`Select ${id}`}
-                checked={selected.includes(id)}
-                onChange={(event) =>
-                  setChecked(event.target.checked ? [...selected, id] : selected.filter((item) => item !== id))
-                }
-              />
+            <div
+              className="compound-member"
+              style={{ paddingLeft: depth * 16 }}
+              key={id}
+              onContextMenu={(event) => onMemberContextMenu(event, id)}
+            >
+              {editing && (
+                <input
+                  type="checkbox"
+                  aria-label={`Select ${id}`}
+                  checked={selected.includes(id)}
+                  onChange={(event) =>
+                    setChecked(event.target.checked ? [...selected, id] : selected.filter((item) => item !== id))
+                  }
+                />
+              )}
+              {group ? (
+                <button
+                  className="compound-tree-toggle"
+                  title={view.collapsedGroupIds.includes(id) ? "Expand subgraph" : "Collapse subgraph"}
+                  aria-label={`${view.collapsedGroupIds.includes(id) ? "Expand" : "Collapse"} ${id}`}
+                  aria-expanded={!view.collapsedGroupIds.includes(id)}
+                  onClick={() => toggle(id)}
+                >
+                  <Icon name="chevron" size={16} />
+                </button>
+              ) : (
+                <span className="compound-leaf-mark" aria-hidden="true" />
+              )}
               <button
                 className="compound-member-name"
                 title={id}
@@ -112,13 +180,12 @@ export default function CompoundPanel({
               {group && (
                 <>
                   <button
-                    aria-label={`${view.collapsedGroupIds.includes(id) ? "Expand" : "Collapse"} ${id}`}
-                    onClick={() => toggle(id)}
+                    className="compound-enter"
+                    title={`Focus ${getNodeTitle(groups[id]) || id}`}
+                    aria-label={`Enter ${id}`}
+                    onClick={() => enter(id)}
                   >
-                    {view.collapsedGroupIds.includes(id) ? "+" : "−"}
-                  </button>
-                  <button aria-label={`Enter ${id}`} onClick={() => enter(id)}>
-                    ↗
+                    <Icon name="enter-group" size={16} />
                   </button>
                 </>
               )}
@@ -127,7 +194,7 @@ export default function CompoundPanel({
         })}
         {!children.length && <p>No members.</p>}
       </div>
-      {selected.length > 0 && (
+      {editing && selected.length > 0 && (
         <>
           <div className="compound-panel-actions">
             <input
@@ -160,7 +227,7 @@ export default function CompoundPanel({
           </div>
         </>
       )}
-      {selected.length === 1 && has(groups, selected[0]) && (
+      {editing && selected.length === 1 && has(groups, selected[0]) && (
         <div className="compound-panel-actions">
           <button
             onClick={() => {

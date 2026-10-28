@@ -4,13 +4,12 @@ import { getTimelineClock } from "../../graph/timeline/clock";
 import CompoundLayoutPanel from "../compound/LayoutPanel";
 import LayoutRules from "../ui/LayoutRules";
 import TimelineArrangePanel from "../timeline/TimelineArrangePanel";
-import SpatialControls from "../spatial/SpatialControls";
 import MethodTabs from "../ui/MethodTabs";
 import type { StudioViewProps } from "./types";
 
-export type ChartLayoutControlsProps = Pick<
+type ChartLayoutControlsProps = Pick<
   StudioViewProps,
-  "session" | "preferences" | "ui" | "viewport" | "ai" | "compoundLayoutPlan" | "timelineLayoutPlan"
+  "session" | "preferences" | "ui" | "viewport" | "compoundLayoutPlan" | "timelineLayoutPlan"
 >;
 export default function ChartLayoutControls(props: ChartLayoutControlsProps) {
   const [tab, setTab] = useState<"arrangement" | "schema">("arrangement");
@@ -63,9 +62,9 @@ function ChartSpecificLayoutControls({
     );
   if (state.chartType === "spatial")
     return (
-      <div className="chart-layout-controls">
-        <SpatialControls spatial={viewport.spatialView} layout={viewport.stage?.spatial} />
-      </div>
+      <p className="layout-status">
+        Positions come from graph coordinates. Projection and camera controls are in Workbench.
+      </p>
     );
   if (state.chartType === "sankey")
     return (

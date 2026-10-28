@@ -1,5 +1,8 @@
 import type { SVGProps } from "react";
 const paths = {
+  workbench:
+    "M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM3 8h18M15 8v13M7 12h4M7 16h4M18 12h.01M18 16h.01",
+  "enter-group": "M13 4h7v7M20 4l-9 9M9 5H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-4",
   "align-left": "M4 5h16M4 10h10M4 15h16M4 20h10",
   "align-center": "M4 5h16M7 10h10M4 15h16M7 20h10",
   "text-ellipsis": "M4 6h16M4 12h10M4 18h4M12 18h.01M16 18h.01M20 18h.01",

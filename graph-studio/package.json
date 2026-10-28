@@ -20,8 +20,6 @@
     "check": "npm run format:check && npm run test:launcher && npm test && npm run build"
   },
   "dependencies": {
-    "cytoscape": "3.34.4",
-    "cytoscape-fcose": "2.2.0",
     "d3-sankey": "^0.12.3",
     "dagre": "^0.8.5",
     "katex": "^0.16.45",

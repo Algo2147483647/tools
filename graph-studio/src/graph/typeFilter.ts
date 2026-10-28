@@ -7,6 +7,32 @@ import { getSpaceMetadata } from "./space";
 
 const TYPE_FILTER_SHORTCUT_RELATION = "filtered_path";
 
+export interface TypeFilter {
+  enabled: boolean;
+  selection: "single" | "multiple";
+  operation: "include" | "exclude";
+  values: string[];
+}
+export const emptyTypeFilter = (): TypeFilter => ({
+  enabled: false,
+  selection: "single",
+  operation: "include",
+  values: [],
+});
+export type TypeSelection = string | TypeFilter;
+export function typeFilterActive(filter: TypeSelection) {
+  return typeof filter === "string" ? Boolean(filter) : filter.enabled;
+}
+export function matchesTypes(types: string[], filter: TypeSelection) {
+  if (!typeFilterActive(filter)) return true;
+  if (typeof filter === "string") return types.includes(filter);
+  const selected = filter.values.some((type) => types.includes(type));
+  return filter.operation === "include" ? selected : !selected;
+}
+export function nodeMatchesType(dag: NormalizedDag, key: string, filter: TypeSelection) {
+  return matchesTypes(nodeTypes(dag, key), filter);
+}
+
 function nodeTypes(dag: NormalizedDag, key: string): string[] {
   const field = getSpaceMetadata(dag)?.typeField;
   const value = field ? dag.nodes[key][field] : getNodeType(dag.nodes[key]);
@@ -27,15 +53,18 @@ export function getGraphTypeOptions(dag: NormalizedDag): string[] {
 
 export function projectGraphByType(
   source: NormalizedDag,
-  selectedType: string,
+  selectedType: TypeSelection,
   chartType: GraphChartType = "node-link",
 ): NormalizedDag {
-  if (!selectedType) return source;
-  const visible = new Set(Object.keys(source.nodes).filter((key) => nodeTypes(source, key).includes(selectedType)));
+  if (!typeFilterActive(selectedType)) return source;
+  const visible = new Set(Object.keys(source.nodes).filter((key) => nodeMatchesType(source, key, selectedType)));
   const doc = projectGraphDocument(source, visible);
   const edgeTypeField = chartType === "spatial" ? getSpaceMetadata(source)?.edgeTypeField : undefined;
   if (edgeTypeField) {
-    doc.edges = doc.edges.filter((edge) => edge.metadata?.[edgeTypeField] === selectedType);
+    doc.edges = doc.edges.filter((edge) => {
+      const value = edge.metadata?.[edgeTypeField];
+      return matchesTypes(typeof value === "string" ? [value] : [], selectedType);
+    });
     return indexGraphDocument(doc);
   }
   // Filtering cannot imply new measured flows or new historical relationships.

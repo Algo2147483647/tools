@@ -81,7 +81,7 @@ export function parseLayoutSession(value: unknown): LayoutSessionState {
         throw new Error("Invalid Layout fingerprint.");
       const scope = object(
         rendering.scope,
-        ["selection", "compound", "activeType", "activeTrack", "timelineRange", "spatial"],
+        ["selection", "compound", "activeType", "typeFilter", "activeTrack", "timelineRange", "spatial"],
         "Layout scope",
       );
       validateLayoutScope(scope);
@@ -112,7 +112,7 @@ export function repairLayoutSession(
   const remap = (id: string) => renames.reduce((key, r) => (key === r.from ? r.to : key), id);
   const edges = new Set(graph.edges.map((e) => e.id));
   const parent = new Map((graph.hierarchy_edges ?? []).map((e) => [e.target, e.source]));
-  const repairConstraints = (constraints: CompoundLayoutData["constraints"]) => constraints.flatMap<
+  data.charts.compound.constraints = data.charts.compound.constraints.flatMap<
     CompoundLayoutData["constraints"][number]
   >((c) => {
     if (c.type === "direction" || c.type === "flow-order") {
@@ -127,9 +127,6 @@ export function repairLayoutSession(
     }
     return edges.has(c.edgeId) ? [c] : [];
   });
-  data.charts.compound.constraints = repairConstraints(data.charts.compound.constraints);
-  for (const settings of Object.values(data.charts.compound.modes ?? {}))
-    settings.constraints = repairConstraints(settings.constraints);
   const graphFingerprint = graphLayoutIdentity(graph);
   if (data.renderings)
     for (const [chart, rendering] of Object.entries(data.renderings))

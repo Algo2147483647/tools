@@ -1,4 +1,5 @@
-import { getNodeTitle, getNodeType } from "../accessors";
+import { nodeMatchesType, type TypeSelection } from "../typeFilter";
+import { getNodeTitle } from "../accessors";
 import type { CompoundView, GraphEdge, NormalizedDag } from "../types";
 import { indexHierarchy, isHierarchyDescendant } from "./hierarchy";
 
@@ -31,7 +32,11 @@ export interface CompoundProjection {
 }
 
 /** Builds a disposable scene without introducing nodes or edges into G. */
-export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, selectedType = ""): CompoundProjection {
+export function projectCompoundGraph(
+  doc: NormalizedDag,
+  view: CompoundView,
+  selectedType: TypeSelection = "",
+): CompoundProjection {
   const index = indexHierarchy(doc);
   const groups = index.groups;
   const focus = view.focusGroupId && groups.has(view.focusGroupId) ? view.focusGroupId : null;
@@ -39,7 +44,6 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
   const items = new Map<string, CompoundItem>();
   const representative = new Map<string, string>();
   const activeNodes = new Set<string>();
-  if (focus && (!selectedType || getNodeType(doc.nodes[focus]) === selectedType)) activeNodes.add(focus);
   const inside = (id: string) => !focus || (id !== focus && isHierarchyDescendant(index, id, focus));
   const add = (id: string, external = false): CompoundItem => {
     let item = items.get(id);
@@ -68,7 +72,7 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
     const hidden = parent && parent !== focus ? hiddenBy.get(parent) : undefined;
     const proxy = hidden ?? (groups.has(id) && collapsed.has(id) ? id : undefined);
     if (proxy) hiddenBy.set(id, proxy);
-    if (!selectedType || getNodeType(doc.nodes[id]) === selectedType) {
+    if (nodeMatchesType(doc, id, selectedType)) {
       activeNodes.add(id);
       const rep = proxy ?? id;
       representative.set(id, rep);
@@ -80,29 +84,14 @@ export function projectCompoundGraph(doc: NormalizedDag, view: CompoundView, sel
       }
     }
   }
-  // While drilling down, preserve incident external relationships as boundary summaries.
-  const externalRep = (id: string) => {
-    if (id === focus) {
-      add(id, true);
-      representative.set(id, id);
-      return id;
-    }
-    let current = id;
-    // Stop below an ancestor of the focus: an external summary must never contain the focused scope itself.
-    while (index.parent.has(current) && !isHierarchyDescendant(index, focus!, index.parent.get(current)!))
-      current = index.parent.get(current)!;
-    add(current, true);
-    representative.set(id, current);
-    return current;
-  };
   const aggregates = new Map<string, { source: string; target: string; edges: GraphEdge[] }>();
   for (const edge of doc.edges) {
     const sourceActive = activeNodes.has(edge.source);
     const targetActive = activeNodes.has(edge.target);
-    if (!sourceActive && !targetActive) continue;
-    if ((!sourceActive && inside(edge.source)) || (!targetActive && inside(edge.target))) continue;
-    const source = representative.get(edge.source) ?? externalRep(edge.source);
-    const target = representative.get(edge.target) ?? externalRep(edge.target);
+    // Focus is an induced view of descendants: no external summaries or boundary edges.
+    if (!sourceActive || !targetActive) continue;
+    const source = representative.get(edge.source)!;
+    const target = representative.get(edge.target)!;
     if (source === target) {
       items.get(source)!.internalEdgeIds.push(edge.id);
       continue;

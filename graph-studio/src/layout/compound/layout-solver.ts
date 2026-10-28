@@ -1,5 +1,3 @@
-import { routingPreferences, portWarnings } from "./routing/preferences";
-export { routingPreferences, portWarnings } from "./routing/preferences";
 import { compileConstraints, layoutScopeMembers, validateLayoutConstraints } from "./constraints";
 import {
   layoutFingerprint,
@@ -11,7 +9,7 @@ import {
   type LayoutGeometry,
   type LayoutSolveResult,
 } from "./layout-plan";
-import { compareLayoutMetrics, measureLayout, sameBox, validateLayoutGeometry } from "./layout-quality";
+import { compareLayoutMetrics, measureLayout, onPortSide, sameBox, validateLayoutGeometry } from "./layout-quality";
 import { place } from "./placement";
 import { routeCompoundEdges } from "./routing/router";
 
@@ -130,3 +128,46 @@ export function solveCompoundLayout(
 }
 
 export { layoutScopeMembers, validateLayoutConstraints } from "./constraints";
+
+export function routingPreferences(problem: LayoutProblem, data: LayoutProblem["stored"]) {
+  const outerEdges = new Set<string>(),
+    portSides = new Map<string, { source?: number; target?: number }>();
+  const aggregatedPreferenceWarnings: string[] = [];
+  for (const c of data.constraints) {
+    if (c.type === "direction" || c.type === "flow-order") continue;
+    for (const edge of problem.projection.edges.filter((e) => e.originalEdgeIds.includes(c.edgeId))) {
+      if (c.type === "prefer-outer-route") outerEdges.add(edge.id);
+      else {
+        const side = ["east", "south", "west", "north"].indexOf(c.side),
+          previous = portSides.get(edge.id)?.[c.end];
+        if (previous !== undefined && previous !== side)
+          aggregatedPreferenceWarnings.push(
+            `Aggregated connection ${edge.originalEdgeIds.join(", ")} has conflicting ${c.end} port preferences; the first preference was retained.`,
+          );
+        else portSides.set(edge.id, { ...portSides.get(edge.id), [c.end]: side });
+      }
+    }
+  }
+  return { outerEdges, portSides, aggregatedPreferenceWarnings };
+}
+
+export function portWarnings(
+  problem: LayoutProblem,
+  geometry: LayoutGeometry,
+  portSides: Map<string, { source?: number; target?: number }>,
+) {
+  const unmetPreferences: string[] = [];
+  for (const [edgeId, preferences] of portSides) {
+    const edge = problem.projection.edges.find((e) => e.id === edgeId)!;
+    for (const end of ["source", "target"] as const) {
+      const side = preferences[end];
+      if (side === undefined) continue;
+      const box = geometry.boxes[edge[end]],
+        points = geometry.routes[edgeId].points,
+        point = end === "source" ? points[0] : points.at(-1)!;
+      if (!onPortSide(point, box, side))
+        unmetPreferences.push(`Preferred ${end} port was unavailable for ${edge.originalEdgeIds.join(", ")}.`);
+    }
+  }
+  return unmetPreferences;
+}

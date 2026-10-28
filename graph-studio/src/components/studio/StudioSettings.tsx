@@ -50,7 +50,6 @@ export function StudioSettings({
           preferences={preferences}
           ui={ui}
           viewport={viewport}
-          ai={ai}
           compoundLayoutPlan={compoundLayoutPlan}
           timelineLayoutPlan={timelineLayoutPlan}
         />

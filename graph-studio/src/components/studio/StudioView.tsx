@@ -6,7 +6,7 @@ import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";
 import WorkspaceOverview from "../workspace/WorkspaceOverview";
 import { StudioDialogs } from "./StudioDialogs";
-import { StudioLayoutPanels } from "./StudioLayoutPanels";
+import { WorkbenchPanel } from "./WorkbenchPanel";
 import { StudioSettings } from "./StudioSettings";
 import Topbar from "./Topbar";
 import Workspace from "./Workspace";
@@ -28,7 +28,7 @@ export default function StudioView({
   nodeActions,
 }: StudioViewProps) {
   const { state, dispatch } = session;
-  const [toolsOpen, setToolsOpen] = useState(false);
+  const [workbenchOpen, setWorkbenchOpen] = useState(false);
   const preview = useWorkspacePreview(files, dispatch);
   const { charts: appearanceHistory } = preferences;
   const { appearance } = appearanceHistory;
@@ -70,15 +70,15 @@ export default function StudioView({
       <Topbar
         chartTools={
           state.dag && !files.homeVisible
-            ? { open: toolsOpen && !state.ui.settingsOpen, toggle: () => setToolsOpen((value) => !value) }
+            ? {
+                open: workbenchOpen && !state.ui.settingsOpen,
+                toggle: () => setWorkbenchOpen((value) => !value),
+              }
             : undefined
         }
         topbarRef={viewport.topbarRef}
         files={files}
         hasGraph={Boolean(state.dag)}
-        typeOptions={viewport.typeOptions}
-        selectedType={viewport.activeType}
-        onTypeChange={viewport.changeType}
         timeline={state.chartType === "timeline"}
         canBack={viewport.canBack}
         canUp={viewport.canUp}
@@ -119,14 +119,14 @@ export default function StudioView({
             ) : null
           }
           emptyContent={
-            state.chartType === "timeline" &&
+            state.chartType !== "compound" &&
             state.dag &&
             !viewport.stage &&
             (viewport.activeType || viewport.activeTrack || viewport.activeTimelineRange) ? (
               <div className="compound-loading" role="status">
                 <p>{viewport.status}</p>
                 <button className="studio-button" onClick={viewport.showAll}>
-                  Show all events
+                  Reset view filters
                 </button>
               </div>
             ) : state.chartType === "compound" && state.dag && !viewport.stage ? (
@@ -180,19 +180,15 @@ export default function StudioView({
         />
       )}
 
-      <StudioLayoutPanels
+      <WorkbenchPanel
         session={session}
-        preferences={preferences}
         ui={ui}
         files={files}
         transactions={transactions}
-        ai={ai}
         viewport={viewport}
-        compoundLayoutPlan={compoundLayoutPlan}
-        timelineLayoutPlan={timelineLayoutPlan}
         key={state.chartType + state.document.generation}
-        open={toolsOpen}
-        onClose={() => setToolsOpen(false)}
+        open={workbenchOpen}
+        onClose={() => setWorkbenchOpen(false)}
       />
       <StudioSettings
         session={session}

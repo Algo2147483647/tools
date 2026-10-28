@@ -9,9 +9,6 @@ interface TopbarProps {
   topbarRef: RefObject<HTMLElement>;
   files: WorkspaceControls;
   hasGraph: boolean;
-  typeOptions: string[];
-  selectedType: string;
-  onTypeChange: (type: string) => void;
   timeline?: boolean;
   canBack: boolean;
   canUp: boolean;
@@ -39,9 +36,6 @@ export default function Topbar({
   topbarRef,
   files,
   hasGraph,
-  typeOptions,
-  selectedType,
-  onTypeChange,
   timeline,
   canBack,
   canUp,
@@ -73,27 +67,11 @@ export default function Topbar({
       <div className="topbar-actions">
         {!files.homeVisible && (
           <>
-            <label className="topbar-group type-filter-control">
-              <span>Type</span>
-              <select
-                aria-label="Filter graph by type"
-                value={selectedType}
-                disabled={!hasGraph || typeOptions.length === 0}
-                onChange={(event) => onTypeChange(event.currentTarget.value)}
-              >
-                <option value="">All types</option>
-                {typeOptions.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </label>
             {chartTools && (
               <IconButton
                 id="chart-tools-toggle"
-                label="Chart controls"
-                icon={<Icon name="layout" className="topbar-icon-svg" />}
+                label="Workbench"
+                icon={<Icon name="workbench" className="topbar-icon-svg" />}
                 ariaExpanded={chartTools.open}
                 ariaControls="chart-tools-panel"
                 onClick={chartTools.toggle}

@@ -206,7 +206,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
         ...projection.items.flatMap((item) => item.internalEdgeIds),
       ];
       for (const id of ["bx", "xb", "ba", "ab"])
-        assert.ok(ids.includes(id), `${id} missing in ${JSON.stringify(currentView)}`);
+        assert.equal(ids.includes(id), currentView.focusGroupId === null, `${id} in ${JSON.stringify(currentView)}`);
       const stage = await layout(dag, currentView);
       assert.ok(stage.edges.every((edge) => !/NaN|Infinity|undefined/.test(edge.path)));
       for (const edge of stage.edges) assert.ok(stage.nodeMap[edge.source] && stage.nodeMap[edge.target]);
@@ -269,17 +269,24 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.equal(projectCompoundGraph(doc, view(["b"])).representative.get("a"), "b");
     assert.equal(projectCompoundGraph(doc, view()).representative.get("a"), "a");
   }),
-  defineTest("drill-down retains isolated members and incoming/outgoing external boundaries", () => {
+  defineTest("drill-down retains isolated members but excludes external nodes and boundary relationships", () => {
     const p = projectCompoundGraph(compoundFixture(), view(["c"], "c"));
     assert.ok(p.items.some((item) => item.id === "isolated"));
-    assert.ok(p.items.some((item) => item.id === "x" && item.external));
-    assert.equal(p.edges.flatMap((edge) => edge.originalEdgeIds).length, 4);
+    assert.ok(!p.items.some((item) => item.id === "x" || item.external));
+    assert.deepEqual(
+      p.edges.flatMap((edge) => edge.originalEdgeIds),
+      ["ad"],
+    );
     assert.ok(!p.items.some((item) => item.id === "c"));
     const inner = projectCompoundGraph(compoundFixture(), view([], "b"));
-    assert.ok(inner.items.some((item) => item.id === "d" && item.external));
+    assert.deepEqual(
+      inner.items.map((item) => item.id),
+      ["a"],
+    );
+    assert.deepEqual(inner.edges, []);
     assert.ok(!inner.items.some((item) => item.id === "c"));
   }),
-  defineTest("folded and external summaries merge mixed relationships by directed visible endpoints", () => {
+  defineTest("folded summaries merge relationships while focused views retain only internal edges", () => {
     const doc = normalizeDagInput({
       format: "graph-studio",
       version: 3,
@@ -319,11 +326,13 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
     assert.deepEqual(partial.edges.find((edge) => edge.target === "y")!.originalEdgeIds, ["event", "amount"]);
     assert.deepEqual(partial.edges.find((edge) => edge.target === "z")!.originalEdgeIds, ["flag"]);
 
-    // The outside group is a summary even without an explicit collapse preference.
+    // Focus never synthesizes outside summaries, regardless of collapse preferences.
     const focused = projectCompoundGraph(doc, view([], "left"));
-    assert.ok(focused.items.find((item) => item.id === "right")!.external);
-    assert.deepEqual(focused.edges.find((edge) => edge.source === "a")!.originalEdgeIds, ["request", "event", "flag"]);
-    assert.equal(focused.edges.filter((edge) => edge.source === "a" && edge.target === "right").length, 1);
+    assert.deepEqual(focused.items.map((item) => item.id).sort(), ["a", "b", "c"]);
+    assert.deepEqual(
+      focused.edges.flatMap((edge) => edge.originalEdgeIds),
+      ["internal"],
+    );
 
     const expanded = projectCompoundGraph(doc, view());
     assert.equal(expanded.edges.length, doc.edges.length);

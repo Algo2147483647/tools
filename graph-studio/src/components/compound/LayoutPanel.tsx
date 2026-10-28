@@ -32,7 +32,6 @@ export default function CompoundLayoutPanel({
             label: "AI",
             status: busy ? "running" : c.detail ? "error" : c.lastRunCurrent ? "success" : "idle",
           },
-          { value: "fcose", label: "fCoSE" },
         ]}
       >
         <fieldset className="layout-rule-fields" disabled={busy}>
@@ -67,43 +66,33 @@ export default function CompoundLayoutPanel({
                   </select>
                 ),
               },
-              ...(method === "fcose"
-                ? []
-                : [
-                    {
-                      label: "Direction",
-                      value: (
-                        <select
-                          className="studio-field"
-                          aria-label="Layout direction"
-                          value={direction}
-                          onChange={(e) =>
-                            c.change({
-                              direction: e.target.value as LayoutDirection,
-                              constraints: c.settings.constraints.filter(
-                                (constraint) =>
-                                  constraint.type !== "direction" ||
-                                  constraint.scopeId !== c.defaultIntent.scope.groupId,
-                              ),
-                            })
-                          }
-                        >
-                          <option value="AUTO">Automatic</option>
-                          <option value="RIGHT">Left to right</option>
-                          <option value="DOWN">Top to bottom</option>
-                        </select>
-                      ),
-                    },
-                  ]),
+              {
+                label: "Direction",
+                value: (
+                  <select
+                    className="studio-field"
+                    aria-label="Layout direction"
+                    value={direction}
+                    onChange={(e) =>
+                      c.change({
+                        direction: e.target.value as LayoutDirection,
+                        constraints: c.settings.constraints.filter(
+                          (constraint) =>
+                            constraint.type !== "direction" || constraint.scopeId !== c.defaultIntent.scope.groupId,
+                        ),
+                      })
+                    }
+                  >
+                    <option value="AUTO">Automatic</option>
+                    <option value="RIGHT">Left to right</option>
+                    <option value="DOWN">Top to bottom</option>
+                  </select>
+                ),
+              },
             ]}
           />
         </fieldset>
-        {method === "fcose" ? (
-          <p className="layout-status">
-            Arrange the complete nested graph with fCoSE, then route connections once. Invalid results keep the previous
-            view.
-          </p>
-        ) : method === "automatic" ? (
+        {method === "automatic" ? (
           <p className="layout-status">
             Nodes, groups and connections arrange automatically as the graph or settings change.
           </p>
@@ -169,14 +158,11 @@ export default function CompoundLayoutPanel({
         {c.error && (
           <p className="layout-warning" role="alert">
             {c.error}
-            {c.quality ? " Previous layout kept." : ""}
           </p>
         )}
         {c.quality && (
           <>
-            <p>
-              {c.error || c.loading ? "Previous layout · " : ""}Geometry valid · {Math.round(c.quality.elapsedMs)} ms
-            </p>
+            <p>Geometry valid · {Math.round(c.quality.elapsedMs)} ms</p>
             {c.lastRun && c.lastRunCurrent ? (
               <AiRunComparison report={c.lastRun} />
             ) : (

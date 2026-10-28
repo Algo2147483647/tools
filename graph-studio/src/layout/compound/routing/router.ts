@@ -357,7 +357,7 @@ export function routeCompoundEdges(
       : [];
     const labelObstacles = [...obstacles, ...containers, ...otherLabels, ...lineObstacles, ...portApproaches];
     const labelIndex = needsLabel ? new ObstacleIndex(labelObstacles) : undefined;
-    if (!candidates.length) throw new Error(`Unable to route between side ports: ${edge.source} → ${edge.target} (edge ${edge.id}).`);
+    if (!candidates.length) throw new Error(`Unable to route between side ports: ${edge.source} → ${edge.target}.`);
     const middle = candidates[0].points[Math.floor(candidates[0].points.length / 2)];
     let chosen = { points: candidates[0].points, labelPosition: { x: middle.x, y: middle.y - 10 } };
     let labelPlaced = false;
@@ -419,7 +419,7 @@ export function routeCompoundEdges(
           () => 0,
           (port) => portPreferenceCost(edge.target, port.point),
         );
-        if (!start || !end) throw new Error(`Unable to route label lane: ${edge.source} → ${edge.target} (edge ${edge.id}).`);
+        if (!start || !end) throw new Error(`Unable to route label lane: ${edge.source} → ${edge.target}.`);
         chosen = { points: simplifyRoute([...start, ...end]) ?? [...start, ...end], labelPosition };
       }
       if (showLabels && edge.label) labelBoxes.set(edge.id, edgeLabelBox(edge.id, edge.label, chosen.labelPosition));

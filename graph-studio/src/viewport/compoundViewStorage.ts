@@ -1,18 +1,38 @@
 import { readStoredText, writeStoredText } from "../shared/browser/browserStorage";
 import type { CompoundView } from "../graph/types";
 
-export function loadCompoundView(key: string, defaultCollapsedGroupIds: string[]): CompoundView {
+export function sanitizeCompoundView(view: CompoundView, groupIds: string[]): CompoundView {
+  const valid = new Set(groupIds);
+  return {
+    collapsedGroupIds: [...new Set(view.collapsedGroupIds)].filter((id) => valid.has(id)),
+    focusGroupId: view.focusGroupId && valid.has(view.focusGroupId) ? view.focusGroupId : null,
+  };
+}
+export function compoundViewKey(documentId: string) {
+  return JSON.stringify(["graph-studio:compound-view", documentId]);
+}
+export function loadCompoundView(
+  key: string,
+  defaultCollapsedGroupIds: string[],
+  initial?: CompoundView,
+): CompoundView {
   try {
     const raw = JSON.parse(readStoredText(key) ?? "null");
     if (raw && Array.isArray(raw.collapsedGroupIds))
-      return {
-        collapsedGroupIds: raw.collapsedGroupIds.filter((id: unknown): id is string => typeof id === "string"),
-        focusGroupId: typeof raw.focusGroupId === "string" ? raw.focusGroupId : null,
-      };
+      return sanitizeCompoundView(
+        {
+          collapsedGroupIds: raw.collapsedGroupIds.filter((id: unknown): id is string => typeof id === "string"),
+          focusGroupId: typeof raw.focusGroupId === "string" ? raw.focusGroupId : null,
+        },
+        defaultCollapsedGroupIds,
+      );
   } catch {
     /* Private storage may be unavailable. */
   }
-  return { collapsedGroupIds: defaultCollapsedGroupIds, focusGroupId: null };
+  return sanitizeCompoundView(
+    initial ?? { collapsedGroupIds: defaultCollapsedGroupIds, focusGroupId: null },
+    defaultCollapsedGroupIds,
+  );
 }
 
 export function saveCompoundView(key: string, view: CompoundView) {

@@ -50,7 +50,7 @@ src/
 
 `app/` combines the former controller and state directories by feature. Hooks own React state and effect lifecycles; pure reducers and transaction helpers remain separate files beside their callers. `app/document/nodeActions.ts` holds action contracts shared with menus, so controllers do not import component implementations.
 
-`StudioView` composes the page. `StudioDialogs`, `StudioSettings` and `StudioLayoutPanels` wire their respective surfaces. `ChartLayoutControls` is shared by Settings → Layout and the toolbar's single chart-controls panel. `MethodTabs` supplies accessible switching; `LayoutRules` renders three-line rule tables. Nested structure, timeline filters and spatial view controls use the same panel.
+`StudioView` composes the page. `StudioDialogs`, `StudioSettings` and `WorkbenchPanel` wire their respective surfaces. `ChartLayoutControls` is used only by Settings → Layout; the Workbench has no layout controls. `MethodTabs` supplies accessible switching; `LayoutRules` renders three-line rule tables. Nested structure, timeline filters and spatial view controls use the same panel.
 
 General contains current-view exports and current-session details. File opening, creation and recent locations belong to the home screen. Appearance text controls belong to Nodes or Edges; timeline axis and track typography belong to Canvas. Schema groups also determine search and section resets.
 

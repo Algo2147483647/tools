@@ -1,3 +1,4 @@
+import type { TypeFilter } from "../../graph/typeFilter";
 import { createLayoutConfigFile } from "../../schema/layoutConfig";
 import {
   graphLayoutIdentity,
@@ -29,6 +30,7 @@ interface LayoutInput {
   appearance: GraphAppearance;
   compound: { view: CompoundView };
   activeType: string;
+  typeFilter: TypeFilter;
   activeTrack: string;
   activeTimelineRange: TimelineTimeRange | null;
   showNodeDetail: boolean;
@@ -39,6 +41,7 @@ export function useGraphLayout({
   appearance,
   compound,
   activeType,
+  typeFilter,
   activeTrack,
   activeTimelineRange,
   showNodeDetail,
@@ -51,8 +54,8 @@ export function useGraphLayout({
   );
   const typeFilteredDag = useMemo(
     () =>
-      state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, activeType, state.chartType) : null,
-    [activeType, state.dag, state.chartType],
+      state.dag && state.chartType !== "compound" ? projectGraphByType(state.dag, typeFilter, state.chartType) : null,
+    [typeFilter, state.dag, state.chartType],
   );
   const displayDag = useMemo(
     () => typeFilteredDag && projectGraphByTimelineTrack(typeFilteredDag, activeTrack),
@@ -97,6 +100,7 @@ export function useGraphLayout({
         : null,
     [
       activeType,
+      typeFilter,
       alignNodeWidthsToMax,
       geometryAppearance,
       displayDag,
@@ -118,7 +122,7 @@ export function useGraphLayout({
             view: compound.view,
             layout: state.layoutSession.data.charts.compound,
             showEdgeLabels: appearance.display.showEdgeLabels,
-            selectedType: activeType,
+            selectedType: typeFilter,
             appearance: geometryAppearance,
             showNodeDetail,
             alignNodeWidthsToMax,
@@ -130,6 +134,7 @@ export function useGraphLayout({
       compound.view,
       state.layoutSession.data.charts.compound,
       activeType,
+      typeFilter,
       geometryAppearance,
       showNodeDetail,
       alignNodeWidthsToMax,
@@ -142,6 +147,7 @@ export function useGraphLayout({
     selection: state.selection,
     compound: compound.view,
     activeType,
+    typeFilter,
     activeTrack,
     timelineRange: activeTimelineRange,
     spatial: spatialView.view,
@@ -159,7 +165,7 @@ export function useGraphLayout({
   const settingsKey = JSON.stringify(
     renderingSettings(state.chartType, state.layoutSession.data.charts, scope, state.timelineSettings),
   );
-  const solvedStage = useMemo(
+  const stage = useMemo(
     () =>
       saved &&
       state.dag &&
@@ -175,16 +181,6 @@ export function useGraphLayout({
         : computedStage,
     [saved, state.dag, computedStage, appearanceKey, settingsKey],
   );
-  // Keep the last displayed picture (including accepted AI geometry) on failure.
-  // It is visual fallback only, never relabelled or saved as the requested mode.
-  const lastCompound = useRef<{ generation: number; stage: NonNullable<typeof solvedStage> } | null>(null);
-  if (lastCompound.current?.generation !== state.document.generation) lastCompound.current = null;
-  if (state.chartType === "compound" && solvedStage && !compoundLayout.error && !compoundLayout.loading)
-    lastCompound.current = { generation: state.document.generation, stage: solvedStage };
-  const stage =
-    state.chartType === "compound" && (compoundLayout.error || compoundLayout.loading)
-      ? (lastCompound.current?.stage ?? null)
-      : solvedStage;
   const currentLayoutConfig = useMemo(
     () =>
       state.dag ? createLayoutConfigFile(state.layoutSession.data, state.chartType, state.timelineSettings) : null,
@@ -247,6 +243,7 @@ export function useGraphLayout({
       : `${layoutLabel}.${activeType ? ` Type: ${activeType}.` : ` Focused on ${focusLabel}.`} ${stage.nodes.length} nodes and ${stage.edges.length} links are visible.${warningText}`;
   }, [
     activeType,
+    typeFilter,
     activeTrack,
     stage,
     state.dag,

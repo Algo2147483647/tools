@@ -90,7 +90,6 @@ export interface ResolvedStageSelection {
 }
 
 export interface StageData {
-  layoutProvenance?: import("../compound/layout-plan").LayoutResult["provenance"];
   layoutQuality?: import("../compound/layout-plan").LayoutResult["quality"];
   compoundLayout?: import("../compound/layout-plan").LayoutProblem;
   spatial?: {

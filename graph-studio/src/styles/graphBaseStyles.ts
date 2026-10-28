@@ -51,13 +51,10 @@ export const GRAPH_BASE_CSS = `
   fill: var(--dag-node-fill, #fff);
   stroke: var(--dag-node-border, #b0bdce);
 }
-.dag-group-controls text {
-  fill: var(--dag-text-strong, #27364c);
-  font:
-    16px "Segoe UI",
-    sans-serif;
-  pointer-events: none;
-}
+.dag-group-controls svg { color: #526782; pointer-events: none; }
+.dag-group-controls [role="button"] { cursor: pointer; }
+.dag-group-controls [role="button"]:focus { outline: none; }
+.dag-group-controls [role="button"]:focus-visible rect { stroke: #456ef0; stroke-width: 2; }
 .dag-group-controls [role="button"]:focus rect,
 .dag-group-controls [role="button"]:hover rect {
   stroke: var(--studio-accent);

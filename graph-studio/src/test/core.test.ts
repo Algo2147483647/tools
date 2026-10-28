@@ -1,5 +1,5 @@
 import { consoleModesSuite } from "./consoleModes.test";
-import { fcoseSuite } from "./fcose.test";
+import { workbenchSuite } from "./workbench.test";
 import { simpleRoutingSuite } from "./simpleRouting.test";
 import { layoutPersistenceSuite } from "./layoutPersistence.test";
 import { styleFilesSuite } from "./styleFiles.test";
@@ -52,7 +52,7 @@ import { workspaceOperationsSuite } from "./workspaceOperations.test";
 
 async function main() {
   const suites = [
-    fcoseSuite,
+    workbenchSuite,
     simpleRoutingSuite,
     consoleModesSuite,
     styleFilesSuite,
