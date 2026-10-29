@@ -12,7 +12,6 @@ import { buildStageData } from "../layout/node-link/layout";
 import GraphStage from "../components/canvas/GraphStage";
 import { createSampleDag } from "./fixtures";
 import { defineSuite, defineTest } from "./harness";
-import { parseConsoleSource } from "../console/dsl";
 
 export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
   defineTest("new graphs and Default share one complete style; presets stay scoped to chart type", () => {
@@ -44,9 +43,11 @@ export const nodeLinkDefaultsSuite = defineSuite("Node-link default preset", [
       );
     }
     for (const removed of ["simple", "compact", "slate", "blueprint", "contrast", "presentation"]) {
-      assert.equal(parseConsoleSource(`/style-preset ${removed}`).ok, false);
+      assert.throws(
+        () => applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: removed }, "node-link"),
+        /not available/,
+      );
     }
-    assert.equal(parseConsoleSource("/style-preset preset-2").ok, true);
     assert.equal(
       applyAppearanceCommand(style.appearance, { type: "applyPreset", presetId: "preset-2" }, "compound").appearance
         .nodes.widths[1],

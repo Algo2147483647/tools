@@ -14,6 +14,13 @@ export interface ConsoleEnvironment {
     selection?: unknown;
     focusedKey?: string | null;
     activeType?: string;
+    typeFilter?: import("../graph/typeFilter").TypeFilter;
+    typeOptions?: string[];
+    zoomPercent?: number;
+    canBack?: boolean;
+    canUp?: boolean;
+    canUndo?: boolean;
+    canRedo?: boolean;
     activeTrack?: string;
     timelineRange?: unknown;
     compound?: CompoundView;
@@ -73,6 +80,23 @@ export function validateRuntimeInstruction(
     return;
   }
   if (!env.view) throw new Error("View service is unavailable.");
+  if (family === "history") {
+    if (action === "undo" ? !env.view.canUndo : !env.view.canRedo) throw new Error(`Nothing to ${action}.`);
+    return;
+  }
+  if (action === "types") {
+    const values = args.values as string[];
+    if (args.selection === "single" && values.length > 1) throw new Error("Single selection allows at most one type.");
+    if (values.some((value) => !env.view?.typeOptions?.includes(value)))
+      throw new Error("Unknown type. Inspect the view's typeOptions first.");
+  }
+  if (
+    action === "navigate" &&
+    ((args.destination === "back" && !env.view.canBack) || (args.destination === "up" && !env.view.canUp))
+  )
+    throw new Error("Navigation target is unavailable.");
+  if (action === "zoom" && (args.percent === undefined) === (args.fit === undefined))
+    throw new Error("Provide exactly one of percent or fit:true.");
   if (action === "set") {
     if (!isRecord(args.patch) || !Object.keys(args.patch).length) throw new Error("patch must be a non-empty object.");
     const allowed = ["axes", "projection", "yaw", "pitch", "labels", "grid", "hideBackPoints", "unitScale"];

@@ -18,7 +18,6 @@ export type ConsoleRunResult =
       diff: string[];
       referenceTime: number;
       dag: NormalizedDag;
-      contextNodeKey: NodeKey | null;
       results: CommandResult[];
       appearance: GraphAppearance;
       appearanceResults: AppearanceCommandResult[];
@@ -32,5 +31,4 @@ export type ConsoleRunResult =
       ok: false;
       line: number;
       message: string;
-      contextNodeKey: NodeKey | null;
     };

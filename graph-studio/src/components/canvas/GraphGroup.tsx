@@ -1,4 +1,3 @@
-import Icon from "../ui/Icon";
 import type { StageGroup } from "../../layout/shared/types";
 import { layoutGroupTitle } from "../../layout/shared/group-title";
 
@@ -24,7 +23,7 @@ export function GroupControls({
       {(!external ? ["toggle", "enter"] : ["enter"]).map((action, i) => (
         <g
           key={action}
-          transform={`translate(${i * 32}, 0)`}
+          transform={`translate(${i * 28}, 0)`}
           role="button"
           tabIndex={0}
           aria-label={`${action === "enter" ? "Enter" : collapsed ? "Expand" : "Collapse"} ${id}`}
@@ -43,8 +42,10 @@ export function GroupControls({
           }}
         >
           <title>{action === "enter" ? "Focus subgraph" : collapsed ? "Expand subgraph" : "Collapse subgraph"}</title>
-          <rect width={28} height={28} rx={8} />
-          <Icon x={6} y={6} size={16} name={action === "enter" ? "enter-group" : collapsed ? "expand" : "collapse"} />
+          <rect width={24} height={24} rx={5} />
+          <text x={12} y={17} textAnchor="middle">
+            {action === "enter" ? "↗" : collapsed ? "+" : "−"}
+          </text>
         </g>
       ))}
     </g>

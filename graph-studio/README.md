@@ -10,9 +10,9 @@ It is built for fast graph inspection and editing in the browser:
 - explore and edit arbitrarily nested subgraphs with the independent Nested node-link chart type ([guide](docs/charts/compound.md))
 - explore events on calendar or relative time axes, with branching, duration bars, track filtering, and editable event times ([guide](docs/charts/timeline.md))
 - edit nodes and relationships directly in the UI
-- batch graph edits from a text console in `Edit` mode
+- AI-driven graph edits through validated JSON tools and atomic batches
 
-Right-click a node or the canvas once to open the floating console. There is no context menu. Drag the console header to move it, resize from its bottom-right corner, and press Esc while focused inside it to close. The **Protocols** tab lists every console command, compound layout intent, AI Context Packet, response v2 variants and provider envelopes in searchable command tables and reference tables. The corner star expands in place into icon-only Workspace files, Console and Settings controls. Navigation and zoom belong to the Workbench tab.
+Right-click a node or the canvas once to open the floating console. There is no context menu. Drag the console header to move it, resize from its bottom-right corner, and press Esc while focused inside it to close. The Console accepts natural-language requests; only AI can call native JSON tools. The **Protocols** tab shows the live tool catalog, argument schemas, capabilities, context, execution results and provider transport. The corner star expands in place into icon-only Workspace files, Console and Settings controls. Navigation and zoom belong to the Workbench tab.
 
 If Graph Studio returns to the welcome screen after being away, the app has no inactivity logout timer. The default launcher runs Vite in development mode; its client reloads the page when a lost server connection becomes available again. Browser tab discard can also reload a background page. The active document, unsaved edits and workspace view currently live in memory, and startup always initializes the welcome screen; recent locations and preferences do not restore that editing session. Use `launch.cmd -Preview` for normal use to avoid development HMR reconnect reloads. This does not provide recovery from browser discard or manual refresh; that requires a separate document/session recovery mechanism.
 
@@ -124,7 +124,7 @@ Graph documents use the strict Graph Studio v3 envelope: `format`, `version`, `n
 - [Canonical Appearance Schema](docs/appearance-schema.md): one protocol for presets, models, storage, validation, and rendering
 - [Workspace Guide](docs/tmp/workspaces.md): retained guide to opening modes, recent locations, discovery, and local links
 - [Usage Guide](docs/tmp/usage.md): retained guide to UI workflows and editing
-- [Graph Console DSL](docs/tmp/graph-console-dsl.md): retained command reference
+- [AI tools across graph modes](docs/console-modes.md): native JSON tool contract and execution rules
 - [Development Guide](docs/tmp/development.md): retained guide to scripts and implementation
 
 ## Minimal Example

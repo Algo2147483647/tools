@@ -1,23 +1,15 @@
-import type { AppearanceCommand } from "../../schema/appearance/commands";
-export interface ConsoleLineError {
-  line: number;
-  message: string;
-}
-
-export type ConsoleNodeOperand = { type: "key"; value: string } | { type: "context" };
+import type { AppearanceCommand } from "../schema/appearance/commands";
+export type ConsoleNodeOperand = string;
 
 export type ConsoleInstruction =
-  | import("../domainRegistry").DomainInstruction
-  | { type: "help"; all?: boolean; line: number }
-  | { type: "clear"; line: number }
-  | { type: "keys"; line: number }
-  | { type: "graphStats"; line: number }
-  | { type: "find"; query: string; line: number }
-  | { type: "neighbors"; key: ConsoleNodeOperand; depth: number; line: number }
-  | { type: "path"; fromKey: ConsoleNodeOperand; toKey: ConsoleNodeOperand; line: number }
+  | import("./domainRegistry").DomainInstruction
+  | {
+      type: "query";
+      action: "graph" | "node" | "search" | "neighbors" | "path";
+      args: Record<string, unknown>;
+      line: number;
+    }
   | { type: "show"; key: ConsoleNodeOperand; line: number }
-  | { type: "list"; key: ConsoleNodeOperand; line: number }
-  | { type: "use"; key: ConsoleNodeOperand; line: number }
   | { type: "rename"; oldKey: ConsoleNodeOperand; newKey: string; line: number }
   | { type: "delete"; key: ConsoleNodeOperand; recursive: boolean; line: number }
   | { type: "add"; key: string; parentKey?: ConsoleNodeOperand; line: number }
@@ -38,6 +30,3 @@ export type ConsoleInstruction =
   | { type: "appearance"; command: AppearanceCommand; line: number }
   | { type: "appearanceCssShow"; line: number }
   | { type: "json"; key: ConsoleNodeOperand; line: number };
-
-export type ConsoleToken =
-  { type: "word"; value: string } | { type: "string"; value: string } | { type: "symbol"; value: "," | "=" };

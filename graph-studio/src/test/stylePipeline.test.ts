@@ -1,3 +1,4 @@
+import { parseToolOperations } from "../ai/tools/catalog";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -14,10 +15,7 @@ import GraphStage from "../components/canvas/GraphStage";
 import GraphNode from "../components/canvas/GraphNode";
 import { measureText, layoutCardTitle } from "../layout/shared/text";
 import { getTitleFont } from "../layout/shared/typography";
-import { parseConsoleSource } from "../console/dsl";
 import { executeConsoleInstructions } from "../console/executor";
-import { validateCommandBatch } from "../ai/execution/validation";
-import type { CommandBatch } from "../ai/types";
 
 const noop = () => {};
 const dag = normalizeDagInput({
@@ -229,25 +227,13 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "redo" } });
     assert.deepEqual(getChartStyles(state).compound, restored);
   }),
-  defineTest("AI preset preflight reports the same appearance diff as execution for every chart type", () => {
-    const commands = ["/style-preset default"];
-    const batch = { id: "style-check", commands, riskLevel: "low" } as CommandBatch;
-    const parsed = parseConsoleSource(commands.join("\n"));
-    assert.ok(parsed.ok);
+  defineTest("AI preset tool prepares the complete default style for every chart type", () => {
     for (const chartType of ["node-link", "compound", "sankey", "timeline"] as const) {
       const appearance = getDefaultChartStyle("sankey").appearance;
-      const report = validateCommandBatch({
-        batch,
-        dag,
-        contextNodeKey: null,
-        appearance,
-        chartType,
-        graphRevision: "1",
-      });
-      const executed = executeConsoleInstructions(dag, parsed.instructions, null, appearance, chartType);
-      assert.ok(executed.ok && report.allPassed);
-      const diff = executed.diff;
-      assert.deepEqual(report.results[0].expectedDiff, diff.length ? diff : ["No graph mutations expected."]);
+      const instructions = parseToolOperations("style_preset", { id: "default" }, { dag, chartType });
+      const result = executeConsoleInstructions(dag, instructions, appearance, chartType);
+      assert.ok(result.ok);
+      assert.deepEqual(result.style, getDefaultChartStyle(chartType));
     }
   }),
 ]);

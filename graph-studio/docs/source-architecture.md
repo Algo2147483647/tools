@@ -11,7 +11,7 @@ src/
     viewport/       Wiring canvas interaction and chart-specific view state
     layout/         Layout hooks, workers, candidate review and freshness checks
     ai/             AI request lifecycle and session coordination
-    console/        Command execution commits, input history and completion
+    console/        AI tool commits, runtime effects and natural-language input
     ui/             Page state and shortcuts
   components/
     studio/         Page composition, toolbar, settings and dialogs
@@ -35,7 +35,7 @@ src/
   layout/           Chart-family algorithms, AI layout rules and workers
   viewport/         Zoom, pan, camera geometry and DOM measurement
   ai/               Provider transport, editing protocol, context and sessions
-  console/          Command grammar and execution
+  console/          Validated operations and isolated execution
   workspace/        File/workspace operations and persisted recent locations
   shared/
     browser/        Storage, clipboard, download and file-access primitives
@@ -61,7 +61,7 @@ General contains current-view exports and current-session details. File opening,
 
 The field-description format is not standard JSON Schema. [public/graph.schema.json](../public/graph.schema.json) remains the machine-readable JSON Schema for external document tooling. `graph/normalize.ts` remains responsible for runtime document validation and graph semantics. Changes to the document format must update these contracts together; they are not automatically generated from the description table.
 
-[appearance/definition.json](../src/schema/appearance/definition.json) defines appearance fields, defaults and constraints. `appearance/defaults.json` supplies chart-specific overrides. Complete snapshots under `appearance/presets/` support internal defaults and Console preset commands. `appearance/presets.ts` validates their identities and envelopes through `styleProtocol.ts`; `appearance/styles.ts` owns default-style construction, comparison and lookup. These modules do not depend on React.
+[appearance/definition.json](../src/schema/appearance/definition.json) defines appearance fields, defaults and constraints. `appearance/defaults.json` supplies chart-specific overrides. Complete snapshots under `appearance/presets/` support internal defaults and AI preset tools. `appearance/presets.ts` validates their identities and envelopes through `styleProtocol.ts`; `appearance/styles.ts` owns default-style construction, comparison and lookup. These modules do not depend on React.
 
 `appearance/defaults.ts` exposes the base appearance and resolver; `appearance/contract.ts` validates complete values; `appearance/commands.ts` owns appearance commands. Obsolete forwarding modules have been removed, and consumers import the owning modules directly. See [Appearance schema](appearance-schema.md) for the full contract.
 
@@ -77,7 +77,7 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 ## Browser access and viewport
 
-`shared/browser/` contains generic browser capabilities. Domain-specific storage remains with its owner: recent locations in `workspace/recentStorage.ts`, compound view state in `viewport/compoundViewStorage.ts`, AI session persistence in `ai/session/persistence.ts`. `workspace/browserAccess.ts` and `relativeLinks.ts` implement workspace and linked-resource access using generic file primitives.
+`shared/browser/` contains generic browser capabilities. Domain-specific storage remains with its owner: recent locations in `workspace/recentStorage.ts`, compound view state in `viewport/compoundViewStorage.ts`. `workspace/browserAccess.ts` and `relativeLinks.ts` implement workspace and linked-resource access using generic file primitives.
 
 `workspace/opening.ts` prepares complete candidates including recent-location identity and linked style. `workspace/createFromPicker.ts` coordinates folder creation through explicit ports. `app/workspace/useWorkspaceController.ts` retains one operation lock, document replacement decisions and React commits.
 
@@ -85,20 +85,12 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 ## AI and console
 
-`ai/transport/` owns provider requests and configuration. `protocol/` owns editing prompts, response parsing and legacy adaptation; `context/` owns summaries and packets; `session/` owns working memory, transitions and recovery; `execution/` owns command policies and preflight validation. `ai/types.ts` is the shared type entry.
+`ai/transport/` owns provider-native tool conversations, streaming and configuration. `ai/tools/catalog.ts` is the shared tool/schema/capability catalog used by provider declarations, runtime validation and the Protocols tab. `tools/loop.ts` owns sequential call/result pairing, budgets, cancellation and stale-snapshot checks. `context/packet.ts` supplies bounded structured context; `protocol/editingPrompt.ts` supplies the editing policy. There are no text-command parsers or legacy response adapters.
 
 AI layout rules belong to their chart family under `layout/compound/ai/` and `layout/timeline/ai/`. Each chart family supplies a compact schema, bounded context and semantic validation. Both use `layout/shared/ai/request.ts` for completion checks and a single correction budget, and shared provider transport; algorithm and worker modules do not import network request entry points.
 
 `transport/requestWithRepair.ts` owns request → parse → one repair attempt. Transport failures propagate without retries; cancellation prevents starting a repair request. Session persistence handles storage and serialization, while recovery interprets stored state. Recovery sanitizers and model-response parsers have different contracts.
 
-`app/ai/useAiSession.ts` owns Console session recovery and persistence effects. Layout requests have separate controllers, cancellation and schemas; they do not consume or replace pending graph-edit plans. `useCompoundLayoutPlan.ts` installs one validated stage and commits its declaration, guarded by the current document, view and history revision.
+`app/ai/useAiController.ts` connects natural-language requests to the native tool loop. `app/console/useConsoleController.ts` prepares isolated edits and commits one document/style transaction; `useConsoleRuntime.ts` owns view, history and layout effects. Old executable plan persistence and manual Apply/Copy Commands controls have been removed. Dedicated layout requests keep their own controllers and schemas.
 
-`console/dsl.ts` is the parsing entry. `syntax/` owns tokens and literals; `parsers/` groups command grammar. `console/executor.ts` evaluates batches sequentially on an isolated graph; `execution/` holds mutations, remapping, queries and output formatting. `app/console/` owns React commits, UI effects, history and completion. Compound layout commands remain separate asynchronous operations.
-
-## Rendering, export and styles
-
-`components/canvas/` turns stage data into SVG for both the main canvas and previews. Its interaction hooks retain incremental highlighting, local drag previews and keyboard pinning. Geometry stays in `layout/`; page measurements stay in `viewport/`.
-
-`export/svg.ts` prepares snapshots. `app/document/useGraphExport.ts` captures the document and SVG together before dynamically loading `export/html.ts`. The standalone viewer is serialized with `startHtmlViewer.toString()`, so its runtime helpers stay inside that function.
-
-`styles/ui.css` owns shared tabs, fields and buttons. `styles/modals/shared.css` owns common dialog styles; chart-specific controls stay in `chart-controls.css`. Obsolete file-menu, slider and layout-card selectors have been removed. Built-in SVG CSS remains in `graphAppearance.ts`, `graphBaseStyles.ts` and `timelineStyles.ts` to preserve inline SVG/export behavior and cascade order. React style conversion lives in `components/canvas/appearanceStyle.ts`.
+`console/executor.ts` evaluates typed operations on an isolated graph. `execution/` owns mutations, node lookup and structured queries; `domains.ts` preserves chart-specific semantics. Graph, style and layout services remain the validation boundary. Native `edit_batch` permits only document/style effects, while queries and runtime effects run separately.

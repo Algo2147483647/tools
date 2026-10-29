@@ -1,362 +1,201 @@
 import { useState } from "react";
-import { getConsoleCommandReference } from "../../console/reference";
+import { TOOL_CATALOG, TOOL_PROTOCOL_VERSION, modelTools, toolParameters } from "../../ai/tools/catalog";
+import { TOOL_LIMITS } from "../../ai/tools/loop";
 import { SYSTEM_PROMPT } from "../../ai/protocol/editingPrompt";
-import type { AiResponse } from "../../ai/protocol/types";
+import type { CapabilityContext } from "../../console/capabilities";
 import { defaultLayoutIntent } from "../../graph/compound/layoutData";
 
-type Row = readonly [string, string, string];
-const requestFields: Row[] = [
-  [
-    "message",
-    "string · required",
-    "Latest user request. Plain text entered in the console is sent to AI; / commands run locally.",
-  ],
-  ["system.role", '"graph_editing_agent"', "Identifies the graph editing agent."],
-  ["system.language", '"zh" | "en" | "auto"', "Context language; auto follows the latest user request."],
-  ["system.responseProtocolVersion", '"v2"', "Selects the response protocol below."],
-  ["system.editPolicy.execution", '"validate_then_execute"', "Validate commands before execution."],
-  ["graph.summary / commandReference", "string", "Current graph context and its command reference."],
-  ["graph.graphRevision", "string", "Revision associated with this request."],
-  ["graph.currentSelection / focusedNodes", "string[] · optional", "Selected nodes and the console context node."],
-  ["tools.availableCommands", "string", "Commands made available to the model."],
-  ["tools.commandExamples / constraints", "string[]", "Usage examples and graph editing constraints."],
-  ["memory.consoleHistory", "{ tone, text }[]", "Conversation and console output supplied as context."],
-  ["memory.activePlan", "ActionPlan · optional", "Active plan, changes, scope, base revision and validation."],
-  ["memory.workingMemory", "WorkingMemory", "Topic, intent, focus, plan IDs, preferences and unresolved questions."],
-  ["execution.pendingCommandBatch", "CommandBatch · optional", "Pending commands associated with a graph revision."],
-  [
-    "graph.capabilities / domain",
-    "object",
-    "Document capabilities and mode-specific facts, including time, flow, hierarchy and coordinates.",
-  ],
-  [
-    "execution.view / executionKey",
-    "object / string",
-    "Current scope and request snapshot. Changed modes, scopes or revisions invalidate pending plans.",
-  ],
-  ["execution.inspectionResults", "array", "Bounded structured results fed back during the current inspection loop."],
-  ["execution.readOnly", "boolean", "Analysis-only requests cannot commit edits."],
-  ["execution.lastValidation", "ValidationReport · optional", "Most recent command validation results."],
-];
-const responseFields: Row[] = [
-  ["answer", "answer: string", "Display a response without graph edits."],
-  [
-    "clarify",
-    "answer; missingInformation?",
-    "Ask for missing information. Each item has field, reason and optional candidates[].",
-  ],
-  [
-    "inspect",
-    "answer; commands: string[]",
-    "Run read-only queries and automatically return structured results to AI. Maximum 6 turns, 20 commands per turn.",
-  ],
-  [
-    "run_console",
-    "answer; commandBatch",
-    "Execute a nonempty command batch after local validation. Optional preflightRequired defaults to true.",
-  ],
-  [
-    "propose_changes",
-    "answer; plan",
-    "Create a structured plan. Executable draft commands are validated and run immediately when valid.",
-  ],
-];
-const nestedFields: Row[] = [
-  ["commandBatch.commands", "string[] · required", "Nonempty / command strings; non-command entries are filtered out."],
-  [
-    "commandBatch.title / expectedGraphEffects / riskLevel",
-    "string / string[] / risk · optional",
-    "Batch description, expected effects and model-provided risk.",
-  ],
-  [
-    "plan.title / goal / changes",
-    "string / string / ProposedChange[] · required",
-    "Plan identity, objective and structured change list.",
-  ],
-  ["plan.assumptions / affectedNodes", "string[] · optional", "Assumptions and node keys affected by the plan."],
-  [
-    "changes[].kind",
-    "change kind · required",
-    "add_node, set_property, add_edge, remove_edge, merge_node, rename_node, restructure_subgraph.",
-  ],
-  [
-    "changes[].rationale / draftCommands",
-    "string / string[] · required",
-    "Explanation and executable commands for each change.",
-  ],
-  [
-    "changes[].id / target / dependencies / risk",
-    "optional",
-    "target supports nodeId, edgeId and property; dependencies is a list of change IDs.",
-  ],
-  ["draftCommands[]", "{ command, rationale?, risk? }", "Optional top-level command drafts for propose_changes."],
-  [
-    "nextAction",
-    "{ type, message } · optional",
-    "type: validate_then_execute or needs_inspection. It does not bypass local validation.",
-  ],
-  [
-    "risk / riskLevel",
-    '"low" | "medium" | "high"',
-    "Local command classification and validation determine actual execution.",
-  ],
-  [
-    "memoryPatch / fallbackActions",
-    "not consumed",
-    "Present in the TypeScript types but dropped by the current response parser.",
-  ],
-];
-const transportFields: Row[] = [
-  [
-    "OpenAI-compatible / DeepSeek",
-    "POST {baseUrl}/chat/completions",
-    "model, system/user messages, response_format: json_object; response text: choices[0].message.content.",
-  ],
-  [
-    "Anthropic",
-    "POST {baseUrl}/v1/messages",
-    "model, system, messages, max_tokens; response text: content text blocks.",
-  ],
-  [
-    "Gemini",
-    "POST {baseUrl}/v1beta/models/{model}:generateContent",
-    "systemInstruction, contents, generationConfig; response text: candidates[0].content.parts. Streaming uses :streamGenerateContent.",
-  ],
-  [
-    "Ollama",
-    "POST {baseUrl}/api/chat",
-    "model, messages, format: json, stream, options; response text: message.content.",
-  ],
-];
-const AI_RESPONSE_EXAMPLES = [
-  { kind: "answer", answer: "The graph contains one starting node." },
-  {
-    kind: "clarify",
-    answer: "Which node should be renamed?",
-    missingInformation: [{ field: "nodeId", reason: "The target is ambiguous.", candidates: ["A", "B"] }],
-  },
-  { kind: "inspect", answer: "Inspecting the current graph.", commands: ["/graph"] },
-  {
-    kind: "run_console",
-    answer: "Adding an example node.",
-    commandBatch: {
-      title: "Add node",
-      commands: ["/add Example"],
-      expectedGraphEffects: ["One node added"],
-      riskLevel: "medium",
-    },
-    preflightRequired: true,
-  },
-  {
-    kind: "propose_changes",
-    answer: "Create an example node.",
-    plan: {
-      title: "Add node",
-      goal: "Create Example",
-      assumptions: [],
-      affectedNodes: ["Example"],
-      changes: [
-        {
-          kind: "add_node",
-          target: { nodeId: "Example" },
-          rationale: "Requested new node",
-          draftCommands: ["/add Example"],
-          risk: "medium",
-        },
-      ],
-    },
-    nextAction: { type: "validate_then_execute", message: "Validate the batch before applying it." },
-  },
-] satisfies AiResponse[];
-
-function ProtocolTable({ title, columns, rows }: { title: string; columns: Row; rows: Row[] }) {
-  return (
-    <div className="console-protocols__table-scroll">
-      <table className="console-protocols__table">
-        <caption>{title}</caption>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column} scope="col">
-                {column}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(([name, type, description]) => (
-            <tr key={name}>
-              <th scope="row">
-                <code>{name}</code>
-              </th>
-              <td>{type}</td>
-              <td>{description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 export default function ConsoleProtocols({
-  context,
+  context = { dag: null, chartType: "node-link" },
 }: {
-  context?: import("../../console/capabilities").CapabilityContext;
+  context?: CapabilityContext;
 }) {
-  const reference = getConsoleCommandReference(context, true);
   const [query, setQuery] = useState("");
-  const commands = reference.filter((command) =>
-    `${command.label} ${command.help}`.toLowerCase().includes(query.trim().toLowerCase()),
+  const tools = TOOL_CATALOG.filter((tool) =>
+    `${tool.name} ${tool.effect} ${tool.description}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
+  const batch = modelTools(context).find((tool) => tool.name === "edit_batch");
   return (
     <div className="console-protocols">
       <div className="console-protocols__heading">
-        <h3>Protocol reference</h3>
-        <p>Console DSL · AI context · Response v2</p>
+        <h3>AI tool protocol</h3>
+        <p>graph-studio-tools · v{TOOL_PROTOCOL_VERSION} · Native JSON tool calls</p>
       </div>
       <nav className="console-protocols__links" aria-label="Protocol sections">
-        <a href="#console-command-protocol">Commands</a>
-        <a href="#console-ai-request">AI request</a>
-        <a href="#console-ai-response">AI response</a>
+        <a href="#console-tool-catalog">Tools</a>
+        <a href="#console-ai-context">Context</a>
+        <a href="#console-ai-results">Results</a>
         <a href="#console-ai-transport">Transport</a>
       </nav>
-      <section id="console-command-protocol">
-        <h4>
-          01 / Console commands <span>{reference.length}</span>
-        </h4>
+      <section id="console-tool-catalog">
+        <h4>01 / Tool catalog · {TOOL_CATALOG.length} operations + edit_batch</h4>
         <p>
-          <code>&lt;value&gt;</code> is required; <code>[value]</code> is optional. One command per line. Empty lines
-          and lines starting with # are ignored within a command batch. Use <code>.</code> for the node selected by
-          /use. Quote keys containing spaces with JSON double quotes. Domain commands take a JSON object; unavailable
-          capabilities are explained in the table.
+          Describe your request in the Console. Only AI can invoke tools. Typed commands, pasted JSON and assistant
+          prose are never executed locally. Enter sends; Shift+Enter inserts a line break.
         </p>
         <input
           type="search"
-          aria-label="Search command protocols"
-          placeholder="Find a command or keyword…"
+          aria-label="Search AI tools"
+          placeholder="Find a tool, domain or effect…"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <ProtocolTable
-          title="All console command signatures"
-          columns={["Command", "Input", "Behavior"]}
-          rows={commands.map((command) => [
-            command.label,
-            command.label.includes("<") || command.label.includes("[") ? "See signature" : "No arguments",
-            command.help,
-          ])}
-        />
-        {!commands.length && <p role="status">No commands match “{query}”.</p>}
-        <p>
-          Relation assignments replace the full set; an empty assignment clears it. /set accepts string, number,
-          boolean, null or JSON and cannot edit relationship fields. Compound layout operations run separately from edit
-          batches.
-        </p>
+        {tools.map((tool) => (
+          <details key={tool.name}>
+            <summary>
+              <code>{tool.name}</code> · {tool.effect}
+              {tool.unavailable(context) ? " · Unavailable" : " · Available"}
+            </summary>
+            <p>{tool.description}</p>
+            {tool.unavailable(context) && <p>{tool.unavailable(context)}</p>}
+            <h5>Arguments · JSON Schema</h5>
+            <pre>{JSON.stringify(toolParameters(tool, context), null, 2)}</pre>
+            <h5>Example arguments</h5>
+            <pre>
+              {JSON.stringify(
+                tool.name === "layout_run"
+                  ? context.chartType === "node-link"
+                    ? { method: "dagre" }
+                    : context.chartType === "timeline"
+                      ? { method: "algorithm" }
+                      : { intent: defaultLayoutIntent() }
+                  : tool.example,
+                null,
+                2,
+              )}
+            </pre>
+          </details>
+        ))}
+        {!tools.length && <p role="status">No tools match “{query}”.</p>}
         <details>
-          <summary>Compound layout intent JSON</summary>
+          <summary>
+            <code>edit_batch</code> · Atomic document and style edits
+          </summary>
+          <p>
+            Operations run in array order against a private draft. One invalid operation rejects the entire batch. One
+            successful batch creates one undo step. Queries, view and layout calls cannot be mixed into it.
+          </p>
+          <pre>
+            {JSON.stringify(
+              {
+                operations: [
+                  { tool: "node_create", arguments: { id: "example" } },
+                  { tool: "node_set", arguments: { id: "example", field: "title", value: "Example" } },
+                ],
+              },
+              null,
+              2,
+            )}
+          </pre>
+          {batch && (
+            <details>
+              <summary>Current batch schema</summary>
+              <pre>{JSON.stringify(batch.parameters, null, 2)}</pre>
+            </details>
+          )}
+        </details>
+        <details>
+          <summary>Compound layout intent</summary>
           <pre>{JSON.stringify(defaultLayoutIntent(), null, 2)}</pre>
-          <ProtocolTable
-            title="Layout intent fields (all required)"
-            columns={["Field", "Value", "Meaning"]}
-            rows={[
-              [
-                "scope",
-                "{ groupId: string | null, includeDescendants: boolean }",
-                "null selects root; true includes descendants.",
-              ],
-              ["operation", '"layout-and-route"', "Recompute node layout and edge routes."],
-              ["boundaryPolicy", '"strict" | "allow-ancestor-resize"', "Whether ancestor containers can resize."],
-              ["objective", '"readability" | "compact"', "Layout optimization objective."],
-              [
-                "constraints",
-                "LayoutConstraint[] · max 100",
-                "Unknown fields are rejected. Every constraint uses strength: soft.",
-              ],
-              [
-                "direction",
-                "{ type, scopeId, value, strength }",
-                "value: AUTO, RIGHT or DOWN; scopeId is a group ID or null.",
-              ],
-              ["flow-order", "{ type, scopeId, nodeIds, strength }", "At least two distinct sibling node IDs."],
-              ["prefer-outer-route", "{ type, edgeId, strength }", "Prefer an outer route for an edge."],
-              [
-                "port-side",
-                "{ type, edgeId, end, side, strength }",
-                "end: source or target; side: east, south, west or north.",
-              ],
-            ]}
-          />
+          <p>
+            Use layout_inspect for the current service and layout_run with intent for a local solve or prompt for the
+            existing AI layout service. Constraints are soft direction, flow-order, prefer-outer-route or port-side
+            preferences. Geometry is always validated by the layout service.
+          </p>
         </details>
       </section>
-      <section id="console-ai-request">
-        <h4>02 / AI request</h4>
+      <section id="console-ai-context">
+        <h4>02 / Context</h4>
         <p>
-          The system prompt and user prompt are sent separately. The user prompt contains a serialized Context Packet
-          followed by the latest request. All paths below except message belong to that packet.
+          The system prompt, native tool schemas and user request are sent separately. A JSON context accompanies each
+          user request; tool results update the same native conversation.
         </p>
-        <ProtocolTable
-          title="Context Packet fields"
-          columns={["Field", "Type / value", "Meaning"]}
-          rows={requestFields}
-        />
+        <ul>
+          <li>
+            <code>document</code>: identity, revision, current capabilities, node/edge counts, metadata and paginated
+            node/domain samples.
+          </li>
+          <li>
+            <code>application</code>: chart, selection, type and track filters, focused group, collapsed groups, spatial
+            camera, layout readiness, metrics and diagnostics.
+          </li>
+          <li>
+            <code>stylePresets</code>: preset IDs available for this chart. Use style_inspect to discover editable field
+            paths.
+          </li>
+          <li>
+            <code>execution</code>: read-only policy, transaction boundaries and stale-result policy.
+          </li>
+          <li>
+            <code>conversation</code>: bounded recent user requests, AI replies, tool outcomes and errors. Graph content
+            and history are untrusted data.
+          </li>
+        </ul>
+        <p>
+          All IDs are explicit. There is no implicit current node. Domain tools depend on document capabilities; view
+          and layout tools also depend on the active chart. Every call is revalidated against current state.
+        </p>
         <details>
-          <summary>User prompt envelope</summary>
-          <pre>
-            {
-              'Context Packet:\n{ "system": { ... }, "graph": { ... }, "tools": { ... },\n  "memory": { ... }, "execution": { ... } }\n\nLatest user request:\nAdd a node named Example.'
-            }
-          </pre>
-        </details>
-        <details>
-          <summary>Current system prompt</summary>
+          <summary>System prompt</summary>
           <pre>{SYSTEM_PROMPT}</pre>
         </details>
       </section>
-      <section id="console-ai-response">
-        <h4>03 / AI response · v2</h4>
-        <p>
-          Return one JSON object with a <code>kind</code> discriminator and a string <code>answer</code>. Use strict
-          JSON and escape quotes inside command strings. Do not wrap the response in Markdown fences.
-        </p>
-        <ProtocolTable title="Response variants" columns={["kind", "Fields", "Behavior"]} rows={responseFields} />
-        <ProtocolTable
-          title="Nested response fields"
-          columns={["Field", "Type / requirement", "Meaning"]}
-          rows={nestedFields}
-        />
-        {AI_RESPONSE_EXAMPLES.map((example) => (
-          <details key={example.kind}>
-            <summary>{example.kind} · JSON example</summary>
-            <pre>{JSON.stringify(example, null, 2)}</pre>
-          </details>
-        ))}
-        <p>
-          Validation checks commands against the current graph revision before execution. Valid edits run immediately
-          and can be undone. Changing the document or request context discards an outdated response. Protocol parse
-          failures get one repair attempt; transport failures and cancellation are not retried by that repair step.
-        </p>
-        <details>
-          <summary>Legacy response compatibility</summary>
-          <pre>
+      <section id="console-ai-results">
+        <h4>03 / Results and execution</h4>
+        <pre>
+          {JSON.stringify(
             {
-              '{ "type": "answer", "text": "..." }\n{ "type": "run_console", "explanation": "...", "commands": ["/graph"] }'
-            }
-          </pre>
-          <p>These legacy forms are normalized to v2. Use kind / answer for new integrations.</p>
-        </details>
+              ok: true,
+              tool: "node_set",
+              revision: "current execution fingerprint",
+              data: { queries: [], messages: [], runtime: [] },
+              effects: { graphEdits: 1, styleEdits: 0, runtime: 0, viewers: 0 },
+              diff: ["nodes.example.title: before → after"],
+            },
+            null,
+            2,
+          )}
+        </pre>
+        <pre>
+          {JSON.stringify(
+            {
+              ok: false,
+              tool: "edit_batch",
+              revision: "current execution fingerprint",
+              error: { code: "VALIDATION_FAILED", message: "Unknown node missing.", operation: 2 },
+            },
+            null,
+            2,
+          )}
+        </pre>
+        <p>
+          Tool results are paired with provider call IDs. Queries return structured data with total and nextOffset when
+          paginated. Truncation is explicitly marked; omitted facts are not assumed absent. The model sees the actual
+          result before choosing its next action.
+        </p>
+        <p>
+          Calls execute sequentially. A failed call skips later calls in that response, then returns control to AI for
+          correction. Already completed calls remain applied and undoable. Duplicate call IDs are rejected. Switching
+          documents, chart, scope or settings invalidates pending results; Stop cancels the request and an active layout
+          task.
+        </p>
+        <p>
+          Limits per request: {TOOL_LIMITS.turns} model turns, {TOOL_LIMITS.calls} total calls,{" "}
+          {TOOL_LIMITS.callsPerTurn} calls per turn; each edit_batch allows 100 edits. Reaching a limit reports
+          incomplete work.
+        </p>
       </section>
       <section id="console-ai-transport">
-        <h4>04 / Provider transport</h4>
-        <ProtocolTable
-          title="Provider request and response envelopes"
-          columns={["Provider", "Endpoint", "Envelope"]}
-          rows={transportFields}
-        />
+        <h4>04 / Native provider transport</h4>
+        <ul>
+          <li>OpenAI-compatible / DeepSeek: function tools, tool_calls and tool_call_id results.</li>
+          <li>Anthropic: input_schema, tool_use and tool_result blocks.</li>
+          <li>Gemini: functionDeclarations, functionCall and functionResponse parts.</li>
+          <li>Ollama: function tools, structured arguments and tool results.</li>
+        </ul>
         <p>
-          When progress reporting is enabled, responses use SSE or Ollama NDJSON. Text chunks are assembled before
-          protocol parsing; model reasoning is displayed separately. This reference describes Graph Studio's implemented
-          transports and contains no API keys or live request data.
+          Streaming preserves model reasoning and native tool identifiers. Connection testing verifies a native tool
+          call. Models without tool support receive an explicit failure; no command-string fallback is used.
         </p>
       </section>
     </div>

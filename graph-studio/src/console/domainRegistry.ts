@@ -8,7 +8,6 @@ export interface DomainCommandDefinition {
   effect: CommandEffect;
   capability?: Capability;
   charts?: GraphChartType[];
-  args: string[];
   example: Record<string, unknown>;
   help: string;
 }
@@ -16,20 +15,18 @@ const command = (
   family: string,
   action: string,
   effect: CommandEffect,
-  args: string[],
   example: Record<string, unknown>,
   help: string,
   capability?: Capability,
   charts?: GraphChartType[],
-): DomainCommandDefinition => ({ family, action, effect, args, example, help, capability, charts });
+): DomainCommandDefinition => ({ family, action, effect, example, help, capability, charts });
 
-/** One catalog drives parsing, capability checks, help, completion and AI tools. Arguments are a JSON object. */
+/** Domain operations and capability requirements. Public JSON schemas live in tools/catalog. */
 export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
   command(
     "group",
     "inspect",
     "query",
-    ["id", "offset", "limit"],
     {},
     "Inspect containment independently of ordinary edges; optional id, offset and limit.",
     "group",
@@ -38,7 +35,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "group",
     "create",
     "document",
-    ["id", "title", "members"],
     { id: "services", title: "Services", members: ["api", "db"] },
     "Create a group from siblings.",
     "group",
@@ -47,25 +43,15 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "group",
     "move",
     "document",
-    ["members", "parent"],
     { members: ["api"], parent: "services" },
     "Move members into a node; parent:null moves to root.",
     "group",
   ),
-  command(
-    "group",
-    "rename",
-    "document",
-    ["id", "title"],
-    { id: "services", title: "Platform" },
-    "Rename a group title.",
-    "group",
-  ),
+  command("group", "rename", "document", { id: "services", title: "Platform" }, "Rename a group title.", "group"),
   command(
     "group",
     "dissolve",
     "document",
-    ["id"],
     { id: "services" },
     "Release children to the parent; retain the group node and ordinary edges.",
     "group",
@@ -74,7 +60,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "group",
     "delete",
     "document",
-    ["id"],
     { id: "services" },
     "Delete the containment subtree, never ordinary-edge descendants.",
     "group",
@@ -83,7 +68,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "timeline",
     "inspect",
     "query",
-    ["id", "track", "start", "end", "offset", "limit"],
     {},
     "Inspect event times, tracks and overlapping intervals. Range bounds use calendar strings or relative numbers.",
     "timeline",
@@ -92,7 +76,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "timeline",
     "set",
     "document",
-    ["id", "time"],
     { id: "launch", time: { at: "2026-10-27" } },
     "Set an event time object, using the document clock basis.",
     "timeline",
@@ -101,7 +84,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "timeline",
     "shift",
     "document",
-    ["ids", "amount", "unit"],
     { ids: ["launch"], amount: 3, unit: "day" },
     "Shift events; calendar units: second, minute, hour, day, week. Relative unit must match the clock.",
     "timeline",
@@ -110,7 +92,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "timeline",
     "track",
     "document",
-    ["ids", "track"],
     { ids: ["launch"], track: "Delivery" },
     "Assign events to a track.",
     "timeline",
@@ -119,7 +100,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "flow",
     "inspect",
     "query",
-    ["id", "offset", "limit"],
     {},
     "Inspect numeric flows, node totals, imbalance and feedback edges. Imbalance is diagnostic, not an error.",
     "flow",
@@ -128,7 +108,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "flow",
     "set",
     "document",
-    ["edge", "value"],
     { edge: "e1", value: 140 },
     "Set an existing edge's finite, non-negative flow by ID.",
     "flow",
@@ -137,25 +116,15 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "flow",
     "scale",
     "document",
-    ["edges", "factor"],
     { edges: ["e1"], factor: 1.2 },
     "Scale explicit flows by a finite, non-negative factor.",
     "flow",
   ),
-  command(
-    "space",
-    "inspect",
-    "query",
-    ["id", "offset", "limit"],
-    {},
-    "Inspect coordinate system, units, bounds and coordinates.",
-    "space",
-  ),
+  command("space", "inspect", "query", {}, "Inspect coordinate system, units, bounds and coordinates.", "space"),
   command(
     "space",
     "set",
     "document",
-    ["id", "coordinates"],
     { id: "point", coordinates: [1, 2, 3] },
     "Set coordinates in the declared coordinate system and dimensions.",
     "space",
@@ -164,25 +133,15 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "space",
     "translate",
     "document",
-    ["ids", "delta"],
     { ids: ["point"], delta: [1, 0, 0] },
     "Translate Cartesian coordinates only. Other coordinate systems require explicit space set.",
     "space",
   ),
-  command(
-    "edge-data",
-    "inspect",
-    "query",
-    ["id", "offset", "limit"],
-    {},
-    "Inspect canonical edge IDs, values and metadata.",
-    "graph",
-  ),
+  command("edge-data", "inspect", "query", {}, "Inspect canonical edge IDs, values and metadata.", "graph"),
   command(
     "edge-data",
     "set",
     "document",
-    ["id", "value", "metadata"],
     { id: "e1", metadata: { kind: "dependency" } },
     "Update an edge value or merge metadata by ID; metadata:null clears metadata.",
     "graph",
@@ -191,7 +150,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "style",
     "inspect",
     "query",
-    ["path", "offset", "limit"],
     {},
     "Inspect supported Style schema fields, types and current values; optional path prefix.",
   ),
@@ -199,16 +157,14 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "style",
     "set",
     "style",
-    ["path", "value"],
     { path: "style.appearance.display.showEdgeLabels", value: true },
     "Edit a supported path from the current chart's Style schema, including style.timeline fields.",
   ),
-  command("view", "inspect", "query", [], {}, "Inspect current scope, filters, camera and settings.", "graph"),
+  command("view", "inspect", "query", {}, "Inspect current scope, filters, camera and settings.", "graph"),
   command(
     "view",
     "set",
     "view",
-    ["patch"],
     { patch: { yaw: 30, projection: "orthographic" } },
     "Update Spatial camera settings; never changes coordinates.",
     "space",
@@ -218,7 +174,6 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "view",
     "group",
     "view",
-    ["id", "collapsed", "focus"],
     { id: "services", collapsed: true },
     "Set a group's collapsed state or focus; id:null with focus:true returns to root.",
     "group",
@@ -228,26 +183,67 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "view",
     "timeline",
     "view",
-    ["track", "range"],
     { track: "Delivery" },
     "Filter track or numeric time range; null clears either filter.",
     "timeline",
     ["timeline"],
   ),
-  command("layout", "inspect", "query", ["scope"], {}, "Inspect the current layout service and metrics.", "graph"),
-  command("layout", "diagnose", "query", ["scope"], {}, "Read layout diagnostics without changing the graph.", "graph"),
+  command(
+    "view",
+    "types",
+    "view",
+    { enabled: true, selection: "multiple", operation: "include", values: ["service"] },
+    "Set the complete type filter. Single selection accepts at most one value; include/exclude support exact type IDs. Disabling shows all types.",
+    "graph",
+  ),
+  command(
+    "view",
+    "navigate",
+    "view",
+    { destination: "all" },
+    "Navigate back, up, or to the whole graph using the Workbench navigation semantics.",
+    "graph",
+  ),
+  command(
+    "view",
+    "zoom",
+    "view",
+    { fit: true },
+    "Fit the graph or set zoom percentage; current viewport limits apply.",
+    "graph",
+  ),
+  command(
+    "view",
+    "chart",
+    "view",
+    { chart: "compound" },
+    "Switch chart type. Current document data is preserved; tools are refreshed for the next turn.",
+    "graph",
+  ),
+  command(
+    "view",
+    "select",
+    "view",
+    { ids: ["api"] },
+    "Select explicit nodes in Node-link or Sankey. Empty IDs selects the full graph. Nested focus uses view_group; other modes use filters.",
+    "graph",
+    ["node-link", "sankey"],
+  ),
+  command("history", "undo", "view", {}, "Undo the latest edit transaction, including an AI edit batch.", "graph"),
+  command("history", "redo", "view", {}, "Redo the latest undone transaction.", "graph"),
+  command("layout", "inspect", "query", {}, "Inspect the current layout service and metrics.", "graph"),
+  command("layout", "diagnose", "query", {}, "Read layout diagnostics without changing the graph.", "graph"),
   command(
     "layout",
     "run",
     "layout",
-    ["method", "prompt", "intent"],
     {},
     "Run separately from edit batches. Node-link: method; Compound: prompt or intent; Timeline: prompt or method:algorithm.",
     "layout",
     ["node-link", "compound", "timeline"],
   ),
-  command("layout", "cancel", "layout", [], {}, "Cancel the active layout task.", "layout", ["compound", "timeline"]),
-  command("layout", "resume", "layout", [], {}, "Resume an existing Compound checkpoint.", "group", ["compound"]),
+  command("layout", "cancel", "layout", {}, "Cancel the active layout task.", "layout", ["compound", "timeline"]),
+  command("layout", "resume", "layout", {}, "Resume an existing Compound checkpoint.", "group", ["compound"]),
 ];
 
 export function domainAvailability(definition: DomainCommandDefinition, context: CapabilityContext): string | null {
@@ -260,7 +256,7 @@ export function domainAvailability(definition: DomainCommandDefinition, context:
 
 export function getDomainCommand(family: string, action: string) {
   const definition = DOMAIN_COMMANDS.find((d) => d.family === family && d.action === action);
-  if (!definition) throw new Error(`Unknown command /${family} ${action}. Use /help.`);
+  if (!definition) throw new Error(`Unknown tool ${family}_${action}.`);
   return definition;
 }
 
@@ -270,16 +266,4 @@ export interface DomainInstruction {
   action: string;
   args: Record<string, unknown>;
   line: number;
-}
-
-export function parseDomainInstruction(source: string, line: number): DomainInstruction | null {
-  const match = /^\/(\S+)\s+(\S+)(?:\s+([\s\S]+))?$/.exec(source.trim());
-  if (!match || !DOMAIN_COMMANDS.some((d) => d.family === match[1])) return null;
-  const definition = getDomainCommand(match[1], match[2]);
-  const args = JSON.parse(match[3] || "{}");
-  if (!args || typeof args !== "object" || Array.isArray(args))
-    throw new Error("Command arguments must be a JSON object.");
-  for (const key of Object.keys(args))
-    if (!definition.args.includes(key)) throw new Error(`Unknown argument ${key} for /${match[1]} ${match[2]}.`);
-  return { type: "domain", family: match[1], action: match[2], args, line };
 }

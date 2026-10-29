@@ -14,28 +14,18 @@ import { indexHierarchy } from "../graph/compound/hierarchy";
 import { type GraphAppearance, DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import { type CommandResult } from "../graph/commands";
 import { cloneGraphDocument } from "../graph/serialize";
-import type { GraphChartType, NodeKey, NormalizedDag } from "../graph/types";
+import type { GraphChartType, NormalizedDag } from "../graph/types";
 import { type AppearanceCommandResult, applyAppearanceCommand } from "../schema/appearance/commands";
-import type { ConsoleInstruction } from "./dsl";
-import { buildConsoleHelpText } from "./reference";
+import type { ConsoleInstruction } from "./instructions";
 
-import { remapContextKey, syncUiEffects, resolveExistingNodeKey } from "./execution/context";
+import { syncUiEffects, resolveExistingNodeKey } from "./execution/context";
 import { executeConsoleMutation } from "./execution/mutations";
-import {
-  buildDirectedPathSummary,
-  buildFindResults,
-  buildGraphStats,
-  buildKeyList,
-  buildNeighborSummary,
-  buildNodeSummary,
-} from "./execution/queries";
+import { inspectGraph } from "./execution/queries";
 import type { ConsoleRunResult, ConsoleUiEffect } from "./execution/types";
-export { buildConsoleMutationLabel } from "./execution/formatting";
 
 export function executeConsoleInstructions(
   dag: NormalizedDag,
   instructions: ConsoleInstruction[],
-  initialContextNodeKey: NodeKey | null,
   appearance: GraphAppearance = DEFAULT_GRAPH_APPEARANCE,
   chartType: GraphChartType = "node-link",
   environment: ConsoleEnvironment = {},
@@ -47,7 +37,6 @@ export function executeConsoleInstructions(
   let workingStyle = initialStyle;
   const queryResults: QueryResult[] = [];
   const runtimeEffects: DomainInstruction[] = [];
-  let contextNodeKey = initialContextNodeKey;
   const results: CommandResult[] = [];
   const appearanceResults: AppearanceCommandResult[] = [];
   const uiEffects: ConsoleUiEffect[] = [];
@@ -77,11 +66,11 @@ export function executeConsoleInstructions(
                   value: field.value,
                   description: field.definition.description,
                 }));
-              result = queryPage("/style inspect", fields, instruction.args);
+              result = queryPage("style_inspect", fields, instruction.args);
             } else if (instruction.family === "view" || instruction.family === "layout") {
               validateRuntimeInstruction(instruction, chartType, environment);
               result = {
-                command: `/${instruction.family} ${instruction.action}`,
+                command: `${instruction.family.replace(/-/g, "_")}_${instruction.action}`,
                 data:
                   instruction.family === "view"
                     ? environment.view
@@ -96,7 +85,7 @@ export function executeConsoleInstructions(
           } else if (definition.effect === "document") {
             const result = mutateDomain(workingDag, instruction, chartType, referenceTime);
             workingDag = result.dag;
-            contextNodeKey = remapContextKey(contextNodeKey, result);
+
             syncUiEffects(uiEffects, result);
             results.push(result);
           } else if (definition.effect === "style") {
@@ -118,6 +107,14 @@ export function executeConsoleInstructions(
             if (instructions.length !== 1)
               throw new Error("View and layout tasks must run separately from edit batches.");
             validateRuntimeInstruction(instruction, chartType, environment);
+            if (
+              instruction.family === "view" &&
+              instruction.action === "select" &&
+              (instruction.args.ids as string[]).some(
+                (id) => !Object.prototype.hasOwnProperty.call(workingDag.nodes, id),
+              )
+            )
+              throw new Error("Selection contains an unknown node.");
             if (
               instruction.family === "view" &&
               instruction.action === "group" &&
@@ -145,13 +142,6 @@ export function executeConsoleInstructions(
           }
           break;
         }
-        case "help": {
-          outputMessages.push(buildConsoleHelpText({ dag: workingDag, chartType }, instruction.all));
-          break;
-        }
-        case "clear": {
-          break;
-        }
         case "appearanceCssShow": {
           outputMessages.push(workingAppearance.css || "(empty CSS)");
           break;
@@ -170,46 +160,18 @@ export function executeConsoleInstructions(
           outputMessages.push(result.message);
           break;
         }
-        case "keys": {
-          outputMessages.push(buildKeyList(workingDag));
-          break;
-        }
-        case "graphStats": {
-          outputMessages.push(buildGraphStats(workingDag));
-          break;
-        }
-        case "find": {
-          outputMessages.push(buildFindResults(workingDag, instruction.query));
-          break;
-        }
-        case "neighbors": {
-          const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          outputMessages.push(buildNeighborSummary(key, workingDag, instruction.depth));
-          break;
-        }
-        case "path": {
-          const fromKey = resolveExistingNodeKey(instruction.fromKey, contextNodeKey, workingDag, instruction.line);
-          const toKey = resolveExistingNodeKey(instruction.toKey, contextNodeKey, workingDag, instruction.line);
-          outputMessages.push(buildDirectedPathSummary(fromKey, toKey, workingDag));
-          break;
-        }
-        case "use": {
-          const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          contextNodeKey = key;
+        case "query": {
+          const result = inspectGraph(workingDag, instruction.action, instruction.args);
+          queryResults.push(result);
           break;
         }
         case "show": {
-          const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
+          const key = resolveExistingNodeKey(instruction.key, workingDag);
           uiEffects.push({ type: "show", nodeKey: key, line: instruction.line });
           break;
         }
-        case "list": {
-          const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-          outputMessages.push(buildNodeSummary(key, workingDag));
-          break;
-        }
         case "json": {
-          const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
+          const key = resolveExistingNodeKey(instruction.key, workingDag);
           uiEffects.push({ type: "json", nodeKey: key, line: instruction.line });
           break;
         }
@@ -217,7 +179,7 @@ export function executeConsoleInstructions(
           const next = executeConsoleMutation(instruction, {
             workingDag,
             referenceTime,
-            contextNodeKey,
+
             results,
             uiEffects,
             outputMessages,
@@ -227,13 +189,13 @@ export function executeConsoleInstructions(
             const error = getSankeyError(workingDag.nodes, workingDag.edges);
             if (error) throw new Error(error);
           }
-          contextNodeKey = next.contextNodeKey;
+
           break;
         }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "The console instruction failed.";
-      return { ok: false, line: instruction.line, message, contextNodeKey: initialContextNodeKey };
+      return { ok: false, line: instruction.line, message };
     }
   }
 
@@ -246,7 +208,7 @@ export function executeConsoleInstructions(
     referenceTime,
     diff: limitDiff([...buildGraphDiff(dag, workingDag), ...diffValues(initialStyle, workingStyle, "style")]),
     appearance: workingAppearance,
-    contextNodeKey,
+
     results,
     appearanceResults,
     uiEffects,

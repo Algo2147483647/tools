@@ -70,7 +70,6 @@ export default function App() {
   const ai = useAiController({
     state,
     dispatch,
-    appearance,
     settings: preferences.aiSettings,
     consoleController,
   });

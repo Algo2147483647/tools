@@ -148,18 +148,10 @@ export default function StudioView({
           hasGraph={Boolean(state.dag)}
           entries={consoleController.entries}
           inputValue={consoleController.input}
-          contextNodeKey={consoleController.contextNodeKey}
           aiBusy={ai.busy}
           aiActivity={ai.activity}
-          suggestions={consoleController.suggestions}
-          activeSuggestionIndex={consoleController.activeSuggestionIndex}
-          onReviewApply={ai.applyReview}
-          onReviewDismiss={ai.dismissReview}
-          onReviewCopy={ai.copyReview}
           onInputChange={consoleController.changeInput}
           onKeyDown={(event) => consoleController.handleKeyDown(event, ai.request)}
-          onPaste={(event) => consoleController.handlePaste(event, ai.request)}
-          onSuggestionSelect={(suggestion) => consoleController.changeInput(suggestion.insertText)}
         />
       )}
 

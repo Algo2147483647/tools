@@ -1,3 +1,6 @@
+import { getGraphTypeOptions, type TypeFilter } from "../../graph/typeFilter";
+import type { GraphChartType } from "../../graph/types";
+import { defaultLayoutIntent } from "../../graph/compound/layoutData";
 import { useRef, type Dispatch } from "react";
 import type { GraphAppState } from "../document/initialState";
 import type { GraphAction } from "../document/graphActions";
@@ -32,7 +35,12 @@ export function useConsoleRuntime(
     return {
       inspectLayout: (scope) =>
         s.chartType === "compound"
-          ? c.inspect(scope === "root" ? null : scope)
+          ? {
+              result: c.inspect(scope === "root" ? null : scope),
+              intentTemplate: defaultLayoutIntent(),
+              intentRules:
+                "All constraints have strength:soft. direction:{scopeId,value:AUTO|RIGHT|DOWN}; flow-order:{scopeId,nodeIds}; prefer-outer-route:{edgeId}; port-side:{edgeId,end:source|target,side:east|south|west|north}.",
+            }
           : s.chartType === "timeline"
             ? { quality: t.quality, report: t.report }
             : { method: s.layout.mode, nodes: v.stage?.nodes.length },
@@ -41,6 +49,13 @@ export function useConsoleRuntime(
         selection: s.selection,
         focusedKey: v.focusedKey,
         activeType: v.activeType,
+        typeFilter: v.typeFilter,
+        typeOptions: s.dag ? getGraphTypeOptions(s.dag) : [],
+        zoomPercent: v.zoomPercent,
+        canBack: v.canBack,
+        canUp: v.canUp,
+        canUndo: s.editHistory.undoStack.length > 0,
+        canRedo: s.editHistory.redoStack.length > 0,
         activeTrack: v.activeTrack,
         timelineRange: v.activeTimelineRange,
         compound: v.compound.view,
@@ -71,7 +86,35 @@ export function useConsoleRuntime(
     if (unavailable) throw new Error(unavailable);
     validateRuntimeInstruction(instruction, s.chartType, getEnvironment());
     const { action, args } = instruction;
+    if (instruction.family === "history") {
+      dispatch({ type: action === "undo" ? "undoRequested" : "redoRequested" });
+      return { ok: true, message: `${action} completed.` };
+    }
     if (instruction.family === "view") {
+      if (action === "types") v.changeTypeFilter(args as unknown as TypeFilter);
+      if (action === "navigate") {
+        if (args.destination === "back") v.back();
+        else if (args.destination === "up") v.up();
+        else v.showAll();
+      }
+      if (action === "zoom") {
+        if (args.fit) v.zoom.zoomFit();
+        else v.zoom.setZoomPercent(args.percent as number);
+      }
+      if (action === "chart") dispatch({ type: "chartTypeChanged", chartType: args.chart as GraphChartType });
+      if (action === "select") {
+        const ids = args.ids as string[];
+        dispatch({
+          type: "selectionChanged",
+          selection:
+            ids.length === 0
+              ? { type: "full" }
+              : ids.length === 1
+                ? { type: "node", key: ids[0] }
+                : { type: "forest", keys: ids, label: "AI selection" },
+          pushHistory: true,
+        });
+      }
       if (action === "set") v.spatialView.change(args.patch as Partial<SpaceView>);
       if (action === "group") {
         const id = args.id as string | null;

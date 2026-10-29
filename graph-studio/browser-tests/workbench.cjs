@@ -185,13 +185,13 @@ Object.values(doc.nodes).forEach((node, i) => {
     await page.setViewportSize({ width: 390, height: 700 });
     await page.getByRole("tab", { name: "Console", exact: true }).click();
     assert.equal(await page.locator(".console-toolbar").isVisible(), false);
-    await page.locator("#graph-console-input").fill("/help");
+    await page.locator("#graph-console-input").fill("Describe this graph");
     await page.getByRole("tab", { name: "Workbench", exact: true }).click();
     await page.getByRole("tab", { name: "Workbench", exact: true }).press("ArrowRight");
     assert.equal(await page.getByRole("tab", { name: "Protocols", exact: true }).getAttribute("aria-selected"), "true");
     assert.equal(await page.locator(".console-toolbar").isVisible(), false);
     await page.getByRole("tab", { name: "Protocols", exact: true }).press("ArrowRight");
-    assert.equal(await page.locator("#graph-console-input").inputValue(), "/help");
+    assert.equal(await page.locator("#graph-console-input").inputValue(), "Describe this graph");
     await page.locator("#graph-console-input").press("Enter");
     await page.waitForFunction(() => document.querySelector("#graph-console-input")?.value === "");
     await page.getByRole("tab", { name: "Workbench", exact: true }).click();

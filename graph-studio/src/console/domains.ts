@@ -48,7 +48,7 @@ export function queryPage(command: string, items: unknown[], args: Record<string
 
 export function inspectDomain(dag: NormalizedDag, instruction: DomainInstruction, referenceTime: number): QueryResult {
   const { family, args } = instruction;
-  const command = `/${family} ${instruction.action}`;
+  const command = `${family.replace(/-/g, "_")}_${instruction.action}`;
   const node =
     args.id === undefined
       ? undefined
@@ -243,7 +243,7 @@ export function mutateDomain(
               if (!date) throw new Error(`Invalid event time ${id}.${key}.`);
               if (date.precision === "year" || date.precision === "month")
                 throw new Error(
-                  `Event ${id} has ${date.precision} precision. Use /timeline set with an explicit new date instead of inventing a day.`,
+                  `Event ${id} has ${date.precision} precision. Use timeline_set with an explicit new date instead of inventing a day.`,
                 );
               const shifted = new Date(date.timestamp + delta);
               // Sub-day movement makes precision explicit.
@@ -260,7 +260,7 @@ export function mutateDomain(
         if (action === "set") fields.space = vectorArg(args.coordinates, metadata.dimensions);
         else {
           if (metadata.coordinateSystem !== "cartesian")
-            throw new Error("Translate requires Cartesian coordinates; use /space set for this coordinate system.");
+            throw new Error("Translate requires Cartesian coordinates; use space_set for this coordinate system.");
           const delta = vectorArg(args.delta, metadata.dimensions),
             previous = vectorArg(fields.space, metadata.dimensions);
           fields.space = previous.map((value, i) => numberArg(value + delta[i], "translated coordinate"));
@@ -305,11 +305,11 @@ export function mutateDomain(
       }
       changedKeys.push(edge.source, edge.target);
     }
-  } else throw new Error(`No mutation handler for /${family} ${action}.`);
+  } else throw new Error(`No mutation handler for ${family}_${action}.`);
   const dag = normalizeDagInput(document);
   if (chartType === "sankey" || source.diagram === "sankey") {
     const error = getSankeyError(dag.nodes, dag.edges);
     if (error) throw new Error(error);
   }
-  return { dag, changedKeys: [...new Set(changedKeys)], deletedKeys, message: `Applied /${family} ${action}.` };
+  return { dag, changedKeys: [...new Set(changedKeys)], deletedKeys, message: `Applied ${family}_${action}.` };
 }

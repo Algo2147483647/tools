@@ -1,6 +1,4 @@
 import assert from "node:assert/strict";
-import { parseAiResponse } from "../ai/protocol/responseParser";
-import { parseCompoundLayoutCommand } from "../console/compoundLayout";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultLayoutIntent, parseLayoutIntent, type LayoutIntent } from "../layout/compound/layout-plan";
@@ -59,18 +57,6 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     assert.throws(() =>
       parseLayoutIntent({ ...downIntent(), constraints: Array(101).fill(downIntent().constraints[0]) }),
     );
-  }),
-  defineTest("generic AI rejects layout operations while explicit console intents remain typed", () => {
-    const intent = downIntent();
-    assert.throws(() =>
-      parseAiResponse(JSON.stringify({ kind: "propose_layout", layoutProtocolVersion: 1, answer: "Arrange", intent })),
-    );
-    assert.deepEqual(parseCompoundLayoutCommand(`/compound-layout propose ${JSON.stringify(intent)}`), {
-      type: "propose",
-      intent,
-    });
-    for (const command of ["apply one", "compare one"])
-      assert.throws(() => parseCompoundLayoutCommand(`/compound-layout ${command}`));
   }),
   defineTest("automatic first render selects valid deterministic geometry and reports its quality", async () => {
     const dag = graph(true),

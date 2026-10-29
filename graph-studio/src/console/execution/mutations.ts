@@ -1,8 +1,8 @@
 import { type CommandResult, applyGraphCommand } from "../../graph/commands";
-import type { NodeKey, NormalizedDag } from "../../graph/types";
-import type { ConsoleInstruction } from "../syntax/types";
+import type { NormalizedDag } from "../../graph/types";
+import type { ConsoleInstruction } from "../instructions";
 
-import { remapContextKey, resolveExistingNodeKey, resolveOrCreateNodeKey, syncUiEffects } from "./context";
+import { resolveExistingNodeKey, syncUiEffects } from "./context";
 import type { ConsoleUiEffect } from "./types";
 
 export function executeConsoleMutation(
@@ -10,54 +10,49 @@ export function executeConsoleMutation(
   context: {
     referenceTime?: number;
     workingDag: NormalizedDag;
-    contextNodeKey: NodeKey | null;
     results: CommandResult[];
     uiEffects: ConsoleUiEffect[];
     outputMessages: string[];
   },
 ) {
-  let { workingDag, contextNodeKey } = context;
+  let { workingDag } = context;
   const { results, uiEffects, outputMessages } = context;
   const apply = (dag: NormalizedDag, command: Parameters<typeof applyGraphCommand>[1]) =>
     applyGraphCommand(dag, command, context.referenceTime);
   switch (instruction.type) {
     case "rename": {
-      const oldKey = resolveExistingNodeKey(instruction.oldKey, contextNodeKey, workingDag, instruction.line);
+      const oldKey = resolveExistingNodeKey(instruction.oldKey, workingDag);
       const result = apply(workingDag, { type: "renameNode", oldKey, newKey: instruction.newKey });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "delete": {
-      const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
+      const key = resolveExistingNodeKey(instruction.key, workingDag);
       const result = apply(
         workingDag,
         instruction.recursive ? { type: "deleteSubtree", rootKey: key } : { type: "deleteNode", key },
       );
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "add": {
-      const parentKey = instruction.parentKey
-        ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
-        : undefined;
+      const parentKey = instruction.parentKey ? resolveExistingNodeKey(instruction.parentKey, workingDag) : undefined;
       const result = apply(workingDag, { type: "addNode", key: instruction.key, parentKey });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "copy": {
-      const sourceKey = resolveExistingNodeKey(instruction.sourceKey, contextNodeKey, workingDag, instruction.line);
-      const parentKey = instruction.parentKey
-        ? resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line)
-        : undefined;
+      const sourceKey = resolveExistingNodeKey(instruction.sourceKey, workingDag);
+      const parentKey = instruction.parentKey ? resolveExistingNodeKey(instruction.parentKey, workingDag) : undefined;
       const result = apply(workingDag, {
         type: "copyNode",
         sourceKey,
@@ -65,24 +60,24 @@ export function executeConsoleMutation(
         parentKey,
       });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "setEdge": {
       const parentKey = instruction.createMissing
-        ? resolveOrCreateNodeKey(instruction.parentKey, contextNodeKey, instruction.line)
-        : resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line);
+        ? instruction.parentKey
+        : resolveExistingNodeKey(instruction.parentKey, workingDag);
       const childKey = instruction.createMissing
-        ? resolveOrCreateNodeKey(instruction.childKey, contextNodeKey, instruction.line)
-        : resolveExistingNodeKey(instruction.childKey, contextNodeKey, workingDag, instruction.line);
+        ? instruction.childKey
+        : resolveExistingNodeKey(instruction.childKey, workingDag);
       if (instruction.createMissing) {
         [parentKey, childKey].forEach((key) => {
           if (!workingDag.nodes[key]) {
             const addResult = apply(workingDag, { type: "addNode", key });
             workingDag = addResult.dag;
-            contextNodeKey = remapContextKey(contextNodeKey, addResult);
+
             syncUiEffects(uiEffects, addResult);
             results.push(addResult);
           }
@@ -95,52 +90,48 @@ export function executeConsoleMutation(
         weight: instruction.weight,
       });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "removeEdge": {
-      const parentKey = resolveExistingNodeKey(instruction.parentKey, contextNodeKey, workingDag, instruction.line);
-      const childKey = resolveExistingNodeKey(instruction.childKey, contextNodeKey, workingDag, instruction.line);
+      const parentKey = resolveExistingNodeKey(instruction.parentKey, workingDag);
+      const childKey = resolveExistingNodeKey(instruction.childKey, workingDag);
       const result = apply(workingDag, { type: "removeEdge", parentKey, childKey });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "setParents": {
-      const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-      const parents = instruction.keys.map((item) =>
-        resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line),
-      );
+      const key = resolveExistingNodeKey(instruction.key, workingDag);
+      const parents = instruction.keys.map((item) => resolveExistingNodeKey(item, workingDag));
       const result = apply(workingDag, { type: "setParents", key, parents });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "setChildren": {
-      const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
-      const children = instruction.keys.map((item) =>
-        resolveExistingNodeKey(item, contextNodeKey, workingDag, instruction.line),
-      );
+      const key = resolveExistingNodeKey(instruction.key, workingDag);
+      const children = instruction.keys.map((item) => resolveExistingNodeKey(item, workingDag));
       const result = apply(workingDag, { type: "setChildren", key, children });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "setField": {
-      const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
+      const key = resolveExistingNodeKey(instruction.key, workingDag);
       if (instruction.field === "key") {
-        throw new Error("Use mv to rename a node key.");
+        throw new Error("Use node_rename to rename a node ID.");
       }
       if (instruction.field === "parents" || instruction.field === "children") {
-        throw new Error(`Use ${instruction.field} to replace relation sets.`);
+        throw new Error(`Use node_${instruction.field}_replace to replace relation sets.`);
       }
       const currentNode = workingDag.nodes[key];
       if (!currentNode) {
@@ -155,18 +146,18 @@ export function executeConsoleMutation(
       });
       const result = apply(workingDag, { type: "updateNodeFields", key, fields });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
     }
     case "unsetField": {
-      const key = resolveExistingNodeKey(instruction.key, contextNodeKey, workingDag, instruction.line);
+      const key = resolveExistingNodeKey(instruction.key, workingDag);
       if (instruction.field === "key") {
-        throw new Error("Use mv to rename a node key.");
+        throw new Error("Use node_rename to rename a node ID.");
       }
       if (instruction.field === "parents" || instruction.field === "children") {
-        throw new Error(`Use ${instruction.field} or rm-edge to edit relation fields.`);
+        throw new Error(`Use node_${instruction.field}_replace or edge_remove to edit relation fields.`);
       }
       const currentNode = workingDag.nodes[key];
       if (!currentNode) {
@@ -180,7 +171,7 @@ export function executeConsoleMutation(
       delete fields[instruction.field];
       const result = apply(workingDag, { type: "updateNodeFields", key, fields });
       workingDag = result.dag;
-      contextNodeKey = remapContextKey(contextNodeKey, result);
+
       syncUiEffects(uiEffects, result);
       results.push(result);
       break;
@@ -188,5 +179,5 @@ export function executeConsoleMutation(
     default:
       throw new Error("Unsupported graph mutation.");
   }
-  return { workingDag, contextNodeKey };
+  return { workingDag };
 }

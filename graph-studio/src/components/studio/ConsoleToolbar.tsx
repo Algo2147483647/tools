@@ -3,7 +3,7 @@ import Icon from "../ui/Icon";
 import IconButton from "../ui/IconButton";
 import ZoomInput from "../ui/ZoomInput";
 
-/** Canvas navigation stays available across all console tabs. */
+/** Canvas navigation belongs to the Workbench tab. */
 export default function ConsoleToolbar({
   viewport,
   hasGraph,

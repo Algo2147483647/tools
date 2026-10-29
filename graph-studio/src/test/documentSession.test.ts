@@ -1,6 +1,4 @@
 import assert from "node:assert/strict";
-import { createInitialAiHarnessState, installPlan, syncHarnessRuntime } from "../ai/session/harness";
-import { createPlanFromAiResponse } from "../ai/session/plans";
 import { requestProviderText } from "../ai/transport/providerTransport";
 import { applyGraphCommand } from "../graph/commands";
 import { DEFAULT_GRAPH_APPEARANCE, sanitizeGraphAppearance } from "../schema/appearance/defaults";
@@ -189,39 +187,6 @@ export const documentSessionSuite = defineSuite("Document lifecycle and architec
     entry.file = new File(["invalid"], "graph.json");
     await assert.rejects(prepareWorkspaceGraph(prepared.workspace, entry.path));
     assert.ok(prepared.dag!.nodes.A);
-  }),
-  defineTest("AI plans cannot be applied to a different document or reopened revision", () => {
-    const harness = syncHarnessRuntime(createInitialAiHarnessState(), {
-      graphId: "a",
-      graphRevision: "session-a:1",
-    });
-    const plan = createPlanFromAiResponse({
-      harness,
-      turnId: "turn",
-      userMessage: "add",
-      response: {
-        kind: "inspect",
-        answer: "Inspect",
-        commands: ["/keys"],
-      },
-    });
-    const installed = installPlan(harness, plan);
-    for (const change of [
-      { graphId: "b", graphRevision: "session-a:1" },
-      { graphId: "a", graphRevision: "session-b:1" },
-    ]) {
-      const next = syncHarnessRuntime(installed, { ...change });
-      assert.equal(next.pendingCommandBatch, undefined);
-      assert.equal(next.activePlan?.status, "superseded");
-      const failed = syncHarnessRuntime(
-        { ...installed, activePlan: { ...installed.activePlan!, status: "failed" } },
-        { ...change },
-      );
-      assert.equal(failed.pendingCommandBatch, undefined);
-      assert.equal(failed.activePlan?.status, "superseded");
-      const orphaned = syncHarnessRuntime({ ...installed, activePlan: undefined }, { ...change });
-      assert.equal(orphaned.pendingCommandBatch, undefined);
-    }
   }),
   defineTest("every AI transport propagates cancellation without making an external request", async () => {
     const originalFetch = globalThis.fetch;
