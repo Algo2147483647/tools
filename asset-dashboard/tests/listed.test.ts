@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, test } from "node:test";
 import { validatePortfolioConfig } from "../lib/valuation/schema";
 import { quoteTimestamp } from "../lib/valuation/sources";
@@ -18,8 +17,14 @@ const fixture = (symbol = "NVDA", kind = "STOCKS", exchange = "NASDAQ-GS", price
 });
 const portfolio = (...assets: StockAsset[]) => ({ baseCurrency: "USD" as const, assets });
 
-test("the actual example routes both ETFs and SpaceX correctly and multiplies share counts", async () => {
-  const config = validatePortfolioConfig(JSON.parse(readFileSync(new URL("../public/sample-config.json", import.meta.url), "utf8")));
+test("the listed example positions route both ETFs and SpaceX correctly and multiply share counts", async () => {
+  // Public routing fixture only; never embed a password or decrypt the private example in CI.
+  const config = validatePortfolioConfig(portfolio(
+    { ...holding, id: "qqqm", symbol: "QQQM", quantity: 4, securityType: "etf" },
+    { ...holding, id: "spym", symbol: "SPYM", quantity: 3, securityType: "etf", exchange: "ARCX" },
+    { ...holding, id: "spcx", symbol: "SPCX" },
+    holding,
+  ));
   const assets = config.assets.filter((asset): asset is StockAsset => asset.type === "stock");
   assert.deepEqual(assets.map((a) => [a.symbol, a.quantity]), [["QQQM", 4], ["SPYM", 3], ["SPCX", 1], ["NVDA", 1]]);
   const calls: string[] = [];

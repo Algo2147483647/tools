@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     if (displayBase !== undefined && typeof displayBase !== "string") throw new ValuationError("Display currency must be a string.");
     const result = await valuePortfolio(config, displayBase, { signal: request.signal });
     if (result.assets.length > 0 && result.pricedAssetCount === 0) {
-      return NextResponse.json({ ...result, error: "No assets could be valued. Check the asset details and market data availability." }, { status: 502 });
+      return NextResponse.json({ ...result, error: "No assets could be valued. Check the asset details and market data availability." }, { status: 502, headers: { "Cache-Control": "no-store" } });
     }
     return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
@@ -57,7 +57,8 @@ export async function POST(request: Request) {
         error: message
       },
       {
-        status: error instanceof SyntaxError ? 400 : error instanceof ValuationError ? error.status : 500
+        status: error instanceof SyntaxError ? 400 : error instanceof ValuationError ? error.status : 500,
+        headers: { "Cache-Control": "no-store" }
       }
     );
   }

@@ -1,5 +1,5 @@
-import { NetWorthDashboard } from "@/components/NetWorthDashboard";
+import { PortfolioWorkspace } from "@/components/PortfolioWorkspace";
 
 export default function Home() {
-  return <NetWorthDashboard />;
+  return <PortfolioWorkspace />;
 }

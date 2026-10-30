@@ -19,6 +19,8 @@ import {
   FileText,
   Globe2,
   Landmark,
+  KeyRound,
+  LockKeyhole,
   Loader2,
   Plus,
   RefreshCw,
@@ -111,10 +113,15 @@ function quantityUnit(asset: AssetValuation) {
   );
 }
 
-export function NetWorthDashboard() {
-  const [loaded, setLoaded] = useState<LoadedConfig | null>(null);
-  const [sampleLoading, setSampleLoading] = useState(true);
-  const [inputError, setInputError] = useState<string | null>(null);
+export function NetWorthDashboard({ loaded, saving, onSave, onImport, onDownload, onLock, onPassword }: {
+  loaded: LoadedConfig;
+  saving: boolean;
+  onSave: (config: PortfolioConfig) => Promise<void>;
+  onImport: () => void;
+  onDownload: () => void;
+  onLock: () => void;
+  onPassword: () => void;
+}) {
   const [modal, setModal] = useState<"config" | null>(null);
   const [draft, setDraft] = useState("");
   const [draftError, setDraftError] = useState<string | null>(null);
@@ -126,11 +133,11 @@ export function NetWorthDashboard() {
   const [filter, setFilter] = useState<AssetType | "all">("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("value");
-  const fileRef = useRef<HTMLInputElement>(null);
   const overviewRef = useRef<HTMLDetailsElement>(null);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
-  const importSequence = useRef(0);
+  const pdfController = useRef<AbortController | null>(null);
+  useEffect(() => () => { pdfController.current?.abort(); }, []);
   const {
     data: valuation,
     error,
@@ -158,96 +165,20 @@ export function NetWorthDashboard() {
     };
   }, []);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const sequence = importSequence.current;
-    let active = true;
-    const timeout = window.setTimeout(() => controller.abort(), 10_000);
-    async function loadSample() {
-      try {
-        const response = await fetch("/sample-config.json", {
-          signal: controller.signal,
-        });
-        if (!response.ok)
-          throw new Error(
-            "Could not load the sample. Import a local JSON file to continue.",
-          );
-        const text = await response.text();
-        const config = validatePortfolioConfig(JSON.parse(text));
-        if (active && sequence === importSequence.current)
-          setLoaded({
-            config,
-            text,
-            name: "sample-config.json",
-          });
-      } catch (reason) {
-        if (active && sequence === importSequence.current)
-          setInputError(
-            reason instanceof Error && reason.name !== "AbortError"
-              ? reason.message
-              : "The sample request timed out. Import a local JSON file to continue.",
-          );
-      } finally {
-        window.clearTimeout(timeout);
-        if (active) setSampleLoading(false);
-      }
-    }
-    void loadSample();
-    return () => {
-      active = false;
-      controller.abort();
-      window.clearTimeout(timeout);
-    };
-  }, []);
-
-  function commitConfig(text: string, name: string) {
-    const config = validatePortfolioConfig(JSON.parse(text));
-    importSequence.current++;
-    setLoaded({
-      config,
-      text: JSON.stringify(config, null, 2),
-      name,
-    });
-    setInputError(null);
-    setSelectedId(null);
-    setFilter("all");
-    setSearch("");
-    setModal(null);
-    setSampleLoading(false);
-  }
-  async function loadFile(file?: File) {
-    if (!file) return;
-    const sequence = ++importSequence.current;
-    try {
-      if (file.size > 256 * 1024)
-        throw new Error("The configuration file must be 256 KB or smaller.");
-      const text = await file.text();
-      if (sequence !== importSequence.current) return;
-      commitConfig(text, file.name);
-    } catch (reason) {
-      if (sequence === importSequence.current) {
-        const message =
-          reason instanceof Error
-            ? reason.message
-            : "Could not read the configuration file.";
-        setInputError(message);
-        setDraftError(message);
-      }
-    } finally {
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  }
   function openConfig() {
     setDraft(loaded?.text ?? '{\n  "baseCurrency": "USD",\n  "assets": []\n}');
     setDraftError(null);
     setModal("config");
   }
-  function applyDraft(event: FormEvent) {
+  async function applyDraft(event: FormEvent) {
     event.preventDefault();
     try {
       if (new TextEncoder().encode(draft).length > 256 * 1024)
         throw new Error("The configuration must be 256 KB or smaller.");
-      commitConfig(draft, loaded?.name ?? "portfolio.json");
+      await onSave(validatePortfolioConfig(JSON.parse(draft)));
+      setSelectedId(null);
+      setModal(null);
+      setDraft("");
     } catch (reason) {
       setDraftError(
         reason instanceof Error
@@ -256,18 +187,6 @@ export function NetWorthDashboard() {
       );
     }
   }
-  function downloadConfig() {
-    if (!loaded) return;
-    const url = URL.createObjectURL(
-      new Blob([loaded.text], { type: "application/json" }),
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = loaded.name;
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
   const assets = useMemo(() => valuation?.assets ?? [], [valuation]);
   const selectedAsset = assets.find((asset) => asset.id === selectedId);
   const displayUnit =
@@ -378,15 +297,19 @@ export function NetWorthDashboard() {
           notes: [asset.message, asset.fetchedAt ? `Retrieved: ${asset.fetchedAt}` : "", asset.warning].filter(Boolean).join("\n"),
         })),
       };
+      const controller = new AbortController();
+      pdfController.current = controller;
       const response = await fetch("/api/export-pdf", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(report), signal: AbortSignal.timeout(60_000),
+        body: JSON.stringify(report), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(60_000)]),
       });
       if (!response.ok) {
         const result = await response.json();
         throw new Error(result.error || "Could not export the PDF.");
       }
-      const url = URL.createObjectURL(await response.blob());
+      const blob = await response.blob();
+      if (controller.signal.aborted) return;
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `${(loaded?.name ?? "portfolio").replace(/\.json$/i, "").replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 70) || "portfolio"}-${valuation.generatedAt.slice(0, 10)}.pdf`;
@@ -406,13 +329,13 @@ export function NetWorthDashboard() {
         <header className="topbar">
           <span className="portfolio-name" title={loaded?.name}>{loaded?.name ?? "New portfolio"}</span>
           <div className="topbar-actions" role="toolbar" aria-label="Portfolio actions">
-            <button className="icon-button" type="button" onClick={() => fileRef.current?.click()} aria-label="Import assets" title="Import assets">
+            <button className="icon-button" type="button" onClick={onImport} disabled={saving} aria-label="Import assets" title="Import assets">
               <Plus size={18} />
             </button>
-            <button className="icon-button" type="button" onClick={openConfig} aria-label="Configuration" title="Configuration">
+            <button className="icon-button" type="button" onClick={openConfig} disabled={saving} aria-label="Configuration" title="Configuration">
               <Settings2 size={18} />
             </button>
-            <button className="icon-button" type="button" disabled={!loaded} onClick={downloadConfig} aria-label="Export JSON" title="Export JSON">
+            <button className="icon-button" type="button" disabled={saving} onClick={onDownload} aria-label="Save encrypted file" title="Save encrypted file">
               <ArrowDownToLine size={18} />
             </button>
             <button className="icon-button" type="button" disabled={!valuation || loading || exportingPdf} onClick={() => void downloadPdf()} aria-label={exportingPdf ? "Exporting PDF" : "Export PDF"} title={exportingPdf ? "Exporting PDF" : "Export PDF"} aria-busy={exportingPdf}>
@@ -421,41 +344,15 @@ export function NetWorthDashboard() {
             <button className="icon-button" type="button" disabled={!loaded || loading} onClick={refresh} aria-label={loading ? "Updating values" : "Refresh values"} title={loading ? "Updating values" : "Refresh values"} aria-busy={loading}>
               <RefreshCw size={18} className={loading ? "spin" : ""} />
             </button>
+            <button className="icon-button" type="button" disabled={saving} onClick={onPassword} aria-label="Change file password" title="Change file password"><KeyRound size={18} /></button>
+            <button className="icon-button" type="button" onClick={onLock} aria-label="Lock portfolio" title="Lock portfolio"><LockKeyhole size={18} /></button>
           </div>
         </header>
         <main id="main-content" className="main-content">
-          <input
-            type="file"
-            ref={fileRef}
-            accept="application/json,.json"
-            className="sr-only"
-            aria-label="Import assets from a JSON file"
-            onChange={(event) => void loadFile(event.target.files?.[0])}
-          />
-          {(inputError || error) && (
+          {error && (
             <div className="notice notice-error" role="alert">
-              <TriangleAlert size={18} />
-              <div>
-                <strong>
-                  {inputError ? "Configuration not loaded" : "Update failed"}
-                </strong>
-                <p>
-                  {inputError ?? error}
-                  {valuation && !inputError && valuation.pricedAssetCount > 0
-                    ? " Previously loaded values are still shown."
-                    : ""}
-                </p>
-              </div>
-              <button
-                className="icon-button"
-                type="button"
-                aria-label={
-                  inputError ? "Dismiss configuration error" : "Retry valuation"
-                }
-                onClick={inputError ? () => setInputError(null) : refresh}
-              >
-                {inputError ? <X size={17} /> : <RefreshCw size={17} />}
-              </button>
+              <TriangleAlert size={18} /><p>{error}</p>
+              <button className="icon-button" type="button" aria-label="Retry valuation" onClick={refresh}><RefreshCw size={17} /></button>
             </div>
           )}
           {valuation?.displayWarning && (
@@ -831,13 +728,13 @@ export function NetWorthDashboard() {
               </div>
             ) : (
               <div className="empty-state">
-                {loading || sampleLoading ? (
+                {loading ? (
                   <Loader2 size={30} className="spin" />
                 ) : (
                   <Wallet size={32} />
                 )}
-                <p role="status">{loading || sampleLoading ? "Loading" : error ? "Values unavailable" : "No assets"}</p>
-                {!loading && !sampleLoading && (
+                <p role="status">{loading ? "Loading" : error ? "Values unavailable" : "No assets"}</p>
+                {!loading && (
                   <button
                     className="button button-secondary"
                     type="button"
@@ -864,7 +761,7 @@ export function NetWorthDashboard() {
         <Dialog
           title="Portfolio configuration"
           wide
-          onClose={() => setModal(null)}
+          onClose={() => { if (!saving) { setModal(null); setDraft(""); setDraftError(null); } }}
         >
           <div className="config-file">
             <span className="stat-icon stat-green">
@@ -880,12 +777,12 @@ export function NetWorthDashboard() {
             <button
               className="button button-secondary button-small"
               type="button"
-              onClick={() => fileRef.current?.click()}
+              onClick={onImport} disabled={saving}
             >
               Import file
             </button>
           </div>
-          <form onSubmit={applyDraft}>
+          <form onSubmit={(event) => void applyDraft(event)}>
             <div className="editor-label">
               <label htmlFor="config-json">JSON configuration</label>
             </div>
@@ -906,13 +803,14 @@ export function NetWorthDashboard() {
               <button
                 className="button button-secondary"
                 type="button"
-                onClick={() => setModal(null)}
+                disabled={saving}
+                onClick={() => { setModal(null); setDraft(""); setDraftError(null); }}
               >
                 Cancel
               </button>
-              <button className="button button-primary" type="submit">
+              <button className="button button-primary" type="submit" disabled={saving} aria-busy={saving}>
                 <Check size={16} />
-                Apply configuration
+                {saving ? "Encrypting" : "Save encrypted changes"}
               </button>
             </div>
           </form>

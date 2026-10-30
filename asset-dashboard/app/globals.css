@@ -225,3 +225,10 @@ p { line-height: 1.6; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+.vault-gate { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 24px; }
+.vault-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.vault-form { display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
+.vault-form input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+.vault-form p { line-height: 1.6; }
+.vault-error { max-width: 600px; margin: 20px auto; }

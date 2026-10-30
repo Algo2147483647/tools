@@ -282,6 +282,7 @@ test("marks old quotes and never substitutes retrieval time for a missing quote 
 test("API returns 400 for malformed JSON and invalid display currency", async () => {
   const malformed = await POST(new Request("http://local/api/valuation", { method: "POST", body: "{" }));
   assert.equal(malformed.status, 400);
+  assert.equal(malformed.headers.get("Cache-Control"), "no-store");
   const invalid = await POST(new Request("http://local/api/valuation", { method: "POST", body: JSON.stringify({ assets: [], displayBase: "nonsense" }) }));
   assert.equal(invalid.status, 400);
 });
@@ -289,6 +290,7 @@ test("API returns 400 for malformed JSON and invalid display currency", async ()
 test("API enforces the byte limit without relying on Content-Length", async () => {
   const response = await POST(new Request("http://local/api/valuation", { method: "POST", body: " ".repeat(256 * 1024 + 1) }));
   assert.equal(response.status, 413);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
 });
 
 test("API distinguishes complete upstream failure from partial valuation", async (t) => {
@@ -297,6 +299,7 @@ test("API distinguishes complete upstream failure from partial valuation", async
   const post = (input: AssetConfig[]) => POST(new Request("http://local/api/valuation", { method: "POST", body: JSON.stringify(portfolio(...input)) }));
   const failed = await post(assets);
   assert.equal(failed.status, 502);
+  assert.equal(failed.headers.get("Cache-Control"), "no-store");
   assert.equal((await failed.json()).failedAssetCount, 1);
   const partial = await post([...assets, { id: "cash", type: "cash", currency: "USD", quantity: 100 }]);
   assert.equal(partial.status, 200);
@@ -308,5 +311,6 @@ test("API hides internal exception details and uses 500", async () => {
   const request = new Request("http://local/api/valuation", { method: "POST", body, duplex: "half" } as RequestInit);
   const response = await POST(request);
   assert.equal(response.status, 500);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
   assert.doesNotMatch(await response.text(), /private server detail/);
 });

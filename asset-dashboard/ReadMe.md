@@ -1,8 +1,8 @@
 # Asset Dashboard
 
-A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Import a JSON portfolio to value gold, U.S. stocks, supported mutual funds, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp. The interface, validation messages, and documentation are in English.
+A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Open an encrypted portfolio to value gold, U.S. stocks, supported mutual funds, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp. The interface, validation messages, and documentation are in English.
 
-The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Import, configuration, JSON/PDF export, and refresh are borderless icon buttons in the top toolbar, with tooltips and accessible names. Static section titles, instructional text, the help dialog, and decorative footer copy have been removed. Field labels, table headers, filters, asset identifiers, quote states, and actionable error messages remain visible. The Overview dropdown above the holdings table contains valuation counts, pricing currencies, and attention status. Category filters, search, and sorting sit alongside it. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
+The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Import, configuration, encrypted-file/PDF export, password change, lock, and refresh are borderless icon buttons in the top toolbar, with tooltips and accessible names. Static section titles, instructional text, the help dialog, and decorative footer copy have been removed. Field labels, table headers, filters, asset identifiers, quote states, and actionable error messages remain visible. The Overview dropdown above the holdings table contains valuation counts, pricing currencies, and attention status. Category filters, search, and sorting sit alongside it. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
 
 **Export PDF** downloads an A4 landscape report of the currently filtered and sorted assets, using the displayed valuation snapshot without fetching new prices. It includes the portfolio total, shown-assets subtotal, status, quote sources and timestamps, and any retained-value or conversion warnings. Export is available once a valuation has completed, including partial or failed valuations. Unavailable values remain dashes. Reports paginate automatically and embed the bundled Noto Serif fonts; Chinese text uses Windows' installed SimSun font. PDF generation happens on the local server and does not store reports there.
 
@@ -75,9 +75,40 @@ Without API keys, the server uses available public sources, including Frankfurte
 
 External requests have time limits. Each valuation reuses quotes for the same gold price, stock symbol, and currency pair. Failed assets display `—`, and the total includes only assets that could be valued. If conversion to the selected display currency fails, the dashboard preserves the USD valuation and shows a warning. A failed refresh retains the previous result and labels it clearly. Quotes older than seven days or without a usable timestamp receive a warning.
 
+## Encrypted file storage
+
+The platform reads and writes versioned `*.vault.json` files. It never offers a plaintext portfolio download. JSON remains the in-memory editing format. The old public plaintext example has been removed and migrated to an encrypted file; its random initial password is supplied separately, never hardcoded or auto-filled. This protects the current file, but does not erase plaintext already present in Git history, older deployments, browser caches, or backups.
+
+- On startup, the page is locked. It reads the last encrypted browser copy, or the encrypted example on first use. No valuation request is made before successful decryption.
+- **Open file** accepts an encrypted portfolio and asks for its password. Legacy plaintext JSON is accepted only for one-way migration: set and confirm a new password before it can be opened or persisted. The app does not overwrite or delete the original imported file.
+- **New portfolio** creates an empty portfolio protected by a new password. Passwords must contain at least 12 characters; use a long, unique passphrase. There is no password reset or recovery backdoor.
+- **Save encrypted changes** encrypts and saves the active portfolio in this browser's local storage. Storage failures leave the previous saved copy and active portfolio unchanged and keep the editor open for retry. Browser storage contains only one active encrypted portfolio; opening another replaces that active copy.
+- The download icon writes the current ciphertext as a portable `*.vault.json` file through the browser's download/save dialog. This is a separate backup, not an automatic overwrite of an imported disk file. Keep a downloaded backup before clearing browser data or switching portfolios.
+- The key icon changes the file password by generating a fresh salt and key and encrypting the active portfolio again. Download a new backup afterwards. Older encrypted backups still need their old passwords; password changes do not revoke copies held elsewhere.
+- **Lock portfolio**, reload, or leaving the page releases the active key and unmounts the editor and valuation state. Unlocking is required again. Password inputs are cleared after successful use or cancellation; passwords and keys are never put in local/session storage, URLs, files, logs, or server requests. The non-exportable key lives in browser memory for the unlocked session.
+
+### Cryptographic format, version 1
+
+Uses the native Web Crypto API without a third-party cryptography dependency:
+
+| Field | Contract |
+| --- | --- |
+| `format`, `version` | `asset-dashboard-vault`, `1` |
+| `kdf` | PBKDF2-HMAC-SHA-256, exactly 600,000 iterations, random 16-byte salt |
+| `cipher` | AES-256-GCM, fresh random 12-byte IV for every encryption, 128-bit authentication tag |
+| `ciphertext` | Base64 encoding of encrypted UTF-8 JSON followed by the GCM tag |
+
+A new vault or password change gets a fresh cryptographically random salt. Saves reuse the in-memory derived key and salt with a new random IV. The canonical JSON header (format, version, KDF name/hash/iterations/salt, cipher name/IV/tag length in that order) is authenticated as AES-GCM additional data. Unknown versions, extra fields, other algorithms, malformed Base64, wrong lengths and altered work factors are rejected before key derivation. Valid but modified ciphertext or header data fails authentication with the same error as a wrong password. Authentication succeeds before UTF-8 decoding, JSON parsing, or portfolio schema validation. Configurations are limited to 256 KiB and envelopes to 360 KiB.
+
+AES-GCM provides both confidentiality and integrity, unlike unauthenticated encryption. PBKDF2 raises the cost of offline password guessing; the 600,000-iteration SHA-256 setting follows [OWASP's PBKDF2 guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html). Argon2id is a strong memory-hard alternative, but is not built into Web Crypto; this local browser app uses PBKDF2 to avoid shipping another cryptography/WASM implementation. See [MDN key derivation](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey) and [AES-GCM IV/authentication guidance](https://developer.mozilla.org/en-US/docs/Web/API/AesGcmParams).
+
+This is encryption at rest, not server login or protection against a compromised browser/OS, malicious page scripts, or an already unlocked session. JavaScript cannot guarantee erasure of immutable strings or garbage-collected memory. The browser must run on localhost or HTTPS for Web Crypto. The existing local valuation API receives the decrypted portfolio in memory and returns `no-store` responses, including errors; it does not persist portfolios. Use loopback-only launchers locally, or HTTPS and separate access control for any remote deployment.
+
+**PDF export is an explicit readable report, not the portfolio storage format.** It contains asset values in plaintext and is generated in memory by the local server; protect it separately. No PDF is exported automatically.
+
 ## Portfolio configuration
 
-Paste or import JSON in the dashboard's configuration dialog. The startup example and import template are the same file, `public/sample-config.json`. It includes 2,172.16 units of fund `000055`, QQQM x 4, SPYM x 3, SpaceX (SPCX) x 1, and NVDA x 1. Quantities are shares, not leverage multipliers. The current schema represents exchange-traded holdings as `stock`; its `fund` type is reserved for supported six-digit mutual fund codes. SpaceX uses SPCX, as confirmed by its official investor relations site; SPEX is not an alias for SpaceX.
+The startup example is `public/example.vault.json`. Its paper gold quantity is **5 grams**. Unlock it using the separately supplied initial password; the password is not in the repository or app bundle. Use the key icon to set your own password, then download an encrypted backup. It also includes fund `000055`, QQQM x 4, SPYM x 3, SpaceX (SPCX) x 1, and NVDA x 1. Quantities are shares, not leverage multipliers. The current schema represents exchange-traded holdings as `stock`; its `fund` type is reserved for supported six-digit mutual fund codes. SpaceX uses SPCX, as confirmed by its official investor relations site; SPEX is not an alias for SpaceX.
 
 ```json
 {
@@ -178,7 +209,7 @@ The table, details, and PDF snapshot show quote quality. The details include the
 
 A real, unkeyed call through the revised valuation engine at 09:17 UTC priced all 11 example assets with zero failures. The four listed holdings returned usable USD prices, parsed timestamps, and provider-reported realtime pre-market quotes. This verifies coverage at that time, not future provider availability. No snapshot prices are stored in the example.
 
-Regression tests cover the actual example's share counts and routing, wrong-listing rejection, both DST offsets and ambiguous times, daily/secondary fallback, freshness warnings, and visible-page refresh including failure backoff and no overlapping requests.
+Regression tests cover an independent public fixture of the listed share counts and routing, wrong-listing rejection, both DST offsets and ambiguous times, daily/secondary fallback, freshness warnings, and visible-page refresh including failure backoff and no overlapping requests.
 
 ## Valuation API
 
