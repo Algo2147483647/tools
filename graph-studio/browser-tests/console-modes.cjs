@@ -307,7 +307,7 @@ const tool = (name, args = {}, id = name) => ({
         {
           calls: [
             tool("space_translate", { ids: ["A"], delta: [1, 0, -1] }),
-            tool("view_set", { patch: { yaw: 30 } }, "camera"),
+            tool("view_set", { patch: { orientation: [0, 0.2588190451, 0, 0.9659258263] } }, "camera"),
           ],
         },
         () => ({ calls: [tool("space_inspect", { id: "A" }, "inspect")] }),

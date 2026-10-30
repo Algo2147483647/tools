@@ -1,12 +1,12 @@
+import { createLayoutConfigFile } from "../schema/layoutConfig";
 import assert from "node:assert/strict";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultLayoutIntent, parseLayoutIntent, type LayoutIntent } from "../layout/compound/layout-plan";
-import { migrateLegacyLayout } from "../schema/layoutMigration";
 import { defaultLayoutSession, parseLayoutSession, repairLayoutSession } from "../schema/layoutSession";
 import { prepareCommandTransaction } from "../app/document/graphTransactions";
 import { prepareWorkspace } from "../workspace/opening";
-import { buildCompoundStage } from "../layout/compound/layout";
+import { compoundFixtureScene } from "./layoutFixtures";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
 import { validateLayoutGeometry } from "../layout/compound/layout-quality";
@@ -71,8 +71,8 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
       showNodeDetail: false,
       alignNodeWidthsToMax: true,
     };
-    const first = await buildCompoundStage(input),
-      second = await buildCompoundStage(input);
+    const first = await compoundFixtureScene(input),
+      second = await compoundFixtureScene(input);
     assert.deepEqual(first.nodes, second.nodes);
     assert.deepEqual(first.edges, second.edges);
     assert.equal(first.layoutQuality!.validation.valid, true);
@@ -81,33 +81,12 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     assert.deepEqual(serializeDag(dag), original);
     assert.equal(validateLayoutGeometry(first.compoundLayout!, first.compoundLayout!.baseline).valid, true);
   }),
-  defineTest("graph layout is a path association; embedded legacy geometry requires migration", () => {
+  defineTest("graph layout is a path association; embedded geometry is rejected", () => {
     const raw = serializeDag(graph());
     raw.metadata = { author: "User", layout: "layouts/flow.layout.json" };
     assert.deepEqual(serializeDag(normalizeDagInput(raw)).metadata, raw.metadata);
     raw.metadata.layout = { compound: { accepted: { snapshot: { boxes: { a: { x: 9999 } } } } } };
-    assert.throws(() => normalizeDagInput(raw), /Migrate embedded layout/);
-  }),
-  defineTest("explicit migration preserves graph content and declarations but discards geometry", () => {
-    const original = serializeDag(graph());
-    original.metadata = {
-      author: "User",
-      layout: {
-        compound: {
-          constraints: [downIntent().constraints[0], { type: "pin", nodeId: "a" }],
-          accepted: { snapshot: { boxes: { a: { x: 999 } } } },
-          pins: [{ nodeId: "a" }],
-        },
-      },
-    };
-    const before = JSON.stringify(original);
-    const result = migrateLegacyLayout(original, "flow.layout.json");
-    assert.equal(result.graph.metadata!.layout, "flow.layout.json");
-    assert.deepEqual(result.graph.nodes, original.nodes);
-    assert.equal(result.layout.format, "graph-studio-layout-settings");
-    assert.ok(!("constraints" in result.layout.settings));
-    assert.ok(!/snapshot|accepted|boxes|pins/.test(JSON.stringify(result.layout)));
-    assert.equal(JSON.stringify(original), before);
+    assert.throws(() => normalizeDagInput(raw), /Embedded layout data/);
   }),
   defineTest("layout edits undo without dirtying graph and stale imports cannot replace another document", () => {
     let state = graphReducer(createInitialGraphState(), {
@@ -160,7 +139,10 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     const data = defaultLayoutSession();
     data.charts.compound.direction = "DOWN";
     const raw = serializeDag(graph());
-    const contents: Record<string, unknown> = { "graph.json": raw, "graph.layout.json": data };
+    const contents: Record<string, unknown> = {
+      "graph.json": raw,
+      "graph.layout.json": createLayoutConfigFile(data, "compound"),
+    };
     const open = () =>
       prepareWorkspace({
         name: "Test",
@@ -179,7 +161,10 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     assert.equal(loaded.linkedLayout!.charts.compound.direction, "DOWN");
     assert.equal(loaded.workspace.graphs.length, 1);
     raw.metadata.layout = "layouts/custom.layout.json";
-    contents["layouts/custom.layout.json"] = { ...data, charts: { compound: { direction: "RIGHT" } } };
+    contents["layouts/custom.layout.json"] = {
+      ...createLayoutConfigFile(data, "compound"),
+      settings: { ...createLayoutConfigFile(data, "compound").settings, direction: "RIGHT" },
+    };
     loaded = await open();
     assert.equal(loaded.linkedLayout!.charts.compound.direction, "RIGHT");
     contents["layouts/custom.layout.json"] = { ...data, version: 99 };

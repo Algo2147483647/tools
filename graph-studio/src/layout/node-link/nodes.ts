@@ -3,7 +3,7 @@ import { normalizeTypeLabel } from "../../graph/categoryColors";
 import type { NodeKey, NormalizedDag } from "../../graph/types";
 import { truncateTitleToWidth, wrapDetailText } from "../shared/text";
 import type { StageData, StageNode } from "../shared/types";
-import { cardContentLayout, minimumCardHeight } from "../shared/typography";
+import { cardContentLayout } from "../shared/typography";
 import { resolveLayout } from "./algorithm";
 import type { PreparedNodeLink } from "./input";
 const DETAIL_HORIZONTAL_INSET = 74;
@@ -24,15 +24,6 @@ export function buildNodeLinkNodes(context: PreparedNodeLink) {
     typeColorMap,
     visualByKey,
   } = context;
-  for (const [key, visual] of visualByKey) {
-    const detailCount = visual.detail
-      ? wrapDetailText(visual.detail, Math.max(visual.width - 74, 72), 2, detailFont).length
-      : 0;
-    theme.nodes.height = Math.max(
-      theme.nodes.height,
-      minimumCardHeight(font, detailCount, !!getNodeType(layoutDag[key]!), 1, detailLineHeight),
-    );
-  }
   const layoutResult = resolveLayout(layoutMode, layoutDag, layoutRoots, visualByKey, theme);
   const coordinates = layoutResult.coordinates;
   const nodeKeys = Array.from(reachable).filter((key) => layoutDag[key] && coordinates.has(key));

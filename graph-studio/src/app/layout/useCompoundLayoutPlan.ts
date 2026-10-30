@@ -1,3 +1,4 @@
+import { LayoutJobChannel, type LayoutJob } from "../../layout/runtime/job";
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch } from "react";
 import type { AiSettings } from "../../ai/types";
 import { diagnoseCompoundLayout, inspectCompoundLayout } from "../../layout/compound/inspection";
@@ -14,13 +15,14 @@ import { parseCompoundLayout } from "../../graph/compound/layoutData";
 import type { StageData } from "../../layout/shared/types";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
-import type { useCompoundStage } from "./useCompoundStage";
-import { compoundInputKey } from "./computeCompoundStage";
-import { createLayoutResult } from "../../schema/layoutResult";
-import { applyLayoutResult } from "../../layout/shared/applyLayoutResult";
+import type { useCompoundLayout } from "./useCompoundLayout";
+import { compoundInputKey } from "./useCompoundLayout";
+import { acceptCompoundResult, compoundResultDocument } from "../../layout/compound/result";
+import { assembleCompoundScene } from "../../layout/compound/scene";
 import { useAiActivity } from "../ai/useAiActivity";
 import {
   captureLayoutGeometry,
+  graphLayoutIdentity,
   layoutIdentity,
   renderingSettings,
   type LayoutRendering,
@@ -32,21 +34,23 @@ export function useCompoundLayoutPlan(
   viewport: {
     stage: StageData | null;
     focusedKey: string | null;
-    compoundLayout: ReturnType<typeof useCompoundStage>;
+    compoundLayout: ReturnType<typeof useCompoundLayout>;
     layoutRenderingContext: Omit<LayoutRendering, "geometry"> | null;
   },
   aiSettings: AiSettings,
 ) {
-  const problem = viewport.stage?.compoundLayout;
+  const problem = viewport.compoundLayout.problem;
   const settings = state.layoutSession.data.charts.compound;
   const key = JSON.stringify([
     state.document.generation,
-    state.editHistory.revision,
+    state.dag ? graphLayoutIdentity(state.dag) : "",
+    viewport.compoundLayout.prepared?.problem.fingerprint,
     viewport.compoundLayout.inputKey,
     state.chartType,
     aiSettings,
   ]);
-  const ready = state.chartType === "compound" && !!problem && !viewport.compoundLayout.loading;
+  const ready =
+    state.chartType === "compound" && !!viewport.compoundLayout.prepared && !viewport.compoundLayout.loading;
   const current = useRef({ state, key, ready, problem, viewport, aiSettings });
   current.current = { state, key, ready, problem, viewport, aiSettings };
   const [busy, setBusy] = useState(false);
@@ -72,9 +76,10 @@ export function useCompoundLayoutPlan(
     setMessage("");
     setDetail("");
   }, [state.document.generation, clearActivity]);
-  const active = useRef<AbortController | null>(null);
+  const channel = useRef(new LayoutJobChannel());
+  const active = useRef<LayoutJob | null>(null);
   const cancel = useCallback(() => {
-    active.current?.abort();
+    channel.current.cancel();
     active.current = null;
     setBusy(false);
     finishActivity();
@@ -90,10 +95,6 @@ export function useCompoundLayoutPlan(
   const change = useCallback(
     (patch: Partial<CompoundLayoutData>) => {
       const now = current.current.state;
-      // Selecting Automatic starts a fresh algorithmic plan, rather than merely
-      // hiding the AI form while retaining its structural/routing decisions.
-      const nextPatch =
-        patch.method === "automatic" ? { ...patch, direction: "AUTO" as const, constraints: [] } : patch;
       dispatch({
         type: "layoutSessionChanged",
         generation: now.document.generation,
@@ -102,7 +103,7 @@ export function useCompoundLayoutPlan(
           renderings: { ...now.layoutSession.data.renderings, compound: undefined },
           charts: {
             ...now.layoutSession.data.charts,
-            compound: { ...now.layoutSession.data.charts.compound, ...nextPatch },
+            compound: { ...now.layoutSession.data.charts.compound, ...patch },
           },
         },
       });
@@ -112,7 +113,18 @@ export function useCompoundLayoutPlan(
   const scopeId = problem?.projection.focusGroupId ?? null;
   const inspect = useCallback((groupId?: string | null) => {
     const p = current.current.problem;
-    if (!p) throw new Error("No nested layout is available.");
+    if (!p) {
+      const prepared = current.current.viewport.compoundLayout.prepared;
+      if (!prepared) throw new Error("No nested graph is available.");
+      return {
+        status: "prepared",
+        scopeId: prepared.problem.projection.focusGroupId,
+        nodes: prepared.problem.projection.items,
+        edges: prepared.problem.projection.edges,
+        minimumSizes: prepared.problem.minimumSizes,
+        message: "Measured model ready. No accepted geometry; AI generation is explicit.",
+      };
+    }
     return {
       ...inspectCompoundLayout(p, groupId === undefined ? p.projection.focusGroupId : groupId),
       ...diagnoseCompoundLayout(p),
@@ -122,9 +134,8 @@ export function useCompoundLayoutPlan(
     async (request: { message: string; resume?: boolean } | { intent: unknown }) => {
       const initial = current.current;
       const input = initial.viewport.compoundLayout.input;
-      if (!initial.ready || !initial.problem || !input || active.current)
-        return { ok: false, message: "Wait for the current layout." };
-      const abort = new AbortController();
+      if (!initial.ready || !input || active.current) return { ok: false, message: "Wait for the current layout." };
+      const abort = channel.current.begin(initial.key);
       active.current = abort;
       setBusy(true);
       setMessage("Planning layout…");
@@ -134,6 +145,7 @@ export function useCompoundLayoutPlan(
           ? checkpointRef.current.value
           : undefined;
       if ("message" in request && request.resume && !saved) {
+        abort.finish();
         active.current = null;
         setBusy(false);
         return { ok: false, message: "No matching layout work to resume." };
@@ -145,6 +157,8 @@ export function useCompoundLayoutPlan(
       setLastRun(null);
       setEvaluations(saved?.trials ?? []);
       try {
+        setMessage(initial.problem ? "Planning layout…" : "Preparing a positional seed for AI…");
+        const problem = await initial.viewport.compoundLayout.acquireProblem(abort.signal);
         let data: CompoundLayoutData;
         let stage: StageData;
         let report: CompoundAiReport | undefined;
@@ -154,8 +168,7 @@ export function useCompoundLayoutPlan(
           const result = await runCompoundAiLayout({
             execute: computeCompoundAi,
             settings: initial.aiSettings,
-            problem: initial.problem,
-            currentStage: initial.viewport.stage!,
+            problem,
             message: request.message,
             signal: abort.signal,
             checkpoint: saved,
@@ -176,15 +189,15 @@ export function useCompoundLayoutPlan(
             },
           });
           data = result.data;
-          stage = result.stage;
+          stage = assembleCompoundScene(initial.viewport.compoundLayout.prepared!, result.result);
           report = result.report;
           setCheckpoint(null);
         } else {
           const intent = parseLayoutIntent(request.intent);
           const result = await computeCompoundAi(
             {
-              problem: initial.problem,
-              baseLayout: createLayoutResult(initial.viewport.stage!, "compound"),
+              problem,
+              baseLayout: compoundResultDocument(problem, problem.baseline),
               decision: {
                 action: "console-intent",
                 intent,
@@ -194,10 +207,10 @@ export function useCompoundLayoutPlan(
           );
           if (result.error) throw new Error(result.error);
           data = result.data;
-          stage = applyLayoutResult(result.layout, {
-            ...initial.viewport.stage!,
-            compoundLayout: { ...initial.problem, stored: data },
-          });
+          stage = assembleCompoundScene(
+            initial.viewport.compoundLayout.prepared!,
+            acceptCompoundResult(result.layout, { ...problem, stored: data }),
+          );
         }
         if (abort.signal.aborted || current.current.key !== initial.key)
           return { ok: false, message: "Layout cancelled." };
@@ -260,6 +273,7 @@ export function useCompoundLayoutPlan(
         };
       } finally {
         if (active.current === abort) {
+          abort.finish();
           active.current = null;
           setBusy(false);
           finishActivity();
@@ -297,7 +311,8 @@ export function useCompoundLayoutPlan(
     propose: (intent: unknown) => run({ intent }),
     defaultIntent: { ...defaultLayoutIntent(scopeId), objective: settings.objective },
     scopeTitle: scopeId ?? "Current view",
-    quality: viewport.stage?.layoutQuality,
+    stale: viewport.compoundLayout.stale,
+    quality: viewport.compoundLayout.quality,
     diagnostics: viewport.stage?.warnings ?? [],
     loading: viewport.compoundLayout.loading,
     error: viewport.compoundLayout.error,

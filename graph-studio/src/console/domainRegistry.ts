@@ -165,7 +165,7 @@ export const DOMAIN_COMMANDS: DomainCommandDefinition[] = [
     "view",
     "set",
     "view",
-    { patch: { yaw: 30, projection: "orthographic" } },
+    { patch: { orientation: [0, 0.2588190451, 0, 0.9659258263], projection: "orthographic" } },
     "Update Spatial camera settings; never changes coordinates.",
     "space",
     ["spatial"],

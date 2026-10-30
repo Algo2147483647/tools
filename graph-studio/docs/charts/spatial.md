@@ -58,7 +58,7 @@ Malformed metadata, incorrect coordinate counts, and invalid numeric/angular val
 - **0D:** coordinates are `[]`. An index tray separates coincident nodes for inspection and has no distance meaning.
 - **1D:** coordinates lie on one measured line.
 - **2D:** Cartesian plots preserve coordinate aspect ratio.
-- **3D:** orthographic or perspective projection supports rotation and tilt.
+- **3D:** orthographic or perspective projection supports unrestricted quaternion rotation.
 - **Higher dimensions:** select three converted Cartesian dimensions for View X/Y/Z. Unselected coordinates remain stored. Overlap in one projection does not imply identical source points.
 - **Spherical/geographic map:** an equirectangular projection is available. Edges crossing the longitude seam split at the boundary. A flat degree map is not a ground-distance scale.
 
@@ -66,7 +66,7 @@ Non-Cartesian prefixes are converted before projection. Extra dimensions remain 
 
 ## View controls
 
-Rotate, Tilt, projection, axis selection, Labels, Grid, Hide back points, and Display units are session controls. They do not modify coordinates or enter the portable `ChartStyle` file.
+Quaternion orientation, projection, axis selection, Labels, Grid, Hide back points, and Display units belong to the view. The browser remembers them per document. They do not modify source coordinates or enter the portable `ChartStyle` file. X/Y/Z buttons apply relative camera rotations; dragging uses a virtual trackball with continuous pole crossing and roll near its rim.
 
 Display units changes coordinate spacing relative to automatic scale, between 0.1 and 100 times that scale. Unlike camera zoom, it does not proportionally enlarge text, point radii, or strokes. Reset view restores automatic spacing and orientation.
 
@@ -84,4 +84,4 @@ Filtering keeps original edges between visible endpoints. Color assignment and c
 
 Graph JSON retains source coordinates, not their projected screen positions. SVG captures the current projection. Interactive HTML preserves the rendered snapshot with pan/zoom/details, but does not include Spatial camera rotation controls.
 
-Implementation: [coordinate metadata and conversion](../../src/graph/space.ts), [spatial layout](../../src/layout/spatial/layout.ts), [session view controller](../../src/app/viewport/useSpatialView.ts).
+Implementation: [coordinate metadata and conversion](../../src/graph/space.ts), [static coordinate model](../../src/layout/spatial/model.ts), [camera projection](../../src/layout/spatial/project.ts), [quaternion rotation](../../src/viewport/camera/quaternion.ts), [session view controller](../../src/app/viewport/useSpatialView.ts).

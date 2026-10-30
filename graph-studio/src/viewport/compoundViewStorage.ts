@@ -9,7 +9,7 @@ export function sanitizeCompoundView(view: CompoundView, groupIds: string[]): Co
   };
 }
 export function compoundViewKey(documentId: string) {
-  return JSON.stringify(["graph-studio:compound-view", documentId]);
+  return JSON.stringify(["graph-studio:compound-view:v2", documentId]);
 }
 export function loadCompoundView(
   key: string,

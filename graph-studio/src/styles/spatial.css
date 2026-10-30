@@ -46,7 +46,7 @@
   padding: 4px 7px;
   font: inherit;
 }
-.spatial-angle-input {
+.spatial-unit-input {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -85,11 +85,11 @@
   color: #617287;
   line-height: 1.5;
 }
-.spatial-angle-input:focus-within {
+.spatial-unit-input:focus-within {
   outline: 2px solid var(--studio-accent);
   outline-offset: 1px;
 }
-.spatial-angle-input input {
+.spatial-unit-input input {
   width: 8ch;
   min-width: 0;
   padding: 0;
@@ -102,4 +102,20 @@
 }
 .spatial-display-units input {
   width: 12ch;
+}
+
+.spatial-rotation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.spatial-rotation-controls > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.spatial-rotation-controls .studio-button {
+  min-height: 24px;
+  padding: 2px 5px;
 }

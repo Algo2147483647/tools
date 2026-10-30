@@ -6,8 +6,8 @@ import { collectDescendantKeys } from "../../graph/traversal";
 import type { GraphRenderMode, GraphSelection, NodeKey, NormalizedDag } from "../../graph/types";
 import { stageRoleFont, stageTitleFont, type StageAppearance } from "../shared/appearance";
 import { resolveStageSelection, withSyntheticSelectionRoot } from "../shared/selection";
-import { getNodeVisual } from "../shared/text";
-import { type TextFont } from "../shared/typography";
+import { getNodeVisual, wrapDetailText } from "../shared/text";
+import { minimumCardHeight, type TextFont } from "../shared/typography";
 export interface NodeLinkLayoutInput {
   dag: NormalizedDag;
   colorSourceDag?: NormalizedDag;
@@ -30,7 +30,7 @@ export function prepareNodeLinkInput(input: NodeLinkLayoutInput) {
   const font = stageTitleFont(appearance);
   const detailFont = stageRoleFont(appearance, "detail"),
     detailLineHeight = Math.ceil(detailFont.size * 1.2);
-  const theme = { ...appearance };
+  const theme = { ...appearance, nodes: { ...appearance.nodes } };
   if (!sourceDag || Object.keys(sourceDag.nodes).length === 0) {
     return null;
   }
@@ -44,10 +44,7 @@ export function prepareNodeLinkInput(input: NodeLinkLayoutInput) {
     layoutMode === "sankey" && selection.appSelection.type === "full"
       ? new Set(Object.keys(sourceDag.nodes))
       : new Set(collectDescendantKeys(layoutDag, layoutRoots));
-  const typeColorMap = buildCategoryColorMap(
-    Object.values((input.colorSourceDag ?? sourceDag).nodes).map(getNodeType),
-    appearance.palette?.categories,
-  );
+  const typeColorMap = buildCategoryColorMap(Object.values((input.colorSourceDag ?? sourceDag).nodes).map(getNodeType));
   const edgeIds = new Map(sourceDag.edges.map((edge) => [JSON.stringify([edge.source, edge.target]), edge.id]));
   const visualByKey = buildNodeVisualMap(
     layoutDag,
@@ -58,6 +55,16 @@ export function prepareNodeLinkInput(input: NodeLinkLayoutInput) {
     font,
     detailFont,
   );
+
+  for (const [key, visual] of visualByKey) {
+    const detailCount = visual.detail
+      ? wrapDetailText(visual.detail, Math.max(visual.width - 74, 72), 2, detailFont).length
+      : 0;
+    theme.nodes.height = Math.max(
+      theme.nodes.height,
+      minimumCardHeight(font, detailCount, !!getNodeType(layoutDag[key]!), 1, detailLineHeight),
+    );
+  }
 
   return {
     sourceDag,

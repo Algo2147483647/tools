@@ -19,12 +19,11 @@ export function prepareTimeline(input: TimelineLayoutInput) {
   });
   const clock = getTimelineClock(dag.metadata);
   const colorSource = Object.values((input.axisSource ?? dag).nodes);
-  const typePalette = buildCategoryColorMap(colorSource.map(getNodeType), appearance.palette?.categories);
+  const typePalette = buildCategoryColorMap(colorSource.map(getNodeType));
   const trackPalette = buildCategoryColorMap(
     colorSource.map((node) =>
       settings.layout === "flow" ? getNodeType(node) || "Events" : String(node.track || "Events"),
     ),
-    appearance.palette?.categories,
   );
   const relative = clock.mode === "relative";
   const baseSpan = relative ? Math.max(1, settings.relativeTickStep) : DAY;
@@ -122,9 +121,7 @@ export function prepareTimeline(input: TimelineLayoutInput) {
     trackStartTimes.set(entry.track, Math.min(trackStartTimes.get(entry.track) ?? Infinity, firstTime));
   });
   const tracks = [...trackStartTimes.keys()].sort(
-    (a, b) =>
-      trackStartTimes.get(a)! - trackStartTimes.get(b)! ||
-      compareKeys(a, b),
+    (a, b) => trackStartTimes.get(a)! - trackStartTimes.get(b)! || compareKeys(a, b),
   );
   const dated = entries.filter((entry) => entry.time.status === "dated");
   const undated = entries.filter((entry) => entry.time.status !== "dated");

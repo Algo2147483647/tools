@@ -1,3 +1,4 @@
+import { normalizeOrientation } from "../viewport/camera/quaternion";
 import type { ChartStyle } from "../schema/appearance/types";
 import type { CompoundView, GraphChartType } from "../graph/types";
 import type { SpaceView } from "../graph/space";
@@ -99,15 +100,18 @@ export function validateRuntimeInstruction(
     throw new Error("Provide exactly one of percent or fit:true.");
   if (action === "set") {
     if (!isRecord(args.patch) || !Object.keys(args.patch).length) throw new Error("patch must be a non-empty object.");
-    const allowed = ["axes", "projection", "yaw", "pitch", "labels", "grid", "hideBackPoints", "unitScale"];
+    const allowed = ["axes", "projection", "orientation", "labels", "grid", "hideBackPoints", "unitScale"];
     for (const [key, value] of Object.entries(args.patch)) {
       if (!allowed.includes(key)) throw new Error(`Unknown Spatial view field ${key}.`);
       if (["labels", "grid", "hideBackPoints"].includes(key) && typeof value !== "boolean")
         throw new Error(`${key} must be boolean.`);
       if (key === "projection" && !["orthographic", "perspective", "map"].includes(String(value)))
         throw new Error("Invalid projection.");
-      if (["yaw", "pitch", "unitScale"].includes(key)) numberArg(value, key);
-      if (key === "pitch" && Math.abs(value as number) > 90) throw new Error("pitch must be within -90..90.");
+      if (key === "unitScale") numberArg(value, key);
+      if (key === "orientation") {
+        if (!Array.isArray(value)) throw new Error("orientation must be [x,y,z,w].");
+        normalizeOrientation(value);
+      }
       if (key === "unitScale" && ((value as number) < 0.1 || (value as number) > 100))
         throw new Error("unitScale must be within 0.1..100.");
       if (

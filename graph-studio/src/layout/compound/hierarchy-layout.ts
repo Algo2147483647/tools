@@ -1,8 +1,9 @@
+import { compactFlow } from "./rectangle-packing";
 import { createPlacementScore } from "./placement-score";
 import type { GraphGeometryAppearance } from "../../schema/appearance/defaults";
 import type { CompoundProjection } from "../../graph/compound/projection";
 import type { CompoundBox } from "../../graph/compound/geometry";
-import { arrangeTopology } from "./topology-layout";
+import { arrangeTopology, compoundTopology } from "./topology-layout";
 import { groupContentTop } from "../shared/group-title";
 
 interface Size {
@@ -21,6 +22,7 @@ export function layoutCompoundHierarchy(
   theme: GraphGeometryAppearance,
   showLabels = false,
   labelSizes?: Record<string, Size>,
+  scoreRoutes = true,
 ) {
   const scopes = new Map<string | null, Scope>([[null, { children: [], edges: [] }]]);
   const parents = new Map(projection.items.map((item) => [item.id, item.parentId]));
@@ -54,16 +56,28 @@ export function layoutCompoundHierarchy(
   const fixedSizes = new Map(sizes);
   for (const id of [...scopes.keys()].reverse()) {
     const scope = scopes.get(id)!;
-    const result = arrangeTopology(
-      scope.children,
-      scope.edges,
-      fixedSizes,
-      theme.nodes.spacing.column,
-      theme.nodes.spacing.row,
-      "AUTO",
-      undefined,
-      createPlacementScore(scope.edges, { projection, children: local, showLabels, labelSizes }),
-    );
+    const seed = () => {
+      const topology = compoundTopology(scope.children, scope.edges);
+      return compactFlow(
+        topology.layers.flat(),
+        topology.forward,
+        fixedSizes,
+        theme.nodes.spacing.column,
+        theme.nodes.spacing.row,
+      );
+    };
+    const result = scoreRoutes
+      ? arrangeTopology(
+          scope.children,
+          scope.edges,
+          fixedSizes,
+          theme.nodes.spacing.column,
+          theme.nodes.spacing.row,
+          "AUTO",
+          undefined,
+          createPlacementScore(scope.edges, { projection, children: local, showLabels, labelSizes }),
+        )
+      : seed();
     const left = id === null ? 36 : 24,
       top = id === null ? 36 : groupContentTop(projection.items.find((item) => item.id === id)!.title),
       bottom = id === null ? 36 : 24;

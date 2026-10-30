@@ -6,18 +6,29 @@ export function getFitZoomScale(container: HTMLElement, stage: StageData, overla
   return calculateFitZoomScale(getViewportMetrics(container, overlays), stage);
 }
 
+export interface CameraState {
+  scale: number;
+  x: number;
+  y: number;
+  marginLeft: number;
+  marginTop: number;
+  unitScale: number;
+}
+export const initialCamera = (): CameraState => ({ scale: 1, x: 0, y: 0, marginLeft: 0, marginTop: 0, unitScale: 1 });
+
 export function applyGraphZoom(
   container: HTMLElement,
   svg: SVGSVGElement,
   stage: StageData,
+  camera: CameraState,
   scale: number,
   preserveCenter: boolean,
   anchor?: ZoomAnchor,
   overlays: HTMLElement | null = null,
-): void {
-  const previousScale = Number(svg.dataset.zoomScale || 1);
-  const previousMarginLeft = Number(svg.dataset.marginLeft || 0);
-  const previousMarginTop = Number(svg.dataset.marginTop || 0);
+): CameraState {
+  const previousScale = camera.scale;
+  const previousMarginLeft = camera.marginLeft;
+  const previousMarginTop = camera.marginTop;
   const viewportMetrics = getViewportMetrics(container, overlays);
   const containerRect = container.getBoundingClientRect();
   const scaledWidth = stage.stageWidth * scale;
@@ -43,10 +54,10 @@ export function applyGraphZoom(
     const { x, y } = calculateSpatialCamera({
       ...positionInput,
       fitBounds: stage.spatial?.fitBounds,
-      previousX: Number(svg.dataset.cameraX || 0),
-      previousY: Number(svg.dataset.cameraY || 0),
+      previousX: camera.x,
+      previousY: camera.y,
       unitScale,
-      previousUnitScale: Number(svg.dataset.spatialUnitScale || unitScale),
+      previousUnitScale: camera.unitScale,
     });
     svg.style.width = `${scaledWidth}px`;
     svg.style.height = `${scaledHeight}px`;
@@ -56,7 +67,7 @@ export function applyGraphZoom(
     svg.dataset.marginLeft = svg.dataset.marginTop = "0";
     container.scrollLeft = container.scrollTop = 0;
     setSpatialCamera(svg, x, y);
-    return;
+    return { scale, x, y, marginLeft: 0, marginTop: 0, unitScale };
   }
   svg.style.transform = "";
   delete svg.dataset.cameraX;
@@ -64,8 +75,8 @@ export function applyGraphZoom(
   delete svg.dataset.spatialUnitScale;
   const { marginLeft, marginTop, scrollLeft, scrollTop } = calculateScrollZoom({
     ...positionInput,
-    scrollLeft: container.scrollLeft,
-    scrollTop: container.scrollTop,
+    scrollLeft: camera.x,
+    scrollTop: camera.y,
     previousMarginLeft,
     previousMarginTop,
   });
@@ -80,20 +91,13 @@ export function applyGraphZoom(
 
   container.scrollLeft = scrollLeft;
   container.scrollTop = scrollTop;
+  return { scale, x: container.scrollLeft, y: container.scrollTop, marginLeft, marginTop, unitScale: 1 };
 }
 
 export function setSpatialCamera(svg: SVGSVGElement, x: number, y: number) {
   svg.dataset.cameraX = String(x);
   svg.dataset.cameraY = String(y);
   svg.style.transform = `translate(${x}px, ${y}px)`;
-}
-
-export function getAppliedZoomScale(svg: SVGSVGElement | null, fallbackScale: number): number {
-  if (!svg) {
-    return fallbackScale;
-  }
-  const appliedScale = Number(svg.dataset.zoomScale);
-  return Number.isFinite(appliedScale) && appliedScale > 0 ? appliedScale : fallbackScale;
 }
 
 export function getViewportMetrics(container: HTMLElement, overlays: HTMLElement | null = null): ViewportMetrics {

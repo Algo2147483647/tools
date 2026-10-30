@@ -66,6 +66,10 @@ export default function ConsoleWindow({
   }, []);
 
   useEffect(() => {
+    if (activeTab === "conversation") inputRef.current?.focus({ preventScroll: true });
+  }, [activeTab]);
+
+  useEffect(() => {
     const output = outputRef.current;
     if (!output || !followOutput.current) {
       return;
@@ -173,19 +177,16 @@ export default function ConsoleWindow({
           <AiActivityView activity={aiActivity} busy={aiBusy} />
         </div>
         <div className="console-terminal__input-wrap">
-          <label className="console-terminal__prompt" htmlFor="graph-console-input">
-            Ask AI
-          </label>
           <textarea
             ref={inputRef}
             id="graph-console-input"
+            aria-label="AI message"
             className="console-terminal__input"
             rows={2}
             spellCheck={false}
             autoComplete="off"
             value={inputValue}
             disabled={aiBusy}
-            placeholder="Describe what to inspect or change… (Shift+Enter for a new line)"
             onChange={(event) => onInputChange(event.currentTarget.value)}
             onKeyDown={(event) => {
               if (!event.nativeEvent.isComposing) onKeyDown(event);

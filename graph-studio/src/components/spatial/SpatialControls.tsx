@@ -1,3 +1,4 @@
+import { axisRotation } from "../../viewport/camera/quaternion";
 import { useState } from "react";
 import type { useSpatialView } from "../../app/viewport/useSpatialView";
 import { spatialUnitScale } from "../../graph/space";
@@ -76,22 +77,31 @@ export default function SpatialControls({
               </label>
             ))}
           {dimensions >= 3 && view.projection !== "map" && (
-            <>
-              <AngleInput
-                label="Rotate"
-                ariaLabel="Spatial rotation"
-                limit={180}
-                value={view.yaw}
-                onCommit={(yaw) => change({ yaw })}
-              />
-              <AngleInput
-                label="Tilt"
-                ariaLabel="Spatial tilt"
-                limit={90}
-                value={view.pitch}
-                onCommit={(pitch) => change({ pitch })}
-              />
-            </>
+            <div className="spatial-rotation-controls" aria-label="Camera rotation">
+              {(["X", "Y", "Z"] as const).map((axis, index) => (
+                <span key={axis}>
+                  {axis}
+                  {[-15, 15].map((angle) => (
+                    <button
+                      type="button"
+                      className="studio-button"
+                      key={angle}
+                      aria-label={`Rotate camera ${axis} ${angle} degrees`}
+                      onClick={() =>
+                        spatial.orbit(
+                          axisRotation(
+                            [0, 1, 2].map((i) => (i === index ? 1 : 0)),
+                            angle,
+                          ),
+                        )
+                      }
+                    >
+                      {angle > 0 ? "+" : "−"}15°
+                    </button>
+                  ))}
+                </span>
+              ))}
+            </div>
           )}
           <label className="spatial-checkbox">
             <input type="checkbox" checked={view.grid} onChange={(e) => change({ grid: e.target.checked })} /> Grid
@@ -157,7 +167,7 @@ function DisplayUnits({
     <div className="spatial-display-units">
       <label title="Coordinate spacing at 100% zoom. Increase to spread points apart. Zoom still scales labels, points and lines together.">
         Display units
-        <span className="spatial-angle-input">
+        <span className="spatial-unit-input">
           <input
             aria-label="Pixels per coordinate unit"
             type="number"
@@ -206,54 +216,5 @@ function DisplayUnits({
         Auto
       </button>
     </div>
-  );
-}
-
-function AngleInput({
-  label,
-  ariaLabel,
-  limit,
-  value,
-  onCommit,
-}: {
-  label: string;
-  ariaLabel: string;
-  limit: number;
-  value: number;
-  onCommit(value: number): void;
-}) {
-  const [draft, setDraft] = useState<string | null>(null);
-  const display = String(value);
-  return (
-    <label>
-      {label}
-      <span className="spatial-angle-input">
-        <input
-          aria-label={ariaLabel}
-          type="number"
-          min={-limit}
-          max={limit}
-          step="any"
-          value={draft ?? display}
-          onChange={(event) => setDraft(event.target.value)}
-          onBlur={(event) => {
-            const next = event.currentTarget.valueAsNumber;
-            if (Number.isFinite(next)) onCommit(Math.max(-limit, Math.min(limit, next)));
-            setDraft(null);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              event.preventDefault();
-              event.currentTarget.value = display;
-              event.currentTarget.blur();
-            } else if (event.key === "Enter") {
-              event.preventDefault();
-              event.currentTarget.blur();
-            }
-          }}
-        />
-        <span aria-hidden="true">°</span>
-      </span>
-    </label>
   );
 }

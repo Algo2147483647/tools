@@ -33,6 +33,14 @@ Object.values(doc.nodes).forEach((node, i) => {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   const errors = [];
+  await context.route("**/chat/completions", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        choices: [{ finish_reason: "stop", message: { role: "assistant", content: "Fixture graph inspected." } }],
+      }),
+    }),
+  );
   page.on("pageerror", (e) => errors.push(e.message));
   const output = "test-results/workbench";
   fs.mkdirSync(output, { recursive: true });
@@ -194,6 +202,7 @@ Object.values(doc.nodes).forEach((node, i) => {
     assert.equal(await page.locator("#graph-console-input").inputValue(), "Describe this graph");
     await page.locator("#graph-console-input").press("Enter");
     await page.waitForFunction(() => document.querySelector("#graph-console-input")?.value === "");
+    await page.waitForFunction(() => !document.querySelector("#graph-console-input")?.disabled);
     await page.getByRole("tab", { name: "Workbench", exact: true }).click();
     await page.screenshot({ path: output + "/mobile.png" });
     await launcher("settings-btn");
@@ -238,6 +247,13 @@ Object.values(doc.nodes).forEach((node, i) => {
     );
   } catch (e) {
     await page.screenshot({ path: output + "/failure.png" });
+    console.error(
+      "Focus:",
+      await page.evaluate(() => ({
+        active: document.activeElement?.outerHTML,
+        inputDisabled: document.getElementById("graph-console-input")?.disabled,
+      })),
+    );
     console.error(await page.locator("body").innerText());
     throw e;
   } finally {

@@ -321,15 +321,6 @@
   box-shadow: 0 0 0 3px #eef2fa;
 }
 
-.console-terminal__prompt {
-  max-width: 30%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 0 0 auto;
-  color: #000;
-}
-
 .console-terminal__input {
   resize: vertical;
   min-height: 44px;

@@ -6,7 +6,9 @@ import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { CompoundView, GraphChartType, GraphLayoutMode } from "../../graph/types";
 import { buildStageData } from "../../layout/node-link/layout";
 import { getStageAppearance } from "../../layout/shared/appearance";
-import { buildSpatialStage } from "../../layout/spatial/layout";
+import { prepareSpatialModel } from "../../layout/spatial/model";
+import { projectSpatialModel } from "../../layout/spatial/project";
+import { defaultSpaceView, getSpaceMetadata } from "../../graph/space";
 import { buildTimelineStage } from "../../layout/timeline/layout";
 import { CHART_SCHEMAS } from "../../schema/document/definition";
 
@@ -158,7 +160,11 @@ export function buildFlatPreviewStage(input: PreviewGeometry) {
     dag: input.chartType === "timeline" ? timelinePreviewGraph(input.timelineClock) : PREVIEW_GRAPHS[input.chartType],
     selection: { type: "full" as const },
   };
-  if (input.chartType === "spatial") return buildSpatialStage(shared);
+  if (input.chartType === "spatial")
+    return projectSpatialModel(
+      prepareSpatialModel(shared.dag, defaultSpaceView(getSpaceMetadata(shared.dag)).axes),
+      shared,
+    );
   return input.chartType === "timeline"
     ? buildTimelineStage(shared)
     : buildStageData({

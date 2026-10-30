@@ -8,7 +8,7 @@ import { analyzeGraphImport } from "../graph/imports/merge";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { projectGraphByType } from "../graph/typeFilter";
-import { buildCompoundStage } from "../layout/compound/layout";
+import { compoundFixtureScene } from "./layoutFixtures";
 import { buildStageData } from "../layout/node-link/layout";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { roundedPolylinePath } from "../layout/shared/rounded-path";
@@ -47,7 +47,7 @@ const view = (collapsedGroupIds: string[] = [], focusGroupId: string | null = nu
   focusGroupId,
 });
 const layout = (dag = compoundFixture(), currentView = view()) =>
-  buildCompoundStage({
+  compoundFixtureScene({
     dag,
     view: currentView,
     appearance: getStageAppearance(DEFAULT_GRAPH_APPEARANCE),
@@ -172,7 +172,7 @@ export const compoundSuite = defineSuite("Compound hierarchy, projection and lay
       assert.ok(stage.edges.every((edge) => !/NaN|Infinity|undefined/.test(edge.path)));
       for (const edge of stage.edges) assert.ok(stage.nodeMap[edge.source] && stage.nodeMap[edge.target]);
     }
-    const descriptionStage = await buildCompoundStage({
+    const descriptionStage = await compoundFixtureScene({
       dag,
       view: view(["b"]),
       appearance: getStageAppearance({

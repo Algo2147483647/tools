@@ -1,52 +1,46 @@
 # Layout architecture
 
-`src/layout` turns graph documents and view settings into renderable stage data. Modules are grouped by chart family; controllers own React state and asynchronous job lifecycles.
+Graph Studio separates projection and measurement, mode-specific solving, accepted geometry, scene painting, and camera state. Opening a console or changing a tab is not a layout input. Palette changes paint existing geometry. Spatial orientation updates projection without rebuilding its static coordinate model.
 
-| Directory    | Responsibility                                                                              | Entry point                                                                                                |
-| ------------ | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `shared/`    | Stage contracts, algorithm contracts, appearance, selection, text fitting and edge geometry | [Stage types](../src/layout/shared/types.ts), [algorithm types](../src/layout/shared/algorithm-types.ts)   |
-| `node-link/` | Node-link preparation, algorithm dispatch, node creation, positioning and stage assembly    | [layout.ts](../src/layout/node-link/layout.ts)                                                             |
-| `sankey/`    | Flow layout and Sankey stage construction                                                   | [layout.ts](../src/layout/sankey/layout.ts)                                                                |
-| `compound/`  | Hierarchy layout, declarative constraints, automatic selection, validation and routing      | [layout.ts](../src/layout/compound/layout.ts), [layout-solver.ts](../src/layout/compound/layout-solver.ts) |
-| `timeline/`  | Time-axis preparation, event arrangement, labels, routing and stage construction            | [layout.ts](../src/layout/timeline/layout.ts)                                                              |
-| `spatial/`   | Coordinate projection and spatial stage construction                                        | [layout.ts](../src/layout/spatial/layout.ts)                                                               |
-| `workers/`   | Worker entry points and shared request/response contracts                                   | [protocol.ts](../src/layout/workers/protocol.ts)                                                           |
+| Module                            | Ownership                                                                                          |
+| --------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `layout/compound/prepare.ts`      | Visible hierarchy, measured cards, group titles, labels, semantic problem; no placement or routing |
+| `layout/compound/solve.ts`        | Automatic placement and routing, or an explicit positional seed for AI                             |
+| `layout/compound/result.ts`       | Result membership, measured sizes, containment, routes and port validation against the model       |
+| `layout/compound/scene.ts`        | Accepted geometry and measured content to render data                                              |
+| `layout/runtime/`                 | Bounded session cache and cancellable request identities                                           |
+| `app/layout/useCompoundLayout.ts` | Committed result, pending job, scope isolation and restoration before solving                      |
+| `layout/node-link/`               | Measurement, algorithm dispatch, positioning and scene assembly                                    |
+| `layout/timeline/`                | Time-axis preparation, event arrangement, label/routing rules and filtered projection              |
+| `layout/spatial/model.ts`         | Source coordinate conversion, selected axes, center and fixed bounds                               |
+| `layout/spatial/project.ts`       | Camera projection, depth visibility, guides and labels                                             |
+| `render/scene/paint.ts`           | Palette and paint-only Timeline settings without changing coordinates                              |
+| `viewport/useGraphZoom.ts`        | One camera owner and one viewport size observer                                                    |
+| `viewport/camera/`                | Quaternion/trackball mathematics and versioned browser camera storage                              |
 
-## Construction pipelines
+## Execution and invalidation
 
-Node-link construction runs through `input.ts` → `nodes.ts` → `position.ts` → `stage.ts`. `algorithm.ts` dispatches to the existing Dagre, level and Sugiyama implementations in `algorithms/`. The public `buildStageData` entry also retains Sankey validation/fallback and spatial dispatch.
+Compound preparation is synchronous and has no baseline geometry. An automatic request sends only serializable measurements and the problem to one Worker. The existing hierarchy optimizer and routing search remain inside that explicit solve. A matching accepted result or session cache bypasses the Worker. The result is installed atomically; pending work never clears a same-scope valid picture. Document or visible-scope changes cannot display the previous scope as current. Abort terminates the Worker; request identity also rejects late completion, including an A → B → A switch.
 
-Timeline construction runs through `prepare.ts` → `arrange.ts` → `stage.ts`. `prepare.ts` resolves selection, time bounds, settings, fonts and the axis. `nodes.ts` creates event nodes using that prepared context. `arrange.ts` allocates channels, packs events and labels. `stage.ts` assembles edges, bounds and orientation; `edge-routing.ts` owns edge anchors and route construction. Pipeline objects are local, mutable construction state: arrangement updates event positions and stage assembly adds edge ports to nodes. They are not persisted documents.
+AI consumes the measured model directly. A fresh AI-mode graph does not run the automatic optimizer. On an explicit request, an existing matching result supplies its baseline; otherwise the Worker builds a deterministic positional seed without route-aware initialization. This seed is an unvalidated draft and is never displayed as an accepted result. The AI must produce a complete legal candidate. The workflow returns geometry and diagnostics, not a scene carrying a solver problem. Automatic/AI switching does not reset direction or constraints.
 
-Graph documents contain only a `metadata.layout` path association. `schema/layoutConfig.ts` defines the independent chart-specific configuration file and reads legacy files for settings only. `schema/layoutSession.ts` owns internal session state, including undoable AI renderings; `schema/layoutGeometry.ts` captures/restores those session renderings. The Layout title's Update button writes a sibling `<graph>.<chartType>.layout.json` or overwrites the existing association without a file picker. It also persists `metadata.layout` in the disk graph and refreshes the workspace cache. Only the association is patched in the graph; unrelated unsaved graph edits remain unsaved. Failed association writes roll back the configuration write. Saving configuration does not depend on stage readiness or capture geometry. Appearance and Layout share file naming, overwrite validation, write lifecycle and association handling through `workspace/linkedDocument.ts` and the workspace controller. See [Layout protocols](layout-schema.md).
+Flat charts cache their prepared input and measured geometry before algorithm execution. Node-link measurement owns a private appearance copy. Cached geometry refreshes fitted text when font metrics change without changing measured boxes. Sankey rejects invalid flow inputs explicitly instead of selecting another chart algorithm. Timeline retains its time-axis and readapt semantics; paint-only settings are excluded from its solver input. Accepted Timeline geometry retains a matching scene template so returning to the scope does not require a preliminary solve.
 
-`compound/layout.ts` measures nodes and labels and creates a fresh topology problem. `compound/automatic.ts` routes the baseline, searches bounded alternatives, validates geometry and selects one result. `layout-solver.ts` keeps candidates internal. The controller sends each fresh problem to a Worker and installs geometry and quality together. There is no accepted snapshot, cross-view geometry cache, pin capture, or user review lifecycle. Zero requested spacing retains a minimum routing corridor.
+The graph font subscription observes actual metrics of selected graph fonts. Unrelated font families do not invalidate measurement. Relevant events whose glyph metrics are unchanged do not publish an update. A palette never belongs in `StageAppearance` or a geometry cache key.
 
-`useCompoundStage` coalesces input changes, cancels superseded jobs and discards stale responses. Its result contains only the current stage. `useCompoundLayoutPlan` runs the dedicated compound planning harness, commits its selected rendering and configuration together to session history. Rendering restoration joins the current graph and measured Appearance without rearranging the AI result. Intermediate solves remain transient and never become history entries.
+## Camera and persistence
 
-## Types and text measurement
+The camera controller owns scale and translation. SVG data attributes mirror applied state for drawing and inspection; they are not read as camera state. The browser's scroll event is an input to the same controller. Scene replacement preserves the camera in the same scope. First opening fits when no saved camera exists; Fit is an explicit user action. Scope navigation restores a matching view. One stable ResizeObserver compares real viewport metrics before applying an update.
 
-`shared/algorithm-types.ts` describes algorithm coordinates and routes. `shared/types.ts` describes renderable stages, and re-exports algorithm and timeline types for shared consumers. Timeline-specific stage fields live in `timeline/stage-types.ts`; its dependency on `StageData` is type-only.
+Spatial camera orientation is a normalized quaternion `[x,y,z,w]`. Pointer movement maps to a virtual trackball, including roll near the rim; there is no Euler conversion or pitch clamp. Source latitude validation is unchanged. Planar maps retain pan/zoom behavior. Coordinate conversion and fixed bounds are reused across rotation, labels, grid and projection changes.
 
-Browser Canvas access and its cached measurement context live in [shared/text-measurement.ts](../src/layout/shared/text-measurement.ts). `shared/text-estimate.ts` supplies the deterministic width estimate for environments without Canvas, while `shared/text.ts` retains the text fitting API. Compound worker inputs contain measured rectangles and edge-label sizes; AI result adapters reuse measured baseline label widths and display titles. Other worker text measurements retain the deterministic fallback.
+Graph files contain only the `metadata.layout` association. `schema/layoutConfig.ts` accepts the current settings file format only. Retired layout versions and embedded geometry are rejected; no migration or fallback reader is shipped. `schema/layoutSession.ts` contains session-only accepted renderings and undoable configuration. Browser storage remembers Nested expansion, spatial view and scope cameras using versioned keys and durable file/import identities. Runtime caches and pending jobs are not persisted in graph files or undo history.
 
-## Worker boundary
+## Regression checks
 
-Requests have `{ jobId, payload }`. Responses are either `{ jobId, ok: true, result }` or `{ jobId, ok: false, error }`. The worker handler echoes the request ID and converts synchronous failures into error responses.
+`browser-tests/layout-runtime.cjs` checks zero layout calls for shell/paint updates in all five modes, camera continuity, static Spatial model reuse, Nested cache hits, AI result installation without automatic solving, failed-update retention and explicit AI seeding. `src/test/layoutRuntime.test.ts` checks cancellation identities, bounded cache eviction, quaternion invariants and measurement purity. Existing chart, routing and mocked AI suites cover their specialized semantics.
 
-Controllers retain cancellation, termination, timeout handling and graph/view freshness checks. The worker controller ignores responses for a different job ID. Timeline AI applies exact returned geometry on the main thread and has no separate solver worker.
-
-Worker requests use shared main-thread cleanup in `app/layout/workerJob.ts`. Compound automatic arrangement and Compound AI geometry jobs each use a 15-second timeout. Compound AI also has a 20-minute overall limit and a 120-second response idle timeout and a 16-request and 48-tool-dispatch budget per invocation. Cancellation aborts generation and terminates the current worker. Timeline generation retains its existing cancellation-driven lifecycle. Graph/view revision checks remain in each controller.
-
-## AI layout rules
-
-`schema/layoutResult.ts` defines the complete v4 rendering result, Schema tab fields and parser. `layout/shared/applyLayoutResult.ts` applies exact geometry; `compound/finalizeStage.ts` shares validation and quality measurement with session restoration. Compound exposes six native tools through `compound/ai/protocol.ts`; `ai/transport/toolConversation.ts` preserves provider tool messages and reasoning/signatures. Timeline owns its independent decision envelope in `timeline/ai/decision.ts`. There is no shared legacy decision entry point.
-
-Compound `ai/design.ts` compiles semantic composition and spatial sibling grids into geometry without artificial graph dependencies. `ai/execute.ts` executes that design or local changes in `compound-ai.worker.ts`. Explicit console intents still use the local intent solver through a separate internal operation, never an AI protocol adapter. Exact manual routes remain untouched. `ai/geometry.ts` supplies structured validation issues.
-
-The workflow requires an initial design followed by candidate-specific structural reviews. The model receives text describing actual geometry and relationships, with no image input or offscreen renderer. Every edit must be reviewed again before finish. Numeric quality is auxiliary; there is no score-based selection or stagnation stop. Interrupted runs retain conversation and candidate checkpoints in the current page session. Resume processes pending calls idempotently; only explicit tool selection installs a candidate. Timeline still applies exact model geometry independently.
-
-The selected result is retained in session memory. `schema/layoutConfig.ts` and `createLayoutConfigFile` define the only disk write format: `graph-studio-layout-settings`, version 1, with chart-specific configuration. Neither geometry nor concrete plans/orders/pins/scope are serialized. Legacy linked files are reduced to configuration before opening. See [Layout protocols](layout-schema.md).
+## AI composition and routing
 
 AI starts with the complete semantic graph overview and queries scoped geometry on demand. Native tool messages carry observations; immutable candidate IDs and revisions support branches and comparison. `composition.ts` executes paths, parallel branches, relative placement, alignment and spacing. `observation.ts` checks realized intent and structural facts. The runtime validates complete geometry after every calculation. `useCompoundLayoutPlan` owns current-page checkpoints and invalidates them when graph/view/model context changes.
 

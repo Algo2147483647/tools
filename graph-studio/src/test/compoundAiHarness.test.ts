@@ -5,7 +5,7 @@ import { requestToolTurn } from "../ai/transport/toolConversation";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { emptyLayoutData } from "../graph/compound/layoutData";
-import { buildCompoundStage } from "../layout/compound/layout";
+import { compoundFixtureScene } from "./layoutFixtures";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { getDefaultChartStyle } from "../schema/appearance/styles";
 import { defaultLayoutSession, parseLayoutSession, repairLayoutSession } from "../schema/layoutSession";
@@ -13,7 +13,9 @@ import { createLayoutResult } from "../schema/layoutResult";
 import { runCompoundAiLayout, type CompoundCheckpoint } from "../layout/compound/ai/workflow";
 import { compareLayoutMetrics } from "../layout/compound/layout-quality";
 import { executeCompoundDecision, type CompoundExecutionInput } from "../layout/compound/ai/execute";
-import { applyLayoutResult } from "../layout/shared/applyLayoutResult";
+import { acceptCompoundFixture } from "./layoutFixtures";
+import { assembleCompoundScene } from "../layout/compound/scene";
+import { prepareCompound } from "../layout/compound/prepare";
 import { inspectDraft } from "../layout/compound/ai/geometry";
 import { validateDesign, type CompoundDesign } from "../layout/compound/ai/design";
 import { graphOverview, inspectGraph, inspectLayout } from "../layout/compound/ai/observation";
@@ -37,7 +39,7 @@ const graph = () =>
   });
 const fixture = async () => {
   const input = { dag: graph(), view, appearance, showNodeDetail: false, alignNodeWidthsToMax: true };
-  const stage = await buildCompoundStage(input);
+  const stage = await compoundFixtureScene(input);
   return { input, stage, problem: stage.compoundLayout! };
 };
 const designPlan = (): CompoundDesign => ({
@@ -96,7 +98,6 @@ async function withModel(turns: ReturnType<typeof call>[][], run: (requests: any
 const runOptions = (f: Awaited<ReturnType<typeof fixture>>) => ({
   settings,
   problem: f.problem,
-  currentStage: f.stage,
   message: "Arrange",
   signal: new AbortController().signal,
 });
@@ -346,7 +347,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
         assert.equal(first.graph.nodes.length, 4);
         assert.ok(!first.graph.currentLayout);
         assert.ok(requests.every((r) => r.messages.every((m: any) => typeof m.content === "string")));
-        assertCompoundGeometry(graph(), result.stage, view);
+        assertCompoundGeometry(graph(), assembleCompoundScene(prepareCompound(f.input), result.result), view);
       },
     );
   }),
@@ -368,7 +369,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
       decision: { action: "compose", design: plan },
     });
     assert.equal(r.error, undefined);
-    const result = applyLayoutResult(r.layout, f.stage),
+    const result = acceptCompoundFixture(r.layout, f.stage),
       b = result.compoundLayout!.baseline.boxes;
     assert.equal(b.b.x, b.c.x);
     assert.ok(b.b.x >= b.a.x + b.a.width + 80);
@@ -563,7 +564,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
   defineTest("midpoint mode reaches the solver and persists independently of graph data", async () => {
     const { input } = await fixture();
     const layout = { ...emptyLayoutData(), portMode: "midpoints" as const };
-    const stage = await buildCompoundStage({ ...input, layout });
+    const stage = await compoundFixtureScene({ ...input, layout });
     const boxes = stage.compoundLayout!.baseline.boxes;
     for (const edge of stage.edges)
       for (const [id, p] of [
@@ -621,7 +622,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
     });
     assert.deepEqual(result.layout.geometry.edges[0].points, points);
     assert.deepEqual(result.reroutedEdgeIds, []);
-    assert.throws(() => applyLayoutResult(result.layout, stage));
+    assert.throws(() => acceptCompoundFixture(result.layout, stage));
     assert.deepEqual(createLayoutResult(stage, "compound"), baseLayout);
   }),
   defineTest("commerce card-crossing diagnostics are repaired locally without moving nodes", async () => {
@@ -629,7 +630,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
       await readFile(new URL("../../public/examples/commerce/commerce.json", import.meta.url), "utf8"),
     );
     const dag = normalizeDagInput(raw);
-    const stage = await buildCompoundStage({
+    const stage = await compoundFixtureScene({
       dag,
       view,
       appearance,
@@ -664,7 +665,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
     };
     const result = executeCompoundDecision({ problem, baseLayout: broken, decision });
     assert.equal(result.error, undefined);
-    const repaired = applyLayoutResult(result.layout, stage);
+    const repaired = acceptCompoundFixture(result.layout, stage);
     assert.deepEqual(result.layout.geometry.nodes, baseline.geometry.nodes);
     assert.deepEqual(result.layout.geometry.groups, baseline.geometry.groups);
     for (const edge of baseline.geometry.edges.filter((e) => !ids.includes(e.id)))
@@ -685,7 +686,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
         { id: "uv", source: "u", target: "v" },
       ],
     });
-    const stage = await buildCompoundStage({
+    const stage = await compoundFixtureScene({
       dag,
       view,
       appearance,
@@ -712,7 +713,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
       ];
       e.label = [410, y - 10];
     }
-    const arranged = applyLayoutResult(base, stage);
+    const arranged = acceptCompoundFixture(base, stage);
     const result = executeCompoundDecision({
       problem: arranged.compoundLayout!,
       baseLayout: base,
@@ -729,7 +730,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
       result.layout.geometry.edges.find((e) => e.id === uv),
       base.geometry.edges.find((e) => e.id === uv),
     );
-    assertCompoundGeometry(dag, applyLayoutResult(result.layout, stage), view);
+    assertCompoundGeometry(dag, acceptCompoundFixture(result.layout, stage), view);
   }),
   defineTest("group moves translate descendants and fixed external nodes cannot be moved", async () => {
     const { stage, problem } = await fixture();
@@ -744,7 +745,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
       },
     });
     assert.equal(result.error, undefined);
-    applyLayoutResult(result.layout, stage);
+    acceptCompoundFixture(result.layout, stage);
     for (const node of base.geometry.nodes)
       assert.deepEqual(result.layout.geometry.nodes.find((n) => n.id === node.id)!.position, [
         node.position[0] + 50,

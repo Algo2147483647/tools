@@ -9,7 +9,7 @@ import { parseChartStyleFile, serializeChartStyle } from "../schema/styleProtoco
 import { chartPreferencesReducer, createChartPreferences, getChartStyles } from "../app/preferences/chartPreferences";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { buildStageData } from "../layout/node-link/layout";
-import { buildCompoundStage } from "../layout/compound/layout";
+import { compoundFixtureScene } from "./layoutFixtures";
 import { PREVIEW_GRAPHS } from "../components/settings/previewModel";
 import GraphStage from "../components/canvas/GraphStage";
 import GraphNode from "../components/canvas/GraphNode";
@@ -56,7 +56,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     style.appearance.display.titleAlign = "center";
     style.appearance.display.titleWrap = true;
     style.showNodeDetail = true;
-    const stage = await buildCompoundStage({
+    const stage = await compoundFixtureScene({
       dag,
       view: { collapsedGroupIds: [], focusGroupId: null },
       ...style,
@@ -137,7 +137,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
       appearance: getStageAppearance(style.appearance),
       view: { collapsedGroupIds: ["app", "storage"], focusGroupId: null },
     };
-    const folded = await buildCompoundStage(input);
+    const folded = await compoundFixtureScene(input);
     assert.ok(folded.nodes.some((node) => node.kind === "group"));
     assert.ok(folded.nodes.every((node) => node.width === 200 && node.height === 100 && node.detailLines.length === 0));
     assert.equal(style.appearance.display.nodeCornerRadius, 20);
@@ -158,7 +158,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
         target,
       })),
     });
-    const titleStage = await buildCompoundStage({
+    const titleStage = await compoundFixtureScene({
       ...input,
       dag: titledDag,
       view: { collapsedGroupIds: ["customer"], focusGroupId: null },
@@ -179,7 +179,7 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.equal(style.appearance.nodes.spacing.row, 24);
     assert.equal(style.appearance.display.edgeArrowStyle, "open");
     assert.equal(style.appearance.cssVars["--dag-edge"], "#cccccc");
-    const expanded = await buildCompoundStage({ ...input, view: { collapsedGroupIds: [], focusGroupId: null } });
+    const expanded = await compoundFixtureScene({ ...input, view: { collapsedGroupIds: [], focusGroupId: null } });
     const render = (showGroupBorders: boolean) =>
       renderToStaticMarkup(
         createElement(GraphStage, {

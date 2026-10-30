@@ -1,5 +1,13 @@
+import { useLayoutCache } from "../../layout/runtime/useLayoutCache";
+import {
+  graphLayoutIdentity,
+  restoreLayoutGeometry,
+  type LayoutRendering,
+  layoutIdentity,
+} from "../../schema/layoutGeometry";
+import type { StageData } from "../../layout/shared/types";
 import { getTimelineClock } from "../../graph/timeline/clock";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { parseNodeTimeline } from "../../graph/timeline/time";
 import { getTimelineReferenceTime } from "../../graph/timeline/editing";
 import type { NormalizedDag } from "../../graph/types";
@@ -19,6 +27,8 @@ export function useTimelineStage(input: {
   appearance: StageAppearance;
   showNodeDetail: boolean;
   range: TimelineTimeRange | null;
+  saved?: LayoutRendering;
+  settingsFingerprint?: string;
 }) {
   const { dag, visibleDag, generation, settings, appearance, showNodeDetail, range } = input;
   const [scope, setScope] = useState<{
@@ -79,21 +89,41 @@ export function useTimelineStage(input: {
       timeRange: scopeRange ? JSON.parse(scopeRange) : undefined,
     };
     return prepared;
-  }, [
-    dag,
-    generation,
-    settings,
-    appearance,
-    showNodeDetail,
-    scopeKeys,
-    scopeRange,
-    revision,
-    referenceTime,
-  ]);
-  const base = useMemo(() => (layoutInput ? buildTimelineStage(layoutInput) : null), [layoutInput]);
+  }, [dag, generation, settings, appearance, showNodeDetail, scopeKeys, scopeRange, revision, referenceTime]);
+  const cache = useLayoutCache<StageData>(generation);
+  const inputKey = useMemo(() => (layoutInput ? layoutIdentity(["timeline-1", layoutInput]) : ""), [layoutInput]);
+  const committed = useRef<{ generation: number; key: string; base: StageData } | null>(null);
+  const matchesSaved = !!(
+    input.saved &&
+    dag &&
+    input.saved.inputFingerprint === inputKey &&
+    input.saved.graphFingerprint === graphLayoutIdentity(dag) &&
+    input.saved.settingsFingerprint === input.settingsFingerprint
+  );
+  const base = useMemo(() => {
+    if (!layoutInput) return null;
+    const key = inputKey;
+    const cached =
+      matchesSaved && committed.current?.generation === generation && committed.current.key === key
+        ? committed.current.base
+        : cache.get(key);
+    if (cached) return cached;
+    const result = buildTimelineStage(layoutInput);
+    if (result) cache.set(key, result);
+    return result;
+  }, [layoutInput, cache, matchesSaved, inputKey, generation]);
+  if (matchesSaved && base) committed.current = { generation, key: inputKey, base };
   const visibleKeys = useMemo(() => new Set(Object.keys(visibleDag?.nodes ?? {})), [visibleDag]);
-  const stage = useMemo(() => projectTimelineStage(base, visibleKeys, range), [base, visibleKeys, range]);
+  const stage = useMemo(() => {
+    const projected = projectTimelineStage(base, visibleKeys, range);
+    if (!projected || !matchesSaved || !input.saved) return projected;
+    const ids = new Set(projected.nodes.map((n) => n.key));
+    if (input.saved.geometry.nodes.length !== ids.size || input.saved.geometry.nodes.some((n) => !ids.has(n.id)))
+      return projected;
+    return restoreLayoutGeometry(input.saved.geometry, projected);
+  }, [base, visibleKeys, range, matchesSaved, input.saved]);
   return {
+    inputKey,
     stage,
     base,
     layoutInput,

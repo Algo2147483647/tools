@@ -73,12 +73,10 @@ export const sankeySuite = defineSuite("Sankey and shadow settings", [
       else assert.match(stage.warnings.join(" "), /different incoming and outgoing/);
     }
   }),
-  defineTest("invalid ordinary graphs fall back visibly without changing data", () => {
+  defineTest("invalid Sankey inputs fail explicitly without changing chart type", () => {
     const input = { ...document(), diagram: "dag" };
     (input.edges[0] as { value: unknown }).value = "supports";
-    const stage = stageFor(input);
-    assert.equal(stage.layoutMode, "sugiyama");
-    assert.match(stage.warnings[0], /numeric value.*layered/);
+    assert.throws(() => stageFor(input), /numeric value/);
   }),
   defineTest("mixed tiny flows, long links, multiple roots and focused leaves keep finite geometry", () => {
     const base = document();

@@ -74,7 +74,7 @@ export function normalizeDagInput(input: unknown): NormalizedDag {
     input.metadata.layout !== undefined &&
     (typeof input.metadata.layout !== "string" || !input.metadata.layout.trim())
   )
-    throw new Error("/metadata/layout must be a relative Layout JSON path. Migrate embedded layout data first.");
+    throw new Error("/metadata/layout must be a relative Layout JSON path. Embedded layout data is not supported.");
   const timeline = isRecord(input.metadata) ? input.metadata.timeline : undefined;
   if (timeline !== undefined) {
     if (!isRecord(timeline)) throw new Error("/metadata/timeline must be an object.");

@@ -42,12 +42,12 @@
 .workbench .spatial-display-units > label {
   flex-wrap: wrap;
 }
-.workbench .spatial-angle-input {
+.workbench .spatial-unit-input {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
 }
-.workbench .spatial-angle-input input {
+.workbench .spatial-unit-input input {
   min-width: 0;
 }
 .timeline-view-controls .timeline-range-filter > summary {
@@ -368,7 +368,7 @@
 .workbench .spatial-controls-fields {
   font-size: 12px;
 }
-.workbench .spatial-angle-input {
+.workbench .spatial-unit-input {
   padding: 3px 6px;
 }
 .workbench .spatial-display-units input {

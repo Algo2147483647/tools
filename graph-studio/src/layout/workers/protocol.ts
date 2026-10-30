@@ -1,5 +1,3 @@
-import type { LayoutIntent, LayoutProblem, LayoutResult } from "../compound/layout-plan";
-
 export interface LayoutWorkerRequest<Input> {
   jobId: string;
   payload: Input;
@@ -9,14 +7,9 @@ export type LayoutWorkerResponse<Result> =
   { jobId: string; ok: true; result: Result } | { jobId: string; ok: false; error: string };
 
 export interface CompoundWorkerInput {
-  problem: LayoutProblem;
-  intent: LayoutIntent;
+  prepared: import("../compound/solve").CompoundSolveInput;
+  seedOnly?: boolean;
 }
-export interface CompoundPlacementInput {
-  placement: Parameters<typeof import("../compound/hierarchy-layout").layoutCompoundHierarchy>;
-}
-
-export type CompoundWorkerResponse = LayoutWorkerResponse<LayoutResult>;
 
 interface LayoutWorkerScope<Input, Result> {
   onmessage: ((event: MessageEvent<LayoutWorkerRequest<Input>>) => void) | null;

@@ -1,3 +1,4 @@
+import { axisRotation, composeOrientation } from "../viewport/camera/quaternion";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createElement, createRef } from "react";
@@ -7,7 +8,7 @@ import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
 import { defaultSpaceView, getSpaceMetadata, spaceToCartesian, type SpaceMetadata } from "../graph/space";
 import { getGraphTypeOptions, projectGraphByType } from "../graph/typeFilter";
-import { buildSpatialStage } from "../layout/spatial/layout";
+import { spatialFixtureScene } from "./layoutFixtures";
 import { DEFAULT_GRAPH_APPEARANCE } from "../schema/appearance/defaults";
 import GraphStage from "../components/canvas/GraphStage";
 import { graphReducer } from "../app/document/graphReducer";
@@ -33,7 +34,7 @@ function close(actual: number[], expected: number[]) {
   assert.equal(actual.length, expected.length);
   actual.forEach((x, i) => assert.ok(Math.abs(x - expected[i]) < 1e-8, `${actual} != ${expected}`));
 }
-function finite(stage: ReturnType<typeof buildSpatialStage>) {
+function finite(stage: ReturnType<typeof spatialFixtureScene>) {
   assert.ok(Number.isFinite(stage.stageWidth) && Number.isFinite(stage.stageHeight));
   for (const node of stage.nodes) assert.ok(Number.isFinite(node.x) && Number.isFinite(node.y));
   for (const item of [...stage.edges, ...stage.spatial!.guides]) assert.doesNotMatch(item.path, /NaN|Infinity/);
@@ -46,8 +47,8 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       ),
     );
     const snapshot = serializeDag(dag);
-    const normal = buildSpatialStage({ dag });
-    const expanded = buildSpatialStage({
+    const normal = spatialFixtureScene({ dag });
+    const expanded = spatialFixtureScene({
       dag,
       spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), unitScale: 4 },
     });
@@ -74,7 +75,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
         a.spatial!.coordinates[1] - b.spatial!.coordinates[1],
       ) * normal.spatial!.pixelsPerUnit;
     close([Math.hypot(a.x - b.x, a.y - b.y)], [expectedDistance]);
-    const filtered = buildSpatialStage({
+    const filtered = spatialFixtureScene({
       dag: projectGraphByType(dag, getGraphTypeOptions(dag)[0], "spatial"),
       colorSourceDag: dag,
       spaceView: expanded.spatial!.view,
@@ -142,19 +143,22 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       });
       const view = defaultSpaceView(getSpaceMetadata(dag));
       for (const projection of ["orthographic", "perspective", "map"] as const) {
-        const stage = buildSpatialStage({ dag, spaceView: { ...view, projection } });
+        const stage = spatialFixtureScene({ dag, spaceView: { ...view, projection } });
         const { center, east, west, north, south, back } = stage.nodeMap;
         close([center.x, center.y], [stage.stageWidth / 2, stage.stageHeight / 2]);
         assert.ok(east.x > center.x && west.x < center.x, `${system}/${projection}: east must be right of west`);
         assert.ok(north.y < center.y && south.y > center.y, `${system}/${projection}: north must be above south`);
         if (projection !== "map") {
           assert.ok(center.spatial!.depth > back.spatial!.depth);
-          const hidden = buildSpatialStage({ dag, spaceView: { ...view, projection, hideBackPoints: true } });
+          const hidden = spatialFixtureScene({ dag, spaceView: { ...view, projection, hideBackPoints: true } });
           assert.ok(hidden.nodeMap.center);
           assert.equal(hidden.nodeMap.back, undefined);
         }
       }
-      const eastFacing = buildSpatialStage({ dag, spaceView: { ...view, yaw: -90, hideBackPoints: true } });
+      const eastFacing = spatialFixtureScene({
+        dag,
+        spaceView: { ...view, orientation: axisRotation([0, 1, 0], -90), hideBackPoints: true },
+      });
       close(
         [eastFacing.nodeMap.farEast.x, eastFacing.nodeMap.farEast.y],
         [eastFacing.stageWidth / 2, eastFacing.stageHeight / 2],
@@ -164,18 +168,18 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     }
   }),
   defineTest("0D through 32D stay finite and higher axes visibly change the projection", () => {
-    for (const dimensions of [0, 1, 2, 3, 4, 5, 32]) finite(buildSpatialStage({ dag: graph(dimensions) }));
+    for (const dimensions of [0, 1, 2, 3, 4, 5, 32]) finite(spatialFixtureScene({ dag: graph(dimensions) }));
     for (const size of [1e-300, 1e300]) {
-      const scaled = buildSpatialStage({
+      const scaled = spatialFixtureScene({
         dag: graph(3, "cartesian", { a: { space: [-size, 0, 0] }, b: { space: [size, size, size] } }),
       });
       finite(scaled);
       assert.ok(Math.abs(scaled.nodeMap.a.x - scaled.nodeMap.b.x) > 100);
     }
     const dag = graph(5, "cartesian", { a: { space: [0, 0, 0, -1, 0] }, b: { space: [0, 0, 0, 1, 0] } });
-    const first = buildSpatialStage({ dag });
+    const first = spatialFixtureScene({ dag });
     assert.equal(first.nodeMap.a.x, first.nodeMap.b.x);
-    const projected = buildSpatialStage({
+    const projected = spatialFixtureScene({
       dag,
       spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), axes: [3, 1, 2] },
     });
@@ -189,7 +193,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       c: { space: [0, 2] },
       d: { space: [0, 0] },
     });
-    const stage = buildSpatialStage({ dag });
+    const stage = spatialFixtureScene({ dag });
     assert.equal(stage.nodes.length, 4);
     assert.ok(Math.abs((stage.nodeMap.a.y - stage.nodeMap.c.y) / (stage.nodeMap.b.x - stage.nodeMap.a.x) - 2) < 1e-10);
     assert.equal(stage.nodeMap.a.x, stage.nodeMap.d.x);
@@ -208,10 +212,10 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
         { id: "bc", source: "b", target: "c" },
       ],
     });
-    const before = buildSpatialStage({ dag });
+    const before = spatialFixtureScene({ dag });
     const filtered = projectGraphByType(dag, "Keep", "spatial");
     assert.equal(filtered.edges.length, 0);
-    const after = buildSpatialStage({ dag: filtered, colorSourceDag: dag });
+    const after = spatialFixtureScene({ dag: filtered, colorSourceDag: dag });
     assert.equal(before.nodeMap.c.x, after.nodeMap.c.x);
     assert.equal(before.nodeMap.a.spatial!.color, after.nodeMap.a.spatial!.color);
   }),
@@ -220,7 +224,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       ...serializeDag(graph(2, "geographic", { a: { space: [179, 5] }, b: { space: [-179, 10] } })),
       edges: [{ id: "ab", source: "a", target: "b" }],
     });
-    const stage = buildSpatialStage({
+    const stage = spatialFixtureScene({
       dag,
       spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), projection: "map" },
     });
@@ -228,9 +232,13 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     finite(stage);
     for (const projection of ["orthographic", "perspective"] as const)
       finite(
-        buildSpatialStage({
+        spatialFixtureScene({
           dag,
-          spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), projection, yaw: 70, pitch: 30 },
+          spaceView: {
+            ...defaultSpaceView(getSpaceMetadata(dag)),
+            projection,
+            orientation: composeOrientation(axisRotation([1, 0, 0], 30), axisRotation([0, 1, 0], 70)),
+          },
         }),
       );
   }),
@@ -251,9 +259,9 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       ],
     });
     const original = serializeDag(dag);
-    const all = buildSpatialStage({ dag });
+    const all = spatialFixtureScene({ dag });
     const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
-    const front = buildSpatialStage({ dag, spaceView: view });
+    const front = spatialFixtureScene({ dag, spaceView: view });
     assert.equal(all.nodes.length, 5);
     assert.deepEqual(front.nodes.map((n) => n.key).sort(), ["front", "frontNorth", "limb", "missing"]);
     assert.deepEqual(
@@ -266,11 +274,11 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.equal(front.stageWidth, all.stageWidth);
     assert.equal(front.stageHeight, all.stageHeight);
     assert.deepEqual([...front.connectedKeysByNode.get("front")!], ["frontNorth"]);
-    const reversed = buildSpatialStage({ dag, spaceView: { ...view, yaw: 180 } });
+    const reversed = spatialFixtureScene({ dag, spaceView: { ...view, orientation: axisRotation([0, 1, 0], 180) } });
     assert.ok(reversed.nodeMap.back);
     assert.equal(reversed.nodeMap.front, undefined);
     assert.equal(reversed.nodeMap.frontNorth, undefined);
-    const filtered = buildSpatialStage({
+    const filtered = spatialFixtureScene({
       dag: projectGraphByType(dag, "Keep", "spatial"),
       colorSourceDag: dag,
       spaceView: view,
@@ -278,7 +286,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.deepEqual(filtered.nodes.map((n) => n.key).sort(), ["front", "frontNorth"]);
     assert.equal(filtered.nodeMap.front.x, front.nodeMap.front.x);
     assert.deepEqual(serializeDag(dag), original);
-    const map = buildSpatialStage({ dag, spaceView: { ...view, projection: "map" } });
+    const map = spatialFixtureScene({ dag, spaceView: { ...view, projection: "map" } });
     assert.equal(map.nodes.length, all.nodes.length);
     assert.equal(map.edges.length, all.edges.length);
     finite(front);
@@ -294,8 +302,8 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       back: { space: [1, 180, 0] },
     });
     const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
-    assert.ok(buildSpatialStage({ dag, spaceView: view }).nodeMap.nearLimb);
-    const perspective = buildSpatialStage({ dag, spaceView: { ...view, projection: "perspective" } });
+    assert.ok(spatialFixtureScene({ dag, spaceView: view }).nodeMap.nearLimb);
+    const perspective = spatialFixtureScene({ dag, spaceView: { ...view, projection: "perspective" } });
     assert.deepEqual(perspective.nodes.map((n) => n.key).sort(), ["front", "inner", "origin", "tangent"]);
     finite(perspective);
   }),
@@ -303,16 +311,20 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     const dag = graph(2, "geographic", { north: { space: [0, 90] }, south: { space: [0, -90] } });
     const view = { ...defaultSpaceView(getSpaceMetadata(dag)), hideBackPoints: true };
     assert.deepEqual(
-      buildSpatialStage({ dag, spaceView: { ...view, pitch: 90 } }).nodes.map((n) => n.key),
+      spatialFixtureScene({ dag, spaceView: { ...view, orientation: axisRotation([1, 0, 0], 90) } }).nodes.map(
+        (n) => n.key,
+      ),
       ["north"],
     );
     assert.deepEqual(
-      buildSpatialStage({ dag, spaceView: { ...view, pitch: -90 } }).nodes.map((n) => n.key),
+      spatialFixtureScene({ dag, spaceView: { ...view, orientation: axisRotation([1, 0, 0], -90) } }).nodes.map(
+        (n) => n.key,
+      ),
       ["south"],
     );
     const cartesian = graph(3, "cartesian", { a: { space: [0, 0, -1] }, b: { space: [0, 0, 1] } });
     assert.equal(
-      buildSpatialStage({
+      spatialFixtureScene({
         dag: cartesian,
         spaceView: { ...defaultSpaceView(getSpaceMetadata(cartesian)), hideBackPoints: true },
       }).nodes.length,
@@ -321,7 +333,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
   }),
   defineTest("missing positions stay inspectable and coordinate edits validate before committing", () => {
     const dag = graph(2, "cartesian", { a: {}, b: { space: [2, 3] } });
-    const stage = buildSpatialStage({ dag });
+    const stage = spatialFixtureScene({ dag });
     assert.equal(stage.nodes.length, 2);
     assert.match(stage.warnings.join(" "), /unpositioned/);
     finite(stage);
@@ -335,7 +347,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.deepEqual(applyGraphCommand(edited, { type: "addNode", key: "c" }).dag.nodes.c.space, [0, 0]);
   }),
   defineTest("SVG output has accessible coordinate nodes and custom guides", () => {
-    const stage = buildSpatialStage({ dag: graph(2) });
+    const stage = spatialFixtureScene({ dag: graph(2) });
     const noop = () => {};
     const html = renderToStaticMarkup(
       createElement(GraphStage, {
@@ -364,7 +376,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     assert.ok(Math.min(...declinations) < -85 && Math.max(...declinations) > 85);
     for (const name of ["all-sky", "world-cities", "beijing-metro", "shanghai-metro"]) {
       const dag = await read(name);
-      finite(buildSpatialStage({ dag }));
+      finite(spatialFixtureScene({ dag }));
       assert.deepEqual(normalizeDagInput(serializeDag(dag)), dag);
     }
     const cities = await read("world-cities");
@@ -440,8 +452,8 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       assert.equal((a.lines as string[]).length, 1);
       assert.equal((b.lines as string[]).length, 1);
     }
-    const stage = buildSpatialStage({ dag });
-    const expanded = buildSpatialStage({
+    const stage = spatialFixtureScene({ dag });
+    const expanded = spatialFixtureScene({
       dag,
       spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), unitScale: 4 },
     });
@@ -492,7 +504,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     const dag = normalizeDagInput(
       JSON.parse(await readFile("public/examples/spatial-atlas/world-cities.json", "utf8")),
     );
-    const stage = buildSpatialStage({ dag });
+    const stage = spatialFixtureScene({ dag });
     const nodes = Object.values(dag.nodes);
     const measured = nodes
       .filter((n) => (n.economy as { gdpPpp2020: number | null }).gdpPpp2020 !== null)
@@ -521,7 +533,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       ...raw,
       nodes: Object.fromEntries(Object.entries(raw.nodes).filter(([, n]) => n.type === "Asia")),
     });
-    const regional = buildSpatialStage({ dag: filtered, colorSourceDag: dag });
+    const regional = spatialFixtureScene({ dag: filtered, colorSourceDag: dag });
     for (const n of regional.nodes) {
       const before = stage.nodeMap[n.key].spatial!;
       assert.equal(n.spatial!.radius, before.radius);
@@ -533,9 +545,13 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       ["100M", "10B", "1T+", "Unavailable"],
     );
     assert.equal(stage.spatial!.legend!.items[3].hollow, true);
-    const asiaView = buildSpatialStage({
+    const asiaView = spatialFixtureScene({
       dag,
-      spaceView: { ...defaultSpaceView(getSpaceMetadata(dag)), yaw: -110, hideBackPoints: true },
+      spaceView: {
+        ...defaultSpaceView(getSpaceMetadata(dag)),
+        orientation: axisRotation([0, 1, 0], -110),
+        hideBackPoints: true,
+      },
     });
     const beijing = nodes.find((n) => n.name_en === "Beijing")!;
     assert.equal(asiaView.nodeMap[beijing.key].spatial!.showLabel, true);
@@ -647,7 +663,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
       assert.equal(node.coordinateSource, point.source);
     }
     assert.equal(new Set(stations.map((n) => n.stationId)).size, stations.length);
-    const stage = buildSpatialStage({ dag });
+    const stage = spatialFixtureScene({ dag });
     assert.equal(stage.edges.length, 515);
     assert.ok(stage.edges.every((e) => e.spatial && /^#[0-9A-F]{6}$/i.test(e.spatial.color)));
     assert.equal(stage.edges.filter((e) => e.spatial?.directed).length, 3);
@@ -668,7 +684,7 @@ export const spatialSuite = defineSuite("Spatial coordinate charts", [
     for (const line of ["13号线", "昌平线", "1号线八通线", "7号线"]) {
       const filtered = projectGraphByType(dag, line, "spatial");
       assert.ok(filtered.edges.every((e) => e.metadata?.line === line));
-      assert.ok(buildSpatialStage({ dag: filtered, colorSourceDag: dag }).edges.every((e) => !e.spatial?.dashed));
+      assert.ok(spatialFixtureScene({ dag: filtered, colorSourceDag: dag }).edges.every((e) => !e.spatial?.dashed));
     }
     finite(stage);
   }),

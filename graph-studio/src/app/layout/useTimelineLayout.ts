@@ -1,3 +1,4 @@
+import { LayoutJobChannel, type LayoutJob } from "../../layout/runtime/job";
 import {
   captureLayoutGeometry,
   layoutIdentity,
@@ -29,16 +30,14 @@ export function useTimelineLayout(
 ) {
   const input = view.timelineLayout.layoutInput,
     baseline = view.stage ?? view.timelineLayout.base;
-  const signature = JSON.stringify([state.document.generation, state.chartType, state.timelineSettings, settings]);
-  const epoch = useRef({ signature, input, stage: view.stage, history: state.editHistory, key: 0 });
-  if (
-    epoch.current.signature !== signature ||
-    epoch.current.input !== input ||
-    epoch.current.stage !== view.stage ||
-    epoch.current.history !== state.editHistory
-  )
-    epoch.current = { signature, input, stage: view.stage, history: state.editHistory, key: epoch.current.key + 1 };
-  const key = epoch.current.key;
+  const key = layoutIdentity([
+    state.document.generation,
+    state.chartType,
+    input,
+    baseline ? captureLayoutGeometry(baseline) : null,
+    state.dag,
+    settings,
+  ]);
   const ready =
     state.chartType === "timeline" && !!state.dag && !!baseline && !!input && !!view.stage && view.timelineLayout.ready;
   const current = useRef({
@@ -68,16 +67,15 @@ export function useTimelineLayout(
   const { activity, onProgress, clear: clearActivity, finish: finishActivity } = useAiActivity();
   useEffect(clearActivity, [state.document.generation, state.chartType, clearActivity]);
   const active = useRef<{
-    key: number;
-    abort: AbortController;
+    key: string;
+    abort: LayoutJob;
   } | null>(null);
-  const sequence = useRef(0);
+  const channel = useRef(new LayoutJobChannel());
   const cancel = useCallback(() => {
-    sequence.current++;
+    channel.current.cancel();
     const pending = active.current;
     if (pending) {
       active.current = null;
-      pending.abort.abort();
       setMessage("Timeline layout cancelled.");
     }
     setBusy(false);
@@ -92,10 +90,8 @@ export function useTimelineLayout(
   }, [state.document.generation, state.chartType]);
   useEffect(
     () => () => {
-      sequence.current++;
-      const pending = active.current;
+      channel.current.cancel();
       active.current = null;
-      pending?.abort.abort();
     },
     [],
   );
@@ -129,8 +125,7 @@ export function useTimelineLayout(
       return { ok: false, message: "Configure a model in Settings / AI." };
     }
     cancel();
-    const id = sequence.current;
-    const abort = new AbortController();
+    const abort = channel.current.begin(initial.key);
     const pending: NonNullable<typeof active.current> = { key: initial.key, abort };
     active.current = pending;
     setReport(null);
@@ -145,14 +140,15 @@ export function useTimelineLayout(
         baseline: initial.baseline,
         message: prompt,
         signal: abort.signal,
-        onStatus: setMessage,
+        onStatus: (status) => {
+          if (abort.current()) setMessage(status);
+        },
         onProgress: (event) => {
-          if (sequence.current === id && !abort.signal.aborted) onProgress(event);
+          if (abort.current() && !abort.signal.aborted) onProgress(event);
         },
       });
-      if (sequence.current !== id || current.current.key !== initial.key || abort.signal.aborted)
+      if (!abort.current() || current.current.key !== initial.key || abort.signal.aborted)
         return { ok: false, message: "Timeline layout cancelled or context changed." };
-      active.current = null;
       if (result.candidateId !== "current" && initial.rendering) {
         const data: TimelineLayoutData = { version: 1, mode: "ai" };
         const charts = { ...initial.state.layoutSession.data.charts, timeline: data };
@@ -169,7 +165,7 @@ export function useTimelineLayout(
       setMessage(message);
       return { ok: true, message };
     } catch (error) {
-      if (sequence.current === id) {
+      if (abort.current()) {
         const detail = presentLayoutError(error);
         setMessage(detail.message);
         setErrorDetail(detail.detail);
@@ -179,7 +175,8 @@ export function useTimelineLayout(
         message: abort.signal.aborted ? "Timeline layout cancelled." : presentLayoutError(error).message,
       };
     } finally {
-      if (sequence.current === id) {
+      if (abort.current()) {
+        abort.finish();
         active.current = null;
         setBusy(false);
         finishActivity();

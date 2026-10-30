@@ -5,7 +5,6 @@ import { DEFAULT_TITLE_FONT, getRoleFont, getTitleFont, type TextFont } from "./
 export interface StageAppearance extends GraphGeometryAppearance {
   typography?: TextFont;
   fonts?: Record<"detail" | "date" | "axis" | "track", TextFont>;
-  palette?: GraphAppearance["palette"];
   fontMetricsKey?: string;
   display: Partial<
     Pick<GraphAppearance["display"], "showGroupStats" | "titleAlign" | "titleOverflow" | "titleWrap" | "showNodeDots">
@@ -24,7 +23,6 @@ export function getStageAppearance(
     fonts: Object.fromEntries(
       (["detail", "date", "axis", "track"] as const).map((role) => [role, getRoleFont(appearance, role)]),
     ) as StageAppearance["fonts"],
-    palette: appearance.palette,
     ...(fontMetricsKey ? { fontMetricsKey } : {}),
     display: {
       ...(chartType === undefined || chartType === "compound"

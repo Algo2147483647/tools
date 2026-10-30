@@ -1,5 +1,5 @@
 import { getTimelineClock } from "../../graph/timeline/clock";
-import { layoutFingerprint } from "../../graph/compound/layoutData";
+import { documentViewIdentity } from "../document/viewIdentity";
 import { getGroupNodes } from "../../graph/compound/hierarchy";
 import { type Dispatch, useEffect, useMemo, useState } from "react";
 import { getGraphTypeOptions, emptyTypeFilter, type TypeFilter } from "../../graph/typeFilter";
@@ -18,13 +18,7 @@ export function useGraphNavigation(
   const savedScope = state.layoutSession.data.renderings?.[state.chartType]?.scope;
   // File-input imports have no durable filesystem identity. Match their original
   // name and content; different files with the same name must not share a view.
-  const cacheIdentity = useMemo(
-    () =>
-      state.source.fileHandle || !state.document.savedDag
-        ? state.document.id
-        : JSON.stringify(["import", state.source.fileName, layoutFingerprint(state.document.savedDag)]),
-    [state.document.id, state.document.generation],
-  );
+  const cacheIdentity = useMemo(() => documentViewIdentity(state), [state.document.id, state.document.generation]);
   const compound = useCompoundView(
     state.document.id,
     groupIds,

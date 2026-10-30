@@ -11,7 +11,7 @@ import {
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../schema/appearance/defaults";
 import type { GraphChartType } from "../graph/types";
-import { buildCompoundStage } from "../layout/compound/layout";
+import { compoundFixtureScene } from "./layoutFixtures";
 import type { StageData } from "../layout/shared/types";
 import GraphStage from "../components/canvas/GraphStage";
 import { createChartStyles } from "../schema/appearance/styles";
@@ -88,7 +88,7 @@ export const previewSuite = defineSuite("Shared live preview", [
   }),
   defineTest("nested preview contains real expanded and folded groups and supports focus", async () => {
     const initial = input("compound");
-    const stage = await buildCompoundStage(compoundPreviewInput(initial));
+    const stage = await compoundFixtureScene(compoundPreviewInput(initial));
     assertCompoundGeometry(PREVIEW_GRAPHS.compound, stage, initial.view);
     assert.ok(stage.groups?.some((group) => group.id === "app"));
     assert.equal(stage.nodeMap.storage.kind, "group");
@@ -99,7 +99,7 @@ export const previewSuite = defineSuite("Shared live preview", [
       { collapsedGroupIds: [], focusGroupId: null },
       { collapsedGroupIds: [], focusGroupId: "storage" },
     ]) {
-      const expanded = await buildCompoundStage(compoundPreviewInput({ ...initial, view }));
+      const expanded = await compoundFixtureScene(compoundPreviewInput({ ...initial, view }));
       assert.ok(expanded.nodeMap.database);
       assertCompoundGeometry(PREVIEW_GRAPHS.compound, expanded, view);
     }

@@ -16,7 +16,7 @@ import { compactFlow } from "../layout/compound/rectangle-packing";
 import { createPlacementScore } from "../layout/compound/placement-score";
 import { refineLocalPlacement } from "../layout/compound/local-refinement";
 import { getStageAppearance } from "../layout/shared/appearance";
-import { buildCompoundStage } from "../layout/compound/layout";
+import { compoundFixtureScene } from "./layoutFixtures";
 import type { StageData } from "../layout/shared/types";
 import { routeCompoundEdges } from "../layout/compound/routing/router";
 import { defineSuite, defineTest } from "./harness";
@@ -58,7 +58,7 @@ export async function layoutFixture(
   showNodeDetail = false,
   appearance = getStageAppearance(getDefaultChartStyle("compound").appearance, "compound"),
 ) {
-  return buildCompoundStage({
+  return compoundFixtureScene({
     dag,
     view,
     showEdgeLabels,

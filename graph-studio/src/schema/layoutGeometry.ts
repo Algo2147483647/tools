@@ -1,4 +1,3 @@
-import { finalizeCompoundStage } from "../layout/compound/finalizeStage";
 import { formatTimelineDate } from "../graph/timeline/time";
 import { formatRelativeTime } from "../graph/timeline/clock";
 import type { CompoundView, GraphChartType, GraphDocument, GraphSelection } from "../graph/types";
@@ -83,6 +82,7 @@ export function timelineLayoutSettings(settings: Partial<TimelineViewSettings>) 
   ) as Partial<Pick<TimelineViewSettings, (typeof TIMELINE_LAYOUT_KEYS)[number]>>;
 }
 export interface LayoutRendering {
+  inputFingerprint?: string;
   compoundDesign?: import("../layout/compound/ai/design").CompoundDesign;
   graphFingerprint: string;
   settingsFingerprint: string;
@@ -144,8 +144,10 @@ export function validateLayoutScope(scope: unknown): asserts scope is LayoutScop
     spatial.axes.length !== 3 ||
     !spatial.axes.every(finite) ||
     !["orthographic", "perspective", "map"].includes(String(spatial.projection)) ||
-    !finite(spatial.yaw) ||
-    !finite(spatial.pitch) ||
+    !Array.isArray(spatial.orientation) ||
+    spatial.orientation.length !== 4 ||
+    !spatial.orientation.every(finite) ||
+    Math.abs(Math.hypot(...(spatial.orientation as number[])) - 1) > 1e-6 ||
     [spatial.labels, spatial.grid, spatial.hideBackPoints].some((v) => typeof v !== "boolean") ||
     (spatial.unitScale !== undefined && (!finite(spatial.unitScale) || Number(spatial.unitScale) <= 0))
   )
@@ -449,7 +451,6 @@ export function restoreLayoutGeometry(data: LayoutGeometryData, base: StageData)
         : undefined,
     };
   }
-  finalizeCompoundStage(result, base.compoundLayout);
   return result;
 }
 
@@ -611,36 +612,6 @@ export function validateLayoutGeometryData(
   }
 }
 
-export function renderingMatches(
-  rendering: LayoutRendering,
-  graph: GraphDocument,
-  settings: unknown,
-  stage: StageData,
-) {
-  const sameIds = (saved: string[], current: string[]) =>
-    layoutIdentity(saved.sort()) === layoutIdentity(current.sort());
-  return (
-    rendering.graphFingerprint === graphLayoutIdentity(graph) &&
-    rendering.settingsFingerprint === layoutIdentity(settings) &&
-    sameIds(
-      rendering.geometry.nodes.map((n) => n.id),
-      stage.nodes.map((n) => n.key),
-    ) &&
-    sameIds(
-      rendering.geometry.edges.map((e) => e.id),
-      stage.edges.map((e) => e.id),
-    ) &&
-    sameIds(
-      (rendering.geometry.groups ?? []).map((g) => g.id),
-      (stage.groups ?? []).map((g) => g.id),
-    ) &&
-    (!rendering.geometry.timeline ||
-      sameIds(
-        rendering.geometry.timeline.tracks.map((t) => t.id),
-        stage.timeline?.tracks.map((t) => t.id) ?? [],
-      ))
-  );
-}
 export function renderingSettings(
   chart: GraphChartType,
   charts: unknown,

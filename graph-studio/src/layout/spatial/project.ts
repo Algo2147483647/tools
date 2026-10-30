@@ -1,15 +1,9 @@
+import type { SpatialModel } from "./model";
+import { rotatePoint } from "../../viewport/camera/quaternion";
 import { getNodeTitle, getNodeType } from "../../graph/accessors";
 import { DEFAULT_GRAPH_APPEARANCE } from "../../schema/appearance/defaults";
 import { buildCategoryColorMap } from "../../graph/categoryColors";
-import {
-  defaultSpaceView,
-  getSpaceMetadata,
-  rotateSpacePoint,
-  spaceMapPoint,
-  spaceToCartesian,
-  spatialUnitScale,
-  type SpaceView,
-} from "../../graph/space";
+import { defaultSpaceView, getSpaceMetadata, spaceMapPoint, spatialUnitScale, type SpaceView } from "../../graph/space";
 import type { NormalizedDag } from "../../graph/types";
 import { isRecord } from "../../shared/json";
 import type { StageAppearance } from "../shared/appearance";
@@ -40,14 +34,16 @@ function spatialStyle(value: unknown) {
 }
 
 /** Orthogonal axis selection is explicit: higher coordinates are never silently summed or discarded from data. */
-export function buildSpatialStage(input: {
-  dag: NormalizedDag;
-  colorSourceDag?: NormalizedDag;
-  spaceView?: SpaceView;
-  appearance?: StageAppearance;
-}): StageData {
+export function projectSpatialModel(
+  model: SpatialModel,
+  input: {
+    dag: NormalizedDag;
+    spaceView?: SpaceView;
+    appearance?: StageAppearance;
+  },
+): StageData {
   const { dag } = input;
-  const source = input.colorSourceDag ?? dag;
+  const { source } = model;
   const rawLegend = source.metadata?.spatialLegend;
   const legend =
     isRecord(rawLegend) && typeof rawLegend.title === "string" && Array.isArray(rawLegend.items)
@@ -77,52 +73,14 @@ export function buildSpatialStage(input: {
     warnings.push(
       "Add metadata.space with dimensions and coordinateSystem, and a space array to each node. Double-click a node to edit its coordinates.",
     );
-  const valid = Object.values(source.nodes).filter(
-    (n) => metadata && Array.isArray(n.space) && n.space.length === metadata.dimensions,
-  );
+  const { valid, converted, coordinateScale, selected, center, extent } = model;
   const missing = Object.values(dag.nodes).filter((n) => !metadata || !Array.isArray(n.space));
   if (metadata && missing.length)
     warnings.push(`${missing.length} nodes have no coordinates; shown in the unpositioned tray.`);
-  const converted = new Map(valid.map((n) => [n.key, spaceToCartesian(n.space as number[], metadata!)]));
-  let coordinateScale = 0;
-  converted.forEach((v) =>
-    view.axes.forEach((axis) => {
-      coordinateScale = Math.max(coordinateScale, Math.abs(v[axis] ?? 0));
-    }),
-  );
-  coordinateScale ||= 1;
-  const selected = (v: number[]): [number, number, number] =>
-    view.axes.map((axis) => (v[axis] ?? 0) / coordinateScale) as [number, number, number];
-  const center = [0, 0, 0];
-  let extent = 1;
-  if (sphere) {
-    extent = 0;
-    converted.forEach((v) => {
-      extent = Math.max(extent, Math.hypot(...selected(v)));
-    });
-    extent ||= 1;
-  } else if (valid.length) {
-    const min = [Infinity, Infinity, Infinity],
-      max = [-Infinity, -Infinity, -Infinity];
-    converted.forEach((v) =>
-      selected(v).forEach((x, i) => {
-        min[i] = Math.min(min[i], x);
-        max[i] = Math.max(max[i], x);
-      }),
-    );
-    center.forEach((_, i) => {
-      center[i] = min[i] / 2 + max[i] / 2;
-    });
-    extent = 0;
-    converted.forEach((v) => {
-      extent = Math.max(extent, Math.hypot(...selected(v).map((x, i) => x - center[i])));
-    });
-    extent ||= 1;
-  }
   // A fixed sphere bound prevents the canvas breathing while orbiting or filtering.
   const scale = Math.max(0, Math.min(width / 2 - padding, height / 2 - paddingY)) / extent;
   function screen(normalized: number[]): [number, number, number] {
-    const [x, y, z] = rotateSpacePoint(normalized, view.yaw, view.pitch);
+    const [x, y, z] = rotatePoint(normalized, view.orientation);
     const perspective = view.projection === "perspective" ? 3 / (3 - z) : 1;
     return [width / 2 + x * extent * scale * perspective, height / 2 - y * extent * scale * perspective, z];
   }
@@ -135,10 +93,7 @@ export function buildSpatialStage(input: {
     height / 2 - lat * mapScale,
     0,
   ];
-  const colors = buildCategoryColorMap(
-    Object.values(source.nodes).map(getNodeType),
-    input.appearance?.palette?.categories,
-  );
+  const colors = buildCategoryColorMap(Object.values(source.nodes).map(getNodeType));
   let tray = 0;
   const visibleCount = Object.keys(dag.nodes).length;
   const nodes = Object.values(dag.nodes).flatMap((node, order): StageNode[] => {

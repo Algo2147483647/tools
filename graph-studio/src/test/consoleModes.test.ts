@@ -1,3 +1,4 @@
+import { axisRotation } from "../viewport/camera/quaternion";
 import assert from "node:assert/strict";
 import { defineSuite, defineTest } from "./harness";
 import { createGraphDocument, normalizeDagInput } from "../graph/normalize";
@@ -220,16 +221,21 @@ export const consoleModesSuite = defineSuite("AI tool domains and transactions",
   defineTest("view effects never edit domain coordinates and reject mixed batches", () => {
     const env: ConsoleEnvironment = { view: {} };
     const dag = space();
-    const result = success([{ tool: "view_set", arguments: { patch: { yaw: 30 } } }], dag, "spatial", env);
+    const result = success(
+      [{ tool: "view_set", arguments: { patch: { orientation: axisRotation([0, 1, 0], 30) } } }],
+      dag,
+      "spatial",
+      env,
+    );
     assert.equal(result.mutationCount, 0);
     assert.equal(result.runtimeEffects.length, 1);
     assert.deepEqual(serializeDag(result.dag), serializeDag(dag));
     for (const source of [
-      [{ tool: "view_set", arguments: { patch: { pitch: 100 } } }],
+      [{ tool: "view_set", arguments: { patch: { orientation: [0, 0, 0, 0] } } }],
       [{ tool: "view_set", arguments: { patch: { projection: "map" } } }],
       [
         { tool: "node_set", arguments: { id: "A", field: "title", value: "changed" } },
-        { tool: "view_set", arguments: { patch: { yaw: 30 } } },
+        { tool: "view_set", arguments: { patch: { orientation: axisRotation([0, 1, 0], 30) } } },
       ],
     ])
       assert.equal(run(source, dag, "spatial", env).ok, false);

@@ -21,10 +21,7 @@ export function buildSankeyStage(
   appearance: StageAppearance,
 ): StageData {
   const theme = appearance;
-  const palette = buildCategoryColorMap(
-    [...keys].map((key) => String(dag.nodes[key].type || key)),
-    appearance.palette?.categories,
-  );
+  const palette = buildCategoryColorMap([...keys].map((key) => String(dag.nodes[key].type || key)));
   const font = stageTitleFont(appearance);
   const edges = dag.edges.filter((edge) => keys.has(edge.source) && keys.has(edge.target));
   const positiveEdges = edges.filter((edge) => Number(edge.value) > 0);

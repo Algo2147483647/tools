@@ -1,3 +1,4 @@
+import { composeOrientation, trackballRotation, type Quaternion } from "./camera/quaternion";
 import { useEffect, useRef } from "react";
 
 interface SpatialGestures {
@@ -5,7 +6,7 @@ interface SpatialGestures {
   enabled: boolean;
   canOrbit: boolean;
   viewKey: string;
-  onOrbit(dx: number, dy: number): void;
+  onOrbit(rotation: Quaternion): void;
   onPan(dx: number, dy: number): void;
   onZoom(factor: number, anchor: { clientX: number; clientY: number }): void;
 }
@@ -24,14 +25,13 @@ export function useSpatialGestures(input: SpatialGestures) {
     let multiple = false;
     let suppressUntil = 0;
     let frame = 0;
-    let orbitX = 0;
-    let orbitY = 0;
+    let rotation: Quaternion | null = null;
 
     function flushOrbit() {
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
-      if (orbitX || orbitY) callbacks.current.onOrbit(orbitX, orbitY);
-      orbitX = orbitY = 0;
+      if (rotation) callbacks.current.onOrbit(rotation);
+      rotation = null;
     }
     function capture(id: number) {
       if (container!.hasPointerCapture(id)) return;
@@ -91,8 +91,17 @@ export function useSpatialGestures(input: SpatialGestures) {
       } else if (!canOrbit || pointer.pan || multiple) {
         callbacks.current.onPan(dx, dy);
       } else {
-        orbitX += dx;
-        orbitY += dy;
+        const rect = container!.getBoundingClientRect();
+        const radius = Math.max(1, Math.min(rect.width, rect.height) / 2);
+        const point = (x: number, y: number): [number, number] => [
+          (x - rect.left - rect.width / 2) / radius,
+          (rect.top + rect.height / 2 - y) / radius,
+        ];
+        const delta = trackballRotation(
+          point(event.clientX - dx, event.clientY - dy),
+          point(event.clientX, event.clientY),
+        );
+        rotation = rotation ? composeOrientation(delta, rotation) : delta;
         if (!frame) frame = requestAnimationFrame(flushOrbit);
       }
     }
@@ -110,7 +119,8 @@ export function useSpatialGestures(input: SpatialGestures) {
       const captured = [...pointers.keys()];
       pointers.clear();
       if (frame) cancelAnimationFrame(frame);
-      frame = orbitX = orbitY = 0;
+      frame = 0;
+      rotation = null;
       delete container!.dataset.gesturing;
       for (const id of captured) if (container!.hasPointerCapture(id)) container!.releasePointerCapture(id);
     }

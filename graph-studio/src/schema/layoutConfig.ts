@@ -71,46 +71,6 @@ export function parseLayoutConfigFile(value: unknown): LayoutConfigFile {
   return { format: "graph-studio-layout-settings", version: 1, chartType: chart, settings: structuredClone(settings) };
 }
 
-/** Read old associations without decoding, validating or installing their discarded geometry. */
-export function readLayoutConfig(value: unknown): LayoutConfigFile {
-  if (!isRecord(value) || value.format === "graph-studio-layout-settings") return parseLayoutConfigFile(value);
-  if (value.format !== "graph-studio-layout" || ![1, 2, 3].includes(Number(value.version)))
-    throw new Error("Expected a Layout settings file.");
-  const charts = isRecord(value.charts) ? value.charts : {};
-  const chart =
-    value.chartType ?? value.activeChart ?? (charts.compound ? "compound" : charts.timeline ? "timeline" : "node-link");
-  const chartSettings = charts[String(chart)];
-  const legacy =
-    isRecord(value.layout) && isRecord(value.layout.settings)
-      ? value.layout.settings
-      : isRecord(chartSettings)
-        ? chartSettings
-        : {};
-  const keys =
-    chart === "compound"
-      ? ["method", "direction", "objective", "portMode"]
-      : chart === "timeline"
-        ? ["mode", "view"]
-        : chart === "node-link"
-          ? ["method"]
-          : [];
-  const settings: Record<string, unknown> = Object.fromEntries(
-    keys.filter((k) => legacy[k] !== undefined).map((k) => [k, legacy[k]]),
-  );
-  if (chart === "timeline") {
-    settings.mode ??= "algorithm";
-    const rendering =
-      isRecord(value.renderings) && isRecord(value.renderings.timeline) ? value.renderings.timeline : {};
-    const view = settings.view ?? value.timelineView ?? rendering.timelineSettings;
-    if (isRecord(view))
-      settings.view = Object.fromEntries(
-        LAYOUT_VIEW_CONFIG_KEYS.filter((k) => view[k] !== undefined).map((k) => [k, view[k]]),
-      );
-  }
-  if (chart === "node-link") settings.method ??= "sugiyama";
-  return parseLayoutConfigFile({ format: "graph-studio-layout-settings", version: 1, chartType: chart, settings });
-}
-
 /** Disk projection depends only on settings, never on a stage or rendering snapshot. */
 export function createLayoutConfigFile(
   data: Pick<import("./layoutSession").LayoutSessionState, "charts">,

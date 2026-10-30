@@ -1,3 +1,4 @@
+import type { Quaternion } from "../viewport/camera/quaternion";
 import { isRecord } from "../shared/json";
 import type { GraphDocument } from "./types";
 
@@ -17,8 +18,7 @@ export interface SpaceMetadata {
 export interface SpaceView {
   axes: [number, number, number];
   projection: "orthographic" | "perspective" | "map";
-  yaw: number;
-  pitch: number;
+  orientation: Quaternion;
   labels: boolean;
   grid: boolean;
   hideBackPoints: boolean;
@@ -41,8 +41,7 @@ export function defaultSpaceView(metadata: SpaceMetadata | null): SpaceView {
     // Swapping only Y/Z would reflect the globe instead of rotating it.
     axes: metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem) ? [1, 2, 0] : [0, 1, 2],
     projection: "orthographic",
-    yaw: 0,
-    pitch: 0,
+    orientation: [0, 0, 0, 1],
     labels: true,
     grid: true,
     hideBackPoints: false,
@@ -117,11 +116,4 @@ export function spaceMapPoint(space: readonly number[], metadata: SpaceMetadata)
   const degrees = metadata.angleUnit === "radians" ? 180 / Math.PI : 1;
   const lon = space[geo ? 0 : 1] * degrees;
   return [((((lon + 180) % 360) + 360) % 360) - 180, space[geo ? 1 : 2] * degrees];
-}
-export function rotateSpacePoint([x, y, z]: readonly number[], yaw: number, pitch: number): [number, number, number] {
-  const a = (yaw * Math.PI) / 180,
-    b = (pitch * Math.PI) / 180;
-  const u = x * Math.cos(a) + z * Math.sin(a),
-    w = -x * Math.sin(a) + z * Math.cos(a);
-  return [u, y * Math.cos(b) - w * Math.sin(b), y * Math.sin(b) + w * Math.cos(b)];
 }

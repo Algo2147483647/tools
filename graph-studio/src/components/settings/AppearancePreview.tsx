@@ -1,6 +1,7 @@
+import { paintScene } from "../../render/scene/paint";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useCompoundStage } from "../../app/layout/useCompoundStage";
+import { useCompoundLayout } from "../../app/layout/useCompoundLayout";
 import { useFontMetricsKey } from "../../app/layout/useFontMetricsKey";
 import { useTimelineStage } from "../../app/layout/useTimelineStage";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
@@ -16,6 +17,7 @@ import {
   buildFlatPreviewStage,
   compoundPreviewInput,
   INITIAL_PREVIEW_VIEW,
+  PREVIEW_GRAPHS,
   previewGeometry,
   timelinePreviewGraph,
 } from "./previewModel";
@@ -51,7 +53,7 @@ export default function AppearancePreview({
   const [expanded, setExpanded] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [frameRoot, setFrameRoot] = useState<HTMLElement | null>(null);
-  const fontMetricsKey = useFontMetricsKey();
+  const fontMetricsKey = useFontMetricsKey(appearance, chartType, "Graph preview ABCdef0123");
   const json = JSON.stringify(
     previewGeometry({
       appearance,
@@ -71,7 +73,7 @@ export default function AppearancePreview({
     () => (geometry.chartType === "compound" ? compoundPreviewInput(geometry) : null),
     [geometry],
   );
-  const compound = useCompoundStage(compoundInput);
+  const compound = useCompoundLayout(compoundInput, 0);
   const timelineSample = useMemo(() => timelinePreviewGraph(geometry.timelineClock), [geometry.timelineClock]);
   const timeline = useTimelineStage({
     dag: geometry.chartType === "timeline" ? timelineSample : null,
@@ -90,13 +92,25 @@ export default function AppearancePreview({
     }
   }, [geometry]);
   const matches = geometry.chartType === chartType;
-  const stage = matches
+  const rawStage = matches
     ? chartType === "compound"
       ? compound.stage
       : chartType === "timeline"
         ? timeline.stage
         : flat.stage
     : null;
+  const stage = useMemo(
+    () =>
+      rawStage
+        ? paintScene(
+            rawStage,
+            chartType === "timeline" ? timelineSample : PREVIEW_GRAPHS[chartType],
+            appearance,
+            timelineSettings,
+          )
+        : null,
+    [rawStage, chartType, timelineSample, appearance.palette, timelineSettings],
+  );
   const error = matches ? (chartType === "compound" ? compound.error : flat.error) : "";
   const loading = requested !== geometry || (chartType === "compound" && compound.loading);
   useEffect(() => {

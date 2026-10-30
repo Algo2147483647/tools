@@ -1,17 +1,14 @@
+import { documentViewIdentity } from "../document/viewIdentity";
 import type { TypeFilter } from "../../graph/typeFilter";
 import { createLayoutConfigFile } from "../../schema/layoutConfig";
-import {
-  graphLayoutIdentity,
-  layoutIdentity,
-  renderingMatches,
-  renderingSettings,
-  restoreLayoutGeometry,
-  type LayoutScope,
-} from "../../schema/layoutGeometry";
+import { graphLayoutIdentity, layoutIdentity, renderingSettings, type LayoutScope } from "../../schema/layoutGeometry";
 import { useSpatialView } from "../viewport/useSpatialView";
-import { buildSpatialStage } from "../../layout/spatial/layout";
+import { prepareSpatialModel } from "../../layout/spatial/model";
+import { projectSpatialModel } from "../../layout/spatial/project";
+import { paintScene } from "../../render/scene/paint";
+import { timelineGeometrySettings } from "../../layout/timeline/settings";
 import { useFontMetricsKey } from "./useFontMetricsKey";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import { getNodeTitle } from "../../graph/accessors";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
@@ -20,10 +17,10 @@ import { projectGraphByType } from "../../graph/typeFilter";
 import { projectGraphByTimelineTrack } from "../../graph/timeline/view";
 import type { TimelineTimeRange } from "../../graph/timeline/range";
 import { getGraphLayoutLabel, getGraphRenderMode, type CompoundView } from "../../graph/types";
-import { useCompoundStage } from "./useCompoundStage";
+import { useCompoundLayout } from "./useCompoundLayout";
 import { useTimelineStage } from "./useTimelineStage";
 import { type StageAppearance, getStageAppearance } from "../../layout/shared/appearance";
-import { buildStageData } from "../../layout/node-link/layout";
+import { useFlatLayout } from "./useFlatLayout";
 import type { GraphAppState } from "../document/initialState";
 interface LayoutInput {
   state: GraphAppState;
@@ -47,9 +44,11 @@ export function useGraphLayout({
   showNodeDetail,
   alignNodeWidthsToMax,
 }: LayoutInput) {
+  const documentIdentity = useMemo(() => documentViewIdentity(state), [state.document.id, state.document.generation]);
   const spatialView = useSpatialView(
     state.dag,
     state.document.generation,
+    documentIdentity,
     state.layoutSession.data.renderings?.spatial?.scope.spatial,
   );
   const typeFilteredDag = useMemo(
@@ -62,11 +61,35 @@ export function useGraphLayout({
     [typeFilteredDag, activeTrack],
   );
   const renderMode = getGraphRenderMode(state.chartType, state.layout.mode);
-  const fontMetricsKey = useFontMetricsKey();
+  const graphText = useMemo(
+    () => (state.dag ? JSON.stringify([state.dag.nodes, state.dag.edges.map((e) => e.value)]) : ""),
+    [state.dag],
+  );
+  const fontMetricsKey = useFontMetricsKey(appearance, state.chartType, graphText);
   const geometryJson = JSON.stringify(getStageAppearance(appearance, state.chartType, fontMetricsKey));
   const requestedGeometry = useMemo(() => JSON.parse(geometryJson) as StageAppearance, [geometryJson]);
   const geometryAppearance = useDebouncedValue(requestedGeometry);
-  const timelineSettings = useDebouncedValue(state.timelineSettings);
+  const timelineJson = JSON.stringify(timelineGeometrySettings(state.timelineSettings));
+  const requestedTimeline = useMemo(() => JSON.parse(timelineJson) as typeof state.timelineSettings, [timelineJson]);
+  const timelineSettings = useDebouncedValue(requestedTimeline);
+  const axesKey = JSON.stringify(spatialView.view.axes);
+  const spatialModel = useMemo(
+    () => (state.chartType === "spatial" && state.dag ? prepareSpatialModel(state.dag, spatialView.view.axes) : null),
+    [state.chartType, state.dag, axesKey],
+  );
+  const scope: LayoutScope = {
+    selection: state.selection,
+    compound: compound.view,
+    activeType,
+    typeFilter,
+    activeTrack,
+    timelineRange: activeTimelineRange,
+    spatial: spatialView.view,
+  };
+  const saved = state.layoutSession.data.renderings?.[state.chartType];
+  const settingsKey = JSON.stringify(
+    renderingSettings(state.chartType, state.layoutSession.data.charts, scope, state.timelineSettings),
+  );
   const timelineView = useTimelineStage({
     dag: state.chartType === "timeline" ? state.dag : null,
     visibleDag: state.chartType === "timeline" ? displayDag : null,
@@ -75,45 +98,52 @@ export function useGraphLayout({
     appearance: geometryAppearance,
     showNodeDetail,
     range: activeTimelineRange,
+    saved: state.layoutSession.data.renderings?.timeline,
+    settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)),
   });
-  const flatStage = useMemo(
+  const flatInput = useMemo(
     () =>
-      displayDag
-        ? state.chartType === "timeline"
-          ? timelineView.stage
-          : state.chartType === "spatial"
-            ? buildSpatialStage({
-                dag: displayDag,
-                colorSourceDag: state.dag ?? undefined,
-                spaceView: spatialView.view,
-                appearance: geometryAppearance,
-              })
-            : buildStageData({
-                dag: displayDag,
-                colorSourceDag: state.dag ?? undefined,
-                selection: activeType ? { type: "full" } : state.selection,
-                layoutMode: renderMode,
-                appearance: geometryAppearance,
-                showNodeDetail,
-                alignNodeWidthsToMax,
-              })
+      displayDag && (state.chartType === "node-link" || state.chartType === "sankey")
+        ? {
+            dag: displayDag,
+            colorSourceDag: state.dag ?? undefined,
+            selection: activeType ? { type: "full" as const } : state.selection,
+            layoutMode: renderMode,
+            appearance: geometryAppearance,
+            showNodeDetail,
+            alignNodeWidthsToMax,
+          }
         : null,
     [
-      activeType,
-      typeFilter,
-      alignNodeWidthsToMax,
-      geometryAppearance,
       displayDag,
-      state.dag,
-      showNodeDetail,
-      renderMode,
-      state.selection,
       state.chartType,
-      activeTimelineRange,
-      timelineView.stage,
-      spatialView.view,
+      state.dag,
+      activeType,
+      state.selection,
+      renderMode,
+      geometryAppearance,
+      showNodeDetail,
+      alignNodeWidthsToMax,
     ],
   );
+  const flatLayout = useFlatLayout(flatInput, state.document.generation);
+  const spatialStage = useMemo(
+    () =>
+      spatialModel && displayDag
+        ? projectSpatialModel(spatialModel, {
+            dag: displayDag,
+            spaceView: spatialView.view,
+            appearance: geometryAppearance,
+          })
+        : null,
+    [spatialModel, displayDag, spatialView.view, geometryAppearance],
+  );
+  const flatStage =
+    state.chartType === "timeline"
+      ? timelineView.stage
+      : state.chartType === "spatial"
+        ? spatialStage
+        : flatLayout.stage;
   const compoundInput = useMemo(
     () =>
       state.chartType === "compound" && state.dag
@@ -141,45 +171,18 @@ export function useGraphLayout({
       appearance.display.showEdgeLabels,
     ],
   );
-  const compoundLayout = useCompoundStage(compoundInput);
-  const computedStage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
-  const scope: LayoutScope = {
-    selection: state.selection,
-    compound: compound.view,
-    activeType,
-    typeFilter,
-    activeTrack,
-    timelineRange: activeTimelineRange,
-    spatial: spatialView.view,
-  };
-  const saved = state.layoutSession.data.renderings?.[state.chartType];
-  // Exact AI geometry is session-only. Appearance changes invalidate the captured measurements.
-  const appearanceKey = JSON.stringify([
-    getStageAppearance(appearance, state.chartType),
-    showNodeDetail,
-    alignNodeWidthsToMax,
-  ]);
-  const loadedAppearance = useRef({ generation: state.document.generation, saved, key: appearanceKey });
-  if (loadedAppearance.current.generation !== state.document.generation || loadedAppearance.current.saved !== saved)
-    loadedAppearance.current = { generation: state.document.generation, saved, key: appearanceKey };
-  const settingsKey = JSON.stringify(
-    renderingSettings(state.chartType, state.layoutSession.data.charts, scope, state.timelineSettings),
+  const compoundLayout = useCompoundLayout(
+    compoundInput,
+    state.document.generation,
+    saved,
+    layoutIdentity(JSON.parse(settingsKey)),
   );
+  const computedStage = state.chartType === "compound" ? compoundLayout.stage : flatStage;
+  const geometryStage = computedStage;
   const stage = useMemo(
     () =>
-      saved &&
-      state.dag &&
-      computedStage &&
-      loadedAppearance.current.key === appearanceKey &&
-      renderingMatches(saved, state.dag, JSON.parse(settingsKey), computedStage)
-        ? (() => {
-            const restored = restoreLayoutGeometry(saved.geometry, computedStage);
-            if (restored.compoundLayout)
-              restored.compoundLayout = { ...restored.compoundLayout, design: saved.compoundDesign };
-            return restored;
-          })()
-        : computedStage,
-    [saved, state.dag, computedStage, appearanceKey, settingsKey],
+      geometryStage && state.dag ? paintScene(geometryStage, state.dag, appearance, state.timelineSettings) : null,
+    [geometryStage, state.dag, appearance.palette, state.timelineSettings],
   );
   const currentLayoutConfig = useMemo(
     () =>
@@ -190,13 +193,25 @@ export function useGraphLayout({
     () =>
       state.dag
         ? {
+            inputFingerprint:
+              state.chartType === "compound"
+                ? compoundLayout.prepared?.problem.fingerprint
+                : state.chartType === "timeline"
+                  ? timelineView.inputKey
+                  : undefined,
             graphFingerprint: graphLayoutIdentity(state.dag),
             settingsFingerprint: layoutIdentity(JSON.parse(settingsKey)),
             scope,
             timelineSettings: state.timelineSettings,
           }
         : null,
-    [state.dag, settingsKey, state.timelineSettings],
+    [
+      state.dag,
+      settingsKey,
+      state.timelineSettings,
+      compoundLayout.prepared?.problem.fingerprint,
+      timelineView.inputKey,
+    ],
   );
   const parentSelection = useMemo(
     () =>
@@ -214,10 +229,13 @@ export function useGraphLayout({
     if (state.chartType === "compound") {
       if (compoundLayout.loading) return "Arranging subgraphs…";
       if (compoundLayout.error) return `Nested layout failed: ${compoundLayout.error}`;
+      if (!stage && compoundInput?.layout?.method === "ai")
+        return "AI layout is ready. Describe the layout to generate.";
       return stage
         ? `${stage.nodes.length} visible nodes and summaries · ${stage.groups?.length ?? 0} expanded groups · ${stage.edges.length} visible relationships`
         : "No nodes match this view.";
     }
+    if (flatLayout.error) return `Layout failed: ${flatLayout.error}`;
     if (!state.dag || !stage) {
       if (state.chartType === "timeline" && state.dag)
         return "No events match these filters. Choose Show all events to restore the timeline.";
@@ -252,6 +270,7 @@ export function useGraphLayout({
     state.chartType,
     compoundLayout.loading,
     compoundLayout.error,
+    flatLayout.error,
   ]);
 
   return {
@@ -262,7 +281,7 @@ export function useGraphLayout({
     parentSelection,
     timelineView: {
       ...timelineView,
-      ready: timelineSettings === state.timelineSettings && requestedGeometry === geometryAppearance,
+      ready: timelineSettings === requestedTimeline && requestedGeometry === geometryAppearance,
     },
     compoundLayout,
     spatialView,

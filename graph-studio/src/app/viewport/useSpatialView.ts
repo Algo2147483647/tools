@@ -1,27 +1,45 @@
-import { useMemo, useState } from "react";
+import { readSpatialView, saveSpatialView } from "../../viewport/camera/spatialStorage";
+import { composeOrientation, normalizeOrientation, type Quaternion } from "../../viewport/camera/quaternion";
+import { useEffect, useMemo, useState } from "react";
 import { defaultSpaceView, getSpaceMetadata, type SpaceView } from "../../graph/space";
 import type { NormalizedDag } from "../../graph/types";
 
-export function useSpatialView(dag: NormalizedDag | null, generation: number, initial?: SpaceView) {
+export function useSpatialView(dag: NormalizedDag | null, generation: number, identity: string, initial?: SpaceView) {
   const metadata = dag ? getSpaceMetadata(dag) : null;
-  const key = `${generation}:${JSON.stringify(metadata)}`;
-  const defaults = useMemo(() => initial ?? defaultSpaceView(metadata), [key]);
+  const key = `${generation}:${identity}:${JSON.stringify(metadata)}`;
+  const defaults = useMemo(() => {
+    const fallback = defaultSpaceView(metadata);
+    const stored = initial ?? readSpatialView(identity);
+    if (!stored) return fallback;
+    const dimensions = Math.max(3, metadata?.dimensions ?? 3);
+    const sphere = metadata && ["spherical", "geographic"].includes(metadata.coordinateSystem);
+    return {
+      ...stored,
+      axes: stored.axes.every((axis) => axis < dimensions) ? stored.axes : fallback.axes,
+      projection: stored.projection === "map" && !sphere ? fallback.projection : stored.projection,
+    };
+  }, [key]);
   const [saved, setSaved] = useState<{ key: string; view: SpaceView } | null>(null);
   const [resetVersion, setResetVersion] = useState(0);
   const view = saved?.key === key ? saved.view : defaults;
+  useEffect(() => {
+    if (!dag) return;
+    const timer = setTimeout(() => saveSpatialView(identity, view), 150);
+    return () => clearTimeout(timer);
+  }, [identity, view, dag]);
   const change = (patch: Partial<SpaceView>) =>
-    setSaved((previous) => ({ key, view: { ...(previous?.key === key ? previous.view : defaults), ...patch } }));
-  const orbit = (dx: number, dy: number) =>
+    setSaved((previous) => ({
+      key,
+      view: {
+        ...(previous?.key === key ? previous.view : defaults),
+        ...patch,
+        ...(patch.orientation ? { orientation: normalizeOrientation(patch.orientation) } : {}),
+      },
+    }));
+  const orbit = (rotation: Quaternion) =>
     setSaved((previous) => {
       const current = previous?.key === key ? previous.view : defaults;
-      return {
-        key,
-        view: {
-          ...current,
-          yaw: ((((current.yaw + dx * 0.4 + 180) % 360) + 360) % 360) - 180,
-          pitch: Math.max(-90, Math.min(90, current.pitch + dy * 0.4)),
-        },
-      };
+      return { key, view: { ...current, orientation: composeOrientation(rotation, current.orientation) } };
     });
   return {
     metadata,
@@ -30,7 +48,7 @@ export function useSpatialView(dag: NormalizedDag | null, generation: number, in
     orbit,
     resetVersion,
     reset: () => {
-      setSaved(null);
+      setSaved({ key, view: defaultSpaceView(metadata) });
       setResetVersion((version) => version + 1);
     },
   };

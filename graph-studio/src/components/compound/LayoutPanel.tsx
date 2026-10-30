@@ -162,7 +162,9 @@ export default function CompoundLayoutPanel({
         )}
         {c.quality && (
           <>
-            <p>Geometry valid · {Math.round(c.quality.elapsedMs)} ms</p>
+            <p>
+              {c.stale ? "Previous layout" : "Geometry valid"} · {Math.round(c.quality.elapsedMs)} ms
+            </p>
             {c.lastRun && c.lastRunCurrent ? (
               <AiRunComparison report={c.lastRun} />
             ) : (

@@ -74,11 +74,21 @@ export function parseLayoutSession(value: unknown): LayoutSessionState {
       if (value === undefined) continue;
       const rendering = object(
         value,
-        ["graphFingerprint", "settingsFingerprint", "scope", "timelineSettings", "geometry", "compoundDesign"],
+        [
+          "inputFingerprint",
+          "graphFingerprint",
+          "settingsFingerprint",
+          "scope",
+          "timelineSettings",
+          "geometry",
+          "compoundDesign",
+        ],
         "rendering",
       );
       if (typeof rendering.graphFingerprint !== "string" || typeof rendering.settingsFingerprint !== "string")
         throw new Error("Invalid Layout fingerprint.");
+      if (rendering.inputFingerprint !== undefined && typeof rendering.inputFingerprint !== "string")
+        throw new Error("Invalid input fingerprint.");
       const scope = object(
         rendering.scope,
         ["selection", "compound", "activeType", "typeFilter", "activeTrack", "timelineRange", "spatial"],

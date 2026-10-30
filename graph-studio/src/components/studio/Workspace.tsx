@@ -55,7 +55,7 @@ export default function Workspace({
           {explorer}
         </div>
         <div className="workspace-stage-shell">
-          {stage && !stage.compoundLayout && stage.warnings.length > 0 && (
+          {stage && stage.layoutMode !== "compound" && stage.warnings.length > 0 && (
             <StageWarning
               key={JSON.stringify([documentGeneration, stage.layoutMode, stage.warnings])}
               message={stage.warnings.join(" ")}

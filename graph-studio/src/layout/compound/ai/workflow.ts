@@ -2,13 +2,12 @@ import type { AiSettings } from "../../../ai/types";
 import type { AiProgressListener } from "../../../ai/transport/streaming";
 import { requestToolTurn } from "../../../ai/transport/toolConversation";
 import type { ModelToolCall, ToolMessage } from "../../../ai/transport/toolTypes";
-import type { StageData } from "../../shared/types";
 import { LayoutRequestError } from "../../shared/ai/request";
 import type { CompoundLayoutData, LayoutMetrics, LayoutProblem } from "../layout-plan";
 import { measureLayout } from "../layout-quality";
-import { createLayoutResult, type LayoutResultDocument } from "../../../schema/layoutResult";
+import { type LayoutResultDocument } from "../../../schema/layoutResult";
 import { layoutIdentity } from "../../../schema/layoutGeometry";
-import { applyLayoutResult } from "../../shared/applyLayoutResult";
+import { acceptCompoundResult, compoundResultDocument } from "../result";
 import { executeCompoundDecision, type CompoundExecutionInput, type CompoundExecutionResult } from "./execute";
 import type { CompoundDesign } from "./design";
 import type { RoutingIssue } from "../routing/intent";
@@ -94,10 +93,10 @@ export interface CompoundAiReport {
   observationMode: "structure-only";
   design?: CompoundDesign;
 }
-export function compoundContextKey(problem: LayoutProblem, stage: StageData) {
+export function compoundContextKey(problem: LayoutProblem) {
   return layoutIdentity({
     overview: graphOverview(problem),
-    current: createLayoutResult(stage, "compound"),
+    current: compoundResultDocument(problem, problem.baseline),
     settings: problem.stored,
     design: problem.design,
     sizes: problem.minimumSizes,
@@ -106,7 +105,6 @@ export function compoundContextKey(problem: LayoutProblem, stage: StageData) {
 export async function runCompoundAiLayout(options: {
   settings: AiSettings;
   problem: LayoutProblem;
-  currentStage: StageData;
   message: string;
   signal: AbortSignal;
   budget?: Partial<CompoundAiBudget>;
@@ -121,7 +119,7 @@ export async function runCompoundAiLayout(options: {
     budget = { ...DEFAULT_COMPOUND_AI_BUDGET, ...options.budget };
   if (Object.values(budget).some((v) => !Number.isSafeInteger(v) || v <= 0))
     throw new Error("AI layout budgets must be positive integers.");
-  const contextKey = compoundContextKey(problem, options.currentStage),
+  const contextKey = compoundContextKey(problem),
     modelKey = JSON.stringify([options.settings.provider, options.settings.baseUrl, options.settings.model]);
   if (
     options.checkpoint &&
@@ -130,10 +128,10 @@ export async function runCompoundAiLayout(options: {
       options.checkpoint.modelKey !== modelKey)
   )
     throw new Error("Layout or model context changed. Start a new design.");
-  const initialLayout = createLayoutResult(options.currentStage, "compound");
+  const initialLayout = compoundResultDocument(problem, problem.baseline);
   let initialValid = true;
   try {
-    applyLayoutResult(initialLayout, options.currentStage);
+    acceptCompoundResult(initialLayout, problem);
   } catch {
     initialValid = false;
   }
@@ -297,11 +295,9 @@ export async function runCompoundAiLayout(options: {
       design = { ...plan, routing: plan.routing ?? base.design?.routing, scopes: [...scopes.values()] };
       decision = { action: "compose", design };
     } else decision = { action: "edit", changes: parseToolArguments("edit_layout", raw).changes };
-    const baseStage = base.valid
-      ? applyLayoutResult(base.layout, { ...options.currentStage, compoundLayout: { ...problem, stored: base.data } })
-      : undefined;
+    const baseResult = base.valid ? acceptCompoundResult(base.layout, { ...problem, stored: base.data }) : undefined;
     const input: CompoundExecutionInput = {
-      problem: { ...problem, baseline: baseStage?.compoundLayout!.baseline ?? problem.baseline, stored: base.data },
+      problem: { ...problem, baseline: baseResult?.geometry ?? problem.baseline, stored: base.data },
       baseLayout: base.layout,
       baseDesign: base.design,
       decision,
@@ -322,11 +318,8 @@ export async function runCompoundAiLayout(options: {
     let error = result.error;
     try {
       if (error) throw new Error(error);
-      const stage = applyLayoutResult(result.layout, {
-        ...options.currentStage,
-        compoundLayout: { ...problem, stored: result.data },
-      });
-      trial.metrics = measureLayout(problem, stage.compoundLayout!.baseline);
+      const accepted = acceptCompoundResult(result.layout, { ...problem, stored: result.data });
+      trial.metrics = accepted.quality.metrics;
     } catch (e) {
       error = e instanceof Error ? e.message : "Invalid geometry";
       trial.status = "failed";
@@ -392,12 +385,9 @@ export async function runCompoundAiLayout(options: {
       state.pendingIndex = 0;
       if (selected) {
         const c = selected.candidate,
-          stage = applyLayoutResult(c.layout, {
-            ...options.currentStage,
-            compoundLayout: { ...problem, stored: c.data, design: c.design },
-          });
+          accepted = acceptCompoundResult(c.layout, { ...problem, stored: c.data, design: c.design });
         const before = measureLayout(problem, problem.baseline),
-          after = measureLayout(problem, stage.compoundLayout!.baseline);
+          after = measureLayout(problem, accepted.geometry);
         const report: CompoundAiReport = {
           candidateId: c.candidateId,
           summary: selected.summary,
@@ -420,7 +410,7 @@ export async function runCompoundAiLayout(options: {
         return {
           report,
           data: c.data,
-          stage: { ...stage, layoutQuality: { ...stage.layoutQuality!, aiAssessment: selected.summary } },
+          result: { ...accepted, quality: { ...accepted.quality, aiAssessment: selected.summary } },
         };
       }
       if (state.requests - requestStart >= budget.maxRequests) throw new CompoundBudgetError("request-budget");

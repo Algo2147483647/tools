@@ -1,4 +1,5 @@
-import { type Dispatch, useCallback, useRef } from "react";
+import { documentViewIdentity } from "../document/viewIdentity";
+import { type Dispatch, useCallback, useRef, useMemo } from "react";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { GraphAppState } from "../document/initialState";
@@ -6,7 +7,6 @@ import type { GraphAction } from "../document/graphActions";
 import { useGraphPan } from "../../viewport/useGraphPan";
 import { useSpatialGestures } from "../../viewport/useSpatialGestures";
 import { useGraphZoom } from "../../viewport/useGraphZoom";
-import { useResizeObserver } from "../../shared/hooks/useResizeObserver";
 import { useGraphLayout } from "../layout/useGraphLayout";
 import { useGraphNavigation } from "./useGraphNavigation";
 import { useGraphInteractions } from "./useGraphInteractions";
@@ -54,16 +54,17 @@ export function useGraphViewport(
     },
     [dispatch],
   );
+  const documentIdentity = useMemo(() => documentViewIdentity(state), [state.document.id, state.document.generation]);
   const zoom = useGraphZoom({
     containerRef,
     svgRef,
     overlaysRef,
     stage,
     viewKey: JSON.stringify([
-      state.document.generation,
+      documentIdentity,
       state.chartType,
       state.chartType === "spatial" ? spatialView.resetVersion : 0,
-      compound.view.focusGroupId,
+      state.chartType === "compound" ? compound.view.focusGroupId : state.selection,
       ...(state.chartType === "timeline"
         ? [state.timelineSettings.orientation]
         : [typeFilter, activeTrack, activeTimelineRange]),
@@ -74,9 +75,6 @@ export function useGraphViewport(
     onZoomChange: handleZoomChange,
   });
 
-  const handleResize = useCallback(() => zoom.refresh(true), [zoom]);
-  useResizeObserver(containerRef, handleResize);
-  useResizeObserver(overlaysRef, handleResize);
   useGraphPan({
     containerRef,
     enabled: Boolean(stage) && stage?.layoutMode !== "spatial",

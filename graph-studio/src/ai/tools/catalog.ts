@@ -131,8 +131,13 @@ const domainSchemas: Record<string, Schema> = {
       {
         axes: list({ type: "integer", minimum: 0 }, 3, 3),
         projection: { enum: ["orthographic", "perspective", "map"] },
-        yaw: number,
-        pitch: { type: "number", minimum: -90, maximum: 90 },
+        orientation: {
+          type: "array",
+          items: number,
+          minItems: 4,
+          maxItems: 4,
+          description: "Camera unit quaternion [x,y,z,w]. No Euler angle limits.",
+        },
         unitScale: { type: "number", minimum: 0.1, maximum: 100 },
         labels: boolean,
         grid: boolean,

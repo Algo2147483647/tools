@@ -9,7 +9,7 @@ import { resolveTimeline as sanitizeTimelineSettings } from "../schema/appearanc
 import { sanitizeGraphAppearance } from "../schema/appearance/defaults";
 import { normalizeDagInput } from "../graph/normalize";
 import { buildTimelineStage } from "../layout/timeline/layout";
-import { buildSpatialStage } from "../layout/spatial/layout";
+import { spatialFixtureScene } from "./layoutFixtures";
 import { buildStageData } from "../layout/node-link/layout";
 import { getStageAppearance } from "../layout/shared/appearance";
 import { buildCategoryColorMap } from "../graph/categoryColors";
@@ -145,9 +145,9 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
       nodes: { a: { space: [0, 0] }, b: { space: [1, 1] } },
       edges: [],
     });
-    const before = buildSpatialStage({ dag: spatialDag, appearance: getStageAppearance(style.appearance) });
+    const before = spatialFixtureScene({ dag: spatialDag, appearance: getStageAppearance(style.appearance) });
     style.appearance.canvas.padding = [700, 800];
-    const after = buildSpatialStage({ dag: spatialDag, appearance: getStageAppearance(style.appearance) });
+    const after = spatialFixtureScene({ dag: spatialDag, appearance: getStageAppearance(style.appearance) });
     assert.ok(after.stageWidth >= 5000 && after.stageHeight >= 4000);
     assert.notDeepEqual(
       after.nodes.map((n) => [n.x, n.y]),
