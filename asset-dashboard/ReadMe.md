@@ -2,7 +2,7 @@
 
 A personal asset dashboard built with Next.js, React, TypeScript, and Tailwind CSS. Import a JSON portfolio to value gold, U.S. stocks, supported mutual funds, cash, and custom assets in USD. View the total in another currency or grams of gold, explore the asset allocation, and inspect each valuation's status, source, and timestamp. The interface, validation messages, and documentation are in English.
 
-The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Import, configuration, JSON/PDF export, and refresh are in the top toolbar. The Overview dropdown above the holdings table contains valuation counts, pricing currencies, and attention status. Category filters, search, and sorting sit alongside it. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
+The interface follows Warehouse Studio's white paper layout, serif typography, compact toolbar, and ruled tables. Import, configuration, JSON/PDF export, and refresh are borderless icon buttons in the top toolbar, with tooltips and accessible names. Static section titles, instructional text, the help dialog, and decorative footer copy have been removed. Field labels, table headers, filters, asset identifiers, quote states, and actionable error messages remain visible. The Overview dropdown above the holdings table contains valuation counts, pricing currencies, and attention status. Category filters, search, and sorting sit alongside it. Narrow screens stack the summary sections and keep horizontal scrolling inside the table.
 
 **Export PDF** downloads an A4 landscape report of the currently filtered and sorted assets, using the displayed valuation snapshot without fetching new prices. It includes the portfolio total, shown-assets subtotal, status, quote sources and timestamps, and any retained-value or conversion warnings. Export is available once a valuation has completed, including partial or failed valuations. Unavailable values remain dashes. Reports paginate automatically and embed the bundled Noto Serif fonts; Chinese text uses Windows' installed SimSun font. PDF generation happens on the local server and does not store reports there.
 
@@ -13,7 +13,7 @@ Requires **Node.js 22.13 or later**. Node.js 24 LTS is recommended. This project
 The launcher uses the first Node.js on `PATH` that meets the minimum version, skipping older installations such as Anaconda's bundled Node.js. If none qualifies, it checks the standard system and per-user Node.js installation locations, then the current user's Codex runtime cache. It runs npm and the server with that selected runtime; the PATH adjustment applies only while the launcher is running.
 
 ```powershell
-cd D:\xiongzihao\tools\asset-dashboard
+cd D:\Algo\Notes\tools\asset-dashboard
 .\launch.ps1
 ```
 
@@ -33,6 +33,17 @@ Choose only one of the four run modes. Combine it with `-NoBrowser` or `-Port` a
 ```powershell
 .\launch.ps1 -Preview -NoBrowser -Port 3001
 ```
+
+On macOS, double-click `launch.command` in Finder, or run it from any working directory:
+
+```bash
+/path/to/asset-dashboard/launch.command
+/path/to/asset-dashboard/launch.command --preview --no-browser --port 3001
+```
+
+The macOS launcher supports `--dev`, `--preview`, `--build-only`, `--install-only`, `--no-browser`, `--port NUMBER`, and `--help`. It supports macOS's bundled Bash 3.2, paths with spaces, and both Apple Silicon and Intel Homebrew locations. It selects Node.js 22.13+ and runs npm with the same Node executable. Dependency installation is cached using package/lockfile/npm configuration hashes and the Node version, platform, and architecture. An occupied port fails explicitly. The browser opens only after the server responds, and its readiness helper exits with the launcher. Keep the Terminal window open while using the dashboard.
+
+The script is tracked as executable. If a download loses its executable permission, run `chmod +x launch.command` once, or use `bash launch.command`. The macOS launcher has shell syntax and mocked bootstrap checks; a native macOS launch still needs validation on a Mac.
 
 To run directly with npm:
 

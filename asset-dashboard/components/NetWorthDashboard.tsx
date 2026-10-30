@@ -14,7 +14,6 @@ import {
   ArrowUpRight,
   Check,
   ChevronDown,
-  CircleHelp,
   Coins,
   FileJson,
   FileText,
@@ -25,7 +24,6 @@ import {
   RefreshCw,
   Search,
   Settings2,
-  ShieldCheck,
   ChartNoAxesColumn,
   TriangleAlert,
   TrendingUp,
@@ -117,7 +115,7 @@ export function NetWorthDashboard() {
   const [loaded, setLoaded] = useState<LoadedConfig | null>(null);
   const [sampleLoading, setSampleLoading] = useState(true);
   const [inputError, setInputError] = useState<string | null>(null);
-  const [modal, setModal] = useState<"config" | "help" | null>(null);
+  const [modal, setModal] = useState<"config" | null>(null);
   const [draft, setDraft] = useState("");
   const [draftError, setDraftError] = useState<string | null>(null);
   const [displayBase, setDisplayBase] = useState("USD");
@@ -406,33 +404,22 @@ export function NetWorthDashboard() {
       </a>
       <div className="main-shell">
         <header className="topbar">
-          <div className="portfolio-controls">
-            <span className="workspace-label">Portfolio</span>
-            <button className="portfolio-file" type="button" onClick={openConfig} title="Open portfolio configuration">
-              <FileJson size={16} />
-              <span>{loaded?.name ?? "New portfolio"}</span>
+          <span className="portfolio-name" title={loaded?.name}>{loaded?.name ?? "New portfolio"}</span>
+          <div className="topbar-actions" role="toolbar" aria-label="Portfolio actions">
+            <button className="icon-button" type="button" onClick={() => fileRef.current?.click()} aria-label="Import assets" title="Import assets">
+              <Plus size={18} />
             </button>
-            <button className="icon-button" type="button" onClick={() => setModal("help")} aria-label="Guide" title="Portfolio guide">
-              <CircleHelp size={17} />
+            <button className="icon-button" type="button" onClick={openConfig} aria-label="Configuration" title="Configuration">
+              <Settings2 size={18} />
             </button>
-          </div>
-          <div className="topbar-actions">
-            <button className="button button-secondary" type="button" onClick={() => fileRef.current?.click()}>
-              <Plus size={16} />Import assets
+            <button className="icon-button" type="button" disabled={!loaded} onClick={downloadConfig} aria-label="Export JSON" title="Export JSON">
+              <ArrowDownToLine size={18} />
             </button>
-            <button className="button button-secondary" type="button" onClick={openConfig}>
-              <Settings2 size={16} />Configuration
+            <button className="icon-button" type="button" disabled={!valuation || loading || exportingPdf} onClick={() => void downloadPdf()} aria-label={exportingPdf ? "Exporting PDF" : "Export PDF"} title={exportingPdf ? "Exporting PDF" : "Export PDF"} aria-busy={exportingPdf}>
+              {exportingPdf ? <Loader2 size={18} className="spin" /> : <FileText size={18} />}
             </button>
-            <button className="button button-secondary" type="button" disabled={!loaded} onClick={downloadConfig}>
-              <ArrowDownToLine size={16} />Export JSON
-            </button>
-            <button className="button button-secondary" type="button" disabled={!valuation || loading || exportingPdf} onClick={() => void downloadPdf()}>
-              {exportingPdf ? <Loader2 size={16} className="spin" /> : <FileText size={16} />}
-              {exportingPdf ? "Exporting" : "Export PDF"}
-            </button>
-            <button className="button button-primary" type="button" disabled={!loaded || loading} onClick={refresh}>
-              <RefreshCw size={16} className={loading ? "spin" : ""} />
-              {loading ? "Updating" : "Refresh values"}
+            <button className="icon-button" type="button" disabled={!loaded || loading} onClick={refresh} aria-label={loading ? "Updating values" : "Refresh values"} title={loading ? "Updating values" : "Refresh values"} aria-busy={loading}>
+              <RefreshCw size={18} className={loading ? "spin" : ""} />
             </button>
           </div>
         </header>
@@ -494,12 +481,6 @@ export function NetWorthDashboard() {
           >
             <div className="balance-card">
               <div className="balance-top">
-                <span className="balance-label">
-                  <Wallet size={17} />
-                  {failedCount
-                    ? "Total available value"
-                    : "Total portfolio value"}
-                </span>
                 <span
                   className={`balance-status ${error || failedCount || warningCount ? "is-partial" : ""}`}
                 >
@@ -517,7 +498,7 @@ export function NetWorthDashboard() {
                           : "Snapshot loaded"}
                 </span>
               </div>
-              <div className="balance-amount" aria-live="polite">
+              <div className="balance-amount" aria-live="polite" aria-label={failedCount ? "Total available value" : "Total portfolio value"}>
                 {loading && !valuation ? (
                   <span className="pricing-placeholder">
                     Fetching values<span className="loading-dots">···</span>
@@ -526,13 +507,7 @@ export function NetWorthDashboard() {
                   formatMoney(total, displayUnit)
                 )}
               </div>
-              <p className="balance-subtitle">
-                {failedCount
-                  ? `${failedCount} ${failedCount === 1 ? "asset excluded; value unavailable." : "assets excluded; values unavailable."}`
-                  : valuation
-                    ? `${assetCount} ${assetCount === 1 ? "asset" : "assets"} valued in ${displayUnit === "g gold" ? "grams of gold" : displayUnit}`
-                    : "Add your assets for a clear view of your portfolio"}
-              </p>
+              {failedCount > 0 && <p className="balance-subtitle" role="status">{failedCount} {failedCount === 1 ? "asset excluded; value unavailable." : "assets excluded; values unavailable."}</p>}
               <div className="balance-footer">
                 <div>
                   <span className="balance-foot-label">Last valuation</span>
@@ -540,7 +515,7 @@ export function NetWorthDashboard() {
                     {valuation
                       ? formatDate(valuation.generatedAt)
                       : "Awaiting first update"}
-                    {loading && valuation ? " · Refreshing" : " · Auto-refresh every minute"}
+                    {loading && valuation ? " · Refreshing" : ""}
                   </span>
                 </div>
                 <div className="base-picker">
@@ -569,12 +544,6 @@ export function NetWorthDashboard() {
               </div>
             </div>
             <div className="allocation-card">
-              <div className="section-card-heading">
-                <div>
-                  <h2>Asset allocation</h2>
-                </div>
-                <span className="tiny-label">By available value</span>
-              </div>
               <div className="allocation-content">
                 <div
                   className="donut"
@@ -592,14 +561,7 @@ export function NetWorthDashboard() {
                       : "No asset allocation available"
                   }
                 >
-                  <div className="donut-center">
-                    <strong>
-                      {valuation
-                        ? allocation.filter((item) => item.count > 0).length
-                        : "—"}
-                    </strong>
-                    <span>Categories</span>
-                  </div>
+                  <div className="donut-center" />
                 </div>
                 <div className="allocation-legend">
                   {allocation.map((item) => (
@@ -660,20 +622,10 @@ export function NetWorthDashboard() {
               <button className="button button-small" type="submit">
                 Apply
               </button>
-              <span className={baseError ? "text-error" : "muted"}>
-                {baseError ??
-                  `Current results: ${unitLabel}. Apply when ready.`}
-              </span>
+              {baseError && <span className="text-error" role="alert">{baseError}</span>}
             </form>
           )}
-          <section className="holdings-card" aria-labelledby="holdings-title">
-            <div className="holdings-heading">
-              <div>
-                <h1 id="holdings-title">
-                  Holdings<span className="count-badge">{assetCount}</span>
-                </h1>
-              </div>
-            </div>
+          <section className="holdings-card" aria-label="Holdings">
             <div className="table-toolbar">
               <details className="overview-menu" ref={overviewRef}>
                 <summary><ChartNoAxesColumn size={16} />Overview<ChevronDown size={12} /></summary>
@@ -863,8 +815,7 @@ export function NetWorthDashboard() {
                 {filteredAssets.length === 0 && (
                   <div className="empty-state">
                     <Search size={26} />
-                    <h3>No matching assets</h3>
-                    <p>Try another search or asset category.</p>
+                    <p role="status">No matching assets</p>
                     <button
                       className="button button-secondary"
                       type="button"
@@ -885,20 +836,7 @@ export function NetWorthDashboard() {
                 ) : (
                   <Wallet size={32} />
                 )}
-                <h3>
-                  {loading || sampleLoading
-                    ? "Loading your portfolio"
-                    : error
-                      ? "Values unavailable"
-                      : "Start with your first portfolio"}
-                </h3>
-                <p>
-                  {loading || sampleLoading
-                    ? "Fetching quotes and converting to your display unit."
-                    : error
-                      ? "Try again or check your asset configuration."
-                      : "Import a JSON file or add assets in Configuration."}
-                </p>
+                <p role="status">{loading || sampleLoading ? "Loading" : error ? "Values unavailable" : "No assets"}</p>
                 {!loading && !sampleLoading && (
                   <button
                     className="button button-secondary"
@@ -915,28 +853,16 @@ export function NetWorthDashboard() {
               <span>
                 {assets.length
                   ? `Showing ${filteredAssets.length} of ${assets.length} ${assets.length === 1 ? "asset" : "assets"}`
-                  : "Cash, gold, stocks, funds, and more"}
+                  : "0 assets"}
               </span>
-              <span>
-                <span className="footer-dot" />
-                {failedCount
-                  ? "Allocation uses available values only"
-                  : "See asset details for quote times"}
-              </span>
+              {failedCount > 0 && <span>Allocation uses available values only</span>}
             </div>
           </section>
-          <footer className="page-footer">
-            <span>
-              Asset Dashboard
-            </span>
-            <span>Indicative values · Liabilities excluded</span>
-          </footer>
         </main>
       </div>
       {modal === "config" && (
         <Dialog
           title="Portfolio configuration"
-          eyebrow="YOUR PORTFOLIO"
           wide
           onClose={() => setModal(null)}
         >
@@ -962,7 +888,6 @@ export function NetWorthDashboard() {
           <form onSubmit={applyDraft}>
             <div className="editor-label">
               <label htmlFor="config-json">JSON configuration</label>
-              <span>Apply changes to the dashboard</span>
             </div>
             <textarea
               id="config-json"
@@ -971,10 +896,6 @@ export function NetWorthDashboard() {
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
             />
-            <p className="editor-hint">
-              Supported types: gold, cash, stock, fund, custom. Each asset needs
-              a unique id. Changes stay in this tab; export before closing.
-            </p>
             {draftError && (
               <div className="notice notice-error" role="alert">
                 <TriangleAlert size={17} />
@@ -1000,9 +921,9 @@ export function NetWorthDashboard() {
       {selectedAsset && (
         <Dialog
           title={selectedAsset.name}
-          eyebrow="ASSET DETAILS"
           onClose={() => setSelectedId(null)}
         >
+          <strong className="detail-name">{selectedAsset.name}</strong>
           <div className="detail-balance">
             <span>Current value · {unitLabel}</span>
             <strong>
@@ -1085,63 +1006,10 @@ export function NetWorthDashboard() {
               <dt>Data source</dt>
               <dd>{selectedAsset.source}</dd>
             </div>
-            <div className="detail-full">
-              <dt>Valuation details</dt>
-              <dd>{selectedAsset.message}</dd>
-            </div>
+            {selectedAsset.status === "failed" && <div className="detail-full"><dt>Error</dt><dd>{selectedAsset.message}</dd></div>}
           </dl>
           <div className="detail-id">
             ASSET ID <span>{selectedAsset.id}</span>
-          </div>
-        </Dialog>
-      )}
-      {modal === "help" && (
-        <Dialog
-          title="Get to know your portfolio"
-          eyebrow="GETTING STARTED"
-          onClose={() => setModal(null)}
-        >
-          <div className="help-steps">
-            <div>
-              <span>01</span>
-              <div>
-                <h3>Import your assets</h3>
-                <p>
-                  Upload a JSON file or edit it in Configuration. Enter currency
-                  and amount for cash, symbol and shares for stocks, and weight
-                  and unit for gold.
-                </p>
-              </div>
-            </div>
-            <div>
-              <span>02</span>
-              <div>
-                <h3>Get current values</h3>
-                <p>
-                  Values refresh every minute while this page is visible, with slower retries after failures. Select Refresh values to retry immediately.
-                  Choose a display currency or view your portfolio in grams of
-                  gold.
-                </p>
-              </div>
-            </div>
-            <div>
-              <span>03</span>
-              <div>
-                <h3>Check data status</h3>
-                <p>
-                  Unavailable values appear as a dash and are excluded from
-                  totals. Asset details include quote sources and timestamps.
-                  Exchange rates and market quotes may be delayed.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="help-note">
-            <ShieldCheck size={19} />
-            <p>
-              Your configuration stays in this tab. Reloading restores the
-              sample. Use Export JSON to save your changes.
-            </p>
           </div>
         </Dialog>
       )}

@@ -1,23 +1,20 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 
 export function Dialog({
   title,
-  eyebrow,
   onClose,
   children,
   wide = false,
 }: {
   title: string;
-  eyebrow?: string;
   onClose: () => void;
   children: ReactNode;
   wide?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
   useEffect(() => {
     const dialog = ref.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
@@ -35,7 +32,7 @@ export function Dialog({
     <dialog
       ref={ref}
       className={`dialog ${wide ? "dialog-wide" : ""}`}
-      aria-labelledby={titleId}
+      aria-label={title}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -53,10 +50,6 @@ export function Dialog({
       }}
     >
       <div className="dialog-header">
-        <div>
-          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-          <h2 id={titleId}>{title}</h2>
-        </div>
         <button
           type="button"
           className="icon-button"
