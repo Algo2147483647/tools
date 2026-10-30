@@ -559,7 +559,7 @@ export const compoundAiHarnessSuite = defineSuite("Compound layout tools", [
     const { stage } = await fixture();
     const normal = { ...stage.layoutQuality!.metrics, sharedLength: 20 };
     const detour = { ...normal, sharedLength: 19, length: normal.length + 5000 };
-    assert.ok(compareLayoutMetrics(detour, normal, "readability") > 0);
+    assert.ok(compareLayoutMetrics(detour, normal) > 0);
   }),
   defineTest("midpoint mode reaches the solver and persists independently of graph data", async () => {
     const { input } = await fixture();

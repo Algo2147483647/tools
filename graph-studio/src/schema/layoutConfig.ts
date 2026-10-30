@@ -35,7 +35,7 @@ export function parseLayoutConfigFile(value: unknown): LayoutConfigFile {
   const settings = object(
     file.settings,
     chart === "compound"
-      ? ["method", "direction", "objective", "portMode"]
+      ? ["method", "direction", "portMode"]
       : chart === "timeline"
         ? ["mode", "view"]
         : chart === "node-link"
@@ -80,7 +80,7 @@ export function createLayoutConfigFile(
   let settings: Record<string, unknown> = {};
   if (chart === "compound") {
     const c = data.charts.compound;
-    settings = { method: c.method, direction: c.direction, objective: c.objective, portMode: c.portMode };
+    settings = { method: c.method, direction: c.direction, portMode: c.portMode };
   }
   if (chart === "node-link") settings = { method: data.charts["node-link"].method };
   if (chart === "timeline")

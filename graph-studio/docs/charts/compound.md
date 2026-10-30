@@ -59,7 +59,7 @@ Layout proceeds from inner scopes outward. Each scope arranges its immediate chi
 
 Routing occurs after node and container placement. Orthogonal routes avoid cards and unrelated containers; labels may require additional routing space. A parent can be a real edge endpoint, so container boundaries and ordinary card geometry must remain distinct.
 
-The Layout panel offers **Automatic** and **AI**. Automatic jointly arranges nodes, container sizes, connections and labels whenever graph data, the visible projection or layout settings change. Direction and the Readability/Compactness objective are declarative inputs. Internal alternatives are ranked automatically; there is no adjustment-range selector, candidate picker, preview or confirmation dialog.
+The Layout panel offers **Automatic** and **AI**. Automatic jointly arranges nodes, container sizes, connections and labels whenever graph data, the visible projection or layout settings change. Direction is a declarative input. Candidate scoring uses one fixed policy. Internal alternatives are ranked automatically; there is no adjustment-range selector, candidate picker, preview or confirmation dialog.
 
 AI first designs the purpose, reading path, parallel regions and connection roles. The engine realizes this composition, then AI reviews the resulting coordinates and relationships against its design intent. It can replace the design or make local revisions; every changed candidate is reviewed again. Fixed direction, external nodes, content and containment remain authoritative. Numeric metrics are auxiliary, not an acceptance threshold.
 
@@ -77,17 +77,16 @@ Settings files use `graph-studio-layout-settings` version 1. The association is 
   "settings": {
     "method": "automatic",
     "direction": "DOWN",
-    "objective": "readability",
     "portMode": "distributed"
   }
 }
 ```
 
-`method` is `automatic` or `ai`, direction is `AUTO`, `RIGHT` or `DOWN`, and objective is `readability` or `compact`. At most 500 declarative constraints are supported: `direction` with nullable `scopeId`; `flow-order` with `scopeId` and at least two sibling `nodeIds`; `prefer-outer-route` with `edgeId`; and `port-side` with `edgeId`, `end` and `side`. All use `strength: "soft"`. Flow order adds precedence between the named siblings and may leave other siblings unlisted. Real relationships remain part of placement and routing, including branches and feedback. Outer routing prefers a nearby corridor only when its detour is bounded; it does not force a canvas-wide loop.
+`method` is `automatic` or `ai`, and direction is `AUTO`, `RIGHT` or `DOWN`. At most 500 declarative constraints are supported: `direction` with nullable `scopeId`; `flow-order` with `scopeId` and at least two sibling `nodeIds`; `prefer-outer-route` with `edgeId`; and `port-side` with `edgeId`, `end` and `side`. All use `strength: "soft"`. Flow order adds precedence between the named siblings and may leave other siblings unlisted. Real relationships remain part of placement and routing, including branches and feedback. Outer routing prefers a nearby corridor only when its detour is bounded; it does not force a canvas-wide loop.
 
-Chart configuration is independent of graph data. `metadata.layout` links a chart-specific settings JSON. **Update current layout**, beside the title, saves only method, direction, objective and port mode. No positions, routing plans or geometry are persisted. Legacy files contribute configuration only. A new association is saved through normal graph Save.
+Chart configuration is independent of graph data. `metadata.layout` links a chart-specific settings JSON. **Update current layout**, beside the title, saves only method, direction and port mode. No positions, routing plans or geometry are persisted. Retired file formats are rejected. A new association is saved through normal graph Save.
 
-Selecting **Automatic** clears the session plan and rendering, restores `direction: "AUTO"`, and recomputes locally. Connection ports and objective remain selected. Distributed ports allow boundary positions to reduce overlap; midpoint mode restricts attachments to four side centers.
+Switching methods retains direction, constraints and connection ports. Automatic mode reuses a matching cached result or computes the current visible layout. Distributed ports allow boundary positions to reduce overlap; midpoint mode restricts attachments to four side centers.
 
 The final result remains **Schema Layout v4**. Compound AI uses native inspect_graph, compose_layout, edit_layout, inspect_layout, compare_layouts and finish_layout tools. Versioned JSON decision actions have been removed. Paths, branches, relative placement, alignment and spacing execute geometrically without changing business connections. The Schema tab shows complete rendered geometry.
 

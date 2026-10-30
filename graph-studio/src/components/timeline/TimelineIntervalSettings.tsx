@@ -39,9 +39,6 @@ export default function TimelineIntervalSettings({
           label="Thickness"
           value={settings.intervalWidth}
           defaultValue={timelineDefaults.intervalWidth}
-          min={0}
-          max={240}
-          step={1}
           unit="px"
           onChange={(intervalWidth) => onChange({ intervalWidth })}
         />
@@ -49,9 +46,6 @@ export default function TimelineIntervalSettings({
           label="Corner radius"
           value={settings.intervalRadius}
           defaultValue={timelineDefaults.intervalRadius}
-          min={0}
-          max={120}
-          step={1}
           unit="px"
           onChange={(intervalRadius) => onChange({ intervalRadius })}
         />
@@ -82,9 +76,6 @@ export default function TimelineIntervalSettings({
               label="Stroke width"
               value={settings.intervalBorderWidth}
               defaultValue={timelineDefaults.intervalBorderWidth}
-              min={0}
-              max={20}
-              step={0.5}
               unit="px"
               onChange={(intervalBorderWidth) => onChange({ intervalBorderWidth })}
             />

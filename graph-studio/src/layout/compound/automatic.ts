@@ -7,7 +7,6 @@ import { routeCompoundEdges } from "./routing/router";
 export function automaticIntent(problem: LayoutProblem): LayoutIntent {
   return {
     ...defaultLayoutIntent(problem.projection.focusGroupId),
-    objective: problem.stored.objective,
     constraints:
       problem.stored.direction === "AUTO"
         ? []
@@ -63,7 +62,7 @@ export function arrangeCompound(problem: LayoutProblem, intent = automaticIntent
       best &&
       (!validation.valid ||
         preferenceDelta < 0 ||
-        (preferenceDelta === 0 && compareLayoutMetrics(best.metrics, metrics, intent.objective) < 0))
+        (preferenceDelta === 0 && compareLayoutMetrics(best.metrics, metrics) < 0))
     ) {
       geometry = best.geometry;
       validation = best.validation;

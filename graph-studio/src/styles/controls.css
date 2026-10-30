@@ -448,11 +448,6 @@
   grid-column: 1 / -1;
 }
 
-.settings-slider-grid {
-  display: grid;
-  gap: 8px;
-}
-
 .settings-action-btn {
   width: 100%;
   min-height: 38px;

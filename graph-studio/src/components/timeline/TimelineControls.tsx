@@ -125,25 +125,21 @@ export default function TimelineControls({
         value: (
           <NumericSetting
             label="Time compression"
-            min={0}
-            max={100}
-            step={5}
             unit="%"
             value={settings.compactness * 100}
             defaultValue={getDefaultChartStyle("timeline").timeline!.compactness * 100}
-            
+
             onChange={(value) => onChange({ compactness: value / 100 })}
           />
         ),
       });
-
   }
   return (
     <div className="timeline-layout-rules">
       <LayoutRules rows={rows} label="Timeline layout rules" />
       <div className="layout-actions">
         {showAxis && (
-          <button className="studio-button" type="button"  onClick={onReadapt}>
+          <button className="studio-button" type="button" onClick={onReadapt}>
             Fit visible events
           </button>
         )}

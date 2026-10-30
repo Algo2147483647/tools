@@ -4,15 +4,15 @@
 
 `definition.ts` resolves and validates values. Imports, persistence, presets, console commands, ordinary controls, and Schema edits share this resolver. Missing optional values receive defaults; invalid provided values throw descriptive errors. There is no clipping, type coercion, obsolete-field migration, or color rewriting. `appearance/defaults.ts` exposes `sanitizeGraphAppearance` for partial initialization. Timeline consumers call `resolveTimeline` from `appearance/contract.ts`.
 
-| Consumer                    | Source                                                  | Behavior                                                                             |
-| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| TypeScript models           | `appearance/types.ts`                                   | Explicit data shapes matching JSON field structure, enum values and tuple lengths.   |
-| Chart defaults              | Field defaults and `appearance/defaults.json`           | Explicit per-chart default overrides, imported directly from JSON.                   |
-| Presets                     | `appearance/presets/*.json` and `appearance/presets.ts` | Full validated `ChartStyleDocument` records with identity outside the document.      |
-| Schema table                | Field definitions and current values                    | Unsupported fields are read-only and identified in their description.                |
-| Ordinary controls           | Schema bindings and `appearanceUIConfig.ts`             | Hierarchical UI templates retain sliders, color pickers, switches and button groups. |
-| Preferences and style files | `styleProtocol.ts`                                      | Complete documents round-trip through the same validator.                            |
-| Documentation               | `generate-appearance-reference.mjs`                     | Tables and complete examples are generated from the contract.                        |
+| Consumer                    | Source                                                  | Behavior                                                                                    |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| TypeScript models           | `appearance/types.ts`                                   | Explicit data shapes matching JSON field structure, enum values and tuple lengths.          |
+| Chart defaults              | Field defaults and `appearance/defaults.json`           | Explicit per-chart default overrides, imported directly from JSON.                          |
+| Presets                     | `appearance/presets/*.json` and `appearance/presets.ts` | Full validated `ChartStyleDocument` records with identity outside the document.             |
+| Schema table                | Field definitions and current values                    | Unsupported fields are read-only and identified in their description.                       |
+| Ordinary controls           | Schema bindings and `appearanceUIConfig.ts`             | Hierarchical UI templates retain numeric inputs, color pickers, switches and button groups. |
+| Preferences and style files | `styleProtocol.ts`                                      | Complete documents round-trip through the same validator.                                   |
+| Documentation               | `generate-appearance-reference.mjs`                     | Tables and complete examples are generated from the contract.                               |
 
 ## Geometry and typography
 
@@ -40,7 +40,7 @@ The JSON imports use import attributes for Node.js scripts. The `schema-json-imp
 
 ## Hierarchical Settings UI
 
-The Settings pipeline is `Schema -> resolved values -> UI tree -> registered renderer -> validated transaction -> ChartStyleDocument`. UI definitions contain paths, renderer names, labels, layout and slider presentation ranges. They never contain saved values or reset defaults. Schema remains responsible for data types, supported charts, enum values and validation.
+The Settings pipeline is `Schema -> resolved values -> UI tree -> registered renderer -> validated transaction -> ChartStyleDocument`. UI definitions contain paths, renderer names, labels, units and layout. They never contain saved values or reset defaults. Schema remains responsible for data types, supported charts, enum values and validation.
 
 `appearanceUIConfig.ts` declares a tree. An absolute `style.*` path selects a Schema branch; a relative child path resolves beneath its parent. A renderer can own a whole panel, an object, a tuple or a single field. For example, the node-size panel binds `style.appearance.nodes`, and its `widths` child selects the tuple renderer. The Timeline point panel binds `style.timeline` and delegates its `pointMarker` child to the marker renderer. Parent templates receive their rendered children, so specialized layouts do not flatten their descendants into generic text inputs.
 

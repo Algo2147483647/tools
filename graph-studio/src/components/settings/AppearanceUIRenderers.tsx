@@ -26,9 +26,6 @@ function NumberControl({ node, binding }: AppearanceRendererProps) {
       label={label}
       value={(pixels ? parseFloat(String(binding.value)) : Number(binding.value)) * scale}
       defaultValue={(pixels ? parseFloat(String(binding.defaultValue)) : Number(binding.defaultValue)) * scale}
-      min={binding.definition.min !== undefined ? binding.definition.min * scale : (node.options?.min ?? 0)}
-      max={binding.definition.max !== undefined ? binding.definition.max * scale : (node.options?.max ?? 100)}
-      step={node.options?.step ?? binding.definition.step ?? 1}
       unit={node.options?.unit ?? binding.definition.unit ?? "px"}
       onChange={(value) => commit(() => binding.set(pixels ? `${value / scale}px` : value / scale))}
     />
@@ -88,9 +85,6 @@ function TupleControl({ node, binding }: AppearanceRendererProps) {
           label={node.options?.labels?.[index] ?? `${node.id} ${index + 1}`}
           value={value}
           defaultValue={defaults[index]}
-          min={binding.definition.items?.min ?? 0}
-          max={binding.definition.items?.max ?? node.options?.max ?? 1000}
-          step={node.options?.step ?? 1}
           unit={node.options?.unit ?? "px"}
           onChange={(next) => commit(() => binding.set(values.map((v, i) => (i === index ? next : v))))}
         />
@@ -253,11 +247,10 @@ export const APPEARANCE_RENDERERS = {
   section: ({ node, children }: AppearanceRendererProps) => (
     <section className="appearance-text-section">
       <h3>{node.label}</h3>
-      {children}
+      <div className="settings-field-grid">{children}</div>
     </section>
   ),
   panel: ({ children }: AppearanceRendererProps) => <>{children}</>,
-  grid: ({ children }: AppearanceRendererProps) => <div className="settings-slider-grid">{children}</div>,
   number: NumberControl,
   color: ColorControl,
   toggle: ToggleControl,

@@ -19,9 +19,6 @@ export default function NumericSetting({
   label,
   value,
   defaultValue,
-  min,
-  max,
-  step = 1,
   unit = "px",
   disabled,
   onChange,
@@ -29,9 +26,6 @@ export default function NumericSetting({
   label: string;
   value: number;
   defaultValue: number;
-  min: number;
-  max: number;
-  step?: number;
   unit?: string;
   disabled?: boolean;
   onChange: (value: number) => void;
@@ -47,7 +41,7 @@ export default function NumericSetting({
     }
     const next = Number(raw);
     setDraft(String(next));
-    onChange(next);
+    if (next !== value) onChange(next);
   };
   return (
     <div className="numeric-setting" data-modified={changed} aria-disabled={disabled || undefined}>
@@ -58,19 +52,9 @@ export default function NumericSetting({
         </label>
       </div>
       <div className="numeric-setting-inputs">
-        <input
-          id={id}
-          aria-label={label}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          disabled={disabled}
-          value={Math.max(min, Math.min(max, value))}
-          onChange={(event) => commit(event.currentTarget.value)}
-        />
         <label className="numeric-setting-value">
           <input
+            id={id}
             type="number"
             aria-label={`${label} value`}
             step="any"

@@ -5,7 +5,6 @@
   "settings": {
     "method": "automatic",
     "direction": "AUTO",
-    "objective": "compact",
     "portMode": "midpoints"
   }
 }

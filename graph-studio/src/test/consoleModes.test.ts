@@ -321,7 +321,7 @@ export const consoleModesSuite = defineSuite("AI tool domains and transactions",
       "stale preparation cannot commit twice",
     );
   }),
-  defineTest("a continuous style adjustment remains one undo transaction", () => {
+  defineTest("separate style edits retain independent undo transactions", () => {
     const dag = base();
     const initial = { ...createInitialGraphState(), dag };
     const first = prepareConsoleTransaction(
@@ -329,7 +329,6 @@ export const consoleModesSuite = defineSuite("AI tool domains and transactions",
       success([{ tool: "style_set", arguments: { path: "style.appearance.nodes.height", value: 120 } }], dag),
       "Adjust",
     )!;
-    first.transaction.adjustmentId = "drag";
     const middle = graphReducer(initial, first);
     const second = prepareConsoleTransaction(
       middle,
@@ -343,11 +342,12 @@ export const consoleModesSuite = defineSuite("AI tool domains and transactions",
       ),
       "Adjust",
     )!;
-    second.transaction.adjustmentId = "drag";
     const final = graphReducer(middle, second);
-    assert.equal(final.editHistory.undoStack.length, 1);
+    assert.equal(final.editHistory.undoStack.length, 2);
     assert.equal(final.documentStyles["node-link"]?.appearance.nodes.height, 150);
-    assert.deepEqual(graphReducer(final, { type: "undoRequested" }).documentStyles, initial.documentStyles);
+    const undone = graphReducer(final, { type: "undoRequested" });
+    assert.equal(undone.documentStyles["node-link"]?.appearance.nodes.height, 120);
+    assert.deepEqual(graphReducer(undone, { type: "undoRequested" }).documentStyles, initial.documentStyles);
   }),
   defineTest("failed mixed batches preserve graph, style and context", () => {
     const dag = base();

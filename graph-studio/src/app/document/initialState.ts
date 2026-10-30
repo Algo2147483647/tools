@@ -12,7 +12,6 @@ import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { ChartStyle } from "../../schema/appearance/styles";
 
 export interface EditTransaction {
-  adjustmentId?: string;
   label: string;
   beforeStyles?: Partial<Record<GraphChartType, ChartStyle>>;
   afterStyles?: Partial<Record<GraphChartType, ChartStyle>>;

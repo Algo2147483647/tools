@@ -28,8 +28,6 @@ export interface SettingsModalProps {
   aiBusy: boolean;
   onClose: () => void;
   onAppearanceCssChange: (css: string) => void;
-  onAppearanceAdjustmentStart: () => void;
-  onAppearanceAdjustmentEnd: () => void;
   onAppearanceUndo: () => void;
   onAppearanceRedo: () => void;
   canUndoAppearance: boolean;

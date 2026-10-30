@@ -352,18 +352,15 @@ export const settingsSuite = defineSuite("Settings controls", [
     assert.deepEqual(second.timelineSettings.typeColors, {});
     assert.equal(parseGraphPagePreferences(JSON.stringify({ timelineSettings: view })), null);
   }),
-  defineTest("sliders start at zero while numeric inputs retain values outside their range", () => {
+  defineTest("numeric editors retain exact values without range controls", () => {
     for (const node of [...APPEARANCE_UI.canvas.children!, ...APPEARANCE_UI.nodes.children![0].children!]) {
-      const control = { label: node.label ?? node.id, min: node.options?.min ?? 0, max: node.options?.max ?? 100 };
-      assert.equal(control.min, 0);
+      const label = node.label ?? node.id;
       for (const value of [-12.3456789, 0, 10000.125]) {
         const html = renderToStaticMarkup(
           createElement(NumericSetting, {
-            label: control.label,
+            label,
             value,
             defaultValue: 24,
-            min: control.min,
-            max: control.max,
             onChange: () => {},
           }),
         );
@@ -371,7 +368,7 @@ export const settingsSuite = defineSuite("Settings controls", [
         assert.doesNotMatch(numberInput, /\s(?:min|max)=/);
         assert.ok(numberInput.includes(`value="${value}"`));
         assert.match(numberInput, /step="any"/);
-        assert.match(html, /type="range" min="0"/);
+        assert.doesNotMatch(html, /type="range"/);
       }
     }
   }),

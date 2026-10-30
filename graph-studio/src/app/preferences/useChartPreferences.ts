@@ -21,11 +21,9 @@ export function useChartPreferences(
     createChartPreferences(mapChartTypes((type) => documents[type].style)),
   );
   const previousDocument = useRef(-1);
-  const adjustmentId = useRef<string | null>(null);
   useEffect(() => {
     if (previousDocument.current === state.document.generation) return;
     previousDocument.current = state.document.generation;
-    adjustmentId.current = null;
     for (const type of Object.keys(styles) as GraphChartType[]) {
       updateHistories({
         chartType: type,
@@ -45,14 +43,6 @@ export function useChartPreferences(
     return mapChartTypes((type) => createStyleDocument(type, state.documentStyles[type] ?? current[type]));
   }, [histories, state.documentStyles]);
   const { appearance } = history;
-  const beginAdjustment = useCallback(() => {
-    adjustmentId.current ??= crypto.randomUUID();
-    updateHistories({ chartType, action: { type: "beginAdjustment" } });
-  }, [chartType]);
-  const endAdjustment = useCallback(() => {
-    adjustmentId.current = null;
-    updateHistories({ chartType, action: { type: "endAdjustment" } });
-  }, [chartType]);
   const commitAppearance = useCallback(
     (nextAppearance: GraphAppearance, label: string, resetDisplay = false, timeline?: TimelineViewSettings) => {
       const { appearance: _appearance, timeline: _timeline, ...display } = getDefaultChartStyle(chartType);
@@ -119,7 +109,6 @@ export function useChartPreferences(
     if (!state.dag) return;
     const action = prepareGraphTransaction(state, [{ dag: state.dag, changedKeys: [] }], label)!;
     Object.assign(action.transaction, {
-      adjustmentId: adjustmentId.current ?? undefined,
       beforeStyles: state.documentStyles,
       afterStyles: { ...state.documentStyles, [chartType]: style },
       beforeTimeline: state.timelineSettings,
@@ -149,8 +138,6 @@ export function useChartPreferences(
   }
 
   return {
-    beginAdjustment,
-    endAdjustment,
     appearance,
     chartStyles,
     showNodeDetail: history.showNodeDetail,

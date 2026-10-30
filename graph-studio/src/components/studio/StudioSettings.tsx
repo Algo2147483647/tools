@@ -125,9 +125,6 @@ export function StudioSettings({
 
       onAppearanceCssChange={appearanceHistory.handleAppearanceCssChange}
 
-      onAppearanceAdjustmentStart={appearanceHistory.beginAdjustment}
-      onAppearanceAdjustmentEnd={appearanceHistory.endAdjustment}
-
       onAppearanceUndo={appearanceHistory.undo}
       onAppearanceRedo={appearanceHistory.redo}
       canUndoAppearance={appearanceHistory.canUndo}

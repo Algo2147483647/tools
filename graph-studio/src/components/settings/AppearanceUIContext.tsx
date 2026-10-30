@@ -25,6 +25,20 @@ export function useAppearanceUI() {
 /** A registered parent owns its layout; descendants can select more specific renderers. */
 export function AppearanceUIOutlet({ node, parentPath }: { node: AppearanceUINode; parentPath?: string }) {
   const { model, registry, query } = useAppearanceUI();
+  const visible = (item: AppearanceUINode, parent?: string): boolean => {
+    if (item.charts && !item.charts.includes(model.chart)) return false;
+    const itemPath = resolveUIPath(parent, item.path);
+    const entry = itemPath ? model.bind(itemPath) : undefined;
+    if (entry && (!entry.supported || !entry.visible)) return false;
+    if (item.children) return item.children.some((child) => visible(child, itemPath));
+    return (
+      !query ||
+      `${item.label ?? ""} ${item.id} ${itemPath ?? ""} ${entry?.definition.label ?? ""} ${entry?.definition.description ?? ""} ${entry?.definition.keywords ?? ""}`
+        .toLowerCase()
+        .includes(query.toLowerCase())
+    );
+  };
+  if (node.renderer === "section" && !visible(node, parentPath)) return null;
   if (node.charts && !node.charts.includes(model.chart)) return null;
   const path = resolveUIPath(parentPath, node.path);
   const binding = path ? model.bind(path) : undefined;

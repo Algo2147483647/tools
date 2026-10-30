@@ -41,20 +41,16 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
   if (p.view === "chart")
     return (
       <section className="settings-section">
-        <div className="chart-type-grid">
+        <div className="chart-type-grid" aria-label="Chart type">
           {(
             [
-              ["node-link", "Node-link", "Nodes and connecting lines show relationships."],
-              ["sankey", "Sankey", "Band widths show the amount flowing between nodes."],
-              ["compound", "Nested node-link", "Group nodes into subgraphs, then expand, collapse and explore."],
-              [
-                "timeline",
-                "Timeline",
-                "Position events and durations on a real time axis with branching relationships.",
-              ],
-              ["spatial", "Spatial", "Explore coordinates in 0D, 1D, 2D, 3D and higher dimensions."],
+              ["node-link", "Node-link"],
+              ["sankey", "Sankey"],
+              ["compound", "Nested node-link"],
+              ["timeline", "Timeline"],
+              ["spatial", "Spatial"],
             ] as const
-          ).map(([value, label, description]) => (
+          ).map(([value, label]) => (
             <button
               key={value}
               aria-pressed={p.chartType === value}
@@ -65,7 +61,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             >
               <ChartTypeIcon type={value} />
               <strong>{label}</strong>
-              <small>{description}</small>
             </button>
           ))}
         </div>
@@ -91,7 +86,7 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
       };
       return (
         <section key={id} className="settings-section" aria-label="Appearance presets">
-          <div className="chart-type-grid">
+          <div className="appearance-preset-grid">
             {PRESET_MANIFEST[p.chartType].presets.map((preset) => {
               const selected = chartStylesEqual(current, preset.document.style);
               return (

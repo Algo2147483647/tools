@@ -161,24 +161,8 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
         return { ...state, ui: { ...state.ui, status: "Document changed. Prepare the operation again." } };
       const revision = action.transaction.revisionAfter;
       const data = repairLayoutSession(state.layoutSession.data, action.transaction.afterDag, action.renamedKeys);
-      let transaction = { ...action.transaction, beforeLayout: state.layoutSession.data, afterLayout: data };
-      const previous = state.editHistory.undoStack.at(-1);
-      const continuingAdjustment = !!transaction.adjustmentId && previous?.adjustmentId === transaction.adjustmentId;
-      if (continuingAdjustment)
-        transaction = {
-          ...transaction,
-          beforeDag: previous.beforeDag,
-          beforeStyles: previous.beforeStyles,
-          beforeTimeline: previous.beforeTimeline,
-          beforeLayout: previous.beforeLayout ?? state.layoutSession.data,
-          beforeSelection: previous.beforeSelection,
-          beforeNavigationHistory: previous.beforeNavigationHistory,
-          revisionBefore: previous.revisionBefore,
-        };
-      const undoStack = pushEditTransaction(
-        continuingAdjustment ? state.editHistory.undoStack.slice(0, -1) : state.editHistory.undoStack,
-        transaction,
-      );
+      const transaction = { ...action.transaction, beforeLayout: state.layoutSession.data, afterLayout: data };
+      const undoStack = pushEditTransaction(state.editHistory.undoStack, transaction);
       const nextUi = applyBatchUiEffects(state.ui, action.renamedKeys, action.deletedKeys);
 
       return {

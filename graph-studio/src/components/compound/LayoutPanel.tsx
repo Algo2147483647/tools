@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import type { CompoundLayoutController } from "../../app/layout/useCompoundLayoutPlan";
 import { DEFAULT_COMPOUND_LAYOUT_REQUEST } from "../../layout/compound/ai/prompt";
-import type { LayoutDirection, LayoutObjective } from "../../layout/compound/layout-plan";
+import type { LayoutDirection } from "../../layout/compound/layout-plan";
 import MethodTabs from "../ui/MethodTabs";
 import LayoutRules from "../ui/LayoutRules";
 import AiActivityView from "../ui/AiActivityView";
@@ -16,7 +16,7 @@ export default function CompoundLayoutPanel({
 }) {
   const promptId = useId();
   const [prompt, setPrompt] = useState(DEFAULT_COMPOUND_LAYOUT_REQUEST);
-  const { method, direction, objective, portMode } = c.settings;
+  const { method, direction, portMode } = c.settings;
   const busy = c.busy;
   return (
     <section className="chart-layout-controls nested-layout-controls" aria-label="Nested layout">
@@ -49,20 +49,6 @@ export default function CompoundLayoutPanel({
                   >
                     <option value="distributed">Distributed (reduce overlap)</option>
                     <option value="midpoints">Side midpoints</option>
-                  </select>
-                ),
-              },
-              {
-                label: "Optimize for",
-                value: (
-                  <select
-                    className="studio-field"
-                    aria-label="Layout objective"
-                    value={objective}
-                    onChange={(e) => c.change({ objective: e.target.value as LayoutObjective })}
-                  >
-                    <option value="readability">Readability</option>
-                    <option value="compact">Compactness</option>
                   </select>
                 ),
               },

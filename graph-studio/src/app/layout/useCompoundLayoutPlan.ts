@@ -309,7 +309,7 @@ export function useCompoundLayoutPlan(
     },
     generate: (message: string) => run({ message }),
     propose: (intent: unknown) => run({ intent }),
-    defaultIntent: { ...defaultLayoutIntent(scopeId), objective: settings.objective },
+    defaultIntent: defaultLayoutIntent(scopeId),
     scopeTitle: scopeId ?? "Current view",
     stale: viewport.compoundLayout.stale,
     quality: viewport.compoundLayout.quality,

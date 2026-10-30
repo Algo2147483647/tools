@@ -5,12 +5,12 @@
   margin: 0;
   min-width: 0;
   display: grid;
-  gap: 12px;
+  gap: 0;
 }
 .appearance-tuple-control legend {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 .appearance-setting-error {
   color: #b42318;

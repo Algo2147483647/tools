@@ -2,52 +2,39 @@
 .color-setting,
 .font-setting {
   margin: 0;
-  padding: 10px 0;
-  border-bottom: 0;
+  padding: 5px 0;
+  min-width: 0;
 }
-.numeric-setting,
+.numeric-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px 26px;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding-block: 2px;
+}
+.numeric-setting > .setting-label-row {
+  margin: 0;
+  min-height: 0;
+}
 .color-setting {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 28px;
+  grid-template-columns: minmax(0, 1fr) 26px;
   align-items: center;
-  column-gap: 10px;
-  row-gap: 6px;
+  gap: 4px 8px;
 }
-.numeric-setting > .setting-label-row,
-.color-setting > .setting-label-row {
+.color-setting > .setting-label-row,
+.color-setting > .setting-error {
   grid-column: 1 / -1;
-  margin-bottom: 0;
+  margin: 0;
 }
-.numeric-setting > .setting-reset,
 .color-setting > .setting-reset {
   grid-column: 2;
   grid-row: 2;
 }
-.color-setting > .setting-error {
-  grid-column: 1 / -1;
-}
 .numeric-setting-inputs,
 .color-setting-inputs {
   min-width: 0;
-}
-@container settings-controls (min-width: 400px) {
-  .numeric-setting {
-    grid-template-columns: 124px minmax(0, 1fr) 28px;
-    column-gap: 12px;
-    min-height: 54px;
-  }
-  .numeric-setting > .setting-label-row {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .numeric-setting > .numeric-setting-inputs {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .numeric-setting > .setting-reset {
-    grid-column: 3;
-    grid-row: 1;
-  }
 }
 .numeric-setting:last-child,
 .color-setting:last-child,
@@ -95,19 +82,12 @@
   gap: 10px;
   align-items: center;
 }
-.numeric-setting-inputs > input[type="range"] {
-  flex: 1;
-  min-width: 30px;
-  height: 22px;
-  margin: 0;
-  accent-color: #315fce;
-}
 .numeric-setting-value {
   display: flex;
   align-items: center;
   flex: none;
-  width: 84px;
-  height: 34px;
+  width: 100%;
+  height: 32px;
   border: 1px solid #d9e1ec;
   border-radius: 6px;
   padding: 4px 6px;
@@ -146,7 +126,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 13px 0;
+  padding: 8px 0;
   font-size: 13px;
   cursor: pointer;
 }
@@ -276,4 +256,56 @@
   font:
     13px "Segoe UI",
     sans-serif;
+}
+
+.numeric-setting-value:focus-within {
+  border-color: #6086da;
+  outline: 2px solid #6086da33;
+}
+.settings-field-grid {
+  display: grid;
+  gap: 4px;
+}
+.studio-settings .appearance-text-section {
+  margin-top: 18px;
+  padding-top: 14px;
+}
+.studio-settings .appearance-text-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.studio-settings .appearance-text-section h3 {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+@container settings-controls (min-width: 560px) {
+  .settings-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+  .settings-field-grid > :not(.numeric-setting, .setting-toggle) {
+    grid-column: 1 / -1;
+  }
+  .appearance-tuple-control {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+  .color-setting {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 320px) 26px;
+  }
+  .color-setting > .setting-label-row {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .color-setting > .setting-reset {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+@container settings-controls (max-width: 320px) {
+  .numeric-setting {
+    grid-template-columns: minmax(0, 1fr) 90px 24px;
+    gap: 6px;
+  }
 }

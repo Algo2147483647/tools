@@ -216,7 +216,8 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
       ),
     );
     assert.match(html, /timeline-point-settings/);
-    assert.match(html, /type="range"/);
+    assert.doesNotMatch(html, /type="range"/);
+    assert.match(html, /type="number"/);
     assert.match(html, /Point marker shape/);
     assert.doesNotMatch(html, /style.appearance.display.nodeCornerRadius/);
     const reset = resetChartStyleSection(style, "timeline", "nodes");

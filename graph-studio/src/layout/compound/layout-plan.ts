@@ -70,7 +70,6 @@ export interface LayoutSolveResult {
 
 export {
   type LayoutDirection,
-  type LayoutObjective,
   type LayoutConstraint,
   type LayoutIntent,
   type CompoundLayoutData,

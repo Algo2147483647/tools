@@ -118,9 +118,7 @@ export function solveCompoundLayout(
     }
   }
   candidates.sort(
-    (a, b) =>
-      a.unmetPreferences.length - b.unmetPreferences.length ||
-      compareLayoutMetrics(a.metrics, b.metrics, intent.objective),
+    (a, b) => a.unmetPreferences.length - b.unmetPreferences.length || compareLayoutMetrics(a.metrics, b.metrics),
   );
   if (!candidates.length && !diagnostics.length)
     diagnostics.push("No better legal arrangement was found. The current layout has been kept.");

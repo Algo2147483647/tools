@@ -50,9 +50,6 @@ export default function TimelinePointSettings({
                 label="Leader width"
                 value={settings.leaderWidth}
                 defaultValue={timelineDefaults.leaderWidth}
-                min={0}
-                max={20}
-                step={0.1}
                 onChange={(leaderWidth) => onChange({ leaderWidth })}
               />
               <ColorSetting
@@ -120,8 +117,6 @@ export function TimelineMarkerEditor({
             label={`${prefix} marker size`}
             value={marker.size}
             defaultValue={defaults.size}
-            min={0}
-            max={120}
             onChange={(size) => change({ size })}
           />
           <ColorSetting
@@ -135,9 +130,6 @@ export function TimelineMarkerEditor({
             label={`${prefix} border width`}
             value={marker.borderWidth}
             defaultValue={defaults.borderWidth}
-            min={0}
-            max={20}
-            step={0.5}
             onChange={(borderWidth) => change({ borderWidth })}
           />
           {marker.borderWidth > 0 && (

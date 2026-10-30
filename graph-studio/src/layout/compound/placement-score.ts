@@ -3,7 +3,6 @@ import type { CompoundProjection } from "../../graph/compound/projection";
 import type { RectangleArrangement } from "./rectangle-packing";
 import { indexedSegmentCosts, routeCost, sharedEndpoints } from "./routing/cost";
 import { RouteSegmentIndex } from "./routing/spatial-index";
-import type { LayoutObjective } from "./layout-plan";
 import { routeCompoundEdges } from "./routing/router";
 
 export type PlacementScore = (boxes: Map<string, CompoundBox>) => number;
@@ -28,7 +27,6 @@ export function createPlacementScore(
     projection: CompoundProjection;
     children: ReadonlyMap<string | null, { boxes: Map<string, CompoundBox> }>;
     showLabels?: boolean;
-    objective?: LayoutObjective;
     portMode?: "distributed" | "midpoints";
     labelSizes?: Record<string, { width: number; height: number }>;
   },
@@ -80,7 +78,7 @@ export function createPlacementScore(
         context?.showLabels ?? false,
         { portMode: context?.portMode ?? "midpoints", labelSizes: context?.labelSizes },
       );
-      value = (context?.objective === "compact" ? 3 : 2) * Math.sqrt(routed.width * routed.height);
+      value = 2 * Math.sqrt(routed.width * routed.height);
       const routes = projection.edges.map((e) => routed.routes.get(e.id)!.points);
       const index = new RouteSegmentIndex(routes);
       projection.edges.forEach((edge, i) => {

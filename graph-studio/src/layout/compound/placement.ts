@@ -61,7 +61,6 @@ export function place(
           children: completed,
           showLabels: problem.showLabels,
           labelSizes: problem.labelSizes,
-          objective: intent.objective,
           portMode: data.portMode,
         }),
       );

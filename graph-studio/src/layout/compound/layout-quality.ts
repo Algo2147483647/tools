@@ -1,5 +1,5 @@
 import { overlapLength, sharedEndpoints, sharedExit } from "./routing/cost";
-import type { LayoutMetrics, LayoutObjective, LayoutProblem, LayoutGeometry, LayoutValidation } from "./layout-plan";
+import type { LayoutMetrics, LayoutProblem, LayoutGeometry, LayoutValidation } from "./layout-plan";
 import type { CompoundBox } from "../../graph/compound/geometry";
 import { groupContentTop, groupTitleObstacles } from "../shared/group-title";
 
@@ -262,18 +262,12 @@ export function measureLayout(problem: LayoutProblem, geometry: LayoutGeometry):
   return metrics;
 }
 /** Finite routing and compactness trade-offs for final candidate selection. */
-export function scoreLayoutMetrics(m: LayoutMetrics, objective: LayoutObjective = "readability") {
-  return (
-    m.length +
-    4 * m.sharedLength +
-    160 * m.crossings +
-    20 * m.bends +
-    (objective === "compact" ? 3 : 2) * Math.sqrt(m.area)
-  );
+export function scoreLayoutMetrics(m: LayoutMetrics) {
+  return m.length + 4 * m.sharedLength + 160 * m.crossings + 20 * m.bends + 2 * Math.sqrt(m.area);
 }
-export function compareLayoutMetrics(a: LayoutMetrics, b: LayoutMetrics, objective: LayoutObjective): number {
+export function compareLayoutMetrics(a: LayoutMetrics, b: LayoutMetrics): number {
   if (!close(a.labelCollisions, b.labelCollisions)) return a.labelCollisions - b.labelCollisions;
-  const first = scoreLayoutMetrics(a, objective),
-    second = scoreLayoutMetrics(b, objective);
+  const first = scoreLayoutMetrics(a),
+    second = scoreLayoutMetrics(b);
   return close(first, second) ? 0 : first - second;
 }

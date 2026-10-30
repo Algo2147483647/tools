@@ -153,31 +153,26 @@ export const previewSuite = defineSuite("Shared live preview", [
       for (const key of ["nodes.spacing.row", "nodes.height", "nodes.widths", "canvas.padding", "canvas.minSize"])
         assert.ok(has(chart, key));
   }),
-  defineTest("a slider gesture becomes one undo step and transient state never enters preferences", () => {
+  defineTest("each committed numeric edit has its own undo step", () => {
     let state = createChartPreferences(createChartStyles());
     const before = state.compound.appearance;
-    state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "beginAdjustment" } });
-    state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "beginAdjustment" } });
-    for (const nodeHeight of [80, 90, 100, 110]) {
+    for (const height of [80, 90]) {
       state = chartPreferencesReducer(state, {
         chartType: "compound",
         action: {
           type: "commit",
-          appearance: { ...before, nodes: { ...before.nodes, height: nodeHeight } },
+          appearance: { ...before, nodes: { ...before.nodes, height } },
           label: "Resize nodes",
         },
       });
-      assert.equal(state.compound.undoStack.length, 0);
-      assert.ok(!("adjustment" in getChartStyles(state).compound));
     }
-    state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "endAdjustment" } });
-    assert.equal(state.compound.undoStack.length, 1);
+    assert.equal(state.compound.undoStack.length, 2);
+    state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "undo" } });
+    assert.equal(state.compound.appearance.nodes.height, 80);
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "undo" } });
     assert.deepEqual(state.compound.appearance, before);
     state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "redo" } });
-    assert.equal(state.compound.appearance.nodes.height, 110);
-    state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "beginAdjustment" } });
-    state = chartPreferencesReducer(state, { chartType: "compound", action: { type: "endAdjustment" } });
-    assert.equal(state.compound.undoStack.length, 1, "a click without a change creates no transaction");
+    assert.equal(state.compound.appearance.nodes.height, 80);
+    assert.equal(getChartStyles(state).compound.appearance.nodes.height, 80);
   }),
 ]);

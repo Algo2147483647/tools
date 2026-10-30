@@ -1,39 +1,48 @@
-.chart-type-grid {
+.chart-type-grid,
+.appearance-preset-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
 }
-.chart-type-grid button {
+.chart-type-grid button,
+.appearance-preset-grid button {
   border: 1px solid #dce3ee;
   border-radius: 8px;
-  padding: 13px;
+  padding: 12px 8px;
   background: white;
-  text-align: left;
+  text-align: center;
   color: #5378b8;
   cursor: pointer;
 }
-.chart-type-grid .is-selected {
+.chart-type-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 88px;
+}
+.chart-type-grid button:hover:enabled,
+.appearance-preset-grid button:hover:enabled {
+  background: #f7f9fd;
+  border-color: #9db4df;
+}
+.chart-type-grid .is-selected,
+.appearance-preset-grid .is-selected {
   border-color: #6286ce;
   background: #f0f5ff;
-  box-shadow: 0 0 0 1px #6286ce;
+  box-shadow: inset 0 0 0 1px #6286ce;
 }
 .chart-type-grid .chart-type-icon {
   display: block;
-  width: 64px;
-  height: 64px;
-  margin: 5px auto 15px;
+  width: 36px;
+  height: 36px;
 }
-.chart-type-grid strong {
-  display: block;
+.chart-type-grid strong,
+.appearance-preset-grid strong {
   font-size: 13px;
   font-weight: 600;
   color: #33435b;
-}
-.chart-type-grid small {
-  display: block;
-  font-size: 12px;
-  color: #5d6c81;
-  margin-top: 5px;
-  line-height: 1.6;
+  line-height: 1.3;
 }

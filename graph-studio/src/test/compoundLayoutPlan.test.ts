@@ -1,4 +1,4 @@
-import { createLayoutConfigFile } from "../schema/layoutConfig";
+import { parseLayoutConfigFile, createLayoutConfigFile } from "../schema/layoutConfig";
 import assert from "node:assert/strict";
 import { normalizeDagInput } from "../graph/normalize";
 import { serializeDag } from "../graph/serialize";
@@ -52,7 +52,16 @@ export const compoundLayoutPlanSuite = defineSuite("Compound layout planning", [
     }
     assert.throws(() => parseLayoutIntent({ ...downIntent(), operation: "route-only" }));
     assert.throws(() => parseLayoutIntent({ ...downIntent(), constraints: [{ type: "pin", nodeId: "a" }] }));
-    assert.throws(() => parseLayoutIntent({ ...downIntent(), objective: "stability" }));
+    assert.throws(
+      () => parseLayoutIntent({ ...downIntent(), objective: "readability" }),
+      /Unknown layout intent field/,
+    );
+    const config = createLayoutConfigFile(defaultLayoutSession(), "compound");
+    assert.ok(!("objective" in config.settings));
+    assert.throws(
+      () => parseLayoutConfigFile({ ...config, settings: { ...config.settings, objective: "compact" } }),
+      /unknown fields/,
+    );
     assert.throws(() => parseLayoutIntent({ ...downIntent(), code: "run()" }));
     assert.throws(() =>
       parseLayoutIntent({ ...downIntent(), constraints: Array(101).fill(downIntent().constraints[0]) }),

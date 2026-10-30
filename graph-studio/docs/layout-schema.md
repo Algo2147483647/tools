@@ -14,13 +14,12 @@ Layout has two explicit responsibilities: configuration persistence and AI rende
   "settings": {
     "method": "ai",
     "direction": "AUTO",
-    "objective": "readability",
     "portMode": "distributed"
   }
 }
 ```
 
-Compound stores method, direction, objective and port mode. Timeline stores mode and view settings (`layout`, `orientation`, `edgeRouting`, `axis`, `relativeTickStep`, `tickStep`, `tickUnit`, `compactness`). Node-link stores its algorithm. There are no saved coordinates, group bounds, paths, node order, constraints, plans, pins, scope, fingerprints or geometry. Unsupported fields are rejected at both filesystem write boundaries. Only the current settings format is accepted. Retired layout formats and embedded geometry are rejected; no migration reader remains.
+Compound stores method, direction and port mode. Timeline stores mode and view settings (`layout`, `orientation`, `edgeRouting`, `axis`, `relativeTickStep`, `tickStep`, `tickUnit`, `compactness`). Node-link stores its algorithm. There are no saved coordinates, group bounds, paths, node order, constraints, plans, pins, scope, fingerprints or geometry. Unsupported fields are rejected at both filesystem write boundaries. Only the current settings format is accepted. Retired layout formats and embedded geometry are rejected; no migration reader remains.
 
 Opening or expanding/collapsing the graph prepares the visible model and reuses matching session geometry when available. Automatic mode computes cache misses. AI mode waits for an explicit generation request; it does not run automatic initialization first. An accepted AI result exists in the current session; reopening does not reproduce that result or call an AI automatically. Appearance has its own independent JSON association through `metadata.style`, updated by **Update current appearance** beside the Appearance title.
 

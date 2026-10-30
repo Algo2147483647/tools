@@ -16,8 +16,6 @@ export default function SettingsModal(props: SettingsModalProps) {
     appearance,
     aiSettings,
     onClose,
-    onAppearanceAdjustmentStart,
-    onAppearanceAdjustmentEnd,
     onAppearanceUndo,
     onAppearanceRedo,
     canUndoAppearance,
@@ -55,19 +53,6 @@ export default function SettingsModal(props: SettingsModalProps) {
       document.documentElement.style.overflow = rootOverflow;
     };
   }, [open]);
-  useEffect(() => {
-    if (!open) return;
-    const finish = () => onAppearanceAdjustmentEnd();
-    window.addEventListener("pointerup", finish);
-    window.addEventListener("pointercancel", finish);
-    window.addEventListener("blur", finish);
-    return () => {
-      window.removeEventListener("pointerup", finish);
-      window.removeEventListener("pointercancel", finish);
-      window.removeEventListener("blur", finish);
-      finish();
-    };
-  }, [open, onAppearanceAdjustmentEnd]);
 
   useEffect(() => {
     setAiConnectionStatus("idle");
@@ -107,23 +92,6 @@ export default function SettingsModal(props: SettingsModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-modal-title"
-        onPointerDownCapture={(event) => {
-          if (event.target instanceof HTMLInputElement && event.target.type === "range") onAppearanceAdjustmentStart();
-        }}
-        onBlurCapture={(event) => {
-          if (event.target instanceof HTMLInputElement && event.target.type === "range") onAppearanceAdjustmentEnd();
-        }}
-        onKeyUpCapture={(event) => {
-          if (event.target instanceof HTMLInputElement && event.target.type === "range") onAppearanceAdjustmentEnd();
-        }}
-        onKeyDownCapture={(event) => {
-          if (
-            event.target instanceof HTMLInputElement &&
-            event.target.type === "range" &&
-            ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)
-          )
-            onAppearanceAdjustmentStart();
-        }}
         onKeyDown={(event) => {
           if (!event.currentTarget.contains(event.target as Node)) return;
           event.stopPropagation();

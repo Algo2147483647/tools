@@ -53,7 +53,6 @@ export const layoutIntentSchema = object({
   scope: object({ groupId: nullable(text), includeDescendants: boolean }),
   operation: { enum: ["layout-and-route"] },
   boundaryPolicy: { enum: ["strict", "allow-ancestor-resize"] },
-  objective: { enum: ["readability", "compact"] },
   constraints: list({
     oneOf: [
       object({

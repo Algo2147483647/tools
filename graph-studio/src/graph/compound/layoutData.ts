@@ -2,8 +2,6 @@ import { isRecord } from "../../shared/json";
 
 export type LayoutDirection = "AUTO" | "RIGHT" | "DOWN";
 
-export type LayoutObjective = "readability" | "compact";
-
 export type LayoutConstraint =
   | { type: "direction"; scopeId: string | null; value: LayoutDirection; strength: "soft" }
   | { type: "flow-order"; scopeId: string | null; nodeIds: string[]; strength: "soft" }
@@ -20,7 +18,6 @@ export interface LayoutIntent {
   scope: { groupId: string | null; includeDescendants: boolean };
   operation: "layout-and-route";
   boundaryPolicy: "strict" | "allow-ancestor-resize";
-  objective: LayoutObjective;
   constraints: LayoutConstraint[];
 }
 
@@ -28,7 +25,6 @@ export interface CompoundLayoutData {
   version: 1;
   method: "automatic" | "ai";
   direction: LayoutDirection;
-  objective: LayoutObjective;
   portMode: "distributed" | "midpoints";
   constraints: LayoutConstraint[];
 }
@@ -38,7 +34,6 @@ export function emptyLayoutData(): CompoundLayoutData {
     version: 1,
     method: "automatic",
     direction: "AUTO",
-    objective: "readability",
     portMode: "midpoints",
     constraints: [],
   };
@@ -46,7 +41,7 @@ export function emptyLayoutData(): CompoundLayoutData {
 
 export function parseCompoundLayout(value: unknown): CompoundLayoutData {
   const r = object(value, "Compound layout");
-  keys(r, ["version", "method", "direction", "objective", "portMode", "constraints"], "compound layout");
+  keys(r, ["version", "method", "direction", "portMode", "constraints"], "compound layout");
   if (r.version !== undefined && r.version !== 1) throw new Error("Unsupported compound layout version.");
   const constraints = r.constraints ?? [];
   if (!Array.isArray(constraints) || constraints.length > 500) throw new Error("Supply at most 500 constraints.");
@@ -54,7 +49,6 @@ export function parseCompoundLayout(value: unknown): CompoundLayoutData {
     version: 1,
     method: oneOf(r.method ?? "automatic", ["automatic", "ai"], "method"),
     direction: oneOf(r.direction ?? "AUTO", ["AUTO", "RIGHT", "DOWN"], "direction"),
-    objective: oneOf(r.objective ?? "readability", ["readability", "compact"], "objective"),
     portMode: oneOf(r.portMode ?? "midpoints", ["distributed", "midpoints"], "port mode"),
     constraints: constraints.map(parseLayoutConstraint),
   };
@@ -122,7 +116,7 @@ export function parseLayoutConstraint(value: unknown): LayoutConstraint {
 
 export function parseLayoutIntent(value: unknown): LayoutIntent {
   const r = object(value, "Layout intent");
-  keys(r, ["scope", "operation", "boundaryPolicy", "objective", "constraints"], "layout intent");
+  keys(r, ["scope", "operation", "boundaryPolicy", "constraints"], "layout intent");
   const scope = object(r.scope, "Layout scope");
   keys(scope, ["groupId", "includeDescendants"], "layout scope");
   if (typeof scope.includeDescendants !== "boolean") throw new Error("includeDescendants must be boolean.");
@@ -132,7 +126,6 @@ export function parseLayoutIntent(value: unknown): LayoutIntent {
     scope: { groupId: scopeId(scope.groupId), includeDescendants: scope.includeDescendants },
     operation: oneOf(r.operation, ["layout-and-route"], "layout operation"),
     boundaryPolicy: oneOf(r.boundaryPolicy, ["strict", "allow-ancestor-resize"], "boundary policy"),
-    objective: oneOf(r.objective, ["readability", "compact"], "layout objective"),
     constraints: r.constraints.map(parseLayoutConstraint),
   };
 }
@@ -142,7 +135,6 @@ export function defaultLayoutIntent(groupId: string | null = null): LayoutIntent
     scope: { groupId, includeDescendants: true },
     operation: "layout-and-route",
     boundaryPolicy: "allow-ancestor-resize",
-    objective: "readability",
     constraints: [],
   };
 }
