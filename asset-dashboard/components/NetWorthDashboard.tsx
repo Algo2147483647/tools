@@ -39,7 +39,7 @@ import type {
   AssetValuation,
   PortfolioConfig,
 } from "@/lib/valuation/types";
-import { formatDate, formatMoney, formatNumber } from "@/lib/client/format";
+import { formatDate, formatMoney, formatNumber, quoteLabel } from "@/lib/client/format";
 import { Dialog } from "./Dialog";
 import { useValuation } from "./useValuation";
 import type { PortfolioPdfReport } from "@/lib/report/types";
@@ -61,7 +61,7 @@ const categories = {
     light: "#fcf6e9",
   },
   stock: {
-    label: "Stocks",
+    label: "Stocks & ETFs",
     short: "Stocks",
     icon: TrendingUp,
     color: "#59a89c",
@@ -374,10 +374,10 @@ export function NetWorthDashboard() {
           quantity: `${formatNumber(asset.quantity, 4)} ${quantityUnit(asset)}`,
           allocation: asset.usdValue !== null && valuation.totalUsd > 0 ? `${formatNumber(asset.usdValue / valuation.totalUsd * 100, 1)}%` : "—",
           value: formatMoney(asset.usdValue === null ? null : asset.usdValue * rate, displayUnit),
-          status: statuses[asset.status],
+          status: asset.type === "stock" && asset.status !== "failed" ? quoteLabel(asset) : statuses[asset.status],
           source: asset.source,
-          quoteDate: asset.navDate ?? asset.updatedAt ?? "Not available",
-          notes: [asset.message, asset.warning].filter(Boolean).join("\n"),
+          quoteDate: asset.navDate ?? (asset.timestampPrecision === "date" ? asset.updatedAt?.slice(0, 10) : asset.updatedAt) ?? "Not available",
+          notes: [asset.message, asset.fetchedAt ? `Retrieved: ${asset.fetchedAt}` : "", asset.warning].filter(Boolean).join("\n"),
         })),
       };
       const response = await fetch("/api/export-pdf", {
@@ -501,18 +501,20 @@ export function NetWorthDashboard() {
                     : "Total portfolio value"}
                 </span>
                 <span
-                  className={`balance-status ${failedCount || warningCount ? "is-partial" : ""}`}
+                  className={`balance-status ${error || failedCount || warningCount ? "is-partial" : ""}`}
                 >
                   <span />
                   {loading
                     ? "Updating"
                     : !valuation
                       ? "Awaiting values"
-                      : failedCount
+                      : error
+                        ? "Refresh failed"
+                        : failedCount
                         ? "Partial valuation"
                         : warningCount
                           ? "Review quotes"
-                          : "Up to date"}
+                          : "Snapshot loaded"}
                 </span>
               </div>
               <div className="balance-amount" aria-live="polite">
@@ -538,7 +540,7 @@ export function NetWorthDashboard() {
                     {valuation
                       ? formatDate(valuation.generatedAt)
                       : "Awaiting first update"}
-                    {loading && valuation ? " · Refreshing" : ""}
+                    {loading && valuation ? " · Refreshing" : " · Auto-refresh every minute"}
                   </span>
                 </div>
                 <div className="base-picker">
@@ -840,7 +842,7 @@ export function NetWorthDashboard() {
                               className={`asset-status status-${asset.status}`}
                             >
                               <i />
-                              {statuses[asset.status]}
+                              {asset.type === "stock" && asset.status !== "failed" ? quoteLabel(asset) : statuses[asset.status]}
                             </span>
                           </td>
                           <td>
@@ -1013,7 +1015,7 @@ export function NetWorthDashboard() {
             </strong>
             <span className={`asset-status status-${selectedAsset.status}`}>
               <i />
-              {statuses[selectedAsset.status]}
+              {selectedAsset.type === "stock" && selectedAsset.status !== "failed" ? quoteLabel(selectedAsset) : statuses[selectedAsset.status]}
             </span>
           </div>
           {selectedAsset.warning && (
@@ -1070,10 +1072,15 @@ export function NetWorthDashboard() {
               <dd>
                 {formatDate(
                   selectedAsset.navDate ?? selectedAsset.updatedAt,
-                  selectedAsset.type === "fund",
+                  selectedAsset.type === "fund" || selectedAsset.timestampPrecision === "date",
                 )}
               </dd>
             </div>
+            {selectedAsset.type === "stock" && selectedAsset.status !== "failed" && (
+              <><div><dt>Quote quality</dt><dd>{quoteLabel(selectedAsset)}</dd></div>
+              <div><dt>Market / price session</dt><dd>{selectedAsset.marketState ?? "Unknown"} / {selectedAsset.priceSession ?? "unknown"}</dd></div>
+              <div><dt>Retrieved</dt><dd>{formatDate(selectedAsset.fetchedAt)}</dd></div></>
+            )}
             <div className="detail-full">
               <dt>Data source</dt>
               <dd>{selectedAsset.source}</dd>
@@ -1111,7 +1118,7 @@ export function NetWorthDashboard() {
               <div>
                 <h3>Get current values</h3>
                 <p>
-                  Select Refresh values to fetch the latest available quotes.
+                  Values refresh every minute while this page is visible, with slower retries after failures. Select Refresh values to retry immediately.
                   Choose a display currency or view your portfolio in grams of
                   gold.
                 </p>

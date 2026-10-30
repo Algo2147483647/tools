@@ -57,16 +57,16 @@ Copy-Item .env.example .env.local
 | --- | --- |
 | `TWELVE_DATA_API_KEY` | Preferred provider for foreign exchange and XAU/USD gold quotes |
 | `GOLDAPI_KEY` | GoldAPI.io gold quotes |
-| `ALPHA_VANTAGE_API_KEY` | Alpha Vantage U.S. stock quotes |
+| `ALPHA_VANTAGE_API_KEY` | Daily reference fallback for U.S. stocks and ETFs when Nasdaq is unavailable or unverified |
 | `EXCHANGERATE_HOST_API_KEY` | ExchangeRate.host foreign exchange fallback |
 
-Without API keys, the server uses available public sources, including Frankfurter exchange rates, public gold quotes, and Nasdaq stock quotes. Quote frequency, dates, and availability depend on the provider. The dashboard shows the source and timestamp; reference exchange rates are not executable live trading prices. API keys are read only on the server. Restart the server after changing `.env.local`.
+Without API keys, the server uses available public sources, including Frankfurter exchange rates, public gold quotes, and Nasdaq stock quotes. The page automatically refreshes every 60 seconds while visible, pauses in the background, and refreshes on return. Partial or failed requests back off to 120, 240, then 300 seconds; a successful refresh resets the interval. Manual refresh retries immediately. Quote frequency, dates, and availability depend on the provider. The dashboard shows the source and timestamp; reference exchange rates are not executable live trading prices. API keys are read only on the server. Restart the server after changing `.env.local`.
 
 External requests have time limits. Each valuation reuses quotes for the same gold price, stock symbol, and currency pair. Failed assets display `—`, and the total includes only assets that could be valued. If conversion to the selected display currency fails, the dashboard preserves the USD valuation and shows a warning. A failed refresh retains the previous result and labels it clearly. Quotes older than seven days or without a usable timestamp receive a warning.
 
 ## Portfolio configuration
 
-Paste or import JSON in the dashboard's configuration dialog. The startup example is `public/sample-config.json`; `sample-config.json` is also available as an import template. Both include 2,172.16 units of fund `000055`.
+Paste or import JSON in the dashboard's configuration dialog. The startup example and import template are the same file, `public/sample-config.json`. It includes 2,172.16 units of fund `000055`, QQQM x 4, SPYM x 3, SpaceX (SPCX) x 1, and NVDA x 1. Quantities are shares, not leverage multipliers. The current schema represents exchange-traded holdings as `stock`; its `fund` type is reserved for supported six-digit mutual fund codes. SpaceX uses SPCX, as confirmed by its official investor relations site; SPEX is not an alias for SpaceX.
 
 ```json
 {
@@ -129,6 +129,45 @@ The `fund` type uses the latest **published unit NAV** from GF Fund Management's
 ```
 
 Fund `000055` is the **USD Class A** share class, as identified by the [fund manager](https://gfwx.gffunds.com.cn/funds/?fundcode=000055). The English name above is a descriptive translation. Its units are valued using USD NAV without an extra CNY conversion. The optional `currency` field must match the provider's share-class currency. Unsupported codes or unavailable NAVs are reported as unavailable, never replaced with invented prices.
+
+## Listed holdings and quote quality
+
+The listed-holding adapter supports **USD U.S. equities and ETFs**. The example uses:
+
+| Holding | Symbol | Shares | Security type | Exchange MIC |
+| --- | --- | --- | --- | --- |
+| Invesco NASDAQ 100 ETF | QQQM | 4 | etf | XNAS |
+| State Street SPDR Portfolio S&P 500 ETF | SPYM | 3 | etf | ARCX |
+| SpaceX | SPCX | 1 | equity | XNAS |
+| NVIDIA | NVDA | 1 | equity | XNAS |
+
+[SpaceX's official FAQ](https://ir.spacex.com/faqs-and-contact/) confirms its ticker is SPCX. The originally supplied SPEX has been corrected in the example. The application does not silently rewrite arbitrary tickers.
+
+Listed assets use `type: "stock"`, a `symbol`, and a share `quantity`. Optional `securityType` is `equity` or `etf`; optional `exchange` is a four-character MIC, and optional `currency` asserts USD. Set these fields explicitly for known holdings. If securityType is omitted, the adapter tries the equity endpoint and then the ETF endpoint. Unsupported exchange/currency combinations fail explicitly; non-U.S. holdings and GBX/GBP normalization are outside this adapter's scope.
+
+Nasdaq is the first provider. ETF holdings use `assetclass=etf`, while equities use `assetclass=stocks`. The adapter validates the returned symbol, instrument type, U.S. exchange, expected MIC, and USD price. Values equal shares multiplied by the USD quote. A secondary closing price can be used when the primary trade is unavailable or unverified. Duplicate listings share a request within each portfolio valuation, keyed by symbol, instrument type, exchange, and currency. Nasdaq requests specify a 60-second revalidation policy; actual caching also depends on the Next.js route runtime.
+
+If Nasdaq is unavailable or returns a stale/unverified quote, an optional Alpha Vantage key enables the daily Global Quote fallback. Its symbol must match, its date stays date-only, and its price is labeled a closing reference. A usable Nasdaq intraday quote is never replaced merely because an API key exists. The [Alpha Vantage documentation](https://www.alphavantage.co/documentation/#latestprice) distinguishes standard data from entitled realtime/delayed feeds; this integration makes no realtime entitlement claim for the daily fallback.
+
+The API preserves quote time separately from retrieval time, plus timestamp precision, market state, price session, and quote quality:
+
+| Quality | Meaning |
+| --- | --- |
+| realtime | Provider reports realtime data with a usable recent timestamp and known active session |
+| delayed | Provider reports delayed data; the exact delay may be unknown |
+| close | Closing or daily reference price, including a fallback during an active session |
+| stale | Older than seven days, or an active-session trade beyond its freshness tolerance |
+| unknown | Missing/invalid/future timestamp, unknown delay, or unknown session |
+
+Nasdaq ET timestamps resolve through `America/New_York`, including daylight saving and the `Closed at` prefix. Nonexistent or ambiguous DST times stay unknown. During an active session, freshness tolerance is five minutes for realtime data and twenty minutes for delayed data with unknown delay (a fifteen-minute allowance plus five minutes). This is a conservative last-trade-age check, not a guarantee of feed health. The provider's market state handles closed sessions; a recent weekend closing reference is not called realtime. Dates more than seven days old always warn.
+
+The table, details, and PDF snapshot show quote quality. The details include the market/price session and retrieval time. Portfolio status says Snapshot loaded, Review quotes, or Partial valuation instead of claiming every asset is up to date. Failed assets remain null and are excluded from the available-value subtotal; closing/delayed/stale prices remain visible with warnings. A failed transport refresh preserves the previous snapshot with a visible error. No per-asset old-price substitution hides a new failure. Automatic refresh is periodic valuation, not a streaming trading feed.
+
+### Verification on October 30, 2026
+
+A real, unkeyed call through the revised valuation engine at 09:17 UTC priced all 11 example assets with zero failures. The four listed holdings returned usable USD prices, parsed timestamps, and provider-reported realtime pre-market quotes. This verifies coverage at that time, not future provider availability. No snapshot prices are stored in the example.
+
+Regression tests cover the actual example's share counts and routing, wrong-listing rejection, both DST offsets and ambiguous times, daily/secondary fallback, freshness warnings, and visible-page refresh including failure backoff and no overlapping requests.
 
 ## Valuation API
 

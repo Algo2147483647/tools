@@ -2,16 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createRequestGate } from "@/lib/client/requestGate";
+import { createAutoRefresh } from "@/lib/client/autoRefresh";
 import type { PortfolioConfig, ValuationResponse } from "@/lib/valuation/types";
 
-export function useValuation(
-  config: PortfolioConfig | null,
-  displayBase: string,
-) {
-  const [snapshot, setSnapshot] = useState<{
-    config: PortfolioConfig;
-    data: ValuationResponse;
-  } | null>(null);
+export function useValuation(config: PortfolioConfig | null, displayBase: string) {
+  const [snapshot, setSnapshot] = useState<{ config: PortfolioConfig; data: ValuationResponse } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [revision, setRevision] = useState(0);
@@ -22,76 +17,64 @@ export function useValuation(
   useEffect(() => {
     if (!config) return;
     const requestConfig = config;
-    const request = gate.current.begin();
-    if (previousConfig.current !== config) {
-      previousConfig.current = config;
-    }
-    setLoading(true);
-    setError(null);
-    // The API has its own shorter deadline. This also bounds transport failures.
-    const timer = window.setTimeout(() => {
-      if (!request.isCurrent()) return;
-      setError(
-        "The valuation request timed out. Please try again. Previous results have been kept.",
-      );
-      setLoading(false);
-      request.cancel();
-    }, 35_000);
-
-    async function run() {
+    previousConfig.current = config;
+    let active = true;
+    let requestTimer: ReturnType<typeof setTimeout> | undefined;
+    async function run(): Promise<boolean> {
+      const request = gate.current.begin();
+      setLoading(true);
+      setError(null);
+      let timer: ReturnType<typeof setTimeout> | undefined;
       try {
-        const response = await fetch("/api/valuation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...config, displayBase }),
-          signal: request.signal,
-        });
-        const result = await response.json();
-        const hasValuation =
-          Array.isArray(result.assets) &&
-          Number.isFinite(result.totalUsd) &&
-          Number.isFinite(result.totalValue);
-        if (!response.ok) {
-          // A fully failed portfolio still carries per-asset diagnostics.
-          if (response.status === 502 && hasValuation && request.isCurrent())
-            setSnapshot({
-              config: requestConfig,
-              data: result as ValuationResponse,
+        // Bound the entire transport and JSON-body operation, even if a fetch ignores abort.
+        const result = await Promise.race([
+          (async () => {
+            const response = await fetch("/api/valuation", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...requestConfig, displayBase }), signal: request.signal,
             });
-          throw new Error(
-            result.error || `Valuation failed (HTTP ${response.status}).`,
-          );
-        }
-        if (!hasValuation) {
-          throw new Error(
-            "The valuation service returned invalid data. Please try again.",
-          );
-        }
-        if (request.isCurrent())
-          setSnapshot({
-            config: requestConfig,
-            data: result as ValuationResponse,
-          });
+            const data = await response.json();
+            const hasValuation = Array.isArray(data.assets) && Number.isFinite(data.totalUsd) && Number.isFinite(data.totalValue);
+            if (!response.ok) {
+              if (response.status === 502 && hasValuation && request.isCurrent() && active)
+                setSnapshot({ config: requestConfig, data: data as ValuationResponse });
+              throw new Error(data.error || "Valuation failed (HTTP " + response.status + ").");
+            }
+            if (!hasValuation) throw new Error("The valuation service returned invalid data. Please try again.");
+            return data as ValuationResponse;
+          })(),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => {
+              reject(new Error("The valuation request timed out. Previous results have been kept."));
+            }, 35_000);
+            requestTimer = timer;
+          }),
+        ]);
+        if (request.isCurrent() && active) setSnapshot({ config: requestConfig, data: result });
+        return result.failedAssetCount === 0;
       } catch (reason) {
-        if (request.isCurrent())
-          setError(
-            reason instanceof Error
-              ? reason.message
-              : "Valuation is temporarily unavailable. Please try again.",
-          );
+        if (request.isCurrent() && active)
+          setError(reason instanceof Error ? reason.message : "Valuation is temporarily unavailable. Previous results have been kept.");
+        return false;
       } finally {
-        window.clearTimeout(timer);
-        if (request.isCurrent()) setLoading(false);
+        clearTimeout(timer);
+        if (request.isCurrent() && active) setLoading(false);
+        request.cancel();
       }
     }
-    void run();
+    const scheduler = createAutoRefresh({ run, isVisible: () => document.visibilityState !== "hidden" });
+    document.addEventListener("visibilitychange", scheduler.visibilityChanged);
+    scheduler.start();
+    const currentGate = gate.current;
     return () => {
-      window.clearTimeout(timer);
-      request.cancel();
+      active = false;
+      scheduler.stop();
+      clearTimeout(requestTimer);
+      currentGate.cancel();
+      document.removeEventListener("visibilitychange", scheduler.visibilityChanged);
     };
   }, [config, displayBase, revision]);
 
-  // Do not show the previous portfolio even for the render before the effect runs.
   const configChanged = previousConfig.current !== config;
   return {
     data: snapshot?.config === config ? snapshot.data : null,

@@ -1,9 +1,12 @@
-import type { AssetConfig, AssetValuation, FundPricePoint, FxRatePoint, PortfolioConfig, PricePoint, ValuationResponse } from "./types";
+import type { AssetConfig, AssetValuation, FundPricePoint, FxRatePoint, PortfolioConfig, PricePoint, StockAsset, ValuationResponse } from "./types";
 import { ValuationError } from "./types";
-import { fetchAlphaVantageQuote, fetchFrankfurterRate, fetchFundNav, fetchGoldSpotUsd } from "./sources";
+import { fetchFrankfurterRate, fetchFundNav, fetchGoldSpotUsd } from "./sources";
 import { goldQuantityToTroyOunces, TROY_OUNCE_GRAMS } from "./units";
 import { createPricingContext, type PricingOptions } from "./request";
 import { validatePortfolioConfig } from "./schema";
+
+import { fetchListedQuote } from "./listed";
+import { assessQuote } from "./quote";
 
 const MAX_MONEY = Number.MAX_SAFE_INTEGER;
 
@@ -22,9 +25,9 @@ function createQuotes(options: PricingOptions) {
   const fx = new Map<string, Promise<FxRatePoint>>();
   return {
     gold: () => gold ??= fetchGoldSpotUsd(context),
-    stock(symbol: string) {
-      const key = symbol.toUpperCase();
-      if (!stocks.has(key)) stocks.set(key, fetchAlphaVantageQuote(key, context));
+    stock(asset: StockAsset) {
+      const key = JSON.stringify([asset.symbol, asset.securityType, asset.exchange, asset.currency]);
+      if (!stocks.has(key)) stocks.set(key, fetchListedQuote(asset, context));
       return stocks.get(key)!;
     },
     fund(code: string) {
@@ -51,6 +54,10 @@ type Quotes = ReturnType<typeof createQuotes>;
 
 function withQuoteWarning(asset: AssetValuation): AssetValuation {
   if (asset.status === "failed") return asset;
+  if (asset.type === "stock") {
+    const { quality, warning } = assessQuote(asset);
+    return { ...asset, quality, status: warning ? "warning" : "ok", warning };
+  }
   const warning = !asset.updatedAt ? "The provider did not supply a usable quote timestamp."
     : Date.now() - Date.parse(asset.updatedAt) > 7 * 24 * 60 * 60 * 1000
       ? "The latest available quote is more than 7 days old." : undefined;
@@ -144,13 +151,21 @@ async function valueAsset(asset: AssetConfig, quotes: Quotes): Promise<AssetValu
     }
 
     if (asset.type === "stock") {
-      const quote = await quotes.stock(asset.symbol);
+      const quote = await quotes.stock(asset);
       return {
         id: asset.id,
         type: asset.type,
         name: assetName(asset),
         quantity: asset.quantity,
         symbol: asset.symbol,
+        securityType: asset.securityType,
+        exchange: asset.exchange,
+        quality: quote.quality,
+        fetchedAt: quote.fetchedAt,
+        timestampPrecision: quote.timestampPrecision,
+        marketState: quote.marketState,
+        priceSession: quote.priceSession,
+        delaySeconds: quote.delaySeconds,
         price: quote.price,
         pricingCurrency: quote.currency,
         priceUnit: quote.unit,
@@ -160,7 +175,7 @@ async function valueAsset(asset: AssetConfig, quotes: Quotes): Promise<AssetValu
         source: quote.source,
         updatedAt: quote.updatedAt,
         status: "ok",
-        message: `${asset.symbol} latest available U.S. market quote.`
+        message: `${asset.symbol}: ${quote.quality ?? "unknown"} quote; ${quote.priceSession ?? "unknown"} session. Market: ${quote.marketState ?? "Unknown"}. Shares × USD price; refreshed periodically, not a streaming valuation.`
       };
     }
 

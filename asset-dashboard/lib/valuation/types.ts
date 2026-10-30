@@ -28,6 +28,10 @@ export interface CashAsset extends AssetBase {
 export interface StockAsset extends AssetBase {
   type: "stock";
   symbol: string;
+  securityType?: "equity" | "etf";
+  /** U.S. listing MIC. Unsupported markets fail explicitly. */
+  exchange?: string;
+  currency?: string;
 }
 
 export interface CustomAsset extends AssetBase {
@@ -48,7 +52,17 @@ export interface FundPricePoint extends PricePoint {
   referenceNAV: true;
 }
 
-export interface PricePoint {
+export type QuoteQuality = "realtime" | "delayed" | "close" | "stale" | "unknown";
+export interface QuoteMetadata {
+  quality?: QuoteQuality;
+  fetchedAt?: string;
+  timestampPrecision?: "date" | "minute" | "second" | "unknown";
+  marketState?: string;
+  priceSession?: "regular" | "pre" | "post" | "close" | "unknown";
+  delaySeconds?: number | null;
+}
+
+export interface PricePoint extends QuoteMetadata {
   price: number;
   currency: string;
   unit?: string;
@@ -64,13 +78,15 @@ export interface FxRatePoint {
   dailyChangePercent?: number | null;
 }
 
-export interface AssetValuation {
+export interface AssetValuation extends QuoteMetadata {
   id: string;
   type: AssetType;
   name: string;
   quantity: number;
   unit?: string;
   symbol?: string;
+  securityType?: "equity" | "etf";
+  exchange?: string;
   fundCode?: string;
   navDate?: string;
   referenceNAV?: boolean;

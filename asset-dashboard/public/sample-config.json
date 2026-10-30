@@ -1,4 +1,4 @@
-﻿{
+{
   "baseCurrency": "USD",
   "assets": [
     {
@@ -50,7 +50,46 @@
       "code": "000055",
       "currency": "USD",
       "quantity": 2172.16
+    },
+    {
+      "id": "etf_qqqm_001",
+      "type": "stock",
+      "name": "Invesco NASDAQ 100 ETF",
+      "symbol": "QQQM",
+      "quantity": 4,
+      "securityType": "etf",
+      "exchange": "XNAS",
+      "currency": "USD"
+    },
+    {
+      "id": "etf_spym_001",
+      "type": "stock",
+      "name": "State Street SPDR Portfolio S&P 500 ETF",
+      "symbol": "SPYM",
+      "quantity": 3,
+      "securityType": "etf",
+      "exchange": "ARCX",
+      "currency": "USD"
+    },
+    {
+      "id": "stock_spcx_001",
+      "type": "stock",
+      "name": "SpaceX (Space Exploration Technologies Corp.)",
+      "symbol": "SPCX",
+      "quantity": 1,
+      "securityType": "equity",
+      "exchange": "XNAS",
+      "currency": "USD"
+    },
+    {
+      "id": "stock_nvda_001",
+      "type": "stock",
+      "name": "NVIDIA Corporation",
+      "symbol": "NVDA",
+      "quantity": 1,
+      "securityType": "equity",
+      "exchange": "XNAS",
+      "currency": "USD"
     }
   ]
 }
-

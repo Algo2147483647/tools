@@ -21,7 +21,7 @@ afterEach(() => keys.forEach((key, index) => {
 const portfolio = (...assets: AssetConfig[]) => ({ baseCurrency: "USD" as const, assets });
 const json = (value: unknown) => Response.json(value);
 const stockQuote = (date = new Date().toISOString()) => ({
-  data: { exchange: "NASDAQ", primaryData: { lastSalePrice: "$123.50", lastTradeTimestamp: date, percentageChange: "1.5%" } }
+  data: { symbol: "AAPL", assetClass: "STOCKS", marketStatus: "Open", exchange: "NASDAQ", primaryData: { lastSalePrice: "$123.50", isRealTime: true, lastTradeTimestamp: date, percentageChange: "1.5%" } }
 });
 const fundQuote = (changes: Record<string, unknown> = {}) => ({
   errorno: "20000",

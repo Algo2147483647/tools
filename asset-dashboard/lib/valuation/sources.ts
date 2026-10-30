@@ -1,4 +1,5 @@
 import type { FundPricePoint, FxRatePoint, PricePoint } from "./types";
+import { nasdaqTimestamp } from "./quote";
 import { ValuationError } from "./types";
 import { createPricingContext, type PricingContext } from "./request";
 export { goldQuantityToTroyOunces } from "./units";
@@ -30,6 +31,8 @@ export function quoteTimestamp(value: unknown): string | null {
   // Nasdaq often sends a date only. Do not append a fictitious market close time.
   if (typeof input === "string") {
     input = input.trim();
+    if (/ ET$/i.test(input)) return nasdaqTimestamp(input);
+    input = input.replace(/^Closed at\s+/i, "");
     if (/^[A-Za-z]+\s+\d{1,2},\s+\d{4}$/.test(input)) input = `${input} UTC`;
     else if (!/^\d{4}-\d{2}-\d{2}$/.test(input) && !/(?:Z|[+-]\d{2}:?\d{2}|UTC|GMT|EST|EDT)$/i.test(input)) {
       // A local wall-clock time without a known zone cannot be interpreted as this server's local time.
@@ -157,43 +160,5 @@ export async function fetchFundNav(code: string, context = createPricingContext(
     price: positiveQuote(quote.NAVUNIT, "GF Fund Management NAV"), currency, unit: "NAV per unit",
     source: "GF Fund Management official published NAV", updatedAt, navDate, referenceNAV: true,
     dailyChangePercent: percent(quote.DAYINCREMENTRATE)
-  };
-}
-
-export async function fetchAlphaVantageQuote(symbol: string, context = createPricingContext()): Promise<PricePoint> {
-  const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
-  if (apiKey) {
-    try {
-      const url = new URL("https://www.alphavantage.co/query");
-      url.searchParams.set("function", "GLOBAL_QUOTE");
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("apikey", apiKey);
-      const data = await context.json<{
-        "Global Quote"?: Record<string, string>; Note?: string; Information?: string; Error?: string; "Error Message"?: string;
-      }>(url, { cache: "no-store" });
-      if (data.Note || data.Information || data.Error || data["Error Message"]) sourceError("Alpha Vantage returned an API error.");
-      const quote = data["Global Quote"];
-      return {
-        price: positiveQuote(quote?.["05. price"], "Alpha Vantage"), currency: "USD", unit: "share",
-        source: "Alpha Vantage Global Quote", updatedAt: quoteTimestamp(quote?.["07. latest trading day"]),
-        dailyChangePercent: percent(quote?.["10. change percent"])
-      };
-    } catch { /* Public Nasdaq data remains available if a keyed provider fails. */ }
-  }
-  const url = new URL(`https://api.nasdaq.com/api/quote/${encodeURIComponent(symbol)}/info`);
-  url.searchParams.set("assetclass", "stocks");
-  const data = await context.json<{
-    data?: { exchange?: string; primaryData?: { lastSalePrice?: string; lastTradeTimestamp?: string; percentageChange?: string } } | null;
-    status?: { rCode?: number };
-  }>(url, {
-    headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json,text/plain,*/*", Origin: "https://www.nasdaq.com", Referer: "https://www.nasdaq.com/" },
-    next: { revalidate: 60 }
-  });
-  if (!data.data || (data.status?.rCode && data.status.rCode >= 400)) sourceError(`Nasdaq returned no quote data for ${symbol}.`);
-  const quote = data.data.primaryData;
-  return {
-    price: positiveQuote(quote?.lastSalePrice?.replace(/[$,\s]/g, ""), "Nasdaq"), currency: "USD", unit: "share",
-    source: data.data.exchange ? `Nasdaq quote API, ${data.data.exchange}` : "Nasdaq quote API",
-    updatedAt: quoteTimestamp(quote?.lastTradeTimestamp), dailyChangePercent: percent(quote?.percentageChange)
   };
 }

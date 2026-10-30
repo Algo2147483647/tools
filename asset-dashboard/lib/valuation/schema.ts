@@ -129,10 +129,21 @@ export function validatePortfolioConfig(value: unknown): PortfolioConfig {
       if (!symbol || !/^[A-Z][A-Z0-9.-]{0,14}$/.test(symbol)) {
         throw new ValuationError(`Asset "${id}" needs a valid U.S. stock symbol.`);
       }
+      const securityType = readString(entry, "securityType", false);
+      if (securityType !== undefined && securityType !== "equity" && securityType !== "etf") {
+        throw new ValuationError(`Asset "${id}" securityType must be equity or etf.`);
+      }
+      const exchange = readString(entry, "exchange", false)?.toUpperCase();
+      if (exchange && !/^[A-Z0-9]{4}$/.test(exchange)) {
+        throw new ValuationError(`Asset "${id}" exchange must be a four-character MIC.`);
+      }
       return {
         ...base,
         type,
-        symbol
+        symbol,
+        securityType,
+        exchange,
+        currency: entry.currency === undefined ? undefined : readCurrency(entry, "currency")
       };
     }
 

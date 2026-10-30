@@ -1,3 +1,10 @@
+import type { QuoteMetadata } from "../valuation/types";
+
+export function quoteLabel(quote: QuoteMetadata): string {
+  const labels = { realtime: "Realtime quote", delayed: "Delayed quote", close: "Closing reference", stale: "Stale quote", unknown: "Unverified quote" };
+  return labels[quote.quality ?? "unknown"];
+}
+
 const numberFormats = new Map<number, Intl.NumberFormat>();
 export function formatNumber(
   value: number | null | undefined,
