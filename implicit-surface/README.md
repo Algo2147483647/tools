@@ -1,6 +1,6 @@
-# Surface · Implicit Geometry Lab
+# Surface · Geometry Lab
 
-A minimalist, full-screen 3D implicit surface visualizer. Open **index.html**
+A minimalist, full-screen 3D implicit and parametric surface visualizer. Open **index.html**
 directly in a modern browser with WebGL enabled. It runs offline, with no build,
 package installation, server, CDN, or network connection.
 
@@ -56,6 +56,123 @@ are cancelled, so the latest valid request wins.
 
 ## Equations
 
+The **Implicit / Parametric** selector changes the input model. Each mode keeps
+its own draft during the current page session. A failed or cancelled build keeps
+the previous successful surface. Drafts are not saved across page reloads.
+
+### Parametric programs
+
+Choose **Parametric**, edit the multiline program, and select **Render surface**
+or press **Ctrl/Cmd + Enter**. The default is a layered flower with a detailed
+petal edge. The library also includes a plane, sphere, torus, helicoid, and
+catenoid. **Expand** gives the editor more room; **Edit program** reopens it.
+
+```text
+parameter r = [0, 1]
+parameter theta = [4*pi, 24*pi]
+
+# Petal edge and fine detail
+edge(theta) = 1 - 0.5*(1 - mod(3.6*theta, 2*pi)/pi)^4 + disturb(theta)
+disturb(theta) = sin(15*theta)/150
+
+f_2(r) = 2*(r^2 - r)^2
+alpha(theta) = pi/2 * exp(-theta/(8*pi))
+h(r, theta) = f_2(r)*sin(alpha(theta))
+
+R = r*sin(alpha(theta)) + h(r, theta)*cos(alpha(theta))
+H = r*cos(alpha(theta)) - h(r, theta)*sin(alpha(theta))
+
+X = edge(theta)*R*cos(theta)
+Y = edge(theta)*R*sin(theta)
+Z = edge(theta)*H
+```
+
+Program rules:
+
+- Declare exactly two parameters with finite, increasing bounds. Parameter names
+  are arbitrary ASCII identifiers, including underscores and numeric suffixes.
+- Define all three scalar outputs **X**, **Y**, and **Z**. Names are case-sensitive:
+  `r` and `R` are different. Built-in names and language keywords are reserved.
+- Use `const amplitude = 0.1` for a constant. Constants may reference other
+  constants and call pure helper functions with constant arguments.
+- Helpers such as `profile(t) = t^2` may read their arguments, constants, and
+  other helper functions. Pass sampling parameters explicitly; helpers cannot
+  capture global parameters or intermediate scalar values.
+- Global scalar definitions may use parameters, constants, helpers, and other
+  scalar definitions. Forward references work. Duplicate definitions, cycles,
+  recursion, missing names, and wrong argument counts produce located errors.
+- Newlines or semicolons separate definitions. Parenthesized expressions can
+  span lines. `#` starts a comment.
+- Implicit products such as `2r`, `2sin(theta)`, and `(r+1)(r-1)` work. A
+  multi-letter identifier is one name: write `u*v`, not `uv`. Use `r*(r+1)`
+  when multiplying a named value by a parenthesized expression; `r(...)` is
+  parsed as a function call.
+- `floor`, `ceil`, and `mod` complement the existing functions.
+  `mod(a,b) = a - b*floor(a/b)`; a zero divisor is undefined. Angles use radians.
+  Unicode `π`, minus, multiplication/division signs, and superscript ²/³ work.
+
+**Parameter sampling** accepts independent cell counts or step sizes in parameter
+units. The range summary comes directly from the source and links back to its
+declarations. Step mode uses `ceil(span / requestedStep)` cells and displays the
+actual step. Changing precision mode converts the current values.
+
+The flower preset uses 64 radial cells and 2,048 angular cells. Its maximum
+262,144 triangles become 260,096 after degenerate triangles at the origin are
+removed. The angular range contains 150 periods of its fine sinusoidal detail;
+compare different densities when inspecting small features.
+
+Both boundaries default to **Open**. **Periodic** validates corresponding
+endpoint samples before snapping the seam and using wrapped normal differences.
+It supports same-order seams, not reversed or twisted identifications. The
+flower's angular endpoints remain open because its inclination changes with
+theta. Spatially coincident vertices from unrelated parameter locations are
+never globally welded, so self-intersections retain their separate sheets.
+
+The world-space bounds are derived from generated triangles; parameter ranges
+are not spatial clipping bounds. Flat surfaces are valid, with display padding
+on a zero-thickness axis. Gradients continue to use the displayed spatial bounds.
+Mappings that collapse to a line or point report an error and keep the old view.
+
+Limits are checked before allocating mesh buffers: 1–16,384 cells per parameter,
+420,000 potential triangles, an estimated 192 MiB build budget, and 100 million
+estimated evaluation operations. The estimate is a guardrail, not a measurement
+of total browser process memory. Programs allow 65,536 characters, 256
+definitions, eight arguments per helper, and 8,192 expanded operations. Nesting
+and expression-tree depth are bounded. The UI does not silently reduce precision.
+
+Undefined vertices or cell centers omit the affected cells. Zero-area triangles
+are removed. Normals use parameter differences with local face-normal fallback
+at singular points and sharp changes. Large deviations at cell centers are
+reported as possible unresolved detail; those finite cells are retained. Finite
+sampling cannot prove continuity or find every pole. This is regular-grid
+meshing, not curvature-adaptive tessellation. Diagnostic counts are available
+in the status tooltip and the expandable **Sampling diagnostics** section.
+
+### Importing LaTeX
+
+Select **Import LaTeX**, paste equations, select **Convert**, review the result,
+then select **Apply to editor**. Applying replaces only the program draft;
+rendering is a separate action. Editing the LaTeX invalidates the conversion
+preview. A failed conversion preserves the program draft.
+
+The importer supports `align`, `align*`, `aligned`, and equation environments;
+fractions, powers, common function commands, Greek parameter/function names,
+simple subscripts, parameter-range tuples, and `matrix`/`pmatrix`/`bmatrix`
+products up to 4 × 4. Column-vector assignments expand into scalar definitions.
+Both the supplied flower matrix formula and its equivalent scalar program are
+covered by numerical regression tests. **Load flower example** provides the full
+English-annotated LaTeX input.
+
+`\tag` and `\label` text is retained as comments, including annotations supplied
+in another language. Formatting commands such as `\left`, `\right`, and spacing
+are recognized. Unsupported commands, malformed groups, mismatched matrix
+dimensions, and invalid converted programs produce source-location errors.
+Identifiers retain case. This is a documented LaTeX subset, not a TeX engine or
+a symbolic algebra system. The converted program is the editable source of
+truth; reverse conversion to the original typesetting is not provided.
+
+### Implicit equations
+
 Use `left = right`, or just an expression (implicitly equal to zero). Explicit
 graphs such as `z = sin(x)cos(y)` work too. The parser accepts:
 
@@ -64,7 +181,8 @@ graphs such as `z = sin(x)cos(y)` work too. The parser accepts:
 - Implicit multiplication: `2x`, `xy`, `2sin(x)`, `(x+1)(x-1)`.
 - One-argument functions: `sin cos tan asin acos atan sinh cosh tanh sqrt cbrt
 abs exp log ln log10 log2`.
-- Two-argument functions: `atan2(y,x)`, `pow(base,exponent)`, `min(a,b)`, `max(a,b)`.
+- Two-argument functions: `atan2(y,x)`, `pow(base,exponent)`, `min(a,b)`, `max(a,b)`, `mod(a,b)`.
+- Rounding functions: `floor(x)`, `ceil(x)`.
 - Unicode minus, multiplication/division signs, and superscript ² / ³.
 
 Names are case-insensitive. Functions require parentheses. Angles use radians;
@@ -105,16 +223,38 @@ thread. Rendering runs on demand; continuous frames are used only during rotatio
 
 - `index.html`, `styles.css`, `icon.svg`: self-contained interface and visual design.
 - `math.js`: restricted expression parser and numerical domain validation.
+- `parametric-program.js`: located definitions, scope and dependency checks,
+  shared expression nodes, constant folding, and parameter-specific caches.
+- `parametric-mesh.js`: parameter sampling, boundary checks, normals, diagnostics,
+  and normalized triangle geometry.
+- `latex-import.js`: structural LaTeX subset parser, source mappings, and matrix expansion.
+- `parametric-presets.js`: six parametric examples and the flower LaTeX fixture.
 - `mesh.js`: cancellable mesh generation and root refinement.
 - `renderer.js`: WebGL shading, coordinate guides, orbit/pan/zoom and touch controls.
 - `colors.js`: palettes, custom colors, and gradient material settings.
 - `presets.js`: the shared library of example equations and domains.
 - `benchmark-presets.js`: standalone equations adapted from Ray's benchmark, with source-cell metadata.
 - `app.js`: worker lifecycle, validation, and accessible UI state.
-- `tests.cjs`: parser and geometric regression checks; no dependencies required.
+- `tests.cjs`, `parametric-tests.cjs`: parser, geometry, import, cancellation, and
+  real Worker-thread regression checks; no dependencies required.
 
 From the repository root:
 
 ```sh
 node tools/implicit-surface/tests.cjs
+node tools/implicit-surface/parametric-tests.cjs
 ```
+
+Optional DOM integration tests use an external `jsdom` 22 installation:
+
+```sh
+node tools/implicit-surface/ui-tests.cjs /absolute/path/to/node_modules/jsdom
+```
+
+These tests execute the actual app and actual mesh workers, checking mode changes,
+draft preservation, error locations, sampling conversions, import/apply behavior,
+cancellation, superseded requests, and Worker fallback. WebGL is stubbed, so they
+do not verify visual layout or GPU rendering. The application itself has no npm
+dependency. For manual browser QA, open `index.html`, render the flower, import
+its LaTeX example, inspect the sphere poles and torus seams, resize the viewport,
+and check that errors leave the last successful surface visible.

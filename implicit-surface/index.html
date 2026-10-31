@@ -6,12 +6,16 @@
     <meta name="theme-color" content="#f0f4f8" />
     <meta
       name="description"
-      content="An offline, full-screen explorer for implicit surfaces in three dimensions."
+      content="An offline, full-screen explorer for implicit and parametric surfaces in three dimensions."
     />
-    <title>Surface · Implicit Geometry Lab</title>
+    <title>Surface · Geometry Lab</title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <script defer src="math.js"></script>
+    <script defer src="parametric-program.js"></script>
+    <script defer src="latex-import.js"></script>
+    <script defer src="parametric-mesh.js"></script>
+    <script defer src="parametric-presets.js"></script>
     <script defer src="mesh.js"></script>
     <script defer src="colors.js"></script>
     <script defer src="renderer.js"></script>
@@ -63,7 +67,7 @@
         </symbol>
       </defs>
     </svg>
-    <main class="app" aria-label="Implicit surface explorer">
+    <main class="app" aria-label="Implicit and parametric surface explorer">
       <canvas
         id="surface"
         tabindex="0"
@@ -81,6 +85,14 @@
           alt="Surface"
         />
         <span class="bar-divider" aria-hidden="true"></span>
+        <label class="sr-only" for="surface-mode">Surface mode</label>
+        <select id="surface-mode" aria-label="Surface mode">
+          <option value="implicit">Implicit</option>
+          <option value="parametric-surface">Parametric</option>
+        </select>
+        <button id="edit-program" type="button" class="bar-button" hidden>
+          Edit program
+        </button>
         <form id="equation-form" novalidate>
           <label class="function-label" for="expression"
             >F<span>(x,y,z)</span></label
@@ -148,6 +160,133 @@
           ><svg class="icon collapse-chevron"><use href="#chevron" /></svg>
         </button>
         <div id="config-body" class="panel-body">
+          <section id="parametric-controls" class="control-section" hidden>
+            <div class="section-heading">
+              <h2>Parametric program</h2>
+              <button
+                id="expand-program"
+                type="button"
+                class="text-button"
+                aria-expanded="false"
+              >
+                Expand
+              </button>
+            </div>
+            <form id="program-form" novalidate>
+              <div class="program-actions">
+                <button id="import-latex" type="button" class="text-button">
+                  Import LaTeX
+                </button>
+                <span id="program-state" class="quiet">Not rendered</span>
+              </div>
+              <label class="sr-only" for="program-source"
+                >Parametric program source</label
+              >
+              <div class="program-editor">
+                <pre id="program-lines" aria-hidden="true">1</pre>
+                <textarea
+                  id="program-source"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  autocomplete="off"
+                  maxlength="65536"
+                  wrap="off"
+                  aria-describedby="program-error program-shortcut"
+                ></textarea>
+              </div>
+              <p id="program-error" class="error" role="alert" hidden></p>
+              <button
+                id="locate-program-error"
+                type="button"
+                class="text-button"
+                hidden
+              >
+                Go to error
+              </button>
+              <p id="program-shortcut" class="quiet">
+                Two parameters · X, Y, Z outputs · Ctrl / Cmd + Enter to render
+              </p>
+              <button
+                id="parameter-domain"
+                class="parameter-summary"
+                type="button"
+                title="Locate parameter declarations"
+              >
+                Parameter ranges come from the program.
+              </button>
+              <div class="section-heading"><h2>Parameter sampling</h2></div>
+              <label class="parametric-field" for="parameter-sampling-mode"
+                >Precision
+                <select id="parameter-sampling-mode">
+                  <option value="cells">Cell counts</option>
+                  <option value="step">Step sizes</option>
+                </select>
+              </label>
+              <div class="parameter-grid">
+                <span>Parameter</span
+                ><span id="parameter-value-heading">Cells</span
+                ><span>Boundary</span>
+                <label id="parameter-label-0" for="parameter-value-0">r</label>
+                <input
+                  id="parameter-value-0"
+                  type="number"
+                  min="1"
+                  max="16384"
+                  step="1"
+                  value="64"
+                  aria-label="First parameter cell count"
+                />
+                <select
+                  id="parameter-boundary-0"
+                  aria-label="First parameter boundary"
+                >
+                  <option value="open">Open</option>
+                  <option value="periodic">Periodic</option>
+                </select>
+                <label id="parameter-label-1" for="parameter-value-1"
+                  >theta</label
+                >
+                <input
+                  id="parameter-value-1"
+                  type="number"
+                  min="1"
+                  max="16384"
+                  step="1"
+                  value="2048"
+                  aria-label="Second parameter cell count"
+                />
+                <select
+                  id="parameter-boundary-1"
+                  aria-label="Second parameter boundary"
+                >
+                  <option value="open">Open</option>
+                  <option value="periodic">Periodic</option>
+                </select>
+              </div>
+              <output
+                id="parameter-sampling-preview"
+                class="quiet"
+                aria-live="polite"
+              ></output>
+              <div class="program-actions render-actions">
+                <button type="submit" class="apply-button">
+                  Render surface
+                </button>
+                <button
+                  id="cancel-render"
+                  type="button"
+                  class="text-button"
+                  hidden
+                >
+                  Cancel
+                </button>
+              </div>
+              <details id="parameter-diagnostics" hidden>
+                <summary>Sampling diagnostics</summary>
+                <p id="parameter-diagnostics-text" class="quiet"></p>
+              </details>
+            </form>
+          </section>
           <section class="control-section">
             <div class="section-heading">
               <h2>Domain</h2>
@@ -476,7 +615,7 @@
       </footer>
       <noscript
         ><p class="scene-message glass">
-          Enable JavaScript to explore implicit surfaces.
+          Enable JavaScript to explore implicit and parametric surfaces.
         </p></noscript
       >
 
@@ -549,6 +688,28 @@
         </div>
         <div class="help-body">
           <p>
+            <strong>Parametric mode:</strong> declare two ranges with
+            <code>parameter u = [0, 2*pi]</code>, define helper functions or
+            intermediate values, and finish with <code>X = ...</code>,
+            <code>Y = ...</code>, <code>Z = ...</code>. Names are
+            case-sensitive: <code>r</code> and <code>R</code> differ. Use
+            explicit multiplication between named values, such as
+            <code>u*v</code>.
+          </p>
+          <p>
+            Helper functions may read their arguments and constants. Use
+            <code>const amplitude = 0.1</code> for fixed values. Forward
+            references are supported; recursive definitions are rejected.
+            Parameter bounds are edited in the program. Each direction has
+            independent sampling and an Open or Periodic boundary.
+          </p>
+          <p>
+            Import LaTeX supports aligned equations, fractions, powers, common
+            functions, Greek names, parameter ranges, and small matrix products.
+            Review the converted program before applying it. Unsupported syntax
+            is reported without changing your draft.
+          </p>
+          <p>
             Enter an equation in <i>x</i>, <i>y</i>, and <i>z</i>. Both sides
             can be expressions. Without an equals sign, the expression is set
             equal to zero.
@@ -570,7 +731,7 @@
             <dd>
               <code
                 >sin cos tan asin acos atan atan2 sinh cosh tanh sqrt cbrt abs
-                exp log ln log10 log2 pow min max</code
+                exp log ln log10 log2 pow min max floor ceil mod</code
               >
             </dd>
             <dt>Constants</dt>
@@ -595,6 +756,61 @@
             finer features.
           </p>
         </div>
+      </dialog>
+      <dialog
+        id="latex-dialog"
+        class="floating-dialog glass"
+        aria-labelledby="latex-title"
+      >
+        <div class="dialog-heading">
+          <div>
+            <span class="eyebrow">FORMULAS INTO A PROGRAM</span>
+            <h2 id="latex-title">Import LaTeX</h2>
+            <p>Convert supported equations and review the result.</p>
+          </div>
+          <button
+            class="text-button"
+            type="button"
+            data-close="latex-dialog"
+            aria-label="Close LaTeX import"
+          >
+            Close
+          </button>
+        </div>
+        <div class="latex-columns">
+          <label for="latex-source"
+            >LaTeX source<textarea
+              id="latex-source"
+              spellcheck="false"
+              maxlength="65536"
+              placeholder="Paste an align environment or a group of equations…"
+            ></textarea>
+          </label>
+          <label for="latex-preview"
+            >Converted program<textarea
+              id="latex-preview"
+              readonly
+              spellcheck="false"
+              placeholder="The converted program will appear here."
+            ></textarea>
+          </label>
+        </div>
+        <p id="latex-error" class="error" role="alert" hidden></p>
+        <div class="program-actions">
+          <button id="latex-example" type="button" class="text-button">
+            Load flower example
+          </button>
+          <button id="convert-latex" type="button" class="apply-button">
+            Convert
+          </button>
+          <button id="apply-latex" type="button" class="apply-button" disabled>
+            Apply to editor
+          </button>
+        </div>
+        <p class="quiet">
+          Applying replaces the program draft. Choose Render surface to update
+          the view.
+        </p>
       </dialog>
     </main>
   </body>

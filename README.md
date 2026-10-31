@@ -1,5 +1,7 @@
 # Tools
 
+[Ride Pricing](ride-pricing/README.md) is an English-language Go pricing and billing service with immutable quotes and agreements, deterministic fare calculation, PostgreSQL persistence, a transactional outbox, and a runnable local demo. Start it with `ride-pricing/launch.cmd` or `go run ./cmd/api --demo` from its directory.
+
 独立运行的工具集合。Windows 启动环境统一由 [`scripts/node-runtime.ps1`](scripts/node-runtime.ps1) 管理，各应用只保留自己的构建和服务命令。
 
 ## Windows 一键启动

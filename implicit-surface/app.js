@@ -1,7 +1,13 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const presets = SurfacePresets;
+  const presets = [...SurfacePresets, ...SurfaceParametricPresets.presets];
+  const programs = SurfaceProgram.createProgram(SurfaceMath);
+  const latex = SurfaceLatex.createImporter(programs);
+  let mode = "implicit",
+    activeProgram = "",
+    activeProgramSettings = "",
+    programError = null;
   let appearance = SurfaceColors.fromPalette("glacier");
   const normalize = (text) => text.replace(/\s/g, "").toLowerCase();
   let renderer,
@@ -11,6 +17,113 @@
     busy = false,
     workerURL = null;
   let activeExpression = $("expression").value;
+  $("program-source").value = SurfaceParametricPresets.flower;
+  const implicitSections = [
+    $("domain-form").closest("section"),
+    $("sampling-form").closest("section"),
+  ];
+  function parameterOptions() {
+    const precision = $("parameter-sampling-mode").value;
+    const values = [0, 1].map((i) => Number($("parameter-value-" + i).value));
+    return {
+      mode: precision,
+      [precision === "step" ? "steps" : "counts"]: values,
+    };
+  }
+  const parameterBoundaries = () =>
+    [0, 1].map((i) => $("parameter-boundary-" + i).value);
+  const parameterSettings = () =>
+    JSON.stringify([parameterOptions(), parameterBoundaries()]);
+  function updateProgramLines() {
+    const gutter = $("program-lines");
+    gutter.replaceChildren();
+    $("program-source")
+      .value.split("\n")
+      .forEach((_, i) => {
+        const line = document.createElement("span");
+        line.textContent = String(i + 1);
+        if (i + 1 === programError?.line) line.className = "error-line";
+        gutter.append(line);
+      });
+    gutter.scrollTop = $("program-source").scrollTop;
+  }
+  function reportProgramError(error) {
+    programError = error;
+    setError("program-error", error?.message || "");
+    $("locate-program-error").hidden = !error?.offset && error?.offset !== 0;
+    $("program-source").setAttribute("aria-invalid", String(!!error));
+    updateProgramLines();
+  }
+  function updateProgramPreview() {
+    $("program-state").textContent =
+      $("program-source").value === activeProgram &&
+      parameterSettings() === activeProgramSettings
+        ? "Applied"
+        : "Unapplied changes";
+    const step = $("parameter-sampling-mode").value === "step";
+    $("parameter-value-heading").textContent = step ? "Step" : "Cells";
+    [0, 1].forEach((i) => {
+      const input = $("parameter-value-" + i);
+      input.step = step ? "any" : "1";
+      input.min = step ? "0" : "1";
+      if (step) input.removeAttribute("max");
+      else input.max = "16384";
+    });
+    try {
+      const program = programs.compile($("program-source").value);
+      $("parameter-domain").textContent = program.parameters
+        .map(
+          (name, i) =>
+            `${name}: ${program.domain[i].map((v) => Number(v.toPrecision(7))).join(" → ")}`,
+        )
+        .join("\n");
+      program.parameters.forEach((name, i) => {
+        $("parameter-label-" + i).textContent = name;
+        $("parameter-value-" + i).setAttribute(
+          "aria-label",
+          `${name} ${step ? "step size" : "cell count"}`,
+        );
+        $("parameter-boundary-" + i).setAttribute(
+          "aria-label",
+          `${name} boundary`,
+        );
+      });
+      const grid = program.sampling(parameterOptions());
+      $("parameter-sampling-preview").textContent =
+        `${grid.counts.join(" × ")} cells · ${grid.points.toLocaleString()} points\nUp to ${(grid.cells * 2).toLocaleString()} triangles · estimated ${(grid.bytes / 1048576).toFixed(1)} MiB\nActual steps: ${grid.steps.map((v) => Number(v.toPrecision(5))).join(" / ")}`;
+    } catch (error) {
+      $("parameter-sampling-preview").textContent = error.message;
+      $("parameter-domain").textContent =
+        "Parameter ranges are defined in the program. Render to locate input errors.";
+    }
+  }
+  function setMode(value) {
+    if (mode !== value) {
+      generation++;
+      worker?.terminate();
+      worker = null;
+      setBusy(false);
+      $("mesh-status").textContent = lastStatus;
+    }
+    mode = value;
+    $("surface-mode").value = value;
+    const parametric = mode === "parametric-surface";
+    document.body.classList.toggle("parametric-mode", parametric);
+    $("equation-form").hidden = parametric;
+    $("edit-program").hidden = !parametric;
+    $("parametric-controls").hidden = !parametric;
+    implicitSections.forEach((section) => (section.hidden = parametric));
+    document.querySelector(".scene-heading h1").textContent = parametric
+      ? "Parametric surfaces"
+      : "Implicit surfaces";
+    setError("expression-error", "");
+    if (parametric) {
+      $("config-body").hidden = false;
+      $("config-toggle").setAttribute("aria-expanded", "true");
+      updateProgramPreview();
+      updateProgramLines();
+    }
+  }
   const axisInputs = ["x", "y", "z"].map((axis) => [
     $(`${axis}-min`),
     $(`${axis}-max`),
@@ -75,6 +188,7 @@
     busy = value;
     $("status-dot").classList.toggle("busy", value);
     $("surface").setAttribute("aria-busy", String(value));
+    $("cancel-render").hidden = !value;
   }
   function reportFatal(error) {
     renderer = null;
@@ -96,9 +210,13 @@
     worker?.terminate();
     reportFatal(event.detail);
   });
-  function updatePresetState(expression) {
+  function updatePresetState(expression, kind = "implicit") {
     const selected = presets.find(
-      (p) => normalize(p.expression) === normalize(expression),
+      (p) =>
+        (p.kind || "implicit") === kind &&
+        (kind === "implicit"
+          ? normalize(p.expression) === normalize(expression)
+          : p.program.replace(/\s/g, "") === expression.replace(/\s/g, "")),
     );
     $("surface-name").textContent = selected ? selected.name : "Custom surface";
     document
@@ -115,14 +233,27 @@
     return `"use strict";
       const math=(${SurfaceMath.createMath.toString()})();
       const mesher=(${SurfaceMesher.createMesher.toString()})(math);
+      const programs=(${SurfaceProgram.createProgram.toString()})(math);
+      const parametric=(${SurfaceParametricMesher.createMesher.toString()})(programs);
       self.onmessage=async ({data})=>{
-        try { const result=await mesher.build(data,p=>self.postMessage({type:"progress",value:p}));
+        try { const result=await (data.kind === "parametric-surface" ? parametric : mesher).build(data,p=>self.postMessage({type:"progress",value:p}));
           self.postMessage({type:"result",result},[result.data.buffer]);
         } catch(error){ self.postMessage({type:"error",message:error.message}); }
       };`;
   }
   async function render() {
     if (!renderer) return;
+    // A new request supersedes pending work even when its input is invalid.
+    const job = ++generation;
+    worker?.terminate();
+    worker = null;
+    setBusy(false);
+    $("mesh-status").textContent = lastStatus;
+    const kind = mode,
+      isParametric = kind === "parametric-surface";
+    const source = $("program-source").value;
+    const settings = parameterSettings();
+    let options;
     const expression = $("expression").value.trim(),
       sampling = samplingOptions();
     setError("expression-error", "");
@@ -132,53 +263,77 @@
       $(id).removeAttribute("aria-invalid");
     $("expression").removeAttribute("aria-invalid");
     axisInputs.flat().forEach((input) => input.removeAttribute("aria-invalid"));
-    try {
-      SurfaceMath.compile(expression);
-    } catch (error) {
-      setError("expression-error", error.message);
-      $("expression").setAttribute("aria-invalid", "true");
-      return;
+    if (isParametric) {
+      reportProgramError(null);
+      try {
+        programs.compile(source).sampling(parameterOptions());
+        options = {
+          kind,
+          source,
+          sampling: parameterOptions(),
+          boundaries: parameterBoundaries(),
+        };
+      } catch (error) {
+        reportProgramError(error);
+        $("config-body").hidden = false;
+        $("config-toggle").setAttribute("aria-expanded", "true");
+        return;
+      }
+      updateProgramPreview();
+    } else {
+      try {
+        SurfaceMath.compile(expression);
+      } catch (error) {
+        setError("expression-error", error.message);
+        $("expression").setAttribute("aria-invalid", "true");
+        return;
+      }
+      const domain = readDomain();
+      try {
+        SurfaceMath.validateDomain(domain, 1);
+      } catch (error) {
+        setError("domain-error", error.message);
+        const axis = "XYZ".indexOf(error.message[0]);
+        (axis >= 0 ? axisInputs[axis] : axisInputs.flat()).forEach((input) =>
+          input.setAttribute("aria-invalid", "true"),
+        );
+        $("config-body").hidden = false;
+        $("config-toggle").setAttribute("aria-expanded", "true");
+        return;
+      }
+      try {
+        SurfaceMath.samplingGrid(domain, sampling);
+      } catch (error) {
+        setError("sampling-error", error.message);
+        $(
+          $("quality").value === "step" ? "sample-step" : "sample-resolution",
+        ).setAttribute("aria-invalid", "true");
+        $("config-body").hidden = false;
+        $("config-toggle").setAttribute("aria-expanded", "true");
+        return;
+      }
+      updateSamplingPreview();
+      options = { kind, expression, domain, ...sampling };
     }
-    const domain = readDomain();
-    try {
-      SurfaceMath.validateDomain(domain, 1);
-    } catch (error) {
-      setError("domain-error", error.message);
-      const axis = "XYZ".indexOf(error.message[0]);
-      (axis >= 0 ? axisInputs[axis] : axisInputs.flat()).forEach((input) =>
-        input.setAttribute("aria-invalid", "true"),
-      );
-      $("config-body").hidden = false;
-      $("config-toggle").setAttribute("aria-expanded", "true");
-      return;
-    }
-    try {
-      SurfaceMath.samplingGrid(domain, sampling);
-    } catch (error) {
-      setError("sampling-error", error.message);
-      $(
-        $("quality").value === "step" ? "sample-step" : "sample-resolution",
-      ).setAttribute("aria-invalid", "true");
-      $("config-body").hidden = false;
-      $("config-toggle").setAttribute("aria-expanded", "true");
-      return;
-    }
-    updateSamplingPreview();
-    const job = ++generation;
-    worker?.terminate();
-    worker = null;
     setBusy(true);
     message("", "");
-    $("mesh-status").textContent = "Sampling field…";
+    $("mesh-status").textContent = isParametric
+      ? "Compiling program…"
+      : "Sampling field…";
     function progress(value) {
       if (job === generation)
-        $("mesh-status").textContent = `Building surface · ${value}%`;
+        $("mesh-status").textContent =
+          typeof value === "string" ? value : `Building surface · ${value}%`;
     }
     function failure(error) {
       if (job !== generation) return;
       setBusy(false);
       $("mesh-status").textContent = lastStatus;
-      setError("expression-error", error);
+      if (isParametric)
+        reportProgramError(
+          typeof error === "string" ? new Error(error) : error,
+        );
+      else setError("expression-error", error);
       worker?.terminate();
       worker = null;
     }
@@ -191,11 +346,17 @@
         return;
       }
       setBusy(false);
-      activeExpression = expression;
-      updatePresetState(expression);
-      const description = expression.includes("=")
-        ? expression
-        : `${expression} = 0`;
+      if (isParametric) {
+        activeProgram = source;
+        activeProgramSettings = settings;
+        updateProgramPreview();
+      } else activeExpression = expression;
+      updatePresetState(isParametric ? source : expression, kind);
+      const description = isParametric
+        ? "Parametric surface"
+        : expression.includes("=")
+          ? expression
+          : `${expression} = 0`;
       $("surface").setAttribute(
         "aria-label",
         `3D surface: ${description}. Drag or use arrow keys to orbit; Shift-drag to pan; scroll or press plus and minus to zoom; 0 to fit.`,
@@ -207,6 +368,17 @@
       $("mesh-status").title = result.invalid
         ? `${result.invalid.toLocaleString()} grid samples were outside the equation's real-valued domain.`
         : "Numerical approximation within the configured domain.";
+      if (isParametric) {
+        const d = result.diagnostics;
+        $("mesh-status").title =
+          `${d.invalidSamples} undefined samples; ${d.omittedCells} omitted cells; ${d.degenerateTriangles} degenerate triangles; ${d.suspectCells} cells with possible unresolved detail.`;
+        $("parameter-diagnostics").hidden = !Object.values(d).some(Boolean);
+        $("parameter-diagnostics-text").textContent =
+          $("mesh-status").title +
+          (d.suspectCells
+            ? " Increase sampling or narrow the ranges to inspect possible discontinuities. Finite suspect cells are retained."
+            : "");
+      }
       if (result.reason === "undefined")
         message(
           "No real values here",
@@ -226,17 +398,16 @@
       worker?.terminate();
       worker = null;
     }
-    const options = { expression, domain, ...sampling };
     // Blob workers also run when index.html is opened directly from the filesystem.
     // A chunked main-thread path keeps the app usable if workers are unavailable.
     async function fallback() {
       try {
         finish(
-          await SurfaceMesher.createMesher(SurfaceMath).build(
-            options,
-            progress,
-            () => job !== generation,
-          ),
+          await (
+            isParametric
+              ? SurfaceParametricMesher.createMesher(programs)
+              : SurfaceMesher.createMesher(SurfaceMath)
+          ).build(options, progress, () => job !== generation),
         );
       } catch (error) {
         failure(error.message);
@@ -268,7 +439,12 @@
       await fallback();
     }
   }
-  for (const id of ["equation-form", "domain-form", "sampling-form"])
+  for (const id of [
+    "equation-form",
+    "domain-form",
+    "sampling-form",
+    "program-form",
+  ])
     $(id).addEventListener("submit", (event) => {
       event.preventDefault();
       render();
@@ -417,14 +593,26 @@
   function choosePreset(id) {
     const preset = presets.find((p) => p.id === id);
     if (!preset) return;
-    $("expression").value = preset.expression;
-    const domain =
-      preset.domain ||
-      Array.from({ length: 3 }, () => [-preset.span, preset.span]);
-    axisInputs.forEach((pair, axis) => {
-      pair[0].value = domain[axis][0];
-      pair[1].value = domain[axis][1];
-    });
+    setMode(preset.kind || "implicit");
+    if (preset.kind === "parametric-surface") {
+      $("program-source").value = preset.program;
+      $("parameter-sampling-mode").value = "cells";
+      [0, 1].forEach((i) => {
+        $("parameter-value-" + i).value = preset.counts[i];
+        $("parameter-boundary-" + i).value = preset.boundaries?.[i] || "open";
+      });
+      updateProgramLines();
+      updateProgramPreview();
+    } else {
+      $("expression").value = preset.expression;
+      const domain =
+        preset.domain ||
+        Array.from({ length: 3 }, () => [-preset.span, preset.span]);
+      axisInputs.forEach((pair, axis) => {
+        pair[0].value = domain[axis][0];
+        pair[1].value = domain[axis][1];
+      });
+    }
     $("preset-dialog").close();
     renderer?.reset();
     render();
@@ -520,10 +708,122 @@
   });
   window.addEventListener("pageshow", (event) => {
     if (event.persisted && busy) {
-      $("expression").value = activeExpression;
       render();
     }
   });
+  $("surface-mode").addEventListener("change", (event) => {
+    setMode(event.target.value);
+    render();
+  });
+  $("edit-program").addEventListener("click", () => {
+    $("config-body").hidden = false;
+    $("config-toggle").setAttribute("aria-expanded", "true");
+    $("program-source").focus();
+  });
+  $("expand-program").addEventListener("click", () => {
+    const expanded = document.body.classList.toggle("editor-expanded");
+    $("expand-program").setAttribute("aria-expanded", String(expanded));
+    $("expand-program").textContent = expanded ? "Compact" : "Expand";
+  });
+  let previewTimer;
+  $("program-source").addEventListener("input", () => {
+    reportProgramError(null);
+    $("program-state").textContent = "Unapplied changes";
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(updateProgramPreview, 180);
+  });
+  $("program-source").addEventListener(
+    "scroll",
+    () => ($("program-lines").scrollTop = $("program-source").scrollTop),
+  );
+  new ResizeObserver(
+    () =>
+      ($("program-lines").style.height =
+        $("program-source").clientHeight + "px"),
+  ).observe($("program-source"));
+  $("program-source").addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      render();
+    }
+  });
+  function locate(offset, length = 1) {
+    const input = $("program-source");
+    input.focus();
+    input.setSelectionRange(offset, offset + length);
+    input.scrollTop = Math.max(
+      0,
+      (input.value.slice(0, offset).split("\n").length - 3) * 20,
+    );
+  }
+  $("locate-program-error").addEventListener("click", () => {
+    if (programError) locate(programError.offset || 0);
+  });
+  $("parameter-domain").addEventListener("click", () => {
+    const offset = $("program-source").value.search(/^\s*parameter\s/m);
+    locate(Math.max(0, offset), 9);
+  });
+  [0, 1].forEach((i) => {
+    $("parameter-value-" + i).addEventListener("input", updateProgramPreview);
+    $("parameter-boundary-" + i).addEventListener(
+      "change",
+      updateProgramPreview,
+    );
+  });
+  $("parameter-sampling-mode").addEventListener("change", () => {
+    try {
+      const program = programs.compile($("program-source").value),
+        toStep = $("parameter-sampling-mode").value === "step";
+      [0, 1].forEach((i) => {
+        const old = Number($("parameter-value-" + i).value),
+          span = program.domain[i][1] - program.domain[i][0];
+        if (old > 0)
+          $("parameter-value-" + i).value = toStep
+            ? span / old
+            : Math.ceil(span / old);
+      });
+    } catch {
+      /* Keep values editable while the source is incomplete. */
+    }
+    updateProgramPreview();
+  });
+  $("cancel-render").addEventListener("click", () => {
+    generation++;
+    worker?.terminate();
+    worker = null;
+    setBusy(false);
+    $("mesh-status").textContent = lastStatus + " · build cancelled";
+  });
+  $("import-latex").addEventListener("click", () => openDialog("latex-dialog"));
+  function invalidateImport() {
+    $("apply-latex").disabled = true;
+    $("latex-preview").value = "";
+    setError("latex-error", "");
+  }
+  $("latex-source").addEventListener("input", invalidateImport);
+  $("latex-example").addEventListener("click", () => {
+    $("latex-source").value = SurfaceParametricPresets.flowerLatex;
+    invalidateImport();
+  });
+  $("convert-latex").addEventListener("click", () => {
+    invalidateImport();
+    try {
+      $("latex-preview").value = latex.convert($("latex-source").value).source;
+      $("apply-latex").disabled = false;
+    } catch (error) {
+      setError("latex-error", error.message);
+    }
+  });
+  $("apply-latex").addEventListener("click", () => {
+    if ($("apply-latex").disabled) return;
+    $("program-source").value = $("latex-preview").value;
+    reportProgramError(null);
+    updateProgramPreview();
+    $("latex-dialog").close();
+    $("program-source").focus();
+  });
+  updateProgramLines();
+  updateProgramPreview();
   updatePresetState(activeExpression);
   render();
 })();

@@ -24,6 +24,9 @@
       pow: [Math.pow, 2],
       min: [Math.min, 2],
       max: [Math.max, 2],
+      floor: [Math.floor, 1],
+      ceil: [Math.ceil, 1],
+      mod: [(a, b) => (b === 0 ? NaN : a - b * Math.floor(a / b)), 2],
     };
     const constants = { pi: Math.PI, e: Math.E, tau: Math.PI * 2 };
     const has = (object, key) =>
@@ -255,7 +258,140 @@
         points: counts.reduce((total, n) => total * (n + 1), 1),
       };
     }
-    return { compile, validateDomain, samplingGrid };
+    // Case-preserving scalar AST used by parametric programs and imports.
+    function parseExpression(source) {
+      const tokens = [];
+      const fail = (message, at) => {
+        const error = new Error(message);
+        error.offset = at;
+        throw error;
+      };
+      for (let i = 0; i < source.length; ) {
+        if (/\s/.test(source[i])) {
+          i++;
+          continue;
+        }
+        if (source[i] === "π") {
+          tokens.push({ type: "name", value: "pi", at: i++ });
+          continue;
+        }
+        const symbol = { "−": "-", "–": "-", "×": "*", "÷": "/" }[source[i]];
+        if (symbol) {
+          tokens.push({ type: symbol, at: i++ });
+          continue;
+        }
+        if (source[i] === "²" || source[i] === "³") {
+          tokens.push(
+            { type: "^", at: i },
+            { type: "number", value: source[i] === "²" ? 2 : 3, at: i++ },
+          );
+          continue;
+        }
+        const rest = source.slice(i);
+        const number = rest.match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
+        const name = rest.match(/^[a-zA-Z_][a-zA-Z_0-9]*/);
+        if (number) {
+          const value = Number(number[0]);
+          if (!Number.isFinite(value)) fail("Numbers must be finite.", i);
+          tokens.push({ type: "number", value, at: i });
+          i += number[0].length;
+        } else if (name) {
+          tokens.push({ type: "name", value: name[0], at: i });
+          i += name[0].length;
+        } else if (source.slice(i, i + 2) === "**") {
+          tokens.push({ type: "^", at: i });
+          i += 2;
+        } else if ("+-*/^(),".includes(source[i])) {
+          tokens.push({ type: source[i], at: i++ });
+        } else fail(`Unexpected character “${source[i]}”.`, i);
+        if (tokens.length > 8192)
+          fail("An expression exceeds the 8,192-token limit.", i);
+      }
+      tokens.push({ type: "end", at: source.length });
+      let cursor = 0,
+        depth = 0;
+      const peek = () => tokens[cursor];
+      const take = (type) => (peek().type === type ? tokens[cursor++] : null);
+      const expect = (type) => {
+        if (!take(type)) fail(`Expected “${type}”.`, peek().at);
+      };
+      const binary = (op, a, b) => ({ type: "binary", op, a, b, at: a.at });
+      function expression() {
+        let a = product();
+        while (["+", "-"].includes(peek().type))
+          a = binary(tokens[cursor++].type, a, product());
+        return a;
+      }
+      function product() {
+        let a = unary();
+        while (["*", "/", "number", "name", "("].includes(peek().type)) {
+          const op = take("/") ? "/" : (take("*"), "*");
+          a = binary(op, a, unary());
+        }
+        return a;
+      }
+      function unary() {
+        if (++depth > 48)
+          fail("Too many nested expressions (maximum 48).", peek().at);
+        let node;
+        if (take("+")) node = unary();
+        else if (take("-"))
+          node = { type: "negate", a: unary(), at: tokens[cursor - 1].at };
+        else {
+          node = primary();
+          if (take("^")) node = binary("^", node, unary());
+        }
+        depth--;
+        return node;
+      }
+      function primary() {
+        const token = tokens[cursor++];
+        if (token.type === "number")
+          return { type: "number", value: token.value, at: token.at };
+        if (token.type === "(") {
+          const value = expression();
+          expect(")");
+          return value;
+        }
+        if (token.type === "name") {
+          if (!take("("))
+            return { type: "name", name: token.value, at: token.at };
+          const args = [];
+          if (peek().type !== ")") {
+            args.push(expression());
+            while (take(",")) args.push(expression());
+          }
+          expect(")");
+          return { type: "call", name: token.value, args, at: token.at };
+        }
+        fail("Expected a number, name, or expression.", token.at);
+      }
+      const result = expression();
+      if (peek().type !== "end")
+        fail("Unexpected token after expression.", peek().at);
+      const pending = [[result, 0]];
+      while (pending.length) {
+        const [node, level] = pending.pop();
+        if (level > 96)
+          fail(
+            "Expression tree depth exceeds 96. Split it into intermediate definitions.",
+            node.at,
+          );
+        if (node.a) pending.push([node.a, level + 1]);
+        if (node.b) pending.push([node.b, level + 1]);
+        if (node.args)
+          node.args.forEach((arg) => pending.push([arg, level + 1]));
+      }
+      return result;
+    }
+    return {
+      compile,
+      validateDomain,
+      samplingGrid,
+      parseExpression,
+      functions,
+      constants,
+    };
   }
   root.SurfaceMath = { ...createMath(), createMath };
   if (typeof module !== "undefined" && module.exports)

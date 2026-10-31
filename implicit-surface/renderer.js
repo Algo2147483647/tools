@@ -481,8 +481,9 @@
     resize();
     return {
       setMesh(result) {
-        domain = result.domain;
-        ({ center, scale } = root.SurfaceMath.validateDomain(domain));
+        domain = result.viewBounds || result.domain;
+        ({ center, scale } =
+          result.transform || root.SurfaceMath.validateDomain(domain));
         bounds = domain.map(([a, b], i) => [
           (a - center[i]) / scale,
           (b - center[i]) / scale,

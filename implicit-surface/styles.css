@@ -7,6 +7,222 @@
   --mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
   --edge: 24px;
 }
+/* Parametric authoring keeps the viewport and existing material controls shared. */
+#surface-mode {
+  border: 1px solid var(--border);
+  background: #ffffffa8;
+  border-radius: 10px;
+  padding: 9px 8px;
+}
+#edit-program {
+  margin-right: auto;
+}
+body.parametric-mode .config-panel {
+  width: min(480px, 44vw);
+}
+body.parametric-mode.editor-expanded .config-panel {
+  width: min(820px, calc(100vw - 48px));
+}
+body.parametric-mode .scene-heading {
+  max-width: calc(56vw - 65px);
+}
+.text-button {
+  color: #4269bd;
+  padding: 5px 7px;
+  border-radius: 7px;
+}
+.program-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+.program-editor {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  border: 1px solid #cad5e3;
+  border-radius: 10px;
+  background: #ffffffb8;
+  overflow: hidden;
+}
+#program-lines,
+#program-source {
+  margin: 0;
+  border: 0;
+  padding: 12px 0;
+  font: 12px/20px var(--mono);
+  height: 330px;
+  tab-size: 2;
+}
+#program-lines {
+  color: #94a1b3;
+  text-align: right;
+  padding-right: 8px;
+  user-select: none;
+  overflow: hidden;
+  background: #eaf0f659;
+}
+#program-lines span {
+  display: block;
+  height: 20px;
+}
+#program-lines .error-line {
+  background: #ffe0df;
+  color: #a52f2f;
+}
+#program-source {
+  resize: vertical;
+  width: 100%;
+  min-height: 200px;
+  max-height: 65vh;
+  padding-left: 8px;
+  padding-right: 8px;
+  color: var(--ink);
+  background: transparent;
+  outline-offset: -2px;
+  white-space: pre;
+}
+#program-source[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px #b44e4e;
+}
+.program-editor:focus-within {
+  border-color: #6592ed;
+}
+#program-error {
+  position: static;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+#latex-error {
+  position: static;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.parameter-summary {
+  display: block;
+  text-align: left;
+  width: 100%;
+  background: #edf3fd;
+  color: #45638c;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: var(--mono);
+  white-space: pre-line;
+  margin: 12px 0;
+}
+.parametric-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+}
+.parameter-grid {
+  display: grid;
+  grid-template-columns: minmax(50px, 0.65fr) minmax(65px, 1fr) minmax(
+      80px,
+      1fr
+    );
+  gap: 9px;
+  align-items: center;
+}
+.parameter-grid > span {
+  font-size: 10px;
+  color: #697d97;
+}
+.parameter-grid input,
+.parameter-grid select,
+.parametric-field select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  background: #ffffffa8;
+  border-radius: 7px;
+  padding: 7px;
+}
+.parametric-field select {
+  width: auto;
+}
+#parameter-sampling-preview {
+  display: block;
+  margin: 10px 0;
+  white-space: pre-line;
+}
+.render-actions .apply-button {
+  flex: 1;
+}
+#parameter-diagnostics {
+  margin: 12px 0 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+#parameter-diagnostics summary {
+  cursor: pointer;
+  color: #5e7290;
+}
+#latex-dialog {
+  width: min(1080px, calc(100vw - 32px));
+  padding: 24px;
+}
+.latex-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.latex-columns label {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.latex-columns textarea {
+  width: 100%;
+  height: min(48vh, 440px);
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid #cad5e3;
+  border-radius: 10px;
+  background: #ffffffb8;
+  font: 12px/1.6 var(--mono);
+  color: var(--ink);
+}
+textarea:focus-visible {
+  outline: 2px solid #6592ed;
+  outline-offset: 1px;
+}
+@media (max-width: 700px) {
+  .topbar .app-icon,
+  .topbar > .bar-divider {
+    display: none;
+  }
+  body.parametric-mode .config-panel,
+  body.parametric-mode.editor-expanded .config-panel {
+    width: calc(100vw - 24px);
+    right: 12px;
+    max-height: calc(100dvh - 178px);
+  }
+  body.parametric-mode .scene-heading {
+    display: none;
+  }
+  .latex-columns {
+    grid-template-columns: 1fr;
+  }
+  .latex-columns textarea {
+    height: 26vh;
+  }
+  #latex-dialog {
+    padding: 16px;
+  }
+  #program-source,
+  #program-lines {
+    height: 240px;
+  }
+  #surface-mode {
+    max-width: 112px;
+    padding: 7px 4px;
+  }
+}
 * {
   box-sizing: border-box;
 }
