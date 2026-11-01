@@ -44,10 +44,9 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
       }
     }
   }),
-  defineTest("one default graph contains the complete dated and sourced historical corpus", async () => {
+  defineTest("one graph contains the complete dated and sourced historical corpus", async () => {
     const full = await read("space-history.json");
     const manifest = await read("graph-studio.workspace.json");
-    assert.equal(manifest.defaultGraph, "space-history.json");
     assert.deepEqual(manifest.graphs, [
       "space-history.json",
       "mathematics-physics/mathematics-physics.json",
@@ -164,12 +163,12 @@ export const spaceHistorySuite = defineSuite("World space history timeline", [
       new Response(await readFile(root + url.split("/examples/space-history/")[1], "utf8"))) as typeof fetch;
     const folder = await loadExampleWorkspace("space-history", "/", fetcher);
     const workspace = await discoverWorkspace(folder);
-    assert.equal(workspace.activePath, "space-history.json");
+    assert.equal(workspace.activePath, null);
     assert.equal(workspace.graphs.length, 3);
     assert.equal(workspace.graphs[0].nodeCount, 298);
     assert.equal(workspace.graphs[0].edgeCount, 408);
     for (const oldPath of ["all-space-history.json", "apollo-11.json", "mars.json"]) {
-      assert.equal((await discoverWorkspace(folder, oldPath)).activePath, "space-history.json");
+      assert.equal((await discoverWorkspace(folder, oldPath)).activePath, null);
     }
     assert.ok(workspace.graphs.every((graph) => !graph.error));
     assert.ok(folder.files.has("SOURCES.md"));

@@ -60,7 +60,6 @@ export async function createLocalWorkspace(parent: FileSystemDirectoryHandle, in
       version: 1,
       name,
       graphs: ["graph.json"],
-      defaultGraph: "graph.json",
     };
     const files = new Map<string, WorkspaceFile>();
     for (const [path, content] of [

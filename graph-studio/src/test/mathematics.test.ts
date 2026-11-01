@@ -29,7 +29,6 @@ export const mathematicsSuite = defineSuite("Mathematics curriculum", [
   defineTest("ten subject views share one corpus and retain all internal prerequisite edges", async () => {
     const full = await graph("all-mathematics");
     const manifest = JSON.parse(await readFile(`${root}graph-studio.workspace.json`, "utf8"));
-    assert.equal(manifest.defaultGraph, "mathematics.json");
     assert.deepEqual(manifest.graphs, [
       "mathematics.json",
       ...subjects.map((s) => `${s}.json`),
@@ -142,7 +141,7 @@ export const mathematicsSuite = defineSuite("Mathematics curriculum", [
       }
     }
   }),
-  defineTest("obsolete Mathematics recent paths reopen the new overview", async () => {
+  defineTest("obsolete Mathematics recent paths leave the graph list open", async () => {
     const fetcher = (async (url: string) => {
       const file = url.split("/examples/mathematics/")[1];
       return new Response(await readFile(root + file, "utf8"));
@@ -155,7 +154,7 @@ export const mathematicsSuite = defineSuite("Mathematics curriculum", [
       "mathematical-logic-and-foundations.json",
     ]) {
       const workspace = await discoverWorkspace(folder, oldPath);
-      assert.equal(workspace.activePath, "mathematics.json");
+      assert.equal(workspace.activePath, null);
       assert.ok(workspace.graphs.every((entry) => !entry.error));
       assert.ok(!folder.files.has(oldPath));
     }

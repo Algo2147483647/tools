@@ -19,7 +19,7 @@ export function parseWorkspaceManifest(input: unknown): WorkspaceManifest {
   if (!isRecord(input) || input.format !== "graph-studio-workspace" || input.version !== 1)
     throw new Error("Unsupported workspace manifest. Expected graph-studio-workspace version 1.");
   for (const key of Object.keys(input))
-    if (!["format", "version", "name", "graphs", "defaultGraph", "metadata"].includes(key))
+    if (!["format", "version", "name", "graphs", "metadata"].includes(key))
       throw new Error(`Unknown workspace field: ${key}`);
   if (input.name !== undefined && (typeof input.name !== "string" || !input.name.trim()))
     throw new Error("Workspace name must be a non-empty string.");
@@ -27,22 +27,14 @@ export function parseWorkspaceManifest(input: unknown): WorkspaceManifest {
   const graphs = input.graphs.map(manifestPath);
   if (new Set(graphs).size !== graphs.length) throw new Error("Workspace graph paths must be unique.");
   if (graphs.includes(WORKSPACE_MANIFEST)) throw new Error("The workspace manifest cannot be listed as a graph.");
-  if (input.defaultGraph !== undefined && !graphs.includes(manifestPath(input.defaultGraph)))
-    throw new Error("defaultGraph must be listed in graphs.");
   if (input.metadata !== undefined && !isRecord(input.metadata))
     throw new Error("Workspace metadata must be an object.");
   validateJsonValue(input, "/workspace");
   return structuredClone(input) as unknown as WorkspaceManifest;
 }
-export function chooseWorkspaceGraph(
-  graphs: WorkspaceGraph[],
-  manifest: WorkspaceManifest | null,
-  lastPath?: string,
-): string | null {
+export function chooseWorkspaceGraph(graphs: WorkspaceGraph[], lastPath?: string): string | null {
   const valid = (path?: string) => (path && graphs.some((graph) => graph.path === path && !graph.error) ? path : null);
   if (valid(lastPath)) return lastPath!;
-  // An explicit but invalid default must stay visible as an error, not open another graph.
-  if (manifest?.defaultGraph) return valid(manifest.defaultGraph);
   return valid("graph.json") || (graphs.length === 1 && !graphs[0].error ? graphs[0].path : null);
 }
 export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: string): Promise<GraphWorkspace> {
@@ -109,9 +101,7 @@ export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: stri
   }
   if (skipped) notices.push(`${skipped} unrelated or unreadable JSON file(s) excluded from graph discovery.`);
   if (!manifest)
-    notices.push(
-      "Graphs detected automatically. Add graph-studio.workspace.json to choose the graph list and startup file.",
-    );
+    notices.push("Graphs detected automatically. Add graph-studio.workspace.json to choose the graph list.");
   return {
     ...folder,
     rootName: folder.name,
@@ -119,19 +109,16 @@ export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: stri
     manifest,
     graphs,
     notices,
-    activePath: chooseWorkspaceGraph(graphs, manifest, lastPath),
+    activePath: chooseWorkspaceGraph(graphs, lastPath),
   };
 }
 export function createWorkspaceManifest(workspace: GraphWorkspace): WorkspaceManifest {
   const graphs = workspace.graphs.map((graph) => graph.path);
-  const { defaultGraph: previousDefault, ...previous } = workspace.manifest || {};
-  const defaultGraph = [workspace.activePath, previousDefault].find((path) => path && graphs.includes(path));
   return {
-    ...previous,
+    ...workspace.manifest,
     format: "graph-studio-workspace",
     version: 1,
     name: workspace.name,
     graphs,
-    ...(defaultGraph ? { defaultGraph } : {}),
   };
 }

@@ -1,6 +1,6 @@
 # Mathematics — a connected study atlas
 
-202 concepts across 10 subjects, with one note per concept, subject study guides, scoped theorem statements and reference reading. The default graph is a compact subject overview; the complete concept atlas is a separate graph.
+202 concepts across 10 subjects, with one note per concept, subject study guides, scoped theorem statements and reference reading. The mathematics graph is a compact subject overview; the complete concept atlas is a separate graph.
 
 ## Academic scope
 

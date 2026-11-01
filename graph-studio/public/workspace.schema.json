@@ -26,9 +26,6 @@
         "$ref": "#/$defs/graphPath"
       }
     },
-    "defaultGraph": {
-      "$ref": "#/$defs/graphPath"
-    },
     "metadata": {
       "type": "object"
     }
@@ -39,5 +36,5 @@
       "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)(?!\\s)(?!.*\\s$)(?!graph-studio\\.workspace\\.json$)[^/\\\\:?#\\u0000-\\u001f]+(?:/[^/\\\\:?#\\u0000-\\u001f]+)*\\.[jJ][sS][oO][nN]$"
     }
   },
-  "description": "Paths are canonical and relative to the chosen folder. The application additionally checks defaultGraph membership, referenced file existence and graph document validity."
+  "description": "Paths are canonical and relative to the chosen folder. The application additionally checks referenced file existence and graph document validity."
 }

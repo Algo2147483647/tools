@@ -89,7 +89,7 @@ export default function GeneralSessionSettings({
             {workspace && (
               <p className="settings-help">
                 Place the manifest in the workspace root as <code>graph-studio.workspace.json</code> to keep the graph
-                list and default graph.
+                list.
               </p>
             )}
           </details>

@@ -106,7 +106,7 @@
     "discover-files": {
       "title": "Discover graph files",
       "type": "Process",
-      "define": "Read the workspace manifest and select the requested or default graph.",
+      "define": "Read the workspace manifest and restore the recent graph, open graph.json or a sole graph, or show the graph list.",
       "implementation": "src/workspace/discovery.ts",
       "details": "Workspace opening uses discovery; opening a standalone file can skip workspace discovery. Linked assets remain scoped to the opened workspace.",
       "notes": "[Workflow guide](./README.md)"

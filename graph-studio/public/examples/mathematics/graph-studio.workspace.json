@@ -16,7 +16,6 @@
     "algebraic-geometry.json",
     "all-mathematics.json"
   ],
-  "defaultGraph": "mathematics.json",
   "metadata": {
     "language": "en",
     "conceptCount": 202,

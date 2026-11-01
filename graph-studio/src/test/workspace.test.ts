@@ -112,7 +112,6 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
   }),
   defineTest("manifest round-trips legal metadata without accepting unknown fields", () => {
     const input = manifest(["graphs/main.json"], {
-      defaultGraph: "graphs/main.json",
       name: "Math",
       metadata: { nested: { a: [1, true, null] } },
     });
@@ -124,7 +123,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
       { ...input, extra: true },
       { ...input, metadata: [] },
       { ...input, name: " " },
-      { ...input, defaultGraph: "missing.json" },
+      { ...input, defaultGraph: "graphs/main.json" },
       { ...input, graphs: ["a.json", "a.json"] },
     ])
       assert.throws(() => parseWorkspaceManifest(bad));
@@ -150,7 +149,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
   defineTest("workspace manifest restricts graph discovery and preserves asset access", async () => {
     const workspace = await discoverWorkspace(
       folder({
-        [WORKSPACE_MANIFEST]: manifest(["graphs/main.json"], { name: "Math", defaultGraph: "graphs/main.json" }),
+        [WORKSPACE_MANIFEST]: manifest(["graphs/main.json"], { name: "Math" }),
         "graphs/main.json": graph(),
         "ignored.json": graph(),
         "docs/readme.md": "Hello",
@@ -192,26 +191,15 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     assert.equal(workspace.activePath, null);
     assert.ok(workspace.notices.some((message) => message.includes("2 unrelated")));
   }),
-  defineTest("startup choice is recent, explicit default, root graph.json, then sole graph", () => {
+  defineTest("startup choice is recent, root graph.json, then sole graph", () => {
     const graphs = [summary("graph.json"), summary("main.json"), summary("second.json")];
-    const m = parseWorkspaceManifest(
-      manifest(
-        graphs.map((g) => g.path),
-        { defaultGraph: "main.json" },
-      ),
-    );
-    assert.equal(chooseWorkspaceGraph(graphs, m, "second.json"), "second.json");
-    assert.equal(chooseWorkspaceGraph(graphs, m, "deleted.json"), "main.json");
-    assert.equal(chooseWorkspaceGraph(graphs, null), "graph.json");
-    assert.equal(chooseWorkspaceGraph([summary("nested/only.json")], null), "nested/only.json");
-    assert.equal(chooseWorkspaceGraph(graphs.slice(1), null), null);
-    assert.equal(chooseWorkspaceGraph([], null), null);
-  }),
-  defineTest("invalid explicit default does not silently open a different graph", () => {
-    const graphs = [summary("graph.json"), summary("bad.json", "invalid")];
-    const m = parseWorkspaceManifest(manifest(["graph.json", "bad.json"], { defaultGraph: "bad.json" }));
-    assert.equal(chooseWorkspaceGraph(graphs, m), null);
-    assert.equal(chooseWorkspaceGraph(graphs, m, "graph.json"), "graph.json");
+    assert.equal(chooseWorkspaceGraph(graphs, "second.json"), "second.json");
+    assert.equal(chooseWorkspaceGraph(graphs, "deleted.json"), "graph.json");
+    assert.equal(chooseWorkspaceGraph(graphs), "graph.json");
+    assert.equal(chooseWorkspaceGraph([summary("nested/only.json")]), "nested/only.json");
+    assert.equal(chooseWorkspaceGraph(graphs.slice(1)), null);
+    assert.equal(chooseWorkspaceGraph([]), null);
+    assert.equal(chooseWorkspaceGraph([summary("bad.json", "invalid")], "bad.json"), null);
   }),
   defineTest("empty folders and unrelated project folders can open without a graph", async () => {
     const workspace = await discoverWorkspace(folder({ "package.json": { name: "app" }, "README.md": "Text" }));
@@ -219,21 +207,24 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     assert.equal(workspace.graphs.length, 0);
     assert.equal((await discoverWorkspace(folder({}))).graphs.length, 0);
   }),
-  defineTest("manifest export keeps invalid graph entries and metadata but drops stale default", async () => {
-    const workspace = await discoverWorkspace(
-      folder({
-        [WORKSPACE_MANIFEST]: manifest(["graph.json", "bad.graph.json"], { metadata: { custom: 42 } }),
-        "graph.json": graph(),
-        "bad.graph.json": "{",
-      }),
-    );
-    workspace.activePath = "deleted.json";
-    const exported = createWorkspaceManifest(workspace);
-    assert.equal(exported.defaultGraph, undefined);
-    assert.deepEqual(exported.metadata, { custom: 42 });
-    assert.deepEqual(exported.graphs, ["graph.json", "bad.graph.json"]);
-    assert.deepEqual(parseWorkspaceManifest(exported), exported);
-  }),
+  defineTest(
+    "manifest export keeps invalid graph entries and metadata without persisting the active graph",
+    async () => {
+      const workspace = await discoverWorkspace(
+        folder({
+          [WORKSPACE_MANIFEST]: manifest(["graph.json", "bad.graph.json"], { metadata: { custom: 42 } }),
+          "graph.json": graph(),
+          "bad.graph.json": "{",
+        }),
+      );
+      workspace.activePath = "deleted.json";
+      const exported = createWorkspaceManifest(workspace);
+      assert.equal("defaultGraph" in exported, false);
+      assert.deepEqual(exported.metadata, { custom: 42 });
+      assert.deepEqual(exported.graphs, ["graph.json", "bad.graph.json"]);
+      assert.deepEqual(parseWorkspaceManifest(exported), exported);
+    },
+  ),
   defineTest("graph file reads use fresh handles and preserve document metadata", async () => {
     let title = "First";
     const handle = {

@@ -8,7 +8,6 @@
     "beijing-metro.json",
     "shanghai-metro.json"
   ],
-  "defaultGraph": "all-sky.json",
   "metadata": {
     "assets": [
       "README.md",

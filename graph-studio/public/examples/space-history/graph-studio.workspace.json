@@ -7,7 +7,6 @@
     "mathematics-physics/mathematics-physics.json",
     "agi/agi-history.json"
   ],
-  "defaultGraph": "space-history.json",
   "metadata": {
     "language": "en",
     "snapshotAsOf": "2026-10-21",

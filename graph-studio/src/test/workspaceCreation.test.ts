@@ -395,20 +395,19 @@ export const workspaceCreationSuite = defineSuite("Creating workspace graph file
     assert.equal(reopened.activePath, result.entry.path);
     assert.equal(reopened.graphs[0].nodeCount, 1);
   }),
-  defineTest("updates the latest manifest while preserving its default graph and metadata", async () => {
+  defineTest("updates the latest manifest while preserving its name and metadata", async () => {
     const source = disk({ [WORKSPACE_MANIFEST]: { format: "graph-studio-workspace", version: 1, graphs: [] } });
     const first = await createWorkspaceGraph(await source.open(), "first.json");
     const manifest = {
       ...first.workspace.manifest,
       name: "Renamed outside the app",
-      defaultGraph: "first.json",
       metadata: { tags: ["keep", "me"] },
     };
     source.contents.set(WORKSPACE_MANIFEST, JSON.stringify(manifest));
     const second = await createWorkspaceGraph(first.workspace, "second");
     assert.deepEqual(second.workspace.manifest, { ...manifest, graphs: ["first.json", "second.json"] });
     assert.deepEqual((await source.open()).manifest, second.workspace.manifest);
-    assert.equal((await source.open()).activePath, "first.json");
+    assert.equal((await source.open()).activePath, null);
   }),
   defineTest("refuses duplicates including files added after opening without overwriting", async () => {
     const source = disk();

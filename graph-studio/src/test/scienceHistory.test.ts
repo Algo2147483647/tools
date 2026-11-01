@@ -19,7 +19,6 @@ export const scienceHistorySuite = defineSuite("Combined mathematics and physics
     const manifest = await read("graph-studio.workspace.json");
     assert.equal(graph.title, "History of Mathematics and Physics");
     assert.deepEqual(manifest.graphs, ["space-history.json", path, "agi/agi-history.json"]);
-    assert.equal(manifest.defaultGraph, "space-history.json");
     assert.equal(manifest.metadata.nodeCount, 804);
     assert.equal(manifest.metadata.edgeCount, 1209);
     assert.equal(manifest.metadata.graphStats[path].nodeCount, 250);

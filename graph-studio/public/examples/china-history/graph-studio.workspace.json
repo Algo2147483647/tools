@@ -6,7 +6,6 @@
     "china-history.json",
     "europe/europe-history.json"
   ],
-  "defaultGraph": "china-history.json",
   "metadata": {
     "language": "zh-CN",
     "nodeCount": 1871,

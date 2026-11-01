@@ -2,7 +2,6 @@
   "format": "graph-studio-workspace",
   "version": 1,
   "name": "Commerce operations",
-  "defaultGraph": "commerce.json",
   "graphs": [
     "commerce.json",
     "order-journey.json",

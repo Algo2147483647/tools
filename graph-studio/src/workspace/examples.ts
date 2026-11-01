@@ -124,14 +124,10 @@ export async function loadExampleWorkspace(
     cache.set(path, request);
     return request;
   }
-  let manifestFile = await read(WORKSPACE_MANIFEST);
+  const manifestFile = await read(WORKSPACE_MANIFEST);
   let manifest: ReturnType<typeof parseWorkspaceManifest>;
   try {
     manifest = parseWorkspaceManifest(JSON.parse(await manifestFile.text()));
-    if (legacyEurope) {
-      manifest = { ...manifest, defaultGraph: "europe/europe-history.json" };
-      manifestFile = new File([JSON.stringify(manifest)], WORKSPACE_MANIFEST, { type: "application/json" });
-    }
   } catch (error) {
     cache.delete(WORKSPACE_MANIFEST);
     throw error;

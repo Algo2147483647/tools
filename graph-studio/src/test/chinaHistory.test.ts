@@ -111,12 +111,12 @@ export const chinaHistorySuite = defineSuite("中国历史时间线示例", [
     };
     assert.ok(share(stage, "1911", "1913") > share(linear, "1911", "1913"), "dense modern years expand");
   }),
-  defineTest("the gallery opens the Chinese timeline and exposes its source and theme notes", async () => {
+  defineTest("the gallery lists the history timelines and exposes their source and theme notes", async () => {
     const fetcher = (async (url: string) =>
       new Response(await readFile(root + url.split("/examples/china-history/")[1], "utf8"))) as typeof fetch;
     const folder = await loadExampleWorkspace("china-history", "/", fetcher);
     const workspace = await discoverWorkspace(folder);
-    assert.equal(workspace.activePath, "china-history.json");
+    assert.equal(workspace.activePath, null);
     assert.equal(workspace.graphs.length, 2);
     assert.equal(workspace.graphs[0].error, undefined);
     assert.equal(workspace.graphs[0].nodeCount, 1273);
