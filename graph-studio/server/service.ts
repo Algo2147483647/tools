@@ -22,6 +22,7 @@ import {
   MAX_FILE_BYTES,
 } from "./files";
 import { openExternal } from "./platform";
+import type { GeneralPreferences } from "../src/workspace/generalPreferences";
 
 export interface LocationRecord {
   id: string;
@@ -43,6 +44,7 @@ export const defaultStateDirectory = () =>
 export class LocalService {
   events = new EventEmitter();
   private records: LocationRecord[] = [];
+  private preferences: GeneralPreferences = { fileOpenMode: "preview" };
   private queue = serialQueue();
   private watchers = new Map<string, { close(): void }>();
   private lockPath: string;
@@ -77,6 +79,7 @@ export class LocalService {
       const state = JSON.parse(await readFile(join(this.stateDirectory, "state.json"), "utf8"));
       if (state.version !== 1 || !Array.isArray(state.locations)) throw new Error("Unsupported user-state file.");
       this.records = state.locations;
+      this.preferences = { fileOpenMode: state.preferences?.fileOpenMode === "external" ? "external" : "preview" };
     } catch (error: any) {
       if (error.code !== "ENOENT") {
         await this.close();
@@ -103,8 +106,27 @@ export class LocalService {
   private persist() {
     return atomicWrite(
       join(this.stateDirectory, "state.json"),
-      JSON.stringify({ version: 1, locations: this.records }, null, 2),
+      JSON.stringify({ version: 1, locations: this.records, preferences: this.preferences }, null, 2),
     );
+  }
+  getPreferences() {
+    return { ...this.preferences };
+  }
+  async updatePreferences(input: unknown) {
+    const mode = (input as Partial<GeneralPreferences> | null)?.fileOpenMode;
+    if (mode !== "preview" && mode !== "external")
+      throw new ServiceError("INVALID_PREFERENCES", "Choose preview or external for fileOpenMode.");
+    return this.queue(async () => {
+      const previous = this.preferences;
+      this.preferences = { fileOpenMode: mode };
+      try {
+        await this.persist();
+      } catch (error) {
+        this.preferences = previous;
+        throw error;
+      }
+      return this.getPreferences();
+    });
   }
   private async requireNoPendingTransaction() {
     if (

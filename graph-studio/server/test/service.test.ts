@@ -62,6 +62,21 @@ test("broken and stale manifests cannot gate discovery or graph creation", async
     assert.equal((await service.snapshot(created.id)).graphs.length, 4);
   }));
 
+test("file opening preference survives restart and invalid updates preserve its value", async () =>
+  fixture(async (service) => {
+    assert.deepEqual(service.getPreferences(), { fileOpenMode: "preview" });
+    await service.updatePreferences({ fileOpenMode: "external" });
+    await service.close();
+    await service.initialize();
+    assert.deepEqual(service.getPreferences(), { fileOpenMode: "external" });
+    await assert.rejects(service.updatePreferences({ fileOpenMode: "unknown" }), /preview or external/);
+    assert.deepEqual(service.getPreferences(), { fileOpenMode: "external" });
+    await service.updatePreferences({ fileOpenMode: "preview" });
+    await service.close();
+    await service.initialize();
+    assert.deepEqual(service.getPreferences(), { fileOpenMode: "preview" });
+  }));
+
 test("conditional saves detect external edits and serialize competing writes", async () =>
   fixture(async (service, root) => {
     const created = await service.create(root, "Notes");
@@ -173,6 +188,11 @@ test("API authenticates sessions, rejects other origins, serves bytes, and propa
         403,
       );
       assert.deepEqual(await (await request("/dialogs/directory", "POST", {})).json(), { path: null });
+      assert.deepEqual(await (await request("/preferences")).json(), { fileOpenMode: "preview" });
+      assert.deepEqual(await (await request("/preferences", "PATCH", { fileOpenMode: "external" })).json(), {
+        fileOpenMode: "external",
+      });
+      assert.equal((await request("/preferences", "PATCH", { fileOpenMode: "invalid" })).status, 400);
       const created = (await (await request("/workspaces", "POST", { parent: root, name: "Notes" })).json()) as {
         id: string;
       };

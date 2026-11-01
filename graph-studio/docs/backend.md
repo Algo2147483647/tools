@@ -31,6 +31,8 @@ All routes below are under `/api/v1`. Errors return `{ "error": { "code": "FILE_
 | Method and route | Behavior |
 | --- | --- |
 | `GET /session` | Establish HttpOnly SameSite session cookie and obtain request token |
+| `GET /preferences` | Read application preferences, including `fileOpenMode` |
+| `PATCH /preferences` | Persist `{fileOpenMode: "preview" \| "external"}` in user state |
 | `POST /dialogs/directory` | System folder chooser; returns `{path}` or `{path:null}` on cancellation |
 | `POST /dialogs/file` | System file chooser |
 | `POST /dialogs/save` | Save chooser; accepts optional `name` |
@@ -57,6 +59,8 @@ File, session and external-open operations accept either `/files/:id` or `/works
 Each API request except session bootstrap needs the cookie and `X-Graph-Studio-Token`. EventSource uses the cookie. Mutating requests also require the same Origin. Host and peer checks reject non-loopback access; no cross-origin permission is granted. This is local application isolation, not a sandbox against other processes running as the same OS user.
 
 ## Saves and external editing
+
+General → Open linked files selects Graph Studio preview (the default) or the system default application. The preference is stored in backend `state.json`, so it survives restarts and port changes. Explorer assets, node-detail links, and relative links inside Markdown share this setting. Explicit Markdown Edit always opens the original file in the default application. Graph entries in the Graphs section continue opening as editable graphs.
 
 Reads return a SHA-256 revision of exact file bytes. Writes compare `expectedRevision` under a serialized service write queue; mismatches return HTTP 409. A successful save writes and syncs a same-directory temporary file, then publishes it. Create-only writes use no-replace publication. Existing graph documents cannot be replaced with invalid graph data. The frontend only clears dirty state after the server accepts the corresponding document revision.
 

@@ -4,7 +4,10 @@ import {
   type ResolvedRelativeFile,
   isExternalUrl,
   resolveRelativeFile,
+  resolveRelativePath,
 } from "../../workspace/relativeLinks";
+import { loadGeneralPreferences } from "../../workspace/generalPreferences";
+import { localJson } from "../../workspace/localApi";
 import type { GraphAction } from "../document/graphActions";
 export function useFilePreview(dispatch: Dispatch<GraphAction>, relativeLinkRoot: RelativeLinkRoot | null) {
   const [filePreview, setFilePreview] = useState<ResolvedRelativeFile | null>(null);
@@ -30,6 +33,25 @@ export function useFilePreview(dispatch: Dispatch<GraphAction>, relativeLinkRoot
     const request = ++requestRef.current;
     const root =
       relativeLinkRoot && fromFile !== undefined ? { ...relativeLinkRoot, baseFile: fromFile } : relativeLinkRoot;
+    try {
+      const preferences = await loadGeneralPreferences();
+      if (request !== requestRef.current) return;
+      if (preferences.fileOpenMode === "external") {
+        if (!root) throw new Error("Open a workspace to access linked files.");
+        const resolved = resolveRelativePath(url, root.baseFile);
+        if (!resolved.ok) throw new Error(resolved.message);
+        const entry = root.files.get(resolved.path);
+        if (!entry) throw new Error(`File not found in this workspace: ${resolved.path}`);
+        if (!entry.local)
+          throw new Error("Open this folder as a local workspace to use the system default application.");
+        await localJson(`/files/${entry.local.locationId}/open-external`, "POST", { path: entry.local.path });
+        return;
+      }
+    } catch (error) {
+      if (request === requestRef.current)
+        handleRelativeLinkError(error instanceof Error ? error.message : String(error));
+      return;
+    }
     const result = await resolveRelativeFile(root, url);
     if (request !== requestRef.current) {
       if (result.ok) URL.revokeObjectURL(result.file.url);

@@ -28,6 +28,13 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
   const a = (id: string, group: string, label: string, keywords = "") => add(id, "appearance", group, label, keywords);
   add("export", "general", "Export", "Export current view", "svg html canvas 导出 画布");
   add(
+    "file-opening",
+    "general",
+    "Files",
+    "Open linked files",
+    "markdown preview default application external open viewer 文件 打开 默认 应用 预览",
+  );
+  add(
     "session",
     "general",
     "Workspace",

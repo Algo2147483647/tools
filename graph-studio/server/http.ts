@@ -110,6 +110,9 @@ export function createApplication(
         throw new ServiceError("ORIGIN_DENIED", "Same-origin write required.", 403);
       const path = url.pathname.slice("/api/v1".length);
       const method = request.method;
+      if (path === "/preferences" && method === "GET") return json(response, service.getPreferences());
+      if (path === "/preferences" && method === "PATCH")
+        return json(response, await service.updatePreferences(await body(request)));
       if (path === "/events" && method === "GET") {
         const locationId = url.searchParams.get("locationId");
         if (locationId) {

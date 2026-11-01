@@ -1,4 +1,5 @@
 import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
+import { useGeneralPreferences, type FileOpenMode } from "../../workspace/generalPreferences";
 
 export default function GeneralSessionSettings({
   files,
@@ -10,6 +11,7 @@ export default function GeneralSessionSettings({
   onClose,
   showExport = true,
   showSession = true,
+  showFileOpening = true,
 }: {
   files: WorkspaceControls;
   hasGraph: boolean;
@@ -20,10 +22,39 @@ export default function GeneralSessionSettings({
   onClose: () => void;
   showExport?: boolean;
   showSession?: boolean;
+  showFileOpening?: boolean;
 }) {
   const workspace = files.workspace;
+  const preferences = useGeneralPreferences();
   return (
     <>
+      {showFileOpening && (
+        <section className="settings-section">
+          <h3>Files</h3>
+          <label className="settings-field-label" htmlFor="file-open-mode">
+            <span>Open linked files</span>
+            <select
+              id="file-open-mode"
+              className="settings-select-input"
+              value={preferences.fileOpenMode}
+              disabled={!preferences.loaded || preferences.saving}
+              onChange={(event) => void preferences.setFileOpenMode(event.target.value as FileOpenMode)}
+            >
+              <option value="preview">Graph Studio preview</option>
+              <option value="external">System default application</option>
+            </select>
+          </label>
+          <p className="settings-help">
+            Applies to files such as Markdown opened from the explorer, node details, and document links. Saved
+            automatically for this computer.
+          </p>
+          {preferences.error && (
+            <p className="settings-help" role="alert">
+              {preferences.error}
+            </p>
+          )}
+        </section>
+      )}
       {showExport && (
         <section className="settings-section settings-export-section">
           <h3>Export current view</h3>

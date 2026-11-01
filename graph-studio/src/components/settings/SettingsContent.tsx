@@ -127,6 +127,7 @@ export function SettingsContent({
             canExportCanvas={canExportCanvas}
             showExport={results.some((item) => item.id === "export")}
             showSession={results.some((item) => item.id === "session")}
+            showFileOpening={results.some((item) => item.id === "file-opening")}
           />
         ) : null}
 
