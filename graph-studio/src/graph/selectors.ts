@@ -93,11 +93,6 @@ export function getParentLevelSelection(dag: NormalizedDag, topLevelKeys: NodeKe
 
 export function sanitizeNodeLabel(text: unknown): string {
   return String(text ?? "")
-    .split("\\")
-    .pop()!
-    .split("/")
-    .pop()!
-    .replace(/\.[^.]+$/, "")
     .replace(/_+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
