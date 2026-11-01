@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
+import { buildServer } from "./build-server.mjs";
+import { serve } from "./serve.mjs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -154,15 +156,15 @@ export function initialize(root) {
   writeFileSync(stamp, fingerprint);
 }
 
-export function main(args = process.argv.slice(2)) {
+export async function main(args = process.argv.slice(2)) {
   const options = parseOptions(args);
   if (options.help) {
     console.log(
       "Graph Studio: launch.cmd [PowerShell options] / bash launch.command [options]\n" +
-        "  --dev           Development server (default)\n" +
+        "  --dev           Frontend + backend development server (default)\n" +
         "  --install-only  Prepare dependencies only\n" +
         "  --build-only    Type-check and build only\n" +
-        "  --preview       Build and serve production output\n" +
+        "  --preview       Build frontend + backend and serve production output\n" +
         "  --no-browser    Do not open the browser\n" +
         "Windows options: -Dev, -InstallOnly, -BuildOnly, -Preview, -NoBrowser, -Help.",
     );
@@ -176,20 +178,17 @@ export function main(args = process.argv.slice(2)) {
   if (options.installOnly) return;
   if (options.buildOnly || options.preview) {
     run(["node_modules/typescript/bin/tsc", "--noEmit"], projectPath);
+    run(["node_modules/typescript/bin/tsc", "-p", "server/tsconfig.json"], projectPath);
     run(["node_modules/vite/bin/vite.js", "build"], projectPath);
+    await buildServer(projectPath);
     if (options.buildOnly) return;
   }
-  const viteArgs = ["node_modules/vite/bin/vite.js"];
-  if (options.preview) viteArgs.push("preview");
-  viteArgs.push("--host", "127.0.0.1");
-  if (!options.noBrowser) viteArgs.push("--open");
-  console.log("Starting Graph Studio. Keep this window open. Press Ctrl+C to stop.");
-  run(viteArgs, projectPath);
+  await serve(projectPath, options);
 }
 
 if (process.argv[1] && realpathSync(resolve(process.argv[1])) === fileURLToPath(import.meta.url)) {
   try {
-    main();
+    await main();
   } catch (error) {
     if (error.exitCode !== 130) console.error(error.message);
     process.exitCode = error.exitCode || 1;

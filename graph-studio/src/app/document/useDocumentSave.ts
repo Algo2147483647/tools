@@ -1,5 +1,6 @@
+import { chooseLocalPath, openLocalFile, readLocalFile, writeLocalFile, LocalApiError } from "../../workspace/localApi";
 import { type Dispatch, useRef } from "react";
-import { buildTimestampFileName, downloadJsonFile } from "../../shared/browser/download";
+import { buildTimestampFileName } from "../../shared/browser/download";
 import { canOverwrite, requestWritablePermission, writeJsonToHandle } from "../../shared/browser/fileAccess";
 import type { GraphAction } from "./graphActions";
 import type { GraphAppState } from "./initialState";
@@ -16,7 +17,30 @@ export function useDocumentSave({
   const current = useRef(state);
   current.current = state;
   const saver = useRef(createDocumentSaver({ requestPermission: requestWritablePermission, write: writeJsonToHandle }));
+  const saving = useRef(false);
   async function handleOverwriteJson() {
+    if (state.source.localFile && state.dag) {
+      if (saving.current) return;
+      saving.current = true;
+      const generation = state.document.generation;
+      try {
+        await writeLocalFile(state.source.localFile, currentJsonContent);
+        if (current.current.document.generation === generation)
+          dispatch({
+            type: "saved",
+            generation,
+            revision: state.editHistory.revision,
+            dag: state.dag,
+            status: "Saved " + state.source.fileName + ".",
+          });
+      } catch (error) {
+        if (current.current.document.generation === generation)
+          dispatch({ type: "statusChanged", status: error instanceof Error ? error.message : "Unable to save." });
+      } finally {
+        saving.current = false;
+      }
+      return;
+    }
     if (!canOverwrite(state.source.fileHandle)) {
       dispatch({
         type: "statusChanged",
@@ -31,13 +55,32 @@ export function useDocumentSave({
     );
     if (action) dispatch(action);
   }
-  function handleSaveJsonAsNew() {
-    const outputFileName = buildTimestampFileName(state.source.fileName || "graph.json");
-    downloadJsonFile(currentJsonContent, outputFileName);
-    dispatch({
-      type: "savedAsCopy",
-      status: "Saved JSON as " + outputFileName + ". Original file still has unsaved changes.",
-    });
+  async function handleSaveJsonAsNew() {
+    if (saving.current) return;
+    saving.current = true;
+    const generation = state.document.generation;
+    try {
+      const path = await chooseLocalPath("save", buildTimestampFileName(state.source.fileName || "graph.json"));
+      if (!path) return;
+      const { entry } = await openLocalFile(path, undefined, true);
+      try {
+        await readLocalFile(entry.local!);
+      } catch (error) {
+        if (!(error instanceof LocalApiError) || error.code !== "ENOENT") throw error;
+        entry.local!.revision = null;
+      }
+      await writeLocalFile(entry.local!, currentJsonContent);
+      if (current.current.document.generation === generation)
+        dispatch({
+          type: "savedAsCopy",
+          status: "Saved JSON as " + path + ". Original file still has unsaved changes.",
+        });
+    } catch (error) {
+      if (current.current.document.generation === generation)
+        dispatch({ type: "statusChanged", status: error instanceof Error ? error.message : "Unable to save copy." });
+    } finally {
+      saving.current = false;
+    }
   }
   return { handleOverwriteJson, handleSaveJsonAsNew };
 }

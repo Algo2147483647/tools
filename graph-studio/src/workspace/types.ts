@@ -1,10 +1,14 @@
+import type { LocalFileReference } from "./localApi";
 export interface WorkspaceFile {
+  local?: LocalFileReference;
   path: string;
   handle: FileSystemFileHandle | null;
   file?: File;
   loadFile?: () => Promise<File>;
 }
 export interface WorkspaceFolder {
+  localId?: string;
+  absolutePath?: string;
   exampleId?: string;
   name: string;
   handle: FileSystemDirectoryHandle | null;

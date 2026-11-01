@@ -45,6 +45,7 @@ export interface GraphAppState {
   source: {
     fileName: string;
     fileHandle: FileSystemFileHandle | null;
+    localFile?: import("../../workspace/localApi").LocalFileReference;
     dirty: boolean;
   };
   selection: GraphSelection | null;

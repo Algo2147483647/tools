@@ -24,6 +24,16 @@ If Graph Studio returns to the welcome screen after being away, the app has no i
 ![Graph Studio screenshot](./docs/assets/img.png)
 ![Graph Studio screenshot](./docs/assets/img_1.png)
 
+## Local workspace service
+
+Workspace creation, file reads and writes, system file dialogs, external editing, and recent locations are handled by the local TypeScript backend. Open a directory once; subsequent file operations use its workspace ID and relative paths. Recent locations survive browser cache clearing and port changes. Browser-local preferences remain browser-local.
+
+A workspace is a directory. Its optional `graph-studio.workspace.json` names and orders graphs; invalid configuration or missing listed files produces diagnostics instead of blocking the directory. Graph documents remain strictly validated. There is no `defaultGraph` field. The last opened graph belongs to user state.
+
+Markdown previews have an **Edit** button that opens the original file in the system default application. After an external save the preview refreshes. Graph edits stay in memory until saved; external modifications cause a conflict rather than a silent overwrite. Select the active graph in the explorer again to reload it, or save a separate copy.
+
+See [Local backend](docs/backend.md) for APIs, state locations, conflict handling and recovery. Windows uses system dialogs; macOS uses AppleScript dialogs; Linux requires `zenity` for dialogs and `xdg-open` for default applications.
+
 ## Quick Start
 
 ### Interactive HTML export
@@ -43,7 +53,9 @@ For development, `/browser-tests/layout.html` serves an isolated regression fixt
 - **Windows:** double-click [`launch.cmd`](launch.cmd), or run it from any directory. [`launch.ps1`](launch.ps1) selects Node.js 22.12+, including an existing Codex runtime, and skips older installations on PATH.
 - **macOS:** install Node.js 22.12+ including npm, then double-click [`launch.command`](launch.command). If copied from Windows or an archive without executable permissions, run `chmod +x launch.command` once. You can also run `bash launch.command` in Terminal. Homebrew installations in `/opt/homebrew` and `/usr/local` are detected.
 
-Both entry points use [`scripts/launch.mjs`](scripts/launch.mjs) to install and verify dependencies, start the app, and open your browser. They work from any directory and do not require files outside this project. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
+All launchers start the local file service and frontend together on one loopback URL. In development, Vite runs as UI middleware inside that lifecycle; in preview mode the local service serves the built frontend. The service port is selected automatically and printed in the terminal. Set `GRAPH_STUDIO_PORT` to request a fixed port.
+
+Both entry points use [`scripts/launch.mjs`](scripts/launch.mjs) to install and verify dependencies, start the app, and open your browser. They work from any directory and do not require files outside this project. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop both the UI server and backend. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
 
 On both platforms, npm is preferred; when npm is missing, the launcher imports `package-lock.json` into a local pnpm lockfile and installs with pnpm. Successful installations are fingerprinted and verified on every launch, including the native esbuild binary. Changes to dependencies, runtime, platform, or install configuration trigger a reinstall. `package-lock.json` is the authoritative lockfile; generated `pnpm-lock.yaml` is ignored. Close running Graph Studio servers before updating dependencies, and run only one dependency installation at a time.
 

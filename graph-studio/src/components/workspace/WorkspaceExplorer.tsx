@@ -17,7 +17,7 @@ export default function WorkspaceExplorer({
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const workspace = files.workspace!;
-  const canCreate = Boolean(workspace.handle?.getFileHandle && workspace.handle?.removeEntry);
+  const canCreate = Boolean(workspace.localId || (workspace.handle?.getFileHandle && workspace.handle?.removeEntry));
   const graphs = workspace.graphs.filter((graph) =>
     `${graph.path} ${graph.title}`.toLowerCase().includes(query.toLowerCase()),
   );

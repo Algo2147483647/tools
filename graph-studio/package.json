@@ -9,15 +9,16 @@
   },
   "scripts": {
     "start": "node scripts/launch.mjs",
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "dev": "node scripts/launch.mjs --dev",
+    "build": "tsc --noEmit && tsc -p server/tsconfig.json && vite build && node scripts/build-backend.mjs",
     "test": "node --loader ts-node/esm --experimental-specifier-resolution=node src/test/core.test.ts",
     "test:launcher": "node --test scripts/test/*.test.mjs",
     "clean": "node scripts/clean.mjs",
-    "preview": "vite preview",
-    "format": "prettier --write src browser-tests scripts/**/*.mjs package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "format:check": "prettier --check src browser-tests scripts/**/*.mjs package.json tsconfig.json vite.config.ts .prettierrc.json",
-    "check": "npm run format:check && npm run test:launcher && npm test && npm run build"
+    "preview": "node scripts/launch.mjs --preview",
+    "format": "prettier --write src server browser-tests scripts/**/*.mjs package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "format:check": "prettier --check src server browser-tests scripts/**/*.mjs package.json tsconfig.json vite.config.ts .prettierrc.json",
+    "check": "npm run format:check && npm test && npm run test:server && npm run build && npm run test:launcher",
+    "test:server": "node scripts/test-server.mjs"
   },
   "dependencies": {
     "d3-sankey": "^0.12.3",

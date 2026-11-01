@@ -48,13 +48,15 @@ export default function GeneralSessionSettings({
               </div>
               <div>
                 <dt>Location</dt>
-                <dd>{workspace ? workspace.rootName : fileName || "No file open"}</dd>
+                <dd>{workspace ? workspace.absolutePath || workspace.rootName : fileName || "No file open"}</dd>
               </div>
               {workspace && (
                 <>
                   <div>
                     <dt>Discovery</dt>
-                    <dd>{workspace.manifest ? "Workspace manifest" : "Automatic detection"}</dd>
+                    <dd>
+                      {workspace.manifest ? "Automatic detection with configured ordering" : "Automatic detection"}
+                    </dd>
                   </div>
                   <div>
                     <dt>Active graph</dt>
@@ -88,8 +90,8 @@ export default function GeneralSessionSettings({
             )}
             {workspace && (
               <p className="settings-help">
-                Place the manifest in the workspace root as <code>graph-studio.workspace.json</code> to keep the graph
-                list.
+                Place the manifest in the workspace root as <code>graph-studio.workspace.json</code> to name the
+                workspace and order its graphs.
               </p>
             )}
           </details>

@@ -7,7 +7,7 @@ export function documentIdentity(locationId: string, graphPath: string): string 
   return JSON.stringify([locationId, graphPath]);
 }
 export async function prepareWorkspace(folder: WorkspaceFolder, lastGraph?: string) {
-  const workspace = await discoverWorkspace(folder, lastGraph);
+  const workspace = folder.localId ? (folder as GraphWorkspace) : await discoverWorkspace(folder, lastGraph);
   const entry = workspace.activePath ? workspace.files.get(workspace.activePath)! : null;
   const dag = entry ? await readGraphFile(entry) : null;
   return {
@@ -43,7 +43,7 @@ export async function prepareFileLocation(
 ) {
   const dag = await readGraphFile(entry);
   const input = {
-    id: recentId,
+    id: entry.local?.locationId || recentId,
     kind: "file" as const,
     name: entry.path,
     location: entry.path,
@@ -64,10 +64,10 @@ export async function prepareWorkspaceLocation(
 ) {
   const prepared = await prepareWorkspace(folder, recent?.lastGraph);
   const input = {
-    id: recent?.id,
+    id: folder.localId || recent?.id,
     kind: "workspace" as const,
     name: prepared.workspace.name,
-    location: folder.handle?.name || folder.name,
+    location: folder.absolutePath || folder.handle?.name || folder.name,
     handle: folder.handle || undefined,
     lastGraph: prepared.workspace.activePath || undefined,
     exampleId: folder.exampleId,

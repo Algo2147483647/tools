@@ -51,3 +51,5 @@ Desktop.ini
 *.bak
 
 .spatial-data/
+
+.server/

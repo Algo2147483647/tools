@@ -30,8 +30,8 @@ export default function WorkspaceOverview({ files }: { files: WorkspaceControls 
       <details>
         <summary>How workspace detection works</summary>
         <p>
-          A workspace manifest declares graph files. Without one, Graph Studio detects v3 JSON documents. A single graph
-          or root graph.json opens automatically.
+          Graph Studio detects v3 JSON files automatically. An optional workspace manifest controls their order. A
+          single graph or root graph.json opens automatically.
         </p>
         {workspace.notices.map((note) => (
           <p key={note}>{note}</p>

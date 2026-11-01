@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: #00000044;
+  background: transparent;
   color: var(--node-ink);
   font-family: var(--node-serif);
 }
@@ -39,9 +39,11 @@
   display: flex;
   flex-direction: column;
   border-radius: 16px;
-  border: 1px solid #bbb;
-  background: var(--node-paper);
-  box-shadow: 0 12px 55px #0000001a;
+  border: 1px solid var(--chrome-border);
+  background: var(--chrome-background);
+  box-shadow: none;
+  backdrop-filter: var(--chrome-blur);
+  -webkit-backdrop-filter: var(--chrome-blur);
 }
 
 .node-detail-modal.is-fullscreen .node-detail-page {

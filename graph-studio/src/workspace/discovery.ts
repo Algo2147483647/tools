@@ -41,29 +41,27 @@ export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: stri
   if (folder.exampleId === "spatial-atlas" && lastPath === "beijing-roads.json") lastPath = "beijing-metro.json";
   const manifestEntry = folder.files.get(WORKSPACE_MANIFEST);
   let manifest: WorkspaceManifest | null = null;
+  const notices: string[] = [];
   if (manifestEntry) {
-    const file = await readWorkspaceFile(manifestEntry);
-    if (file.size > MAX_JSON_BYTES) throw new Error("Workspace manifest exceeds the 16 MB limit.");
-    manifest = parseWorkspaceManifest(JSON.parse(await file.text()));
-    for (const path of manifest.graphs)
-      if (!folder.files.has(path)) throw new Error(`Workspace graph is missing: ${path}`);
+    try {
+      const file = await readWorkspaceFile(manifestEntry);
+      if (file.size > MAX_JSON_BYTES) throw new Error("Workspace manifest exceeds the 16 MB limit.");
+      manifest = parseWorkspaceManifest(JSON.parse(await file.text()));
+    } catch (error) {
+      notices.push(`Workspace configuration ignored: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
   const graphs: WorkspaceGraph[] = [];
-  const notices: string[] = [];
   let skipped = 0;
-  const paths =
-    manifest?.graphs ??
-    [...folder.files.keys()]
-      .filter((path) => /\.json$/i.test(path) && path !== WORKSPACE_MANIFEST && !/\.layout\.json$/i.test(path))
-      .sort();
-  if (!manifest && paths.length > 1000)
-    throw new Error(
-      "More than 1,000 JSON files found. Add graph-studio.workspace.json to specify which graphs to load, or open a smaller folder.",
-    );
+  const detected = [...folder.files.keys()]
+    .filter((path) => /\.json$/i.test(path) && path !== WORKSPACE_MANIFEST && !/\.(?:layout|style)\.json$/i.test(path))
+    .sort();
+  const paths = [...new Set([...(manifest?.graphs || []), ...detected])];
   for (const path of paths) {
     const entry = folder.files.get(path)!;
-    const expected = Boolean(manifest) || path === "graph.json" || /\.graph\.json$/i.test(path);
+    const expected = Boolean(manifest?.graphs.includes(path)) || path === "graph.json" || /\.graph\.json$/i.test(path);
     try {
+      if (!entry) throw new Error(`Workspace graph is missing: ${path}`);
       const file = await readWorkspaceFile(entry);
       if (file.size > MAX_JSON_BYTES) {
         if (expected) throw new Error("Graph JSON exceeds the 16 MB limit.");
@@ -100,8 +98,7 @@ export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: stri
     }
   }
   if (skipped) notices.push(`${skipped} unrelated or unreadable JSON file(s) excluded from graph discovery.`);
-  if (!manifest)
-    notices.push("Graphs detected automatically. Add graph-studio.workspace.json to choose the graph list.");
+  if (!manifest) notices.push("Graphs detected automatically. Workspace configuration is optional.");
   return {
     ...folder,
     rootName: folder.name,

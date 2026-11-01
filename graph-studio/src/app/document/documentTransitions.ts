@@ -34,6 +34,7 @@ export function replaceDocument(
       ? {
           fileName: action.fileName,
           fileHandle: action.type === "graphLoaded" ? action.fileHandle || null : null,
+          localFile: action.type === "graphLoaded" ? action.localFile : undefined,
           dirty: isNew,
         }
       : initial.source,

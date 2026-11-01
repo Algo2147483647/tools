@@ -1,3 +1,4 @@
+import { localJson, readLocalFile, subscribeLocalChanges } from "../../workspace/localApi";
 import { useEffect, useState } from "react";
 import type { RelativeLinkRoot, ResolvedRelativeFile } from "../../workspace/relativeLinks";
 import MarkdownValue from "../content/MarkdownValue";
@@ -18,32 +19,52 @@ export default function FilePreviewModal({
 }: FilePreviewModalProps) {
   const [textContent, setTextContent] = useState<string | null>(null);
   const [readError, setReadError] = useState("");
+  const [editError, setEditError] = useState("");
+  const [openingEditor, setOpeningEditor] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setTextContent(null);
     setReadError("");
+    setEditError("");
     if (!preview || (preview.previewKind !== "markdown" && preview.previewKind !== "text")) {
       return;
     }
 
-    preview.file
-      .text()
-      .then((content) => {
-        if (!cancelled) {
+    let request = 0;
+    const reload = async () => {
+      const current = ++request;
+      try {
+        const file = preview.local ? await readLocalFile(preview.local) : preview.file;
+        const content = await file.text();
+        if (!cancelled && current === request) {
           setTextContent(content);
+          setReadError("");
         }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          const detail = error instanceof Error ? error.message : "Unable to read file content.";
-          setReadError(`Unable to read file "${preview.path}". ${detail}`);
-        }
-      });
-
+      } catch (error) {
+        if (!cancelled && current === request)
+          setReadError(error instanceof Error ? error.message : "Unable to read file.");
+      }
+    };
+    void reload();
+    const unsubscribe = preview.local
+      ? subscribeLocalChanges((event) => {
+          if (
+            !event.locationId ||
+            (event.locationId === preview.local!.locationId && (!event.path || event.path === preview.local!.path))
+          )
+            void reload();
+        }, preview.local.locationId)
+      : () => {};
+    const onFocus = () => {
+      if (preview.local) void reload();
+    };
+    window.addEventListener("focus", onFocus);
     return () => {
       cancelled = true;
+      unsubscribe();
+      window.removeEventListener("focus", onFocus);
     };
   }, [preview]);
 
@@ -73,6 +94,31 @@ export default function FilePreviewModal({
             <p className="file-preview-source">Original link: {activePreview.originalUrl}</p>
           </div>
           <div className="file-preview-actions">
+            {activePreview.previewKind === "markdown" && activePreview.local && (
+              <button
+                type="button"
+                className="ghost-btn file-preview-edit-btn"
+                disabled={openingEditor}
+                aria-busy={openingEditor}
+                title={openingEditor ? "Opening…" : "Edit in the default application"}
+                aria-label={openingEditor ? "Opening in the default application" : "Edit in the default application"}
+                onClick={async () => {
+                  setOpeningEditor(true);
+                  setEditError("");
+                  try {
+                    await localJson("/files/" + activePreview.local!.locationId + "/open-external", "POST", {
+                      path: activePreview.local!.path,
+                    });
+                  } catch (error) {
+                    setEditError(error instanceof Error ? error.message : "Unable to open the default application.");
+                  } finally {
+                    setOpeningEditor(false);
+                  }
+                }}
+              >
+                <Icon name="edit" className="modal-icon-close-svg" />
+              </button>
+            )}
             <button
               className="ghost-btn file-preview-fullscreen-btn"
               type="button"
@@ -95,6 +141,11 @@ export default function FilePreviewModal({
           </div>
         </div>
         <div className="file-preview-body">
+          {editError && (
+            <p className="node-detail-error" role="alert">
+              {editError}
+            </p>
+          )}
           {readError ? <p className="node-detail-error">{readError}</p> : renderFilePreviewContent()}
         </div>
       </section>

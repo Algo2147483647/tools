@@ -1,3 +1,4 @@
+import { localEntry, writeLocalFile, fetchWorkspace } from "./localApi";
 import { writeJsonToHandle } from "../shared/browser/fileAccess";
 import { createInitialCanvasDag } from "../graph/initialCanvas";
 import { serializeDagToJson } from "../graph/serialize";
@@ -92,6 +93,13 @@ function isMissing(error: unknown): boolean {
 
 export async function createWorkspaceGraph(workspace: GraphWorkspace, input: string) {
   const path = graphFileName(input);
+  if (workspace.localId) {
+    const entry = localEntry(workspace.localId, path);
+    entry.local!.revision = null;
+    const dag = createInitialCanvasDag();
+    await writeLocalFile(entry.local!, serializeDagToJson(dag));
+    return { dag, entry, workspace: { ...(await fetchWorkspace(workspace.localId)), activePath: path } };
+  }
   const directory = workspace.handle;
   if (!directory?.getFileHandle || !directory.removeEntry)
     throw new Error("Open a local folder with folder access to create graph files.");

@@ -1,3 +1,4 @@
+import { localServiceSuite } from "./localService.test";
 import { layoutRuntimeSuite } from "./layoutRuntime.test";
 import { consoleModesSuite } from "./consoleModes.test";
 import { workbenchSuite } from "./workbench.test";
@@ -53,6 +54,7 @@ import { workspaceOperationsSuite } from "./workspaceOperations.test";
 
 async function main() {
   const suites = [
+    localServiceSuite,
     layoutRuntimeSuite,
     workbenchSuite,
     simpleRoutingSuite,

@@ -5,7 +5,7 @@ import type { ChartStyle } from "../../schema/appearance/styles";
 
 export type GraphAction =
   | { type: "layoutReferenceBound"; generation: number; reference: string; persistedDag: NormalizedDag }
-  | { type: "styleReferenceBound"; generation: number; reference: string }
+  | { type: "styleReferenceBound"; generation: number; reference: string; persistedDag?: NormalizedDag }
   | {
       type: "timelineLayoutCommitted";
       generation: number;
@@ -28,6 +28,7 @@ export type GraphAction =
       dag: NormalizedDag;
       fileName: string;
       fileHandle?: FileSystemFileHandle | null;
+      localFile?: import("../../workspace/localApi").LocalFileReference;
       selection: GraphSelection;
       status: string;
     }

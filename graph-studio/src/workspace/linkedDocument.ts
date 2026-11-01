@@ -1,3 +1,4 @@
+import { localJson, localEntry, readLocalFile } from "./localApi";
 import type { GraphChartType } from "../graph/types";
 import { writeJsonToHandle } from "../shared/browser/fileAccess";
 import { resolveWorkspacePath } from "./paths";
@@ -25,6 +26,21 @@ export async function saveLinkedWorkspaceDocument(
   isCurrent = () => true,
 ): Promise<SavedLinkedDocument> {
   const { kind, chartType, reference: linkedReference } = input;
+  if (workspace.localId) {
+    if (!isCurrent()) throw new Error("Document changed before saving.");
+    const source = workspace.files.get(graphPath)?.local;
+    if (!source?.revision) throw new Error("Read the graph before saving linked documents.");
+    const result = await localJson<{ path: string; reference: string; persistedDag: NormalizedDag; revision: string }>(
+      "/workspaces/" + workspace.localId + "/linked-document",
+      "POST",
+      { graphPath, kind, document: input.document, expectedRevision: source.revision },
+    );
+    const entry = localEntry(workspace.localId, result.path);
+    await readLocalFile(entry.local!);
+    const graphEntry = localEntry(workspace.localId, graphPath);
+    graphEntry.local!.revision = result.revision;
+    return { entry, graphEntry, reference: result.reference, persistedDag: normalizeDagInput(result.persistedDag) };
+  }
   const content = JSON.stringify(input.document, null, 2);
   const graphName = graphPath.split("/").at(-1)!;
   if (

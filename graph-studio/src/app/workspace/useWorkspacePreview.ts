@@ -13,12 +13,13 @@ export function useWorkspacePreview(
       workspace
         ? {
             name: workspace.name,
+            localId: workspace.localId,
             handle: workspace.handle,
             files: workspace.files,
             baseFile: workspace.activePath || "",
           }
         : null,
-    [workspace?.name, workspace?.handle, workspace?.files, workspace?.activePath],
+    [workspace?.localId, workspace?.name, workspace?.handle, workspace?.files, workspace?.activePath],
   );
   const preview = useFilePreview(dispatch, relativeRoot);
   const hasFiles = (event: React.DragEvent) => Array.from(event.dataTransfer.types || []).includes("Files");

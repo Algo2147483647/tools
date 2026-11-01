@@ -1,3 +1,4 @@
+# Starts and stops the Graph Studio frontend and backend together.
 [CmdletBinding(PositionalBinding = $false)]
 param([switch]$Dev, [switch]$Preview, [switch]$InstallOnly, [switch]$BuildOnly, [switch]$NoBrowser, [switch]$Help)
 $ErrorActionPreference = 'Stop'

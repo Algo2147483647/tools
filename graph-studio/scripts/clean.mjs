@@ -9,7 +9,7 @@ if (args.some((arg) => arg !== "--cache")) {
 }
 
 const root = realpathSync(fileURLToPath(new URL("../", import.meta.url)));
-const targets = ["dist", "test-results", "coverage"];
+const targets = ["dist", ".server", "test-results", "coverage"];
 if (args.includes("--cache")) targets.push(".npm-cache", ".example-source-cache");
 for (const entry of readdirSync(root, { withFileTypes: true })) {
   if (entry.isFile() && /\.(log|tsbuildinfo)$/.test(entry.name)) targets.push(entry.name);

@@ -1,14 +1,17 @@
+import type { LocalFileReference } from "./localApi";
 import { readWorkspaceFile } from "./browserAccess";
 import { linkPath } from "./paths";
 import type { WorkspaceFile } from "./types";
 
 export interface RelativeLinkRoot {
+  localId?: string;
   name: string;
   handle: FileSystemDirectoryHandle | null;
   files: Map<string, WorkspaceFile>;
   baseFile: string;
 }
 export interface ResolvedRelativeFile {
+  local?: LocalFileReference;
   originalUrl: string;
   path: string;
   relativePath: string;
@@ -52,6 +55,7 @@ export async function resolveRelativeFile(
     return {
       ok: true,
       file: {
+        local: entry.local ? { ...entry.local } : undefined,
         originalUrl,
         path: `${root.name}/${resolved.path}`,
         relativePath: resolved.path,

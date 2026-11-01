@@ -23,6 +23,8 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
 function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
     case "styleReferenceBound": {
+      if (action.persistedDag)
+        return bindPersistedDocument(state, "style", { ...action, persistedDag: action.persistedDag });
       if (!state.dag || action.generation !== state.document.generation) return state;
       if (state.dag.metadata?.style === action.reference)
         return { ...state, ui: { ...state.ui, status: `Updated ${action.reference}.` } };
@@ -47,38 +49,7 @@ function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppSt
     }
 
     case "layoutReferenceBound": {
-      if (!state.dag || action.generation !== state.document.generation) return state;
-      const afterDag =
-        state.dag.metadata?.layout === action.reference
-          ? state.dag
-          : { ...state.dag, metadata: { ...state.dag.metadata, layout: action.reference } };
-      const updated =
-        afterDag === state.dag
-          ? state
-          : reduceGraphState(state, {
-              type: "graphCommandsCommitted",
-              transaction: {
-                label: "Bound layout.",
-                beforeDag: state.dag,
-                afterDag,
-                beforeSelection: state.selection,
-                afterSelection: state.selection,
-                beforeNavigationHistory: state.history,
-                afterNavigationHistory: state.history,
-                revisionBefore: state.editHistory.revision,
-                revisionAfter: state.nextRevision,
-              },
-              renamedKeys: [],
-              deletedKeys: [],
-              status: "",
-            });
-      const dirty = JSON.stringify(serializeDag(afterDag)) !== JSON.stringify(serializeDag(action.persistedDag));
-      return {
-        ...updated,
-        document: { ...updated.document, savedDag: dirty ? action.persistedDag : afterDag },
-        source: { ...updated.source, dirty },
-        ui: { ...updated.ui, status: `Saved ${action.reference} and its graph association.` },
-      };
+      return bindPersistedDocument(state, "layout", action);
     }
 
     case "timelineLayoutCommitted": {
@@ -308,5 +279,44 @@ function commitLayout(state: GraphAppState, data: LayoutSessionState): GraphAppS
       undoStack: pushEditTransaction(state.editHistory.undoStack, transaction),
       redoStack: [],
     },
+  };
+}
+
+function bindPersistedDocument(
+  state: GraphAppState,
+  kind: "style" | "layout",
+  binding: { generation: number; reference: string; persistedDag: import("../../graph/types").NormalizedDag },
+): GraphAppState {
+  if (!state.dag || binding.generation !== state.document.generation) return state;
+  const afterDag =
+    state.dag.metadata?.[kind] === binding.reference
+      ? state.dag
+      : { ...state.dag, metadata: { ...state.dag.metadata, [kind]: binding.reference } };
+  const updated =
+    afterDag === state.dag
+      ? state
+      : reduceGraphState(state, {
+          type: "graphCommandsCommitted",
+          transaction: {
+            label: `Bound ${kind}.`,
+            beforeDag: state.dag,
+            afterDag,
+            beforeSelection: state.selection,
+            afterSelection: state.selection,
+            beforeNavigationHistory: state.history,
+            afterNavigationHistory: state.history,
+            revisionBefore: state.editHistory.revision,
+            revisionAfter: state.nextRevision,
+          },
+          renamedKeys: [],
+          deletedKeys: [],
+          status: "",
+        });
+  const dirty = JSON.stringify(serializeDag(afterDag)) !== JSON.stringify(serializeDag(binding.persistedDag));
+  return {
+    ...updated,
+    document: { ...updated.document, savedDag: dirty ? binding.persistedDag : afterDag },
+    source: { ...updated.source, dirty },
+    ui: { ...updated.ui, status: `Saved ${binding.reference} and its graph association.` },
   };
 }

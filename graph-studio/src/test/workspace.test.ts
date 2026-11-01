@@ -146,7 +146,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     assert.equal(manifestPath("graphs/数学.json"), "graphs/数学.json");
     assert.throws(() => parseWorkspaceManifest(manifest([WORKSPACE_MANIFEST])));
   }),
-  defineTest("workspace manifest restricts graph discovery and preserves asset access", async () => {
+  defineTest("workspace manifest orders graphs without restricting discovery", async () => {
     const workspace = await discoverWorkspace(
       folder({
         [WORKSPACE_MANIFEST]: manifest(["graphs/main.json"], { name: "Math" }),
@@ -157,20 +157,24 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     );
     assert.equal(workspace.name, "Math");
     assert.equal(workspace.rootName, "Test");
-    assert.equal(workspace.activePath, "graphs/main.json");
+    assert.equal(workspace.activePath, null);
     assert.deepEqual(
       workspace.graphs.map((g) => g.path),
-      ["graphs/main.json"],
+      ["graphs/main.json", "ignored.json"],
     );
     assert.ok(workspace.files.has("docs/readme.md"));
   }),
-  defineTest("bad manifest or a missing declared file rejects workspace opening", async () => {
-    await assert.rejects(discoverWorkspace(folder({ [WORKSPACE_MANIFEST]: manifest(["absent.json"]) })), /missing/);
-    await assert.rejects(
-      discoverWorkspace(folder({ [WORKSPACE_MANIFEST]: { version: 99 }, "graph.json": graph() })),
-      /Unsupported/,
+  defineTest("bad manifests and missing references become diagnostics", async () => {
+    const missing = await discoverWorkspace(
+      folder({ [WORKSPACE_MANIFEST]: manifest(["absent.json"]), "graph.json": graph() }),
     );
-    await assert.rejects(discoverWorkspace(folder({ [WORKSPACE_MANIFEST]: "{" })));
+    assert.match(missing.graphs[0].error!, /missing/);
+    assert.equal(missing.activePath, "graph.json");
+    for (const value of [{ version: 99 }, "{"]) {
+      const found = await discoverWorkspace(folder({ [WORKSPACE_MANIFEST]: value, "graph.json": graph() }));
+      assert.equal(found.activePath, "graph.json");
+      assert.ok(found.notices.some((message) => message.includes("ignored")));
+    }
   }),
   defineTest("automatic discovery ignores unrelated JSON and surfaces invalid graph documents", async () => {
     const workspace = await discoverWorkspace(
@@ -241,9 +245,9 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
       /bad.json/,
     );
   }),
-  defineTest("discovery is bounded and manifests avoid scanning unrelated JSON", async () => {
+  defineTest("more than one thousand JSON files do not require a manifest", async () => {
     const contents = Object.fromEntries(Array.from({ length: 1001 }, (_, i) => [`other/${i}.json`, {}]));
-    await assert.rejects(discoverWorkspace(folder(contents)), /1,000/);
+    assert.equal((await discoverWorkspace(folder(contents))).graphs.length, 0);
     const w = await discoverWorkspace(folder({ ...contents, [WORKSPACE_MANIFEST]: manifest(), "graph.json": graph() }));
     assert.equal(w.activePath, "graph.json");
   }),

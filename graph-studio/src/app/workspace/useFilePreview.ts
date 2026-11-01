@@ -15,7 +15,7 @@ export function useFilePreview(dispatch: Dispatch<GraphAction>, relativeLinkRoot
     return () => {
       requestRef.current++;
     };
-  }, [relativeLinkRoot?.files, relativeLinkRoot?.baseFile]);
+  }, [relativeLinkRoot?.localId || relativeLinkRoot?.files, relativeLinkRoot?.baseFile]);
   useEffect(
     () => () => {
       if (filePreview) URL.revokeObjectURL(filePreview.url);

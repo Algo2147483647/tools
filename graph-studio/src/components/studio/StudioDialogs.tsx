@@ -49,7 +49,7 @@ export function StudioDialogs({
       <SaveJsonModal
         open={state.ui.saveDialogOpen}
         sourceFileName={state.source.fileName}
-        canOverwrite={canOverwrite(state.source.fileHandle)}
+        canOverwrite={Boolean(state.source.localFile) || canOverwrite(state.source.fileHandle)}
         previousContent={session.savedJsonContent}
         currentContent={session.currentJsonContent}
         onOverwrite={session.handleOverwriteJson}

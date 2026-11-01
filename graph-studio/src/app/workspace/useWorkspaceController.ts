@@ -1,3 +1,14 @@
+import {
+  chooseLocalPath,
+  openLocalWorkspace,
+  openLocalFile,
+  fetchWorkspace,
+  localJson,
+  localEntry,
+  workspaceFromSnapshot,
+  subscribeLocalChanges,
+  type WorkspaceSnapshot,
+} from "../../workspace/localApi";
 import { saveWorkspaceLayout, saveServedLayout } from "../../workspace/saveLayout";
 import type { SavedLinkedDocument } from "../../workspace/linkedDocument";
 import type { LayoutConfigFile } from "../../schema/layoutConfig";
@@ -7,21 +18,13 @@ import type { GraphChartType } from "../../graph/types";
 import type { LinkedLayout } from "../../workspace/linkedLayout";
 import { type ChangeEvent, type Dispatch, useEffect, useRef, useState } from "react";
 import { downloadJsonFile } from "../../shared/browser/download";
-import {
-  pickDirectoryHandle,
-  pickJsonFileHandle,
-  supportsDirectoryPicker,
-  supportsFilePicker,
-} from "../../shared/browser/fileAccess";
-import { readWorkspaceDirectory, requestReadAccess, workspaceFromFiles } from "../../workspace/browserAccess";
+import { workspaceFromFiles } from "../../workspace/browserAccess";
 import { normalizeDagInput } from "../../graph/normalize";
 import { getInitialSelection } from "../../graph/selectors";
 import type { GraphAction } from "../document/graphActions";
 import type { GraphAppState } from "../document/initialState";
-import { createWorkspaceFromPicker } from "../../workspace/createFromPicker";
 import { createWorkspaceGraph } from "../../workspace/creation";
-import { createWorkspaceManifest, discoverWorkspace, WORKSPACE_MANIFEST } from "../../workspace/discovery";
-import { invalidateExampleWorkspace, loadExampleWorkspace } from "../../workspace/examples";
+import { createWorkspaceManifest, WORKSPACE_MANIFEST } from "../../workspace/discovery";
 import { readLinkedStyle } from "../../workspace/linkedStyle";
 import { type RecentLocation } from "../../workspace/locations";
 import {
@@ -91,6 +94,7 @@ export function useWorkspaceController({
       layoutNotice: style.layoutNotice,
       fileName: entry.path,
       fileHandle: entry.handle,
+      localFile: entry.local ? { ...entry.local } : undefined,
       selection: getInitialSelection(dag),
       status: `${Object.keys(dag.nodes).length} nodes loaded from ${entry.path}.${style.styleNotice ? ` ${style.styleNotice}` : ""}`,
     });
@@ -136,36 +140,19 @@ export function useWorkspaceController({
   }
   function selectFile(recent?: RecentLocation) {
     if (operations.isBusy()) return;
-    if (!supportsFilePicker()) {
-      pendingFileRecent.current = recent;
-      fileInputRef.current?.click();
-      return;
-    }
     void run(async (context) => {
-      const handle = await pickJsonFileHandle("Graph Studio graph");
-      if (handle)
-        await loadFile(
-          { path: handle.name, handle: handle },
-          recent?.location === handle.name ? recent.id : undefined,
-          context,
-        );
+      const path = await chooseLocalPath("file");
+      if (!path || !context.isCurrent()) return;
+      const { record, entry } = await openLocalFile(path, recent?.id);
+      await loadFile(entry, record.id, context);
     });
   }
   function selectWorkspace(recent?: RecentLocation) {
     if (operations.isBusy()) return;
-    if (!supportsDirectoryPicker()) {
-      pendingFolderRecent.current = recent;
-      folderInputRef.current?.click();
-      return;
-    }
     void run(async (context) => {
-      const handle = await pickDirectoryHandle({ mode: "read", id: "graph-studio-workspace" });
-      if (!handle) return;
-      await loadFolder(
-        await readWorkspaceDirectory(handle),
-        recent?.location === handle.name ? recent : undefined,
-        context,
-      );
+      const path = await chooseLocalPath("directory");
+      if (!path || !context.isCurrent()) return;
+      await loadFolder(await openLocalWorkspace(path, recent?.id), recent, context);
     });
   }
   function openFile() {
@@ -175,29 +162,25 @@ export function useWorkspaceController({
     selectWorkspace();
   }
   async function createWorkspace(input: string): Promise<boolean> {
-    if (operations.isBusy()) return false;
-    if (!supportsDirectoryPicker()) {
-      setNotice(
-        "Creating a workspace folder requires Chrome or Edge with folder access. You can still create a graph or open existing files.",
-      );
-      return false;
-    }
+    if (operations.isBusy() || !mayReplace()) return false;
     let created = false;
     await run(async (context) => {
-      await createWorkspaceFromPicker(input, context, {
-        currentGraph: () => stateRef.current.dag,
-        mayReplace,
-        created: () => {
-          created = true;
-        },
-        notice: setNotice,
-        open: (folder, operation, canReplace) => loadFolder(folder, undefined, operation, canReplace),
-      });
+      const parent = await chooseLocalPath("directory");
+      if (!parent || !context.isCurrent()) return;
+      const snapshot = await localJson<WorkspaceSnapshot>("/workspaces", "POST", { parent, name: input });
+      created = true;
+      await loadFolder(workspaceFromSnapshot(snapshot), undefined, context);
     });
     return created;
   }
   function openExample(id: string, recent?: RecentLocation) {
-    void run(async (context) => loadFolder(await loadExampleWorkspace(id, import.meta.env.BASE_URL), recent, context));
+    void run(async (context) =>
+      loadFolder(
+        workspaceFromSnapshot(await localJson<WorkspaceSnapshot>("/examples/open", "POST", { id })),
+        recent,
+        context,
+      ),
+    );
   }
   async function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     const recent = pendingFileRecent.current;
@@ -232,28 +215,18 @@ export function useWorkspaceController({
     });
   }
   function openRecent(item: RecentLocation) {
-    if (item.exampleId) {
-      openExample(item.exampleId, item);
-      return;
-    }
-    if (!item.handle) {
-      setNotice(`Select "${item.location}" again to restore access.`);
+    if (!item.canReopen) {
       if (item.kind === "workspace") selectWorkspace(item);
       else selectFile(item);
       return;
     }
     void run(async (context) => {
-      if (!(await requestReadAccess(item.handle!)))
-        throw new Error(
-          `Access to "${item.location}" was not granted. Use Open ${item.kind === "workspace" ? "workspace" : "file"} to select it again.`,
-        );
-      if (item.kind === "workspace")
-        await loadFolder(await readWorkspaceDirectory(item.handle as FileSystemDirectoryHandle), item, context);
-      else await loadFile({ path: item.location, handle: item.handle as FileSystemFileHandle }, item.id, context);
+      if (item.kind === "workspace") await loadFolder(await fetchWorkspace(item.id), item, context);
+      else await loadFile(localEntry(item.id, item.name), item.id, context);
     });
   }
   function openWorkspaceGraph(path: string) {
-    if (!workspace || path === workspace.activePath) {
+    if (!workspace) {
       setHomeVisible(false);
       return;
     }
@@ -306,36 +279,48 @@ export function useWorkspaceController({
     return created;
   }
   function refreshWorkspace() {
-    if (!workspace) return;
+    if (!workspace?.localId) return;
     const folder = workspace;
-    if (folder.exampleId) {
-      void run(async (context) => {
-        const found = await discoverWorkspace(
-          await loadExampleWorkspace(folder.exampleId!, import.meta.env.BASE_URL, fetch, { reload: true }),
-          folder.activePath || undefined,
-        );
-        if (!context.isCurrent()) return;
-        setWorkspace({ ...found, activePath: folder.activePath, locationId: folder.locationId });
-        setNotice("Example files refreshed. The open document and its edits were kept unchanged.");
-      });
-      return;
-    }
-    if (!folder.handle) {
-      setNotice("Choose the folder again to refresh files in this browser.");
-      selectWorkspace(recents.find((item) => item.id === folder.locationId));
-      return;
-    }
     void run(async (context) => {
-      const found = await discoverWorkspace(
-        await readWorkspaceDirectory(folder.handle!),
-        folder.activePath || undefined,
-      );
+      const found = await fetchWorkspace(folder.localId!);
       if (!context.isCurrent()) return;
-      // Refresh only updates the explorer. Unsaved graph edits stay in memory.
       setWorkspace({ ...found, activePath: folder.activePath, locationId: folder.locationId });
-      setNotice("Workspace file list refreshed. The open document was kept unchanged.");
+      setNotice("Workspace files refreshed. Unsaved graph edits were kept.");
     });
   }
+  useEffect(() => {
+    const id = workspace?.localId;
+    if (!id) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const unsubscribe = subscribeLocalChanges((event) => {
+      if (event.locationId && event.locationId !== id) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        void fetchWorkspace(id)
+          .then((found) => {
+            if (cancelled) return;
+            setWorkspace((current) =>
+              current?.localId === id
+                ? { ...found, activePath: current.activePath, locationId: current.locationId }
+                : current,
+            );
+            if (event.locationId)
+              setNotice(
+                "Workspace files changed on disk. The open graph and unsaved edits were kept; select its entry again to reload it.",
+              );
+          })
+          .catch((error) => {
+            if (!cancelled) setNotice(error.message);
+          });
+      }, 350);
+    }, id);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      unsubscribe();
+    };
+  }, [workspace?.localId]);
   function closeWorkspace() {
     if (operations.isBusy() || !mayReplace()) return;
     setWorkspace(null);
@@ -364,10 +349,16 @@ export function useWorkspaceController({
     await run(async (context) => {
       if (!folder || folder.activePath !== snapshot.source.fileName)
         throw new Error(`Open the graph's workspace to update its ${kind} file.`);
-      if (!folder.handle && !folder.exampleId) throw new Error("The graph's folder has no write access.");
+      if (!folder.localId && !folder.handle && !folder.exampleId)
+        throw new Error("The graph's folder has no write access.");
+      if (folder.localId && snapshot.source.localFile) {
+        const entry = folder.files.get(snapshot.source.fileName);
+        if (entry) entry.local = { ...snapshot.source.localFile };
+      }
       const saved = await save(folder, snapshot.source.fileName, snapshot.dag!.metadata?.[kind], context.isCurrent);
-      if (folder.exampleId) invalidateExampleWorkspace(folder.exampleId, import.meta.env.BASE_URL);
       if (!context.isCurrent()) return;
+      if (snapshot.source.localFile && saved.graphEntry?.local)
+        snapshot.source.localFile.revision = saved.graphEntry.local.revision;
       setWorkspace((current) => {
         if (current?.locationId !== folder.locationId) return current;
         const files = new Map(current.files).set(saved.entry.path, saved.entry);
@@ -383,19 +374,24 @@ export function useWorkspaceController({
           persistedDag: saved.persistedDag,
         });
       } else
-        dispatch({ type: "styleReferenceBound", generation: snapshot.document.generation, reference: saved.reference });
+        dispatch({
+          type: "styleReferenceBound",
+          generation: snapshot.document.generation,
+          reference: saved.reference,
+          persistedDag: saved.persistedDag,
+        });
     });
   }
   function saveAndBindStyle(chartType: GraphChartType, style: ChartStyle) {
     return saveAndBind("style", (folder, path, reference, isCurrent) =>
-      folder.handle
+      folder.localId || folder.handle
         ? saveWorkspaceStyle(folder, path, chartType, style, isCurrent, reference)
         : saveServedStyle(folder.exampleId!, path, chartType, style, reference),
     );
   }
   function saveAndBindLayout(config: LayoutConfigFile) {
     return saveAndBind("layout", (folder, path, reference, isCurrent) =>
-      folder.handle
+      folder.localId || folder.handle
         ? saveWorkspaceLayout(folder, path, config, isCurrent, reference)
         : saveServedLayout(folder.exampleId!, path, config, reference),
     );

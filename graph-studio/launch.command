@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+# The shared launcher manages the frontend and local backend together.
 cd -- "$(dirname -- "$0")"
 
 # Finder does not inherit an interactive shell's Homebrew PATH.
