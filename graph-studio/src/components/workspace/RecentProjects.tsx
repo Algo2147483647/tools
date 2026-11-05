@@ -67,7 +67,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
               <h2 className="recent-day-label">{group.label}</h2>
               <ol className="recent-list">
                 {group.items.map(({ location: item, recordIds }) => {
-                  const location = item.lastGraph || (item.location !== item.name ? item.location : "");
+                  const location = item.location !== item.name ? item.location : "";
                   return (
                     <li key={item.id}>
                       <button className="recent-open" disabled={files.busy} onClick={() => files.openRecent(item)}>
