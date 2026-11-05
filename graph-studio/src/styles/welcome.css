@@ -255,7 +255,7 @@
 .recent-open strong {
   display: block;
   font:
-    600 15px/1.25 "Times New Roman",
+    400 15px/1.25 "Times New Roman",
     Times,
     serif;
   color: #000;
@@ -267,9 +267,11 @@
   display: block;
   color: #777;
   font:
-    12px/1.35 "Times New Roman",
-    Times,
-    serif;
+    400 12px/1.35 "IBM Plex Sans",
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
   margin-top: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
