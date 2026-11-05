@@ -10,17 +10,17 @@ The service listens on `127.0.0.1`. `GRAPH_STUDIO_PORT` optionally selects a por
 
 User state is stored outside workspaces:
 
-| Platform | Default directory |
-| --- | --- |
-| Windows | `%LOCALAPPDATA%/Graph Studio` |
-| macOS | `~/Library/Application Support/Graph Studio` |
-| Linux | `$XDG_STATE_HOME/graph-studio`, or `~/.local/state/graph-studio` |
+| Platform | Default directory                                                |
+| -------- | ---------------------------------------------------------------- |
+| Windows  | `%LOCALAPPDATA%/Graph Studio`                                    |
+| macOS    | `~/Library/Application Support/Graph Studio`                     |
+| Linux    | `$XDG_STATE_HOME/graph-studio`, or `~/.local/state/graph-studio` |
 
 `state.json` contains stable location IDs, canonical paths, last-opened timestamps, and the last graph. Removing a recent entry only hides the entry; it never deletes project files. Missing directories remain listed and can be relocated with the system chooser. Existing browser-handle histories cannot reveal absolute paths and are not migrated automatically: open those directories once using the new chooser. Unsaved graph edits are still in-memory and do not survive a tab reload.
 
 ## Workspace discovery
 
-A workspace is an existing directory. Creating one makes a new directory with `graph.json`; it does not require a manifest. A valid optional manifest names the workspace and orders its declared graphs, followed by newly discovered graph documents. Malformed manifests and missing declared files are diagnostics. They never hide otherwise valid graph files. `defaultGraph` is not supported. Startup selects a valid recent graph, root `graph.json`, or a sole graph; otherwise the explorer remains open for selection.
+A workspace is an existing directory. Creating one makes a new directory with `graph.json`; it does not require a manifest. A valid optional manifest names the workspace and orders its declared graphs, followed by newly discovered graph documents. Malformed manifests and missing declared files are diagnostics. They never hide otherwise valid graph files. `defaultGraph` is not supported. Startup restores a valid recent graph or opens the first valid graph in explorer order. Empty workspaces remain available for creating a graph.
 
 Hidden/generated directories and filesystem links are skipped during enumeration. Discovery is asynchronous and permits more than 1,000 JSON candidates without requiring a manifest. Limits are 20,000 files and 32 directory levels; graph JSON validation retains its 16 MB limit. File reads and writes are limited to 32 MB. Discovery returns a completed snapshot; the paginated file-list endpoint returns 500 paths per page.
 
@@ -28,31 +28,31 @@ Hidden/generated directories and filesystem links are skipped during enumeration
 
 All routes below are under `/api/v1`. Errors return `{ "error": { "code": "FILE_CHANGED", "message": "..." } }` with an appropriate HTTP status.
 
-| Method and route | Behavior |
-| --- | --- |
-| `GET /session` | Establish HttpOnly SameSite session cookie and obtain request token |
-| `GET /preferences` | Read application preferences, including `fileOpenMode` |
-| `PATCH /preferences` | Persist `{fileOpenMode: "preview" \| "external"}` in user state |
-| `POST /dialogs/directory` | System folder chooser; returns `{path}` or `{path:null}` on cancellation |
-| `POST /dialogs/file` | System file chooser |
-| `POST /dialogs/save` | Save chooser; accepts optional `name` |
-| `POST /workspaces/open` | Register canonical `path`; optional existing `id` relocates a recent entry |
-| `POST /workspaces` | Create a new workspace using `parent` and `name` |
-| `GET /workspaces/:id` | Read workspace snapshot: graph summaries, paths, configuration, diagnostics |
-| `GET /workspaces/:id/files?offset=0` | Paginated path listing |
-| `GET /workspaces/:id/graphs` | Graph summaries and diagnostics |
-| `POST /files/open` | Register a standalone file; `saveAs:true` allows a not-yet-existing target |
-| `GET /files/:id` | Reopen a standalone file record |
-| `GET /files/:id/file?path=…` | Read bytes with `X-File-Revision` header |
-| `PUT /files/:id/file?path=…` | Write `{content, expectedRevision}`; null revision means create-only |
-| `POST /files/:id/open-external` | Open `{path}` in the default application |
-| `POST /workspaces/:id/linked-document` | Save style/layout and persist its graph association |
-| `PATCH /workspaces/:id/session` | Record successful opening and optional `lastGraph` |
-| `POST /workspaces/:id/close` | Release the workspace watcher |
-| `POST /examples/open` | Open a bundled example as a real local workspace using `{id}` |
-| `GET /recents` | Recent locations with availability flags |
-| `DELETE /recents` | Remove `{ids:[...]}` from recents only |
-| `GET /events` | SSE `ready` and `change` events |
+| Method and route                       | Behavior                                                                    |
+| -------------------------------------- | --------------------------------------------------------------------------- |
+| `GET /session`                         | Establish HttpOnly SameSite session cookie and obtain request token         |
+| `GET /preferences`                     | Read application preferences, including `fileOpenMode`                      |
+| `PATCH /preferences`                   | Persist `{fileOpenMode: "preview" \| "external"}` in user state             |
+| `POST /dialogs/directory`              | System folder chooser; returns `{path}` or `{path:null}` on cancellation    |
+| `POST /dialogs/file`                   | System file chooser                                                         |
+| `POST /dialogs/save`                   | Save chooser; accepts optional `name`                                       |
+| `POST /workspaces/open`                | Register canonical `path`; optional existing `id` relocates a recent entry  |
+| `POST /workspaces`                     | Create a new workspace using `parent` and `name`                            |
+| `GET /workspaces/:id`                  | Read workspace snapshot: graph summaries, paths, configuration, diagnostics |
+| `GET /workspaces/:id/files?offset=0`   | Paginated path listing                                                      |
+| `GET /workspaces/:id/graphs`           | Graph summaries and diagnostics                                             |
+| `POST /files/open`                     | Register a standalone file; `saveAs:true` allows a not-yet-existing target  |
+| `GET /files/:id`                       | Reopen a standalone file record                                             |
+| `GET /files/:id/file?path=…`           | Read bytes with `X-File-Revision` header                                    |
+| `PUT /files/:id/file?path=…`           | Write `{content, expectedRevision}`; null revision means create-only        |
+| `POST /files/:id/open-external`        | Open `{path}` in the default application                                    |
+| `POST /workspaces/:id/linked-document` | Save style/layout and persist its graph association                         |
+| `PATCH /workspaces/:id/session`        | Record successful opening and optional `lastGraph`                          |
+| `POST /workspaces/:id/close`           | Release the workspace watcher                                               |
+| `POST /examples/open`                  | Open a bundled example as a real local workspace using `{id}`               |
+| `GET /recents`                         | Recent locations with availability flags                                    |
+| `DELETE /recents`                      | Remove `{ids:[...]}` from recents only                                      |
+| `GET /events`                          | SSE `ready` and `change` events                                             |
 
 File, session and external-open operations accept either `/files/:id` or `/workspaces/:id`. IDs identify a granted directory or a single file. A single-file grant never grants access to neighbors. Linked resources resolve relative to the source document inside its workspace. Paths are URL-encoded query values, not appended unescaped to URLs.
 

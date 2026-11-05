@@ -43,7 +43,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     assert.equal(workspace.activePath, "beijing-metro.json");
     assert.ok(!folder.files.has("beijing-roads.json"));
     const local = await discoverWorkspace({ ...folder, exampleId: undefined }, "beijing-roads.json");
-    assert.equal(local.activePath, null);
+    assert.equal(local.activePath, local.graphs[0].path);
   }),
   defineTest("history workspaces merge without breaking old European recent entries or note paths", async () => {
     const folder = await loadExampleWorkspace("china-history", "/", localFetch);
@@ -53,7 +53,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       workspace.graphs.map((graph) => graph.path),
       ["china-history.json", "europe/europe-history.json"],
     );
-    assert.equal(workspace.activePath, null);
+    assert.equal(workspace.activePath, workspace.graphs[0].path);
     assert.equal(workspace.manifest!.metadata!.nodeCount, 1871);
     assert.equal(workspace.manifest!.metadata!.edgeCount, 2995);
     assert.ok(folder.files.has("europe/notes/ancient.md"));
@@ -63,7 +63,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     );
     assert.equal(legacy.name, "Human History");
     assert.equal(legacy.exampleId, "china-history");
-    assert.equal(legacy.activePath, null);
+    assert.equal(legacy.activePath, legacy.graphs[0].path);
     const recents = parseRecentMetadata(
       JSON.stringify([
         {
@@ -102,7 +102,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     assert.equal(recents[1].name, "History of Technology");
     const technology = await discoverWorkspace(await loadExampleWorkspace("space-history", "/", localFetch));
     assert.equal(technology.name, "History of Technology");
-    assert.equal(technology.activePath, null);
+    assert.equal(technology.activePath, technology.graphs[0].path);
   }),
   defineTest(
     "all example graphs load, serialize, and have no missing files and retain their documented language",
@@ -110,7 +110,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
       for (const example of EXAMPLE_WORKSPACES) {
         const folder = await loadExampleWorkspace(example.id, "/studio/", localFetch);
         const workspace = await discoverWorkspace(folder);
-        assert.equal(workspace.activePath, workspace.graphs.length === 1 ? workspace.graphs[0].path : null);
+        assert.equal(workspace.activePath, workspace.graphs[0].path);
         assert.equal(workspace.exampleId, example.id);
         assert.equal(workspace.handle, null);
         assert.deepEqual(
@@ -149,7 +149,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     },
   ),
   defineTest(
-    "Factorio replaces the atlas with two target plans and leaves obsolete recent paths unselected",
+    "Factorio replaces the atlas with two target plans and opens the first graph for obsolete recent paths",
     async () => {
       const folder = await loadExampleWorkspace("factorio", "/", localFetch);
       for (const previous of ["all-products.json", "start-here.json", "science.json"]) {
@@ -158,7 +158,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
           workspace.graphs.map((g) => g.path),
           ["science-1-per-second.json", "rocket-1-per-second.json"],
         );
-        assert.equal(workspace.activePath, null);
+        assert.equal(workspace.activePath, workspace.graphs[0].path);
       }
       const rocket = await exampleGraph("factorio", "rocket-1-per-second.json");
       assert.deepEqual(rocket.metadata!.targetsPerSecond, { "item:launch-ready-rocket": 1 });
@@ -348,7 +348,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     const missing = (async (url: string) =>
       url.endsWith("README.md") ? new Response("", { status: 404 }) : localFetch(url)) as typeof fetch;
     const folder = await loadExampleWorkspace("factorio", "/", missing);
-    assert.equal((await discoverWorkspace(folder)).activePath, null);
+    assert.equal((await discoverWorkspace(folder)).activePath, "science-1-per-second.json");
     await assert.rejects(readWorkspaceFile(folder.files.get("README.md")!), /Factorio production\/README.md/);
     const fallback = (async (url: string) =>
       url.endsWith("README.md")
@@ -416,7 +416,7 @@ export const examplesSuite = defineSuite("Bundled example workspaces", [
     assert.equal((signal as AbortSignal | null)?.aborted, true);
     stalled = false;
     const folder = await loadExampleWorkspace("factorio", "/", fetcher);
-    assert.equal((await discoverWorkspace(folder)).activePath, null);
+    assert.equal((await discoverWorkspace(folder)).activePath, "science-1-per-second.json");
   }),
   defineTest("switching from a Sankey example to mathematics restores a layered layout", async () => {
     const dag = await exampleGraph("mathematics", "mathematics.json");

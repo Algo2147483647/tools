@@ -157,7 +157,7 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     );
     assert.equal(workspace.name, "Math");
     assert.equal(workspace.rootName, "Test");
-    assert.equal(workspace.activePath, null);
+    assert.equal(workspace.activePath, "graphs/main.json");
     assert.deepEqual(
       workspace.graphs.map((g) => g.path),
       ["graphs/main.json", "ignored.json"],
@@ -192,18 +192,32 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     );
     assert.ok(workspace.graphs[0].error);
     assert.ok(workspace.graphs[1].error);
-    assert.equal(workspace.activePath, null);
+    assert.equal(workspace.activePath, "main.json");
     assert.ok(workspace.notices.some((message) => message.includes("2 unrelated")));
   }),
-  defineTest("startup choice is recent, root graph.json, then sole graph", () => {
+  defineTest("startup restores a valid recent graph or opens the first valid explorer entry", () => {
     const graphs = [summary("graph.json"), summary("main.json"), summary("second.json")];
     assert.equal(chooseWorkspaceGraph(graphs, "second.json"), "second.json");
     assert.equal(chooseWorkspaceGraph(graphs, "deleted.json"), "graph.json");
     assert.equal(chooseWorkspaceGraph(graphs), "graph.json");
     assert.equal(chooseWorkspaceGraph([summary("nested/only.json")]), "nested/only.json");
-    assert.equal(chooseWorkspaceGraph(graphs.slice(1)), null);
+    assert.equal(chooseWorkspaceGraph(graphs.slice(1)), "main.json");
+    assert.equal(chooseWorkspaceGraph([summary("first.json"), summary("graph.json")]), "first.json");
+    assert.equal(chooseWorkspaceGraph([summary("bad.json", "invalid"), summary("next.json")]), "next.json");
     assert.equal(chooseWorkspaceGraph([]), null);
     assert.equal(chooseWorkspaceGraph([summary("bad.json", "invalid")], "bad.json"), null);
+  }),
+  defineTest("opening a multi-graph workspace prepares the first explorer document immediately", async () => {
+    const prepared = await prepareWorkspace(
+      folder({
+        [WORKSPACE_MANIFEST]: manifest(["first.json", "graph.json"]),
+        "first.json": graph("First explorer graph"),
+        "graph.json": graph("Root graph"),
+      }),
+    );
+    assert.equal(prepared.workspace.activePath, "first.json");
+    assert.equal(prepared.entry?.path, "first.json");
+    assert.equal(prepared.dag?.title, "First explorer graph");
   }),
   defineTest("empty folders and unrelated project folders can open without a graph", async () => {
     const workspace = await discoverWorkspace(folder({ "package.json": { name: "app" }, "README.md": "Text" }));

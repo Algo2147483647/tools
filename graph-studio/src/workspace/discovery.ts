@@ -35,7 +35,7 @@ export function parseWorkspaceManifest(input: unknown): WorkspaceManifest {
 export function chooseWorkspaceGraph(graphs: WorkspaceGraph[], lastPath?: string): string | null {
   const valid = (path?: string) => (path && graphs.some((graph) => graph.path === path && !graph.error) ? path : null);
   if (valid(lastPath)) return lastPath!;
-  return valid("graph.json") || (graphs.length === 1 && !graphs[0].error ? graphs[0].path : null);
+  return graphs.find((graph) => !graph.error)?.path ?? null;
 }
 export async function discoverWorkspace(folder: WorkspaceFolder, lastPath?: string): Promise<GraphWorkspace> {
   if (folder.exampleId === "spatial-atlas" && lastPath === "beijing-roads.json") lastPath = "beijing-metro.json";

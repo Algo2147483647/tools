@@ -3,7 +3,6 @@ import { useWorkspacePreview } from "../../app/workspace/useWorkspacePreview";
 import ConsoleWindow, { type ConsoleTab } from "../console/ConsoleWindow";
 import WelcomeScreen from "../workspace/WelcomeScreen";
 import WorkspaceExplorer from "../workspace/WorkspaceExplorer";
-import WorkspaceOverview from "../workspace/WorkspaceOverview";
 import { StudioDialogs } from "./StudioDialogs";
 import Workbench from "../workbench/Workbench";
 import { StudioSettings } from "./StudioSettings";
@@ -106,8 +105,6 @@ export default function StudioView({
               <div className="compound-loading" role={viewport.compoundLayout.error ? "alert" : "status"}>
                 {viewport.status}
               </div>
-            ) : files.workspace && !state.dag ? (
-              <WorkspaceOverview files={files} />
             ) : undefined
           }
           containerRef={viewport.containerRef}
