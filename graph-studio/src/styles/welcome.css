@@ -18,7 +18,7 @@
     "Baskerville",
     "Times New Roman",
     serif;
-  letter-spacing: -1px;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 .welcome-action {
@@ -322,7 +322,7 @@
   min-height: 0;
   overflow: auto;
   padding-top: 8px;
-  background: radial-gradient(ellipse at 12% 0, #ecf2fb, transparent 52%), #fff;
+  background: #fff;
 }
 .welcome-inner {
   width: min(1100px, 100%);
