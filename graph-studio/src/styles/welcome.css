@@ -248,11 +248,15 @@
 .recent-icon {
   display: flex;
   flex-shrink: 0;
-  padding: 9px;
-  border: 1px solid #e5ebf4;
-  border-radius: 9px;
-  color: #5075b3;
-  background: #f4f7fc;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: #fff;
+  font:
+    600 18px/1 "Segoe UI",
+    sans-serif;
 }
 .recent-description {
   flex: 1;
@@ -260,16 +264,22 @@
 }
 .recent-open strong {
   display: block;
-  font-size: 13px;
-  font-weight: 600;
+  font:
+    600 15px/1.25 "Times New Roman",
+    Times,
+    serif;
+  color: #000;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .recent-open small {
   display: block;
-  color: var(--studio-muted);
-  font-size: 11px;
+  color: #777;
+  font:
+    12px/1.35 "Times New Roman",
+    Times,
+    serif;
   margin-top: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -296,6 +306,20 @@
 }
 .recent-remove:hover {
   color: #b02e2e;
+}
+.recent-list .recent-remove {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms;
+}
+.recent-list li:hover .recent-remove,
+.recent-list li:focus-within .recent-remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+.recent-list li:hover .recent-remove:disabled,
+.recent-list li:focus-within .recent-remove:disabled {
+  opacity: 0.5;
 }
 .recent-open:disabled,
 .recent-remove:disabled,

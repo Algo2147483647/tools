@@ -2,6 +2,21 @@ import Icon from "../ui/Icon";
 import type { WorkspaceControls } from "../../app/workspace/workspaceControls";
 import { recentProjects, type RecentProject } from "../../workspace/recentProjects";
 
+const PROJECT_COLORS = [
+  { backgroundColor: "#e0ebff", color: "#4269b0" },
+  { backgroundColor: "#eee3ff", color: "#8055ad" },
+  { backgroundColor: "#d9f5e9", color: "#287d65" },
+  { backgroundColor: "#ffedcf", color: "#996522" },
+  { backgroundColor: "#ffe2ed", color: "#aa5278" },
+  { backgroundColor: "#d9f2ff", color: "#377c9e" },
+];
+
+function projectColor(name: string) {
+  let hash = 0;
+  for (const character of name) hash = (Math.imul(hash, 31) + character.codePointAt(0)!) >>> 0;
+  return PROJECT_COLORS[hash % PROJECT_COLORS.length];
+}
+
 function groupRecentProjects(recents: RecentProject[]) {
   const today = new Date();
   const yesterday = new Date(today);
@@ -49,8 +64,8 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
                   return (
                     <li key={item.id}>
                       <button className="recent-open" disabled={files.busy} onClick={() => files.openRecent(item)}>
-                        <span className="recent-icon">
-                          <Icon name={item.kind === "workspace" ? "folder" : "file"} size={18} />
+                        <span className="recent-icon" style={projectColor(item.name)} aria-hidden="true">
+                          {Array.from(item.name.trim())[0]?.toLocaleUpperCase("en") || "?"}
                         </span>
                         <span className="recent-description">
                           <strong title={item.name}>{item.name}</strong>
