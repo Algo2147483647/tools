@@ -11,10 +11,17 @@ const PROJECT_COLORS = [
   { backgroundColor: "#d9f2ff", color: "#377c9e" },
 ];
 
-function projectColor(name: string) {
-  let hash = 0;
-  for (const character of name) hash = (Math.imul(hash, 31) + character.codePointAt(0)!) >>> 0;
-  return PROJECT_COLORS[hash % PROJECT_COLORS.length];
+const projectColors = new Map<string, (typeof PROJECT_COLORS)[number]>();
+let availableColors = [...PROJECT_COLORS];
+
+function projectColor(id: string) {
+  const existing = projectColors.get(id);
+  if (existing) return existing;
+  if (!availableColors.length) availableColors = [...PROJECT_COLORS];
+  const index = Math.floor(Math.random() * availableColors.length);
+  const [color] = availableColors.splice(index, 1);
+  projectColors.set(id, color);
+  return color;
 }
 
 function groupRecentProjects(recents: RecentProject[]) {
@@ -64,7 +71,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
                   return (
                     <li key={item.id}>
                       <button className="recent-open" disabled={files.busy} onClick={() => files.openRecent(item)}>
-                        <span className="recent-icon" style={projectColor(item.name)} aria-hidden="true">
+                        <span className="recent-icon" style={projectColor(item.id)} aria-hidden="true">
                           {Array.from(item.name.trim())[0]?.toLocaleUpperCase("en") || "?"}
                         </span>
                         <span className="recent-description">
