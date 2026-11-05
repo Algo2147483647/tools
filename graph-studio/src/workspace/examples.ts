@@ -4,19 +4,11 @@ import type { WorkspaceFile, WorkspaceFolder } from "./types";
 
 export const EXAMPLE_WORKSPACES = [
   {
-    id: "graph-studio",
-    title: "Graph Studio workflow",
-    kind: "Nested node-link",
-    description:
-      "Follow a graph from opening and editing through appearance, layout, canvas interaction and export. Inspect the full Appearance pipeline, AI commands and live layouts inside their owning processes.",
-    detail: "2 nested graphs · Core workflow & Appearance pipeline",
-    accent: "#526ea5",
-  },
-  {
     id: "spatial-atlas",
     title: "Spatial Atlas",
     kind: "Spatial",
-    description: "全天星图、全球首都与一级行政区首府及主要城市、北京地铁全线网；城市点大小与明暗展示经济规模。",
+    description:
+      "Explore the night sky, cities around the world, and metro networks in Beijing and Shanghai through interactive spatial maps.",
     detail: "All-sky stars · 8,097 world cities · Beijing & Shanghai metro",
     accent: "#497fa5",
   },
@@ -24,7 +16,8 @@ export const EXAMPLE_WORKSPACES = [
     id: "china-history",
     title: "Human History",
     kind: "Timeline",
-    description: "中国历史与欧洲历史两张独立画布，观察政权分合、制度、文化与社会变迁，附导读和来源。",
+    description:
+      "Trace the changing states, societies, and ideas of China and Europe across connected timelines, with reading guides and sources.",
     detail: "2 timelines · 1871 events & periods · 2995 relationships · c. 1900 BCE–2026",
     accent: "#a36c43",
   },
@@ -33,7 +26,7 @@ export const EXAMPLE_WORKSPACES = [
     title: "Commerce operations",
     kind: "Nested node-link",
     description:
-      "Explore checkout, payments, warehouse, delivery and returns. Expand domain boundaries and trace their original relationships.",
+      "Follow an order from checkout and payment to fulfillment and returns. Expand each domain to explore the processes and connections within.",
     detail: "46 nodes · 14 parents · 3 journeys",
     accent: "#527f82",
   },
@@ -42,7 +35,7 @@ export const EXAMPLE_WORKSPACES = [
     title: "Mathematics",
     kind: "Knowledge graph",
     description:
-      "Analysis, algebra, probability, foundations, and geometry. Explore scoped theorems, study notes, and references.",
+      "Connect concepts across analysis, algebra, geometry, and probability. Follow prerequisites into theorems, worked examples, and study notes.",
     detail: "202 concepts · 10 subjects",
     accent: "#5576a9",
   },
@@ -51,7 +44,7 @@ export const EXAMPLE_WORKSPACES = [
     title: "History of Technology",
     kind: "Timeline",
     description:
-      "Explore three timelines: spaceflight, mathematics and physics, and AGI research. Follow discoveries, research programs, debates and their connections.",
+      "Follow discoveries in spaceflight, mathematics, physics, and AI. Explore the milestones, research programs, and ideas that connect them.",
     detail: "3 timelines · 804 events & phases · 1209 relationships · c. 1850 BCE–2026",
     accent: "#6675a8",
   },
@@ -60,7 +53,7 @@ export const EXAMPLE_WORKSPACES = [
     title: "Factorio production",
     kind: "Sankey diagrams",
     description:
-      "Trace all 12 science packs at 1 each/s back to raw resources, or explore a complete launch-ready rocket production plan.",
+      "Trace raw resources through production chains to all twelve science packs or a launch-ready rocket. Inspect recipes, flow rates, and material balances.",
     detail: "2 production targets · Space Age 2.0.65",
     accent: "#3e948a",
   },

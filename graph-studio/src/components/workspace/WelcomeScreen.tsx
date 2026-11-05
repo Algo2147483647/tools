@@ -25,10 +25,7 @@ export default function WelcomeScreen({
     <main className="welcome-screen">
       <div className="welcome-inner">
         <RecentProjects files={files} />
-        <section className="welcome-actions" aria-labelledby="welcome-open-title">
-          <div className="welcome-section-heading">
-            <h2 id="welcome-open-title">Get started</h2>
-          </div>
+        <section className="welcome-actions" aria-label="Workspace actions">
           <button
             ref={createButton}
             className="welcome-action primary"
@@ -40,9 +37,7 @@ export default function WelcomeScreen({
             <Icon name="plus" size={25} />
             <span>
               <strong>Create workspace</strong>
-              <small>Start a new folder with your first graph</small>
             </span>
-            <span aria-hidden="true">+</span>
           </button>
           {creating && (
             <form
@@ -88,26 +83,28 @@ export default function WelcomeScreen({
             <Icon name="folder" size={25} />
             <span>
               <strong>Open workspace</strong>
-              <small>Choose a folder of graphs and notes</small>
             </span>
-            <span aria-hidden="true">↗</span>
           </button>
-          <button className="welcome-action" disabled={files.busy} onClick={files.openFile}>
-            <Icon name="file" size={25} />
-            <span>
-              <strong>Open graph file</strong>
-              <small>Work with one Graph Studio JSON file</small>
-            </span>
-            <span aria-hidden="true">↗</span>
-          </button>
-          <div className="welcome-quick">
-            <button onClick={onNew} disabled={files.busy}>
-              + Create a graph
+          <div className="welcome-graph-actions" role="group" aria-label="Individual graphs">
+            <button className="welcome-action" onClick={onNew} disabled={files.busy}>
+              <Icon name="plus" size={18} />
+              <span>Create graph</span>
             </button>
-            {(hasDocument || files.workspace) && (
-              <button onClick={() => files.setHomeVisible(false)}>Return to current session →</button>
-            )}
+            <button
+              className="welcome-action"
+              disabled={files.busy}
+              onClick={files.openFile}
+              aria-label="Open graph file"
+            >
+              <Icon name="file" size={18} />
+              <span>Open graph</span>
+            </button>
           </div>
+          {(hasDocument || files.workspace) && (
+            <div className="welcome-quick">
+              <button onClick={() => files.setHomeVisible(false)}>Return to current session →</button>
+            </div>
+          )}
         </section>
         <ExampleGallery onOpen={files.openExample} busy={files.busy} />
       </div>

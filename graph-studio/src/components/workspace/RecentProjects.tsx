@@ -30,7 +30,6 @@ function groupRecentProjects(recents: RecentProject[]) {
 
 export default function RecentProjects({ files }: { files: WorkspaceControls }) {
   const groups = groupRecentProjects(recentProjects(files.recents));
-  const count = groups.reduce((total, [, group]) => total + group.items.length, 0);
   return (
     <section className="welcome-recents" aria-labelledby="recent-projects-title">
       <div className="welcome-section-heading">
@@ -38,11 +37,6 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
           <Icon name="recent" size={18} />
           Recent projects
         </h1>
-        {count > 0 && (
-          <span>
-            {count} {count === 1 ? "project" : "projects"}
-          </span>
-        )}
       </div>
       {groups.length ? (
         <div className="recent-timeline" role="region" aria-label="Recent projects timeline" tabIndex={0}>
@@ -51,13 +45,7 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
               <h2 className="recent-day-label">{group.label}</h2>
               <ol className="recent-list">
                 {group.items.map(({ location: item, recordIds }) => {
-                  const opened = new Date(item.openedAt);
                   const location = item.lastGraph || (item.location !== item.name ? item.location : "");
-                  const kind = item.exampleId
-                    ? "Example workspace"
-                    : item.kind === "workspace"
-                      ? "Workspace"
-                      : "Graph file";
                   return (
                     <li key={item.id}>
                       <button className="recent-open" disabled={files.busy} onClick={() => files.openRecent(item)}>
@@ -67,21 +55,11 @@ export default function RecentProjects({ files }: { files: WorkspaceControls }) 
                         <span className="recent-description">
                           <strong title={item.name}>{item.name}</strong>
                           {location && <small title={location}>{location}</small>}
-                          <span className="recent-details">
-                            <span>{kind}</span>
-                            <span aria-hidden="true">·</span>
-                            <time dateTime={opened.toISOString()} title={`Last opened ${opened.toLocaleString()}`}>
-                              {opened.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                            </time>
-                            {!item.canReopen && (
-                              <span className="recent-reconnect">
-                                Choose {item.kind === "workspace" ? "folder" : "file"} again
-                              </span>
-                            )}
-                          </span>
-                        </span>
-                        <span className="recent-arrow" aria-hidden="true">
-                          ↗
+                          {!item.canReopen && (
+                            <span className="recent-reconnect">
+                              Choose {item.kind === "workspace" ? "folder" : "file"} again
+                            </span>
+                          )}
                         </span>
                       </button>
                       <button

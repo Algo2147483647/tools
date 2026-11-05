@@ -3,11 +3,9 @@
 .welcome-actions {
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 12px;
   min-width: 0;
-}
-.welcome-actions .welcome-section-heading {
-  margin-bottom: 4px;
+  padding-top: 39px;
 }
 .welcome-action {
   display: flex;
@@ -19,7 +17,8 @@
   border-radius: 12px;
   background: #fff;
   color: var(--studio-ink);
-  padding: 20px;
+  min-height: 64px;
+  padding: 18px 20px;
   cursor: pointer;
 }
 .welcome-action > span:nth-child(2) {
@@ -35,22 +34,11 @@
     600 15px/1.5 "Segoe UI",
     sans-serif;
 }
-.welcome-action small {
-  display: block;
-  font:
-    12px/1.6 "Segoe UI",
-    sans-serif;
-  color: var(--studio-muted);
-  margin-top: 4px;
-}
 .welcome-action.primary {
   border-color: var(--studio-accent);
   background: var(--studio-accent);
   color: #fff;
   box-shadow: 0 7px 20px #315fce1f;
-}
-.welcome-action.primary small {
-  color: #dce7ff;
 }
 .welcome-action:hover {
   transform: translateY(-1px);
@@ -59,6 +47,26 @@
 .welcome-action:disabled {
   opacity: 0.5;
   cursor: wait;
+}
+.welcome-action:focus-visible {
+  outline: 2px solid #4779da;
+  outline-offset: 3px;
+}
+.welcome-graph-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f1;
+}
+.welcome-graph-actions .welcome-action {
+  min-height: 46px;
+  padding: 12px;
+  gap: 8px;
+  font:
+    500 13px/1.5 "Segoe UI",
+    sans-serif;
 }
 .welcome-create-workspace {
   display: flex;
@@ -129,10 +137,6 @@
   margin: 0;
   color: var(--studio-ink);
 }
-.welcome-section-heading > span {
-  font-size: 11px;
-  color: var(--studio-muted);
-}
 .welcome-section-heading h1 > svg {
   flex-shrink: 0;
   color: #7f8da3;
@@ -165,7 +169,7 @@
   line-height: 1.7;
 }
 .recent-timeline {
-  max-height: 360px;
+  max-height: 312px;
   overflow: auto;
   padding: 3px 10px 4px 4px;
   scrollbar-width: thin;
@@ -178,7 +182,7 @@
 }
 .recent-day {
   position: relative;
-  padding: 0 0 22px 22px;
+  padding: 0 0 18px 22px;
   border-left: 1px solid #dce4f0;
   margin-left: 5px;
 }
@@ -233,7 +237,7 @@
   gap: 11px;
   text-align: left;
   min-width: 0;
-  padding: 11px 4px 11px 9px;
+  padding: 9px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -270,26 +274,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.recent-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px 6px;
-  align-items: center;
-  margin-top: 5px;
+.recent-reconnect {
+  display: block;
+  margin-top: 4px;
   font:
     10px/1.5 "Segoe UI",
     sans-serif;
-  color: var(--studio-muted);
-}
-.recent-details time {
-  font-variant-numeric: tabular-nums;
-}
-.recent-reconnect {
   color: #8a652e;
-}
-.recent-arrow {
-  color: #8b9bb2;
-  font-size: 13px;
 }
 .recent-remove {
   display: flex;
@@ -321,12 +312,11 @@
 .welcome-inner {
   width: min(1100px, 100%);
   margin: 0 auto;
-  padding: 48px 48px 40px;
+  padding: 40px 48px;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   align-items: start;
-  gap: 42px 56px;
-  padding-top: 42px;
+  gap: 32px 40px;
 }
 .example-gallery {
   grid-column: 1 / -1;
@@ -382,31 +372,18 @@
   flex-direction: column;
   gap: 9px;
   flex: 1;
-  padding: 18px;
+  padding: 18px 20px 20px;
 }
 .example-card-body strong {
-  display: flex;
-  justify-content: space-between;
+  display: block;
   font:
     600 17px/1.4 Georgia,
     serif;
-}
-.example-card-body strong > span {
-  font:
-    16px/1.4 "Segoe UI",
-    sans-serif;
-  color: #7d8c9f;
 }
 .example-description {
   font-size: 12px;
   line-height: 1.7;
   color: var(--studio-muted);
-}
-.example-detail {
-  padding-top: 8px;
-  margin-top: auto;
-  font-size: 10px;
-  color: #7f8c9e;
 }
 @media (max-width: 1000px) {
   .welcome-inner {
@@ -414,14 +391,20 @@
     padding: 40px 32px;
   }
 }
+@media (min-width: 651px) and (max-width: 850px) {
+  .example-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 @media (max-width: 700px) {
   .welcome-inner {
     grid-template-columns: minmax(0, 1fr);
-    padding: 30px 24px;
+    padding: 64px 24px 30px;
     gap: 30px;
   }
   .welcome-actions {
     grid-row: 1;
+    padding-top: 0;
   }
   .recent-timeline {
     max-height: 340px;

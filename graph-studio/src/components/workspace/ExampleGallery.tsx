@@ -2,10 +2,7 @@ import { EXAMPLE_WORKSPACES } from "../../workspace/examples";
 
 export default function ExampleGallery({ onOpen, busy }: { onOpen: (id: string) => void; busy: boolean }) {
   return (
-    <section className="example-gallery" aria-labelledby="example-title">
-      <div className="welcome-section-heading">
-        <h2 id="example-title">Explore a workspace</h2>
-      </div>
+    <section className="example-gallery" aria-label="Example workspaces">
       <div className="example-grid">
         {EXAMPLE_WORKSPACES.map((example) => (
           <button
@@ -18,12 +15,8 @@ export default function ExampleGallery({ onOpen, busy }: { onOpen: (id: string) 
             <ExampleArt kind={example.id} color={example.accent} />
             <span className="example-card-body">
               <span className="eyebrow">{example.kind}</span>
-              <strong>
-                {example.title}
-                <span aria-hidden="true">↗</span>
-              </strong>
+              <strong>{example.title}</strong>
               <span className="example-description">{example.description}</span>
-              <span className="example-detail">{example.detail}</span>
             </span>
           </button>
         ))}
@@ -88,15 +81,15 @@ function ExampleArt({ kind, color }: { kind: (typeof EXAMPLE_WORKSPACES)[number]
             </g>
           ))}
         </>
-      ) : kind === "commerce" || kind === "graph-studio" ? (
+      ) : kind === "commerce" ? (
         <g stroke={color}>
           <rect x="22" y="16" width="200" height="100" rx="9" fill="white" fillOpacity=".7" strokeOpacity=".5" />
           <text x="34" y="34" fill={color} stroke="none" fontSize="11">
-            {kind === "graph-studio" ? "Graph Studio" : "Commerce"}
+            Commerce
           </text>
           <rect x="34" y="45" width="115" height="59" rx="7" fill={color} fillOpacity=".06" strokeOpacity=".4" />
           <text x="45" y="62" fill={color} stroke="none" fontSize="10">
-            {kind === "graph-studio" ? "Transactions" : "Payments"}
+            Payments
           </text>
           <rect x="45" y="73" width="43" height="20" rx="5" fill="white" />
           <rect x="99" y="73" width="37" height="20" rx="5" fill="white" />
