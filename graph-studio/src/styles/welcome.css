@@ -13,7 +13,7 @@
   align-items: center;
   text-align: left;
   width: 100%;
-  border: 1px solid #dfe6f0;
+  border: 0;
   border-radius: 12px;
   background: #fff;
   color: var(--studio-ink);
@@ -35,14 +35,16 @@
     sans-serif;
 }
 .welcome-action.primary {
-  border-color: var(--studio-accent);
   background: var(--studio-accent);
   color: #fff;
   box-shadow: 0 7px 20px #315fce1f;
 }
 .welcome-action:hover {
   transform: translateY(-1px);
-  border-color: #668cdb;
+  background: #f2f5fb;
+}
+.welcome-action.primary:hover {
+  background: #284fb7;
 }
 .welcome-action:disabled {
   opacity: 0.5;
@@ -58,7 +60,6 @@
   gap: 10px;
   margin-top: 4px;
   padding-top: 16px;
-  border-top: 1px solid #e2e8f1;
 }
 .welcome-graph-actions .welcome-action {
   min-height: 46px;
@@ -335,7 +336,7 @@
   font: inherit;
   color: var(--studio-ink);
   background: #fff;
-  border: 1px solid #dee5ef;
+  border: 0;
   border-radius: 14px;
   cursor: pointer;
   transition:
@@ -345,7 +346,10 @@
 .example-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 28px #29496e12;
-  border-color: #b0c2de;
+}
+.example-card:focus-visible {
+  outline: 2px solid #4779da;
+  outline-offset: 3px;
 }
 .example-card:disabled {
   opacity: 0.55;
@@ -355,17 +359,10 @@
   display: block;
   width: 100%;
   height: auto;
-  background: #f2f5fa;
-  border-bottom: 1px solid #e4eaf2;
-}
-.example-card--factorio .example-art {
-  background: #f0f5f3;
-}
-.example-card--china-history .example-art {
-  background: #f8f3eb;
-}
-.example-card--space-history .example-art {
-  background: #eef1f8;
+  aspect-ratio: 12 / 5;
+  object-fit: contain;
+  flex-shrink: 0;
+  background: #fff;
 }
 .example-card-body {
   display: flex;
@@ -421,15 +418,6 @@
 @media (max-width: 650px) {
   .example-grid {
     grid-template-columns: 1fr;
-  }
-  .example-card {
-    flex-direction: row;
-  }
-  .example-art {
-    width: 30%;
-    align-self: stretch;
-    height: auto;
-    border: 0;
   }
   .example-card-body {
     padding: 16px;
