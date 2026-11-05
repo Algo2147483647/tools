@@ -25,13 +25,7 @@ export default function WelcomeScreen({
     <main className="welcome-screen">
       <div className="welcome-inner">
         <section className="welcome-actions" aria-label="Workspace actions">
-          <img
-            className="welcome-title-art"
-            src={`${import.meta.env.BASE_URL}assets/graph-studio-title.png`}
-            alt="Graph Studio"
-            width={600}
-            height={200}
-          />
+          <h1 className="welcome-title">Graph Studio</h1>
           <button
             ref={createButton}
             className="welcome-action primary"

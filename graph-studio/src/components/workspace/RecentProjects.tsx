@@ -53,13 +53,7 @@ function groupRecentProjects(recents: RecentProject[]) {
 export default function RecentProjects({ files }: { files: WorkspaceControls }) {
   const groups = groupRecentProjects(recentProjects(files.recents));
   return (
-    <section className="welcome-recents" aria-labelledby="recent-projects-title">
-      <div className="welcome-section-heading">
-        <h1 id="recent-projects-title">
-          <Icon name="recent" size={18} />
-          Recent projects
-        </h1>
-      </div>
+    <section className="welcome-recents" aria-label="Recent projects">
       {groups.length ? (
         <div className="recent-timeline" role="region" aria-label="Recent projects timeline" tabIndex={0}>
           {groups.map(([day, group]) => (

@@ -6,13 +6,20 @@
   gap: 12px;
   min-width: 0;
 }
-.welcome-title-art {
-  display: block;
+.welcome-title {
+  display: flex;
+  align-items: center;
   width: 100%;
-  height: auto;
   aspect-ratio: 3 / 1;
-  object-fit: contain;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
+  color: #000;
+  font:
+    400 clamp(42px, 5.2vw, 64px)/1 "Baskerville Old Face",
+    "Baskerville",
+    "Times New Roman",
+    serif;
+  letter-spacing: -1px;
+  white-space: nowrap;
 }
 .welcome-action {
   display: flex;
@@ -65,8 +72,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 4px;
-  padding-top: 16px;
 }
 .welcome-graph-actions .welcome-action {
   min-height: 46px;
@@ -126,28 +131,6 @@
 }
 .welcome-recents {
   min-width: 0;
-}
-.welcome-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 17px;
-}
-.welcome-section-heading h1,
-.welcome-section-heading h2 {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font:
-    600 15px/1.5 "Segoe UI",
-    sans-serif;
-  margin: 0;
-  color: var(--studio-ink);
-}
-.welcome-section-heading h1 > svg {
-  flex-shrink: 0;
-  color: #7f8da3;
 }
 .recent-empty {
   border: 1px dashed #d9e1ec;
@@ -352,6 +335,9 @@
 }
 .example-gallery {
   grid-column: 1 / -1;
+  margin-top: 12px;
+  padding-top: 36px;
+  border-top: 1px solid #dfe5ee;
 }
 .example-grid {
   display: grid;
@@ -412,6 +398,17 @@
   font-size: 12px;
   line-height: 1.7;
   color: var(--studio-muted);
+}
+@media (min-width: 701px) {
+  .welcome-recents {
+    position: relative;
+    align-self: stretch;
+  }
+  .welcome-recents .recent-timeline {
+    position: absolute;
+    inset: 0;
+    max-height: none;
+  }
 }
 @media (max-width: 1000px) {
   .welcome-inner {
