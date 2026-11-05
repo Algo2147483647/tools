@@ -24,8 +24,14 @@ export default function WelcomeScreen({
   return (
     <main className="welcome-screen">
       <div className="welcome-inner">
-        <RecentProjects files={files} />
         <section className="welcome-actions" aria-label="Workspace actions">
+          <img
+            className="welcome-title-art"
+            src={`${import.meta.env.BASE_URL}assets/graph-studio-title.png`}
+            alt="Graph Studio"
+            width={600}
+            height={200}
+          />
           <button
             ref={createButton}
             className="welcome-action primary"
@@ -106,6 +112,7 @@ export default function WelcomeScreen({
             </div>
           )}
         </section>
+        <RecentProjects files={files} />
         <ExampleGallery onOpen={files.openExample} busy={files.busy} />
       </div>
     </main>
