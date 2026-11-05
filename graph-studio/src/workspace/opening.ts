@@ -1,5 +1,5 @@
 import { readLinkedLayout } from "./linkedLayout";
-import { discoverWorkspace, readGraphFile } from "./discovery";
+import { chooseWorkspaceGraph, discoverWorkspace, readGraphFile } from "./discovery";
 import { readLinkedStyle } from "./linkedStyle";
 import type { LocationInput, RecentLocation } from "./locations";
 import type { GraphWorkspace, WorkspaceFile, WorkspaceFolder } from "./types";
@@ -7,7 +7,11 @@ export function documentIdentity(locationId: string, graphPath: string): string 
   return JSON.stringify([locationId, graphPath]);
 }
 export async function prepareWorkspace(folder: WorkspaceFolder, lastGraph?: string) {
-  const workspace = folder.localId ? (folder as GraphWorkspace) : await discoverWorkspace(folder, lastGraph);
+  const discovered = folder.localId ? (folder as GraphWorkspace) : await discoverWorkspace(folder, lastGraph);
+  const workspace = {
+    ...discovered,
+    activePath: chooseWorkspaceGraph(discovered.graphs, discovered.activePath || undefined),
+  };
   const entry = workspace.activePath ? workspace.files.get(workspace.activePath)! : null;
   const dag = entry ? await readGraphFile(entry) : null;
   return {

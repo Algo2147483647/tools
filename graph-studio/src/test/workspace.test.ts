@@ -219,6 +219,26 @@ export const workspaceSuite = defineSuite("Workspace opening and local paths", [
     assert.equal(prepared.entry?.path, "first.json");
     assert.equal(prepared.dag?.title, "First explorer graph");
   }),
+  defineTest("local service snapshots without a selected graph still prepare the first valid document", async () => {
+    const discovered = await discoverWorkspace(
+      folder({
+        [WORKSPACE_MANIFEST]: manifest(["first.json", "second.json"]),
+        "first.json": graph("First graph"),
+        "second.json": graph("Second graph"),
+      }),
+    );
+    for (const activePath of [null, "deleted.json"]) {
+      const snapshot = { ...discovered, localId: "local-workspace", activePath };
+      const prepared = await prepareWorkspace(snapshot);
+      assert.equal(prepared.workspace.activePath, "first.json");
+      assert.equal(prepared.entry?.path, "first.json");
+      assert.equal(prepared.dag?.title, "First graph");
+      assert.equal(snapshot.activePath, activePath);
+    }
+    const snapshot = { ...discovered, localId: "local-workspace", activePath: "second.json" };
+    const restored = await prepareWorkspace(snapshot);
+    assert.equal(restored.dag?.title, "Second graph");
+  }),
   defineTest("empty folders and unrelated project folders can open without a graph", async () => {
     const workspace = await discoverWorkspace(folder({ "package.json": { name: "app" }, "README.md": "Text" }));
     assert.equal(workspace.activePath, null);
