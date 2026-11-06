@@ -15,31 +15,20 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 24px 20px 16px;
+  position: relative;
+  padding: 0;
   margin: 0;
   background: #fff;
   border: 0;
   border-left: 1px solid #e3e8ef;
 }
-.settings-preview-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.settings-preview-heading .eyebrow {
-  font-size: 10px;
-  letter-spacing: 0.09em;
-  color: #5c6c82;
-}
-.settings-preview-heading small {
-  color: #5c6c82;
-  font-size: 11px;
-}
 .preview-mode {
   display: flex;
-  align-self: flex-start;
-  margin: 16px 0 4px;
+  position: absolute;
+  z-index: 1;
+  top: 16px;
+  left: 16px;
+  margin: 0;
   padding: 3px;
   border-radius: 7px;
   background: #eaf0f7;
@@ -66,7 +55,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  margin: 10px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  margin: 0;
+  padding: 6px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 12px #20305212;
 }
 .settings-preview-toolbar > div {
   display: flex;
@@ -97,13 +95,12 @@
   display: none;
 }
 .settings-preview-frame-wrap {
-  position: relative;
-  flex: 1;
+  position: absolute;
+  inset: 0;
   min-height: 0;
   overflow: hidden;
   background: white;
-  border: 1px solid #e4e9f1;
-  border-radius: 8px;
+  border: 0;
 }
 .settings-preview-frame {
   display: block;
@@ -113,7 +110,13 @@
   background: white;
 }
 .settings-preview-status {
-  margin: 9px 0 0;
+  position: absolute;
+  z-index: 1;
+  top: 16px;
+  right: 16px;
+  margin: 0;
+  padding: 4px 8px;
+  background: #fff;
   font-size: 11px;
   line-height: 1.5;
   color: #5c6c82;

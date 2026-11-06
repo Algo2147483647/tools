@@ -7,7 +7,7 @@ import { useTimelineStage } from "../../app/layout/useTimelineStage";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { TimelineClock } from "../../graph/timeline/clock";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
-import { getGraphChartLabel, type CompoundView, type GraphChartType, type GraphLayoutMode } from "../../graph/types";
+import { type CompoundView, type GraphChartType, type GraphLayoutMode } from "../../graph/types";
 import { useDebouncedValue } from "../../shared/hooks/useDebouncedValue";
 import compoundCss from "../../styles/compound.css?inline";
 import graphCss from "../../styles/graph.css?inline";
@@ -127,18 +127,14 @@ export default function AppearancePreview({
       aria-label="Live graph preview"
       aria-busy={loading}
     >
-      <div className="settings-preview-heading">
-        <span className="eyebrow">LIVE PREVIEW</span>
-        <small>{getGraphChartLabel(chartType)} · sample graph</small>
-        <button
-          type="button"
-          className="preview-drawer-toggle"
-          aria-expanded={drawerOpen}
-          onClick={() => setDrawerOpen((value) => !value)}
-        >
-          {drawerOpen ? "Hide preview" : "Show preview"}
-        </button>
-      </div>
+      <button
+        type="button"
+        className="preview-drawer-toggle"
+        aria-expanded={drawerOpen}
+        onClick={() => setDrawerOpen((value) => !value)}
+      >
+        {drawerOpen ? "Hide preview" : "Show preview"}
+      </button>
       <div className="preview-mode" role="group" aria-label="Preview view">
         <button
           type="button"
