@@ -51,6 +51,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         id: "node-sizes",
         path: "style.appearance.nodes",
         renderer: "section",
+        label: "Size & spacing",
         children: [
           {
             id: "node-size",
@@ -98,9 +99,9 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
             children: [
               field("hideNodeBorders", "style.hideNodeBorders", "toggle", { invert: true }, "Node borders"),
               color("--dag-node-border"),
+              color("--dag-node-border-strong"),
             ],
           },
-          color("--dag-node-border-strong"),
         ],
       },
       {
@@ -137,19 +138,19 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         label: "Groups",
         children: [display("showGroupStats", "toggle"), display("showGroupBorders", "toggle")],
       },
+      { id: "timeline-point-text", path: "style.timeline", renderer: "timeline-point-text", charts: ["timeline"] },
+      {
+        id: "timeline-interval-text",
+        path: "style.timeline",
+        renderer: "timeline-interval-text",
+        charts: ["timeline"],
+      },
       {
         id: "node-text",
         path: "style.appearance",
         renderer: "section",
         label: "Node text",
         children: [
-          { id: "timeline-point-text", path: "style.timeline", renderer: "timeline-point-text", charts: ["timeline"] },
-          {
-            id: "timeline-interval-text",
-            path: "style.timeline",
-            renderer: "timeline-interval-text",
-            charts: ["timeline"],
-          },
           {
             id: "text-colors-row",
             renderer: "inline-row",
@@ -252,7 +253,14 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
     path: "style.appearance",
     renderer: "panel",
     children: [
-      field("edge-spacing", "style.appearance.edges.spacing", "number", { unit: "px" }, "Edge lane spacing"),
+      {
+        id: "edge-routing",
+        renderer: "section",
+        label: "Spacing",
+        children: [
+          field("edge-spacing", "style.appearance.edges.spacing", "number", { unit: "px" }, "Edge lane spacing"),
+        ],
+      },
       {
         id: "timeline-anchors",
         path: "style.timeline",
@@ -260,9 +268,16 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         charts: ["timeline"],
         children: [{ id: "anchor-marker", path: "anchorMarker", renderer: "timeline-marker" }],
       },
-      color("--dag-edge"),
-      color("--dag-edge-active"),
-      display("sankeyLinkOpacity", "number", { unit: "%" }),
+      {
+        id: "edge-surface",
+        renderer: "section",
+        label: "Line appearance",
+        children: [
+          color("--dag-edge"),
+          color("--dag-edge-active"),
+          display("sankeyLinkOpacity", "number", { unit: "%" }),
+        ],
+      },
       {
         id: "edge-text",
         label: "Edge text",
@@ -276,14 +291,34 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
     path: "style.appearance.canvas",
     renderer: "panel",
     children: [
-      field("padding", "padding", "tuple", { labels: ["Horizontal padding", "Vertical padding"] }, "Canvas padding"),
-      field(
-        "minSize",
-        "minSize",
-        "tuple",
-        { labels: ["Minimum canvas width", "Minimum canvas height"] },
-        "Minimum canvas size",
-      ),
+      {
+        id: "canvas-padding",
+        renderer: "section",
+        label: "Padding",
+        children: [
+          field(
+            "padding",
+            "padding",
+            "tuple",
+            { labels: ["Horizontal padding", "Vertical padding"] },
+            "Canvas padding",
+          ),
+        ],
+      },
+      {
+        id: "canvas-size",
+        renderer: "section",
+        label: "Minimum size",
+        children: [
+          field(
+            "minSize",
+            "minSize",
+            "tuple",
+            { labels: ["Minimum canvas width", "Minimum canvas height"] },
+            "Minimum canvas size",
+          ),
+        ],
+      },
       {
         id: "axis-typography",
         charts: ["timeline"],

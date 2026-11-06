@@ -18,7 +18,7 @@ export default function TimelinePointSettings({
 }) {
   return (
     <section
-      className={`settings-section timeline-settings-section ${anchors ? "timeline-anchor-settings" : "timeline-point-settings"}`}
+      className={`settings-section appearance-text-section timeline-settings-section ${anchors ? "timeline-anchor-settings" : "timeline-point-settings"}`}
     >
       <h3>{anchors ? "Time anchors" : "Point events"}</h3>
       <p>
@@ -91,7 +91,7 @@ export function TimelineMarkerEditor({
           checked={marker.visible}
           onChange={(e) => change({ visible: e.target.checked })}
         />
-        Show {anchors ? "anchor" : "point"} markers
+        <span>Show {anchors ? "anchor" : "point"} markers</span>
       </label>
       {marker.visible && (
         <>

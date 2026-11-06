@@ -16,7 +16,7 @@ export default function TimelineIntervalSettings({
     settings.intervalBorder === "dashed" ||
     (settings.intervalBorder === "auto" && settings.intervalStyle === "outline");
   return (
-    <section className="settings-section timeline-settings-section timeline-interval-settings">
+    <section className="settings-section appearance-text-section timeline-settings-section timeline-interval-settings">
       <h3>Interval bars</h3>
       <p>Style duration events independently from point events.</p>
       <fieldset className="timeline-style-group">

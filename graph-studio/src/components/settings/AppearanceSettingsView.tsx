@@ -120,7 +120,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
     const has = (key: string) => items.some((item) => item.id === key || item.uiId === key);
     return (
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
-        {id === "canvas" && <h3>Canvas</h3>}
         {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
         {(has("css") || has("style.appearance.css")) && <AppearanceCssEditor />}
         {["nodes", "edges", "canvas"].includes(id) && (

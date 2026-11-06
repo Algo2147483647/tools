@@ -121,9 +121,7 @@ function FontControl({ node, binding }: AppearanceRendererProps) {
   return (
     <div className="font-setting">
       <div className="setting-label-row">
-        <label htmlFor={`setting-${node.options?.layout ? `appearance-row--${node.options.layout}` : ""}`}>
-          {label}
-        </label>
+        <label htmlFor={`setting-${node.id}`}>{label}</label>
         <ResetSetting
           label={label}
           changed={binding.value !== binding.defaultValue}
@@ -163,7 +161,7 @@ export const APPEARANCE_RENDERERS = {
     <AppearanceCssEditor label={node.label} placeholder={node.options?.placeholder} />
   ),
   section: ({ node, children }: AppearanceRendererProps) => (
-    <section className="appearance-text-section">
+    <section className="appearance-text-section" data-section={node.id}>
       {node.label && <h3>{node.label}</h3>}
       <div className="settings-field-grid">{children}</div>
     </section>

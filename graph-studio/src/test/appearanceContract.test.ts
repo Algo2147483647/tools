@@ -61,8 +61,8 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     assert.match(html, /rows="1"/);
     assert.match(html, /\.dag-node__pin \{ fill: red; \}/);
     assert.doesNotMatch(html, /aria-label="Equal node widths"/);
-    assert.match(html, /Width mode/);
-    assert.match(html, /value="fixed" selected=""/);
+    assert.match(html, /Fixed width/);
+    assert.match(html, /aria-label="Fixed width" checked=""/);
     assert.equal((html.match(/aria-label="Node descriptions"/g) ?? []).length, 1);
     assert.equal(render("no-such-setting-12345"), "");
     const width = render("Minimum width");

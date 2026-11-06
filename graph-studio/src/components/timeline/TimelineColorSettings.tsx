@@ -9,7 +9,7 @@ export default function TimelineColorSettings({
   onChange: (patch: Partial<TimelineViewSettings>) => void;
 }) {
   return (
-    <section className="settings-section timeline-settings-section timeline-color-settings">
+    <section className="settings-section appearance-text-section timeline-settings-section timeline-color-settings">
       <h3>Event colors</h3>
       <div className="timeline-control-row">
         <span>Color by</span>

@@ -10,7 +10,7 @@ interface TimelineTextSettingsProps {
 
 export function TimelinePointTextSettings({ settings, onChange }: TimelineTextSettingsProps) {
   return (
-    <section className="settings-section timeline-settings-section timeline-point-text-settings">
+    <section className="settings-section appearance-text-section timeline-settings-section timeline-point-text-settings">
       <h3>Point text</h3>
       <fieldset className="timeline-style-group">
         <legend>Title &amp; time</legend>
@@ -28,7 +28,7 @@ export function TimelinePointTextSettings({ settings, onChange }: TimelineTextSe
             checked={settings.pointDateVisible}
             onChange={(e) => onChange({ pointDateVisible: e.target.checked })}
           />
-          Show point time label
+          <span>Show point time label</span>
         </label>
         {settings.pointDateVisible && (
           <ColorSetting
@@ -47,7 +47,7 @@ export function TimelinePointTextSettings({ settings, onChange }: TimelineTextSe
 export function TimelineIntervalTextSettings({ settings, onChange }: TimelineTextSettingsProps) {
   const horizontal = settings.orientation === "horizontal";
   return (
-    <section className="settings-section timeline-settings-section timeline-interval-text-settings">
+    <section className="settings-section appearance-text-section timeline-settings-section timeline-interval-text-settings">
       <h3>Interval text</h3>
       <fieldset className="timeline-style-group">
         <legend>Title</legend>
