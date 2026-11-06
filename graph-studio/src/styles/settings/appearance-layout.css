@@ -23,10 +23,10 @@
   display: block;
   padding-top: 4px;
 }
-.appearance-group :is(.appearance-tuple-control, .appearance-range-control) {
+.appearance-group .appearance-tuple-control {
   display: contents;
 }
-.appearance-group :is(.appearance-tuple-control > legend, .appearance-range-control > legend) {
+.appearance-group .appearance-tuple-control > legend {
   display: none;
 }
 .appearance-group
@@ -297,4 +297,9 @@
   .appearance-group .node-width-range-inputs {
     gap: 4px;
   }
+}
+
+.appearance-setting-error {
+  color: #b42318;
+  font-size: 13px;
 }

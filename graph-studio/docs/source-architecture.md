@@ -79,7 +79,7 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 `shared/browser/` contains generic browser capabilities. Domain-specific storage remains with its owner: recent locations in `workspace/recentStorage.ts`, compound view state in `viewport/compoundViewStorage.ts`. `workspace/browserAccess.ts` and `relativeLinks.ts` implement workspace and linked-resource access using generic file primitives.
 
-`workspace/opening.ts` prepares complete candidates including recent-location identity and linked style. `workspace/createFromPicker.ts` coordinates folder creation through explicit ports. `app/workspace/useWorkspaceController.ts` retains one operation lock, document replacement decisions and React commits.
+`workspace/opening.ts` prepares complete candidates including recent-location identity and linked style. Workspace creation is coordinated by the workspace controller through the local service. `app/workspace/useWorkspaceController.ts` retains one operation lock, document replacement decisions and React commits.
 
 `viewport/useGraphZoom.ts` coordinates zoom state, fit, location and layout anchors. Wheel, pan and spatial gesture hooks retain their input lifecycles. `cameraGeometry.ts` computes offsets without DOM access; `viewportDom.ts` measures elements and applies results. Explorer overlay refs supplied through `Workspace` and `GraphStage` support zoom and floating timeline-ruler measurements. The canvas has no topbar offset. `StudioLaunchers` owns the expanding corner capsule; `ConsoleToolbar` supplies navigation and zoom inside the Workbench tab, while `StudioSettings` supplies document actions to Settings. Preview canvases may omit overlay refs.
 
@@ -89,7 +89,7 @@ Durable layout data belongs to `graph/compound/layoutData.ts` and `graph/timelin
 
 AI layout rules belong to their chart family under `layout/compound/ai/` and `layout/timeline/ai/`. Each chart family supplies a compact schema, bounded context and semantic validation. Both use `layout/shared/ai/request.ts` for completion checks and a single correction budget, and shared provider transport; algorithm and worker modules do not import network request entry points.
 
-`transport/requestWithRepair.ts` owns request → parse → one repair attempt. Transport failures propagate without retries; cancellation prevents starting a repair request. Session persistence handles storage and serialization, while recovery interprets stored state. Recovery sanitizers and model-response parsers have different contracts.
+Session persistence handles storage and serialization, while recovery interprets stored state. Recovery sanitizers and model-response parsers have different contracts.
 
 `app/ai/useAiController.ts` connects natural-language requests to the native tool loop. `app/console/useConsoleController.ts` prepares isolated edits and commits one document/style transaction; `useConsoleRuntime.ts` owns view, history and layout effects. Old executable plan persistence and manual Apply/Copy Commands controls have been removed. Dedicated layout requests keep their own controllers and schemas.
 

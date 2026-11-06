@@ -56,7 +56,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
             id: "node-size",
             renderer: "node-size",
             children: [
-              field("widths", "widths", "range", { labels: ["Minimum width", "Maximum width"] }, "Width"),
+              field("widths", "widths", "tuple", { labels: ["Minimum width", "Maximum width"] }, "Width"),
               field("alignNodeWidthsToMax", "style.alignNodeWidthsToMax", "field", undefined, "Width mode"),
               field("height", "height", "number", { unit: "px" }, "Height"),
             ],

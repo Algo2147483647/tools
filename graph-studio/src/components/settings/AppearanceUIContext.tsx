@@ -2,6 +2,7 @@ import { createContext, useContext, type ComponentType, type ReactNode } from "r
 import type { AppearanceCssDraft } from "./AppearanceCssEditor";
 import type { TimelineControlsProps } from "../timeline/TimelineControls";
 import { resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
+import { matchesSettingsQuery } from "./settingsSearch";
 import type { AppearanceBinding, AppearanceUIModel } from "./appearanceUIModel";
 
 export interface AppearanceRendererProps {
@@ -33,11 +34,9 @@ export function AppearanceUIOutlet({ node, parentPath }: { node: AppearanceUINod
     const entry = itemPath ? model.bind(itemPath) : undefined;
     if (entry && (!entry.supported || !entry.visible)) return false;
     if (item.children) return item.children.some((child) => visible(child, itemPath));
-    return (
-      !query ||
-      `${item.label ?? ""} ${item.id} ${itemPath ?? ""} ${entry?.definition.label ?? ""} ${entry?.definition.description ?? ""} ${entry?.definition.keywords ?? ""}`
-        .toLowerCase()
-        .includes(query.toLowerCase())
+    return matchesSettingsQuery(
+      `${item.label ?? ""} ${item.id} ${itemPath ?? ""} ${entry?.definition.label ?? ""} ${entry?.definition.description ?? ""} ${entry?.definition.keywords ?? ""}`,
+      query,
     );
   };
   if (!visible(node, parentPath)) return null;

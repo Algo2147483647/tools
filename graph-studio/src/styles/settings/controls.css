@@ -262,35 +262,7 @@
   border-color: #6086da;
   outline: 2px solid #6086da33;
 }
-.settings-field-grid {
-  display: grid;
-  gap: 4px;
-}
-.studio-settings .appearance-text-section {
-  margin-top: 18px;
-  padding-top: 14px;
-}
-.studio-settings .appearance-text-section:first-child {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: 0;
-}
-.studio-settings .appearance-text-section h3 {
-  margin-bottom: 8px;
-  font-size: 13px;
-}
 @container settings-controls (min-width: 560px) {
-  .settings-field-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 24px;
-  }
-  .settings-field-grid > :not(.numeric-setting, .setting-toggle) {
-    grid-column: 1 / -1;
-  }
-  .appearance-tuple-control {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 24px;
-  }
   .color-setting {
     grid-template-columns: minmax(0, 1fr) minmax(180px, 320px) 26px;
   }

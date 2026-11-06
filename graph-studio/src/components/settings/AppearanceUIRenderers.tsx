@@ -79,7 +79,7 @@ function TupleControl({ node, binding }: AppearanceRendererProps) {
   const values = binding.value as number[],
     defaults = binding.defaultValue as number[];
   return (
-    <fieldset className={node.renderer === "range" ? "appearance-range-control" : "appearance-tuple-control"}>
+    <fieldset className="appearance-tuple-control">
       <legend>{node.label ?? binding.definition.label ?? node.id}</legend>
       {values.map((value, index) => (
         <NumericSetting
@@ -171,7 +171,6 @@ export const APPEARANCE_RENDERERS = {
   color: ColorControl,
   toggle: ToggleControl,
   tuple: TupleControl,
-  range: TupleControl,
   field: FieldControl,
   font: FontControl,
   "title-format": TitleFormatControl,

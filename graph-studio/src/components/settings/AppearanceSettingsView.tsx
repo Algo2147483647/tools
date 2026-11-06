@@ -8,7 +8,7 @@ import { PRESET_MANIFEST } from "../../schema/appearance/presets";
 import { type TimelineControlsProps } from "../timeline/TimelineControls";
 import ChartTypeIcon from "../ui/ChartTypeIcon";
 import AppearanceSchema from "./AppearanceSchema";
-import { AppearanceUIOutlet } from "./AppearanceUIContext";
+import { AppearanceUIOutlet, useAppearanceUI } from "./AppearanceUIContext";
 import ChartSchema from "./ChartSchema";
 import { APPEARANCE_UI } from "./appearanceUIConfig";
 import { APPEARANCE_GROUPS, getSettingsCatalog, matchesSetting, type AppearanceGroup } from "./settingsCatalog";
@@ -36,9 +36,7 @@ export interface AppearanceSettingsProps {
 export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
   const [group, setGroup] = useState<AppearanceGroup>("nodes");
   const catalog = getSettingsCatalog(p.chartType);
-  const visible = (id: string) =>
-    catalog.some((item) => (item.id === id || item.uiId === id) && matchesSetting(item, p.query || ""));
-  const isTimeline = p.chartType === "timeline";
+  const { model } = useAppearanceUI();
   if (p.view === "chart")
     return (
       <section className="settings-section">
@@ -69,21 +67,16 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
     );
 
   const renderGroup = (id: AppearanceGroup, label: string) => {
-    const items = catalog.filter((item) => item.chapter === "appearance" && item.group === label && visible(item.id));
+    const items = catalog.filter(
+      (item) => item.chapter === "appearance" && item.group === label && matchesSetting(item, p.query ?? ""),
+    );
     if (!items.length && !APPEARANCE_UI[id]) return null;
     if (id === "presets") {
-      const current: ChartStyle = {
-        appearance: p.appearance,
-        showNodeDetail: p.showNodeDetail,
-        hideNodeBorders: p.hideNodeBorders,
-        alignNodeWidthsToMax: p.alignNodeWidthsToMax,
-        ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}),
-      };
       return (
         <section key={id} className="settings-section" aria-label="Appearance presets">
           <div className="appearance-preset-grid">
             {PRESET_MANIFEST[p.chartType].presets.map((preset) => {
-              const selected = chartStylesEqual(current, preset.document.style);
+              const selected = chartStylesEqual(model.style, preset.document.style);
               return (
                 <button
                   key={preset.id}
@@ -105,13 +98,7 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
         <AppearanceSchema
           key={p.chartType}
           chartType={p.chartType}
-          style={{
-            appearance: p.appearance,
-            showNodeDetail: p.showNodeDetail,
-            hideNodeBorders: p.hideNodeBorders,
-            alignNodeWidthsToMax: p.alignNodeWidthsToMax,
-            ...(isTimeline ? { timeline: p.timelineControls?.settings } : {}),
-          }}
+          style={model.style}
           onChange={p.onAppearanceSchemaChange}
           styleReference={
             typeof p.graphDocument?.metadata?.style === "string" ? p.graphDocument.metadata.style : undefined

@@ -73,6 +73,8 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     assert.equal(render("no-such-setting-12345"), "");
     const width = render("Minimum width");
     assert.doesNotMatch(width, /Title font|Text strong|Text soft/);
+    assert.match(render("  FONT   title  "), /Title font/);
+    assert.doesNotMatch(render("  FONT   title  "), /Node fill|Column spacing/);
   }),
   defineTest("visual parameters belong to their Appearance objects and resets preserve layout rules", () => {
     for (const chart of ["node-link", "compound", "sankey", "timeline"] as const) {

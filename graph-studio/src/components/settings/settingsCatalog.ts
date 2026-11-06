@@ -1,4 +1,5 @@
 import type { GraphChartType } from "../../graph/types";
+import { matchesSettingsQuery } from "./settingsSearch";
 import { getAppearanceSchema } from "../../schema/appearance/schema";
 import { APPEARANCE_UI, resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
 import { type SettingsChapter } from "./settingsConfig";
@@ -121,10 +122,5 @@ export function getSettingsCatalog(chart: GraphChartType): SettingItem[] {
 }
 
 export function matchesSetting(item: SettingItem, query: string) {
-  const haystack = `${item.chapter} ${item.group} ${item.label} ${item.keywords}`.toLowerCase();
-  return query
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .every((word) => haystack.includes(word));
+  return matchesSettingsQuery(`${item.chapter} ${item.group} ${item.label} ${item.keywords}`, query);
 }

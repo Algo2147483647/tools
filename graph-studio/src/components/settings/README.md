@@ -1,26 +1,32 @@
 # Settings presentation
 
-`appearanceUIConfig.ts` describes control order, grouping, chart applicability and
-layout variants. Schema owns values, defaults, supported fields and validation;
-do not duplicate those rules in the presentation configuration.
+`appearanceUIConfig.ts` describes control order, grouping and chart applicability.
+Schema owns values, defaults, supported fields and validation; do not duplicate
+those rules in the presentation configuration.
 
 - `AppearanceUIOutlet` filters unsupported or unmatched controls and empty groups.
-- `AppearanceUIRenderers` adapts Schema bindings to reusable controls. Row variants
-  (`colors`, `border`, `typography`) describe layout, independently of control IDs.
+- `settingsSearch.ts` provides case-insensitive, whitespace-separated word matching
+  for both the settings catalog and rendered controls.
+- `AppearanceUIRenderers` adapts Schema bindings to reusable controls. Panels group
+  searchable fields without adding layout wrappers; sections provide headings.
 - `TitleFormatControl` handles title alignment/overflow and font style through
-  explicit `format` options. Its configuration children declare searchable fields.
-- `AppearanceSettings` owns the validated transaction boundary. All changes use
-  the existing style history, including CSS and section resets.
+  explicit `format` options. Its children declare searchable fields.
+- `AppearanceSettings` owns the current model and validated transaction boundary.
+  Presets and Schema read that model's style rather than rebuilding it in the view.
+- `SettingResetContext` omits per-field reset buttons in Appearance groups. Section
+  resets remain available, and other editors retain their individual reset buttons.
 - `SettingsModal` owns the shared CSS draft. `AppearanceCssEditor` is used in both
-  Nodes and Advanced; changing tabs never creates an independent copy of the CSS.
-  Apply commits once; Undo/Redo synchronize the draft from the committed style.
+  Nodes and Advanced; switching tabs does not create another draft. Apply commits
+  once; Undo/Redo synchronize the draft from the committed style.
 
-CSS editors start at one line and can be resized vertically. Keep editor styling
-in `styles/settings/css-editor.css`, reusable row layouts in
-`styles/settings/appearance-layout.css`, and tuple/range controls in
-`styles/settings/tuple-editor.css`. Avoid selectors tied to configuration IDs.
+Canvas, Nodes and Edges share aligned label/value rows without column headings or
+row borders. A light divider separates sections. Width ranges stay on one row.
+Keep this layout and its narrow-screen rules in `styles/settings/appearance-layout.css`.
+Reusable control styling belongs in `controls.css`; the opaque white settings shell
+belongs in `shell.css`. CSS editors start at one line, can be resized vertically,
+and keep their styling in `css-editor.css`.
 
-When adding controls, provide accessible labels, preserve the common reset and
-commit behavior, and verify filtering and narrow layouts. Contract regressions
-live in `src/test/appearanceContract.test.ts`; browser checks should cover shared
-drafts, Apply/Undo/Redo, manual resizing and horizontal overflow.
+When adding controls, provide accessible labels, preserve the transaction boundary,
+and verify filtering and narrow layouts. Contract regressions live in
+`src/test/appearanceContract.test.ts`; browser checks should cover editing,
+Apply/Undo/Redo, shared drafts, width ranges and horizontal overflow.
