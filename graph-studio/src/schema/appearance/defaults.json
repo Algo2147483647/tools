@@ -16,15 +16,15 @@
       },
       "css": ".dag-backdrop { display: none; }\n.dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }",
       "nodes": {
-        "spacing": {
-          "column": 64,
-          "row": 28
-        },
         "height": 48,
         "widths": [188, 240]
       },
-      "edges": {
-        "spacing": 12
+      "canvas": {
+        "spacing": {
+          "columnGap": 64,
+          "rowGap": 28,
+          "edgeLaneGap": 12
+        }
       }
     }
   },
@@ -49,12 +49,14 @@
       },
       "css": ".dag-graph .dag-edge .dag-edge__path { stroke-width: 1px; }",
       "nodes": {
-        "spacing": {
-          "column": 24,
-          "row": 24
-        },
         "height": 100,
         "widths": [200, 200]
+      },
+      "canvas": {
+        "spacing": {
+          "columnGap": 24,
+          "rowGap": 24
+        }
       }
     }
   },

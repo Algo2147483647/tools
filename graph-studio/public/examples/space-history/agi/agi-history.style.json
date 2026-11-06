@@ -16,7 +16,12 @@
         "minSize": [
           980,
           600
-        ]
+        ],
+        "spacing": {
+          "columnGap": 116,
+          "rowGap": 22,
+          "edgeLaneGap": 28
+        }
       },
       "nodes": {
         "widths": [
@@ -25,15 +30,10 @@
         ],
         "height": 74,
         "spacing": {
-          "column": 116,
-          "row": 22,
           "channel": 26
         },
         "spread": 1,
         "width": 20
-      },
-      "edges": {
-        "spacing": 28
       },
       "display": {
         "titleAlign": "left",

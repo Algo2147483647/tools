@@ -16,7 +16,7 @@
         "kind": "object",
         "group": "canvas",
         "required": true,
-        "description": "Canvas padding and minimum visible size.",
+        "description": "Canvas bounds, padding and spacing.",
         "properties": {
           "padding": {
             "kind": "array",
@@ -39,6 +39,34 @@
             },
             "label": "Minimum canvas size",
             "keywords": "画布 最小 尺寸"
+          },
+          "spacing": {
+            "kind": "object",
+            "required": true,
+            "description": "Column, row and edge-lane spacing in logical pixels.",
+            "properties": {
+              "columnGap": {
+                "kind": "number",
+                "description": "Layer separation in logical pixels.",
+                "default": 116,
+                "charts": ["node-link", "compound", "sankey"],
+                "label": "Column gap"
+              },
+              "rowGap": {
+                "kind": "number",
+                "description": "Node or label separation in logical pixels.",
+                "default": 22,
+                "charts": ["node-link", "compound", "timeline", "sankey"],
+                "label": "Row gap"
+              },
+              "edgeLaneGap": {
+                "kind": "number",
+                "description": "Ordinary Node-link edge-lane separation in logical pixels.",
+                "default": 28,
+                "charts": ["node-link"],
+                "label": "Edge lane gap"
+              }
+            }
           }
         }
       },
@@ -46,7 +74,7 @@
         "kind": "object",
         "group": "nodes",
         "required": true,
-        "description": "Node sizes and spacing; capabilities are declared per chart.",
+        "description": "Node sizes and Timeline channel spacing.",
         "properties": {
           "widths": {
             "kind": "array",
@@ -72,22 +100,8 @@
             "kind": "object",
             "group": "nodes",
             "required": true,
-            "description": "Spacing between columns, rows and Timeline channels.",
+            "description": "Timeline channel spacing.",
             "properties": {
-              "column": {
-                "kind": "number",
-                "description": "Layer separation in logical pixels.",
-                "default": 116,
-                "charts": ["node-link", "compound", "sankey"],
-                "label": "Column gap"
-              },
-              "row": {
-                "kind": "number",
-                "description": "Node or label separation in logical pixels.",
-                "default": 22,
-                "charts": ["node-link", "compound", "timeline", "sankey"],
-                "label": "Row gap"
-              },
               "channel": {
                 "kind": "number",
                 "description": "Channel spacing input in logical pixels.",
@@ -110,21 +124,6 @@
             "default": 20,
             "charts": ["sankey"],
             "label": "Sankey node width"
-          }
-        }
-      },
-      "edges": {
-        "kind": "object",
-        "group": "edges",
-        "required": true,
-        "description": "Spacing between edge lanes.",
-        "properties": {
-          "spacing": {
-            "kind": "number",
-            "description": "Ordinary Node-link edge-lane separation in logical pixels.",
-            "default": 28,
-            "charts": ["node-link"],
-            "label": "Edge lane gap"
           }
         }
       },

@@ -119,13 +119,13 @@ function getRoutePointPosition(
   }
 
   const slotCount = slotCountsByLayer.get(point.layer) || 1;
-  const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.nodes.spacing.row;
+  const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.canvas.spacing.rowGap;
   const startY = theme.canvas.padding[1] + (stageInnerHeight - layerHeight) / 2;
   return {
     layer: point.layer,
     order: point.order,
     x: laneCenters.get(point.layer) || theme.canvas.padding[0],
-    y: startY + point.order * (theme.nodes.height + theme.nodes.spacing.row) + theme.nodes.height / 2,
+    y: startY + point.order * (theme.nodes.height + theme.canvas.spacing.rowGap) + theme.nodes.height / 2,
   };
 }
 

@@ -152,7 +152,7 @@ export function prepareTimeline(input: TimelineLayoutInput) {
   const labelWidth = Math.max(0, theme.nodes.widths[1]);
   const labelStep = Math.max(
     labelMetrics.top + labelMetrics.bottom + 4,
-    theme.nodes.height * 0.58 + theme.nodes.spacing.row * 0.2,
+    theme.nodes.height * 0.58 + theme.canvas.spacing.rowGap * 0.2,
   );
   const trackCounts = new Map<string, number>();
   for (const node of Object.values(input.axisSource?.nodes ?? dag.nodes)) {

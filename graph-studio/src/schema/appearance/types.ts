@@ -7,20 +7,16 @@ export type GraphAppearance = {
   canvas: {
     padding: [number, number];
     minSize: [number, number];
+    spacing: { columnGap: number; rowGap: number; edgeLaneGap: number };
   };
   nodes: {
     widths: [number, number];
     height: number;
     spacing: {
-      column: number;
-      row: number;
       channel: number;
     };
     spread: number;
     width: number;
-  };
-  edges: {
-    spacing: number;
   };
   display: {
     titleAlign: "left" | "center";
@@ -49,7 +45,7 @@ export type GraphAppearance = {
     denseShadows: "preserve" | "disable";
   };
 };
-export type GraphGeometryAppearance = Pick<GraphAppearance, "canvas" | "nodes" | "edges">;
+export type GraphGeometryAppearance = Pick<GraphAppearance, "canvas" | "nodes">;
 export type GraphDisplayAppearance = GraphAppearance["display"];
 export type TimelineViewSettings = {
   layout: "tracks" | "flow";

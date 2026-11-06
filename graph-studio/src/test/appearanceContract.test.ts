@@ -38,6 +38,41 @@ const dag = normalizeDagInput({
 const noop = () => {};
 
 export const appearanceContractSuite = defineSuite("Appearance contract", [
+  defineTest("Canvas owns spacing paths and reset scope; legacy paths are rejected", () => {
+    const style = getDefaultChartStyle("node-link");
+    style.appearance.canvas.spacing = { columnGap: 123, rowGap: 45, edgeLaneGap: 19 };
+    const schema = getAppearanceSchema("node-link", style);
+    for (const key of ["columnGap", "rowGap", "edgeLaneGap"]) {
+      assert.equal(schema.entries.get(`style.appearance.canvas.spacing.${key}`)?.definition.group, "canvas");
+    }
+    for (const path of ["nodes.spacing.column", "nodes.spacing.row", "edges.spacing"]) {
+      assert.equal(schema.entries.has(`style.appearance.${path}`), false);
+    }
+    for (const group of ["nodes", "edges"] as const) {
+      assert.deepEqual(
+        resetChartStyleSection(style, "node-link", group).appearance.canvas.spacing,
+        style.appearance.canvas.spacing,
+      );
+    }
+    assert.deepEqual(
+      resetChartStyleSection(style, "node-link", "canvas").appearance.canvas.spacing,
+      getDefaultChartStyle("node-link").appearance.canvas.spacing,
+    );
+    const document = createStyleDocument("node-link", style);
+    assert.deepEqual(parseStyleDocument(JSON.parse(JSON.stringify(document)), "node-link").style, style);
+    for (const old of [
+      { nodes: { ...style.appearance.nodes, spacing: { column: 123, row: 45 } } },
+      { edges: { spacing: 19 } },
+      { canvas: { ...style.appearance.canvas, spacing: { column: 123, row: 45, edgeLane: 19 } } },
+    ]) {
+      assert.throws(() =>
+        parseStyleDocument(
+          { ...document, style: { ...style, appearance: { ...style.appearance, ...old } } },
+          "node-link",
+        ),
+      );
+    }
+  }),
   defineTest("section reset policy omits field reset controls without changing other editors", () => {
     const reset = createElement(ResetSetting, { label: "Width", changed: true, onReset: noop });
     assert.match(renderToStaticMarkup(reset), /aria-label="Reset Width"/);
@@ -261,7 +296,7 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     assert.doesNotMatch(html, /style.appearance.display.nodeCornerRadius/);
     const reset = resetChartStyleSection(style, "timeline", "nodes");
     assert.equal(reset.appearance.cssVars["--dag-timeline-muted-opacity"], "0.28");
-    assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.nodes.spacing.row")?.editable, false);
+    assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.canvas.spacing.rowGap")?.editable, false);
     assert.equal(getAppearanceSchema("spatial").entries.get("style.appearance.canvas.minSize")?.editable, true);
     style.timeline!.pins = { a: 123 };
     assert.deepEqual(

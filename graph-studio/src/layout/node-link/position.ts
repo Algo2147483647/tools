@@ -82,10 +82,11 @@ export function positionNodeLinkNodes(context: PreparedNodeLink, nodes: NodeLink
       }
 
       const slotCount = slotCountsByLayer.get(layer) || layerNodes.length || 1;
-      const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.nodes.spacing.row;
+      const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.canvas.spacing.rowGap;
       const startY = theme.canvas.padding[1] + (stageInnerHeight - layerHeight) / 2;
       layerNodes.forEach((nodeData) => {
-        nodeData.y = startY + nodeData.order * (theme.nodes.height + theme.nodes.spacing.row) + theme.nodes.height / 2;
+        nodeData.y =
+          startY + nodeData.order * (theme.nodes.height + theme.canvas.spacing.rowGap) + theme.nodes.height / 2;
       });
     });
 
@@ -109,10 +110,10 @@ export function positionNodeLinkNodes(context: PreparedNodeLink, nodes: NodeLink
         x: laneCenter,
         width: layerWidth,
       });
-      cursorX += layerWidth + theme.nodes.spacing.column;
+      cursorX += layerWidth + theme.canvas.spacing.columnGap;
     });
 
-    stageWidth = cursorX - theme.nodes.spacing.column + theme.canvas.padding[0];
+    stageWidth = cursorX - theme.canvas.spacing.columnGap + theme.canvas.padding[0];
     stageHeight = stageInnerHeight + theme.canvas.padding[1] * 2;
   }
 
@@ -144,7 +145,7 @@ function getBarycentricScore(
 function measureStageInnerHeight(slotCountsByLayer: Map<number, number>, theme: GraphGeometryAppearance): number {
   let maxHeight = 0;
   slotCountsByLayer.forEach((slotCount) => {
-    const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.nodes.spacing.row;
+    const layerHeight = slotCount * theme.nodes.height + Math.max(slotCount - 1, 0) * theme.canvas.spacing.rowGap;
     maxHeight = Math.max(maxHeight, layerHeight);
   });
   return Math.max(maxHeight, theme.nodes.height * 3.4);

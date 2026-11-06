@@ -42,12 +42,12 @@ export function prepareCompound(input: CompoundInput) {
   // Zero requested spacing still needs a routing corridor between card boundaries.
   const theme = {
     ...appearance,
-    nodes: {
-      ...appearance.nodes,
+    canvas: {
+      ...appearance.canvas,
       spacing: {
-        ...appearance.nodes.spacing,
-        column: Math.max(12, appearance.nodes.spacing.column),
-        row: Math.max(12, appearance.nodes.spacing.row),
+        ...appearance.canvas.spacing,
+        columnGap: Math.max(12, appearance.canvas.spacing.columnGap),
+        rowGap: Math.max(12, appearance.canvas.spacing.rowGap),
       },
     },
   };
@@ -139,8 +139,8 @@ export function prepareCompound(input: CompoundInput) {
     fingerprint,
     labelSizes,
     showLabels: input.showEdgeLabels ?? false,
-    columnGap: theme.nodes.spacing.column,
-    rowGap: theme.nodes.spacing.row,
+    columnGap: theme.canvas.spacing.columnGap,
+    rowGap: theme.canvas.spacing.rowGap,
     minimumCanvas: { width: theme.canvas.minSize[0], height: theme.canvas.minSize[1] },
     stored: config,
     nodeSemantics: Object.fromEntries(

@@ -13,20 +13,20 @@ Generated from the canonical field definitions. Required fields are marked with 
 | style.alignNodeWidthsToMax * | boolean | true | Align card widths to the configured maximum. |
 | style.appearance * | object | — | Shared appearance object; includes stored fields unused by some charts. |
 | style.appearance.version * | 1 | 1 | Nested appearance protocol version. |
-| style.appearance.canvas * | object | — | Canvas padding and minimum visible size. |
+| style.appearance.canvas * | object | — | Canvas bounds, padding and spacing. |
 | style.appearance.canvas.padding | [number, number] | [108,88] | Horizontal and vertical canvas padding [x, y] in logical pixels. |
 | style.appearance.canvas.minSize | [number, number] | [980,600] | Minimum canvas size [width, height] in logical pixels. |
-| style.appearance.nodes * | object | — | Node sizes and spacing; capabilities are declared per chart. |
+| style.appearance.canvas.spacing * | object | — | Column, row and edge-lane spacing in logical pixels. |
+| style.appearance.canvas.spacing.columnGap | number | 24 | Layer separation in logical pixels. |
+| style.appearance.canvas.spacing.rowGap | number | 24 | Node or label separation in logical pixels. |
+| style.appearance.canvas.spacing.edgeLaneGap | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by compound. |
+| style.appearance.nodes * | object | — | Node sizes and Timeline channel spacing. |
 | style.appearance.nodes.widths | [number, number] | [200,200] | Node width bounds [min, max]; max sets the event label width. |
 | style.appearance.nodes.height | number | 100 | Base card height or chart-specific vertical-space input. |
-| style.appearance.nodes.spacing * | object | — | Spacing between columns, rows and Timeline channels. |
-| style.appearance.nodes.spacing.column | number | 24 | Layer separation in logical pixels. |
-| style.appearance.nodes.spacing.row | number | 24 | Node or label separation in logical pixels. |
+| style.appearance.nodes.spacing * | object | — | Timeline channel spacing. |
 | style.appearance.nodes.spacing.channel | number | 24 | Channel spacing input in logical pixels. Not used by compound. |
 | style.appearance.nodes.spread | number | 1 | Cross-time-axis spread multiplier, interpreted for the selected orientation. Not used by compound. |
 | style.appearance.nodes.width | number | 20 | Sankey bar width in logical pixels. Not used by compound. |
-| style.appearance.edges * | object | — | Spacing between edge lanes. |
-| style.appearance.edges.spacing | number | 28 | Ordinary Node-link edge-lane separation in logical pixels. Not used by compound. |
 | style.appearance.display * | object | — | Display flags and visual dimensions; unsupported fields remain stored. |
 | style.appearance.display.titleAlign | left \| center | "center" | Nested node-link card-title alignment. |
 | style.appearance.display.titleOverflow | ellipsis \| clip \| visible | "ellipsis" | Nested node-link title overflow treatment. |
@@ -287,3 +287,6 @@ Generated from the canonical field definitions. Required fields are marked with 
   }
 }
 ```
+
+Layout spacing belongs to Canvas (`canvas.spacing.columnGap`, `rowGap`, `edgeLaneGap`).
+Legacy spacing paths are not supported.

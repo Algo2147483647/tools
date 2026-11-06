@@ -92,13 +92,13 @@ export const appearanceSuite = defineSuite("appearance", [
   }),
   defineTest("sanitizeGraphAppearance fills defaults and preserves finite layout values", () => {
     const appearance = sanitizeGraphAppearance({
-      nodes: { spacing: { column: -1, row: 999 }, widths: [999, 10] },
-      canvas: { minSize: [10_000, 600] },
+      nodes: { widths: [999, 10] },
+      canvas: { minSize: [10_000, 600], spacing: { columnGap: -1, rowGap: 999 } },
     });
 
     assert.equal(appearance.version, 1);
-    assert.equal(appearance.nodes.spacing.column, -1);
-    assert.equal(appearance.nodes.spacing.row, 999);
+    assert.equal(appearance.canvas.spacing.columnGap, -1);
+    assert.equal(appearance.canvas.spacing.rowGap, 999);
     assert.equal(appearance.nodes.widths[0], 999);
     assert.equal(appearance.nodes.widths[1], 10);
     assert.equal(appearance.canvas.minSize[0], 10_000);
@@ -158,9 +158,9 @@ export const appearanceSuite = defineSuite("appearance", [
               "--dag-title-font-size": "18px",
               "--dag-title-font-style": "normal",
             },
-            nodes: {
-              ...DEFAULT_GRAPH_APPEARANCE.nodes,
-              spacing: { ...DEFAULT_GRAPH_APPEARANCE.nodes.spacing, column: 144 },
+            canvas: {
+              ...DEFAULT_GRAPH_APPEARANCE.canvas,
+              spacing: { ...DEFAULT_GRAPH_APPEARANCE.canvas.spacing, columnGap: 144 },
             },
             display: {
               ...DEFAULT_GRAPH_APPEARANCE.display,
@@ -172,7 +172,7 @@ export const appearanceSuite = defineSuite("appearance", [
     });
     const parsed = parseGraphPagePreferences(raw);
 
-    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.nodes.spacing.column, 144);
+    assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.canvas.spacing.columnGap, 144);
     assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.display.showEdgeLabels, false);
     assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.cssVars["--dag-title-font-size"], "18px");
     assert.equal(parsed?.chartStyles?.["node-link"].style.appearance?.cssVars["--dag-title-font-style"], "normal");

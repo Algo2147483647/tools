@@ -289,8 +289,10 @@ function computeCorridorHeight(laneCount: number, theme: GraphGeometryAppearance
     return EMPTY_CORRIDOR_HEIGHT;
   }
   const edgeDemand =
-    laneCount * EDGE_STROKE_WIDTH + Math.max(laneCount - 1, 0) * theme.edges.spacing + EDGE_NODE_CLEARANCE_Y * 2;
-  return Math.max(edgeDemand, EMPTY_CORRIDOR_HEIGHT, theme.nodes.spacing.row);
+    laneCount * EDGE_STROKE_WIDTH +
+    Math.max(laneCount - 1, 0) * theme.canvas.spacing.edgeLaneGap +
+    EDGE_NODE_CLEARANCE_Y * 2;
+  return Math.max(edgeDemand, EMPTY_CORRIDOR_HEIGHT, theme.canvas.spacing.rowGap);
 }
 
 function assignCorridorYs(corridor: LayerEdgeCorridor, topY: number, theme: GraphGeometryAppearance): void {
@@ -301,10 +303,10 @@ function assignCorridorYs(corridor: LayerEdgeCorridor, topY: number, theme: Grap
 
   const laneBandHeight =
     corridor.logicalOrders.length * EDGE_STROKE_WIDTH +
-    Math.max(corridor.logicalOrders.length - 1, 0) * theme.edges.spacing;
+    Math.max(corridor.logicalOrders.length - 1, 0) * theme.canvas.spacing.edgeLaneGap;
   const laneStartY = topY + (corridor.height - laneBandHeight) / 2 + EDGE_STROKE_WIDTH / 2;
   corridor.laneYs = corridor.logicalOrders.map(
-    (_, index) => laneStartY + index * (EDGE_STROKE_WIDTH + theme.edges.spacing),
+    (_, index) => laneStartY + index * (EDGE_STROKE_WIDTH + theme.canvas.spacing.edgeLaneGap),
   );
 }
 

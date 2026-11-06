@@ -18,7 +18,6 @@ export function getStageAppearance(
   return {
     canvas: appearance.canvas,
     nodes: appearance.nodes,
-    edges: appearance.edges,
     typography: getTitleFont(appearance),
     fonts: Object.fromEntries(
       (["detail", "date", "axis", "track"] as const).map((role) => [role, getRoleFont(appearance, role)]),

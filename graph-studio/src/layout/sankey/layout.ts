@@ -60,7 +60,7 @@ export function buildSankeyStage(
   const layerOf = (key: string) => (producers.has(key) ? rank.get(key)! : lastLayer);
   const columns = new Map<number, string[]>();
   activeKeys.forEach((key) => columns.set(layerOf(key), [...(columns.get(layerOf(key)) ?? []), key]));
-  const padding = theme.nodes.spacing.row;
+  const padding = theme.canvas.spacing.rowGap;
   const innerHeight = Math.max(
     theme.canvas.minSize[1] - 2 * theme.canvas.padding[1],
     Math.max(1, ...[...columns.values()].map((column) => column.length)) * (Math.max(48, theme.nodes.height) + padding),
@@ -85,7 +85,7 @@ export function buildSankeyStage(
   const gutter = returnEdges.length ? returnWidth / 2 + 32 : 0;
   const nodeWidth = appearance.nodes.width;
   const columnStep =
-    nodeWidth + Math.max(theme.nodes.spacing.column, theme.nodes.widths[1] + 32, gutter * 2 + returnWidth + 32);
+    nodeWidth + Math.max(theme.canvas.spacing.columnGap, theme.nodes.widths[1] + 32, gutter * 2 + returnWidth + 32);
   const left = theme.canvas.padding[0] + gutter + returnWidth / 2;
   const right = left + lastLayer * columnStep + nodeWidth;
   const nodeMap: Record<string, StageNode> = Object.create(null);

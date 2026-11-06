@@ -222,7 +222,7 @@ export const documentSessionSuite = defineSuite("Document lifecycle and architec
     assert.deepEqual(getStageAppearance(base), getStageAppearance(cosmetic));
     const spacing = sanitizeGraphAppearance({
       ...base,
-      nodes: { ...base.nodes, spacing: { ...base.nodes.spacing, row: base.nodes.spacing.row + 10 } },
+      canvas: { ...base.canvas, spacing: { ...base.canvas.spacing, rowGap: base.canvas.spacing.rowGap + 10 } },
     });
     assert.notDeepEqual(getStageAppearance(base), getStageAppearance(spacing));
     const width = sanitizeGraphAppearance({

@@ -15,21 +15,21 @@
             "version": 1,
             "canvas": {
               "padding": [108, 88],
-              "minSize": [980, 600]
+              "minSize": [980, 600],
+              "spacing": {
+                "columnGap": 116,
+                "rowGap": 22,
+                "edgeLaneGap": 28
+              }
             },
             "nodes": {
               "widths": [188, 280],
               "height": 74,
               "spacing": {
-                "column": 116,
-                "row": 22,
                 "channel": 24
               },
               "spread": 1,
               "width": 20
-            },
-            "edges": {
-              "spacing": 28
             },
             "display": {
               "titleAlign": "left",

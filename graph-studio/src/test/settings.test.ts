@@ -376,12 +376,12 @@ export const settingsSuite = defineSuite("Settings controls", [
     for (const value of [-12.3456789, 0, 10000.125]) {
       const appearance = sanitizeGraphAppearance({
         nodes: {
-          spacing: { column: value, row: value },
           height: value,
           widths: [188, value],
           width: value,
           spread: value,
         },
+        canvas: { spacing: { columnGap: value, rowGap: value } },
         display: { nodeCornerRadius: value, shadowOpacity: value },
       });
       const restored = parseChartStyleFile(
@@ -389,8 +389,8 @@ export const settingsSuite = defineSuite("Settings controls", [
         "compound",
       ).appearance;
       assert.deepEqual(restored, appearance);
-      assert.equal(restored.nodes.spacing.column, value);
-      assert.equal(restored.nodes.spacing.row, value);
+      assert.equal(restored.canvas.spacing.columnGap, value);
+      assert.equal(restored.canvas.spacing.rowGap, value);
       assert.equal(restored.nodes.height, value);
       assert.equal(restored.nodes.widths[1], value);
       assert.equal(restored.display.nodeCornerRadius, value);

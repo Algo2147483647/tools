@@ -59,8 +59,8 @@ export const previewSuite = defineSuite("Shared live preview", [
           nodes: {
             ...initial.appearance.nodes,
             height: 140,
-            spacing: { ...initial.appearance.nodes.spacing, column: 240 },
           },
+          canvas: { ...initial.appearance.canvas, spacing: { ...initial.appearance.canvas.spacing, columnGap: 240 } },
         },
       })!;
       assert.ok(changed.nodes.every((node) => node.height === 140));
@@ -145,12 +145,12 @@ export const previewSuite = defineSuite("Shared live preview", [
   defineTest("settings omit controls unused by the selected layout", () => {
     const has = (chart: GraphChartType, key: string) =>
       getSettingsCatalog(chart).some((item) => item.id === `style.appearance.${key}`);
-    assert.ok(has("node-link", "edges.spacing"));
-    assert.ok(!has("compound", "edges.spacing"));
-    assert.ok(!has("timeline", "nodes.spacing.column"));
-    assert.ok(has("sankey", "nodes.spacing.column"));
+    assert.ok(has("node-link", "canvas.spacing.edgeLaneGap"));
+    assert.ok(!has("compound", "canvas.spacing.edgeLaneGap"));
+    assert.ok(!has("timeline", "canvas.spacing.columnGap"));
+    assert.ok(has("sankey", "canvas.spacing.columnGap"));
     for (const chart of ["timeline", "sankey"] as const)
-      for (const key of ["nodes.spacing.row", "nodes.height", "nodes.widths", "canvas.padding", "canvas.minSize"])
+      for (const key of ["canvas.spacing.rowGap", "nodes.height", "nodes.widths", "canvas.padding", "canvas.minSize"])
         assert.ok(has(chart, key));
   }),
   defineTest("each committed numeric edit has its own undo step", () => {

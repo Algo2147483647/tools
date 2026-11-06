@@ -127,7 +127,7 @@ function buildAppearanceCommandMessage(command: AppearanceCommand): string {
 
 function buildAppearanceDiff(before: GraphAppearance, after: GraphAppearance): string[] {
   const lines: string[] = [];
-  for (const key of ["canvas", "nodes", "edges"] as const) {
+  for (const key of ["canvas", "nodes"] as const) {
     if (JSON.stringify(before[key]) !== JSON.stringify(after[key]))
       lines.push(`~ ${key}: ${JSON.stringify(before[key])} -> ${JSON.stringify(after[key])}`);
   }

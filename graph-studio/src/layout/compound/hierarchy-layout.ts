@@ -62,8 +62,8 @@ export function layoutCompoundHierarchy(
         topology.layers.flat(),
         topology.forward,
         fixedSizes,
-        theme.nodes.spacing.column,
-        theme.nodes.spacing.row,
+        theme.canvas.spacing.columnGap,
+        theme.canvas.spacing.rowGap,
       );
     };
     const result = scoreRoutes
@@ -71,8 +71,8 @@ export function layoutCompoundHierarchy(
           scope.children,
           scope.edges,
           fixedSizes,
-          theme.nodes.spacing.column,
-          theme.nodes.spacing.row,
+          theme.canvas.spacing.columnGap,
+          theme.canvas.spacing.rowGap,
           "AUTO",
           undefined,
           createPlacementScore(scope.edges, { projection, children: local, showLabels, labelSizes }),

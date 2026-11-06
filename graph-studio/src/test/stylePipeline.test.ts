@@ -175,8 +175,8 @@ export const stylePipelineSuite = defineSuite("Complete style and content layout
     assert.equal(previous.appearance.display.nodeCornerRadius, 16);
     assert.equal(previous.appearance.display.showNodeDots, true);
     assert.equal(style.appearance.display.showGroupBorders, false);
-    assert.equal(style.appearance.nodes.spacing.column, 24);
-    assert.equal(style.appearance.nodes.spacing.row, 24);
+    assert.equal(style.appearance.canvas.spacing.columnGap, 24);
+    assert.equal(style.appearance.canvas.spacing.rowGap, 24);
     assert.equal(style.appearance.display.edgeArrowStyle, "open");
     assert.equal(style.appearance.cssVars["--dag-edge"], "#cccccc");
     const expanded = await compoundFixtureScene({ ...input, view: { collapsedGroupIds: [], focusGroupId: null } });

@@ -50,7 +50,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         id: "node-sizes",
         path: "style.appearance.nodes",
         renderer: "section",
-        label: "Size & spacing",
+        label: "Size",
         children: [
           {
             id: "node-size",
@@ -62,8 +62,6 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
             ],
           },
           field("width", "width", "number", { unit: "px" }, "Flow node width"),
-          field("column", "spacing.column", "number", { unit: "px" }, "Column spacing"),
-          field("row", "spacing.row", "number", { unit: "px" }, "Row spacing"),
           field("channel", "spacing.channel", "number", { unit: "px" }, "Timeline channel spacing"),
           {
             ...field("spread", "spread", "number", { unit: "%", scale: 100 }, "Timeline horizontal spread"),
@@ -249,14 +247,6 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
     renderer: "panel",
     children: [
       {
-        id: "edge-routing",
-        renderer: "section",
-        label: "Spacing",
-        children: [
-          field("edge-spacing", "style.appearance.edges.spacing", "number", { unit: "px" }, "Edge lane spacing"),
-        ],
-      },
-      {
         id: "timeline-anchors",
         path: "style.timeline",
         renderer: "timeline-anchors",
@@ -286,6 +276,16 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
     path: "style.appearance.canvas",
     renderer: "panel",
     children: [
+      {
+        id: "canvas-spacing",
+        renderer: "section",
+        label: "Layout spacing",
+        children: [
+          field("column", "spacing.columnGap", "number", { unit: "px" }, "Column gap"),
+          field("row", "spacing.rowGap", "number", { unit: "px" }, "Row gap"),
+          field("edge-spacing", "spacing.edgeLaneGap", "number", { unit: "px" }, "Edge lane gap"),
+        ],
+      },
       {
         id: "canvas-padding",
         renderer: "section",

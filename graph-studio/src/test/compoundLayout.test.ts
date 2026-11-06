@@ -479,7 +479,7 @@ export const compoundLayoutSuite = defineSuite("Independent topological layouts 
     const defaults = getStageAppearance(getDefaultChartStyle("compound").appearance, "compound");
     const appearance = {
       ...defaults,
-      nodes: { ...defaults.nodes, spacing: { ...defaults.nodes.spacing, column: 0, row: 0 } },
+      canvas: { ...defaults.canvas, spacing: { ...defaults.canvas.spacing, columnGap: 0, rowGap: 0 } },
     };
     const stage = await layoutFixture(dag, undefined, false, false, appearance);
     assert.ok(stage.nodes.length > 0);
