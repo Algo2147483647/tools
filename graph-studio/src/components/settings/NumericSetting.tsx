@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useId, useState } from "react";
+import { createContext, useContext, useEffect, useId, useState, type ReactNode } from "react";
 
 /** Appearance groups use section resets; other editors retain per-field resets. */
 export const SettingResetContext = createContext(true);
@@ -21,6 +21,8 @@ export function ResetSetting({ label, changed, onReset }: { label: string; chang
 }
 
 export default function NumericSetting({
+  valueLabel,
+  suffix,
   label,
   value,
   defaultValue,
@@ -28,6 +30,8 @@ export default function NumericSetting({
   disabled,
   onChange,
 }: {
+  valueLabel?: string;
+  suffix?: ReactNode;
   label: string;
   value: number;
   defaultValue: number;
@@ -36,9 +40,48 @@ export default function NumericSetting({
   onChange: (value: number) => void;
 }) {
   const id = useId();
+  const changed = value !== defaultValue;
+  return (
+    <div className="numeric-setting" data-modified={changed} aria-disabled={disabled || undefined}>
+      <div className="setting-label-row">
+        <label htmlFor={id}>
+          {label}
+          {changed && <span className="setting-modified" aria-label="Modified from default" />}
+        </label>
+      </div>
+      <div className={`numeric-setting-inputs${suffix ? " numeric-setting-inputs--with-suffix" : ""}`}>
+        <NumericInput
+          id={id}
+          label={valueLabel ?? label}
+          value={value}
+          unit={unit}
+          disabled={disabled}
+          onChange={onChange}
+        />
+        {suffix}
+      </div>
+      <ResetSetting label={label} changed={changed && !disabled} onReset={() => onChange(defaultValue)} />
+    </div>
+  );
+}
+
+export function NumericInput({
+  id,
+  label,
+  value,
+  unit = "px",
+  disabled,
+  onChange,
+}: {
+  id?: string;
+  label: string;
+  value: number;
+  unit?: string;
+  disabled?: boolean;
+  onChange: (value: number) => void;
+}) {
   const [draft, setDraft] = useState(String(value));
   useEffect(() => setDraft(String(value)), [value]);
-  const changed = value !== defaultValue;
   const commit = (raw: string) => {
     if (!raw.trim() || !Number.isFinite(Number(raw))) {
       setDraft(String(value));
@@ -49,36 +92,25 @@ export default function NumericSetting({
     if (next !== value) onChange(next);
   };
   return (
-    <div className="numeric-setting" data-modified={changed} aria-disabled={disabled || undefined}>
-      <div className="setting-label-row">
-        <label htmlFor={id}>
-          {label}
-          {changed && <span className="setting-modified" aria-label="Modified from default" />}
-        </label>
-      </div>
-      <div className="numeric-setting-inputs">
-        <label className="numeric-setting-value">
-          <input
-            id={id}
-            type="number"
-            aria-label={`${label} value`}
-            step="any"
-            disabled={disabled}
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onBlur={() => commit(draft)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur();
-              if (event.key === "Escape") {
-                setDraft(String(value));
-                event.stopPropagation();
-              }
-            }}
-          />
-          <span>{unit}</span>
-        </label>
-      </div>
-      <ResetSetting label={label} changed={changed && !disabled} onReset={() => onChange(defaultValue)} />
-    </div>
+    <label className="numeric-setting-value">
+      <input
+        id={id}
+        type="number"
+        aria-label={`${label} value`}
+        step="any"
+        disabled={disabled}
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={() => commit(draft)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") event.currentTarget.blur();
+          if (event.key === "Escape") {
+            setDraft(String(value));
+            event.stopPropagation();
+          }
+        }}
+      />
+      <span>{unit}</span>
+    </label>
   );
 }

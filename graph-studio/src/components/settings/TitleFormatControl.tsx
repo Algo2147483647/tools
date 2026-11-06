@@ -1,16 +1,14 @@
 import Icon from "../ui/Icon";
-import { useAppearanceUI, type AppearanceRendererProps } from "./AppearanceUIContext";
+import { useAppearanceUI } from "./AppearanceUIContext";
 import { ResetSetting } from "./NumericSetting";
 
-export default function TitleFormatControl({ node }: AppearanceRendererProps) {
+export default function TitleFormatControl() {
   const { model, commit } = useAppearanceUI();
   const align = model.bind("style.appearance.display.titleAlign"),
     overflow = model.bind("style.appearance.display.titleOverflow");
-  const weight = model.bind("style.appearance.cssVars[--dag-title-font-weight]"),
-    italic = model.bind("style.appearance.cssVars[--dag-title-font-style]");
   return (
     <div className="title-format-controls" role="group" aria-label="Title formatting">
-      {node.options?.format !== "style" && align.supported && (
+      {align.supported && (
         <div className="title-format-row">
           <span>Alignment</span>
           <div className="title-format-segments" role="group" aria-label="Title alignment">
@@ -34,7 +32,7 @@ export default function TitleFormatControl({ node }: AppearanceRendererProps) {
           />
         </div>
       )}
-      {node.id !== "title-style" && overflow.supported && (
+      {overflow.supported && (
         <div className="title-format-row">
           <span>Overflow</span>
           <div className="title-format-segments" role="group" aria-label="Title overflow">
@@ -58,37 +56,6 @@ export default function TitleFormatControl({ node }: AppearanceRendererProps) {
             changed={overflow.value !== overflow.defaultValue}
             onReset={() => commit(overflow.reset)}
           />
-        </div>
-      )}
-      {node.options?.format !== "layout" && (
-        <div className="title-format-row">
-          <span>Style</span>
-          <div className="title-format-segments" role="group" aria-label="Title style">
-            <button
-              type="button"
-              title="Bold"
-              aria-label="Bold title"
-              aria-pressed={weight.value === "700"}
-              onClick={() =>
-                commit(() =>
-                  weight.set(
-                    weight.value === "700" ? (weight.defaultValue === "700" ? "400" : weight.defaultValue) : "700",
-                  ),
-                )
-              }
-            >
-              <Icon name="bold" size={18} />
-            </button>
-            <button
-              type="button"
-              title="Italic"
-              aria-label="Italic title"
-              aria-pressed={italic.value === "italic"}
-              onClick={() => commit(() => italic.set(italic.value === "italic" ? "normal" : "italic"))}
-            >
-              <Icon name="italic" size={18} />
-            </button>
-          </div>
         </div>
       )}
     </div>

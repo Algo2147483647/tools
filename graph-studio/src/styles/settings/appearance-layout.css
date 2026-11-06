@@ -23,12 +23,6 @@
   display: block;
   padding-top: 4px;
 }
-.appearance-group .appearance-tuple-control {
-  display: contents;
-}
-.appearance-group .appearance-tuple-control > legend {
-  display: none;
-}
 .appearance-group
   .appearance-text-section
   :is(.numeric-setting, .color-setting, .setting-toggle, .font-setting, .settings-css) {
@@ -302,4 +296,31 @@
 .appearance-setting-error {
   color: #b42318;
   font-size: 13px;
+}
+.appearance-group .appearance-text-section .numeric-setting-inputs--with-suffix {
+  width: min(100%, 210px);
+  gap: 12px;
+}
+.appearance-group .numeric-setting-inputs--with-suffix > .numeric-setting-value {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+.appearance-group .numeric-setting-inputs--with-suffix > .title-format-segments {
+  flex: none;
+}
+@container settings-controls (max-width: 460px) {
+  .appearance-group .appearance-text-section .numeric-setting-inputs--with-suffix {
+    gap: 8px;
+  }
+}
+
+.appearance-group .appearance-text-section .numeric-setting-inputs--tuple {
+  width: min(100%, 276px);
+  gap: 8px;
+}
+.appearance-group .numeric-setting-inputs--tuple > .numeric-setting-value {
+  flex: 1;
+  min-width: 0;
+  width: auto;
 }

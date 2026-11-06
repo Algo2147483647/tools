@@ -1,3 +1,4 @@
+import { Fragment, useId } from "react";
 import AppearanceCssEditor from "./AppearanceCssEditor";
 import NodeSizeControl from "./NodeSizeControl";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
@@ -8,10 +9,11 @@ import TimelineIntervalSettings from "../timeline/TimelineIntervalSettings";
 import TimelinePointSettings, { TimelineMarkerEditor } from "../timeline/TimelinePointSettings";
 import { TimelineIntervalTextSettings, TimelinePointTextSettings } from "../timeline/TimelineTextSettings";
 import TitleFormatControl from "./TitleFormatControl";
+import FontSizeStyleControl from "./FontSizeStyleControl";
 import { SchemaValueEditor } from "./AppearanceSchema";
 import { useAppearanceUI, type AppearanceRendererProps } from "./AppearanceUIContext";
 import ColorSetting from "./ColorSetting";
-import NumericSetting, { ResetSetting } from "./NumericSetting";
+import NumericSetting, { NumericInput, ResetSetting } from "./NumericSetting";
 
 function NumberControl({ node, binding }: AppearanceRendererProps) {
   const { commit, model } = useAppearanceUI();
@@ -75,23 +77,36 @@ function ToggleControl({ node, binding }: AppearanceRendererProps) {
 }
 function TupleControl({ node, binding }: AppearanceRendererProps) {
   const { commit } = useAppearanceUI();
+  const id = useId();
   if (!binding) return null;
   const values = binding.value as number[],
     defaults = binding.defaultValue as number[];
+  const label = node.label ?? binding.definition.label ?? node.id;
+  const changed = values.some((value, index) => value !== defaults[index]);
   return (
-    <fieldset className="appearance-tuple-control">
-      <legend>{node.label ?? binding.definition.label ?? node.id}</legend>
-      {values.map((value, index) => (
-        <NumericSetting
-          key={index}
-          label={node.options?.labels?.[index] ?? `${node.id} ${index + 1}`}
-          value={value}
-          defaultValue={defaults[index]}
-          unit={node.options?.unit ?? "px"}
-          onChange={(next) => commit(() => binding.set(values.map((v, i) => (i === index ? next : v))))}
-        />
-      ))}
-    </fieldset>
+    <div className="numeric-setting" data-modified={changed}>
+      <div className="setting-label-row">
+        <label htmlFor={id}>
+          {label}
+          {changed && <span className="setting-modified" aria-label="Modified from default" />}
+        </label>
+      </div>
+      <div className="numeric-setting-inputs numeric-setting-inputs--tuple">
+        {values.map((value, index) => (
+          <Fragment key={index}>
+            {index > 0 && <span aria-hidden="true">,</span>}
+            <NumericInput
+              id={index === 0 ? id : undefined}
+              label={node.options?.labels?.[index] ?? `${node.id} ${index + 1}`}
+              value={value}
+              unit={node.options?.unit ?? "px"}
+              onChange={(next) => commit(() => binding.set(values.map((v, i) => (i === index ? next : v))))}
+            />
+          </Fragment>
+        ))}
+      </div>
+      <ResetSetting label={label} changed={changed} onReset={() => commit(binding.reset)} />
+    </div>
   );
 }
 function FieldControl({ node, binding }: AppearanceRendererProps) {
@@ -174,6 +189,7 @@ export const APPEARANCE_RENDERERS = {
   field: FieldControl,
   font: FontControl,
   "title-format": TitleFormatControl,
+  "font-size-style": FontSizeStyleControl,
   "timeline-layout": function Layout() {
     const { timelineControls } = useAppearanceUI();
     const binding = useTimelineBinding();

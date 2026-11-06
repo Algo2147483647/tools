@@ -9,7 +9,7 @@ export interface AppearanceUINode {
   labelBy?: { path: string; values: Record<string, string> };
   charts?: readonly GraphChartType[];
   options?: {
-    format?: "layout" | "style";
+    fontRole?: "title" | "detail";
     placeholder?: string;
     unit?: string;
     scale?: number;
@@ -155,7 +155,6 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
           {
             id: "title-layout",
             renderer: "title-format",
-            options: { format: "layout" },
             children: [display("titleAlign"), display("titleOverflow")],
           },
           display("titleWrap", "toggle", undefined, "Two-line title"),
@@ -164,18 +163,19 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
             renderer: "panel",
             children: [
               field("fontFamily", "style.appearance.cssVars[--dag-title-font-family]", "font", undefined, "Title font"),
-              field(
-                "fontSize",
-                "style.appearance.cssVars[--dag-title-font-size]",
-                "number",
-                { unit: "px" },
-                "Title size",
-              ),
               {
-                id: "title-style",
-                renderer: "title-format",
-                options: { format: "style" },
+                id: "title-size-style",
+                renderer: "font-size-style",
+                label: "Style",
+                options: { fontRole: "title" },
                 children: [
+                  field(
+                    "fontSize",
+                    "style.appearance.cssVars[--dag-title-font-size]",
+                    "number",
+                    { unit: "px" },
+                    "Title size",
+                  ),
                   field("fontWeight", "style.appearance.cssVars[--dag-title-font-weight]"),
                   field("fontStyle", "style.appearance.cssVars[--dag-title-font-style]"),
                 ],
@@ -202,27 +202,35 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
                 undefined,
                 "Font",
               ),
-              field(
-                "detail-font-size",
-                "style.appearance.cssVars[--dag-detail-font-size]",
-                "number",
-                { unit: "px" },
-                "Size",
-              ),
-              field(
-                "detail-font-weight",
-                "style.appearance.cssVars[--dag-detail-font-weight]",
-                "field",
-                undefined,
-                "Weight",
-              ),
-              field(
-                "detail-font-style",
-                "style.appearance.cssVars[--dag-detail-font-style]",
-                "field",
-                undefined,
-                "Style",
-              ),
+              {
+                id: "detail-size-style",
+                renderer: "font-size-style",
+                label: "Style",
+                options: { fontRole: "detail" },
+                children: [
+                  field(
+                    "detail-font-size",
+                    "style.appearance.cssVars[--dag-detail-font-size]",
+                    "number",
+                    { unit: "px" },
+                    "Size",
+                  ),
+                  field(
+                    "detail-font-weight",
+                    "style.appearance.cssVars[--dag-detail-font-weight]",
+                    "field",
+                    undefined,
+                    "Weight",
+                  ),
+                  field(
+                    "detail-font-style",
+                    "style.appearance.cssVars[--dag-detail-font-style]",
+                    "field",
+                    undefined,
+                    "Style",
+                  ),
+                ],
+              },
             ],
           },
         ],
@@ -287,30 +295,17 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         ],
       },
       {
-        id: "canvas-padding",
+        id: "canvas-dimensions",
         renderer: "section",
-        label: "Padding",
+        label: "Dimensions",
         children: [
-          field(
-            "padding",
-            "padding",
-            "tuple",
-            { labels: ["Horizontal padding", "Vertical padding"] },
-            "Canvas padding",
-          ),
-        ],
-      },
-      {
-        id: "canvas-size",
-        renderer: "section",
-        label: "Minimum size",
-        children: [
+          field("padding", "padding", "tuple", { labels: ["Horizontal padding", "Vertical padding"] }, "Padding"),
           field(
             "minSize",
             "minSize",
             "tuple",
             { labels: ["Minimum canvas width", "Minimum canvas height"] },
-            "Minimum canvas size",
+            "Minimum size",
           ),
         ],
       },

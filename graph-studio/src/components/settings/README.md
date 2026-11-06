@@ -9,8 +9,9 @@ those rules in the presentation configuration.
   for both the settings catalog and rendered controls.
 - `AppearanceUIRenderers` adapts Schema bindings to reusable controls. Panels group
   searchable fields without adding layout wrappers; sections provide headings.
-- `TitleFormatControl` handles title alignment/overflow and font style through
-  explicit `format` options. Its children declare searchable fields.
+- `TitleFormatControl` handles title alignment and overflow. `FontSizeStyleControl`
+  combines size and bold/italic controls for title and detail text. Their configuration
+  children declare searchable fields; font properties still use Schema bindings.
 - `AppearanceSettings` owns the current model and validated transaction boundary.
   Presets and Schema read that model's style rather than rebuilding it in the view.
 - `SettingResetContext` omits per-field reset buttons in Appearance groups. Section
