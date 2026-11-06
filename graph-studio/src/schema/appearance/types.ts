@@ -25,6 +25,7 @@ export type GraphAppearance = {
     edgeArrowStyle: "filled" | "open";
     showNodeDots: boolean;
     showEdgeLabels: boolean;
+    showEdgeLabelBorders: boolean;
     showGroupStats: boolean;
     showGroupBorders: boolean;
     nodeCornerRadius: number;

@@ -1,3 +1,8 @@
+import { labelBox } from "../layout/compound/routing/labels";
+import ColorSetting from "../components/settings/ColorSetting";
+import { edgeLabelSize } from "../layout/shared/edge-label";
+import { getRoleFont } from "../layout/shared/typography";
+import { appearanceToStageStyle } from "../components/canvas/appearanceStyle";
 import { ResetSetting, SettingResetContext } from "../components/settings/NumericSetting";
 import assert from "node:assert/strict";
 import { createElement } from "react";
@@ -38,6 +43,36 @@ const dag = normalizeDagInput({
 const noop = () => {};
 
 export const appearanceContractSuite = defineSuite("Appearance contract", [
+  defineTest("edge typography and border visibility persist and reset with edges", () => {
+    const style = getDefaultChartStyle("node-link");
+    const before = edgeLabelSize("Relation", getRoleFont(style.appearance, "edge-label"));
+    style.appearance.cssVars["--dag-edge-label-font-size"] = "24px";
+    style.appearance.cssVars["--dag-edge-label-font-style"] = "italic";
+    style.appearance.display.showEdgeLabelBorders = false;
+    const document = createStyleDocument("node-link", style);
+    const restored = parseStyleDocument(JSON.parse(JSON.stringify(document)), "node-link").style;
+    assert.deepEqual(restored, style);
+    const after = edgeLabelSize("Relation", getRoleFont(restored.appearance, "edge-label"));
+    assert.ok(after.width > before.width && after.height > before.height);
+    const box = labelBox("Relation", { x: 100, y: 200 }, after);
+    assert.equal(box.x + box.width / 2, 100);
+    assert.equal(box.y + box.height / 2, 200);
+    assert.equal(
+      (appearanceToStageStyle(restored.appearance) as Record<string, unknown>)["--dag-edge-label-border-width"],
+      "0px",
+    );
+    const reset = resetChartStyleSection(restored, "node-link", "edges");
+    assert.equal(reset.appearance.display.showEdgeLabelBorders, true);
+    assert.equal(reset.appearance.cssVars["--dag-edge-label-font-size"], "10px");
+  }),
+  defineTest("color fields display RGB hex separately from opacity", () => {
+    for (const value of ["rgba(91, 109, 142, 0.17)", "#5b6d8e2b"]) {
+      const markup = renderToStaticMarkup(
+        createElement(ColorSetting, { label: "Border", value, defaultValue: value, onChange: noop }),
+      );
+      assert.match(markup, /class="color-code"[^>]*value="#5b6d8e"/);
+    }
+  }),
   defineTest("Canvas owns spacing paths and reset scope; legacy paths are rejected", () => {
     const style = getDefaultChartStyle("node-link");
     style.appearance.canvas.spacing = { columnGap: 123, rowGap: 45, edgeLaneGap: 19 };

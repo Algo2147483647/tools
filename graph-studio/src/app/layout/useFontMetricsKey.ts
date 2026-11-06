@@ -12,12 +12,8 @@ export function useFontMetricsKey(appearance: GraphAppearance, chart: GraphChart
       : chart === "timeline"
         ? (["title", "detail", "date", "axis", "track"] as const)
         : (["title", "detail"] as const);
-  const fonts: TextFont[] = roles.map((role) => getRoleFont(appearance, role));
-  if (chart === "compound")
-    fonts.push(
-      { family: '"Segoe UI", sans-serif', weight: "600", size: 14, style: "normal" },
-      { family: "Arial, sans-serif", weight: "400", size: 10, style: "normal" },
-    );
+  const fonts: TextFont[] = [...roles, "edge-label" as const].map((role) => getRoleFont(appearance, role));
+  if (chart === "compound") fonts.push({ family: '"Segoe UI", sans-serif', weight: "600", size: 14, style: "normal" });
   const signature = JSON.stringify(fonts);
   const store = useMemo(() => {
     const selected = JSON.parse(signature) as TextFont[];

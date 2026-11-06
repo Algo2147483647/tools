@@ -74,14 +74,16 @@ export const DEFAULT_GRAPH_CSS = `
 
 .dag-edge__label-text {
   fill: var(--dag-edge-label-color, var(--dag-text-soft));
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--dag-edge-label-font-family);
+  font-size: var(--dag-edge-label-font-size);
+  font-weight: var(--dag-edge-label-font-weight);
+  font-style: var(--dag-edge-label-font-style);
 }
 
 .dag-edge__label-bg {
   fill: rgba(255, 255, 255, 0.84);
   stroke: rgba(99, 118, 148, 0.12);
-  stroke-width: 1;
+  stroke-width: var(--dag-edge-label-border-width, 1px);
 }
 
 .dag-node {

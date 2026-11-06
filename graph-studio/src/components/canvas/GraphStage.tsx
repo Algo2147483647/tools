@@ -1,3 +1,4 @@
+import { getRoleFont } from "../../layout/shared/typography";
 import { type CSSProperties } from "react";
 import { type GraphAppearance } from "../../schema/appearance/defaults";
 import type { StageData } from "../../layout/shared/types";
@@ -52,6 +53,7 @@ export default function GraphStage({
     stage.nodes.length >= appearance.performance.denseThresholds[0] ||
     stage.edges.length >= appearance.performance.denseThresholds[1] ||
     stage.stageWidth * stage.stageHeight >= appearance.performance.denseThresholds[2];
+  const labelFont = getRoleFont(appearance, "edge-label");
   const stageStyle = appearanceToStageStyle(appearance) as CSSProperties;
 
   return (
@@ -136,7 +138,7 @@ export default function GraphStage({
       )}
       <g className="dag-edge-layer">
         {stage.edges.map((edge) => (
-          <GraphEdge key={edge.id} edge={edge} showLabel={appearance.display.showEdgeLabels} />
+          <GraphEdge labelFont={labelFont} key={edge.id} edge={edge} showLabel={appearance.display.showEdgeLabels} />
         ))}
       </g>
       <g className="dag-node-layer">

@@ -9,7 +9,7 @@ export interface AppearanceUINode {
   labelBy?: { path: string; values: Record<string, string> };
   charts?: readonly GraphChartType[];
   options?: {
-    fontRole?: "title" | "detail";
+    fontRole?: "title" | "detail" | "edge-label";
     placeholder?: string;
     unit?: string;
     scale?: number;
@@ -275,7 +275,23 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         id: "edge-text",
         label: "Edge text",
         renderer: "section",
-        children: [display("showEdgeLabels", "toggle"), color("--dag-edge-label-color")],
+        children: [
+          display("showEdgeLabels", "toggle"),
+          color("--dag-edge-label-color"),
+          field("edge-label-font-family", "cssVars[--dag-edge-label-font-family]", "font", undefined, "Font"),
+          {
+            id: "edge-label-style",
+            renderer: "font-size-style",
+            label: "Style",
+            options: { fontRole: "edge-label" },
+            children: [
+              field("edge-label-font-size", "cssVars[--dag-edge-label-font-size]", "number"),
+              field("edge-label-font-weight", "cssVars[--dag-edge-label-font-weight]", "field"),
+              field("edge-label-font-style", "cssVars[--dag-edge-label-font-style]", "field"),
+            ],
+          },
+          display("showEdgeLabelBorders", "toggle"),
+        ],
       },
     ],
   },

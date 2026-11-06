@@ -15,24 +15,30 @@ export default function ColorSetting({
   automatic?: { color: string; description: string };
   onChange: (value: string) => void;
 }) {
-  const id = useId(),
-    [draft, setDraft] = useState(value),
-    [error, setError] = useState("");
+  const id = useId();
   const parsed = parseColorValue(value);
-  const [alpha, setAlpha] = useState(String((parsed?.alpha ?? 1) * 100));
+  const hex = parsed?.hex ?? value;
+  const opacity = parsed?.alpha ?? 1;
+  const [draft, setDraft] = useState(hex);
+  const [error, setError] = useState("");
+  const [alpha, setAlpha] = useState(String(opacity * 100));
   useEffect(() => {
-    setDraft(value);
-    setAlpha(String((parseColorValue(value)?.alpha ?? 1) * 100));
+    setDraft(hex);
+    setAlpha(String(opacity * 100));
     setError("");
-  }, [value]);
+  }, [hex, opacity]);
+  const commitHex = (next: string) => {
+    setError("");
+    setDraft(next);
+    onChange(formatColorValue({ hex: next, alpha: opacity }));
+  };
   const commit = () => {
     const next = parseColorValue(draft);
     if (!next) {
       setError("Enter a HEX or RGB(A) color.");
       return;
     }
-    setError("");
-    onChange(formatColorValue(next));
+    commitHex(next.hex);
   };
   return (
     <div className="color-setting" data-modified={value !== defaultValue}>
@@ -64,10 +70,7 @@ export default function ColorSetting({
                 type="color"
                 aria-label={`Choose ${label}`}
                 value={parsed?.hex ?? "#000000"}
-                onChange={(event) => {
-                  setError("");
-                  onChange(formatColorValue({ hex: event.target.value, alpha: parsed?.alpha ?? 1 }));
-                }}
+                onChange={(event) => commitHex(event.target.value)}
               />
             </label>
             <input
@@ -82,7 +85,7 @@ export default function ColorSetting({
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.currentTarget.blur();
                 if (event.key === "Escape") {
-                  setDraft(value);
+                  setDraft(hex);
                   setError("");
                   event.stopPropagation();
                 }
@@ -97,7 +100,7 @@ export default function ColorSetting({
                 onChange={(event) => setAlpha(event.target.value)}
                 onBlur={() => {
                   if (!alpha.trim() || !Number.isFinite(Number(alpha))) {
-                    setAlpha(String((parsed?.alpha ?? 1) * 100));
+                    setAlpha(String(opacity * 100));
                     return;
                   }
                   const next = Number(alpha);

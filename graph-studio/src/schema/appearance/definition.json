@@ -257,6 +257,13 @@
             "default": 32,
             "charts": ["sankey"],
             "label": "Sankey link opacity"
+          },
+          "showEdgeLabelBorders": {
+            "kind": "boolean",
+            "group": "edges",
+            "description": "Show the outline around edge labels; background fill is preserved.",
+            "default": true,
+            "label": "Label border"
           }
         }
       },
@@ -663,6 +670,35 @@
             "default": "",
             "label": "Edge label color",
             "description": "Optional edge label color; empty uses the secondary theme color."
+          },
+          "--dag-edge-label-font-family": {
+            "kind": "string",
+            "default": "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
+            "group": "edges",
+            "description": "Edge label font family.",
+            "label": "Edge label font family"
+          },
+          "--dag-edge-label-font-size": {
+            "kind": "string",
+            "default": "10px",
+            "group": "edges",
+            "description": "Edge label font size.",
+            "label": "Edge label font size",
+            "format": "pixels"
+          },
+          "--dag-edge-label-font-weight": {
+            "kind": "string",
+            "default": "700",
+            "group": "edges",
+            "description": "Edge label font weight.",
+            "label": "Edge label font weight"
+          },
+          "--dag-edge-label-font-style": {
+            "kind": "string",
+            "default": "normal",
+            "group": "edges",
+            "description": "Edge label font style.",
+            "label": "Edge label font style"
           }
         }
       },

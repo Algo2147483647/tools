@@ -1,3 +1,4 @@
+import { getRoleFont } from "../layout/shared/typography";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -420,7 +421,13 @@ export const timelineRenderingSuite = defineSuite("Timeline rendering", [
       edges: [{ id: "ab", source: "a", target: "b", metadata: { timeline: { kind: "reference" } } }],
     });
     const edge = buildTimelineStage({ dag, selection: { type: "full" } })!.edges[0];
-    const html = renderToStaticMarkup(createElement(GraphEdge, { edge, showLabel: true }));
+    const html = renderToStaticMarkup(
+      createElement(GraphEdge, {
+        edge,
+        showLabel: true,
+        labelFont: getRoleFont(DEFAULT_GRAPH_APPEARANCE, "edge-label"),
+      }),
+    );
     assert.match(html, /data-backward="true"/);
     assert.match(html, /data-timeline-kind="reference"/);
     assert.match(html, /marker-end="url\(#timeline-arrow-/);

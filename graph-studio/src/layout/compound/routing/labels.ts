@@ -1,12 +1,17 @@
-import { estimateTextWidth } from "../../shared/text-estimate";
+import { edgeLabelSize } from "../../shared/edge-label";
+import { getRoleFont } from "../../shared/typography";
 import type { CompoundBox } from "../../../graph/compound/geometry";
 import { overlaps } from "./geometry";
 import type { Point } from "./types";
 import { ObstacleIndex } from "./spatial-index";
 
-export function labelBox(label: string, position: Point): CompoundBox {
-  const width = Math.max(label.length * 7 + 12, estimateTextWidth(label, 10) + 14);
-  return { x: position.x - width / 2, y: position.y - 10, width, height: 18 };
+export function labelBox(
+  label: string,
+  position: Point,
+  measuredSize?: { width: number; height: number },
+): CompoundBox {
+  const { width, height } = measuredSize ?? edgeLabelSize(label, getRoleFont({ cssVars: {} }, "edge-label"));
+  return { x: position.x - width / 2, y: position.y - height / 2, width, height };
 }
 
 export function placeLabel(
@@ -24,9 +29,7 @@ export function placeLabel(
   for (const { a, b } of segments)
     for (const fraction of [0.5, 0.25, 0.75]) {
       const position = { x: a.x + (b.x - a.x) * fraction, y: a.y + (b.y - a.y) * fraction };
-      const box = measuredSize
-        ? { x: position.x - measuredSize.width / 2, y: position.y - 10, ...measuredSize }
-        : labelBox(label, position);
+      const box = labelBox(label, position, measuredSize);
       if (
         box.x >= extent.x &&
         box.y >= extent.y &&

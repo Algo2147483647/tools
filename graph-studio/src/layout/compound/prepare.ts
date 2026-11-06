@@ -1,10 +1,11 @@
+import { edgeLabelSize } from "../shared/edge-label";
 import type { TypeSelection } from "../../graph/typeFilter";
 import { getNodeDefine, getNodeType } from "../../graph/accessors";
 import { projectCompoundGraph } from "../../graph/compound/projection";
 import { getGroupNodes } from "../../graph/compound/hierarchy";
 import type { CompoundView, NormalizedDag } from "../../graph/types";
 import { stageRoleFont, stageTitleFont, type StageAppearance } from "../shared/appearance";
-import { estimateTextWidth, getNodeVisual, layoutCardTitle, measureText, wrapDetailText } from "../shared/text";
+import { getNodeVisual, layoutCardTitle, wrapDetailText } from "../shared/text";
 import { cardContentLayout, minimumCardHeight } from "../shared/typography";
 import {
   COMPOUND_LAYOUT_VERSION,
@@ -108,17 +109,7 @@ export function prepareCompound(input: CompoundInput) {
   const labelSizes = Object.fromEntries(
     projection.edges
       .filter((e) => e.label)
-      .map((edge) => [
-        edge.id,
-        {
-          width: Math.max(
-            edge.label.length * 7 + 12,
-            estimateTextWidth(edge.label, 10) + 14,
-            measureText(edge.label, { size: 10, family: "Arial, sans-serif", weight: "400", style: "normal" }) + 14,
-          ),
-          height: 18,
-        },
-      ]),
+      .map((edge) => [edge.id, edgeLabelSize(edge.label, stageRoleFont(appearance, "edge-label"))]),
   );
   const config = input.layout ?? emptyLayoutData();
   // Session font counters are excluded: measured dimensions and typography determine portability.

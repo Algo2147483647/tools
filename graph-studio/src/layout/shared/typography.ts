@@ -54,7 +54,7 @@ export function cardContentLayout(
   };
 }
 
-export type FontRole = "title" | "detail" | "date" | "axis" | "track";
+export type FontRole = "title" | "detail" | "date" | "axis" | "track" | "edge-label";
 export function getRoleFont(appearance: Pick<GraphAppearance, "cssVars">, role: FontRole): TextFont {
   const vars = { ...DEFAULT_GRAPH_APPEARANCE.cssVars, ...appearance.cssVars };
   const prefix = `--dag-${role}-font-`;

@@ -4,7 +4,7 @@ import { DEFAULT_TITLE_FONT, getRoleFont, getTitleFont, type TextFont } from "./
 // Only geometry inputs belong in layout memoization; colors and CSS are rendered separately.
 export interface StageAppearance extends GraphGeometryAppearance {
   typography?: TextFont;
-  fonts?: Record<"detail" | "date" | "axis" | "track", TextFont>;
+  fonts?: Record<"detail" | "date" | "axis" | "track" | "edge-label", TextFont>;
   fontMetricsKey?: string;
   display: Partial<
     Pick<GraphAppearance["display"], "showGroupStats" | "titleAlign" | "titleOverflow" | "titleWrap" | "showNodeDots">
@@ -20,7 +20,7 @@ export function getStageAppearance(
     nodes: appearance.nodes,
     typography: getTitleFont(appearance),
     fonts: Object.fromEntries(
-      (["detail", "date", "axis", "track"] as const).map((role) => [role, getRoleFont(appearance, role)]),
+      (["detail", "date", "axis", "track", "edge-label"] as const).map((role) => [role, getRoleFont(appearance, role)]),
     ) as StageAppearance["fonts"],
     ...(fontMetricsKey ? { fontMetricsKey } : {}),
     display: {
@@ -44,7 +44,10 @@ export function stageTitleFont(appearance: StageAppearance): TextFont {
   );
 }
 
-export function stageRoleFont(appearance: StageAppearance, role: "detail" | "date" | "axis" | "track"): TextFont {
+export function stageRoleFont(
+  appearance: StageAppearance,
+  role: "detail" | "date" | "axis" | "track" | "edge-label",
+): TextFont {
   return (
     appearance.fonts?.[role] ??
     getRoleFont("cssVars" in appearance ? (appearance as GraphAppearance) : { cssVars: {} }, role)

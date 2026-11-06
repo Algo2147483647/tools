@@ -79,7 +79,7 @@ export function routeCompoundEdges(
   const result = new Map<string, CompoundRoute>();
   const edgeLabelBox = (id: string, label: string, position: Point) => {
     const size = options.labelSizes?.[id];
-    return size ? { x: position.x - size.width / 2, y: position.y - 10, ...size } : labelBox(label, position);
+    return labelBox(label, position, size);
   };
   for (const edge of edges) {
     const fixed = options.fixedRoutes?.get(edge.id);

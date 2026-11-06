@@ -10,7 +10,7 @@ those rules in the presentation configuration.
 - `AppearanceUIRenderers` adapts Schema bindings to reusable controls. Panels group
   searchable fields without adding layout wrappers; sections provide headings.
 - `TitleFormatControl` handles title alignment and overflow. `FontSizeStyleControl`
-  combines size and bold/italic controls for title and detail text. Their configuration
+  combines size and bold/italic controls for title, detail and edge label text. Their configuration
   children declare searchable fields; font properties still use Schema bindings.
 - `AppearanceSettings` owns the current model and validated transaction boundary.
   Presets and Schema read that model's style rather than rebuilding it in the view.
@@ -31,3 +31,10 @@ When adding controls, provide accessible labels, preserve the transaction bounda
 and verify filtering and narrow layouts. Contract regressions live in
 `src/test/appearanceContract.test.ts`; browser checks should cover editing,
 Apply/Undo/Redo, shared drafts, width ranges and horizontal overflow.
+
+Color inputs display six-digit RGB hex; opacity is edited independently. Both the
+picker and text field preserve opacity through the same commit path. Stored color
+strings remain CSS values so rendering and protocol validation share one format.
+Edge label typography uses Schema font roles. Rendering and compound routing share
+`layout/shared/edge-label.ts`; routing boxes are centered on the label position.
+The label border toggle controls only stroke width, retaining background fill.
