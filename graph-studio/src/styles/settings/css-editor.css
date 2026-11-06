@@ -1,0 +1,19 @@
+.settings-css label {
+  display: block;
+  font-weight: 500;
+}
+.settings-css textarea {
+  display: block;
+  width: 100%;
+  min-height: 34px;
+  height: 34px;
+  padding: 6px 10px;
+  border: 1px solid #d9e1ec;
+  border-radius: 6px;
+  background: #f7f9fc;
+  color: #33435b;
+  font:
+    12px/1.6 Consolas,
+    monospace;
+  resize: vertical;
+}

@@ -1,0 +1,224 @@
+.appearance-inline-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  min-width: 0;
+}
+.appearance-inline-row > .setting-toggle {
+  flex: 0 0 auto;
+}
+.appearance-inline-row > .color-setting {
+  flex: 1;
+  min-width: 0;
+}
+.appearance-row--border > .color-setting > .setting-label-row {
+  display: none;
+}
+.appearance-row--border > .color-setting {
+  grid-template-columns: minmax(0, 1fr) 26px;
+}
+.appearance-row--border > .color-setting > .color-setting-inputs {
+  grid-column: 1;
+  grid-row: 1;
+}
+.appearance-row--border > .color-setting > .setting-reset {
+  grid-column: 2;
+  grid-row: 1;
+}
+.appearance-row--colors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.appearance-row--colors > .color-setting {
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) 26px;
+}
+.appearance-row--colors > .color-setting > .setting-label-row {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.appearance-row--colors > .color-setting > .color-setting-inputs {
+  grid-column: 1;
+  grid-row: 2;
+}
+.appearance-row--colors > .color-setting > .setting-reset {
+  grid-column: 2;
+  grid-row: 2;
+}
+.appearance-row--typography {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 124px 90px 90px;
+  gap: 12px;
+  align-items: start;
+}
+.appearance-row--typography > .font-setting,
+.appearance-row--typography > .numeric-setting,
+.appearance-row--typography > .title-format-controls {
+  display: grid;
+  grid-template-rows: 26px 34px;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.appearance-row--typography > .numeric-setting {
+  grid-template-columns: minmax(0, 1fr) 26px;
+}
+.appearance-row--typography .setting-label-row {
+  min-height: 26px;
+  margin: 0;
+  align-items: center;
+}
+.appearance-row--typography > .numeric-setting > .setting-label-row {
+  grid-column: 1;
+  grid-row: 1;
+}
+.appearance-row--typography > .numeric-setting > .setting-reset {
+  grid-column: 2;
+  grid-row: 1;
+}
+.appearance-row--typography > .numeric-setting > .numeric-setting-inputs {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.appearance-row--typography > .font-setting > label {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+}
+.appearance-row--typography .schema-value-input {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 5px 8px;
+  border: 1px solid #d9e1ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #33435b;
+  font:
+    13px "Segoe UI",
+    sans-serif;
+}
+.appearance-row--typography .numeric-setting-value {
+  height: 34px;
+}
+.appearance-row--typography > .title-format-controls {
+  grid-column: 3 / 5;
+  display: block;
+}
+.appearance-row--typography .title-format-row {
+  display: grid;
+  grid-template-rows: 26px 34px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+}
+.appearance-row--typography .title-format-segments {
+  height: 34px;
+  width: fit-content;
+  box-sizing: border-box;
+}
+.appearance-row--typography .title-format-segments button {
+  height: 26px;
+}
+@container settings-controls (max-width: 650px) {
+  .appearance-row--typography {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .appearance-row--typography > .font-setting:first-child {
+    grid-column: 1 / -1;
+  }
+  .appearance-row--typography > .title-format-controls {
+    grid-column: auto;
+  }
+}
+
+@container settings-controls (max-width: 559px) {
+  .appearance-row--colors {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .appearance-row--border {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}
+.node-size-control {
+  display: grid;
+  grid-template-columns: 150px minmax(220px, 1fr) 124px;
+  gap: 20px;
+  align-items: start;
+}
+.node-size-mode,
+.node-size-control .numeric-setting {
+  display: grid;
+  grid-template-rows: 26px 34px;
+  gap: 6px;
+  padding: 0;
+  min-width: 0;
+}
+.node-size-control .setting-label-row {
+  margin: 0;
+  min-height: 26px;
+}
+.node-size-control .numeric-setting {
+  grid-template-columns: minmax(0, 1fr) 26px;
+}
+.node-size-control .numeric-setting > .setting-label-row {
+  grid-column: 1;
+  grid-row: 1;
+}
+.node-size-control .numeric-setting > .setting-reset {
+  grid-column: 2;
+  grid-row: 1;
+}
+.node-size-control .numeric-setting-inputs {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.node-size-control .numeric-setting-value {
+  height: 34px;
+}
+.node-size-mode select {
+  width: 100%;
+  height: 34px;
+  padding: 5px 8px;
+  border: 1px solid #d9e1ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #33435b;
+  font: inherit;
+}
+.node-size-width {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+}
+.node-size-width > .numeric-setting {
+  flex: 1;
+}
+.node-size-separator {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  color: #63728a;
+}
+@container settings-controls (max-width: 650px) {
+  .node-size-control {
+    grid-template-columns: minmax(0, 1fr) 124px;
+    gap: 12px;
+  }
+  .node-size-mode {
+    grid-column: 1 / -1;
+  }
+}
+@container settings-controls (max-width: 380px) {
+  .node-size-control {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

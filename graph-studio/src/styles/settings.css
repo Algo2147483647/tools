@@ -11,3 +11,5 @@
 @import "./settings/timeline.css";
 @import "./settings/schema-editor.css";
 @import "./settings/tuple-editor.css";
+@import "./settings/appearance-layout.css";
+@import "./settings/css-editor.css";

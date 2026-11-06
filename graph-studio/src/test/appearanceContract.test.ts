@@ -37,6 +37,37 @@ const dag = normalizeDagInput({
 const noop = () => {};
 
 export const appearanceContractSuite = defineSuite("Appearance contract", [
+  defineTest("appearance rows filter empty groups and share a single-line CSS draft", () => {
+    const model = createAppearanceUIModel("node-link", getDefaultChartStyle("node-link"));
+    const render = (query: string) =>
+      renderToStaticMarkup(
+        createElement(
+          AppearanceUIContext.Provider,
+          {
+            value: {
+              model,
+              registry: APPEARANCE_RENDERERS,
+              commit: noop,
+              query,
+              cssDraft: { value: ".dag-node__pin { fill: red; }", onChange: noop },
+            },
+          },
+          createElement(AppearanceUIOutlet, { node: APPEARANCE_UI.nodes }),
+        ),
+      );
+    const html = render("");
+    assert.doesNotMatch(html, />Visibility<|>Size and spacing</);
+    assert.match(html, /appearance-row--typography/);
+    assert.match(html, /rows="1"/);
+    assert.match(html, /\.dag-node__pin \{ fill: red; \}/);
+    assert.doesNotMatch(html, /aria-label="Equal node widths"/);
+    assert.match(html, /Width mode/);
+    assert.match(html, /value="fixed" selected=""/);
+    assert.equal((html.match(/aria-label="Node descriptions"/g) ?? []).length, 1);
+    assert.equal(render("no-such-setting-12345"), "");
+    const width = render("Minimum width");
+    assert.doesNotMatch(width, /appearance-row--typography|appearance-row--colors/);
+  }),
   defineTest("visual parameters belong to their Appearance objects and resets preserve layout rules", () => {
     for (const chart of ["node-link", "compound", "sankey", "timeline"] as const) {
       const style = getDefaultChartStyle(chart),

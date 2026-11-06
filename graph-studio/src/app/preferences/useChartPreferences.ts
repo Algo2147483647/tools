@@ -3,7 +3,6 @@ import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } fr
 import { type GraphAppearance } from "../../schema/appearance/defaults";
 import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { GraphChartType } from "../../graph/types";
-import { applyAppearanceCommand } from "../../schema/appearance/commands";
 import type { ChartStyleDocuments } from "../../schema/appearance/types";
 import { type ChartStyle, getDefaultChartStyle, mapChartTypes } from "../../schema/appearance/styles";
 import { createStyleDocument } from "../../schema/styleProtocol";
@@ -97,9 +96,6 @@ export function useChartPreferences(
       dispatch({ type: "timelineSettingsChanged", patch: transaction.afterTimeline });
     dispatch({ type: "statusChanged", status: `Redid: ${transaction.label}` });
   }, [chartType, dispatch, history.redoStack, state.dag, state.editHistory.redoStack]);
-  function handleAppearanceCssChange(css: string) {
-    commitAppearance(applyAppearanceCommand(appearance, { type: "replaceCss", css }).appearance, "Replaced graph CSS.");
-  }
 
   function handleAppearanceReset() {
     commitStyle(getDefaultChartStyle(chartType), "Reset graph appearance.");
@@ -148,7 +144,6 @@ export function useChartPreferences(
     redo,
     canUndo: state.dag ? !!state.editHistory.undoStack.at(-1)?.beforeStyles : history.undoStack.length > 0,
     canRedo: state.dag ? !!state.editHistory.redoStack.at(-1)?.afterStyles : history.redoStack.length > 0,
-    handleAppearanceCssChange,
     handleAppearanceSchemaChange: (style: ChartStyle) => commitStyle(style, "Edited appearance schema."),
     handleAppearanceReset,
   };

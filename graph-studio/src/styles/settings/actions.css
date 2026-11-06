@@ -24,7 +24,7 @@
   gap: 12px;
   padding: 12px 20px;
   border-top: 1px solid #e3e8ef;
-  background: #fff;
+  background: transparent;
 }
 .settings-status-stack {
   display: grid;

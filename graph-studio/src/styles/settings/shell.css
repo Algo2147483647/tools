@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  background: #18243d4d;
+  background: transparent;
   backdrop-filter: none;
 }
 .settings-modal.studio-settings {
@@ -17,16 +17,17 @@
   grid-template-columns: 192px minmax(0, 1fr) 54px;
   grid-template-rows: 64px minmax(0, 1fr) auto;
   overflow: hidden;
-  background: #fff;
+  background: var(--chrome-background);
   color: #253247;
   font:
     13px/1.5 "Segoe UI",
     sans-serif;
-  border: 1px solid #d8dfe9;
+  border: 1px solid var(--chrome-border);
   border-block: 0;
   border-radius: 0;
-  box-shadow: 0 24px 80px #18243d35;
-  backdrop-filter: none;
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: var(--chrome-blur);
+  -webkit-backdrop-filter: var(--chrome-blur);
 }
 .studio-settings .settings-modal-header {
   grid-column: 1/-1;
@@ -114,7 +115,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 20px 12px;
-  background: #f5f7fa;
+  background: #f5f7fa61;
   border-right: 1px solid #e3e8ef;
   overflow: auto;
 }
@@ -176,7 +177,7 @@
   min-height: 0;
   overflow: auto;
   padding: 24px;
-  background: #fff;
+  background: transparent;
   scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scroll-padding-top: 76px;
@@ -275,7 +276,9 @@
   margin: -4px 0 20px;
   padding: 10px 0;
   border-bottom: 1px solid #dfe6f0;
-  background: #fff;
+  background: var(--chrome-background);
+  backdrop-filter: var(--chrome-blur);
+  -webkit-backdrop-filter: var(--chrome-blur);
 }
 .appearance-tabs button {
   flex: 1;

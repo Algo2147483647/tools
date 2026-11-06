@@ -1,4 +1,5 @@
 import { createContext, useContext, type ComponentType, type ReactNode } from "react";
+import type { AppearanceCssDraft } from "./AppearanceCssEditor";
 import type { TimelineControlsProps } from "../timeline/TimelineControls";
 import { resolveUIPath, type AppearanceUINode } from "./appearanceUIConfig";
 import type { AppearanceBinding, AppearanceUIModel } from "./appearanceUIModel";
@@ -14,6 +15,7 @@ export interface AppearanceUIContextValue {
   commit: (change: () => ReturnType<AppearanceUIModel["change"]>) => void;
   query: string;
   timelineControls?: TimelineControlsProps;
+  cssDraft?: AppearanceCssDraft;
 }
 export const AppearanceUIContext = createContext<AppearanceUIContextValue | null>(null);
 export function useAppearanceUI() {
@@ -38,19 +40,9 @@ export function AppearanceUIOutlet({ node, parentPath }: { node: AppearanceUINod
         .includes(query.toLowerCase())
     );
   };
-  if (node.renderer === "section" && !visible(node, parentPath)) return null;
-  if (node.charts && !node.charts.includes(model.chart)) return null;
+  if (!visible(node, parentPath)) return null;
   const path = resolveUIPath(parentPath, node.path);
   const binding = path ? model.bind(path) : undefined;
-  if (binding && (!binding.supported || !binding.visible)) return null;
-  if (
-    query &&
-    !node.children &&
-    !`${node.label ?? ""} ${node.id} ${path ?? ""} ${binding?.definition.label ?? ""} ${binding?.definition.description ?? ""} ${binding?.definition.keywords ?? ""}`
-      .toLowerCase()
-      .includes(query.toLowerCase())
-  )
-    return null;
   const renderer =
     node.renderer ??
     (node.children

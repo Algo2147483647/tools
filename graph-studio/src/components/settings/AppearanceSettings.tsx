@@ -25,7 +25,6 @@ export default function AppearanceSettings(props: Omit<AppearanceSettingsProps, 
       setError(error instanceof Error ? error.message : "Invalid appearance value.");
     }
   };
-  const set = (path: string, value: unknown) => commit(() => model.bind(path).set(value));
   return (
     <AppearanceUIContext.Provider
       value={{
@@ -34,6 +33,7 @@ export default function AppearanceSettings(props: Omit<AppearanceSettingsProps, 
         commit,
         query: props.query ?? "",
         timelineControls: props.timelineControls,
+        cssDraft: { value: props.appearanceCssDraft, onChange: props.onAppearanceCssDraftChange },
       }}
     >
       {error && (
@@ -43,7 +43,6 @@ export default function AppearanceSettings(props: Omit<AppearanceSettingsProps, 
       )}
       <AppearanceSettingsView
         {...props}
-        onAppearanceCssChange={(value) => set("style.appearance.css", value)}
         onSectionReset={(group) => commit(() => resetChartStyleSection(style, props.chartType, group))}
       />
     </AppearanceUIContext.Provider>

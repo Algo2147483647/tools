@@ -123,8 +123,6 @@ export function StudioSettings({
       aiBusy={ai.busy}
       onClose={ui.toggleSettings}
 
-      onAppearanceCssChange={appearanceHistory.handleAppearanceCssChange}
-
       onAppearanceUndo={appearanceHistory.undo}
       onAppearanceRedo={appearanceHistory.redo}
       canUndoAppearance={appearanceHistory.canUndo}

@@ -58,7 +58,6 @@ export function SettingsContent({
     aiSettings,
     aiBusy,
     onClose,
-    onAppearanceCssChange,
     onAppearanceSchemaChange,
     onAppearanceReset,
     onExport,
@@ -87,7 +86,6 @@ export function SettingsContent({
           <div className="settings-no-results">
             <Icon name="search" size={30} />
             <h3>No matching settings</h3>
-            <p>Try “colors”, “spacing”, “workspace” or “AI”.</p>
           </div>
         )}
         {shownChapter && (
@@ -150,8 +148,6 @@ export function SettingsContent({
 
             onAppearanceCssDraftChange={setAppearanceCssDraft}
             timelineControls={timelineControls}
-
-            onAppearanceCssChange={onAppearanceCssChange}
 
             onAppearanceSchemaChange={onAppearanceSchemaChange}
             onAppearanceReset={onAppearanceReset}

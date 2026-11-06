@@ -1,3 +1,4 @@
+import AppearanceCssEditor from "./AppearanceCssEditor";
 import { useState } from "react";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { GraphChartType } from "../../graph/types";
@@ -27,7 +28,6 @@ export interface AppearanceSettingsProps {
   alignNodeWidthsToMax: boolean;
   appearanceCssDraft: string;
   onAppearanceCssDraftChange: (value: string) => void;
-  onAppearanceCssChange: (css: string) => void;
   onAppearanceSchemaChange: (style: ChartStyle) => void;
   onAppearanceReset: () => void;
 }
@@ -56,7 +56,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
               aria-pressed={p.chartType === value}
               className={p.chartType === value ? "is-selected" : ""}
               disabled={value === "sankey" && Boolean(p.sankeyUnavailableReason)}
-              aria-describedby={value === "sankey" && p.sankeyUnavailableReason ? "sankey-requirements" : undefined}
               onClick={() => p.onChartTypeChange(value)}
             >
               <ChartTypeIcon type={value} />
@@ -64,11 +63,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
             </button>
           ))}
         </div>
-        {p.sankeyUnavailableReason ? (
-          <p id="sankey-requirements" className="settings-chart-warning" role="status">
-            {p.sankeyUnavailableReason}
-          </p>
-        ) : null}
         <ChartSchema key={p.chartType} chartType={p.chartType} document={p.graphDocument ?? null} />
       </section>
     );
@@ -128,28 +122,7 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
       <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
         {id === "canvas" && <h3>Canvas</h3>}
         {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
-        {(has("css") || has("style.appearance.css")) && (
-          <div className="settings-css">
-            <label htmlFor="setting-css">Custom graph CSS</label>
-            <textarea
-              id="setting-css"
-              spellCheck={false}
-              value={p.appearanceCssDraft}
-              rows={10}
-              onChange={(event) => p.onAppearanceCssDraftChange(event.target.value)}
-            />
-            <div className="settings-inline-actions">
-              <button
-                className="studio-button"
-                disabled={p.appearanceCssDraft === p.appearance.css}
-                onClick={() => p.onAppearanceCssChange(p.appearanceCssDraft)}
-              >
-                Apply CSS
-              </button>
-              {p.appearanceCssDraft !== p.appearance.css && <span className="setting-draft">Unapplied changes</span>}
-            </div>
-          </div>
-        )}
+        {(has("css") || has("style.appearance.css")) && <AppearanceCssEditor />}
         {["nodes", "edges", "canvas"].includes(id) && (
           <div className="appearance-group-actions">
             <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>

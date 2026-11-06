@@ -44,10 +44,6 @@ export default function GeneralSessionSettings({
               <option value="external">System default application</option>
             </select>
           </label>
-          <p className="settings-help">
-            Applies to files such as Markdown opened from the explorer, node details, and document links. Saved
-            automatically for this computer.
-          </p>
           {preferences.error && (
             <p className="settings-help" role="alert">
               {preferences.error}
@@ -118,12 +114,6 @@ export default function GeneralSessionSettings({
                   Close workspace
                 </button>
               </div>
-            )}
-            {workspace && (
-              <p className="settings-help">
-                Place the manifest in the workspace root as <code>graph-studio.workspace.json</code> to name the
-                workspace and order its graphs.
-              </p>
             )}
           </details>
         </section>

@@ -9,6 +9,9 @@ export interface AppearanceUINode {
   labelBy?: { path: string; values: Record<string, string> };
   charts?: readonly GraphChartType[];
   options?: {
+    layout?: "colors" | "typography" | "border";
+    format?: "layout" | "style";
+    placeholder?: string;
     unit?: string;
     scale?: number;
     invert?: boolean;
@@ -48,10 +51,16 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         id: "node-sizes",
         path: "style.appearance.nodes",
         renderer: "section",
-        label: "Size and spacing",
         children: [
-          field("widths", "widths", "tuple", { labels: ["Minimum width", "Maximum width"] }, "Node widths"),
-          field("height", "height", "number", { unit: "px" }, "Node height"),
+          {
+            id: "node-size",
+            renderer: "node-size",
+            children: [
+              field("widths", "widths", "range", { labels: ["Minimum width", "Maximum width"] }, "Width"),
+              field("alignNodeWidthsToMax", "style.alignNodeWidthsToMax", "field", undefined, "Width mode"),
+              field("height", "height", "number", { unit: "px" }, "Height"),
+            ],
+          },
           field("width", "width", "number", { unit: "px" }, "Flow node width"),
           field("column", "spacing.column", "number", { unit: "px" }, "Column spacing"),
           field("row", "spacing.row", "number", { unit: "px" }, "Row spacing"),
@@ -82,7 +91,15 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         children: [
           display("nodeCornerRadius", "number", { unit: "px" }),
           color("--dag-node-fill"),
-          color("--dag-node-border"),
+          {
+            id: "node-border-row",
+            renderer: "inline-row",
+            options: { layout: "border" },
+            children: [
+              field("hideNodeBorders", "style.hideNodeBorders", "toggle", { invert: true }, "Node borders"),
+              color("--dag-node-border"),
+            ],
+          },
           color("--dag-node-border-strong"),
         ],
       },
@@ -98,20 +115,27 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         ],
       },
       {
-        id: "node-visibility",
+        id: "node-dots",
         renderer: "section",
-        label: "Visibility",
+        label: "Node dots",
         children: [
           display("showNodeDots", "toggle"),
-          display("showGroupStats", "toggle"),
-          display("showGroupBorders", "toggle"),
-          field("hideNodeBorders", "style.hideNodeBorders", "toggle", { invert: true }, "Node borders"),
           {
-            ...field("showNodeDetail", "style.showNodeDetail", "toggle", undefined, "Node descriptions"),
-            charts: ["node-link", "compound"],
+            id: "node-dots-css",
+            path: "style.appearance.css",
+            renderer: "css",
+            label: "CSS",
+            options: {
+              placeholder: ".dag-node__pin { fill: #e0e7ff; stroke: #818cf8; } .dag-node__pin-core { fill: #4f46e5; }",
+            },
           },
-          field("alignNodeWidthsToMax", "style.alignNodeWidthsToMax", "toggle", undefined, "Equal node widths"),
         ],
+      },
+      {
+        id: "node-groups",
+        renderer: "section",
+        label: "Groups",
+        children: [display("showGroupStats", "toggle"), display("showGroupBorders", "toggle")],
       },
       {
         id: "node-text",
@@ -127,24 +151,42 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
             charts: ["timeline"],
           },
           {
-            ...field("showNodeDetail", "style.showNodeDetail", "toggle", undefined, "Node descriptions"),
-            charts: ["timeline"],
+            id: "text-colors-row",
+            renderer: "inline-row",
+            options: { layout: "colors" },
+            children: [color("--dag-text-strong"), color("--dag-text-soft")],
           },
-          color("--dag-text-strong"),
-          color("--dag-text-soft"),
           {
-            id: "title-format",
+            id: "title-layout",
             renderer: "title-format",
-            children: [
-              display("titleAlign"),
-              display("titleOverflow"),
-              field("fontWeight", "style.appearance.cssVars[--dag-title-font-weight]"),
-              field("fontStyle", "style.appearance.cssVars[--dag-title-font-style]"),
-            ],
+            options: { format: "layout" },
+            children: [display("titleAlign"), display("titleOverflow")],
           },
           display("titleWrap", "toggle", undefined, "Two-line title"),
-          field("fontFamily", "style.appearance.cssVars[--dag-title-font-family]", "font", undefined, "Title font"),
-          field("fontSize", "style.appearance.cssVars[--dag-title-font-size]", "number", { unit: "px" }, "Title size"),
+          {
+            id: "title-typography-row",
+            renderer: "inline-row",
+            options: { layout: "typography" },
+            children: [
+              field("fontFamily", "style.appearance.cssVars[--dag-title-font-family]", "font", undefined, "Title font"),
+              field(
+                "fontSize",
+                "style.appearance.cssVars[--dag-title-font-size]",
+                "number",
+                { unit: "px" },
+                "Title size",
+              ),
+              {
+                id: "title-style",
+                renderer: "title-format",
+                options: { format: "style" },
+                children: [
+                  field("fontWeight", "style.appearance.cssVars[--dag-title-font-weight]"),
+                  field("fontStyle", "style.appearance.cssVars[--dag-title-font-style]"),
+                ],
+              },
+            ],
+          },
         ],
       },
       {
@@ -153,22 +195,42 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         label: "Node descriptions",
         renderer: "section",
         children: [
-          field("detail-font-family", "style.appearance.cssVars[--dag-detail-font-family]", "font", undefined, "Font"),
-          field(
-            "detail-font-size",
-            "style.appearance.cssVars[--dag-detail-font-size]",
-            "number",
-            { unit: "px" },
-            "Size",
-          ),
-          field(
-            "detail-font-weight",
-            "style.appearance.cssVars[--dag-detail-font-weight]",
-            "field",
-            undefined,
-            "Weight",
-          ),
-          field("detail-font-style", "style.appearance.cssVars[--dag-detail-font-style]", "field", undefined, "Style"),
+          field("showNodeDetail", "style.showNodeDetail", "toggle", undefined, "Node descriptions"),
+          {
+            id: "detail-typography-row",
+            renderer: "inline-row",
+            options: { layout: "typography" },
+            children: [
+              field(
+                "detail-font-family",
+                "style.appearance.cssVars[--dag-detail-font-family]",
+                "font",
+                undefined,
+                "Font",
+              ),
+              field(
+                "detail-font-size",
+                "style.appearance.cssVars[--dag-detail-font-size]",
+                "number",
+                { unit: "px" },
+                "Size",
+              ),
+              field(
+                "detail-font-weight",
+                "style.appearance.cssVars[--dag-detail-font-weight]",
+                "field",
+                undefined,
+                "Weight",
+              ),
+              field(
+                "detail-font-style",
+                "style.appearance.cssVars[--dag-detail-font-style]",
+                "field",
+                undefined,
+                "Style",
+              ),
+            ],
+          },
         ],
       },
       {
