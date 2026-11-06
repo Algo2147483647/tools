@@ -44,9 +44,7 @@ function ColorControl({ node, binding }: AppearanceRendererProps) {
       value={String(binding.value)}
       defaultValue={String(binding.defaultValue)}
       onChange={(value) => commit(() => binding.set(value))}
-      {...(binding.defaultValue === ""
-        ? { automatic: { color: "#64748b", description: "Uses the chart color." } }
-        : {})}
+      {...(binding.defaultValue === "" ? { automatic: { color: "#64748b" } } : {})}
     />
   );
 }

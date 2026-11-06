@@ -7,6 +7,7 @@ import type { ChartStyle } from "../../schema/appearance/styles";
 import type { TimelineControlsProps } from "../timeline/TimelineControls";
 
 export interface SettingsModalProps {
+  previewSource: import("./AppearancePreview").AppearancePreviewSource;
   graphDocument: import("../../graph/types").GraphDocument | null;
   open: boolean;
   layoutControls: ReactNode;

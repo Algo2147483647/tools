@@ -18,8 +18,8 @@ export function PreviewCanvas({
   appearance: GraphAppearance;
   hideNodeBorders: boolean;
   zoom: number;
-  onToggle: (id: string) => void;
-  onEnter: (id: string) => void;
+  onToggle?: (id: string) => void;
+  onEnter?: (id: string) => void;
   mode: "overview" | "detail";
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -43,10 +43,7 @@ export function PreviewCanvas({
         .filter((box) => box.width > 0 || box.height > 0);
       svg.setAttribute("data-preview-detail", String(mode === "detail"));
       if (mode === "detail") {
-        const node =
-          svg.querySelector<SVGGraphicsElement>(
-            '[data-key="api"], [data-key="review"], [data-key="validate"], [data-key="process"]',
-          ) ?? svg.querySelector<SVGGraphicsElement>("[data-key]");
+        const node = svg.querySelector<SVGGraphicsElement>("[data-key]");
         const rootMatrix = svg.getCTM();
         if (node && rootMatrix) {
           // Timeline markers, hit targets and labels live in separate layers with the same key.

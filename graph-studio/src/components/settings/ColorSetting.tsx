@@ -12,7 +12,7 @@ export default function ColorSetting({
   label: string;
   value: string;
   defaultValue: string;
-  automatic?: { color: string; description: string };
+  automatic?: { color: string; description?: string };
   onChange: (value: string) => void;
 }) {
   const id = useId();
@@ -61,7 +61,9 @@ export default function ColorSetting({
         )}
       </div>
       {automatic && !value ? (
-        <p className="color-setting-auto-hint">{automatic.description}</p>
+        automatic.description ? (
+          <p className="color-setting-auto-hint">{automatic.description}</p>
+        ) : null
       ) : (
         <>
           <div className="color-setting-inputs">

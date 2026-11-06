@@ -69,6 +69,7 @@ export function SettingsContent({
     <div className="settings-content">
       {(shownChapter === "appearance" || (!shownChapter && activeChapter === "appearance")) && (
         <AppearancePreview
+          source={settings.previewSource}
           appearance={appearance}
           chartType={chartType}
           layoutMode={layoutMode}

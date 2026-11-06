@@ -38,3 +38,13 @@ strings remain CSS values so rendering and protocol validation share one format.
 Edge label typography uses Schema font roles. Rendering and compound routing share
 `layout/shared/edge-label.ts`; routing boxes are centered on the label position.
 The label border toggle controls only stroke width, retaining background fill.
+
+Preview data comes from the active document's already laid out and painted scene.
+`AppearancePreview` requires an explicit document or sample source; only an absent document mounts
+`SampleAppearancePreview` and its sample layout hooks. A pending document scene
+must not silently fall back to sample data. `AppearancePreviewFrame` owns only
+preview presentation and camera controls; it does not repaint or relayout the
+active document. An unavailable scene displays the document viewport status.
+Preview group navigation and its reset are confined to the no-document sample.
+Detail framing selects the first visible node without sample-specific IDs.
+Keep category paint and custom CSS precedence identical in preview and main canvas.
