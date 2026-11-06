@@ -43,7 +43,14 @@ export function PreviewCanvas({
         .filter((box) => box.width > 0 || box.height > 0);
       svg.setAttribute("data-preview-detail", String(mode === "detail"));
       if (mode === "detail") {
-        const node = svg.querySelector<SVGGraphicsElement>("[data-key]");
+        const candidates = stage.nodes.filter((node) => node.kind !== "group");
+        const detailKey = candidates.reduce(
+          (best, node) => (node.title.length > (best?.title.length ?? -1) ? node : best),
+          candidates[0],
+        )?.key;
+        const node = [...svg.querySelectorAll<SVGGraphicsElement>("[data-key]")].find(
+          (element) => element.dataset.key === detailKey,
+        );
         const rootMatrix = svg.getCTM();
         if (node && rootMatrix) {
           // Timeline markers, hit targets and labels live in separate layers with the same key.

@@ -10,114 +10,15 @@ import { prepareSpatialModel } from "../../layout/spatial/model";
 import { projectSpatialModel } from "../../layout/spatial/project";
 import { defaultSpaceView, getSpaceMetadata } from "../../graph/space";
 import { buildTimelineStage } from "../../layout/timeline/layout";
-import { CHART_SCHEMAS } from "../../schema/document/definition";
+import previewGraphs from "./previewGraphs.json" with { type: "json" };
 
+/** Dedicated, deterministic coverage fixtures; never derive these from the open document. */
 export const PREVIEW_GRAPHS = {
-  spatial: normalizeDagInput(CHART_SCHEMAS.spatial.example),
-  "node-link": normalizeDagInput({
-    format: "graph-studio",
-    version: 3,
-    nodes: {
-      request: { title: "Request", define: "Receive a new request" },
-      validate: { title: "Validate", define: "Check required fields" },
-      store: { title: "Store", define: "Save the accepted record" },
-      reply: { title: "Reply", define: "Return a result to the caller" },
-    },
-    edges: [
-      { id: "request-validate", source: "request", target: "validate", value: "submit" },
-      { id: "request-reply", source: "request", target: "reply", value: "cached" },
-      { id: "validate-store", source: "validate", target: "store", value: "valid" },
-      { id: "store-reply", source: "store", target: "reply", value: "saved" },
-      { id: "reply-validate", source: "reply", target: "validate", value: "retry" },
-    ],
-  }),
-  compound: normalizeDagInput({
-    format: "graph-studio",
-    version: 3,
-    nodes: {
-      ...{
-        web: { title: "Web app", define: "Customer requests" },
-        api: { title: "API", define: "Validate and dispatch" },
-        cache: { title: "Cache", define: "Frequently used records" },
-        database: { title: "Database", define: "Persistent records" },
-        partner: { title: "Partner", define: "External notifications" },
-      },
-      ...{ app: { title: "Application" }, storage: { title: "Storage" } },
-    },
-    edges: [
-      { id: "web-api", source: "web", target: "api", value: "request" },
-      { id: "api-cache", source: "api", target: "cache", value: "read" },
-      { id: "api-database", source: "api", target: "database", value: "write" },
-      { id: "cache-database", source: "cache", target: "database", value: "refresh" },
-      { id: "api-partner", source: "api", target: "partner", value: "notify" },
-      { id: "partner-api", source: "partner", target: "api", value: "ack" },
-    ],
-    hierarchy_edges: Object.entries({
-      web: "app",
-      api: "app",
-      storage: "app",
-      cache: "storage",
-      database: "storage",
-    }).map(([target, source]) => ({ id: `hierarchy:${target}`, source, target })),
-  }),
-  sankey: normalizeDagInput({
-    format: "graph-studio",
-    version: 3,
-    diagram: "sankey",
-    nodes: {
-      input: { title: "Input" },
-      process: { title: "Process" },
-      output: { title: "Output" },
-      waste: { title: "Losses" },
-    },
-    edges: [
-      { id: "input-process", source: "input", target: "process", value: 80 },
-      { id: "input-waste", source: "input", target: "waste", value: 20 },
-      { id: "process-output", source: "process", target: "output", value: 80 },
-      { id: "output-process", source: "output", target: "process", value: 10 },
-      { id: "process-waste", source: "process", target: "waste", value: 10 },
-    ],
-  }),
-  timeline: normalizeDagInput({
-    format: "graph-studio",
-    version: 3,
-    metadata: { timeline: { asOf: "2026-05-20" } },
-    nodes: {
-      launch: {
-        title: "Kickoff",
-        type: "Milestone",
-        define: "Agree on scope",
-        time: { at: "2026-05-01" },
-        track: "Delivery",
-      },
-      build: {
-        title: "Build",
-        type: "Phase",
-        define: "Implement the release",
-        time: { start: "2026-05-02", end: "2026-05-10" },
-        track: "Delivery",
-      },
-      review: {
-        title: "Review",
-        type: "Milestone",
-        define: "Check acceptance criteria",
-        time: { at: "2026-05-06" },
-        track: "Quality",
-      },
-      ship: {
-        title: "Release",
-        type: "Milestone",
-        define: "Ship the approved result",
-        time: { at: "2026-05-12" },
-        track: "Delivery",
-      },
-    },
-    edges: [
-      { id: "launch-build", source: "launch", target: "build", value: "starts" },
-      { id: "build-review", source: "build", target: "review", value: "review" },
-      { id: "review-ship", source: "review", target: "ship", value: "approve" },
-    ],
-  }),
+  "node-link": normalizeDagInput(previewGraphs["node-link"]),
+  compound: normalizeDagInput(previewGraphs.compound),
+  sankey: normalizeDagInput(previewGraphs.sankey),
+  timeline: normalizeDagInput(previewGraphs.timeline),
+  spatial: normalizeDagInput(previewGraphs.spatial),
 };
 
 export const INITIAL_PREVIEW_VIEW: CompoundView = { collapsedGroupIds: ["storage"], focusGroupId: null };
@@ -175,16 +76,19 @@ export function buildFlatPreviewStage(input: PreviewGeometry) {
 
 export function timelinePreviewGraph(clock: TimelineClock) {
   if (clock.mode !== "relative") return PREVIEW_GRAPHS.timeline;
+  const sample = previewGraphs.timeline;
+  const offset = (date: string) => (Date.parse(date) - Date.parse("2026-05-01")) / 86400000;
   return normalizeDagInput({
-    format: "graph-studio",
-    version: 3,
+    ...sample,
     metadata: { timeline: { clock } },
-    nodes: {
-      launch: { title: "Kickoff", type: "Milestone", time: { at: 0 }, track: "Delivery" },
-      build: { title: "Build", type: "Phase", time: { start: 1, end: 6 }, track: "Delivery", status: "active" },
-      review: { title: "Review", type: "Milestone", time: { at: 3.5 }, track: "Quality" },
-      ship: { title: "Release", type: "Milestone", time: { at: 8 }, track: "Delivery" },
-    },
-    edges: PREVIEW_GRAPHS.timeline.edges,
+    nodes: Object.fromEntries(
+      Object.entries(sample.nodes).map(([key, node]) => [
+        key,
+        {
+          ...node,
+          time: Object.fromEntries(Object.entries(node.time).map(([field, date]) => [field, offset(date)])),
+        },
+      ]),
+    ),
   });
 }

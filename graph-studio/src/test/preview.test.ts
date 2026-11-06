@@ -1,3 +1,5 @@
+import { sanitizeTimelineClock } from "../graph/timeline/clock";
+import { paintScene } from "../render/scene/paint";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -7,6 +9,7 @@ import {
   INITIAL_PREVIEW_VIEW,
   PREVIEW_GRAPHS,
   previewGeometry,
+  timelinePreviewGraph,
 } from "../components/settings/previewModel";
 import { getSettingsCatalog } from "../components/settings/settingsCatalog";
 import { DEFAULT_GRAPH_APPEARANCE as appearance } from "../schema/appearance/defaults";
@@ -44,6 +47,25 @@ const render = (stage: StageData, showEdgeLabels = true, showGroupStats = true) 
   );
 
 export const previewSuite = defineSuite("Shared live preview", [
+  defineTest("curated samples cover category paint, long titles, relative details and spatial markers", () => {
+    const dag = PREVIEW_GRAPHS["node-link"];
+    assert.ok(Object.values(dag.nodes).some((node) => !node.type));
+    assert.ok(Object.values(dag.nodes).some((node) => String(node.title).length > 30));
+    const stage = buildFlatPreviewStage(input("node-link"))!;
+    const painted = paintScene(stage, dag, appearance);
+    assert.ok(painted.nodes.some((node) => node.colorTokens));
+    assert.ok(painted.nodes.some((node) => !node.colorTokens));
+    const relative = timelinePreviewGraph(sanitizeTimelineClock({ mode: "relative", unit: "day" }));
+    assert.deepEqual(Object.keys(relative.nodes), Object.keys(PREVIEW_GRAPHS.timeline.nodes));
+    for (const key of Object.keys(relative.nodes)) {
+      assert.equal(relative.nodes[key].define, PREVIEW_GRAPHS.timeline.nodes[key].define);
+    }
+    const spatial = buildFlatPreviewStage(input("spatial"))!;
+    assert.equal(spatial.nodes.length, 4);
+    assert.ok(spatial.nodes.some((node) => node.spatial?.hollow));
+    assert.ok(spatial.nodes.some((node) => !node.spatial?.hollow));
+    assert.ok(spatial.edges.some((edge) => edge.spatial?.dashed && edge.spatial.directed));
+  }),
   defineTest("node-link previews use all three engines and respond to geometry, not paint", () => {
     const initial = input("node-link");
     for (const layoutMode of ["sugiyama", "level", "dagre"] as const) {

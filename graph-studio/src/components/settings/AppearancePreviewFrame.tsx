@@ -21,7 +21,6 @@ export interface AppearancePreviewFrameProps {
   onReset?: () => void;
   onToggle?: (id: string) => void;
   onEnter?: (id: string) => void;
-  emptyMessage?: string;
 }
 
 export default function AppearancePreviewFrame({
@@ -35,7 +34,6 @@ export default function AppearancePreviewFrame({
   onReset,
   onToggle,
   onEnter,
-  emptyMessage = "Arranging graph…",
 }: AppearancePreviewFrameProps) {
   const [zoom, setZoom] = useState(1);
   const [expanded, setExpanded] = useState(false);
@@ -147,7 +145,7 @@ export default function AppearancePreviewFrame({
           )}
         {!stage && !error && (
           <p className="settings-preview-overlay" role="status">
-            {emptyMessage}
+            Arranging graph…
           </p>
         )}
       </div>

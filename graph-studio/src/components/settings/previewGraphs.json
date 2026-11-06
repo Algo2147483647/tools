@@ -1,0 +1,399 @@
+{
+  "node-link": {
+    "format": "graph-studio",
+    "version": 3,
+    "nodes": {
+      "request": {
+        "title": "Request",
+        "type": "Input",
+        "define": "Receive a customer request"
+      },
+      "validate": {
+        "title": "Validate request and access permissions",
+        "type": "Process",
+        "define": "Check the payload and user permissions"
+      },
+      "store": {
+        "title": "Save",
+        "type": "Storage",
+        "define": "Write the accepted record"
+      },
+      "reply": {
+        "title": "Reply",
+        "define": "Return the result to the caller"
+      }
+    },
+    "edges": [
+      {
+        "id": "request-validate",
+        "source": "request",
+        "target": "validate",
+        "value": "submit"
+      },
+      {
+        "id": "request-store",
+        "source": "request",
+        "target": "store",
+        "value": "cached"
+      },
+      {
+        "id": "validate-reply",
+        "source": "validate",
+        "target": "reply",
+        "value": "valid"
+      },
+      {
+        "id": "store-reply",
+        "source": "store",
+        "target": "reply",
+        "value": "saved"
+      },
+      {
+        "id": "reply-validate",
+        "source": "reply",
+        "target": "validate",
+        "value": "retry"
+      }
+    ]
+  },
+  "compound": {
+    "format": "graph-studio",
+    "version": 3,
+    "hierarchy_edges": [
+      {
+        "id": "hierarchy:web",
+        "source": "app",
+        "target": "web"
+      },
+      {
+        "id": "hierarchy:api",
+        "source": "app",
+        "target": "api"
+      },
+      {
+        "id": "hierarchy:storage",
+        "source": "app",
+        "target": "storage"
+      },
+      {
+        "id": "hierarchy:cache",
+        "source": "storage",
+        "target": "cache"
+      },
+      {
+        "id": "hierarchy:database",
+        "source": "storage",
+        "target": "database"
+      }
+    ],
+    "nodes": {
+      "web": {
+        "title": "Web app",
+        "type": "Client",
+        "define": "Receive customer requests"
+      },
+      "api": {
+        "title": "Validate and dispatch requests",
+        "type": "Service",
+        "define": "Check permissions and route work"
+      },
+      "cache": {
+        "title": "Cache",
+        "type": "Storage",
+        "define": "Frequently used records"
+      },
+      "database": {
+        "title": "Database",
+        "type": "Storage",
+        "define": "Persistent records"
+      },
+      "partner": {
+        "title": "Partner",
+        "define": "External notifications"
+      },
+      "app": {
+        "title": "Application"
+      },
+      "storage": {
+        "title": "Storage"
+      }
+    },
+    "edges": [
+      {
+        "id": "web-api",
+        "source": "web",
+        "target": "api",
+        "value": "request"
+      },
+      {
+        "id": "api-cache",
+        "source": "api",
+        "target": "cache",
+        "value": "read"
+      },
+      {
+        "id": "api-database",
+        "source": "api",
+        "target": "database",
+        "value": "write"
+      },
+      {
+        "id": "cache-database",
+        "source": "cache",
+        "target": "database",
+        "value": "refresh"
+      },
+      {
+        "id": "api-partner",
+        "source": "api",
+        "target": "partner",
+        "value": "notify"
+      },
+      {
+        "id": "partner-api",
+        "source": "partner",
+        "target": "api",
+        "value": "ack"
+      }
+    ]
+  },
+  "sankey": {
+    "format": "graph-studio",
+    "version": 3,
+    "diagram": "sankey",
+    "nodes": {
+      "input": {
+        "title": "Input",
+        "type": "Source",
+        "define": "Available resources"
+      },
+      "process": {
+        "title": "Process",
+        "type": "Work",
+        "define": "Transform the input"
+      },
+      "output": {
+        "title": "Output",
+        "type": "Result",
+        "define": "Delivered resources"
+      },
+      "waste": {
+        "title": "Losses",
+        "type": "Result",
+        "define": "Unused resources"
+      }
+    },
+    "edges": [
+      {
+        "id": "input-process",
+        "source": "input",
+        "target": "process",
+        "value": 80
+      },
+      {
+        "id": "input-waste",
+        "source": "input",
+        "target": "waste",
+        "value": 20
+      },
+      {
+        "id": "process-output",
+        "source": "process",
+        "target": "output",
+        "value": 80
+      },
+      {
+        "id": "output-process",
+        "source": "output",
+        "target": "process",
+        "value": 10
+      },
+      {
+        "id": "process-waste",
+        "source": "process",
+        "target": "waste",
+        "value": 10
+      }
+    ]
+  },
+  "timeline": {
+    "format": "graph-studio",
+    "version": 3,
+    "metadata": {
+      "timeline": {
+        "asOf": "2026-05-07"
+      }
+    },
+    "nodes": {
+      "launch": {
+        "title": "Kickoff",
+        "type": "Milestone",
+        "define": "Agree on scope",
+        "time": {
+          "at": "2026-05-01"
+        },
+        "track": "Delivery"
+      },
+      "build": {
+        "title": "Build",
+        "type": "Phase",
+        "define": "Implement the release",
+        "time": {
+          "start": "2026-05-02",
+          "end": "2026-05-04"
+        },
+        "track": "Delivery"
+      },
+      "review": {
+        "title": "Review and approval",
+        "type": "Milestone",
+        "define": "Check acceptance criteria",
+        "time": {
+          "at": "2026-05-03"
+        },
+        "track": "Quality"
+      },
+      "ship": {
+        "title": "Release",
+        "type": "Milestone",
+        "define": "Ship the approved result",
+        "time": {
+          "at": "2026-05-05"
+        },
+        "track": "Delivery"
+      },
+      "verify": {
+        "title": "Verification",
+        "type": "Phase",
+        "define": "Exercise the complete workflow",
+        "time": {
+          "start": "2026-05-02T12:00:00Z",
+          "end": "2026-05-03T12:00:00Z"
+        },
+        "track": "Quality"
+      }
+    },
+    "edges": [
+      {
+        "id": "launch-build",
+        "source": "launch",
+        "target": "build",
+        "value": "starts"
+      },
+      {
+        "id": "build-review",
+        "source": "build",
+        "target": "review",
+        "value": "review"
+      },
+      {
+        "id": "review-ship",
+        "source": "review",
+        "target": "ship",
+        "value": "approve"
+      },
+      {
+        "id": "launch-verify",
+        "source": "launch",
+        "target": "verify",
+        "value": "test"
+      },
+      {
+        "id": "verify-review",
+        "source": "verify",
+        "target": "review",
+        "value": "report"
+      }
+    ]
+  },
+  "spatial": {
+    "format": "graph-studio",
+    "version": 3,
+    "metadata": {
+      "space": {
+        "dimensions": 3,
+        "coordinateSystem": "cartesian",
+        "angleUnit": "degrees",
+        "axes": ["X", "Y", "Z"],
+        "unit": "m"
+      }
+    },
+    "nodes": {
+      "origin": {
+        "title": "Origin",
+        "type": "Reference",
+        "define": "Reference coordinate",
+        "space": [0, 0, 0],
+        "spatialStyle": {
+          "radius": 6,
+          "label": true
+        }
+      },
+      "sample": {
+        "title": "Sample A",
+        "type": "Measurement",
+        "define": "Measured position",
+        "space": [3, 1, 1],
+        "spatialStyle": {
+          "radius": 5,
+          "label": true
+        }
+      },
+      "review": {
+        "title": "Sample B",
+        "type": "Measurement",
+        "define": "Missing reading",
+        "space": [1, 3, 2],
+        "spatialStyle": {
+          "radius": 5,
+          "hollow": true,
+          "label": true
+        }
+      },
+      "output": {
+        "title": "Target",
+        "type": "Target",
+        "define": "Projected destination",
+        "space": [4, 4, 3],
+        "spatialStyle": {
+          "radius": 7,
+          "opacity": 0.6,
+          "label": true
+        }
+      }
+    },
+    "edges": [
+      {
+        "id": "origin-sample",
+        "source": "origin",
+        "target": "sample",
+        "value": "measure"
+      },
+      {
+        "id": "origin-review",
+        "source": "origin",
+        "target": "review",
+        "value": "estimate",
+        "metadata": {
+          "spatialStyle": {
+            "dashed": true,
+            "directed": true,
+            "color": "#64748b"
+          }
+        }
+      },
+      {
+        "id": "sample-output",
+        "source": "sample",
+        "target": "output",
+        "value": "project"
+      },
+      {
+        "id": "review-output",
+        "source": "review",
+        "target": "output",
+        "value": "compare"
+      }
+    ]
+  }
+}

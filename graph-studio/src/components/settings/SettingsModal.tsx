@@ -26,7 +26,7 @@ export default function SettingsModal(props: SettingsModalProps) {
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
   const [activeChapter, setActiveChapter] = useState<SettingsChapter>("appearance");
-  const [previewMode, setPreviewMode] = useState<"overview" | "detail">("detail");
+  const [previewMode, setPreviewMode] = useState<"overview" | "detail">("overview");
   const [providerMenuOpen, setProviderMenuOpen] = useState(false);
   const [aiConnectionStatus, setAiConnectionStatus] = useState<AiConnectionStatus>("idle");
   const [appearanceCssDraft, setAppearanceCssDraft] = useState(appearance.css);
@@ -35,7 +35,7 @@ export default function SettingsModal(props: SettingsModalProps) {
   const shownChapter = !query.trim() || chapterCount(activeChapter) ? activeChapter : results[0]?.chapter;
   const visualChapter = shownChapter === "appearance" || shownChapter === "layout";
   const cssPending = appearanceCssDraft !== appearance.css;
-  useEffect(() => setPreviewMode(shownChapter === "layout" ? "overview" : "detail"), [shownChapter]);
+  useEffect(() => setPreviewMode("overview"), [chartType]);
   useEffect(() => {
     if (open) {
       setQuery("");

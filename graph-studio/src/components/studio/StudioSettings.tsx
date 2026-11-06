@@ -46,9 +46,6 @@ export function StudioSettings({
   const { exportSvg, exportHtml } = useGraphExport(state, dispatch, viewport);
   return (
     <SettingsModal
-      previewSource={
-        state.dag ? { kind: "document", stage: viewport.stage, status: viewport.status } : { kind: "sample" }
-      }
       documentActions={
         <div className="settings-document-actions" role="group" aria-label="Document actions">
           <IconButton

@@ -10,7 +10,7 @@ those rules in the presentation configuration.
 - `AppearanceUIRenderers` adapts Schema bindings to reusable controls. Panels group
   searchable fields without adding layout wrappers; sections provide headings.
 - `TitleFormatControl` handles title alignment and overflow. `FontSizeStyleControl`
-  combines size and bold/italic controls for title, detail and edge label text. Their configuration
+  combines size and bold/italic controls for all font roles, including timeline axis, tracks and dates. Their configuration
   children declare searchable fields; font properties still use Schema bindings.
 - `AppearanceSettings` owns the current model and validated transaction boundary.
   Presets and Schema read that model's style rather than rebuilding it in the view.
@@ -39,12 +39,23 @@ Edge label typography uses Schema font roles. Rendering and compound routing sha
 `layout/shared/edge-label.ts`; routing boxes are centered on the label position.
 The label border toggle controls only stroke width, retaining background fill.
 
-Preview data comes from the active document's already laid out and painted scene.
-`AppearancePreview` requires an explicit document or sample source; only an absent document mounts
-`SampleAppearancePreview` and its sample layout hooks. A pending document scene
-must not silently fall back to sample data. `AppearancePreviewFrame` owns only
-preview presentation and camera controls; it does not repaint or relayout the
-active document. An unavailable scene displays the document viewport status.
-Preview group navigation and its reset are confined to the no-document sample.
-Detail framing selects the first visible node without sample-specific IDs.
+Settings previews always use the fixed fixtures in `previewGraphs.json`; the open
+document and its current viewport are never preview inputs. `AppearancePreview`
+uses the same layout engines, paint pass and `GraphStage` as the main canvas.
+`AppearancePreviewFrame` owns only presentation and preview camera controls.
+Overview is the default; Detail frames the longest visible leaf title. Tab changes
+do not change the chosen preview mode. Compound navigation resets within the sample.
+
+Fixture coverage:
+
+| Chart            | Demonstrated cases                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| Node-link        | Typed and untyped nodes, long titles, descriptions, branches, labeled return edges                             |
+| Nested node-link | Expanded and folded groups, group statistics, cross-group links, category colors                               |
+| Sankey           | Unequal flows, split/merge, return flow, titles and numeric values                                             |
+| Timeline         | Two tracks, points and overlapping intervals, dates, descriptions, labeled relations, calendar/relative clocks |
+| Spatial          | Four 3D points, multiple categories, solid/hollow markers, opacity, solid/dashed directed links                |
+
+Use conditional controls to reveal the corresponding fixture features; do not
+force descriptions, edge labels or shadows on against the selected settings.
 Keep category paint and custom CSS precedence identical in preview and main canvas.

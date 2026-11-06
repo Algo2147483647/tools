@@ -1,3 +1,4 @@
+import type { FontRole } from "../../layout/shared/typography";
 import type { GraphChartType } from "../../graph/types";
 
 /** Presentation only. Values, defaults, valid enums and constraints belong to Schema. */
@@ -9,7 +10,7 @@ export interface AppearanceUINode {
   labelBy?: { path: string; values: Record<string, string> };
   charts?: readonly GraphChartType[];
   options?: {
-    fontRole?: "title" | "detail" | "edge-label";
+    fontRole?: FontRole;
     placeholder?: string;
     unit?: string;
     scale?: number;
@@ -28,6 +29,18 @@ const field = (
 const display = (id: string, renderer?: string, options?: AppearanceUINode["options"], label?: string) =>
   field(id, `style.appearance.display.${id}`, renderer, options, label);
 const color = (name: string) => field(name, `style.appearance.cssVars[${name}]`, "color");
+
+const fontStyle = (role: FontRole): AppearanceUINode => ({
+  id: `${role}-size-style`,
+  renderer: "font-size-style",
+  label: "Style",
+  options: { fontRole: role },
+  children: [
+    field(`${role}-font-size`, `style.appearance.cssVars[--dag-${role}-font-size]`, "number", { unit: "px" }),
+    field(`${role}-font-weight`, `style.appearance.cssVars[--dag-${role}-font-weight]`),
+    field(`${role}-font-style`, `style.appearance.cssVars[--dag-${role}-font-style]`),
+  ],
+});
 
 export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
   timelineLayout: {
@@ -163,23 +176,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
             renderer: "panel",
             children: [
               field("fontFamily", "style.appearance.cssVars[--dag-title-font-family]", "font", undefined, "Title font"),
-              {
-                id: "title-size-style",
-                renderer: "font-size-style",
-                label: "Style",
-                options: { fontRole: "title" },
-                children: [
-                  field(
-                    "fontSize",
-                    "style.appearance.cssVars[--dag-title-font-size]",
-                    "number",
-                    { unit: "px" },
-                    "Title size",
-                  ),
-                  field("fontWeight", "style.appearance.cssVars[--dag-title-font-weight]"),
-                  field("fontStyle", "style.appearance.cssVars[--dag-title-font-style]"),
-                ],
-              },
+              fontStyle("title"),
             ],
           },
         ],
@@ -202,35 +199,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
                 undefined,
                 "Font",
               ),
-              {
-                id: "detail-size-style",
-                renderer: "font-size-style",
-                label: "Style",
-                options: { fontRole: "detail" },
-                children: [
-                  field(
-                    "detail-font-size",
-                    "style.appearance.cssVars[--dag-detail-font-size]",
-                    "number",
-                    { unit: "px" },
-                    "Size",
-                  ),
-                  field(
-                    "detail-font-weight",
-                    "style.appearance.cssVars[--dag-detail-font-weight]",
-                    "field",
-                    undefined,
-                    "Weight",
-                  ),
-                  field(
-                    "detail-font-style",
-                    "style.appearance.cssVars[--dag-detail-font-style]",
-                    "field",
-                    undefined,
-                    "Style",
-                  ),
-                ],
-              },
+              fontStyle("detail"),
             ],
           },
         ],
@@ -242,9 +211,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         renderer: "section",
         children: [
           field("date-font-family", "style.appearance.cssVars[--dag-date-font-family]", "font", undefined, "Font"),
-          field("date-font-size", "style.appearance.cssVars[--dag-date-font-size]", "number", { unit: "px" }, "Size"),
-          field("date-font-weight", "style.appearance.cssVars[--dag-date-font-weight]", "field", undefined, "Weight"),
-          field("date-font-style", "style.appearance.cssVars[--dag-date-font-style]", "field", undefined, "Style"),
+          fontStyle("date"),
         ],
       },
     ],
@@ -279,17 +246,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
           display("showEdgeLabels", "toggle"),
           color("--dag-edge-label-color"),
           field("edge-label-font-family", "cssVars[--dag-edge-label-font-family]", "font", undefined, "Font"),
-          {
-            id: "edge-label-style",
-            renderer: "font-size-style",
-            label: "Style",
-            options: { fontRole: "edge-label" },
-            children: [
-              field("edge-label-font-size", "cssVars[--dag-edge-label-font-size]", "number"),
-              field("edge-label-font-weight", "cssVars[--dag-edge-label-font-weight]", "field"),
-              field("edge-label-font-style", "cssVars[--dag-edge-label-font-style]", "field"),
-            ],
-          },
+          fontStyle("edge-label"),
           display("showEdgeLabelBorders", "toggle"),
         ],
       },
@@ -332,9 +289,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         renderer: "section",
         children: [
           field("axis-font-family", "style.appearance.cssVars[--dag-axis-font-family]", "font", undefined, "Font"),
-          field("axis-font-size", "style.appearance.cssVars[--dag-axis-font-size]", "number", { unit: "px" }, "Size"),
-          field("axis-font-weight", "style.appearance.cssVars[--dag-axis-font-weight]", "field", undefined, "Weight"),
-          field("axis-font-style", "style.appearance.cssVars[--dag-axis-font-style]", "field", undefined, "Style"),
+          fontStyle("axis"),
         ],
       },
       {
@@ -344,9 +299,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         renderer: "section",
         children: [
           field("track-font-family", "style.appearance.cssVars[--dag-track-font-family]", "font", undefined, "Font"),
-          field("track-font-size", "style.appearance.cssVars[--dag-track-font-size]", "number", { unit: "px" }, "Size"),
-          field("track-font-weight", "style.appearance.cssVars[--dag-track-font-weight]", "field", undefined, "Weight"),
-          field("track-font-style", "style.appearance.cssVars[--dag-track-font-style]", "field", undefined, "Style"),
+          fontStyle("track"),
         ],
       },
     ],

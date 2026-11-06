@@ -17,7 +17,6 @@ export interface AppearanceSettingsProps {
   graphDocument?: import("../../graph/types").GraphDocument | null;
   view?: "chart" | "appearance";
   onSectionReset: (group: AppearanceGroup | "layout") => void;
-  onPreviewModeChange: (mode: "overview" | "detail") => void;
   query?: string;
   chartType: GraphChartType;
   sankeyUnavailableReason: string | null;
@@ -141,7 +140,6 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
               onClick={(event) => {
                 setGroup(item.id);
                 event.currentTarget.closest(".settings-page")?.scrollTo({ top: 0 });
-                p.onPreviewModeChange(item.id === "nodes" ? "detail" : "overview");
               }}
             >
               {item.label}

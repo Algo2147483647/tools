@@ -13,7 +13,7 @@ export default function FontSizeStyleControl({ node }: AppearanceRendererProps) 
   return (
     <NumericSetting
       label={label}
-      valueLabel={role === "title" ? "Title size" : role === "detail" ? "Description size" : "Edge label size"}
+      valueLabel={size.definition.label ?? "Font size"}
       value={parseFloat(String(size.value))}
       defaultValue={parseFloat(String(size.defaultValue))}
       onChange={(value) => commit(() => size.set(`${value}px`))}
