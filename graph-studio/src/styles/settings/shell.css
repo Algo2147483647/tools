@@ -10,6 +10,7 @@
   backdrop-filter: none;
 }
 .settings-modal.studio-settings {
+  --chrome-background: #fff;
   width: 100%;
   height: 100dvh;
   max-height: none;
@@ -26,8 +27,8 @@
   border-block: 0;
   border-radius: 0;
   box-shadow: var(--chrome-shadow);
-  backdrop-filter: var(--chrome-blur);
-  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .studio-settings .settings-modal-header {
   grid-column: 1/-1;
@@ -115,7 +116,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 20px 12px;
-  background: #f5f7fa61;
+  background: #fff;
   border-right: 1px solid #e3e8ef;
   overflow: auto;
 }
@@ -169,6 +170,7 @@
   overflow: hidden;
 }
 .studio-settings .settings-page {
+  grid-auto-rows: max-content;
   grid-template-columns: minmax(0, 1fr);
   container-type: inline-size;
   container-name: settings-controls;
@@ -177,7 +179,7 @@
   min-height: 0;
   overflow: auto;
   padding: 24px;
-  background: transparent;
+  background: #fff;
   scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scroll-padding-top: 76px;
@@ -277,8 +279,8 @@
   padding: 10px 0;
   border-bottom: 1px solid #dfe6f0;
   background: var(--chrome-background);
-  backdrop-filter: var(--chrome-blur);
-  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .appearance-tabs button {
   flex: 1;

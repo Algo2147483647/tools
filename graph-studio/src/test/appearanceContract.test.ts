@@ -1,3 +1,4 @@
+import { ResetSetting, SettingResetContext } from "../components/settings/NumericSetting";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -37,6 +38,11 @@ const dag = normalizeDagInput({
 const noop = () => {};
 
 export const appearanceContractSuite = defineSuite("Appearance contract", [
+  defineTest("section reset policy omits field reset controls without changing other editors", () => {
+    const reset = createElement(ResetSetting, { label: "Width", changed: true, onReset: noop });
+    assert.match(renderToStaticMarkup(reset), /aria-label="Reset Width"/);
+    assert.equal(renderToStaticMarkup(createElement(SettingResetContext.Provider, { value: false }, reset)), "");
+  }),
   defineTest("appearance rows filter empty groups and share a single-line CSS draft", () => {
     const model = createAppearanceUIModel("node-link", getDefaultChartStyle("node-link"));
     const render = (query: string) =>
@@ -57,7 +63,7 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
       );
     const html = render("");
     assert.doesNotMatch(html, />Visibility<|>Size and spacing</);
-    assert.match(html, /appearance-row--typography/);
+    assert.match(html, /Title font/);
     assert.match(html, /rows="1"/);
     assert.match(html, /\.dag-node__pin \{ fill: red; \}/);
     assert.doesNotMatch(html, /aria-label="Equal node widths"/);
@@ -66,7 +72,7 @@ export const appearanceContractSuite = defineSuite("Appearance contract", [
     assert.equal((html.match(/aria-label="Node descriptions"/g) ?? []).length, 1);
     assert.equal(render("no-such-setting-12345"), "");
     const width = render("Minimum width");
-    assert.doesNotMatch(width, /appearance-row--typography|appearance-row--colors/);
+    assert.doesNotMatch(width, /Title font|Text strong|Text soft/);
   }),
   defineTest("visual parameters belong to their Appearance objects and resets preserve layout rules", () => {
     for (const chart of ["node-link", "compound", "sankey", "timeline"] as const) {

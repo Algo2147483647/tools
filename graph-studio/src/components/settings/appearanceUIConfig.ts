@@ -9,7 +9,6 @@ export interface AppearanceUINode {
   labelBy?: { path: string; values: Record<string, string> };
   charts?: readonly GraphChartType[];
   options?: {
-    layout?: "colors" | "typography" | "border";
     format?: "layout" | "style";
     placeholder?: string;
     unit?: string;
@@ -94,8 +93,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
           color("--dag-node-fill"),
           {
             id: "node-border-row",
-            renderer: "inline-row",
-            options: { layout: "border" },
+            renderer: "panel",
             children: [
               field("hideNodeBorders", "style.hideNodeBorders", "toggle", { invert: true }, "Node borders"),
               color("--dag-node-border"),
@@ -153,8 +151,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
         children: [
           {
             id: "text-colors-row",
-            renderer: "inline-row",
-            options: { layout: "colors" },
+            renderer: "panel",
             children: [color("--dag-text-strong"), color("--dag-text-soft")],
           },
           {
@@ -166,8 +163,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
           display("titleWrap", "toggle", undefined, "Two-line title"),
           {
             id: "title-typography-row",
-            renderer: "inline-row",
-            options: { layout: "typography" },
+            renderer: "panel",
             children: [
               field("fontFamily", "style.appearance.cssVars[--dag-title-font-family]", "font", undefined, "Title font"),
               field(
@@ -199,8 +195,7 @@ export const APPEARANCE_UI: Record<string, AppearanceUINode> = {
           field("showNodeDetail", "style.showNodeDetail", "toggle", undefined, "Node descriptions"),
           {
             id: "detail-typography-row",
-            renderer: "inline-row",
-            options: { layout: "typography" },
+            renderer: "panel",
             children: [
               field(
                 "detail-font-family",

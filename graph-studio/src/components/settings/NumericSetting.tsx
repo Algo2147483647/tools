@@ -1,6 +1,11 @@
-import { useEffect, useId, useState } from "react";
+import { createContext, useContext, useEffect, useId, useState } from "react";
+
+/** Appearance groups use section resets; other editors retain per-field resets. */
+export const SettingResetContext = createContext(true);
 
 export function ResetSetting({ label, changed, onReset }: { label: string; changed: boolean; onReset: () => void }) {
+  const visible = useContext(SettingResetContext);
+  if (!visible) return null;
   return (
     <button
       type="button"

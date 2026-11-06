@@ -172,11 +172,6 @@ export const APPEARANCE_RENDERERS = {
   toggle: ToggleControl,
   tuple: TupleControl,
   range: TupleControl,
-  "inline-row": ({ node, children }: AppearanceRendererProps) => (
-    <div className={`appearance-inline-row${node.options?.layout ? ` appearance-row--${node.options.layout}` : ""}`}>
-      {children}
-    </div>
-  ),
   field: FieldControl,
   font: FontControl,
   "title-format": TitleFormatControl,

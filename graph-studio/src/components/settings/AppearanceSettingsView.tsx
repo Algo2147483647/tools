@@ -1,4 +1,5 @@
 import AppearanceCssEditor from "./AppearanceCssEditor";
+import { SettingResetContext } from "./NumericSetting";
 import { useState } from "react";
 import type { GraphAppearance } from "../../schema/appearance/defaults";
 import type { GraphChartType } from "../../graph/types";
@@ -119,24 +120,26 @@ export default function AppearanceSettingsView(p: AppearanceSettingsProps) {
       );
     const has = (key: string) => items.some((item) => item.id === key || item.uiId === key);
     return (
-      <section className="settings-section appearance-group" key={id} aria-label={`${label} settings`}>
-        {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
-        {(has("css") || has("style.appearance.css")) && <AppearanceCssEditor />}
-        {["nodes", "edges", "canvas"].includes(id) && (
-          <div className="appearance-group-actions">
-            <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
-              {`Reset ${label.toLowerCase()} style`}
-            </button>
-          </div>
-        )}
-        {has("configuration") && (
-          <div className="settings-inline-actions">
-            <button className="studio-button subtle-danger" onClick={p.onAppearanceReset}>
-              Reset current style
-            </button>
-          </div>
-        )}
-      </section>
+      <SettingResetContext.Provider key={id} value={false}>
+        <section className="settings-section appearance-group" aria-label={`${label} settings`}>
+          {APPEARANCE_UI[id] && <AppearanceUIOutlet node={APPEARANCE_UI[id]} />}
+          {(has("css") || has("style.appearance.css")) && <AppearanceCssEditor />}
+          {["nodes", "edges", "canvas"].includes(id) && (
+            <div className="appearance-group-actions">
+              <button type="button" className="setting-section-reset" onClick={() => p.onSectionReset(id)}>
+                {`Reset ${label.toLowerCase()} style`}
+              </button>
+            </div>
+          )}
+          {has("configuration") && (
+            <div className="settings-inline-actions">
+              <button className="studio-button subtle-danger" onClick={p.onAppearanceReset}>
+                Reset current style
+              </button>
+            </div>
+          )}
+        </section>
+      </SettingResetContext.Provider>
     );
   };
   return (
