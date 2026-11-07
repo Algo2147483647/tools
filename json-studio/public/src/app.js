@@ -261,6 +261,26 @@ function renderReference() {
 }
 $('protocol-search').oninput = renderTools;
 
+const providerPresets = {
+  openai: { baseUrl: 'https://api.openai.com/v1', model: 'gpt-4.1-mini' },
+  deepseek: { baseUrl: 'https://api.deepseek.com', model: 'deepseek-v4-flash' },
+  ollama: { baseUrl: 'http://localhost:11434/v1', model: 'llama3.1' },
+};
+function syncProvider() {
+  const base = $('api-base').value.trim().replace(/\/+$/, '');
+  $('api-provider').value =
+    Object.keys(providerPresets).find((name) => providerPresets[name].baseUrl === base) || 'custom';
+}
+$('api-provider').onchange = () => {
+  const preset = providerPresets[$('api-provider').value];
+  if (preset) {
+    $('api-base').value = preset.baseUrl;
+    $('api-model').value = preset.model;
+  }
+  $('settings-status').textContent = '';
+};
+$('api-base').addEventListener('input', syncProvider);
+
 async function saveSettings(test = false) {
   const status = $('settings-status');
   status.classList.remove('is-error');
@@ -408,6 +428,7 @@ const ready = api('/api/bootstrap')
     reference = data.reference;
     $('api-base').value = data.settings.baseUrl;
     $('api-model').value = data.settings.model;
+    syncProvider();
     $('api-key').placeholder = data.settings.hasKey
       ? 'Key saved · leave blank to keep'
       : 'API key (optional for local providers)';

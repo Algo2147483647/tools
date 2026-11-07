@@ -109,22 +109,29 @@
         hidden
       >
         <form id="settings-form">
-          <p class="settings-intro">
-            Connect an API that supports chat completions and JSON responses.
-          </p>
-          <label
-            >API base URL<input
-              id="api-base"
-              type="url"
-              placeholder="https://your-provider.example/v1"
-              required
-          /></label>
-          <label
-            >Model<input id="api-model" type="text" placeholder="Model identifier" required
-          /></label>
-          <label
-            >API key<input id="api-key" type="password" autocomplete="off" placeholder="API key"
-          /></label>
+          <div class="ai-settings-grid">
+            <label
+              >Provider<select id="api-provider" aria-label="Provider">
+                <option value="custom">OpenAI compatible</option>
+                <option value="openai">OpenAI</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="ollama">Ollama</option>
+              </select></label
+            >
+            <label
+              >Model<input id="api-model" type="text" placeholder="Model identifier" required
+            /></label>
+            <label class="ai-settings-wide"
+              >API base URL<input
+                id="api-base"
+                type="url"
+                placeholder="https://your-provider.example/v1"
+                required
+            /></label>
+            <label class="ai-settings-wide"
+              >API key<input id="api-key" type="password" autocomplete="off" placeholder="API key"
+            /></label>
+          </div>
           <label class="check-label"
             ><input id="clear-key" type="checkbox" /> Clear the saved key</label
           >
