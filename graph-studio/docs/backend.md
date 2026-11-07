@@ -1,10 +1,10 @@
 # Local backend
 
-Graph Studio runs a local Node.js/TypeScript service. `launch.cmd`, `launch.ps1`, `launch.command`, `npm start`, `npm run dev`, and `npm run preview` all use the shared launcher. Node.js 22.12 or newer is required.
+Graph Studio runs a local Node.js/TypeScript service. `launch.cmd`, `launch.ps1`, `launch.command`, `npm start`, and `npm run preview` all use the shared launcher. Node.js 22.12 or newer is required.
 
 ## Startup and lifecycle
 
-The launcher builds the backend into `.server/main.mjs`. Development serves Vite middleware and the API through one HTTP listener. Preview mode builds the frontend and backend and serves `dist/` through the same local service. A readiness URL is printed only after both are ready. Closing the runtime stops HTTP, event streams, file watchers, and Vite. Ctrl+C and SIGTERM initiate that shutdown.
+The launcher builds the backend into `.server/main.mjs`. Every application launch builds the frontend and backend and serves `dist/` through the same local service. No development middleware or hot-reload connection is created. A readiness URL is printed only after both are ready. Closing the runtime stops HTTP, event streams, and file watchers. Ctrl+C and SIGTERM initiate that shutdown.
 
 The service listens on `127.0.0.1`. `GRAPH_STUDIO_PORT` optionally selects a port; otherwise the OS allocates one. `GRAPH_STUDIO_STATE_DIR` overrides the user-state directory for isolated instances and tests. A process lock prevents two services from writing the same state directory. A stale lock from a dead process is recovered at startup. Do not delete the lock while its process is alive.
 

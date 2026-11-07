@@ -39,12 +39,10 @@ async function body(request: IncomingMessage) {
   }
   return JSON.parse(Buffer.concat(parts).toString("utf8"));
 }
-type Middleware = (req: IncomingMessage, res: ServerResponse, next: () => void) => void;
 export function createApplication(
   service: LocalService,
   options: {
     staticDirectory: string;
-    frontend?: Middleware;
     dialog?: typeof choosePath;
   },
 ) {
@@ -72,11 +70,6 @@ export function createApplication(
       return json(response, { error: { code: "LOCAL_ONLY", message: "Local access required." } }, 403);
     const url = new URL(request.url || "/", `http://${host}`);
     if (!url.pathname.startsWith("/api/")) {
-      if (options.frontend)
-        return options.frontend(request, response, () => {
-          response.statusCode = 404;
-          response.end("Not found");
-        });
       try {
         const root = await realpath(options.staticDirectory);
         let path = within(root, resolve(root, "." + decodeURIComponent(url.pathname)));

@@ -14,7 +14,7 @@ It is built for fast graph inspection and editing in the browser:
 
 Right-click a node or the canvas once to open the floating console. There is no context menu. Drag the console header to move it, resize from its bottom-right corner, and press Esc while focused inside it to close. The Console accepts natural-language requests; only AI can call native JSON tools. The **Protocols** tab shows the live tool catalog, argument schemas, capabilities, context, execution results and provider transport. The corner star expands in place into icon-only Workspace files, Console and Settings controls. Navigation and zoom belong to the Workbench tab.
 
-Normal startup builds and serves the production frontend without development hot reload. Use `-Dev` / `--dev` explicitly for development: Vite reloads the page after an interrupted connection recovers or when source changes require it. There is no inactivity logout timer. Active documents, unsaved edits and workspace views currently live in memory; a manual reload or browser tab discard still loses that editing session and returns to the welcome screen. Recent locations and preferences are not session recovery.
+All application launchers build and serve static frontend files. No Vite client or automatic page reload is installed; source changes take effect after rebuilding and restarting. There is no inactivity logout timer. Active documents, unsaved edits and workspace views currently live in memory; a manual reload or browser tab discard still loses that editing session and returns to the welcome screen. Recent locations and preferences are not session recovery.
 
 - undo and redo graph mutations without losing navigation history
 - save the updated graph back to JSON or export the current view as SVG
@@ -53,7 +53,7 @@ For development, `/browser-tests/layout.html` serves an isolated regression fixt
 - **Windows:** double-click [`launch.cmd`](launch.cmd), or run it from any directory. [`launch.ps1`](launch.ps1) selects Node.js 22.12+, including an existing Codex runtime, and skips older installations on PATH.
 - **macOS:** install Node.js 22.12+ including npm, then double-click [`launch.command`](launch.command). If copied from Windows or an archive without executable permissions, run `chmod +x launch.command` once. You can also run `bash launch.command` in Terminal. Homebrew installations in `/opt/homebrew` and `/usr/local` are detected.
 
-All launchers start the local file service and frontend together on one loopback URL. In development, Vite runs as UI middleware inside that lifecycle; in preview mode the local service serves the built frontend. The service port is selected automatically and printed in the terminal. Set `GRAPH_STUDIO_PORT` to request a fixed port.
+All launchers start the local file service and frontend together on one loopback URL. The local service serves the built frontend directly. The service port is selected automatically and printed in the terminal. Set `GRAPH_STUDIO_PORT` to request a fixed port.
 
 Both entry points use [`scripts/launch.mjs`](scripts/launch.mjs) to install and verify dependencies, start the app, and open your browser. They work from any directory and do not require files outside this project. The server listens on `127.0.0.1` only. Keep the terminal window open; press `Ctrl+C` to stop both the UI server and backend. The first launch requires internet access. Do not copy `node_modules` between Windows and macOS.
 
@@ -79,9 +79,9 @@ bash launch.command --preview
 bash launch.command --help
 ```
 
-Production mode is the default; use `-Dev` / `--dev` explicitly for development. Select only one of development, install-only, build-only, or preview; `-NoBrowser` / `--no-browser` can be combined with a server mode.
+Select only one of install-only, build-only, or preview; `-NoBrowser` / `--no-browser` can be combined with a server mode.
 
-From the repository root, `.\launch.cmd graph-studio` uses the same launcher (and accepts the same options). The development server ignores `dist` so a concurrent production build does not interrupt file watching on Windows.
+From the repository root, `.\launch.cmd graph-studio` uses the same launcher (and accepts the same options).
 
 ### Manual startup
 
@@ -90,7 +90,7 @@ npm ci
 npm start
 ```
 
-`npm start` uses the same verified startup flow. After installing dependencies, `npm run dev` starts the same combined service with Vite middleware for development. Node.js 22.12+ is required for all workflows.
+`npm start` uses the same verified startup flow. Node.js 22.12+ is required for all workflows.
 
 Useful commands:
 

@@ -1,4 +1,3 @@
-import { createServer as createViteServer } from "vite";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildServer } from "./build-server.mjs";
@@ -12,7 +11,6 @@ export async function serve(root, options = {}) {
     join(root, "public/examples"),
   );
   await service.initialize();
-  let vite;
   let app;
   let stopping;
   const shutdown = () =>
@@ -25,28 +23,13 @@ export async function serve(root, options = {}) {
           app.server.close(resolve);
           app.server.closeAllConnections();
         });
-      await vite?.close();
-      // Vite 4 drains transforms after closing its watcher. A pending tsconfig
-      // lookup can reopen that watcher while draining, so close it once more.
-      await vite?.watcher.close();
       await closed;
       await service.close();
     })());
   try {
-    // One listener and lifecycle: Vite is only the development UI middleware.
-    let frontend;
     app = createApplication(service, {
       staticDirectory: join(root, "dist"),
-      ...(options.dev ? { frontend: (req, res, next) => frontend(req, res, next) } : {}),
     });
-    if (options.dev) {
-      vite = await createViteServer({
-        root,
-        server: { middlewareMode: true, hmr: { server: app.server } },
-        appType: "spa",
-      });
-      frontend = vite.middlewares;
-    }
     await new Promise((resolve, reject) => {
       app.server.once("error", reject);
       app.server.listen(Number(process.env.GRAPH_STUDIO_PORT || 0), "127.0.0.1", resolve);

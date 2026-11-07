@@ -9,7 +9,6 @@
   },
   "scripts": {
     "start": "node scripts/launch.mjs",
-    "dev": "node scripts/launch.mjs --dev",
     "build": "tsc --noEmit && tsc -p server/tsconfig.json && vite build && node scripts/build-backend.mjs",
     "test": "node --loader ts-node/esm --experimental-specifier-resolution=node src/test/core.test.ts",
     "test:launcher": "node --test scripts/test/*.test.mjs",
