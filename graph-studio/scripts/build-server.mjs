@@ -9,7 +9,11 @@ export async function buildServer(root, entry = "server/main.ts", outputPath = "
     outfile: output,
     bundle: true,
     platform: "node",
+    mainFields: ["module", "main"],
     format: "esm",
+    banner: {
+      js: 'import { createRequire as __createRequire } from "node:module"; const require = __createRequire(import.meta.url);',
+    },
     target: "node22",
     sourcemap: true,
     plugins: [

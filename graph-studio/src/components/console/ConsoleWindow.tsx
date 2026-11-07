@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "../ui/Icon";
 import ConsoleProtocols from "./ConsoleProtocols";
-import { useFloatingConsole } from "./useFloatingConsole";
+import { useFloatingWindow } from "../ui/useFloatingWindow";
 import AiActivityView from "../ui/AiActivityView";
 import type { AiActivity } from "../../app/ai/useAiActivity";
 
@@ -50,7 +50,7 @@ export default function ConsoleWindow({
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const followOutput = useRef(true);
-  const floating = useFloatingConsole();
+  const floating = useFloatingWindow("graph-studio.console-window.v1");
 
   useEffect(() => {
     const previous = document.activeElement;
@@ -82,7 +82,7 @@ export default function ConsoleWindow({
       id="graph-console"
       ref={floating.ref}
       style={floating.style}
-      className="console-window"
+      className="floating-window console-window"
       role="dialog"
       aria-modal="false"
       aria-label="Graph console"
@@ -93,7 +93,7 @@ export default function ConsoleWindow({
         }
       }}
     >
-      <header className="console-window__header" {...floating.headerProps}>
+      <header className="floating-window__header console-window__header" {...floating.headerProps}>
         <div className="console-window__tabs" role="tablist" aria-label="Console pages">
           {CONSOLE_TABS.map(({ id: tab, label }, index) => (
             <button
@@ -134,7 +134,7 @@ export default function ConsoleWindow({
           </span>
           <button
             type="button"
-            className="console-window__close"
+            className="floating-window__close"
             aria-label="Close console"
             title="Close (Esc)"
             onClick={onClose}

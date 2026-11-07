@@ -90,7 +90,7 @@ export default function GeneralSessionSettings({
                     <dd>{workspace.activePath || "Choose a graph in the explorer"}</dd>
                   </div>
                   <div>
-                    <dt>Linked files</dt>
+                    <dt>Assets</dt>
                     <dd>Relative to each document, within this workspace</dd>
                   </div>
                 </>

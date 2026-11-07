@@ -17,7 +17,7 @@ export function createWorkspaceOperations(ports: WorkspaceOperationPorts) {
     invalidate() {
       epoch++;
     },
-    async run<T>(action: (context: OperationContext) => Promise<T>): Promise<T | undefined> {
+    async run<T>(action: (context: OperationContext) => Promise<T>, rethrow = false): Promise<T | undefined> {
       if (locked) return undefined;
       locked = true;
       const token = epoch;
@@ -28,6 +28,7 @@ export function createWorkspaceOperations(ports: WorkspaceOperationPorts) {
       try {
         return await action({ isCurrent });
       } catch (error) {
+        if (rethrow) throw error;
         if (isCurrent() && !(error instanceof Error && error.name === "AbortError"))
           ports.notice(error instanceof Error ? error.message : String(error));
       } finally {

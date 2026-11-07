@@ -1,0 +1,57 @@
+.floating-window {
+  position: fixed;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  width: 680px;
+  height: 540px;
+  min-width: min(360px, calc(100vw - 16px));
+  min-height: min(280px, calc(100dvh - 16px));
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow: hidden;
+  resize: both;
+  border: 1px solid var(--chrome-border);
+  border-radius: 14px;
+  background: var(--chrome-background);
+  color: #000;
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: var(--chrome-blur);
+  -webkit-backdrop-filter: var(--chrome-blur);
+}
+.floating-window__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  gap: 16px;
+  padding: 0 16px;
+  min-height: 50px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  border-bottom: 1px solid #edf0f4;
+}
+.floating-window__header:active {
+  cursor: grabbing;
+}
+.floating-window__close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #000;
+  background: transparent;
+  cursor: pointer;
+}
+.floating-window__close:hover {
+  color: #000;
+  background: #f0f3f8;
+}
+.floating-window button:focus-visible {
+  outline: 2px solid #617bc3;
+  outline-offset: 2px;
+}

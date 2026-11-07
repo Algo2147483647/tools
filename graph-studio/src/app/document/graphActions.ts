@@ -4,6 +4,16 @@ import type { TimelineViewSettings } from "../../schema/appearance/types";
 import type { ChartStyle } from "../../schema/appearance/styles";
 
 export type GraphAction =
+  | { type: "workspaceFileMutationState"; pending: boolean }
+  | {
+      type: "workspaceDocumentRebased";
+      caseInsensitive?: boolean;
+      path: string;
+      newPath?: string;
+      revision: string;
+      fileName: string;
+    }
+  | { type: "workspaceDocumentRestored"; snapshot: import("./initialState").GraphAppState; revision: string }
   | { type: "layoutReferenceBound"; generation: number; reference: string; persistedDag: NormalizedDag }
   | { type: "styleReferenceBound"; generation: number; reference: string; persistedDag?: NormalizedDag }
   | {

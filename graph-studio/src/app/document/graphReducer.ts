@@ -1,3 +1,4 @@
+import { rebaseWorkspaceDocument } from "./workspaceMutation";
 import { serializeDag } from "../../graph/serialize";
 import { parseLayoutSession, repairLayoutSession, type LayoutSessionState } from "../../schema/layoutSession";
 import { getSankeyError } from "../../graph/sankey";
@@ -11,6 +12,17 @@ import { resolveTimeline as sanitizeTimelineSettings } from "../../schema/appear
 import { replaceDocument, traverseEditHistory, pushEditTransaction } from "./documentTransitions";
 
 export function graphReducer(state: GraphAppState, action: GraphAction): GraphAppState {
+  if (
+    state.ui.workspaceMutationPending &&
+    ![
+      "workspaceFileMutationState",
+      "workspaceDocumentRebased",
+      "workspaceDocumentRestored",
+      "graphClosed",
+      "statusChanged",
+    ].includes(action.type)
+  )
+    return state;
   const next = reduceGraphState(state, action);
   if (next.chartType === "sankey" && next.dag && (next.dag !== state.dag || next.chartType !== state.chartType)) {
     const error = getSankeyError(next.dag.nodes, next.dag.edges);
@@ -22,6 +34,39 @@ export function graphReducer(state: GraphAppState, action: GraphAction): GraphAp
 
 function reduceGraphState(state: GraphAppState, action: GraphAction): GraphAppState {
   switch (action.type) {
+    case "workspaceFileMutationState":
+      return { ...state, ui: { ...state.ui, workspaceMutationPending: action.pending } };
+    case "workspaceDocumentRebased":
+      return rebaseWorkspaceDocument(
+        state,
+        action.path,
+        action.newPath,
+        action.revision,
+        action.fileName,
+        action.caseInsensitive,
+      );
+    case "workspaceDocumentRestored": {
+      const previous = action.snapshot;
+      return {
+        ...state,
+        dag: previous.dag,
+        document: { ...previous.document, generation: state.document.generation + 1 },
+        documentStyles: previous.documentStyles,
+        layoutSession: previous.layoutSession,
+        timelineSettings: previous.timelineSettings,
+        chartType: previous.chartType,
+        layout: previous.layout,
+        source: {
+          ...previous.source,
+          localFile: previous.source.localFile
+            ? { ...previous.source.localFile, revision: action.revision }
+            : undefined,
+        },
+        editHistory: previous.editHistory,
+        selection: previous.selection,
+        history: previous.history,
+      };
+    }
     case "styleReferenceBound": {
       if (action.persistedDag)
         return bindPersistedDocument(state, "style", { ...action, persistedDag: action.persistedDag });

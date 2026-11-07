@@ -39,7 +39,12 @@ export default function StudioView({
   };
 
   return (
-    <div className="app-shell" onDragOver={preview.handleAppDragOver} onDrop={preview.handleAppDrop}>
+    <div
+      className="app-shell"
+      {...(state.ui.workspaceMutationPending ? { inert: "" } : {})}
+      onDragOver={preview.handleAppDragOver}
+      onDrop={preview.handleAppDrop}
+    >
       <input
         hidden
         type="file"
@@ -82,12 +87,7 @@ export default function StudioView({
           onGroupEnter={viewport.enterGroup}
           explorer={
             files.workspace && files.explorerOpen ? (
-              <WorkspaceExplorer
-                key={files.workspace.locationId}
-                files={files}
-                dirty={state.source.dirty}
-                onOpenAsset={(path) => void preview.handleOpenRelativeLink(path, "")}
-              />
+              <WorkspaceExplorer key={files.workspace.locationId} files={files} dirty={state.source.dirty} />
             ) : null
           }
           emptyContent={

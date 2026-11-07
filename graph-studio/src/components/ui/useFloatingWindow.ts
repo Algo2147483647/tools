@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 
-const STORAGE_KEY = "graph-studio.console-window.v1";
 interface Bounds {
   x: number;
   y: number;
@@ -19,10 +18,10 @@ function fit(bounds: Bounds): Bounds {
   };
 }
 
-function initialBounds(): Bounds {
+function initialBounds(storageKey: string): Bounds {
   if (typeof window === "undefined") return { x: 8, y: 8, width: 680, height: 540 };
   try {
-    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "null");
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) || "null");
     if (
       saved &&
       [saved.x, saved.y, saved.width, saved.height].every(
@@ -38,17 +37,17 @@ function initialBounds(): Bounds {
   return fit({ x: (window.innerWidth - 680) / 2, y: (window.innerHeight - 540) / 2, width: 680, height: 540 });
 }
 
-export function useFloatingConsole() {
+export function useFloatingWindow(storageKey: string) {
   const ref = useRef<HTMLElement>(null);
-  const [bounds, setBounds] = useState(initialBounds);
+  const [bounds, setBounds] = useState(() => initialBounds(storageKey));
   const drag = useRef<{ id: number; dx: number; dy: number }>();
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(bounds));
+      window.localStorage.setItem(storageKey, JSON.stringify(bounds));
     } catch {
       /* Keep the window usable when persistence is blocked. */
     }
-  }, [bounds]);
+  }, [bounds, storageKey]);
   useEffect(() => {
     const panel = ref.current;
     if (!panel) return;

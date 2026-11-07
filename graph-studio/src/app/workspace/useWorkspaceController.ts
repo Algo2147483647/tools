@@ -1,3 +1,4 @@
+import type { FileMutationRequest, FileMutationPlan, FileMutationResult } from "../../workspace/fileContracts";
 import {
   chooseLocalPath,
   openLocalWorkspace,
@@ -55,6 +56,15 @@ export function useWorkspaceController({
   const folderInputRef = useRef<HTMLInputElement>(null);
   const pendingFileRecent = useRef<RecentLocation>();
   const pendingFolderRecent = useRef<RecentLocation>();
+  const mutationBusy = useRef(false);
+  const ownTransactions = useRef(new Set<string>());
+  const mutationUndo = useRef<{
+    id: string;
+    state: GraphAppState;
+    revision: number;
+    savedRevision: number;
+    generation: number;
+  }>();
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -278,6 +288,94 @@ export function useWorkspaceController({
     });
     return created;
   }
+  async function planFileOperation(input: FileMutationRequest) {
+    if (!workspace?.localId) throw new Error("Open a local workspace to modify files.");
+    if (input.kind === "delete" && workspace.activePath === input.path && stateRef.current.source.dirty)
+      throw new Error("Save the open graph before deleting it. Unsaved edits have been kept.");
+    return localJson<FileMutationPlan>(`/workspaces/${workspace.localId}/file-plan`, "POST", input);
+  }
+  async function runFileMutation(operation: () => Promise<FileMutationResult>, undo = false) {
+    if (!workspace?.localId || operations.isBusy() || mutationBusy.current)
+      throw new Error("Another workspace operation is running.");
+    const folder = workspace;
+    const before = stateRef.current;
+    if (
+      undo &&
+      mutationUndo.current &&
+      (before.document.generation !== mutationUndo.current.generation ||
+        (before.dag &&
+          (before.editHistory.revision !== mutationUndo.current.revision ||
+            before.editHistory.savedRevision !== mutationUndo.current.savedRevision)))
+    )
+      throw new Error("The open graph changed after this operation. Undo would overwrite newer edits.");
+    const outcome = await operations.run(async (context) => {
+      mutationBusy.current = true;
+      dispatch({ type: "workspaceFileMutationState", pending: true });
+      try {
+        const result = await operation();
+        ownTransactions.current.add(result.transactionId);
+        const found = await fetchWorkspace(folder.localId!);
+        if (!context.isCurrent()) return result;
+        const active = folder.activePath === result.path ? result.newPath : folder.activePath;
+        setWorkspace({ ...found, locationId: folder.locationId, activePath: active || null });
+        const current = stateRef.current;
+        if (undo && mutationUndo.current) {
+          const prior = mutationUndo.current.state;
+          const entry = found.files.get(prior.source.fileName);
+          if (entry) {
+            const prepared = await prepareWorkspaceGraph(found, prior.source.fileName);
+            dispatch({
+              type: "workspaceDocumentRestored",
+              snapshot: prior,
+              revision: prepared.entry.local?.revision || "",
+            });
+            setWorkspace({ ...found, locationId: folder.locationId, activePath: prior.source.fileName });
+          }
+          mutationUndo.current = undefined;
+        } else if (current.dag && current.source.localFile?.locationId === folder.localId) {
+          if (!active) dispatch({ type: "graphClosed", status: "File deleted." });
+          else {
+            const prepared = await prepareWorkspaceGraph(found, active);
+            dispatch({
+              type: "workspaceDocumentRebased",
+              caseInsensitive: result.caseInsensitive,
+              path: result.path,
+              newPath: result.newPath,
+              revision: prepared.entry.local?.revision || "",
+              fileName: active,
+            });
+          }
+          mutationUndo.current = {
+            id: result.undoId,
+            state: current,
+            revision: current.editHistory.revision,
+            savedRevision: current.editHistory.savedRevision,
+            generation: current.document.generation + 1,
+          };
+        }
+        setNotice("");
+        return result;
+      } finally {
+        mutationBusy.current = false;
+        dispatch({ type: "workspaceFileMutationState", pending: false });
+      }
+    }, true);
+    if (!outcome) throw new Error("Another workspace operation is running.");
+    return outcome;
+  }
+  function commitFileOperation(plan: FileMutationPlan) {
+    if (plan.kind === "delete" && workspace?.activePath === plan.path && stateRef.current.source.dirty)
+      return Promise.reject(new Error("Save the open graph before deleting it."));
+    return runFileMutation(() =>
+      localJson<FileMutationResult>(`/workspaces/${workspace!.localId}/file-commit`, "POST", { planId: plan.id }),
+    );
+  }
+  function undoFileOperation(id: string) {
+    return runFileMutation(
+      () => localJson<FileMutationResult>(`/workspaces/${workspace!.localId}/file-undo`, "POST", { transactionId: id }),
+      true,
+    );
+  }
   function refreshWorkspace() {
     if (!workspace?.localId) return;
     const folder = workspace;
@@ -295,6 +393,7 @@ export function useWorkspaceController({
     let timer: ReturnType<typeof setTimeout>;
     const unsubscribe = subscribeLocalChanges((event) => {
       if (event.locationId && event.locationId !== id) return;
+      if (mutationBusy.current || (event.transactionId && ownTransactions.current.has(event.transactionId))) return;
       clearTimeout(timer);
       timer = setTimeout(() => {
         void fetchWorkspace(id)
@@ -422,6 +521,9 @@ export function useWorkspaceController({
     openWorkspaceGraph,
     createGraph,
     refreshWorkspace,
+    planFileOperation,
+    commitFileOperation,
+    undoFileOperation,
     closeWorkspace,
     prepareNewDocument,
     exportWorkspaceManifest,

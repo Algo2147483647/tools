@@ -104,7 +104,7 @@ export async function getLocalRecents() {
   return localJson<RecentLocation[]>("/recents");
 }
 export function subscribeLocalChanges(
-  listener: (event: { locationId?: string; path?: string }) => void,
+  listener: (event: { locationId?: string; path?: string; transactionId?: string }) => void,
   locationId?: string,
 ) {
   let closed = false;

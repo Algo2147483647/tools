@@ -198,6 +198,13 @@ export function createApplication(
           nextOffset: offset + 500 < files.length ? offset + 500 : null,
         });
       }
+      if (operation === "reference-index" && method === "GET") return json(response, await service.fileIndex(id));
+      if (operation === "file-plan" && method === "POST")
+        return json(response, await service.planFileOperation(id, await body(request)));
+      if (operation === "file-commit" && method === "POST")
+        return json(response, await service.mutateFile(id, (await body(request)).planId));
+      if (operation === "file-undo" && method === "POST")
+        return json(response, await service.mutateFile(id, (await body(request)).transactionId, true));
       if (operation === "graphs" && method === "GET") {
         const snapshot = await service.snapshot(id);
         return json(response, { graphs: snapshot.graphs, notices: snapshot.notices });

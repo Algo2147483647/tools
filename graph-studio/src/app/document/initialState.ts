@@ -67,6 +67,7 @@ export interface GraphAppState {
     maxScale: number;
   };
   ui: {
+    workspaceMutationPending: boolean;
     status: string;
     settingsOpen: boolean;
     consoleSidebarOpen: boolean;
@@ -110,6 +111,7 @@ export function createInitialGraphState(
       maxScale: Number.POSITIVE_INFINITY,
     },
     ui: {
+      workspaceMutationPending: false,
       status: "Open a graph file or a workspace to get started.",
       settingsOpen: false,
       consoleSidebarOpen: savedPreferences.consoleSidebarOpen,

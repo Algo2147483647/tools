@@ -1,3 +1,5 @@
+import { WorkspaceFileOperations } from "./workspaceFiles";
+import type { FileMutationRequest } from "../src/workspace/fileContracts";
 import { EventEmitter } from "node:events";
 import { randomUUID } from "node:crypto";
 import { mkdir, readdir, realpath, stat, readFile, unlink, rmdir, open } from "node:fs/promises";
@@ -43,6 +45,7 @@ export const defaultStateDirectory = () =>
 
 export class LocalService {
   events = new EventEmitter();
+  readonly fileOperations: WorkspaceFileOperations;
   private records: LocationRecord[] = [];
   private preferences: GeneralPreferences = { fileOpenMode: "preview" };
   private queue = serialQueue();
@@ -55,6 +58,7 @@ export class LocalService {
     public examplesDirectory: string,
     private external = openExternal,
   ) {
+    this.fileOperations = new WorkspaceFileOperations(this, stateDirectory);
     this.lockPath = join(stateDirectory, "service.lock");
   }
   async initialize() {
@@ -85,6 +89,12 @@ export class LocalService {
         await this.close();
         throw error;
       }
+    }
+    try {
+      await this.fileOperations.recover();
+    } catch (error) {
+      await this.close();
+      throw error;
     }
     // Finish interrupted linked-document commits before accepting requests.
     try {
@@ -129,6 +139,7 @@ export class LocalService {
     });
   }
   private async requireNoPendingTransaction() {
+    await this.fileOperations.requireNoPending();
     if (
       await stat(join(this.stateDirectory, "transaction.json"))
         .then(() => true)
@@ -363,10 +374,10 @@ export class LocalService {
     });
   }
   async openFile(id: string, path: string) {
-    if (!/\.(?:md|mdown|markdown|txt|json|png|jpe?g|gif|pdf|svg)$/i.test(path))
+    if (!/\.(?:md|mdown|markdown|txt|json|png|jpe?g|gif|pdf|svg|webp|css|html?)$/i.test(path))
       throw new ServiceError("UNSUPPORTED_EXTERNAL_FILE", "This file type cannot be opened externally.");
     const target = await this.filePath(id, path);
-    if (!/\.(?:md|mdown|markdown|txt|json|png|jpe?g|gif|pdf|svg)$/i.test(target))
+    if (!/\.(?:md|mdown|markdown|txt|json|png|jpe?g|gif|pdf|svg|webp|css|html?)$/i.test(target))
       throw new ServiceError("UNSUPPORTED_EXTERNAL_FILE", "The resolved target is not a supported document.");
     if (!(await stat(target)).isFile()) throw new ServiceError("NOT_FILE", "Select a file.");
     await this.external(target);
@@ -449,6 +460,28 @@ export class LocalService {
       await this.applyJournal(journal);
       this.events.emit("change", { locationId: id, path });
       return { path, reference, persistedDag, revision: revision(graphContent) };
+    });
+  }
+  fileIndex(id: string) {
+    return this.fileOperations.index(id);
+  }
+  planFileOperation(id: string, input: FileMutationRequest) {
+    return this.queue(() => this.fileOperations.plan(id, input));
+  }
+  mutateFile(id: string, planId: string, undo = false) {
+    return this.queue(async () => {
+      await this.requireNoPendingTransaction();
+      this.stopWatching(id);
+      try {
+        const result = await (undo ? this.fileOperations.undo(id, planId) : this.fileOperations.commit(id, planId));
+        const record = this.record(id);
+        if (record.lastGraph === result.path) record.lastGraph = result.newPath;
+        await this.persist();
+        this.events.emit("change", { locationId: id, transactionId: result.transactionId });
+        return result;
+      } finally {
+        this.startWatching(id);
+      }
     });
   }
   private startWatching(id: string) {

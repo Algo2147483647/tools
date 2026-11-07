@@ -30,6 +30,13 @@ export interface WorkspaceControls {
   ): Promise<void>;
   createGraph(name: string): Promise<boolean>;
   refreshWorkspace(): void;
+  planFileOperation(
+    input: import("../../workspace/fileContracts").FileMutationRequest,
+  ): Promise<import("../../workspace/fileContracts").FileMutationPlan>;
+  commitFileOperation(
+    plan: import("../../workspace/fileContracts").FileMutationPlan,
+  ): Promise<import("../../workspace/fileContracts").FileMutationResult>;
+  undoFileOperation(id: string): Promise<import("../../workspace/fileContracts").FileMutationResult>;
   closeWorkspace(): void;
   prepareNewDocument(): boolean;
   exportWorkspaceManifest(): void;
