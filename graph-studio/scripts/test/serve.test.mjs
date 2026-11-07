@@ -9,6 +9,9 @@ import { parseOptions } from "../launch.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 test("launcher modes remain exclusive", () => {
+  assert.deepEqual(parseOptions([]), { preview: true });
+  assert.deepEqual(parseOptions(["--no-browser"]), { noBrowser: true, preview: true });
+  assert.deepEqual(parseOptions(["--build-only"]), { buildOnly: true });
   assert.deepEqual(parseOptions(["--dev", "--no-browser"]), { dev: true, noBrowser: true });
   assert.throws(() => parseOptions(["--dev", "--preview"]), /Choose only one/);
 });
@@ -19,10 +22,12 @@ for (const preview of [false, true])
     process.env.GRAPH_STUDIO_STATE_DIR = state;
     let runtime;
     try {
-      runtime = await serve(root, { preview, noBrowser: true });
+      runtime = await serve(root, { ...(preview ? {} : { dev: true }), noBrowser: true });
       const page = await fetch(runtime.url);
       assert.equal(page.status, 200);
-      assert.match(await page.text(), /<div id="root">/);
+      const html = await page.text();
+      assert.match(html, /<div id="root">/);
+      assert.equal(html.includes("/@vite/client"), !preview);
       const session = await fetch(runtime.url + "/api/v1/session");
       assert.equal(session.status, 200);
       assert.ok((await session.json()).token);

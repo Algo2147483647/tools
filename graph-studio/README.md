@@ -14,7 +14,7 @@ It is built for fast graph inspection and editing in the browser:
 
 Right-click a node or the canvas once to open the floating console. There is no context menu. Drag the console header to move it, resize from its bottom-right corner, and press Esc while focused inside it to close. The Console accepts natural-language requests; only AI can call native JSON tools. The **Protocols** tab shows the live tool catalog, argument schemas, capabilities, context, execution results and provider transport. The corner star expands in place into icon-only Workspace files, Console and Settings controls. Navigation and zoom belong to the Workbench tab.
 
-If Graph Studio returns to the welcome screen after being away, the app has no inactivity logout timer. The default launcher runs Vite in development mode; its client reloads the page when a lost server connection becomes available again. Browser tab discard can also reload a background page. The active document, unsaved edits and workspace view currently live in memory, and startup always initializes the welcome screen; recent locations and preferences do not restore that editing session. Use `launch.cmd -Preview` for normal use to avoid development HMR reconnect reloads. This does not provide recovery from browser discard or manual refresh; that requires a separate document/session recovery mechanism.
+Normal startup builds and serves the production frontend without development hot reload. Use `-Dev` / `--dev` explicitly for development: Vite reloads the page after an interrupted connection recovers or when source changes require it. There is no inactivity logout timer. Active documents, unsaved edits and workspace views currently live in memory; a manual reload or browser tab discard still loses that editing session and returns to the welcome screen. Recent locations and preferences are not session recovery.
 
 - undo and redo graph mutations without losing navigation history
 - save the updated graph back to JSON or export the current view as SVG
@@ -79,7 +79,7 @@ bash launch.command --preview
 bash launch.command --help
 ```
 
-Development mode is the default (`-Dev` / `--dev`). Select only one of development, install-only, build-only, or preview; `-NoBrowser` / `--no-browser` can be combined with a server mode.
+Production mode is the default; use `-Dev` / `--dev` explicitly for development. Select only one of development, install-only, build-only, or preview; `-NoBrowser` / `--no-browser` can be combined with a server mode.
 
 From the repository root, `.\launch.cmd graph-studio` uses the same launcher (and accepts the same options). The development server ignores `dist` so a concurrent production build does not interrupt file watching on Windows.
 
@@ -90,7 +90,7 @@ npm ci
 npm start
 ```
 
-`npm start` uses the same verified startup flow. After installing dependencies, `npm run dev` starts Vite directly for development. Node.js 22.12+ is required for all workflows.
+`npm start` uses the same verified startup flow. After installing dependencies, `npm run dev` starts the same combined service with Vite middleware for development. Node.js 22.12+ is required for all workflows.
 
 Useful commands:
 

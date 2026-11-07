@@ -27,6 +27,7 @@ export function parseOptions(args) {
   if ([options.dev, options.preview, options.installOnly, options.buildOnly].filter(Boolean).length > 1) {
     throw new Error("Choose only one mode: dev, preview, install-only or build-only.");
   }
+  if (!options.dev && !options.installOnly && !options.buildOnly && !options.help) options.preview = true;
   return options;
 }
 
@@ -161,10 +162,10 @@ export async function main(args = process.argv.slice(2)) {
   if (options.help) {
     console.log(
       "Graph Studio: launch.cmd [PowerShell options] / bash launch.command [options]\n" +
-        "  --dev           Frontend + backend development server (default)\n" +
+        "  --dev           Frontend + backend development server\n" +
         "  --install-only  Prepare dependencies only\n" +
         "  --build-only    Type-check and build only\n" +
-        "  --preview       Build frontend + backend and serve production output\n" +
+        "  --preview       Build frontend + backend and serve production output (default)\n" +
         "  --no-browser    Do not open the browser\n" +
         "Windows options: -Dev, -InstallOnly, -BuildOnly, -Preview, -NoBrowser, -Help.",
     );

@@ -37,9 +37,9 @@ export async function serve(root, options = {}) {
     let frontend;
     app = createApplication(service, {
       staticDirectory: join(root, "dist"),
-      ...(!options.preview ? { frontend: (req, res, next) => frontend(req, res, next) } : {}),
+      ...(options.dev ? { frontend: (req, res, next) => frontend(req, res, next) } : {}),
     });
-    if (!options.preview) {
+    if (options.dev) {
       vite = await createViteServer({
         root,
         server: { middlewareMode: true, hmr: { server: app.server } },

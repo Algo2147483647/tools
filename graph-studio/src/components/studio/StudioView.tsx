@@ -87,7 +87,12 @@ export default function StudioView({
           onGroupEnter={viewport.enterGroup}
           explorer={
             files.workspace && files.explorerOpen ? (
-              <WorkspaceExplorer key={files.workspace.locationId} files={files} dirty={state.source.dirty} />
+              <WorkspaceExplorer
+                key={files.workspace.locationId}
+                files={files}
+                dirty={state.source.dirty}
+                activeNodeCount={state.dag ? Object.keys(state.dag.nodes).length : undefined}
+              />
             ) : null
           }
           emptyContent={

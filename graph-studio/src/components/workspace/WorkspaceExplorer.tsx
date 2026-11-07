@@ -27,10 +27,12 @@ function fileType(path: string) {
 export default function WorkspaceExplorer({
   files,
   dirty,
+  activeNodeCount,
   children,
 }: {
   files: WorkspaceControls;
   dirty: boolean;
+  activeNodeCount?: number;
   children?: ReactNode;
 }) {
   const workspace = files.workspace!;
@@ -75,8 +77,11 @@ export default function WorkspaceExplorer({
   const assets = [...workspace.files.keys()].filter((path) => !graphPaths.has(path)).sort();
   const rows = (
     tab === "graphs"
-      ? workspace.graphs.map((g) => ({ path: g.path, title: g.title, error: g.error }))
-      : assets.map((path) => ({ path, title: path.split("/").pop()!, error: undefined }))
+      ? workspace.graphs.map((g) => ({
+          ...g,
+          nodeCount: g.path === workspace.activePath ? (activeNodeCount ?? g.nodeCount) : g.nodeCount,
+        }))
+      : assets.map((path) => ({ path, title: path.split("/").pop()!, error: undefined, nodeCount: undefined }))
   )
     .filter((file) => (file.title + " " + file.path).toLowerCase().includes(queries[tab].toLowerCase()))
     .filter((file) => tab === "graphs" || type === "all" || fileType(file.path) === type);
@@ -234,9 +239,23 @@ export default function WorkspaceExplorer({
                 ) : null}
                 <small
                   className="wf-count"
-                  title={index?.complete ? `${counts.get(file.path) || 0} references` : "Reference scan incomplete"}
+                  title={
+                    tab === "graphs"
+                      ? file.error
+                        ? "Node count unavailable"
+                        : `${file.nodeCount} nodes`
+                      : index?.complete
+                        ? `${counts.get(file.path) || 0} references`
+                        : "Reference scan incomplete"
+                  }
                 >
-                  {index?.complete ? counts.get(file.path) || 0 : "—"}
+                  {tab === "graphs"
+                    ? file.error
+                      ? "—"
+                      : file.nodeCount
+                    : index?.complete
+                      ? counts.get(file.path) || 0
+                      : "—"}
                 </small>
               </button>
             </Fragment>
