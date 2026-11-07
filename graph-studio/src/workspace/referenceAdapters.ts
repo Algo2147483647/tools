@@ -54,13 +54,13 @@ function htmlTokens(text: string): Token[] {
     if (node.tagName === "base") throw new Error("HTML base URLs require manual review.");
     if (
       (node.attrs || []).some(
-        (attr: any) => attr.name === "srcset" || (attr.name === "style" && /url\(/i.test(attr.value)),
+        (attr: any) => attr.name === "srcset" || (attr.name === "style" && hasCssFileReferences(attr.value)),
       )
     )
       throw new Error("HTML srcset and inline CSS resources require manual review before file operations.");
     if (
       node.tagName === "style" &&
-      (node.childNodes || []).some((child: any) => /url\(|@import/i.test(child.value || ""))
+      hasCssFileReferences((node.childNodes || []).map((child: any) => child.value || "").join(""))
     )
       throw new Error("Embedded CSS resources require manual review before file operations.");
     for (const attr of node.attrs || []) {
@@ -88,6 +88,11 @@ function htmlTokens(text: string): Token[] {
   }
   walk(tree);
   return tokens;
+}
+function hasCssFileReferences(text: string): boolean {
+  // SVG markers, gradients and clip paths refer to IDs in the same document.
+  // They must not block workspace file operations or be treated as assets.
+  return cssTokens(text).some((token) => !token.raw.trim().startsWith("#"));
 }
 function cssTokens(text: string): Token[] {
   const root = postcss.parse(text),

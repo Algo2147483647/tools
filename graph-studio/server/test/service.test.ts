@@ -230,6 +230,36 @@ test("service lock prevents competing state writers", async () =>
     assert.ok(await readFile(join(service.stateDirectory, "service.lock")));
   }));
 import { analyzeReferences } from "../../src/workspace/referenceAdapters";
+
+test("SVG internal CSS references do not block scans or alter internal IDs", () => {
+  for (const style of [
+    "<path style=\"marker-start:url(#Arrow);fill:url('  #Gradient');shape-inside:url(#Shape)\"/>",
+    '<style>.a { fill: url("#Gradient"); } /* url(external.svg) */</style>',
+    "<style><![CDATA[.arrow { marker-end:url(#Arrow); }]]></style>",
+  ]) {
+    const source = `<svg xmlns="http://www.w3.org/2000/svg">${style}<image href="picture.svg"/></svg>`;
+    const scan = analyzeReferences("assets/drawing.svg", source);
+    assert.deepEqual(
+      scan.links.map((link) => link.target),
+      ["assets/picture.svg"],
+    );
+    assert.equal(
+      scan.rewrite("assets/picture.svg", "assets/renamed.svg"),
+      source.replace('href="picture.svg"', 'href="renamed.svg"'),
+    );
+    assert.ok(scan.rewrite("assets/picture.svg").includes(style));
+  }
+});
+
+test("mixed internal and external CSS resources remain explicitly unsupported", () => {
+  for (const content of [
+    '<svg><path style="fill:url(#Gradient);filter:url(filters.svg#Blur)"/></svg>',
+    "<svg><style>.a{fill:url(#Gradient);mask:url(mask.svg)}</style></svg>",
+    '<svg><style>@import "theme.css";</style></svg>',
+    '<html><img srcset="a.png 1x,b.png 2x"></html>',
+  ])
+    assert.throws(() => analyzeReferences("assets/drawing.svg", content), /manual review/);
+});
 import { rebaseWorkspaceDocument } from "../../src/app/document/workspaceMutation";
 import { createInitialGraphState } from "../../src/app/document/initialState";
 import { normalizeDagInput } from "../../src/graph/normalize";
