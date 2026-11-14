@@ -12,7 +12,7 @@ function validate(value, schema, path = 'arguments') {
       else validate(value[key], schema.properties[key], path + '.' + key);
     }
   } else if (schema.type === 'string') {
-    if (typeof value !== 'string' || !value.trim() || value.length > (schema.maxLength || 65536)) throw error('INVALID_ARGUMENT', path + ' must be a nonempty bounded string.');
+    if (typeof value !== 'string' || (schema.minLength !== 0 && !value.trim()) || value.length > (schema.maxLength || 65536)) throw error('INVALID_ARGUMENT', path + ' must be a nonempty bounded string.');
   } else if (schema.type === 'number' || schema.type === 'integer') {
     if (!Number.isFinite(value) || (schema.type === 'integer' && !Number.isInteger(value)) || value < (schema.minimum ?? -Infinity) || value > (schema.maximum ?? Infinity)) throw error('INVALID_ARGUMENT', 'Invalid number: ' + path);
   } else if (schema.type === 'boolean') { if (typeof value !== 'boolean') throw error('INVALID_ARGUMENT', 'Invalid boolean: ' + path); }
@@ -35,9 +35,9 @@ function exactDefinition(computeFn) {
   };
 }
 class ToolRegistry {
-  constructor({ computeFn = compute, artifacts = new ArtifactStore(), definitions, datasets = new DatasetStore(), allowedDatasetIds = [] } = {}) {
+  constructor({ computeFn = compute, artifacts = new ArtifactStore(), definitions, datasets = new DatasetStore(), allowedDatasetIds = [], extraDefinitions = [] } = {}) {
     this.definitions = new Map(); this.artifacts = artifacts; this.calls = new Map();
-    for (const definition of definitions || [exactDefinition(computeFn), ...mathDefinitions(datasets, allowedDatasetIds)]) {
+    for (const definition of definitions || [exactDefinition(computeFn), ...mathDefinitions(datasets, allowedDatasetIds), ...extraDefinitions]) {
       if (this.definitions.has(definition.name)) throw error('INVALID_SCHEMA', 'Duplicate tool name.');
       this.definitions.set(definition.name, definition);
     }
@@ -72,7 +72,7 @@ class ToolRegistry {
       if (Buffer.byteLength(JSON.stringify(output.result)) > limit) {
         const artifact = this.artifacts.put(request.runId, output.result); output.artifacts.push(artifact); output.result = { kind: 'artifact', artifactId: artifact.id }; output.warnings.push('Full result stored as a local artifact.');
       }
-      output.status = 'ok';
+      output.status = value.error ? 'error' : 'ok'; if(value.error)output.error=value.error;
     } catch (cause) {
       if (signal.aborted) { output.status = 'cancelled'; output.error = { code: 'CANCELLED', message: 'Tool cancelled.' }; }
       else output.error = { code: timedOut ? 'TIMED_OUT' : cause.code || 'TOOL_ERROR', message: timedOut ? 'Tool exceeded its deadline.' : redact(cause.message) };

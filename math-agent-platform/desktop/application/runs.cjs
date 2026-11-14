@@ -1,3 +1,5 @@
+const {EditorDocument,editorDefinition}=require('../tools/editor-document.cjs');
+const {CodeWorkspace,workspaceDefinition}=require('../tools/code-workspace.cjs');
 const { randomUUID } = require('node:crypto');
 const { hash } = require('../core/engine.cjs');
 const { compute } = require('../core/worker-client.cjs');
@@ -18,8 +20,11 @@ const ALLOWED = {
 const { runAgent } = require('../ai/agent.cjs');
 const clone = value => JSON.parse(JSON.stringify(value));
 class RunService {
-  constructor({ request = fetch, notify = () => {}, notifyDelta = () => {}, computeFn = compute, aiTimeoutMs = 120000 } = {}) {
+  constructor({ request = fetch, notify = () => {}, notifyDelta = () => {}, computeFn = compute, aiTimeoutMs = 120000, notifyEdit = () => {} } = {}) {
     this.request = request; this.notify = notify; this.notifyDelta = notifyDelta; this.artifacts = new ArtifactStore(); this.datasets = new DatasetStore(); this.compute = computeFn;
+    this.document=new EditorDocument(notifyEdit);this.workspace=new CodeWorkspace();
+    const edit=editorDefinition(this.document),apply=edit.execute;edit.execute=async(args,ctx)=>{if(args.file){const fs=require('node:fs/promises');const file=await this.workspace.file(args.file,true);if((await fs.stat(file)).size>262144)throw Error('Editor file exceeds 256 KB.');args={...args,text:await fs.readFile(file,'utf8')};}return apply(args,ctx);};
+    this.extraDefinitions=[workspaceDefinition(this.workspace),edit];
     this.aiTimeoutMs = aiTimeoutMs; this.runs = new Map(); this.settings = null; this.active = null;
   }
   configure(raw) {
@@ -82,6 +87,7 @@ class RunService {
       settings: this.publicSettings(), status: 'queued', createdAt: new Date().toISOString(),
       finishedAt: null, events: [], blocks: [], revision: 0, textBytes: 0, contentEvents: 0, result: null, error: null
     };
+    if(raw.document!==undefined)this.document.update(raw.document);
     this.runs.set(run.id, run);
     const control = { id: run.id, controller: new AbortController(), settings: this.settings && { ...this.settings } };
     this.active = control; this.publish(run);
@@ -102,7 +108,7 @@ class RunService {
       const timer = setTimeout(() => { timedOut = true; timeout.abort(); }, this.aiTimeoutMs);
       try {
         run.result = await runAgent({ settings: control.settings, input: run.input,
-          signal: timeout.signal, request: this.request, compute: this.compute, runId: run.id, artifacts: this.artifacts, datasets: this.datasets, datasetIds: run.datasetIds,
+          signal: timeout.signal, request: this.request, compute: this.compute, runId: run.id, artifacts: this.artifacts, datasets: this.datasets, datasetIds: run.datasetIds, extraDefinitions:this.extraDefinitions,
           onContent: event => this.content(run, event),
           emit: (stage, message) => { this.guard(signal); this.event(run, stage, message); } });
         this.guard(signal);
@@ -141,7 +147,7 @@ class RunService {
     })();
     return control.done;
   }
-  clear() { if (this.active) throw Error('Stop the active operation before clearing history.'); this.runs.clear(); this.artifacts.clear(); this.datasets.clear(); }
-  dispose() { if (this.active) { const id = this.active.id; this.cancel(id).catch(() => {}); } }
+  clear() { if (this.active) throw Error('Stop the active operation before clearing history.'); this.runs.clear(); this.artifacts.clear(); this.datasets.clear(); this.workspace.clear().catch(()=>{}); }
+  dispose() { if (this.active) { const id = this.active.id; this.cancel(id).finally(()=>this.workspace.clear()).catch(() => {}); } else this.workspace.clear().catch(()=>{}); }
 }
 module.exports = { RunService, ALLOWED };

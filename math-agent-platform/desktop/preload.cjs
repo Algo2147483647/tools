@@ -1,7 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const commands = new Set(['bootstrap', 'importDataset', 'get', 'artifact', 'start', 'cancel', 'configure', 'models', 'test', 'clear']);
+const commands = new Set(['editorSync','editorAck','bootstrap', 'importDataset', 'get', 'artifact', 'start', 'cancel', 'configure', 'models', 'test', 'clear']);
 contextBridge.exposeInMainWorld('workspace', {
   platform: process.platform,
+  onEdit: callback => {const handler=(_event,edit)=>callback(edit);ipcRenderer.on('workspace:edit',handler);return ()=>ipcRenderer.removeListener('workspace:edit',handler);},
   command: (name, payload) => {
     if (!commands.has(name)) return Promise.reject(Error('Unknown command.'));
     return ipcRenderer.invoke('workspace:command', name, payload);

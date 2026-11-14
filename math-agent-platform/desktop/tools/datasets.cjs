@@ -6,12 +6,12 @@ function parseDelimited(text, delimiter) {
     if(quoted){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else{quoted=false;closed=true;}}else field+=c;}
     else if(c==='"'&&!field&&!closed)quoted=true;
     else if(c===delimiter){row.push(field);field='';closed=false;}
-    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(x=>x!==''))rows.push(row);row=[];field='';closed=false;}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.length>1||row.some(x=>x!=='')||closed)rows.push(row);row=[];field='';closed=false;}
     else{if(closed)throw Error('Unexpected text after a quoted CSV field.');field+=c;}
     if(rows.length>50001||row.length>100||field.length>10000)throw Error('Dataset exceeds row, column or cell limits.');
   }
   if(quoted)throw Error('CSV contains an unclosed quoted field.');
-  row.push(field);if(row.some(x=>x!==''))rows.push(row);
+  row.push(field);if(row.length>1||row.some(x=>x!=='')||closed)rows.push(row);
   return rows;
 }
 class DatasetStore {
