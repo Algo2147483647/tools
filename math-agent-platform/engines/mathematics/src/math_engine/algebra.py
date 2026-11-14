@@ -9,6 +9,18 @@ from .common import ToolError,value_result,math_view,checked
 def same_algebraic(a,b):return all(c==0 for c in to_number_field(a-b).coeffs())
 
 
+def polynomial_degree_budget(expr,limit=20):
+    """Reject degree growth before asking a backend to expand the expression."""
+    if not expr.free_symbols:return 0
+    if expr.is_Symbol:return 1
+    if expr.is_Add:degree=max(polynomial_degree_budget(v,limit) for v in expr.args)
+    elif expr.is_Mul:degree=sum(polynomial_degree_budget(v,limit) for v in expr.args)
+    elif expr.is_Pow and expr.exp.is_Integer and expr.exp>=0:degree=polynomial_degree_budget(expr.base,limit)*int(expr.exp)
+    else:raise ToolError('INVALID_ARGUMENT','Expected a polynomial expression.')
+    if degree>limit:raise ToolError('RESOURCE_LIMIT',f'Polynomial structural degree exceeds {limit} before expansion.')
+    return degree
+
+
 def algebraic_descriptor(value):
     degree_bound=1
     for power in value.atoms(sp.Pow):

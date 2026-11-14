@@ -10,8 +10,12 @@ from .precision import PrecisionPolicy,check_status
 
 def matrices(args):
     op=args['operation'];mode=args.get('mode','numeric' if op in ('qr','svd','least_squares','sparse_solve') else 'exact')
+    if 'vector' in args and op not in ('solve','least_squares','sparse_solve'):raise ToolError('INVALID_ARGUMENT','This operation does not use a right-hand side.')
+    if ('sparse' in args and op!='sparse_solve') or ('matrix' in args and op=='sparse_solve'):raise ToolError('INVALID_ARGUMENT','Select dense matrix or sparse COO input according to the operation.')
+    if 'rankTolerance' in args and (mode!='numeric' or op not in ('solve','least_squares')):raise ToolError('INVALID_ARGUMENT','rankTolerance applies to numeric solve/least_squares only.')
     checks=[];info=dict(declared='real',conditions=[],exclusions=[],analysisComplete=True)
     if mode=='exact':
+        if any(k in args for k in ('precision','tolerance')):raise ToolError('INVALID_ARGUMENT','Exact matrices do not use floating-point tolerance settings.')
         if op not in ('determinant','rank','inverse','nullspace','solve','quadratic_form'):raise ToolError('UNSUPPORTED','Operation requires numeric mode.')
         def scalar(v):
             if isinstance(v,bool) or not isinstance(v,(str,int)):raise ToolError('INVALID_ARGUMENT','Exact matrix entries must be strings or integers, never JSON floats.')
@@ -91,6 +95,8 @@ def matrices(args):
         if op=='solve' and A.shape[0]!=A.shape[1]:raise ToolError('INVALID_ARGUMENT','solve requires a square matrix; use least_squares otherwise.')
         x,residuals,rank,s=linalg.lstsq(A,b,cond=args.get('rankTolerance'));residual=A@x-b
         result.update(values=x.tolist(),rank=int(rank),singularValues=s.tolist(),residualNorm=float(np.linalg.norm(residual)))
+        result['solutionKind']='numerical_minimum_norm' if rank<A.shape[1] else 'numerical_full_rank'
+        if rank<A.shape[1]:notes.append('Numerically rank deficient at the selected threshold; the returned vector is a minimum-norm candidate, not a uniqueness claim.')
         diagnostics['rankTolerance']=args.get('rankTolerance');diagnostics['rankThresholdPolicy']='SciPy default when null'
         if op=='solve':checks=[policy.check('Linear residual',float(np.linalg.norm(residual)),np.linalg.norm(A)*np.linalg.norm(x)+np.linalg.norm(b))]
         else:checks=[policy.check('Least-squares stationarity',float(np.linalg.norm(A.T@residual)),np.linalg.norm(A)*(np.linalg.norm(A)*np.linalg.norm(x)+np.linalg.norm(b)))]

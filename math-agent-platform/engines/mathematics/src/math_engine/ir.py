@@ -79,7 +79,7 @@ class Parser:
             while self.peek() not in (None,'}'):end+=self.take()
             self.take('}')
             if end!=name or not rows[0] or any(len(r)!=len(rows[0]) for r in rows):self.fail('Invalid matrix shape or environment')
-            if len(rows)*len(rows[0])>100:raise ToolError('RESOURCE_LIMIT','Matrix exceeds 100 entries.')
+            if len(rows)*len(rows[0])>100:raise ToolError('RESOURCE_LIMIT','LaTeX matrix exceeds 100 entries.')
             return node('Matrix',rows=rows)
         if token and token.startswith('\\'):
             self.take();name=token[1:]
@@ -219,7 +219,7 @@ def validate_ir(value):
         elif kind=='Matrix':
             keys.add('rows');rows=n.get('rows')
             if not isinstance(rows,list) or not rows or not isinstance(rows[0],list) or not rows[0] or any(not isinstance(r,list) or len(r)!=len(rows[0]) for r in rows):raise ToolError('INVALID_ARGUMENT','Invalid matrix shape.')
-            if len(rows)*len(rows[0])>100:raise ToolError('RESOURCE_LIMIT','Matrix exceeds 100 entries.')
+            if len(rows)*len(rows[0])>144:raise ToolError('RESOURCE_LIMIT','Structured matrix exceeds 144 entries.')
             children=[v for r in rows for v in r]
         else:raise ToolError('UNSUPPORTED','Unsupported MathIR kind: '+str(kind))
         if set(n)!=keys:raise ToolError('INVALID_ARGUMENT','Unexpected or missing MathIR fields.')

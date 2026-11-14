@@ -8,8 +8,11 @@ from .precision import PrecisionPolicy,check_status
 
 
 def roots(args):
-    policy=PrecisionPolicy.from_arguments(args);op=args['operation'];checks=[]
+    op=args['operation'];checks=[]
+    fields={'operation','precision','tolerance'}|({'expressions','variables','initialGuess'} if op=='system_root' else {'expression','variable','interval','samples'})
+    if set(args)-fields:raise ToolError('INVALID_ARGUMENT','Unused root-search arguments.')
     if op=='system_root':
+        policy=PrecisionPolicy.from_arguments(args)
         names=args.get('variables',[]);variables=[symbol(n) for n in names];texts=args.get('expressions',[]);guess=args.get('initialGuess',[])
         if not names or len(set(names))!=len(names) or len(texts)!=len(names) or len(guess)!=len(names):raise ToolError('INVALID_ARGUMENT','Supply equally sized variables, expressions and initialGuess.')
         from .ir import parse,lower
@@ -34,20 +37,29 @@ def roots(args):
     expr=expression(args['expression']);x=symbol(args.get('variable','x'));a,b=interval(args)
     from .ir import parse
     from .domains import analyze
-    original_conditions,_=analyze(parse(args['expression']))
+    original_conditions,original_domain=analyze(parse(args['expression']))
     if expr.free_symbols-{x}:raise ToolError('INVALID_ARGUMENT','Only one search variable is allowed.')
     try:
-        if any(p.exp.is_Integer and abs(p.exp)>20 for p in expr.atoms(sp.Pow)):raise ToolError('RESOURCE_LIMIT','Polynomial exponent budget exceeded.')
+        from .algebra import polynomial_degree_budget
+        polynomial_degree_budget(expr,20)
         polynomial=sp.Poly(expr,x,domain='QQ')
     except (sp.PolynomialError,sp.polys.polyerrors.CoercionFailed):polynomial=None
-    if polynomial is not None and not original_conditions:
+    except ToolError as error:
+        if error.code=='RESOURCE_LIMIT':raise
+        polynomial=None
+    if polynomial is not None and not original_conditions and original_domain['analysisComplete']:
+        policy=PrecisionPolicy.from_arguments(args,certified_available=True)
         if polynomial.is_zero:return value_result(dict(solutionKind='interval',interval=[str(a),str(b)],representation='exact',completeness='complete',warnings=['Every point in the interval is a root.']))
         if polynomial.degree()>20:raise ToolError('RESOURCE_LIMIT','Root isolation degree exceeds 20.')
         bounds=polynomial.intervals(eps=sp.Rational(str(policy.absoluteTolerance)),inf=sp.Rational(str(a)),sup=sp.Rational(str(b)))
+        count=polynomial.count_roots(sp.Rational(str(a)),sp.Rational(str(b)))
+        if count!=len(bounds) or any(polynomial.eval(l)!=0 if l==r else polynomial.count_roots(l,r)!=1 for (l,r),_ in bounds):
+            raise ToolError('VERIFICATION_FAILED','Polynomial root-count verification failed.')
         result=dict(roots=[dict(interval=[str(l),str(r)],multiplicity=m,approximation=str((l+r)/2),certified=True) for (l,r),m in bounds],
                     representation='enclosure',completeness='complete',scope='All real polynomial roots within the supplied closed interval.')
-        return value_result(result,diagnostics=dict(method='exact rational polynomial isolation',coefficientDomain='QQ'),
+        return value_result(result,diagnostics=dict(method='exact rational polynomial isolation',coefficientDomain='QQ',distinctRootCount=int(count),certified=True),
                             verification=checked('passed','Exact polynomial isolation; approximations are interval midpoints.',[dict(name='Isolating intervals',passed=True,status='passed',evidence='exact_root_isolation')]))
+    policy=PrecisionPolicy.from_arguments(args)
     fn=numeric_function(expr,x,args['expression']);grid=np.linspace(a,b,args.get('samples',200));found=[];unresolved=[]
     def scalar(t):
         value=float(fn(t))

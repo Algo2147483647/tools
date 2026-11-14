@@ -6,6 +6,7 @@ import sys
 def main():
     sys.stdout.reconfigure(encoding='utf-8'); sys.stderr.reconfigure(encoding='utf-8')
     for key in ('OPENBLAS_NUM_THREADS','OMP_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS'): os.environ[key] = '1'
+    version=1
     try:
         if '--catalogue' in sys.argv:
             from . import catalogue
@@ -16,10 +17,12 @@ def main():
         from . import execute
         raw = sys.stdin.buffer.read(4*1024*1024+1)
         if len(raw) > 4*1024*1024: raise ValueError('Request exceeds 4 MB.')
-        result = execute(json.loads(raw))
+        request=json.loads(raw)
+        if isinstance(request,dict) and type(request.get('schemaVersion')) is int and request['schemaVersion'] in (1,2):version=request['schemaVersion']
+        result = execute(request)
     except Exception as error:
         from .common import ToolError
-        result = {'schemaVersion': 1, 'ok': False, 'error': {'code': error.code if isinstance(error, ToolError) else 'ENGINE_ERROR', 'message': str(error)[:500]}}
+        result = {'schemaVersion': version, 'ok': False, 'error': {'code': error.code if isinstance(error, ToolError) else 'ENGINE_ERROR', 'message': str(error)[:500]}}
     print(json.dumps(result, ensure_ascii=False, allow_nan=False), flush=True)
 
 

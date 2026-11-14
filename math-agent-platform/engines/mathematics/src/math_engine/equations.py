@@ -15,6 +15,7 @@ def packed(value):
 
 def equations(args):
     op=args['operation'];names=args.get('variables',['x'])
+    if op=='inequalities' and 'equations' in args or op!='inequalities' and 'inequalities' in args:raise ToolError('INVALID_ARGUMENT','Use equations or inequalities according to the selected operation.')
     parameters=args.get('parameters',[])
     if len(set(names+parameters))!=len(names+parameters):raise ToolError('INVALID_ARGUMENT','Variables and parameters must be distinct.')
     variables=[symbol(n) for n in names];params=[symbol(n) for n in parameters]
@@ -119,6 +120,8 @@ def equations(args):
         if params or len(variables)>3:raise ToolError('UNSUPPORTED','Polynomial systems support at most three variables and no parameters.')
         polynomials=[]
         for expr in exprs:
+            from .algebra import polynomial_degree_budget
+            polynomial_degree_budget(expr,4)
             if sp.count_ops(expr)>80 or any(p.exp.is_Integer and abs(p.exp)>4 for p in expr.atoms(sp.Pow)):raise ToolError('RESOURCE_LIMIT','Polynomial-system budget exceeded.')
             p=sp.Poly(expr,*variables,domain='QQ')
             if p.total_degree()>4 or len(p.terms())>50:raise ToolError('RESOURCE_LIMIT','Polynomial-system degree/term budget exceeded.')

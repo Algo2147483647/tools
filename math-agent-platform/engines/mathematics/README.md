@@ -136,3 +136,19 @@ Exact arithmetic adds scientific notation, floor/ceil/truncate, mod, compare and
 round. Computational tools accept MathIR directly; Restricted nodes preserve domain
 conditions across simplification and reuse. See [MathIR and exact algebra](../../docs/MATHIR.md)
 for schemas, examples, supported syntax, budgets and mathematical boundaries.
+
+
+## M2 and M3 bounded interfaces
+
+New catalogue tools: equation_math, matrix_math, calculus_math and convex_model.
+They add parameter-system branches, inequalities, exact matrix solution spaces,
+QR/SVD/least squares and sparse GMRES, multivariable derivatives and explicit-order
+improper/piecewise/iterated integrals, and named convex models with full original
+objectives. numeric_math adds roots/system_root; exact QQ polynomial isolation is
+now a supported certified route. Other numerical certification/high-precision
+requests remain unsupported. convex_optimize reports available KKT checks and can
+rationally verify infeasible/unbounded LP witnesses.
+
+See [M2/M3 interfaces and limits](../../docs/M2-M3.md). The combined regression
+phase is deferred; new tests are in tests/test_m23.py. No claim of full regression
+completion is made by this implementation update.

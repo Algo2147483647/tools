@@ -67,10 +67,12 @@ class M23Tests(unittest.TestCase):
         self.assertIsNone(v['diagnostics']['conditionNumber']);self.assertEqual(v['verification']['status'],'passed')
 
     def test_multiple_roots_and_partial_scan(self):
-        v=self.value('numeric_math',operation='roots',expression='(x-1)^4*(x+2)^2',interval=[-3,3])
+        v=self.value('numeric_math',operation='roots',expression='(x-1)^4*(x+2)^2',interval=[-3,3],precision={'mode':'certified'})
         self.assertEqual(v['result']['completeness'],'complete');self.assertEqual([r['multiplicity'] for r in v['result']['roots']],[2,4])
         v=self.value('numeric_math',operation='roots',expression='cos(x)-1',interval=[-3,3],samples=20)
         self.assertEqual(v['result']['completeness'],'partial')
+        r=self.call('numeric_math',operation='roots',expression='sin(x^x)-sin(x^x)',interval=[-3,3],precision={'mode':'certified'})
+        self.assertEqual(r['error']['code'],'UNSUPPORTED_PRECISION')
 
     def test_derivative_shapes_and_implicit_conditions(self):
         v=self.value('calculus_math',operation='hessian',expression='exp(x*y)+x^2*y',variables=['x','y'],verifyAt=[0.2,0.3])
@@ -95,6 +97,17 @@ class M23Tests(unittest.TestCase):
     def test_numerical_integral_does_not_certify_convergence(self):
         v=self.value('calculus_math',operation='integrate',mode='numeric',expression='exp(-x)',variables=['x'],limits=[dict(variable='x',lower='0',upper='inf')])
         self.assertEqual(v['result']['convergence'],'unknown');self.assertEqual(v['result']['errorBoundKind'],'estimated')
+
+    def test_unevaluated_infinite_integral_is_not_divergence(self):
+        from unittest.mock import patch
+        x=sp.Symbol('x',real=True)
+        with patch('math_engine.calculus.sp.integrate',return_value=sp.Integral(sp.sin(x),(x,0,sp.oo))):
+            v=self.value('calculus_math',operation='integrate',expression='sin(x)',variables=['x'],limits=[dict(variable='x',lower='0',upper='inf')])
+        self.assertEqual(v['result']['convergence'],'unknown');self.assertEqual(v['result']['state'],'unresolved')
+
+    def test_unused_arguments_are_rejected(self):
+        self.assertFalse(self.call('calculus_math',operation='gradient',expression='x^2',expressions=['x'],variables=['x'])['ok'])
+        self.assertFalse(self.call('matrix_math',operation='inverse',matrix=[['1']],vector=['1'])['ok'])
 
     def test_named_model_full_objective(self):
         v=self.value('convex_model',operation='solve',variables=[dict(name='x',shape=[2],lower=0)],objective=dict(expression=dict(kind='add',args=[dict(kind='sum_squares',args=[dict(kind='subtract',args=[dict(kind='variable',name='x'),dict(kind='constant',value=[1,2])])]),dict(kind='constant',value=7)])))

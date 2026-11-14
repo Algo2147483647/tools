@@ -14,6 +14,9 @@ Write Markdown in the full-page editor. Formulas render in place; click one to e
 - symbolic_math / numeric_math: algebra, calculus and bounded numerical algorithms.
 - plot_math / analyze_data: actual PNG charts and statistical tables from attached UTF-8 CSV/TSV.
 - convex_optimize: LP, convex QP, constrained least squares and second-order cones, with solver status and residuals.
+- structure_math / algebra_math / set_math: shared MathIR, restricted LaTeX, exact algebraic numbers, bounded polynomial operations and real sets.
+- equation_math / matrix_math: exact systems and parameter branches, inequalities, exact matrix spaces, QR/SVD/least squares and sparse solves.
+- calculus_math / convex_model: multivariable derivatives, improper/piecewise/iterated integrals and named convex models with original-objective and residual diagnostics.
 - code_workspace: AI-written Python with bundled libraries and session files.
 - editor_document: revision-checked, acknowledged editor replacement, including generated-file writeback.
 - lean_project / lean_check: pinned Lean 4.35.0 compilation, line diagnostics and AI repair/recheck loop. No mathlib or independent axiom/proof audit is claimed.

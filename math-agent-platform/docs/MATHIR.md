@@ -116,7 +116,7 @@ product. These checks use the same symbolic backend, not an independent formal p
 
 Budgets: at most 3 polynomial variables, structural degree 20 and 200 expanded
 terms; algebraic extension budget 16; scalar arithmetic 4096 bits; 512 syntax nodes,
-bounded nesting and at most 100 matrix entries. Processes retain host-enforced
+bounded nesting and at most 144 structured matrix entries (100 for LaTeX input). Processes retain host-enforced
 deadlines. Conservative budget rejection can occur before a cancellation that would
 eventually simplify an expression.
 

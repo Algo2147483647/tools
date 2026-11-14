@@ -24,6 +24,9 @@ def calculus(args):
         return tree,expr
     checks=[];notes=[]
     if op in ('partial','gradient','jacobian','hessian','implicit_derivative'):
+        if ('expression' in args)==('expressions' in args):raise ToolError('INVALID_ARGUMENT','Supply exactly one of expression or expressions.')
+        if any(k in args for k in ('limits','segments','precision','tolerance')) or args.get('mode','symbolic')!='symbolic':raise ToolError('INVALID_ARGUMENT','Derivative operations are symbolic; use verifyAt for a local cross-check.')
+        if 'orders' in args and op!='partial':raise ToolError('INVALID_ARGUMENT','orders applies only to partial derivatives.')
         texts=args.get('expressions') or ([args['expression']] if 'expression' in args else [])
         if not texts or op!='jacobian' and len(texts)!=1:raise ToolError('INVALID_ARGUMENT','Only Jacobian accepts multiple expressions.')
         parsed=[read(text) for text in texts];exprs=[v for _,v in parsed];f=exprs[0]
@@ -76,6 +79,9 @@ def calculus(args):
         return value_result(result,verification=checked(check_status(checks),'Derivative conditions and any local cross-check are reported separately.',checks),notes=notes)
 
     if op not in ('integrate','piecewise_integrate'):raise ToolError('UNSUPPORTED','Unknown calculus operation.')
+    if any(k in args for k in ('expressions','orders','verifyAt')):raise ToolError('INVALID_ARGUMENT','Unused derivative arguments on integration.')
+    if op=='integrate' and 'segments' in args or op=='piecewise_integrate' and any(k in args for k in ('expression','limits')):raise ToolError('INVALID_ARGUMENT','Use limits for integrate or segments for piecewise_integrate.')
+    if args.get('mode','symbolic')=='symbolic' and any(k in args for k in ('precision','tolerance')):raise ToolError('INVALID_ARGUMENT','Numeric precision settings do not apply to symbolic integration.')
     def endpoint(text,allowed):
         if text in ('inf','-inf'):return sp.oo if text=='inf' else -sp.oo
         tree=parse(str(text));conditions,info=analyze(tree);constraints.extend(conditions)

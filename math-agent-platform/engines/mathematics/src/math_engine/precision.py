@@ -15,7 +15,7 @@ class PrecisionPolicy:
     certificationRequired: bool = False
 
     @classmethod
-    def from_arguments(cls, args, default=1e-8):
+    def from_arguments(cls, args, default=1e-8, certified_available=False):
         if 'precision' in args and 'tolerance' in args:
             raise ToolError('INVALID_ARGUMENT', 'Use precision or legacy tolerance, not both.')
         tol = args.get('tolerance', default)
@@ -24,8 +24,10 @@ class PrecisionPolicy:
         policy = cls(**values)
         if policy.maxDigits < policy.workingDigits:
             raise ToolError('INVALID_ARGUMENT', 'maxDigits must be at least workingDigits.')
-        if policy.mode != 'standard' or policy.certificationRequired or policy.workingDigits > 15:
-            raise ToolError('UNSUPPORTED_PRECISION', 'This backend supports binary64 only; high precision and certification are unavailable.')
+        if (policy.mode not in ('standard','certified') or
+                ((policy.mode == 'certified' or policy.certificationRequired) and not certified_available) or
+                policy.workingDigits > 15):
+            raise ToolError('UNSUPPORTED_PRECISION', 'The requested precision or certification is unavailable for the selected backend.')
         return policy
 
     def threshold(self, scale):
