@@ -13,6 +13,8 @@ fail() {
 }
 
 studio_port=4189
+studio_port_set=0
+studio_browser=0
 studio_no_browser=0
 studio_install_only=0
 studio_build_only=0
@@ -22,15 +24,17 @@ while [ "$#" -gt 0 ]; do
         --port)
             [ "$#" -ge 2 ] || fail "--port requires a number between 1 and 65535."
             studio_port="$2"
+            studio_port_set=1
             shift 2
             ;;
         --no-browser) studio_no_browser=1; shift ;;
+        --browser) studio_browser=1; shift ;;
         --install-only) studio_install_only=1; shift ;;
         --build-only) studio_build_only=1; shift ;;
         --preview) studio_preview=1; shift ;;
         --dev) shift ;;
         --help|-h)
-            printf '%s\n' 'Usage: ./launch.command [--port PORT] [--no-browser] [--install-only] [--build-only] [--preview] [--dev]'
+            printf '%s\n' 'Usage: ./launch.command [--port PORT] [--browser | --no-browser] [--install-only] [--build-only] [--preview] [--dev]'
             exit 0
             ;;
         *) fail "Unknown option: $1. Run ./launch.command --help for usage." ;;
@@ -66,14 +70,14 @@ else
     "$studio_base_python" -m venv .venv || fail "Could not create the project Python environment."
 fi
 
-studio_hash=$("$studio_python" -c 'import hashlib, pathlib; print(hashlib.sha256(pathlib.Path("requirements.txt").read_bytes()).hexdigest())') ||
+studio_hash=$("$studio_python" -c 'import hashlib, pathlib; print(hashlib.sha256(pathlib.Path("requirements.txt").read_bytes() + pathlib.Path("requirements-desktop.txt").read_bytes()).hexdigest())') ||
     fail "Could not read requirements.txt."
 studio_installed_hash=""
 if [ -f .venv/requirements.sha256 ]; then
     studio_installed_hash=$(cat .venv/requirements.sha256)
 fi
 if [ "$studio_install_only" -eq 1 ] || [ "$studio_hash" != "$studio_installed_hash" ]; then
-    "$studio_python" -m pip install -r requirements.txt || fail "Python dependencies could not be installed. Check the network and launch again."
+    "$studio_python" -m pip install --no-cache-dir -r requirements-desktop.txt || fail "Python dependencies could not be installed. Check the network and launch again."
     printf '%s\n' "$studio_hash" > .venv/requirements.sha256
 fi
 if [ "$studio_install_only" -eq 1 ]; then
@@ -86,9 +90,14 @@ if [ "$studio_build_only" -eq 1 ] || [ "$studio_preview" -eq 1 ]; then
     if [ "$studio_build_only" -eq 1 ]; then exit 0; fi
 fi
 
-studio_arguments=(-u server.py --port "$studio_port")
+if [ "$studio_browser" -eq 1 ] || [ "$studio_no_browser" -eq 1 ]; then
+    studio_arguments=(-u server.py --port "$studio_port")
+    if [ "$studio_no_browser" -eq 0 ]; then studio_arguments+=(--open-browser); fi
+else
+    if [ "$studio_port_set" -eq 0 ]; then studio_port=0; fi
+    studio_arguments=(-u desktop.py --port "$studio_port")
+fi
 if [ "$studio_preview" -eq 1 ]; then studio_arguments+=(--dist); fi
-if [ "$studio_no_browser" -eq 0 ]; then studio_arguments+=(--open-browser); fi
 studio_status=0
 "$studio_python" "${studio_arguments[@]}" || studio_status=$?
 if [ "$studio_status" -ne 0 ] && [ "$studio_status" -ne 130 ] && [ -t 0 ]; then

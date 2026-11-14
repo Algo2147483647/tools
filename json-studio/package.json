@@ -8,10 +8,12 @@
     "node": ">=20"
   },
   "scripts": {
-    "start": "node scripts/python.mjs server.py",
-    "dev": "node scripts/python.mjs server.py",
+    "start": "node scripts/python.mjs desktop.py",
+    "dev": "node scripts/python.mjs desktop.py --debug",
+    "start:web": "node scripts/python.mjs server.py --open-browser",
+    "package": "node scripts/python.mjs scripts/package.py",
     "build": "node scripts/build.mjs",
-    "preview": "node scripts/python.mjs server.py --dist",
+    "preview": "node scripts/python.mjs desktop.py --dist",
     "test": "node scripts/python.mjs -m unittest discover -s tests -p test_*.py -v",
     "test:e2e": "playwright test",
     "check": "node scripts/check.mjs",

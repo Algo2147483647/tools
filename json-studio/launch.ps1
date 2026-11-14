@@ -1,5 +1,6 @@
 param(
-    [ValidateRange(1, 65535)][int]$Port = 4189,
+    [ValidateRange(0, 65535)][int]$Port = 0,
+    [switch]$Browser,
     [switch]$NoBrowser,
     [switch]$BuildOnly,
     [switch]$InstallOnly,
@@ -9,6 +10,13 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 $studioPython = Join-Path $PSScriptRoot '.venv/Scripts/python.exe'
+if (Test-Path -LiteralPath $studioPython) {
+    & $studioPython -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        # Preserve a stale environment instead of deleting it.
+        Move-Item -LiteralPath (Join-Path $PSScriptRoot '.venv') -Destination (Join-Path $PSScriptRoot ('.venv-backup-' + [guid]::NewGuid().ToString('N')))
+    }
+}
 if (-not (Test-Path -LiteralPath $studioPython)) {
     $studioCandidates = @()
     $studioPy = Get-Command py -ErrorAction SilentlyContinue
@@ -29,11 +37,11 @@ if (-not (Test-Path -LiteralPath $studioPython)) {
     & $studioBasePython -m venv .venv
     if ($LASTEXITCODE -ne 0) { throw 'Could not create the project Python environment.' }
 }
-$studioRequirementsHash = (Get-FileHash -LiteralPath 'requirements.txt' -Algorithm SHA256).Hash
+$studioRequirementsHash = ((Get-FileHash -LiteralPath 'requirements.txt','requirements-desktop.txt' -Algorithm SHA256).Hash -join ':')
 $studioStamp = Join-Path $PSScriptRoot '.venv/requirements.sha256'
 $studioInstalledHash = if (Test-Path -LiteralPath $studioStamp) { (Get-Content -LiteralPath $studioStamp -Raw).Trim() } else { '' }
 if ($InstallOnly -or $studioRequirementsHash -ne $studioInstalledHash) {
-    & $studioPython -m pip install -r requirements.txt
+    & $studioPython -m pip install --no-cache-dir -r requirements-desktop.txt
     if ($LASTEXITCODE -ne 0) { throw 'Python dependencies could not be installed.' }
     Set-Content -LiteralPath $studioStamp -Value $studioRequirementsHash -Encoding ascii
 }
@@ -45,16 +53,14 @@ if ($BuildOnly -or $Preview) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     if ($BuildOnly) { exit 0 }
 }
-$studioArguments = @('-u', 'server.py', '--port', "$Port")
-if ($Preview) { $studioArguments += '--dist' }
-$studioUrl = "http://127.0.0.1:$Port/"
-$studioBrowserOpened = $false
-& $studioPython @studioArguments | ForEach-Object {
-    Write-Host $_
-    if (-not $NoBrowser -and -not $studioBrowserOpened -and $_.Contains($studioUrl)) {
-        $studioBrowserOpened = $true
-        try { Start-Process $studioUrl -WindowStyle Hidden }
-        catch { Write-Warning "Open $studioUrl in your browser." }
-    }
+if ($Browser -or $NoBrowser) {
+    if ($Port -eq 0) { $Port = 4189 }
+    $studioArguments = @('-u', 'server.py', '--port', "$Port")
+    if (-not $NoBrowser) { $studioArguments += '--open-browser' }
+} else {
+    $studioArguments = @('-u', 'desktop.py', '--port', "$Port")
+    if ($Dev) { $studioArguments += '--debug' }
 }
+if ($Preview) { $studioArguments += '--dist' }
+& $studioPython @studioArguments
 exit $LASTEXITCODE

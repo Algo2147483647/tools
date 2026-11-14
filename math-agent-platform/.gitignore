@@ -1,0 +1,6 @@
+.runtime/
+node_modules/
+desktop/dist-math/
+desktop/renderer/fonts/
+desktop/renderer/editor.bundle.js
+desktop/renderer/editor.bundle.css

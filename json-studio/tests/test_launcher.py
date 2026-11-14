@@ -48,14 +48,19 @@ exit 0
     def test_first_launch_cache_and_browser_flag(self):
         log = self.launch()
         self.assertIn('-m venv .venv', log)
-        self.assertIn('-m pip install -r requirements.txt', log)
-        self.assertIn('-u server.py --port 4189 --open-browser', log)
+        self.assertIn('-m pip install --no-cache-dir -r requirements-desktop.txt', log)
+        self.assertIn('-u desktop.py --port 0', log)
         self.log.write_text('', encoding='utf-8')
         log = self.launch('--port', '04200', '--no-browser')
         self.assertNotIn('-m venv', log)
         self.assertNotIn('-m pip', log)
         self.assertIn('-u server.py --port 04200', log)
         self.assertNotIn('--open-browser', log)
+
+    def test_explicit_browser_and_desktop_port(self):
+        self.assertIn('-u server.py --port 4189 --open-browser', self.launch('--browser'))
+        self.log.write_text('', encoding='utf-8')
+        self.assertIn('-u desktop.py --port 4201', self.launch('--port', '4201'))
 
     def test_build_preview_and_install_only(self):
         log = self.launch('--build-only')

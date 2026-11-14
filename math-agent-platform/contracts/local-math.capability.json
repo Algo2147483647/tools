@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "exact-affine",
+  "version": "1.0.0",
+  "domains": [
+    "arithmetic",
+    "linear-equation"
+  ],
+  "runtime": "Bundled Node worker",
+  "sideEffects": "none",
+  "limits": {
+    "characters": 4096,
+    "tokens": 512,
+    "nesting": 64,
+    "literalCharacters": 256,
+    "rationalBits": 4096,
+    "workerHeapMB": 64,
+    "deadlineMs": 5000
+  },
+  "assurance": "Independent affine-domain evaluation and exact substitution; shared rational arithmetic primitives"
+}

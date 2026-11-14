@@ -2,46 +2,60 @@
 
 A single text editor with a floating AI console and a local Python computation engine. There are no document tabs, file workspace, split output panels, or user-facing command language.
 
-## Start
+## Desktop start: Windows and macOS
 
-On Windows, double-click `launch.cmd`, or run from the Tools directory:
+JSON Studio opens in its own native window, with a white editor, native window
+controls and no browser address bar. Existing JSON, YAML, text and AI features remain.
+
+- Windows: double-click `launch.cmd`.
+- macOS: double-click `launch.command`; if necessary run `chmod +x launch.command` once.
+- Source launch requires Python 3.10+; launchers create `.venv` and install
+  `requirements-desktop.txt`. Use python.org or Homebrew Python on macOS.
+- Windows requires Microsoft Edge WebView2 Runtime; macOS uses system WKWebView.
+- Each window selects a free loopback port. Closing confirms unsaved text loss,
+  cancels tasks and stops the local engine. Text and API keys are not persisted.
+- Do not copy `.venv` between machines. Node.js is optional.
+
+Windows options: `-InstallOnly`, `-BuildOnly`, `-Preview`, `-Port 4200`,
+`-Browser` (legacy browser mode), `-NoBrowser` (headless server).
+macOS equivalents: `--install-only`, `--build-only`, `--preview`, `--port 4200`,
+`--browser`, `--no-browser`. Browser/headless mode defaults to port 4189.
+`BuildOnly` runs checks and copies frontend assets to `dist/`; `Preview` opens
+that build in the desktop window. `npm start` opens the desktop;
+`npm run start:web` explicitly opens a browser.
+
+### Standalone packaging
+
+Run on each target OS and CPU architecture separately:
 
 ```powershell
-.\launch.cmd json-studio
+# Windows, from json-studio
+.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+.venv\Scripts\python.exe scripts/package.py
 ```
-
-On macOS, double-click **`launch.command`** in Finder, or run it from Terminal:
 
 ```sh
-./launch.command
-./launch.command --no-browser
-./launch.command --port 4200
-./launch.command --install-only
-./launch.command --build-only
-./launch.command --preview
+# macOS, from json-studio
+.venv/bin/python -m pip install -r requirements-build.txt
+.venv/bin/python scripts/package.py
 ```
 
-Open **http://127.0.0.1:4189/**. Both launchers find Python 3.10+, create a project-local `.venv`, and install the pinned `requirements.txt` on first launch or when it changes. Node.js is not needed to run the application. The macOS launcher supports Apple Silicon and Intel Homebrew paths, opens the browser after the server binds, and works when the project path contains spaces. If Python is installed elsewhere, set `STUDIO_PYTHON` to its executable path for the first launch. Do not copy a Windows `.venv` to macOS; each machine needs its own environment. Git preserves the launcher's executable permission; if a ZIP extraction loses it, run `chmod +x launch.command` once.
+Windows output: `release/JSON Studio/JSON Studio.exe` (distribute the entire
+folder). macOS output: `release/JSON Studio.app`. Python and interface assets
+are bundled; recipients do not need Python or Node. Windows still needs WebView2.
+Build Apple Silicon and Intel releases on their respective architectures.
+Public macOS distribution requires your own Apple signing and notarization;
+these build commands produce unsigned applications, not signed installers.
 
-```powershell
-.\launch.cmd -NoBrowser
-.\launch.cmd -Port 4200
-.\launch.cmd -InstallOnly
-.\launch.cmd -BuildOnly
-.\launch.cmd -Preview
-```
+### Architecture
 
-`-BuildOnly` runs Python checks and builds `dist/`; `-Preview` checks, builds and serves it with the Python backend. `-Dev` behaves like the default launch; refresh after editing frontend assets and restart after editing Python. Keep the terminal open while using the app.
-
-Manual setup (including Linux):
-
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python server.py
-```
-
-On Windows, use `.venv\Scripts\python.exe` instead. The Python server always binds to `127.0.0.1`.
+`desktop.py` owns the window and engine lifecycle. `server.py` is the loopback
+HTTP/API adapter; `engine.py`, `ai.py`, and `protocol.py` remain independent
+services; `public/` contains the editor. pywebview uses EdgeChromium on Windows
+and Cocoa/WKWebView on macOS. No Python filesystem bridge is exposed to the page.
+The engine binds before the window loads, uses a private session and releases
+its listener even if GUI startup fails. Editor and engine changes remain
+independent of the desktop host.
 
 ## Use
 

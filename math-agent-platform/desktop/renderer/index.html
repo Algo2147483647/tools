@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Math Workspace</title><link rel="stylesheet" href="editor.bundle.css"><link rel="stylesheet" href="style.css"></head>
+<body>
+<main>
+<header class="toolbar"><button id="new">New</button><button id="history-button">History</button><button id="import-data">Import data</button><span class="toolbar-space"></span><button id="result-button">Result</button><button id="settings-button">Settings</button><button id="stop" hidden>Stop</button><button id="solve" class="primary">Solve <kbd id="shortcut"></kbd></button></header>
+<div id="notice" role="status" aria-live="polite"></div><div id="dataset-list" aria-label="Attached datasets"></div>
+<div id="workspace"><div id="editor" aria-label="Markdown question"></div><aside id="solution-pane" aria-label="Solution" hidden>
+<div class="solution-toolbar"><h2>Solution</h2><div><button id="copy" disabled>Copy</button><button id="retry" disabled>Run again</button><button id="close-result">Hide</button></div></div>
+<div class="solution-content"><details id="activity"><summary id="run-details-title">Run details</summary><div class="progress-heading"><p id="activity-summary">No run selected.</p><button id="activity-stop" hidden>Stop</button></div><div id="run-metadata"></div><div id="tool-records"></div><details class="event-log"><summary>Event timeline</summary><ol id="events"></ol></details></details><div id="result" aria-live="polite" aria-relevant="additions text"></div><button id="jump-latest" hidden>Back to latest ↓</button></div>
+</aside></div>
+</main>
+<dialog id="history-dialog" aria-labelledby="history-title"><div class="panel-heading"><h2 id="history-title">History</h2><div><button id="clear">Clear</button><button id="close-history">Close</button></div></div><nav id="history" aria-label="Session history"></nav></dialog>
+<dialog id="settings" aria-labelledby="settings-title"><form id="settings-form"><div class="panel-heading"><h2 id="settings-title">AI connection</h2><span id="connection">Not configured</span><button id="close-settings" type="button" aria-label="Close settings">Close</button></div>
+  <label>Provider<select id="provider"></select></label><label>Base URL<input id="base-url" type="url" required spellcheck="false"></label>
+  <label>API key<input id="api-key" type="password" autocomplete="off" spellcheck="false"></label>
+  <label>Model ID<input id="model" list="model-list" required spellcheck="false" placeholder="Select or enter a model"></label><datalist id="model-list"></datalist>
+  <label id="token-field">Maximum output tokens<input id="max-tokens" type="number" min="1" max="1000000" value="4096"></label>
+  <p id="settings-status" role="status"></p><div class="dialog-actions"><button id="load-models" type="button">Load models</button><button id="test" type="button">Test connection</button><button id="cancel-settings-request" type="button" hidden>Stop</button><button id="apply" class="primary" type="submit">Apply</button></div>
+</form></dialog>
+<script src="editor.bundle.js"></script><script src="state.js"></script><script src="app.js"></script>
+</body></html>

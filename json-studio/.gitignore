@@ -6,3 +6,6 @@ test-results/
 .venv/
 __pycache__/
 *.pyc
+.venv-backup-*/
+build/
+release/
