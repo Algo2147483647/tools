@@ -1,6 +1,6 @@
 {
   "name": "math-agent-desktop",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "description": "AI mathematics workspace with symbolic, numerical, plotting and data tools",
   "author": "Math Agent Platform",
@@ -10,7 +10,7 @@
     "verify": "npm run check && npm test",
     "build": "node ../scripts/build.cjs",
     "start": "npm run build && electron .",
-    "test": "npm run build && node --test ai/*.test.cjs renderer/*.test.cjs tools/*.test.cjs application/*.test.cjs",
+    "test": "npm run build && node --test platform/*.test.cjs ai/*.test.cjs renderer/*.test.cjs tools/*.test.cjs application/*.test.cjs",
     "pack": "npm run verify && electron-builder --dir",
     "dist:win": "npm run verify && electron-builder --win nsis",
     "dist:mac": "npm run verify && electron-builder --mac dmg",

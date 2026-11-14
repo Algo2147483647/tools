@@ -220,12 +220,10 @@ class RunService {
     }
     clear() { if (this.active)
         throw Error('Stop the active operation before clearing history.'); this.runs.clear(); this.artifacts.clear(); this.datasets.clear(); this.session.clear().catch(() => { }); }
-    dispose() { if (this.active) {
-        const id = this.active.id;
-        this.cancel(id).finally(() => this.session.clear()).catch(() => { });
+    async dispose() {
+        try { if (this.active) await this.cancel(this.active.id); }
+        finally { await this.session.clear(); }
     }
-    else {
-        this.session.clear().catch(() => { });
-    } }
+
 }
 export { RunService, ALLOWED };

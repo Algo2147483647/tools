@@ -1,4 +1,5 @@
-import { ipcMain, BrowserWindow, dialog } from 'electron';
+import { answerMarkdown, runMarkdown } from '../shared/export-markdown.js';
+import { ipcMain, BrowserWindow, dialog, clipboard } from 'electron';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -15,6 +16,21 @@ export function registerCommands(sessions: Map<number, RunService>, settingsStor
         try {
             let value;
             switch (command) {
+                case 'copyAnswer': {
+                    const run = service.get(payload);
+                    clipboard.writeText(answerMarkdown(run));
+                    value = true;
+                    break;
+                }
+                case 'exportRun': {
+                    const run = service.get(payload);
+                    const markdown = runMarkdown(run, id => service.artifacts.get(run.id, id).value);
+                    const picked = await dialog.showSaveDialog(BrowserWindow.fromWebContents(event.sender)!, {defaultPath: 'math-solution.md', filters: [{name: 'Markdown', extensions: ['md']}]});
+                    if (picked.canceled || !picked.filePath) { value = false; break; }
+                    await fs.writeFile(picked.filePath, markdown, 'utf8');
+                    value = true;
+                    break;
+                }
                 case 'bootstrap':
                     value = { presets: PRESETS, settings: service.publicSettings(), runs: service.list(), settingsError: service.settingsError, cachedModels: service.settings ? settingsStore.models(service.settings) || [] : [] };
                     break;

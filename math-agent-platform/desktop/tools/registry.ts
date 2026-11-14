@@ -118,7 +118,7 @@ class ToolRegistry {
             const timeoutMs = Math.min(definition.timeoutMs || 5000, request.limits?.timeoutMs || 5000);
             timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
             // Every executor must await resource termination on cancellation before settling.
-            const value = await definition.execute(request.arguments as JsonObject, { signal: controller.signal, progress: (stage, message) => { if (!controller.signal.aborted)
+            const value = await definition.execute(request.arguments as JsonObject, { signal: controller.signal, deadline: Date.now()+timeoutMs, callId: request.callId, progress: (stage, message) => { if (!controller.signal.aborted || message.startsWith('MATH_CALL '))
                     emit({ type: 'tool.progress', callId: request.callId, stage, message: redact(message) }); } });
             signal.throwIfAborted();
             if (timedOut)

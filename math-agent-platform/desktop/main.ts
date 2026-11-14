@@ -1,3 +1,4 @@
+import {shutdownProcesses} from './platform/executor.js';
 import { registerCommands } from './platform/commands.js';
 import type { RunService } from './application/runs.js';
 import { appRoot } from './platform/runtime.js';
@@ -9,6 +10,7 @@ const { SettingsStore } = require('./platform/settings-store.js') as typeof impo
 let settingsStore: InstanceType<typeof SettingsStore>;
 const entry = path.join(appRoot, 'renderer', 'index.html');
 const sessions = new Map<number, RunService>();
+const pendingCleanups = new Set<Promise<void>>();
 async function createWindow() {
     const win = new BrowserWindow({ width: 1360, height: 900, minWidth: 900, minHeight: 600,
         title: 'Math Workspace', backgroundColor: '#f5f6f8',
@@ -29,11 +31,12 @@ async function createWindow() {
         settingsError = error.message;
     }
     service.settingsError = settingsError;
-    sessions.set(win.webContents.id, service);
+    const sessionId=win.webContents.id;
+    sessions.set(sessionId, service);
     win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     win.webContents.on('will-navigate', event => event.preventDefault());
     win.webContents.session.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
-    win.on('closed', () => { service.dispose(); sessions.delete(win.webContents.id); });
+    win.on('closed', () => { const cleanup=service.dispose();pendingCleanups.add(cleanup);void cleanup.catch(()=>{}).finally(()=>pendingCleanups.delete(cleanup));sessions.delete(sessionId); });
     win.loadFile(entry);
 }
 app.whenReady().then(() => {
@@ -49,3 +52,5 @@ app.whenReady().then(() => {
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin')
     app.quit(); });
+
+app.once('before-quit', event => { event.preventDefault(); void (async()=>{const closing=[...sessions.values()].map(service=>service.dispose());await shutdownProcesses();await Promise.allSettled([...pendingCleanups,...closing]);})().finally(() => app.quit()); });

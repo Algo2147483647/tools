@@ -50,3 +50,21 @@ Those remain later phases. Full regression remains deferred at the user's reques
 
 Interface language remains English. Chinese mathematical content uses SimSun.
 Answers and returned model reasoning remain separate; reasoning and tools appear in Detail.
+
+
+## 0.10.0 execution lifecycle (C)
+
+`desktop/platform/executor.ts` is the shared process executor for mathematical,
+AI Python and Lean tasks. It owns spawn, byte-based output bounds, wall deadlines,
+abort listeners and process registration. Cancellation kills Windows process trees
+(or POSIX process groups) and waits for process close and termination-helper completion.
+Launch failure, cancellation, timeout and output-limit errors have stable codes.
+The application waits for executor shutdown and session/workspace cleanup before quitting.
+Per-engine adapters retain result decoding, artifact conversion and domain-specific errors.
+One process per invocation remains intentional; no shared interpreter pool is introduced.
+
+The Markdown editor now decorates pipe tables and bold text without changing source.
+Leaving a table/strong span displays the formatted view; entering it exposes source markers.
+The answer renderer also accepts blank-separated pipe rows. Normal contiguous Markdown
+pipe tables were already valid; their earlier raw appearance was an editor rendering gap.
+Chinese content uses KaiTi; the interface language remains English.

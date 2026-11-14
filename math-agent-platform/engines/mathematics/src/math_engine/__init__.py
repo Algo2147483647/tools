@@ -8,7 +8,7 @@ def catalogue():
     return deepcopy(CATALOGUE)
 
 
-def execute(request):
+def _execute(request):
     from .protocol import validate_request, validate, VALUE_SCHEMA
     from .common import ToolError
     try:
@@ -40,3 +40,10 @@ def execute(request):
     except (ValueError, TypeError, KeyError, ZeroDivisionError) as error:
         return {'schemaVersion': 1, 'ok': False, 'error': {'code': 'DOMAIN_ERROR', 'message': str(error)[:500]}}
 
+
+
+from .api import solve, batch, execution_context
+
+def execute(request):
+    from .api import invoke
+    return invoke(request, _execute)

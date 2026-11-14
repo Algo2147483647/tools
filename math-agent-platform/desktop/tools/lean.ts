@@ -1,29 +1,11 @@
+import {executeProcess} from '../platform/executor.js';
 import { appRoot, runtimeDirectory } from '../platform/runtime.js';
 import type { ToolDefinition } from '../shared/tools.js';
-const fs = require('node:fs/promises') as typeof import('node:fs/promises'), sync = require('node:fs') as typeof import('node:fs'), path = require('node:path') as typeof import('node:path'), os = require('node:os') as typeof import('node:os'), { spawn } = require('node:child_process') as typeof import('node:child_process'), { createHash } = require('node:crypto') as typeof import('node:crypto');
+const fs = require('node:fs/promises') as typeof import('node:fs/promises'), sync = require('node:fs') as typeof import('node:fs'), path = require('node:path') as typeof import('node:path'), os = require('node:os') as typeof import('node:os'), { createHash } = require('node:crypto') as typeof import('node:crypto');
 const lock = JSON.parse(sync.readFileSync(path.join(appRoot, 'engine/lean-lock.json'), 'utf8').replace(/^\uFEFF/, ''));
 function runtime() { const root = runtimeDirectory('lean-runtime'); const exe = path.join(root, 'bin/lean.exe'); if (!sync.existsSync(exe))
     throw Object.assign(Error('Bundled Lean toolchain is missing.'), { code: 'RUNTIME_MISSING' }); return { root, exe }; }
-function runProcess(exe: any, args: any, cwd: any, signal: AbortSignal, progress: (stage: string, message: string) => void, timeoutMs = 30000) { return new Promise<{
-    code: number | null;
-    stdout: string;
-    stderr: string;
-}>((resolve, reject) => { signal.throwIfAborted(); const child = spawn(exe, args, { cwd, windowsHide: true, env: { SystemRoot: process.env.SystemRoot, WINDIR: process.env.WINDIR, TEMP: cwd, TMP: cwd, LEAN_PATH: '', LEAN_SRC_PATH: '' }, stdio: ['ignore', 'pipe', 'pipe'] }); let stdout = '', stderr = '', bytes = 0, failure: Error | undefined, killTask: import("node:child_process").ChildProcess | undefined; const kill = () => { if (killTask || !child.pid)
-    return; killTask = spawn(path.join(process.env.SystemRoot!, 'System32/taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' }); killTask.on('error', () => child.kill()); }; const abort = () => { failure = Object.assign(Error('Lean check cancelled.'), { code: 'CANCELLED' }); kill(); }; signal.addEventListener('abort', abort, { once: true }); if (signal.aborted)
-    abort(); const timer = setTimeout(() => { failure = Object.assign(Error('Lean check exceeded its deadline.'), { code: 'TIMED_OUT' }); kill(); }, timeoutMs); for (const [stream, key] of [[child.stdout, 'stdout'], [child.stderr, 'stderr']] as const) {
-    stream.setEncoding('utf8');
-    stream.on('data', chunk => { bytes += Buffer.byteLength(chunk); if (bytes > 1024 * 1024) {
-        failure = Object.assign(Error('Lean diagnostics exceed 1 MB.'), { code: 'OUTPUT_LIMIT' });
-        kill();
-        return;
-    } if (key === 'stdout')
-        stdout += chunk;
-    else
-        stderr += chunk; });
-} child.on('error', () => failure = Object.assign(Error('Cannot start bundled Lean compiler.'), { code: 'ENGINE_START_FAILED' })); child.on('close', code => { clearTimeout(timer); signal.removeEventListener('abort', abort); if (failure)
-    reject(failure);
-else
-    resolve({ code, stdout, stderr }); }); }); }
+function runProcess(exe:string,args:string[],cwd:string,signal:AbortSignal,_progress:(stage:string,message:string)=>void,timeoutMs=30000){return executeProcess({executable:exe,args,cwd,signal,timeoutMs,maxOutputBytes:1024*1024,env:{SystemRoot:process.env.SystemRoot,WINDIR:process.env.WINDIR,TEMP:cwd,TMP:cwd,LEAN_PATH:'',LEAN_SRC_PATH:''}});}
 function diagnostics(stdout: any, stderr: any) { const messages = []; let unparsed = ''; for (const line of stdout.split(/\r?\n/)) {
     if (!line.trim())
         continue;

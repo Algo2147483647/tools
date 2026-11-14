@@ -17,6 +17,8 @@ export interface ToolSchema {
     maximum?: number;
 }
 export interface ToolContext {
+    deadline?: number;
+    callId?: string;
     signal: AbortSignal;
     progress: (stage: string, message: string) => void;
 }
