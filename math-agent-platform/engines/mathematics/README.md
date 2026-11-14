@@ -61,3 +61,29 @@ Tests: `python -m unittest discover -s tests -v` after installing the package.
 The desktop also has registry, artifact and AI tool-loop integration tests.
 The previous TS exact implementation exists only under `tests/reference/exact-ts`
 for differential testing; it is not built or shipped in the desktop app.
+
+
+## Workspace API and task lifecycle
+
+`solve(tool=..., arguments=..., dataset=None)` uses the same validator and dispatch as
+`execute(request)`. Both return `{schemaVersion, ok, value/error}`. Mathematical errors
+are responses, not exceptions; inspect `ok`. `batch(tool=..., arguments_list=[...])`
+runs up to 100 cases sequentially, preserves partial failures, and stops on cancellation
+or an exhausted deadline. Results are not aggregated into an optimality proof.
+
+```python
+from math_engine import batch
+results = batch(tool="exact_math", arguments_list=[
+    {"expression": "1/3+1/6"}, {"expression": "1/0"}])
+```
+
+The desktop installs `execution_context` around generated Python. Public API calls
+emit parent-linked start/completion records to Detail, with parameters, response,
+verification and remaining budget. Views become normal answer artifacts. All calls
+share the parent tool deadline; the host kills the worker and waits for termination
+on cancellation/timeout, including while a native solver is running. Direct library
+use outside the desktop has cooperative checks between calls only; an external host
+must enforce hard interruption. Context does not automatically propagate into new
+Python threads/processes. Direct CVXPY/SymPy calls bypass API tracing and validation.
+This workspace is a local execution environment, not a filesystem/network sandbox.
+The trace transport is bounded to 6 MB per worker run; keep large outputs in files.

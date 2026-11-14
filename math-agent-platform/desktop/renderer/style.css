@@ -44,3 +44,5 @@ body{font-family:var(--paper-font);color:#222;background:#fff}.toolbar,dialog,.s
 
 .history-item strong{font-size:14px}.history-item small{font-size:12px}
 button.icon-button{border:0;background:transparent;box-shadow:none;padding:6px;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0}button.icon-button:hover:not(:disabled){background:#f0f3f8}.panel-heading h2{margin-right:auto}.solution-action-status{font-size:11px;color:#647185;align-self:center}
+
+.math-subcalls{margin:10px 0 10px 12px;padding-left:12px;border-left:1px solid #dce1e7}.math-subcalls>details{margin:8px 0}

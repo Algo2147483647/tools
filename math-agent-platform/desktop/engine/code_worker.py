@@ -19,13 +19,7 @@ wire=sys.__stderr__
 event_bytes=0
 def emit(event):
     global event_bytes
-    # Views are returned separately through the parent result; keep live records compact.
     message=dict(event)
-    if message.get('response',{}).get('ok'):
-        message['response']=dict(message['response'])
-        message['response']['value']=dict(message['response']['value'])
-        views=message['response']['value'].get('views',[])
-        # Keep views in the completion record so the host can publish artifacts.
     line='MATH_EVENT '+json.dumps(message,ensure_ascii=True)+'\n'
     event_bytes+=len(line.encode('utf-8'))
     if event_bytes>6*1024*1024: raise RuntimeError('Mathematics trace exceeds 6 MB')

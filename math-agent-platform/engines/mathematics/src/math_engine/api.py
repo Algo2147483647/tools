@@ -22,8 +22,10 @@ def invoke(request, implementation):
     ctx = _context.get() or {}
     start = time.time()
     remaining = None if ctx.get('deadline') is None else max(0, int((ctx['deadline']-start)*1000))
-    record = dict(callId=str(uuid.uuid4()), parentCallId=ctx.get('parent'), tool=request.get('tool'),
-                  operation=request.get('arguments', {}).get('operation', 'evaluate'), arguments=request.get('arguments'),
+    metadata = request if isinstance(request, dict) else {}
+    args = metadata.get('arguments')
+    record = dict(callId=str(uuid.uuid4()), parentCallId=ctx.get('parent'), tool=metadata.get('tool'),
+                  operation=args.get('operation', 'evaluate') if isinstance(args, dict) else 'unknown', arguments=args,
                   remainingMs=remaining, status='running')
     def emit():
         if ctx.get('emit'): ctx['emit'](dict(record))
