@@ -54,7 +54,13 @@ def exact_interval(args):
     return values
 
 
-def numeric_function(expr,x):
+def numeric_function(expr,x,source=None):
+    constraints=[]
+    if source is not None:
+        from .ir import parse
+        from .domains import analyze
+        constraints,_=analyze(parse(source))
+        if any(c.free_symbols-{x} for c in constraints):raise ToolError('INVALID_ARGUMENT','Supply values for all domain parameters.')
     if expr.free_symbols-{x}: raise ToolError('INVALID_ARGUMENT','Supply values for all symbols other than '+str(x)+'.')
     def evaluate(node,value):
         if node==x:return value
@@ -69,7 +75,14 @@ def numeric_function(expr,x):
         if node.func in NUMERIC:return NUMERIC[node.func](*children)
         raise ToolError('UNSUPPORTED','Numeric evaluation does not support this expression.')
     def call(value):
-        with np.errstate(all='ignore'):return evaluate(expr,value)
+        with np.errstate(all='ignore'):
+            valid=True
+            for condition in constraints:
+                a,b=evaluate(condition.lhs,value),evaluate(condition.rhs,value)
+                relation=condition.rel_op
+                comparison={'!=':lambda:a!=b,'>':lambda:a>b,'>=':lambda:a>=b,'<':lambda:a<b,'<=':lambda:a<=b,'==':lambda:a==b}[relation]()
+                valid=np.logical_and(valid,comparison)
+            return np.where(valid,evaluate(expr,value),np.nan) if constraints else evaluate(expr,value)
     return call
 
 def checked(status='not_checked',scope='Computed result; not a proof of the original question.',checks=None):return {'status':status,'scope':scope,'checks':checks or []}

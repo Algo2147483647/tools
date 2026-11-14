@@ -25,6 +25,7 @@ class Parser:
             raise ToolError('INVALID_ARGUMENT','Expression must have 1–4096 characters.')
         self.source=source; self.latex=latex; self.implicit=implicit or latex
         pattern = r'\s+|\\[A-Za-z]+|\\\\|(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|[A-Za-z][A-Za-z0-9_]*|\*\*|[+*/^=(){}\[\]&_-]'
+        if latex:pattern=pattern.replace('[A-Za-z][A-Za-z0-9_]*','[A-Za-z]+')
         self.tokens=[]; offset=0
         while offset<len(source):
             m=re.match(pattern,source[offset:])
@@ -146,7 +147,27 @@ def parse(source, format='ascii', implicit=False):
     return Parser(source,format=='latex',implicit).parse()
 
 
+def input_tree(args, text_key='expression', ir_key='ir', implicit=False):
+    if (text_key in args)==(ir_key in args):raise ToolError('INVALID_ARGUMENT','Supply exactly one of '+text_key+' or '+ir_key+'.')
+    if ir_key in args:
+        validate_ir(args[ir_key]);return args[ir_key]
+    return parse(args[text_key],args.get('format','ascii'),implicit)
+
+
 def validate_ir(value):
+    # Count all containers first, including nested sets, with a shared budget.
+    total=0
+    def size(v,depth=0):
+        nonlocal total
+        if depth>100:raise ToolError('RESOURCE_LIMIT','MathIR nesting exceeds budget.')
+        if isinstance(v,dict):
+            total+=1
+            if total>512:raise ToolError('RESOURCE_LIMIT','MathIR exceeds budget.')
+            for child in v.values():size(child,depth+1)
+        elif isinstance(v,list):
+            if len(v)>512:raise ToolError('RESOURCE_LIMIT','MathIR collection exceeds budget.')
+            for child in v:size(child,depth+1)
+    size(value)
     count=0
     def visit(n,depth=0):
         nonlocal count
@@ -158,13 +179,30 @@ def validate_ir(value):
             keys.add('value');v=n.get('value')
             if not isinstance(v,str):raise ToolError('INVALID_ARGUMENT','Numbers must be strings.')
             if kind=='Integer':
-                if not re.fullmatch(r'-?\d{1,256}',v):raise ToolError('INVALID_ARGUMENT','Invalid integer.')
+                if not re.fullmatch(r'-?\d{1,1234}',v):raise ToolError('INVALID_ARGUMENT','Invalid integer.')
             else:literal(v)
         elif kind=='Rational':
             keys.update(('numerator','denominator'))
             for field in ('numerator','denominator'):
-                if not isinstance(n.get(field),str) or not re.fullmatch(r'-?\d{1,256}',n[field]):raise ToolError('INVALID_ARGUMENT','Invalid rational.')
+                if not isinstance(n.get(field),str) or not re.fullmatch(r'-?\d{1,1234}',n[field]):raise ToolError('INVALID_ARGUMENT','Invalid rational.')
             if int(n['denominator'])<=0:raise ToolError('INVALID_ARGUMENT','Denominator must be positive.')
+        elif kind=='Restricted':
+            keys.update(('expression','source'));children=[n.get('expression'),n.get('source')]
+        elif kind=='Conditioned':
+            keys.update(('expression','conditions'))
+            if not isinstance(n.get('conditions'),list) or not 1<=len(n['conditions'])<=16:raise ToolError('INVALID_ARGUMENT','Conditioned expressions require 1–16 conditions.')
+            children=[n.get('expression')]+n['conditions']
+        elif kind=='Relation':
+            keys.update(('relation','args'));children=n.get('args')
+            if n.get('relation') not in ('!=','<','<=','>','>=') or not isinstance(children,list) or len(children)!=2:raise ToolError('INVALID_ARGUMENT','Invalid relation node.')
+        elif kind=='Algebraic':
+            keys.update(('polynomial','realRootIndex'));coeff=n.get('polynomial');index=n.get('realRootIndex')
+            if not isinstance(coeff,list) or not 2<=len(coeff)<=17 or any(not isinstance(c,str) or not re.fullmatch(r'-?\d{1,256}',c) for c in coeff):raise ToolError('INVALID_ARGUMENT','Invalid minimal polynomial coefficients.')
+            if int(coeff[0])<=0 or type(index) is not int or not 0<=index<len(coeff)-1:raise ToolError('INVALID_ARGUMENT','Invalid algebraic root selector.')
+        elif kind in ('EmptySet','Universe','FiniteSet','Interval','Union','Intersection','Complement'):
+            from .sets import decode_set
+            decode_set(n)
+            return
         elif kind in ('Symbol','Constant'):
             keys.add('name');name=n.get('name')
             if not isinstance(name,str) or not re.fullmatch('[A-Za-z][A-Za-z0-9_]{0,23}',name):raise ToolError('INVALID_ARGUMENT','Invalid symbol.')
@@ -192,16 +230,27 @@ def validate_ir(value):
 def lower(ir,domain='real'):
     """Lower a validated MathIR tree to SymPy without evaluating source code."""
     kind=ir['kind']
+    if kind in ('Restricted','Conditioned'):return lower(ir['expression'],domain)
     if kind in ('Integer','DecimalLiteral'):return sp.Rational(ir['value'])
     if kind=='Rational':return sp.Rational(ir['numerator'],ir['denominator'])
     if kind=='Constant':return {'pi':sp.pi,'E':sp.E}[ir['name']]
     if kind=='Symbol':return sp.Symbol(ir['name'],real=True) if domain=='real' else sp.Symbol(ir['name'])
+    if kind=='Algebraic':
+        z=sp.Symbol('z');p=sp.Poly.from_list([sp.Integer(c) for c in ir['polynomial']],z,domain='ZZ')
+        if not p.is_irreducible:raise ToolError('INVALID_ARGUMENT','Algebraic polynomial must be irreducible over QQ.')
+        roots=sp.polys.polytools.real_roots(p,radicals=False)
+        if ir['realRootIndex']>=len(roots):raise ToolError('INVALID_ARGUMENT','Real root index is out of range.')
+        return roots[ir['realRootIndex']]
+    if kind in ('EmptySet','Universe','FiniteSet','Interval','Union','Intersection','Complement'):
+        from .sets import decode_set
+        return decode_set(ir)
     if kind=='Matrix':return sp.ImmutableMatrix([[lower(v,domain) for v in r] for r in ir['rows']])
     args=[lower(v,domain) for v in ir['args']]
     if any(isinstance(v,sp.MatrixBase) or isinstance(v,sp.Equality) for v in args):raise ToolError('UNSUPPORTED','Nested matrix/equation arithmetic is not supported.')
     if kind=='Unary':return args[0] if ir['operator']=='+' else -args[0]
     if kind=='Function':return FUNCTIONS[ir['name']](args[0])
     a,b=args
+    if kind=='Relation':return {'!=':sp.Ne,'<':sp.Lt,'<=':sp.Le,'>':sp.Gt,'>=':sp.Ge}[ir['relation']](a,b,evaluate=False)
     if kind=='Add':return sp.Add(a,b,evaluate=False)
     if kind=='Subtract':return sp.Add(a,-b,evaluate=False)
     if kind=='Multiply':return sp.Mul(a,b,evaluate=False)
@@ -213,6 +262,12 @@ def lower(ir,domain='real'):
 
 def encode(expr):
     """Exact backend-independent result tree; unsupported objects are explicit."""
+    if isinstance(expr,sp.Set):
+        from .sets import encode_set
+        return encode_set(expr)
+    if isinstance(expr,sp.CRootOf):
+        from .algebra import algebraic_descriptor
+        return algebraic_descriptor(expr)[0]
     if isinstance(expr,sp.Integer):return node('Integer',value=str(expr))
     if isinstance(expr,sp.Rational):return node('Rational',numerator=str(expr.p),denominator=str(expr.q))
     if isinstance(expr,sp.Symbol):return node('Symbol',name=str(expr))

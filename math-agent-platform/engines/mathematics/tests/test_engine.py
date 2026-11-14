@@ -36,7 +36,7 @@ class EngineTests(unittest.TestCase):
                         {'schemaVersion':1,'tool':'convex_optimize','arguments':{'operation':'linear_program','linear':[float('nan')]}},
                         {'schemaVersion':1,'tool':'unknown','arguments':{}}]:
             r=execute(request);self.assertFalse(r['ok']);validate(r,RESPONSE_SCHEMA)
-        self.assertEqual(len(catalogue()),6)
+        self.assertEqual(len(catalogue()),13)
 
     def test_lp_primal_dual_and_table(self):
         v=self.optimization(operation='linear_program',linear=[1,2],inequalityMatrix=[[-1,-1]],inequalityBounds=[-1],lower=[0,0])

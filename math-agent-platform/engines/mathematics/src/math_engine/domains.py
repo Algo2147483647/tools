@@ -13,6 +13,15 @@ def analyze(ir, domain='real'):
     def walk(n):
         nonlocal complete
         kind=n['kind']
+        if kind=='Restricted':
+            walk(n['source']);walk(n['expression']);return
+        if kind=='Conditioned':
+            walk(n['expression'])
+            for condition in n['conditions']:
+                walk(condition);value=lower(condition,domain)
+                if not getattr(value,'is_Relational',False):raise ToolError('INVALID_ARGUMENT','Conditions must be relations or equations.')
+                add(value)
+            return
         for child in n.get('args',[]):walk(child)
         for row in n.get('rows',[]):
             for child in row:walk(child)

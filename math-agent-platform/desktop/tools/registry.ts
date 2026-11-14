@@ -6,51 +6,24 @@ const { mathDefinitions } = require('./math-tools.js') as typeof import('./math-
 const { DatasetStore } = require('./datasets.js') as typeof import('./datasets.js');
 const { ArtifactStore } = require('./artifacts.js') as typeof import('./artifacts.js');
 const error = (code: string, message: string) => Object.assign(Error(message), { code });
+const Ajv = require('ajv');
+const validator = new Ajv({strict:false, strictNumbers:true});
+const validators = new WeakMap<object, any>();
 function validate(value: any, schema: any, path = 'arguments') {
-    if (schema.type === 'object') {
-        if (!value || typeof value !== 'object' || Array.isArray(value))
-            throw error('INVALID_ARGUMENT', path + ' must be an object.');
-        for (const key of schema.required || [])
-            if (!Object.hasOwn(value, key))
-                throw error('INVALID_ARGUMENT', path + '.' + key + ' is required.');
-        for (const key of Object.keys(value)) {
-            if (!Object.hasOwn(schema.properties || {}, key)) {
-                if (schema.additionalProperties === false)
-                    throw error('INVALID_ARGUMENT', 'Unexpected argument: ' + key);
-            }
-            else
-                validate(value[key], schema.properties[key], path + '.' + key);
-        }
+    let check = validators.get(schema);
+    if (!check) { check = validator.compile(schema); validators.set(schema, check); }
+    if (!check(value)) {
+        const issue = check.errors?.[0];
+        throw error('INVALID_ARGUMENT', path + (issue?.instancePath || '') + ': ' + (issue?.message || 'Invalid value.'));
     }
-    else if (schema.type === 'string') {
-        if (typeof value !== 'string' || (schema.minLength !== 0 && !value.trim()) || value.length > (schema.maxLength || 65536))
-            throw error('INVALID_ARGUMENT', path + ' must be a nonempty bounded string.');
-    }
-    else if (schema.type === 'number' || schema.type === 'integer') {
-        if (!Number.isFinite(value) || (schema.type === 'integer' && !Number.isInteger(value)) || value < (schema.minimum ?? -Infinity) || value > (schema.maximum ?? Infinity))
-            throw error('INVALID_ARGUMENT', 'Invalid number: ' + path);
-    }
-    else if (schema.type === 'boolean') {
-        if (typeof value !== 'boolean')
-            throw error('INVALID_ARGUMENT', 'Invalid boolean: ' + path);
-    }
-    else if (schema.type === 'array') {
-        if (!Array.isArray(value) || value.length > (schema.maxItems ?? 1000) || value.length < (schema.minItems ?? 0))
-            throw error('INVALID_ARGUMENT', 'Invalid array: ' + path);
-        value.forEach((item, i) => validate(item, schema.items, path + '[' + i + ']'));
-    }
-    else
-        throw error('INVALID_SCHEMA', 'Unsupported tool schema.');
-    if (schema.enum && !schema.enum.includes(value))
-        throw error('INVALID_ARGUMENT', 'Unsupported value: ' + path);
 }
 function exactDefinition(computeFn: typeof compute): ToolDefinition {
     const descriptor = mathDefinitions(null).find(d => d.name === 'exact_math')!;
     return { ...descriptor,
-        async execute(args: any, { signal, progress }: {
-            signal: any;
-            progress: any;
-        }) {
+        async execute(args, context) {
+            const {signal, progress} = context;
+            if ((args.operation ?? 'evaluate') !== 'evaluate' || Object.keys(args).some(key => !['expression','operation'].includes(key)))
+                return descriptor.execute(args, context);
             const output = await computeFn(args.expression, signal, progress);
             if (output.verification?.status !== 'passed')
                 throw error('VERIFICATION_FAILED', 'Mathematical verification failed.');
@@ -111,7 +84,7 @@ class ToolRegistry {
         try {
             if (!definition)
                 throw error('UNKNOWN_TOOL', 'Unknown tool. Select a registered mathematics tool.');
-            if (definition.operations ? !definition.operations.includes(request.operation) || (request.arguments as JsonObject)?.operation !== request.operation : request.operation !== definition.operation)
+            if (definition.operations ? !definition.operations.includes(request.operation) || ((request.arguments as JsonObject)?.operation ?? definition.operation) !== request.operation : request.operation !== definition.operation)
                 throw error('INVALID_ARGUMENT', 'Unsupported operation.');
             validate(request.arguments, definition.parameters);
             emit({ type: 'tool.progress', callId: request.callId, stage: 'solving', message: 'Arguments validated; operation: ' + request.operation });

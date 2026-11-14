@@ -6,6 +6,14 @@ from jsonschema import Draft202012Validator
 from .common import ToolError
 
 CATALOGUE = json.loads(files('math_engine').joinpath('catalogue.json').read_text(encoding='utf-8'))
+from .ir_schema import MATH_IR_SCHEMA, REF
+for definition in CATALOGUE:
+    properties=definition['parameters']['properties']
+    fields=[key for key in ('ir','otherIR','set','universe') if key in properties]
+    if definition['name']=='set_math': fields.append('other')
+    if fields:
+        definition['parameters']['$defs']={'MathIR':MATH_IR_SCHEMA}
+        for key in fields:properties[key]=REF
 REQUEST_SCHEMA = {
     'type': 'object', 'required': ['schemaVersion', 'tool', 'arguments'], 'additionalProperties': False,
     'properties': {'schemaVersion': {'enum': [1, 2]}, 'tool': {'type': 'string', 'enum': [d['name'] for d in CATALOGUE]},
@@ -45,12 +53,15 @@ def validate_request(request):
 # v2 refines the result semantics while retaining v1 payload compatibility.
 from copy import deepcopy
 VALUE_V2_SCHEMA = deepcopy(VALUE_SCHEMA)
+VALUE_V2_SCHEMA['$defs']={'MathIR':MATH_IR_SCHEMA}
 VALUE_V2_SCHEMA['properties']['result'] = {
     'type':'object', 'required':['state','representation','completeness','domain'],
     'properties': {
         'state': {'enum':['computed','partial','unresolved']},
         'representation': {'enum':['exact','approximate','enclosure','mixed']},
         'completeness': {'enum':['complete','partial','unknown','not_applicable']},
+        'irVersion': {'const':1}, 'ir': {'anyOf':[REF,{'type':'null'}]}, 'inputIR': REF,
+        'quotient': REF, 'remainder': REF,
         'domain': {'type':'object','required':['declared','conditions','exclusions','analysisComplete'],
                    'properties':{'declared':{'type':'string'},'conditions':{'type':'array','items':{'type':'string'}},
                                  'exclusions':{'type':'array'},'analysisComplete':{'type':'boolean'}}, 'additionalProperties':False}
@@ -65,3 +76,4 @@ VALUE_V2_SCHEMA['properties']['verification'] = {
                           'passed':{'type':'boolean'},'evidence':{'type':'string'}}}}}, 'additionalProperties':False}
 RESPONSE_SCHEMA['allOf'] = [{'if': {'properties':{'schemaVersion':{'const':2},'ok':{'const':True}}},
                             'then': {'properties':{'value':VALUE_V2_SCHEMA}}}]
+RESPONSE_SCHEMA['$defs']={'MathIR':MATH_IR_SCHEMA}

@@ -125,3 +125,14 @@ Symbolic integration endpoints may be exact strings, e.g. ["0", "1/3"],
 ["0", "pi"] or large integer strings. No endpoint passes through float. Legacy JSON
 floating-point endpoints use their received decimal representation, with a warning;
 use strings to preserve original decimal literals across languages.
+
+
+## M1 structured mathematics
+
+The shared MathIR parser now serves exact, symbolic, numerical and plotting input.
+New tools are structure_math (ASCII/LaTeX/MathIR), algebra_math (radicals, real
+algebraic numbers and bounded polynomials), and set_math (exact real sets).
+Exact arithmetic adds scientific notation, floor/ceil/truncate, mod, compare and
+round. Computational tools accept MathIR directly; Restricted nodes preserve domain
+conditions across simplification and reuse. See [MathIR and exact algebra](../../docs/MATHIR.md)
+for schemas, examples, supported syntax, budgets and mathematical boundaries.

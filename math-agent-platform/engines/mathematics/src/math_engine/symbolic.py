@@ -4,14 +4,15 @@ import numpy as np
 from .common import *
 def symbolic(args):
     op=args['operation'];domain=args.get('domain','real');x=symbol(args.get('variable','x'),domain)
-    from .ir import parse,lower,encode
+    from .ir import input_tree,lower,encode
     from .domains import analyze,filter_solutions
-    tree=parse(args['expression'],args.get('format','ascii'))
+    tree=input_tree(args)
     constraints,domain_info=analyze(tree,domain)
     parsed=lower(tree,domain)
-    if tree['kind']=='Matrix':raise ToolError('UNSUPPORTED','Use structure_math to parse matrices.')
-    if tree['kind']=='Equation' and op!='solve':raise ToolError('INVALID_ARGUMENT','Equations require solve.')
-    expr=parsed.lhs-parsed.rhs if tree['kind']=='Equation' else parsed
+    if isinstance(parsed,sp.MatrixBase):raise ToolError('UNSUPPORTED','Use structure_math to parse matrices.')
+    if isinstance(parsed,sp.Equality) and op!='solve':raise ToolError('INVALID_ARGUMENT','Equations require solve.')
+    expr=parsed.lhs-parsed.rhs if isinstance(parsed,sp.Equality) else parsed
+    if not isinstance(expr,sp.Expr):raise ToolError('INVALID_ARGUMENT','Symbolic operations require scalar expressions.')
     checks=[];notes=[]
     assumptions=['Symbols are '+domain+'.']+domain_info['conditions']
     if op in ('simplify','expand','factor'):result={'simplify':sp.simplify,'expand':sp.expand,'factor':sp.factor}[op](expr);check=sp.simplify(expr-result)==0;checks=[{'name':'symbolic equivalence','passed':check}]
@@ -38,7 +39,16 @@ def symbolic(args):
     else:raise ToolError('UNSUPPORTED','Unsupported symbolic operation.')
     unresolved=result.has(sp.Integral,sp.Derivative,sp.Limit)
     if unresolved:notes.append('The symbolic engine returned an unevaluated expression.')
-    try: result_ir=encode(result)
-    except ToolError: result_ir=None
+    try:
+        result_ir=encode(result)
+        _,output_domain=analyze(result_ir,domain)
+        domain_info['conditions']=list(dict.fromkeys(domain_info['conditions']+output_domain['conditions']))
+        domain_info['exclusions']=list(dict.fromkeys(domain_info['exclusions']+output_domain['exclusions']))
+        domain_info['analysisComplete'] &= output_domain['analysisComplete']
+        if domain_info['conditions'] or not domain_info['analysisComplete']:
+            result_ir={'kind':'Restricted','expression':result_ir,'source':tree}
+    except ToolError:
+        result_ir=None
+        domain_info['analysisComplete']=False
     return value_result({'inputIR':tree,'ir':result_ir,'irVersion':1,'domain':domain_info,'kind':'expression','expression':str(result),'latex':sp.latex(result),'exact':not result.has(sp.Float),'state':'unresolved' if unresolved else 'computed'},[math_view(result)],{'engine':'SymPy','version':sp.__version__},checked('passed' if checks and all(c['passed'] for c in checks) else 'not_checked','Symbolic consistency checks use the same engine, not an independent proof.',checks),assumptions,notes)
 

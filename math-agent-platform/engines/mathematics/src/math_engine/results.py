@@ -5,12 +5,13 @@ from copy import deepcopy
 def normalize(value, tool, arguments):
     value = deepcopy(value)
     result = value['result']
+    if result.get('ir') is not None or 'inputIR' in result:result.setdefault('irVersion',1)
     old_state = result.get('state')
     if old_state is not None: result['legacyState'] = old_state
     result['state'] = old_state if old_state in ('partial', 'unresolved') else 'computed'
     result.setdefault('representation', 'exact' if tool == 'exact_math' or (tool == 'symbolic_math' and result.get('exact', True)) else 'approximate')
     solving = arguments.get('operation') in ('solve', 'root')
-    result['completeness'] = 'unknown' if solving else 'not_applicable'
+    result.setdefault('completeness', 'unknown' if solving else 'not_applicable')
     if tool == 'exact_math' and arguments.get('operation','evaluate')=='evaluate': result['completeness'] = 'complete'
     result.setdefault('domain', dict(declared=arguments.get('domain', 'real'), conditions=value['assumptions'],
                             exclusions=[], analysisComplete=tool == 'exact_math'))

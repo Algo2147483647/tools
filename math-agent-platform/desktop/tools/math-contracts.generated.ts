@@ -5,7 +5,7 @@ export const mathCatalogue = [
     "version": "2.0.0",
     "operation": "evaluate",
     "timeoutMs": 30000,
-    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. Rational constants support integer powers with ^ or **, including negative exponents (absolute exponent <=4096). Powers bind before unary minus and associate right. Zero to zero/negative powers, fractional/variable exponents and nonlinear variable powers are rejected. No variable denominators. Independently checks substitution and affine conditions.",
+    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. Rational constants support integer powers with ^ or **, including negative exponents (absolute exponent <=4096). Powers bind before unary minus and associate right. Zero to zero/negative powers, fractional/variable exponents and nonlinear variable powers are rejected. No variable denominators. Independently checks substitution and affine conditions. format=latex accepts a strict subset: fractions, square roots, powers, braced functions; unsupported or ambiguous input is rejected. Scientific notation is exact. floor/ceil/truncate take expression; mod/compare require other. mod=a-b*floor(a/b), compare returns -1/0/1. round accepts digits (-100..100), rounding=half_even (default) or half_away_from_zero. Supply exactly one of expression or ir; MathIR can be reused directly without reparsing display text.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -13,13 +13,925 @@ export const mathCatalogue = [
           "type": "string",
           "minLength": 1,
           "maxLength": 4096
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "ascii",
+            "latex"
+          ]
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "evaluate",
+            "floor",
+            "ceil",
+            "truncate",
+            "mod",
+            "compare",
+            "round"
+          ]
+        },
+        "other": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "digits": {
+          "type": "integer",
+          "minimum": -100,
+          "maximum": 100
+        },
+        "rounding": {
+          "type": "string",
+          "enum": [
+            "half_even",
+            "half_away_from_zero"
+          ]
+        },
+        "ir": {
+          "$ref": "#/$defs/MathIR"
         }
       },
-      "required": [
-        "expression"
+      "required": [],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "expression"
+          ],
+          "not": {
+            "required": [
+              "ir"
+            ]
+          }
+        },
+        {
+          "required": [
+            "ir"
+          ],
+          "not": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
       ],
-      "additionalProperties": false
-    }
+      "$defs": {
+        "MathIR": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "Integer",
+                "DecimalLiteral",
+                "Rational",
+                "Symbol",
+                "Constant",
+                "Unary",
+                "Add",
+                "Subtract",
+                "Multiply",
+                "Divide",
+                "Power",
+                "Equation",
+                "Union",
+                "Intersection",
+                "Complement",
+                "Function",
+                "Matrix",
+                "Restricted",
+                "Conditioned",
+                "Relation",
+                "Algebraic",
+                "EmptySet",
+                "Universe",
+                "FiniteSet",
+                "Interval"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  },
+                  "value": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  },
+                  "numerator": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  },
+                  "denominator": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,1233}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  },
+                  "name": {
+                    "enum": [
+                      "pi",
+                      "E"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  },
+                  "operator": {
+                    "enum": [
+                      "+",
+                      "-"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "operator",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  },
+                  "name": {
+                    "enum": [
+                      "sin",
+                      "cos",
+                      "tan",
+                      "asin",
+                      "acos",
+                      "atan",
+                      "sinh",
+                      "cosh",
+                      "tanh",
+                      "exp",
+                      "log",
+                      "sqrt",
+                      "abs"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  },
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "source": {
+                    "$ref": "#/$defs/MathIR"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 16
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "conditions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  },
+                  "relation": {
+                    "enum": [
+                      "!=",
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "relation",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  },
+                  "polynomial": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^-?\\d{1,256}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 17
+                  },
+                  "realRootIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "required": [
+                  "kind",
+                  "polynomial",
+                  "realRootIndex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  },
+                  "name": {
+                    "enum": [
+                      "Reals",
+                      "Integers"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 0,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "elements"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  },
+                  "start": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "-inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "leftOpen": {
+                    "type": "boolean"
+                  },
+                  "rightOpen": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "start",
+                  "end",
+                  "leftOpen",
+                  "rightOpen"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    "operations": [
+      "evaluate",
+      "floor",
+      "ceil",
+      "truncate",
+      "mod",
+      "compare",
+      "round"
+    ]
   },
   {
     "name": "symbolic_math",
@@ -34,7 +946,7 @@ export const mathCatalogue = [
       "limit"
     ],
     "timeoutMs": 30000,
-    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code. Exact integration endpoints accept strings such as 1/3 or pi; use strings to preserve decimal precision.",
+    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code. Exact integration endpoints accept strings such as 1/3 or pi; use strings to preserve decimal precision. format=latex accepts a strict subset: fractions, square roots, powers, braced functions; unsupported or ambiguous input is rejected. Supply exactly one of expression or ir; MathIR can be reused directly without reparsing display text.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -98,13 +1010,888 @@ export const mathCatalogue = [
             "-",
             "+-"
           ]
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "ascii",
+            "latex"
+          ]
+        },
+        "ir": {
+          "$ref": "#/$defs/MathIR"
         }
       },
       "required": [
-        "operation",
-        "expression"
+        "operation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "expression"
+          ],
+          "not": {
+            "required": [
+              "ir"
+            ]
+          }
+        },
+        {
+          "required": [
+            "ir"
+          ],
+          "not": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "$defs": {
+        "MathIR": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "Integer",
+                "DecimalLiteral",
+                "Rational",
+                "Symbol",
+                "Constant",
+                "Unary",
+                "Add",
+                "Subtract",
+                "Multiply",
+                "Divide",
+                "Power",
+                "Equation",
+                "Union",
+                "Intersection",
+                "Complement",
+                "Function",
+                "Matrix",
+                "Restricted",
+                "Conditioned",
+                "Relation",
+                "Algebraic",
+                "EmptySet",
+                "Universe",
+                "FiniteSet",
+                "Interval"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  },
+                  "value": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  },
+                  "numerator": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  },
+                  "denominator": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,1233}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  },
+                  "name": {
+                    "enum": [
+                      "pi",
+                      "E"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  },
+                  "operator": {
+                    "enum": [
+                      "+",
+                      "-"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "operator",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  },
+                  "name": {
+                    "enum": [
+                      "sin",
+                      "cos",
+                      "tan",
+                      "asin",
+                      "acos",
+                      "atan",
+                      "sinh",
+                      "cosh",
+                      "tanh",
+                      "exp",
+                      "log",
+                      "sqrt",
+                      "abs"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  },
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "source": {
+                    "$ref": "#/$defs/MathIR"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 16
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "conditions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  },
+                  "relation": {
+                    "enum": [
+                      "!=",
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "relation",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  },
+                  "polynomial": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^-?\\d{1,256}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 17
+                  },
+                  "realRootIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "required": [
+                  "kind",
+                  "polynomial",
+                  "realRootIndex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  },
+                  "name": {
+                    "enum": [
+                      "Reals",
+                      "Integers"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 0,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "elements"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  },
+                  "start": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "-inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "leftOpen": {
+                    "type": "boolean"
+                  },
+                  "rightOpen": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "start",
+                  "end",
+                  "leftOpen",
+                  "rightOpen"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      }
     }
   },
   {
@@ -115,10 +1902,12 @@ export const mathCatalogue = [
       "integrate",
       "minimize",
       "linear_solve",
-      "eigenvalues"
+      "eigenvalues",
+      "roots",
+      "system_root"
     ],
     "timeoutMs": 30000,
-    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds.",
+    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds. roots isolates all real polynomial roots (multiplicity and exact intervals), otherwise returns an incomplete scan plus unresolved intervals. system_root takes expressions, variables and initialGuess and returns one local candidate, never all solutions.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -129,7 +1918,9 @@ export const mathCatalogue = [
             "integrate",
             "minimize",
             "linear_solve",
-            "eigenvalues"
+            "eigenvalues",
+            "roots",
+            "system_root"
           ]
         },
         "expression": {
@@ -215,6 +2006,38 @@ export const mathCatalogue = [
               "type": "boolean"
             }
           }
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+          },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "initialGuess": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "samples": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 1000
         }
       },
       "required": [
@@ -436,7 +2259,7 @@ export const mathCatalogue = [
       "second_order_cone"
     ],
     "timeoutMs": 30000,
-    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds.",
+    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof. Precision specifies absolute/relative tolerances and iteration budget; mutually exclusive with tolerance. Only standard binary64 is currently supported; requested tolerances are not certified error bounds. Also checks available numerical KKT conditions; definite infeasible/unbounded LP statuses trigger a bounded witness search accepted only after exact rational verification.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -651,6 +2474,3476 @@ export const mathCatalogue = [
       ],
       "additionalProperties": false
     }
+  },
+  {
+    "name": "structure_math",
+    "version": "1.0.0",
+    "operations": [
+      "parse"
+    ],
+    "timeoutMs": 30000,
+    "description": "Parse exactly one expression or MathIR object. Returns irVersion=1, lossless syntax, normalized preview and original domain restrictions. LaTeX subset: frac, sqrt, powers, single-letter/subscripted variables, braced functions, matrix/pmatrix/bmatrix. Unknown macros, indexed roots, bare function arguments and partial input are rejected. MathIR number values are strings; nodes include Integer, Rational, DecimalLiteral, Symbol, arithmetic, Equation, Matrix, Algebraic and sets.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "const": "parse",
+          "type": "string"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "ir": {
+          "$ref": "#/$defs/MathIR"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "ascii",
+            "latex"
+          ]
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "real",
+            "complex"
+          ]
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "$defs": {
+        "MathIR": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "Integer",
+                "DecimalLiteral",
+                "Rational",
+                "Symbol",
+                "Constant",
+                "Unary",
+                "Add",
+                "Subtract",
+                "Multiply",
+                "Divide",
+                "Power",
+                "Equation",
+                "Union",
+                "Intersection",
+                "Complement",
+                "Function",
+                "Matrix",
+                "Restricted",
+                "Conditioned",
+                "Relation",
+                "Algebraic",
+                "EmptySet",
+                "Universe",
+                "FiniteSet",
+                "Interval"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  },
+                  "value": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  },
+                  "numerator": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  },
+                  "denominator": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,1233}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  },
+                  "name": {
+                    "enum": [
+                      "pi",
+                      "E"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  },
+                  "operator": {
+                    "enum": [
+                      "+",
+                      "-"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "operator",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  },
+                  "name": {
+                    "enum": [
+                      "sin",
+                      "cos",
+                      "tan",
+                      "asin",
+                      "acos",
+                      "atan",
+                      "sinh",
+                      "cosh",
+                      "tanh",
+                      "exp",
+                      "log",
+                      "sqrt",
+                      "abs"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  },
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "source": {
+                    "$ref": "#/$defs/MathIR"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 16
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "conditions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  },
+                  "relation": {
+                    "enum": [
+                      "!=",
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "relation",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  },
+                  "polynomial": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^-?\\d{1,256}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 17
+                  },
+                  "realRootIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "required": [
+                  "kind",
+                  "polynomial",
+                  "realRootIndex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  },
+                  "name": {
+                    "enum": [
+                      "Reals",
+                      "Integers"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 0,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "elements"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  },
+                  "start": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "-inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "leftOpen": {
+                    "type": "boolean"
+                  },
+                  "rightOpen": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "start",
+                  "end",
+                  "leftOpen",
+                  "rightOpen"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    "operation": "parse"
+  },
+  {
+    "name": "algebra_math",
+    "version": "1.0.0",
+    "operations": [
+      "radical_simplify",
+      "algebraic_add",
+      "algebraic_subtract",
+      "algebraic_multiply",
+      "algebraic_divide",
+      "algebraic_equal",
+      "minimal_polynomial",
+      "divide",
+      "gcd",
+      "factor",
+      "square_free",
+      "resultant",
+      "isolate_roots"
+    ],
+    "timeoutMs": 30000,
+    "description": "Exact radicals, real algebraic constants and polynomials. Binary operations require other. Algebraic outputs identify increasing real roots of an integer minimal polynomial with rational isolating intervals; degree <=16. Polynomials declare variables (default [x]), coefficientDomain QQ/ZZ; degree <=20, terms <=200. divide returns quotient/remainder; gcd, factor, square_free, resultant and all-real-root isolate_roots are supported. Resultants are elimination constraints, not complete equation solutions. Supply exactly one of expression or ir; MathIR can be reused directly without reparsing display text.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "radical_simplify",
+            "algebraic_add",
+            "algebraic_subtract",
+            "algebraic_multiply",
+            "algebraic_divide",
+            "algebraic_equal",
+            "minimal_polynomial",
+            "divide",
+            "gcd",
+            "factor",
+            "square_free",
+            "resultant",
+            "isolate_roots"
+          ]
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "other": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "ascii",
+            "latex"
+          ]
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "real",
+            "complex"
+          ]
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "coefficientDomain": {
+          "type": "string",
+          "enum": [
+            "QQ",
+            "ZZ"
+          ]
+        },
+        "eliminate": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "ir": {
+          "$ref": "#/$defs/MathIR"
+        },
+        "otherIR": {
+          "$ref": "#/$defs/MathIR"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "expression"
+          ],
+          "not": {
+            "required": [
+              "ir"
+            ]
+          }
+        },
+        {
+          "required": [
+            "ir"
+          ],
+          "not": {
+            "required": [
+              "expression"
+            ]
+          }
+        }
+      ],
+      "$defs": {
+        "MathIR": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "Integer",
+                "DecimalLiteral",
+                "Rational",
+                "Symbol",
+                "Constant",
+                "Unary",
+                "Add",
+                "Subtract",
+                "Multiply",
+                "Divide",
+                "Power",
+                "Equation",
+                "Union",
+                "Intersection",
+                "Complement",
+                "Function",
+                "Matrix",
+                "Restricted",
+                "Conditioned",
+                "Relation",
+                "Algebraic",
+                "EmptySet",
+                "Universe",
+                "FiniteSet",
+                "Interval"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  },
+                  "value": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  },
+                  "numerator": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  },
+                  "denominator": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,1233}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  },
+                  "name": {
+                    "enum": [
+                      "pi",
+                      "E"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  },
+                  "operator": {
+                    "enum": [
+                      "+",
+                      "-"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "operator",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  },
+                  "name": {
+                    "enum": [
+                      "sin",
+                      "cos",
+                      "tan",
+                      "asin",
+                      "acos",
+                      "atan",
+                      "sinh",
+                      "cosh",
+                      "tanh",
+                      "exp",
+                      "log",
+                      "sqrt",
+                      "abs"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  },
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "source": {
+                    "$ref": "#/$defs/MathIR"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 16
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "conditions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  },
+                  "relation": {
+                    "enum": [
+                      "!=",
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "relation",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  },
+                  "polynomial": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^-?\\d{1,256}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 17
+                  },
+                  "realRootIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "required": [
+                  "kind",
+                  "polynomial",
+                  "realRootIndex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  },
+                  "name": {
+                    "enum": [
+                      "Reals",
+                      "Integers"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 0,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "elements"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  },
+                  "start": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "-inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "leftOpen": {
+                    "type": "boolean"
+                  },
+                  "rightOpen": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "start",
+                  "end",
+                  "leftOpen",
+                  "rightOpen"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "set_math",
+    "version": "1.0.0",
+    "operations": [
+      "normalize",
+      "union",
+      "intersection",
+      "difference",
+      "complement"
+    ],
+    "timeoutMs": 30000,
+    "description": "Exact MathIR set operations. FiniteSet uses elements of real constant MathIR nodes. Interval uses start/end MathIR nodes or -inf/inf strings plus leftOpen/rightOpen booleans. Universe name is Reals or Integers. Union/Intersection/Complement nodes use two args. complement requires explicit universe and provable containment. Binary union/intersection/difference require other. Infinite endpoints must be open.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "normalize",
+            "union",
+            "intersection",
+            "difference",
+            "complement"
+          ]
+        },
+        "set": {
+          "$ref": "#/$defs/MathIR"
+        },
+        "other": {
+          "$ref": "#/$defs/MathIR"
+        },
+        "universe": {
+          "$ref": "#/$defs/MathIR"
+        }
+      },
+      "required": [
+        "operation",
+        "set"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "MathIR": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "Integer",
+                "DecimalLiteral",
+                "Rational",
+                "Symbol",
+                "Constant",
+                "Unary",
+                "Add",
+                "Subtract",
+                "Multiply",
+                "Divide",
+                "Power",
+                "Equation",
+                "Union",
+                "Intersection",
+                "Complement",
+                "Function",
+                "Matrix",
+                "Restricted",
+                "Conditioned",
+                "Relation",
+                "Algebraic",
+                "EmptySet",
+                "Universe",
+                "FiniteSet",
+                "Interval"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Integer"
+                  },
+                  "value": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "DecimalLiteral"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Rational"
+                  },
+                  "numerator": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,1234}$"
+                  },
+                  "denominator": {
+                    "type": "string",
+                    "pattern": "^[1-9]\\d{0,1233}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "numerator",
+                  "denominator"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Symbol"
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Constant"
+                  },
+                  "name": {
+                    "enum": [
+                      "pi",
+                      "E"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Unary"
+                  },
+                  "operator": {
+                    "enum": [
+                      "+",
+                      "-"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "operator",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Add"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Subtract"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Multiply"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Divide"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Power"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Equation"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Union"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Intersection"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Complement"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Function"
+                  },
+                  "name": {
+                    "enum": [
+                      "sin",
+                      "cos",
+                      "tan",
+                      "asin",
+                      "acos",
+                      "atan",
+                      "sinh",
+                      "cosh",
+                      "tanh",
+                      "exp",
+                      "log",
+                      "sqrt",
+                      "abs"
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Matrix"
+                  },
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Restricted"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "source": {
+                    "$ref": "#/$defs/MathIR"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "source"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Conditioned"
+                  },
+                  "expression": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 16
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expression",
+                  "conditions"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Relation"
+                  },
+                  "relation": {
+                    "enum": [
+                      "!=",
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "required": [
+                  "kind",
+                  "relation",
+                  "args"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Algebraic"
+                  },
+                  "polynomial": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^-?\\d{1,256}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 17
+                  },
+                  "realRootIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 15
+                  }
+                },
+                "required": [
+                  "kind",
+                  "polynomial",
+                  "realRootIndex"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "EmptySet"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Universe"
+                  },
+                  "name": {
+                    "enum": [
+                      "Reals",
+                      "Integers"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "FiniteSet"
+                  },
+                  "elements": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 0,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "kind",
+                  "elements"
+                ],
+                "additionalProperties": false
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  }
+                }
+              },
+              "then": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "Interval"
+                  },
+                  "start": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "-inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/MathIR"
+                      },
+                      {
+                        "enum": [
+                          "inf"
+                        ]
+                      }
+                    ]
+                  },
+                  "leftOpen": {
+                    "type": "boolean"
+                  },
+                  "rightOpen": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "start",
+                  "end",
+                  "leftOpen",
+                  "rightOpen"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "equation_math",
+    "version": "1.0.0",
+    "operations": [
+      "single",
+      "linear_system",
+      "polynomial_system",
+      "inequalities"
+    ],
+    "timeoutMs": 30000,
+    "description": "Exact real equations with original-domain checks. single solves one equation. linear_system supports exact systems and one real rational-function parameter with at most 3 rows/unknowns; returns generic and exceptional parameter branches. polynomial_system handles bounded zero-dimensional QQ systems (3 unknowns, degree 4); positive-dimensional or unrepresented cases remain unresolved. inequalities handles one real variable with explicit relation records. Completeness and candidate verification are distinct.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "single",
+            "linear_system",
+            "polynomial_system",
+            "inequalities"
+          ]
+        },
+        "equations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "maxItems": 4
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+          },
+          "minItems": 0,
+          "maxItems": 1
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "ascii",
+            "latex"
+          ]
+        },
+        "inequalities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "left": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "right": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "relation": {
+                "type": "string",
+                "enum": [
+                  "<",
+                  "<=",
+                  ">",
+                  ">=",
+                  "!=",
+                  "="
+                ]
+              }
+            },
+            "required": [
+              "left",
+              "right",
+              "relation"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "matrix_math",
+    "version": "1.0.0",
+    "operations": [
+      "determinant",
+      "rank",
+      "inverse",
+      "nullspace",
+      "solve",
+      "quadratic_form",
+      "qr",
+      "svd",
+      "least_squares",
+      "sparse_solve"
+    ],
+    "timeoutMs": 30000,
+    "description": "Exact real algebraic matrices (strings/integers, at most 12x12): determinant, rank, inverse, nullspace, solve with free parameters, quadratic-form inertia. Numeric QR/SVD/least_squares/solve report residuals and conditioning. Sparse COO square solve uses GMRES without densification. Default mode is numeric for qr/svd/least_squares/sparse_solve and exact otherwise; JSON floats are rejected in exact mode.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "determinant",
+            "rank",
+            "inverse",
+            "nullspace",
+            "solve",
+            "quadratic_form",
+            "qr",
+            "svd",
+            "least_squares",
+            "sparse_solve"
+          ]
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "exact",
+            "numeric"
+          ]
+        },
+        "matrix": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "vector": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2000
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 1e-14,
+          "maximum": 0.01
+        },
+        "rankTolerance": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "sparse": {
+          "type": "object",
+          "properties": {
+            "shape": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2000
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1999
+              },
+              "minItems": 1,
+              "maxItems": 20000
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1999
+              },
+              "minItems": 1,
+              "maxItems": 20000
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1,
+              "maxItems": 20000
+            }
+          },
+          "required": [
+            "shape",
+            "rows",
+            "columns",
+            "values"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "calculus_math",
+    "version": "1.0.0",
+    "operations": [
+      "partial",
+      "gradient",
+      "jacobian",
+      "hessian",
+      "implicit_derivative",
+      "integrate",
+      "piecewise_integrate"
+    ],
+    "timeoutMs": 30000,
+    "description": "Multivariable partials, gradient, Jacobian, Hessian, implicit derivative for [independent,dependent]. Optional verifyAt provides a local finite-difference heuristic. integrate limits follow variables IN INNERMOST-TO-OUTERMOST ORDER; bounds may depend only on later variables, inf/-inf accepted. Symbolic improper/multiple integration separates interior singularities when enumerable. piecewise_integrate takes ordered disjoint segments; sums those segments only. Numeric integration supports one dimension, reports estimated error and unknown convergence, not a principal value or strict bound.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "partial",
+            "gradient",
+            "jacobian",
+            "hessian",
+            "implicit_derivative",
+            "integrate",
+            "piecewise_integrate"
+          ]
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "ascii",
+            "latex"
+          ]
+        },
+        "verifyAt": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "variable": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+              },
+              "lower": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "upper": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            },
+            "required": [
+              "variable",
+              "lower",
+              "upper"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lower": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "upper": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "expression": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            },
+            "required": [
+              "lower",
+              "upper",
+              "expression"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "symbolic",
+            "numeric"
+          ]
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 1e-14,
+          "maximum": 0.01
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "convex_model",
+    "version": "1.0.0",
+    "operations": [
+      "solve"
+    ],
+    "timeoutMs": 30000,
+    "description": "Named continuous convex modeling. Expression nodes: constant(value), variable(name), parameter(name); binary add/subtract/multiply/matmul/quad_form(args); unary negate/sum/max/abs/sum_squares/norm(args, optional order 1/2/inf), index(args,index). One operand of products must be constant. Explicit shapes; <=/>=/= constraints. CLARABEL via CVXPY DCP canonicalization. Returns named primal/dual values, FULL original objective including constants, per-constraint residuals and available numerical KKT checks. Unknown atoms and non-DCP models are rejected; no integer variables.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "solve"
+          ]
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+              },
+              "shape": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "minItems": 0,
+                "maxItems": 2
+              },
+              "lower": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                ]
+              },
+              "upper": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1,
+                "maxItems": 100
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 1,
+                  "maxItems": 100
+                },
+                "minItems": 1,
+                "maxItems": 100
+              }
+            ]
+          }
+        },
+        "objective": {
+          "type": "object",
+          "properties": {
+            "sense": {
+              "type": "string",
+              "enum": [
+                "minimize",
+                "maximize"
+              ]
+            },
+            "expression": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "expression"
+          ],
+          "additionalProperties": false
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+              },
+              "left": {
+                "type": "object"
+              },
+              "relation": {
+                "type": "string",
+                "enum": [
+                  "<=",
+                  ">=",
+                  "="
+                ]
+              },
+              "right": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "left",
+              "relation",
+              "right"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 100
+        },
+        "precision": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "high_precision",
+                "certified"
+              ]
+            },
+            "absoluteTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "relativeTolerance": {
+              "type": "number",
+              "minimum": 1e-14,
+              "maximum": 0.01
+            },
+            "workingDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "maxIterations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "certificationRequired": {
+              "type": "boolean"
+            }
+          }
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 1e-14,
+          "maximum": 0.01
+        }
+      },
+      "required": [
+        "operation",
+        "variables",
+        "objective"
+      ],
+      "additionalProperties": false
+    }
   }
 ] as const;
 export const mathWireSchemas = {
@@ -677,7 +5970,14 @@ export const mathWireSchemas = {
           "numeric_math",
           "plot_math",
           "analyze_data",
-          "convex_optimize"
+          "convex_optimize",
+          "structure_math",
+          "algebra_math",
+          "set_math",
+          "equation_math",
+          "matrix_math",
+          "calculus_math",
+          "convex_model"
         ]
       },
       "arguments": {
@@ -869,6 +6169,28 @@ export const mathWireSchemas = {
                         "not_applicable"
                       ]
                     },
+                    "irVersion": {
+                      "const": 1
+                    },
+                    "ir": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/MathIR"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "inputIR": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "quotient": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "remainder": {
+                      "$ref": "#/$defs/MathIR"
+                    },
                     "domain": {
                       "type": "object",
                       "required": [
@@ -979,22 +6301,1718 @@ export const mathWireSchemas = {
                   }
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "$defs": {
+                "MathIR": {
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "Integer",
+                        "DecimalLiteral",
+                        "Rational",
+                        "Symbol",
+                        "Constant",
+                        "Unary",
+                        "Add",
+                        "Subtract",
+                        "Multiply",
+                        "Divide",
+                        "Power",
+                        "Equation",
+                        "Union",
+                        "Intersection",
+                        "Complement",
+                        "Function",
+                        "Matrix",
+                        "Restricted",
+                        "Conditioned",
+                        "Relation",
+                        "Algebraic",
+                        "EmptySet",
+                        "Universe",
+                        "FiniteSet",
+                        "Interval"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Integer"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Integer"
+                          },
+                          "value": {
+                            "type": "string",
+                            "pattern": "^-?\\d{1,1234}$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "DecimalLiteral"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "DecimalLiteral"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256,
+                            "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Rational"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Rational"
+                          },
+                          "numerator": {
+                            "type": "string",
+                            "pattern": "^-?\\d{1,1234}$"
+                          },
+                          "denominator": {
+                            "type": "string",
+                            "pattern": "^[1-9]\\d{0,1233}$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "numerator",
+                          "denominator"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Symbol"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Symbol"
+                          },
+                          "name": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Constant"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Constant"
+                          },
+                          "name": {
+                            "enum": [
+                              "pi",
+                              "E"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Unary"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Unary"
+                          },
+                          "operator": {
+                            "enum": [
+                              "+",
+                              "-"
+                            ]
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 1,
+                            "maxItems": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "operator",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Add"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Add"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Subtract"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Subtract"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Multiply"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Multiply"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Divide"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Divide"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Power"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Power"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Equation"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Equation"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Union"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Union"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Intersection"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Intersection"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Complement"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Complement"
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Function"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Function"
+                          },
+                          "name": {
+                            "enum": [
+                              "sin",
+                              "cos",
+                              "tan",
+                              "asin",
+                              "acos",
+                              "atan",
+                              "sinh",
+                              "cosh",
+                              "tanh",
+                              "exp",
+                              "log",
+                              "sqrt",
+                              "abs"
+                            ]
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 1,
+                            "maxItems": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Matrix"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Matrix"
+                          },
+                          "rows": {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/$defs/MathIR"
+                              },
+                              "minItems": 1,
+                              "maxItems": 100
+                            },
+                            "minItems": 1,
+                            "maxItems": 100
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "rows"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Restricted"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Restricted"
+                          },
+                          "expression": {
+                            "$ref": "#/$defs/MathIR"
+                          },
+                          "source": {
+                            "$ref": "#/$defs/MathIR"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "expression",
+                          "source"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Conditioned"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Conditioned"
+                          },
+                          "expression": {
+                            "$ref": "#/$defs/MathIR"
+                          },
+                          "conditions": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 1,
+                            "maxItems": 16
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "expression",
+                          "conditions"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Relation"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Relation"
+                          },
+                          "relation": {
+                            "enum": [
+                              "!=",
+                              "<",
+                              "<=",
+                              ">",
+                              ">="
+                            ]
+                          },
+                          "args": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "relation",
+                          "args"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Algebraic"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Algebraic"
+                          },
+                          "polynomial": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "pattern": "^-?\\d{1,256}$"
+                            },
+                            "minItems": 2,
+                            "maxItems": 17
+                          },
+                          "realRootIndex": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 15
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "polynomial",
+                          "realRootIndex"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "EmptySet"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "EmptySet"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Universe"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Universe"
+                          },
+                          "name": {
+                            "enum": [
+                              "Reals",
+                              "Integers"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "FiniteSet"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "FiniteSet"
+                          },
+                          "elements": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/$defs/MathIR"
+                            },
+                            "minItems": 0,
+                            "maxItems": 100
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "elements"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "Interval"
+                          }
+                        }
+                      },
+                      "then": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "Interval"
+                          },
+                          "start": {
+                            "anyOf": [
+                              {
+                                "$ref": "#/$defs/MathIR"
+                              },
+                              {
+                                "enum": [
+                                  "-inf"
+                                ]
+                              }
+                            ]
+                          },
+                          "end": {
+                            "anyOf": [
+                              {
+                                "$ref": "#/$defs/MathIR"
+                              },
+                              {
+                                "enum": [
+                                  "inf"
+                                ]
+                              }
+                            ]
+                          },
+                          "leftOpen": {
+                            "type": "boolean"
+                          },
+                          "rightOpen": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "start",
+                          "end",
+                          "leftOpen",
+                          "rightOpen"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         }
       }
-    ]
+    ],
+    "$defs": {
+      "MathIR": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "Integer",
+              "DecimalLiteral",
+              "Rational",
+              "Symbol",
+              "Constant",
+              "Unary",
+              "Add",
+              "Subtract",
+              "Multiply",
+              "Divide",
+              "Power",
+              "Equation",
+              "Union",
+              "Intersection",
+              "Complement",
+              "Function",
+              "Matrix",
+              "Restricted",
+              "Conditioned",
+              "Relation",
+              "Algebraic",
+              "EmptySet",
+              "Universe",
+              "FiniteSet",
+              "Interval"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Integer"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Integer"
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "^-?\\d{1,1234}$"
+                }
+              },
+              "required": [
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "DecimalLiteral"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "DecimalLiteral"
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "pattern": "^(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$"
+                }
+              },
+              "required": [
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Rational"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Rational"
+                },
+                "numerator": {
+                  "type": "string",
+                  "pattern": "^-?\\d{1,1234}$"
+                },
+                "denominator": {
+                  "type": "string",
+                  "pattern": "^[1-9]\\d{0,1233}$"
+                }
+              },
+              "required": [
+                "kind",
+                "numerator",
+                "denominator"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Symbol"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Symbol"
+                },
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]{0,23}$"
+                }
+              },
+              "required": [
+                "kind",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Constant"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Constant"
+                },
+                "name": {
+                  "enum": [
+                    "pi",
+                    "E"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Unary"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Unary"
+                },
+                "operator": {
+                  "enum": [
+                    "+",
+                    "-"
+                  ]
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 1,
+                  "maxItems": 1
+                }
+              },
+              "required": [
+                "kind",
+                "operator",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Add"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Add"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Subtract"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Subtract"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Multiply"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Multiply"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Divide"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Divide"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Power"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Power"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Equation"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Equation"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Union"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Union"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Intersection"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Intersection"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Complement"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Complement"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Function"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Function"
+                },
+                "name": {
+                  "enum": [
+                    "sin",
+                    "cos",
+                    "tan",
+                    "asin",
+                    "acos",
+                    "atan",
+                    "sinh",
+                    "cosh",
+                    "tanh",
+                    "exp",
+                    "log",
+                    "sqrt",
+                    "abs"
+                  ]
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 1,
+                  "maxItems": 1
+                }
+              },
+              "required": [
+                "kind",
+                "name",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Matrix"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Matrix"
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  "minItems": 1,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "kind",
+                "rows"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Restricted"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Restricted"
+                },
+                "expression": {
+                  "$ref": "#/$defs/MathIR"
+                },
+                "source": {
+                  "$ref": "#/$defs/MathIR"
+                }
+              },
+              "required": [
+                "kind",
+                "expression",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Conditioned"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Conditioned"
+                },
+                "expression": {
+                  "$ref": "#/$defs/MathIR"
+                },
+                "conditions": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 1,
+                  "maxItems": 16
+                }
+              },
+              "required": [
+                "kind",
+                "expression",
+                "conditions"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Relation"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Relation"
+                },
+                "relation": {
+                  "enum": [
+                    "!=",
+                    "<",
+                    "<=",
+                    ">",
+                    ">="
+                  ]
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "relation",
+                "args"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Algebraic"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Algebraic"
+                },
+                "polynomial": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^-?\\d{1,256}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 17
+                },
+                "realRootIndex": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 15
+                }
+              },
+              "required": [
+                "kind",
+                "polynomial",
+                "realRootIndex"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "EmptySet"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "EmptySet"
+                }
+              },
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Universe"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Universe"
+                },
+                "name": {
+                  "enum": [
+                    "Reals",
+                    "Integers"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "FiniteSet"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "FiniteSet"
+                },
+                "elements": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/MathIR"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "kind",
+                "elements"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "Interval"
+                }
+              }
+            },
+            "then": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "Interval"
+                },
+                "start": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    {
+                      "enum": [
+                        "-inf"
+                      ]
+                    }
+                  ]
+                },
+                "end": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/MathIR"
+                    },
+                    {
+                      "enum": [
+                        "inf"
+                      ]
+                    }
+                  ]
+                },
+                "leftOpen": {
+                  "type": "boolean"
+                },
+                "rightOpen": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "start",
+                "end",
+                "leftOpen",
+                "rightOpen"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ]
+      }
+    }
   }
 };
-export type MathRequest = { "schemaVersion": 1 | 2; "tool": "exact_math" | "symbolic_math" | "numeric_math" | "plot_math" | "analyze_data" | "convex_optimize"; "arguments": Record<string, unknown>; "dataset"?: { "columns": Array<string>; "rows": Array<Array<unknown>> } };
-export type MathValueV2 = { "result": { "state": "computed" | "partial" | "unresolved"; "representation": "exact" | "approximate" | "enclosure" | "mixed"; "completeness": "complete" | "partial" | "unknown" | "not_applicable"; "domain": { "declared": string; "conditions": Array<string>; "exclusions": Array<unknown>; "analysisComplete": boolean } }; "views": Array<Record<string, unknown>>; "diagnostics": Record<string, unknown>; "verification": { "status": "passed" | "failed" | "unknown" | "not_checked"; "scope": string; "evidence": Array<string>; "checks": Array<{ "name": string; "status": "passed" | "failed" | "unknown" | "not_checked"; "passed"?: boolean; "evidence": string }> }; "assumptions": Array<string>; "warnings": Array<string> };
+export type MathRequest = { "schemaVersion": 1 | 2; "tool": "exact_math" | "symbolic_math" | "numeric_math" | "plot_math" | "analyze_data" | "convex_optimize" | "structure_math" | "algebra_math" | "set_math" | "equation_math" | "matrix_math" | "calculus_math" | "convex_model"; "arguments": Record<string, unknown>; "dataset"?: { "columns": Array<string>; "rows": Array<Array<unknown>> } };
+export type MathIR = { "kind": "Integer"; "value": string } | { "kind": "DecimalLiteral"; "value": string } | { "kind": "Rational"; "numerator": string; "denominator": string } | { "kind": "Symbol"; "name": string } | { "kind": "Constant"; "name": "pi" | "E" } | { "kind": "Unary"; "operator": "+" | "-"; "args": Array<MathIR> } | { "kind": "Add"; "args": Array<MathIR> } | { "kind": "Subtract"; "args": Array<MathIR> } | { "kind": "Multiply"; "args": Array<MathIR> } | { "kind": "Divide"; "args": Array<MathIR> } | { "kind": "Power"; "args": Array<MathIR> } | { "kind": "Equation"; "args": Array<MathIR> } | { "kind": "Union"; "args": Array<MathIR> } | { "kind": "Intersection"; "args": Array<MathIR> } | { "kind": "Complement"; "args": Array<MathIR> } | { "kind": "Function"; "name": "sin" | "cos" | "tan" | "asin" | "acos" | "atan" | "sinh" | "cosh" | "tanh" | "exp" | "log" | "sqrt" | "abs"; "args": Array<MathIR> } | { "kind": "Matrix"; "rows": Array<Array<MathIR>> } | { "kind": "Restricted"; "expression": MathIR; "source": MathIR } | { "kind": "Conditioned"; "expression": MathIR; "conditions": Array<MathIR> } | { "kind": "Relation"; "relation": "!=" | "<" | "<=" | ">" | ">="; "args": Array<MathIR> } | { "kind": "Algebraic"; "polynomial": Array<string>; "realRootIndex": number } | { "kind": "EmptySet" } | { "kind": "Universe"; "name": "Reals" | "Integers" } | { "kind": "FiniteSet"; "elements": Array<MathIR> } | { "kind": "Interval"; "start": MathIR | "-inf"; "end": MathIR | "inf"; "leftOpen": boolean; "rightOpen": boolean };
+export type MathValueV2 = { "result": { "state": "computed" | "partial" | "unresolved"; "representation": "exact" | "approximate" | "enclosure" | "mixed"; "completeness": "complete" | "partial" | "unknown" | "not_applicable"; "irVersion"?: 1; "ir"?: MathIR | null; "inputIR"?: MathIR; "quotient"?: MathIR; "remainder"?: MathIR; "domain": { "declared": string; "conditions": Array<string>; "exclusions": Array<unknown>; "analysisComplete": boolean } }; "views": Array<Record<string, unknown>>; "diagnostics": Record<string, unknown>; "verification": { "status": "passed" | "failed" | "unknown" | "not_checked"; "scope": string; "evidence": Array<string>; "checks": Array<{ "name": string; "status": "passed" | "failed" | "unknown" | "not_checked"; "passed"?: boolean; "evidence": string }> }; "assumptions": Array<string>; "warnings": Array<string> };
 export type MathResponse = {schemaVersion:1;ok:true;value:{ "result": unknown; "views": Array<Record<string, unknown>>; "diagnostics": Record<string, unknown>; "verification": Record<string, unknown>; "assumptions": Array<string>; "warnings": Array<string> }} | {schemaVersion:2;ok:true;value:MathValueV2} | {schemaVersion:1 | 2;ok:false;error:{code:string;message:string}};
 export interface MathArguments {
-  "exact_math": { "expression": string };
-  "symbolic_math": { "operation": "simplify" | "expand" | "factor" | "solve" | "differentiate" | "integrate" | "limit"; "expression": string; "variable"?: string; "interval"?: Array<number | string>; "domain"?: "real" | "complex"; "order"?: number; "point"?: string; "direction"?: "+" | "-" | "+-" };
-  "numeric_math": { "operation": "root" | "integrate" | "minimize" | "linear_solve" | "eigenvalues"; "expression"?: string; "variable"?: string; "interval"?: Array<number>; "tolerance"?: number; "matrix"?: Array<Array<number>>; "vector"?: Array<number>; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean } };
+  "exact_math": unknown | unknown;
+  "symbolic_math": unknown | unknown;
+  "numeric_math": { "operation": "root" | "integrate" | "minimize" | "linear_solve" | "eigenvalues" | "roots" | "system_root"; "expression"?: string; "variable"?: string; "interval"?: Array<number>; "tolerance"?: number; "matrix"?: Array<Array<number>>; "vector"?: Array<number>; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean }; "expressions"?: Array<string>; "variables"?: Array<string>; "initialGuess"?: Array<number>; "samples"?: number };
   "plot_math": { "operation": "function" | "scatter" | "line" | "histogram" | "regression"; "expression"?: string; "variable"?: string; "interval"?: Array<number>; "datasetId"?: string; "columns"?: Array<string>; "missingPolicy"?: "reject" | "drop"; "expressions"?: Array<string>; "xColumn"?: string; "yColumn"?: string; "title"?: string; "samples"?: number; "bins"?: number };
   "analyze_data": { "datasetId": string; "columns"?: Array<string>; "missingPolicy"?: "reject" | "drop"; "groupColumn"?: string; "aggregate"?: "mean" | "sum" | "min" | "max" | "count"; "filters"?: Array<{ "column": string; "operator": "eq" | "ne" | "gt" | "ge" | "lt" | "le"; "value": string }>; "operation": "overview" | "describe" | "correlation" | "regression" | "group_by" | "filter" };
   "convex_optimize": { "operation": "linear_program" | "quadratic_program" | "least_squares" | "second_order_cone"; "linear"?: Array<number>; "quadratic"?: Array<Array<number>>; "design"?: Array<Array<number>>; "target"?: Array<number>; "inequalityMatrix"?: Array<Array<number>>; "inequalityBounds"?: Array<number>; "equalityMatrix"?: Array<Array<number>>; "equalityBounds"?: Array<number>; "lower"?: Array<number>; "upper"?: Array<number>; "cones"?: Array<{ "matrix": Array<Array<number>>; "offset": Array<number>; "axis": Array<number>; "bound": number }>; "tolerance"?: number; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean } };
+  "structure_math": { "operation"?: "parse"; "expression"?: string; "ir"?: MathIR; "format"?: "ascii" | "latex"; "domain"?: "real" | "complex" };
+  "algebra_math": unknown | unknown;
+  "set_math": { "operation": "normalize" | "union" | "intersection" | "difference" | "complement"; "set": MathIR; "other"?: MathIR; "universe"?: MathIR };
+  "equation_math": { "operation": "single" | "linear_system" | "polynomial_system" | "inequalities"; "equations"?: Array<string>; "variables"?: Array<string>; "parameters"?: Array<string>; "format"?: "ascii" | "latex"; "inequalities"?: Array<{ "left": string; "right": string; "relation": "<" | "<=" | ">" | ">=" | "!=" | "=" }> };
+  "matrix_math": { "operation": "determinant" | "rank" | "inverse" | "nullspace" | "solve" | "quadratic_form" | "qr" | "svd" | "least_squares" | "sparse_solve"; "mode"?: "exact" | "numeric"; "matrix"?: Array<Array<string | number>>; "vector"?: Array<string | number>; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean }; "tolerance"?: number; "rankTolerance"?: number; "sparse"?: { "shape": Array<number>; "rows": Array<number>; "columns": Array<number>; "values": Array<number> } };
+  "calculus_math": { "operation": "partial" | "gradient" | "jacobian" | "hessian" | "implicit_derivative" | "integrate" | "piecewise_integrate"; "expression"?: string; "expressions"?: Array<string>; "variables"?: Array<string>; "orders"?: Array<number>; "format"?: "ascii" | "latex"; "verifyAt"?: Array<number>; "limits"?: Array<{ "variable": string; "lower": string; "upper": string }>; "segments"?: Array<{ "lower": string; "upper": string; "expression": string }>; "mode"?: "symbolic" | "numeric"; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean }; "tolerance"?: number };
+  "convex_model": { "operation": "solve"; "variables": Array<{ "name": string; "shape"?: Array<number>; "lower"?: number | Array<number> | Array<Array<number>>; "upper"?: number | Array<number> | Array<Array<number>> }>; "parameters"?: Record<string, unknown>; "objective": { "sense"?: "minimize" | "maximize"; "expression": Record<string, unknown> }; "constraints"?: Array<{ "name"?: string; "left": Record<string, unknown>; "relation": "<=" | ">=" | "="; "right": Record<string, unknown> }>; "precision"?: { "mode"?: "standard" | "high_precision" | "certified"; "absoluteTolerance"?: number; "relativeTolerance"?: number; "workingDigits"?: number; "maxDigits"?: number; "maxIterations"?: number; "certificationRequired"?: boolean }; "tolerance"?: number };
 }

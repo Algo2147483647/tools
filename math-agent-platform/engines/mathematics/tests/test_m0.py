@@ -53,7 +53,7 @@ class M0Tests(unittest.TestCase):
         v=self.value('symbolic_math',operation='solve',expression='x^2=1')
         self.assertEqual(v['result']['completeness'],'unknown')
         self.assertEqual(v['result']['solverReportedCompleteness'],'complete')
-        self.assertFalse(v['result']['domain']['analysisComplete'])
+        self.assertTrue(v['result']['domain']['analysisComplete'])
 
     def test_precision_rejections(self):
         base=dict(operation='integrate',expression='x',interval=[0,1])
@@ -111,7 +111,7 @@ class M0Tests(unittest.TestCase):
             v=self.value('convex_optimize',operation='linear_program',**args)
             self.assertEqual(v['result']['normalizedStatus'],status)
             self.assertEqual(v['verification']['status'],'not_checked')
-            self.assertEqual(v['diagnostics']['certificate']['status'],'not_checked')
+            self.assertIn(v['diagnostics']['certificate']['status'],('verified','unavailable'))
         with patch.object(cp.Problem,'solve',side_effect=cp.error.SolverError('failure')):
             r=self.call('convex_optimize',operation='linear_program',linear=[1])
         self.assertEqual(r['error']['code'],'SOLVER_ERROR')

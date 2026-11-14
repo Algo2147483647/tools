@@ -84,7 +84,14 @@ def optimize(args):
     if feasible and not np.isfinite(x.value).all(): raise ToolError('SOLVER_ERROR', 'Solver returned non-finite primal values.')
     checks = feasibility_checks(args, values, policy) if feasible else []
     residual = max((c['observed'] for c in checks if c['observed'] is not None), default=0.0) if feasible else None
+    from .modeling import optimality_checks
+    kkt,missing=optimality_checks(problem,[x],policy) if feasible else ([],['No primal solution.'])
+    checks.extend(kkt)
     verification_status = check_status(checks)
+    certificate={'status':'not_checked','reason':'No independent certificate is available for this problem class/status.'}
+    if op=='linear_program' and status in ('infeasible','unbounded'):
+        from .certificates import lp_certificate
+        certificate=lp_certificate(args,status,policy)
     normalized_status = {'user_limit':'iteration_limit'}.get(status, status)
     if feasible and verification_status in ('failed', 'unknown'): normalized_status = 'optimal_inaccurate'
     notes = ['Numerical solver output; not an exact proof or independently verified optimality certificate.']
@@ -97,7 +104,7 @@ def optimize(args):
     views = [table_view(['Variable', 'Value'], [[f'x[{i}]', v] for i, v in enumerate(values)], 'Optimization solution')] if values else []
     return value_result(result, views, {'solver': 'CLARABEL', 'dcp': True, 'tolerance': tol, 'minimumEigenvalue': min_eigenvalue,
                         'precision': policy.diagnostics(), 'rawSolverStatus':status,
-                        'optimality':{'status':'not_checked','reason':'Independent KKT and certificate validation is not available.'},
-                        'certificate':{'status':'not_checked','reason':'Solver status is not an independently verified certificate.'},
+                        'optimality':{'status':check_status(kkt),'unavailable':missing},
+                        'certificate':certificate,
                         'iterations': problem.solver_stats.num_iters}, checked(verification_status,
-                        'Original-model primal feasibility only. Optimality, infeasibility and unboundedness are solver-reported.',checks), notes=notes)
+                        'Original-model primal feasibility and available numerical KKT checks. LP certificates are separately rational-verified when available.',checks), notes=notes)

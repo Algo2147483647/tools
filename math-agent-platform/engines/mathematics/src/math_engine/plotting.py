@@ -15,7 +15,7 @@ def plot(args,dataset):
             a,b=interval(args);x=symbol(args.get('variable','x'));count=args.get('samples',600);xs=np.linspace(a,b,count)
             expressions=args.get('expressions') or [args.get('expression','')]
             for source in expressions:
-                expr=expression(source);fn=numeric_function(expr,x);ys=np.asarray(fn(xs),dtype=float)
+                expr=expression(source);fn=numeric_function(expr,x,source=source);ys=np.asarray(fn(xs),dtype=float)
                 if ys.ndim==0:ys=np.full_like(xs,float(ys))
                 ys=np.where(np.isfinite(ys),ys,np.nan)
                 try:

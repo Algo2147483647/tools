@@ -11,8 +11,10 @@ def bounded(v):
 
 
 def parse(source, format='ascii'):
-    from .ir import parse as parse_ir
-    tree=parse_ir(source,format,implicit=True)
+    from .ir import parse as parse_ir, validate_ir
+    if isinstance(source,dict):
+        validate_ir(source);tree=source
+    else:tree=parse_ir(source,format,implicit=True)
     variables=set()
     def convert(n):
         kind=n['kind']
@@ -97,7 +99,7 @@ def evaluate(node, x):
 def exact(args):
     if args.get('operation','evaluate') != 'evaluate':return arithmetic(args)
     if any(k in args for k in ('other','digits','rounding')):raise ToolError('INVALID_ARGUMENT','Unused arithmetic arguments.')
-    text, variable, left, right = parse(args['expression'],args.get('format','ascii'))
+    text, variable, left, right = parse(args.get('expression',args.get('ir')),args.get('format','ascii'))
     a, b = affine(left); c, d = affine(right) if right else (Fraction(0), Fraction(0))
     coefficient, constant = bounded(a-c), bounded(b-d)
     candidate = {'engine': 'python-exact-affine/2', 'variable': variable}
@@ -114,8 +116,8 @@ def exact(args):
     verification = {'status': 'passed' if passed else 'failed', 'scope': 'Exact affine model only; not a proof of natural-language interpretation.',
                     'checks': [{'name': 'Independent affine evaluation and substitution', 'passed': bool(passed)}]}
     result = {'model': {'source': text, 'variable': variable, 'domain': 'linear-equation' if right else 'arithmetic'}, 'candidate': candidate, 'verification': verification}
-    from .ir import parse as parse_ir
-    result['inputIR']=parse_ir(args['expression'],args.get('format','ascii'),implicit=True)
+    from .ir import input_tree
+    result['inputIR']=input_tree(args,implicit=True)
     result['irVersion']=1
     if not passed: raise ToolError('VERIFICATION_FAILED', 'Exact verification failed.')
     return value_result(result, verification=verification, assumptions=['Exact rational constants', 'Real-valued variables'])
@@ -131,7 +133,7 @@ def arithmetic(args):
         if variable or right is not None:raise ToolError('INVALID_ARGUMENT','A rational constant is required.')
         v,dependent=evaluate(left,Fraction(0))
         return bounded(v)
-    a=rational(args['expression']);b=rational(args['other']) if 'other' in args else None
+    a=rational(args.get('expression',args.get('ir')));b=rational(args['other']) if 'other' in args else None
     if op=='floor':value=Fraction(a.numerator//a.denominator)
     elif op=='ceil':value=Fraction(-((-a.numerator)//a.denominator))
     elif op=='truncate':value=Fraction(int(a))
@@ -145,10 +147,10 @@ def arithmetic(args):
         if 2*r>t.denominator or 2*r==t.denominator and (mode=='half_away_from_zero' or q%2):q+=1
         value=Fraction(sign*q)/scale
     value=bounded(value)
-    from .ir import encode,parse as parse_ir
+    from .ir import encode,input_tree
     import sympy as sp
     result=dict(kind='scalar',value=str(value),exact=True,representation='exact',ir=encode(sp.Rational(value.numerator,value.denominator)),
-                inputIR=parse_ir(args['expression'],args.get('format','ascii'),implicit=True),irVersion=1)
+                inputIR=input_tree(args,implicit=True),irVersion=1)
     return value_result(result,diagnostics={'operation':op,'modConvention':'a-b*floor(a/b)' if op=='mod' else None,
                         'rounding':args.get('rounding','half_even') if op=='round' else None},
                         assumptions=['Exact rational arithmetic; comparison returns -1, 0 or 1.'])

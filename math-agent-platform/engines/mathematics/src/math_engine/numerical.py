@@ -4,6 +4,9 @@ import numpy as np
 from .common import *
 from .precision import PrecisionPolicy, check_status
 def numeric(args):
+    if args['operation'] in ('roots','system_root'):
+        from .roots import roots
+        return roots(args)
     from scipy import optimize,integrate,linalg
     op=args['operation'];policy=PrecisionPolicy.from_arguments(args);tol=policy.absoluteTolerance;notes=[]
     diagnostics={'engine':'SciPy/NumPy','tolerance':tol,'precision':policy.diagnostics()};checks=[]
@@ -22,7 +25,10 @@ def numeric(args):
         else:
             values=linalg.eigvals(a);result={'kind':'vector','values':[{'real':float(v.real),'imag':float(v.imag)} for v in values],'exact':False};view=table_view(['Real','Imaginary'],[[float(v.real),float(v.imag)] for v in values],'Eigenvalues')
         return value_result(result,[view],diagnostics,checked(check_status(checks),'Numerical residual only; no forward error bound.',checks),notes=notes)
-    expr=expression(args['expression']);x=symbol(args.get('variable','x'));fn=numeric_function(expr,x);a,b=interval(args)
+    expr=expression(args['expression']);x=symbol(args.get('variable','x'));fn=numeric_function(expr,x,source=args['expression']);a,b=interval(args)
+    from .ir import parse
+    from .domains import analyze
+    tree=parse(args['expression']);_,domain_info=analyze(tree)
     def scalar(v):
         out=float(fn(v))
         if not math.isfinite(out):raise ToolError('DOMAIN_ERROR','Non-finite value encountered in the requested interval.')
@@ -43,5 +49,5 @@ def numeric(args):
         if not info.success:raise ToolError('NOT_CONVERGED','Bounded minimization did not converge.')
         value=float(info.x);diagnostics.update(method='bounded',converged=True,functionValue=float(info.fun),iterations=int(info.nit));notes.append('Bounded local search; a global minimum is not certified. Endpoints are not automatically selected.')
     else:raise ToolError('UNSUPPORTED','Unsupported numeric operation.')
-    return value_result({'kind':'scalar','value':str(value),'exact':False},[math_view(sp.Float(value,15),'Numerical result')],diagnostics,checked('passed' if checks else 'not_checked','Floating-point numerical checks, not an exact proof.',checks),['Real-valued function on the supplied interval.'],notes)
+    return value_result({'kind':'scalar','value':str(value),'exact':False,'inputIR':tree,'irVersion':1,'domain':domain_info},[math_view(sp.Float(value,15),'Numerical result')],diagnostics,checked('passed' if checks else 'not_checked','Floating-point numerical checks, not an exact proof.',checks),['Real-valued function on the supplied interval.']+domain_info['conditions'],notes)
 

@@ -11,12 +11,34 @@ def catalogue():
 def _execute(request):
     from .protocol import validate_request, validate, VALUE_SCHEMA
     from .common import ToolError
+    from sympy.polys.polyerrors import BasePolynomialError
     version = request.get('schemaVersion', 1) if isinstance(request, dict) else 1
     version = version if type(version) is int and version in (1, 2) else 1
     try:
         validate_request(request)
         name, args = request['tool'], request['arguments']
-        if name == 'exact_math':
+        if name == 'equation_math':
+            from .equations import equations
+            output = equations(args)
+        elif name == 'matrix_math':
+            from .matrices import matrices
+            output = matrices(args)
+        elif name == 'calculus_math':
+            from .calculus import calculus
+            output = calculus(args)
+        elif name == 'convex_model':
+            from .modeling import model
+            output = model(args)
+        elif name == 'structure_math':
+            from .structure import structure
+            output = structure(args)
+        elif name == 'algebra_math':
+            from .algebra import algebra
+            output = algebra(args)
+        elif name == 'set_math':
+            from .sets import sets
+            output = sets(args)
+        elif name == 'exact_math':
             from .exact import exact
             output = exact(args)
         elif name == 'convex_optimize':
@@ -45,6 +67,10 @@ def _execute(request):
         return {'schemaVersion': version, 'ok': True, 'value': output}
     except ToolError as error:
         return {'schemaVersion': version, 'ok': False, 'error': {'code': error.code, 'message': error.message}}
+    except NotImplementedError as error:
+        return {'schemaVersion': version, 'ok': False, 'error': {'code': 'UNSUPPORTED', 'message': str(error)[:500]}}
+    except BasePolynomialError as error:
+        return {'schemaVersion': version, 'ok': False, 'error': {'code': 'UNSUPPORTED', 'message': str(error)[:500]}}
     except (ValueError, TypeError, KeyError, ZeroDivisionError) as error:
         return {'schemaVersion': version, 'ok': False, 'error': {'code': 'DOMAIN_ERROR', 'message': str(error)[:500]}}
 
