@@ -1,5 +1,5 @@
 const test=require('node:test');const assert=require('node:assert/strict');
-const {formulas}=require('./live-math.cjs');
+const {formulas}=require('../build/backend/renderer/live-math.js');
 test('live math finds inline, multiline display and LaTeX delimiters',()=>{
  const source='$x+1$\n$$\n\\frac{1}{2}\n$$\n\\(a+b\\) \\[x^2\\]';const found=formulas(source);
  assert.equal(found.length,4);assert.deepEqual(found.map(x=>x.display),[false,true,false,true]);

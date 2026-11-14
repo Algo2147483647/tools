@@ -57,3 +57,13 @@ Renderer commands add editorSync `{text}` and editorAck `{id,applied,text}`. Mai
 AI tools add code_workspace `{operation:run|list|read|write,code?,file?,text?}` and editor_document `{operation:read|replace,revision?,text?,file?}`. A code error returns status error while preserving stdout/stderr and file metadata. Python code has local user-process authority; workspace path checks are not an OS sandbox. Editor replacement requires revision and either text or a bounded UTF-8 workspace file. Empty replacement text is valid.
 
 Configure now persists the validated configuration using async OS encryption for the API key. Bootstrap includes cachedModels and optional settingsError. Models accepts refresh to bypass the 24-hour cache. Keys never appear in bootstrap or run snapshots.
+
+## Lean tools and reports (0.7.0)
+
+lean_project: operation inspect, arguments {}. lean_check: operation compile, arguments {source:string}, maximum 65,536 characters. Definitions are part of each RunService agent registry. The tool result carries compilation status, normalized diagnostics, source hash, attempt, compiler version and exit code. Failed source still produces a report artifact as well as a structured error, allowing AI repair.
+
+A proof_report artifact contains source, hash, status, version, attempt, exitCode, diagnostics, optional rawOutput and trust text. The renderer fetches it by owning run ID and renders it as plain source/diagnostic text. It does not equate compiler success with independent proof verification. Diagnostics use one-based line/column positions.
+
+## 0.8.0 source layout
+
+Runtime protocol semantics are retained. Shared TypeScript contracts now live in shared/contracts.ts, shared/tools.ts and shared/ipc.ts; shared/run-state.ts owns the common reducer. The application receives session ports via platform/composition.ts. Platform command handling is in platform/commands.ts, separate from main window bootstrapping. Runtime resource resolution is centralized in platform/runtime.ts. Legacy CJS test sources point to generated build/backend modules and are deferred for unified regression.

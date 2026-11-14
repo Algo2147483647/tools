@@ -22,3 +22,7 @@ const engine = path.join(root,'engine/math_worker.py');
 const checked = spawnSync(runtime,['-I','-B','-c',"import ast,sys,sympy,numpy,scipy,pandas,matplotlib; ast.parse(open(sys.argv[1], encoding='utf-8').read()); print('Mathematics runtime and worker verified.')",engine],{encoding:'utf8'});
 if (checked.status !== 0) { process.stderr.write(checked.stderr); process.exit(1); }
 process.stdout.write(checked.stdout);
+const lean = path.resolve(root,'../.runtime/lean-runtime/bin/lean.exe');
+const leanVersion=spawnSync(lean,['--version'],{encoding:'utf8'});
+if(leanVersion.status!==0||!leanVersion.stdout.includes('version 4.35.0'))throw Error('Prepare pinned Lean runtime using scripts/Prepare-LeanRuntime.ps1.');
+console.log(leanVersion.stdout.trim());

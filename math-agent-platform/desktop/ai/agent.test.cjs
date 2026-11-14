@@ -1,8 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { runAgent } = require('./agent.cjs');
-const { compute } = require('../core/worker-client.cjs');
-const { RunService } = require('../application/runs.cjs');
+const { runAgent } = require('../build/backend/ai/agent.js');
+const { compute } = require('../build/backend/core/worker-client.js');
+const {createRunService:RunService} = require('../build/backend/platform/composition.js');
 const settings = provider => ({ provider, baseUrl: 'https://example.com', model: 'test', apiKey: '', maxTokens: 1024 });
 const response = value => new Response(JSON.stringify(value));
 function toolReply(provider, expression = 'x + 6 = 1', name = 'exact_math') {

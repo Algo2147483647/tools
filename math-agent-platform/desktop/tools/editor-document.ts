@@ -1,0 +1,35 @@
+import type { Edit } from '../shared/contracts.js';
+import type { ToolDefinition } from '../shared/tools.js';
+const { randomUUID } = require('node:crypto') as typeof import('node:crypto');
+class EditorDocument {
+    text: string;
+    revision: number;
+    notify: (edit: Edit) => void;
+    pending: Map<string, (value: {
+        applied: boolean;
+        text: string;
+    }) => void>;
+    constructor(notify: (edit: Edit) => void = () => { }) { this.text = ''; this.revision = 0; this.notify = notify; this.pending = new Map(); }
+    update(text: string) { if (typeof text !== 'string' || Buffer.byteLength(text) > 256 * 1024)
+        throw Error('Editor document exceeds 256 KB.'); if (text !== this.text) {
+        this.text = text;
+        this.revision++;
+    } return this.snapshot(); }
+    snapshot() { return { text: this.text, revision: this.revision }; }
+    async replace(args: any, signal: AbortSignal) {
+        if (args.revision !== this.revision)
+            throw Object.assign(Error('Editor changed. Read the editor again before replacing it.'), { code: 'EDIT_CONFLICT' });
+        const id = randomUUID(), baseText = this.text;
+        return new Promise((resolve, reject) => { const finish = (error: Error | null, value?: unknown) => { clearTimeout(timer); signal.removeEventListener('abort', abort); this.pending.delete(id); error ? reject(error) : resolve(value); }; const abort = () => finish(Object.assign(Error('Edit cancelled.'), { code: 'CANCELLED' })); const timer = setTimeout(() => finish(Error('Editor did not acknowledge the edit.')), 5000); this.pending.set(id, ({ applied, text }) => { if (!applied)
+            return finish(Object.assign(Error('Editor changed; replacement was not applied.'), { code: 'EDIT_CONFLICT' })); this.update(text); finish(null, { revision: this.revision, characters: this.text.length, applied: true }); }); signal.addEventListener('abort', abort, { once: true }); if (signal.aborted)
+            return abort(); this.notify({ id, baseText, text: args.text }); });
+    }
+    acknowledge(value: any) { const callback = this.pending.get(value.id); if (callback)
+        callback(value); }
+}
+function editorDefinition(document: EditorDocument): ToolDefinition { return { name: 'editor_document', version: '1.0.0', operations: ['read', 'replace'], timeoutMs: 6000, description: 'Read the current editor or replace its contents when the user asks to rewrite, format, compress or edit it. Read first and use the returned revision. A conflicting concurrent edit is never overwritten. Replacement may use text or a UTF-8 file generated in the workspace.', parameters: { type: 'object', properties: { operation: { type: 'string', enum: ['read', 'replace'] }, revision: { type: 'integer', minimum: 0 }, text: { type: 'string', maxLength: 262144, minLength: 0 }, file: { type: 'string', maxLength: 200 } }, required: ['operation'], additionalProperties: false }, async execute(args: any, { signal }: {
+        signal: any;
+    }) { if (args.operation === 'read')
+        return { result: document.snapshot() }; if (!Number.isInteger(args.revision) || typeof args.text !== 'string')
+        throw Error('replace requires revision and text.'); return { result: await document.replace(args, signal), diagnostics: { engine: 'editor', versionChecked: true } }; } }; }
+export { EditorDocument, editorDefinition };

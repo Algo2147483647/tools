@@ -1,8 +1,8 @@
 const test = require('node:test'), assert = require('node:assert/strict');
-const { readReply } = require('./stream.cjs');
-const { runAgent } = require('./agent.cjs');
-const { RunService } = require('../application/runs.cjs');
-const { compute } = require('../core/worker-client.cjs');
+const { readReply } = require('../build/backend/ai/stream.js');
+const { runAgent } = require('../build/backend/ai/agent.js');
+const {createRunService:RunService} = require('../build/backend/platform/composition.js');
+const { compute } = require('../build/backend/core/worker-client.js');
 const settings = provider => ({ provider, baseUrl: 'https://example.test', model: 'test', apiKey: '', maxTokens: 1024 });
 const signal = () => new AbortController().signal;
 function streamed(items, type = 'text/event-stream', split = 1) {

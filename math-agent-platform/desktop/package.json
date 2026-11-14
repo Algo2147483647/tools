@@ -1,19 +1,20 @@
 {
   "name": "math-agent-desktop",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "private": true,
   "description": "AI mathematics workspace with symbolic, numerical, plotting and data tools",
   "author": "Math Agent Platform",
-  "main": "main.cjs",
+  "main": "build/backend/main.js",
   "scripts": {
-    "check": "node ../scripts/check.cjs && tsc --noEmit",
-    "verify": "npm run check && npm test && npm run build",
-    "build": "esbuild renderer/editor.js --bundle --outfile=renderer/editor.bundle.js --loader:.woff2=file --loader:.woff=file --loader:.ttf=file --asset-names=fonts/[name]-[hash] && esbuild renderer/app.tsx --bundle --minify --define:process.env.NODE_ENV=\\\"production\\\" --outfile=renderer/app.bundle.js",
+    "check": "tsc --noEmit",
+    "verify": "npm run check && npm test",
+    "build": "node ../scripts/build.cjs",
     "start": "npm run build && electron .",
-    "test": "node --test ai/*.test.cjs renderer/*.test.cjs tools/*.test.cjs application/*.test.cjs",
+    "test": "npm run build && node --test ai/*.test.cjs renderer/*.test.cjs tools/*.test.cjs application/*.test.cjs",
     "pack": "npm run verify && electron-builder --dir",
     "dist:win": "npm run verify && electron-builder --win nsis",
-    "dist:mac": "npm run verify && electron-builder --mac dmg"
+    "dist:mac": "npm run verify && electron-builder --mac dmg",
+    "check:runtime": "node ../scripts/check.cjs"
   },
   "dependencies": {
     "@toast-ui/editor": "3.2.2",
@@ -27,6 +28,8 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
+    "@types/katex": "^0.16.8",
+    "@types/markdown-it": "^14.2.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@typescript/typescript-win32-x64": "^7.0.2",
@@ -43,21 +46,14 @@
     "appId": "local.mathagent.workspace",
     "productName": "Math Agent",
     "files": [
-      "main.cjs",
-      "preload.cjs",
-      "application/**/*.cjs",
-      "core/**/*.cjs",
-      "ai/**/*.cjs",
-      "!**/*.test.cjs",
+      "build/backend/**/*.js",
       "renderer/index.html",
-      "renderer/state.js",
       "renderer/style.css",
       "renderer/editor.bundle.js",
       "renderer/editor.bundle.css",
+      "renderer/app.bundle.js",
       "renderer/fonts/**/*",
-      "tools/**/*.cjs",
-      "!tools/**/*.test.cjs",
-      "renderer/app.bundle.js"
+      "engine/lean-lock.json"
     ],
     "directories": {
       "output": "dist-math"
@@ -86,6 +82,13 @@
           "math_worker.py",
           "runtime-lock.json",
           "code_worker.py"
+        ]
+      },
+      {
+        "from": "../.runtime/lean-runtime",
+        "to": "lean-runtime",
+        "filter": [
+          "**/*"
         ]
       }
     ]

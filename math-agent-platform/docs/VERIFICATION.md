@@ -19,3 +19,11 @@ The 0.5.0 Electron smoke test drives four streamed model tool calls through RunS
 Additional tests execute AI Python to generate JSON/PNG, retain workspace files, handle runtime errors, cancel execution, reject path traversal, and check acknowledged editor replacement including stale revisions and empty output. Settings tests verify encrypted persistence, cache scoping/expiry and failed encryption preserving previous data. Native Electron safeStorage encryption/decryption is tested separately with a test-only key.
 
 React integration drives streamed calls through the real math/code workers, confirms tool records remain in Run details, status lights replace Completed, removed controls are absent, and an AI-generated JSON file is written into the editor through the actual IPC acknowledgment. Provider output is mocked; no live account availability is implied. Strict TypeScript checking and current dependency audit pass.
+
+## 0.7.0 Lean
+
+89 tests pass, including nine new real-Lean and AI repair tests. TypeScript checking passes. Electron integration covers failed Lean compilation, displayed line diagnostics, model-generated repair, successful recheck, distinct source hashes, right-side reports and folded tool records. Existing math/code/editor/settings checks remain. The AI provider is mocked; the compiler is the actual pinned toolchain. Independent proof verification is out of scope.
+
+## 0.8.0 migration — full regression deferred
+
+Production modules migrated to TypeScript; test fixtures now import build/backend modules and the composition factory. This round ran only TypeScript checking, compilation and a focused UI smoke check for the migrated renderer/preload, LaTeX rendering, typography and flat status dot. The previous 89-test result belongs to 0.7.0 and must not be represented as a post-migration result. Full regression, packaged resource checks and a new release installer remain pending by user instruction.

@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-const {ToolRegistry}=require('./registry.cjs');const {ArtifactStore}=require('./artifacts.cjs');
+const {ToolRegistry}=require('../build/backend/tools/registry.js');const {ArtifactStore}=require('../build/backend/tools/artifacts.js');
 const request=(args={expression:'1/3+1/6'})=>({schemaVersion:1,runId:'r',callId:'c',tool:'exact_math',operation:'evaluate',arguments:args,limits:{timeoutMs:5000,maxOutputBytes:262144}});
 const context=()=>({signal:new AbortController().signal});
 test('exact tool returns versioned envelope and checked result',async()=>{

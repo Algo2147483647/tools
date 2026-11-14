@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { renderMarkdown } = require('./markdown.cjs');
+const { renderMarkdown } = require('../build/backend/renderer/markdown.js');
 test('dollar and LaTeX delimiters render formulas before Markdown escapes', () => {
   for (const source of ['$x^3+2x=1$', '$$\\frac{1}{2}$$', '\\(x=-5\\)', '\\[\n\\boxed{x=\\sqrt[3]{2}}\n\\]', '```math\nx^2\n```']) {
     const html = renderMarkdown(source); assert.match(html, /class="katex"/); assert.doesNotMatch(html, /katex-error/);

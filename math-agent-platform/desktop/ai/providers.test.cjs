@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { validateSettings, solve, models, parseReply, chatRequest } = require('./providers.cjs');
+const { validateSettings, solve, models, parseReply, chatRequest } = require('../build/backend/ai/providers.js');
 const settings = { provider: 'openai-compatible', baseUrl: 'https://example.test/v1', model: 'test-model', apiKey: 'test-secret' };
 const response = json => new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } });
 test('chat sends Markdown through configured service and returns labelled answer', async () => {

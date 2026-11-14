@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { WorkspaceState } = require('./state.js');
+const { WorkspaceState } = require('../build/backend/shared/run-state.js');
 test('current history ignores stale events and preserves immutable input selection', () => {
   const state = new WorkspaceState();
   state.receive({ id: 'a', input: 'x + 6 = 1', status: 'explaining', events: [1] });

@@ -1,6 +1,6 @@
 import React,{useCallback,useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {WorkspaceState} from './state.js';
+import {WorkspaceState} from '../shared/run-state';
 import {command,type Bootstrap,type Dataset,type EditorApi,type Patch,type Settings} from './types';
 import {Solution} from './solution';
 import {SettingsPanel} from './settings';

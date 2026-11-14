@@ -1,4 +1,4 @@
-const test=require('node:test'),assert=require('node:assert/strict');const {ToolRegistry}=require('./registry.cjs');const {DatasetStore}=require('./datasets.cjs');const {ArtifactStore}=require('./artifacts.cjs');
+const test=require('node:test'),assert=require('node:assert/strict');const {ToolRegistry}=require('../build/backend/tools/registry.js');const {DatasetStore}=require('../build/backend/tools/datasets.js');const {ArtifactStore}=require('../build/backend/tools/artifacts.js');
 const datasets=new DatasetStore();const data=datasets.import('sample.csv','x,y,group\n1,3,A\n2,5,A\n3,7,B\n4,9,B\n');const artifacts=new ArtifactStore();const registry=new ToolRegistry({datasets,artifacts,allowedDatasetIds:[data.id]});let call=0;
 async function run(tool,args,options={}){return registry.execute({schemaVersion:1,runId:'math-tests',callId:'c'+(++call),tool,operation:args.operation,arguments:args,limits:{timeoutMs:options.timeoutMs||30000}},{signal:options.signal||new AbortController().signal});}
 async function ok(tool,args){const value=await run(tool,args);assert.equal(value.status,'ok',JSON.stringify(value.error));return value;}
