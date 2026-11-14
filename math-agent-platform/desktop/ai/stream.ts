@@ -57,7 +57,7 @@ async function* frames(response: Response, signal: AbortSignal, { idleMs = 45000
         reader.releaseLock();
     }
 }
-function accumulator(provider: string, onText: (text: string) => void) {
+function accumulator(provider: string, onText: (text: string) => void, onReasoning: (text: string) => void = () => {}) {
     const message: JsonObject = { role: 'assistant', content: '' }, calls = new Map(), blocks = new Map(), parts: JsonObject[] = [];
     let finish: string | null = null, ended = false, usage: JsonObject | null = null, textBytes = 0;
     const text = (value: unknown) => { if (typeof value !== 'string' || !value)
@@ -65,6 +65,9 @@ function accumulator(provider: string, onText: (text: string) => void) {
         throw fail('Visible answer exceeds 1 MB.', 'OUTPUT_LIMIT'); onText(value); };
     return {
         accept(j: any) {
+            const reasoning = j.choices?.[0]?.delta?.reasoning_content || j.message?.thinking || (j.delta?.type === 'thinking_delta' ? j.delta.thinking : '');
+            if (typeof reasoning === 'string' && reasoning) onReasoning(reasoning);
+            for (const part of j.candidates?.[0]?.content?.parts || []) if (part.thought && part.text) onReasoning(part.text);
             if (j.error || j.type === 'error')
                 throw fail('Model service reported a streaming error.', 'PROVIDER_ERROR');
             if (provider === 'anthropic') {
@@ -185,7 +188,7 @@ function accumulator(provider: string, onText: (text: string) => void) {
         }
     };
 }
-async function readReply(response: any, provider: string, signal: AbortSignal, onText: (text: string) => void, onCompatibility = () => { }, options: any) {
+async function readReply(response: any, provider: string, signal: AbortSignal, onText: (text: string) => void, onCompatibility = () => { }, options: any, onActivity: (stage: string) => void = () => {}, onReasoning: (text: string) => void = () => {}) {
     if (!response.ok)
         return readJson(response); // Existing redacted HTTP diagnostics.
     const type = response.headers.get('content-type') || '';
@@ -198,7 +201,8 @@ async function readReply(response: any, provider: string, signal: AbortSignal, o
             onText(text);
         return json;
     }
-    const acc = accumulator(provider, onText);
+    let lastStage = "", lastUpdate = 0;
+    const acc = accumulator(provider, onText, onReasoning);
     for await (const frame of frames(response, signal, options)) {
         if (frame.trim() === '[DONE]')
             break;
@@ -210,6 +214,14 @@ async function readReply(response: any, provider: string, signal: AbortSignal, o
             throw fail('Model stream contains invalid JSON.');
         }
         acc.accept(json);
+        const delta = provider === 'ollama' ? json.message : (json.choices?.find((c: JsonObject) => c.index === 0) || json.choices?.[0])?.delta;
+        const parts = json.candidates?.[0]?.content?.parts || [];
+        const stage = delta?.content || json.delta?.type === 'text_delta' || parts.some((p: JsonObject) => p.text && !p.thought) ? 'answer'
+            : delta?.reasoning_content || delta?.thinking || json.delta?.type === 'thinking_delta' || parts.some((p: JsonObject) => p.thought) ? 'reasoning'
+            : delta?.tool_calls?.length || json.delta?.type === 'input_json_delta' || parts.some((p: JsonObject) => p.functionCall) ? 'tool_arguments' : lastStage || 'connected';
+        if (stage !== lastStage || Date.now() - lastUpdate >= 500) {
+            onActivity(stage); lastStage = stage; lastUpdate = Date.now();
+        }
     }
     signal.throwIfAborted();
     return acc.finish();

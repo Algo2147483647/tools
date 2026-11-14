@@ -1,8 +1,9 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { readReply } = require('../build/backend/ai/stream.js');
-const { runAgent } = require('../build/backend/ai/agent.js');
+const { runAgent: executeAgent } = require('../build/backend/ai/agent.js');
+const runAgent = options => executeAgent({...options,request: (url, init) => String(url).includes('/v1/models/') ? Promise.resolve(Response.json({max_tokens:128000})) : options.request(url,init)});
 const {createRunService:RunService} = require('../build/backend/platform/composition.js');
-const { compute } = require('../build/backend/core/worker-client.js');
+const { compute } = require('../build/backend/tools/exact-client.js');
 const settings = provider => ({ provider, baseUrl: 'https://example.test', model: 'test', apiKey: '', maxTokens: 1024 });
 const signal = () => new AbortController().signal;
 function streamed(items, type = 'text/event-stream', split = 1) {
@@ -108,4 +109,31 @@ for (const provider of ['openai-compatible','deepseek','anthropic','gemini','oll
 test('truncated tool parameters do not run; visible answer truncation is reported',async()=>{
  await assert.rejects(runAgent({settings:settings('deepseek'),input:'q',signal:signal(),compute:()=>assert.fail(),request:async()=>streamed([{choices:[{index:0,delta:{tool_calls:[{index:0,id:'a',function:{name:'exact_math',arguments:'{"expression":"1+2"}'}}]},finish_reason:'length'}]}])}),/truncated/);
  const result=await runAgent({settings:settings('deepseek'),input:'q',signal:signal(),request:async()=>streamed([chunk('Partial','length')])});assert.equal(result.truncated,true);
+});
+
+test('reasoning activity is reported before visible text, without leaking continuation text', async () => {
+  let wire; const activity=[], visible=[];
+  const response=new Response(new ReadableStream({start(c){wire=c}}),{headers:{'content-type':'text/event-stream'}});
+  const reading=readReply(response,'deepseek',signal(),t=>visible.push(t),()=>{},undefined,s=>activity.push(s));
+  const send=j=>wire.enqueue(new TextEncoder().encode('data: '+JSON.stringify(j)+'\n\n'));
+  send({choices:[{index:0,delta:{reasoning_content:'private continuation'},finish_reason:null}]});
+  await new Promise(r=>setTimeout(r,5));
+  assert.deepEqual(activity,['reasoning']); assert.deepEqual(visible,[]);
+  send(chunk('公开答案','stop'));wire.close();
+  const reply=await reading;
+  assert.deepEqual(activity,['reasoning','answer']);assert.deepEqual(visible,['公开答案']);
+  assert.equal(reply.choices[0].message.reasoning_content,'private continuation');
+});
+
+test('legacy output caps are discarded and provider defaults are used', async () => {
+ const {validateSettings,outputParameters}=require('../build/backend/ai/providers.js');
+ const {spec}=require('../build/backend/ai/agent.js');
+ for(const provider of ['deepseek','openai-compatible','gemini','ollama']) {
+  const s=validateSettings({...settings(provider),maxTokens:4096});
+  assert.equal(s.maxTokens,undefined);
+  const body=spec(s,[]).body;
+  assert.equal(body.max_tokens,undefined);assert.equal(body.generationConfig,undefined);
+  if(provider==='ollama')assert.equal(body.options.num_predict,-1);
+ }
+ assert.deepEqual(await outputParameters(settings('anthropic'),signal(),async()=>Response.json({max_tokens:128000})),{max_tokens:128000});
 });

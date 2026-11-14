@@ -1,8 +1,9 @@
 const esbuild=require('../desktop/node_modules/esbuild');
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'../desktop');
-const entries=['main.ts',...['application','platform','shared','ai','tools','core'].flatMap(dir=>fs.readdirSync(path.join(root,dir)).filter(name=>name.endsWith('.ts')&&!name.endsWith('.d.ts')).map(name=>dir+'/'+name)),'renderer/markdown.ts','renderer/live-math.ts'];
+const entries=['main.ts',...['application','platform','shared','ai','tools'].flatMap(dir=>fs.readdirSync(path.join(root,dir)).filter(name=>name.endsWith('.ts')&&!name.endsWith('.d.ts')).map(name=>dir+'/'+name)),'renderer/markdown.ts','renderer/live-math.ts'];
 async function build(){
+ require('node:child_process').execFileSync(path.resolve(root,'../.runtime/python-engine/python.exe'),[path.resolve(root,'../scripts/Generate-MathContracts.py')],{stdio:'inherit'});
  const buildRoot=path.resolve(root,'build'),target=path.resolve(buildRoot,'backend');
  if(!target.startsWith(root+path.sep)||path.dirname(target)!==buildRoot)throw Error('Unexpected generated output path');
  if(fs.existsSync(buildRoot)&&fs.realpathSync(buildRoot)!==buildRoot)throw Error('Refusing linked build output');

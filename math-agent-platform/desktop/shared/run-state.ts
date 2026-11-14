@@ -28,11 +28,15 @@ else {
         return;
     if (event.type === 'text.delta')
         block.text = (block.text || '') + (event.text || '');
+    else if (event.type === 'reasoning.delta')
+        block.reasoning = (block.reasoning || '') + (event.text || '');
     else if (event.type === 'message.completed') {
         block.status = 'completed';
         block.finishedAt = timestamp;
         block.usage = event.usage;
     }
+    else if (event.type === 'transport.activity')
+        block.transport = { stage: event.stage || 'connected', updatedAt: timestamp };
     else if (event.type === 'transport.compatibility')
         block.compatibility = event.message;
     else if (event.type === 'tool.progress') {

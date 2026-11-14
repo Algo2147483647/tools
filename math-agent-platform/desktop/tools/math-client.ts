@@ -1,12 +1,18 @@
-import { runtimeDirectory, engineFile } from '../platform/runtime.js';
+import { runtimeDirectory, mathematicsFile } from '../platform/runtime.js';
 import type { ToolValue } from '../shared/tools.js';
 const { spawn } = require('node:child_process') as typeof import('node:child_process');
 const fs = require('node:fs') as typeof import('node:fs');
 const path = require('node:path') as typeof import('node:path');
+import Ajv from 'ajv';
+import {mathWireSchemas, type MathRequest, type MathResponse} from './math-contracts.generated.js';
+const ajv = new Ajv({strict:false});
+const validRequest = ajv.compile(mathWireSchemas.request);
+const validResponse = ajv.compile(mathWireSchemas.response);
 const os = require('node:os') as typeof import('node:os');
-function locations() { return { python: path.join(runtimeDirectory('math-runtime', 'python-engine'), 'python.exe'), script: engineFile('math_worker.py') }; }
-function executeMath(request: any, signal: AbortSignal, progress: (stage: string, message: string) => void = () => { }) {
+function locations() { return { python: path.join(runtimeDirectory('math-runtime', 'python-engine'), 'python.exe'), script: mathematicsFile('worker.py') }; }
+function executeMath(request: MathRequest, signal: AbortSignal, progress: (stage: string, message: string) => void = () => { }) {
     return new Promise<ToolValue>((resolve, reject) => {
+        if (!validRequest(request)) return reject(Object.assign(Error('Invalid mathematical request envelope.'), {code:'INVALID_ARGUMENT'}));
         if (signal.aborted)
             return reject(Object.assign(Error('Calculation cancelled.'), { code: 'CANCELLED' }));
         const { python, script } = locations();
@@ -40,11 +46,12 @@ function executeMath(request: any, signal: AbortSignal, progress: (stage: string
             if (code !== 0)
                 return reject(Object.assign(Error('Mathematical engine stopped before returning a result; resource limits may have been reached.'), { code: 'ENGINE_EXIT' }));
             try {
-                const output = JSON.parse(stdout);
+                const output = JSON.parse(stdout) as MathResponse;
+                if (!validResponse(output)) throw Object.assign(Error('Invalid mathematical response envelope.'), {code:'ENGINE_PROTOCOL'});
                 if (!output.ok)
                     throw Object.assign(Error(output.error?.message || 'Mathematical calculation failed.'), { code: output.error?.code || 'ENGINE_ERROR' });
                 progress('solving', 'Mathematical computation finished');
-                resolve(output.value);
+                resolve(output.value as unknown as ToolValue);
             }
             catch (error) {
                 reject(error.code ? error : Object.assign(Error('Invalid mathematical engine response.'), { code: 'ENGINE_PROTOCOL' }));

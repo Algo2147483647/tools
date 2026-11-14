@@ -27,3 +27,18 @@ React integration drives streamed calls through the real math/code workers, conf
 ## 0.8.0 migration — full regression deferred
 
 Production modules migrated to TypeScript; test fixtures now import build/backend modules and the composition factory. This round ran only TypeScript checking, compilation and a focused UI smoke check for the migrated renderer/preload, LaTeX rendering, typography and flat status dot. The previous 89-test result belongs to 0.7.0 and must not be represented as a post-migration result. Full regression, packaged resource checks and a new release installer remain pending by user instruction.
+
+
+## 0.9.0 A/B migration — focused checks only
+
+- TypeScript check and build passed; generated-contract drift check passed.
+- 8 independent Python tests passed, covering exact arithmetic, protocol validation,
+  LP/QP/least-squares/SOC, infeasible/unbounded, nonconvex/dimension rejection.
+- 27 targeted desktop math/registry/convex-agent tests passed.
+- 19 stream tests and 5 code-workspace/editor compatibility tests passed.
+- 1 differential test compared 19 exact expressions/equations with the retained TS reference.
+- Independently built wheel imported and computed exact arithmetic without Electron.
+- Packaged UI used real bundled Python with mocked model responses: exact equation,
+  convex optimization, table artifact rendering, collapsed Detail, no renderer errors.
+- Packaged code workspace imported math_engine and cvxpy successfully.
+- No live paid model call and no full regression suite were run for this migration.

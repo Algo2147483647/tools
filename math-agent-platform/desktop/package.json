@@ -1,6 +1,6 @@
 {
   "name": "math-agent-desktop",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "AI mathematics workspace with symbolic, numerical, plotting and data tools",
   "author": "Math Agent Platform",
@@ -22,7 +22,8 @@
     "markdown-it": "^15.0.3",
     "markdown-it-texmath": "^1.0.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "ajv": "8.17.1"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -79,8 +80,6 @@
         "from": "engine",
         "to": "math-engine",
         "filter": [
-          "math_worker.py",
-          "runtime-lock.json",
           "code_worker.py"
         ]
       },
@@ -89,6 +88,19 @@
         "to": "lean-runtime",
         "filter": [
           "**/*"
+        ]
+      },
+      {
+        "from": "../engines/mathematics",
+        "to": "mathematics",
+        "filter": [
+          "worker.py",
+          "src/**/*",
+          "pyproject.toml",
+          "runtime-lock.json",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/*.egg-info/**"
         ]
       }
     ]

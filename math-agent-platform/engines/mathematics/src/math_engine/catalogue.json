@@ -1,0 +1,561 @@
+[
+  {
+    "name": "exact_math",
+    "version": "2.0.0",
+    "operation": "evaluate",
+    "timeoutMs": 30000,
+    "description": "Exact rational arithmetic and one-variable linear equations. Supports implicit multiplication. No powers or variable denominators. Independently checks substitution and affine conditions.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "expression"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "symbolic_math",
+    "version": "1.0.0",
+    "operations": [
+      "simplify",
+      "expand",
+      "factor",
+      "solve",
+      "differentiate",
+      "integrate",
+      "limit"
+    ],
+    "timeoutMs": 30000,
+    "description": "Symbolic algebra/calculus using SymPy. Explicit multiplication; powers use ^ or **. Operations: simplify, expand, factor, solve ONE variable equation, differentiate, integrate (optional finite interval), limit. Declare real/complex domain. Does not execute code.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "simplify",
+            "expand",
+            "factor",
+            "solve",
+            "differentiate",
+            "integrate",
+            "limit"
+          ]
+        },
+        "expression": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "variable": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "real",
+            "complex"
+          ]
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "point": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "+",
+            "-",
+            "+-"
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "expression"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "numeric_math",
+    "version": "1.0.0",
+    "operations": [
+      "root",
+      "integrate",
+      "minimize",
+      "linear_solve",
+      "eigenvalues"
+    ],
+    "timeoutMs": 30000,
+    "description": "Floating-point numerical calculation. root requires a continuous function with a sign-changing interval; integrate uses finite bounds; minimize is bounded LOCAL minimization, not a global proof. linear_solve needs square matrix and vector; eigenvalues needs square matrix. Explicit multiplication.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "root",
+            "integrate",
+            "minimize",
+            "linear_solve",
+            "eigenvalues"
+          ]
+        },
+        "expression": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "variable": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 1e-12,
+          "maximum": 0.01
+        },
+        "matrix": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 50,
+            "minItems": 1
+          },
+          "maxItems": 50,
+          "minItems": 1
+        },
+        "vector": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 50,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "plot_math",
+    "version": "1.0.0",
+    "operations": [
+      "function",
+      "scatter",
+      "line",
+      "histogram",
+      "regression"
+    ],
+    "timeoutMs": 30000,
+    "description": "Render a PNG chart directly in the answer. function: expression or expressions and interval. scatter/line/regression: attached datasetId, xColumn, yColumn. histogram: datasetId and xColumn. Missing/non-numeric rows require explicit missingPolicy=drop to exclude.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "function",
+            "scatter",
+            "line",
+            "histogram",
+            "regression"
+          ]
+        },
+        "expression": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "variable": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2
+        },
+        "datasetId": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "maxItems": 40,
+          "minItems": 1
+        },
+        "missingPolicy": {
+          "type": "string",
+          "enum": [
+            "reject",
+            "drop"
+          ]
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "maxItems": 5,
+          "minItems": 1
+        },
+        "xColumn": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "yColumn": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "samples": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 2000
+        },
+        "bins": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "analyze_data",
+    "version": "1.0.0",
+    "operations": [
+      "overview",
+      "describe",
+      "correlation",
+      "regression",
+      "group_by",
+      "filter"
+    ],
+    "timeoutMs": 30000,
+    "description": "Analyze an ATTACHED CSV/TSV dataset. overview reports schema/missing values. describe/correlation take numeric columns; regression takes [predictor,response]; group_by takes groupColumn, numeric columns and aggregate. filter uses typed filters. Use missingPolicy=drop only when exclusion is appropriate and disclose it. Tables appear directly in answer.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "datasetId": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "maxItems": 40,
+          "minItems": 1
+        },
+        "missingPolicy": {
+          "type": "string",
+          "enum": [
+            "reject",
+            "drop"
+          ]
+        },
+        "groupColumn": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "aggregate": {
+          "type": "string",
+          "enum": [
+            "mean",
+            "sum",
+            "min",
+            "max",
+            "count"
+          ]
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "column": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "eq",
+                  "ne",
+                  "gt",
+                  "ge",
+                  "lt",
+                  "le"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 1000
+              }
+            },
+            "required": [
+              "column",
+              "operator",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 10,
+          "minItems": 1
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "overview",
+            "describe",
+            "correlation",
+            "regression",
+            "group_by",
+            "filter"
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "datasetId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "convex_optimize",
+    "version": "1.0.0",
+    "operations": [
+      "linear_program",
+      "quadratic_program",
+      "least_squares",
+      "second_order_cone"
+    ],
+    "timeoutMs": 30000,
+    "description": "Convex optimization with CVXPY/CLARABEL. LP: minimize linear^T x. QP: minimize 0.5*x^T quadratic*x + linear^T*x; quadratic must be symmetric PSD. Least squares: minimize ||design*x-target||^2, optional linear term. Constraints: inequalityMatrix*x<=inequalityBounds, equalityMatrix*x=equalityBounds, finite lower/upper. SOC: each cone imposes ||matrix*x+offset||_2 <= axis^T*x+bound. Returns solver status, primal/dual values and feasibility residuals; numerical optimization is not a formal proof.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "linear_program",
+            "quadratic_program",
+            "least_squares",
+            "second_order_cone"
+          ]
+        },
+        "linear": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "quadratic": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "design": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "target": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "inequalityMatrix": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "inequalityBounds": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "equalityMatrix": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "equalityBounds": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "lower": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "upper": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "cones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "matrix": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 1,
+                  "maxItems": 100
+                },
+                "minItems": 1,
+                "maxItems": 100
+              },
+              "offset": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1,
+                "maxItems": 100
+              },
+              "axis": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1,
+                "maxItems": 100
+              },
+              "bound": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "matrix",
+              "offset",
+              "axis",
+              "bound"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 1e-10,
+          "maximum": 0.001
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

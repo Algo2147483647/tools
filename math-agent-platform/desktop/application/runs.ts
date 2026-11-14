@@ -16,8 +16,8 @@ interface Control {
     done?: Promise<unknown>;
 }
 const { randomUUID } = require('node:crypto') as typeof import('node:crypto');
-const { hash } = require('../core/engine.js') as typeof import('../core/engine.js');
-const { compute } = require('../core/worker-client.js') as typeof import('../core/worker-client.js');
+const { hash } = require('../shared/hash.js') as typeof import('../shared/hash.js');
+const { compute } = require('../tools/exact-client.js') as typeof import('../tools/exact-client.js');
 const { applyContent } = require('../shared/run-state.js') as typeof import('../shared/run-state.js');
 const providers = require('../ai/providers.js') as typeof import('../ai/providers.js');
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'timed_out']);
@@ -46,7 +46,7 @@ class RunService {
     settings: ReturnType<typeof providers.validateSettings> | null = null;
     active: Control | null = null;
     settingsError = '';
-    constructor({ session, request = fetch, notify = () => { }, notifyDelta = () => { }, computeFn = compute, aiTimeoutMs = 120000 }: RunServiceOptions) { this.session = session; this.request = request; this.notify = notify; this.notifyDelta = notifyDelta; this.artifacts = session.artifacts; this.datasets = session.datasets; this.document = session.document; this.extraDefinitions = session.definitions; this.compute = computeFn; this.aiTimeoutMs = aiTimeoutMs; }
+    constructor({ session, request = fetch, notify = () => { }, notifyDelta = () => { }, computeFn = compute, aiTimeoutMs = 0 }: RunServiceOptions) { this.session = session; this.request = request; this.notify = notify; this.notifyDelta = notifyDelta; this.artifacts = session.artifacts; this.datasets = session.datasets; this.document = session.document; this.extraDefinitions = session.definitions; this.compute = computeFn; this.aiTimeoutMs = aiTimeoutMs; }
     configure(raw: any) {
         if (this.active)
             throw Error('Stop the active operation before applying settings.');
@@ -150,7 +150,7 @@ class RunService {
             const abort = () => timeout.abort();
             signal.addEventListener('abort', abort, { once: true });
             let timedOut = false;
-            const timer = setTimeout(() => { timedOut = true; timeout.abort(); }, this.aiTimeoutMs);
+            const timer = this.aiTimeoutMs > 0 ? setTimeout(() => { timedOut = true; timeout.abort(); }, this.aiTimeoutMs) : undefined;
             try {
                 run.result = await runAgent({ settings: control.settings, input: run.input,
                     signal: timeout.signal, request: this.request, compute: this.compute, runId: run.id, artifacts: this.artifacts, datasets: this.datasets, datasetIds: run.datasetIds, extraDefinitions: this.extraDefinitions,
@@ -202,7 +202,7 @@ class RunService {
         const settings = providers.validateSettings(this.resolveSettings(raw), kind !== 'models');
         const control: Control = { id: 'settings', controller: new AbortController(), settings };
         this.active = control;
-        const timer = setTimeout(() => control.controller.abort(), this.aiTimeoutMs);
+        const timer = setTimeout(() => control.controller.abort(), this.aiTimeoutMs || 120000);
         control.done = (async () => {
             try {
                 return kind === 'models' ? await providers.models(settings, control.controller.signal, this.request) : await providers.solve(settings, 'Reply only with OK.', control.controller.signal, this.request);

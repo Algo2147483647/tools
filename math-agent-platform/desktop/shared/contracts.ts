@@ -2,7 +2,6 @@ export interface Settings {
     provider: string;
     baseUrl: string;
     model: string;
-    maxTokens: number;
     hasKey?: boolean;
     apiKey?: string;
     keepApiKey?: boolean;
@@ -56,6 +55,8 @@ export interface Block {
     startedAt: string;
     finishedAt?: string;
     compatibility?: string;
+    reasoning?: string;
+    transport?: { stage: string; updatedAt: string };
     usage?: Record<string, number>;
     limits?: {
         timeoutMs: number;

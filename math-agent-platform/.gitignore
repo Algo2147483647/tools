@@ -44,3 +44,9 @@ Desktop.ini
 
 # Commit package-lock.json, engine/*-lock.json, source fonts/assets,
 # source code, tests, documentation and runtime preparation scripts.
+/desktop/dist-current/
+
+# Independent Python package build output
+/engines/mathematics/build/
+/engines/mathematics/dist/
+*.egg-info/

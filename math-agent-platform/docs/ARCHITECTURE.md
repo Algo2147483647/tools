@@ -1,58 +1,52 @@
-# Architecture — 0.8.0 source migration
+# Architecture — 0.9.0 mathematics extraction
 
-Status: implementation and focused checks complete; full regression and release packaging are deferred by user instruction.
+A modular desktop application with independent compute processes. React/TypeScript
+owns presentation; Electron owns desktop integration; application services own runs,
+documents and credentials; AI adapters own provider transports and tool decisions.
 
-## Choice
+## Independent mathematics package (A)
 
-A modular monolith is the appropriate architecture for this desktop product. React handles presentation, the Electron main process owns application lifetimes and trusted operations, a typed application service manages run state, the AI agent invokes registered tools, and math/code/Lean runtimes remain separate processes. Splitting this single-user local workflow into network microservices would add deployment and failure modes without a demonstrated need.
+All active mathematical implementations now live in `engines/mathematics/src/math_engine`:
+exact, symbolic, numerical, statistics, plotting and convex optimization.
+The Python API and wheel work without Electron or an AI provider.
+The former TypeScript exact solver is retained only as a differential-test reference.
+`desktop/tools/exact-client.ts` is a compatibility transport adapter, not a solver.
+`desktop/shared/hash.ts` holds application hashing independently of mathematics.
 
-## Active layers
+## Contracts and catalogue (B)
 
-| Layer | Sources | Responsibility |
-|---|---|---|
-| Presentation | renderer/*.tsx, editor.ts, markdown.ts, live-math.ts | React components, Markdown/LaTeX display and editor integration |
-| Shared contracts | shared/contracts.ts, ipc.ts, tools.ts, run-state.ts | Run/event/tool types, command names and revision reducer |
-| Application | application/runs.ts, ports.ts | Run lifecycle, budgets, cancellation and session-facing ports |
-| AI orchestration | ai/agent.ts, providers.ts, stream.ts | Native model transport, streaming normalization and bounded tool loop |
-| Tool implementations | tools/*.ts | Validation, artifacts, datasets, document edits, mathematical/code/Lean adapters |
-| Mathematical domain | core/parser.ts, rational.ts, engine.ts | Restricted AST, exact arithmetic and independent affine check |
-| Platform adapters | platform/composition.ts, commands.ts, runtime.ts, settings-store.ts | Dependency assembly, Electron IPC, runtime location, encrypted settings persistence |
-| Entry points | main.ts, preload.ts | Window lifecycle and the restricted renderer bridge |
-| External engines | engine/*.py, bundled Lean | Python numerical/symbolic/code operations and Lean compilation |
+Python owns `catalogue.json` and the request/response schemas in `protocol.py`.
+`Generate-MathContracts.py` emits `schemas/mathematics.schema.json` and
+`desktop/tools/math-contracts.generated.ts` (catalogue, argument types, envelope types,
+and JSON schemas). The build regenerates these outputs; `--check` detects stale files.
+TS adapters consume the generated catalogue, enforce dataset attachment ownership,
+validate the wire envelopes using Ajv, and start one isolated worker per invocation.
+Python validates envelope and arguments using jsonschema before dispatching.
+Non-mathematical workspace, document and Lean tools still have their own typed adapters;
+they share the existing run/tool-result/artifact protocol rather than becoming Python math.
 
-Application services no longer import renderer state code or construct concrete tool resources. The composition root builds repositories and executors and injects a ToolSession. Shared run types and the event reducer are consumed by both processes. Tool descriptors use shared request/context/result contracts; dynamic provider JSON remains behind transport and runtime-validation boundaries.
+## Convex optimization
 
-## Source and build migration
+CVXPY and CLARABEL implement LP, convex QP, constrained least squares and second-order
+cones. The tool rejects invalid dimensions and non-PSD quadratic objectives, checks DCP,
+and reports statuses, primal/dual values, residuals and table artifacts. Numerical
+optimality is not claimed as a formal proof. Dependency wheels are hash-pinned in the
+mathematics package runtime lock; the build bundles them with the app.
 
-All active application/renderer production JavaScript source modules have been migrated to TypeScript, including the Electron entry, preload, stream adapters, registry, exact worker, editor plugins and reducer. Old .cjs/.js production sources are outside the active project. Node still runs generated JavaScript, as expected for TypeScript.
+## Runtime and release
 
-scripts/build.cjs emits the backend to build/backend and bundles the sandboxed preload. package.json now starts build/backend/main.js. Renderer bundles are generated from TypeScript/TSX. Generated backend output is cleaned within its verified project directory before rebuilding, preventing obsolete modules from being shipped. Packaged/development runtime paths are resolved by platform/runtime.ts. Build output is excluded from source control.
+`resources/mathematics` contains the independent package and source launcher.
+`resources/math-runtime` contains pinned Python and its dependencies.
+`resources/math-engine` now contains only the AI code workspace launcher; it imports the
+math package's resource limiter explicitly. Lean retains its separate toolchain.
+Executable location remains `desktop/dist-math/win-unpacked/Math Agent.exe`.
+Generated JS, Python build output, runtime downloads and EXE output are ignored by Git.
 
-Strict TypeScript checking is enabled across renderer and backend; existing catch handling remains permissive. Native provider/worker JSON still has explicit dynamic types in adapter code. This is not a claim that every possible wire shape has been represented by a closed discriminated union.
+## Remaining work
 
-## What remains
+No process pool, durable task/event database, automatic recovery, stronger OS execution
+sandbox, mathlib integration or full Lean axiom audit was introduced in this A/B migration.
+Those remain later phases. Full regression remains deferred at the user's request.
 
-| Item | Status / next step |
-|---|---|
-| Production frontend/backend language migration | Completed for the active TypeScript application sources |
-| Python and Lean | Intentionally retain native languages; not pending TS migrations |
-| Test source files | Existing .test.cjs fixtures retained; imports updated to compiled modules. Not migrated to TS or executed this round |
-| Build/prepare scripts | Small Node CJS and PowerShell scripts retained intentionally |
-| External protocol typing | Further narrow dynamic provider/worker JSON and generate IPC payload validation/types from one schema |
-| Executor isolation | Current local-process execution; container/remote backends and enforced filesystem/network boundaries remain unfinished |
-| Durable tasks and documents | SQLite event persistence, crash recovery, resumable jobs and persistent document revision/undo history remain unfinished |
-| Lean verification | Compilation/diagnostic/repair loop implemented; mathlib, target locking, transitive axiom auditing and independent checking remain unfinished |
-| Release validation | Full regression and new installer are deferred until the requested unified test phase |
-
-The last four items are platform capabilities, not reasons to rewrite Python or add microservices. Prioritize recoverable state and isolation before adding more autonomous planning or multiple agents.
-
-## Typography
-
-Paper content uses the bundled KaTeX_Main Computer Modern-style face, Times New Roman and system CJK serif fallbacks. Mathematical formulas retain KaTeX LaTeX rendering. Code and diagnostics remain monospaced. Navigation and settings retain system UI typography. Solve has a small flat macOS-style status dot without border, outline or shadow.
-
-## Validation performed this round
-
-- npm run check: passed across production TypeScript.
-- npm run build: passed for backend, preload, workers and renderer.
-- Focused Electron UI check: application boot, a simulated displayed answer, formula rendering, paper font, status-dot computed border 0px and shadow none; no renderer console errors.
-- No full unit/integration suite and no new installer release were run for 0.8.0.
+Interface language remains English. Chinese mathematical content uses SimSun.
+Answers and returned model reasoning remain separate; reasoning and tools appear in Detail.

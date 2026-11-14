@@ -1,3 +1,4 @@
+import {engineFile} from '../platform/runtime.js';
 const fs = require('node:fs/promises') as typeof import('node:fs/promises'), sync = require('node:fs') as typeof import('node:fs'), os = require('node:os') as typeof import('node:os'), path = require('node:path') as typeof import('node:path'), { spawn } = require('node:child_process') as typeof import('node:child_process');
 const { locations } = require('./math-client.js') as typeof import('./math-client.js');
 class CodeWorkspace {
@@ -22,7 +23,7 @@ class CodeWorkspace {
     }) {
         const root = await this.root(), filename = 'run-' + (++this.sequence) + '.py';
         await fs.writeFile(path.join(root, filename), code);
-        const runtime = locations(), script = path.join(path.dirname(runtime.script), 'code_worker.py');
+        const runtime = locations(), script = engineFile('code_worker.py');
         progress('solving', 'Running Python in local workspace: ' + filename);
         const output = await new Promise<{
             stdout: string;
@@ -55,7 +56,7 @@ class CodeWorkspace {
     async clear() { const directory = this.directory; this.directory = null; if (directory && path.dirname(directory) === os.tmpdir() && path.basename(directory).startsWith('math-ai-workspace-'))
         await fs.rm(directory, { recursive: true, force: true }); }
 }
-function workspaceDefinition(workspace: any) { return { name: 'code_workspace', version: '1.0.0', operations: ['run', 'list', 'read', 'write'], timeoutMs: 30000, description: 'Run your own Python code in a local workspace, or list/read/write its files. Python has sympy,numpy,scipy,pandas,matplotlib; use matplotlib Agg and save PNG charts. Files persist across calls in this session. Run code for general transformations (JSON formatting/compression), algorithms and experiments. No package installation. This is a local process, not a filesystem security sandbox. Keep all generated files in the workspace and do not access unrelated host files or network. Return code errors honestly. Use editor_document replace with a generated UTF-8 file for writeback.', parameters: { type: 'object', properties: { operation: { type: 'string', enum: ['run', 'list', 'read', 'write'] }, code: { type: 'string', maxLength: 131072 }, file: { type: 'string', maxLength: 200 }, text: { type: 'string', maxLength: 262144, minLength: 0 } }, required: ['operation'], additionalProperties: false }, async execute(args: any, context: any) { if (args.operation === 'run') {
+function workspaceDefinition(workspace: any) { return { name: 'code_workspace', version: '1.0.0', operations: ['run', 'list', 'read', 'write'], timeoutMs: 30000, description: 'Run your own Python code in a local workspace, or list/read/write its files. Python has sympy,numpy,scipy,pandas,matplotlib,cvxpy and math_engine; use matplotlib Agg and save PNG charts. Files persist across calls in this session. Run code for general transformations (JSON formatting/compression), algorithms and experiments. No package installation. This is a local process, not a filesystem security sandbox. Keep all generated files in the workspace and do not access unrelated host files or network. Return code errors honestly. Use editor_document replace with a generated UTF-8 file for writeback.', parameters: { type: 'object', properties: { operation: { type: 'string', enum: ['run', 'list', 'read', 'write'] }, code: { type: 'string', maxLength: 131072 }, file: { type: 'string', maxLength: 200 }, text: { type: 'string', maxLength: 262144, minLength: 0 } }, required: ['operation'], additionalProperties: false }, async execute(args: any, context: any) { if (args.operation === 'run') {
         if (!args.code)
             throw Error('run requires code.');
         return workspace.execute(args.code, context);

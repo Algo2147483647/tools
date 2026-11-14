@@ -1,7 +1,7 @@
 import type { ArtifactRepository, DatasetRepository } from '../application/ports.js';
 import type { ToolDefinition, ToolRequest, RegistryContext, JsonObject } from '../shared/tools.js';
 import type { ToolOutput } from '../shared/contracts.js';
-const { compute } = require('../core/worker-client.js') as typeof import('../core/worker-client.js');
+const { compute } = require('../tools/exact-client.js') as typeof import('../tools/exact-client.js');
 const { mathDefinitions } = require('./math-tools.js') as typeof import('./math-tools.js');
 const { DatasetStore } = require('./datasets.js') as typeof import('./datasets.js');
 const { ArtifactStore } = require('./artifacts.js') as typeof import('./artifacts.js');
@@ -45,10 +45,8 @@ function validate(value: any, schema: any, path = 'arguments') {
         throw error('INVALID_ARGUMENT', 'Unsupported value: ' + path);
 }
 function exactDefinition(computeFn: typeof compute): ToolDefinition {
-    return {
-        name: 'exact_math', version: '1.0.0', operation: 'evaluate', timeoutMs: 5000,
-        description: 'Exact rational arithmetic or a single-variable linear equation. ASCII + - * / parentheses and implicit multiplication. No powers, functions, variable denominators or systems. Returns exact result, assumptions and verification.',
-        parameters: { type: 'object', properties: { expression: { type: 'string', maxLength: 4096 } }, required: ['expression'], additionalProperties: false },
+    const descriptor = mathDefinitions(null).find(d => d.name === 'exact_math')!;
+    return { ...descriptor,
         async execute(args: any, { signal, progress }: {
             signal: any;
             progress: any;
@@ -56,7 +54,7 @@ function exactDefinition(computeFn: typeof compute): ToolDefinition {
             const output = await computeFn(args.expression, signal, progress);
             if (output.verification?.status !== 'passed')
                 throw error('VERIFICATION_FAILED', 'Mathematical verification failed.');
-            return { result: output, assumptions: output.model?.assumptions || [], verification: output.verification, diagnostics: { engine: output.candidate?.engine || 'exact-linear/1' } };
+            return { result: output, assumptions: output.model?.assumptions || [], verification: output.verification, diagnostics: { engine: output.candidate?.engine || 'python-exact-affine/2' } };
         }
     };
 }
@@ -78,7 +76,7 @@ class ToolRegistry {
         this.definitions = new Map();
         this.artifacts = artifacts;
         this.calls = new Map();
-        for (const definition of definitions || [exactDefinition(computeFn), ...mathDefinitions(datasets, allowedDatasetIds), ...extraDefinitions]) {
+        for (const definition of definitions || [exactDefinition(computeFn), ...mathDefinitions(datasets, allowedDatasetIds).filter(d => d.name !== 'exact_math'), ...extraDefinitions]) {
             if (this.definitions.has(definition.name))
                 throw error('INVALID_SCHEMA', 'Duplicate tool name.');
             this.definitions.set(definition.name, definition);

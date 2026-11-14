@@ -2,7 +2,7 @@ param()
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $root = Split-Path $PSScriptRoot -Parent
-$lock = Get-Content -LiteralPath (Join-Path $root 'desktop\engine\runtime-lock.json') -Raw | ConvertFrom-Json
+$lock = Get-Content -LiteralPath (Join-Path $root 'engines\mathematics\runtime-lock.json') -Raw | ConvertFrom-Json
 $target = Join-Path $root '.runtime\python-engine'
 $cache = Join-Path $root '.runtime\math-downloads'
 New-Item -ItemType Directory -Force -Path $target,$cache | Out-Null
@@ -34,5 +34,5 @@ foreach ($package in $lock.packages) {
     Expand-Verified $archive $site
 }
 Set-Content -LiteralPath (Join-Path $target 'python312._pth') -Encoding Ascii -Value "python312.zip`n.`nLib/site-packages`nimport site"
-& (Join-Path $target 'python.exe') -I -B -c "import sympy,numpy,scipy,pandas,matplotlib; print('Mathematics runtime ready')"
+& (Join-Path $target 'python.exe') -I -B -c "import sympy,numpy,scipy,pandas,matplotlib,cvxpy,jsonschema; print('Mathematics runtime ready')"
 if ($LASTEXITCODE -ne 0) { throw 'Runtime verification failed' }

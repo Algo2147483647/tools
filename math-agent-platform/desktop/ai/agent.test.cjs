@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { runAgent } = require('../build/backend/ai/agent.js');
-const { compute } = require('../build/backend/core/worker-client.js');
+const { compute } = require('../build/backend/tools/exact-client.js');
 const {createRunService:RunService} = require('../build/backend/platform/composition.js');
 const settings = provider => ({ provider, baseUrl: 'https://example.com', model: 'test', apiKey: '', maxTokens: 1024 });
 const response = value => new Response(JSON.stringify(value));

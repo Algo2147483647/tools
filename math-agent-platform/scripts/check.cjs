@@ -18,8 +18,8 @@ function walk(dir) {
 walk(root); console.log('Syntax checked ' + count + ' source files.');
 const runtime = path.resolve(root, '../.runtime/python-engine/python.exe');
 if (!fs.existsSync(runtime)) throw Error('Prepare the mathematics runtime using scripts/Prepare-MathRuntime.ps1.');
-const engine = path.join(root,'engine/math_worker.py');
-const checked = spawnSync(runtime,['-I','-B','-c',"import ast,sys,sympy,numpy,scipy,pandas,matplotlib; ast.parse(open(sys.argv[1], encoding='utf-8').read()); print('Mathematics runtime and worker verified.')",engine],{encoding:'utf8'});
+const engine = path.resolve(root,'../engines/mathematics/worker.py');
+const checked = spawnSync(runtime,['-I','-B','-c',"import ast,sys,sympy,numpy,scipy,pandas,matplotlib,cvxpy,jsonschema; ast.parse(open(sys.argv[1], encoding='utf-8').read()); print('Mathematics runtime and worker verified.')",engine],{encoding:'utf8'});
 if (checked.status !== 0) { process.stderr.write(checked.stderr); process.exit(1); }
 process.stdout.write(checked.stdout);
 const lean = path.resolve(root,'../.runtime/lean-runtime/bin/lean.exe');

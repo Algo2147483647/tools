@@ -20,3 +20,10 @@ export function engineFile(name: string): string {
     const adjacent = path.resolve(appRoot, '../math-engine', name);
     return fs.existsSync(adjacent) ? adjacent : path.join(appRoot, 'engine', name);
 }
+
+export function mathematicsFile(name: string): string {
+    const packaged = process.resourcesPath && path.join(process.resourcesPath, 'mathematics', name);
+    if (packaged && fs.existsSync(packaged)) return packaged;
+    const adjacent = path.resolve(appRoot, '../mathematics', name);
+    return fs.existsSync(adjacent) ? adjacent : path.resolve(appRoot, '../engines/mathematics', name);
+}

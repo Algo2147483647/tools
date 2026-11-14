@@ -1,7 +1,14 @@
 """Execute AI-authored Python in a local workspace (not an OS filesystem sandbox)."""
 import sys, os, json, io, contextlib, traceback, runpy
-# Reuse host-installed job limits before executing generated code.
-engine=runpy.run_path(os.path.join(os.path.dirname(__file__),'math_worker.py'),run_name='math_limits')
+for key in ('OPENBLAS_NUM_THREADS','OMP_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS'): os.environ[key]='1'
+# Apply worker limits before executing generated code.
+from pathlib import Path
+base=Path(__file__).resolve().parent
+source=base.parent/'mathematics'/'src'
+if not source.exists(): source=base.parent.parent/'engines'/'mathematics'/'src'
+sys.path.insert(0,str(source))
+from math_engine.resources import resource_limits
+resource_limits()
 class BoundedOutput(io.StringIO):
     def write(self,value):
         if self.tell()+len(value)>131072: raise RuntimeError('Output exceeds 128 KB')
